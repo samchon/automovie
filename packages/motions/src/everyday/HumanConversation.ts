@@ -36,7 +36,7 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One small function per quantity.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, or linear in the requests a call builds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed 25-degree yaw and 10-degree depression share their identical scalar trigonometry across look-away requests; seeded side, current eye height, every random draw and output target remain actual, with original multiply/subtract grouping.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The look-away angles' sines, cosine and tangent are computed once for the module; the side, the eye height and every random draw are read per request.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanConversation {
@@ -58,6 +58,7 @@ export namespace HumanConversation {
    * @param random The participant's stream.
    * @param eyes The participant's eye height, metres, so a look away drops below it.
    * @returns Gaze layer requests in time order.
+   * @throws {HumanRefusal} For a turn that does not start at a finite film second, at least 0, or does not end at a finite second after its start.
    */
   export function gaze(
     subject: string,
@@ -73,13 +74,17 @@ export namespace HumanConversation {
     };
     const out: IAutoMovieMotionHumanGaze.ILayer[] = [];
     let draw: number = 0;
-    const exponential = (mean: number): number =>
+    const exponential: (mean: number) => number = (mean: number): number =>
       -mean * Math.log(Math.max(1e-12, 1 - random.float(draw++)));
     for (const turn of turns) {
+      // A turn starts at a finite film second, so its glances, each a draw
+      // of a finite duration added to the clock, reach its finite end: a
+      // start of minus infinity stays there however much is added.
+      HumanBound.least("turns.from", turn.from, 0, "s");
       HumanBound.above("turns.to", turn.to, turn.from, "s");
       const role: "speaking" | "listening" =
         turn.speaker === subject ? "speaking" : "listening";
-      const mean = GLANCES[role];
+      const mean: { on: number; away: number } = GLANCES[role];
       let t: number = turn.from;
       let on: boolean = true;
       while (t < turn.to) {
@@ -122,20 +127,33 @@ export namespace HumanConversation {
   }
 }
 
-/** A look-away point 2 m out, 25 degrees to a side of the looker's heading and 10 degrees below the eyes, in the looker's own frame. */
+/** A look-away point `AWAY_RANGE` out, `AWAY_ASIDE` degrees to a side of the looker's heading and `AWAY_DOWN` degrees below the eyes, in the looker's own frame. */
 function away(eyes: number, side: number): IAutoMovieMotionTarget {
   return {
     kind: "point",
     at: {
-      x: side * 2 * AWAY_SINE,
-      y: eyes - 2 * AWAY_TANGENT,
-      z: 2 * AWAY_COSINE,
+      x: side * AWAY_RANGE * AWAY_SINE,
+      y: eyes - AWAY_RANGE * AWAY_TANGENT,
+      z: AWAY_RANGE * AWAY_COSINE,
     },
     frame: "performer",
   };
 }
 
-/** Fixed look-away law angles; current eye height and seeded side remain actual. */
-const AWAY_SINE: number = Math.sin((25 * Math.PI) / 180);
-const AWAY_COSINE: number = Math.cos((25 * Math.PI) / 180);
-const AWAY_TANGENT: number = Math.tan((10 * Math.PI) / 180);
+/** How far ahead a look-away point lies, metres (provisional: past a conversation's gap, so the eyes converge beyond the partner; read from no measured source). */
+const AWAY_RANGE: number = 2;
+
+/** How far to the side of the heading a look away turns, degrees (provisional, read from no measured source). */
+const AWAY_ASIDE: number = 25;
+
+/** How far below the eyes a look away drops, degrees (provisional, read from no measured source). */
+const AWAY_DOWN: number = 10;
+
+/** The sine of `AWAY_ASIDE`. */
+const AWAY_SINE: number = Math.sin((AWAY_ASIDE * Math.PI) / 180);
+
+/** The cosine of `AWAY_ASIDE`. */
+const AWAY_COSINE: number = Math.cos((AWAY_ASIDE * Math.PI) / 180);
+
+/** The tangent of `AWAY_DOWN`. */
+const AWAY_TANGENT: number = Math.tan((AWAY_DOWN * Math.PI) / 180);

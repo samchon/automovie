@@ -42,7 +42,7 @@ import type {
  * @evidence contracts/development/implementation.md#principled-implementation Archimedes' principle summed over the segments for the float, solved by bisection on a monotone function; Newton's second law under the summed quadratic drag for the glide, integrated by the engine's fixed-step integrator.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The segments' volumes once per body, one sum of forces, one bisection and one integration.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body denser than the water is reported as sinking, never floated by a clamp.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation; the bisection halves its bracket to a micrometre.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation; the bisection halves its bracket to a micrometre, or to adjacent heights where the surface lies so high that they are spaced wider, so it ends at any finite surface.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned trajectory.
  */
@@ -120,8 +120,16 @@ export namespace HumanWater {
     let low: number = water.surface - Math.max(...heights) - reach;
     let high: number = water.surface - Math.min(...heights) + reach;
     if (lift(low) < weight) return null;
+
+    // A micrometre or the heights' own resolution, whichever is coarser: a
+    // surface past 2^33 m spaces adjacent heights wider than a micrometre,
+    // and there the midpoint rounds onto an end, so the bisection also ends
+    // there: after log2 of the bracket over the coarser of the two, at most
+    // 2098 halvings of any finite bracket (binary64 spans 2^1024 down to
+    // spacings of 2^-1074).
     while (high - low > 1e-6) {
       const middle: number = (low + high) / 2;
+      if (middle === low || middle === high) break;
       if (lift(middle) >= weight) low = middle;
       else high = middle;
     }

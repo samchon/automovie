@@ -39,23 +39,35 @@ export namespace HumanFreedomChoice {
    * of `-step` where the right tries `step`, and of two turns that hold
    * alike the two hands kept turns that are not each other's mirror.
    *
-   * @param step The spacing of the turns, degrees, positive.
+   * @param step The spacing of the turns, degrees, positive and finite.
    * @param side The hand.
    * @returns The turns, degrees, in `(-180, 180]`.
+   * @throws {RangeError} For a step that is not positive, or so fine that the multiples up to the half turn are not a safe integer count.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, why it depends on the hand, the unit and the range.
-   * @evidence contracts/development/implementation.md#principled-implementation The mirror image of a rotation is the opposite rotation about the mirrored axis, so a mirrored list is the negated one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The half turn is its own mirror and is listed once.
+   * @evidence contracts/development/common.md#meaningful-documentation States the order, why it depends on the hand, the unit, the range and the refused step.
+   * @evidence contracts/development/implementation.md#principled-implementation The mirror image of a rotation is the opposite rotation about the mirrored axis, so a mirrored list is the negated one. The k-th turn is k times the step for k up to floor(180 / step), a count fixed before the loop: a sum of steps stops growing once a step falls under half an ulp of it, and a zero, negative or not-a-number step never reaches the half turn, so each is refused at once instead of listing without end.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission and one counted loop.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The half turn is its own mirror and is listed once; no step is clamped into a usable one.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per turn.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One owner of the order for the grasp, wear and dress choosers.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list and retains nothing.
    */
   export function turns(step: number, side: "left" | "right"): number[] {
+    const count: number = Math.floor(180 / step);
+    if (!(step > 0 && Number.isSafeInteger(count)))
+      throw new RangeError(
+        `A hand's turns need a positive spacing with a safe integer count of turns to the half turn, not ${step} degrees`,
+      );
     const sense: number = side === "left" ? -1 : 1;
     const out: number[] = [0];
-    for (let k: number = step; k <= 180; k += step)
+    for (let i: number = 1; i <= count; i++) {
+      const k: number = i * step;
+
+      // A quotient rounded up to a whole count can put its last multiple
+      // past the half turn, which the list never holds.
+      if (k > 180) break;
       out.push(...(k < 180 ? [sense * k, -sense * k] : [k]));
+    }
     return out;
   }
 
