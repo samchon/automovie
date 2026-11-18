@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
+import { Quaternion, Vector3, getConstraint, hingedArmSwivel } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEffector";
@@ -25,13 +26,14 @@ import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpr
 /**
  * An effector laid on a region at rest, before any stroke moves it: the arm
  * goal that lays it, what its two directions lie on by the touch's lay, the
- * elbow's hint for that goal and the arm solved there as the reference every
- * second of a stroke is held to. The touch stroke (`AutoMovieMotionHumanTouch`) and
+ * elbow's hint for that goal, the arm solved there as the reference every
+ * second of a stroke is held to, and the elbow settled with a hand that
+ * meets its place end on. The touch stroke (`AutoMovieMotionHumanTouch`) and
  * every law that plans one read these once, on the entry posture.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is solved here, when, and who reads it.
  * @evidence contracts/development/design.md#principled-representation A laid effector is a goal, a hint and a reference of one arm, each a function of the body, the posture, the effector and the region.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The goal, its directions, the hint and the reference (a vessel's facing and lean are `AutoMovieMotionHumanTouchUpright`'s); split from the stroke so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The goal, its directions, the hint, the reference and the settled elbow (a vessel's facing and lean are `AutoMovieMotionHumanTouchUpright`'s); split from the stroke so each file holds one responsibility.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the effector's goal, the bend solver, the posture resolver and the path's directions; no region, effector or body is named.
  */
 export namespace AutoMovieMotionHumanTouchLaid {
@@ -315,6 +317,98 @@ export namespace AutoMovieMotionHumanTouchLaid {
       ),
       hint,
     );
+  }
+
+  /**
+   * The elbow's place of an effector that meets its place end on (`reach`),
+   * settled with the hand it carries: the hand runs from the elbow to the
+   * place, and the elbow is where the arm bends for that hand, so each is
+   * solved from the other until they agree.
+   *
+   * @param body The body.
+   * @param posture The entry posture.
+   * @param side The hand.
+   * @param effector The effector.
+   * @param place The region at the entry.
+   * @param tangent Which tangent.
+   * @param elbow Where the elbow lies: the place of least strain, or `level` with the shoulder; least strain when absent.
+   * @returns The elbow's place, world: the lay's origin and the bend hint.
+   * @throws {HumanRefusal} A `reach` refusal on `elbow` when the elbow still moves by more than the solver resolves after the rounds a halving would need.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two unknowns, why they depend on each other, what is returned and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A fixed-point iteration from the elbow the body's measures give: rounds of the goal a hand from that elbow asks and the elbow that goal's wrist bends at, until the elbow moves less than the swivel resolution swept on the upper arm; the round bound is the halvings of two upper arms down to that tolerance.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of `rest` and one elbow solve, stopped by the tolerance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance and the bound are derived from the solver's resolution and the arm, so the result is a function of its inputs alone; an elbow that does not settle is refused, never returned unsettled.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bounded swivel sweep a round, as many rounds as the elbow takes to settle and at most the derived bound.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `rest` and the bend solver.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function settled(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+    place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
+    tangent: IAutoMovieMotionHumanTouchForm.Tangent,
+    elbow: NonNullable<IAutoMovieMotionHumanTouch.ITouch["elbow"]> = "natural",
+  ): IAutoMovieVector3 {
+    let from: IAutoMovieVector3 | undefined;
+    let hint: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      posture,
+      side,
+    );
+
+    // Settled when the elbow moves less than the solver resolves it: its
+    // swivel resolution (`hingedArmSwivel.RESOLUTION`) swept on the upper
+    // arm. Two elbows of one shoulder lie within two upper arms, so a
+    // settling at least as fast as halving meets that within as many rounds
+    // as halvings of two upper arms down to it; one still moving refuses.
+    const tolerance: number =
+      (body.measure.upperArm * hingedArmSwivel.RESOLUTION * Math.PI) / 180;
+    const rounds: number =
+      Math.ceil(Math.log2((2 * body.measure.upperArm) / tolerance)) + 1;
+    let moved: number = Infinity;
+    for (let round: number = 0; round < rounds && !(moved <= tolerance); ++round) {
+      const goal: IAutoMovieHumanLimbGoal = rest(
+        body,
+        posture,
+        side,
+        effector,
+        place,
+        tangent,
+        hint,
+        "reach",
+        undefined,
+        elbow,
+        from,
+      );
+      const next: IAutoMovieVector3 = (
+        elbow === "level"
+          ? AutoMovieMotionHumanBend.level
+          : AutoMovieMotionHumanBend.solve
+      )({
+        body,
+        posture,
+        side,
+        point: goal.point,
+        rotation: goal.rotation!,
+        fallback: "hang",
+      });
+      moved = Vector3.distance(next, hint);
+      hint = next;
+      from = hint;
+    }
+    if (!(moved <= tolerance))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "elbow",
+        value: elbow,
+        feasible: null,
+        reason: `the ${side} elbow and the hand it carries end on did not settle: after ${rounds} rounds the elbow still moved ${(moved * 1000).toFixed(1)} mm`,
+        fix: "lay the effector across the region instead of end on, or move the region nearer the shoulder",
+      });
+    return hint;
   }
 
   /**
