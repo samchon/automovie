@@ -24,6 +24,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanForce } from "../perform/HumanForce";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -178,8 +179,12 @@ export namespace HumanForceResponse {
     // and walking", Gait Posture 3:193): so the pull's part along the facing
     // tips the body about the ankles, and its part across moves the root,
     // by the centre's own shift per shift of the root, read on the entry
-    // posture with its legs solved at a shift of the square root of machine
-    // epsilon of the centre's height.
+    // posture with its legs solved. The centre is read through an iterative
+    // leg fit, whose error is its place tolerance, not machine rounding: a
+    // forward difference over a reading of relative error e takes a step of
+    // about sqrt(e) of its scale (Nocedal and Wright, Numerical Optimization,
+    // 2nd ed., section 8.1), here sqrt(tolerance / height) of the centre's
+    // height.
     const across: number = (() => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
@@ -199,7 +204,9 @@ export namespace HumanForceResponse {
             resolution(),
           ),
         );
-      const h: number = height * Number.EPSILON ** 0.5;
+      const h: number = Math.sqrt(
+        (HumanArmTrajectoryTerms.TOLERANCE / 1000) * height,
+      );
       return (
         Vector3.dot(
           Vector3.subtract(
