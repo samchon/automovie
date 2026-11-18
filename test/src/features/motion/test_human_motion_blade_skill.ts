@@ -166,11 +166,11 @@ export function test_human_motion_blade_skill(): void {
       const step: number = 1 / 48;
       let peak: number = 0;
       let when: number = take.at;
-      for (
-        let seconds: number = take.at - 0.5;
-        seconds <= take.at;
-        seconds += step
-      ) {
+      // Counted in whole steps back from the contact, so the window always
+      // ends on it: a sum of 1/48 steps can overshoot the contact by a
+      // rounding error and drop the instant the arrested point peaks at.
+      for (let k: number = 24; k >= 0; k--) {
+        const seconds: number = take.at - k * step;
         const speed: number =
           Vector3.length(
             Vector3.subtract(take.point(seconds), take.point(seconds - step)),
