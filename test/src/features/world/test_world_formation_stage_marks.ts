@@ -11,6 +11,7 @@ import type {
   IAutoMovieFormationDesign,
   IAutoMovieFormationSlotPlacement,
   IAutoMovieFormationStageMarkSet,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -56,6 +57,13 @@ const second: IAutoMovieFormationStageMarkSet = {
  * multiple sets. A mark is a point from the unit anchor, distinct from
  * the displacement the member channel stores.
  *
+ * Scenarios:
+ * 1. A rotated unit travels between absolute marks, holds through a gap,
+ *    and retains the last assigned facing when the next mark omits it.
+ * 2. A late joiner, an unset slot and a separately rotated block keep
+ *    their own rest placement.
+ * 3. The resulting cues enter an ordinary shot. Invalid authored sets fail.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification The actual compiler feeds the member sampler and placement and the ordinary sparse shot cue admission. Interval holds, earlier and later performers, retained facing and refusal cases exercise the public entry.
  * @evidence contracts/development/testing.md#independent-expectations With a 90 degree unit yaw, authored local depth adds to world X and negative local lateral adds to world Z. The 2 m centered file spacing puts slot zero at local X -1 initially. Linear half time and quadratic ease-in half time give one-half and one-quarter progress. A second 90 degree yaw sends the first blocked slot one metre along block depth before applying the block translation.
  * @evidence contracts/development/testing.md#distinguishing-cases A rotated translated unit, a turned and displaced block, an unset member, a late joiner and a gap catch identity swaps, missing inverse rest placement and endpoint resets. Error cases distinguish repeated ids or slots, a negative/nonfinite window, overlapping starts, a missing slot, a hero slot and malformed coordinates or heading.
@@ -80,33 +88,38 @@ export function test_world_formation_stage_marks(): void {
     });
 
   const epsilon: number = 1e-12;
+  const rest: IAutoMovieVector3 = { x: 10, y: 2, z: 21 };
+  const opened: IAutoMovieVector3 = { x: 14, y: 2, z: 22 };
+  const closed: IAutoMovieVector3 = { x: 16, y: 2, z: 23 };
+  const final: IAutoMovieFormationSlotPlacement = at(0, 7);
+
+  /** Compute the point at a specified fraction of a straight displacement. */
+  const along = (
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    fraction: number,
+  ): IAutoMovieVector3 => ({
+    x: from.x + fraction * (to.x - from.x),
+    y: from.y + fraction * (to.y - from.y),
+    z: from.z + fraction * (to.z - from.z),
+  });
+
+  const travel: readonly [string, number, IAutoMovieVector3][] = [
+    ["rest before first set", 0, rest],
+    ["linear halfway", 2, along(rest, opened, 0.5)],
+    ["first mark holds in gap", 3.5, opened],
+    ["second set starts from first mark", 4, opened],
+    ["eased second set", 5, along(opened, closed, 0.25)],
+  ];
+  for (const [label, seconds, expected] of travel)
+    TestValidator.predicate(
+      label,
+      vclose(at(0, seconds).position, expected, epsilon),
+    );
   TestValidator.predicate(
-    "rest before first set",
-    vclose(at(0, 0).position, { x: 10, y: 2, z: 21 }, epsilon),
-  );
-  TestValidator.predicate(
-    "linear halfway",
-    vclose(at(0, 2).position, { x: 12, y: 2, z: 21.5 }, epsilon),
-  );
-  TestValidator.predicate(
-    "first mark holds in gap",
-    vclose(at(0, 3.5).position, { x: 14, y: 2, z: 22 }, epsilon),
-  );
-  TestValidator.predicate(
-    "second set starts from first mark",
-    vclose(at(0, 4).position, { x: 14, y: 2, z: 22 }, epsilon),
-  );
-  TestValidator.predicate(
-    "eased second set",
-    vclose(at(0, 5).position, { x: 14.5, y: 2, z: 22.25 }, epsilon),
-  );
-  TestValidator.predicate(
-    "second mark holds after finishing",
-    vclose(at(0, 7).position, { x: 16, y: 2, z: 23 }, epsilon),
-  );
-  TestValidator.predicate(
-    "prior facing retained",
-    nclose(at(0, 7).facingDeg, 135, epsilon),
+    "second mark and prior facing hold after finishing",
+    vclose(final.position, closed, epsilon) &&
+      nclose(final.facingDeg, 135, epsilon),
   );
   TestValidator.predicate(
     "second slot before assignment",

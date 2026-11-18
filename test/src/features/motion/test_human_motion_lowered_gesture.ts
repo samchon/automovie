@@ -17,40 +17,32 @@ import { vclose } from "../internal/vclose";
  * kneel while the original posture carries the body (#3575).
  *
  * Scenarios:
- * 1. A count and a head-only look start at the named low hold over both
- *    crouch depths, half kneeling and sitting back on the heels. At the
- *    signal stroke's midpoint the right wrist is raised from its thigh rest
- *    and the head has turned. The pelvis, feet, idle wrist and contact
- *    windows match the same carrier alone. Standing entry and an explicit
- *    cut from a stand both appear.
- * 2. A bow claiming the root and trunk over a crouch is refused on `over`.
- * 3. A right-hand signal scheduled when the right palm bears on the floor
- *    in a support sequence is refused on `over`, naming the claimed arm.
+ * 1. A count and head-only look start at the low hold in a full crouch,
+ *    a half-kneel with one foot flat, and a sit-back kneel cut from a stand.
+ *    At mid-stroke the wrist rises and the head turns while the carrier
+ *    keeps its pose and contacts.
+ * 2. A bow claiming the trunk over a crouch is refused on `over`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the public composition, the admitted carriers and the two refused claims.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the planned overlays, the declared support windows, the displayed bones at the stroke midpoint and the returned refusal kind and axis.
- * @evidence contracts/development/testing.md#independent-expectations The carrier-only composition gives the invariance of its own parts; a stop signal raises the hand off its rest, and a head-only look turns the head.
- * @evidence contracts/development/testing.md#distinguishing-cases Two crouch depths and two kneeling bases pair with the boundary body fixtures; a trunk claim distinguishes whole-body gestures and a bearing hand distinguishes a required support.
- * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this CPU-only spec. Each paired case plans one arm trajectory and reads two displayed poses for comparison.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the low carriers, entry paths, free parts and refused trunk claim.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes a local gesture and gaze at the hold, checks the displayed wrist and head against the unlayered posture, and reads the typed refusal for a whole-body gesture.
+ * @evidence contracts/development/testing.md#independent-expectations The unlayered carrier gives the expected invariant bone transforms and contact windows. A stop signal lifts the wrist and a head-only look rotates the head at the sampled stroke midpoint.
+ * @evidence contracts/development/testing.md#distinguishing-cases The full crouch uses standing contacts. The two kneels differ in bearing posture and entry path. The crouch-depth spec owns depth geometry and the support-overlay spec owns bearing-hand refusals.
+ * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory unit. Each carrier uses two performances and one displayed pose per performance.
  */
 export function test_human_motion_lowered_gesture(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   for (const [name, kind] of [
-    ["f-small", "one"],
-    ["m-large", "partial"],
     ["f-tall", "full"],
+    ["f-small", "one"],
     ["m-average", "sitBack"],
   ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const start: IAutoMovieMotionHumanChain = HumanChain.subject("counter");
     const entry: IAutoMovieMotionHumanChain =
-      kind === "partial" || kind === "sitBack"
-        ? start.stand({ seconds: 1 })
-        : start;
-    const event: "lowest" | "settled" =
-      kind === "partial" || kind === "full" ? "lowest" : "settled";
+      kind === "sitBack" ? start.stand({ seconds: 1 }) : start;
+    const event: "lowest" | "settled" = kind === "full" ? "lowest" : "settled";
     const carrier: IAutoMovieMotionHumanChain =
-      kind === "partial" || kind === "full"
+      kind === "full"
         ? entry.crouch({ depth: kind, hold: 3 }, "low")
         : entry.kneel({ kind, hold: 3, rise: false }, "low");
 
@@ -88,9 +80,11 @@ export function test_human_motion_lowered_gesture(): void {
         all.check(`${name} ${kind}: both overlays were placed`, false);
         continue;
       }
+      const hold: number = instant(lowered, event);
       all.check(
-        `${name} ${kind}: the signal starts at the carrier's low hold`,
-        Math.abs(signal.start - instant(lowered, event)) <= 1e-6,
+        `${name} ${kind}: both overlays start at the carrier's low hold`,
+        Math.abs(signal.start - hold) <= 1e-6 &&
+          Math.abs(gaze.start - hold) <= 1e-6,
       );
       all.equals(
         `${name} ${kind}: the gesture claims its own arm and hand`,
@@ -148,65 +142,28 @@ export function test_human_motion_lowered_gesture(): void {
 
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const start: IAutoMovieMotionHumanChain = HumanChain.subject("counter");
-  const feet: readonly [
-    { readonly part: "leftFoot"; readonly kind: "bear" },
-    { readonly part: "rightFoot"; readonly kind: "bear" },
-  ] = [
-    { part: "leftFoot", kind: "bear" },
-    { part: "rightFoot", kind: "bear" },
-  ];
-  for (const [chain, claim] of [
-    [
+  let caught: unknown;
+  try {
+    perform(
+      body,
       start
         .crouch({ hold: 3 })
         .over(
           (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
             upper.gesture({ kind: "bow" }),
         ),
-      "trunk",
-    ],
-    [
-      start
-        .support(
-          {
-            stances: [
-              { contacts: feet },
-              {
-                contacts: [
-                  ...feet,
-                  { part: "leftHand", kind: "bear" },
-                  { part: "rightHand", kind: "bear" },
-                ],
-              },
-              { contacts: feet },
-            ],
-          },
-          "braced",
-        )
-        .over(
-          (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            upper
-              .gesture({ kind: "stopPalm", side: "right" })
-              .sync({ of: "braced", event: "stance1" }),
-        ),
-      "rightArm",
-    ],
-  ] as const) {
-    let caught: unknown;
-    try {
-      perform(body, chain);
-    } catch (error) {
-      caught = error;
-    }
-    all.check(
-      `${claim} cannot be taken from its carrier, received ${String(caught)}`,
-      caught instanceof HumanRefusal &&
-        caught.kind === "channel" &&
-        caught.axis === "over" &&
-        Array.isArray(caught.value) &&
-        caught.value.includes(claim),
     );
+  } catch (error) {
+    caught = error;
   }
+  all.check(
+    `the trunk stays with the crouch, received ${String(caught)}`,
+    caught instanceof HumanRefusal &&
+      caught.kind === "channel" &&
+      caught.axis === "over" &&
+      Array.isArray(caught.value) &&
+      caught.value.includes("trunk"),
+  );
   all.assert("a lowered carrier yields its free upper-body channels");
 }
 

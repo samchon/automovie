@@ -23,8 +23,8 @@ import { vclose } from "../internal/vclose";
  * supports with a stationary platform and the option to move the car alone.
  *
  * Scenarios:
- * 1. Open the central platform-side pair halfway and fully and measure both
- * leaves' moving edges. The opposite side stays shut and the open model admits.
+ * 1. Measure both platform-side leaf edges at rest, halfway open and fully
+ * open. The opposite side stays shut and the open model admits.
  * 2. At rest, assemble the open car beside the platform. Read the geometry of
  * the adjoining supports, independent gap and height bounds, an unobstructed
  * center aisle, a transverse seat and a vertical, grippable rail.
@@ -78,8 +78,11 @@ export function test_archetype_rail_carriage(): void {
   );
 
   // The free interval is between the physical inner edges of the two leaves.
-  for (const travel of [0, leafWidth / 2, leafWidth]) {
-    const pose: typeof car = car.articulate({ door: travel });
+  for (const [travel, pose] of [
+    [0, car.articulate({ door: 0 })],
+    [leafWidth / 2, car.articulate({ door: leafWidth / 2 })],
+    [leafWidth, open],
+  ] as const) {
     const positive: number = leafEdge(pose, "door-lower", -1);
     const negative: number = leafEdge(pose, "doorFollower-lower", 1);
     TestValidator.predicate(
@@ -155,15 +158,11 @@ export function test_archetype_rail_carriage(): void {
     endSpeed: 2,
   });
   for (const contact of ["seat", "aisle", "threshold"] as const) {
-    const from: IAutoMovieAffordance["frame"] = ride.frame(contact, 0);
-    const to: IAutoMovieAffordance["frame"] = ride.frame(
-      contact,
-      ride.duration,
-    );
-    TestValidator.predicate("rigid contact travels with the car", () =>
-      vclose(to.translation, {
-        ...from.translation,
-        z: from.translation.z + 8,
+    const local: IAutoMovieAffordance["frame"] = car.affordance(contact).frame;
+    TestValidator.predicate(`${contact} travels with the carriage`, () =>
+      vclose(ride.frame(contact, ride.duration).translation, {
+        ...local.translation,
+        z: local.translation.z + 8,
       }),
     );
   }
@@ -193,6 +192,7 @@ export function test_archetype_rail_carriage(): void {
         nclose(contact.frame.translation.y, cushion),
     );
 
+    if (variant === legacy) continue;
     const posed: typeof car = variant.articulate({ door: leafWidth });
     TestValidator.predicate(
       "seat height preserves the paired door opening",
@@ -201,8 +201,12 @@ export function test_archetype_rail_carriage(): void {
         nclose(leafEdge(posed, "doorFollower-lower", 1), -leafWidth) &&
         validateModel({ model: posed }).success,
     );
-    for (const id of ["threshold", "doorway", "aisle", "grabRail"] as const) {
-      const expected: IAutoMovieAffordance = open.affordance(id);
+    for (const [id, expected] of [
+      ["threshold", sill],
+      ["doorway", doorway],
+      ["aisle", aisle],
+      ["grabRail", rail],
+    ] as const) {
       const actual: IAutoMovieAffordance = posed.affordance(id);
       TestValidator.predicate(
         "seat height preserves the boarding contact frame",

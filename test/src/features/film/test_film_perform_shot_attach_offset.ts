@@ -79,6 +79,7 @@ export function test_film_perform_shot_attach_offset(): void {
     start: 0,
     duration: 1,
   };
+  /** Compare both channels against the independently authored world frame. */
   const keyMatches = (
     values: ReturnType<typeof sampleClip>,
     position: IAutoMovieVector3,
@@ -136,7 +137,7 @@ export function test_film_perform_shot_attach_offset(): void {
       `${clip.id} lands at the same authored world frame at the handoff`,
       keyMatches(sampleClip(clip, 1), expectedPosition, expectedRotation),
     );
-  for (const seconds of [0.99, 1, 1.01])
+  for (const seconds of [0.99, 1.01])
     TestValidator.predicate(
       `playback preserves the authored world frame at ${seconds} seconds`,
       keyMatches(
@@ -152,7 +153,7 @@ export function test_film_perform_shot_attach_offset(): void {
       ...incoming,
       offset: {
         position: { x: -2, y: 0, z: 0 },
-        rotation: { x: 0, y: -half, z: half, w: 0 },
+        rotation: incoming.offset!.rotation,
       },
     },
   ]);

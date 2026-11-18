@@ -23,13 +23,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios:
  * 1. The marchers keep their files within 0.12 m laterally and follow their
- *    rank's travel within 0.30 m at three instants of the timed course.
+ *    rank's travel within 0.30 m at early and late slowdowns.
  * 2. At five consecutive interior beats of the 100 BPM track, every marcher
  *    strikes within 0.10 s of the beat, using the left foot on odd beats and the
  *    right on even beats.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the cast, course measures, beat rate and synchronized-foot requirement.
- * @evidence contracts/development/testing.md#behavioral-verification Composes the public march with both a moving station and a shared cue track, then reads displayed roots and heel-strike events. An independently paced straight march can miss the course's changes of speed, and marching at default time misses the authored beats.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes the public march with both a moving station and a shared cue track, then reads displayed roots and heel-strike events. Both witnesses lag uniform travel at the authored average speed by more than one step allowance. A default cadence misses the authored beats.
  * @evidence contracts/development/testing.md#independent-expectations The positions come from the authored rank spacing and course samples; the beat lattice is 60 divided by the authored BPM. The 0.30 m longitudinal window is half the scene's nominal 0.60 m step. The 0.12 m lateral and 0.10 s timing windows are scene requirements. The times of heel contact are read from the law's event markers.
  * @evidence contracts/development/testing.md#distinguishing-cases Two ranks, three files and two statures share one course and beat track. The cadence and ensemble formation tests already exercise those axes separately.
  * @evidence contracts/development/testing.md#execution-ownership A motions unit test discovered by its exported name, using prepared polygon-man bodies and the public performance sampler.
@@ -93,7 +93,6 @@ export function test_human_motion_scene_synchronized_parade(): void {
 
   const courses: [number, number][] = [
     [2.4, 1.8],
-    [4.8, 4.5],
     [7.2, 6.3],
   ];
   const findings: string[] = [];

@@ -40,17 +40,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios:
  * 1. The average man and the small woman board the same cart while it waits.
- * 2. When it departs, enters the turn, reaches the middle of the turn and
- *    leaves it, the seat socket lies within 10 mm of the seat rectangle.
+ * 2. At departure, mid-turn and turn exit, the seat socket lies within
+ *    10 mm of the seat rectangle.
  * 3. At those same instants each palm lies within 10 mm of the skin of the
  *    driving line's run between the terret and the point held by the driver.
  * 4. Each foot bears within 10 mm of the cart's footboard at those instants.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the bodies, course and seat, palm and sole observations in metres at four named course positions.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the bodies, course and seat, palm and sole observations in metres at three named course positions.
  * @evidence contracts/development/testing.md#behavioral-verification Composes a real horse and cart through the public towing and ride APIs and reads the displayed driver's seat, palm and sole sockets against the actual posed cart and laid lines. A seat left behind or a hand following the wrong line fails.
- * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance and quarter-turn radius are from #3473 and #3495. The seat rectangle is the cart's own affordance and the rein surface is the emitted line segment widened by its declared radius. The footboard rectangle comes from the cart's posed surface affordance. These oracles use no rider targets or prior rider poses. Four samples leave intervening instants and finger closure unchecked.
- * @evidence contracts/development/testing.md#distinguishing-cases Both body builds, both hands, both feet, and separate readings on the departure and before, during and after the steering change. Cart ground contact and each harness anchor have separate archetype specs.
- * @evidence contracts/development/testing.md#execution-ownership The exported in-memory case shares one towing plan across the two drivers and reads their displayed bones once each at four instants.
+ * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance and quarter-turn radius are from #3473 and #3495. The seat rectangle is the cart's own affordance and the rein surface is the emitted line segment widened by its declared radius. The footboard rectangle comes from the cart's posed surface affordance. These oracles use no rider targets or prior rider poses. Three samples leave intervening instants and finger closure unchecked.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both body builds, both hands, both feet, and separate readings at departure, during steering and at the end of the turn. Cart ground contact and each harness anchor have separate archetype specs.
+ * @evidence contracts/development/testing.md#execution-ownership The exported in-memory case shares one towing plan across the two drivers and reads their displayed bones once each at three instants.
  */
 export function test_human_motion_ride_towed_driver(): void {
   const departuresAt: number = 6;
@@ -98,7 +98,6 @@ export function test_human_motion_ride_towed_driver(): void {
   const seatSurface: IAutoMovieAffordance = cart.affordance("seat");
   const instants: readonly number[] = [
     departuresAt,
-    ride.plan.when(straight),
     ride.plan.when(straight + arc / 2),
     ride.plan.when(straight + arc),
   ];

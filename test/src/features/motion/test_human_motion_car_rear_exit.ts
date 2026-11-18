@@ -37,13 +37,13 @@ import { qclose } from "../internal/predicates";
  * 2. The trailing foot keeps its car support until lift. Both feet keep
  *    their landing orientation at the transfer to the rise.
  * 3. The crown clears the header at the sampled phases near the opening.
- * 4. A 0.2 m opening refuses passage.
+ * 4. A 0.2 m left opening refuses passage.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the two mirrored cases, the real opening and the crossing checks.
  * @evidence contracts/development/testing.md#behavioral-verification Drives a public chain with behavior and geometry read from the archetype and reads displayed bones at the endpoints, phase markers and either side of the rise handoff.
  * @evidence contracts/development/testing.md#independent-expectations Door plane, headroom and jambs come from the articulated car's opening. Shippen establishes the adjacent rear door. The test fixture supplies the turn duration and stagger.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises both sides and checks the opening width refusal independently of entry bake.
- * @evidence contracts/development/testing.md#execution-ownership Builds one human and one car in memory, and creates fresh performances for each opening and the narrow refusal.
+ * @evidence contracts/development/testing.md#distinguishing-cases The two doors reverse the leading foot and exercise the clearance on each side. One narrow opening exercises the shared width check.
+ * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory test. One human and car fixture serve two open-door passages and one narrow-door refusal.
  */
 export function test_human_motion_car_rear_exit(): void {
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" });
@@ -248,20 +248,24 @@ export function test_human_motion_car_rear_exit(): void {
         problems.push(`${side}: ${foot} changes attitude at the rise handoff`);
     if (exit.plan.base?.kind !== "standing")
       problems.push(`${side}: the exit must finish standing`);
-    let refusal: unknown;
-    try {
-      perform({ ...door, width: 0.2 });
-    } catch (error) {
-      refusal = error;
-    }
-    if (
-      !(
-        refusal instanceof HumanRefusal &&
-        refusal.kind === "reach" &&
-        refusal.axis === "aperture"
+    if (opening === "rearLeft") {
+      let refusal: unknown;
+      try {
+        perform({ ...door, width: 0.2 });
+      } catch (error) {
+        refusal = error;
+      }
+      if (
+        !(
+          refusal instanceof HumanRefusal &&
+          refusal.kind === "reach" &&
+          refusal.axis === "aperture"
+        )
       )
-    )
-      problems.push(`${side}: a 0.2 m opening must refuse aperture clearance`);
+        problems.push(
+          `${side}: a 0.2 m opening must refuse aperture clearance`,
+        );
+    }
   }
   TestValidator.equals(
     "rear egress through the sedan's open door",

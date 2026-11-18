@@ -5,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieModelPart,
   IAutoMovieMotionEvent,
@@ -13,6 +14,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanZip,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -112,12 +114,16 @@ export function test_human_motion_zip(): void {
   const openEnd: number = event(open!, "strokeEnd");
   const closeStart: number = event(close!, "strokeStart");
   const closeEnd: number = event(close!, "strokeEnd");
-  for (const [begin, end, direction] of [
-    [openStart, openEnd, 1],
-    [closeStart, closeEnd, -1],
+  const closed: readonly IAutoMovieModelPart[] = sample(openStart).parts;
+  const openAgain: readonly IAutoMovieModelPart[] = sample(closeStart).parts;
+  const lipNames: readonly [string, string] = ["lip-1--1", "lip-1-1"];
+  const seamEdge: number = bound(part(closed, lipNames[0]), "x", 1);
+  const stemRest: number = bound(part(closed, "slider-stem"), "x", -1);
+  for (const [begin, end, initialParts, direction] of [
+    [openStart, openEnd, closed, 1],
+    [closeStart, closeEnd, openAgain, -1],
   ] as const) {
-    const initial: number = part(sample(begin).parts, "tab").transform!
-      .translation.x;
+    const initial: number = part(initialParts, "tab").transform!.translation.x;
     const final: number = part(sample(end).parts, "tab").transform!.translation
       .x;
     TestValidator.predicate(
@@ -127,28 +133,27 @@ export function test_human_motion_zip(): void {
     // Locate an interior threshold from the closed lip and moving stem boxes.
     // The two targets are 50 µm to either side, where a wrong pivot exposes
     // the overlap from lip thickness before the gap visibly widens.
-    const lipNames: readonly [string, string] = ["lip-1--1", "lip-1-1"];
-    const seamEdge: number = bound(
-      part(sample(openStart).parts, lipNames[0]),
-      "x",
-      1,
-    );
+    // Travel is a translation in metres along +X. Search the scalar drive
+    // and pose the physical boxes only at the two resulting times.
     for (const offset of [-0.00005, 0.00005]) {
+      const threshold: number = seamEdge - stemRest + offset;
       let early: number = begin;
       let late: number = end;
       for (let iteration: number = 0; iteration < 30; ++iteration) {
         const middle: number = (early + late) / 2;
-        const stem: IAutoMovieModelPart = part(
-          sample(middle).parts,
-          "slider-stem",
-        );
-        if (direction * (bound(stem, "x", -1) - seamEdge - offset) < 0)
-          early = middle;
+        const travel: number = performance.state("pouch", middle).zipper!;
+        if (direction * (travel - threshold) < 0) early = middle;
         else late = middle;
       }
       const boxes: readonly IAutoMovieModelPart[] = sample(
         (early + late) / 2,
       ).parts;
+      TestValidator.predicate(
+        `the physical stem reaches the threshold offset ${offset} in direction ${direction}`,
+        Math.abs(
+          bound(part(boxes, "slider-stem"), "x", -1) - seamEdge - offset,
+        ) < 1e-8,
+      );
       const left: number = bound(part(boxes, lipNames[0]), "z", 1);
       const right: number = bound(part(boxes, lipNames[1]), "z", -1);
       TestValidator.predicate(
@@ -167,6 +172,7 @@ export function test_human_motion_zip(): void {
       const posed: ReturnType<typeof model.articulate> = sample(seconds);
       const tab: IAutoMovieModelPart = part(posed.parts, "tab");
       const stem: IAutoMovieModelPart = part(posed.parts, "slider-stem");
+      const stemEdge: number = bound(stem, "x", -1);
       const x: number = tab.transform!.translation.x;
       TestValidator.predicate(
         "the tab follows the directed stroke",
@@ -190,30 +196,37 @@ export function test_human_motion_zip(): void {
         gaps[section] = gap;
         TestValidator.predicate(
           `any access at section ${section} is behind the stem at ${share}`,
-          gap <= 1e-9 || bound(left, "x", 1) <= bound(stem, "x", -1) + 1e-9,
+          gap <= 1e-9 || bound(left, "x", 1) <= stemEdge + 1e-9,
         );
       }
+
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        performance.bones("actor", seconds);
+      const contactZ: number = -0.012;
+      TestValidator.predicate(
+        "the opposed targets lie on the actual tab faces",
+        contactZ >= bound(tab, "z", -1) && contactZ <= bound(tab, "z", 1),
+      );
       for (const [name, local] of [
         [
           "thumbTipRight",
-          { ...tab.transform!.translation, y: bound(tab, "y", 1), z: -0.012 },
+          { ...tab.transform!.translation, y: bound(tab, "y", 1), z: contactZ },
         ],
         [
           "indexTipRight",
-          { ...tab.transform!.translation, y: bound(tab, "y", -1), z: -0.012 },
+          {
+            ...tab.transform!.translation,
+            y: bound(tab, "y", -1),
+            z: contactZ,
+          },
         ],
         ["indexTipLeft", Vector3.create(-0.098, 0.12, -0.032)],
       ] as const) {
-        if (name !== "indexTipLeft")
-          TestValidator.predicate(
-            "the opposed targets lie on the actual tab faces",
-            local.z >= bound(tab, "z", -1) && local.z <= bound(tab, "z", 1),
-          );
         const surface: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[name];
         const shown: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
           surface,
-          performance.bones("actor", seconds).get(surface.bone)!,
+          bones.get(surface.bone)!,
         ).point;
         TestValidator.predicate(
           `${name} stays on its contact at ${share}`,
@@ -223,21 +236,18 @@ export function test_human_motion_zip(): void {
     }
   }
 
-  const released: number = open!.start + open!.plan.duration;
-  for (const seconds of [
-    openStart,
-    released,
-    closeStart,
-    close!.start + close!.plan.duration,
-  ]) {
-    const parts: readonly IAutoMovieModelPart[] = sample(seconds).parts;
-    const opening: boolean = seconds === released || seconds === closeStart;
+  for (const [label, parts, opening] of [
+    ["before opening", closed, false],
+    ["after opening", sample(open!.start + open!.plan.duration).parts, true],
+    ["before closing", openAgain, true],
+    ["after closing", sample(close!.start + close!.plan.duration).parts, false],
+  ] as const) {
     for (const section of [0, 1, 2, 3]) {
       const gap: number =
         bound(part(parts, `lip-${section}-1`), "z", -1) -
         bound(part(parts, `lip-${section}--1`), "z", 1);
       TestValidator.predicate(
-        `a settled seam section has the expected clearance at ${seconds}`,
+        `a settled seam section has the expected clearance ${label}`,
         opening ? gap > 0.05 : Math.abs(gap) < 1e-9,
       );
     }
@@ -271,7 +281,7 @@ function part(
   return parts.find((item: IAutoMovieModelPart): boolean => item.id === id)!;
 }
 
-/** Project box corners to obtain an actual posed model extent along one axis. */
+/** Project the oriented half-extents of a posed box onto a pouch axis. */
 function bound(
   part: IAutoMovieModelPart,
   axis: "x" | "y" | "z",
@@ -285,21 +295,20 @@ function bound(
     throw new Error("Expected a posed pouch box");
   const frame: IAutoMovieTransform = part.transform;
   const box: typeof part.geometry.shape = part.geometry.shape;
-  let edge: number = -Infinity;
-  for (const x of [-1, 1])
-    for (const y of [-1, 1])
-      for (const z of [-1, 1]) {
-        const corner: IAutoMovieVector3 = Quaternion.rotateVector(
-          frame.rotation,
-          Vector3.create(
-            (x * box.width) / 2,
-            (y * box.height) / 2,
-            (z * box.depth) / 2,
-          ),
-        );
-        edge = Math.max(edge, side * (corner[axis] + frame.translation[axis]));
-      }
-  return side * edge;
+  const localAxis: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(frame.rotation),
+    Vector3.create(
+      axis === "x" ? 1 : 0,
+      axis === "y" ? 1 : 0,
+      axis === "z" ? 1 : 0,
+    ),
+  );
+  const halfExtent: number =
+    (Math.abs(localAxis.x * frame.scale.x) * box.width +
+      Math.abs(localAxis.y * frame.scale.y) * box.height +
+      Math.abs(localAxis.z * frame.scale.z) * box.depth) /
+    2;
+  return frame.translation[axis] + side * halfExtent;
 }
 
 /** Read a named event from the public plan rather than assuming a clock share. */

@@ -183,16 +183,22 @@ function checkSeatingFits(neutral: ReturnType<typeof createTransitBus>): void {
   const replay: typeof neutral = createTransitBus("city-bus", 0);
   const textSeed: typeof neutral = createTransitBus("city-bus", "0");
   const other: typeof neutral = createTransitBus("city-bus", "another-fit");
+  const neutralClearance: number = aisleClearance(neutral);
+  const seededClearance: number = aisleClearance(seeded);
+  const otherClearance: number = aisleClearance(other);
   TestValidator.predicate(
     "the neutral width is preserved and equivalent seeds replay physical clearance",
     () =>
-      nclose(aisleClearance(neutral), 0.59) &&
-      aisleClearance(seeded) === aisleClearance(replay) &&
-      aisleClearance(seeded) === aisleClearance(textSeed) &&
-      !nclose(aisleClearance(seeded), aisleClearance(other)),
+      nclose(neutralClearance, 0.59) &&
+      seededClearance === aisleClearance(replay) &&
+      seededClearance === aisleClearance(textSeed) &&
+      !nclose(seededClearance, otherClearance),
   );
-  for (const bus of [neutral, seeded, other]) {
-    const width: number = aisleClearance(bus);
+  for (const [bus, width] of [
+    [neutral, neutralClearance],
+    [seeded, seededClearance],
+    [other, otherClearance],
+  ] as const) {
     const band: (typeof bus.provenance.bands)["aisleWidth"] =
       bus.provenance.bands.aisleWidth;
     const opened: typeof bus = bus.articulate({

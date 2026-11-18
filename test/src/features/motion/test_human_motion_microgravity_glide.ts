@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSpacecraftGlide,
+  IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,6 +17,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
+  poseBones,
   spacecraftGlide,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -32,7 +34,8 @@ import { vclose } from "../internal/vclose";
  * Scenarios:
  *
  * 1. The hand socket stays within 10 mm of each rail for its contact
- *    phase and passes 80 mm inboard of the rail line halfway through the free coast.
+ *    phase at its endpoints and midpoint. Halfway through the coast the
+ *    hand passes 80 mm inboard of the rail line.
  * 2. The displayed root coasts at 0.8 m/s on a straight, level line,
  *    starts and ends at rest, and covers the 2.4 m between the rails.
  * 3. A door-mounted handle, zero coast and invalid clearances are refused.
@@ -40,7 +43,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the scene, source and bounded push, coast and catch observations.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the opt-in law in HumanPerformance using the spacecraft archetype and measures the displayed root and grip socket.
  * @evidence contracts/development/testing.md#independent-expectations The authored rails, constant-speed free flight and trapezoidal velocity area give explicit metre and second expectations. Grip positions are observed on the actual resolved bones and compared against known scenic coordinates.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples both held phases, the unsustained span and the velocity changes. Refuses the mounted handle, the zero coast and clearances outside the measured reach.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks both grip-window boundaries and interior, the coast quarter and midpoint and both 20 ms rest bounds. Refuses the mounted handle, the zero coast and clearances outside the measured reach.
  * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory test creates the model and registers the law through public performance APIs.
  */
 export function test_human_motion_microgravity_glide(): void {
@@ -100,10 +103,10 @@ export function test_human_motion_microgravity_glide(): void {
     "grip",
   ).point;
   /** Read the anatomical grip socket on the displayed hand. */
-  const grip = (seconds: number): IAutoMovieVector3 => {
-    const hand: IAutoMovieResolvedBone = performance
-      .bones("crew", seconds)
-      .get("rightHand")!;
+  const grip = (pose: IAutoMoviePose): IAutoMovieVector3 => {
+    const hand: IAutoMovieResolvedBone = poseBones(body, pose).get(
+      "rightHand",
+    )!;
     return Vector3.add(
       hand.worldPosition,
       Quaternion.rotateVector(hand.worldRotation, offset),
@@ -128,9 +131,11 @@ export function test_human_motion_microgravity_glide(): void {
       ),
   );
   TestValidator.predicate(
-    "departure ends at 0.4 s and arrival begins at 3 s",
-    nclose(windows[0]!.to * segment.plan.duration, 0.4) &&
-      nclose(windows[1]!.from * segment.plan.duration, 3),
+    "the grip windows cover only the push and brake ramps",
+    nclose(windows[0]!.from, 0) &&
+      nclose(windows[0]!.to * segment.plan.duration, 0.4) &&
+      nclose(windows[1]!.from * segment.plan.duration, 3) &&
+      nclose(windows[1]!.to, 1),
   );
   for (const [event, seconds] of [
     ["release", 0.4],
@@ -145,44 +150,55 @@ export function test_human_motion_microgravity_glide(): void {
       nclose(key.share * segment.plan.duration, seconds),
     );
   }
-  for (const [hold, first, target] of [
-    ["departure", 0, departure],
-    ["arrival", 3, arrival],
+
+  // The ramps move the shoulder along the rail, so each grip must track
+  // a changing arm extension at both ends and retain its plant in between.
+  const start: IAutoMoviePose = performance.pose("crew", 0);
+  const release: IAutoMoviePose = performance.pose("crew", 0.4);
+  const middle: IAutoMoviePose = performance.pose("crew", 1.7);
+  const catchPose: IAutoMoviePose = performance.pose("crew", 3);
+  const stop: IAutoMoviePose = performance.pose("crew", 3.4);
+  for (const [phase, pose, target] of [
+    ["departure start", start, departure],
+    ["push midpoint", performance.pose("crew", 0.2), departure],
+    ["release", release, departure],
+    ["catch", catchPose, arrival],
+    ["brake midpoint", performance.pose("crew", 3.2), arrival],
+    ["stop", stop, arrival],
   ] as const)
-    for (let sample: number = 0; sample <= 12; sample += 1) {
-      const seconds: number = first + sample / 30;
-      const error: number = Vector3.length(
-        Vector3.subtract(grip(seconds), target),
-      );
-      TestValidator.predicate(
-        `${hold} grip error ${error} m at ${seconds} s`,
-        error <= 0.01,
-      );
-    }
+    TestValidator.predicate(
+      `${phase} grip is within 10 mm of its rail`,
+      Vector3.length(Vector3.subtract(grip(pose), target)) <= 0.01,
+    );
   TestValidator.predicate(
     "the displayed grip passes 80 mm inboard at mid-coast within 10 mm",
-    nclose(grip(1.7).x, -1.74, 0.01),
+    nclose(grip(middle).x, -1.74, 0.01),
   );
 
-  // 2. A 0.8 m/s coast covers 0.4 m every half-second.
-  const coastStep: IAutoMovieVector3 = { x: 0, y: 0, z: 0.4 };
-  for (const seconds of [0.55, 1.05, 1.55, 2.05])
+  // A trapezoid with a 2.6 s plateau and two 0.4 s ramps covers
+  // 2.4 m at 0.8 m/s. Each ramp covers 0.16 m.
+  const origin: IAutoMovieVector3 = start.root!.translation;
+  const end: IAutoMovieVector3 = stop.root!.translation;
+  for (const [phase, pose, travel] of [
+    ["release", release, 0.16],
+    ["coast quarter", performance.pose("crew", 1.05), 0.68],
+    ["coast midpoint", middle, 1.2],
+    ["coast three quarters", performance.pose("crew", 2.35), 1.72],
+    ["catch", catchPose, 2.24],
+    ["stop", stop, 2.4],
+  ] as const)
     TestValidator.predicate(
-      `constant forward coast at ${seconds} s`,
+      `${phase} has the expected forward travel at constant cabin height`,
       vclose(
-        Vector3.subtract(root(seconds + 0.5), root(seconds)),
-        coastStep,
+        Vector3.subtract(pose.root!.translation, origin),
+        { x: 0, y: 0, z: travel },
         0.001,
       ),
     );
   TestValidator.predicate(
-    "constant cabin height and 2.4 m of root translation",
-    vclose(Vector3.subtract(root(3.4), root(0)), { x: 0, y: 0, z: 2.4 }, 0.001),
-  );
-  TestValidator.predicate(
     "both ends move less than 1 mm in the first or last 20 ms",
-    Vector3.length(Vector3.subtract(root(0.02), root(0))) < 0.001 &&
-      Vector3.length(Vector3.subtract(root(3.4), root(3.38))) < 0.001,
+    Vector3.length(Vector3.subtract(root(0.02), origin)) < 0.001 &&
+      Vector3.length(Vector3.subtract(end, root(3.38))) < 0.001,
   );
 
   // 3. No two legal wrist positions relative to the same shoulder can

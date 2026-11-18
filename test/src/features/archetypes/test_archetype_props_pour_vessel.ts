@@ -22,8 +22,8 @@ import { nclose, vclose } from "../internal/predicates";
  * spout and a reachable handle on the opposite side.
  *
  * Scenarios:
- * 1. At published cup and pitcher dimensions, the open centre admits a
- *    vertical probe, while the first visible surface is the interior floor.
+ * 1. At published cup and pitcher dimensions, the wall bases meet the floor.
+ *    The open centre admits a vertical probe to the visible interior floor.
  * 2. The cup's upward socket and inner rim are level. The pitcher's lip
  *    projects beyond its 110 mm body rim and leaves space behind the tip.
  * 3. The handle grip lies on its vertical bar and admits a finger probe in
@@ -33,7 +33,7 @@ import { nclose, vclose } from "../internal/predicates";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the measured geometry, seeded admission and four distinct scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Measures collider and mesh openings independently, probes the spout and handle clearance, reads the upward mouth and bar frames, and compares seeded models.
- * @evidence contracts/development/testing.md#independent-expectations The makers provide 82–90 mm and 55 mm for the cup and 110 mm and 170–210 mm for the jug. Probe clearances, the depth of each floor, the side of the handle and the minimum lip projection are explicit stage expectations. Ray travel is in metres with 1e-7 m tolerance for floor depth. This test samples geometry, not rendered pixels.
+ * @evidence contracts/development/testing.md#independent-expectations The makers provide 82–90 mm and 55 mm for the cup and 110 mm and 170–210 mm for the jug. The floor grounds the vessel and meets every wall base in the same horizontal plane. The mouth ray meets the measured collider floor within 1e-7 m. The cup's lip matches the innermost front rim point at rim height.
  * @evidence contracts/development/testing.md#distinguishing-cases A visible cap, hidden solid collider, missing floor, flat pitcher rim, off-bar grip, filled handle loop or nondeterministic seed each breaks a different expectation.
  * @evidence contracts/development/testing.md#execution-ownership The discovered entry uses public model records and engine queries in memory.
  */
@@ -52,11 +52,13 @@ export function test_archetype_props_pour_vessel(): void {
     diameter: 0.11,
     mass: 0.68,
   });
-  for (const { vessel, height, floor, width, gap, mass } of [
+  const cupShapes: IAutoMoviePhysicalShape[] = cup.shapes();
+  const pitcherShapes: IAutoMoviePhysicalShape[] = pitcher.shapes();
+  for (const { vessel, shapes, height, width, gap, mass } of [
     {
       vessel: cup,
       height: 0.055,
-      floor: 0.005,
+      shapes: cupShapes,
       width: 0.082,
       gap: 0.052,
       mass: 0.165,
@@ -64,7 +66,7 @@ export function test_archetype_props_pour_vessel(): void {
     {
       vessel: pitcher,
       height: 0.17,
-      floor: 0.009,
+      shapes: pitcherShapes,
       width: 0.11,
       gap: 0.07,
       mass: 0.68,
@@ -82,19 +84,36 @@ export function test_archetype_props_pour_vessel(): void {
         vclose(Quaternion.rotateVector(lip.frame.rotation, up), up, 1e-10) &&
         nclose(lip.frame.translation.y, height, 1e-10) &&
         nclose(lip.frame.translation.x, 0, 1e-10) &&
-        nclose(archetypeExtent(vessel, "y").low, 0, 1e-10) &&
-        nclose(archetypeExtent(vessel, "x").size, width, 1e-10) &&
+        nclose(archetypeExtent(shapes, "y").low, 0, 1e-10) &&
+        nclose(archetypeExtent(shapes, "x").size, width, 1e-10) &&
         nclose(vessel.body.mass, mass, 1e-10),
     );
 
-    const shapes: IAutoMoviePhysicalShape[] = vessel.shapes();
+    const floor: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      shapes,
+      "y",
+      ["floor"],
+    );
+    const walls: IAutoMoviePhysicalShape[] = shapes.filter(
+      (shape: IAutoMoviePhysicalShape): boolean => shape.id.startsWith("wall-"),
+    );
+    TestValidator.predicate(
+      `${vessel.id} has a grounded floor that closes against every wall`,
+      nclose(floor.low, 0, 1e-10) &&
+        floor.size > 0 &&
+        floor.high + 0.004 < height &&
+        walls.length > 0 &&
+        walls.every((wall: IAutoMoviePhysicalShape): boolean =>
+          nclose(archetypeExtent([wall], "y").low, floor.high, 1e-10),
+        ),
+    );
     const above: IAutoMovieVector3 = { x: 0, y: height + 0.01, z: 0 };
-    const inside: IAutoMovieVector3 = { x: 0, y: floor + 0.004, z: 0 };
+    const inside: IAutoMovieVector3 = { x: 0, y: floor.high + 0.004, z: 0 };
     const below: IAutoMovieVector3 = { x: 0, y: -0.01, z: 0 };
     const handle: IAutoMovieAffordance = vessel.affordance("handle");
-    const bar: IAutoMoviePhysicalShape = shapes.find(
+    const bar: IAutoMoviePhysicalShape | undefined = shapes.find(
       (shape: IAutoMoviePhysicalShape): boolean => shape.id === "handle",
-    )!;
+    );
     const acrossLoop: IAutoMovieVector3 = { x: 0, y: height / 2, z: -gap };
     TestValidator.predicate(
       `${vessel.id} colliders preserve the floor, mouth and handle loop`,
@@ -112,6 +131,7 @@ export function test_archetype_props_pour_vessel(): void {
         handle.length! >= 0.03 &&
         handle.aperture! >= 0.008 &&
         handle.frame.translation.z < -gap &&
+        bar !== undefined &&
         separation(bar, handle.frame.translation, handle.frame.translation) <
           -0.003 &&
         vclose(
@@ -124,24 +144,45 @@ export function test_archetype_props_pour_vessel(): void {
     const hit: number = downwardMeshTravel(vessel.parts, above);
     TestValidator.predicate(
       `${vessel.id} visible surface opens down to the floor`,
-      nclose(hit, above.y - floor, 1e-7),
+      nclose(hit, above.y - floor.high, 1e-7),
     );
   }
 
+  const cupLip: IAutoMovieVector3 = cup.affordance("lip").frame.translation;
+  const frontRim: number[] = [];
+  for (const shape of cupShapes) {
+    if (shape.kind !== "hull") continue;
+    const frame: ReturnType<typeof convexCellObservation.frame> =
+      convexCellObservation.frame(
+        shape.transform.position,
+        shape.transform.rotation,
+      );
+    for (const point of shape.points) {
+      const placed: IAutoMovieVector3 = convexCellObservation.transformed(
+        point,
+        frame,
+      );
+      if (
+        nclose(placed.x, 0, 1e-10) &&
+        nclose(placed.y, 0.055, 1e-10) &&
+        placed.z > 0
+      )
+        frontRim.push(placed.z);
+    }
+  }
   const pitcherLip: IAutoMovieVector3 =
     pitcher.affordance("lip").frame.translation;
   const spout: IAutoMovieVector3 = { x: 0, y: 0.167, z: 0.06 };
   TestValidator.predicate(
     "the cup marks its inner edge and the pitcher marks a projecting, open tip",
-    nclose(cup.affordance("lip").frame.translation.z, 0.0365, 1e-10) &&
+    frontRim.length >= 2 &&
+      nclose(cupLip.z, Math.min(...frontRim), 1e-10) &&
       pitcherLip.z >= 0.069 &&
-      nclose(archetypeExtent(pitcher, "z").high, pitcherLip.z, 1e-10) &&
-      pitcher
-        .shapes()
-        .every(
-          (shape: IAutoMoviePhysicalShape): boolean =>
-            separation(shape, spout, spout) > 0.002,
-        ),
+      nclose(archetypeExtent(pitcherShapes, "z").high, pitcherLip.z, 1e-10) &&
+      pitcherShapes.every(
+        (shape: IAutoMoviePhysicalShape): boolean =>
+          separation(shape, spout, spout) > 0.002,
+      ),
   );
 
   const seeded: ReturnType<typeof createPourVessel> = createPourVessel(
@@ -158,13 +199,18 @@ export function test_archetype_props_pour_vessel(): void {
     JSON.stringify(createPourVessel({ kind: "cup" }, "table")),
   );
   const diameter: number = archetypeExtent(seeded, "x").size;
+  const otherDiameter: number = archetypeExtent(other, "x").size;
   TestValidator.predicate(
     "seed variation stays within the source dimensions and empty mass",
     diameter >= 0.082 &&
       diameter <= 0.09 &&
       seeded.body.mass >= 0.165 &&
       seeded.body.mass <= 0.18 &&
-      !nclose(diameter, archetypeExtent(other, "x").size, 1e-8) &&
+      otherDiameter >= 0.082 &&
+      otherDiameter <= 0.09 &&
+      other.body.mass >= 0.165 &&
+      other.body.mass <= 0.18 &&
+      !nclose(diameter, otherDiameter, 1e-8) &&
       !nclose(seeded.body.mass, other.body.mass, 1e-8),
   );
 }

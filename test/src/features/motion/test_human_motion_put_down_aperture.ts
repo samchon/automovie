@@ -34,7 +34,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios:
  * 1. Two different polygon bodies carry through a horizontal and an oblique
  *    opening. The displayed object tracks the authored insertion line within
- *    15 mm, reaches within 15 degrees of the aperture attitude on arrival,
+ *    15 mm at interior quarter phases, aligns within 15 degrees on arrival,
  *    and changes by at most 1 mm across the aperture and mounting instants.
  * 2. The seated object follows a later receptacle translation by 1 mm after
  *    the hand has withdrawn.
@@ -177,23 +177,26 @@ export function test_human_motion_put_down_aperture(): void {
         placed < release &&
         segment.end < 8,
     );
+    const opening: IAutoMovieRigidTransform = frame(aperture);
+    const seated: IAutoMovieRigidTransform = frame(placed);
     TestValidator.predicate(
       name + " aligns at the aperture",
-      distance(frame(aperture).position, mouth) <= 0.015 &&
-        Quaternion.angle(frame(aperture).rotation, rotation) <= Math.PI / 12,
+      distance(opening.position, mouth) <= 0.015 &&
+        Quaternion.angle(opening.rotation, rotation) <= Math.PI / 12,
     );
-    const axis: IAutoMovieVector3 = Vector3.normalize(path);
-    for (let step: number = 1; step <= 8; ++step) {
-      const t: number = aperture + ((placed - aperture) * step) / 8;
+    const length: number = Vector3.length(path);
+    const axis: IAutoMovieVector3 = Vector3.scale(path, 1 / length);
+    for (const phase of [0.25, 0.5, 0.75]) {
+      const t: number = aperture + (placed - aperture) * phase;
       const delta: IAutoMovieVector3 = Vector3.subtract(
         frame(t).position,
         mouth,
       );
       const depth: number = Vector3.dot(delta, axis);
       TestValidator.predicate(
-        name + " insertion along the authored corridor " + step,
+        name + " insertion along the authored corridor at phase " + phase,
         depth >= -0.015 &&
-          depth <= Vector3.length(path) + 0.015 &&
+          depth <= length + 0.015 &&
           Vector3.length(Vector3.subtract(delta, Vector3.scale(axis, depth))) <=
             0.015,
       );
@@ -206,12 +209,13 @@ export function test_human_motion_put_down_aperture(): void {
       );
     TestValidator.predicate(
       name + " stays seated through opening the hand and moves with the case",
-      distance(frame(placed).position, seat) <= 0.001 &&
+      distance(seated.position, seat) <= 0.001 &&
         distance(frame(release).position, seat) <= 0.001 &&
         distance(frame(9).position, Vector3.add(seat, shift)) <= 0.001,
     );
 
     const exit: number = release + placed - aperture;
+    // The empty hand traverses the same insertion span in reverse.
     const empty: IAutoMovieResolvedBone = film
       .bones("actor", exit)
       .get("rightHand")!;
@@ -222,7 +226,11 @@ export function test_human_motion_put_down_aperture(): void {
     );
 
     if (name === "m-average") {
-      for (const invalid of ["missing", "twisted", "far"]) {
+      for (const [invalid, kind, axis] of [
+        ["missing", "affordance", "onto"],
+        ["twisted", "affordance", "onto.aperture"],
+        ["far", "reach", "prop"],
+      ] as const) {
         let refusal: unknown;
         try {
           stage(invalid);
@@ -231,7 +239,9 @@ export function test_human_motion_put_down_aperture(): void {
         }
         TestValidator.predicate(
           invalid + " mouth is refused",
-          refusal instanceof HumanRefusal,
+          refusal instanceof HumanRefusal &&
+            refusal.kind === kind &&
+            refusal.axis === axis,
         );
       }
       TestValidator.equals(

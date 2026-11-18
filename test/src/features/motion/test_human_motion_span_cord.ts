@@ -44,14 +44,15 @@ const START_TRAVEL: number = 1 / 16;
  *    below the anchors; particle masses sum to the authored mass.
  * 2. The native initial step rebuilds the rest legs for a nonzero slider
  *    starting travel. Later samples follow that slider and the moving owner.
- *    The CPU scene tube is updated from those same performance samples.
- * 3. An overextended initial placement, missing span and invalid link count
- *    refuse. A film beyond the authored step budget refuses at construction.
+ *    The final allowed sample reaches the CPU scene tube. A reverse seek
+ *    restores the initial particles.
+ * 3. Overextended and nonfinite initial placements refuse on sampling. A
+ *    missing span, one link and a film beyond the step budget also refuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model geometry, moving endpoints, independent dimensions and refused inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Uses real Archetype span authoring, observes the public performance's native soft samples and uses the canonical surface projection to update one CPU scene tube.
- * @evidence contracts/development/testing.md#independent-expectations Pythagoras gives the 3/8 m altitude for half-chord 1/2 m and leg 5/8 m. A +90 degree Y rotation sends local +X to world -Z so the endpoints follow the owner's translation and slider displacement algebraically.
- * @evidence contracts/development/testing.md#distinguishing-cases An odd link count pins unequal subdivisions without changing overall dimensions. An owner subject with the grip prefix still supplies both anchors. Nonzero initial travel distinguishes declared geometry from the actual start placement. Initial overextension, missing span, one link and duration over budget all refuse.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses real Archetype span authoring, observes the public performance's native soft samples and projects the final allowed sample through the canonical surface into a CPU scene tube. The direct samples distinguish incorrect placement and playback from tube construction, which test_render_soft_cord checks.
+ * @evidence contracts/development/testing.md#independent-expectations Pythagoras gives the 3/8 m altitude for half-chord 1/2 m and leg 5/8 m. A +90 degree Y rotation sends local +X to world -Z so the endpoints follow the owner's translation and slider displacement algebraically. The render check measures only longitudinal ring centres, within 1e-6 m for Float32 rounding. The reverse seek compares two observations of the same film instant.
+ * @evidence contracts/development/testing.md#distinguishing-cases An odd link count pins unequal subdivisions without changing overall dimensions. An owner subject with the grip prefix still supplies both anchors. Nonzero initial travel distinguishes declared geometry from the actual start placement. The budget permits its final step and refuses one additional step. Initial overextension, nonfinite placement, a missing span and one link exercise distinct refusals.
  * @evidence contracts/development/testing.md#execution-ownership test_human_motion_span_cord uses an in-memory model and four soft steps, without a performer pose, action plan or visual host, plus CPU-only geometry.
  */
 export function test_human_motion_span_cord(): void {
@@ -125,7 +126,7 @@ export function test_human_motion_span_cord(): void {
   );
 
   const performance: IAutoMovieMotionHumanPerformance = place(owner, cord, END);
-  const first: number[] = performance.soft("cord", 0);
+  const first: number[] = [...performance.soft("cord", 0)];
   TestValidator.predicate(
     "the initial seed uses the actual slider pose",
     () => {
@@ -143,76 +144,86 @@ export function test_human_motion_span_cord(): void {
     },
   );
 
+  const middle: number[] = performance.soft("cord", END / 2);
+  const last: number[] = performance.soft("cord", END);
+  const samples: readonly (readonly [number, readonly number[]])[] = [
+    [0, first],
+    [END / 2, middle],
+    [END, last],
+  ];
+  TestValidator.predicate(
+    "the hard anchors follow the owner and slider through the last allowed step",
+    () =>
+      samples.every(
+        ([seconds, positions]: readonly [number, readonly number[]]): boolean =>
+          vclose(point(positions, 0), { x: 2, y: 3, z: 1 + seconds }, 1e-9) &&
+          vclose(
+            point(positions, 3),
+            { x: 2, y: 3, z: seconds / 2 - START_TRAVEL },
+            1e-9,
+          ),
+      ),
+  );
+  const rewound: number[] = performance.soft("cord", 0);
+  TestValidator.predicate(
+    "seeking back restores the initial particle positions",
+    () =>
+      rewound.length === first.length &&
+      first.every((coordinate: number, index: number): boolean =>
+        nclose(rewound[index]!, coordinate, 1e-9),
+      ),
+  );
+
+  // A single moved sample crosses the producer-to-renderer boundary.
+  const surface: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+    domain,
+    state: {
+      domain: domain.id,
+      state: null,
+      step: END / options.solver.fixedStepSeconds,
+      time: END,
+      positions: last,
+      velocities: [],
+      maxSpeed: 0,
+      maxStrain: 0,
+      contacts: 0,
+    },
+  });
   const scene: THREE.Scene = new THREE.Scene();
   const layer: IAutoMovieSceneSoftProps = buildSceneSoftProps(scene);
   try {
-    for (const seconds of [0, 1 / 16, 1 / 8, 0]) {
-      const positions: number[] = performance.soft("cord", seconds);
-      const from: IAutoMovieVector3 = { x: 2, y: 3, z: 1 + seconds };
-      const to: IAutoMovieVector3 = {
-        x: 2,
-        y: 3,
-        z: seconds / 2 - START_TRAVEL,
-      };
-      TestValidator.predicate(
-        "both hard anchors follow the placed model",
-        () =>
-          vclose(point(positions, 0), from, 1e-9) &&
-          vclose(point(positions, 3), to, 1e-9),
+    layer.update([
+      {
+        subject: cord.subject,
+        status: "solved",
+        cordRadius: domain.contact!.thickness,
+        surface,
+      },
+    ]);
+    const mesh: THREE.Object3D | undefined = scene.getObjectByName("soft:cord");
+    TestValidator.predicate("the scene tube reaches the moved anchors", () => {
+      if (!(mesh instanceof THREE.Mesh) || !mesh.visible) return false;
+      const vertices: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
+        mesh.geometry.getAttribute("position");
+      const ringSize: number = vertices.count / 4;
+      const lastRing: number = vertices.count - ringSize;
+      const opposite: number = (ringSize - 1) / 2;
+      return (
+        mesh.userData.step === options.solver.maxSteps &&
+        Number.isInteger(opposite) &&
+        opposite > 0 &&
+        nclose(
+          (vertices.getZ(0) + vertices.getZ(opposite)) / 2,
+          1 + END,
+          1e-6,
+        ) &&
+        nclose(
+          (vertices.getZ(lastRing) + vertices.getZ(lastRing + opposite)) / 2,
+          END / 2 - START_TRAVEL,
+          1e-6,
+        )
       );
-
-      // The film producer supplies the performance's particles at this native step.
-      const step: number = seconds / domain.solver.fixedStepSeconds;
-      const surface: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
-        domain,
-        state: {
-          domain: domain.id,
-          state: null,
-          step,
-          time: seconds,
-          positions,
-          velocities: [],
-          maxSpeed: 0,
-          maxStrain: 0,
-          contacts: 0,
-        },
-      });
-      layer.update([
-        {
-          subject: cord.subject,
-          status: "solved",
-          cordRadius: domain.contact!.thickness,
-          surface,
-        },
-      ]);
-      const mesh: THREE.Object3D | undefined =
-        scene.getObjectByName("soft:cord");
-      TestValidator.predicate("the scene tube follows the sampled cord", () => {
-        if (!(mesh instanceof THREE.Mesh) || !mesh.visible) return false;
-        const vertices:
-          | THREE.BufferAttribute
-          | THREE.InterleavedBufferAttribute =
-          mesh.geometry.getAttribute("position");
-        const ringSize: number = vertices.count / domain.lattice.rows;
-        const last: number = vertices.count - ringSize;
-        const opposite: number = (ringSize - 1) / 2;
-        return (
-          mesh.userData.step === step &&
-          Number.isInteger(opposite) &&
-          opposite > 0 &&
-          nclose(
-            (vertices.getZ(0) + vertices.getZ(opposite)) / 2,
-            from.z,
-            1e-6,
-          ) &&
-          nclose(
-            (vertices.getZ(last) + vertices.getZ(last + opposite)) / 2,
-            to.z,
-            1e-6,
-          )
-        );
-      });
-    }
+    });
   } finally {
     layer.dispose();
   }

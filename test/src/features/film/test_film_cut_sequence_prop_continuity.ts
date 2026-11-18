@@ -15,7 +15,7 @@ import { nclose } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Match linear position and morph state at interior trim boundaries, and
+ * 1. Match linear position and morph state at retimed interior trim boundaries, and
  *    accept equivalent wrist-joint quaternions with opposite signs.
  * 2. Shift the incoming trim by half a second and refuse an independently
  *    measured half-metre jump, while allowing that edit without requirements.
@@ -24,7 +24,7 @@ import { nclose } from "../internal/predicates";
  *    STEP change on the excluded edge, and a transition with no hard cut.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence with already-built tracks and checks accepted runtime, a measured continuity violation and distinct unsupported/missing cases through the public result.
- * @evidence contracts/development/testing.md#independent-expectations Position advances one metre per second. It is 1 metre at outgoing time 1 and incoming time 1.5, and 1.5 metres when the incoming trim instead starts at 2. The two unit quaternions denote identical orientations; the midpoint weights of both ramps are 0.5. An incoming STEP setting the weight to 0.125 jumps by 0.375.
+ * @evidence contracts/development/testing.md#independent-expectations Position advances one metre per second. It is 1 metre at outgoing time 1 and incoming time 1.5, and 1.5 metres when the incoming trim instead starts at 2. At 2× and 0.5× the output spans are 0.375 and 2 seconds. The two unit quaternions denote identical orientations; the midpoint weights of both ramps are 0.5. An incoming STEP setting the weight to 0.125 jumps by 0.375.
  * @evidence contracts/development/testing.md#distinguishing-cases Untrimmed shot endpoints differ, an interior trim shift isolates a position mismatch, and the active-channel/STEP cases distinguish absence from a present but unsupported outgoing boundary.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable test supplies finite clip data to cutSequence synchronously without a render host, timers or global changes.
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify source-time placements, channel units and meanings, hard cut versus overlap, and the independent arithmetic behind the measured jump.
@@ -97,11 +97,13 @@ export function test_film_cut_sequence_prop_continuity(): void {
       {
         shot: outgoing.id,
         trim: { start: 0.25, duration: 0.75 },
+        playbackRate: 2,
         transition: null,
       },
       {
         shot: incoming.id,
         trim: { start: 1.5, duration: 1 },
+        playbackRate: 0.5,
         transition: null,
       },
     ],
@@ -115,9 +117,8 @@ export function test_film_cut_sequence_prop_continuity(): void {
   };
 
   const matched: IAutoMovieCut = cutSequence(plan, [outgoing, incoming]);
-  TestValidator.equals("trimmed interior states match", matched.success, true);
-  if (matched.success)
-    TestValidator.predicate("played runtime", nclose(matched.runtime, 1.75));
+  if (!matched.success) throw new Error("retimed interior states must match");
+  TestValidator.predicate("played runtime", nclose(matched.runtime, 2.375));
 
   const shifted: IAutoMovieEditPlan = {
     ...plan,
@@ -128,23 +129,18 @@ export function test_film_cut_sequence_prop_continuity(): void {
     requiredPropContinuity: [plan.requiredPropContinuity![0]!],
   };
   const jumped: IAutoMovieCut = cutSequence(shifted, [outgoing, incoming]);
-  TestValidator.equals("position jump is refused", jumped.success, false);
-  if (jumped.success === false) {
-    const finding: IAutoMovieConstraintViolation = jumped.violations[0]!;
-    TestValidator.equals(
-      "exact failing requirement",
-      finding.path,
-      "$input.requiredPropContinuity[0]",
-    );
-    TestValidator.predicate(
-      "measures half a metre",
-      nclose(Number(finding.value), 0.5),
-    );
-    TestValidator.predicate(
-      "measures tolerance excess",
-      nclose(finding.overshoot ?? NaN, 0.375),
-    );
-  }
+  if (jumped.success) throw new Error("the position jump must be refused");
+  const jump: IAutoMovieConstraintViolation = jumped.violations[0]!;
+  TestValidator.equals(
+    "position requirement",
+    jump.path,
+    "$input.requiredPropContinuity[0]",
+  );
+  TestValidator.predicate("half-metre jump", nclose(Number(jump.value), 0.5));
+  TestValidator.predicate(
+    "tolerance excess",
+    nclose(jump.overshoot ?? NaN, 0.375),
+  );
   TestValidator.equals(
     "editor may leave a jump unchecked",
     cutSequence({ ...shifted, requiredPropContinuity: [] }, [
@@ -171,28 +167,17 @@ export function test_film_cut_sequence_prop_continuity(): void {
     outgoing,
     { ...incoming, objectMotions: [changedMorph] },
   ]);
+  if (changed.success)
+    throw new Error("the first incoming STEP key must be active");
   TestValidator.equals(
-    "incoming STEP is active on its first key",
-    changed.success,
-    false,
+    "only the morph-state requirement fails",
+    changed.violations.map((item): string => item.path),
+    ["$input.requiredPropContinuity[2]"],
   );
-  if (changed.success === false) {
-    const finding: IAutoMovieConstraintViolation = changed.violations[0]!;
-    TestValidator.equals(
-      "only the morph-state requirement fails",
-      changed.violations.length,
-      1,
-    );
-    TestValidator.equals(
-      "morph-state path",
-      finding.path,
-      "$input.requiredPropContinuity[2]",
-    );
-    TestValidator.predicate(
-      "measures the weight jump",
-      nclose(Number(finding.value), 0.375),
-    );
-  }
+  TestValidator.predicate(
+    "weight jump",
+    nclose(Number(changed.violations[0]?.value), 0.375),
+  );
 
   const late: IAutoMovieClip = {
     ...incomingClip,
@@ -206,18 +191,14 @@ export function test_film_cut_sequence_prop_continuity(): void {
     outgoing,
     { ...incoming, objectMotions: [late] },
   ]);
-  TestValidator.equals(
-    "future track cannot fill a missing boundary value",
-    missing.success,
-    false,
-  );
-  if (missing.success === false)
-    TestValidator.predicate(
-      "missing side is identified",
-      missing.violations[0]!.expected.includes(
+  TestValidator.predicate(
+    "future track leaves the incoming boundary value absent",
+    !missing.success &&
+      (missing.violations[0]?.expected.includes(
         "incoming entry 1 at 1.5s lacks an active",
-      ),
-    );
+      ) ??
+        false),
+  );
 
   const stepping: IAutoMovieClip = {
     ...outgoingClip,
@@ -237,16 +218,10 @@ export function test_film_cut_sequence_prop_continuity(): void {
     incoming,
   ]);
   TestValidator.equals(
-    "excluded STEP key cannot certify the outgoing state",
-    discarded.success,
-    false,
+    "excluded STEP key cannot certify the outgoing morph state",
+    discarded.success ? null : discarded.violations[0]?.path,
+    "$input.requiredPropContinuity[2]",
   );
-  if (discarded.success === false)
-    TestValidator.equals(
-      "STEP refusal points to the morph-state requirement",
-      discarded.violations[0]!.path,
-      "$input.requiredPropContinuity[2]",
-    );
 
   const overlapping: IAutoMovieCut = cutSequence(
     {
@@ -262,14 +237,8 @@ export function test_film_cut_sequence_prop_continuity(): void {
     [outgoing, incoming],
   );
   TestValidator.equals(
-    "dissolve is outside the hard cut contract",
-    overlapping.success,
-    false,
+    "dissolve refusal points to the incoming entry",
+    overlapping.success ? null : overlapping.violations[0]?.path,
+    "$input.requiredPropContinuity[0].entry",
   );
-  if (overlapping.success === false)
-    TestValidator.equals(
-      "overlap refusal points to incoming entry",
-      overlapping.violations[0]!.path,
-      "$input.requiredPropContinuity[0].entry",
-    );
 }

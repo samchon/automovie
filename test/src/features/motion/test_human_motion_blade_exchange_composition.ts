@@ -37,14 +37,14 @@ import { nclose } from "../internal/nclose";
  *    meets the cue at 3.25 and ends at 4. The reply starts at 4 and ends at 5.
  * 2. With the cast reversed and a new cue, the second block starts at 7.5,
  *    meets at 8.25 and ends at 9. Omit the reply to end the scene at 9.
- * 3. Verify that each role retains its authored prop and stage mark and that
- *    a repeated performer, a shared prop and a blank cue are refused.
- * 4. Read both exchanges' editing cues from the placed film schedule.
+ * 3. Retain each role's authored prop and mark. Refuse repeated performers,
+ *    repeated props, blank ids and a negative lead.
+ * 4. Read the first exchange's editing cues from the placed schedule.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the fixture clock, phase order, cue independence, authored marks and refused inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Resolves two compositions in sequence, asserting placed subjects, props, marks and instants; a dropped preparation, aligned start instead of stroke, wrong cue or unordered response changes the result. The public reader projects cue tracks from those placements.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves two compositions in sequence, checking subjects, props, marks and instants. A dropped preparation, aligned start instead of stroke, wrong cue or unordered response changes the result. One projected track checks the actual schedule-to-edit handoff.
  * @evidence contracts/development/testing.md#independent-expectations Derives expected film times by addition and subtraction from arbitrary fixture durations and stage cues. Authored film marks are direct test inputs. The spec owns choreography composition; posed blade geometry is covered by the blade exchange spec.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises parallel roles, a reversed cast with its own anchors, reply present and absent, and malformed cast, prop and cue choices.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises parallel roles, a reversed cast with its own anchors, reply present and absent, and malformed cast, prop, lead and cue choices. The cue-reader spec owns tie order, cuts and absence.
  * @evidence contracts/development/testing.md#execution-ownership Portable composition spec. HumanPerformance places registered timing laws over an in-memory body, with no host or capture.
  */
 export function test_human_motion_blade_exchange_composition(): void {
@@ -139,14 +139,16 @@ export function test_human_motion_blade_exchange_composition(): void {
   const block: IAutoMovieScheduleEntry = placed("first.block");
   const reply: IAutoMovieScheduleEntry = placed("first.reply");
   const reversed: IAutoMovieScheduleEntry = placed("second.block");
+  const readyA: IAutoMovieScheduleEntry = placed("a.ready");
+  const readyB: IAutoMovieScheduleEntry = placed("b.ready");
 
   TestValidator.predicate(
     "the cast prepares in parallel",
     (): boolean =>
-      nclose(placed("a.ready").start, 0) &&
-      nclose(placed("a.ready").end, 2) &&
-      nclose(placed("b.ready").start, 0) &&
-      nclose(placed("b.ready").end, 1),
+      nclose(readyA.start, 0) &&
+      nclose(readyA.end, 2) &&
+      nclose(readyB.start, 0) &&
+      nclose(readyB.end, 1),
   );
   TestValidator.predicate(
     "the block meets the opening after preparation",
@@ -208,56 +210,40 @@ export function test_human_motion_blade_exchange_composition(): void {
     1,
   );
 
-  for (const [cue, expected] of [
-    [
-      "first",
-      [
-        ["opening", 3.25],
-        ["block", 3.25],
-        ["reply", 4],
-      ],
-    ],
-    [
-      "second",
-      [
-        ["opening", 8.25],
-        ["block", 8.25],
-      ],
-    ],
-  ] as const) {
-    const track: IAutoMovieScheduleCue[] = readHumanBladeExchangeCues(
-      film,
-      cue,
-    );
-    TestValidator.equals(
-      `${cue} editing cue names in film order`,
-      track.map((event: IAutoMovieScheduleCue): string => event.name),
-      expected.map(([name]) => name),
-    );
-    TestValidator.predicate(
-      `${cue} editing cues use the placed film seconds`,
-      expected.every(([, seconds], i: number): boolean =>
-        nclose(track[i]?.seconds ?? Number.NaN, seconds),
+  const track: IAutoMovieScheduleCue[] = readHumanBladeExchangeCues(
+    film,
+    "first",
+  );
+  const expected: readonly IAutoMovieScheduleCue[] = [
+    { name: "opening", seconds: 3.25 },
+    { name: "block", seconds: 3.25 },
+    { name: "reply", seconds: 4 },
+  ];
+  TestValidator.predicate(
+    "the placed schedule supplies the editing track",
+    (): boolean =>
+      track.length === expected.length &&
+      track.every(
+        (event: IAutoMovieScheduleCue, index: number): boolean =>
+          event.name === expected[index]!.name &&
+          nclose(event.seconds, expected[index]!.seconds),
       ),
-    );
-  }
+  );
 
   TestValidator.error("the two performers must be distinct", (): void => {
     composeHumanBladeExchange(castA, castA, first);
   });
-  TestValidator.error("the two props must be distinct", (): void => {
-    composeHumanBladeExchange(castA, castB, {
-      ...first,
-      respondingProp: "foam-a",
+  const invalid: readonly [
+    string,
+    Partial<IAutoMovieMotionHumanBladeExchange>,
+  ][] = [
+    ["the two props must be distinct", { respondingProp: "foam-a" }],
+    ["the stage props must have ids", { openingProp: "" }],
+    ["the block lead must be nonnegative", { blockLeadSeconds: -1 }],
+    ["the stage cue must have a name", { cue: " " }],
+  ];
+  for (const [name, input] of invalid)
+    TestValidator.error(name, (): void => {
+      composeHumanBladeExchange(castA, castB, { ...first, ...input });
     });
-  });
-  TestValidator.error("the stage props must have ids", (): void => {
-    composeHumanBladeExchange(castA, castB, { ...first, openingProp: "" });
-  });
-  TestValidator.error("the block lead must be nonnegative", (): void => {
-    composeHumanBladeExchange(castA, castB, { ...first, blockLeadSeconds: -1 });
-  });
-  TestValidator.error("the stage cue must have a name", (): void => {
-    composeHumanBladeExchange(castA, castB, { ...first, cue: " " });
-  });
 }

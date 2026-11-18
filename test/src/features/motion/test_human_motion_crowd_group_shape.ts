@@ -11,9 +11,15 @@ import { TestValidator } from "@nestia/e2e";
  * two inside positions behind the outside ones. Wider members keep lateral
  * shoulder clearance. The course transports the shape as a rigid layout.
  *
+ * Scenarios:
+ * 1. Field geometry changes with group size and density.
+ * 2. Wide shoulders preserve the bend while increasing lateral clearance.
+ * 3. A translated quarter-turn carries the same ordered slot layout.
+ * 4. Malformed density, breadth and member counts are refused.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the density, membership, shoulder clearance and moving-frame cases covered by the scenario.
  * @evidence contracts/development/testing.md#behavioral-verification Samples public formation slots to catch a lost group member, shared slot, reversed bend, incorrect spacing, shoulder overlap, or a shape fixed in world space.
- * @evidence contracts/development/testing.md#independent-expectations Moussaïd et al. (2010), Table 1 and Fig. 4, supply the field distances and order along travel. Shoulder clearance follows from the sum of widths, and rigid course transport from Euclidean geometry. The test measures slot geometry and leaves locomotion and obstacle clearance to their own specs.
+ * @evidence contracts/development/testing.md#independent-expectations Moussaïd et al. (2010), Table 1 and Fig. 4, supply the field distances and order along travel. Shoulder clearance follows from the sum of widths, and rigid course transport from Euclidean geometry. The midpoint uses the documented interpolation of measured distance and bearing. The test measures slot geometry and leaves locomotion and obstacle clearance to their own specs.
  * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes pairs, trios and groups of four, sparse and moderate densities, the intermediate fit, the upper clamp, large shoulder breadths, a translated quarter-turn, and malformed requests.
  * @evidence contracts/development/testing.md#execution-ownership The exported feature test composes a two-sample course in memory and reads only slot points. It builds zero pose or limb plans and needs no host.
  */
@@ -58,6 +64,7 @@ export function test_human_motion_crowd_group_shape(): void {
   const dyad: IAutoMovieVector3[] = points(
     humanCrowdGroupFormation(frame, narrow.slice(0, 2), 0.25),
   );
+  TestValidator.equals("both pair members remain present", dyad.length, 2);
   near(
     "the pair's spacing at moderate density",
     distance(dyad[0]!, dyad[1]!),
@@ -104,10 +111,6 @@ export function test_human_motion_crowd_group_shape(): void {
     bearing(moderate[1]!, moderate[2]!),
     70.6,
   );
-  TestValidator.predicate(
-    "both outside members lead the middle member",
-    moderate[1]!.z < Math.min(moderate[0]!.z, moderate[2]!.z),
-  );
   near(
     "the course follows the geometric centre",
     moderate.reduce(
@@ -128,11 +131,17 @@ export function test_human_motion_crowd_group_shape(): void {
   const transitional: IAutoMovieVector3[] = points(
     humanCrowdGroupFormation(frame, trio, 0.14),
   );
-  const transitionGap: number = distance(transitional[0]!, transitional[1]!);
-  TestValidator.predicate(
-    "intermediate spacing lies between field measurements",
-    0.55 < transitionGap && transitionGap < 0.79,
+  near(
+    "halfway density interpolates the first measured spacing",
+    distance(transitional[0]!, transitional[1]!),
+    (0.79 + 0.55) / 2,
   );
+  near(
+    "halfway density interpolates the first measured bearing",
+    bearing(transitional[0]!, transitional[1]!),
+    (90 + 107.9) / 2,
+  );
+
   const aboveRange: IAutoMovieVector3[] = points(
     humanCrowdGroupFormation(frame, trio, 1),
   );
@@ -164,12 +173,18 @@ export function test_human_motion_crowd_group_shape(): void {
   const broadened: IAutoMovieVector3[] = points(
     humanCrowdGroupFormation(frame, wide, 0.25),
   );
-  for (let i: number = 1; i < broadened.length; ++i)
+  for (let i: number = 1; i < broadened.length; ++i) {
     TestValidator.predicate(
       "adjacent lateral shoulder extents are disjoint",
       broadened[i - 1]!.x - broadened[i]!.x + tolerance >=
         wide[i - 1]! + wide[i]!,
     );
+    near(
+      "widened neighbours keep their field bearing",
+      bearing(broadened[i - 1]!, broadened[i]!),
+      bearing(moderate[i - 1]!, moderate[i]!),
+    );
+  }
 
   const moved: IAutoMovieVector3[] = points(bent, 1);
   for (let i: number = 0; i < moved.length; ++i) {

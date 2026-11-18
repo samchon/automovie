@@ -1,5 +1,5 @@
 import {
-  type QuadrupedBody,
+  ArchetypeFrame,
   createCat,
   createQuadruped,
   rideQuadruped,
@@ -13,6 +13,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { AnimalNeutralObservation } from "../internal/AnimalNeutralObservation";
 import { animalLocomotionFixture as fixture } from "../internal/animalLocomotionFixture";
+import { animalTerminalSole } from "../internal/animalTerminalSole";
 
 /**
  * An adult domestic cat enters the closed producer and produces an ordinary
@@ -116,20 +117,21 @@ export function test_archetype_domestic_cat(): void {
     findings.push("the same seed changed the actual cat or its draw");
 
   const ride: fixture.Ride = rideQuadruped(cat, fixture.course(0.63));
-  const origin: number = 0.8;
-  const timing: Readonly<
-    Record<QuadrupedBody.Limb, readonly [number, number]>
-  > = {
-    leftFore: [0, 0.47608],
-    rightFore: [0.4, 0.47608],
-    leftHind: [0.6352, 0.43896],
-    rightHind: [0.2352, 0.43896],
+  // Rebase the measured lateral sequence to left fore, with bilateral half-cycle symmetry.
+  const stride: number = 0.8;
+  const halfStride: number = stride / 2;
+  const hindLead: number = stride * 0.206;
+  const offsets: Readonly<Record<(typeof fixture.FEET)[number], number>> = {
+    leftFore: 0,
+    rightFore: halfStride,
+    leftHind: stride - hindLead,
+    rightHind: halfStride - hindLead,
   };
   for (const limb of fixture.FEET) {
-    const [offset, duration]: readonly [number, number] = timing[limb];
-    const onset: number = origin + offset;
-    const end: number = onset + duration;
-    for (const seconds of [onset, onset + 0.8])
+    const duty: number = limb.endsWith("Fore") ? 0.5951 : 0.5487;
+    const onset: number = stride + offsets[limb];
+    const end: number = onset + stride * duty;
+    for (const seconds of [onset, onset + stride])
       if (
         !ride.instants.some(
           (instant: { seconds: number; label: string }): boolean =>
@@ -139,24 +141,31 @@ export function test_archetype_domestic_cat(): void {
       )
         findings.push(`${limb} touchdown missing at ${seconds} s`);
 
-    const earlyStance: number = onset + 0.04;
-    const lateStance: number = end - 0.015;
-    const early: IAutoMovieVector3 = fixture.foot(ride, limb, earlyStance);
-    const late: IAutoMovieVector3 = fixture.foot(ride, limb, lateStance);
-    for (const seconds of [earlyStance, lateStance])
+    const distal: IAutoMovieVector3[] = [];
+    for (const seconds of [onset + 0.04, end - 0.015]) {
+      const sample: ReturnType<typeof ride.at> = ride.at(seconds);
+      const part: IAutoMovieModelPart = terminal(sample, limb);
       fixture.near(
         findings,
         `${limb} whole sole on ground at ${seconds} s`,
-        fixture.sole(ride, limb, seconds),
+        animalTerminalSole(part, sample.placement),
         0,
         1e-8,
       );
-    if (!(fixture.sole(ride, limb, end + 0.075) > 1e-5))
+      distal.push(
+        ArchetypeFrame.point(
+          sample.placement,
+          AnimalNeutralObservation.endpoint(part, 1),
+        ),
+      );
+    }
+    const swing: ReturnType<typeof ride.at> = ride.at(end + 0.075);
+    if (!(animalTerminalSole(terminal(swing, limb), swing.placement) > 1e-5))
       findings.push(`${limb} sole failed to clear the ground after stance`);
     fixture.near(
       findings,
       `${limb} stance translation`,
-      Vector3.length(Vector3.subtract(early, late)),
+      Vector3.length(Vector3.subtract(distal[0]!, distal[1]!)),
       0,
       1e-8,
     );
@@ -171,4 +180,17 @@ export function test_archetype_domestic_cat(): void {
     (): unknown => rideQuadruped(cat, fixture.course(0.63), "trot"),
   );
   TestValidator.equals("domestic cat producer and level walk", findings, []);
+}
+
+/** Locate the actual distal bar used for both joint and solid observations. */
+function terminal(
+  sample: ReturnType<fixture.Ride["at"]>,
+  limb: (typeof fixture.FEET)[number],
+): IAutoMovieModelPart {
+  const part: IAutoMovieModelPart | undefined = sample.archetype.parts.find(
+    (candidate: IAutoMovieModelPart): boolean =>
+      candidate.id === `${limb}Pastern`,
+  );
+  if (part === undefined) throw new Error(`Missing actual terminal ${limb}`);
+  return part;
 }

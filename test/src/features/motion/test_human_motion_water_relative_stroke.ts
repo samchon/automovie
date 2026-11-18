@@ -41,10 +41,28 @@ export function test_human_motion_water_relative_stroke(): void {
   const dry: AutoMovieHumanoidBone = "leftLowerArm";
   const direction: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
   const density: number = 1000;
-  const rest: readonly IAutoMovieResolvedBone[] = resolvePose(
-    { skeleton: body.skeleton.id, root: null, joints: [] },
-    body.skeleton,
-  );
+  const rest: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    new Map(
+      resolvePose(
+        { skeleton: body.skeleton.id, root: null, joints: [] },
+        body.skeleton,
+      ).map(
+        (
+          bone: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
+          bone.bone,
+          {
+            ...bone,
+            worldPosition: {
+              ...bone.worldPosition,
+              y: bone.bone === wet ? -10 : 10,
+            },
+          },
+        ],
+      ),
+    );
+  const wetRest: IAutoMovieResolvedBone = rest.get(wet)!;
+  const dryRest: IAutoMovieResolvedBone = rest.get(dry)!;
 
   /** Oppose motions at equal speeds while keeping only the named bone wet. */
   const plan = (
@@ -55,30 +73,25 @@ export function test_human_motion_water_relative_stroke(): void {
       (
         phase: number,
       ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+        if (amplitude === 0) return rest;
+
+        // Only the counter-moving pair changes. Keep every other bone fixed.
         const shift: number = amplitude * phase ** 2 * (3 - 2 * phase);
-        return new Map(
-          rest.map(
-            (
-              bone: IAutoMovieResolvedBone,
-            ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [
-              bone.bone,
-              {
-                ...bone,
-                worldPosition: {
-                  x:
-                    bone.worldPosition.x +
-                    (bone.bone === wet
-                      ? -shift
-                      : bone.bone === dry
-                        ? shift
-                        : 0),
-                  y: bone.bone === wet ? -10 : 10,
-                  z: bone.worldPosition.z,
-                },
-              },
-            ],
-          ),
-        );
+        return new Map(rest)
+          .set(wet, {
+            ...wetRest,
+            worldPosition: {
+              ...wetRest.worldPosition,
+              x: wetRest.worldPosition.x - shift,
+            },
+          })
+          .set(dry, {
+            ...dryRest,
+            worldPosition: {
+              ...dryRest.worldPosition,
+              x: dryRest.worldPosition.x + shift,
+            },
+          });
       },
       direction,
       { surface: 0, density },

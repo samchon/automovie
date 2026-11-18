@@ -20,8 +20,8 @@ import { hasViolation, nclose } from "../internal/predicates";
  *    malformed references, color disagreement and overflow are refused.
  * 4. Density and a transmission reference cannot both set the scene fog.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Stages a calibrated scene and samples its canonical fog at two depths. Inspects the zero result, preserved color and exact authored paths for rejected input, catching a non-squared law, ignored reference or ambiguous declarations.
- * @evidence contracts/development/testing.md#independent-expectations The written FogExp2 law gives T(2d) = T(d)^4, so the expected fractions at 40 and 80 metres are the independently specified 1/2 and 1/16. The comparisons observe binary64 attenuation without asserting GPU pixels.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the calibrated density and samples transmission at two depths. The zero-density case, color channels and failure paths catch an ignored reference or ambiguous declaration.
+ * @evidence contracts/development/testing.md#independent-expectations Solving the FogExp2 law at half transmission gives density sqrt(ln 2)/40 per metre. Doubling axial depth raises 1/2 to the fourth power and gives 1/16. The comparisons observe binary64 attenuation without asserting GPU pixels.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers representable references, the unit transmission boundary, malformed objects, invalid numeric and color fields, derived overflow and double authorship. Direct and omitted fog are covered by test_film_stage_scene_fog.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns all in-memory staging and transmittance queries, with no renderer, external program or artifact.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the public staging entry, camera-axis scaling rationale, clear-air boundary and submitted forms refused.
@@ -32,20 +32,36 @@ export function test_film_stage_scene_fog_visibility(): void {
     transmittance: 0.5,
     color: { r: 0.7, g: 0.74, b: 0.8, a: null, hex: null },
   };
-  const staged: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
-    ...makeStagingWrite(),
+  const script: ReturnType<typeof makeScriptWrite> = makeScriptWrite();
+  const stage: IAutoMovieStage = makeStagingWrite();
+  const staged: IAutoMovieStagedSet = stageScene(script, {
+    ...stage,
     fogVisibility: reference,
   });
+  if (
+    !staged.success ||
+    staged.scene.fog === null ||
+    staged.scene.fog === undefined
+  )
+    throw new Error("The calibrated stage must retain fog");
+  const color: typeof reference.color = staged.scene.fog.color;
+  TestValidator.predicate(
+    "the calibrated fog retains the authored color channels",
+    nclose(color.r, 0.7) &&
+      nclose(color.g, 0.74) &&
+      nclose(color.b, 0.8) &&
+      color.a === null &&
+      color.hex === null,
+  );
   TestValidator.predicate(
     "the canonical fog preserves the target and squared-depth falloff",
-    staged.success &&
-      staged.scene.fog?.color === reference.color &&
+    nclose(staged.scene.fog.density, Math.sqrt(Math.LN2) / 40, 1e-12) &&
       nclose(sceneFogTransmittance(staged.scene.fog, 40), 0.5) &&
       nclose(sceneFogTransmittance(staged.scene.fog, 80), 1 / 16),
   );
 
-  const clear: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
-    ...makeStagingWrite(),
+  const clear: IAutoMovieStagedSet = stageScene(script, {
+    ...stage,
     fogVisibility: { ...reference, transmittance: 1 },
   });
   TestValidator.predicate(
@@ -94,8 +110,8 @@ export function test_film_stage_scene_fog_visibility(): void {
     ],
   ];
   for (const [value, kind, path] of invalid) {
-    const rejected: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
-      ...makeStagingWrite(),
+    const rejected: IAutoMovieStagedSet = stageScene(script, {
+      ...stage,
       fogVisibility: value as IAutoMovieStage["fogVisibility"],
     });
     TestValidator.predicate(
@@ -104,8 +120,8 @@ export function test_film_stage_scene_fog_visibility(): void {
     );
   }
 
-  const ambiguous: IAutoMovieStagedSet = stageScene(makeScriptWrite(), {
-    ...makeStagingWrite(),
+  const ambiguous: IAutoMovieStagedSet = stageScene(script, {
+    ...stage,
     fog: { density: 0.1, color: reference.color },
     fogVisibility: reference,
   });

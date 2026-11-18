@@ -18,7 +18,7 @@ import { nclose } from "../internal/predicates";
  * 3. Playing the whole source and replaying its last representable interval keeps both occurrences of the tail marker.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads editorial markers from a public render manifest after admitting the cut through cutSequence.
- * @evidence contracts/development/testing.md#independent-expectations The first entry lasts 0.2 output seconds. The incoming and repeated 0.25-second plays start at 0.2 and 0.45, and both retain a point at their exact source start of 0.3.
+ * @evidence contracts/development/testing.md#independent-expectations The incoming and repeated quarter-second plays start at 0.2 and 0.45. Neighboring source doubles stay exact while the output comparisons allow rounding. A full play at fourfold speed maps source time to one quarter of that value and places the start of the replay at 0.25 seconds.
  * @evidence contracts/development/testing.md#distinguishing-cases The decimal endpoint rounds upward and brackets an exact seam with neighboring source doubles, detecting both duplicated ownership and epsilon-based marker loss.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous spec runs the edit and render planners without writing frames or opening a host.
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify the source seam, neighboring doubles, retained replay and an explicit tail inside the full play.
@@ -43,45 +43,48 @@ export function test_render_editorial_marker_seam(): void {
     editorialMarkers: markers,
     duration: 1,
   };
-  const cut: ReturnType<typeof cutSequence> = cutSequence(
-    {
-      sequence: { id: "decimal-seam", name: "Decimal seam" },
-      fps: 24,
-      entries: [
-        {
-          shot: shot.id,
-          trim: { start: 0.1, duration: 0.2 },
-          transition: null,
-        },
-        {
-          shot: shot.id,
-          trim: { start: 0.3, duration: 0.25 },
-          transition: null,
-        },
-        {
-          shot: shot.id,
-          trim: { start: 0.3, duration: 0.25 },
-          transition: null,
-        },
-      ],
-      pacing: "Keep both dialogue beats.",
-      continuity: "Replay the second beat.",
-    },
-    [shot],
-  );
-  if (cut.success !== true) throw new Error("cut must succeed");
-  const render: ReturnType<typeof planSequenceRender> = planSequenceRender({
-    sequence: cut.sequence,
-    shots: [shot],
-    spec: {
-      target: cut.sequence.id,
-      frameFormat: { fps: 24, width: 640, height: 360 },
-      toneMapping: "none",
-      codec: "h264",
-      pixelFormat: "yuv420p",
-      crf: 20,
-    },
-  });
+  const renderSequence: (
+    source: IAutoMovieShot,
+    entries: Parameters<typeof cutSequence>[0]["entries"],
+  ) => ReturnType<typeof planSequenceRender> = (
+    source: IAutoMovieShot,
+    entries: Parameters<typeof cutSequence>[0]["entries"],
+  ): ReturnType<typeof planSequenceRender> => {
+    const cut: ReturnType<typeof cutSequence> = cutSequence(
+      {
+        sequence: { id: "marker-playback", name: "Marker playback" },
+        fps: 24,
+        entries,
+        pacing: "",
+        continuity: "",
+      },
+      [source],
+    );
+    if (!cut.success) throw new Error("The marker sequence must admit the cut");
+    return planSequenceRender({
+      sequence: cut.sequence,
+      shots: [source],
+      spec: {
+        target: cut.sequence.id,
+        frameFormat: { fps: 24, width: 640, height: 360 },
+        toneMapping: "none",
+        codec: "h264",
+        pixelFormat: "yuv420p",
+        crf: 20,
+      },
+    });
+  };
+
+  const incoming: Parameters<typeof cutSequence>[0]["entries"][number] = {
+    shot: shot.id,
+    trim: { start: seam, duration: 0.25 },
+    transition: null,
+  };
+  const render: ReturnType<typeof planSequenceRender> = renderSequence(shot, [
+    { ...incoming, trim: { start: 0.1, duration: 0.2 } },
+    incoming,
+    { ...incoming },
+  ]);
   const projected: IAutoMoviePlaybackEditorialMarker[] =
     render.editorialMarkers ?? [];
   TestValidator.equals(
@@ -92,13 +95,27 @@ export function test_render_editorial_marker_seam(): void {
     ),
     ["0:before", "1:seam", "1:after", "2:seam", "2:after"],
   );
-  TestValidator.predicate(
-    "source identities and replay clocks are retained",
-    projected[0]!.startSeconds < projected[1]!.startSeconds &&
-      projected[1]!.startSeconds < projected[2]!.startSeconds &&
-      nclose(projected[1]!.outputStartSeconds, 0.2) &&
-      nclose(projected[3]!.outputStartSeconds, 0.45),
-  );
+  const expectedTimes: readonly [number, number][] = [
+    [before, 0.2],
+    [seam, 0.2],
+    [after, 0.2],
+    [seam, 0.45],
+    [after, 0.45],
+  ];
+  for (const [index, [source, output]] of expectedTimes.entries()) {
+    const marker: IAutoMoviePlaybackEditorialMarker | undefined =
+      projected[index];
+    TestValidator.predicate(
+      `point ${index} preserves its exact source identity and the replay clock`,
+      marker !== undefined &&
+        marker.startSeconds === source &&
+        marker.endSeconds === source &&
+        marker.retainedStartSeconds === source &&
+        marker.retainedEndSeconds === source &&
+        nclose(marker.outputStartSeconds, output, 1e-15) &&
+        nclose(marker.outputEndSeconds, output, 1e-15),
+    );
+  }
 
   const tail: number = 0.9999999999999999;
   const tailShot: IAutoMovieShot = {
@@ -107,49 +124,27 @@ export function test_render_editorial_marker_seam(): void {
       { id: "tail", label: "Tail", startSeconds: tail, endSeconds: tail },
     ],
   };
-  const replay = cutSequence(
-    {
-      sequence: { id: "tail-replay", name: "Tail replay" },
-      fps: 24,
-      entries: [
-        { shot: shot.id, trim: null, playbackRate: 4, transition: null },
-        {
-          shot: shot.id,
-          trim: { start: tail, duration: 1 - tail },
-          transition: null,
-        },
-      ],
-      pacing: "",
-      continuity: "",
-    },
-    [tailShot],
+  const replayPlan: ReturnType<typeof planSequenceRender> = renderSequence(
+    tailShot,
+    [
+      { ...incoming, trim: null, playbackRate: 4 },
+      { ...incoming, trim: { start: tail, duration: 1 - tail } },
+    ],
   );
-  if (replay.success !== true) throw new Error("replay cut must succeed");
-  const replayPlan = planSequenceRender({
-    sequence: replay.sequence,
-    shots: [tailShot],
-    spec: {
-      target: replay.sequence.id,
-      frameFormat: { fps: 24, width: 640, height: 360 },
-      toneMapping: "none",
-      codec: "h264",
-      pixelFormat: "yuv420p",
-      crf: 20,
-    },
-  });
+  const tailMarkers: IAutoMoviePlaybackEditorialMarker[] =
+    replayPlan.editorialMarkers ?? [];
   TestValidator.equals(
     "the full play and the tail replay each keep the marker",
-    replayPlan.editorialMarkers?.map((marker) => marker.entry),
+    tailMarkers.map(
+      (marker: IAutoMoviePlaybackEditorialMarker): number => marker.entry,
+    ),
     [0, 1],
   );
   TestValidator.predicate(
-    "each marker stays inside its own output span",
-    replayPlan.editorialMarkers?.every((marker) => {
-      const span = replayPlan.shots[marker.entry]!;
-      return (
-        marker.outputStartSeconds >= span.start &&
-        marker.outputEndSeconds <= span.end
-      );
-    }) === true,
+    "the fourfold playback places the tail at one quarter of its source time",
+    tailMarkers[0]?.outputStartSeconds === tail / 4 &&
+      tailMarkers[0]?.outputEndSeconds === tail / 4 &&
+      tailMarkers[1]?.outputStartSeconds === 0.25 &&
+      tailMarkers[1]?.outputEndSeconds === 0.25,
   );
 }

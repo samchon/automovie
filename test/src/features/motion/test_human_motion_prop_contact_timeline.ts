@@ -39,7 +39,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Publishes releases from a registered standing action and reads the public performance hit list; a missing, duplicated, misclocked or misplaced physical episode fails.
  * @evidence contracts/development/testing.md#independent-expectations Computes impact times and incoming and outgoing normal speeds from authored height and restitution under standard gravity, without reading the implementation's flight samples or legs to form the expectations.
  * @evidence contracts/development/testing.md#distinguishing-cases A complete drop, an initially airborne drop, an airborne rebound and a displaced flight distinguish the events and verdicts.
- * @evidence contracts/development/testing.md#execution-ownership Uses one in-memory performance, one standing plan and ground-only sweeps. Samples the displayed rebound and reads the verdict without a host.
+ * @evidence contracts/development/testing.md#execution-ownership Uses one in-memory performance, one standing plan and ground-only sweeps. Samples the displayed rebound and reads the film-wide flight verdict with a one-frame body audit.
  */
 export function test_human_motion_prop_contact_timeline(): void {
   const start: number = 0.25;
@@ -141,7 +141,8 @@ export function test_human_motion_prop_contact_timeline(): void {
   TestValidator.predicate(
     "impact seconds include the nonzero launch clock",
     Math.abs(first.time - (start + falling)) <= timeTolerance &&
-      Math.abs(second.time - (start + falling + returning)) <= timeTolerance,
+      Math.abs(second.time - (start + falling + returning)) <= timeTolerance &&
+      Math.abs(hits[2]!.time - (rising.seconds + falling)) <= timeTolerance,
   );
   TestValidator.predicate(
     "the initial identifier remains stable and the second is distinct",
@@ -169,7 +170,13 @@ export function test_human_motion_prop_contact_timeline(): void {
       second.exit?.y === 0,
   );
 
-  const unended: string[] = HumanVerdicts.of(performance).unended ?? [];
+  // Flight verdicts use the whole film. Body findings are outside this spec.
+  const framesPerSecond: number = 24;
+  const unended: string[] =
+    HumanVerdicts.of(performance, framesPerSecond, {
+      from: duration - 1 / framesPerSecond,
+      to: duration,
+    }).unended ?? [];
   const rise: number =
     restitution * incoming * reboundSample - (gravity * reboundSample ** 2) / 2;
   TestValidator.predicate(

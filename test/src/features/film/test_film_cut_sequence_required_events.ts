@@ -1,6 +1,5 @@
 import { cutSequence, sequenceEventTimeline } from "@automovie/engine";
 import type {
-  IAutoMovieConstraintViolation,
   IAutoMovieCut,
   IAutoMovieEditPlan,
   IAutoMovieInteractionEvent,
@@ -62,73 +61,66 @@ export function test_film_cut_sequence_required_events(): void {
     continuity: "Keep both sides of the handoff in order.",
   };
 
-  const removed: IAutoMovieCut = cutSequence(
-    { ...plan, requiredEvents: [{ entry: 0, event: handoff.id }] },
+  const needed: IAutoMovieEditPlan = {
+    ...plan,
+    requiredEvents: [{ entry: 1, event: handoff.id }],
+  };
+  const kept: IAutoMovieCut = cutSequence(needed, [shot]);
+  if (!kept.success) throw new Error("the second play must retain the handoff");
+  const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+    kept.sequence,
     [shot],
   );
-  TestValidator.equals("first play lacks handoff", removed.success, false);
-  if (removed.success === false)
-    TestValidator.equals(
-      "trimmed event path",
-      removed.violations.map(
-        (item: IAutoMovieConstraintViolation): string => item.path,
-      ),
-      ["$input.requiredEvents[0].event"],
-    );
-
-  const kept: IAutoMovieCut = cutSequence(
-    { ...plan, requiredEvents: [{ entry: 1, event: handoff.id }] },
-    [shot],
+  TestValidator.equals(
+    "only the incoming play retains the source event",
+    events.map((event: IAutoMoviePlaybackEvent): [string, number] => [
+      event.id,
+      event.entry,
+    ]),
+    [[handoff.id, 1]],
   );
-  TestValidator.equals("second play retains handoff", kept.success, true);
-  if (kept.success === true) {
-    const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
-      kept.sequence,
-      [shot],
-    );
-    TestValidator.equals("exactly one output event", events.length, 1);
-    TestValidator.equals(
-      "handoff belongs to second placement",
-      events[0]!.entry,
-      1,
-    );
-    TestValidator.predicate(
-      "handoff output time",
-      nclose(events[0]!.globalTime, 1.5),
-    );
-  }
-
-  const ambiguous: IAutoMovieCut = cutSequence(
-    { ...plan, requiredEvents: [{ entry: 1, event: handoff.id }] },
-    [{ ...shot, events: [handoff, { ...handoff, time: 1.75 }] }],
+  TestValidator.predicate(
+    "handoff output time",
+    nclose(events[0]!.globalTime, 1.5),
   );
-  TestValidator.equals("ambiguous entry fails", ambiguous.success, false);
-  if (ambiguous.success === false)
-    TestValidator.equals(
-      "ambiguous event path",
-      ambiguous.violations.map(
-        (item: IAutoMovieConstraintViolation): string => item.path,
-      ),
-      ["$input.requiredEvents[0].event"],
-    );
 
   const malformed: { entry: number; event: string }[] = new Array(2);
   malformed[0] = { entry: 2, event: " " };
-  const invalid: IAutoMovieCut = cutSequence(
-    { ...plan, requiredEvents: malformed },
-    [shot],
-  );
-  TestValidator.equals("invalid address fails", invalid.success, false);
-  if (invalid.success === false)
-    TestValidator.equals(
-      "address violation paths",
-      invalid.violations.map(
-        (item: IAutoMovieConstraintViolation): string => item.path,
-      ),
+  const refusals: readonly [
+    string,
+    IAutoMovieEditPlan,
+    IAutoMovieShot,
+    string[],
+  ][] = [
+    [
+      "the first play cannot borrow the handoff",
+      { ...needed, requiredEvents: [{ entry: 0, event: handoff.id }] },
+      shot,
+      ["$input.requiredEvents[0].event"],
+    ],
+    [
+      "two retained events are ambiguous",
+      needed,
+      { ...shot, events: [handoff, { ...handoff, time: 1.75 }] },
+      ["$input.requiredEvents[0].event"],
+    ],
+    [
+      "invalid entry, blank id and sparse slot",
+      { ...needed, requiredEvents: malformed },
+      shot,
       [
         "$input.requiredEvents[0].entry",
         "$input.requiredEvents[0].event",
         "$input.requiredEvents[1]",
       ],
+    ],
+  ];
+  for (const [label, candidate, source, paths] of refusals) {
+    const result: IAutoMovieCut = cutSequence(candidate, [source]);
+    TestValidator.equals(
+      label,
+      result.success ? [] : result.violations.map((item): string => item.path),
+      paths,
     );
+  }
 }

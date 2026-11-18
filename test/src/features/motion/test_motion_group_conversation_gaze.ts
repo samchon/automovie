@@ -110,15 +110,16 @@ export function test_motion_group_conversation_gaze(): void {
     ),
   );
 
-  // Draws in [0.4, 1) sustain a full one-second glimpse at either role's
-  // documented mean. Pick a real stream with three such initial draws.
-  const held: IAutoMovieRandom | undefined = Array.from(
-    { length: 32 },
-    (_: unknown, index: number): IAutoMovieRandom =>
-      random.stream(String(index)),
-  ).find((stream: IAutoMovieRandom): boolean =>
-    [0, 1, 2].every((index: number): boolean => stream.float(index) >= 0.4),
-  );
+  // A sustained one-second glance on every turn isolates gaze direction
+  // and pause ownership from the random cadence of individual glances.
+  let held: IAutoMovieRandom | undefined;
+  for (let index: number = 0; index < 32; ++index) {
+    const stream: IAutoMovieRandom = random.stream(String(index));
+    if ([0, 1, 2].every((draw: number): boolean => stream.float(draw) >= 0.4)) {
+      held = stream;
+      break;
+    }
+  }
   if (held === undefined)
     throw new Error("Expected a fixture stream with three sustained glances");
   const sustained: IAutoMovieMotionHumanGaze.ILayer[] =
@@ -167,8 +168,8 @@ export function test_motion_group_conversation_gaze(): void {
 
   TestValidator.equals(
     "identical participant stream replays the same requests",
-    JSON.stringify(requests("c")),
-    JSON.stringify(listener),
+    requests("c"),
+    listener,
   );
   const dyad: IAutoMovieMotionHumanGaze.ILayer[] = HumanConversation.gaze(
     "a",

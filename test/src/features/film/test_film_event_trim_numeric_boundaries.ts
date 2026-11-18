@@ -1,5 +1,6 @@
 import { cutSequence, sequenceEventTimeline } from "@automovie/engine";
 import type {
+  IAutoMovieCut,
   IAutoMovieEditPlan,
   IAutoMovieInteractionEvent,
   IAutoMoviePlaybackEvent,
@@ -62,42 +63,44 @@ export function test_film_event_trim_numeric_boundaries(): void {
     pacing: "Retain the handoff.",
     continuity: "Cut between setup and release.",
   };
-  const decimal = cutSequence(plan, [shot]);
-  TestValidator.equals("decimal numeric cut succeeds", decimal.success, true);
-  if (decimal.success)
-    TestValidator.equals(
-      "the reconstructed end is present at the end of the numeric play",
-      sequenceEventTimeline(decimal.sequence, [shot]).map(output),
-      [{ id: anchor.id, time: 0.05 }],
-    );
+  const decimal: IAutoMovieCut = cutSequence(plan, [shot]);
+  if (!decimal.success) throw new Error("the decimal span must be admitted");
+  expectEvent("rounded numeric end", decimal, shot, 0.05);
 
   const tiny: IAutoMovieShot = { ...shot, events: [{ ...anchor, time: 1 }] };
-  const collapsed = cutSequence(
+  const collapsed: IAutoMovieCut = cutSequence(
     {
       ...plan,
       entries: [
         {
-          shot: tiny.id,
+          ...plan.entries[0]!,
           trim: { start: 1, duration: 1e-17 },
           playbackRate: 1e-17,
-          transition: null,
         },
       ],
     },
     [tiny],
   );
-  TestValidator.equals("the tiny source span plays", collapsed.success, true);
-  if (collapsed.success) {
-    TestValidator.equals("retimed output duration", collapsed.runtime, 1);
-    TestValidator.equals(
-      "the opening event precedes the end of the retimed play",
-      sequenceEventTimeline(collapsed.sequence, [tiny]).map(output),
-      [{ id: anchor.id, time: 0 }],
+  if (!collapsed.success) throw new Error("the tiny source span must play");
+  TestValidator.predicate("retimed output duration", collapsed.runtime === 1);
+  expectEvent("opening event in the collapsed source span", collapsed, tiny, 0);
+
+  /** A single retained event must map exactly to its endpoint on the output clock. */
+  function expectEvent(
+    label: string,
+    result: IAutoMovieCut.ISuccess,
+    source: IAutoMovieShot,
+    time: number,
+  ): void {
+    const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+      result.sequence,
+      [source],
+    );
+    TestValidator.predicate(
+      label,
+      events.length === 1 &&
+        events[0]?.id === anchor.id &&
+        events[0].globalTime === time,
     );
   }
-}
-
-/** Extract the visible event identity and its time on the output clock. */
-function output(event: IAutoMoviePlaybackEvent): { id: string; time: number } {
-  return { id: event.id, time: event.globalTime };
 }

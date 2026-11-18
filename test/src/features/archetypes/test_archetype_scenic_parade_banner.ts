@@ -2,6 +2,7 @@ import { createScenicParadeBanner } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
+  IAutoMoviePhysicalShape,
 } from "@automovie/interface";
 import { HumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -27,6 +28,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One in-memory specification discovered with the archetype tests.
  */
 export function test_archetype_scenic_parade_banner(): void {
+  /** Compare positioned contacts within the stage's millimetre tolerance. */
   const close = (actual: number, expected: number): boolean =>
     nclose(actual, expected, 0.001);
   const model: ReturnType<typeof createScenicParadeBanner> =
@@ -37,18 +39,19 @@ export function test_archetype_scenic_parade_banner(): void {
       poleHeight: 1.4,
       poleDiameter: 0.034,
     });
+  const shapes: IAutoMoviePhysicalShape[] = model.shapes();
   const panelX: ReturnType<typeof archetypeExtent> = archetypeExtent(
-    model,
+    shapes,
     "x",
     ["panel"],
   );
   const panelY: ReturnType<typeof archetypeExtent> = archetypeExtent(
-    model,
+    shapes,
     "y",
     ["panel"],
   );
   const panelZ: ReturnType<typeof archetypeExtent> = archetypeExtent(
-    model,
+    shapes,
     "z",
     ["panel"],
   );
@@ -72,12 +75,12 @@ export function test_archetype_scenic_parade_banner(): void {
     ["rightPole", "rightGrip", panelX.high],
   ] as const) {
     const poleX: ReturnType<typeof archetypeExtent> = archetypeExtent(
-      model,
+      shapes,
       "x",
       [pole],
     );
     const poleY: ReturnType<typeof archetypeExtent> = archetypeExtent(
-      model,
+      shapes,
       "y",
       [pole],
     );
@@ -89,6 +92,8 @@ export function test_archetype_scenic_parade_banner(): void {
         close((poleX.low + poleX.high) / 2, edge) &&
         close(poleY.low, 0) &&
         close(poleY.high, 1.4) &&
+        close(grip.frame.translation.x, edge) &&
+        close(grip.frame.translation.z, 0) &&
         close(panelY.high, poleY.high) &&
         close(grip.aperture!, poleX.size) &&
         close(grip.frame.translation.y - grip.length! / 2, poleY.low) &&

@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEnsemble,
   IAutoMovieMotionHumanPerformance,
@@ -15,6 +16,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { vclose } from "../internal/vclose";
 
 /**
  * Three people advance from uneven marks on one release, preserving order
@@ -22,10 +24,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * A short exit, an off-axis mark and a reversed rank each refuse with the
  * affected performer.
  *
+ * Scenarios:
+ * 1. A release traverses authored marks in order with a minimum headway.
+ * 2. Translating the cue shifts each walk and preserves its midpoint. Identical
+ *    inputs reproduce held and moving roots exactly at named times.
+ * 3. A short exit, off-axis mark and reversed rank report their performer.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Names the people, cue change, spacing and refusal measured in the test.
- * @evidence contracts/development/testing.md#behavioral-verification Checks scheduled onsets, roots at successive holds and arrivals, and headway over every 24 Hz sample.
- * @evidence contracts/development/testing.md#independent-expectations The cue, 0.25 s wait and the separate authored marks provide expectations without deriving them from the composition; the predecessor's fitted end is the timing reference for each follower. A 1 cm tolerance protects the root-to-mark endpoint assertion.
- * @evidence contracts/development/testing.md#distinguishing-cases Forward releases at two different cue times use the same three bodies, with unequal gaps that expose wrong-slot selection; a second same-seed run checks replay, and a 1 cm exit, an off-axis mark and an out-of-order rank check distinct invalid placements.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks scheduled boundaries and samples the roots during active walks at 24 Hz for headway and the path envelope. The initial and pre-entry hold roots agree, as do the arrival and final hold roots. An independently built performance reproduces named held and moving samples.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.25 s wait and authored marks determine each start relative to the predecessor's fitted end and each spatial endpoint. Endpoint error is at most 1 cm. The 10 cm active path envelope allows gait sway and small overshoots. Changing only the cue translates the walk clock, and repeating the same inputs gives the same root components.
+ * @evidence contracts/development/testing.md#distinguishing-cases Unequal gaps expose wrong slot selection. Shifted and identical cues distinguish clock translation from exact replay. A 1 cm exit, off-axis mark and reversed rank check distinct refusals.
  * @evidence contracts/development/testing.md#execution-ownership A motions feature test, discovered by its exported name, that builds a real performance on the prepared polygon-man bodies with no host.
  */
 export function test_human_motion_service_queue(): void {
@@ -66,21 +74,28 @@ export function test_human_motion_service_queue(): void {
     wait,
   };
 
+  const composition: IAutoMovieComposition = humanQueueAdvance(
+    ensemble,
+    request,
+  );
+
   /** Build the same performance at the supplied release second. */
   const build = (release: number): IAutoMovieMotionHumanPerformance =>
     new HumanPerformance({
       seed: "queue",
       performers: HumanEnsemble.performers(ensemble),
       cues: { counter: [{ name: "release", seconds: release }] },
-      composition: humanQueueAdvance(ensemble, request),
+      composition,
     });
   const release: number = 2;
   const later: number = 0.75;
   const film: IAutoMovieMotionHumanPerformance = build(release);
-  const replay: IAutoMovieMotionHumanPerformance = build(release);
   const delayed: IAutoMovieMotionHumanPerformance = build(release + later);
+  const replay: IAutoMovieMotionHumanPerformance = build(release);
   const destinations: readonly number[] = [1.3, 0, -1.1];
   let previousEnd: number = release;
+  const walks: IAutoMovieMotionHumanSegment[] = [];
+  const held: { before: IAutoMovieVector3; end: IAutoMovieVector3 }[] = [];
 
   for (const [rank, member] of ensemble.members.entries()) {
     const walk: IAutoMovieMotionHumanSegment = film.segments(
@@ -96,7 +111,8 @@ export function test_human_motion_service_queue(): void {
     );
     TestValidator.predicate(
       `rank ${rank} follows the later cue`,
-      Math.abs(laterWalk.entryTime - walk.entryTime - later) <= 1e-9,
+      Math.abs(laterWalk.entryTime - walk.entryTime - later) <= 1e-9 &&
+        Math.abs(laterWalk.end - walk.end - later) <= 1e-9,
     );
     const hold: number = Math.max(0, walk.entryTime - 1 / 24);
     const before: IAutoMovieVector3 = film.posture(member.subject, hold).root;
@@ -104,35 +120,93 @@ export function test_human_motion_service_queue(): void {
       member.subject,
       film.duration,
     ).root;
+    const opening: IAutoMovieVector3 = film.posture(member.subject, 0).root;
+    const arrival: IAutoMovieVector3 =
+      walk.end === film.duration
+        ? end
+        : film.posture(member.subject, walk.end).root;
     TestValidator.predicate(
       `rank ${rank} holds its own mark then arrives at the vacated mark`,
-      Math.abs(before.z - marks[rank]!) <= 0.01 &&
+      vclose(before, opening, 1e-9) &&
+        vclose(end, arrival, 1e-9) &&
+        Math.abs(before.z - marks[rank]!) <= 0.01 &&
         Math.abs(end.z - destinations[rank]!) <= 0.01 &&
         Math.abs(end.x) <= 0.01,
     );
+    const middle: number = (walk.entryTime + walk.end) / 2;
+    const midRoot: IAutoMovieVector3 = film.posture(
+      member.subject,
+      middle,
+    ).root;
+    TestValidator.predicate(
+      `rank ${rank} keeps its seeded path when the cue shifts`,
+      vclose(
+        midRoot,
+        delayed.posture(member.subject, middle + later).root,
+        1e-9,
+      ),
+    );
+    for (const [seconds, expected] of [
+      [hold, before],
+      [middle, midRoot],
+      [film.duration, end],
+    ] as const) {
+      const repeated: IAutoMovieVector3 = replay.posture(
+        member.subject,
+        seconds,
+      ).root;
+      TestValidator.predicate(
+        `rank ${rank} replays its root at ${seconds} s`,
+        repeated.x === expected.x &&
+          repeated.y === expected.y &&
+          repeated.z === expected.z,
+      );
+    }
+    walks.push(walk);
+    held.push({ before, end });
     previousEnd = walk.end;
   }
 
   let closest: number = Infinity;
-  let replays: boolean = true;
+  let criticalRank: number = 0;
+  let criticalSecond: number = 0;
+  let pathError: number = 0;
   for (let t: number = 0; t <= film.duration; t += 1 / 24) {
     let predecessor: number = Infinity;
-    for (const member of ensemble.members) {
-      const root: IAutoMovieVector3 = film.posture(member.subject, t).root;
-      const again: IAutoMovieVector3 = replay.posture(member.subject, t).root;
-      closest = Math.min(closest, predecessor - root.z);
+    for (const [rank, member] of ensemble.members.entries()) {
+      const walk: IAutoMovieMotionHumanSegment = walks[rank]!;
+      // A single-action performance holds its initial root before entry
+      // and its clamped endpoint after the walk.
+      const root: IAutoMovieVector3 =
+        t < walk.entryTime - 1e-12
+          ? held[rank]!.before
+          : t >= walk.end
+            ? held[rank]!.end
+            : film.posture(member.subject, t).root;
+      const gap: number = Number.isFinite(root.z)
+        ? predecessor - root.z
+        : -Infinity;
+      if (gap < closest) {
+        closest = gap;
+        criticalRank = rank;
+        criticalSecond = t;
+      }
       predecessor = root.z;
-      replays &&=
-        root.x === again.x && root.y === again.y && root.z === again.z;
+      pathError = Math.max(
+        pathError,
+        Math.abs(root.x),
+        marks[rank]! - root.z,
+        root.z - destinations[rank]!,
+      );
     }
   }
   TestValidator.predicate(
-    `single file keeps at least 1 m between ranks, measured ${closest.toFixed(3)} m`,
+    `rank ${criticalRank} has ${closest.toFixed(3)} m of headway at ${criticalSecond.toFixed(3)} s, expected at least 1 m`,
     closest >= 1,
   );
   TestValidator.predicate(
-    "the same seed and cue replay every sampled root",
-    replays,
+    "the queue stays within 10 cm of each straight mark-to-mark path",
+    pathError <= 0.1,
   );
 
   let refusal: unknown;

@@ -6,7 +6,6 @@ import type {
   IAutoMovieDeriveProductionSoundPlan,
   IAutoMovieFilmTimeline,
   IAutoMovieProductionSoundPlan,
-  IAutoMovieRenderedProductionSound,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,7 +22,7 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The four scenarios identify the audible time, bus, adoption and admission boundaries.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public production planner and mixer, then reads sample values from stereo output and checks public failure paths.
- * @evidence contracts/development/testing.md#independent-expectations Exact binary input gains and literal sample offsets pin half-ramps, overlap, untouched ambience and recovery without using the implementation's gain or clock functions.
+ * @evidence contracts/development/testing.md#independent-expectations The full music reduction is 0.25 × (1 − 0.25) = 0.1875. Literal 24 fps sample offsets pin half-ramps, overlap, untouched ambience and recovery. The rational frame period gives 1,601 and 3,204 samples between rounded ramp anchors, with tolerance for PCM rounding.
  * @evidence contracts/development/testing.md#distinguishing-cases Samples separate attack, overlap, release, the missing dialogue placement and the omitted policy. Invalid scalars exercise authored planner input and direct plan input independently.
  * @evidence contracts/development/testing.md#execution-ownership The scenario owns short in-memory PCM inputs and invokes no renderer, encoder, device or subprocess.
  */
@@ -85,16 +84,16 @@ export function test_film_production_sound_score_ducking(): void {
     ["a", new Float32Array(1)],
     ["b", new Float32Array(1)],
   ]);
-  const actual: Float32Array = renderProductionSound({
-    plan: ducked,
-    assets,
-    dialogue,
-  }).pcm;
-  const dryPcm: Float32Array = renderProductionSound({
-    plan: dry,
-    assets,
-    dialogue,
-  }).pcm;
+  const mix: (
+    plan: IAutoMovieProductionSoundPlan,
+    lines?: ReadonlyMap<string, Float32Array>,
+  ) => Float32Array = (
+    plan: IAutoMovieProductionSoundPlan,
+    lines: ReadonlyMap<string, Float32Array> = dialogue,
+  ): Float32Array =>
+    renderProductionSound({ plan, assets, dialogue: lines }).pcm;
+  const actual: Float32Array = mix(ducked);
+  const dryPcm: Float32Array = mix(dry);
   const expected: ReadonlyArray<readonly [number, number]> = [
     [2_000, 0.375],
     [3_000, 0.28125],
@@ -129,17 +128,15 @@ export function test_film_production_sound_score_ducking(): void {
   const singleLine: ReadonlyMap<string, Float32Array> = new Map([
     ["a", new Float32Array(1)],
   ]);
-  const ntscPcm: Float32Array = renderProductionSound({
-    plan: ntsc,
-    assets,
-    dialogue: singleLine,
-  }).pcm;
+  // At 48 kHz the exact frame period is 1,601.6 samples. Rounding the
+  // absolute anchors gives 1,602 to 3,203 and 6,406 to 9,610.
+  const ntscPcm: Float32Array = mix(ntsc, singleLine);
   TestValidator.predicate(
     "NTSC ramps start and end at the rounded absolute frame boundaries",
     (): boolean =>
       nclose(ntscPcm[1_602 * 2]!, 0.375, 1e-6) &&
-      ntscPcm[1_603 * 2]! < 0.375 &&
-      ntscPcm[9_609 * 2]! < 0.375 &&
+      nclose(ntscPcm[1_603 * 2]!, 0.375 - 0.1875 / 1_601, 1e-6) &&
+      nclose(ntscPcm[9_609 * 2]!, 0.375 - 0.1875 / 3_204, 1e-6) &&
       nclose(ntscPcm[9_610 * 2]!, 0.375, 1e-6),
   );
 
@@ -151,13 +148,9 @@ export function test_film_production_sound_score_ducking(): void {
       { ...ducked.dialogue[1]!, startFrame: 10, endFrame: 11 },
     ],
   };
-  const clipped: Float32Array = renderProductionSound({
-    plan: edgePlan,
-    assets,
-    dialogue,
-  }).pcm;
-  const longRamp: Float32Array = renderProductionSound({
-    plan: {
+  const clipped: Float32Array = mix(edgePlan);
+  const longRamp: Float32Array = mix(
+    {
       ...edgePlan,
       scoreDucking: {
         gain: 0.25,
@@ -165,9 +158,8 @@ export function test_film_production_sound_score_ducking(): void {
         releaseFrames: Number.MAX_SAFE_INTEGER,
       },
     },
-    assets,
-    dialogue: singleLine,
-  }).pcm;
+    singleLine,
+  );
   TestValidator.predicate(
     "film clipping keeps ramp phase and even long virtual anchors stay admissible",
     (): boolean =>
@@ -202,12 +194,7 @@ export function test_film_production_sound_score_ducking(): void {
             ["score ducking"],
           ) &&
           throwsError(
-            (): IAutoMovieRenderedProductionSound =>
-              renderProductionSound({
-                plan: { ...dry, scoreDucking },
-                assets,
-                dialogue,
-              }),
+            (): Float32Array => mix({ ...dry, scoreDucking }),
             ["score ducking"],
           ),
       ),

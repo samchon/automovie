@@ -25,7 +25,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/common.md#meaningful-documentation Lists both force regimes, the frame and clock behavior and the admission cases.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the actual prop placement through HumanPerformance and rejects invalid authoring through slideProp.
  * @evidence contracts/development/testing.md#independent-expectations Static Coulomb friction and constant-acceleration Newtonian displacement give the expected world position independently of the trajectory, with an absolute micrometre comparison for this analytic case.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples inside and outside the interval in reverse order, with the prop turned relative to world axes and applied force on both sides of the threshold.
+ * @evidence contracts/development/testing.md#distinguishing-cases Seeks backwards across the moving interval and checks the subthreshold crate during the drive and after it.
  * @evidence contracts/development/testing.md#execution-ownership One synchronous test uses two short plan-time slides and zero body pose or arm plan reads, owning no host resources.
  */
 export function test_human_motion_force_driven_prop(): void {
@@ -82,14 +82,15 @@ export function test_human_motion_force_driven_prop(): void {
         z: start.position.z + (4 / 5) * distance,
       }) && qclose(at.rotation, start.rotation),
     );
+  }
+  for (const seconds of [3, 1.5])
     TestValidator.predicate(
-      `rest under static friction at ${seconds}s`,
+      `rest under static friction at ${seconds} s`,
       vclose(
         performance.prop(stationary.subject, seconds).position,
         start.position,
       ),
     );
-  }
   TestValidator.error("unknown kinetic friction", (): void => {
     HumanPropDynamics.slideProp(
       { ...crate, body: { mass, friction, centerOfMass: null } },

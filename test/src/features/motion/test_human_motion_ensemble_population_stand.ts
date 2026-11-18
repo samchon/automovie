@@ -24,7 +24,8 @@ import { qclose } from "../internal/qclose";
  * Scenarios:
  * 1. Hold a two-second stand performed away from the origin and facing +X.
  *    Its three output phases carry the settled articulation at the slot
- *    origin facing +Z, with a two-second period and zero stride.
+ *    origin facing +Z, with a two-second period and zero stride. The take
+ *    selects the stand at 0.25 seconds, ahead of its settled instant.
  * 2. The end of the stand is outside its placed interval, and a fractional
  *    phase count is refused without reading a pose.
  * 3. A short final stand is still displayed at its settled event. A short
@@ -66,7 +67,7 @@ export function test_human_motion_ensemble_population_stand(): void {
   const take: IAutoMovieFormationPoseTake = HumanPopulation.standing(
     performance,
     "template",
-    0,
+    0.25,
     3,
   );
   const settled: IAutoMoviePose = performance.pose("template", 0.5);
@@ -113,11 +114,11 @@ export function test_human_motion_ensemble_population_stand(): void {
     performance,
     "short-final",
     0,
-    3,
+    1,
   );
   TestValidator.predicate(
     "the settled endpoint of a short final stand can supply a take",
-    nclose(short.periodSeconds, 0.25) && short.poses.length === 3,
+    nclose(short.periodSeconds, 0.25) && short.poses.length === 1,
   );
   for (const [subject, from, samples, axis] of [
     ["template", 2, 3, "standing"],

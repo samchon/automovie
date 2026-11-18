@@ -27,16 +27,15 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * 1. A two-second excerpt at 2× and 0.5× takes one and four output seconds.
  * 2. A half-second dissolve samples each excerpt at its own playback rate.
- * 3. A repeated event follows each play, and a contiguous trim seam emits once.
- * 4. A retimed hard cut reads the prop at the original source endpoints.
- * 5. Default playback retains the legacy record. Invalid rates, nonrepresentable
+ * 3. A repeated event follows each play.
+ * 4. Default playback retains the legacy record. Invalid rates, nonrepresentable
  *    output spans and overlaps longer than the retimed entry are refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Observes cut admission, random-access samples, scheduled render frames and event output through the public entry points, including the existing required-event and source-match gates.
- * @evidence contracts/development/testing.md#independent-expectations A two-second excerpt running at twice or half speed occupies one or four seconds. A dissolve starts the second play at output 0.5, so at 0.75 its quarter-second elapsed advances to source 0.625 while the first play has advanced to source 2. The handoff at source 1.5 falls at output 0.5 and 2.5. The prop moves one metre each source second and both cut boundaries retain source second 1.
- * @evidence contracts/development/testing.md#distinguishing-cases Two rates on the same source isolate output pacing from source retention. A seam event, a source continuity check and a transition too long for the shortened placement distinguish implementations that still equate the two clocks.
+ * @evidence contracts/development/testing.md#behavioral-verification Observes cut admission, random-access samples, scheduled render frames and event output through the public entry points, including per-play event admission.
+ * @evidence contracts/development/testing.md#independent-expectations A two-second excerpt running at twice or half speed occupies one or four seconds. A dissolve starts the second play at output 0.5, so at 0.75 its quarter-second elapsed advances to source 0.625 while the first play has advanced to source 2. The handoff at source 1.5 falls at output 0.5 and 2.5.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two rates on the same source isolate output pacing from source retention. An overlap too long for the shortened placement distinguishes the clocks. The event-trim and prop-continuity specs own hard-cut seams.
  * @evidence contracts/development/testing.md#execution-ownership Runs synchronously against supplied shot data and the pure render planner, without a capture host, file output or mutated globals.
- * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify source and output timing, separately sampled transitions, event ownership, source continuity and refusal paths.
+ * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify source and output timing, separately sampled transitions, replay and refusal paths.
  */
 export function test_film_playback_rate(): void {
   const handoff: IAutoMovieInteractionEvent = {
@@ -58,24 +57,9 @@ export function test_film_playback_rate(): void {
     camera: "main",
     cameraMotion: null,
     performances: [],
-    objectMotions: [
-      {
-        id: "move-cup",
-        name: null,
-        duration: 4,
-        loop: false,
-        tracks: [
-          {
-            channel: { kind: "node", node: "cup", path: "translation" },
-            interpolation: "linear",
-            times: [0, 4],
-            values: [0, 0, 0, 4, 0, 0],
-          },
-        ],
-      },
-    ],
+    objectMotions: [],
     duration: 4,
-    events: [handoff, { ...handoff, id: "at-seam", time: 1 }],
+    events: [handoff],
   };
   const entry: IAutoMovieSequenceEntry = {
     shot: shot.id,
@@ -102,8 +86,7 @@ export function test_film_playback_rate(): void {
   };
 
   const cut: IAutoMovieCut = cutSequence(plan, [shot]);
-  TestValidator.equals("both plays retain the handoff", cut.success, true);
-  if (!cut.success) return;
+  if (!cut.success) throw new Error("both plays must retain the handoff");
 
   TestValidator.predicate("retimed cut runtime", nclose(cut.runtime, 4.5));
   const render: IAutoMovieSequenceRenderPlan = planSequenceRender({
@@ -166,48 +149,6 @@ export function test_film_playback_rate(): void {
       nclose(replays[1]!.globalTime, 2.5),
   );
 
-  const seam: IAutoMovieCut = cutSequence(
-    {
-      ...plan,
-      entries: [
-        { ...entry, trim: { start: 0, duration: 1 }, playbackRate: 2 },
-        { ...entry, trim: { start: 1, duration: 1 }, playbackRate: 0.5 },
-      ],
-      requiredEvents: [{ entry: 1, event: "at-seam" }],
-      requiredPropContinuity: [
-        { entry: 1, node: "cup", component: "translation", tolerance: 0 },
-      ],
-    },
-    [shot],
-  );
-  TestValidator.equals(
-    "hard cut retains the source prop state",
-    seam.success,
-    true,
-  );
-  if (seam.success) {
-    const boundary: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
-      seam.sequence,
-      [shot],
-    ).filter(
-      (event: IAutoMoviePlaybackEvent): boolean => event.id === "at-seam",
-    );
-    TestValidator.equals(
-      "one event at the contiguous seam",
-      boundary.length,
-      1,
-    );
-    TestValidator.equals(
-      "incoming placement owns the seam",
-      boundary[0]!.entry,
-      1,
-    );
-    TestValidator.predicate(
-      "seam output time",
-      nclose(boundary[0]!.globalTime, 0.5),
-    );
-  }
-
   const legacy: IAutoMovieCut = cutSequence(
     {
       ...plan,
@@ -216,23 +157,17 @@ export function test_film_playback_rate(): void {
     },
     [shot],
   );
+  if (!legacy.success) throw new Error("unit rates must be admitted");
   TestValidator.equals(
-    "omitted and explicit unit rate are admitted",
-    legacy.success,
-    true,
+    "unit rate preserves the entry shape",
+    legacy.sequence.shots,
+    [entry, entry],
   );
-  if (legacy.success) {
-    TestValidator.equals(
-      "unit rate preserves the entry shape",
-      legacy.sequence.shots,
-      [entry, entry],
-    );
-    TestValidator.equals(
-      "legacy playback placement has no rate field",
-      Object.keys(sequenceTimeline(legacy.sequence, [shot]).entries[0]!),
-      ["entry", "shot", "start", "played", "offset"],
-    );
-  }
+  TestValidator.equals(
+    "legacy playback placement has no rate field",
+    Object.keys(sequenceTimeline(legacy.sequence, [shot]).entries[0]!),
+    ["entry", "shot", "start", "played", "offset"],
+  );
 
   for (const playbackRate of [0, -1, NaN, Infinity, Number.MIN_VALUE]) {
     const invalid: IAutoMovieCut = cutSequence(

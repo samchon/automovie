@@ -50,14 +50,14 @@ export function test_human_motion_force_driven_hinge(): void {
     cues: { closer: [{ name: "released", seconds: from }] },
     props: [HumanPropDynamics.hingeProp(prop, drive)],
   });
+  const held: number | undefined = performance.state(subject, from + 2).hinge;
   TestValidator.predicate(
     "the track has not started before the cue",
     performance.state(subject, from - 0.25).hinge === undefined,
   );
-  for (const elapsed of [2, 0.37, 0, duration]) {
-    const local: number = Math.min(elapsed, duration);
-    const expected: number =
-      ((torque * local ** 2) / (2 * inertia)) * (180 / Math.PI);
+  const degreesPerSecondSquared: number = (torque / inertia) * (180 / Math.PI);
+  for (const elapsed of [0.37, 0, duration]) {
+    const expected: number = (degreesPerSecondSquared * elapsed ** 2) / 2;
     const travel: number | undefined = performance.state(
       subject,
       from + elapsed,
@@ -67,6 +67,12 @@ export function test_human_motion_force_driven_hinge(): void {
       travel !== undefined && nclose(travel, expected, 1e-9),
     );
   }
+
+  TestValidator.predicate(
+    "travel holds after the drive",
+    held !== undefined &&
+      nclose(held, (degreesPerSecondSquared * duration ** 2) / 2, 1e-9),
+  );
 
   TestValidator.error("a missing hinge is refused", (): void => {
     HumanPropDynamics.hingeProp(prop, { ...drive, articulation: "missing" });

@@ -12,7 +12,6 @@ import type {
   IAutoMoviePerformedShot,
   IAutoMoviePracticalSurfaceTrack,
   IAutoMovieScript,
-  IAutoMovieSkeleton,
   IAutoMovieStagedSet,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -21,9 +20,7 @@ import {
   makePerformanceWrite,
   makeScriptWrite,
   makeStagingWrite,
-  validSynthesizer,
 } from "../internal/filmFixtures";
-import { createSkeleton } from "../internal/fixtures";
 
 /**
  * A phone prop's material cue has exact timing and applies to one instance.
@@ -50,11 +47,12 @@ export function test_film_practical_surface_cues(): void {
   });
   const part: string = phone.parts[0]!.id;
   const base: IAutoMovieMaterial = phone.materials[0]!;
+  const cueMaterial: string = "message-visible";
   const model: IAutoMovieModel = {
     ...phone,
     materials: [
       ...phone.materials,
-      { ...base, id: "message-visible", emissive: base.baseColor },
+      { ...base, id: cueMaterial, emissive: base.baseColor },
     ],
   };
   const script: IAutoMovieScript = makeScriptWrite();
@@ -76,9 +74,8 @@ export function test_film_practical_surface_cues(): void {
     script,
     staged,
     performance: makePerformanceWrite({ duration: 1, draft: [] }),
-    synthesize: validSynthesizer,
-    skeleton: (node: string): IAutoMovieSkeleton | null =>
-      node === "knightA" ? createSkeleton() : null,
+    synthesize: (): null => null,
+    skeleton: (): null => null,
     models: [model],
   };
   const opening: IAutoMoviePracticalSurfaceTrack["keys"][number] = {
@@ -88,7 +85,7 @@ export function test_film_practical_surface_cues(): void {
   const track: IAutoMoviePracticalSurfaceTrack = {
     node: "held-phone",
     part,
-    keys: [opening, { time: 0.4, material: "message-visible" }],
+    keys: [opening, { time: 0.4, material: cueMaterial }],
   };
   const first: IAutoMoviePerformedShot = performShot({
     ...props,
@@ -97,9 +94,9 @@ export function test_film_practical_surface_cues(): void {
   if (!first.success) throw new Error(JSON.stringify(first.violations));
 
   TestValidator.equals(
-    "late random-access sample",
-    samplePracticalSurfaceMaterial(first.shot, track.node, part, 0.9),
-    "message-visible",
+    "cue takes effect at its exact time",
+    samplePracticalSurfaceMaterial(first.shot, track.node, part, 0.4),
+    cueMaterial,
   );
   TestValidator.equals(
     "seeking just before the cue restores the opening",
@@ -107,9 +104,9 @@ export function test_film_practical_surface_cues(): void {
     base.id,
   );
   TestValidator.equals(
-    "cue takes effect at its exact time",
-    samplePracticalSurfaceMaterial(first.shot, track.node, part, 0.4),
-    "message-visible",
+    "seeking forward again restores the cue material",
+    samplePracticalSurfaceMaterial(first.shot, track.node, part, 0.9),
+    cueMaterial,
   );
   TestValidator.equals(
     "the other placement has no override",
@@ -157,13 +154,13 @@ export function test_film_practical_surface_cues(): void {
     ...props,
     shotId: "following",
     practicalSurfaces: [
-      { ...track, keys: [{ time: 0, material: "message-visible" }] },
+      { ...track, keys: [{ time: 0, material: cueMaterial }] },
     ],
   });
   if (!following.success) throw new Error(JSON.stringify(following.violations));
   TestValidator.equals(
     "next shot's authored opening matches the prior cue",
     samplePracticalSurfaceMaterial(following.shot, track.node, part, 0),
-    "message-visible",
+    cueMaterial,
   );
 }

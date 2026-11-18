@@ -30,7 +30,7 @@ import { vclose } from "../internal/vclose";
  *    support sequence takes over, at either a contiguous join or a cut.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the free hand and the one reserved by a support window.
- * @evidence contracts/development/testing.md#behavioral-verification Schedules both hand choices through the public chain, reads the active support window and displayed wrist, and inspects typed refusals at entry and carrier changes.
+ * @evidence contracts/development/testing.md#behavioral-verification Schedules a free-arm signal, compares the bearing wrist at mid-stroke, and checks the same refusal contract for direct, contiguous and cut conflicts.
  * @evidence contracts/development/testing.md#independent-expectations The contact owner keeps its hand in the same pose whether the other arm moves, so the unlayered sequence supplies the expected wrist transform.
  * @evidence contracts/development/testing.md#distinguishing-cases Signals use opposite sides in the same support sequence. The carrier-change cases cover a contiguous join and a cut while the prior carrier can still hold the signal.
  * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this CPU-only spec, which reads two displayed poses and plans each signal through the public schedule.
@@ -111,23 +111,8 @@ export function test_human_motion_support_overlay(): void {
     );
   }
 
-  let caught: unknown;
-  try {
-    perform(body, onBrace("right"));
-  } catch (error) {
-    caught = error;
-  }
-  all.check(
-    `the right arm and hand stay reserved, received ${String(caught)}`,
-    caught instanceof HumanRefusal &&
-      caught.kind === "channel" &&
-      caught.axis === "over" &&
-      Array.isArray(caught.value) &&
-      caught.value.includes("rightArm") &&
-      caught.value.includes("rightHand"),
-  );
-
   for (const [join, standSeconds] of [
+    ["direct brace", undefined],
     ["contiguous join", 0.25],
     ["cut", 2],
   ] as const) {
@@ -135,27 +120,31 @@ export function test_human_motion_support_overlay(): void {
     try {
       perform(
         body,
-        HumanChain.subject("person")
-          .stand({ seconds: standSeconds }, "before")
-          .over(
-            (upper: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-              upper.gesture({ kind: "stopPalm", side: "right", hold: 1 }),
-          )
-          .support(bracedContacts, "after")
-          .sync({ of: "before", event: "start", offset: 0.25 }),
+        standSeconds === undefined
+          ? onBrace("right")
+          : HumanChain.subject("person")
+              .stand({ seconds: standSeconds }, "before")
+              .over(
+                (
+                  upper: IAutoMovieMotionHumanChain,
+                ): IAutoMovieMotionHumanChain =>
+                  upper.gesture({ kind: "stopPalm", side: "right", hold: 1 }),
+              )
+              .support(bracedContacts, "after")
+              .sync({ of: "before", event: "start", offset: 0.25 }),
       );
     } catch (error) {
       overlap = error;
     }
     all.check(
-      `the support reserves its palm after a ${join}, received ${String(overlap)}`,
+      `the support reserves the right arm and hand at the ${join}, received ${String(overlap)}`,
       overlap instanceof HumanRefusal &&
         overlap.kind === "channel" &&
         overlap.axis === "over" &&
         Array.isArray(overlap.value) &&
         overlap.value.includes("rightArm") &&
         overlap.value.includes("rightHand") &&
-        overlap.message.includes("after"),
+        (standSeconds === undefined || overlap.message.includes("after")),
     );
   }
   all.assert("overlays respect the carrier's hand contacts");

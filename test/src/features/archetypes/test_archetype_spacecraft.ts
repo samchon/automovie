@@ -17,6 +17,12 @@ const MM: number = 0.001;
  * forward crew station beside the route. Fixed rails give a separate cabin
  * route two grip points that do not follow the hatch.
  *
+ * Scenarios:
+ * 1. Replay a seeded model, compare a different seed, and reject a narrow hatch.
+ * 2. Measure the hull, aperture, and flush boarding route on an authored set.
+ * 3. Open the hatch 90 degrees and measure its leaf, grip, and stationary deck and rails.
+ * 4. Check the physical seat and console contacts in a tight cabin.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the set's staging behavior across the aperture, hull, and crew station.
  * @evidence contracts/development/testing.md#behavioral-verification Checks the public producer's replay, admission, refusals, collider extents, support contacts and posed hinge and handle. Checks that the rails describe solid, fixed cabin grips.
  * @evidence contracts/development/testing.md#independent-expectations Measures emitted solids against independently selected author dimensions, the ±X clearance of a rear gate, and the geometry of a quarter turn. The numerical expectations do not read the builder's bands or generating ratios.
@@ -123,16 +129,13 @@ export function test_archetype_spacecraft(): void {
     archetypeExtent(set, "y", ["rear-lintel"]).low,
     2.1,
   );
-  near(
-    "walkway ends at the aperture plane",
-    archetypeExtent(set, "z", ["walkway"]).high,
-    -4,
+  const walkwaySpan: ReturnType<typeof archetypeExtent> = archetypeExtent(
+    set,
+    "z",
+    ["walkway"],
   );
-  near(
-    "walkway spans the authored run",
-    archetypeExtent(set, "z", ["walkway"]).size,
-    3,
-  );
+  near("walkway ends at the aperture plane", walkwaySpan.high, -4);
+  near("walkway spans the authored run", walkwaySpan.size, 3);
   near(
     "interior deck starts at the aperture plane",
     archetypeExtent(set, "z", ["cabin-deck"]).low,
@@ -159,12 +162,17 @@ export function test_archetype_spacecraft(): void {
     floor.frame.translation.y,
   );
 
-  const outerSide: number = archetypeExtent(set, "x", ["cabin-port"]).high;
+  const cabinWall: number = archetypeExtent(set, "x", ["cabin-starboard"]).high;
+  const portWall: ReturnType<typeof archetypeExtent> = archetypeExtent(
+    set,
+    "x",
+    ["cabin-port"],
+  );
   const frontFace: number = archetypeExtent(set, "x", ["windscreen"]).high;
-  near("cabin reaches half the authored width", outerSide, 2);
+  near("cabin reaches half the authored width", portWall.high, 2);
   expect(
     "forward windscreen is narrower than the cabin",
-    frontFace < outerSide - 0.5,
+    frontFace < portWall.high - 0.5,
   );
   near(
     "nose ends half the authored length ahead",
@@ -178,8 +186,7 @@ export function test_archetype_spacecraft(): void {
   );
   expect(
     "side wall leaves room at the cabin center",
-    archetypeExtent(set, "x", ["cabin-port"]).low > 1.7 &&
-      archetypeExtent(set, "x", ["cabin-starboard"]).high < -1.7,
+    portWall.low > 1.7 && cabinWall < -1.7,
   );
 
   const closedHandle: IAutoMovieVector3 =
@@ -215,12 +222,15 @@ export function test_archetype_spacecraft(): void {
     openHandle.z,
     pivot.z - (closedHandle.x - pivot.x),
   );
+  const gripSpan: ReturnType<typeof archetypeExtent> = archetypeExtent(
+    open,
+    "x",
+    ["hatch-grip"],
+  );
   near(
     "open handle remains on its rod",
     openHandle.x,
-    (archetypeExtent(open, "x", ["hatch-grip"]).low +
-      archetypeExtent(open, "x", ["hatch-grip"]).high) /
-      2,
+    (gripSpan.low + gripSpan.high) / 2,
   );
   near(
     "hatch articulation leaves the deck fixed",
@@ -263,9 +273,6 @@ export function test_archetype_spacecraft(): void {
     );
     near(`${id} faces into the cabin`, normal.x, 1);
     near(`${id} runs along the cabin`, along.z, 1);
-    const cabinWall: number = archetypeExtent(set, "x", [
-      "cabin-starboard",
-    ]).high;
     expect(
       `${id} leaves grip clearance from the cabin wall`,
       archetypeExtent(set, "x", [id]).low - cabinWall > 0.08,

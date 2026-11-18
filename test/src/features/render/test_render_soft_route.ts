@@ -65,19 +65,16 @@ export function test_render_soft_route(): void {
   try {
     const mesh: THREE.Object3D | undefined =
       built.scene.getObjectByName("soft:cloth");
-    TestValidator.predicate("cloth uses the first supplied surface", () =>
-      matches(mesh, first),
-    );
+    const initialSurface: boolean = matches(mesh, first);
     soft.update([second]);
     TestValidator.predicate(
-      "the same mesh uses the second surface",
+      "both cloth frames use one mesh after the rigid node",
       () =>
+        initialSurface &&
+        mesh?.parent === built.scene &&
         built.scene.getObjectByName("soft:cloth") === mesh &&
+        built.scene.children[0]?.children[0] === rigid.object &&
         matches(mesh, second),
-    );
-    TestValidator.predicate(
-      "the rigid node remains the first child",
-      () => built.scene.children[0]?.children[0] === rigid.object,
     );
   } finally {
     soft.dispose();

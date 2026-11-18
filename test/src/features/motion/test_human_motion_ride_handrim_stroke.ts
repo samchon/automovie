@@ -3,13 +3,17 @@ import {
   rideWheelchair,
   wheelchairHandrimFrame,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHandrimStroke,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSignature,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -20,8 +24,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
-  HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -42,16 +44,16 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    release. Targets add the assumed palm thickness and the inward grip
  *    span to the independently calculated material points. In recovery
  *    the hands move relative to the chair and return to the ordinary
- *    carried seated pose within 10 mm.
- * 2. The seat moves at most 10 mm relative to its chair throughout. The
- *    hands' ownership begins at catch and ends at release.
+ *    seated entry pose within 10 mm, measured in the chair frame.
+ * 2. The seat moves at most 10 mm relative to its chair at each sampled time.
+ *    The hands' ownership begins at catch and ends at release.
  * 3. Refuse absent rims, a center-only point, swapped sides, a different
  *    chair's seat, an unreachable lower arc, and zero push duration.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged kinematics, bounds, body cases and refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed wrists and seat from a composed HumanPerformance and checks the planned windows against the authored stroke clock.
  * @evidence contracts/development/testing.md#independent-expectations The expected circular points come from rolling distance divided by the rear wheel radius and the declared rim dimensions. The calculation never calls the specialized contact reader.
- * @evidence contracts/development/testing.md#distinguishing-cases Two body builds, off-origin placement and yaw, three phases, a carrier-only control, and invalid inputs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two body builds, off-origin placement and yaw, three phases, a seated baseline for recovery, and invalid inputs.
  * @evidence contracts/development/testing.md#execution-ownership Builds archetypes and performers in memory and invokes the public registered-action entry.
  */
 export function test_human_motion_ride_handrim_stroke(): void {
@@ -143,13 +145,7 @@ export function test_human_motion_ride_handrim_stroke(): void {
     const lowBearing: ReturnType<typeof wheelchairHandrimFrame> =
       wheelchairHandrimFrame(course, courseAtCatch, 180);
     /** The source of the rim point and the seat arrangement under test. */
-    type Case =
-      | "stroke"
-      | "hub"
-      | "transport"
-      | "wrongSeat"
-      | "low"
-      | "control";
+    type Case = "stroke" | "hub" | "transport" | "wrongSeat" | "low";
     const perform = (
       stroke: IAutoMovieMotionHumanHandrimStroke,
       kind: Case,
@@ -157,7 +153,7 @@ export function test_human_motion_ride_handrim_stroke(): void {
       new HumanPerformance({
         seed: "handrim",
         performers: [performer(kind === "wrongSeat" ? otherSeat : seat)],
-        laws: [HumanHandrimStroke, HumanRide.ride],
+        laws: [HumanHandrimStroke],
         props: [
           HumanObject.prop(
             "chair",
@@ -175,53 +171,69 @@ export function test_human_motion_ride_handrim_stroke(): void {
           ),
           HumanObject.prop("other-chair", chair, other),
         ],
-        composition: (kind === "control"
-          ? prepare().registered("ride", {
-              on: "chair",
-              seconds: approach + push + recovery,
-            })
-          : prepare(kind === "wrongSeat" ? otherSeat : seat).registered(
-              "handrimStroke",
-              stroke,
-            )
-        ).node,
+        composition: prepare(
+          kind === "wrongSeat" ? otherSeat : seat,
+        ).registered("handrimStroke", stroke).node,
       });
 
     const performance: HumanPerformance = perform(params, "stroke");
     const segment: IAutoMovieMotionHumanSegment =
       performance.segments("actor")[1]!;
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-      performance,
-      "actor",
-      body,
-      0,
-    );
-    const control: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-      perform(params, "control"),
-      "actor",
-      body,
-      0,
-    );
     const catchAt: number = segment.entryTime + approach;
     const releaseAt: number = catchAt + push;
     const diagnostic = (ok: boolean, message: string): void => {
       if (!ok) notes.push(key + " " + message);
     };
+    const middle: number = releaseAt + recovery / 2;
+    const terminal: number = segment.end;
+    const movingApproach: number =
+      (Math.max(segment.entryTime, begins) + catchAt) / 2;
+    const rimTimes: readonly number[] = [
+      catchAt,
+      catchAt + push / 2,
+      releaseAt,
+    ];
+    const local = (
+      frame: IAutoMovieRigidTransform,
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(point, frame.position),
+      );
+    const samples: Map<
+      number,
+      {
+        frame: IAutoMovieRigidTransform;
+        bones: ReturnType<HumanPerformance["bones"]>;
+      }
+    > = new Map();
+    for (const film of [
+      segment.entryTime,
+      movingApproach,
+      ...rimTimes,
+      middle,
+      terminal,
+    ])
+      samples.set(film, {
+        frame: placed(film),
+        bones: performance.bones("actor", film),
+      });
+    // Rigid carriage preserves the original neutral wrists in chair coordinates.
+    const rest: ReturnType<HumanPerformance["bones"]> = prepared.bones(
+      "actor",
+      prepared.duration,
+    );
     for (const side of ["left", "right"] as const) {
       const rim: ReturnType<typeof chair.affordance> = chair.affordance(
         params.rims[side] as createWheelchair.Affordance,
       );
-      const wrist = (
-        source: IAutoMovieMotionHumanSignature.IReader,
-        film: number,
-      ): IAutoMovieVector3 => {
-        const world: IAutoMovieRigidTransform = placed(film);
-        return Quaternion.rotateVector(
-          Quaternion.inverse(world.rotation),
-          Vector3.subtract(
-            HumanSignature.joint(source, film, `${side}Hand`),
-            world.position,
-          ),
+      const wrist = (film: number): IAutoMovieVector3 => {
+        const sample: NonNullable<ReturnType<typeof samples.get>> =
+          samples.get(film)!;
+        return local(
+          sample.frame,
+          sample.bones.get(`${side}Hand`)!.worldPosition,
         );
       };
       const wristTarget = (film: number): IAutoMovieVector3 => {
@@ -236,23 +248,22 @@ export function test_human_motion_ride_handrim_stroke(): void {
           z: fromAxle * Math.sin(angle),
         });
       };
-      for (const film of [catchAt, catchAt + push / 2, releaseAt]) {
+      for (const film of rimTimes) {
         const gap: number = Vector3.length(
-          Vector3.subtract(wrist(reader, film), wristTarget(film)),
+          Vector3.subtract(wrist(film), wristTarget(film)),
         );
         diagnostic(
           gap <= contactGap,
           `${side} displayed wrist misses its rim grip by ${gap} m at ${film}`,
         );
       }
-      const middle: number = releaseAt + recovery / 2;
-      const expectedRelease: IAutoMovieVector3 = wristTarget(releaseAt);
-      const recovered: IAutoMovieVector3 = wrist(reader, middle);
+      const released: IAutoMovieVector3 = wrist(releaseAt);
+      const recovered: IAutoMovieVector3 = wrist(middle);
       const outside: number = Vector3.length(
         Vector3.subtract(recovered, wristTarget(middle)),
       );
       const moved: number = Vector3.length(
-        Vector3.subtract(recovered, expectedRelease),
+        Vector3.subtract(recovered, released),
       );
       diagnostic(
         outside >= 0.5 * body.measure.hand,
@@ -262,9 +273,11 @@ export function test_human_motion_ride_handrim_stroke(): void {
         moved >= 0.15 * body.measure.hand,
         `${side} recovery wrist stayed at the release point`,
       );
-      const terminal: number = segment.end;
       const restGap: number = Vector3.length(
-        Vector3.subtract(wrist(reader, terminal), wrist(control, terminal)),
+        Vector3.subtract(
+          wrist(terminal),
+          local(origin, rest.get(`${side}Hand`)!.worldPosition),
+        ),
       );
       diagnostic(
         restGap <= contactGap,
@@ -285,20 +298,21 @@ export function test_human_motion_ride_handrim_stroke(): void {
         `${side} grip window departs from the authored phase times`,
       );
     }
+    const seatRegion: IAutoMovieHumanoidSurfaces.IFrame =
+      body.surfaces.regions.seat;
     const seatOffset = (film: number): IAutoMovieVector3 => {
-      const frame: IAutoMovieRigidTransform = placed(film);
-      return Quaternion.rotateVector(
-        Quaternion.inverse(frame.rotation),
-        Vector3.subtract(
-          HumanSignature.region(reader, "seat", film),
-          frame.position,
-        ),
+      const sample: NonNullable<ReturnType<typeof samples.get>> =
+        samples.get(film)!;
+      return local(
+        sample.frame,
+        resolveAutoMovieHumanoidSurfaces.place(
+          seatRegion,
+          sample.bones.get(seatRegion.bone)!,
+        ).point,
       );
     };
     const initialOffset: IAutoMovieVector3 = seatOffset(segment.entryTime);
-    for (let sample: number = 1; sample <= 8; ++sample) {
-      const at: number =
-        segment.entryTime + (segment.plan.duration * sample) / 8;
+    for (const at of [movingApproach, ...rimTimes, middle, terminal]) {
       const slip: number = Vector3.length(
         Vector3.subtract(seatOffset(at), initialOffset),
       );

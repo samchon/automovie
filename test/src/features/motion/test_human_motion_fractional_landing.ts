@@ -22,6 +22,7 @@ import {
   HumanFoot,
   HumanPerformance,
   HumanRefusal,
+  poseBones,
   stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -50,7 +51,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States the bodies, signed cases, rigid placement, displayed seam and recovery, and three refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Reads public poses and displayed bones. A yaw reset, shortened winding, unchanged targets, displaced or rotated soles, clinical overshoot or admitted unsupported landing fails an assertion.
  * @evidence contracts/development/testing.md#independent-expectations A quarter rotation about +Y sends forward toward +X and each foot's lateral offset toward −Z. The equations apply that transform at the destination. The campaign's continuity and ground bounds are 5 mm, the staged attitude bound is 1e−6 rad, and clinical limits come from the product table.
- * @evidence contracts/development/testing.md#distinguishing-cases Opposite signs and different proportions, the positive turn before and after rigid placement, both sides of touchdown, interior absorption and final recovery distinguish a turn's winding and outcome. Integer staged flight and physical conservation have their own specifications.
+ * @evidence contracts/development/testing.md#distinguishing-cases Opposite signs and different proportions, the positive turn before and after rigid placement, five unaliased airborne intervals, the touchdown seam, absorption and final recovery distinguish a turn's winding and outcome. Integer staged flight and physical conservation have their own specifications.
  * @evidence contracts/development/testing.md#execution-ownership One portable unit uses two existing canonical bodies, three finite jumps, a fixed box fixture and three refused plans. It reads only public performance outputs.
  */
 export function test_human_motion_fractional_landing(): void {
@@ -76,18 +77,27 @@ export function test_human_motion_fractional_landing(): void {
     const winding: number = 2 * Math.PI * twist;
     const label: string = `${twist} turns from ${yaw} degrees`;
 
-    // Eight intervals resolve each increment below half a turn. The final
-    // sample is on the planted side, independent of the exact boundary branch.
+    // Five intervals are the fewest that resolve 2¼ turns without aliasing.
+    // Count through the airborne limit, then across the touchdown seam.
+    const before: number = touchdown - 1e-6;
+    const beforePose: IAutoMoviePose = film.pose("a", before);
     const after: number = touchdown + 1e-6;
     const afterPose: IAutoMoviePose = film.pose("a", after);
     let sum: number = 0;
     let previous: number = heading;
-    for (let index: number = 0; index <= 8; index++) {
-      const u: number = index / 8;
+    for (let index: number = 0; index <= 6; index++) {
+      const seconds: number =
+        index === 6 ? after : takeoff + ((before - takeoff) * index) / 5;
+      const share: number = Math.min(
+        1,
+        (seconds - takeoff) / (touchdown - takeoff),
+      );
       const pose: IAutoMoviePose =
-        index === 8
+        index === 6
           ? afterPose
-          : film.pose("a", takeoff + (touchdown - takeoff) * u);
+          : index === 5
+            ? beforePose
+            : film.pose("a", seconds);
       const root: IAutoMovieQuaternion = pose.root!.rotation;
       const forward: IAutoMovieVector3 = Quaternion.rotateVector(root, {
         x: 0,
@@ -100,7 +110,7 @@ export function test_human_motion_fractional_landing(): void {
         Math.cos(current - previous),
       );
       previous = current;
-      upright(label, root, heading + winding * u);
+      upright(label, root, heading + winding * share);
       legalRom(label, pose);
     }
     TestValidator.predicate(
@@ -108,26 +118,19 @@ export function test_human_motion_fractional_landing(): void {
       Math.abs(sum - winding) <= 1e-6,
     );
 
-    const before: number = touchdown - 1e-6;
-    const beforeAngle: number =
-      heading + (winding * (before - takeoff)) / (touchdown - takeoff);
-    const beforeRoot: NonNullable<IAutoMoviePose["root"]> = film.pose(
-      "a",
-      before,
-    ).root!;
+    const beforeRoot: NonNullable<IAutoMoviePose["root"]> = beforePose.root!;
     const afterRoot: NonNullable<IAutoMoviePose["root"]> = afterPose.root!;
-    upright(`${label}: airborne left limit`, beforeRoot.rotation, beforeAngle);
     TestValidator.predicate(
       `${label}: the root enters absorption without a position jump`,
       close(beforeRoot.translation, afterRoot.translation),
     );
-    const beforeBones: ReturnType<HumanPerformance["bones"]> = film.bones(
-      "a",
-      before,
+    const beforeBones: ReturnType<HumanPerformance["bones"]> = poseBones(
+      body,
+      beforePose,
     );
-    const plantBones: ReturnType<HumanPerformance["bones"]> = film.bones(
-      "a",
-      after,
+    const plantBones: ReturnType<HumanPerformance["bones"]> = poseBones(
+      body,
+      afterPose,
     );
     const recovery: ReturnType<HumanPerformance["bones"]>[] = [];
     for (const seconds of [(touchdown + settled) / 2, settled, film.duration]) {
@@ -138,7 +141,7 @@ export function test_human_motion_fractional_landing(): void {
         heading + winding,
       );
       legalRom(`${label}: planted at ${seconds} s`, pose);
-      recovery.push(film.bones("a", seconds));
+      recovery.push(poseBones(body, pose));
     }
     for (const side of ["left", "right"] as const) {
       const foot: `${typeof side}Foot` = `${side}Foot`;

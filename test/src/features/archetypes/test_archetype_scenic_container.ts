@@ -1,7 +1,12 @@
 import { createScenicContainer } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeSegmentDistance,
+} from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -21,14 +26,14 @@ function near(actual: number, expected: number): boolean {
  * Scenic containers stand on the ground and expose a placement surface on a real lid or interior floor.
  *
  * Scenarios:
- * 1. All five independently listed silhouettes contain the given distinct X, Y and Z dimensions, honor the author id, and are deterministic across repetitions of a seed.
+ * 1. All five independently listed silhouettes have the supplied X, Y and Z dimensions and honor the author id.
  * 2. The closed forms place their surface on the actual lid or cap. Two are narrower than their body and the rectangular coffer uses its full lid. The open forms place their surface on a real interior floor and have clear center space above it.
- * 3. Free dimensions vary with the seed without disturbing a fixed dimension, and a width outside the modern crate's band is refused.
+ * 3. One crate seed replays its free dimensions. A different draw varies height without disturbing a fixed width, and an oversized width is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sizing, actual-part contact, open-interior and seed observations.
  * @evidence contracts/development/testing.md#behavioral-verification Uses public archetypes, collider extents, public affordances, repeated seeds and normal dimension admission.
- * @evidence contracts/development/testing.md#independent-expectations Fixed dimensions and supplied kinds are authored here. Surface locations are measured against built parts and openings rather than calculated from the producer's construction ratios.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks two open floors, an overhanging rectangular lid, two faceted tops, and seeded, fixed and refused dimensions.
+ * @evidence contracts/development/testing.md#independent-expectations Fixed dimensions and supplied kinds are authored here. Footprint corners touch the actual supporting solid at its top face to within 1e-8 m. The opening check proves the vertical centerline is clear.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks two open floors, a full rectangular lid, two faceted tops, and seeded, fixed and refused dimensions.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory unit test discovered by its exported name.
  */
 export function test_archetype_scenic_container(): void {
@@ -79,25 +84,29 @@ export function test_archetype_scenic_container(): void {
     };
     const model: ReturnType<typeof createScenicContainer> =
       createScenicContainer(params, "scenery");
+    const shapes: IAutoMoviePhysicalShape[] = model.shapes();
+    const lateral: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      shapes,
+      "x",
+    );
     const vertical: ReturnType<typeof archetypeExtent> = archetypeExtent(
-      model,
+      shapes,
       "y",
+    );
+    const longitudinal: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      shapes,
+      "z",
     );
     TestValidator.predicate(
       `${kind} is centered and grounded at its fixed dimensions`,
       (): boolean =>
         model.id === kind &&
-        near(archetypeExtent(model, "x").low, -width / 2) &&
-        near(archetypeExtent(model, "x").high, width / 2) &&
-        near(archetypeExtent(model, "z").low, -depth / 2) &&
-        near(archetypeExtent(model, "z").high, depth / 2) &&
+        near(lateral.low, -width / 2) &&
+        near(lateral.high, width / 2) &&
+        near(longitudinal.low, -depth / 2) &&
+        near(longitudinal.high, depth / 2) &&
         near(vertical.low, 0) &&
         near(vertical.high, height),
-    );
-    TestValidator.equals(
-      `${kind} repeats a seeded build`,
-      JSON.stringify(model),
-      JSON.stringify(createScenicContainer(params, "scenery")),
     );
 
     const placement: ReturnType<typeof model.affordance> = model.affordance(
@@ -125,13 +134,15 @@ export function test_archetype_scenic_container(): void {
       placement.frame.rotation,
       Vector3.create(0, 1, 0),
     );
-    const top: number = archetypeExtent(model, "y", [scenario.part]).high;
-    const floorWidth: number = archetypeExtent(model, "x", [
-      scenario.part,
-    ]).size;
-    const floorDepth: number = archetypeExtent(model, "z", [
-      scenario.part,
-    ]).size;
+    const solid: IAutoMoviePhysicalShape | undefined = shapes.find(
+      (shape: IAutoMoviePhysicalShape): boolean => shape.id === scenario.part,
+    );
+    if (solid === undefined) throw new Error(`${kind} has no supporting solid`);
+    const top: number = archetypeExtent([solid], "y").high;
+    const origin: IAutoMovieRigidTransform = {
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    };
     TestValidator.predicate(
       `${kind} supports a centered upward footprint`,
       (): boolean =>
@@ -141,30 +152,36 @@ export function test_archetype_scenic_container(): void {
         near(up.y, 1) &&
         footprintWidth > 0 &&
         footprintDepth > 0 &&
-        footprintWidth <= floorWidth + TOLERANCE &&
-        footprintDepth <= floorDepth + TOLERANCE,
+        corners.length === 4 &&
+        corners.every((corner: IAutoMovieVector3): boolean => {
+          const point: IAutoMovieVector3 = Vector3.add(
+            placement.frame.translation,
+            Quaternion.rotateVector(placement.frame.rotation, corner),
+          );
+          return (
+            near(point.y, top) &&
+            near(physicalShapeSegmentDistance(origin, solid, point, point), 0)
+          );
+        }),
     );
     if (scenario.surface === "inside") {
       TestValidator.predicate(
         `${kind} leaves the interior center open`,
         (): boolean =>
           top < vertical.high &&
-          model
-            .shapes()
+          shapes
             .filter(
               (shape: IAutoMoviePhysicalShape): boolean =>
                 shape.id !== scenario.part,
             )
             .every((shape: IAutoMoviePhysicalShape): boolean => {
               const x: ReturnType<typeof archetypeExtent> = archetypeExtent(
-                model,
+                [shape],
                 "x",
-                [shape.id],
               );
               const z: ReturnType<typeof archetypeExtent> = archetypeExtent(
-                model,
+                [shape],
                 "z",
-                [shape.id],
               );
               return x.low > 0 || x.high < 0 || z.low > 0 || z.high < 0;
             }),
@@ -181,22 +198,38 @@ export function test_archetype_scenic_container(): void {
     }
   }
 
-  const variety: ReturnType<typeof createScenicContainer>[] = [0, 1, 2, 3].map(
-    (seed: number): ReturnType<typeof createScenicContainer> =>
-      createScenicContainer({ kind: "moldedCrate", width: 0.34 }, seed),
+  const crateParams: createScenicContainer.IParams = {
+    kind: "moldedCrate",
+    width: 0.34,
+  };
+  const seeded: ReturnType<typeof createScenicContainer> =
+    createScenicContainer(crateParams, 0);
+  TestValidator.equals(
+    "one seed reproduces a crate with free dimensions",
+    JSON.stringify(seeded),
+    JSON.stringify(createScenicContainer(crateParams, 0)),
   );
+  const seededShapes: IAutoMoviePhysicalShape[] = seeded.shapes();
+  const height: number = archetypeExtent(seededShapes, "y").size;
   TestValidator.predicate(
-    "seeding varies free crate sizes while preserving its fixed width",
-    (): boolean =>
-      variety.every((item: ReturnType<typeof createScenicContainer>): boolean =>
-        near(archetypeExtent(item, "x").size, 0.34),
-      ) &&
-      new Set(
-        variety.map(
-          (item: ReturnType<typeof createScenicContainer>): number =>
-            archetypeExtent(item, "y").size,
-        ),
-      ).size > 1,
+    "seeded crate respects the fixed width",
+    near(archetypeExtent(seededShapes, "x").size, 0.34),
+  );
+  let differentHeight: boolean = false;
+  for (const seed of [1, 2, 3]) {
+    const shapes: IAutoMoviePhysicalShape[] = createScenicContainer(
+      crateParams,
+      seed,
+    ).shapes();
+    TestValidator.predicate(
+      `seed ${seed} preserves the fixed width`,
+      near(archetypeExtent(shapes, "x").size, 0.34),
+    );
+    differentHeight ||= !near(archetypeExtent(shapes, "y").size, height);
+  }
+  TestValidator.predicate(
+    "a different draw changes free height",
+    differentHeight,
   );
   TestValidator.error(
     "a scenic crate refuses an oversized fixed width",

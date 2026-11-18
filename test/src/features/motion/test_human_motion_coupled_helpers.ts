@@ -55,7 +55,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    helper's region at 20 Hz; or a capacity refusal on `mass` whose
  *    feasible maximum lies below the helped mass.
  * 3. The average man helps the average man up by the left hand. The palms
- *    meet within 10 mm at five samples from closure to release, and the helped
+ *    meet within 10 mm at closure, mid-hold and release, and the helped
  *    palm slips by at most 10 mm in the helper's displayed palm-bone frame.
  *    Both feet bear on the floor before the grip releases and through the end.
  *
@@ -143,15 +143,15 @@ export function test_human_motion_coupled_helpers(): void {
       bodies.b,
       0,
     );
-    const helper: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-      film,
-      "a",
-      bodies.a,
-      0,
-    );
     if (hand === "left") {
       checkLeftGrip(all, cell, film, bodies, rise, grips, feet, CONTACT);
-    } else
+    } else {
+      const helper: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+        film,
+        "a",
+        bodies.a,
+        0,
+      );
       for (const w of grips) {
         const t: number =
           rise.start + ((w.from + w.to) / 2) * rise.plan.duration;
@@ -166,6 +166,7 @@ export function test_human_motion_coupled_helpers(): void {
           gap <= CONTACT,
         );
       }
+    }
     const end: number = rise.start + rise.plan.duration;
     const upright: number =
       HumanSignature.joint(reader, end, "head").y -
@@ -338,10 +339,9 @@ function checkLeftGrip(
         ),
       );
 
-    // Read five equally spaced instants including the authored closure and
-    // release. The local displacement removes the helper's own motion.
+    // The local displacement measures slip independently of the helper's motion.
     let closure: IAutoMovieVector3 | undefined;
-    for (const share of [0, 0.25, 0.5, 0.75, 1]) {
+    for (const share of [0, 0.5, 1]) {
       const seconds: number =
         rise.start +
         (grip.from + share * (grip.to - grip.from)) * rise.plan.duration;

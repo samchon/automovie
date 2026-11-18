@@ -22,14 +22,15 @@ import { throwsError } from "../internal/throwsError";
  * Scenarios:
  * 1. A wave starts at 2 s and travels at 2 m/s. Sections at 0, 3 and 10 m
  *    start at 2, 3.5 and 7 s through the ordinary schedule resolver.
- * 2. Authored times or coincident marks cue distinct sections together.
+ * 2. Shifting the origin and scaling distances with speed preserves delays.
+ *    Authored times or coincident marks cue distinct sections together.
  * 3. Reject empty, nonfinite, negative or descending values, an invalid
  *    speed or origin, overlapping input modes and
  *    propagation that cannot represent a finite, distinct film second.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the timing rule, the fixture values and the refusal cases.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public cue producer and resolver and checks each resolved section's start by subject.
- * @evidence contracts/development/testing.md#independent-expectations The example uses hand-computed arrivals and separately authored seconds, independent of the produced cues.
+ * @evidence contracts/development/testing.md#independent-expectations The example uses hand-computed arrivals and separately authored seconds. Distance divided by speed is invariant to a common scale, and adding to the origin shifts all film times equally.
  * @evidence contracts/development/testing.md#distinguishing-cases Uneven distances separate travel time from a fixed index interval. An authored tie distinguishes intentional unison from indistinguishable propagated arrivals.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory test of public scheduling with fixed one-second actions and no host dependencies.
  */
@@ -78,10 +79,23 @@ export function test_human_motion_section_wave(): void {
       nclose(arrived[2]!, 7),
   );
 
-  TestValidator.equals(
+  const retimed: number[] = starts(
+    HumanCue.sectionWave({ distances: [0, 6, 20], from: 5, speed: 4 }),
+  );
+  for (const [index, seconds] of retimed.entries())
+    TestValidator.predicate(
+      `section ${index} keeps its propagation delay under affine retiming`,
+      nclose(seconds - arrived[index]!, 3),
+    );
+
+  const coincident: number[] = starts(
+    HumanCue.sectionWave({ distances: [0, 3, 3], from: 2, speed: 2 }),
+  );
+  TestValidator.predicate(
     "sections at the same path mark retain both cue indices",
-    [2, 3.5, 3.5],
-    starts(HumanCue.sectionWave({ distances: [0, 3, 3], from: 2, speed: 2 })),
+    nclose(coincident[0]!, 2, 0) &&
+      nclose(coincident[1]!, 3.5, 0) &&
+      nclose(coincident[2]!, 3.5, 0),
   );
 
   const authored: number[] = starts(

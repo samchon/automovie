@@ -27,8 +27,8 @@ import { nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both schedules and the placement and geometry observations at every instant.
  * @evidence contracts/development/testing.md#behavioral-verification Drives actual capture planning and draw-call translation into the draw-scene soft-prop binding, observes the calls to the producer and inspects the resulting mesh.
- * @evidence contracts/development/testing.md#independent-expectations Samples at 0, 0.1 and 0.2 s round to the nearest native frame, whose time is its index divided by fps. The supplied panel's y is the film second, so an independently known frame second fixes all its heights.
- * @evidence contracts/development/testing.md#distinguishing-cases 24 Hz rounds the sample times while 60 Hz retains them. Both expose off-frame reads, and distinct successive heights catch stale geometry.
+ * @evidence contracts/development/testing.md#independent-expectations Samples at 0, 0.1 and 0.2 s round to the nearest native frame, whose time is its index divided by fps. One position sample per frame observes the panel height, allowing 1e-8 m for Float32 rounding.
+ * @evidence contracts/development/testing.md#distinguishing-cases 24 Hz rounds the sample times while 60 Hz retains them. Both expose extra or off-frame reads after asynchronous placement, and distinct successive heights catch stale geometry.
  * @evidence contracts/development/testing.md#execution-ownership test_render_soft_frames creates only an in-memory schedule, scene and producer callback, with no browser, capture run or renderer.
  */
 export async function test_render_soft_frames(): Promise<void> {
@@ -37,8 +37,8 @@ export async function test_render_soft_frames(): Promise<void> {
     [60, [0, 6 / 60, 12 / 60]],
   ] as const) {
     const scene: THREE.Scene = new THREE.Scene();
-    const readAt: number[] = [];
-    let placedAt: number | undefined;
+    const events: { kind: "placed" | "read"; seconds: number }[] = [];
+    const heights: number[] = [];
     const draw: IAutoMovieDrawScene = bindAutoMovieDrawSceneSoftProps(
       {
         scene,
@@ -48,18 +48,15 @@ export async function test_render_soft_frames(): Promise<void> {
         width: 32,
         height: 18,
         seek: async (seconds: number): Promise<void> => {
-          placedAt = seconds;
+          await Promise.resolve();
+          events.push({ kind: "placed", seconds });
         },
         dispose: (): void => {
           scene.clear();
         },
       },
       (seconds: number): readonly IAutoMovieRenderSoftPropFrame[] => {
-        TestValidator.predicate(
-          "scene placement precedes surface read",
-          () => placedAt === seconds,
-        );
-        readAt.push(seconds);
+        events.push({ kind: "read", seconds });
         return [panel(seconds)];
       },
     );
@@ -85,24 +82,24 @@ export async function test_render_soft_frames(): Promise<void> {
         await draw.seek(call.seconds);
         const mesh: THREE.Object3D | undefined =
           scene.getObjectByName("soft:panel");
-        TestValidator.predicate(
-          "the frame has the supplied panel height",
-          () =>
-            mesh instanceof THREE.Mesh &&
-            nclose(
-              mesh.geometry.getAttribute("position").getY(0),
-              expected[cell.index]!,
-              1e-8,
-            ),
+        heights.push(
+          mesh instanceof THREE.Mesh
+            ? mesh.geometry.getAttribute("position").getY(0)
+            : NaN,
         );
       }
       TestValidator.predicate(
-        `only the ${fps} Hz frame seconds were read`,
+        `${fps} Hz seeks place once, then read once and project that frame`,
         () =>
-          readAt.length === expected.length &&
+          events.length === expected.length * 2 &&
+          heights.length === expected.length &&
           expected.every(
             (seconds: number, index: number): boolean =>
-              readAt[index] === seconds,
+              events[index * 2]?.kind === "placed" &&
+              events[index * 2]?.seconds === seconds &&
+              events[index * 2 + 1]?.kind === "read" &&
+              events[index * 2 + 1]?.seconds === seconds &&
+              nclose(heights[index]!, seconds, 1e-8),
           ),
       );
     } finally {

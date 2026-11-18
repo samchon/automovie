@@ -39,13 +39,17 @@ export function test_human_motion_operate_paper(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(
       book ? "m-average" : "f-small",
     );
-    const model: ReturnType<typeof createStationery> = createStationery(
-      book ? { kind, width: 0.13, thickness: 0.02 } : { kind },
-    );
+    const width: number = book ? 0.13 : 0.11;
+    const thickness: number = book ? 0.02 : 0.007;
+    const model: ReturnType<typeof createStationery> = createStationery({
+      kind,
+      width,
+      thickness,
+    });
     const articulation: "page" | "fold" = book ? "page" : "fold";
     const point: "page-edge" | "fold-edge" = book ? "page-edge" : "fold-edge";
     const at: IAutoMovieVector3 = {
-      x: -body.measure.shoulderHalfWidth + (book ? 0.065 : -0.055),
+      x: -body.measure.shoulderHalfWidth + (book ? width / 2 : -width / 2),
       y: 0.6 * body.measure.stature,
       z: 0.3,
     };
@@ -106,17 +110,26 @@ export function test_human_motion_operate_paper(): void {
       operation.start + drive.from * operation.plan.duration;
     const strokeEnd: number =
       operation.start + drive.to * operation.plan.duration;
-    const midway: number = performance.state(
+    const midway: Readonly<Record<string, number>> = performance.state(
       "paper",
       (strokeStart + strokeEnd) / 2,
-    )[articulation]!;
-    TestValidator.predicate(
-      `${kind}: the panel moves during the stroke`,
-      midway > 0 && midway < 180,
     );
+    TestValidator.predicate(
+      book
+        ? "the page turns while the cover stays open"
+        : "the map panel moves during the stroke",
+      midway[articulation]! > 0 &&
+        midway[articulation]! < 180 &&
+        (!book || nclose(midway.hinge!, 180, 1e-9)),
+    );
+
+    // Reflect the free edge across its hinge in the plane perpendicular to it.
+    const hingeX: number = ((book ? -1 : 1) * width) / 2;
+    const hingeY: number = book ? (thickness + 0.0001) / 2 : thickness / 2;
+    const edgeY: number = book ? hingeY : (3 * thickness) / 4;
     const expected: IAutoMovieVector3 = {
-      x: at.x + (book ? -0.195 : 0.165),
-      y: at.y + (book ? 0.01005 : 0.00175),
+      x: at.x + 3 * hingeX,
+      y: at.y + 2 * hingeY - edgeY,
       z: at.z,
     };
     for (const seconds of [

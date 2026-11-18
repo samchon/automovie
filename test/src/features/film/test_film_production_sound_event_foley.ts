@@ -1,9 +1,11 @@
 import { deriveProductionSoundPlan } from "@automovie/engine";
 import type {
+  IAutoMovieCompiledShotSource,
   IAutoMovieDeriveProductionSoundPlan,
   IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
   IAutoMovieProductionSoundCue,
+  IAutoMovieProductionSoundEvent,
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -28,7 +30,7 @@ import {
  * 4. Gain and fades follow the audio cue bounds even when the event is trimmed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes placement, compatibility, cue reference and span refusal, and gain and fade bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public sound planner with real shot contracts, compiled event samples, timeline cuts and normalized asset trims.
+ * @evidence contracts/development/testing.md#behavioral-verification The public sound planner returns picture and cue frames, source trim and mix fields. The checks catch incorrect cut ownership, lost cue settings and malformed inputs.
  * @evidence contracts/development/testing.md#independent-expectations The authored 0.2 second contact at 20 fps is source frame 4. The three cuts exclude it at source-out 4, keep it at film frame 4, and map it to film frame 16. Literal cue starts 2 and 14 verify two frames of lead without reusing planner output as the timing oracle.
  * @evidence contracts/development/testing.md#distinguishing-cases Separates cut-away events from missing declarations or samples, exclusive out from inclusive in, repeated occurrences from fixed placements, present from missing asset identities even after trim, and valid trim/offsets from fractional or overflowing placements. It accepts fades that exactly fill the cue and rejects invalid gain or fades on retained and trimmed cues.
  * @evidence contracts/development/testing.md#execution-ownership The feature entry owns in-memory compiler assertions through deriveProductionSoundPlan and acquires no renderer, filesystem, decoder, process or completed-result cache.
@@ -53,11 +55,12 @@ export function test_film_production_sound_event_foley(): void {
       endFrame: 60,
     },
   ];
+  const compiled: IAutoMovieCompiledShotSource = productionSoundCompiled();
   const input: IAutoMovieDeriveProductionSoundPlan.IProps = {
     timeline,
     eventCueAssets: new Set(["public/contact.wav"]),
     contracts: new Map([[shot.shot, productionSoundContract()]]),
-    compiled: new Map([[shot.shot, productionSoundCompiled()]]),
+    compiled: new Map([[shot.shot, compiled]]),
   };
   const cue: IAutoMovieDeriveProductionSoundPlan.IEventCue = {
     id: "recorded-contact",
@@ -82,7 +85,7 @@ export function test_film_production_sound_event_foley(): void {
     ],
   });
   const placements: IAutoMovieProductionSoundCue[] = synced.cues.slice(
-    fixed.cues.length,
+    timeline.tracks.audio.length,
   );
   TestValidator.equals(
     "a contact cue follows both retained starts and honors signed lead",
@@ -112,8 +115,18 @@ export function test_film_production_sound_event_foley(): void {
   );
   TestValidator.equals(
     "fixed cues preserve order and complete payload",
-    synced.cues.slice(0, fixed.cues.length),
+    synced.cues.slice(0, timeline.tracks.audio.length),
     fixed.cues,
+  );
+  TestValidator.equals(
+    "the picture contact belongs to the two retained occurrences",
+    synced.events
+      .filter(
+        (event: IAutoMovieProductionSoundEvent): boolean =>
+          event.event === "contact",
+      )
+      .map((event: IAutoMovieProductionSoundEvent): number => event.frame),
+    [4, 16],
   );
   TestValidator.equals(
     "semantic events keep their own placement",
@@ -121,124 +134,77 @@ export function test_film_production_sound_event_foley(): void {
     fixed.events,
   );
 
-  const withoutSample: IAutoMovieDeriveProductionSoundPlan.IProps = {
-    ...input,
-    compiled: new Map([
-      [shot.shot, { ...productionSoundCompiled(), eventSamples: [] }],
-    ]),
-  };
+  const invalid: ReadonlyArray<
+    readonly [
+      name: string,
+      changes: Partial<IAutoMovieDeriveProductionSoundPlan.IEventCue>,
+      diagnostic: string,
+    ]
+  > = [
+    ["undeclared event", { event: "unknown" }, '"unknown"'],
+    ["unknown shot", { shot: "unknown-shot" }, '"unknown-shot"'],
+    [
+      "unadopted asset on a trimmed cue",
+      { event: "trimmed", asset: "public/missing.wav" },
+      '"public/missing.wav"',
+    ],
+    ["trim exceeds the asset", { sourceOffsetFrame: 5 }, "whole-frame trim"],
+    ["fractional offset", { offsetFrames: -1.5 }, "whole-frame offset"],
+    [
+      "placement exceeds the film",
+      { offsetFrames: 41 },
+      "must fit inside the film",
+    ],
+    ["non-finite gain", { gain: Number.NaN }, "finite gain"],
+    [
+      "negative gain on a trimmed cue",
+      { event: "trimmed", gain: -1 },
+      "finite gain",
+    ],
+    ["gain above the ceiling", { gain: 4.01 }, "finite gain"],
+    ["negative fade-in", { fadeInFrames: -1 }, "whole-frame fades"],
+    ["fractional fade-in", { fadeInFrames: 0.5 }, "whole-frame fades"],
+    [
+      "non-finite fade-out",
+      { fadeOutFrames: Number.POSITIVE_INFINITY },
+      "whole-frame fades",
+    ],
+    [
+      "combined fades exceed the span on a trimmed cue",
+      { event: "trimmed", fadeInFrames: 2 },
+      "sum fits the cue span",
+    ],
+  ];
+  for (const [name, changes, diagnostic] of invalid)
+    TestValidator.predicate(
+      name,
+      throwsError(
+        (): IAutoMovieProductionSoundPlan =>
+          deriveProductionSoundPlan({
+            ...input,
+            eventCues: [{ ...cue, ...changes }],
+          }),
+        ['"recorded-contact"', diagnostic],
+      ),
+    );
   TestValidator.predicate(
-    "unresolved references and invalid cue placements refuse with cue identity",
+    "a declaration without a realized sample refuses",
     throwsError(
       (): IAutoMovieProductionSoundPlan =>
         deriveProductionSoundPlan({
           ...input,
-          eventCues: [{ ...cue, event: "unknown" }],
+          compiled: new Map([[shot.shot, { ...compiled, eventSamples: [] }]]),
+          eventCues: [cue],
         }),
-      ['"recorded-contact"', '"unknown"'],
-    ) &&
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({
-            ...input,
-            eventCues: [{ ...cue, shot: "unknown-shot" }],
-          }),
-        ['"recorded-contact"', '"unknown-shot"'],
-      ) &&
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({
-            ...input,
-            eventCues: [
-              { ...cue, event: "trimmed", asset: "public/missing.wav" },
-            ],
-          }),
-        ['"recorded-contact"', '"public/missing.wav"'],
-      ) &&
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({
-            ...input,
-            eventCues: [{ ...cue, sourceOffsetFrame: 5 }],
-          }),
-        ['"recorded-contact"', "whole-frame trim"],
-      ) &&
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({ ...withoutSample, eventCues: [cue] }),
-        ['"recorded-contact"', "declared and realized"],
-      ) &&
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({
-            ...input,
-            eventCues: [{ ...cue, offsetFrames: -1.5 }],
-          }),
-        ['"recorded-contact"', "whole-frame offset"],
-      ) &&
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({ ...input, eventCues: [cue, cue] }),
-        ['"recorded-contact"', "repeats an authored cue id"],
-      ) &&
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({
-            ...input,
-            eventCues: [{ ...cue, offsetFrames: 41 }],
-          }),
-        ['"recorded-contact"', "must fit inside the film"],
-      ),
+      ['"recorded-contact"', "declared and realized"],
+    ),
   );
-
-  const invalidLevels: Array<{
-    name: string;
-    cue: IAutoMovieDeriveProductionSoundPlan.IEventCue;
-    diagnostic: string;
-  }> = [
-    {
-      name: "non-finite gain on a retained cue",
-      cue: { ...cue, gain: Number.NaN },
-      diagnostic: "finite gain",
-    },
-    {
-      name: "negative gain on a trimmed cue",
-      cue: { ...cue, event: "trimmed", gain: -1 },
-      diagnostic: "finite gain",
-    },
-    {
-      name: "gain above the authored ceiling",
-      cue: { ...cue, gain: 4.01 },
-      diagnostic: "finite gain",
-    },
-    {
-      name: "negative fade-in",
-      cue: { ...cue, fadeInFrames: -1 },
-      diagnostic: "whole-frame fades",
-    },
-    {
-      name: "fractional fade-in",
-      cue: { ...cue, fadeInFrames: 0.5 },
-      diagnostic: "whole-frame fades",
-    },
-    {
-      name: "non-finite fade-out",
-      cue: { ...cue, fadeOutFrames: Number.POSITIVE_INFINITY },
-      diagnostic: "whole-frame fades",
-    },
-    {
-      name: "combined fades longer than the span on a trimmed cue",
-      cue: { ...cue, event: "trimmed", fadeInFrames: 2 },
-      diagnostic: "sum fits the cue span",
-    },
-  ];
-  for (const invalid of invalidLevels)
-    TestValidator.predicate(
-      invalid.name,
-      throwsError(
-        (): IAutoMovieProductionSoundPlan =>
-          deriveProductionSoundPlan({ ...input, eventCues: [invalid.cue] }),
-        ['"recorded-contact"', invalid.diagnostic],
-      ),
-    );
+  TestValidator.predicate(
+    "duplicate authored cue identity refuses",
+    throwsError(
+      (): IAutoMovieProductionSoundPlan =>
+        deriveProductionSoundPlan({ ...input, eventCues: [cue, cue] }),
+      ['"recorded-contact"', "repeats an authored cue id"],
+    ),
+  );
 }

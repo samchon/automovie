@@ -92,8 +92,10 @@ export function test_render_practical_surface_materials(): void {
     );
     TestValidator.predicate(
       "separate model objects are mounted under their distinct placements",
-      mounted.scene.children[0]?.children[0] === near.object &&
-        mounted.scene.children[1]?.children[0] === far.object,
+      near.object.parent === mounted.scene.getObjectByName("near-board") &&
+        far.object.parent === mounted.scene.getObjectByName("far-board") &&
+        near.object.parent?.position.x === 0 &&
+        far.object.parent?.position.x === 3,
     );
 
     const shot: IAutoMovieShot = {
@@ -126,16 +128,18 @@ export function test_render_practical_surface_materials(): void {
     const resolveNode: Parameters<typeof applyPracticalSurfaceMaterials>[2] = (
       id: string,
     ): ReturnType<typeof buildModel> | undefined => instances.get(id);
+    const prepared: Readonly<Record<string, THREE.Material>> = {
+      idle: nearIdle,
+      ready,
+    };
     const resolveMaterial: Parameters<
       typeof applyPracticalSurfaceMaterials
     >[3] = (
       node: string,
       partId: string,
       id: string,
-    ): THREE.Material | undefined => {
-      if (node !== "near-board" || partId !== part) return undefined;
-      return id === "idle" ? nearIdle : id === "ready" ? ready : undefined;
-    };
+    ): THREE.Material | undefined =>
+      node === "near-board" && partId === part ? prepared[id] : undefined;
 
     applyPracticalSurfaceMaterials(shot, 0.5, resolveNode, resolveMaterial);
     TestValidator.predicate(
@@ -147,8 +151,7 @@ export function test_render_practical_surface_materials(): void {
     applyPracticalSurfaceMaterials(shot, 0.1, resolveNode, resolveMaterial);
     TestValidator.predicate(
       "reverse seek restores the exact staged material reference",
-      Object.is(nearMesh.material, nearIdle) &&
-        Object.is(farMesh.material, farIdle),
+      nearMesh.material === nearIdle && farMesh.material === farIdle,
     );
 
     const both: IAutoMovieShot = {
@@ -168,8 +171,10 @@ export function test_render_practical_surface_materials(): void {
             resolveNode,
             resolveMaterial,
           ),
-        'has no prepared material "ready"',
-      ) && Object.is(nearMesh.material, nearIdle),
+        ['"far-board"', 'has no prepared material "ready"'],
+      ) &&
+        nearMesh.material === nearIdle &&
+        farMesh.material === farIdle,
     );
   } finally {
     nearMesh.geometry.dispose();

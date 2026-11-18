@@ -22,12 +22,13 @@ import { vclose } from "../internal/vclose";
  * Scenarios:
  * 1. For each profile, the hull extends to its authored length, beam, draft and freeboard. Boarding follows an actual port rail opening and faces inboard.
  * 2. The oared ship's eight seat contacts sit on physical benches and face aft. The sail profile places the helm behind three masts. The wheelhouse profile encloses the helm forward of the aft work area.
- * 3. A calm quarter turn and seeded swell preserve the boarding and deck frames in the ship's coordinates. On the swell the ship heaves by the elevation under its root and its boarding surface follows the wave tangent.
+ * 3. Carry the wheelhouse profile through a calm quarter turn and seeded swell.
+ * The boarding surface follows the wave tangent and keeps its distance from the aft deck.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the geometry, station and ride cases exercised.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the exported producer's meshes, deck and seat frames, and observes world frames on the public ride.
  * @evidence contracts/development/testing.md#independent-expectations Hull vertex extrema use explicit input dimensions. Projected cylinder intervals bound the clearance and the turn end uses the analytic quarter-circle position and 90-degree axes. The swell preserves rigid distances, adds the independently sampled water elevation and aligns the deck with the gradient normal.
- * @evidence contracts/development/testing.md#distinguishing-cases Three silhouettes, paired rowing banks, a physical rail opening against a closed opposite rail, and calm and nonzero sea.
+ * @evidence contracts/development/testing.md#distinguishing-cases Three silhouettes, paired rowing banks, and a physical rail opening against a closed opposite rail. The wheelhouse provides noncoincident contacts for the calm and swell integration case. The sea surface test owns the wave spectrum and general frame behavior.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory test discovered by its exported name.
  */
 export function test_archetype_scenic_ship(): void {
@@ -213,6 +214,8 @@ export function test_archetype_scenic_ship(): void {
         );
     }
 
+    // The passive ride carries a rigid hull regardless of its profile.
+    if (kind !== "wheelhouse") continue;
     const course: ArchetypeCourse.ICourse = {
       start: { x: 0, z: 0, heading: 0 },
       legs: [{ kind: "turn", radius: 25, angle: 90 }],
@@ -278,7 +281,11 @@ export function test_archetype_scenic_ship(): void {
           wetBoarding.y - wetAft.y,
           wetBoarding.z - wetAft.z,
         ),
-        Math.hypot(boarding.frame.translation.x, aft.frame.translation.z),
+        Math.hypot(
+          boarding.frame.translation.x - aft.frame.translation.x,
+          boarding.frame.translation.y - aft.frame.translation.y,
+          boarding.frame.translation.z - aft.frame.translation.z,
+        ),
       )
     )
       findings.push(`${kind}: swell fails to carry the contacts rigidly`);

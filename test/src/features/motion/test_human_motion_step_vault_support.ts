@@ -38,7 +38,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  *
  * @see https://londonparkour.com/tutorials/ground-step-vaults/
  * @evidence contracts/development/common.md#meaningful-documentation States the training variant, how the fixtures are placed and what each scenario checks.
- * @evidence contracts/development/testing.md#behavioral-verification Plans the authored sequence and observes placed contact windows and the displayed bones at the lift and exit.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the public support sequence and checks the ordered bearing windows, lifted toe clearance and displayed contact points at lift and exit.
  * @evidence contracts/development/testing.md#independent-expectations The cited ground drill determines which limbs support the passage. The measured body length sets the staged footprints and the motion campaign's 10 mm contact bound limits their horizontal miss.
  * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes the stepping side from the through side, and the stationary palm from the transferring feet during passage. Obstacle geometry belongs to the raised-obstacle law.
  * @evidence contracts/development/testing.md#execution-ownership This named unit plans one in-memory performance on the shared polygon man and reads two displayed poses.
@@ -51,12 +51,12 @@ export function test_human_motion_step_vault_support(): void {
   const rightToe: IAutoMovieVector3 = stance.get("rightToes")!.worldPosition;
   const length: number = body.measure.footLength;
   const leftExit: IAutoMovieVector3 = {
-    x: leftToe.x,
+    ...leftToe,
     y: 0,
     z: leftToe.z + 2 * length,
   };
   const rightExit: IAutoMovieVector3 = {
-    x: rightToe.x,
+    ...rightToe,
     y: 0,
     z: rightToe.z + 2 * length,
   };
@@ -103,6 +103,7 @@ export function test_human_motion_step_vault_support(): void {
     )!.share;
   const lift: number = share("lift2");
   const land: number = share("bear2");
+  const tolerance: number = 0.01;
   /** Observe one body's contact windows for the indicated limb. */
   const contacts = (
     part: IAutoMovieMotionHumanContactWindow["part"],
@@ -147,8 +148,8 @@ export function test_human_motion_step_vault_support(): void {
     performance.bones("a", segment.start + lift * segment.plan.duration);
   TestValidator.predicate(
     "the supporting wrist and opposite toe stay over their floor targets at lift",
-    miss(lifted.get("rightHand")!.worldPosition, palm) <= 0.01 &&
-      miss(lifted.get("leftToes")!.worldPosition, step) <= 0.01,
+    miss(lifted.get("rightHand")!.worldPosition, palm) <= tolerance &&
+      miss(lifted.get("leftToes")!.worldPosition, step) <= tolerance,
   );
   TestValidator.predicate(
     "the through toe clears the floor at lift",
@@ -160,7 +161,7 @@ export function test_human_motion_step_vault_support(): void {
     performance.bones("a", segment.start + segment.plan.duration);
   TestValidator.predicate(
     "both displayed toes finish within 10 mm of their exit footprints",
-    miss(displayed.get("leftToes")!.worldPosition, leftExit) <= 0.01 &&
-      miss(displayed.get("rightToes")!.worldPosition, rightExit) <= 0.01,
+    miss(displayed.get("leftToes")!.worldPosition, leftExit) <= tolerance &&
+      miss(displayed.get("rightToes")!.worldPosition, rightExit) <= tolerance,
   );
 }

@@ -71,7 +71,7 @@ const marchSynth: () => IAutoMovieMotion = (): IAutoMovieMotion =>
  * 5. Refuse negative and infinite lookahead and an authored lookahead on a static move.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and reads camera translation keys, catching ignored root X travel, a node-local/world-frame mix, rootless endpoint X drift or a static-point path with more than one key. Lookahead additionally checks executed rotation, translation and located gate refusals. It does not compare every rootless coordinate or interior key.
- * @evidence contracts/development/testing.md#independent-expectations The authored one-metre X translation fixes X displacement; a +90-degree Y placement maps it to world minus-Z, and the rootless fixture requires equal endpoint X coordinates. nclose compares hand-derived displacement rather than the framing solver's output snapshot. Adding half a metre to the opening aim along world +X turns camera forward toward +X, by a direction derived from the fixture’s zero-Z target plane and the baseline rays. The shot end has no future displacement.
+ * @evidence contracts/development/testing.md#independent-expectations The authored one-metre X translation fixes X displacement; a +90-degree Y placement maps it to world minus-Z, and the rootless fixture requires equal endpoint X coordinates. The opening lookahead ray must cross the subject's world Z=0 plane at X=0.5; the shot end has no future displacement and must retain the ordinary aim. The translation comparison isolates the effect of changing lookahead.
  * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes translated root, rootless clip, static point and turned placement with the same numerical path; lookahead distinguishes current translation from future aim, and separates admissible follow from invalid values and other moves. Camera-subject and bone/projectile follow cases are owned by camera_subject.
  * @evidence contracts/development/testing.md#execution-ownership This portable discoverable unit owns its camera compilation cases and reads arrays only, starting no browser, viewer or GPU. Numerical camera keys prove no final framing appearance.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Follow a one-metre model-X root march and keep the rootless neighbour's endpoint X coordinate unchanged.).
@@ -115,7 +115,11 @@ export function test_film_perform_shot_camera_follow(): void {
       marching.shot.cameraMotion!.tracks[1]!;
     TestValidator.predicate(
       "lookahead keeps the current-position translation keys",
-      translation!.values.length === track.values.length &&
+      translation!.times.length === track.times.length &&
+        translation!.times.every((time: number, index: number): boolean =>
+          nclose(time, track.times[index]!, 1e-9),
+        ) &&
+        translation!.values.length === track.values.length &&
         translation!.values.every((value: number, index: number): boolean =>
           nclose(value, track.values[index]!, 1e-9),
         ),
@@ -134,23 +138,19 @@ export function test_film_perform_shot_camera_follow(): void {
       };
     }
 
-    const forward: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
-    const baseAim: IAutoMovieVector3 = Quaternion.rotateVector(
-      rotationAt(baseRotation, 0),
-      forward,
-    );
     const aheadAim: IAutoMovieVector3 = Quaternion.rotateVector(
       rotationAt(rotation!, 0),
-      forward,
+      { x: 0, y: 0, z: -1 },
     );
-    const depth: number = -track.values[2]!;
+    const toSubjectPlane: number = -translation!.values[2]! / aheadAim.z;
     TestValidator.predicate(
-      "opening camera ray aims half a metre ahead",
-      nclose(
-        depth * (aheadAim.x / aheadAim.z - baseAim.x / baseAim.z),
-        0.5,
-        1e-6,
-      ),
+      "opening camera ray hits the subject plane half a metre ahead",
+      toSubjectPlane > 0 &&
+        nclose(
+          translation!.values[0]! + toSubjectPlane * aheadAim.x,
+          0.5,
+          1e-6,
+        ),
     );
     TestValidator.predicate(
       "shot-end lookahead uses the current aim",

@@ -7,7 +7,6 @@ import {
   validateShotArtifact,
 } from "@automovie/engine";
 import type {
-  IAutoMovieConstraintViolation,
   IAutoMovieEditorialMarker,
   IAutoMoviePlaybackEditorialMarker,
   IAutoMovieSkeleton,
@@ -112,40 +111,44 @@ export function test_film_editorial_markers(): void {
       cut.sequence,
       preparePlaybackTimeline(cut.sequence, [shot]),
     );
-  TestValidator.equals(
-    "retained placements in output order",
-    placements.map(
-      (marker: IAutoMoviePlaybackEditorialMarker): string =>
-        `${marker.entry}:${marker.id}`,
-    ),
-    ["0:window", "1:seam", "1:window", "0:outgoing", "2:seam", "2:window"],
-  );
-  const expected: readonly [number, number, number, number][] = [
-    [0.25, 0.75, 0.25, 0.75],
-    [0.75, 0.75, 0.625, 0.625],
-    [0.75, 1.5, 0.625, 1],
-    [0.7, 0.7, 0.7, 0.7],
-    [0.75, 0.75, 1, 1],
-    [0.75, 1.5, 1, 1.375],
+  const expected: readonly [
+    id: string,
+    entry: number,
+    sourceStart: number,
+    sourceEnd: number,
+    outputStart: number,
+    outputEnd: number,
+  ][] = [
+    ["window", 0, 0.25, 0.75, 0.25, 0.75],
+    ["seam", 1, 0.75, 0.75, 0.625, 0.625],
+    ["window", 1, 0.75, 1.5, 0.625, 1],
+    ["outgoing", 0, 0.7, 0.7, 0.7, 0.7],
+    ["seam", 2, 0.75, 0.75, 1, 1],
+    ["window", 2, 0.75, 1.5, 1, 1.375],
   ];
-  placements.forEach(
-    (marker: IAutoMoviePlaybackEditorialMarker, index: number): void => {
-      const [sourceStart, sourceEnd, outputStart, outputEnd]: [
-        number,
-        number,
-        number,
-        number,
-      ] = expected[index]!;
-      TestValidator.equals("owning shot", marker.shot, shot.id);
-      TestValidator.predicate(
-        `placement ${index} endpoints`,
-        nclose(marker.retainedStartSeconds, sourceStart) &&
-          nclose(marker.retainedEndSeconds, sourceEnd) &&
-          nclose(marker.outputStartSeconds, outputStart) &&
-          nclose(marker.outputEndSeconds, outputEnd),
-      );
-    },
+  TestValidator.equals(
+    "retained placement count",
+    placements.length,
+    expected.length,
   );
+  for (const [
+    index,
+    [id, entry, sourceStart, sourceEnd, outputStart, outputEnd],
+  ] of expected.entries()) {
+    const marker: IAutoMoviePlaybackEditorialMarker | undefined =
+      placements[index];
+    TestValidator.predicate(
+      `placement ${index}: ${id} on play ${entry}`,
+      marker?.id === id &&
+        marker.entry === entry &&
+        marker.shot === shot.id &&
+        nclose(marker.retainedStartSeconds, sourceStart) &&
+        nclose(marker.retainedEndSeconds, sourceEnd) &&
+        nclose(marker.outputStartSeconds, outputStart) &&
+        nclose(marker.outputEndSeconds, outputEnd),
+    );
+  }
+
   TestValidator.predicate(
     "replayed window keeps original source endpoints",
     nclose(placements[5]!.startSeconds, 0.25) &&
@@ -179,22 +182,13 @@ export function test_film_editorial_markers(): void {
     "$input.editorialMarkers[1].endSeconds",
     "$input.editorialMarkers[2].endSeconds",
   ];
-  TestValidator.equals(
-    "authoring rejection fields",
-    rejected.success === false
-      ? rejected.violations.map(
-          (item: IAutoMovieConstraintViolation): string => item.path,
-        )
-      : [],
-    paths,
-  );
-  TestValidator.equals(
-    "stored rejection fields",
-    artifact.success === false
-      ? artifact.violations.map(
-          (item: IAutoMovieConstraintViolation): string => item.path,
-        )
-      : [],
-    paths,
-  );
+  for (const [boundary, result] of [
+    ["authoring", rejected],
+    ["stored artifact", artifact],
+  ] as const)
+    TestValidator.equals(
+      boundary + " rejection fields",
+      result.success ? [] : result.violations.map((item): string => item.path),
+      paths,
+    );
 }

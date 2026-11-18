@@ -12,7 +12,6 @@ import type {
   IAutoMoviePose,
   IAutoMovieShot,
   IAutoMovieStagedSet,
-  IAutoMovieTrack,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -125,10 +124,8 @@ export function test_film_camera_focus_pull(): void {
       vclose(marks.to, { x: 0.5, y: 0, z: 0 }),
   );
   TestValidator.predicate(
-    "the static pull retains one key in each camera transform track",
-    result.shot.cameraMotion!.tracks.every(
-      (track: IAutoMovieTrack): boolean => track.times.length === 1,
-    ) &&
+    "the pull leaves the compiled camera path unchanged",
+    result.shot.cameraMotion !== null &&
       JSON.stringify(result.shot.cameraMotion) ===
         JSON.stringify(legacy.shot.cameraMotion),
   );

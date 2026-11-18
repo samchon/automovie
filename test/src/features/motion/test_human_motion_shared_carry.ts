@@ -26,6 +26,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
 
 /**
@@ -39,14 +40,15 @@ import { vclose } from "../internal/vclose";
  *    seconds 2 and 3.5. The prop translates 70 mm forward and yaws 2 degrees.
  *    A registered action for each carrier displays the prepared motion in one
  *    performance. The grip centres stay within 15 mm of their own sites at both
- *    ends and at quarter-phase samples, read out of chronological order.
+ *    ends and at mid-carry, read out of chronological order. The shared
+ *    prop frame also follows the authored path during the carry.
  * 2. The performance sees the one prop at its authored frame before the carry
  *    and at its terminal frame after the carry.
  * 3. A duplicate grip, a minute-long planning interval and a posture read
  *    after the prepared carry are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the authored interval, the two distinct grips, the shared rigid motion and the checking bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Reads both carriers' displayed bones and the common prop frame from HumanPerformance; an aliased grip must throw.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads both carriers' displayed bones and the common prop frame from HumanPerformance, including the motion and the clamped endpoints. An aliased grip must throw.
  * @evidence contracts/development/testing.md#independent-expectations The site bounds compare displayed hands with analytically transformed authored local coordinates, independent of the planner and prop reader.
  * @evidence contracts/development/testing.md#distinguishing-cases Both points are distinct and see different motion under yaw; a duplicated site refuses. Samples straddle both ends and read the hold out of order.
  * @evidence contracts/development/testing.md#execution-ownership One bounded in-memory carry under test/src/features, discovered by the motion test runner.
@@ -153,12 +155,29 @@ export function test_human_motion_shared_carry(): void {
     },
     props: [prepared.prop],
   });
-  for (const share of [0.75, 0, 1, 0.25, 0.5]) {
-    const seconds: number = from + share * (to - from);
+  for (const [seconds, share] of [
+    [to + 0.1, 1],
+    [to, 1],
+    [from - 0.1, 0],
+    [from, 0],
+    [(from + to) / 2, 0.5],
+  ] as const) {
     const angle: number = (share * Math.PI) / 90;
-    for (const index of [0, 1] as const) {
-      const owner: IAutoMovieMotionHumanSharedCarry.ICarrier =
-        input.carriers[index];
+    const frame: IAutoMovieRigidTransform = performance.prop(
+      prop.subject,
+      seconds,
+    );
+    TestValidator.predicate(
+      `the common frame follows its path at ${seconds} s`,
+      vclose(frame.position, { x: 0, y: 0, z: 0.07 * share }) &&
+        qclose(
+          frame.rotation,
+          { x: 0, y: Math.sin(angle / 2), z: 0, w: Math.cos(angle / 2) },
+          1e-12,
+        ),
+    );
+    if (seconds < from || seconds > to) continue;
+    for (const owner of input.carriers) {
       const local: IAutoMovieVector3 = prop.points[owner.site]!.point;
       const expected: IAutoMovieVector3 = {
         x: local.x * Math.cos(angle) + local.z * Math.sin(angle),
@@ -177,26 +196,6 @@ export function test_human_motion_shared_carry(): void {
       );
     }
   }
-  TestValidator.predicate(
-    "the prop stays where it was available until the carry",
-    vclose(
-      performance.prop(prop.subject, from - 0.1).position,
-      prop.frame.position,
-    ),
-  );
-  const terminal: IAutoMovieRigidTransform = performance.prop(
-    prop.subject,
-    to + 0.1,
-  );
-  TestValidator.predicate(
-    "the one prop retains its terminal translation and yaw",
-    vclose(terminal.position, { x: 0, y: 0, z: 0.07 }) &&
-      vclose(Quaternion.rotateVector(terminal.rotation, { x: 1, y: 0, z: 0 }), {
-        x: Math.cos(Math.PI / 90),
-        y: 0,
-        z: -Math.sin(Math.PI / 90),
-      }),
-  );
 }
 
 /** Pose a performer with a bent elbow and a ready grip before the interval. */

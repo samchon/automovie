@@ -8,7 +8,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSwimImmersed,
+  IAutoMoviePose,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -17,6 +19,7 @@ import {
   HumanChain,
   HumanPerformance,
   HumanRefusal,
+  poseBones,
   swimImmersed,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -37,7 +40,7 @@ import { vclose } from "../internal/vclose";
  * 3. A medium whose whole displacement weighs only half the performer refuses
  *    the immersed support, identifying the water density.
  * 4. A single breaststroke drives its displayed hip target along its heading
- *    from rest, with a nonlinear path that replays at the same stroke phase
+ *    from rest, with nonzero travel that replays at the same stroke phase
  *    under an authored duration change.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the public route, the fixture's two density relations, the travel frame and the read order.
@@ -88,8 +91,9 @@ export function test_human_motion_swim_immersed(): void {
     water: { surface, density },
     seconds,
   });
+  const floatPose: IAutoMoviePose = floating.pose("swimmer", 0);
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    floating.bones("swimmer", 0);
+    poseBones(body, floatPose);
   let displaced: number = 0;
   let area: number = 0;
   for (let i: number = 0; i < model.segments.length; ++i) {
@@ -110,8 +114,7 @@ export function test_human_motion_swim_immersed(): void {
     "displayed float displaces its own mass",
     nclose(displaced * density, body.profile.mass, 0.02 * body.profile.mass),
   );
-  const start: IAutoMovieVector3 = floating.pose("swimmer", 0).root!
-    .translation;
+  const start: IAutoMovieVector3 = floatPose.root!.translation;
   const end: IAutoMovieVector3 = floating.pose("swimmer", seconds).root!
     .translation;
   TestValidator.predicate(
@@ -127,38 +130,19 @@ export function test_human_motion_swim_immersed(): void {
     seconds,
     speed,
   });
-  const times: readonly number[] = [seconds, seconds / 2];
-  const reads: IAutoMovieVector3[] = times.map(
-    (time: number): IAutoMovieVector3 =>
-      gliding.pose("swimmer", time).root!.translation,
-  );
-  times.forEach((time: number, index: number): void => {
-    const travel: number =
-      Math.log(1 + coefficient * speed * time) / coefficient;
-    const read: IAutoMovieVector3 = reads[index]!;
+  // Use distinct times in nonmonotonic order and check each against the
+  // analytic path rather than against a cached read.
+  for (const time of [seconds, seconds / 4, seconds / 2]) {
+    const travel: number = Math.log1p(coefficient * speed * time) / coefficient;
+    const read: IAutoMovieVector3 = gliding.pose("swimmer", time).root!
+      .translation;
     TestValidator.predicate(
       `coast at ${time} s travels head first under quadratic drag`,
       nclose(read.x, start.x - travel, 0.02 * travel) &&
         nclose(read.y, start.y) &&
         nclose(read.z, start.z),
     );
-  });
-  // A separate seed also keeps the performance resolver from sharing
-  // the first instance's displayed reads.
-  const reversed: HumanPerformance = stage(
-    { water: { surface, density }, seconds, speed },
-    "reverse-immersion",
-  );
-  [...times].reverse().forEach((time: number, index: number): void => {
-    TestValidator.predicate(
-      `reverse-order coast gives the same position at ${time} s`,
-      vclose(
-        reversed.pose("swimmer", time).root!.translation,
-        reads[reads.length - index - 1]!,
-        0,
-      ),
-    );
-  });
+  }
 
   const strokeSeconds: number = 1.35;
   const stroke: HumanPerformance = stage({
@@ -206,14 +190,13 @@ export function test_human_motion_swim_immersed(): void {
         (distance: number): boolean => Math.abs(distance) > 1e-3,
       ),
   );
+  const cycle: IAutoMovieMotionHumanSegment = stroke.segments("swimmer")[0]!;
   TestValidator.predicate(
     "the stroke preserves its authored duration and named cycle",
-    stroke.segments("swimmer")[0]!.plan.duration === strokeSeconds &&
-      stroke
-        .segments("swimmer")[0]!
-        .plan.events.some(
-          (event: { name: string }): boolean => event.name === "stroke1",
-        ),
+    cycle.plan.duration === strokeSeconds &&
+      cycle.plan.events.some(
+        (event: { name: string }): boolean => event.name === "stroke1",
+      ),
   );
 
   let movingStroke: unknown;

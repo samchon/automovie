@@ -5,7 +5,6 @@ import {
   compilePracticalLightMotion,
   performShot,
   resolveShotLighting,
-  sampleClip,
   stageScene,
 } from "@automovie/engine";
 import type {
@@ -16,8 +15,6 @@ import type {
   IAutoMoviePerformShotProps,
   IAutoMoviePerformedShot,
   IAutoMoviePracticalLightBinding,
-  IAutoMovieQuaternion,
-  IAutoMovieSampledChannel,
   IAutoMovieSceneNode,
   IAutoMovieScript,
   IAutoMovieSkeleton,
@@ -50,7 +47,7 @@ import { vclose } from "../internal/vclose";
  * 6. Without an interval, a still point source uses the staged intensity and lens location. Malformed timing, missing emitter references, omitted moving-prop samples and competing light channels are refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs practical compilation, performShot admission, and ordinary light resolution to catch a source following the prop root, a missing turn, a fade in place of a switch, or a binding evaluated before coupling.
- * @evidence contracts/development/testing.md#independent-expectations The published torch length locates the +Y lens tip, doubled by the staged scale. A quarter-turn about negative Z carries +Y to +X, with a 45-degree midpoint giving equal positive X and Y projections. The coupling case measures the light against the final baked prop track and the same physical lens offset.
+ * @evidence contracts/development/testing.md#independent-expectations The published torch length locates the +Y lens tip, doubled by the staged scale. For the authored clip, a quarter-turn about negative Z carries +Y to +X, with equal positive X and Y projections at 45 degrees. For the attachment, the mount aims the torch along the forearm. Halfway through the fixture's 120-degree elbow flexion, the hand and the lens extend from the elbow along the 60-degree direction in XZ.
  * @evidence contracts/development/testing.md#distinguishing-cases Separates held placement, translation-only authority, interior rotation and endpoint rotation, adjacent switch samples, steady point emission, and malformed timing; shadow and native render mapping have separate tests.
  * @evidence contracts/development/testing.md#execution-ownership Named synchronous film unit using in-memory source and engine light resolution. Starts no host and makes no claim about rendered illumination.
  * @evidence contracts/development/common.md#meaningful-documentation Scenarios identify the lens, world-motion channels, sampling boundaries and switch semantics under test.
@@ -165,44 +162,50 @@ export function test_film_practical_light_motion(): void {
   ): IAutoMovieVector3 =>
     Quaternion.rotateVector(state.transform.rotation, { x: 0, y: 0, z: -1 });
 
+  const stagedLens: IAutoMovieVector3 = { x: -1, y: 2 + 2 * length, z: 3 };
+  const opening: IAutoMovieLight = at(0);
+  const switchedOn: IAutoMovieLight = at(0.375);
+  const turning: IAutoMovieLight = at(0.75);
+  const closing: IAutoMovieLight = at(1);
   TestValidator.predicate(
     "staged frame supplies the emitter before object channels begin",
-    vclose(at(0).transform.translation, { x: -1, y: 2 + 2 * length, z: 3 }) &&
-      vclose(aim(at(0)), { x: 0, y: 1, z: 0 }),
+    vclose(opening.transform.translation, stagedLens) &&
+      vclose(aim(opening), { x: 0, y: 1, z: 0 }),
   );
   TestValidator.predicate(
     "translation alone advances the emitter while retaining staged rotation and scale",
-    vclose(at(0.375).transform.translation, {
+    vclose(switchedOn.transform.translation, {
       x: 1.5,
       y: 2 + 2 * length,
       z: 3,
-    }) && vclose(aim(at(0.375)), { x: 0, y: 1, z: 0 }),
+    }) && vclose(aim(switchedOn), { x: 0, y: 1, z: 0 }),
   );
   TestValidator.predicate(
     "the lens offset and beam turn together at the sampled midpoint",
-    vclose(at(0.75).transform.translation, {
+    vclose(turning.transform.translation, {
       x: 3 + diagonal,
       y: 2 + diagonal,
       z: 3,
-    }) && vclose(aim(at(0.75)), { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 }),
+    }) && vclose(aim(turning), { x: Math.SQRT1_2, y: Math.SQRT1_2, z: 0 }),
   );
   TestValidator.predicate(
     "emitter placement keeps following the prop after switch-off",
-    vclose(at(1).transform.translation, { x: 3 + 2 * length, y: 2, z: 3 }) &&
-      vclose(aim(at(1)), { x: 1, y: 0, z: 0 }),
+    vclose(closing.transform.translation, { x: 3 + 2 * length, y: 2, z: 3 }) &&
+      vclose(aim(closing), { x: 1, y: 0, z: 0 }),
   );
   TestValidator.predicate(
     "the switch is an exact half-open interval",
     nclose(at(0.374999).intensity, 0) &&
-      nclose(at(0.375).intensity, 7) &&
+      nclose(switchedOn.intensity, 7) &&
       nclose(at(0.874999).intensity, 7) &&
       nclose(at(0.875).intensity, 0) &&
-      nclose(at(1).intensity, 0),
+      nclose(closing.intensity, 0),
   );
 
   const carried: IAutoMoviePerformedShot = performShot({
     ...props,
     objectMotions: [],
+    practicalLights: [{ ...binding, sampleTimes: [0.5] }],
     performance: {
       ...props.performance,
       draft: [
@@ -214,43 +217,30 @@ export function test_film_practical_light_motion(): void {
           bone: "leftHand",
           start: 0,
           duration: 1,
+          offset: {
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { x: 0, y: 0, z: -Math.SQRT1_2, w: Math.SQRT1_2 },
+          },
         },
       ],
     },
   });
   if (!carried.success) throw new Error(JSON.stringify(carried.violations));
-  const followed: IAutoMovieClip = carried.shot.objectMotions[0]!;
-  const attached: Map<string, IAutoMovieSampledChannel> = sampleClip(
-    followed,
-    0.75,
-  );
-  const origin: number[] = attached.get("node:held-torch:translation")!.value;
-  const turn: number[] = attached.get("node:held-torch:rotation")!.value;
-  const orientation: IAutoMovieQuaternion = {
-    x: turn[0]!,
-    y: turn[1]!,
-    z: turn[2]!,
-    w: turn[3]!,
-  };
-  const carriedBeam: IAutoMovieVector3 = Quaternion.rotateVector(orientation, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
   const carriedLight: IAutoMovieLight = resolveShotLighting({
     lights: staged.scene.lights,
     clips: carried.shot.lightMotions ?? [],
-    seconds: 0.75,
+    seconds: 0.5,
   })[0]!;
+  const sinSixty: number = Math.sqrt(3) / 2;
+  const elbowToLens: number = 0.25 + 2 * length;
   TestValidator.predicate(
     "the practical follows the baked attachment rather than the staged decoy",
-    vclose(aim(carriedLight), carriedBeam) &&
+    vclose(aim(carriedLight), { x: 0.5, y: 0, z: -sinSixty }) &&
       vclose(carriedLight.transform.translation, {
-        x: origin[0]! + carriedBeam.x * 2 * length,
-        y: origin[1]! + carriedBeam.y * 2 * length,
-        z: origin[2]! + carriedBeam.z * 2 * length,
-      }) &&
-      !vclose(carriedLight.transform.translation, at(0).transform.translation),
+        x: 0.5 + elbowToLens / 2,
+        y: 1.4,
+        z: -elbowToLens * sinSixty,
+      }),
   );
 
   const point: IAutoMovieCompilePracticalLightMotion["light"] = {
@@ -279,7 +269,7 @@ export function test_film_practical_light_motion(): void {
       nclose(steady.intensity, 4) &&
       nclose(steady.range, 3) &&
       steady.transform.rotation === point.transform.rotation &&
-      vclose(steady.transform.translation, { x: -1, y: 2 + 2 * length, z: 3 }),
+      vclose(steady.transform.translation, stagedLens),
   );
   TestValidator.predicate(
     "unrealizable timing and omitted moving-prop frame samples are refused",
@@ -322,7 +312,7 @@ export function test_film_practical_light_motion(): void {
   );
   const conflicting: IAutoMoviePerformedShot = performShot({
     ...props,
-    lightMotions: [compilePracticalLightMotion({ ...input, id: "manual" })],
+    lightMotions: [{ ...clips[0]!, id: "manual" }],
   });
   TestValidator.predicate(
     "a manual light clip cannot also own a channel the practical binding writes",

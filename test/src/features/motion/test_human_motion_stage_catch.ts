@@ -53,7 +53,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Registers the staged catch and release through public performance inputs, then reads the flight, contacts, ball frames and palm. A floating grip, lost capture, position jump or subsequent ghost impact fails.
  * @evidence contracts/development/testing.md#independent-expectations Computes intercept time from release time and forward travel, and height from constant gravity. The palm's distance comes from the authored radius and the carry invariant comes from rigid hand motion.
  * @evidence contracts/development/testing.md#distinguishing-cases Samples the end of the ballistic path, the first held position and later carried position. A no-contact flight cut by a tagged grip is distinct from the unended flights in the separate horizon spec.
- * @evidence contracts/development/testing.md#execution-ownership Creates two in-memory performances with one prepared body, an authored release and a complete or cut single-hand catch. Reads a fixed set of boundary and carrying samples without a host.
+ * @evidence contracts/development/testing.md#execution-ownership Creates two in-memory performances with one prepared body, an authored release and a complete or cut single-hand catch. Reads boundary and carrying samples and uses one frame interval for the body portion of the film-wide flight verdict.
  */
 export function test_human_motion_stage_catch(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -152,7 +152,16 @@ export function test_human_motion_stage_catch(): void {
     launch.prop,
   )[0]!;
   const captured: number = flight.capturedAt ?? Infinity;
-  const unended: string[] | undefined = HumanVerdicts.of(performance).unended;
+  // Flight verdicts use the whole film. Body findings are outside this spec.
+  const framesPerSecond: number = 24;
+  const unended: string[] | undefined = HumanVerdicts.of(
+    performance,
+    framesPerSecond,
+    {
+      from: performance.duration - 1 / framesPerSecond,
+      to: performance.duration,
+    },
+  ).unended;
   TestValidator.predicate(
     "the anchored launch is captured at the independent intercept",
     Math.abs(captured - intercept) <= tolerance &&

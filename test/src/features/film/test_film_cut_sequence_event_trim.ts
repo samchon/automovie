@@ -5,6 +5,7 @@ import type {
   IAutoMovieEditPlan,
   IAutoMovieInteractionEvent,
   IAutoMoviePlaybackEvent,
+  IAutoMovieSequenceEntry,
   IAutoMovieShot,
   IAutoMovieTrim,
 } from "@automovie/interface";
@@ -26,7 +27,7 @@ import { nclose } from "../internal/predicates";
  *    lowering, even for a rate that makes the source tolerance smaller than one ULP.
  * 7. Distinct events just outside the selected anchors at 1 and 2 seconds
  *    are absent from the exact one-second output and cannot satisfy requirements.
- * 8. A 2× numeric play retains the same source events within a half-second.
+ * 8. At 2×, the same numeric span retains those events in half the output time.
  * 9. Precise hard cuts assign nearby events once when the two entries use
  *    different rates or only one side uses event bounds. A deliberately
  *    authored source gap keeps both its adjacent events in their own plays.
@@ -89,38 +90,28 @@ export function test_film_cut_sequence_event_trim(): void {
     continuity: "Meet at the handoff.",
   };
   const cut: IAutoMovieCut = cutSequence(plan, [shot]);
-  TestValidator.equals("event trims succeed", cut.success, true);
-  if (cut.success) {
-    TestValidator.predicate("retimed runtime", nclose(cut.runtime, 1.5));
-    TestValidator.predicate(
-      "first symbolic trim becomes its numeric source span",
-      nclose(cut.sequence.shots[0]!.trim!.start, 0.5) &&
-        nclose(cut.sequence.shots[0]!.trim!.duration, 1),
-    );
-    TestValidator.predicate(
-      "second symbolic trim becomes its numeric source span",
-      nclose(cut.sequence.shots[1]!.trim!.start, 1.5) &&
-        nclose(cut.sequence.shots[1]!.trim!.duration, 2),
-    );
-    TestValidator.equals(
-      "no symbolic field survives normalization",
-      cut.sequence.shots.some((entry): boolean => "trimByEvents" in entry),
-      false,
-    );
-    const seamPlays: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
-      cut.sequence,
-      [shot],
-    ).filter((event: IAutoMoviePlaybackEvent): boolean => event.id === seam.id);
-    TestValidator.equals(
-      "seam belongs only to the incoming play",
-      seamPlays.map((event: IAutoMoviePlaybackEvent): number => event.entry),
-      [1],
-    );
-    TestValidator.predicate(
-      "retimed seam time",
-      nclose(seamPlays[0]!.globalTime, 0.5),
-    );
-  }
+  if (!cut.success) throw new Error("both symbolic trims must be admitted");
+  TestValidator.predicate("retimed runtime", nclose(cut.runtime, 1.5));
+  const normalized: IAutoMovieSequenceEntry[] = cut.sequence.shots;
+  TestValidator.predicate(
+    "symbolic bounds become the two source spans",
+    normalized.length === 2 &&
+      nclose(normalized[0]?.trim?.start ?? NaN, 0.5) &&
+      nclose(normalized[0]?.trim?.duration ?? NaN, 1) &&
+      nclose(normalized[1]?.trim?.start ?? NaN, 1.5) &&
+      nclose(normalized[1]?.trim?.duration ?? NaN, 2) &&
+      normalized.every((entry): boolean => !("trimByEvents" in entry)),
+  );
+  const seamPlays: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+    cut.sequence,
+    [shot],
+  ).filter((event): boolean => event.id === seam.id);
+  TestValidator.predicate(
+    "the incoming play alone owns the seam at output 0.5",
+    seamPlays.length === 1 &&
+      seamPlays[0]?.entry === 1 &&
+      nclose(seamPlays[0].globalTime, 0.5),
+  );
 
   /** Return diagnostics for one placement so a second play cannot supply a missing bound. */
   function paths(
@@ -150,60 +141,43 @@ export function test_film_cut_sequence_event_trim(): void {
         );
   }
 
+  const bound: string = "$input.entries[0].trimByEvents";
+  const fields: string[] = [bound + ".startEvent", bound + ".endEvent"];
   TestValidator.equals(
-    "missing and ambiguous id paths",
+    "missing and ambiguous ids",
     paths({ startEvent: "missing", endEvent: end.id }, [
       start,
       end,
       { ...end, time: 3 },
     ]),
-    [
-      "$input.entries[0].trimByEvents.startEvent",
-      "$input.entries[0].trimByEvents.endEvent",
-    ],
+    fields,
   );
   TestValidator.equals(
-    "blank id and invalid time paths",
-    paths({ startEvent: " ", endEvent: end.id }, [
-      { ...end, time: Number.NaN },
-    ]),
-    [
-      "$input.entries[0].trimByEvents.startEvent",
-      "$input.entries[0].trimByEvents.endEvent",
-    ],
+    "blank id and non-finite time",
+    paths({ startEvent: " ", endEvent: end.id }, [{ ...end, time: NaN }]),
+    fields,
   );
-  TestValidator.equals(
-    "reversed bounds path",
-    paths({ startEvent: end.id, endEvent: start.id }, [start, end]),
-    ["$input.entries[0].trimByEvents"],
-  );
-  TestValidator.equals(
-    "equal bounds path",
-    paths({ startEvent: start.id, endEvent: start.id }, [start]),
-    ["$input.entries[0].trimByEvents"],
-  );
-
-  TestValidator.equals("null trim bounds", paths(null, []), [
-    "$input.entries[0].trimByEvents",
-  ]);
-  TestValidator.equals("array trim bounds", paths([], []), [
-    "$input.entries[0].trimByEvents",
-  ]);
   TestValidator.equals(
     "missing and non-string fields",
     paths({ endEvent: 7 }, []),
-    [
-      "$input.entries[0].trimByEvents.startEvent",
-      "$input.entries[0].trimByEvents.endEvent",
-    ],
+    fields,
   );
+
+  const malformed: readonly [string, unknown][] = [
+    ["descending span", { startEvent: end.id, endEvent: start.id }],
+    ["equal bounds", { startEvent: start.id, endEvent: start.id }],
+    ["null bounds", null],
+    ["array bounds", []],
+  ];
+  for (const [label, bounds] of malformed)
+    TestValidator.equals(label, paths(bounds, [start, end]), [bound]);
   TestValidator.equals(
     "numeric and symbolic trim conflict",
     paths({ startEvent: start.id, endEvent: end.id }, [start, end], {
       start: 0,
       duration: 1,
     }),
-    ["$input.entries[0].trimByEvents"],
+    [bound],
   );
 
   const short: IAutoMovieShot = {
@@ -230,23 +204,22 @@ export function test_film_cut_sequence_event_trim(): void {
     },
     [short],
   );
-  TestValidator.equals("symbolic shot end is retained", boundary.success, true);
-  if (boundary.success) {
-    const lowered: IAutoMovieTrim = boundary.sequence.shots[0]!.trim!;
-    TestValidator.predicate(
-      "lowered duration is the binary64 predecessor of 0.008",
-      lowered.duration === 0.007999999999999998 &&
-        lowered.start + lowered.duration < short.duration,
-    );
-    TestValidator.predicate(
-      "exact source end retains the selected event at the output end",
-      boundary.sequence.shots[0]!.exactSourceEnd === short.duration &&
-        sequenceEventTimeline(boundary.sequence, [short]).some(
-          (event: IAutoMoviePlaybackEvent): boolean =>
-            event.id === end.id && event.globalTime === boundary.runtime,
-        ),
-    );
-  }
+  if (!boundary.success)
+    throw new Error("the exact symbolic end must be retained");
+  const lowered: IAutoMovieTrim = boundary.sequence.shots[0]!.trim!;
+  TestValidator.predicate(
+    "lowered duration is the binary64 predecessor of 0.008",
+    lowered.duration === 0.007999999999999998 &&
+      lowered.start + lowered.duration < short.duration,
+  );
+  TestValidator.predicate(
+    "the selected end maps exactly to the output end",
+    boundary.sequence.shots[0]!.exactSourceEnd === short.duration &&
+      sequenceEventTimeline(boundary.sequence, [short]).some(
+        (event): boolean =>
+          event.id === end.id && event.globalTime === boundary.runtime,
+      ),
+  );
 
   const numeric: IAutoMovieCut = cutSequence(
     {
@@ -263,18 +236,10 @@ export function test_film_cut_sequence_event_trim(): void {
     [short],
   );
   TestValidator.equals(
-    "out-of-range numeric trim is refused",
-    numeric.success,
-    false,
+    "numeric overshoot keeps its existing violation path",
+    numeric.success ? [] : numeric.violations.map((item): string => item.path),
+    ["$input.entries[0].trim"],
   );
-  if (numeric.success === false)
-    TestValidator.equals(
-      "numeric trim keeps its existing violation path",
-      numeric.violations.map(
-        (item: IAutoMovieConstraintViolation): string => item.path,
-      ),
-      ["$input.entries[0].trim"],
-    );
 
   const before: IAutoMovieInteractionEvent = {
     ...start,
@@ -302,71 +267,59 @@ export function test_film_cut_sequence_event_trim(): void {
     ],
     requiredEvents: [],
   };
-  const exactCut: IAutoMovieCut = cutSequence(exactPlan, [exactShot]);
-  TestValidator.equals("exact source cut succeeds", exactCut.success, true);
-  if (exactCut.success)
-    TestValidator.equals(
-      "only events inside the selected bounds are placed",
-      sequenceEventTimeline(exactCut.sequence, [exactShot]).map((event) => ({
-        id: event.id,
-        time: event.globalTime,
-      })),
-      [
-        { id: start.id, time: 0 },
-        { id: seam.id, time: 0.5 },
-        { id: end.id, time: 1 },
-      ],
+  /** One authored placement may use numeric or symbolic source bounds. */
+  type AutoMovieEditEntry = IAutoMovieEditPlan["entries"][number];
+  const exactCases: readonly [string, AutoMovieEditEntry, number][] = [
+    ["symbolic", exactPlan.entries[0]!, 1],
+    [
+      "numeric at 2×",
+      {
+        shot: shot.id,
+        trim: { start: 1, duration: 1 },
+        playbackRate: 2,
+        transition: null,
+      },
+      2,
+    ],
+  ];
+  for (const [label, entry, rate] of exactCases) {
+    const result: IAutoMovieCut = cutSequence(
+      { ...exactPlan, entries: [entry] },
+      [exactShot],
     );
+    if (!result.success) throw new Error(label + " span must be admitted");
+    const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+      result.sequence,
+      [exactShot],
+    );
+    TestValidator.equals(
+      label + " keeps only the three inside events",
+      events.map((event): string => event.id),
+      [start.id, seam.id, end.id],
+    );
+    TestValidator.predicate(
+      label + " maps source elapsed time through the rate",
+      events[0]?.globalTime === 0 &&
+        events[1]?.globalTime === 0.5 / rate &&
+        events[2]?.globalTime === 1 / rate,
+    );
+  }
   const excluded: IAutoMovieCut = cutSequence(
     {
       ...exactPlan,
-      requiredEvents: [before, after].map(({ id }) => ({
-        entry: 0,
-        event: id,
-      })),
+      requiredEvents: [before, after].map(
+        ({ id }): { entry: number; event: string } => ({ entry: 0, event: id }),
+      ),
     },
     [exactShot],
   );
   TestValidator.equals(
-    "both excluded requirements fail",
-    excluded.success,
-    false,
+    "each excluded event reports its requirement path",
+    excluded.success
+      ? []
+      : excluded.violations.map((item): string => item.path),
+    ["$input.requiredEvents[0].event", "$input.requiredEvents[1].event"],
   );
-  if (excluded.success === false)
-    TestValidator.equals(
-      "each excluded event reports its requirement path",
-      excluded.violations.map((item) => item.path),
-      ["$input.requiredEvents[0].event", "$input.requiredEvents[1].event"],
-    );
-
-  const retimed: IAutoMovieCut = cutSequence(
-    {
-      ...exactPlan,
-      entries: [
-        {
-          shot: exactShot.id,
-          trim: { start: 1, duration: 1 },
-          playbackRate: 2,
-          transition: null,
-        },
-      ],
-    },
-    [exactShot],
-  );
-  TestValidator.equals("retimed numeric cut succeeds", retimed.success, true);
-  if (retimed.success)
-    TestValidator.equals(
-      "retimed events stay within the exact half-second play",
-      sequenceEventTimeline(retimed.sequence, [exactShot]).map((event) => ({
-        id: event.id,
-        time: event.globalTime,
-      })),
-      [
-        { id: start.id, time: 0 },
-        { id: seam.id, time: 0.25 },
-        { id: end.id, time: 0.5 },
-      ],
-    );
 
   const seamShot: IAutoMovieShot = {
     ...shot,
@@ -378,28 +331,37 @@ export function test_film_cut_sequence_event_trim(): void {
       { ...end, time: 2 },
     ],
   };
-  type Entry = IAutoMovieEditPlan["entries"][number];
-  const left: Entry = {
+  const left: AutoMovieEditEntry = {
     shot: seamShot.id,
     trim: { start: 0, duration: 1 },
     transition: null,
   };
-  const right: Entry = {
+  const right: AutoMovieEditEntry = {
     ...left,
     trim: { start: 1, duration: 1 },
   };
-  const symbolicLeft: Entry = {
+  const symbolicLeft: AutoMovieEditEntry = {
     ...left,
     trim: null,
     trimByEvents: { startEvent: start.id, endEvent: seam.id },
   };
-  const symbolicRight: Entry = {
+  const symbolicRight: AutoMovieEditEntry = {
     ...right,
     trim: null,
     trimByEvents: { startEvent: seam.id, endEvent: end.id },
   };
-  const plays: readonly [string, Entry, Entry, number][] = [
-    ["faster before", left, { ...right, playbackRate: 0.001 }, 1],
+  const plays: readonly [
+    string,
+    AutoMovieEditEntry,
+    AutoMovieEditEntry,
+    number,
+  ][] = [
+    [
+      "faster before",
+      { ...left, playbackRate: 2 },
+      { ...right, playbackRate: 0.001 },
+      1,
+    ],
     ["slower before", { ...left, playbackRate: 0.001 }, right, 1],
     ["event bounds before", symbolicLeft, right, 1],
     ["event bounds after", left, symbolicRight, 1],
@@ -421,25 +383,33 @@ export function test_film_cut_sequence_event_trim(): void {
   ];
   for (const [label, outgoing, incoming, boundaryEntry] of plays) {
     const result: IAutoMovieCut = cutSequence(
-      { ...exactPlan, entries: [outgoing, incoming] },
+      {
+        ...exactPlan,
+        entries: [outgoing, incoming],
+        requiredEvents: [{ entry: boundaryEntry, event: seam.id }],
+      },
       [seamShot],
     );
-    TestValidator.equals(label + " admits", result.success, true);
-    if (result.success)
-      TestValidator.equals(
-        label + " partitions the events at the source seam",
-        sequenceEventTimeline(result.sequence, [seamShot]).map((event) => ({
-          id: event.id,
-          entry: event.entry,
-        })),
-        [
-          { id: start.id, entry: 0 },
-          { id: before.id, entry: 0 },
-          { id: seam.id, entry: boundaryEntry },
-          { id: after.id, entry: 1 },
-          { id: end.id, entry: 1 },
-        ],
-      );
+    if (!result.success) throw new Error(label + " must be admitted");
+    const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+      result.sequence,
+      [seamShot],
+    );
+    TestValidator.equals(
+      label + " partitions the events at the source seam",
+      events.map((event): [string, number] => [event.id, event.entry]),
+      [
+        [start.id, 0],
+        [before.id, 0],
+        [seam.id, boundaryEntry],
+        [after.id, 1],
+        [end.id, 1],
+      ],
+    );
+    TestValidator.predicate(
+      label + " maps the source second 1 to the end of the first play",
+      nclose(events[2]?.globalTime ?? NaN, 1 / (outgoing.playbackRate ?? 1)),
+    );
   }
 
   const decimalShot: IAutoMovieShot = {
@@ -460,18 +430,17 @@ export function test_film_cut_sequence_event_trim(): void {
     },
     [decimalShot],
   );
-  TestValidator.equals("decimal hard cut succeeds", decimal.success, true);
-  if (decimal.success)
-    TestValidator.equals(
-      "decimal boundary uses the incoming source time",
-      sequenceEventTimeline(decimal.sequence, [decimalShot]).map((event) => ({
-        id: event.id,
-        entry: event.entry,
-      })),
-      [
-        { id: before.id, entry: 0 },
-        { id: seam.id, entry: 1 },
-        { id: after.id, entry: 1 },
-      ],
-    );
+  if (!decimal.success)
+    throw new Error("the decimal hard cut must be admitted");
+  TestValidator.equals(
+    "decimal boundary uses the incoming source time",
+    sequenceEventTimeline(decimal.sequence, [decimalShot]).map(
+      (event): [string, number] => [event.id, event.entry],
+    ),
+    [
+      [before.id, 0],
+      [seam.id, 1],
+      [after.id, 1],
+    ],
+  );
 }

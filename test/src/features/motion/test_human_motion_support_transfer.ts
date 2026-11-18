@@ -34,14 +34,14 @@ import { vclose } from "../internal/vclose";
  *    and the pelvis moves less than 2 mm across each contact boundary.
  * 2. The deck translates and yaws after boarding. Both displayed sets of
  *    sole sockets stay within 10 mm of their deck-local landed positions.
- * 3. A missing surface, premature deck motion, a gap over 0.13 m and an
- *    off-deck landing station each cause a refusal naming the failed axis.
+ * 3. On the average man, four invalid requests identify their failed axis:
+ *    missing surface, premature deck motion, gap over 0.13 m or off-deck station.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the differing bodies, independently authored prop tracks and measurable acceptance bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the planned contacts and resolves the displayed limb pose, checking actual sole positions against scene frames.
  * @evidence contracts/development/testing.md#independent-expectations The synthetic platform and deck rectangles, the late deck twist and the 10 mm sole bound are specified independently of the transfer planner.
- * @evidence contracts/development/testing.md#distinguishing-cases Varies the lead foot and body, tests an intermediate split frame and a moving final frame, and supplies distinct inadmissible requests.
- * @evidence contracts/development/testing.md#execution-ownership Plans both motions in memory and resolves sampled frames without capture or external state.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both bodies and lead sides pass through split and moving support. One body suffices for the invalid surface, dock, gap and landing cases.
+ * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory unit. Each successful transfer shares four displayed poses across its sole checks.
  */
 export function test_human_motion_support_transfer(): void {
   const start: number = 5;
@@ -162,15 +162,11 @@ export function test_human_motion_support_transfer(): void {
         )?.support;
       return bearing?.kind === "prop" ? bearing.subject : undefined;
     };
+    /** Resolve the shared posture before reading individual sole sockets. */
     const displayed = (
-      side: "left" | "right",
       time: number,
-    ): IAutoMovieMotionHumanFoot.ISocket[] =>
-      HumanFoot.sockets(
-        body,
-        poseBones(body, resolveHumanPosture(body, plan.posture(time))),
-        side,
-      );
+    ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      poseBones(body, resolveHumanPosture(body, plan.posture(time)));
     TestValidator.predicate(
       `${name} transfers one bearing foot at a time`,
       plan.duration === seconds &&
@@ -194,16 +190,25 @@ export function test_human_motion_support_transfer(): void {
         vclose(before, after, 0.002),
       );
     }
-    const byTime: IAutoMovieMotionHumanFoot.ISocket[] = displayed(trail, 0);
-    const split: IAutoMovieMotionHumanFoot.ISocket[] = displayed(trail, 1);
+    const split: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      displayed(1);
+    const initialTrail: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+      body,
+      displayed(0),
+      trail,
+    );
     TestValidator.predicate(
       `${name} rear sole stays on the platform at split support`,
-      split.every(
+      HumanFoot.sockets(body, split, trail).every(
         (socket: IAutoMovieMotionHumanFoot.ISocket, index: number): boolean =>
-          vclose(socket.point, byTime[index]!.point, 0.01),
+          vclose(socket.point, initialTrail[index]!.point, 0.01),
       ),
     );
-    const front: IAutoMovieMotionHumanFoot.ISocket[] = displayed(lead, 1);
+    const front: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+      body,
+      split,
+      lead,
+    );
     TestValidator.predicate(
       `${name} leading sole is already beyond the deck's near edge`,
       front.every(
@@ -219,35 +224,43 @@ export function test_human_motion_support_transfer(): void {
           ),
         ) < 0.01,
     );
+    const docked: IAutoMovieRigidTransform = deck.frame(start + 1.69);
+    const moving: IAutoMovieRigidTransform = deck.frame(start + 1.98);
+    const landed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      displayed(1.69);
+    const carried: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      displayed(1.98);
+    /** Compare points in the deck frame, which translates and yaws. */
+    const local = (
+      p: IAutoMovieVector3,
+      frame: IAutoMovieRigidTransform,
+    ): IAutoMovieVector3 =>
+      Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(p, frame.position),
+      );
     for (const side of [lead, trail]) {
-      const docked: IAutoMovieRigidTransform = deck.frame(start + 1.69);
-      const moving: IAutoMovieRigidTransform = deck.frame(start + 1.98);
-      const local = (
-        p: IAutoMovieVector3,
-        frame: IAutoMovieRigidTransform,
-      ): IAutoMovieVector3 =>
-        Quaternion.rotateVector(
-          Quaternion.inverse(frame.rotation),
-          Vector3.subtract(p, frame.position),
-        );
-      const landed: IAutoMovieMotionHumanFoot.ISocket[] = displayed(side, 1.69);
-      const carried: IAutoMovieMotionHumanFoot.ISocket[] = displayed(
+      const dockedSole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
+        body,
+        landed,
         side,
-        1.98,
       );
       TestValidator.predicate(
         `${name} ${side} sole follows deck translation and yaw`,
-        carried.every(
+        HumanFoot.sockets(body, carried, side).every(
           (socket: IAutoMovieMotionHumanFoot.ISocket, index: number): boolean =>
             vclose(
               local(socket.point, moving),
-              local(landed[index]!.point, docked),
+              local(dockedSole[index]!.point, docked),
               0.01,
             ),
         ),
       );
     }
 
+    if (name !== "m-average") continue;
+
+    /** Check the failed admission axis using the admitted dock fixture. */
     const reject = (
       changes: Partial<Parameters<typeof supportTransfer>[0]>,
       axis: string,

@@ -51,7 +51,7 @@ const BOUND: number = 0.001;
  * 2. The tool still holds its rigid offset through the trace and return.
  * 3. The same nib is refused when its frame rides a separate mechanism.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the writing scene, the two scenarios and the geometric oracle.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the angled stroke, rigid grip and moving-nib refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Registers and performs the write law, then observes the displayed tip and grip in the same performance.
  * @evidence contracts/development/testing.md#independent-expectations At the temporal midpoint of each equal edge, a symmetric progress profile has covered half the edge. The quarter-turn geometry gives each target independently of the writer. The two issue bounds constrain contact miss and grip slip.
  * @evidence contracts/development/testing.md#distinguishing-cases A translated, rotated writing affordance and an angled polyline distinguish the surface frame from world axes and a single straight reach. A mechanically moving nib is refused.
@@ -189,46 +189,44 @@ export function test_human_motion_write(): void {
   ];
 
   // A +90 degree turn about +Y takes local -Z to world -X and local -X to +Z.
-  offsets.forEach(([x, z]: readonly [number, number], index: number): void => {
+  for (const [index, offset] of [...offsets, null].entries()) {
     const seconds: number =
-      strokeStart + (index * strokeSeconds) / (offsets.length - 1);
-    const actual: IAutoMovieRigidTransform = performance.prop("pen", seconds);
-    const point: IAutoMovieVector3 = Vector3.add(
-      actual.position,
-      Quaternion.rotateVector(actual.rotation, tip),
-    );
-    const expected: IAutoMovieVector3 = Vector3.add(start, {
-      x: translation.x + x,
-      y: 0,
-      z,
-    });
-    TestValidator.predicate(
-      `working point is within 1 mm at stroke sample ${index}`,
-      nclose(Vector3.length(Vector3.subtract(point, expected)), 0, BOUND),
-    );
-  });
-  for (const seconds of [
-    strokeStart + strokeSeconds / 2,
-    scene.start + scene.plan.duration,
-  ]) {
+      offset === null
+        ? scene.start + scene.plan.duration
+        : strokeStart + (index * strokeSeconds) / (offsets.length - 1);
     const prop: IAutoMovieRigidTransform = performance.prop("pen", seconds);
+    if (offset !== null) {
+      const [x, z]: readonly [number, number] = offset;
+      const point: IAutoMovieVector3 = Vector3.add(
+        prop.position,
+        Quaternion.rotateVector(prop.rotation, tip),
+      );
+      const expected: IAutoMovieVector3 = Vector3.add(start, {
+        x: translation.x + x,
+        y: 0,
+        z,
+      });
+      TestValidator.predicate(
+        `working point is within 1 mm at stroke sample ${index}`,
+        nclose(Vector3.length(Vector3.subtract(point, expected)), 0, BOUND),
+      );
+    }
+
+    if (index !== 2 && offset !== null) continue;
     const hand: IAutoMovieResolvedBone = performance
       .bones("scribe", seconds)
       .get("rightHand")!;
+    const worldToHand: IAutoMovieQuaternion = Quaternion.inverse(
+      hand.worldRotation,
+    );
     const carried: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(hand.worldRotation),
+      worldToHand,
       Vector3.subtract(prop.position, hand.worldPosition),
     );
     TestValidator.predicate(
       "the pen keeps the same grip through the trace and return",
       nclose(Vector3.length(Vector3.subtract(carried, seat)), 0, BOUND) &&
-        qclose(
-          Quaternion.multiply(
-            Quaternion.inverse(hand.worldRotation),
-            prop.rotation,
-          ),
-          inverse,
-        ),
+        qclose(Quaternion.multiply(worldToHand, prop.rotation), inverse),
     );
   }
 

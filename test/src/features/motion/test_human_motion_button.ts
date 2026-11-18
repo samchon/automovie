@@ -129,6 +129,10 @@ export function test_human_motion_button(): void {
       center(model, performance, after).y + TALL / 2 < -PANEL / 2,
   );
 
+  const rim: IAutoMovieVector3 = Vector3.add(
+    at,
+    Vector3.create(-side * 0.025, PANEL / 2, 0),
+  );
   for (const share of [0.1, 0.25, 0.5, 0.75, 0.9]) {
     const seconds: number = start + (end - start) * share;
     const moved: IAutoMovieVector3 = center(model, performance, seconds);
@@ -151,12 +155,8 @@ export function test_human_motion_button(): void {
     );
     TestValidator.predicate(
       `the opposite index braces the rim at ${share}`,
-      Vector3.length(
-        Vector3.subtract(
-          tip(body, bones, "indexTipLeft"),
-          Vector3.add(at, Vector3.create(-side * 0.025, PANEL / 2, 0)),
-        ),
-      ) <= 0.002,
+      Vector3.length(Vector3.subtract(tip(body, bones, "indexTipLeft"), rim)) <=
+        0.002,
     );
   }
 

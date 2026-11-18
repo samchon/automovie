@@ -2,6 +2,8 @@ import type { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { canonicalProductionWebVtt } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+import { throwsError } from "../internal/predicates";
+
 /**
  * Authored caption placement travels with each cue through WebVTT export.
  *
@@ -77,12 +79,19 @@ export function test_render_production_caption_placement(): void {
     ].join("\n"),
   );
 
-  const malformed: ICaption = { ...top };
-  Object.assign(malformed, { placement: "center" });
-  TestValidator.error("refuse an unsupported authored edge", (): void => {
-    canonicalProductionWebVtt({
-      ...timeline,
-      tracks: { ...timeline.tracks, captions: [malformed] },
-    });
-  });
+  const malformed: ICaption = {
+    ...top,
+    placement: "center" as ICaption["placement"],
+  };
+  const invalid: IAutoMovieFilmTimeline = {
+    ...timeline,
+    tracks: { ...timeline.tracks, captions: [malformed] },
+  };
+  TestValidator.predicate(
+    "refuse the malformed edge on the authored cue",
+    throwsError(
+      (): string => canonicalProductionWebVtt(invalid),
+      ['"top"', "unsupported placement"],
+    ),
+  );
 }

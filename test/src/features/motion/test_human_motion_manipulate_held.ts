@@ -20,6 +20,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -30,6 +31,7 @@ import {
   HumanManipulate,
   HumanPerformance,
   HumanRefusal,
+  poseBones,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -106,14 +108,17 @@ export function test_human_motion_manipulate_held(): void {
       HUMANOID_JOINT_AXES,
       HUMANOID_REST_FRAME,
     );
-  const hand: IAutoMovieResolvedBone = forward(15).find(
+  const first: IAutoMovieResolvedBone[] = forward(15);
+  const second: IAutoMovieResolvedBone[] = forward(35);
+  const hand: IAutoMovieResolvedBone = first.find(
     (bone: IAutoMovieResolvedBone): boolean => bone.bone === "rightHand",
   )!;
-  const sites: IAutoMovieVector3[] = [15, 35].map(
-    (flexion: number): IAutoMovieVector3 => {
-      const surface: IAutoMovieHumanoidSurfaces.IFrame =
-        body.surfaces.regions.thumbTipRight;
-      const distal: IAutoMovieResolvedBone = forward(flexion).find(
+  const surface: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions.thumbTipRight;
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
+  const sites: IAutoMovieVector3[] = [first, second].map(
+    (bones: IAutoMovieResolvedBone[]): IAutoMovieVector3 => {
+      const distal: IAutoMovieResolvedBone = bones.find(
         (bone: IAutoMovieResolvedBone): boolean => bone.bone === surface.bone,
       )!;
       const tip: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
@@ -121,7 +126,7 @@ export function test_human_motion_manipulate_held(): void {
         distal,
       ).point;
       return Quaternion.rotateVector(
-        Quaternion.inverse(hand.worldRotation),
+        inverse,
         Vector3.subtract(tip, hand.worldPosition),
       );
     },
@@ -195,8 +200,6 @@ export function test_human_motion_manipulate_held(): void {
     "rightThumb",
   ]);
 
-  const surface: IAutoMovieHumanoidSurfaces.IFrame =
-    body.surfaces.regions.thumbTipRight;
   const identity: IAutoMovieQuaternion = Quaternion.identity();
   const samples: number[] = [
     0,
@@ -207,8 +210,9 @@ export function test_human_motion_manipulate_held(): void {
   ];
   for (const t of samples) {
     const seconds: number = overlay.start + t;
+    const pose: IAutoMoviePose = performance.pose("a", seconds);
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      performance.bones("a", seconds);
+      poseBones(body, pose);
     const world: IAutoMovieRigidTransform = performance.prop("pad", seconds);
     const wrist: IAutoMovieResolvedBone = bones.get("rightHand")!;
     const offset: IAutoMovieVector3 = Vector3.subtract(
@@ -224,15 +228,11 @@ export function test_human_motion_manipulate_held(): void {
       nclose(Vector3.length(offset), 0, SLIP) && qclose(relative, identity),
     );
 
-    const pose: readonly IAutoMovieJointPose[] = performance.pose(
-      "a",
-      seconds,
-    ).joints;
     TestValidator.predicate(
       `all four fingers keep their grip at ${t}`,
       HOLDERS.every((bone: AutoMovieHumanoidBone): boolean =>
         nclose(
-          pose.find(
+          pose.joints.find(
             (joint: IAutoMovieJointPose): boolean => joint.bone === bone,
           )?.flexion ?? NaN,
           45,
@@ -286,6 +286,7 @@ export function test_human_motion_manipulate_held(): void {
       affordances: prop.affordances!,
     }),
   };
+  refusal = undefined;
   try {
     HumanManipulate.thumbText.plan({
       ...overlay.context,
