@@ -23,10 +23,10 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `AutoMoviePhysicalSimulation`, `samplePhysicalTrackingTarget` on in-memory inputs and asserts the returned observations through 5x TestValidator.predicate, 8x TestValidator.equals; 4 numbered scenarios (first: An incoming sphere physically contacts a tracked sphere and releases it.; last: Protective joint effort is selected after contact, while misses retain standing effort.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (12 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
  * @evidence contracts/development/testing.md#distinguishing-cases Contributes 4 numbered scenarios (first: An incoming sphere physically contacts a tracked sphere and releases it.; last: Protective joint effort is selected after contact, while misses retain standing effort.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_contact_release`, which owns the cases delegated to `PhysicalFixtures`, `PhysicalModelFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_motion_physical_tracking_release`, which owns the cases delegated to `PhysicalFixtures`, `PhysicalModelFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An incoming sphere physically contacts a tracked sphere and releases it.).
  */
-export async function test_physical_contact_release(): Promise<void> {
+export async function test_motion_physical_tracking_release(): Promise<void> {
   const striker: IAutoMoviePhysicalSimulationInput.IBody =
     PhysicalFixtures.body("striker", PhysicalFixtures.sphere(), 1, {
       position: { x: -0.8, y: 1, z: 0 },
@@ -120,55 +120,31 @@ export async function test_physical_contact_release(): Promise<void> {
     ),
   };
   const state: Set<string> = new Set();
-  TestValidator.equals(
-    "geometric evidence never triggers physical withdrawal",
-    samplePhysicalTrackingTarget(
-      receiver,
-      receiver.targets[0]!,
+  const observed: number[] = [];
+  for (const [time, receipts] of [
+    [
+      0.5,
       [{ ...episode, source: "geometric", impulse: null, samples: undefined }],
-      0.5,
-      new Set(),
-    ).strength,
-    1,
-  );
+    ],
+    [0.9, [{ ...episode, seconds: 0.7, endSeconds: 0.7, samples: undefined }]],
+    [0.2, [episode]],
+    [0.5, [episode]],
+    [0.9, []],
+  ] satisfies [number, Receipt[]][]) {
+    observed.push(
+      samplePhysicalTrackingTarget(
+        receiver,
+        receiver.targets[0]!,
+        receipts,
+        time,
+        state,
+      ).strength,
+    );
+  }
   TestValidator.equals(
-    "out-of-window impulses do not trigger withdrawal",
-    samplePhysicalTrackingTarget(
-      receiver,
-      receiver.targets[0]!,
-      [{ ...episode, seconds: 0.7, endSeconds: 0.7, samples: undefined }],
-      0.9,
-      new Set(),
-    ).strength,
-    1,
-  );
-  TestValidator.equals(
-    "future sample cannot release an earlier body",
-    samplePhysicalTrackingTarget(
-      receiver,
-      receiver.targets[0]!,
-      [episode],
-      0.2,
-      state,
-    ).strength,
-    1,
-  );
-  TestValidator.equals(
-    "actual in-window sample releases the body",
-    samplePhysicalTrackingTarget(
-      receiver,
-      receiver.targets[0]!,
-      [episode],
-      0.5,
-      state,
-    ).strength,
-    0,
-  );
-  TestValidator.equals(
-    "release remains after the contact window",
-    samplePhysicalTrackingTarget(receiver, receiver.targets[0]!, [], 0.9, state)
-      .strength,
-    0,
+    "only a transferred in-window impulse releases tracking, which remains released",
+    observed,
+    [1, 1, 1, 0, 0],
   );
   const articulated: IAutoMoviePhysicalSimulationInput.IBody =
     PhysicalFixtures.body(

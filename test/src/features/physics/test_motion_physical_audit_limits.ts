@@ -6,6 +6,9 @@ import type {
   IAutoMovieAuditPhysicalOutcomes,
   IAutoMovieMotionAudit,
   IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalSegmentState,
+  IAutoMovieVector3,
+  IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -23,10 +26,10 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMovieMotionAudit`, `AutoMoviePhysicsCache`, `auditPhysicalOutcomes` on in-memory inputs and asserts the returned observations through 1x TestValidator.predicate, 1x TestValidator.equals; 4 numbered scenarios (first: A genuine finite floor violation is independently observable.; last: Fall timing and miss-distance validation match action timing admission.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (1 assertion site compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
  * @evidence contracts/development/testing.md#distinguishing-cases Contributes 4 numbered scenarios (first: A genuine finite floor violation is independently observable.; last: Fall timing and miss-distance validation match action timing admission.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_audit_admission`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
+ * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_motion_physical_audit_limits`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A genuine finite floor violation is independently observable.).
  */
-export async function test_physical_audit_admission(): Promise<void> {
+export async function test_motion_physical_audit_limits(): Promise<void> {
   const fixture: () => IAutoMovieMotionAudit.IInput =
     (): IAutoMovieMotionAudit.IInput => ({
       bodies: [
@@ -107,7 +110,7 @@ export async function test_physical_audit_admission(): Promise<void> {
           label: "inactive-invalid",
           kind: "goal",
           point: { bone: "root" },
-          target: (): { x: number; y: number; z: number } => ({
+          target: (): IAutoMovieVector3 => ({
             x: 0,
             y: 0.08,
             z: 0,
@@ -197,5 +200,132 @@ export async function test_physical_audit_admission(): Promise<void> {
       ],
       missDistance: (): number => NaN,
     }),
+  );
+  const findings: number[] = [];
+  for (const scenario of [
+    { compliance: 0.001, y: 0.08, account: false },
+    { compliance: 0.001, y: 0.08, account: true },
+    { compliance: 0, y: 0.08, account: true },
+    { compliance: 0.001, y: 0.06, account: true },
+  ]) {
+    const profile: P = PhysicalFixtures.sphere(0.1, scenario.compliance);
+    const result: Awaited<ReturnType<typeof Audit.run>> = await Audit.run({
+      bodies: [
+        {
+          id: "ball",
+          profile,
+          speeds: {},
+          supports: [],
+          floorTolerance: 0.001,
+          accountForCompression: scenario.account,
+          overlapTolerance: 0,
+          jointTolerance: 0.001,
+        },
+      ],
+      start: 0,
+      end: 0,
+      rate: 120,
+      floor: 0,
+      allowed: (): boolean => false,
+      sample: (): IAutoMoviePhysicalFrame => ({
+        seconds: 0,
+        bodies: {
+          ball: {
+            root: {
+              position: { x: 0, y: scenario.y, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              velocity: { x: 0, y: 0, z: 0 },
+              angularVelocity: { x: 0, y: 0, z: 0 },
+            },
+          },
+        },
+      }),
+    });
+    findings.push(
+      result.findings.filter(
+        (finding: IAutoMovieMotionAudit.IFinding): boolean =>
+          finding.kind === "floor",
+      ).length,
+    );
+  }
+  TestValidator.equals(
+    "undeformed, declared soft core, rigid, exceeded soft cap",
+    findings,
+    [1, 0, 1, 1],
+  );
+  const pairCases = [
+    [0.02, true, true, false, false],
+    [0.02, true, true, true, false],
+    [0.02, true, true, false, true],
+    [0.05, true, true, true, false],
+    [0.05, true, true, true, true],
+    [0.07, true, true, true, true],
+    [0.02, false, true, true, false],
+    [0.02, false, true, false, true],
+    [0.02, false, false, true, true],
+  ] as const;
+  const pairFindings: number[] = [];
+  for (const [depth, softA, softB, accountA, accountB] of pairCases) {
+    const bodies: IAutoMovieMotionAudit.IBody[] = ["a", "b"].map(
+      (id: string, index: number): IAutoMovieMotionAudit.IBody => ({
+        id,
+        profile: PhysicalFixtures.sphere(
+          0.1,
+          (index === 0 ? softA : softB) ? 0.001 : 0,
+        ),
+        speeds: {},
+        supports: [],
+        floorTolerance: 0.001,
+        overlapTolerance: 0.001,
+        jointTolerance: 0.001,
+        accountForCompression: index === 0 ? accountA : accountB,
+      }),
+    );
+    const result: Awaited<ReturnType<typeof Audit.run>> = await Audit.run({
+      bodies,
+      start: 0,
+      end: 0,
+      rate: 120,
+      floor: -10,
+      allowed: (): boolean => false,
+      sample: (): IAutoMoviePhysicalFrame => ({
+        seconds: 0,
+        bodies: Object.fromEntries(
+          bodies.map(
+            (
+              body: IAutoMovieMotionAudit.IBody,
+              index: number,
+            ): [string, Record<string, IAutoMoviePhysicalSegmentState>] => [
+              body.id,
+              {
+                root: {
+                  position: { x: index * (0.2 - depth), y: 1, z: 0 },
+                  rotation: { x: 0, y: 0, z: 0, w: 1 },
+                  velocity: { x: 0, y: 0, z: 0 },
+                  angularVelocity: { x: 0, y: 0, z: 0 },
+                },
+              },
+            ],
+          ),
+        ),
+      }),
+    });
+    pairFindings.push(
+      result.findings.filter(
+        (finding: IAutoMovieMotionAudit.IFinding): boolean =>
+          finding.kind === "overlap",
+      ).length,
+    );
+  }
+  TestValidator.equals(
+    "every explicit material-side overlap policy",
+    pairFindings,
+    pairCases.map(([depth, softA, softB, accountA, accountB]) =>
+      Number(
+        depth >
+          0.001 +
+            0.03 * (Number(softA && accountA) + Number(softB && accountB)),
+      ),
+    ),
   );
 }
