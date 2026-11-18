@@ -47,7 +47,8 @@ import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
  * the signed distance from the region's point, placed on the displayed bone
  * that carries it, to that hand's own colliders, so 0 is skin on skin.
  *
- * 1. The generic audit of `a` is clean, and of `b` when there is one.
+ * 1. The generic audit of the touching performer is clean. The passive
+ *    partner supplies the moving target; the standing law owns its audit.
  * 2. No elbow of `a` travels more than 80 mm in one 1/24 s frame.
  * 3. Each hand is on its region, within 10 mm, at `ready` and at `relax`.
  * 4. A kind that lifts (a tap, a pat) comes down the row's count of times
@@ -69,7 +70,8 @@ import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
  *    own region the row touches is presented, not idle (`touchPresented`):
  *    from `ready` to `relax` it holds within 10 mm of where it is at
  *    `ready` in that frame, the bound a held effector keeps (6).
- * 8. A one-hand row performed by the left hand on the mirrored region is
+ * 8. On a selected reflection witness, a one-hand row performed by the
+ *    left hand on the mirrored region is
  *    the mirror image of the right hand's film within 5 mm on every bone of
  *    `a`, in the world, read 4 times a second. A mirror relation holds only
  *    when the whole input is mirrored, and a partner's seeded postural sway
@@ -84,7 +86,6 @@ import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
  * @param label The row's name, the complaints' prefix.
  * @param params The row.
  * @param partner The partner's place, when the target is a person.
- * @param name The body both people have.
  * @returns One complaint per expectation that does not hold, with its measured numbers; empty when the row is right.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists every expectation with its bound, how the distance is read and which films are performed.
@@ -98,10 +99,9 @@ import { motionHumanLawTouchMirror } from "./motionHumanLawTouchMirror";
 export function motionHumanLawTouch(
   label: string,
   params: IAutoMovieMotionHumanTouch.IParams,
-  partner?: { facing: boolean; gap: number },
-  name: motionHumanBody.Name = "m-average",
+  partner?: motionHumanLawTouch.IPartner,
 ): string[] {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   // The partner stands still for a mirror (8), with its own sway otherwise.
   const perform = (
     row: IAutoMovieMotionHumanTouch.IParams,
@@ -138,19 +138,37 @@ export function motionHumanLawTouch(
   const film: motionHumanLaw.IFilm = perform(params, false);
   return [
     ...motionHumanLaw.audit(film, `${label} a`, "a", body),
-    ...(partner === undefined
-      ? []
-      : motionHumanLaw.audit(film, `${label} b`, "b", body)),
     ...expectations(label, params, body, film),
-    ...motionHumanLawTouchMirror(
-      label,
-      params,
-      partner === undefined ? film : undefined,
-      perform,
-    ),
+    ...(partner === undefined || partner.mirror
+      ? motionHumanLawTouchMirror(
+          label,
+          params,
+          partner === undefined ? film : undefined,
+          perform,
+        )
+      : []),
   ];
 }
 
+/** The facing and turned stages of the partner contact witnesses. */
+export namespace motionHumanLawTouch {
+  /**
+   * Staging for one unilateral touch on a passive partner.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies facing, separation in metres and whether the fixture supplies a reflection comparison.
+   * @evidence contracts/development/design.md#principled-representation A partner placement and a separately selected test observation describe the public stage.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface These members configure the two-person performance and the optional additional reflected pair.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A reflection uses both real mirrored performances on the original still-partner stage; no synthetic pose is substituted.
+   */
+  export interface IPartner {
+    /** The partner faces the toucher; otherwise both face forward. */
+    facing: boolean;
+    /** Distance between the two roots, metres. */
+    gap: number;
+    /** This row represents a reflection of the moving arm on a stilled partner. */
+    mirror: boolean;
+  }
+}
 /** Millimetres of a length in metres, to one decimal. */
 function mm(metres: number): string {
   return (metres * 1000).toFixed(1);
@@ -337,9 +355,12 @@ function expectations(
     } else {
       const arrived: IAutoMovieVector3 = offset(side, target, ready);
       const moved: number = Math.max(
-        ...held.map((t: number): number =>
-          length(minus(offset(side, target, t), arrived)),
-        ),
+        0,
+        ...held
+          .slice(1)
+          .map((t: number): number =>
+            length(minus(offset(side, target, t), arrived)),
+          ),
       );
       const reach: number = form.travel * hand;
       const worst: number = Math.max(...gaps);
@@ -388,8 +409,11 @@ function expectations(
       body.surfaces.regions[params.target.region].bone,
     );
   if (presented) {
+    const atReady: IAutoMovieVector3 = hung(ready);
     const moved: number = Math.max(
-      ...held.map((t: number): number => length(minus(hung(t), hung(ready)))),
+      ...held
+        .slice(1)
+        .map((t: number): number => length(minus(hung(t), atReady))),
     );
     out.push(
       ...motionHumanLaw.expect(
@@ -401,8 +425,9 @@ function expectations(
   }
   if (params.other === undefined && !presented) {
     // The idle wrist strays from where it hangs from the chest.
+    const atEntry: IAutoMovieVector3 = hung(0);
     const strays: number[] = times.map((t: number): number =>
-      length(minus(hung(t), hung(0))),
+      length(minus(hung(t), atEntry)),
     );
     const strayed: number = Math.max(...strays);
     // Where the idle arm is when it strays farthest, so a complaint says

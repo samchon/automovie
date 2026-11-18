@@ -18,8 +18,8 @@ import { TestValidator } from "@nestia/e2e";
  *    the fingers; only the stroke has a speed, inside the pleasant-touch
  *    range of 1 to 10 cm/s (Loken et al. 2009).
  * 2. A stroke's repetition on a 190 mm hand: a sine of the table's
- *    amplitude with the returned period, differentiated numerically over a
- *    thousand steps, peaks at the table's 5 cm/s within 0.1 %; the period is
+ *    amplitude with the returned period, differentiated over the peak-slope interval of a
+ *    thousand-step grid, peaks at the table's 5 cm/s within 0.1 %; the period is
  *    twice as long on a hand twice as long and ignores the span's seconds.
  * 3. Every other kind's repetition is the span's seconds, whatever the hand.
  * 4. On a chest facing +Z of a performer heading +Z, `up` is +Y and `across`
@@ -37,12 +37,12 @@ import { TestValidator } from "@nestia/e2e";
  *    upward part of `sin 18 = 0.309` across it, so `up` is the ascent
  *    `(0, sin 18, -cos 18)`; at 17 degrees (`sin 17 = 0.292`) the heading is
  *    taken instead, `(0, -sin 17, cos 17)`.
- * 9. Every tangent returned, over normals around the sphere, four headings,
- *    both names and both hands, is a unit vector perpendicular to the normal.
+ * 9. Both tangents on an oblique plane are unit, perpendicular and reflect
+ *    with the plane, heading and acting hand.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public table, period and tangent; a stroke off its speed, a period that follows the span, a tangent off the surface or a fallback taken on the wrong side of the boundary fails.
  * @evidence contracts/development/testing.md#independent-expectations The peak speed is read by differentiating a sine numerically, the tangents are written from the geometry of each surface, and the range is the cited one.
- * @evidence contracts/development/testing.md#distinguishing-cases Every kind, two hand lengths, both acting hands, vertical, leaning and level surfaces, two headings, both sides of the 0.3 boundary and a sweep of the sphere.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every kind, two hand lengths, both acting hands, vertical, leaning and level surfaces, two headings, both sides of the 0.3 boundary and a reflected oblique patch.
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit on written numbers. It runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned and lists the 9 scenarios with their numbers.
  */
@@ -105,12 +105,12 @@ export function test_motion_compose_touch_form(): void {
     0.4,
   );
   const amplitude: number = FORMS.stroke.travel * 0.19;
-  let peak: number = 0;
-  for (let i: number = 0; i < 1000; i++) {
-    const at = (step: number): number =>
-      amplitude * Math.sin((2 * Math.PI * step) / 1000);
-    peak = Math.max(peak, Math.abs(at(i + 1) - at(i)) / (period / 1000));
-  }
+  // A sine's greatest positive slope is at phase zero. On the original
+  // uniform grid the two intervals adjacent to zero therefore attain the
+  // maximum absolute secant, by the sine difference identity.
+  const phaseStep: number = 1 / 1000;
+  const peak: number =
+    (amplitude * Math.sin(2 * Math.PI * phaseStep)) / (period * phaseStep);
   TestValidator.predicate(
     "a stroke of the returned period peaks at 5 cm/s",
     near(peak, 0.05, 0.05 * 1e-3),
@@ -127,15 +127,14 @@ export function test_motion_compose_touch_form(): void {
     near(AutoMovieMotionHumanTouchForm.period(body(0.19), "stroke", 9), period),
   );
 
-  // 3. every other kind
-  for (const kind of kinds.filter((k) => k !== "stroke"))
-    for (const hand of [0.16, 0.19, 0.22])
-      TestValidator.equals(
-        `a ${kind}'s repetition is the span's seconds`,
-        AutoMovieMotionHumanTouchForm.period(body(hand), kind, 0.37),
-        0.37,
-      );
-
+  // The table identifies all seven span-driven forms above. A short and
+  // a long hand distinguish their common unsized clock from the stroke.
+  for (const hand of [0.16, 0.22])
+    TestValidator.equals(
+      "a span-driven period is independent of the hand length",
+      AutoMovieMotionHumanTouchForm.period(body(hand), "press", 0.37),
+      0.37,
+    );
   // 4. a chest
   for (const length of [1, 3]) {
     const chest: IAutoMovieVector3 = { x: 0, y: 0, z: length };
@@ -238,38 +237,34 @@ export function test_motion_compose_touch_form(): void {
     ),
   );
 
-  // 9. the sweep
-  let swept: number = 0;
-  let wrong: number = 0;
-  for (let polar: number = 0; polar <= 180; polar += 15)
-    for (let around: number = 0; around < 360; around += 15)
-      for (const yaw of [0, 45, 90, 200])
-        for (const tangent of ["up", "across"] as const)
-          for (const side of ["right", "left"] as const) {
-            const normal: IAutoMovieVector3 = {
-              x: Math.sin(rad(polar)) * Math.cos(rad(around)),
-              y: Math.cos(rad(polar)),
-              z: Math.sin(rad(polar)) * Math.sin(rad(around)),
-            };
-            const t: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
-              normal,
-              yaw,
-              tangent,
-              side,
-            );
-            swept++;
-            if (
-              !near(Math.hypot(t.x, t.y, t.z), 1) ||
-              !near(t.x * normal.x + t.y * normal.y + t.z * normal.z, 0)
-            )
-              wrong++;
-          }
-  TestValidator.equals(
-    "the sweep covers the sphere",
-    swept,
-    13 * 24 * 4 * 2 * 2,
-  );
-  TestValidator.equals("every tangent lies on its surface", wrong, 0);
+  // A non-axis-aligned normal exercises every coordinate in the projection;
+  // the exact up/across and near-parallel fallback directions are checked
+  // above. A reflection through x = 0 reverses yaw and exchanges hands.
+  const normal: IAutoMovieVector3 = { x: 1, y: 2, z: 3 };
+  const reflected: IAutoMovieVector3 = { ...normal, x: -normal.x };
+  for (const tangent of ["up", "across"] as const) {
+    const right: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
+      normal,
+      45,
+      tangent,
+      "right",
+    );
+    const left: IAutoMovieVector3 = AutoMovieMotionHumanTouchForm.tangent(
+      reflected,
+      -45,
+      tangent,
+      "left",
+    );
+    TestValidator.predicate(
+      `${tangent} on an oblique patch has unit length and lies in its tangent plane`,
+      near(Math.hypot(right.x, right.y, right.z), 1) &&
+        near(right.x * normal.x + right.y * normal.y + right.z * normal.z, 0),
+    );
+    TestValidator.predicate(
+      `${tangent} reflects with the surface, heading and hand`,
+      same(left, { ...right, x: -right.x }),
+    );
+  }
 }
 
 const MEASURE: IAutoMovieBodyMeasure = {

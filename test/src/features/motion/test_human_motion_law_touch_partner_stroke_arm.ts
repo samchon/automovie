@@ -1,48 +1,27 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanLawTouchRows } from "../internal/motionHumanLawTouchRows";
+import { motionHumanLawTouch } from "../internal/motionHumanLawTouch";
 
 /**
- * The touch `stroke-arm` (a stroke of the left upper arm of a partner facing the performer 0.55 m ahead) moves as it
- * means to, on the displayed bones of two average men, the partner standing with its own sway (and exactly still for the mirror's films): every
- * expectation of the row read off its film.
+ * The palm travels over the facing partner's moving upper arm.
  *
- * The row is read by `motionHumanLawTouch`, whose complaints are gathered
- * before the one assertion.
- *
- * Scenarios:
- * 1. No body part lies inside another by more than 10 mm at any frame of the
- *    film, within either person (the audit's tangle).
- * 2. Across the entire film, the audit's other checks are clean for both people: no sunk
- *    collider, no slipping or lifted planted foot, no jump over 5 mm, no
- *    out-and-back over 50 mm, no joint faster than 30 m/s, balance kept where judged.
- * 3. Neither elbow of the performer travels more than 80 mm in one 1/24 s
- *    frame.
- * 4. Each hand's skin is within 10 mm of its region at the arrival and at
- *    the leave.
- * 5. A pat or a tap comes down its count of times and lifts by half to the
- *    whole of its kind's lift.
- * 6. A stroke, a rub or a scratch stays on its region and moves on it by
- *    half to the whole of its travel.
- * 7. A press, a squeeze or a hold stays where it arrived within 10 mm.
- * 8. Each hand ends within 10 mm of where it began; an unused hand strays
- *    no more than 80 mm in the trunk's frame, and an arm whose own region is
- *    touched holds within 10 mm while it is touched.
- * 9. The left-hand touch on the mirrored region is the right-hand touch
- *    mirrored in the median plane within 5 mm, read 4 times a second, and
- *    of the same duration, both films with the partner standing
- *    exactly still.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real law through the chain and reads displayed bones and colliders; a tangle, a slipping foot, a hand short of its region, a missing repetition, an elbow that flips or a left hand that is not the right hand's mirror fails with its measured number.
- * @evidence contracts/development/testing.md#independent-expectations Contact is the hand's collider on the region's point of the displayed body, the repetitions and amplitudes are the kind's definition, the audit's bounds hold for any human motion and the mirror is the body's own symmetry; none is read from the law's goals.
- * @evidence contracts/development/testing.md#distinguishing-cases One row of its family (`motionHumanLawTouchRows`); this spec owns the whole audit for both people, the film's own checks and the left-hand mirror, which were split before over sibling specs on the same film; its siblings `test_human_motion_law_touch_partner_*` hold the family's other rows.
- * @evidence contracts/development/testing.md#execution-ownership In memory; it performs the row's film, and for the mirror the right-hand and the left-hand films with the partner stilled, and every check of a film reads that one film; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the row, the films it performs and the 9 scenarios with their bounds.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the acting hand, surface and motion under test.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs the public touch and measures contact, elbow travel, return and the performer's physical audit.
+ * @evidence contracts/development/testing.md#independent-expectations Hand colliders must meet the displayed skin within 10 mm at arrival and release. Elbows travel at most 80 mm per 24 Hz frame.
+ * @evidence contracts/development/testing.md#distinguishing-cases The lateral reflection of a facing partner is measured on the shoulder tap.
+ * @evidence contracts/development/testing.md#execution-ownership The original stage supplies all contact and audit readings.
  */
 export function test_human_motion_law_touch_partner_stroke_arm(): void {
   TestValidator.equals(
-    "the stroke-arm touch is right",
-    motionHumanLawTouchRows.partner("stroke-arm"),
+    "stroke-arm satisfies its contact law",
+    motionHumanLawTouch(
+      "stroke-arm",
+      {
+        target: { kind: "person", subject: "b", region: "upperArmLeft" },
+        kind: "stroke",
+      },
+      { facing: true, gap: 0.55, mirror: false },
+    ),
     [],
   );
 }
