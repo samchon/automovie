@@ -1,5 +1,5 @@
 import { createDrinkware } from "@automovie/archetypes";
-import { AutoMovieGravity, Vector3, projectileAt } from "@automovie/engine";
+import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -26,9 +26,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    plan's launch velocity, and the mug has one flight.
  * 2. Until the release the mug keeps its offset in the hand: its distance
  *    to the hand's grip changes by at most 2 mm at ten instants.
- * 3. After the release, at 20 instants of the flight before its contact,
- *    the mug's origin is within 1e-6 m of `projectileAt` of the flight's
- *    own launch state.
+ * 3. The mug enters the flight at release. The early, middle and late
+ *    airborne positions match the independent constant-acceleration
+ *    quadratic to within 1e-6 m, pinning all its coefficients.
  * 4. The flight's first launch velocity equals the throw's launch velocity
  *    within 1e-9 m/s.
  * 5. The flight ends on the floor (`ground`) and the mug rests there: at
@@ -39,9 +39,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    bound #3479 names.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Throws a real mug archetype through the public chain and reads the displayed prop, the hand and the flights; a prop left at the release point, one that leaves the hand early, a flight off the throw's path or one that sinks through the floor fails.
- * @evidence contracts/development/testing.md#independent-expectations The flight is the engine's closed form on the launch state, the floor's height is zero, the 2 mm, 1e-6 m and 0.1 m are #3479's bounds.
+ * @evidence contracts/development/testing.md#independent-expectations Integrating constant terrestrial gravity from the published launch state gives an independent quadratic oracle. The release clock and zero-height floor pin the phase boundaries. The 2 mm, 1e-6 m and 0.1 m are #3479's bounds.
  * @evidence contracts/development/testing.md#distinguishing-cases Two bodies; held, flying and at rest.
- * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory and reads some forty instants of each.
+ * @evidence contracts/development/testing.md#execution-ownership Builds two performances in memory, reads the ten held-prop observations, three airborne nodes and the floor endpoint on each.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the six numbered scenarios with their bounds.
  */
 export function test_human_motion_prop_throw_flight(): void {
@@ -127,17 +127,34 @@ export function test_human_motion_prop_throw_flight(): void {
     );
 
     // 3. The flight's path.
+    TestValidator.predicate(
+      `${name}: the flight begins at the release and uses the ballistic branch`,
+      Math.abs(flight.launch - release) <= 1e-12 &&
+        flight.projectile.drag === undefined,
+    );
     let off: number = 0;
     const end: number = Math.min(flight.end, performance.duration);
-    for (let k: number = 1; k <= 20; k++) {
+    TestValidator.predicate(
+      `${name}: the airborne interval is nonempty`,
+      end > flight.launch,
+    );
+    const { origin, velocity } = flight.projectile;
+    // Three distinct original nodes determine a quadratic per coordinate.
+    for (const k of [1, 11, 20]) {
       const t: number = flight.launch + ((end - flight.launch) * k) / 21;
+      const dt: number = t - release;
+      const expected: IAutoMovieVector3 = {
+        x: origin.x + velocity.x * dt,
+        y:
+          origin.y +
+          velocity.y * dt -
+          (AutoMovieGravity.STANDARD * dt ** 2) / 2,
+        z: origin.z + velocity.z * dt,
+      };
       off = Math.max(
         off,
         Vector3.length(
-          Vector3.subtract(
-            performance.prop("mug", t).position,
-            projectileAt(flight.projectile, t - flight.launch).position,
-          ),
+          Vector3.subtract(performance.prop("mug", t).position, expected),
         ),
       );
     }
