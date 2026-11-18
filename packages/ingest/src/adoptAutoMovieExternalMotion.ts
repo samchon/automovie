@@ -33,7 +33,7 @@ import { composeLocalTransform } from "./internal/composeLocalTransform";
  * @param props.decision The author's use of one take.
  * @returns A receipt that shares no objects with its inputs.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Path and byte length compare with caller-supplied inspected facts, while the digest is checked only for spelling. Sets establish mapping uniqueness, and each mapped basis is recomputed by nearest-mapped-ancestor walks and fixed-order `composeLocalTransform` arithmetic; binary64 rounding and discarded shear remain, and constraints and unmapped rests receive no basis check.
+ * @evidence contracts/development/implementation.md#principled-implementation Path and byte length compare with caller-supplied inspected facts, while the digest is checked only for spelling. Sets establish mapping uniqueness, and each mapped basis is recomputed by nearest-mapped-ancestor walks, which refuse an ancestor met twice so an edited inspection's parent cycle throws instead of looping, and fixed-order `composeLocalTransform` arithmetic; binary64 rounding and discarded shear remain, and constraints and unmapped rests receive no basis check.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Identity/selection, rig binding and retarget-only fields have separate local owners; humanoid import shares transform composition and the engine validation owner supplies the common SHA-256 spelling predicate.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No take, rig, bone or path is special-cased; the runtime mode check exists for untyped callers, and the digest regular expression is the manifest's documented `sha256:` format rather than a fixture value.
  * @evidence contracts/development/common.md#meaningful-documentation The documentation distinguishes digest spelling from byte authentication, mapped-basis checks from complete rig admission, and exact arithmetic agreement from affine exactness; it also gives supported channels, first-refusal behavior and ownership of receipt copies.
@@ -253,8 +253,18 @@ const inspectedBoneBasis: (
   nodeToBone: Map<string, AutoMovieHumanoidBone>,
 ): { parent: AutoMovieHumanoidBone | null; rest: IAutoMovieTransform } => {
   const helpers: IAutoMovieExternalMotionNodeInspection[] = [];
+
+  // An inspector's hierarchy is an acyclic forest, so the walk meets each
+  // ancestor once and ends after at most every node; an inspection whose
+  // parents loop through unmapped helpers is refused instead of circled.
+  const walked: Set<string> = new Set<string>([node.id]);
   let parentId: string | null = node.parent;
   while (parentId !== null) {
+    if (walked.has(parentId))
+      throw new Error(
+        `External motion node "${node.id}" has a parent cycle through "${parentId}".`,
+      );
+    walked.add(parentId);
     const mappedParent: AutoMovieHumanoidBone | undefined =
       nodeToBone.get(parentId);
     if (mappedParent !== undefined) {
