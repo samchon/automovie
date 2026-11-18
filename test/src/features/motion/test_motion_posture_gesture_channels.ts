@@ -6,11 +6,18 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGaze,
+  IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanGaze, resolveHumanPosture } from "@automovie/motions";
+import {
+  HumanGaze,
+  gestureSignal,
+  gestureStroke,
+  resolveHumanPosture,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -38,6 +45,7 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable motion unit borrows an immutable canonical Human and owns all raw joints/targets/output edits. It uses public aiming/resolution plus full raw FK, patches no foreign method/global or shared ROM and starts no host, compiler or renderer.
  */
 export function test_motion_posture_gesture_channels(): void {
+  checkChannelSignals();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
@@ -150,4 +158,94 @@ function displayed(
     HUMANOID_JOINT_AXES,
     HUMANOID_REST_FRAME,
   );
+}
+
+function checkChannelSignals(): void {
+  const sum = (s: IAutoMovieMotionHumanGaze.ISplit): number =>
+    s.eyes.yaw + s.head.yaw + s.trunk;
+  const small = HumanGaze.split(10, 0);
+  TestValidator.predicate(
+    "small shift on the eyes",
+    small.eyes.yaw === 10 && small.head.yaw === 0 && small.trunk === 0,
+  );
+  const middle = HumanGaze.split(40, 0);
+  TestValidator.predicate(
+    "middle shift recruits the head",
+    middle.eyes.yaw === 15 && middle.head.yaw === 25 && middle.trunk === 0,
+  );
+  const large = HumanGaze.split(100, 0);
+  TestValidator.predicate(
+    "large shift recruits the trunk",
+    large.eyes.yaw === 15 && large.head.yaw === 60 && large.trunk === 25,
+  );
+  const headOnly = HumanGaze.split(100, 0, "head");
+  TestValidator.predicate(
+    "head only leaves the excess on the eyes",
+    headOnly.trunk === 0 &&
+      headOnly.head.yaw === 60 &&
+      headOnly.eyes.yaw === 40,
+  );
+  const eyesOnly = HumanGaze.split(50, -20, "eyes");
+  TestValidator.predicate(
+    "eyes only",
+    eyesOnly.eyes.yaw === 50 &&
+      eyesOnly.eyes.pitch === -20 &&
+      eyesOnly.head.yaw === 0,
+  );
+  for (const [y, mode] of [
+    [75, "auto"],
+    [130, "head"],
+    [30, "trunk"],
+    [5, "eyes"],
+  ] as const) {
+    const s = HumanGaze.split(y, 25, mode);
+    const m = HumanGaze.split(-y, 25, mode);
+    TestValidator.predicate(
+      "split sums to the direction",
+      Math.abs(sum(s) - y) < 1e-12 &&
+        Math.abs(s.eyes.pitch + s.head.pitch - 25) < 1e-12,
+    );
+    TestValidator.predicate(
+      "split mirrors",
+      Math.abs(m.eyes.yaw + s.eyes.yaw) < 1e-12 &&
+        Math.abs(m.head.yaw + s.head.yaw) < 1e-12 &&
+        Math.abs(m.trunk + s.trunk) < 1e-12,
+    );
+  }
+  TestValidator.predicate(
+    "main sequence",
+    Math.abs(HumanGaze.saccade(10) - 0.043) < 1e-12 &&
+      Math.abs(HumanGaze.saccade(-30) - 0.087) < 1e-12,
+  );
+  TestValidator.predicate(
+    "head turns lengthen with amplitude",
+    HumanGaze.turn(60) > HumanGaze.turn(20) &&
+      HumanGaze.turn(20) > HumanGaze.turn(0),
+  );
+
+  TestValidator.predicate(
+    "stroke ends at rest",
+    gestureSignal.oscillation(0, 3) === 0 &&
+      gestureSignal.oscillation(1, 3) === 0,
+  );
+  let jump: number = 0;
+  for (let i: number = 1; i <= 1000; i++)
+    jump = Math.max(
+      jump,
+      Math.abs(
+        gestureSignal.oscillation(i / 1000, 3) -
+          gestureSignal.oscillation((i - 1) / 1000, 3),
+      ),
+    );
+  TestValidator.predicate(
+    `stroke continuous (${jump.toFixed(4)})`,
+    jump < 0.02,
+  );
+  for (const kind of Object.keys(
+    gestureStroke.RHYTHM,
+  ) as IAutoMovieMotionHumanGestureStroke.Kind[])
+    TestValidator.predicate(
+      `${kind} names its hands`,
+      ["one", "both", "none"].includes(gestureStroke.HANDS[kind]),
+    );
 }
