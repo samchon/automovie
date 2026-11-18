@@ -233,24 +233,27 @@ export namespace AutoMovieMotionHumanTouchEffector {
   ): number {
     admit(effector);
     if (effector.tool !== undefined) return 0;
-    const bones = new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>();
     const own: AutoMovieHumanoidBone = HumanHand.bone(side, effector.surface);
     const rest: IAutoMovieVector3 | undefined = body.rest.get(own);
-    if (rest !== undefined)
-      bones.set(own, {
-        bone: own,
-        worldPosition: rest,
-        worldRotation: Quaternion.identity(),
-      } as IAutoMovieResolvedBone);
+
+    // A rig without the bone, or a profile with no collider on it, has no
+    // skin there to stand off.
+    if (
+      rest === undefined ||
+      !body.profile.segments.some(
+        (segment: IAutoMovieMotionHumanBody["profile"]["segments"][number]): boolean =>
+          segment.bone === own && (segment.shapes?.length ?? 0) !== 0,
+      )
+    )
+      return 0;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([
+      [own, { bone: own, worldPosition: rest, worldRotation: Quaternion.identity() } as IAutoMovieResolvedBone],
+    ]);
     const at: IAutoMovieVector3 = Vector3.add(
       body.rest.get(`${side}Hand`)!,
       local(body, side, effector).point,
     );
-    try {
-      return Math.max(0, -HumanColliders.distance(body, bones, at).distance);
-    } catch {
-      return 0;
-    }
+    return Math.max(0, -HumanColliders.distance(body, bones, at).distance);
   }
 
   /**

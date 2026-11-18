@@ -16,8 +16,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * trajectories", J Dyn Syst Meas Control 106:102), so where the slower
  * action leaves its path as it was, one replan meets the bound. Where the
  * slower base the action is written on moves the path, the action is
- * replanned again only while the factor still needed falls, and refused
- * with both factors once it does not. The slower time reaches the plan
+ * replanned again only while the factor still needed falls by more than
+ * its roundoff, and refused with both factors once it does not, so the
+ * replans end after a number bounded by the first factor. The slower time reaches the plan
  * through the action's time scale (`IHumanActionContext.tempo`), which the
  * manner owner applies to every span physics does not fix
  * (`AutoMovieMotionManner.of`).
@@ -42,7 +43,11 @@ export namespace HumanPerformanceTempo {
       } catch (error: unknown) {
         const factor: number | undefined = slower(error);
         if (factor === undefined) throw error;
-        if (needed !== undefined && !(factor < needed))
+        // A factor that no longer falls by more than the roundoff of the
+        // ratio it is read as is not progress, so the replans stop: each
+        // one that goes on shrinks the factor by at least that share, so at
+        // most ln(f0) / -ln(1 - ROUNDOFF) of them run from a first factor f0.
+        if (needed !== undefined && !(factor < needed * (1 - ROUNDOFF)))
           throw new HumanRefusal({
             kind: "reach",
             axis: "duration",
@@ -82,3 +87,10 @@ export namespace HumanPerformanceTempo {
     return factor > 1 ? factor : undefined;
   }
 }
+
+/**
+ * The relative roundoff of a factor read as the quotient of two spans:
+ * each span carries half an ulp, and the quotient one more, so three
+ * machine epsilons bound it with one to spare.
+ */
+const ROUNDOFF: number = 4 * Number.EPSILON;

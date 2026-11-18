@@ -156,7 +156,16 @@ export namespace HumanPerformanceSchedule {
     const floor: number = Math.max(0, previous?.entryTime ?? 0);
     let start: number = target;
     let lead: number = 0;
-    for (let round: number = 0; round < 3; ++round) {
+
+    // The start is the fixed point of planning at a start and moving it by
+    // the lead that plan gives. It lies between the floor and the target, so
+    // a map that settles at least as fast as a bisection of that span meets
+    // the schedule's resolution (`CUT`) within as many rounds as halvings of
+    // the span down to it; a start still moving by more after them refuses.
+    const rounds: number =
+      Math.ceil(Math.log2(Math.max(1, Math.abs(target - floor) / CUT))) + 1;
+    let moved: number = Infinity;
+    for (let round: number = 0; round < rounds; ++round) {
       // Planning a mutual action records its meeting; a trial must not.
       const meetings: [
         string,
@@ -214,8 +223,18 @@ export namespace HumanPerformanceSchedule {
       // there again would give the same lead.
       const planned: number = Math.max(floor, start);
       start = target - lead;
-      if (Math.max(floor, start) === planned) break;
+      moved = Math.abs(Math.max(floor, start) - planned);
+      if (moved === 0) break;
     }
+    if (!(moved <= CUT))
+      throw new HumanRefusal({
+        kind: "cut",
+        axis: "sync",
+        value: target,
+        feasible: null,
+        reason: `${intent.capability}'s time to its ${instant} changes with its start and did not settle: after ${rounds} rounds its start still moved ${moved.toExponential(2)} s`,
+        fix: "sync it to an instant its performer reaches at rest, or give the action before it more time",
+      });
     if (start < floor - 1e-9) {
       // The instants of the same name the anchor or track still offers: the
       // first one late enough is what the author can sync to instead.
