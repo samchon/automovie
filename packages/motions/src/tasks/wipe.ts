@@ -119,7 +119,7 @@ export namespace wipe {
    * @throws {HumanRefusal} When the cycle count is not a positive integer, or the patch lies beyond reach.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the refusals and the plan; the namespace gives the goal, the stroke, the lean, the timing and the sources.
-   * @evidence contracts/development/implementation.md#principled-implementation The palm's goal is its place on the circle at the stroke's progress, laid flat with the fingers ahead; a patch beyond the standing arm is leaned into by the least pitch that keeps the wrist within `REACH` (`AutoMovieMotionHumanLeanInto`), checked at plan time over one whole circle; the reach takes the aimed movement time of the hand's way to the circle's start (McIntosh et al. 2018).
+   * @evidence contracts/development/implementation.md#principled-implementation The palm's goal is its place on the circle at the stroke's progress, laid flat with the fingers ahead; a patch beyond the standing arm is leaned into by the least pitch that keeps the wrist within `REACH` (`AutoMovieMotionHumanLeanInto`), checked at plan time over one whole circle; the reach takes the aimed movement time of the hand's way to the circle's start, onto the patch the circle covers (McIntosh et al. 2018).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Circle and palm geometry, the lean with its refusal, the entry hand, the clock, then the lean and the planted stroke.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A patch out of reach at the lean's limit is refused, never clamped; the palm is planted on the surface's own support.
    * @evidence contracts/development/implementation.md#efficient-algorithms The heading's frame and the palm's alignment are prepared once; the plan-time reach check reads nine places of one circle, each a wrist read with no elbow search; each stroke second costs one palm target.
@@ -132,7 +132,8 @@ export namespace wipe {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
-    // Three circles when the author names none (provisional).
+    // Three circles when the author names none, the contract's default
+    // (`IAutoMovieMotionHumanWipe.IParams.cycles`).
     const cycles: number = context.params.cycles ?? 3;
     HumanBound.whole("cycles", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -195,9 +196,8 @@ export namespace wipe {
           AutoMovieMotionHumanArm.point(context.entry.posture, origin),
         ),
       ),
-      // The palm lands anywhere within 0.1 m of the circle's start on a
-      // level surface (provisional target width).
-      0.1,
+      // The palm lands on the patch it wipes, a circle's width across.
+      2 * radius,
     );
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({

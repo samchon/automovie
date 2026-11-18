@@ -4,6 +4,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieAffordance,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
@@ -131,7 +132,7 @@ export namespace useTool {
    *
    * @param context The action's context.
    * @returns The plan with its tool.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer, the hand does not hold the tool, the tool has no `grip` or `face` or the two coincide, or a stir's work point is no vessel the spoon reaches into.
+   * @throws {HumanRefusal} When the cycle count is not a positive integer, the hand does not hold the tool, the tool has no `grip` or `face` or its face lies within the hand that holds it, or a stir's work point is no vessel the spoon reaches into.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The namespace states the tool's frames, the working goals, the cycle timing and the sources; the parameters and the refusals name each admitted input.
    * @evidence contracts/development/implementation.md#principled-implementation The goal is the held tool's working point on the work: the hand's rotation is the least turn that lays the tool's line on the work's (`HumanHand.prepareAlignment`), the grip follows rigidly from it, each cycle moves that pose by its kind's periodic law, and the face's offset from the wrist is the limb's contact, so a wrist that cannot reach the asked attitude is re-aimed to keep the face on the work.
@@ -152,7 +153,8 @@ export namespace useTool {
       context.entry.holds.right !== subject
         ? "left"
         : "right");
-    // Four cycles when the author names none (provisional).
+    // Four cycles when the author names none, the contract's default
+    // (`IAutoMovieMotionHumanUseTool.IParams.cycles`).
     const cycles: number = context.params.cycles ?? 4;
     HumanBound.whole("cycles", cycles);
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -183,14 +185,15 @@ export namespace useTool {
     );
     const length: number = Vector3.length(reach);
 
-    // A face within a centimetre of the grip gives the tool no line to lay
-    // on the work (provisional floor).
-    if (!(length >= 0.01))
+    // A face no farther from the grip than the closed hand's own half
+    // thickness, bounded by the wrist's radius, lies inside the fist and
+    // gives the tool no line to lay on the work.
+    if (!(length > m.forearmRadius))
       throw new HumanRefusal({
         kind: "affordance",
         axis: "prop",
         value: subject,
-        reason: `${subject}'s face lies ${(length * 1000).toFixed(1)} mm from its grip, too near to work with`,
+        reason: `${subject}'s face lies ${(length * 1000).toFixed(1)} mm from its grip, inside the hand that holds it (${(m.forearmRadius * 1000).toFixed(0)} mm)`,
         fix: "hold a tool whose working face stands off its grip, as createTool's do",
       });
     const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / length);
@@ -275,15 +278,22 @@ export namespace useTool {
         side,
         "grip",
       );
-    const travel: number = AutoMovieMotionHumanTiming.aimed(
+    // The reach brings the tool's face onto the work: aimed at the face's
+    // own width where the tool declares one, else the timing law's rule for
+    // a target of no measured width (`AutoMovieMotionHumanTiming.of`).
+    const travel: number = AutoMovieMotionHumanTiming.of(
       Vector3.length(
         Vector3.subtract(
           pose.grip,
           AutoMovieMotionHumanArm.point(context.entry.posture, origin),
         ),
       ),
-      // The grip stops within 0.03 m of its place (provisional target width).
-      0.03,
+      {
+        solid: true,
+        width: context.prop(subject).prop.affordances?.find(
+          (a: IAutoMovieAffordance): boolean => a.id === "face",
+        )?.width,
+      },
     );
     const period: number = PERIODS[kind];
     const phases: IAutoMovieMotionClockPhase[] = [

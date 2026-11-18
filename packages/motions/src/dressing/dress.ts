@@ -61,9 +61,11 @@ import { dressTurn } from "./dressTurn";
  * pointing back along it. Both hands rise to a place a quarter of the
  * forearm before the item's final place in front of the face (the item held
  * up), then move it onto the head in a stroke, hold it a moment and
- * return. The reach takes the aimed movement time (McIntosh et al. 2018) of
- * the farther hand's way from where it starts to where it holds the item
- * up, the stroke a beat (provisional). The shoulder's elevation
+ * return. The reach takes the free-space movement time
+ * (`AutoMovieMotionHumanTiming.transport`) of the farther hand's way from
+ * where it starts to where it holds the item up, in free space before the
+ * face, the stroke a beat (`AutoMovieMotionHumanTiming.PAUSES`). The
+ * shoulder's elevation
  * stays within the functional ranges of daily tasks (flexion 121, abduction
  * 128 degrees, Namdari et al. 2012, J Shoulder Elbow Surg 21:1177), which the
  * capture checks. Events: the phrase's `ready` (item held up), `strokeStart`,
@@ -196,7 +198,7 @@ export namespace dress {
    * @throws {HumanRefusal} When the hand does not hold the wearable or the wearable declares no `wear` socket.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the refusals and the result; the namespace gives the places, the stroke, the timing, the wearing and the supporting hand.
-   * @evidence contracts/development/implementation.md#principled-implementation The wearable is rigid in the hand (`AutoMovieMotionHumanHeld`), so the hand's goal at every second is the worn frame on that second's head region with the hold undone (`dressTurn.carried`); a hat's turn about the crown is chosen once by the fitted arm's miss (`dressTurn`); the other hand's goal is its place read on the same posture (`place`); the reach time is the aimed movement time of the farther hand's way (McIntosh et al. 2018).
+   * @evidence contracts/development/implementation.md#principled-implementation The wearable is rigid in the hand (`AutoMovieMotionHumanHeld`), so the hand's goal at every second is the worn frame on that second's head region with the hold undone (`dressTurn.carried`); a hat's turn about the crown is chosen once by the fitted arm's miss (`dressTurn`); the other hand's goal is its place read on the same posture (`place`); the reach time is the free-space movement time of the farther hand's way to a place before the face (`AutoMovieMotionHumanTiming.of`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Hold, entry hands, turn, timing, the carrying and the supporting strokes, then the grip and wear windows with the kept fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal is read on the posture of its own second; the hold is the hand's own, never a typed offset. A pair of glasses takes no turn, since it faces the body's way.
    * @evidence contracts/development/implementation.md#efficient-algorithms One entry pose read for the two hand surfaces, one turn search for a hat (`dressTurn`), then per stroke second one worn-frame read, one elbow hint and the supporting hand's place.
@@ -273,10 +275,10 @@ export namespace dress {
       region: WORN[item], inverse, offset: held.frame.position, socket, wear, step: TURN,
     });
 
-    // The reach lasts the aimed movement time of the farther hand's way,
-    // from where it starts to where it holds the item up, the lead before
-    // its place on the entry's head; the hand stops within 0.03 m of it
-    // (provisional target width).
+    // The reach lasts the movement time of the farther hand's way, from
+    // where it starts to where it holds the item up, the lead before its
+    // place on the entry's head: a place in free space, so it takes the
+    // free-space rule, not an aimed one (`AutoMovieMotionHumanTiming.of`).
     const up: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.add(point, Vector3.scale(forward, lead));
     const far: number = Math.max(
@@ -289,7 +291,7 @@ export namespace dress {
         AutoMovieMotionHumanArm.point(context.entry.posture, steadying),
       )),
     );
-    const reach: number = AutoMovieMotionHumanTiming.aimed(far, 0.03);
+    const reach: number = AutoMovieMotionHumanTiming.of(far, { solid: false });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,
