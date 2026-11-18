@@ -7,6 +7,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  IAutoMovieAngleRange,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
@@ -120,27 +121,32 @@ export namespace walkReach {
    * @param body The body.
    * @param hip The hip joint, world metres.
    * @param ankle The ankle, world metres.
-   * @returns Metres, negative by the leg's slack and no less than a metre
-   *   under none, which claims as little as any slack does.
+   * @returns Metres, negative by the leg's slack and no less than the leg's
+   *   length under none (`slack`), which claims as little as any slack does.
    */
   export function short(
     body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
   ): number {
-    return Math.max(-1, resolveHumanPosture.short(body, hip, ankle, KNEE));
+    return Math.max(-slack(body), resolveHumanPosture.short(body, hip, ankle, KNEE));
+  }
+
+  /** The most slack a claim counts, metres: the leg's whole length, thigh and shank, the most a hip can be lowered toward its ankle; any slack past it claims as little, the smooth maximum with none (`CLAIM` wide) reading it as none. */
+  function slack(body: IAutoMovieMotionHumanBody): number {
+    return body.measure.thigh + body.measure.shank;
   }
 
   /**
    * Prepare the fixed body's knee-flexed reach for repeated lowering claims.
    *
    * @param body The unchanged body whose measured thigh/shank determine reach.
-   * @returns The same metre claim for actual world-metre hip/ankle pairs, bounded below by the original one metre of slack.
+   * @returns The metre claim for world-metre hip/ankle pairs, bounded below by the leg's length of slack (`short`).
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed measured-body premise, world-metre varying points, signed claim and unchanged slack floor.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared lowering owner's exact cosine-law reach at this law's KNEE, followed by its unchanged horizontal-distance comparison, Pythagorean vertical reach and this law's Math.max(-1, claim).
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed measured-body premise, world-metre varying points, signed claim and slack floor.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared lowering owner's cosine-law reach at this law's `KNEE`, its horizontal-distance comparison and Pythagorean vertical reach, floored at the leg's length of slack.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical reach preparation feeds a scalar claim reader, used both by ground's root trials and a walk's descent samples.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the same knee threshold, outside-reach result, metre slack bound and actual point arithmetic; the ordinary short path remains unsupplied and reads the current body as before.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Applies `short`'s knee threshold, outside-reach result and slack floor to every point pair, with no tuned bound.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed cosine and reach square root prepare once rather than in every root/descent probe; every actual point pair retains its horizontal distance and remaining square root.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous ground solve or fixed-body take owns its unchanged measured lengths and knee threshold; changing that body requires a new reader, without sharing any queried claim.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owner-local closure retains the canonical scalar reach reader until its solve/take releases it; no hip, ankle, claim, time history or global pose cache is retained.
@@ -149,7 +155,8 @@ export namespace walkReach {
     body: IAutoMovieMotionHumanBody,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
     const read: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, KNEE);
-    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => Math.max(-1, read(hip, ankle));
+    const least: number = -slack(body);
+    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => Math.max(least, read(hip, ankle));
   }
 
   /**
@@ -364,9 +371,12 @@ export namespace walkReach {
     const settle: () => number = (): number => {
       const first: number = asked(0);
       if (!(first > 0)) return 0;
+      // Hips lowered by the first claim claim no more than it, so `high` is
+      // already the bracket's upper end; the doublings guard a claim that
+      // rises with the lowering, as a stance the heel cannot relieve may.
       let high: number = first;
       let over: number = asked(high) - high;
-      for (let k: number = 0; k < 8 && over > 0; k++) {
+      for (let k: number = 0; k < DOUBLINGS && over > 0; k++) {
         high *= 2;
         over = asked(high) - high;
       }
@@ -474,20 +484,27 @@ export namespace walkReach {
   /** The width, metres, to which the root's lowering is solved: a nanometre, under which its error adds less than a micrometre per second to a rate read over a frame. */
   const FINE: number = 1e-9;
 
-  /** The largest extension, degrees, of a leg's thigh, swinging or planted, 2° inside the hip's 30° extension (DEFAULT_HUMANOID_ROM); the ankle trails further by the knee's bend. */
-  export const EXTENSION: number = 28;
+  /** The largest extension, degrees, of a leg's thigh, swinging or planted: the hip's extension in the range table (`DEFAULT_HUMANOID_ROM`, 30° on either hip, the lesser taken), kept inside by the margin a foot keeps inside its ankle's range (`walkLeg.ANKLE`); the ankle trails further by the knee's bend. */
+  export const EXTENSION: number = Math.min(
+    ...(["leftUpperLeg", "rightUpperLeg"] as const).map((bone: "leftUpperLeg" | "rightUpperLeg"): number => {
+      const flexion: IAutoMovieAngleRange | null | undefined = DEFAULT_HUMANOID_ROM[bone]?.flexion;
+      if (flexion === null || flexion === undefined)
+        throw new Error(`The range-of-motion table gives ${bone} no flexion`);
+      return -flexion.min;
+    }),
+  ) - walkLeg.ANKLE;
 
-  /** The furthest a swinging leg's line leans to the side of its foot, degrees: the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), the same bound a stance stands inside, so a swing joins its stances where they are. */
+  /** The furthest a swinging leg's line leans to the side of its foot, degrees: the ankle's inversion and eversion (`walkReachStance.SIDE`), the same bound a stance stands inside, so a swing joins its stances where they are. */
   const SIDE: number = walkReachStance.SIDE;
 
   /** The least knee flexion of a planted or reaching leg, degrees (provisional): a walking knee never locks straight. */
   const KNEE: number = 10;
 
-  /** The common hip heading limit from a ROM table, degrees (`walkHipTwist`); a missing hip twist is refused. */
-  export const hipTwist: typeof walkHipTwist = walkHipTwist;
+  /** The largest heading, degrees, a foot may keep from the pelvis: the hip's own internal and external rotation (`DEFAULT_HUMANOID_ROM`, 45° either way, `walkHipTwist`); a turn that asks more is taken by spinning on the ball of the foot (a spin turn, Hase and Stein 1999). */
+  export const TWIST: number = walkHipTwist(DEFAULT_HUMANOID_ROM);
 
-  /** The largest heading, degrees, a foot may keep from the pelvis: the hip's own internal and external rotation (DEFAULT_HUMANOID_ROM, 45° either way, `hipTwist`); a turn that asks more is taken by spinning on the ball of the foot (a spin turn, Hase and Stein 1999). */
-  export const TWIST: number = hipTwist(DEFAULT_HUMANOID_ROM);
+  /** A cap on the doublings of the root's bracket past the first claim, a guard and not a tolerance: claims that do not rise as the hips lower never enter the loop (see `ground`), and 2⁸ = 256 times the first claim bounds the guard's cost; a claim still over its lowering after them takes the bracket's end as its lowering. */
+  const DOUBLINGS: number = 8;
 
   /** Pitch, degrees toes-down, at which a planted foot's heel is far enough up to take the whole pivot turn on its toe pad (provisional). */
   const HEEL_UP: number = 30;
