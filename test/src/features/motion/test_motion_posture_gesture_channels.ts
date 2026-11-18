@@ -1,18 +1,24 @@
 import {
+  DEFAULT_HUMANOID_ROM,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
+  Vector3,
   preparePoseResolution,
   resolvePose,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGaze,
   IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSelfAction,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  HumanChain,
   HumanGaze,
   gestureSignal,
   gestureStroke,
@@ -20,7 +26,9 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
@@ -46,6 +54,8 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_posture_gesture_channels(): void {
   checkChannelSignals();
+  checkGestureFrame();
+  checkAuthoredChannels();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
@@ -249,3 +259,192 @@ function checkChannelSignals(): void {
       ["one", "both", "none"].includes(gestureStroke.HANDS[kind]),
     );
 }
+
+function checkAuthoredChannels(): void {
+  const all: motionComplaints.IGatherer = motionComplaints();
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  /** One gesture on the same starting stance and neutral manner. */
+  const perform: (
+    params: IAutoMovieMotionHumanSelfAction.IParams,
+  ) => motionHumanLaw.IFilm = (
+    params: IAutoMovieMotionHumanSelfAction.IParams,
+  ): motionHumanLaw.IFilm =>
+    motionHumanLaw.perform(
+      "self-action",
+      [{ subject: "a", body }],
+      HumanChain.subject("a").selfAction(params),
+    );
+
+  for (const [kind, bone] of [
+    ["neckRoll", "neck"],
+    ["shoulderRoll", "rightShoulder"],
+  ] as const) {
+    const film: motionHumanLaw.IFilm = perform({ kind });
+    const start: number = motionHumanLaw.event(film, "strokeStart");
+    const period: number =
+      (motionHumanLaw.event(film, "strokeEnd") - start) / 2;
+    const neutral: IAutoMovieJointPose | undefined = joint(film, 0, bone);
+    const elbow: IAutoMovieJointPose | undefined = joint(
+      film,
+      0,
+      "rightLowerArm",
+    );
+    const range: NonNullable<
+      (typeof DEFAULT_HUMANOID_ROM)[AutoMovieHumanoidBone]
+    > = DEFAULT_HUMANOID_ROM[bone]!;
+    // The documented light rung is one quarter of the positive range.
+    const flex: number = range.flexion!.max / 4;
+    const across: number = range.abduction!.max / 4;
+    for (const [cycle, x, y] of [
+      [0, 1, 0],
+      [1 / 4, 0, 1],
+      [1 / 2, -1, 0],
+      [3 / 4, 0, -1],
+      [2, 1, 0],
+    ] as const) {
+      const seconds: number = start + cycle * period;
+      const angle: IAutoMovieJointPose | undefined = joint(film, seconds, bone);
+      const f: number = (angle?.flexion ?? 0) - (neutral?.flexion ?? 0);
+      const a: number = (angle?.abduction ?? 0) - (neutral?.abduction ?? 0);
+      all.check(
+        `${kind}, cycle ${cycle}: flexion/abduction ${f}/${a} degrees`,
+        nclose(f, flex * x) && nclose(a, across * y),
+      );
+      const free: IAutoMovieJointPose | undefined = joint(
+        film,
+        seconds,
+        "rightLowerArm",
+      );
+      all.check(
+        `${kind} leaves the right elbow still`,
+        nclose(free?.flexion ?? 0, elbow?.flexion ?? 0) &&
+          nclose(free?.abduction ?? 0, elbow?.abduction ?? 0) &&
+          nclose(free?.twist ?? 0, elbow?.twist ?? 0),
+      );
+    }
+  }
+
+  for (const kind of ["stretch", "victory"] as const) {
+    const film: motionHumanLaw.IFilm = perform({ kind });
+    const ready: number = motionHumanLaw.event(film, "ready");
+    const shown: motionHumanLaw.Bones = film.bones("a", ready);
+    for (const side of ["left", "right"] as const) {
+      const wrist: AutoMovieHumanoidBone = `${side}Hand`;
+      const raised: IAutoMovieVector3 = shown.get(wrist)!.worldPosition;
+      const shoulder: IAutoMovieVector3 = shown.get(
+        `${side}UpperArm`,
+      )!.worldPosition;
+      const start: IAutoMovieVector3 = film
+        .bones("a", 0)
+        .get(wrist)!.worldPosition;
+      const end: IAutoMovieVector3 = film
+        .bones("a", film.duration)
+        .get(wrist)!.worldPosition;
+      all.check(
+        `${kind} raises the ${side} hand above its shoulder and on its own side`,
+        raised.y > shoulder.y &&
+          (side === "left" ? raised.x > 0 : raised.x < 0),
+      );
+      all.check(
+        `${kind} returns the ${side} hand within 10 mm`,
+        Vector3.distance(start, end) <= 0.01,
+      );
+    }
+  }
+
+  const pump: motionHumanLaw.IFilm = perform({
+    kind: "fistPump",
+    side: "left",
+  });
+  const start: number = motionHumanLaw.event(pump, "strokeStart");
+  const period: number = (motionHumanLaw.event(pump, "strokeEnd") - start) / 3;
+  const before: motionHumanLaw.Bones = pump.bones("a", start);
+  const dropped: motionHumanLaw.Bones = pump.bones("a", start + period / 2);
+  const after: motionHumanLaw.Bones = pump.bones("a", start + period);
+  all.check(
+    "one of the default three fist pumps drops at half period and returns",
+    dropped.get("leftHand")!.worldPosition.y <
+      before.get("leftHand")!.worldPosition.y &&
+      Vector3.distance(
+        after.get("leftHand")!.worldPosition,
+        before.get("leftHand")!.worldPosition,
+      ) <= 0.01,
+  );
+  all.check(
+    "the free hand stays at rest during the left fist pump",
+    Vector3.distance(
+      dropped.get("rightHand")!.worldPosition,
+      before.get("rightHand")!.worldPosition,
+    ) <= 0.01,
+  );
+  all.assert("the self actions move only the channels they own");
+}
+
+/** The actual displayed joint angles, after all ordinary pose resolution. */
+function joint(
+  film: motionHumanLaw.IFilm,
+  seconds: number,
+  bone: AutoMovieHumanoidBone,
+): IAutoMovieJointPose | undefined {
+  return film.performance
+    .pose("a", seconds)
+    .joints.find((j: IAutoMovieJointPose): boolean => j.bone === bone);
+}
+
+/** Heading acts on the displayed gesture. Cues translate both gaze events together. */
+function checkGestureFrame(): void {
+  const body = motionHumanBody("m-average"),
+    actor = HumanChain.subject("a");
+  const wave = actor.gesture({ kind: "wave" });
+  const orig = motionHumanLaw.perform(
+    "gesture-frame",
+    [{ subject: "a", body }],
+    wave,
+  );
+  const shift = { x: 3, y: 0, z: -2 };
+  const turned = motionHumanLaw.perform(
+    "gesture-frame",
+    [{ subject: "a", body, yaw: 90, at: shift }],
+    wave,
+  );
+  let worst = 0;
+  for (let t = 0; t <= orig.duration; t += 0.25) {
+    const target = turned.bones("a", t);
+    for (const [bone, value] of orig.bones("a", t)) {
+      const p = value.worldPosition,
+        q = target.get(bone)!.worldPosition;
+      worst = Math.max(
+        worst,
+        Math.hypot(q.x - (shift.x + p.z), q.y - p.y, q.z - (shift.z - p.x)),
+      );
+    }
+  }
+  TestValidator.predicate(
+    "gesture is covariant under a quarter turn and translation",
+    worst <= 0.001 && Math.abs(orig.duration - turned.duration) <= 1e-6,
+  );
+  const target = {
+    kind: "point" as const,
+    at: { x: 1, y: body.measure.shoulderHeight, z: 2 },
+    frame: "world" as const,
+  };
+  const look = (cue?: GazeCue) =>
+    motionHumanLaw.perform(
+      "cue",
+      [{ subject: "a", body }],
+      actor.look({ target, cue }),
+    );
+  const ordinary = look();
+  const onset = motionHumanLaw.event(ordinary, "gazeOn"),
+    settled = motionHumanLaw.event(ordinary, "settled");
+  for (const cue of ["seen", "signal"] as const) {
+    const film = look(cue);
+    const lag = motionHumanLaw.event(film, "gazeOn") - onset;
+    TestValidator.predicate(
+      cue + " delays both gaze events equally",
+      lag >= 0.1 - 1e-9 &&
+        Math.abs(motionHumanLaw.event(film, "settled") - settled - lag) <= 1e-9,
+    );
+  }
+}
+type GazeCue = "seen" | "signal";
