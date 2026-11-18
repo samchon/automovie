@@ -1,3 +1,4 @@
+import { createPourVessel } from "@automovie/archetypes";
 import {
   Quaternion,
   createAutoMovieMeshRayCaster,
@@ -12,7 +13,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createPourVessel } from "../../../../packages/archetypes/src/props/createPourVessel";
 import { archetypeExtent } from "../internal/archetypeExtent";
 import { convexCellObservation } from "../internal/convexCellObservation";
 import { nclose, vclose } from "../internal/predicates";
