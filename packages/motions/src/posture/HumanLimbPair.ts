@@ -59,9 +59,29 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No order between the arms: independent fits, or one joint solve.
  */
 export namespace HumanLimbPair {
-  /** A request-local observation of the complete accepted or returned static pair. */
+  /**
+   * Observe the returned two-arm fit during this static posture request. In
+   * analytic mode a trial that needs the general optimiser returns its direct
+   * result and reports that result's residual for the caller to reject.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the observed posture, the lifetime of the observer and the analytic-only trial behavior.
+   * @evidence contracts/development/design.md#principled-representation The callback observes the existing native evaluation, which carries the fit's geometric residuals in their original units. The flag selects whether the general optimiser can run.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The paired fitter owns this request. The caller needs one native residual report and one search policy to compare its posture trials.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both search modes report the actual evaluation through the same typed callback. The mode does not mark a failed candidate as accepted.
+   */
   export interface Assessment {
-    /** Read the native full model at the actual returned configuration. */
+    /**
+     * Read the complete native model at the returned pair. Consume the
+     * evaluation during the call if a stable observation is needed.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Specifies the evaluation passed to the receiver and its request lifetime.
+     * @evidence contracts/development/implementation.md#principled-implementation The fitter supplies the evaluation from the accepted direct or adjusted pair, the returned direct trial, or the general optimiser's result.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One callback receives the already available evaluation on the selected return branch.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No residual is synthesized or replaced by a convenience success value.
+     * @evidence contracts/development/implementation.md#efficient-algorithms The fitter passes the current evaluation without another model evaluation.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reading serves native branch admission and the caller's trial comparison.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fitter holds the callback only for the current request and does not attach it to the returned fit.
+     */
     inspect(reading: Readonly<M.IEvaluation>): void;
     /** Only certified ordinary analytic branches can win a speculative trial. */
     analytic: boolean;

@@ -20,6 +20,7 @@ import { vclose } from "../internal/vclose";
  * 1. Rigid placement translates both requested bones equally.
  * 2. A local elbow bend moves the wrist while preserving segment length.
  *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents which bones are requested and the expected effects of world translation and elbow flexion.
  * @evidence contracts/development/testing.md#behavioral-verification Requests posed elbow and wrist, observes a live rigid translation and then observes wrist movement under elbow flexion.
  * @evidence contracts/development/testing.md#independent-expectations A common world translation adds its three coordinates exactly. Rotating about the elbow preserves the length of the forearm chord independently of angle convention.
  * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes a whole-body translation from a local articulation and requires the exact requested output names.

@@ -117,10 +117,26 @@ export namespace HumanAirborneShape {
     return new NativeLayer(shape);
   }
 
-  /** Receive the actual projected joints and root during the same displayed evaluation. */
+  /**
+   * Receive the projected joints and root during the same displayed evaluation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents which assembly is received and when the receiver may use it.
+   * @evidence contracts/development/design.md#principled-representation The callback receives the resolver's assembled pose and joint rotations in their existing frames. The native blend supplies it from the current evaluation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanSegmentLayer uses this receiver to pass one live assembly to its leaf. The caller gives the receiver no independent pose inputs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback uses the resolver's assembly type without a widened payload or a validity flag.
+   */
   export type Assembly = (direct: resolveHumanPostureSource.IAssembled) => void;
 
-  /** A native shape blend can lend the direct assembly used to place its held goals. */
+  /**
+   * Apply a native shape at layer-local seconds and optionally lend the assembly used
+   * to place its held goals. The context supplies the performing body and the weight
+   * is the layer's blend fraction. The returned posture uses the input posture's frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the timebase, blend weight, reading context, output frame and optional assembly receiver.
+   * @evidence contracts/development/design.md#principled-representation Reuses the authored posture, layer context and resolver assembly contracts. Callable provenance is checked at runtime by prepared.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The airborne shape owns the callable. HumanSegmentLayer uses the four standard blend arguments and the optional receiver during its current evaluation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The independent optional receiver does not change the input or result type and carries no fixture-specific branch.
+   */
   export type ShapeBlend = (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
