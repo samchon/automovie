@@ -42,8 +42,8 @@ export interface IAutoMovieMotionHumanActionPlan {
   /** The balance window this plan actually uses, or null when its balance is off. */
   balanceWindow?: IAutoMovieMotionHumanBalance.Window;
 
-  /** The part of a physical law that needs physical judgement, in action seconds. */
-  physicalWindow?: IAutoMovieMotionHumanActionPlan.IPhysicalWindow;
+  /** Physical phase in action seconds. Null marks a kinematic outcome of a physical law. Omission preserves its whole-span judgement. */
+  physicalWindow?: IAutoMovieMotionHumanActionPlan.IPhysicalWindow | null;
 
   /**
    * Seconds since the action's start, from and to, over which `posture`

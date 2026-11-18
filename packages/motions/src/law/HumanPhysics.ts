@@ -27,7 +27,7 @@ import { HumanRefusal } from "./HumanRefusal";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the questions, the default, the resolution, the bounds and the refusal.
  * @evidence contracts/development/design.md#principled-representation One owner of the option's reading, so every law and the audit read it alike.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `prepare` and `weightAt` resolve and read the active window, `judged` gates the audit and `balanced` answers whether legacy key planners have a positive requested shift.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `prepare` and `weightAt` resolve and read the active window, and `judged` gates the audit on the prepared window.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent is none. A part or event bound must come from the caller or law, and only weight and ramp have intrinsic defaults.
  */
 export namespace HumanPhysics {
@@ -104,9 +104,15 @@ export namespace HumanPhysics {
   }
 
   /** Admit absent and zero-weight requests on a planner whose contact constraints own all movable parts. */
-  export function fixed(params: IBalanced, reason: string): void {
-    const request: Shift = shift(params);
+  export function fixed(params: IBalanced, reason: string, law?: ILaw): void {
+    const request: Shift = shift(params, law);
     if (request !== null && request.weight > 0) unsupported(request.by, reason);
+  }
+
+  /** A registered planner or composite must publish the window it actually applies when an author requests balance. */
+  export function admitted(params: unknown, law: ILaw, plan: IAutoMovieMotionHumanActionPlan): void {
+    if (plan.balanceWindow === undefined && typeof params === "object" && params !== null && "balance" in params)
+      fixed(params as IBalanced, "this action did not prepare a correction for its own body and support phase", law);
   }
 
   /** A candidate interval of a placed span, in film seconds. */
@@ -185,7 +191,7 @@ export namespace HumanPhysics {
     if (to === undefined) throw missing("to");
     if (by !== "hips" && by !== "trunk")
       throw invalid("by", by, "name hips or trunk");
-    if (!(weight >= 0 && weight <= 1))
+    if (!Number.isFinite(weight) || !(weight >= 0 && weight <= 1))
       throw invalid("weight", weight, "give a weight from 0 to 1");
     if (!Number.isFinite(ramp.in) || ramp.in < 0)
       throw invalid("ramp.in", ramp.in, "give a nonnegative finite duration in seconds");
@@ -239,6 +245,7 @@ export namespace HumanPhysics {
    */
   export function weightAt(window: Window, seconds: number): number {
     if (window === null || !(window.from <= seconds && seconds <= window.to)) return 0;
+    if (window.phase !== undefined && (seconds < window.phase.from || seconds > window.phase.to)) return 0;
     const into: number = seconds - window.from;
     const out: number = window.to - seconds;
     const rise: number = window.ramp.in;
@@ -248,25 +255,22 @@ export namespace HumanPhysics {
     return window.weight;
   }
 
-  /**
-   * Whether an action applies a shift: one resolves and its weight is above 0.
-   *
-   * @param params The action's params; none when absent.
-   * @param law The action's law; it recommends none when absent.
-   * @returns Whether a balancing shift applies.
-   * @throws {HumanRefusal} As `shift` does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the condition.
-   * @evidence contracts/development/implementation.md#principled-implementation The resolved shift and its weight; a weight of 0 shifts nothing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution, one comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Absent is none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function balanced(params?: IBalanced, law?: ILaw): boolean {
-    const resolved: Shift = shift(params, law);
-    return resolved !== null && resolved.weight > 0;
+  /** Does any instant of a closed action-local interval carry a positive requested weight? */
+  export function intersects(window: Window, from: number, to: number): boolean {
+    if (window === null) return false;
+    const a: number = Math.max(from, window.phase?.from ?? window.from, window.from);
+    const b: number = Math.min(to, window.phase?.to ?? window.to, window.to);
+    return a < b || (a === b && weightAt(window, a) > 0);
+  }
+
+  /** Limit the requested correction to a support phase while preserving the author's easing origins. */
+  export function during(window: Window, from: number, to: number): Window {
+    if (window === null || !intersects(window, from, to)) return null;
+    const phase: IAutoMovieMotionHumanBalance.IInterval = {
+      from: Math.max(window.phase?.from ?? window.from, from),
+      to: Math.min(window.phase?.to ?? window.to, to),
+    };
+    return phase.from === window.from && phase.to === window.to ? window : { ...window, phase };
   }
 
   /**
@@ -337,26 +341,28 @@ export namespace HumanPhysics {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three sources and their order.
    * @evidence contracts/development/implementation.md#principled-implementation Judgement follows the explicit override, the law's physical phase or a balance with positive actual weight.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the explicit override, physical declaration, or prepared balance in that order. Legacy key plans still give the audit their option.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the explicit override, physical declaration, or prepared balance in that order. A cut limits both physical and requested phases to the placed lifetime.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing else turns the check on; a planted, posed action is not judged.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A reading.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function judged(span: ISpan, seconds?: number): boolean {
+    if (seconds !== undefined && (seconds < span.entryTime || span.end < seconds)) return false;
     if (span.physical !== undefined) return span.physical;
-    const physical: IAutoMovieMotionHumanActionPlan.IPhysicalWindow | undefined =
+    const physical: IAutoMovieMotionHumanActionPlan["physicalWindow"] =
       span.plan.physicalWindow;
     const local: number | undefined = seconds === undefined ? undefined : seconds - span.start;
     if (
       span.law?.physical === true &&
-      (physical === undefined || local === undefined ||
-        (physical.from <= local && local <= physical.to))
+      (physical === undefined || (physical !== null && (local === undefined
+        ? physical.from <= span.end - span.start && span.entryTime - span.start <= physical.to
+        : physical.from <= local && local <= physical.to)))
     ) return true;
     const window: Window | undefined = span.plan.balanceWindow;
     if (window !== undefined)
       return local === undefined
-        ? window !== null
+        ? intersects(window, span.entryTime - span.start, span.end - span.start)
         : weightAt(window, local) > 0;
     return false;
   }
@@ -381,7 +387,7 @@ export namespace HumanPhysics {
     if (span.physical === true || physical === undefined)
       return [{ from: span.entryTime, to: span.end }];
     const result: IJudgedInterval[] = [];
-    for (const local of [physical, balance]) {
+    for (const local of [physical, balance?.phase ?? balance]) {
       if (local === null || local === undefined) continue;
       const from: number = Math.max(span.entryTime, span.start + local.from);
       const to: number = Math.min(span.end, span.start + local.to);
@@ -420,13 +426,17 @@ export namespace HumanPhysics {
     timing: ITiming,
     resolve: Instant | undefined,
   ): number {
+    const index: number = bound.index ?? 0;
+    const offset: number = bound.offset ?? 0;
+    if (!Number.isInteger(index) || index < 0)
+      throw invalid(field, index, "name a nonnegative integer event occurrence");
+    if (!Number.isFinite(offset))
+      throw invalid(field, offset, "give a finite offset in seconds");
     if (bound.of !== undefined) {
       if (resolve === undefined)
         throw invalid(field, bound.of, "resolve that anchor in a performance");
       return resolve(instant(bound, bound.of)) - start;
     }
-    const index: number = bound.index ?? 0;
-    const offset: number = bound.offset ?? 0;
     if (index === 0 && bound.event === "start") return offset;
     if (index === 0 && bound.event === "end") return timing.duration + offset;
     let occurrence: number = 0;

@@ -27,16 +27,7 @@ export namespace IAutoMovieMotionHumanTrunk {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Seven required members and the legs the crouch plants, read only by `crouch`; the legs exist because one caller (the batting stance) steps one foot out itself while the body sinks.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hip shift: the shift is solved, so a caller cannot state one that unbalances the body; the feet are read off the standing posture, so a caller cannot plant them somewhere the body does not stand.
    */
-  export interface ICrouch {
-    /** The body. */
-    body: IAutoMovieMotionHumanBody;
-
-    /** The physical terms asked (`IAutoMovieMotionHumanBalance`): absent, the hips sink where they stand and no centre of mass is read; with `balance` they move back so the centre of mass stays over the feet. */
-    balance?: IAutoMovieMotionHumanBalance;
-
-    /** A standing posture of the action, the one the balance is solved on. */
-    standing: IAutoMovieMotionHumanPosture;
-
+  export interface ICrouch extends IShape {
     /** The action's clock. */
     clock: IAutoMovieMotionClock;
 
@@ -45,6 +36,19 @@ export namespace IAutoMovieMotionHumanTrunk {
 
     /** The instants the body starts rising and stands again at. */
     fall: readonly [string, string];
+
+  }
+
+  /** Fixed stance, planted limbs and geometric demand shared by repetitions of one crouch. */
+  export interface IShape {
+    /** The body. */
+    body: IAutoMovieMotionHumanBody;
+
+    /** The physical terms asked (`IAutoMovieMotionHumanBalance`): absent, the hips sink where they stand and no centre of mass is read; with `balance` they move back so the centre of mass stays over the feet. */
+    balance?: IAutoMovieMotionHumanBalance;
+
+    /** A standing posture of the action, the one the balance is solved on. */
+    standing: IAutoMovieMotionHumanPosture;
 
     /** How far the hips sink at the lowest, metres; not negative. */
     depth: number;

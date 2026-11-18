@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
 } from "@automovie/interface";
 
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
@@ -33,13 +34,15 @@ export namespace HumanPerformanceTempo {
    * @throws {HumanRefusal} Whatever the law refuses with on any other ground, and a `duration` refusal naming both factors when a replan needs no less time than the one before.
    */
   export function plan<P>(
-    law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan">,
+    law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan"> & HumanPhysics.ILaw,
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionPlan {
     let needed: number | undefined;
     for (;;) {
       try {
-        return law.plan(context);
+        const planned: IAutoMovieMotionHumanActionPlan = law.plan(context);
+        HumanPhysics.admitted(context.params, law, planned);
+        return planned;
       } catch (error: unknown) {
         const factor: number | undefined = slower(error);
         if (factor === undefined) throw error;

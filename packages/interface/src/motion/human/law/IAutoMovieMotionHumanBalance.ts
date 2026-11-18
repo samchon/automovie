@@ -57,21 +57,26 @@ export namespace IAutoMovieMotionHumanBalance {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The posture and audit borrow the same prepared window from HumanPhysics.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The record fixes timing without retaining poses or evaluated phase samples.
    */
-  export interface IWindow {
+  export interface IWindow extends IInterval {
     /** The body part that performs the shift. */
     by: Part;
 
-    /** The opening bound in action seconds. */
-    from: number;
-
-    /** The closing bound in action seconds. */
-    to: number;
+    /** The eligible support phase when only part of the authored interval can move the selected part. */
+    phase?: IInterval;
 
     /** The full share of the needed shift before easing, from 0 to 1. */
     weight: number;
 
     /** Durations of the opening and closing blends in seconds. */
     ramp: IRamp;
+  }
+
+  /** A closed interval in seconds on the prepared action clock. */
+  export interface IInterval {
+    /** First action second. */
+    from: number;
+    /** Last action second. */
+    to: number;
   }
 
   /**

@@ -308,9 +308,10 @@ export namespace AutoMovieMotionHumanTrunk {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function owns two foot frames, at most two bounded fixed-goal readers and one solved shift until its action ends. The search's trial readings do not survive preparation and no time-indexed history is kept.
    */
   export function prepareCrouch(
-    props: Pick<IAutoMovieMotionHumanTrunk.ICrouch, "body" | "standing" | "depth" | "pitch" | "legs">,
-    window: HumanPhysics.Window = null,
+    props: IAutoMovieMotionHumanTrunk.IShape,
+    window?: HumanPhysics.Window,
   ): (posture: IAutoMovieMotionHumanPosture, share: number, weight?: number) => IAutoMovieMotionHumanPosture {
+    if (window === undefined) HumanPhysics.fixed(props, "a geometric crouch share has no event clock for a timed balance correction");
     if (!(props.depth >= 0) || !(props.pitch >= 0))
       throw new Error("A crouch's depth and pitch are not negative");
     const legs: readonly AutoMovieHumanSide[] = props.legs ?? [
@@ -342,7 +343,7 @@ export namespace AutoMovieMotionHumanTrunk {
     // of mass is read.
     let back: number | undefined;
     return (posture: IAutoMovieMotionHumanPosture, share: number, weight: number = 0): IAutoMovieMotionHumanPosture => {
-      if (window === null || weight === 0 || share === 0) return low(posture, share, 0);
+      if (window === undefined || window === null || weight === 0 || share === 0) return low(posture, share, 0);
       back ??= HumanBalance.shift(props.body, (b: number): IAutoMovieMotionHumanPosture => low(props.standing, 1, b));
       return low(posture, share, back * share * weight);
     };
