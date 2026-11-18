@@ -47,9 +47,19 @@ export namespace IAutoMovieProjectileFirstContact {
     id: string;
 
     /**
-     * Signed separation for the same segment and instant as nearest, in metres.
-     * When supplied, this must return exactly nearest's distance. The sweep
-     * can then defer constructing the surface point and normal until impact.
+     * Measure signed separation from the world segment at launch-relative seconds.
+     * Coincident endpoints represent a point. Return the same separation in metres
+     * as nearest, before subtracting projectile radius. The sweep uses nearest
+     * when this reader is absent and to construct the chosen surface witness.
+     * Errors propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the world inputs, flight clock, signed scalar, fallback and failure behavior.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The collider producer implements the shape calculation under the documented equality contract.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable signature leaves computation structure to the collider producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer implements and establishes exact equality with its nearest reader.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The collider producer's geometry determines the work.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature implements no sharing. The collider producer owns any shared computation between its readers.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resources. The collider producer owns any state captured by its reader.
      */
     distance?(
       a: IAutoMovieVector3,

@@ -32,7 +32,18 @@ export namespace RigidCarrierSample {
     readonly from: number;
     /** Upper film-clock bound, possibly positive infinity. */
     readonly to: number;
-    /** Actual domain check using the source's numeric clock arithmetic. */
+    /**
+     * Test whether the film second belongs to this stationary domain, using
+     * the carrier producer's clock arithmetic for boundary inclusion.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines the timebase, Boolean result and producer-owned endpoint rule.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The carrier producer implements the clock arithmetic.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable signature leaves implementation structure with the producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer must prove stationary membership from its authored clock and owns the implementation evidence.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer's clock predicate determines the cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This callable signature implements no sharing. The producer supplies a predicate for its own stationary domain.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resources. The producer owns any state captured by the predicate.
+     */
     contains(seconds: number): boolean;
   }
 
