@@ -1,5 +1,10 @@
-import { resolveAutoMovieContactEvents } from "@automovie/engine";
+import {
+  appendShotEventsArtifact,
+  resolveAutoMovieContactEvents,
+} from "@automovie/engine";
 import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieInteractionEvent,
   IAutoMovieResolveContactEvents,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -36,6 +41,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 scenarios and what each pins.
  */
 export function test_motion_contact_contact_event_geometry(): void {
+  checkEventFields();
   const close = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
   const height = (t: number): number => 1 - 2 * t;
   const end =
@@ -134,4 +140,46 @@ export function test_motion_contact_contact_event_geometry(): void {
         }),
       ),
     );
+}
+
+/** A neutral collision receipt admits finite vector fields and a positive mass. */
+function checkEventFields(): void {
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const receipt: IAutoMovieInteractionEvent = {
+    id: "contact",
+    kind: "hit",
+    source: "collisionSolver",
+    time: 0,
+    actor: "prop",
+    target: "floor",
+    object: null,
+    point: zero,
+    actionIndex: 0,
+    reaction: null,
+    velocity: zero,
+    exit: zero,
+    normal: { x: 0, y: 1, z: 0 },
+    impulse: zero,
+    mass: 1,
+  };
+  const errors = (event: IAutoMovieInteractionEvent): string[] => {
+    const violations: IAutoMovieConstraintViolation[] = [];
+    appendShotEventsArtifact([event], "events", 1, violations);
+    return violations.map((v) => v.path);
+  };
+  TestValidator.equals("finite receipt fields", errors(receipt), []);
+  for (const field of ["velocity", "exit"] as const) {
+    const invalid: IAutoMovieInteractionEvent = {
+      ...receipt,
+      [field]: { ...zero, y: NaN },
+    };
+    TestValidator.predicate(
+      "finite " + field,
+      errors(invalid).some((path) => path.endsWith("." + field)),
+    );
+  }
+  TestValidator.predicate(
+    "positive incident mass",
+    errors({ ...receipt, mass: 0 }).some((path) => path.endsWith(".mass")),
+  );
 }
