@@ -137,7 +137,7 @@ export namespace HumanSupportCarry {
       context.prop(prop).frame(seconds);
     return {
       ...plan,
-      contacts: plan.contacts.map((c) =>
+      contacts: plan.contacts.map((c: IAutoMovieMotionHumanActionPlan["contacts"][number]): IAutoMovieMotionHumanActionPlan["contacts"][number] =>
         c.kind === "plant" && c.support.kind === "ground"
           ? { ...c, support: { kind: "prop" as const, subject: prop } }
           : c,
