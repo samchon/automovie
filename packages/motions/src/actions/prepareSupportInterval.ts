@@ -21,6 +21,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
+import { prepareSupportPinFloor } from "./prepareSupportPinFloor";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
 
@@ -121,7 +122,7 @@ interface IHeldFrames {
  * @evidence contracts/development/implementation.md#principled-implementation supportKey.prepareBlended's ROM/root interpolation, then the first common contact's root pin (the source key's achieved contact point against the current one), then per held hand or foot an end-joint goal interpolated between the keys' achieved frames (a hand's position lerped, a foot's placed by its bearing socket lerped while the foot's rotation slerps about it, the foot rolling on its contact) with the keys' middle joints as the bend pole, fitted by resolveHumanPosture's analytic limb fit, then the floor nonpenetration/rest rule, confirmed on the held legs' own fitted chains and the root lifted by their remaining sink.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the blend and common pin, measure the held limbs' key frames once, then per share blend, pin, add the held-limb goals and bound the root.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact is moved off its achieved place to keep the root's path; no whole-body solve or sampled pose replaces the per-limb fit. Knee and trunk contacts are not limb-pinned, which the documentation states.
- * @evidence contracts/development/implementation.md#efficient-algorithms The C-by-D common-contact search and the held limbs' key FK (two solves of fixed keys) run once per interval; each write adds at most four analytic limb fits to the resolve the caller makes, with the pin's point solve and floor reading, and one reading of the held legs' chains alone (more only while they sink, at most `LIFTS`), each continuing the legs' fits from their swivels at the interval's two ends carried by the share (`IAutoMovieSwivelNear`), a refinement in place of a sweep; the ends are swept once per interval.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The C-by-D common-contact search and the held limbs' key FK run once per interval. The admitted direct blend shares one FK for the pin and collider minimum. The actual held-leg chains are read at the bounded root and after any lift (at most `LIFTS`), continuing from the two endpoint swivels prepared once per interval.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Keys/body/contact order are fixed for the plan, so the held key frames serve every write, as the held legs' swivels at the interval's two ends serve every read between them. Schedule-dependent target/source observations and those end swivels clear on settle; every changing pose resolves normally.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The interval owns one blend, the common contact, at most four held-limb frame records, one collider reader and one held-leg chain reader until release, plus one schedule-dependent target/source record until settle or release. A stationary interval retains its first requested planted posture until settle or release. Moving shares release their interpolated pose and query FK/ROM workspaces after each write.
  */
@@ -151,7 +152,8 @@ export function prepareSupportInterval(
     | {
         held: IAutoMovieVector3;
         arrived: IAutoMovieVector3;
-        point: ReturnType<typeof supportContact.preparePoints>;
+        originalPoint: ReturnType<typeof supportContact.preparePoints>;
+        pinFloor: ReturnType<typeof prepareSupportPinFloor>;
       }
     | undefined;
   let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
@@ -165,19 +167,12 @@ export function prepareSupportInterval(
       prepareHumanPoseResolution(resolution);
     const project: ReturnType<typeof prepareHumanPostureProjection> =
       projection ?? prepareHumanPostureProjection(body);
-    const rest: (posture: IAutoMovieMotionHumanPosture) => number = (
-      posture: IAutoMovieMotionHumanPosture,
-    ): number => {
-      floor ??= knockdown.prepareRest(body);
-      return floor(posture, read, project);
-    };
+    const rest = (posture: IAutoMovieMotionHumanPosture): number =>
+      (floor ??= knockdown.prepareRest(body))(posture, read, project);
     if (pin === undefined)
       return {
         ...shaped,
-        root: {
-          ...shaped.root,
-          y: Math.max(shaped.root.y, rest(shaped)),
-        },
+        root: { ...shaped.root, y: Math.max(shaped.root.y, rest(shaped)) },
       };
     if (fixed === undefined) {
       const target: IAutoMovieVector3 | null = place(pin);
@@ -188,7 +183,8 @@ export function prepareSupportInterval(
       fixed = {
         held: point(a.posture, read, project)[0]!,
         arrived: point(b.posture, read, project)[0]!,
-        point,
+        pinFloor: prepareSupportPinFloor(body, pin, aimed),
+        originalPoint: point,
       };
     }
     const pin0: NonNullable<typeof fixed> = fixed;
@@ -201,7 +197,11 @@ export function prepareSupportInterval(
     // the keys hold it, fitted by the limb's own chain, and the floor bound.
     const placed: (s: number) => IAutoMovieMotionHumanPosture = (s: number): IAutoMovieMotionHumanPosture => {
       const blended: IAutoMovieMotionHumanPosture = s === w ? shaped : blend(s);
-      const now: IAutoMovieVector3 = pin0.point(blended, read, project)[0]!;
+      const fused: ReturnType<ReturnType<typeof prepareSupportPinFloor>> | undefined =
+        prepareHumanPoseResolution.isNativeSource(read) && project === body.projection
+          ? pin0.pinFloor(blended, read, project)
+          : undefined;
+      const now: IAutoMovieVector3 = fused?.point ?? pin0.originalPoint(blended, read, project)[0]!;
       const pinned: IAutoMovieVector3 = Vector3.lerp(pin0.held, pin0.arrived, s);
       const goals: IAutoMovieMotionHumanPosture["limbs"] = { ...blended.limbs };
       for (const frame of held) goals[frame.limb] = heldGoal(frame, s);
@@ -221,7 +221,7 @@ export function prepareSupportInterval(
           // The pin already carries its point between the keys' achieved
           // heights; the floor only bounds it, so a key resting a hair above
           // the floor is not pulled onto it at its instant.
-          y: Math.max(moved.root.y, rest(moved)),
+          y: Math.max(moved.root.y, fused?.floor ?? rest(moved)),
         },
       };
     };

@@ -120,6 +120,30 @@ function geometry(body: IAutoMovieMotionHumanBody, heading: number): IGeometry {
     const uy: number = (ankle.y - hip.y) * inverse;
     const uz: number = (ankle.z - hip.z) * inverse;
     const along: number = (aa - bb + d * d) / (2 * d);
+
+    // The no-twist constraint below fixes the knee's lateral coordinate.
+    // Intersect the thigh and shank spheres in that vertical cross section
+    // and take the knee further toward the projected forward axis.
+    const fore: number = -d * (fx * ux + fz * uz);
+    const up: number = -d * uy;
+    const lateral: number = -(lx * ux + lz * uz);
+    const planeSquared: number = fore * fore + up * up;
+    if (planeSquared > 1e-12 && Math.abs(up) > 1e-6 && d - along > 1e-9) {
+      // Substituting the original no-twist cosine into the knee circle gives
+      // this lateral component of the ankle-to-knee vector.
+      const slip: number = lateral * bb / (d - along);
+      const thigh: number = aa - (slip - lateral * d) ** 2;
+      const shank: number = bb - slip * slip;
+      const projection: number = (shank - thigh + planeSquared) / (2 * planeSquared);
+      const radial: number = shank / planeSquared - projection * projection;
+      // Keep the general knee-circle branch at tangencies, at a lateral
+      // constraint outside the circle, and where the two knees tie.
+      if (radial > 1e-12) {
+        const side: number = Math.sign(up) * Math.sqrt(radial);
+        return Math.atan2(projection * fore + side * up, projection * up - side * fore) * 180 / Math.PI;
+      }
+    }
+
     const across: number = Math.sqrt(Math.max(0, aa - along * along));
 
     // The forward axis's part perpendicular to that axis, as a unit. Both

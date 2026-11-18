@@ -22,6 +22,7 @@ import { HumanBound } from "../law/HumanBound";
 import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
 import { supportBalance } from "./supportBalance";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportFloor } from "./prepareSupportFloor";
@@ -111,9 +112,9 @@ export namespace support {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation Each key is the whole-body fit on its contacts, seeded from the key before; a transition key holds both stances' contacts at once; the course between keys is a minimum-jerk blend of each joint on its range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys are solved once and each fixed interval is prepared, then a posture reads its surrounding keys and that interval's actual interpolation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys and their transfer writers are prepared once. Bare support playback dispatches to the interval writer at its ordered contact event, and authored reads select the same writer after clamping their time.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two fits per stance after the first, three for a step, run once at plan time. A query finds its active interval in O(log K) for K ordered keys, keeping the last-equal boundary rule; fixed pairs/common pin/source point prepare once, while current ROM interpolation, achieved-point solve and floor reading remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two fits per stance after the first, three for a step, run once at plan time. Authored queries find an interval in O(log K) for K ordered keys. Bare playback selects the prepared phase once. Fixed pairs, the common pin and the source point prepare once, while current interpolation and floor readings remain.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved keys and contact order define immutable interval geometry; entry-target/source-point observations share only within one schedule generation and settle clears them. Current posture calls forward parent FK/ROM loans to actual contact/floor observations, with every current solve retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns keys and one finite preparation per adjacent interval until release. Intervals retain fixed endpoint metadata and at most one source/target record until settle, without current poses, queried times or borrowed FK/ROM workspaces.
    */
@@ -402,7 +403,30 @@ export namespace support {
           ),
       );
 
-    return supportBalance(context, {
+    /** Carry a support interval after the containing transfer has been selected. */
+    const transfer = (
+      index: number,
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      const a: IKey = keys[index]!;
+      const b: IKey = keys[Math.min(index + 1, keys.length - 1)]!;
+      const span: number = b.seconds - a.seconds;
+      const w: number =
+        span > 0 ? minimumJerk.share((seconds - a.seconds) / span) : 1;
+      if (w === 0) return index === 0 ? entry : a.posture;
+      if (w === 1) return b.posture;
+
+      const posed: IAutoMovieMotionHumanPosture = intervals[index]!.write(
+        w,
+        resolution,
+        projection,
+      );
+      return follow?.(posed, seconds, channels) ?? posed;
+    };
+    const unbalanced: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: keys.slice(1).map((k: IKey): { name: string; share: number } => ({
         name: k.name,
@@ -426,22 +450,31 @@ export namespace support {
           if (keys[mid]!.seconds <= s) k = mid;
           else hi = mid - 1;
         }
-        const a: IKey = keys[k]!;
-        const b: IKey = keys[Math.min(k + 1, keys.length - 1)]!;
-        const span: number = b.seconds - a.seconds;
-        const w: number =
-          span > 0 ? minimumJerk.share((s - a.seconds) / span) : 1;
-        if (w === 0) return k === 0 ? entry : a.posture;
-        if (w === 1) return b.posture;
-
-        // Between keys the root pins one common contact and each held hand
-        // and foot is fitted to where the keys hold it. Floor contacts rest
-        // on their colliders; raised contacts keep their world height,
-        // bounded by floor nonpenetration.
-        const posed: IAutoMovieMotionHumanPosture = intervals[k]!.write(w, resolution, projection);
-        return follow?.(posed, s, _channels) ?? posed;
+        return transfer(k, s, _channels, resolution, projection);
       },
-    });
+    };
+    const planned: IAutoMovieMotionHumanActionPlan = supportBalance(
+      context,
+      unbalanced,
+    );
+    if (
+      planned.posture === unbalanced.posture &&
+      follow === undefined &&
+      keys.every(
+        (key: IKey, i: number): boolean => i === 0 || key.seconds > keys[i - 1]!.seconds,
+      )
+    )
+      HumanPreparedPlayback.attach(planned, body, {
+        mode: "posture",
+        phases: keys.slice(0, -1).map((key: IKey, i: number): HumanPreparedPlayback.IPhase => ({
+          from: key.seconds,
+          to: keys[i + 1]!.seconds,
+          sample: (...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>): HumanPreparedPlayback.ISample => ({
+            posture: transfer(i, ...args),
+          }),
+        })),
+      });
+    return planned;
   }
 
   /** A key posture of the plan. */

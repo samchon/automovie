@@ -297,7 +297,8 @@ export namespace getUp {
       ...context,
       params: { stances },
     });
-    return { ...planned, base: { kind: "standing" } };
+    planned.base = { kind: "standing" };
+    return planned;
   }
   /**
    * Standing as the stand law's quiet stance, the posture every performer

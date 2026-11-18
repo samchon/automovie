@@ -41,6 +41,7 @@ import { climbStairsFeet } from "./climbStairsFeet";
 import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
 import { climbStairsProfile } from "./climbStairsProfile";
+import { climbStairsRocker } from "./climbStairsRocker";
 import { climbStairsWeight } from "./climbStairsWeight";
 
 /** Offset decay time of a cut out of the arrived climb, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
@@ -372,6 +373,7 @@ export namespace climbStairs {
     }
     const footAt: ReturnType<typeof climbStairsFeet> =
       climbStairsFeet(prints, clock, swing);
+    const rock: ReturnType<typeof climbStairsRocker> = climbStairsRocker(body, prints);
     const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis.of(
       stance,
       clock,
@@ -425,16 +427,10 @@ export namespace climbStairs {
           resolveHumanPosture.heading(placed), placed.joints.hips, read());
         const load: number = rightLoad(seconds);
         for (const side of ["left", "right"] as const) {
-          let placement: IAutoMovieMotionHumanFoot.IPlacement = feet[side].placement;
-          const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(placement.rotation);
-          const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "mtp", placement);
-          const pitch: number = walkLeg.heelRise(body, side, hips[side], ball,
-            direction.heading, direction.pitch, walkLeg.ROCKER,
-            walkLeg.dorsal(side === "right" ? load : 1 - load));
-          if (pitch !== direction.pitch) {
-            placement = HumanFoot.pivot(body, side, "mtp", ball, direction.heading, pitch);
-            joints[`${side}Toes`] = [direction.pitch - pitch, 0, 0];
-          }
+          const { placement, flexion }: ReturnType<typeof rock> = rock(
+            side, feet[side].placement, hips[side], walkLeg.dorsal(side === "right" ? load : 1 - load),
+          );
+          if (flexion !== 0) joints[`${side}Toes`] = [flexion, 0, 0];
           limbs[`${side}Leg`] = {
             ...goals[side]({ root, yaw }, placement, feet[side].planted),
             contact: contact[side],

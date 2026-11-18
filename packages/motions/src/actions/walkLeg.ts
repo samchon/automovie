@@ -16,6 +16,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareWalkLegLean } from "./prepareWalkLegLean";
 import { walkLegLow } from "./walkLegLow";
+import { walkRockerReachBoundary } from "./walkRockerReachBoundary";
 
 /**
  * The two-bone geometry of a stepping leg, read without solving it: where the
@@ -249,7 +250,7 @@ export namespace walkLeg {
    * @param heading The fixed foot heading, degrees.
    * @param width The fixed dorsal-room onset, degrees.
    * @param dorsal The ankle's fixed dorsal limit, degrees; the unloaded foot's when absent (`dorsal`).
-   * @returns The heel-rise rule for a world-space hip and asked pitch.
+   * @returns The heel-rise rule for a world-space hip, asked pitch and optional current dorsal limit.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each fixed input, its unit and the varying hip/pitch reader.
    * @evidence contracts/development/implementation.md#principled-implementation Runs rise's folded-room search on roomValue's dorsal room, a pitch whose ankle lies beyond the leg's reach reading no room (`prepareWalkLegLean.bounded`), sharing only the fixed sole pivot and forward direction.
@@ -266,21 +267,24 @@ export namespace walkLeg {
     heading: number,
     width: number,
     dorsal: number = ANKLE_DORSIFLEXION.unloaded,
-  ): (hip: IAutoMovieVector3, pitch: number) => number {
+  ): (hip: IAutoMovieVector3, pitch: number, dorsalAt?: number) => number {
     const at: (degrees: number) => IAutoMovieVector3 =
       HumanFoot.prepareAnkle(body, side, "mtp", pivot, heading);
     const lean: ReturnType<typeof prepareWalkLegLean.bounded> = prepareWalkLegLean.bounded(body, heading);
     const span: number = body.measure.thigh + body.measure.shank;
-    return (hip: IAutoMovieVector3, pitch: number): number => rise(
+    let entry: ReturnType<typeof walkRockerReachBoundary> | undefined;
+    return (hip: IAutoMovieVector3, pitch: number, dorsalAt: number = dorsal): number => rise(
       (degrees: number): number => {
         // The ankle record is the reader's own, read here before its next pitch.
         const shank: number | undefined = lean(hip, at(degrees));
-        return shank === undefined ? -Infinity : roomValue(shank, degrees, dorsal);
+        return shank === undefined ? -Infinity : roomValue(shank, degrees, dorsalAt);
       },
       pitch,
       width,
       true,
       (degrees: number): boolean => Vector3.distance(at(degrees), hip) > span,
+      (low: number, high: number): number | undefined =>
+        (entry ??= walkRockerReachBoundary(at, span))(hip, low, high, REACHED),
     );
   }
 
@@ -329,6 +333,7 @@ export namespace walkLeg {
    *   keeps the asked pitch until the room is none.
    * @param folds Whether the room may dip before it grows as the heel rises.
    * @param beyond The native reach-only reading equivalent to negative infinite room, when available.
+   * @param boundary The native circular reach boundary rounded onto the original bracket lattice, if certified.
    * @returns The pitch, no higher than the asked one.
    */
   export function rise(
@@ -337,6 +342,7 @@ export namespace walkLeg {
     width: number,
     folds: boolean = true,
     beyond?: (degrees: number) => boolean,
+    boundary?: (low: number, high: number) => number | undefined,
   ): number {
     // An asked pitch the leg cannot stand on is first raised to the least
     // rise that brings its ankle within the leg's reach, which is continuous
@@ -346,14 +352,7 @@ export namespace walkLeg {
     if (asked === -Infinity) {
       const unreachable = beyond ?? ((degrees: number): boolean => room(degrees) === -Infinity);
       if (unreachable(-STEEPEST)) return -STEEPEST;
-      let out: number = pitch;
-      let within: number = -STEEPEST;
-      while (out - within > REACHED) {
-        const middle: number = (out + within) / 2;
-        if (unreachable(middle)) out = middle;
-        else within = middle;
-      }
-      pitch = within;
+      pitch = boundary?.(-STEEPEST, pitch) ?? reachBracket(-STEEPEST, pitch, unreachable);
       asked = room(pitch);
     }
     if (asked >= width || pitch <= -STEEPEST) return pitch;
@@ -435,6 +434,16 @@ export namespace walkLeg {
     const share: number =
       width > 0 ? Math.min(1, Math.max(0, (width - asked) / width)) : 1;
     return pitch + (low - pitch) * minimumJerk.share(share);
+  }
+
+  /** Lower endpoint of the original reach bracket for a non-circular or unverified input. */
+  function reachBracket(low: number, high: number, unreachable: (pitch: number) => boolean): number {
+    while (high - low > REACHED) {
+      const middle: number = (high + low) / 2;
+      if (unreachable(middle)) high = middle;
+      else low = middle;
+    }
+    return low;
   }
 
   /** The room left to a stance's ankle before its dorsal limit, degrees, under which a stepping foot's heel begins to rise (provisional): the heel is leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of the way into this rounding under the 18° limit this body keeps, and the rounding is wide enough that the step past the fold is crossed in a stance's few hundredths of a second without a jolt at the knee. */
