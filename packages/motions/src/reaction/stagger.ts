@@ -1,6 +1,10 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -14,6 +18,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { walkReach } from "../actions/walkReach";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -25,6 +30,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 import { StaggerFeet } from "./StaggerFeet";
@@ -139,6 +145,14 @@ import { staggerShift } from "./staggerShift";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, contact-window, foot, gait, target, clock, balance and primitive owners; the steps scale with each body's pendulum, feet and stature.
  */
 export namespace stagger {
+  /** A settled sample lent only to the writer that is evaluating that instant. */
+  interface ILoan {
+    /** Action seconds. */
+    seconds: number;
+
+    /** The foot, pelvis and trunk result at that instant. */
+    solved: ReturnType<StaggerFeet["solve"]>;
+  }
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "stagger";
 
@@ -253,6 +267,11 @@ export namespace stagger {
     const last: () => number = (): number => recovery.steps.at(-1)!.land;
     const feet: StaggerFeet = new StaggerFeet(body, context.entry, recovery, fixed.bend);
     const entryLegs: IAutoMovieMotionHumanPosture["limbs"] = entry.limbs;
+    const landing: Map<staggerRecover.IStep, IAutoMovieHumanLimbReference> = new Map();
+    const latest: staggerRecover.IStep[] = recovery.steps.slice().reverse();
+    const settledEntry: number = feet.settle(0, feet.standing(0)).root.y;
+    const reaction: number = AutoMovieMotionHumanTiming.seconds(staggerBounds.REACTION);
+    const entryFeet: ReturnType<typeof StrikingTarget.feet> = StrikingTarget.feet(context.entry);
 
     // The root's level shift at a second, `balanced` interpolated; the feet
     // settle their steps' ends under the same reader (`StaggerFeet.shifted`).
@@ -273,51 +292,75 @@ export namespace stagger {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       ): IAutoMovieMotionHumanPosture => {
+        if (seconds <= 0) return entry;
         // The root carries the plan-time residual of the displayed centre of
         // mass from the pendulum's course (`balanced`), interpolated, and the
         // pelvis is settled where that puts it, under the trunk's tilt: the
         // legs are fitted to the hips the pose shows.
-        const shift: IAutoMovieVector3 = shiftAt(seconds);
+        const reacting: number = minimumJerk.share(seconds / reaction);
+        const shift: IAutoMovieVector3 = Vector3.scale(shiftAt(seconds), reacting);
         const { feet: scheduled, settled, reached, trunk, ease }: ReturnType<StaggerFeet["solve"]> =
           lent !== undefined && lent.seconds === seconds ? lent.solved : feet.solve(seconds, resolution, shift);
+        const root: IAutoMovieVector3 = reacting === 1 ? settled.root : {
+          ...settled.root,
+          y: settled.root.y + (entry.root.y - settledEntry) * (1 - reacting),
+        };
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+        const toe = (side: typeof walkReach.SIDES[number]): number => {
+          const angle: number = entry.joints[`${side}Toes`]?.[0] ?? 0;
+          return angle + (reached[side].toes - angle) * reacting;
+        };
         for (const side of ["left", "right"] as const) {
-          const key: "leftLeg" | "rightLeg" = side === "left" ? "leftLeg" : "rightLeg";
+          const key: AutoMovieHumanLimb = `${side}Leg`;
 
           // The knee points over the foot's own heading.
           const knee: IAutoMovieVector3 = staggerKnots.kneePole(
             body,
-            settled.root,
+            root,
             settled.yaw,
             side,
             HumanFoot.heading(reached[side].rotation),
           );
 
-          // A foot that has not yet stepped leaves the entry's own leg goal
-          // over the reaction, so the first pose is the entry's: the walk's
-          // stance reader may stand the same foot otherwise (its heel, its
-          // contact point), and the leg would jump at the cut.
+          // Keep the exact foot rocker and its matching toe articulation.
+          // Only the knee pole can blend from the entry without moving the
+          // lowest socket. The fitting branch then follows each landing key.
           const entered: IAutoMovieMotionHumanPosture["limbs"][typeof key] = entryLegs[key];
-          const unstepped: boolean = !recovery.steps.some(
-            (step: staggerRecover.IStep): boolean => step.side === side && step.start < seconds,
+          const step: staggerRecover.IStep | undefined = latest.find(
+            (candidate: staggerRecover.IStep): boolean => candidate.side === side && candidate.start < seconds,
           );
-          limbs[key] =
-            unstepped && ease < 1 && entered?.point !== undefined && entered.rotation !== undefined
-              ? {
-                  point: Vector3.lerp(entered.point, reached[side].ankle, ease),
-                  bend: entered.bend === undefined ? knee : Vector3.lerp(entered.bend, knee, ease),
-                  rotation: Quaternion.slerp(entered.rotation, reached[side].rotation, ease),
-                  planted: true,
-                  contact: entered.contact ?? settled.contacts[side],
-                }
-              : {
-                  point: reached[side].ankle,
-                  bend: knee,
-                  rotation: reached[side].rotation,
-                  ...(scheduled[side].swing === undefined
-                    ? { planted: true, contact: settled.contacts[side] }
-                    : {}),
-                };
+          const bearing: boolean = scheduled[side].swing === undefined;
+          const socket: IAutoMovieVector3 = settled.contacts[side];
+          const proximity: number = walkReach.weight(scheduled[side]);
+          const goal: IAutoMovieHumanLimbGoal = {
+            point: reached[side].ankle,
+            bend: step === undefined && ease < 1 && entered?.bend !== undefined
+              ? Vector3.lerp(entered.bend, knee, ease)
+              : knee,
+            rotation: reached[side].rotation,
+            ...(bearing ? { planted: true } : {}),
+            // Give the landing rocker the same socket on each side of
+            // touch-down. Its contact first follows the incoming ankle, then
+            // bears in the fixed stance frame at the event.
+            ...(proximity === 0 ? {} : { contact: Vector3.scale(socket, proximity) }),
+          };
+          if (reacting < 1 && bearing) {
+            const foot = entryFeet[side];
+            const at: IAutoMovieVector3 = Vector3.lerp(
+              Vector3.add(foot.ankle, Quaternion.rotateVector(foot.rotation, socket)),
+              Vector3.add(goal.point, Quaternion.rotateVector(reached[side].rotation, socket)),
+              reacting,
+            );
+            goal.rotation = Quaternion.slerp(foot.rotation, reached[side].rotation, reacting);
+            goal.point = Vector3.subtract(at, Quaternion.rotateVector(goal.rotation, socket));
+          }
+          const reference: IAutoMovieHumanLimbReference | undefined = step === undefined ? undefined : landing.get(step);
+          if (reference !== undefined && step !== undefined)
+            goal.reference = {
+              ...reference,
+              weight: minimumJerk.share((seconds - step.start) / (step.land - step.start)),
+            };
+          limbs[key] = goal;
         }
         // The trunk tilts about the hips against the fall (`staggerLean`),
         // so the legs stay on their feet.
@@ -325,12 +368,12 @@ export namespace stagger {
           body,
           {
             ...posture,
-            root: settled.root,
+            root,
             yaw: settled.yaw,
             joints: {
               ...posture.joints,
-              leftToes: [reached.left.toes, 0, 0],
-              rightToes: [reached.right.toes, 0, 0],
+              leftToes: [toe("left"), 0, 0],
+              rightToes: [toe("right"), 0, 0],
             },
             limbs,
           },
@@ -400,7 +443,7 @@ export namespace stagger {
     const KNOTS: number = staggerBounds.KNOTS;
     let carried: Record<"left" | "right", number[]> = { left: [], right: [] };
     let balanced: IAutoMovieVector3[] = [];
-    let lent: { seconds: number; solved: ReturnType<StaggerFeet["solve"]> } | undefined;
+    let lent: ILoan | undefined;
     const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(duration, {
@@ -479,6 +522,24 @@ export namespace stagger {
     const second: IAutoMovieVector3[] = residuals();
     balanced = first.map((e: IAutoMovieVector3, i: number): IAutoMovieVector3 => staggerShift(e, second[i]!));
     feet.shifted(shiftAt);
+    // A crossing leg may have two almost equal swivels; use the touchdown
+    // solution through the approach and the ensuing stance. One scoped fit
+    // per landing determines the branch with no previous-frame dependency.
+    for (const step of recovery.steps) {
+      const key: keyof IAutoMovieMotionHumanPosture["limbs"] = `${step.side}Leg`;
+      const postfix: AutoMovieHumanoidBone = `${step.side}LowerLeg`;
+      const wanted: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([postfix, `${step.side}Foot`]);
+      const posture: IAutoMovieMotionHumanPosture = composed.posture(step.land, ["root", "trunk", key]);
+      const solved: ReturnType<typeof resolveHumanPosture.seeded> = resolveHumanPosture.seeded(
+        body,
+        posture,
+        undefined,
+        undefined,
+        undefined,
+        wanted,
+      );
+      landing.set(step, resolveHumanPosture.reference(solved.pose, key));
+    }
     const contacts: IAutoMovieMotionHumanContactWindow[] = staggerContacts(
       recovery,
       duration,

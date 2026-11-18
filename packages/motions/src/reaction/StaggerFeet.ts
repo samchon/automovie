@@ -176,7 +176,7 @@ export class StaggerFeet {
   ): walkReach.IGround {
     const entry: IAutoMovieMotionHumanPosture = this.posture;
     const body: IAutoMovieMotionHumanActionContext["body"] = this.body;
-    const ground: walkReach.IGround = walkReach.ground(
+    return walkReach.ground(
       body,
       shift === undefined ? at.root : { x: at.root.x + shift.x, y: at.root.y, z: at.root.z + shift.z },
       entry.yaw,
@@ -194,20 +194,6 @@ export class StaggerFeet {
       // (`staggerDorsal`).
       staggerDorsal(body, this.recovery.pressure(seconds), feet),
     );
-
-    // The lowering comes in with the reaction from the entry's own height,
-    // so the first pose is the entry's: the entry's legs already reach.
-    const lift: number = (at.root.y - ground.root.y) * (1 - at.ease);
-    return lift === 0
-      ? ground
-      : {
-          ...ground,
-          root: { ...ground.root, y: ground.root.y + lift },
-          hips: {
-            left: { ...ground.hips.left, y: ground.hips.left.y + lift },
-            right: { ...ground.hips.right, y: ground.hips.right.y + lift },
-          },
-        };
   }
 
   /** The standing feet, each at the placement its latest landed step supplied.
