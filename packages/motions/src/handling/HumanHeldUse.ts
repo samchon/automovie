@@ -31,6 +31,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
@@ -127,11 +128,11 @@ export namespace HumanHeldUse {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the key, its inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for, the roll the same chooser takes; the closed hand is the entry's own digits, each phalanx and tip less its radius from the body's colliders, whose depth in the face adds to a roll's miss.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry hand/digit/body geometry precede one private numeric clearance reader and the ordinary current-input use owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry's hand, digits and body colliders, one clearance reader, then the use owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; the region is the act's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The private clearance reader shares only the entry digit coordinates and actual nonholding collider placement it owns. Its purity does not certify the borrowed posture graph as immutable; presented therefore retains current complete source admission rather than preparing a fixed direct base.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK supplies D digit points and collider placement. Direct bone collection removes per-digit map/filter callbacks and a discarded mapped array, retaining lookups before original phalanx/tip math; direct ordered nonholding-map construction omits two full-map arrays. Every roll/refinement/full fit/FK and D clearance query remains; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Digit points and collider query workspace belong only to this synchronous key search. Returned key/judge data retain their actual local tool/contact geometry, without the clearance workspace, fixed base, FK loan, candidate history or external handle.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The clearance reader places the entry's digit points and the body's colliders once for every roll the use search tries.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK supplies the D digit points and the body's collider placement; each roll's clearance costs D distance queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The digit points and collider reader end with the key search; the returned key's judge holds its tool or contact geometry only.
    */
   export function key(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
@@ -252,7 +253,7 @@ export namespace HumanHeldUse {
     const { context, clock } = props;
     const body: IAutoMovieMotionHumanBody = context.body;
     const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
-    const place: ReturnType<typeof HumanGrasp.prepareHand> = HumanGrasp.prepareHand(body, other);
+    const place: ReturnType<typeof HumanGraspHand.prepare> = HumanGraspHand.prepare(body, other);
     const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       props.side,

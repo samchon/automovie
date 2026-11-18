@@ -75,10 +75,10 @@ import { HumanGrip } from "./HumanGrip";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the open hand, why the turns are chosen together, the clearance test and its source, the ranking, the fallback and how both partners agree.
  * @evidence contracts/development/implementation.md#principled-implementation Collision-free grasp candidates ranked by reachability, the grasp planners' practice, on the body's own phalanx and forearm colliders.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The open shape, the joint choice, the ordered closure, the clearance and the colliders as five functions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The open shape, the joint choice, the ordered closure and the colliders as four functions; candidate admission and clearance geometry live in `HumanClaspCandidateFrames` and `HumanClaspClearance`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is trusted without the clearance test; an unclear clasp is ranked by its clearance, not by a tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each original turn/person retains its grasp and stroke fits; each admitted candidate prepares its phalanx segments and forearm geometry once before every original pair distance is queried.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanClaspClearance owns fixed candidate geometry from HumanGrip's capsules and HumanColliders' posed forearm reader; every actual pair keeps its original exact signed distances and ranking.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each turn of each person is fitted once; each admitted candidate places its phalanx segments and forearm once before the pair distances are queried.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanClaspClearance places candidate geometry from HumanGrip's capsules and HumanColliders' posed forearm reader; each pair computes its own signed distances.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanClasp {
@@ -185,13 +185,13 @@ export namespace HumanClasp {
    * @param theirs The partner's hand.
    * @returns Both grips and their clearance.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States both hand inputs, world meeting/pump amplitude and reciprocal result; the namespace gives the reach, posture-band, clearance and subject-order rules.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains every original grasp/stroke fit and the same admitted-band, reciprocal phalanx/forearm clearance and tie-cost ranking of candidate pairs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit and admit each person's turns, prepare only admitted candidate geometry, then evaluate the original pair loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No turn, pump endpoint, band, contact query, subject order or acceptance bound changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each body shares exact operation FK metadata across thirteen independent current-input turn searches, one palm offset and five lazy digit chains. Every grasp/stroke fit retains its full eager observations; reached candidates then output two band frames and admitted candidates seventeen contact frames. Geometry placement is O(A+B), all original O(AB) pair work remains and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Pure internal callbacks do not establish immutable provenance for borrowed posture graphs, so every actual grasp/stroke fit re-admits current source rather than sharing a fixed direct base. Canonical body geometry and each actual admitted pose's segment/forearm readers are shared only for their original synchronous comparisons, never as another goal's fit or distance result.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate geometry/readers and arrays end with the synchronous search; the returned plain chosen reach records retain no reader or search maps.
+   * @evidence contracts/development/common.md#meaningful-documentation States both hand inputs, the world meeting point and pump amplitude, and the reciprocal result; the namespace gives the reach, posture-band, clearance and subject-order rules.
+   * @evidence contracts/development/implementation.md#principled-implementation Each turn is fitted over the clasp and both pump ends; admitted candidates are paired, a pair is clear when no phalanx capsule of either open hand enters the other's forearm collider, and clear pairs rank by the worse arm's miss plus elbow departure with a hundredth-degree-per-degree turn preference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit each person's turns, admit them (`HumanClaspCandidateFrames`), place admitted digit and forearm geometry once each, then rank the pairs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is accepted without the clearance test; with none clear, the largest clearance wins and is reported.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen turn fits per person share one body FK workspace; digit and forearm geometry is placed once per admitted candidate (O(A+B)), and each of the A*B pairs runs two fifteen-segment distance reductions.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A candidate's placed digits and forearm serve every pair it enters; each pair computes its own distances.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate geometry ends with the synchronous search; the returned reach records hold no reader.
    */
   export function choose(
     side: AutoMovieHumanSide,
@@ -254,8 +254,8 @@ export namespace HumanClasp {
       : [mine, theirs];
     const a: IAutoMovieMotionHumanGrasp.IReach[] = fits(one);
     const b: IAutoMovieMotionHumanGrasp.IReach[] = fits(two);
-    const aFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(one.body, side, a);
-    const bFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(two.body, side, b);
+    const aFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(one.body, side, a, REACHED, BANDS);
+    const bFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(two.body, side, b, REACHED, BANDS);
     const aAdmitted: number[] = aFrames.indices;
     const bAdmitted: number[] = bFrames.indices;
     const digitsOne: ReturnType<typeof HumanClaspClearance.prepareDigits> = HumanClaspClearance.prepareDigits(one.body, side);
@@ -300,41 +300,6 @@ export namespace HumanClasp {
       theirs: swapped ? first : second,
       clearance: best!.clear,
     };
-  }
-
-  /**
-   * The least gap from one hand's phalanges to another person's forearm
-   * collider: each phalanx is the segment and radius the closing curl moves
-   * (`HumanGrip.chain`), from its joint to the next, the last to the digit's
-   * tip.
-   *
-   * @param body The hand's owner.
-   * @param bones Their posed bones, world frame.
-   * @param other The other person.
-   * @param others The other person's posed bones, world frame.
-   * @param side The hand, and the other person's forearm on the same side.
-   * @returns Metres, negative inside.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two displayed bone maps, hand/forearm side and signed-metre clearance.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates the original ordered phalanx-capsule versus same-side forearm distances to HumanClaspClearance's shared numerical reduction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forearm reading and one actual digit-segment preparation feed the same reduction used by pair selection.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Actual body capsule geometry, signed distance, segment order and Math.min behavior are unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Places the opposite forearm once for the hand's fifteen changing segment queries, retaining every original exact distance.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only this call's fixed opposite forearm placement is shared among its original actual digit segments.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and releases its fixed geometry readers and segment records on return or throw.
-   */
-  export function clearance(
-    body: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    other: IAutoMovieMotionHumanBody,
-    others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: AutoMovieHumanSide,
-  ): number {
-    const geometry: ReturnType<typeof HumanClaspClearance.forearm> =
-      HumanClaspClearance.forearm(other, others, side);
-    return HumanClaspClearance.between(
-      HumanClaspClearance.digits(body, bones, side), geometry,
-    );
   }
 
   /**

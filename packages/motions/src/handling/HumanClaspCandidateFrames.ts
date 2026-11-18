@@ -10,49 +10,58 @@ import type {
 
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { HumanClasp } from "./HumanClasp";
 import { HumanClaspClearance } from "./HumanClaspClearance";
 
 /**
- * Read only the original clasp candidates' consumed posture and contact frames.
+ * The clasp candidates an arm may take, and the displayed frames their
+ * clearance test reads: of the fits that reach the clasp within `reached`,
+ * those in the lowest upper-arm band they attain; every fit when none
+ * reaches.
  *
- * @param body Unchanged canonical body/rig throughout this synchronous candidate selection.
- * @param side The offered hand and arm whose original posture band is measured.
- * @param reaches Every original complete grasp/stroke fit in authored turn order.
- * @returns Original admitted indices and their fresh observed contact frames; no losing candidate contact map is produced.
+ * @param body The body, unchanged through the search.
+ * @param side The offered hand and its arm.
+ * @param reaches Every turn's grasp-and-stroke fit, in turn order.
+ * @param reached The largest miss that counts as reaching (`HumanClasp.REACHED`), degrees plus millimetres.
+ * @param bands The upper limits of the upper-arm bands, degrees of the upper arm from hanging (`HumanClasp.BANDS`).
+ * @returns The admitted indices into `reaches`, and the lower arm, hand and digit frames of each admitted fit, world metres.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines original reached/lowest-band admission, all-candidate fallback and fresh actual contact frame maps indexed by the original candidate positions.
- * @evidence contracts/development/implementation.md#principled-implementation Retains HumanClasp.REACHED and BANDS, the original upper-arm-from-hanging acos/clipping formula and first band lookup. Candidates with no reached fit keep the original all-indices fallback; otherwise only the original lowest reached band remains.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Scalar reach admission precedes two-bone band observations; admitted candidates alone receive the complete original hand/digit/forearm geometry demand from HumanClaspClearance.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fit, candidate, band limit, fallback, contact segment, pair test or tie rule changes. Every source pose's authored joints still undergo canonical FK admission before observed output is produced.
- * @evidence contracts/development/implementation.md#efficient-algorithms For C original candidates, R reached fits and A admitted fits, band output is 2R frames and contact output is 17A rather than 18C eager combined frames. Band angle evaluates once per reached fit; all original pair work remains. An all-admitted search may add band reads, and speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side and exact supplied poses remain unchanged while one exact FK workspace serves band and contact observations; only identical scalar prerequisites are reused, never a pose result, fit or contact verdict.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Name readers, scalar bands and the exact workspace end at return/throw. Returned indices/maps are owned only by the synchronous clasp pair search and retain no body, reader, candidate array, callback or time history.
+ * @evidence contracts/development/common.md#meaningful-documentation States the admission rule, its fallback, the units of both bounds and the frames returned per admitted index.
+ * @evidence contracts/development/implementation.md#principled-implementation The upper arm's angle from hanging is the angle between the shoulder-to-elbow line and world down, read on the fitted pose; its band is the first Rapid Upper Limb Assessment limit at or above it, past the last band when above all.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Reach admission, then band admission on two bones, then the contact frames of the admitted fits only; the bounds come from the caller so the clasp's constants have one owner.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No band or reach bound of its own; an arm no turn brings within reach keeps every turn, so the clasp still ranks them by clearance.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For C candidates, R reaching and A admitted, two-bone FK runs R times and the seventeen-bone contact FK A times, sharing one FK workspace.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One FK workspace serves every pose of this synchronous search; each pose is resolved on its own.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The workspace and readers end at return; the returned frame maps belong to the caller's pair search.
  */
-export function HumanClaspCandidateFrames(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
-  reaches: readonly IAutoMovieMotionHumanGrasp.IReach[]): {
-    /** Original indices admitted by reach and lowest attained upper-arm band. */
-    indices: number[];
-    /** Actual observed arm/hand/digit frames of those admitted fits only. */
-    bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
-  } {
+export function HumanClaspCandidateFrames(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  reaches: readonly IAutoMovieMotionHumanGrasp.IReach[],
+  reached: number,
+  bands: readonly number[],
+): {
+  /** Indices into `reaches` admitted by reach and by the lowest attained upper-arm band. */
+  indices: number[];
+  /** Lower arm, hand and digit frames of each admitted fit, world metres. */
+  bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
+} {
   const all: number[] = reaches.map((_reach: IAutoMovieMotionHumanGrasp.IReach, index: number): number => index);
-  const reached: number[] = all.filter((index: number): boolean => reaches[index]!.miss <= HumanClasp.REACHED);
+  const within: number[] = all.filter((index: number): boolean => reaches[index]!.miss <= reached);
   const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
   let indices: number[] = all;
-  if (reached.length !== 0) {
+  if (within.length !== 0) {
     const readBand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body,
       new Set<AutoMovieHumanoidBone>([`${side}UpperArm`, `${side}LowerArm`]));
-    const bands: number[] = reached.map((index: number): number => {
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readBand(reaches[index]!.pose, resolution());
+    const band: number[] = within.map((index: number): number => {
+      const frames: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readBand(reaches[index]!.pose, resolution());
       const upper: IAutoMovieVector3 = Vector3.subtract(
-        bones.get(`${side}LowerArm`)!.worldPosition, bones.get(`${side}UpperArm`)!.worldPosition);
+        frames.get(`${side}LowerArm`)!.worldPosition, frames.get(`${side}UpperArm`)!.worldPosition);
       const raised: number = (Math.acos(Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper)))) * 180) / Math.PI;
-      const found: number = HumanClasp.BANDS.findIndex((limit: number): boolean => raised <= limit);
-      return found === -1 ? HumanClasp.BANDS.length : found;
+      const found: number = bands.findIndex((limit: number): boolean => raised <= limit);
+      return found === -1 ? bands.length : found;
     });
-    const lowest: number = Math.min(...bands);
-    indices = reached.filter((_index: number, position: number): boolean => bands[position] === lowest);
+    const lowest: number = Math.min(...band);
+    indices = within.filter((_index: number, position: number): boolean => band[position] === lowest);
   }
   const readContact: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, HumanClaspClearance.bones(side));
   return { indices, bones: new Map(indices.map((index: number): [number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>] =>

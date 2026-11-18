@@ -110,7 +110,6 @@ const files: string[] = [
   "src/handling/HumanGrasp.ts",
   "src/handling/HumanGraspTarget.ts",
   "src/handling/HumanGraspHand.ts",
-  "src/handling/HumanGraspJudgement.ts",
   "src/handling/HumanGraspSearch.ts",
   "src/handling/HumanPrehension.ts",
   "src/handling/HumanGraspUsePreparation.ts",

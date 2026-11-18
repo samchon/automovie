@@ -16,23 +16,24 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { HumanGrip } from "./HumanGrip";
 
 /**
- * Fixed candidate geometry for the reciprocal clearance of clasping hands.
- * Each candidate's actual digit segments and opposite forearm are prepared
- * once before the pair search; each pair still queries their exact distance.
+ * The geometry of the clasp's clearance test (`HumanClasp.choose`): each
+ * candidate hand's phalanx capsules and the partner candidate's forearm
+ * collider, placed once per candidate, and the least signed gap between
+ * them, queried per pair.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the candidate scope, two prepared geometries and unchanged pair judgement.
- * @evidence contracts/development/design.md#principled-representation The body's existing capsule chains give world-metre segment endpoints and radius, while HumanColliders owns the posed forearm's exact shape reader.
- * @evidence contracts/development/design.md#minimal-and-owned-surface digits, forearm and between serve both the choose loop and the existing one-off clearance facade without another numerical distance owner.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is placed per candidate, what is queried per pair and the unit of the gap.
+ * @evidence contracts/development/design.md#principled-representation The body's capsule chains give world-metre segment endpoints and a radius; HumanColliders owns the posed forearm's exact shape reader.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepareDigits, bones, forearm and between serve `HumanClasp.choose` and `HumanClaspCandidateFrames`; no second distance owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No candidate pose, collider, radius or contact bound is guessed or substituted.
  */
 export namespace HumanClaspClearance {
   /**
-   * One actual phalanx capsule of a candidate's displayed hand.
+   * One phalanx capsule of a candidate's displayed hand.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents world-metre segment endpoints and capsule radius.
-   * @evidence contracts/development/design.md#principled-representation Required endpoints and radius represent the same uniform-radius capsule HumanGrip.chain declares, including its documented wider-phalange approximation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface digits produces and between consumes all three fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The actual skeleton and capsule profile determine the data; no solved distance or contact verdict is stored.
+   * @evidence contracts/development/design.md#principled-representation Endpoints and radius represent the uniform-radius capsule HumanGrip.chain declares, including its stated approximation of wider phalanges.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface prepareDigits produces and between consumes all three fields.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The skeleton and capsule profile determine the data; no distance or contact verdict is stored.
    */
   export interface IPhalanx {
     /** Proximal world point, metres. */
@@ -46,34 +47,19 @@ export namespace HumanClaspClearance {
   }
 
   /**
-   * Place a fixed candidate's phalanx segments in original closing order.
+   * Prepare a body's digit capsules for its candidate poses.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reads one unchanged body, displayed bone map and hand and returns their actual world-metre capsule segments.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains HumanGrip's canonical power-grip digit order and capsule geometry; each distal endpoint is the original rigidly placed core tip.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The chain owner supplies geometry and the shared placedDigits adapter places its three observed segments.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing capsule or bone behavior and the existing minimum-radius chain model are unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Five chain readings and fifteen segment placements occur once per candidate rather than once per pair; direct iteration of each genuine three-bone list omits five short-lived forEach closures and fifteen internal callback dispatches without removing a placement.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged candidate pose/body/side determines these segments; the synchronous pair search releases them before any input can change.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fifteen segment records, held only by the current pair search and released with its candidate arrays; no global cache or history exists.
-   */
-  export function digits(body: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: AutoMovieHumanSide,
-  ): readonly IPhalanx[] {
-    return placedDigits(bones, (digit: IAutoMovieMotionHumanGrip.Digit): IAutoMovieCurlChainUntilContact.IChain =>
-      HumanGrip.chain(body, side, digit));
-  }
-
-  /**
-   * Prepare an unchanged body's digit capsules for its actual candidate poses.
+   * @param body The body, unchanged through the search.
+   * @param side The hand.
+   * @returns A reader of a candidate's displayed bones that places its fifteen phalanx segments, world metres, in power-grip closing order.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/profile and hand for one synchronous pair search; each query returns its current displayed world segments with the original capsule radii.
-   * @evidence contracts/development/implementation.md#principled-implementation HumanGrip.chain still owns capsule selection, distal tip and minimum radius. Each digit is admitted lazily in original power-grip order before its first actual placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A five-entry local chain map supplies the same placedDigits numerical owner used by cold digits calls.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No profile capsule, missing-bone behavior, segment order, radius or contact distance changes; changed body/profile geometry requires another producer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Five actual chain/profile readings serve C candidate maps instead of five readings per candidate; all fifteen current segment placements remain per query. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/profile/side establish chain equivalence; no current bone map, segment result or pair verdict is reused.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases at most five fresh chain/name/tip records with its synchronous search. Fresh segment arrays borrow each actual map's joint positions and retain no producer or body; no global history or handle exists.
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed body and hand, the bone input and the segments returned.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanGrip.chain owns capsule selection, distal tip and minimum radius; each segment runs from a phalanx joint to the next, the last to the rigidly placed distal tip.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Five chains read on first use, one placement loop per candidate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing capsule throws in HumanGrip.chain; no thickness is guessed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Five chain readings serve every candidate; each candidate places fifteen segments.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chains depend only on the body and side, which the search holds fixed; segments are placed per candidate.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds at most five chains until the search releases it; no global cache.
    */
   export function prepareDigits(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide):
     (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) => readonly IPhalanx[] {
@@ -91,15 +77,19 @@ export namespace HumanClaspClearance {
   }
 
   /**
-   * Bone frames consumed by clasp digit, forearm and closure geometry.
+   * The bones the clasp's digit, forearm and closure geometry reads: one
+   * side's lower arm, hand and power-grip digit bones.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists one side's lower arm, hand and power-grip digit joints for actual contact/closure FK; posture bands request their separate two-arm observations and ancestors remain the engine's responsibility.
-   * @evidence contracts/development/implementation.md#principled-implementation Lower arm supplies forearm clearance while hand/digit frames place every original closure collider and phalanx; unrelated band-only upper-arm output is unnecessary here.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fresh name set derives digit membership from HumanGrip's existing power-grip owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Omits only unobserved bones, retaining all original clasp geometry and full pose admission before requested FK output.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed seventeen-name assembly has no varying population.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate readbacks and ordered closure use the same required-name owner, without storing any pose or solution.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh name set without retaining body, pose, reader, history or handle.
+   * @param side The hand.
+   * @returns A fresh name set.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bones and their use.
+   * @evidence contracts/development/implementation.md#principled-implementation The lower arm places the forearm collider; the hand and digit frames place every phalanx and closure collider.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Digit membership comes from HumanGrip's power-grip table.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lists only bones the geometry reads; FK still resolves their ancestors.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed seventeen-name set.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Candidate frames and the ordered closure request the same set.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh set and retains nothing.
    */
   export function bones(side: AutoMovieHumanSide): ReadonlySet<AutoMovieHumanoidBone> {
     return new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`,
@@ -107,15 +97,20 @@ export namespace HumanClaspClearance {
   }
 
   /**
-   * Prepare the opposite forearm alone for a candidate pair search.
+   * A candidate's forearm collider, placed for the pair search.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed world-bone map/side and exact segment-distance reader returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The tested subset remains exactly the other person's same-side lower-arm collider, placed by HumanColliders' existing owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One original one-bone subset feeds the shared fixed-geometry reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No shape, radius, empty-profile refusal or query policy changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed forearm placement/shape preparation serves every opposite candidate's fifteen changing segments.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, profile and candidate's forearm frame remain unchanged through this synchronous pair search; distinct forearm candidates get separate readers.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search releases the one-bone subset and lazy distance reader with its candidate arrays; no queried segment or result is retained.
+   * @param body The forearm's owner.
+   * @param bones That person's displayed bones, world frame.
+   * @param side The forearm.
+   * @returns The placed collider's distance reader.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bone input, the side and the reader returned.
+   * @evidence contracts/development/implementation.md#principled-implementation The person's same-side lower-arm collider, placed by HumanColliders.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-bone subset fed to the shared collider reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No shape or radius is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One placement serves every pair the candidate enters.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The candidate's forearm frame is fixed through the search; each candidate gets its own reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader ends with the pair search.
    */
   export function forearm(body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -126,15 +121,19 @@ export namespace HumanClaspClearance {
   }
 
   /**
-   * Query every original phalanx against one original opposite forearm.
+   * The least signed gap from a hand's phalanges to a forearm collider.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States world segment inputs and returned signed clearance in metres.
-   * @evidence contracts/development/implementation.md#principled-implementation The original minimum signed segment-to-forearm distance less each phalanx's own radius, in original segment order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered reduction delegates every exact distance to the original collider owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original segment is queried with unchanged radii, signs, ordering and Math.min behavior; no broad-phase or acceptance bound is added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fifteen actual distance queries remain per ordered candidate pair; only invariant placement and chain preparation have moved out of the pair loop.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared geometry is shared, while each changed segment/forearm combination computes its own clearance.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no input or handle.
+   * @param phalanges The hand's placed phalanx segments.
+   * @param geometry The forearm's distance reader.
+   * @returns Metres, negative inside.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the signed metre result.
+   * @evidence contracts/development/implementation.md#principled-implementation A capsule's gap is its core segment's distance to the collider less its radius; the hand's is the least over its phalanges.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reduction over the segments.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every segment is queried; no broad phase or tolerance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fifteen distance queries per call.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reduction over its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains nothing.
    */
   export function between(phalanges: readonly IPhalanx[],
     geometry: ReturnType<typeof HumanColliders.reading>,
@@ -146,7 +145,7 @@ export namespace HumanClaspClearance {
   }
 }
 
-/** Place every original capsule from its current frames, preserving cold admission order. */
+/** Place every phalanx capsule of the power-grip digits from a candidate's frames, in closing order. */
 function placedDigits(bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   chainAt: (digit: IAutoMovieMotionHumanGrip.Digit) => IAutoMovieCurlChainUntilContact.IChain): readonly HumanClaspClearance.IPhalanx[] {
   const out: HumanClaspClearance.IPhalanx[] = [];
