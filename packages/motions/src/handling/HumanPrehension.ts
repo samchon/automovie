@@ -261,12 +261,16 @@ export namespace HumanPrehension {
               duration: (1 - APPROACH.start) * seconds,
             },
           ];
+    // The hand is oriented by the time the approach unit starts; a direct
+    // reach has no approach unit, so its turn spans the whole transport, as
+    // its one position unit does.
+    const turning: number = setback === 0 ? seconds : APPROACH.start * seconds;
     return {
       duration: seconds,
       wrist: (t: number): IAutoMovieVector3 =>
         superposeMinimumJerk.position(from, units, Math.min(seconds, Math.max(0, t))),
       turn: (t: number): IAutoMovieQuaternion => Quaternion.slerp(
-        rotation.from, rotation.to, minimumJerk.share(t / (APPROACH.start * seconds)),
+        rotation.from, rotation.to, minimumJerk.share(t / turning),
       ),
     };
   }
