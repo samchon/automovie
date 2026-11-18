@@ -19,12 +19,12 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFreedomChoice } from "../posture/HumanFreedomChoice";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingSkill } from "../striking/StrikingSkill";
 import { HumanSword } from "./HumanSword";
+import { HumanSwordTiming } from "./HumanSwordTiming";
 
 /**
  * The parry of blade work: the strong of the blade brought across an
@@ -53,28 +53,33 @@ import { HumanSword } from "./HumanSword";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The attacker's blade is read from the performance's displayed prop, never restated in the parry's parameters.
  */
 export namespace HumanSwordParry {
-  /** Where a parry meets the attacking blade, a share of that blade's length back from its point: its weak (provisional). */
-  export const WEAK: number = 0.25;
+  /** Where a parry meets the attacking blade, a share of that blade's length back from its point: the middle of its foible (`HumanSword.THIRDS`). */
+  export const WEAK: number = HumanSword.THIRDS[0];
 
-  /** The shares of the attacking blade back from its point a parry slides its meeting to, in order, when the arm cannot hold its blade across the weak: the stopped blade stands anywhere along its length, and farther back it stands farther from the defender (provisional). */
-  export const SLIDE: readonly number[] = [WEAK, 0.35, 0.45, 0.55];
+  /** The shares of the attacking blade back from its point a parry slides its meeting to, in order, when the arm cannot hold its blade across the foible: the foible's middle, then the middle's, where the stopped blade stands farther from the defender; its forte is the attacker's own guard (`HumanSword.THIRDS`). */
+  export const SLIDE: readonly number[] = [
+    HumanSword.THIRDS[0],
+    HumanSword.THIRDS[1],
+  ];
 
   /** How far a parrying blade may lean from the line square to the attacker's, degrees, and it turns freely about its own line, so the hand that holds it as it took it can close the parry (provisional). */
   export const LEAN: number = 30;
 
-  /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, and the seconds from the start to the attack's decisive instant (null for a drill). */
+  /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, the seconds from the start to the attack's decisive instant and the seconds the stopped attack stays there before it turns back (null and 0 for a drill). */
   interface IMeet {
     at: IAutoMovieVector3;
     point: IAutoMovieVector3;
     edge: IAutoMovieVector3;
     lead: number | null;
+    stays: number;
   }
 
-  /** Where the parry meets: the drill's line, or the attacker's stopped blade read through the attack's anchor, `weak` of its length back from its point. */
+  /** Where the parry meets: the drill's line, or the attacker's stopped blade read through the attack's anchor, `weak` of its length back from its point; `hand` is the parrying hand's grip in its entry hold, which divides the high lines from the low. */
   const meet = (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
     s: IAutoMovieMotionHumanSword.ISetup,
     weak: number,
+    hand: IAutoMovieVector3,
   ): IMeet => {
     const p: IAutoMovieMotionHumanSwordParry.IParry = context.params;
     const forward: IAutoMovieVector3 = s.world({ out: 0, up: 0, forward: 1 });
@@ -94,6 +99,7 @@ export namespace HumanSwordParry {
         point: { x: 0, y: high ? 1 : -1, z: 0 },
         edge: s.world({ out: Math.sign(out), up: 0, forward: 0 }),
         lead: null,
+        stays: 0,
       };
     }
 
@@ -108,8 +114,17 @@ export namespace HumanSwordParry {
         reason: `${p.against} wields no blade for a parry to meet`,
         fix: "parry the anchor of a cut or a thrust made with a blade, or leave `against` out to drill the parry",
       });
-    const seconds: number =
-      attack.start + (attack.plan.contact ?? attack.plan.duration);
+    const decisive: number = attack.plan.contact ?? attack.plan.duration;
+    const seconds: number = attack.start + decisive;
+
+    // The stopped attack stays where it was met until it turns back.
+    const relax: number | undefined = attack.plan.events.find(
+      (e: { name: string; share: number }): boolean => e.name === "relax",
+    )?.share;
+    const stays: number =
+      relax === undefined
+        ? 0
+        : Math.max(0, relax * attack.plan.duration - decisive);
     const held: IAutoMovieMotionHumanPropReader = context.prop(theirs);
     const tip: IAutoMovieMotionHumanProp["points"][string] | undefined =
       held.prop.points.point;
@@ -140,17 +155,21 @@ export namespace HumanSwordParry {
     );
 
     // The parrying blade crosses the attacker's, point up for a high line
-    // and down for a low one, and sits on the defender's side of it.
+    // and down for a low one, and sits on the defender's side of it; the
+    // high lines are those above the sword hand, as fencing divides them.
     // Of the lines square to the attacker's blade it takes the most upright,
-    // so the hand stays under a high parry and over a low one; an upright
-    // attacking blade is crossed level, across the defender's front.
+    // so the hand stays under a high parry and over a low one; an attacking
+    // blade within the parry's own `LEAN` of upright is crossed level,
+    // across the defender's front.
     const lifted: IAutoMovieVector3 = Vector3.subtract(
       { x: 0, y: 1, z: 0 },
       Vector3.scale(along, along.y),
     );
-    const high: boolean = middle.y >= s.shoulder.y - 0.3 * s.arm;
+    const high: boolean = middle.y >= hand.y;
     const upright: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.length(lifted) < 0.3 ? Vector3.cross(along, forward) : lifted,
+      Vector3.length(lifted) < Math.sin((LEAN * Math.PI) / 180)
+        ? Vector3.cross(along, forward)
+        : lifted,
     );
     const point: IAutoMovieVector3 = Vector3.scale(
       upright,
@@ -166,6 +185,7 @@ export namespace HumanSwordParry {
       point,
       edge: Vector3.scale(normal, -mine),
       lead: seconds - context.start,
+      stays,
     };
   };
 
@@ -175,7 +195,7 @@ export namespace HumanSwordParry {
    * @evidence contracts/development/common.md#meaningful-documentation States what meets what, the instant and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The attacker's displayed blade at the attack's decisive instant gives the meeting point (`WEAK` of its length back from its point, the strong of the parrying blade on the weak of the attacking one); the parrying blade crosses it, upright for a high line and point down for a low one, offset to the defender's side by `HumanSword.GAP`. The parry waits in its entry hold so that its own travel ends on that instant.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Where the blades meet, the closed pose, the timing, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The meeting share, the hold and the retraction times are provisional; a parry that starts too late for its travel keeps its own time and arrives late, never faster than its skill.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The meeting and receiving places are the blades' thirds, the hold is the stopped attack's own stay and every travel one minimum-jerk unit at the cited peak speed; a parry that starts too late for its travel keeps its own time and arrives late, never faster than its skill; the drill's lines and `LEAN` are provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms One read of the attacker's prop frame per plan.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
@@ -188,9 +208,12 @@ export namespace HumanSwordParry {
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
       ): IAutoMovieMotionHumanActionPlan => {
         const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
+        const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          HumanSword.held(context, s.tool.side);
 
-        // The parry receives as near its hilt as the arm allows: the strong
-        // first, then farther up the blade while the wrist is out of reach.
+        // The parry receives as near its hilt as the arm allows: on the
+        // forte's middle first, then the middle's and the foible's while the
+        // wrist is out of reach.
         const grip: IAutoMovieVector3 = HumanHand.offset(
           context.body,
           s.tool.side,
@@ -215,8 +238,7 @@ export namespace HumanSwordParry {
           share: number;
           frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
         } => {
-          for (const more of [0, 0.1, 0.2, 0.3, 0.4, 0.5]) {
-            const share: number = HumanSword.LANDS.parry + more;
+          for (const share of HumanSword.THIRDS) {
             const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = receive(
               meeting,
               share,
@@ -256,7 +278,7 @@ export namespace HumanSwordParry {
         for (const weak of context.params.against === undefined
           ? [WEAK]
           : SLIDE) {
-          const meeting: IMeet = meet(context, s, weak);
+          const meeting: IMeet = meet(context, s, weak, held.point);
           const found: {
             share: number;
             frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
@@ -291,26 +313,21 @@ export namespace HumanSwordParry {
           context.entry.posture,
           `stand closer to the blade to parry, which is met at ${met.at.x.toFixed(2)}, ${met.at.y.toFixed(2)}, ${met.at.z.toFixed(2)} m, or have the attack aim nearer`,
         );
-        const bones: ReturnType<typeof poseBones> = poseBones(
-          context.body,
-          context.entry.pose,
-        );
-        const held: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
-          point: HumanHand.frame(context.body, bones, s.tool.side, "grip")
-            .point,
-          rotation: bones.get(`${s.tool.side}Hand`)!.worldRotation,
-        };
 
         // The parry's own time, then as much waiting in the entry hold as puts
-        // its meeting on the attack's decisive instant.
-        const natural: number = Math.max(
-          0.15,
-          (1.875 *
+        // its meeting on the attack's decisive instant: one minimum-jerk unit
+        // of the travel at the lunge's peak point speed
+        // (`HumanSwordTiming.UNIT`); a parry entered too late keeps that time
+        // and meets late. It holds the meeting while the stopped attack stays
+        // there, and returns as one unit of the way back, slowed by the
+        // recovery skill's factor as an attack's return is.
+        const speed: number = s.skill(HumanSword.SPEED.thrust);
+        const natural: number =
+          (HumanSwordTiming.UNIT *
             Vector3.length(
               Vector3.subtract(met.at, StrikingHeld.point(s.tool, held, back)),
             )) /
-            s.skill(HumanSword.SPEED.thrust),
-        );
+          speed;
         const lead: number = met.lead ?? natural;
         const recovery: number = StrikingSkill.recovery(context.skill);
         return StrikingBlade.plan(context, {
@@ -318,14 +335,18 @@ export namespace HumanSwordParry {
           clock: AutoMovieMotionManner.time(
             AutoMovieMotionClock.phrase({
               prepare: Math.max(0, lead - natural),
-              attack: lead >= 0.1 ? Math.min(lead, natural) : natural,
+              attack: natural,
               hold: HumanBound.least(
                 "hold",
-                context.params.hold ?? 0.15,
+                context.params.hold ?? met.stays,
                 0,
                 "s",
               ),
-              retract: 0.35 * recovery,
+              retract:
+                (recovery *
+                  HumanSwordTiming.UNIT *
+                  HumanSwordTiming.travel(s.tool, closed, held)) /
+                speed,
             }),
             AutoMovieMotionManner.of(context, context.params.manner),
           ),

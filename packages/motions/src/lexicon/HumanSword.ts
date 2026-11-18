@@ -13,6 +13,8 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingAdvance } from "../striking/StrikingAdvance";
 import { StrikingBlade } from "../striking/StrikingBlade";
@@ -69,10 +71,18 @@ export namespace HumanSword {
   /** The blade's turn from its chamber to the cut's contact, degrees (provisional). */
   export const SWING: number = 110;
 
-  /** Where a cut lands, as a share of the held thing's edge from its end by the hand (`StrikingHeld.ITool.span`), and where a parry receives, as a share of the blade's length from the hand (provisional: the centre of percussion and the strong are not measured on the archetypes). A thing that declares no edge lands a cut with its working point. */
+  /**
+   * The middles of a blade's three parts, shares of its length from one
+   * end: the fencing masters' division of the blade into the forte by the
+   * hilt, the middle and the foible by the point (Angelo 1763, The School of
+   * Fencing), the forte parrying and the foible being parried.
+   */
+  export const THIRDS: readonly [number, number, number] = [1 / 6, 1 / 2, 5 / 6];
+
+  /** Where a cut lands, as a share of the held thing's edge from its end by the hand (`StrikingHeld.ITool.span`): the centre of percussion of a uniform bar swung about that end, two thirds of it, where the blow leaves no shock in the hand (`I / (m d)` with `I = m L^2 / 3` and `d = L / 2`); and where a parry first receives, as a share of the blade's length from the hand: the forte's middle (`THIRDS`). A thing that declares no edge lands a cut with its working point. */
   export const LANDS: Readonly<Record<"cut" | "parry", number>> = {
-    cut: 0.7,
-    parry: 0.3,
+    cut: 2 / 3,
+    parry: THIRDS[0],
   };
 
   /** How far a thrusting blade's line may leave the line from the shoulder to the target, degrees, so the hand that holds it as it took it can drive it (provisional). */
@@ -271,6 +281,21 @@ export namespace HumanSword {
   /** The clock of an attack (`HumanSwordTiming.timed`). */
   export const timed: typeof HumanSwordTiming.timed = HumanSwordTiming.timed;
 
+  /** The blade hand's grip frame as the entry pose holds it, world: where a stroke leaves from and returns to. */
+  export const held = (
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      context.body,
+      context.entry.pose,
+    );
+    return {
+      point: HumanHand.frame(context.body, bones, side, "grip").point,
+      rotation: bones.get(`${side}Hand`)!.worldRotation,
+    };
+  };
+
   /** The share of its path an attack runs: all of it, a feint's shown share, or a parried attack's stop. */
   export const stopped = (
     params: IAutoMovieMotionHumanSword.IAttack,
@@ -288,7 +313,7 @@ export namespace HumanSword {
    * Cut along one of the eight lines: the blade's landing part passes through the target at the decisive instant (`stroke`), edge leading. A target beyond the arm with the chosen advance is refused on `target`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, what lands and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` along the held thing's edge, or its working point when it declares no edge) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc.
+   * @evidence contracts/development/implementation.md#principled-implementation The contact pose puts the landing part (`LANDS.cut` along the held thing's edge, or its working point when it declares no edge) on the target with the edge along the travel, the blade's lean back and its turn about the travel chosen by the arm's fit (`HumanSwordLanding`); the stroke is that pose turned back by `SWING` about the axis square to blade and travel, the hilt going from a chamber by the shoulder to the contact on one progress, so the edge leads through the whole arc. A cut is not arrested: the edge passes the target at the peak speed of one minimum-jerk unit, its middle (Flash and Hogan 1985), so the follow-through lasts as long as the attack and carries the edge past the target as far and through as wide a turn as it came.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the contact pose, the chamber and the path, then the shared stroke planner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `SWING`, the leans and turns of the blade at contact and the chamber's place are provisional values named in code and documentation; an unreachable target is refused, never shortened.
    * @evidence contracts/development/implementation.md#efficient-algorithms The landing's fits (`HumanSwordLanding`), ending at the first the arm holds exactly; each posture costs the stroke planner's two elbow searches.
@@ -362,14 +387,23 @@ export namespace HumanSword {
             Quaternion.fromAxisAngle(about, -SWING * (1 - progress)),
             landed.rotation,
           ),
+          // Past the target the edge goes on the way it came, the second
+          // half of the unit mirroring the first.
           point:
             progress <= 1
               ? Vector3.lerp(chamber, landed.point, progress)
               : Vector3.add(
                   landed.point,
-                  Vector3.scale(travel, (progress - 1) * 0.3 * s.arm),
+                  Vector3.scale(
+                    Vector3.subtract(landed.point, chamber),
+                    progress - 1,
+                  ),
                 ),
         });
+        const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame = held(
+          context,
+          s.tool.side,
+        );
         return StrikingBlade.plan(context, {
           tool: s.tool,
           clock: timed(
@@ -377,7 +411,10 @@ export namespace HumanSword {
             ((SWING * Math.PI) / 180) * (s.tool.length - back) +
               Vector3.length(Vector3.subtract(landed.point, chamber)),
             s.skill(SPEED.cut),
-            0.6,
+            1,
+            0,
+            HumanSwordTiming.travel(s.tool, entered, path(0)),
+            HumanSwordTiming.travel(s.tool, path(2), entered),
           ),
           path,
           back,
