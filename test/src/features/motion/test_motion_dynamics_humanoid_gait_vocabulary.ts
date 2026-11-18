@@ -26,7 +26,7 @@ export function test_motion_dynamics_humanoid_gait_vocabulary(): void {
   const names = ["march", "run", "sneak", "sprint", "walk"] as const;
   TestValidator.equals(
     "public vocabulary",
-    Object.keys(HUMANOID_GAITS).sort(),
+    Object.keys(HUMANOID_GAITS).sort((a, b) => a.localeCompare(b, "en")),
     [...names],
   );
   const skeleton = motionHumanBody("m-average").skeleton;

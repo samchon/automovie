@@ -32,7 +32,7 @@ export function test_motion_dynamics_gait_profile_binding(): void {
   const clips = bindProfileGaits(profile, "rig", 4);
   TestValidator.equals(
     "ordinary and prototype names remain own keys",
-    Object.keys(clips).sort(),
+    Object.keys(clips).sort((a, b) => a.localeCompare(b, "en")),
     ["__proto__", "step"],
   );
   TestValidator.predicate(
