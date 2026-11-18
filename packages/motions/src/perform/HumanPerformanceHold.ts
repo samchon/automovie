@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformanceHold,
@@ -48,7 +49,7 @@ export namespace HumanPerformanceHold {
    * @throws {HumanRefusal} If the selected socket chain revisits a prop at the same film second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Points to the reader's documentation and states the in-hand composition.
-   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset. An authored worn or mounted span reads its parent from its first instant, including supplied poses propagated through socket chains.
+   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset. A world-frame read preserves the previous carrier at hand or socket closure. A supplied performer pose can read the authored socket chain at closure while fitting its attached prop.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the carrying grip, seat its offset once, compose any in-hand motion, place by the hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stored offset is never re-derived while held; an in-hand motion is the window's own pure function.
    * @evidence contracts/development/implementation.md#efficient-algorithms Scans each visited prop's grips and does a constant number of map and set operations per socket hop. The offset is memoized on the grip record.
@@ -95,12 +96,14 @@ export namespace HumanPerformanceHold {
     let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     let since: number = -Infinity;
     for (const g of grips) {
-      // Hand closure preserves the previous frame at its instant. An authored
-      // attachment starts on its parent at that instant.
+      // At closure the world frame comes from the previous carrier. A supplied
+      // pose used for aiming can take the authored socket chain at that instant.
       const from: number = g.from;
       if (
         from > seconds ||
-        (from === seconds && g.bone === undefined && g.mount === undefined)
+        (from === seconds &&
+          g.bone === undefined &&
+          (g.mount === undefined || own === undefined))
       )
         continue;
       if (from < seconds) since = Math.max(since, from);

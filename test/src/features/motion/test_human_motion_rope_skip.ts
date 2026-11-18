@@ -350,11 +350,14 @@ export function test_human_motion_rope_skip(): void {
     .positions;
   const slowLanding: readonly number[] = slow(from + 4 + 0.13)!.cord.surface
     .mesh.positions;
+  // The hand-to-hand axis can tilt the crossbar ends around its low point.
+  const slowMidY: number = (slowBottom[4]! + slowBottom[7]!) / 2;
   TestValidator.predicate(
     "a long authored pause leaves the rope overhead before its airborne pass",
     Math.min(overheadHold[4]!, overheadHold[7]!) - radius >
       performer.body.measure.stature &&
-      Math.max(slowBottom[4]!, slowBottom[7]!) < 3 * radius &&
+      Math.abs(slowMidY - pass.mid.y) < radius &&
+      Math.min(slowBottom[4]!, slowBottom[7]!) >= radius - epsilon &&
       Math.min(slowLaunch[5]!, slowLaunch[8]!) > toe + radius &&
       Math.max(slowLanding[5]!, slowLanding[8]!) < heel - radius,
   );

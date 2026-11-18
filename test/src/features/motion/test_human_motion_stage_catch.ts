@@ -45,7 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. A relaunch placed after the catch replaces its tagged flight before closure.
  *
  * The catch plane is the catch contract's documented 0.6 arm lengths
- * ahead of the performer. The emitter sends the ball to that plane in
+ * ahead of the performer's entry pelvis. The emitter sends the ball to that plane in
  * 0.6 s and authors vertical speed so it returns to its release height
  * there. Trajectory and boundary parity use the campaign's 1 µm position
  * bound. The palm meets the ball's radius within the campaign's 2 mm
@@ -75,6 +75,7 @@ export function test_human_motion_stage_catch(): void {
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const heldPoint: number = 0.6 * arm;
   const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const initialRoot: IAutoMovieVector3 = stand.posture(body, still, 180).root;
   const rotation: IAutoMovieQuaternion = Quaternion.identity();
   const ball: IAutoMovieMotionHumanProp = {
     subject: launch.prop,
@@ -123,7 +124,6 @@ export function test_human_motion_stage_catch(): void {
       ball: launch.prop,
       hands: "one",
     });
-    if (cut) catcher.until({ event: "prepare" });
     return new HumanPerformance({
       seed: "staged-foam-catch",
       laws: [release, stageCatch],
@@ -139,7 +139,11 @@ export function test_human_motion_stage_catch(): void {
         {
           subject: "catcher",
           body,
-          at: { x: 0, y: 0, z: expected.z + heldPoint },
+          at: {
+            x: -initialRoot.x,
+            y: 0,
+            z: expected.z + heldPoint - initialRoot.z,
+          },
           yaw: 180,
           proficiency: { level: "trained" },
         },
@@ -161,7 +165,7 @@ export function test_human_motion_stage_catch(): void {
           { seconds: 2 },
           "foam-release",
         ).node,
-        catcher.node,
+        (cut ? catcher.until({ event: "prepare" }) : catcher).node,
         ...(redirect
           ? [
               HumanChain.subject("redirector").registered("releaseFoamBall", {
