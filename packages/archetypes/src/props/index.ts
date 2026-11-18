@@ -21,3 +21,4 @@ export * from "./createTray";
 export * from "./createUmbrella";
 export * from "./createVessel";
 export * from "./createWearable";
+export * from "./createZipperPouch";

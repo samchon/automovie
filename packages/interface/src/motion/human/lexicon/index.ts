@@ -55,6 +55,7 @@ export type { IAutoMovieMotionHumanLexiconWeaponMeleeParams } from "./IAutoMovie
 export type { IAutoMovieMotionHumanMountRider } from "./IAutoMovieMotionHumanMountRider";
 export type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursuit";
 export type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
+export type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
 export type { IAutoMovieMotionHumanSocial } from "./IAutoMovieMotionHumanSocial";
 export type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 export type { IAutoMovieMotionHumanSwordGuard } from "./IAutoMovieMotionHumanSwordGuard";

@@ -1,0 +1,297 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanDigit,
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanZip,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { operateDrive } from "../affordance/operateDrive";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { poseBones } from "../posture/poseBones";
+import { manipulateFacing } from "./manipulateFacing";
+import { manipulateShape } from "./manipulateShape";
+
+/** A sampled fingertip contact within one planned hand shape. */
+interface IDigitGoal {
+  digit: "thumb" | "index";
+  at: (seconds: number) => IAutoMovieMotionHumanOperateDrive.IPlace;
+}
+
+/**
+ * Brace a supported pouch and pinch its slider tab through a straight stroke.
+ *
+ * YKK's usage guidance calls for a straight pull along the zipper chain and
+ * bringing opposing elements together for a bag closure
+ * (https://lyncs.ykkfastening.com/shop/pages/about_products_09.aspx).
+ * The flat modeled brace anchors the casing. The model's coupled lips, the
+ * working fingertips and the retained travel follow one authored stroke.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the contacts, mechanism, source and settled effect.
+ * @evidence contracts/development/design.md#principled-representation Uses one bounded slider and three digit goals on two arms, with lip coupling owned by the model.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Uses existing contact, arm, clock and articulation contracts.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Requires geometry-bearing followers and opposing live tab contacts before planning.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the slider's posed thumb point and rigid offset to its opposing index face, and shares stroke progress with the drive.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits contacts and stroke endpoints, fits a common wrist for the pinch, then composes brace and working hands.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses invalid bindings, contact planes and travel before returning a plan.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Requires one posed tab read per sample; fitting uses the shared arm and digit solvers.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both working digits and the wrist reuse the same tab reader and clock.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A plan holds two arm trajectories and the existing drive reader, and acquires no external resources.
+ */
+export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
+  name: "zip",
+  interrupts: { any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }] },
+  plan,
+};
+
+/** Admit a single independent slider carrying the two opposing tab faces. */
+function plan(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
+): IAutoMovieMotionHumanActionPlan {
+  const p: IAutoMovieMotionHumanZip = context.params;
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(p.pouch);
+  const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
+  const sites: readonly IAutoMovieAffordance[] = model.affordances ?? [];
+  const site = (id: string): IAutoMovieAffordance | undefined =>
+    sites.find((item: IAutoMovieAffordance): boolean => item.id === id);
+  const thumb: IAutoMovieAffordance | undefined = site(p.thumb);
+  const index: IAutoMovieAffordance | undefined = site(p.index);
+  const brace: IAutoMovieAffordance | undefined = site(p.brace);
+  const slider: IAutoMovieAffordance | undefined =
+    thumb?.rides === undefined ? undefined : site(thumb.rides);
+  if (
+    model.fixed !== true || model.worn !== undefined ||
+    model.motion !== undefined || model.mounted !== undefined ||
+    model.soft !== undefined || model.articulate === undefined ||
+    thumb?.kind !== "surface" || index?.kind !== "surface" ||
+    thumb.id === index.id || thumb.follows !== undefined ||
+    index.follows !== undefined || brace?.kind !== "surface" ||
+    brace.rides !== undefined || brace.follows !== undefined ||
+    slider?.kind !== "slider" || index.rides !== slider.id ||
+    slider.rides !== undefined || slider.follows !== undefined ||
+    (slider.parts?.length ?? 0) === 0 ||
+    !sites.some((item: IAutoMovieAffordance): boolean =>
+      item.kind === "hinge" && item.follows?.id === slider.id &&
+      (item.parts?.length ?? 0) > 0)
+  )
+    throw refusal(p.pouch, "a fixed pouch needs an independent tab slider, opposing tab sites, coupled lip geometry and a stationary brace");
+  if (!Number.isFinite(p.travel) || p.travel === 0 || !Number.isFinite(p.seconds) || p.seconds <= 0)
+    throw refusal(p.pouch, "the zipper needs a nonzero finite travel and a positive finite stroke duration");
+
+  const frame: IAutoMovieRigidTransform = reader.frame(context.start);
+  const top: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, thumb);
+  const bottom: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, index);
+  const support: IAutoMovieMotionHumanOperateDrive.IPlace = place(frame, brace);
+  const gap: IAutoMovieVector3 = Vector3.subtract(top.point, bottom.point);
+  const gapLength: number = Vector3.length(gap);
+  if (
+    !(gapLength > 0) ||
+    Vector3.dot(gap, top.normal) < 0.99 * gapLength ||
+    Vector3.dot(gap, bottom.normal) > -0.99 * gapLength
+  )
+    throw refusal(p.pouch, "the tab's thumb and index sites must face out from opposite sides");
+
+  const tab: IAutoMovieMotionHumanOperateDrive.IPart | undefined = operateDrive.part(
+    context, { kind: "prop", subject: p.pouch, point: p.thumb }, p.travel, "slider",
+  );
+  if (tab === undefined)
+    throw refusal(p.pouch, "the thumb site does not ride the tab slider");
+  const finish: number = tab.base + tab.amount;
+  if (!(finish >= -(slider.reverse ?? 0) && finish <= (slider.travel ?? 0)))
+    throw refusal(p.pouch, "the requested travel passes a zipper stop");
+  const first: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(0);
+  const last: IAutoMovieMotionHumanOperateDrive.IPlace = tab.place(1);
+
+  const side: AutoMovieHumanSide = p.side ?? "right";
+  const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
+  const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const bones: ReturnType<typeof poseBones> = poseBones(context.body, context.entry.pose);
+  const motion: number = Math.max(
+    Vector3.length(Vector3.subtract(first.point, bones.get(`${side}Hand`)!.worldPosition)),
+    Vector3.length(Vector3.subtract(last.point, bones.get(`${side}Hand`)!.worldPosition)),
+    Vector3.length(Vector3.subtract(support.point, bones.get(`${other}Hand`)!.worldPosition)),
+  );
+  const tempo: number = context.tempo ?? 1;
+  const transport: number = tempo * AutoMovieMotionHumanTiming.transport(motion);
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
+    prepare: transport, attack: tempo * p.seconds, retract: transport,
+  });
+
+  // The index contact maintains its authored offset on a purely translating tab.
+  const working = (seconds: number): IAutoMovieMotionHumanOperateDrive.IPlace =>
+    tab.place(clock.progress("strokeStart", "strokeEnd", seconds));
+  const opposing = (seconds: number): IAutoMovieMotionHumanOperateDrive.IPlace => ({
+    point: Vector3.subtract(working(seconds).point, gap),
+    normal: bottom.normal,
+  });
+  const hand: IAutoMovieQuaternion = pinchRotation(context, side, gap, first.point);
+  const braceTurn: IAutoMovieQuaternion = manipulateFacing(
+    posture, [{ side: other, site: support.point, normal: support.normal }], other,
+  );
+  const arms: IAutoMovieMotionHumanArmPlanned.ITogether = AutoMovieMotionHumanArm.together();
+  const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+    base: AutoMovieMotionHumanBase.under(context, clock.duration),
+    clock,
+    primitives: [
+      ...fingers(context, clock, side, hand, [
+        { digit: "thumb", at: working },
+        { digit: "index", at: opposing },
+      ], bones.get(`${side}UpperArm`)!.worldPosition, arms),
+      ...fingers(context, clock, other, braceTurn, [
+        { digit: "index", at: () => support },
+      ], bones.get(`${other}UpperArm`)!.worldPosition, arms),
+    ],
+    contact: "strokeEnd",
+  });
+  return {
+    ...composed,
+    hands: [side, other],
+    drives: [operateDrive.drive(tab, clock)],
+    contacts: [
+      ...composed.contacts,
+      {
+        part: `${other}Hand`,
+        kind: "bear",
+        region: other === "left" ? "indexTipLeft" : "indexTipRight",
+        load: 0,
+        from: clock.at("strokeStart") / clock.duration,
+        to: clock.at("strokeEnd") / clock.duration,
+        support: { kind: "prop", subject: p.pouch },
+      },
+    ],
+  };
+}
+
+/** Align the working hand's curled thumb-to-index separation with the physical tab. */
+function pinchRotation(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
+  side: AutoMovieHumanSide,
+  gap: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+): IAutoMovieQuaternion {
+  const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+  const thumb: IAutoMovieMotionHumanOperateDrive.IPlace = HumanHand.offset(body, side, "thumbTip", "fist");
+  const index: IAutoMovieMotionHumanOperateDrive.IPlace = HumanHand.offset(body, side, "indexTip", "fist");
+  const normal: IAutoMovieVector3 = Vector3.subtract(thumb.point, index.point);
+  const reach: IAutoMovieVector3 = Vector3.subtract(target, context.entry.posture.root);
+  const forward: IAutoMovieVector3 =
+    Vector3.length(Vector3.cross(gap, reach)) > 1e-8
+      ? reach
+      : Vector3.length(Vector3.cross(gap, { x: 0, y: 0, z: 1 })) > 1e-8
+        ? { x: 0, y: 0, z: 1 }
+        : { x: 1, y: 0, z: 0 };
+  const along: IAutoMovieVector3 = { x: side === "left" ? 1 : -1, y: 0, z: 0 };
+  if (Vector3.length(Vector3.cross(normal, along)) < 1e-8)
+    return HumanHand.rotation(side, { fingers: forward, palm: Vector3.scale(gap, -1) });
+  return HumanHand.align({ normal, forward: along }, { normal: gap, forward });
+}
+
+/** Give one hand a wrist trajectory and the sampled fingertip goals it serves. */
+function fingers(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
+  clock: IAutoMovieMotionClock,
+  side: AutoMovieHumanSide,
+  rotation: IAutoMovieQuaternion,
+  goals: readonly IDigitGoal[],
+  shoulder: IAutoMovieVector3,
+  arms: IAutoMovieMotionHumanArmPlanned.ITogether,
+): readonly IAutoMovieMotionHumanPrimitive[] {
+  const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+  const pinch: boolean = goals.length === 2;
+  const offset = (goal: IDigitGoal): IAutoMovieVector3 =>
+    HumanHand.offset(body, side, `${goal.digit}Tip`, pinch ? "fist" : "flat").point;
+  const contact: IAutoMovieVector3 = pinch
+    ? Vector3.lerp(offset(goals[0]!), offset(goals[1]!), 0.5)
+    : offset(goals[0]!);
+  const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, context.entry.posture, side, 0.1);
+  const ready: number = clock.at("strokeStart");
+  const done: number = clock.at("strokeEnd");
+  const point = (seconds: number): IAutoMovieVector3 => {
+    const first: IAutoMovieVector3 = goals[0]!.at(seconds).point;
+    const middle: IAutoMovieVector3 = pinch
+      ? Vector3.lerp(first, goals[1]!.at(seconds).point, 0.5)
+      : first;
+    return Vector3.subtract(middle, lever);
+  };
+  // Over a straight stroke the shoulder-to-wrist distance is bounded by
+  // its endpoint distances for this fixed standing contact.
+  for (const seconds of [ready, done])
+    if (Vector3.length(Vector3.subtract(point(seconds), shoulder)) > body.measure.upperArm + body.measure.forearm)
+      throw refusal(context.params.pouch, "the tab stroke or brace is beyond the arm's reach");
+  const weight = (seconds: number): number => clock.envelope(["start", "ready"], ["relax", "end"], seconds);
+  const shape: ReturnType<typeof HumanHand.shape> = pinch
+    ? HumanHand.shape(side, "fist")
+    : manipulateShape(side, "index");
+  return [
+    AutoMovieMotionHumanArm.carried({
+      body, side, together: arms, from: 0, to: clock.duration,
+      span: { start: 0, ready, relax: done, end: clock.duration },
+      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+      disc: 0, weight,
+      goal: (_posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieHumanLimbGoal => ({
+        point: point(seconds),
+        rotation, contact, bend,
+      }),
+    }),
+    {
+      from: 0, to: clock.duration, channels: [`${side}Hand`],
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+        const share: number = weight(seconds);
+        for (const bone of Object.keys(shape) as AutoMovieHumanoidBone[])
+          joints[bone] = blendHumanJoint(body, bone, joints[bone] ?? [0, 0, 0], shape[bone]!, share);
+        if (seconds < ready || seconds > done) return { ...posture, joints };
+
+        const digits: NonNullable<IAutoMovieMotionHumanPosture["digits"]> = { ...posture.digits };
+        for (const goal of goals) {
+          const key: AutoMovieHumanDigit = `${side}${goal.digit === "thumb" ? "Thumb" : "Index"}`;
+          const sample: IAutoMovieMotionHumanOperateDrive.IPlace = goal.at(seconds);
+          digits[key] = { point: sample.point, normal: sample.normal, surface: "tip" };
+        }
+        return { ...posture, joints, digits };
+      },
+    },
+  ];
+}
+
+/** Convert a stationary affordance into a fingertip point and outward normal. */
+function place(
+  frame: IAutoMovieRigidTransform,
+  affordance: IAutoMovieAffordance,
+): IAutoMovieMotionHumanOperateDrive.IPlace {
+  return {
+    point: Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, affordance.frame.translation)),
+    normal: Quaternion.rotateVector(Quaternion.multiply(frame.rotation, affordance.frame.rotation), { x: 0, y: 1, z: 0 }),
+  };
+}
+
+/** State which pouch needs corrected model binding or travel. */
+function refusal(subject: string, reason: string): HumanRefusal {
+  return new HumanRefusal({
+    kind: "affordance", axis: "pouch", value: subject, reason,
+    fix: "stage a fixed articulated pouch with a tab and brace, and request travel within its stops",
+  });
+}

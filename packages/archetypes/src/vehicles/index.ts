@@ -15,4 +15,5 @@ export * from "./driveCar";
 export * from "./rideBicycle";
 export * from "./rideMotorcycle";
 export * from "./rideWheelchair";
+export * from "./wheelchairHandrimFrame";
 export * from "./rowBoat";

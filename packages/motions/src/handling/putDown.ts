@@ -12,7 +12,6 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrehension,
   IAutoMovieMotionHumanPutDown,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
@@ -34,6 +33,7 @@ import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
 import { putDownTarget } from "./putDownTarget";
+import { putDownTravel } from "./putDownTravel";
 
 /**
  * Setting a held prop down at a place and letting go.
@@ -93,11 +93,13 @@ export namespace putDown {
    * Plan a put down.
    *
    * @param context The action's context.
+   * @param aperture Offset from the seat to the opening, world metres, when the registered aperture law shares this planner.
    * @returns The plan.
    * @throws {Error} When the placing frame lies beyond the arm's reach.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
+    aperture?: IAutoMovieVector3,
   ): IAutoMovieMotionHumanActionPlan {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const body: IAutoMovieMotionHumanBody = context.body;
@@ -258,6 +260,18 @@ export namespace putDown {
         ? undefined
         : StrikingHeld.goal(context, tool, frame, 0, bend);
     pickUp.reachable(context, side, place);
+    const mouth: IAutoMovieVector3 | undefined =
+      aperture === undefined ? undefined : Vector3.add(place, aperture);
+    if (mouth !== undefined) pickUp.reachable(context, side, mouth);
+    if (aperture !== undefined && tool !== undefined)
+      StrikingRoll.reachable(
+        context,
+        tool,
+        { ...frame, point: Vector3.add(frame.point, aperture) },
+        0,
+        held,
+        "take the prop by a grasp that aligns with the aperture",
+      );
 
     // Timing: carry down, open, return.
     const hanging: IAutoMovieMotionHumanPosture["limbs"] = { ...held.limbs };
@@ -266,38 +280,17 @@ export namespace putDown {
       body,
       resolveHumanPosture(body, { ...held, limbs: hanging }),
     ).get(`${side}Hand`)!;
-    const down: number = HumanPrehension.duration(
-      context.skill,
-      context.random("place"),
-      Vector3.length(Vector3.subtract(place, hand.worldPosition)),
-      0,
+    const travel: putDownTravel.ITravel = putDownTravel(
+      context,
+      { position: hand.worldPosition, rotation: hand.worldRotation },
+      { position: place, rotation },
+      { position: home.worldPosition, rotation: home.worldRotation },
+      SETBACK,
+      mouth,
     );
-    const back: number = HumanPrehension.nominal(
-      Vector3.length(Vector3.subtract(home.worldPosition, place)),
-      0,
-    );
+    const down: number = travel.carry.duration;
+    const back: number = travel.retreat.duration;
     const duration: number = down + OPEN + back;
-    const carry: IAutoMovieMotionHumanPrehension.ITransport =
-      HumanPrehension.transport(
-        hand.worldPosition,
-        place,
-        { x: 0, y: -1, z: 0 },
-        SETBACK,
-        { from: hand.worldRotation, to: rotation },
-        down,
-      );
-
-    // The return is a placing transport played backwards: it leaves straight
-    // up for the setback and ends at rest where the arm hangs.
-    const retreat: IAutoMovieMotionHumanPrehension.ITransport =
-      HumanPrehension.transport(
-        home.worldPosition,
-        place,
-        { x: 0, y: -1, z: 0 },
-        SETBACK,
-        { from: home.worldRotation, to: rotation },
-        back,
-      );
     const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,
       side,
@@ -316,6 +309,9 @@ export namespace putDown {
     return {
       duration,
       events: [
+        ...(travel.aperture === undefined
+          ? []
+          : [{ name: "aperture", share: travel.aperture / duration }]),
         { name: "placed", share: down / duration },
         { name: "release", share: (down + OPEN) / duration },
       ],
@@ -372,8 +368,8 @@ export namespace putDown {
         let turned: IAutoMovieQuaternion;
         let digits: IAutoMovieMotionHumanPosture["joints"];
         if (t <= down) {
-          wrist = carry.wrist(t);
-          turned = carry.turn(t);
+          wrist = travel.carry.wrist(t);
+          turned = travel.carry.turn(t);
           digits = closed;
         } else if (t <= down + OPEN) {
           wrist = place;
@@ -385,8 +381,8 @@ export namespace putDown {
           );
         } else {
           const r: number = t - down - OPEN;
-          wrist = retreat.wrist(back - r);
-          turned = retreat.turn(back - r);
+          wrist = travel.retreat.wrist(back - r);
+          turned = travel.retreat.turn(back - r);
           digits = HumanPrehension.shape(
             { entry: flat, open: relaxed, closed: relaxed },
             1,
