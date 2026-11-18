@@ -76,17 +76,31 @@ export namespace HumanInteractionMeshStep {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Regularization is a rounding scale, and the nonlinear acceptance remains the caller's.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each iteration is linear in the nonzero entries of the terms plus the Cartesian dimension.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The diagonal and row values are fixed at that iterate and serve every matrix-vector product.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses five size-bounded vectors and retains only the returned step.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The Cartesian vectors and packed row offsets, columns, derivatives and curvatures belong to this solve. Only the returned step survives.
    */
   export function of(size: number, rows: readonly IRow[], background: number): Float64Array {
     const residual: Float64Array = new Float64Array(size);
     const diagonal: Float64Array = new Float64Array(size);
-    for (const row of rows)
-      for (const [i, index] of row.index.entries()) {
-        const d: number = row.coef[i]!;
-        residual[index]! -= row.slope * d;
-        diagonal[index]! += row.curvature * d * d;
+    // Pack this iterate's row derivatives in the order of both Jacobian
+    // products. Every conjugate direction uses the same sparse structure.
+    const offsets: Uint32Array = new Uint32Array(rows.length + 1);
+    for (let r: number = 0; r < rows.length; r++) offsets[r + 1] = offsets[r]! + rows[r]!.index.length;
+    const columns: Uint32Array = new Uint32Array(offsets[rows.length]!);
+    const derivatives: Float64Array = new Float64Array(columns.length);
+    const curvatures: Float64Array = new Float64Array(rows.length);
+    for (let r: number = 0; r < rows.length; r++) {
+      const row: IRow = rows[r]!;
+      curvatures[r] = row.curvature;
+      for (let i: number = 0; i < row.index.length; i++) {
+        const column: number = row.index[i]!;
+        const derivative: number = row.coef[i]!;
+        const entry: number = offsets[r]! + i;
+        columns[entry] = column;
+        derivatives[entry] = derivative;
+        residual[column]! -= row.slope * derivative;
+        diagonal[column]! += row.curvature * derivative * derivative;
       }
+    }
     const result: Float64Array = new Float64Array(size);
     const direction: Float64Array = new Float64Array(size);
     const product: Float64Array = new Float64Array(size);
@@ -103,11 +117,13 @@ export namespace HumanInteractionMeshStep {
     const limit: number = Number.EPSILON * prior;
     for (let iteration: number = 0; iteration < size && prior > limit; iteration++) {
       for (let i: number = 0; i < size; i++) product[i] = shift * direction[i]!;
-      for (const row of rows) {
+      for (let r: number = 0; r < rows.length; r++) {
+        const begin: number = offsets[r]!;
+        const end: number = offsets[r + 1]!;
         let scalar: number = 0;
-        for (let i: number = 0; i < row.index.length; i++) scalar += row.coef[i]! * direction[row.index[i]!]!;
-        scalar *= row.curvature;
-        for (let i: number = 0; i < row.index.length; i++) product[row.index[i]!]! += scalar * row.coef[i]!;
+        for (let i: number = begin; i < end; i++) scalar += derivatives[i]! * direction[columns[i]!]!;
+        scalar *= curvatures[r]!;
+        for (let i: number = begin; i < end; i++) product[columns[i]!]! += scalar * derivatives[i]!;
       }
       const projected: number = dot(direction, product);
       if (!(projected > 0)) break;
