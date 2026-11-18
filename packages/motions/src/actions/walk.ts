@@ -111,7 +111,7 @@ export namespace walk {
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
-   * `LONGEST_STEP` hip heights, 40 % of the stride in swing, a mid-swing
+   * `longestStep()` hip heights, 40 % of the stride in swing, a mid-swing
    * lift of `LIFT` hip heights, and arms swinging `SHOULDER` degrees about
    * the shoulder with the elbow bent `ELBOW` and swinging `ELBOW_SWING` about
    * it.
@@ -119,15 +119,32 @@ export namespace walk {
   export const walking: (froude: number) => IAutoMovieMotionHumanWalkGait = (froude: number): IAutoMovieMotionHumanWalkGait => ({
     froude,
     step: (fr: number): number =>
-      Math.min(LONGEST_STEP, 1.2 * Math.sqrt(Math.sqrt(fr))),
+      Math.min(longestStep(), 1.2 * Math.sqrt(Math.sqrt(fr))),
     swing: 0.8,
     lift: LIFT,
     arms: { shoulder: SHOULDER, elbow: ELBOW, swing: ELBOW_SWING },
     lean: LEAN,
   });
 
-  /** The longest walking step, hip heights (provisional: the fast-walking step taken to keep the trailing hip's extension at toe-off inside its range, about 0.8 m at 1.75 m stature; no measured derivation was located). */
-  export const LONGEST_STEP: number = 0.85;
+  /** The hip's flexion at initial contact, degrees: about 20° (Perry and Burnfield's normal sagittal hip kinematics, read through Perry-based summaries; reported from 20 to 30°, 20 the most consistent). */
+  export const CONTACT_FLEXION: number = 20;
+
+  /**
+   * The longest walking step, hip heights: the trailing leg at the thigh's
+   * largest extension (`walkReach.EXTENSION`, the hip's range less its
+   * margin) and the leading leg at its flexion at initial contact
+   * (`CONTACT_FLEXION`), both straight from one hip over the floor, put the
+   * ankles `sin(EXTENSION) + sin(CONTACT_FLEXION)` hip heights apart; a
+   * longer step would ask the trailing hip past its range at toe-off.
+   *
+   * @returns Hip heights, about 0.81.
+   */
+  export function longestStep(): number {
+    return (
+      Math.sin((walkReach.EXTENSION * Math.PI) / 180) +
+      Math.sin((CONTACT_FLEXION * Math.PI) / 180)
+    );
+  }
 
   /** The ankle's mid-swing lift above the line between its footprints, hip heights (provisional, no measured ankle lift was read: about 6.5 cm at a 0.93 m hip; the toe's own clearance is bounded separately, `walkFoot.CLEARANCE`). */
   export const LIFT: number = 0.07;

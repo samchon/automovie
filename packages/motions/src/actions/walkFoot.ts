@@ -20,7 +20,7 @@ import { HumanFoot } from "../posture/HumanFoot";
  * footprint and its swing between two reached stances.
  *
  * In stance a foot rolls on its heel from 15° toes-up to flat over 12 % of
- * the stance and, from 60 % of it, on its ball to its push pitch at toe-off
+ * the stance and, over its last `PUSH_SHARE` (half, from the heel's rise in terminal stance), on its ball to its push pitch at toe-off
  * (provisional angles inside the ranges of Perry and Burnfield's rockers), the
  * toes extending at the ball by the same angle so they stay flat on the floor.
  * The forefoot rocker starts at rest and ends still turning (`LEAVE`), the
@@ -322,8 +322,8 @@ export namespace walkFoot {
   /** The share of a stance its heel rocker takes (provisional; loading response is the first 10 to 12 % of the cycle, Perry and Burnfield). */
   const HEEL_SHARE: number = 0.12;
 
-  /** The share of a stance the forefoot rocker takes, from the heel's rise to toe-off: its last 40 %, the rise beginning at 60 % of the stance (provisional angles inside the ranges of Perry and Burnfield's rockers, as the namespace states). */
-  const PUSH_SHARE: number = 0.4;
+  /** The share of a stance the forefoot rocker takes, from the heel's rise to toe-off: in Perry's phases the heel rises as terminal stance begins, at 30 % of the gait cycle, and the toes leave at 60 %, the end of pre-swing, so the rocker takes `(60 - 30) / 60` of the stance (Perry and Burnfield, Gait Analysis, phases of gait, read through Perry-based terminology summaries). */
+  const PUSH_SHARE: number = (60 - 30) / 60;
 
   /**
    * The least clearance of a swinging foot's toe and heel at mid-swing,

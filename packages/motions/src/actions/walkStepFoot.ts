@@ -25,8 +25,8 @@ export namespace walkStepFoot {
   /** The toe-off pitch of a straight step, degrees toes-down: the toes' joints are extended about 55° at the end of pre-swing, the toes still flat on the floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves the ankle behind the advancing hip, so the trailing knee straightens through pre-swing where it bends. */
   export const PUSH: number = 55;
 
-  /** The toe-off pitch a foot turned from the pelvis by `walkReach.TWIST` pushes off with, degrees toes-down (provisional: a turning step pivots more and pushes less in the sagittal plane, Hase and Stein 1999; Taylor et al. 2005; no measured pitch was read). */
-  export const TURNED_PUSH: number = 15;
+  /** The share of its straight push-off pitch a foot turned from the pelvis by `walkReach.TWIST` keeps: the ankle plantarflexion at toe-off of a step turn against straight walking, 1.37° against 10.37° (Ficanha, Rastgaar, Moridian and Mahmoudian 2013, ASME DSCC2013-3782, motion capture; the straight value as the same group reports it in US patent 9,849,003), a turning step pivoting more and pushing less in the sagittal plane (Hase and Stein 1999). */
+  export const TURNED_SHARE: number = 1.37 / 10.37;
 
   /**
    * One footfall.
@@ -62,9 +62,10 @@ export namespace walkStepFoot {
   /**
    * Set each footfall's push-off: a foot turned from the pelvis at its
    * toe-off pushes off less, since a turning step pivots more and pushes
-   * less in the sagittal plane (Hase and Stein 1999; Taylor et al. 2005;
-   * provisional, the pitch falls linearly to `TURNED_PUSH` as the turn reaches
-   * `walkReach.TWIST`), and a leg kept straight leaves the floor nearly
+   * less in the sagittal plane (Hase and Stein 1999): the pitch falls to
+   * `TURNED_SHARE` of the straight one (Ficanha et al. 2013) as the turn
+   * reaches `walkReach.TWIST`, linearly between (the interpolation is
+   * provisional, no intermediate turn having been read), and a leg kept straight leaves the floor nearly
    * flat, a steep push-off needing the knee it does not bend.
    *
    * @param steps The footfalls, in order; each one's `push` is set.
@@ -76,7 +77,7 @@ export namespace walkStepFoot {
    * @evidence contracts/development/common.md#meaningful-documentation States both rules, their sources and each input.
    * @evidence contracts/development/implementation.md#principled-implementation The turn a foot leaves is its last heading against the pelvis's at the toe-off; the pitch falls with it and is capped for a straight knee.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `TURNED_PUSH` and the linear fall are provisional and stated so.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `TURNED_SHARE` is the cited ratio; only the linear fall between straight and fully turned is provisional, and stated so.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the footfalls.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes the footfalls given and retains nothing.
@@ -97,9 +98,8 @@ export namespace walkStepFoot {
               (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT)),
         );
         step.push =
-          -push +
-          (push - Math.min(push, TURNED_PUSH)) *
-            Math.min(1, Math.abs(turned) / walkReach.TWIST);
+          -push *
+          (1 - (1 - TURNED_SHARE) * Math.min(1, Math.abs(turned) / walkReach.TWIST));
         if (stiff === side)
           step.push = Math.max(step.push, -walkFoot.STIFF_PUSH);
         leaving = step.heading;
