@@ -7,7 +7,7 @@ import {
 
 import { LexiconRowNet } from "./LexiconRowNet";
 
-/** Families whose row tests already plan with bare parameters when no fixture is needed. */
+/** Families whose positive tests cover defaults by staging the row or verifying its exact dispatch to a tested law. */
 const BARE_FIXTURES: readonly string[] = [
   "blade",
   "carried",
@@ -46,7 +46,7 @@ const NOWHERE: string = "chest";
  * @evidence contracts/development/common.md#meaningful-documentation States the two authoring failures and the seam that judges each.
  * @evidence contracts/development/design.md#principled-representation Parameter admission and law planning are distinct calls, so a refusal of an input shape does not require a prepared performer.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One cast for absent input and one for a wrong region on a valid scene.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every row reaches schema admission. The only repeated plans eliminated are the ones in which schema already refused or the row test plans the same bare input on the same default performer fixture.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every row reaches schema admission. A schema refusal ends a probe. Bare rows already covered by positive placement tests or by their default resolver and underlying law are not staged here.
  */
 export namespace LexiconAbsentNet {
   /**
@@ -56,11 +56,11 @@ export namespace LexiconAbsentNet {
    * @returns One complaint per missing schema or invalid refusal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is omitted and what a complaint means.
-   * @evidence contracts/development/implementation.md#principled-implementation A schema refusal ends parameter admission before a law runs. For admitted inputs, a positive test's bare plan already exercises the same body and parameters, otherwise the row is planned alone with the omitted parameters.
+   * @evidence contracts/development/implementation.md#principled-implementation A schema refusal ends parameter admission before a law runs. For admitted inputs, positive tests cover the default placement or the resolved sport alias and its underlying action. Other admitted rows are planned alone with the omitted parameters.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over families and rows, with one schema probe and at most one plan per row.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The branch that omits planning is restricted to a refusal before planning or a matching positive case.
    * @evidence contracts/development/implementation.md#efficient-algorithms No performer or performance is created for rows a schema refuses. Other skipped plans have an identical positive counterpart.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Positive row cases already validate the default admitted input on the same pairings.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Positive row cases cover default placements or the default parameter mapping to a tested sport law.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each probe holds its outcome only to build its complaint.
    */
   export function bare(): string[] {

@@ -56,6 +56,11 @@ export function test_human_motion_lexicon_sport_dispatch(): void {
       byName.get(name);
     TestValidator.equals(name, row?.family, family);
     TestValidator.equals(
+      name + " default parameters",
+      row?.resolve?.({}),
+      kind === undefined ? {} : { kind },
+    );
+    TestValidator.equals(
       `${name} resolves the authored parameters`,
       row?.resolve?.({ kind: "caller" }),
       { kind: kind ?? "caller" },

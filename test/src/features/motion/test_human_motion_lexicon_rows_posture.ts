@@ -5,65 +5,54 @@ import { TestValidator } from "@nestia/e2e";
 import { LexiconRowNet } from "../internal/LexiconRowNet";
 
 /**
- * The lexicon registers fixed postures and drill entrances on opposite builds.
+ * Named resting stances select the intended site for each hand and the drill rows accept their authored scenes.
  *
  * Scenarios:
+ * 1. Bilateral rest overrides both hands at the same site. The thinking stance sends the hands to different sites.
+ * 2. The drill records place their registered names from the solo and paired fixtures.
  *
- * 1. Drill branches plan on their established solo and paired fixtures.
- * 2. Pose and stance rows plan on the performer complementary to the base
- *    specs' displayed geometry checks. Both flinch rows plan on both bodies
- *    in `test_human_motion_base_flinch_poses`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names this group's construction boundary and the body and scene variations it exercises.
- * @evidence contracts/development/testing.md#behavioral-verification Places the actual registered law under its authored name on the public chain. A refused or misnamed placement fails the case with the exact row and performer.
- * @evidence contracts/development/testing.md#independent-expectations A registered row must accept the authored fixture and appear under the name the chain asked to place.
- * @evidence contracts/development/testing.md#distinguishing-cases Complements the body already used for each posture by the base specs. Drill target and partner assignments are unchanged.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable test builds in-memory performances on prepared bodies. Each row owns only the registration it uses.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the hand routing and the drill placements.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses each public stance resolver and places the drill actions through the chain.
+ * @evidence contracts/development/testing.md#independent-expectations The named pose determines the anatomical hand sites. The drill chain determines the expected placed name.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers bilateral and asymmetric rest. The base stance, kneeling, floor, crouching and flinch tests own the displayed geometry on their performer fixtures.
+ * @evidence contracts/development/testing.md#execution-ownership Parameter routing needs no body. Each drill scene is constructed once per existing role assignment.
  */
 export function test_human_motion_lexicon_rows_posture(): void {
-  const averagePoses: readonly string[] = [
-    "takeAKnee",
-    "kneelSit",
-    "sitCrossLegged",
-    "lieStill",
-    "takeCover",
-    "braceForImpact",
-    "startle",
-    "wince",
-  ];
-  const smallPoses: readonly string[] = [
-    "kneelBriefly",
-    "sitOnFloor",
-    "sitSideways",
-    "squatSit",
-    "stumble",
-    "startle",
-    "wince",
-  ];
-  // The base stance spec alternates bodies in registration order.
-  const stances: readonly IAutoMovieMotionHumanActionLaw<never>[] =
-    HUMAN_LEXICON.stance!;
-  const averageStances: string[] = stances
-    .filter(
-      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
-        index % 2 === 0,
-    )
-    .map((law: IAutoMovieMotionHumanActionLaw<never>): string => law.name);
-  const smallStances: string[] = stances
-    .filter(
-      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
-        index % 2 !== 0,
-    )
-    .map((law: IAutoMovieMotionHumanActionLaw<never>): string => law.name);
+  const sites: ReadonlyMap<string, Hands> = new Map<string, Hands>([
+    ["armsCrossed", ["crossed", "crossed"]],
+    ["handsOnHips", ["hip", "hip"]],
+    ["handsInPockets", ["pocket", "pocket"]],
+    ["paradeRest", ["claspedBehind", "claspedBehind"]],
+    ["handsClasped", ["claspedFront", "claspedFront"]],
+    ["handsBehindHead", ["behindHead", "behindHead"]],
+    ["thinking", ["elbowSupport", "chinRest"]],
+  ]);
+  const registered: readonly IAutoMovieMotionHumanActionLaw<never>[] =
+    HUMAN_LEXICON.stance!.filter(
+      (row: IAutoMovieMotionHumanActionLaw<never>): boolean =>
+        row.family === "rest",
+    );
   TestValidator.equals(
-    "the fixed postures and drill entrances plan under their registered names",
-    [
-      ...LexiconRowNet.rows("drill"),
-      ...LexiconRowNet.rows("pose", averagePoses, true, "m-average"),
-      ...LexiconRowNet.rows("pose", smallPoses, true, "f-small"),
-      ...LexiconRowNet.rows("stance", averageStances, true, "m-average"),
-      ...LexiconRowNet.rows("stance", smallStances, true, "f-small"),
-    ],
+    "registered rest stances",
+    registered
+      .map((row: IAutoMovieMotionHumanActionLaw<never>): string => row.name)
+      .sort(),
+    [...sites.keys()].sort(),
+  );
+  for (const row of registered) {
+    const [left, right]: Hands = sites.get(row.name)!;
+    TestValidator.equals(
+      row.name + " hand sites",
+      row.resolve?.({ left: "free", right: "free" }),
+      { left, right },
+    );
+  }
+  TestValidator.equals(
+    "drill entrances place both role assignments",
+    LexiconRowNet.rows("drill"),
     [],
   );
 }
+
+/** The left and right hand sites fixed by a resting stance. */
+type Hands = readonly [string, string];

@@ -12,7 +12,7 @@ import { LexiconAbsentNet } from "../internal/LexiconAbsentNet";
  * @evidence contracts/development/common.md#meaningful-documentation States which invalid input the test owns and where it is handled.
  * @evidence contracts/development/testing.md#behavioral-verification Invokes the real parameter gate and plans any remaining request that reaches the law. A raw exception, empty axis or literal undefined in the explanation fails.
  * @evidence contracts/development/testing.md#independent-expectations A required parameter either produces a named HumanRefusal before planning or the plan can safely handle its omission, as required by the public grammar.
- * @evidence contracts/development/testing.md#distinguishing-cases Rows already planned with exactly these bare parameters by the positive row tests contribute only shape admission here.
+ * @evidence contracts/development/testing.md#distinguishing-cases Positive placement tests and sport alias dispatch tests own admitted defaults for rows with no special fixture.
  * @evidence contracts/development/testing.md#execution-ownership Runs the in-memory public gate and, for law-specific outcomes, the normal registered chain on prepared fixtures.
  */
 export function test_human_motion_lexicon_absent_defaults(): void {
