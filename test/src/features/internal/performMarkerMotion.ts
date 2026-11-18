@@ -1,5 +1,6 @@
 import { performShot } from "@automovie/engine";
 import type {
+  IAutoMovieAttachJob,
   IAutoMovieClip,
   IAutoMoviePerformedShot,
   IAutoMoviePropSpec,
@@ -16,6 +17,14 @@ export function performMarkerMotion(
   nodes: IAutoMovieSceneNode[],
   clips: readonly IAutoMovieClip[],
   props: readonly IAutoMoviePropSpec[],
+  attachment: IAutoMovieAttachJob["action"] = {
+    verb: "attachTo",
+    actor: "tag",
+    parent: "keeper",
+    bone: "leftHand",
+    start: 0,
+    duration: "auto",
+  },
 ): IAutoMoviePerformedShot {
   const script: IAutoMovieScript = {
     logline: "A keeper wears a tracking marker.",
@@ -78,14 +87,7 @@ export function performMarkerMotion(
           duration: 1,
           kind: "bow",
         },
-        {
-          verb: "attachTo",
-          actor: "tag",
-          parent: "keeper",
-          bone: "leftHand",
-          start: 0,
-          duration: "auto",
-        },
+        attachment,
         {
           verb: "frame",
           actor: "camera",

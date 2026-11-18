@@ -1,7 +1,8 @@
+import { gateAuthoredObjectMotions } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
-  IAutoMoviePerformedShot,
+  IAutoMovieObjectMotionGate,
   IAutoMoviePropSpec,
   IAutoMovieSceneNode,
   IAutoMovieTrack,
@@ -10,7 +11,6 @@ import { strict as assert } from "node:assert";
 
 import { createDoorPropSpec } from "../internal/createDoorPropSpec";
 import { IDENTITY_TRANSFORM } from "../internal/fixtures";
-import { performMarkerMotion } from "../internal/performMarkerMotion";
 import { swingClip } from "../internal/swingClip";
 import { yQuat } from "../internal/yQuat";
 
@@ -25,12 +25,29 @@ function gate(
   clips: readonly IAutoMovieClip[],
   override: IAdmission = {},
 ): IAutoMovieConstraintViolation[] {
-  const result: IAutoMoviePerformedShot = performMarkerMotion(
-    override.nodes ?? [placement("doorway", "door"), placement("panel")],
+  const input: IAutoMovieObjectMotionGate = {
+    scene: {
+      id: "hall",
+      name: null,
+      nodes: [
+        placement("keeper"),
+        placement("tag"),
+        ...(override.nodes ?? [
+          placement("doorway", "door"),
+          placement("panel"),
+        ]),
+      ],
+      cameras: [],
+      lights: [],
+    },
+    props: override.props ?? [createDoorPropSpec()],
     clips,
-    override.props ?? [createDoorPropSpec()],
-  );
-  return result.success ? [] : result.violations;
+    baked: [swingClip("attach:tag", "tag", 0)],
+    performed: new Set(["keeper"]),
+    duration: 2,
+    path: "$input.objectMotions",
+  };
+  return gateAuthoredObjectMotions(input);
 }
 function rejects(
   clips: readonly IAutoMovieClip[],
@@ -55,10 +72,10 @@ function rejects(
  * 3. Compare symmetric turns to their analytic quaternion midpoint, a held step, an inclusive boundary and a later authority.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the address, time and travel decisions inspected directly.
- * @evidence contracts/development/testing.md#behavioral-verification Submits clips to performShot and checks its published violations for severity, authoring path and cause.
+ * @evidence contracts/development/testing.md#behavioral-verification Submits clips to the public object gate and checks severity, authoring path and cause.
  * @evidence contracts/development/testing.md#independent-expectations The identity midpoint has w=1 while either endpoint has w=cos(half-angle); a bound between them admits a step but refuses continuous interpolation.
  * @evidence contracts/development/testing.md#distinguishing-cases Includes near and large turns, duplicate and missing addresses, bad registration, legal neighbouring channels and an unrelated profile.
- * @evidence contracts/development/testing.md#execution-ownership One ready studio stage supplies the public performer, baked marker and authored object channels without a screenplay compile.
+ * @evidence contracts/development/testing.md#execution-ownership Runs the public object gate against declared performer and baked-channel authorities without staging or synthesis.
  */
 export function test_film_motion_object_admission(): void {
   const joint: string = "doorway/hinge";
