@@ -21,9 +21,14 @@ import { HumanJacobian } from "./HumanJacobian";
  * outline of the feet where they bear (`HumanFoot.base`), the base of
  * support (Winter, Biomechanics and Motor Control of Human Movement, ch. 4).
  *
- * The outline is the convex hull of the bearing points on the floor, and
- * each of its edges is a row: the centre's signed
- * distance inside that edge, at or above nought. The centre of mass is the
+ * The base is the convex hull of the bearing points on the floor, and each
+ * of the half-planes whose intersection it is makes a row: the centre's
+ * signed distance inside that half-plane, at or above nought. A hull of
+ * three or more corners is the half-planes of its edges; two corners bound a
+ * segment, the two sides of its line and a cap at each end; one corner is a
+ * point, four half-planes along the floor's axes that meet only there. So the
+ * centre is held over the base however few points bear, never over a line
+ * past the segment's ends or nowhere at all. The centre of mass is the
  * engine's mass model's (`resolveAutoMovieCenterOfMass`) and its Jacobian
  * the mass-weighted sum of its segments' centres' point columns
  * (`HumanJacobian.velocity`).
@@ -37,22 +42,22 @@ export namespace HumanFitBalance {
   /**
    * A posed body's balance.
    *
-   * @evidence contracts/development/design.md#principled-representation Stores the actual segmental centre and convex support outline in world metres, with one dimensionless inward normal and signed half-plane distance per ordered edge.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The merit reads inside and com; actual edge rows reuse outline and normals, all produced from this same immutable reading.
+   * @evidence contracts/development/design.md#principled-representation Stores the actual segmental centre and the support region as half-planes in world metres, each an anchor, a unit inward normal and the centre's signed distance.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The merit reads inside and com; actual half-plane rows reuse anchors and normals, all produced from this same immutable reading.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the physical mass model and supplied/default bearing points without substituting a bone or changing a contact tolerance.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines world units, edge ordering, signed distances and borrowed centre ownership.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines world units, half-plane ordering, signed distances and borrowed centre ownership.
    */
   export interface IReading {
     /** The centre of mass, world metres; may share the same reading's positional goal value and is not mutated by balance consumers. */
     com: IAutoMovieVector3;
 
-    /** The base of support's corners on the floor, in order round its convex hull. */
-    outline: { x: number; z: number }[];
+    /** A point on the floor each half-plane of the base of support passes through: a hull's corners in order round it, a segment's first end thrice and its second, or a point four times. */
+    anchors: { x: number; z: number }[];
 
-    /** Inward edge directions in outline order, unit length for nonzero edges and the existing zero vector for a degenerate edge; shared only with this unchanged outline. */
+    /** Each half-plane's unit inward direction, in the anchors' order. */
     normals: { x: number; z: number }[];
 
-    /** Each edge's signed distance of the centre inside it, metres, in the outline's order. */
+    /** Each half-plane's signed distance of the centre inside it, metres, in the anchors' order. */
     inside: number[];
   }
 
@@ -65,9 +70,9 @@ export namespace HumanFitBalance {
    * @param com Optional already computed centre for this unchanged body and bones, borrowed without mutation; computed here when absent.
    * @returns The reading.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the segmental mass centre and constructs Andrew's monotone-chain convex hull of the actual bearing points, then measures each inward support half-plane.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the segmental mass centre and constructs Andrew's monotone-chain convex hull of the actual bearing points, then measures each half-plane that bounds it: a polygon's edges, a segment's sides and end caps, or a point's four axis half-planes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional current centre and one hull feed the ordered edge distances; their mass and geometry owners remain separate.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the existing hull, inward-normal convention and degenerate-edge behavior; a supplied centre must be the actual value for the same unchanged body and bones.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No half-plane is dropped or zeroed for a degenerate base, so a point or segment support still holds the centre; a supplied centre must be the actual value for the same unchanged body and bones.
    * @evidence contracts/development/implementation.md#efficient-algorithms For P bearing points and H hull edges, hull construction takes O(P log P) and mean/normal/distance preparation O(H), plus delegated mass-model construction and placement when no centre is supplied.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Accepts the same-reading positional mass centre and computes the unchanged corner mean once; each resulting inward normal serves its distance, slope and fixed-model callbacks.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh outline, inward-direction and distance arrays and borrows the supplied/computed centre without mutation; no reading, points or derivative columns are cached globally.
@@ -79,52 +84,50 @@ export namespace HumanFitBalance {
     points: readonly IAutoMovieVector3[] = HumanFoot.base(body, bones),
     com: IAutoMovieVector3 = centre(body, bones),
   ): IReading {
-    const outline: { x: number; z: number }[] = hull(
-      points.map((p: IAutoMovieVector3): { x: number; z: number } => ({
-        x: p.x,
-        z: p.z,
-      })),
-    );
-    const middle: { x: number; z: number } = mean(outline);
-    const normals: { x: number; z: number }[] = outline.map(
-      (_: { x: number; z: number }, k: number): { x: number; z: number } => inward(outline, k, middle),
-    );
+    const planes: { anchors: { x: number; z: number }[]; normals: { x: number; z: number }[] } =
+      halfPlanes(
+        hull(
+          points.map((p: IAutoMovieVector3): { x: number; z: number } => ({
+            x: p.x,
+            z: p.z,
+          })),
+        ),
+      );
     return {
       com,
-      outline,
-      normals,
-      inside: outline.map((_: { x: number; z: number }, k: number): number =>
-        distance(outline, k, com, normals[k]!),
+      anchors: planes.anchors,
+      normals: planes.normals,
+      inside: planes.anchors.map((_: { x: number; z: number }, k: number): number =>
+        distance(planes.anchors, k, com, planes.normals[k]!),
       ),
     };
   }
 
   /**
-   * A point's signed distance inside an outline's edge.
+   * A point's signed distance inside one half-plane of a reading's base.
    *
-   * @param outline The outline.
-   * @param k The edge, from corner `k` to the next.
+   * @param anchors The reading's half-plane anchors (`IReading.anchors`).
+   * @param k The half-plane.
    * @param point The point, world metres; its height is not read.
-   * @param normal Optional already computed inward direction for this same unchanged outline edge, with the existing degenerate-edge convention.
+   * @param normal The half-plane's unit inward direction (`IReading.normals[k]`).
    * @returns Metres, positive inside.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Projects point-minus-edge-start onto the edge's inward direction oriented toward the corner mean, unit length for a nonzero edge, preserving the existing signed support distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The private inward owner constructs the edge direction, then one planar dot product returns the distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original zero-length denominator fallback and centroid orientation rather than inventing a different support outline.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Takes O(1) time with a supplied edge normal and otherwise O(H) for the unchanged inward owner's corner-mean scan, with O(1) auxiliary storage.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The reading and its fixed-model row callbacks share this same outline's prepared edge normal; absent it the current outline is read to construct the original direction.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no outline or point.
-   * @evidence contracts/development/common.md#meaningful-documentation States the edge convention, world units, signed result, height exclusion and inherited degeneracy behavior.
+   * @evidence contracts/development/implementation.md#principled-implementation Projects point-minus-anchor onto the half-plane's unit inward direction, the signed distance from its boundary line.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One planar dot product; the reading owns every half-plane's construction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Takes the reading's own normal, so a degenerate base's caps and sides are measured as constructed, never re-derived.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(1) time and storage.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The reading and its fixed-model row callbacks share each half-plane's prepared normal.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains no anchor or point.
+   * @evidence contracts/development/common.md#meaningful-documentation States the half-plane convention, world units, signed result and height exclusion.
    */
   export function distance(
-    outline: readonly { x: number; z: number }[],
+    anchors: readonly { x: number; z: number }[],
     k: number,
     point: IAutoMovieVector3,
-    normal?: { x: number; z: number },
+    normal: { x: number; z: number },
   ): number {
-    const a: { x: number; z: number } = outline[k]!;
-    const n: { x: number; z: number } = normal ?? inward(outline, k);
-    return n.x * (point.x - a.x) + n.z * (point.z - a.z);
+    const a: { x: number; z: number } = anchors[k]!;
+    return normal.x * (point.x - a.x) + normal.z * (point.z - a.z);
   }
 
   /**
@@ -153,7 +156,7 @@ export namespace HumanFitBalance {
     reading: IReading,
     columns: readonly IAutoMovieVector3[] = velocities(body, bones, motions),
   ): number[][] {
-    return reading.outline.map(
+    return reading.anchors.map(
       (_: { x: number; z: number }, k: number): number[] => {
         const n: { x: number; z: number } = reading.normals[k]!;
         return columns.map(
@@ -245,23 +248,57 @@ export namespace HumanFitBalance {
     });
   }
 
-  /** The unit inward normal of an outline's edge from corner `k` to the next. */
+  /**
+   * The half-planes whose intersection is a convex hull of floor points: a
+   * polygon's edges, each with its inward normal; a segment's two sides,
+   * whose intersection is its line, and an inward cap at each end; a point's
+   * four axis half-planes, which meet only at it. No hull has none but an
+   * empty one, which bears nothing.
+   */
+  function halfPlanes(corners: readonly { x: number; z: number }[]): {
+    anchors: { x: number; z: number }[];
+    normals: { x: number; z: number }[];
+  } {
+    if (corners.length === 0) return { anchors: [], normals: [] };
+    const a: { x: number; z: number } = corners[0]!;
+    const b: { x: number; z: number } = corners[corners.length - 1]!;
+    const span: number = Math.hypot(b.x - a.x, b.z - a.z);
+    if (corners.length === 1 || (corners.length === 2 && span === 0))
+      return {
+        anchors: [a, a, a, a],
+        normals: [{ x: 1, z: 0 }, { x: -1, z: 0 }, { x: 0, z: 1 }, { x: 0, z: -1 }],
+      };
+    if (corners.length === 2) {
+      const d: { x: number; z: number } = { x: (b.x - a.x) / span, z: (b.z - a.z) / span };
+      return {
+        anchors: [a, a, a, b],
+        normals: [{ x: -d.z, z: d.x }, { x: d.z, z: -d.x }, d, { x: -d.x, z: -d.z }],
+      };
+    }
+    const middle: { x: number; z: number } = mean(corners);
+    return {
+      anchors: [...corners],
+      normals: corners.map((_: { x: number; z: number }, k: number): { x: number; z: number } =>
+        inward(corners, k, middle)),
+    };
+  }
+
+  /** The unit inward normal of a convex polygon's edge from corner `k` to the next; the monotone chain leaves no edge of zero length. */
   function inward(
     outline: readonly { x: number; z: number }[],
     k: number,
-    middle?: { x: number; z: number },
+    middle: { x: number; z: number },
   ): { x: number; z: number } {
     const a: { x: number; z: number } = outline[k]!;
     const b: { x: number; z: number } = outline[(k + 1) % outline.length]!;
     const dx: number = b.x - a.x;
     const dz: number = b.z - a.z;
-    const length: number = Math.hypot(dx, dz) || 1;
+    const length: number = Math.hypot(dx, dz);
     const n: { x: number; z: number } = { x: -dz / length, z: dx / length };
 
     // The normal that points toward the outline's centroid, which a convex
     // outline holds inside, whichever way the corners run.
-    const at: { x: number; z: number } = middle ?? mean(outline);
-    return n.x * (at.x - a.x) + n.z * (at.z - a.z) >= 0 ? n : { x: -n.x, z: -n.z };
+    return n.x * (middle.x - a.x) + n.z * (middle.z - a.z) >= 0 ? n : { x: -n.x, z: -n.z };
   }
 
   /** The same ordered arithmetic mean of corners previously read independently for every edge. */

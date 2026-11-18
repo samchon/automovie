@@ -199,11 +199,11 @@ export namespace HumanBodyFitRows {
           };
     HumanFitGoals.rows(step, equal, MM, readColumns);
 
-    // The centre of mass inside each edge of the base of support, the edges
-    // read where the step starts.
+    // The centre of mass inside each half-plane of the base of support, the
+    // half-planes read where the step starts.
     if (at.balance !== undefined) {
       const balance: HumanFitBalance.IReading = at.balance;
-      const outline: { x: number; z: number }[] = balance.outline;
+      const anchors: { x: number; z: number }[] = balance.anchors;
       HumanFitBalance.slopes(
         step.body,
         at.bones,
@@ -215,7 +215,7 @@ export namespace HumanBodyFitRows {
           r === at
             ? balance.inside[e]!
             : HumanFitBalance.distance(
-                outline,
+                anchors,
                 e,
                 r.balance!.com,
                 balance.normals[e]!,
