@@ -27,6 +27,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { braceOnThigh } from "./braceOnThigh";
+import { kneelContacts } from "./kneelContacts";
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelPhases } from "./prepareKneelPhases";
@@ -55,7 +56,10 @@ import { prepareKneelPhases } from "./prepareKneelPhases";
  * Each phase moves on minimum-jerk progress; its length is provisional,
  * scaled by the square root of the hip height (Alexander 1984) and by the
  * manner's tempo. The root is lowered wherever a planted leg could not reach
- * its foot. Events: `stepBack` at the start, `kneeContact`, `secondKnee` for
+ * its foot. Each foot plants while it keeps its floor point, and each knee
+ * on the floor bears there (a `bear` window on its lower leg, at the knee)
+ * from the key it comes down in until it leaves, both on the floor the feet
+ * stand on. Events: `stepBack` at the start, `kneeContact`, `secondKnee` for
  * both knees, `seatOnHeels` for sitting back, `settled`, and when it rises
  * `kneeOff` and `stood`.
  *
@@ -106,7 +110,7 @@ export namespace kneel {
    * @evidence contracts/development/implementation.md#principled-implementation Key states joined by minimum-jerk phases; on its feet the hips follow the balance course and the legs' reach, sitting back they turn about the knees; a foot whose toes' joint does not move pivots on it, one that moves swings on an arc.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key states, a phase list, one body row and two hand rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The constants are named and provisional; the root is lowered only where a planted leg cannot reach.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key solve and a balance course down and up per plan, about a hundred posture solves each; each posture costs one lowering and two arm solves.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key solve and three balance courses per plan (the step's, read for the landing height, then down and up), about a hundred posture solves each; each posture costs one lowering and two arm solves.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Probe and actual-duration stand plans independently observe the borrowed entry in their original construction order. Fixed own key/foot/root phases prepare once. Course construction and body writes lend current FK only to actual raw hip lowering; original full course fits and required root/trunk/leg prefix channels remain.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its key states and the base.
    */
@@ -114,7 +118,7 @@ export namespace kneel {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKneel.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const m = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const kind: IAutoMovieMotionHumanKneel.Kind = context.params.kind ?? "one";
     const k: "left" | "right" = context.params.knee ?? "right";
     const hold: number = context.params.hold ?? 1.5;
@@ -180,7 +184,7 @@ export namespace kneel {
     }
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(
-        phases.map((p: IPhase) => ({ name: p.name, seconds: p.seconds })),
+        phases.map((p: IPhase): { name: string; seconds: number } => ({ name: p.name, seconds: p.seconds })),
       ),
       modifiers,
       { holds: ["settled"] },
@@ -209,26 +213,41 @@ export namespace kneel {
     // place for the course's solve.
     const courses: ((seconds: number) => number)[] = [];
     const heights: { landed?: number } = {};
-    const write = (
+    const write: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      along?: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    ) => IAutoMovieMotionHumanPosture = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       along?: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieMotionHumanPosture => {
-      const { phase, index, u } = at(seconds);
-      const feet = {
+      const { phase, index, u }: ReturnType<typeof at> = at(seconds);
+      const feet: Record<
+        "left" | "right",
+        ReturnType<ReturnType<typeof prepareKneelPhases>[number]["feet"]["left"]>
+      > = {
         left: geometry[index]!.feet.left(u),
         right: geometry[index]!.feet.right(u),
       };
       const pair: number = phase.from + phase.to;
+      const fixed: ((share: number) => IAutoMovieVector3) | undefined =
+        geometry[index]!.root;
       let root: IAutoMovieVector3;
       let pitch: number = 0;
-      if (phase.from !== phase.to && pair <= 3) {
+
+      // A phase with no fixed root line is one the hips cross on their feet,
+      // along the balance course.
+      if (fixed === undefined) {
         const step: number = pair === 3 ? 1 : phase.from === 0 ? u : 1 - u;
         const low: number = pair === 1 ? 0 : phase.from === 1 ? u : 1 - u;
         const course: number = (
           courses[phase.from < phase.to ? 0 : 1] ?? ((): number => 0)
         )(seconds);
+        // The fourth power keeps the hips on the balance course through most
+        // of a phase and brings them to the key late (provisional profile).
         const s: number =
           along ??
           (pair === 3
@@ -243,7 +262,7 @@ export namespace kneel {
         const reach: number =
           (solved.extension + (REACH - solved.extension) * step) * length;
         const high: number = Math.min(
-          ...(["left", "right"] as const).map((side): number => {
+          ...(["left", "right"] as const).map((side: "left" | "right"): number => {
             const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
             const hip: IAutoMovieVector3 = Vector3.add(flat, solved.rest[side]);
             const d: number = Math.hypot(ankle.x - hip.x, ankle.z - hip.z);
@@ -276,7 +295,7 @@ export namespace kneel {
           },
           solved.forward,
         );
-      } else root = geometry[index]!.root!(u);
+      } else root = fixed(u);
       const placed: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
         body,
         { ...posture, root, yaw },
@@ -308,12 +327,14 @@ export namespace kneel {
     // coming up it is back over the standing foot while the knee leaves the
     // floor, before the foot behind lifts. The landing height is read from
     // the step's own course first.
-    const centre = (posture: IAutoMovieMotionHumanPosture): number =>
+    const centre: (posture: IAutoMovieMotionHumanPosture) => number = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): number =>
       Vector3.dot(HumanBalance.centre(body, posture), solved.forward);
     const stood: number = centre(standing);
     const middle: number =
       (["left", "right"] as const)
-        .map((side): number => {
+        .map((side: "left" | "right"): number => {
           const foot: kneelKeys.IFoot = keys[1]!.feet[side];
           return Vector3.dot(
             HumanFoot.point(
@@ -334,7 +355,11 @@ export namespace kneel {
           );
         })
         .reduce((x: number, y: number): number => x + y, 0) / 2;
-    const course = (from: number, to: number, start: number) =>
+    const course: (from: number, to: number, start: number) => (seconds: number) => number = (
+      from: number,
+      to: number,
+      start: number,
+    ): ((seconds: number) => number) =>
       AutoMovieMotionHumanCourse.solve({
         body,
         yaw,
@@ -344,7 +369,7 @@ export namespace kneel {
           resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         ): IAutoMovieMotionHumanPosture => write(standing, seconds, along, resolution),
         target: (seconds: number): number => {
-          const { phase, u } = at(seconds);
+          const { phase, u }: ReturnType<typeof at> = at(seconds);
           const share: number =
             phase.from < phase.to
               ? phase.from === 0
@@ -367,7 +392,7 @@ export namespace kneel {
     ).root.y;
     courses[0] = course(0, clock.at(phases[2]!.name), 0);
     const off: IPhase | undefined = phases.find(
-      (p: IPhase) => p.from === 2 && p.to === 1,
+      (p: IPhase): boolean => p.from === 2 && p.to === 1,
     );
     if (off !== undefined)
       courses[1] = course(clock.at(off.name), duration, kneeling);
@@ -388,17 +413,19 @@ export namespace kneel {
     // The hands come onto the thighs while the hips lower and leave them as
     // the body starts to rise.
     const firstUp: IPhase | undefined =
-      phases[phases.findIndex((p: IPhase) => p.name === "settled") + 1];
+      phases[phases.findIndex((p: IPhase): boolean => p.name === "settled") + 1];
     const handDown: ReturnType<typeof AutoMovieMotionClock.prepare> =
       AutoMovieMotionClock.prepare(clock, "lowering", phases[2]!.name);
     const handUp: ReturnType<typeof AutoMovieMotionClock.prepare> | undefined =
       firstUp === undefined
         ? undefined
         : AutoMovieMotionClock.prepare(clock, firstUp.name, "end");
-    const lowered = (seconds: number): number =>
+    const lowered: (seconds: number) => number = (seconds: number): number =>
       handDown.progress(seconds) *
       (handUp === undefined ? 1 : 1 - handUp.progress(seconds));
-    const hand = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+    const hand: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,
         side,
@@ -407,28 +434,13 @@ export namespace kneel {
         lowered,
       );
 
-    // Plant windows from the phases' feet.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (const side of ["left", "right"] as const) {
-      let open: number | undefined;
-      for (const phase of phases) {
-        const still: boolean =
-          Vector3.length(
-            Vector3.subtract(
-              keys[phase.from]!.feet[side].at,
-              keys[phase.to]!.feet[side].at,
-            ),
-          ) <= 1e-4;
-        const t: number = clock.at(phase.name) / duration;
-        if (still && open === undefined) open = t;
-        if (!still && open !== undefined) {
-          contacts.push(plant(side, open, t));
-          open = undefined;
-        }
-      }
-      if (open !== undefined) contacts.push(plant(side, open, 1));
-    }
-
+    const contacts: IAutoMovieMotionHumanContactWindow[] = kneelContacts(
+      context,
+      keys,
+      phases,
+      clock,
+      k,
+    );
     const base: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: duration } },
       k,
@@ -455,16 +467,4 @@ export namespace kneel {
     to: number;
   }
 
-  /** A ground plant window. */
-  const plant = (
-    side: "left" | "right",
-    from: number,
-    to: number,
-  ): IAutoMovieMotionHumanContactWindow => ({
-    part: side === "left" ? "leftFoot" : "rightFoot",
-    kind: "plant",
-    from,
-    to,
-    support: { kind: "ground" },
-  });
 }

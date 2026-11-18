@@ -1,4 +1,3 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -6,7 +5,7 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../posture/HumanFoot";
-import type { kneelKeys } from "./kneelKeys";
+import { kneelKeys } from "./kneelKeys";
 
 /**
  * Prepare one foot's course between fixed kneeling keys. A stationary toe
@@ -21,9 +20,9 @@ import type { kneelKeys } from "./kneelKeys";
  * @returns The placement, bearing state and toe flexion in degrees at a progress share.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the fixed endpoints, stationary pivot, moving arc, metres and returned degree value.
- * @evidence contracts/development/implementation.md#principled-implementation Retains the existing 0.1 mm movement classification, same toe interpolation, rigid toe pivot and canonical foot arc at the caller's eased progress.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Classifies once, then binds either the original stationary pivot or the moving endpoints' native arc; the result writer keeps the unchanged planted/toe fields.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The movement threshold and planted endpoint rules remain unchanged and no contact or range bound is relaxed.
+ * @evidence contracts/development/implementation.md#principled-implementation Classifies the foot by `kneelKeys.still`, interpolates the toes linearly, pivots a staying foot rigidly about its toe joint and carries a moving one on the canonical foot arc at the caller's eased progress.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Classifies once, then binds either the pivot or the arc; the result writer adds the bearing state and the toes.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The movement test is the one the plant windows use, so a foot bears exactly where its window says; no contact or range bound is relaxed.
  * @evidence contracts/development/implementation.md#efficient-algorithms Stationary phases prepare fixed heading/socket geometry once; moving phases prepare both actual pivots plus native fixed-endpoint vector/slerp prerequisites once. Each query retains its original current pitch or arc and fresh placement, without rebuilding those constants.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Body and the two authored keys remain fixed, so only progress and interpolated toe flexion vary; no posture fit or evaluated output is cached.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains two keys and, for a moving foot, two rigid placements until its owning kneel plan is released.
@@ -39,8 +38,7 @@ export function prepareKneelFoot(
   planted: boolean;
   toes: number;
 } {
-  const moves: boolean =
-    Vector3.length(Vector3.subtract(from.at, to.at)) > 1e-4;
+  const moves: boolean = !kneelKeys.still(from, to);
   const place: (share: number) => IAutoMovieMotionHumanFoot.IPlacement = ((): ((
     share: number,
   ) => IAutoMovieMotionHumanFoot.IPlacement) => {
