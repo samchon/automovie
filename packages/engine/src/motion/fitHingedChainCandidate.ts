@@ -624,6 +624,7 @@ export function fitHingedChainCandidate(
   // the first. The chosen candidate's error is measured below, and a choice
   // whose measured bucket is not the one it was ranked by is searched again
   // with every error measured.
+  const anchored: boolean = strain === undefined && anchor > 0 && (before[0] !== null || before[1] !== null);
   const certifying: boolean = strain !== undefined && turn !== null && missed;
   const search = (trusting: boolean): ReturnType<typeof hingedArmArticulation> =>
     hingedArmArticulation({
@@ -684,7 +685,7 @@ export function fitHingedChainCandidate(
       // swivels whose miss lies in a later bucket of the tie than a legal
       // candidate's error are never scored, and the strain is read only
       // among the rest.
-      ...((strain === undefined && side !== null) || missed
+      ...((strain === undefined && side !== null) || missed || anchored
         ? {
             bound: (
               upper: (swivel: number) => IAutoMovieQuaternion,
@@ -695,11 +696,30 @@ export function fitHingedChainCandidate(
                   ? null : hingedChainSide.bound(offsetOf(upper), side);
               const miss: ((low: number, high: number) => number) | null =
                 missed ? missOf(posed) : null;
-              return sided === null
+              const geometric: (low: number, high: number) => number = sided === null
                 ? (miss ?? ((): number => 0))
                 : miss === null
                   ? sided
                   : (low: number, high: number): number => sided(low, high) + miss(low, high);
+              if (!anchored) return geometric;
+              // The hinge angle stays fixed on this branch. Its upper rotation
+              // changes by exactly the swivel difference about the target line.
+              const lower: number = before[1] === null ? 0 : apart(posed(0).lower, before[1]);
+              const reference: IAutoMovieQuaternion | null = before[0];
+              if (reference === null) return (low: number, high: number): number => geometric(low, high) + anchor * lower;
+              let last: number | undefined;
+              let distance: number = 0;
+              return (low: number, high: number): number => {
+                const middle: number = (low + high) / 2;
+                if (middle !== last) {
+                  distance = apart(upper(middle), reference);
+                  last = middle;
+                }
+                // Triangle inequality in degrees. The existing ROM tolerance
+                // protects the angle calculation as in distalEndSwivelMiss.
+                const minimum: number = Math.max(0, distance - (high - low) / 2 - ROM_TOLERANCE);
+                return geometric(low, high) + anchor * (minimum + lower);
+              };
             },
           }
         : {}),
