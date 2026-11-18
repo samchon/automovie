@@ -51,6 +51,7 @@ import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
 import { touchSide } from "./touchSide";
+import { touchFingerStance } from "./touchFingerStance";
 import { touchStance } from "./touchStance";
 
 /**
@@ -170,7 +171,7 @@ export namespace touch {
     );
 
     // The hand part that touches, or the point of the prop the hand holds.
-    const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
+    const requested: IAutoMovieMotionHumanTouchEffector.IEffector =
       p.prop === undefined
         ? touching
         : HumanHeld.effector(
@@ -222,7 +223,7 @@ export namespace touch {
 
     const laid: touchHold.Lay = touchLayouts(
       hands,
-      touchHold.lay(context, bones, effector, placed),
+      touchHold.lay(context, bones, requested, placed),
     );
     const leading: touchHold.ILaid = laid(first, p.target);
 
@@ -238,36 +239,42 @@ export namespace touch {
       );
     // The first arm laid on its region at the stroke's start: its wrist is
     // what the stance reaches for, and the whole arm what the lean weighs.
-    const laidOn = (
-      posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieHumanLimbGoal =>
-      AutoMovieMotionHumanTouchLaid.rest(
-        body,
-        posture,
-        first,
-        effector,
-        placed(p.target, true)(posture, 0),
-        leading.tangent,
-        AutoMovieMotionHumanBend.hang(body, posture, first),
-        leading.lay,
-        undefined,
-        p.elbow,
+    const laidOn = (effector: IAutoMovieMotionHumanTouchEffector.IEffector) => (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieHumanLimbGoal =>
+        AutoMovieMotionHumanTouchLaid.rest(
+          body,
+          posture,
+          first,
+          effector,
+          placed(p.target, true)(posture, 0),
+          leading.tangent,
+          AutoMovieMotionHumanBend.hang(body, posture, first),
+          leading.lay,
+          undefined,
+          p.elbow,
+        );
+    const fit = (hand: IAutoMovieMotionHumanTouchEffector.IEffector): touchStance.IChosen => {
+      const arm: ReturnType<typeof laidOn> = laidOn(hand);
+      return touchStance(
+        {
+          body,
+          standing: entry,
+          ...(grounded ? { feet: context.entry.feet } : {}),
+          fixed: context.carrier === undefined,
+          side: first,
+          share: REACH,
+          wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+            arm(posture).point,
+          arm,
+          refuse: (beyond: number, limit: number): string =>
+            `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
+        },
+        grounded && p.target.kind !== "self",
       );
-    const adjusted: touchStance.IChosen = touchStance(
-      {
-        body,
-        standing: entry,
-        ...(grounded ? { feet: context.entry.feet } : {}),
-        fixed: context.carrier === undefined,
-        side: first,
-        share: REACH,
-        wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
-          laidOn(posture).point,
-        arm: laidOn,
-        refuse: (beyond: number, limit: number): string =>
-          `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
-      },
-      grounded && p.target.kind !== "self",
+    };
+    const [effector, adjusted]: ReturnType<typeof touchFingerStance> = touchFingerStance(
+      body, first, requested, p.with === "fingertips" && p.prop === undefined, fit,
     );
     const stance: IAutoMovieMotionHumanTouchStance.IStance = adjusted.stance;
     const leaning: boolean = stance.leaning;
@@ -343,7 +350,7 @@ export namespace touch {
         fix: "give the touch a planted foot base or omit the shift",
       });
     const primitives: IAutoMovieMotionHumanPrimitive[] = stance.primitives(
-      clock, touchBalance(body, window, first, laidOn),
+      clock, touchBalance(body, window, first, laidOn(effector)),
     );
     if (shown !== null)
       primitives.push(
