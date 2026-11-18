@@ -1,4 +1,8 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -50,8 +54,9 @@ import { poseBones } from "../posture/poseBones";
  * With `under` the clinch is a throw's entry (tsukuri): the body lowers and
  * moves across the floor through the reach until its fulcrum region stands
  * at the partner's region that lies on it, the contact the throw turns over
- * (#3439), so the fulcrum is under the body it turns; the throw itself is
- * the partner's `perturb` under the pull.
+ * (#3439), and at the height of the partner's centre of mass, so the
+ * fulcrum is under the body it turns; the throw itself is the partner's
+ * `perturb` under the pull.
  *
  * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
  * footwork (Koshida et al. 2016).
@@ -292,12 +297,21 @@ export namespace clinch {
         HumanTrunk.resolve(who, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([frame.bone])).get(frame.bone)!,
       );
     };
+    // The fulcrum goes across to the region and down to the partner's centre
+    // of mass, under it, as the thrower's hips go below the thrown body's
+    // in a hip or shoulder throw (Kano, Kodokan Judo, 1986).
     const theirs: IAutoMovieMotionHumanPosture | undefined = partner.posture?.(context.start);
     const gap: IAutoMovieVector3 =
       theirs === undefined
         ? { x: 0, y: 0, z: 0 }
         : Vector3.subtract(
-            point(partner.body, theirs, under.on),
+            {
+              ...point(partner.body, theirs, under.on),
+              y: resolveAutoMovieCenterOfMass.place(
+                partner.body.massModel,
+                HumanTrunk.resolve(partner.body, theirs),
+              ).y,
+            },
             point(body, context.entry.posture, under.fulcrum),
           );
     const drop: number = Math.max(0, -gap.y);

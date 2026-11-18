@@ -24,6 +24,7 @@ import {
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionThrowGrip } from "../internal/motionThrowGrip";
 
 /**
  * Every coupled mutual record (#3440) is something two bodies can do: the
@@ -45,7 +46,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. `throwing` in each of the four kinds by the three outcomes, the pull on
  *    the thrown body's collar and sleeve sized by the outcome (the thrown
  *    body's weight for `thrown` and `yield`, half the force its standing base
- *    resists for `resist`), plans; the thrower's placed action is `clinch`
+ *    resists for `resist`) and acting from when the thrower's grips close
+ *    (`motionThrowGrip`), plans; the thrower's placed action is `clinch`
  *    and the thrown's `perturb`.
  * 3. `helpUp`, the helped person lying first, plans with both performing
  *    `support`; `supportWalk`, the helped person between two helpers of the
@@ -136,15 +138,25 @@ export function test_human_motion_lexicon_rows_coupled(): void {
         const force: number =
           outcome === "resist" ? resistible(bodies.b) / 2 : weight;
         try {
+          // The thrower stands a foot ahead of the thrown body, its back to
+          // it, as a turned-in entry stands.
+          const cast = performers(0).map((p) =>
+            p.subject === "a"
+              ? { ...p, at: { x: 0, y: 0, z: bodies.b.measure.footLength } }
+              : p,
+          );
+          // The pull acts through the thrower's grips, from when they close.
+          const grip: number = motionThrowGrip(
+            "coupled-rows",
+            cast,
+            kind,
+            outcome,
+            0.3,
+            SECONDS,
+          );
           const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
             seed: "coupled-rows",
-            // The thrower stands a foot ahead of the thrown body, its back
-            // to it, as a turned-in entry stands.
-            performers: performers(0).map((p) =>
-              p.subject === "a"
-                ? { ...p, at: { x: 0, y: 0, z: bodies.b.measure.footLength } }
-                : p,
-            ),
+            performers: cast,
             composition: HumanChain.mutual(
               HumanCoupled.throwing,
               {
@@ -158,8 +170,8 @@ export function test_human_motion_lexicon_rows_coupled(): void {
               sites: ["chestLeft", "elbowRight"],
               direction: { x: 0, y: 0, z: 1 },
               force,
-              from: 0.3,
-              to: 0.3 + SECONDS,
+              from: grip,
+              to: grip + SECONDS,
             }),
           });
           all.equals(
