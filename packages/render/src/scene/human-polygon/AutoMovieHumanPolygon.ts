@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieHumanSkeleton,
+  IAutoMoviePolygonBodyCue,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -16,6 +20,28 @@ import type * as THREE from "three";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; the native drawing handle borrows canonical Human placements rather than restating their shape.
  */
 export namespace AutoMovieHumanPolygon {
+  /**
+   * Source-clock readers and authored cues for one actor's visible drawing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the subject filter, source clock and body-to-world frame convention.
+   * @evidence contracts/development/design.md#principled-representation Shares canonical authored cues, placements and rigid transforms at the drawing boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Render receives the existing source pose and optional staging reader without owning either timeline.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Actor staging remains caller-owned and the pose contains the original evaluated bones.
+   */
+  export interface IPresentation {
+    /** Exact staged actor identity. Only matching cues apply to this drawing. */
+    subject: string;
+
+    /** Cues in shot-local source seconds. Selected bone subtrees must be disjoint. */
+    cues: readonly IAutoMoviePolygonBodyCue[];
+
+    /** Complete, deterministic source pose in Human body coordinates at the given seconds. */
+    poseAt: (seconds: number) => Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
+
+    /** Actor-local to shot-world rigid frame, identity when omitted. The host applies it through the drawing's parent. */
+    actorFrameAt?: (seconds: number) => IAutoMovieRigidTransform;
+  }
+
   /**
    * Actual rigid polygon drawing and its owned resource lifetime.
    *
@@ -70,6 +96,20 @@ export namespace AutoMovieHumanPolygon {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary placement references expire after the call; drawing resources retain their existing owner and no clock or task is acquired.
      */
     setPose: (output: Pick<IAutoMovieHumanSkeleton.IOutput, "posed">) => void;
+
+    /**
+     * Draw the source pose with authored polygon cues at the given shot-local seconds.
+     * Present when the drawing was built with a presentation.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Specifies availability, units and source clock.
+     * @evidence contracts/development/implementation.md#principled-implementation Samples visual poses from the requested time and applies them through setPose.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The prepared sampler owns cue arithmetic and setPose owns graphics updates.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The source pose and graphics inventory are reused for each seek.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Sampling and applying a complete pose are both linear in the skeletal drawing size.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Release frames are captured once and reused by any ordering of seeks.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The drawing releases its sampler at disposal and refuses drawing after retirement.
+     */
+    drawAt?: (seconds: number) => void;
 
     /**
      * Replace emitted-part RGB overrides; undefined restores the borrowed clay material.

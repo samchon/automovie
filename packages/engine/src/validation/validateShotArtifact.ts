@@ -5,7 +5,9 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { ViolationCollector } from "./ViolationCollector";
 import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
+import { appendPolygonBodyCuesArtifact } from "./appendPolygonBodyCuesArtifact";
 import { appendPracticalSurfacesArtifact } from "./appendPracticalSurfacesArtifact";
 import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
 import { asArray } from "./asArray";
@@ -21,9 +23,9 @@ import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
 /**
- * Admit shot/scene/camera references, performances, motion clips, practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
+ * Admit shot/scene/camera references, performances, motion clips, polygon body cue and practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, polygon body cue and practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Clip shape and metadata/light owners supply leaf checks while this entry owns scene cross references.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A null motion registry defers compiled-motion existence; performance/object-clip walks report absent slots rather than silently skipping them. Clearance rows remain metadata rather than recomputed sweeps.
  * @evidence contracts/development/common.md#meaningful-documentation Exact paths and registry-optional semantics explain the host/engine boundary.
@@ -46,7 +48,8 @@ export const validateShotArtifact: (
    */
   motionIds: ReadonlySet<string> | null,
 ): IAutoMovieValidation => {
-  const violations: IAutoMovieConstraintViolation[] = [];
+  const collector: ViolationCollector = new ViolationCollector();
+  const violations: IAutoMovieConstraintViolation[] = collector.items;
   if (!validateObjectArtifact(shot, "$input", "shot", violations))
     return toValidation(violations);
   validateNonEmptyId(shot.id, "$input.id", "shot id", violations);
@@ -189,9 +192,18 @@ export const validateShotArtifact: (
     violations,
   );
 
+  const sceneNodes: unknown[] = asArray(
+    isRecord(scene) ? scene.nodes : undefined,
+  );
+  appendPolygonBodyCuesArtifact(
+    shot.polygonBodyCues,
+    sceneNodes,
+    shot.duration,
+    collector,
+  );
   appendPracticalSurfacesArtifact(
     shot.practicalSurfaces,
-    asArray(isRecord(scene) ? scene.nodes : undefined),
+    sceneNodes,
     shot.duration,
     violations,
   );

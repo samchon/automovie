@@ -179,6 +179,7 @@ export function compileDefinedShot<Context>(
       lightMotions: props.runtime.lightMotions,
       practicalLights: props.runtime.practicalLights,
       practicalSurfaces: program.practicalSurfaces,
+      polygonBodyCues: program.polygonBodyCues,
       objectMotions: props.runtime.objectMotions,
       props: props.runtime.props,
       frameFormat: props.runtime.frameFormat,

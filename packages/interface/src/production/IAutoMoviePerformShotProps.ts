@@ -1,6 +1,7 @@
 import type { IAutoMovieBlocking } from "../authoring/IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
+import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
@@ -209,6 +210,9 @@ export interface IAutoMoviePerformShotProps {
    * appearance alone.
    */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
+
+  /** Polygon body changes keyed by staged node and rig bone, timed in source-shot seconds. */
+  polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**
    * Clips the source authored over non-performing scene nodes, such as a

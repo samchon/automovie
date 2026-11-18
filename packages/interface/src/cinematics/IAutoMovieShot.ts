@@ -3,6 +3,7 @@ import type { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraC
 import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
 import type { IAutoMovieEditorialMarker } from "./IAutoMovieEditorialMarker";
 import type { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
+import type { IAutoMoviePolygonBodyCue } from "./IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "./IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
 import type { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
@@ -78,6 +79,9 @@ export interface IAutoMovieShot {
    * part. Omission or an empty list leaves the staged appearance in force.
    */
   practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
+
+  /** Polygon body changes in source-shot time. Each subject and bone pair may appear once. */
+  polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**
    * Computed or scripted interactions on this shot's local clock, ordered by

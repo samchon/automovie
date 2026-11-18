@@ -9,7 +9,7 @@ import { resolveAutoMovieFilmBeautyComposition } from "./resolveAutoMovieFilmBea
 /**
  * Render already sampled film layers through one beauty/guide boundary.
  *
- * Layer sample fields are opaque to this owner. The callback resolves that source's exact state and owns its reversible pass configuration. Beauty preserves direct, fade and dissolve weights; structural passes consume the Engine's single full-weight dominant layer with incoming winning a tie. Input admission happens before any callback can alter the display.
+ * Layer sample fields are opaque to this owner. An optional preparation callback samples the selected source before its draw, including each source of a dissolve. The render callback owns its reversible pass configuration. Beauty preserves direct, fade and dissolve weights; structural passes consume the Engine's single full-weight dominant layer with incoming winning a tie. Input admission happens before either callback can alter the display.
  *
  * The sampled film inputs are explicit. Interactive display-clock updates and inspection CLI timestamp filenames remain host observations rather than deterministic delivered-frame identity.
  *
@@ -29,6 +29,7 @@ export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
     layer: Omit<Layer, "weight"> & { weight: number },
     pass: AutoMovieGuidePass,
   ) => void,
+  prepareLayer?: (layer: Omit<Layer, "weight"> & { weight: number }) => void,
 ) => void = <Layer extends { weight: number }>(
   renderer: THREE.WebGLRenderer,
   layers: readonly Layer[],
@@ -37,27 +38,31 @@ export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
     layer: Omit<Layer, "weight"> & { weight: number },
     pass: AutoMovieGuidePass,
   ) => void,
+  prepareLayer?: (layer: Omit<Layer, "weight"> & { weight: number }) => void,
 ): void => {
   const composition: ReturnType<
     typeof resolveAutoMovieFilmBeautyComposition<Layer>
   > = resolveAutoMovieFilmBeautyComposition(layers);
+  const draw = (layer: Omit<Layer, "weight"> & { weight: number }): void => {
+    prepareLayer?.(layer);
+    renderLayer(layer, pass);
+  };
   if (pass !== "beauty") {
     const selected: ReturnType<typeof productionRenderLayersForPass<Layer>> =
       productionRenderLayersForPass({ layers }, pass);
-    renderLayer(selected[0]!, pass);
-  } else if (composition.kind === "direct")
-    renderLayer(composition.layer, pass);
+    draw(selected[0]!);
+  } else if (composition.kind === "direct") draw(composition.layer);
   else if (composition.kind === "fade")
     renderFadeToBlackFrame(
       renderer,
-      (): void => renderLayer(composition.layer, pass),
+      (): void => draw(composition.layer),
       composition.weight,
     );
   else
     renderCrossDissolveFrames(
       renderer,
-      (): void => renderLayer(composition.outgoing, pass),
-      (): void => renderLayer(composition.incoming, pass),
+      (): void => draw(composition.outgoing),
+      (): void => draw(composition.incoming),
       composition.alpha,
     );
 };
