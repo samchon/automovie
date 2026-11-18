@@ -96,6 +96,13 @@ export namespace HumanArmTrajectoryMirror {
     return {
       ...problem,
       bases: problem.bases.map(mirroredBase),
+      ...(problem.material === undefined ? {} : {
+        material: {
+          at: (seconds: number): G.IBase => mirroredBase(problem.material!.at(seconds)),
+          bones: problem.material.bones.map((bone: string | undefined) =>
+            bone === undefined ? undefined : HumanArmMirror.opposite(bone as AutoMovieHumanoidBone)),
+        },
+      }),
       arms: problem.arms.map(
         (arm: HumanArmTrajectory.IArm): HumanArmTrajectory.IArm => ({
           ...arm,

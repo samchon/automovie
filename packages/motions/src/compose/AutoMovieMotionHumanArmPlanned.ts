@@ -292,6 +292,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
     ): HumanArmTrajectory.IProblem => ({
       body,
       times: waypoints,
+      ...(carries.some((arm) => arm.on !== undefined) ? {
+        material: { at: base, bones: carries.map((arm) => arm.on) },
+      } : {}),
       share: carries[0]!.weight,
       arms: carries.map((c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): HumanArmTrajectory.IArm => {
         const rider: number =

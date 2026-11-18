@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
+import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
  * A trajectory's interpolant between its waypoints, and where the waypoints
@@ -213,4 +214,4 @@ function strayed(
 }
 
 /** How far an interpolated site may leave the act's own between waypoints, metres: the millimetre the solve lets a hand miss its site at a waypoint (`HumanArmTrajectoryModel.TOLERANCE`). */
-const TOLERANCE: number = M.TOLERANCE / 1000;
+const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;

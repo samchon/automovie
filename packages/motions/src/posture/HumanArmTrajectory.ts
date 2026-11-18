@@ -96,6 +96,8 @@ export namespace HumanArmTrajectory {
     times: readonly number[];
     /** What every arm is read against at each waypoint, the arms of the problem left out. */
     bases: readonly G.IBase[];
+    /** Native body geometry for the authored hand support, when present. */
+    material?: M.IMaterialSource;
     /** The arms, one or two. */
     arms: readonly IArm[];
     /**

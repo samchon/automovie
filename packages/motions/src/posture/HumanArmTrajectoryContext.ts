@@ -47,6 +47,8 @@ export namespace HumanArmTrajectoryContext {
 
     /** What every arm is read against at each waypoint. */
     bases: readonly G.IBase[];
+    /** Native body geometry for the authored hand support, when present. */
+    material?: M.IMaterialSource;
 
     /** The arms. */
     arms: readonly {
@@ -393,6 +395,13 @@ export namespace HumanArmTrajectoryContext {
     };
 
     const context: M.IContext = {
+      ...(problem.material === undefined ? {} : {
+        material: {
+          parts: problem.material.bones.map((bone) => model.parts.findIndex((part) => part.bone === bone)),
+          frame: (a: number, seconds: number): IAutoMovieMotionHumanArmGeometry.IFrame =>
+            HumanArmFrame.of(setups[a]!, problem.material!.at(seconds), alone),
+        },
+      }),
       n,
       still: problem.still === true,
       open,

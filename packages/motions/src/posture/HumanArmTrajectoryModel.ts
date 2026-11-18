@@ -5,6 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { HumanArmGeometryTypes } from "./HumanArmGeometryTypes";
 import { HumanArmTrajectoryEvaluate } from "./HumanArmTrajectoryEvaluate";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
@@ -106,8 +107,26 @@ export namespace HumanArmTrajectoryModel {
     return 1000 * c.speed((c.times[k]! + c.times[k + 1]!) / 2) * dt - TOLERANCE;
   }
 
+  /** The authored self-support bones and native body for an arm course. */
+  export interface IMaterialSource {
+    /** The supported bone of each hand, when the author names one. */
+    bones: readonly (string | undefined)[];
+    /** The action's original base at a second on its waypoints' clock. */
+    at(seconds: number): HumanArmGeometryTypes.IBase;
+  }
+
+  /** Own support part ordinals and the posed geometry for an interior encounter. */
+  export interface IMaterial {
+    /** Each supported bone in the body geometry, or -1 when absent. */
+    parts: readonly number[];
+    /** Actual arm and obstacle geometry at an interior encounter. */
+    frame(a: number, seconds: number): IAutoMovieMotionHumanArmGeometry.IFrame;
+  }
+
   /** What a solve reads, built once (`HumanArmTrajectoryContext.of`). */
   export interface IContext {
+    /** Native self-contact geometry at an interior material encounter. */
+    material?: IMaterial;
     /** The number of waypoints. */
     n: number;
     /** Whether the problem is a still configuration, read without its steps, speeds and sweeps and smoothed only among its inner waypoints. */
