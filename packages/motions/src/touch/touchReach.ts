@@ -63,15 +63,21 @@ export namespace touchReach {
     reached: IAutoMovieMotionHumanPosture,
     hands: readonly (readonly [AutoMovieHumanSide, IAutoMovieMotionTarget])[],
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
-    region: (target: IAutoMovieMotionTarget) => IAutoMovieMotionHumanTouch.ITouch["region"],
+    region: (
+      target: IAutoMovieMotionTarget,
+    ) => IAutoMovieMotionHumanTouch.ITouch["region"],
     laid: touchHold.Lay,
   ): number {
     let longest: number = 0;
     let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
-    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    let projection:
+      | ReturnType<typeof prepareHumanPostureProjection>
+      | undefined;
     for (const [side, target] of hands) {
-      const read: ReturnType<typeof prepareHumanPoseResolution> = resolution ??= prepareHumanPoseResolution();
-      const project: ReturnType<typeof prepareHumanPostureProjection> = projection ??= prepareHumanPostureProjection(body);
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        (resolution ??= prepareHumanPoseResolution());
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        (projection ??= prepareHumanPostureProjection(body));
       longest = Math.max(
         longest,
         laidReach(
@@ -121,12 +127,29 @@ export namespace touchReach {
     surface: "palm" | "fist",
     point: IAutoMovieVector3,
   ): number {
-    const from: IAutoMovieVector3 = HumanHand.frame(body, bones, side, surface, "relaxed").point;
-    const free: number = AutoMovieMotionHumanTiming.transport(Vector3.distance(point, from));
+    const from: IAutoMovieVector3 = HumanHand.frame(
+      body,
+      bones,
+      side,
+      surface,
+      "relaxed",
+    ).point;
+    const free: number = AutoMovieMotionHumanTiming.transport(
+      Vector3.distance(point, from),
+    );
     return entry === undefined
       ? free
-      : Math.max(free, place(body, entry, side,
-          { surface, shape: surface === "fist" ? "fist" : "flat" }, point, "up"));
+      : Math.max(
+          free,
+          place(
+            body,
+            entry,
+            side,
+            { surface, shape: surface === "fist" ? "fist" : "flat" },
+            point,
+            "up",
+          ),
+        );
   }
 
   /**
@@ -141,6 +164,7 @@ export namespace touchReach {
    * @param effector The part of the hand that meets the point.
    * @param point The point, world.
    * @param tangent Which tangent the effector lies along.
+   * @param facing The contact's outward normal, when the frame fixes it.
    * @returns Seconds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the region the point is read as and the unit.
@@ -158,15 +182,30 @@ export namespace touchReach {
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     point: IAutoMovieVector3,
     tangent: IAutoMovieMotionHumanTouchForm.Tangent,
+    facing?: IAutoMovieVector3,
   ): number {
     const reached: IAutoMovieMotionHumanPosture = entry.posture;
-    const back: IAutoMovieVector3 = { x: reached.root.x - point.x, y: 0, z: reached.root.z - point.z };
+    const back: IAutoMovieVector3 = {
+      x: reached.root.x - point.x,
+      y: 0,
+      z: reached.root.z - point.z,
+    };
     const length: number = Math.hypot(back.x, back.z);
     const yaw: number = (reached.yaw * Math.PI) / 180;
-    const normal: IAutoMovieVector3 = length > 1e-6
-      ? { x: back.x / length, y: 0, z: back.z / length }
-      : { x: -Math.sin(yaw), y: 0, z: -Math.cos(yaw) };
-    return laidReach(body, reached, entry.pose, side, effector, { point, normal }, tangent);
+    const normal: IAutoMovieVector3 =
+      facing ??
+      (length > 1e-6
+        ? { x: back.x / length, y: 0, z: back.z / length }
+        : { x: -Math.sin(yaw), y: 0, z: -Math.cos(yaw) });
+    return laidReach(
+      body,
+      reached,
+      entry.pose,
+      side,
+      effector,
+      { point, normal },
+      tangent,
+    );
   }
 }
 
@@ -208,13 +247,22 @@ function laidReach(
     AutoMovieMotionHumanBend.hang(body, reached, side),
     "arm",
   );
-  const arrival: IAutoMovieMotionHumanArmAngles.IAngles = AutoMovieMotionHumanArm.angles(
-    resolveHumanPosture.seeded(body, {
-      ...reached,
-      limbs: { ...reached.limbs, [`${side}Arm`]: goal },
-    }, undefined, undefined, read, undefined, project).pose,
-    side,
-  );
+  const arrival: IAutoMovieMotionHumanArmAngles.IAngles =
+    AutoMovieMotionHumanArm.angles(
+      resolveHumanPosture.seeded(
+        body,
+        {
+          ...reached,
+          limbs: { ...reached.limbs, [`${side}Arm`]: goal },
+        },
+        undefined,
+        undefined,
+        read,
+        undefined,
+        project,
+      ).pose,
+      side,
+    );
   return AutoMovieMotionHumanArmPlanned.reaching(
     body,
     reached,
