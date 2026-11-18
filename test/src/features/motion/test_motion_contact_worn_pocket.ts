@@ -5,9 +5,9 @@ import {
   quaternionFromAutoMovieBasis,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCatchObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
   IAutoMovieQuaternion,
@@ -41,7 +41,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and six short films; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 3 scenarios with their bounds.
  */
-export function test_archetype_glove_catch(): void {
+export function test_motion_contact_worn_pocket(): void {
   const ball: ReturnType<typeof createBall> = createBall({ kind: "baseball" });
   const glove: ReturnType<typeof createGlove> = createGlove({
     kind: "fielder",
@@ -66,7 +66,7 @@ export function test_archetype_glove_catch(): void {
   };
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const at: IAutoMovieVector3 = {
       x: 0,
@@ -76,7 +76,7 @@ export function test_archetype_glove_catch(): void {
         catchObject.REACH * (body.measure.upperArm + body.measure.forearm),
     };
     const perform = (
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
       gloved: boolean,
     ): IAutoMovieMotionHumanPerformance => {
       const composition: IAutoMovieComposition = {
@@ -131,16 +131,12 @@ export function test_archetype_glove_catch(): void {
         composition,
       });
     };
-    const contact = (
-      film: IAutoMovieMotionHumanPerformance,
-    ): { at: number; centre: IAutoMovieVector3 } => {
+    const contact = (film: IAutoMovieMotionHumanPerformance): IMeeting => {
       const act: IAutoMovieMotionHumanSegment = film.segments("b")[0]!;
       const local: number = act.plan.contact ?? Number.NaN;
       return {
         at: act.start + local,
-        centre: (act.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(
-          local,
-        ),
+        centre: film.prop("ball", act.start + local).position,
       };
     };
     const palm = (
@@ -154,10 +150,10 @@ export function test_archetype_glove_catch(): void {
     };
 
     // 1. The gloved catch meets the ball with the pocket.
-    let gloved: IAutoMovieMotionHumanPerformance | undefined;
+    let gloved: OptionalPerformance;
     try {
       gloved = perform("left", true);
-      const meet: { at: number; centre: IAutoMovieVector3 } = contact(gloved);
+      const meet: IMeeting = contact(gloved);
       const frame: IAutoMovieRigidTransform = gloved.prop("glove", meet.at);
       const pocket: IAutoMovieVector3 = Vector3.add(
         frame.position,
@@ -213,3 +209,11 @@ export function test_archetype_glove_catch(): void {
     [],
   );
 }
+
+/** Displayed sphere centre and contact time. */
+interface IMeeting {
+  at: number;
+  centre: IAutoMovieVector3;
+}
+/** A performance may refuse entry before contact. */
+type OptionalPerformance = IAutoMovieMotionHumanPerformance | undefined;

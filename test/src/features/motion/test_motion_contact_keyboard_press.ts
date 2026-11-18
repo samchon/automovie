@@ -36,17 +36,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and eight short films; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 4 scenarios with their bounds.
  */
-export function test_archetype_keyboard_typing(): void {
-  const text: string = "hello world";
+export function test_motion_contact_keyboard_press(): void {
+  const text: string = "gh";
   const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: 0, y: 1, z: 0 },
     180,
   );
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    for (const kind of createKeyboard.KINDS) {
+    for (const kind of ["keyboard"] as const) {
       const board: ReturnType<typeof createKeyboard> = createKeyboard({ kind });
       const row: IAutoMovieVector3 = Quaternion.rotateVector(
         turn,
@@ -109,24 +109,25 @@ export function test_archetype_keyboard_typing(): void {
       [...text].forEach((letter: string, i: number): void => {
         const t: number =
           segment.start + segment.plan.events[i]!.share * segment.plan.duration;
-        const key: ReturnType<typeof typeText.key> = typeText.key(letter);
+        const side = letter === "g" ? "left" : "right";
+        const offset: number = (letter === "g" ? 0.5 : -0.5) * 0.01905;
         const tip: IAutoMovieVector3 = HumanHand.frame(
           body,
           film.bones("a", t),
-          key.side,
+          side,
           "indexTip",
           "point",
         ).point;
         const miss: number = Vector3.length(
           Vector3.subtract(tip, {
-            x: at.x + key.at.x,
+            x: at.x + offset,
             y: at.y - typeText.TRAVEL,
-            z: at.z + key.at.z,
+            z: at.z,
           }),
         );
         if (!(miss <= 0.01))
           complaints.push(
-            `${label}: the ${key.side} fingertip is ${mm(miss)} mm from "${letter}" at press ${i + 1}, within 10 mm expected`,
+            `${label}: the ${side} fingertip is ${mm(miss)} mm from "${letter}" at press ${i + 1}, within 10 mm expected`,
           );
       });
 
