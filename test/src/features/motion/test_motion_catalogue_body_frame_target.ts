@@ -4,6 +4,7 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmTarget,
+  IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
@@ -15,6 +16,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanBend,
   AutoMovieMotionHumanPlaced,
   AutoMovieMotionHumanTarget,
   HumanFoot,
@@ -29,7 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The places a law reads around a posture (`AutoMovieMotionHumanPlaced`)
- * and the arm goals and carries that lay a hand on them
+ * and the arm goals that lay a hand on them
  * (`AutoMovieMotionHumanArm.origin`, `goal`, `carried`), on the average
  * man.
  *
@@ -85,6 +87,51 @@ export function test_motion_catalogue_body_frame_target(): void {
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  // Body-local elbow hints turn with the shoulder frame; axial swivel keeps the elbow radius.
+  for (const side of ["left", "right"] as const) {
+    const shoulder: IAutoMovieVector3 = body.rest.get(
+      (side + "UpperArm") as AutoMovieHumanoidBone,
+    )!;
+    const sign: number = side === "left" ? 1 : -1;
+    const length: number = body.measure.upperArm;
+    const root: IAutoMovieVector3 = { x: 1, y: 0, z: 2 };
+    for (const [name, shares] of Object.entries(AutoMovieMotionHumanBend.ARM)) {
+      const elbow = AutoMovieMotionHumanBend.arm(
+        body,
+        { root, yaw: 90 },
+        side,
+        name as IAutoMovieMotionHumanBend.Arm,
+      );
+      complaints.check(
+        name + " elbow rotates around the " + side + " shoulder",
+        near(elbow, {
+          x: root.x + shoulder.z + shares.forward * length,
+          y: shoulder.y + shares.up * length,
+          z: root.z - shoulder.x - sign * shares.out * length,
+        }),
+      );
+    }
+    const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    const swivel: IAutoMovieMotionHumanBend.ISolve = {
+      body,
+      side,
+      posture: { root: zero, yaw: 0 },
+      point: { ...shoulder, z: shoulder.z + length },
+    };
+    const below: IAutoMovieVector3 = {
+      ...shoulder,
+      y: shoulder.y - length / 2,
+      z: shoulder.z + length / 2,
+    };
+    complaints.check(
+      side + " quarter turn keeps the elbow on its circle",
+      near(AutoMovieMotionHumanBend.turn(swivel, below, 90), {
+        x: shoulder.x + length / 2,
+        y: shoulder.y,
+        z: below.z,
+      }),
+    );
+  }
   const rested = (
     root: IAutoMovieVector3,
     turn: BodyOrientation,
@@ -106,7 +153,6 @@ export function test_motion_catalogue_body_frame_target(): void {
     return { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
   };
 
-  // 1. Girdle, root and pitch.
   const l = body.rest.get("leftUpperArm")!;
   const r = body.rest.get("rightUpperArm")!;
   complaints.check(
@@ -151,7 +197,6 @@ export function test_motion_catalogue_body_frame_target(): void {
       P.pitch(body, -2 * length) === P.pitch(body, -length),
   );
 
-  // 2. Joint, shoulders and carried.
   const quiet: IAutoMovieMotionHumanPosture = stand.posture(
     body,
     { x: 0, y: 0, z: 0 },
@@ -203,7 +248,6 @@ export function test_motion_catalogue_body_frame_target(): void {
       near(P.carried(body, quiet, quiet, point), point, 1e-9),
   );
 
-  // 3. Grid.
   const restHips: IAutoMovieVector3 = body.rest.get("hips")!;
   const shownHips: IAutoMovieVector3 = {
     x: quiet.root.x + restHips.x,

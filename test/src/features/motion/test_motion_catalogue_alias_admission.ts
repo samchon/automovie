@@ -209,6 +209,11 @@ function checkWorkoutRoutes(): void {
 type Movement = readonly [
   IAutoMovieMotionHumanWorkoutGym.Name,
   AutoMovieHumanoidBone,
-  0 | 1,
-  -1 | 1,
+  MovementAxis,
+  MovementDirection,
 ];
+
+/** Flexion or lateral joint axis. */
+type MovementAxis = 0 | 1;
+/** Direction of the authored movement. */
+type MovementDirection = -1 | 1;
