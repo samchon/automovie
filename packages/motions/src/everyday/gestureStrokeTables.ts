@@ -16,9 +16,9 @@ import type {
 export namespace gestureStrokeTables {
   /**
    * A gesture's timing: cycles in the stroke and the time of one cycle, a
-   * named pause or a pause scaled (the seconds each resolves to are the ones
-   * the gestures shipped with; the clap's three beats a second is no scaled
-   * pause and stays explicit).
+   * named pause or a pause scaled (provisional, read from no measured source
+   * except the rates `gestureStroke` and `gestureJoints` cite; the clap's
+   * three beats a second is no scaled pause and stays explicit).
    */
   export const RHYTHM: Readonly<
     Record<

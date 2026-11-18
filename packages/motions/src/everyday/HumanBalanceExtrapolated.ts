@@ -24,28 +24,24 @@ import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
  */
 export namespace HumanBalanceExtrapolated {
   /**
-   * Read the original dynamic margin with one-argument movement callbacks.
+   * The dynamic margin at one instant of a movement given by a one-argument posture function.
    *
-   * @param body The canonical body whose complete goals and mass are solved.
-   * @param at Current raw posture at film seconds, called only with that time.
+   * @param body The body whose goals and mass are solved.
+   * @param at The movement's posture at a film second, called with that second only.
    * @param seconds The instant to observe.
    * @returns Signed stability margin in metres, positive inside the foot hull.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States callback arity, full solving, world-metre sign and original three-instant observation.
-   * @evidence contracts/development/implementation.md#principled-implementation Hof's extrapolated mass centre uses velocity from the original t-1/240 and t+1/240 observations and pendulum length 1.34 hip heights, then actual t foot outlines determine the margin.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Per-call FK/ROM and centre metadata feed one shared three-pose numerical owner; a thin callback adapter retains the original single supplied argument.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original callback, full seeded fit, joint admission, mass sum, velocity expression, pendulum and hull query remains in its original order; no movement sample or achieved centre is substituted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three complete posture fits remain, with one mass-name preparation for both neighbours and the original full final FK. Repeated fixed-body callers use prepare to move only immutable indexing outside their loop.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One synchronous FK workspace and genuine ROM projector serve all three actual fits; current scalar dependencies and every authored joint remain admitted. No prior dynamic margin, pose or time sample is reused.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local metadata, callback adapter and centre reader end with this call or throw; only a scalar escapes and no body, posture, frame, projector or history is retained here.
+   * @evidence contracts/development/common.md#meaningful-documentation States the callback's argument, the solving, the world-metre sign and the three instants observed.
+   * @evidence contracts/development/implementation.md#principled-implementation Hof's extrapolated centre of mass from the velocity of the t - 1/240 s and t + 1/240 s centres and a pendulum of 1.34 hip heights, measured to the foot outlines at t.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-off use of `prepare`: the same reader, built and read once, with the callback narrowed to its one argument.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every instant's posture is fully solved; no sample or centre is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three full posture fits; callers observing many instants use `prepare` to bind the bone names once.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The three fits share one FK workspace and ROM projector; nothing is reused across calls.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader and its workspaces end with the call; only a scalar escapes.
    */
   export function of(body: IAutoMovieMotionHumanBody, at: (seconds: number) => IAutoMovieMotionHumanPosture,
     seconds: number): number {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-    const centre: ReturnType<typeof prepareHumanBalanceCentre> = prepareHumanBalanceCentre(body);
-    return observed(body, (t: number): IAutoMovieMotionHumanPosture => at(t), seconds,
-      resolution, projection, centre);
+    return prepare(body)((t: number): IAutoMovieMotionHumanPosture => at(t), seconds);
   }
 
   /**
@@ -54,13 +50,13 @@ export namespace HumanBalanceExtrapolated {
    * @param body The unchanged canonical body and its classic profile mass model.
    * @returns A margin reader taking a current movement and film second, plus optional synchronous FK/ROM loans. Each movement invocation receives its actual time and those same loans; no movement or result enters the preparation.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States unchanged-body lifetime, current movement/time inputs, optional same-operation metadata loans, callback arguments and signed metre output.
-   * @evidence contracts/development/implementation.md#principled-implementation Shares only the genuine mass-bearing and actual foot socket/outline name preparation. The shared owner still evaluates both neighbours and current full posture, the same central difference, mass extrapolation and actual support hull.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One centre reader and one union-demand final FK producer precede the per-observation native full-fit path; supplied synchronous metadata reaches movement construction and every actual canonical fit.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All authored joints and all limb/digit/contact fits remain complete, including unrelated goals; final demand changes only unobserved world transforms. Every movement callback and mass/hull computation still runs, with original step, candidate order and bounds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed mass/foot name lookup and sorting run once across Q observations; each observation retains three full fits and current mass/support work while its final FK returns only profile and actual socket/outline ancestors. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged canonical body establishes fixed rig/profile/surface membership. Each invocation lends its own or a parent's exact FK workspace and genuine ROM metadata; every changed root/joint/goal and mass placement remains actual and no sample identity keys a result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning search/plan retains body and two bounded static readers until release. Current movement functions, postures, returned maps, mass centres, FK/ROM loans and time samples remain invocation-local and are never saved by the returned closure.
+   * @evidence contracts/development/common.md#meaningful-documentation States the body's lifetime, the movement and time inputs, the optional borrowed workspaces, the callback's arguments and the signed metre output.
+   * @evidence contracts/development/implementation.md#principled-implementation Binds the mass-bearing and foot bone names once; each observation solves the two neighbouring postures and the current one fully, takes the central difference, extrapolates the centre (Hof, Gazendam and Sinke 2005) and measures it to the support hull.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One centre reader and one bone reader for the final posture are built once; each observation runs the three fits, lending them any supplied workspaces.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every limb, digit and contact goal is fitted; the final reading omits only bones no measure reads.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The name lookup runs once across Q observations; each observation costs three full fits and the mass and support work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body fixes the bone names; each observation lends its own or its caller's FK workspace and ROM projector to its fits, and nothing keys a result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller holds the body and the two readers until release; movements, postures, centres and workspaces stay within each observation.
    */
   export function prepare(body: IAutoMovieMotionHumanBody): (at: At, seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -83,11 +79,13 @@ export namespace HumanBalanceExtrapolated {
 type At = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieMotionHumanPosture;
 
-/** The original central difference, current full solve and support margin. */
+/** The central difference of the centre, the full solve at the instant and the support margin of the extrapolated centre. */
 function observed(body: IAutoMovieMotionHumanBody, at: At, seconds: number,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
   centre: ReturnType<typeof prepareHumanBalanceCentre>, frames?: ReturnType<typeof poseBones.prepare>): number {
+  // The difference step: a tenth of a 24 Hz film frame, so the difference
+  // reads the movement's velocity within the frame it is drawn on.
   const h: number = 1 / 240;
   const a: IAutoMovieVector3 = centre(at(seconds - h, resolution, projection), resolution, projection);
   const b: IAutoMovieVector3 = centre(at(seconds + h, resolution, projection), resolution, projection);

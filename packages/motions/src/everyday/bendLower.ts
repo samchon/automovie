@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRefusal,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -28,11 +29,11 @@ import { HumanTrunk } from "./HumanTrunk";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is lowered and solved and who reads it.
  * @evidence contracts/development/design.md#principled-representation Pure posture transforms keyed by the bend law's concrete strategies, with their provisional shares as tables beside them.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two tables, the scan's step and three functions, read by the bend law and the pick-up's lowering.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two tables, the reach share, the search's named steps and bounds and three functions, read by the bend law, the crouch's heel lift and the pick-up's lowering.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No body or case is special-cased.
  */
 export namespace bendLower {
-  /** Hip height kept by each strategy, a share of the standing hip height (provisional). */
+  /** Hip height kept by each strategy, a share of the standing hip height (provisional: a stoop's nearly straight knees, a semi-squat's half-bent and a squat's deep ones, the three postures the lifting literature compares, van Dieen, Hoozemans and Toussaint 1999, Clin Biomech 14:685, without these heights). */
   export const HIPS: Readonly<Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>> =
     {
       stoop: 0.97,
@@ -119,7 +120,7 @@ export namespace bendLower {
     // The pelvis tilts by what the hips leave it over the ankles as the legs
     // will hold them: a lifted heel raises its ankle and folds the thigh
     // further, so the limit is read after the lift.
-    const tilt = HumanTrunk.incline(
+    const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
       posture.joints,
       pitch,
       HumanTrunk.pelvisLimit(body, level, posture.yaw, {
@@ -162,9 +163,9 @@ export namespace bendLower {
 
   /**
    * The least trunk pitch that brings the shoulder within reach of the
-   * target under a strategy, over 0 to 150 degrees of inclination: the first
-   * of every `SCAN` degrees that reaches, refined by bisection from the one
-   * before.
+   * target under a strategy, over 0 to `DEEPEST` degrees of inclination: the
+   * first of every `SCAN` degrees that reaches, refined by bisection from the
+   * one before.
    *
    * @param body The body.
    * @param posture The standing posture.
@@ -174,12 +175,12 @@ export namespace bendLower {
    * @param lean The balance shift per unit sine of the inclination, metres.
    * @param reach How near the shoulder must come to the target, metres; `REACH` of the arm plus the palm's offset when absent, a palm laid on the target.
    * @returns Degrees.
-   * @throws {HumanRefusal} When even 150 degrees leaves the target out of reach.
+   * @throws {HumanRefusal} When even `DEEPEST` degrees leaves the target out of reach, with the lowest height the hand reaches above the target's floor point over the inclinations tried as the feasible range, or none when the point lies beyond the arm's reach across the floor at all of them.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the quantity solved, the search range, the reach model and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The gap between the shoulder-to-target distance and the arm's reach (`REACH` of upper arm plus forearm, near full extension, plus the palm offset), the shoulder read from the lowered trunk's forward kinematics, is scanned every `SCAN` degrees for the first inclination that closes it, then bisected between that one and the one before. The gap does not fall all the way: the shoulder swings down past a target at counter height, so the gap at 150 degrees opens again, and a bisection over the whole range refused a counter a slight lean reaches.
+   * @evidence contracts/development/common.md#meaningful-documentation States the quantity solved, the search range, the reach model and the refusal with its feasible height.
+   * @evidence contracts/development/implementation.md#principled-implementation The gap between the shoulder-to-target distance and the arm's reach (`REACH` of upper arm plus forearm, near full extension, plus the palm offset), the shoulder read from the lowered trunk's forward kinematics, is scanned every `SCAN` degrees for the first inclination that closes it, then bisected between that one and the one before. The gap does not fall all the way: the shoulder swings down past a target at counter height, so the gap at the deepest inclinations opens again, and a bisection over the whole range would refuse a counter a slight lean reaches. Each shoulder within reach across the floor also gives the lowest height the hand reaches there, the reach sphere's bottom under it, kept for the refusal.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve that reuses `lower` for the body and HumanTrunk for the shoulder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach share is the measured `REACH` and the 150 degree bound is named in the doc; an unreachable target is refused, not clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reach share is the measured `REACH` and the `DEEPEST` bound is a named provisional constant; an unreachable target is refused with what it can reach, not clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most 31 scanned and 30 bisected gap evaluations, each one lowered posture and one trunk forward-kinematics pass; the 30 steps bound the error below 5e-9 degrees.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each evaluation depends on its own inclination, so nothing repeats within a call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -194,7 +195,11 @@ export namespace bendLower {
     reach: number = REACH * (body.measure.upperArm + body.measure.forearm) +
       Vector3.length(HumanHand.offset(body, side, "palm").point),
   ): number {
-    const gap = (deg: number): number => {
+    // The lowest height the hand reaches above the target's floor point over
+    // the inclinations tried: below a shoulder within reach across the floor,
+    // the reach's depth under it.
+    let lowest: number = Infinity;
+    const gap: (deg: number) => number = (deg: number): number => {
       const lowered: IAutoMovieMotionHumanPosture = lower(
         body,
         posture,
@@ -206,19 +211,33 @@ export namespace bendLower {
       const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, lowered).get(
         `${side}UpperArm`,
       )!.worldPosition;
+      const across: number = Math.hypot(target.x - shoulder.x, target.z - shoulder.z);
+      if (across <= reach)
+        lowest = Math.min(lowest, shoulder.y - Math.sqrt(reach * reach - across * across));
       return Vector3.length(Vector3.subtract(target, shoulder)) - reach;
     };
     if (gap(0) <= 0) return 0;
     let hi: number = SCAN;
-    while (hi <= 150 && gap(hi) > 0) hi += SCAN;
-    if (hi > 150)
+    while (hi <= DEEPEST && gap(hi) > 0) hi += SCAN;
+    if (hi > DEEPEST) {
+      const feasible: IAutoMovieMotionHumanRefusal.IRange = {
+        kind: "range",
+        minimum: lowest,
+        maximum: null,
+        unit: "m",
+      };
       throw new HumanRefusal({
         kind: "reach",
         axis: "toward",
-        value: strategy,
-        reason: `A ${strategy} cannot bring the hand to a point ${target.y.toFixed(3)} m high there; step closer to it, or choose a deeper strategy`,
+        value: target.y,
+        ...(lowest === Infinity ? {} : { feasible }),
+        reason:
+          lowest === Infinity
+            ? `A ${strategy} cannot bring the hand over a point ${target.y.toFixed(3)} m high there: it lies beyond the arm's reach across the floor at every inclination`
+            : `A ${strategy} cannot bring the hand down to a point ${target.y.toFixed(3)} m high there; the lowest it reaches there is ${lowest.toFixed(3)} m`,
         fix: "step closer to the target, or choose a deeper strategy",
       });
+    }
     let lo: number = hi - SCAN;
     for (let i: number = 0; i < 30; i++) {
       const mid: number = (lo + hi) / 2;
@@ -234,12 +253,21 @@ export namespace bendLower {
   /** The step of the inclination scan `pitch` closes the reach on, degrees (provisional: fine enough that the gap, which turns once over the range, cannot close and open again between two steps). */
   export const SCAN: number = 5;
 
+  /** The deepest trunk inclination `pitch` searches, degrees (provisional: past the 120 degree hip flexion range of the range table plus most of the lumbar spine's, so no inclination a standing body can take is cut off). */
+  export const DEEPEST: number = 150;
+
+  /** The inclination the first balance shift is solved at, degrees, before the needed one is known (provisional: a middling stoop, read from no measured source). */
+  export const NOMINAL: number = 60;
+
+  /** The inclination under which the first balance shift is kept instead of solved again, degrees (provisional: one `SCAN` step, under which the shift, which scales with the inclination's sine, stays within a few millimetres). */
+  export const SHALLOW: number = 5;
+
   /**
    * The lowering that brings a hand within reach of a target under a
-   * strategy: the hips' balance shift found on the lowered posture at a
-   * nominal 60 degrees, the least inclination that reaches (`pitch`), and,
-   * past 5 degrees, the shift again at that inclination and the inclination
-   * again with it.
+   * strategy: the hips' balance shift found on the lowered posture at
+   * `NOMINAL` degrees, the least inclination that reaches (`pitch`), and,
+   * past `SHALLOW` degrees, the shift again at that inclination and the
+   * inclination again with it.
    *
    * @param body The body.
    * @param upright The standing posture lowered.
@@ -253,7 +281,7 @@ export namespace bendLower {
    * @evidence contracts/development/common.md#meaningful-documentation States the two passes, the inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The hips move back to keep the centre of mass over the feet (`HumanBalance.shift`), and the inclination is the least that reaches with that shift; the shift is solved again at the needed inclination, since it grows with the trunk's lean.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two balance solves and two pitch solves, in order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 60 degree nominal pitch and the 5 degree threshold below which the first shift stands are the bend law's; nothing is clamped.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `NOMINAL` and `SHALLOW` are named provisional constants; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two balance scans and two pitch solves.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the bend law and by the pick-up's own lowering, so both lower a body alike.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -266,15 +294,15 @@ export namespace bendLower {
     strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
     reach?: number,
   ): IAutoMovieMotionHumanBendLower.ISolved {
-    const shift = (deg: number): number =>
+    const shift: (deg: number) => number = (deg: number): number =>
       HumanBalance.shift(
         body,
         (back: number): IAutoMovieMotionHumanPosture =>
           lower(body, upright, strategy, deg, 1, back),
       ) / Math.sin((deg * Math.PI) / 180);
-    let lean: number = shift(60);
+    let lean: number = shift(NOMINAL);
     let deg: number = pitch(body, upright, target, side, strategy, lean, reach);
-    if (deg > 5) {
+    if (deg > SHALLOW) {
       lean = shift(deg);
       deg = pitch(body, upright, target, side, strategy, lean, reach);
     }

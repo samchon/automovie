@@ -32,6 +32,7 @@ import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
+import { bendLower } from "./bendLower";
 import { braceOnThigh } from "./braceOnThigh";
 import { prepareCrouchInclination } from "./prepareCrouchInclination";
 
@@ -76,6 +77,7 @@ import { prepareCrouchInclination } from "./prepareCrouchInclination";
  * on the thighs just above the knees, as people support the trunk on the
  * thighs (Kingma, Faber and van Dieen 2016, J Biomech 49:881). The descent
  * takes 1.0 s for a partial and 1.3 s for a full squat at a 0.93 m hip
+ * (`REFERENCE_HIP`)
  * height, scaled by the square root of the hip height (dynamic similarity,
  * Alexander 1984) and by the manner's tempo (provisional), the hold `hold`
  * seconds and the rise as long as the descent. Events: `descend` at the
@@ -129,17 +131,20 @@ export namespace crouch {
   /** The ankle's dorsiflexion in a crouch, degrees: the most measured while crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa, Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of 26 adults), within the range table's loaded maximum. */
   export const ANKLE: number = 28;
 
-  /** The heel lift of `heels: "up"`, degrees about the toes' joint (provisional, the bend law's squat lift). */
-  export const HEEL: number = 30;
+  /** The heel lift of `heels: "up"`, degrees about the toes' joint: the bend law's squat lift (`bendLower.HEEL.squat`, provisional). */
+  export const HEEL: number = bendLower.HEEL.squat;
 
-  /** Shares of the descent at which the balancing inclination is solved. */
+  /** Shares of the descent at which the balancing inclination is solved (provisional: eighths, so the solved course has a node about every 12 degrees of a full squat's knee). */
   export const SHARES: number = 8;
 
-  /** Descent seconds by depth for a 0.93 m hip height (provisional). */
+  /** Descent seconds by depth for a `REFERENCE_HIP` hip height (provisional). */
   export const DESCENT: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
     partial: 1.0,
     full: 1.3,
   };
+
+  /** The hip height `DESCENT` is stated for, metres, from which other bodies' descents scale by its square root (provisional, the walk law's reference body). */
+  export const REFERENCE_HIP: number = 0.93;
 
   /**
    * Plan a crouch.
@@ -152,15 +157,15 @@ export namespace crouch {
    * @evidence contracts/development/implementation.md#principled-implementation The hip's place follows from the knee flexion and the shank's tilt by the leg's two lengths, the pitch from a bisection on the centre of mass over the soles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, a standing base, one body row and two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible depth throws with the feasible knee flexion instead of being clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The inclination retains 12 bisection steps at each of 8 shares; each posture retains at most six secant lowerings and one arm solve per side. A prepared native descent/rise envelope shares fixed interval names while custom clock callbacks retain actual invocation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Mass-name demand and the original table prepare once. Every fixed-share search prepares only its unchanged raw foot placements, pre-tip root and pelvis cap, then each inclination still writes current joints/knees and solves normally. Planning and current-query FK/ROM scopes remain separate and only unused support geometry is omitted.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains solved scalar angles/course and the fixed body/base builder; planning and current-query workspaces end with their own return or throw and never enter the table or plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The inclination takes 12 bisection steps at each of `SHARES` shares at plan time; each posture costs at most six secant lowerings and one arm solve per side. The descent and rise envelope is prepared once from the clock.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The mass-name demand and the solved shares are prepared once per plan. Each share's foot placements, moved root and pelvis cap are fixed once for that share, and every inclination tried on it tips the trunk and solves the legs afresh. Planning and each posture read keep their own FK and ROM workspaces.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the solved inclinations, the body and the base until it is released; planning and per-posture workspaces end with their own call.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrouch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const m = body.measure;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const depth: IAutoMovieMotionHumanCrouch.Depth = context.params.depth ?? "partial";
     const heels: IAutoMovieMotionHumanCrouch.Heels =
       context.params.heels ?? (depth === "full" ? "up" : "flat");
@@ -186,12 +191,19 @@ export namespace crouch {
         kind: "parameter",
         axis: "depth",
         value: depth,
-        reason: `a ${depth} crouch with the heels ${heels} needs ${thighTilt.toFixed(0)} degrees of hip flexion before the trunk inclines, past the ${hipRange} degree range; the deepest knee flexion with these heels is ${(hipRange - 5 + shankTilt).toFixed(0)} degrees${heels === "flat" ? ", or raise the heels" : ""}`,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: hipRange + shankTilt,
+          unit: "degrees",
+          open: "maximum",
+        },
+        reason: `a ${depth} crouch with the heels ${heels} needs ${thighTilt.toFixed(0)} degrees of hip flexion before the trunk inclines, past the ${hipRange} degree range; with these heels the knee flexion must stay under ${(hipRange + shankTilt).toFixed(0)} degrees${heels === "flat" ? ", or raise the heels" : ""}`,
         fix: `choose a shallower depth${heels === "flat" ? ", or raise the heels" : ""}`,
       });
 
     // The clock: descent, hold, rise.
-    const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / 0.93);
+    const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / REFERENCE_HIP);
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "descend", seconds: down },
@@ -219,7 +231,7 @@ export namespace crouch {
     // the thigh's each by its share, so the ankle never passes the crouching
     // ankle: it takes the shank's tilt until it reaches it, and the heel rises
     // about the toes' joint by the rest.
-    const lift = (s: number): number =>
+    const lift: (s: number) => number = (s: number): number =>
       Math.max(0, shankTilt * s - dorsiflexion);
 
     // The feet at a share of the descent: each pivots about its toes' joint
@@ -280,9 +292,12 @@ export namespace crouch {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const rad = (deg: number): number => (deg * Math.PI) / 180;
-    const joints = hipJoints(body, standing.root, HumanFrame.turn(yaw));
-    const over = (
+    const rad: (deg: number) => number = (deg: number): number => (deg * Math.PI) / 180;
+    const joints: ReturnType<typeof hipJoints> = hipJoints(body, standing.root, HumanFrame.turn(yaw));
+    const over: (
+      s: number,
+      placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    ) => IAutoMovieVector3 = (
       s: number,
       placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = placements(
         standing,
@@ -313,7 +328,10 @@ export namespace crouch {
       return out;
     };
     const start: IAutoMovieVector3 = over(0);
-    const move = (
+    const move: (
+      s: number,
+      placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    ) => IAutoMovieVector3 = (
       s: number,
       placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     ): IAutoMovieVector3 =>
@@ -427,7 +445,7 @@ export namespace crouch {
         return atShare(posture, s)(q, read);
       },
     };
-    const rest = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+    const rest: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,
         side,
@@ -439,7 +457,7 @@ export namespace crouch {
     // The hands open onto the thighs as the palms come to them: an open
     // hand lies on the thigh where the standing hand's curled thumb and
     // fingers went into it.
-    const open = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+    const open: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanHand.shape({ side, shape: "flat", from: 0, to: duration, weight: share });
 
     // The crouch rises again at its end, so it leaves the body standing

@@ -98,8 +98,8 @@ export namespace IAutoMovieMotionHumanArmPhrase {
    *
    * @evidence contracts/development/common.md#meaningful-documentation The phrase.
    * @evidence contracts/development/design.md#principled-representation Closed choices "visit", "stroke", "oscillate" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/armPhrase.ts (armPhrase.PHRASES).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in armPhrase.PHRASES.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/armPhrase.ts (armPhrase.plan, context.params.phrase).
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in armPhrase.plan, which branches on each.
    */
   export type Phrase = (readonly ["visit", "stroke", "oscillate"])[number];
 

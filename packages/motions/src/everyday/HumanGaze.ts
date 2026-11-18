@@ -1,4 +1,5 @@
 import {
+  DEFAULT_HUMANOID_ROM,
   Quaternion,
   Vector3,
   gazeChainJoints,
@@ -6,6 +7,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGaze,
@@ -17,6 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { blendGazeJoint } from "./blendGazeJoint";
 import { readHumanGazeBones } from "./readHumanGazeBones";
 
 /**
@@ -207,13 +210,13 @@ export namespace HumanGaze {
    * @param towards Direction already computed from these exact body, posture and point inputs; computed here when absent.
    * @returns The posture with the trunk, neck, head and eyes set; limb goals unchanged.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States recruitment, weight premises, unchanged limb goals and synchronous reader lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Every mode keeps the original direction shares, zero-head correction, range-aware cervical split and weighted head/neck blend, including the zero cervical target of eyes-only recruitment. Each eye then uses its actual resulting-head direction and unchanged clinical limits.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Direction, zeroed-head correction and actual-head eye solving run in their original order for every mode, sharing one lazy exact FK reader and private joint-update functions without per-aim writer closures.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every necessary FK admits all authored joints and all original cervical/eye computations and limits remain. Eyes-only still blends the authored head/neck toward its original zero-target correction by weights.head; supplied directions require identical inputs and weights in [0,1] remain a caller premise.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each aim performs demanded zeroed-head and actual head/eye FK plus either a supplied parent direction or demanded hips/eye FK. All ordered joint admission, cervical and eye solving remain; only unobserved transforms and temporary writer/target records are omitted, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Owns or borrows one exact reader within this invocation and may consume the parent's already-computed direction for identical inputs; changed trunk/head scalars invalidate their frames. Head-angle radians and pitch cosine are shared across components; one genuine fixed-rig cervical reader per immutable body shares only topology and first-observed ROM bounds, while scalar joint writers omit temporary target triples. Every actual angle and joint blend still evaluates.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local dynamic getter and maps end with return or throw, and returned posture/joints retain no loan. One weak body owner holds only a bounded genuine cervical ROM reader until the body is released, without targets, angle answers, current frames or time history.
+   * @evidence contracts/development/common.md#meaningful-documentation States recruitment, the weights' range, the unchanged limb goals and the borrowed workspace's lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation The direction is split by `split`; the trunk's twist is added, the cervical aim is read in the frame the head has at zero angles and split over the neck and head by the engine's range-aware `gazeChainJoints`, and the head and neck blend toward it by their weight (toward zero for eyes-only recruitment). Each eye is then solved against the head it rides and clamped to its range in `DEFAULT_HUMANOID_ROM`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Direction, zeroed-head correction and eye solving run in that order for every mode, sharing one FK workspace and the joint writers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The eye limits are the range table's; a supplied direction must come from the same body, posture and point, and weights in [0, 1] are the caller's premise.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk readings demanding the zeroed head and the head and eyes, plus one for the direction unless the caller supplies it; the cervical split binds the rig's neck and head once per call, two bone searches.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Owns or borrows one FK workspace for the call and may take the caller's direction for the same inputs; changed trunk or head angles change the frames read.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The workspace and maps end with the call, and the returned posture holds no loan; nothing is retained.
    */
   export function aim(
     body: IAutoMovieMotionHumanBody,
@@ -272,7 +275,7 @@ export namespace HumanGaze {
         z: cosine * Math.cos(headYaw),
       },
     );
-    const chain: IAutoMovieJointPose[] = cervical(body, body.skeleton,
+    const chain: IAutoMovieJointPose[] = gazeChainJoints.prepare(body.skeleton)(
       (Math.atan2(-facing.y, Math.hypot(facing.x, facing.z)) * 180) / Math.PI,
       (Math.atan2(facing.x, facing.z) * 180) / Math.PI,
     );
@@ -285,7 +288,9 @@ export namespace HumanGaze {
     blendGazeJoint(joints, "neck", neck?.flexion ?? 0, 0, neck?.twist ?? 0, weights.head);
     blendGazeJoint(joints, "head", head!.flexion ?? 0, 0, head!.twist ?? 0, weights.head);
 
-    // Eyes: each solved exactly in its head's frame, clamped to its range.
+    // Eyes: each solved exactly in its head's frame, clamped to its range in
+    // the range table (`DEFAULT_HUMANOID_ROM`: its twist is the yaw, its
+    // flexion the pitch).
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       readHumanGazeBones(body, posture, "eyes", joints, read);
     const headRotation: IAutoMovieQuaternion = Quaternion.inverse(
@@ -298,14 +303,15 @@ export namespace HumanGaze {
           Vector3.subtract(point, bones.get(eye)!.worldPosition),
         ),
       );
+      const range: IAutoMovieJointConstraint = DEFAULT_HUMANOID_ROM[eye]!;
       const yaw: number = Math.max(
-        -45,
-        Math.min(45, (Math.atan2(d.x, d.z) * 180) / Math.PI),
+        range.twist!.min,
+        Math.min(range.twist!.max, (Math.atan2(d.x, d.z) * 180) / Math.PI),
       );
       const pitch: number = Math.max(
-        -30,
+        range.flexion!.min,
         Math.min(
-          30,
+          range.flexion!.max,
           (Math.asin(Math.max(-1, Math.min(1, -d.y))) * 180) / Math.PI,
         ),
       );
@@ -316,19 +322,22 @@ export namespace HumanGaze {
 
   /**
    * A gaze layer: from `from` the eyes, head and trunk turn toward the
-   * target on their own timings and track it; from `to` they return.
+   * target on their own timings and track it; from `to` they return. A
+   * request that begins while an earlier one still holds the gaze turns the
+   * parts on from where that one has them, so the gaze moves from target to
+   * target without passing through rest.
    *
    * @param requests The gazes, in time order; each one's `from` after the previous one's `from`.
    * @param name The layer's name; `gaze` when absent.
    * @returns The layer.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States request order, onset/return tracking and returned layer; requests remain borrowed by that layer.
-   * @evidence contracts/development/implementation.md#principled-implementation Selects the last eligible request in declared order, resolves its current target, and evaluates the same independent saccade/head/trunk timing before actual gaze aiming.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Layer construction declares channels; each apply owns binary request selection, one target call, scalar timings and one synchronous gaze workspace.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves request order, context.aim calls, weights and timing coefficients, without reusing an earlier target or posed face across changed stages or instants.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Construction scans R ordered requests for channels; each apply selects the last eligible request in O(log R), then performs the original three demanded trunk readings for direction, zeroed-head correction and actual eye solving. Every target, timing and recruited numerical aim still executes, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work This apply computes direction once and lends it plus one local or host-borrowed exact FK workspace to aim with identical body/posture/point inputs. The host's optional resolution getter establishes the same synchronous body scope; target callbacks, timings and changed clinical frames still evaluate normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains its existing requests/name/channels only. Its local getter is created inside active apply and ends on return/throw, borrowing the host's revocable source when supplied; no target, FK map, reader or context enters retained layer state.
+   * @evidence contracts/development/common.md#meaningful-documentation States request order, onset, return, the hand-over between requests and the returned layer; the layer holds the requests.
+   * @evidence contracts/development/implementation.md#principled-implementation The latest request that has begun is aimed over every earlier one still showing, each part's weight its own onset and return times the later requests' remaining share of that part, so at a request's start the posture is the earlier gaze's and it then turns on the saccade's and the head and trunk turns' timings; a request whose return is over shows nothing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Construction declares channels; each apply selects the showing requests, reads each target and its timings once, and aims them in order through `aim`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `LONGEST` bounds every part's turn from the documented timing laws and shares, so the requests it drops show nothing; no target or posture is reused across instants.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Construction scans the R requests for channels; each apply finds the latest begun request in O(log R) and aims it, three trunk readings, plus one more aim per earlier request during the `LONGEST` after a later one begins; a finished request costs nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The first stage's direction, read once for its timings, is lent to its aim; each stage borrows one local or host-supplied FK workspace.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer holds its requests, name and channels only; each apply's workspace and stages end with it.
    */
   export function layer(
     requests: readonly IAutoMovieMotionHumanGaze.ILayer[],
@@ -357,46 +366,72 @@ export namespace HumanGaze {
           if (requests[middle]!.from <= seconds) low = middle + 1;
           else high = middle;
         }
-        const active: IAutoMovieMotionHumanGaze.ILayer | undefined = requests[low - 1];
-        if (active === undefined) return posture;
-        const point: IAutoMovieVector3 = context.aim(
-          active.target,
-          seconds,
-        ).point;
+        const last: number = low - 1;
+        if (last < 0) return posture;
+
+        // The requests still showing: the latest, and each earlier one while
+        // the one after it may not yet have finished turning onto its own
+        // target, so a new gaze starts from where the last one has the eyes,
+        // head and trunk instead of from rest. A request whose return is
+        // over shows nothing.
+        let first: number = last;
+        while (first > 0 && seconds - requests[first]!.from < LONGEST) first--;
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(context.resolution);
-        const towards: { yaw: number; pitch: number } = direction(
-          context.body,
-          posture,
-          point,
-          resolution,
-        );
-        const amplitude: number = Math.hypot(towards.yaw, towards.pitch);
-        const parts: IAutoMovieMotionHumanGaze.ISplit = split(
-          towards.yaw,
-          towards.pitch,
-          active.with ?? "auto",
-        );
+        const stages: IStage[] = [];
+        for (let k: number = first; k <= last; k++) {
+          const request: IAutoMovieMotionHumanGaze.ILayer = requests[k]!;
+          if (request.to !== undefined && seconds - request.to >= LONGEST) continue;
+          const point: IAutoMovieVector3 = context.aim(request.target, seconds).point;
+          const towards: { yaw: number; pitch: number } = direction(
+            context.body,
+            posture,
+            point,
+            resolution,
+          );
+          const amplitude: number = Math.hypot(towards.yaw, towards.pitch);
+          const parts: IAutoMovieMotionHumanGaze.ISplit = split(
+            towards.yaw,
+            towards.pitch,
+            request.with ?? "auto",
+          );
+          const durations: Record<GazePart, number> = {
+            eyes: saccade(Math.min(amplitude, SACCADE_MOST)),
+            head: turn(Math.hypot(parts.head.yaw, parts.head.pitch)),
+            trunk: turn(parts.trunk),
+          };
+          stages.push({ request, point, towards, durations });
+        }
+        if (stages.length === 0) return posture;
 
-        return aim(
-          context.body,
-          posture,
-          point,
-          active.with ?? "auto",
-          {
-            eyes: gazeWeight(seconds, active, saccade(Math.min(amplitude, 2 * EYES))),
-            head: gazeWeight(seconds, active, turn(Math.hypot(parts.head.yaw, parts.head.pitch))),
-            trunk: gazeWeight(seconds, active, turn(parts.trunk)),
-          },
-          resolution,
-          towards,
-        );
+        // Each stage is aimed over the one before, its weights faded by every
+        // later stage's onset, so the later gaze takes over part by part on
+        // its own timing.
+        let out: IAutoMovieMotionHumanPosture = posture;
+        stages.forEach((stage: IStage, index: number): void => {
+          const weight: (part: GazePart) => number = (part: GazePart): number => {
+            let w: number = gazeWeight(seconds, stage.request, stage.durations[part]);
+            for (const later of stages.slice(index + 1))
+              w *= 1 - minimumJerk.share((seconds - later.request.from) / later.durations[part]);
+            return w;
+          };
+          out = aim(
+            context.body,
+            out,
+            stage.point,
+            stage.request.with ?? "auto",
+            { eyes: weight("eyes"), head: weight("head"), trunk: weight("trunk") },
+            resolution,
+            index === 0 ? stage.towards : undefined,
+          );
+        });
+        return out;
       },
     };
   }
 }
 
-/** The same signed first-share and bounded residual rule for either gaze axis. */
+/** One gaze axis split: the first part's share up to `first` either way, then the next part's up to its limit on that side. */
 function splitShare(
   total: number,
   first: number,
@@ -409,50 +444,47 @@ function splitShare(
   return [lead, next];
 }
 
-/** Blend one current authored joint without changing the original arithmetic grouping. */
-function blendGazeJoint(
-  joints: IAutoMovieMotionHumanPosture["joints"],
-  bone: AutoMovieHumanoidBone,
-  flexion: number,
-  abduction: number,
-  twist: number,
-  weight: number,
-): void {
-  const base: readonly [number, number, number] = joints[bone] ?? ZERO;
-  joints[bone] = [
-    base[0] + (flexion - base[0]) * weight,
-    base[1] + (abduction - base[1]) * weight,
-    base[2] + (twist - base[2]) * weight,
-  ];
-}
-
-/** Add the same axial twist while preserving the joint's other two angles. */
+/** Add an axial twist to one joint, keeping its other two angles. */
 function addGazeTwist(joints: IAutoMovieMotionHumanPosture["joints"], bone: AutoMovieHumanoidBone, twist: number): void {
   const base: readonly [number, number, number] = joints[bone] ?? ZERO;
   joints[bone] = [base[0], base[1], base[2] + twist];
 }
 
-
-/** The same independent onset/return profile for one actual segment duration. */
+/** A request's weight for one part at a second: its minimum-jerk onset over the part's duration from `from`, less its return over the same duration from `to`. */
 function gazeWeight(seconds: number, active: IAutoMovieMotionHumanGaze.ILayer, duration: number): number {
   const on: number = minimumJerk.share((seconds - active.from) / duration);
   const off: number = active.to === undefined ? 0 : minimumJerk.share((seconds - active.to) / duration);
   return on * (1 - off);
 }
 
-/** Borrowed additive identity; emitted clinical triples always remain fresh. */
+/** The angles of a bone the record holds none for. */
 const ZERO: readonly [number, number, number] = [0, 0, 0];
 
-/** The canonical body keeps cervical rig/range prerequisites unchanged while in use. */
-const CERVICAL: WeakMap<IAutoMovieMotionHumanBody, ReturnType<typeof gazeChainJoints.prepare>> = new WeakMap();
+/** A part of the body a gaze recruits on its own timing. */
+type GazePart = "eyes" | "head" | "trunk";
 
-/** Every actual aim reads its current angles through the genuine fixed-rig owner. */
-function cervical(body: IAutoMovieMotionHumanBody, rig: IAutoMovieMotionHumanBody["skeleton"], flexion: number,
-  twist: number): IAutoMovieJointPose[] {
-  let read: ReturnType<typeof gazeChainJoints.prepare> | undefined = CERVICAL.get(body);
-  if (read === undefined) {
-    read = gazeChainJoints.prepare(rig);
-    CERVICAL.set(body, read);
-  }
-  return read(flexion, twist);
+/** One request showing at an instant: the request, its target's point, its direction from the posture under the layer and its parts' turn durations, seconds. */
+interface IStage {
+  /** The request. */
+  request: IAutoMovieMotionHumanGaze.ILayer;
+
+  /** Where its target is at the instant, world metres. */
+  point: IAutoMovieVector3;
+
+  /** The target's direction from the eyes on the posture under the layer, degrees. */
+  towards: { yaw: number; pitch: number };
+
+  /** Each part's onset and return duration, seconds. */
+  durations: Record<GazePart, number>;
 }
+
+/** The largest eye movement a gaze shift times as a saccade, degrees: twice the eyes' own share, `EYES`, since in large head-free gaze shifts the eye's own saccade saturates near 30 degrees while the head carries the rest (Freedman and Sparks 1997, J Neurophysiol 77:2328; Freedman 2008). */
+const SACCADE_MOST: number = 2 * HumanGaze.EYES;
+
+/** The longest any part takes to turn onto a target or back, seconds: the saccade of `SACCADE_MOST`, the head's turn over its whole share `HEAD` and the trunk's over `TRUNK`, so a request this long past its start or its return has finished turning. */
+const LONGEST: number = Math.max(
+  HumanGaze.saccade(SACCADE_MOST),
+  HumanGaze.turn(Math.hypot(HumanGaze.HEAD.yaw, Math.max(HumanGaze.HEAD.down, HumanGaze.HEAD.up))),
+  HumanGaze.turn(HumanGaze.TRUNK),
+);
+

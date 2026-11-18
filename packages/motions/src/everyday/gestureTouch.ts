@@ -23,57 +23,75 @@ import type { gestureStroke } from "./gestureStroke";
  *   side to the target, as people point (Henriques and Crawford 2002, J
  *   Neurophysiol 87:1677, found the fingertip placed on the line from the
  *   dominant eye; the side's eye is the provisional choice), at the distance
- *   where the arm reaches with `0.95` of its length, the fingers along the
- *   line and the palm down.
+ *   where the arm reaches with `0.95` of its length (`POINT_REACH`), the
+ *   fingers along the line and the palm down.
  * - `touchFace`: the index fingertip, hand flat, on a face region with the
- *   palm toward the face and the fingers up, held; `pushGlasses` slides it
- *   12 mm up the nose bridge; `scratchHead` rubs it 15 mm on the head's side
- *   four times a second (provisional).
+ *   palm toward the face and the fingers up, held, the elbow out by 0.15 of
+ *   the upper arm; `pushGlasses` slides it 12 mm up the nose bridge;
+ *   `scratchHead` rubs it 15 mm on the head's side four times a second
+ *   (provisional).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both goals, the pointing source and the provisional values.
  * @evidence contracts/development/design.md#principled-representation Effector goals as a named hand surface, a world point in metres and a world rotation, read from the trunk's own forward kinematics.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Pointing and self-touch goals serve the stroke dispatcher. One plan-bound producer shares fixed point-shape reach or profile padding, while direct stroke callers retain the same cold numerical owners.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Pointing and self-touch goals serve the stroke dispatcher, with the per-plan record (`IPrepared`) that holds the padding, the reach and the trunk readers a plan shares; a stroke read without one computes them.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stroke's input and goal types and the body's surface regions; contact points do not scale with the extent.
  */
 export namespace gestureTouch {
   /**
    * Prepare one plan's fixed self-touch padding or pointing arm/digit reach.
    *
-   * @param body The unchanged body supplying rig, measure and contact geometry.
+   * @param body The body supplying rig, measure and contact geometry.
    * @param side The moving hand.
-   * @param kind The fixed gesture kind.
-   * @returns A genuine opaque geometry owner for point/self-touch, or undefined for unrelated kinds; fixed point reach is first demanded after an actual target line succeeds.
+   * @param kind The gesture kind.
+   * @returns The plan's touch geometry for pointing or self-touch, or undefined for other kinds; a pointing hand's reach and bone readers are built on first use.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States unchanged body/side/kind, metre scalars, self-touch and pointing uses, lazy reach admission and absence of retained pose/goal answers.
-   * @evidence contracts/development/implementation.md#principled-implementation Self-touch uses the existing profile padding owner; pointing uses the same point-shape index-tip offset length plus the original 0.95 arm share, without changing its ray-sphere target.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed-kind branch issues a private geometry owner with eager touch padding and lazy actual FK/point-reach readers; unrelated kinds prepare nothing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The first pointing reach still follows successful target validation, actual trunk FK and line normalization; failed preparation is not retained and no target, limit or contact allowance changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed digit-shape FK/length runs once across Q pointing probes; touch padding retains its original once-per-plan preparation. All current target geometry and actual limb fits remain, without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side and kind fix the plan's genuine name-demand readers, point finger shape and profile padding. Only that immutable metadata and scalar reach are shared; every current posture, target and borrowed workspace reaches its actual query, and changing the source domain requires fresh preparation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one weakly keyed body/side/kind state, fixed padding/reach scalars and at most one actual point/region name reader until release; no current posture, world frame, FK workspace, target, goal or history enters that state.
+   * @evidence contracts/development/common.md#meaningful-documentation States the body, side and kind it is bound to, which kinds get one, and what is built at once or on first use.
+   * @evidence contracts/development/implementation.md#principled-implementation Self-touch takes its fingertip padding from `padding`; pointing takes its reach from the point shape's index-tip offset plus `POINT_REACH` of the arm, on the first pointing query.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One kind branch builds the record; the touch padding is computed at once and the pointing reach and bone readers when first read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A record is used only by a query on the same body, side and kind; any other falls back to computing its geometry, so a wrong record cannot change a goal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The padding scan and the pointing reach run once per plan instead of once per posture; every posture's target and trunk forward kinematics still run.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body, side and kind fix the padding, the reach and the bone-name readers, so the plan shares them across its postures; every posture, target and workspace is read afresh.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the record, its scalars and at most one pointing and one region reader until it is released; no posture, frame, goal or history enters it.
    */
   export function prepare(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
     kind: IAutoMovieMotionHumanGestureStroke.Kind): IPrepared | undefined {
     if (kind !== "point" && kind !== "touchFace" && kind !== "pushGlasses" && kind !== "scratchHead")
       return undefined;
-    const current: IState = { body, side, kind };
-    if (kind !== "point") current.padding = padding(body, side);
-    const prepared: IPrepared = { [BRAND]: true };
-    STATES.set(prepared, current);
+    const prepared: IPrepared = { body, side, kind };
+    if (kind !== "point") prepared.padding = padding(body, side);
     return prepared;
   }
 
   /**
-   * A fixed-body/hand geometry owner issued only by prepare.
+   * A plan's touch geometry for one hand: the body, side and kind it was
+   * built for, and what has been computed for them so far.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States that prepare alone supplies this plan-owned handle; it exposes no padding, reach, frame, pose or mutable cache to the caller.
-   * @evidence contracts/development/design.md#principled-representation A nominal handle identifies one unchanged body/side/kind and its genuine native fixed-name readers, separately from each current posture, target and borrowed FK workspace.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface IInput carries the handle only for actual point/self-touch queries; cold and unrelated strokes require none.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A private symbol and weak state table admit sharing only for issued matching-domain handles; other inputs follow the ordinary cold path. No supplied derived point, reach, padding, numeric index or resolved flag bypasses body-derived geometry.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the record is bound to and that its optional members fill on first use.
+   * @evidence contracts/development/design.md#principled-representation The binding (body, side, kind) and the derived padding and reach in metres, with the trunk readers that depend only on the binding.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `point` and `touch` read and fill; `gestureStroke.IInput` carries the record.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived members are computed here from the binding, never supplied by a caller; a query on another binding ignores the record.
    */
   export interface IPrepared {
-    /** Only the genuine constructor supplies this nominal identity. */
-    readonly [BRAND]: true;
+    /** The body the geometry is computed for. */
+    readonly body: IAutoMovieMotionHumanBody;
+
+    /** The hand. */
+    readonly side: AutoMovieHumanSide;
+
+    /** The gesture kind. */
+    readonly kind: IAutoMovieMotionHumanGestureStroke.Kind;
+
+    /** The fingertip's axis-to-skin padding for self-touch, metres. */
+    padding?: number;
+
+    /** The pointing reach from the shoulder to the fingertip, metres, once first read. */
+    reach?: number;
+
+    /** The eye and shoulder reader of a pointing hand, once first read. */
+    point?: ReturnType<typeof HumanTrunk.prepareResolve>;
+
+    /** The last self-touch region's reader. */
+    region?: { name: AutoMovieHumanoidRegion; read: ReturnType<typeof HumanTrunk.prepareRegion> };
   }
 
   /**
@@ -88,16 +106,16 @@ export namespace gestureTouch {
    * @evidence contracts/development/common.md#meaningful-documentation States the goal and the refusal; the namespace states the source.
    * @evidence contracts/development/implementation.md#principled-implementation The reach is solved as a ray-sphere intersection from the shoulder along the eye's line, never past the target itself.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The line, the reach, the distance on the line, then the hand's turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The palm turns back or forward for a line near the vertical, where palm down has no meaning; the `0.95` reach share is a documented provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded eye/shoulder trunk FK and current ray-sphere arithmetic remain. A prepared plan computes fixed point-shape digit FK/length once; native distance and addScaled retain the original magnitude and operand order without discarded displacement/scaled-offset records.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A genuine same-body/side/kind preparation binds actual eye/shoulder names and fixed reach; cold calls keep ordinary live-demand geometry. The current parent FK loan and every authored tuple/root still reach native admission. Every current target subtraction, line, intersection and hand goal remains independently evaluated.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The palm turns back or forward for a line within `STEEP` of the vertical, where palm down has no meaning; `POINT_REACH` is a documented provisional value.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk forward-kinematics pass demanding the eye and the shoulder, and constant ray-sphere arithmetic; a prepared record computes the reach once per plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A record prepared for this body, side and kind supplies the eye and shoulder reader and the reach; without one they are computed here. The target, line, intersection and hand goal are computed at every call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function point(
     input: gestureStroke.IInput,
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
-    const { body } = input;
+    const body: IAutoMovieMotionHumanBody = input.body;
     if (input.target === undefined)
       throw new HumanRefusal({
         kind: "parameter",
@@ -106,7 +124,7 @@ export namespace gestureTouch {
         reason: "Pointing needs a target",
         fix: "give the point gesture a target",
       });
-    const fixed: IState | undefined = preparation(input.prepared, body, side, "point");
+    const fixed: IPrepared | undefined = preparation(input.prepared, body, side, "point");
     let bones: ReturnType<typeof HumanTrunk.resolve>;
     if (fixed === undefined)
       bones = HumanTrunk.resolve(body, input.base, undefined, input.resolution, POINT_FRAMES[side]);
@@ -138,7 +156,7 @@ export namespace gestureTouch {
       Vector3.distance(input.target, eye),
     );
     const palm: IAutoMovieVector3 =
-      Math.abs(line.y) > 0.9
+      Math.abs(line.y) > STEEP
         ? HumanFrame.point(
             { origin: { x: 0, y: 0, z: 0 }, yaw: input.base.yaw },
             { x: 0, y: 0, z: -Math.sign(line.y) },
@@ -168,8 +186,8 @@ export namespace gestureTouch {
    * @evidence contracts/development/implementation.md#principled-implementation The fingertip's axis stands off the region's surface point by the finger's collider radius along the surface normal, and slides along the surface's upward tangent.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The region, its upward tangent, the slide, then the goal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The slide sizes are documented provisional values; no body is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One actual demanded region FK remains. A genuine preparation binds fixed name/tuple metadata and profile padding once; cold queries retain the original segment-shape scan, with all current pose/normal/slide work preserved. The native addScaled owner removes two discarded scaled-offset vectors without regrouping either addition.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual region observation may borrow its parent's same-body synchronous exact FK workspace; current region placement, slide, normal and goal remain actual, and only unchanged profile padding is prepared separately.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk forward-kinematics pass demanding the region's bone and constant vector work; a prepared record supplies the padding and the region reader, and without one the padding's profile scan runs here.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The region read may borrow its caller's FK workspace; the padding, fixed by body and side, comes from the prepared record. The region's place, the slide and the goal are computed at every call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function touch(
@@ -179,7 +197,7 @@ export namespace gestureTouch {
     u: number,
     cycles: number,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
-    const { body } = input;
+    const body: IAutoMovieMotionHumanBody = input.body;
     const region: AutoMovieHumanoidRegion =
       kind === "pushGlasses"
         ? "noseBridge"
@@ -188,11 +206,11 @@ export namespace gestureTouch {
             ? "templeLeft"
             : "templeRight"
           : input.region;
-    const fixed: IState | undefined = preparation(input.prepared, body, side, kind);
+    const fixed: IPrepared | undefined = preparation(input.prepared, body, side, kind);
     let surface: HumanTrunk.ISurface;
     if (fixed === undefined) surface = HumanTrunk.region(body, input.base, region, input.resolution);
     else {
-      let reading: IState["region"] = fixed.region;
+      let reading: IPrepared["region"] = fixed.region;
       if (reading === undefined || reading.name !== region) {
         reading = { name: region, read: HumanTrunk.prepareRegion(body, region) };
         fixed.region = reading;
@@ -222,7 +240,7 @@ export namespace gestureTouch {
         fingers: up,
         palm: Vector3.scale(surface.normal, -1),
       }),
-      out: 0.15,
+      out: TOUCH_OUT,
     };
   }
 
@@ -233,22 +251,23 @@ export namespace gestureTouch {
    * radius of the sphere a hull holds about its centre), so a fingertip laid
    * on a surface touches it rather than sinking its axis into it.
    *
-   * @param body The immutable body whose profile defines the fingertip.
+   * @param body The body whose profile defines the fingertip.
    * @param side The touching hand.
-   * @returns The original profile-derived axis-to-skin padding, metres.
+   * @returns The axis-to-skin padding, metres.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States fingertip/hand fallback, profile source, metre output and intended immutable gesture-plan preparation.
-   * @evidence contracts/development/implementation.md#principled-implementation Takes the least half-thickness of the distal index segment's actual colliders, or the hand segment's when no distal segment exists, preserving each shape's existing thickness owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ordered segment searches select the original fallback, then one shape scan finds the least nonzero half-thickness.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves segment precedence, zero-thickness behavior, all collider-kind formulas and the existing hull depth; it introduces no guessed skin thickness or contact allowance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans at most twice the S profile segments and the selected segment's F shapes, plus existing hull-face preparation when a hull is read; a gesture computes it once per touching hand instead of once per evaluated frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The gesture's fixed body/profile and hand establish equivalent padding across its frames; direct stroke callers may still request the same computation when they provide no prepared value.
+   * @evidence contracts/development/common.md#meaningful-documentation States the fingertip and hand fallback, the profile source and the metre output.
+   * @evidence contracts/development/implementation.md#principled-implementation Takes the least nonzero half-thickness of the distal index segment's colliders, or of the hand segment's when no distal segment exists: a sphere's or capsule's radius, a box's least half extent, a hull's inscribed depth.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ordered segment searches choose the segment, then one shape scan finds the least half-thickness.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The thickness is the colliders'; no skin thickness or contact allowance is guessed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans at most twice the S profile segments and the chosen segment's F shapes, plus the hull faces when a hull is read; a gesture computes it once per touching hand.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The padding depends only on the body's profile and the hand, so `prepare` computes it once per plan; a stroke read without a prepared record computes it here.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no body, profile, shape or frame.
    */
   export function padding(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): number {
-    const segment =
-      body.profile.segments.find((s) => s.bone === `${side}IndexDistal`) ??
-      body.profile.segments.find((s) => s.bone === `${side}Hand`);
+    type Segment = IAutoMovieMotionHumanBody["profile"]["segments"][number];
+    const segment: Segment | undefined =
+      body.profile.segments.find((s: Segment): boolean => s.bone === `${side}IndexDistal`) ??
+      body.profile.segments.find((s: Segment): boolean => s.bone === `${side}Hand`);
     let thin: number = 0;
     for (const shape of segment?.shapes ?? []) {
       const half: number = thickness(shape);
@@ -281,31 +300,25 @@ const POINT_FRAMES: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHum
   right: new Set<AutoMovieHumanoidBone>(["rightEye", "rightUpperArm"]),
 };
 
-/** Original fixed point-shape fingertip extent and comfortable arm share. */
+/** The pointing reach from the shoulder to the fingertip: `POINT_REACH` of the arm plus the point shape's index-tip offset from the wrist. */
 function pointingReach(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): number {
   const tip: number = Vector3.length(HumanHand.offset(body, side, "indexTip", "point").point);
-  return 0.95 * (body.measure.upperArm + body.measure.forearm) + tip;
-}
-/** The source domain and genuine readers belong only to this issued preparation. */
-interface IState {
-  body: IAutoMovieMotionHumanBody;
-  side: AutoMovieHumanSide;
-  kind: IAutoMovieMotionHumanGestureStroke.Kind;
-  padding?: number;
-  reach?: number;
-  point?: ReturnType<typeof HumanTrunk.prepareResolve>;
-  region?: { name: AutoMovieHumanoidRegion; read: ReturnType<typeof HumanTrunk.prepareRegion> };
+  return POINT_REACH * (body.measure.upperArm + body.measure.forearm) + tip;
 }
 
-/** Unforgeable identity; no caller-visible numeric shortcut is carried by the handle. */
-const BRAND: unique symbol = Symbol("prepared gesture geometry");
+/** The share of the arm (upper arm and forearm) a pointing arm extends to (provisional: nearly straight, read from no measured source). */
+const POINT_REACH: number = 0.95;
 
-/** A plan's handle lifetime bounds its fixed source metadata; queries are not values. */
-const STATES: WeakMap<gestureTouch.IPrepared, IState> = new WeakMap();
+/** The vertical component of a pointing line past which palm down has no meaning and the palm turns back or forward instead (provisional: about 64 degrees from the horizontal). */
+const STEEP: number = 0.9;
 
-/** Only an issued preparation for these exact source inputs may share geometry. */
+/** The outward elbow hint of a hand touching the face, a share of the upper arm (provisional: read from no measured source). */
+const TOUCH_OUT: number = 0.15;
+
+/** A prepared record, when it was built for this body, side and kind. */
 function preparation(prepared: gestureTouch.IPrepared | undefined, body: IAutoMovieMotionHumanBody,
-  side: AutoMovieHumanSide, kind: IAutoMovieMotionHumanGestureStroke.Kind): IState | undefined {
-  const current: IState | undefined = prepared === undefined ? undefined : STATES.get(prepared);
-  return current !== undefined && current.body === body && current.side === side && current.kind === kind ? current : undefined;
+  side: AutoMovieHumanSide, kind: IAutoMovieMotionHumanGestureStroke.Kind): gestureTouch.IPrepared | undefined {
+  return prepared !== undefined && prepared.body === body && prepared.side === side && prepared.kind === kind
+    ? prepared
+    : undefined;
 }

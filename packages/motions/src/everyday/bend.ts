@@ -1,6 +1,7 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,14 +21,17 @@ import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArm
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import type { HumanBalance } from "./HumanBalance";
 import { HumanGaze } from "./HumanGaze";
 import { bendLower } from "./bendLower";
+import { braceOnThighPoint } from "./braceOnThighPoint";
 import { handGoals } from "./handGoals";
 
 /**
@@ -91,6 +96,18 @@ export namespace bend {
     width: 0.03,
   };
 
+  /** How long the palm holds on the target when the caller names no hold, seconds (provisional: half a second, a brief touch, read from no measured source). */
+  export const HOLD: number = 0.5;
+
+  /** How far the reaching fingers tip down from the heading toward the low target, the slope of their direction (provisional: about 17 degrees down, read from no measured source). */
+  export const FINGER_DIP: number = 0.3;
+
+  /** The reaching elbow's outward hint, a share of the upper arm (provisional: read from no measured source). */
+  export const REACH_OUT: number = 0.2;
+
+  /** The bracing elbow's outward hint, a share of the upper arm, wider than the reaching one so the forearm clears the thigh it braces on (provisional: read from no measured source). */
+  export const BRACE_OUT: number = 0.3;
+
   /**
    * Plan a bend: choose the strategy, solve the balance shift and the least
    * trunk inclination that brings the palm to the target, time the descent by
@@ -102,10 +119,10 @@ export namespace bend {
    * @throws {HumanRefusal} When the target lies beyond the strategy's reach, or the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the solve, the timing, the postures and both refusals; the law's doc gives the sources and the provisional constants.
-   * @evidence contracts/development/implementation.md#principled-implementation The palm goal is solved by the arm's inverse kinematics on a body lowered by the strategy and inclined by the lumbopelvic rhythm (Esola et al. 1996); the hips' back shift keeps the engine's centre of mass over the feet (HumanBalance.shift), found once at 60 degrees and again at the needed pitch; descent time is Fitts's law; the free hand braces on the thigh (Kingma et al. 2016). Limitation: the doc promises the refusal names the lowest height the strategy reaches, but the message names only the target's height.
+   * @evidence contracts/development/implementation.md#principled-implementation The palm goal is solved by the arm's inverse kinematics on a body lowered by the strategy and inclined by the lumbopelvic rhythm (Esola et al. 1996); the hips' back shift keeps the engine's centre of mass over the feet (HumanBalance.shift), found once at 60 degrees and again at the needed pitch; descent time is Fitts's law; the free hand braces on the thigh (Kingma et al. 2016, `braceOnThighPoint`); a target out of reach is refused with the lowest height the strategy reaches there (`bendLower.pitch`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The choice is `choose`, the lowered body `lower`, the inclination `pitch`; the plan composes them and the posture closure only interpolates and adds the hand goals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only fallback, `auto` squatting where the semi-squat refuses, is the documented strategy rule; bendLower's HIPS and HEEL, FITTS, the 0.2 and 0.3 elbow hints and the 0.6 brace point are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two pitch solves (`bendLower.solve`), each a scan and a 30-step bisection of lowered postures with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one bone resolve and a two-hand solve continued from the course's frame instant before it (`AutoMovieMotionHumanArmChain`), whose instants are fitted once, and a joint-space carry of both arms from the entry's angles.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only fallback, `auto` squatting where the semi-squat refuses a reach, is the documented strategy rule; any other error passes on. bendLower's HIPS and HEEL, FITTS, HOLD, FINGER_DIP, REACH_OUT, BRACE_OUT and the brace point's share are named provisional values.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two pitch solves (`bendLower.solve`), each a scan and a 30-step bisection of lowered postures with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one resolve demanding the free thigh and knee, and a two-hand solve continued from the course's frame instant before it (`AutoMovieMotionHumanArmChain`), whose instants are fitted once, and a joint-space carry of both arms from the entry's angles.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per instance and every posture reads them.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, target, solved quantities and stand base, released with the performance; nothing grows per call.
    */
@@ -114,7 +131,7 @@ export namespace bend {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const side: AutoMovieHumanSide = context.params.side ?? "right";
-    const hold: number = context.params.hold ?? 0.5;
+    const hold: number = context.params.hold ?? HOLD;
     HumanBound.least("hold", hold, 0, "s");
     const target: IAutoMovieVector3 = context.aim(
       context.params.toward,
@@ -156,13 +173,17 @@ export namespace bend {
 
     // How far down the bend is at a second: down over the descent, held,
     // and up again over as long.
-    const share = (seconds: number): number => {
+    const share: (seconds: number) => number = (seconds: number): number => {
       const t: number = Math.min(duration, Math.max(0, seconds));
       return t <= down + hold
         ? minimumJerk(t / down).s
         : 1 - minimumJerk((t - down - hold) / down).s;
     };
     const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const legBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${free}UpperLeg`, `${free}LowerLeg`,
+    ]);
+    const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, legBones);
 
     // The arms' goals at each second are fitted along the bend's course, each
     // second continuing the swivel the course chose before it, so neither
@@ -195,49 +216,31 @@ export namespace bend {
           // is fitted where the hands have not left where they hang.
           if (s <= 0) return aimed;
 
-          // The palm onto the target, facing down onto it.
-          const hanging = bones(body, lowered);
-          const turn = HumanHand.rotation(side, {
+          // The palm onto the target, facing down onto it, the fingers ahead
+          // and tipped down toward it.
+          const turn: IAutoMovieQuaternion = HumanHand.rotation(side, {
             fingers: HumanFrame.point(
               { origin: { x: 0, y: 0, z: 0 }, yaw: lowered.yaw },
-              { x: 0, y: -0.3, z: 1 },
+              { x: 0, y: -FINGER_DIP, z: 1 },
             ),
             palm: { x: 0, y: -1, z: 0 },
           });
 
           // The free palm braces on its own thigh just above the knee, as people
           // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
-          // 2016, J Biomech 49:881).
-          const thigh = hanging.get(`${free}UpperLeg`)!;
-          const kneeAt: IAutoMovieVector3 = hanging.get(
-            `${free}LowerLeg`,
-          )!.worldPosition;
-          const region =
-            body.surfaces.regions[
-              free === "left" ? "thighFrontLeft" : "thighFrontRight"
-            ];
-          const onThigh: IAutoMovieVector3 = Vector3.add(
-            thigh.worldPosition,
-            Quaternion.rotateVector(thigh.worldRotation, region.point),
-          );
-          const brace: IAutoMovieVector3 = Vector3.lerp(
-            onThigh,
-            Vector3.add(
-              kneeAt,
-              Vector3.subtract(
-                onThigh,
-                Vector3.lerp(thigh.worldPosition, kneeAt, 0.5),
-              ),
+          // 2016, J Biomech 49:881), read on the lowered leg alone.
+          const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+          const brace: ReturnType<typeof braceOnThighPoint> = braceOnThighPoint(
+            body,
+            free,
+            readLeg(
+              resolveHumanPosture.seeded(body, lowered, undefined, {}, read, legBones).pose,
+              read(),
             ),
-            0.6,
           );
-          const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-            thigh.worldRotation,
-            region.normal,
-          );
-          const freeTurn = HumanHand.rotation(free, {
-            fingers: Vector3.subtract(kneeAt, thigh.worldPosition),
-            palm: Vector3.scale(normal, -1),
+          const freeTurn: IAutoMovieQuaternion = HumanHand.rotation(free, {
+            fingers: brace.forward,
+            palm: Vector3.scale(brace.normal, -1),
           });
           return handGoals(
             body,
@@ -261,15 +264,15 @@ export namespace bend {
                 shape: "flat",
                 point: target,
                 rotation: turn,
-                bend: AutoMovieMotionHumanBend.hang(body, lowered, side, 0.2),
+                bend: AutoMovieMotionHumanBend.hang(body, lowered, side, REACH_OUT),
               },
               {
                 side: free,
                 surface: "palm",
                 shape: "flat",
-                point: brace,
+                point: brace.point,
                 rotation: freeTurn,
-                bend: AutoMovieMotionHumanBend.hang(body, lowered, free, 0.3),
+                bend: AutoMovieMotionHumanBend.hang(body, lowered, free, BRACE_OUT),
               },
             ],
           );
@@ -345,7 +348,12 @@ export namespace bend {
     try {
       return bendLower.solve(body, upright, target, side, chosen, reach);
     } catch (error) {
-      if (strategy !== "auto" || chosen !== "semiSquat") throw error;
+      if (
+        !(error instanceof HumanRefusal) ||
+        strategy !== "auto" ||
+        chosen !== "semiSquat"
+      )
+        throw error;
       return bendLower.solve(body, upright, target, side, "squat", reach);
     }
   }

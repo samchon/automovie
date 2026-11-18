@@ -22,7 +22,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * speed-matching law of a follower and comes to his right when he stops,
  * and her left palm then holds his near shoulder. A
  * follower that matches speed lags by the change of speed over the law's
- * gain (`walkFollowed`), so the two are side by side only once they stand;
+ * gain (`walkStation`), so the two are side by side only once they stand;
  * a hold kept while walking is coupled travel, #3341's.
  *
  * The average man leads 4 m toward +Z at a slow walk; the small woman

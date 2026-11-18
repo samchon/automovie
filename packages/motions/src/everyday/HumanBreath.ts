@@ -39,10 +39,20 @@ import { HumanBound } from "../law/HumanBound";
  * - Exertion: each declared bout raises the rate toward 40 a minute and the
  *   amplitude toward 3 times tidal at level 1 (exercise ventilation reaches
  *   rates near 40 to 50 a minute with tidal volumes several times resting;
- *   provisional scale), and recovers as `(1 - u)^3` over its recovery time
- *   (provisional polynomial; ventilation recovery is roughly exponential, and
- *   a polynomial keeps the computation exact in ECMAScript). The phase is the
- *   closed-form integral of the rate, so a rate change never jumps the phase.
+ *   provisional scale). A bout's drive is `level g^3`, where its share `g`
+ *   rises linearly from its start over `ONSET` (ventilation climbs over the
+ *   first tens of seconds of exercise, Whipp and Ward 1990, Med Sci Sports
+ *   Exerc 22:62; provisional ramp), holds at 1 until it ends, and falls as
+ *   `1 - u` over its recovery time, so the drive recovers as `(1 - u)^3`
+ *   (provisional polynomials; ventilation rises and recovers roughly
+ *   exponentially, and a polynomial keeps the computation exact in
+ *   ECMAScript). Overlapping bouts do not add: the hardest one drives the
+ *   breathing at each instant, the largest `level g^3`, so no number of
+ *   bouts passes the level-1 rate and amplitude. The phase is the
+ *   closed-form integral of the rate, so a rate change never jumps the
+ *   phase: the drive's cube root is the upper envelope of linear pieces,
+ *   whose crossings are found exactly, and the cube of a linear piece
+ *   integrates in closed form.
  * - Angles at one tidal breath (provisional; no located study gives the trunk
  *   joint angles of quiet breathing): chest extension 1.5 degrees, upper
  *   chest 1 degree, lumbar spine 0.5 degrees and each shoulder girdle raised
@@ -58,9 +68,9 @@ import { HumanBound } from "../law/HumanBound";
  * @evidence contracts/development/implementation.md#principled-implementation Closed-form evaluation of the cited law.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One small function per quantity.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range inputs throw; provisional constants are named and marked.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, or linear in the requests a call builds.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed readonly TIDAL table supplies one module-owned ordered entry list. Each layer shares only its last pure stream seed and scalar rate/phase draws; actual context stream requests, current exertion/time, sighs and joint writes remain independently evaluated.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module owns the fixed five-entry tidal metadata. Each live layer owns its options and two bounded last-seed/scalar records until release, with no retained body, context, random stream, posture, time sample or performer history; standalone scalar/add functions retain nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call, and O(B^3) in a call's B exertion bouts for the exact phase integral.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The TIDAL table's entries are listed once for the module. Each layer keeps its last stream seed with the rate and phase drawn from it, since a stream's seed and index fix its values; exertion, time, sighs and joint writes are evaluated at every call.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module holds the five tidal entries. Each layer holds its options and two last-seed records until it is released; the standalone functions retain nothing.
  */
 export namespace HumanBreath {
 
@@ -81,6 +91,12 @@ export namespace HumanBreath {
 
   /** Amplitude at full exertion, tidal breaths (provisional). */
   export const EXERTION_AMPLITUDE: number = 3;
+
+  /** Seconds over which a bout with a start comes to its full drive (provisional: within the first tens of seconds of exercise in which ventilation climbs, Whipp and Ward 1990). */
+  export const ONSET: number = 20;
+
+  /** A bout's recovery seconds when it names none (provisional). */
+  export const RECOVERY: number = 60;
 
   /** Clinical degrees at one tidal breath (provisional). */
   export const TIDAL: Readonly<
@@ -108,7 +124,7 @@ export namespace HumanBreath {
         15 + 2 * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
       if (rate >= BAND[0] && rate <= BAND[1]) return rate;
     }
-    return 16;
+    return (BAND[0] + BAND[1]) / 2;
   }
 
   /**
@@ -120,6 +136,7 @@ export namespace HumanBreath {
    * @param phase0 Phase at film second 0, cycles.
    * @param sigh The stream deciding which cycles are sighs.
    * @returns The rate, the cycle phase and the lung volume in tidal breaths.
+   * @throws {HumanRefusal} When the rate is not positive, or a bout's level lies outside [0, 1], its recovery is not positive or it ends before it starts.
    */
   export function state(
     seconds: number,
@@ -129,31 +146,28 @@ export namespace HumanBreath {
     sigh: IAutoMovieRandom,
   ): IAutoMovieMotionHumanBreath.IStateResult {
     HumanBound.above("rate", rate, 0, "breaths per minute");
-    let perMinute: number = rate;
-    let cycles: number = phase0 + (rate * seconds) / 60;
-    let amplitude: number = 1;
-    for (const bout of exertion) {
+    const bouts: IBout[] = exertion.map((bout: IAutoMovieMotionHumanBreath.IExertion): IBout => {
       HumanBound.within("exertion.level", bout.level, 0, 1);
-      const recovery: number = bout.recovery ?? 60;
+      const recovery: number = bout.recovery ?? RECOVERY;
       HumanBound.above("exertion.recovery", recovery, 0, "s");
-      const extra: number = bout.level * (EXERTION_RATE - rate);
+      if (bout.from !== undefined) HumanBound.least("exertion.at", bout.at, bout.from, "s");
+      return {
+        weight: Math.cbrt(bout.level),
+        from: bout.from ?? -Infinity,
+        at: bout.at,
+        recovery,
+      };
+    });
 
-      // The extra rate decays as (1 - u)^3 over the recovery and is held at
-      // its peak before the bout ends; its integral is closed-form.
-      if (seconds <= bout.at) {
-        perMinute += extra;
-        cycles += (extra * seconds) / 60;
-        amplitude += bout.level * (EXERTION_AMPLITUDE - 1);
-        continue;
-      }
-      const u: number = Math.min(1, (seconds - bout.at) / recovery);
-      const left: number = (1 - u) ** 3;
-      perMinute += extra * left;
-      cycles +=
-        (extra * (Math.max(0, bout.at) + (recovery * (1 - (1 - u) ** 4)) / 4)) /
-        60;
-      amplitude += bout.level * (EXERTION_AMPLITUDE - 1) * left;
-    }
+    // The hardest bout's drive at this second, and its integral since film
+    // second 0: the rate's excess integrates to the phase.
+    const drive: number = envelope(bouts, seconds) ** 3;
+    const driven: number =
+      seconds >= 0 ? integral(bouts, 0, seconds) : -integral(bouts, seconds, 0);
+    const perMinute: number = rate + (EXERTION_RATE - rate) * drive;
+    const cycles: number =
+      phase0 + (rate * seconds + (EXERTION_RATE - rate) * driven) / 60;
+    const amplitude: number = 1 + (EXERTION_AMPLITUDE - 1) * drive;
     const cycle: number = Math.floor(cycles);
     const f: number = cycles - cycle;
     const shape: number =
@@ -177,12 +191,12 @@ export namespace HumanBreath {
    * @returns The layer, named `breath`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the named additive layer, optional rate/exertion and film-second evaluation; the namespace documents physiological timing and provisional angles.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same analytic breathing phase and exertion law, with resting rate and initial phase drawn from the same pure counter-based streams and the same current-cycle sigh draw.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two bounded fixed-draw readers prepare the invariant rate and phase; each apply still obtains its context streams, evaluates actual exertion/time and adds current volume through the existing joint owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all context.random calls, existing state validators, exertion handling and cycle-indexed sigh draws; only identical pure stream-seed inputs reuse their completed fixed-index rate/phase computations.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each resting-rate or phase draw executes once while its exact stream seed stays unchanged; apply still costs O(E) for E exertion bouts plus fixed joint work and the current sigh draw. Alternating different seeds recomputes the appropriate draw without growing a cache.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work IAutoMovieRandom is the canonical pure counter-based stream whose seed and index determine its values; each fixed-draw reader holds only its last exact seed/result. Current time, exertion, volume, posture and sigh results are never reused.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer retains options and two last-seed/scalar records until released, with no retained body, context, stream object, time sample or growing performer map.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates `state` at each film second, with the resting rate and the initial phase drawn from the performer's counter-based streams and the sigh drawn per cycle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two readers keep the rate and the phase drawn from the last stream seed seen; each apply asks the context for its streams, evaluates `state` and adds the volume through `add`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stored rate or phase is reused only for the very seed it was drawn from. Limitation: the layer API offers no per-performer start, so the draws are keyed by seed instead of being made once when the layer meets its performer.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each rate or phase draw runs once while its stream seed stays the same; apply costs `state`'s O(B^3) in B exertion bouts plus fixed joint work. A changed seed redraws without growing any store.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A stream's seed and index fix its values, so a draw for the same seed is the same draw; time, exertion, volume and sighs are evaluated at every call.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer holds its options and two last-seed records until it is released.
    */
   export function layer(options: IAutoMovieMotionHumanBreath.IOptions = {}): IAutoMovieMotionHumanLayer {
     const rateAt: (random: IAutoMovieRandom) => number = fixedDraw(restingRate);
@@ -202,7 +216,7 @@ export namespace HumanBreath {
         const rate: number =
           options.rate ?? rateAt(context.random("breath.rate"));
         const phase0: number = phaseAt(context.random("breath.phase"));
-        const volume: number = state(
+        const volume: number = HumanBreath.state(
           seconds,
           rate,
           options.exertion ?? [],
@@ -235,7 +249,91 @@ export namespace HumanBreath {
   }
 }
 
-/** The readonly clinical-angle table has fixed membership for every breath. */
+/** One admitted bout: the cube root of its level, its start (`-Infinity` when under way since before the film), its end and its recovery, seconds. */
+interface IBout {
+  /** The cube root of the bout's level, so `weight × share` cubed is its drive. */
+  weight: number;
+
+  /** Film second the bout starts. */
+  from: number;
+
+  /** Film second the bout ends. */
+  at: number;
+
+  /** Seconds the drive takes to recover. */
+  recovery: number;
+}
+
+/** A bout's share of its full drive at a second, the cube root of its drive over its level: rising over `ONSET` from its start, 1 until it ends, falling over its recovery. Linear between its knots. */
+function share(bout: IBout, t: number): number {
+  return Math.max(
+    0,
+    Math.min(
+      1,
+      (t - bout.from) / HumanBreath.ONSET,
+      1 - (t - bout.at) / bout.recovery,
+    ),
+  );
+}
+
+/** The largest bout's `weight × share` at a second, the cube root of the hardest bout's drive; 0 without bouts. */
+function envelope(bouts: readonly IBout[], t: number): number {
+  let most: number = 0;
+  for (const bout of bouts) most = Math.max(most, bout.weight * share(bout, t));
+  return most;
+}
+
+/**
+ * The integral of the hardest bout's drive from `lo` to `hi`, seconds: the
+ * envelope's cube integrated exactly. Between the bouts' knots (start, full
+ * drive, end, recovered, and where a short bout's rise meets its fall) each
+ * bout's `weight × share` is linear; between those and the crossings of two
+ * bouts' lines inside them the envelope is one line `v`, whose cube
+ * integrates to `(b - a)(v_a^3 + v_a^2 v_b + v_a v_b^2 + v_b^3) / 4`. Cost
+ * O(B^3) in the B bouts, a handful.
+ */
+function integral(bouts: readonly IBout[], lo: number, hi: number): number {
+  if (bouts.length === 0 || !(hi > lo)) return 0;
+  const knots: number[] = [lo, hi];
+  for (const bout of bouts) {
+    const own: number[] = [
+      bout.from,
+      bout.from + HumanBreath.ONSET,
+      bout.at,
+      bout.at + bout.recovery,
+      (1 + bout.from / HumanBreath.ONSET + bout.at / bout.recovery) /
+        (1 / HumanBreath.ONSET + 1 / bout.recovery),
+    ];
+    for (const t of own) if (Number.isFinite(t) && t > lo && t < hi) knots.push(t);
+  }
+  knots.sort((a: number, b: number): number => a - b);
+  let total: number = 0;
+  for (let k: number = 1; k < knots.length; k++) {
+    const a: number = knots[k - 1]!;
+    const b: number = knots[k]!;
+    if (!(b > a)) continue;
+
+    // Where two bouts' lines cross inside this span, the envelope changes line.
+    const cuts: number[] = [a, b];
+    for (let i: number = 0; i < bouts.length; i++)
+      for (let j: number = i + 1; j < bouts.length; j++) {
+        const da: number = bouts[i]!.weight * share(bouts[i]!, a) - bouts[j]!.weight * share(bouts[j]!, a);
+        const db: number = bouts[i]!.weight * share(bouts[i]!, b) - bouts[j]!.weight * share(bouts[j]!, b);
+        if (da * db < 0) cuts.push(a + ((b - a) * da) / (da - db));
+      }
+    cuts.sort((x: number, y: number): number => x - y);
+    for (let c: number = 1; c < cuts.length; c++) {
+      const p: number = cuts[c - 1]!;
+      const q: number = cuts[c]!;
+      const vp: number = envelope(bouts, p);
+      const vq: number = envelope(bouts, q);
+      total += ((q - p) * (vp ** 3 + vp * vp * vq + vp * vq * vq + vq ** 3)) / 4;
+    }
+  }
+  return total;
+}
+
+/** The tidal angle table's entries, listed once. */
 const TIDAL_ENTRIES: readonly [AutoMovieHumanoidBone, readonly [number, number, number]][] =
   Object.entries(HumanBreath.TIDAL) as [AutoMovieHumanoidBone, readonly [number, number, number]][];
 

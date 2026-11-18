@@ -11,31 +11,28 @@ import type {
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
- * Construct the original raw authored pose for ordinary live-demand trunk FK.
+ * The pose of a posture's directly set joints and root, for forward
+ * kinematics of its trunk without solving its limbs.
  *
- * @param body The unchanged body supplying its actual skeleton id.
- * @param posture The current authored root/heading and optional whole-body rotation; limb goals remain ignored.
- * @param joints Current ordered clinical-degree joint override, including every unrequested/stray key.
- * @returns A fresh pose/joint list for immediate native FK admission, retaining Transform.of's existing root-frame borrowing convention.
+ * @param body The body supplying its skeleton id.
+ * @param posture The root, heading and whole-body rotation; its limb goals are ignored.
+ * @param joints The clinical-degree joint angles to pose; a bone whose entry is absent stands at zero.
+ * @returns A fresh pose whose root is the posture's turned root.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines raw authored root/clinical units, ignored limb goals, exact joint override scope, later native admission and original fresh/borrowed ownership.
- * @evidence contracts/development/implementation.md#principled-implementation The original Object.entries snapshot completes before every tuple F/A/T read; only then turnHumanPosture builds the same whole-body root and Transform.of supplies its original frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One complete ordered joint-list conversion precedes root construction and the original skeleton/root/joints carrier; ordinary HumanTrunk.resolve remains its actual consumer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every string key and tuple value passes unchanged to native admission, including invalid/unrequested entries. The existing bone type assertion filters nothing, and no limb fit, ROM clamp, root approximation, resolved flag or pose answer is substituted.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(J) original live conversion allocates J joint records and the entry snapshot. Fixed-demand consumers separately use the genuine staged tuple producer; this raw route retains its original live requested-set timing and failure staging without a measured speedup claim.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses canonical turnHumanPosture/Transform owners and leaves all current joint/root admission with FK; no tuple, body, prior pose or current transform is used as a result-cache key.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds no operation state or history. The immediate caller owns the new pose/list/records and retains only the root subrecords according to the unchanged transform owner's borrowing policy.
+ * @evidence contracts/development/common.md#meaningful-documentation States the root and clinical-degree inputs, the ignored limb goals, the absent-entry rule and the fresh output.
+ * @evidence contracts/development/implementation.md#principled-implementation Lists every present joint entry as a clinical flexion/abduction/twist record, then builds the root with turnHumanPosture over the posture without limbs and Transform.of; the engine's forward kinematics admits the joints.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One joint-list conversion, one root construction and one pose record; HumanTrunk.resolve is its consumer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each present entry passes to forward kinematics as authored, with no clamp, limb fit or root approximation; an entry whose value is absent is skipped, as an absent key is.
+ * @evidence contracts/development/implementation.md#efficient-algorithms O(J) in the J joint entries, one record each.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the canonical turnHumanPosture and Transform owners; nothing is shared between calls.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds no state; the caller owns the new pose.
  */
 export function authoredHumanTrunkPose(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
   joints: IAutoMovieMotionHumanPosture["joints"]): IAutoMoviePose {
-  const list: IAutoMovieJointPose[] = Object.entries(joints).map(
-    ([bone, angles]: [string, readonly [number, number, number] | undefined]): IAutoMovieJointPose => ({
-      bone: bone as AutoMovieHumanoidBone,
-      flexion: angles![0],
-      abduction: angles![1],
-      twist: angles![2],
-    }),
-  );
+  const list: IAutoMovieJointPose[] = [];
+  for (const [bone, angles] of Object.entries(joints) as [AutoMovieHumanoidBone, readonly [number, number, number] | undefined][])
+    if (angles !== undefined)
+      list.push({ bone, flexion: angles[0], abduction: angles[1], twist: angles[2] });
   const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture({ ...posture, limbs: {} });
   return {
     skeleton: body.skeleton.id,

@@ -1,4 +1,8 @@
-import { Transform, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  Transform,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -148,8 +152,12 @@ export namespace HumanTrunk {
     return { pitch: pelvis, joints: out };
   }
 
-  /** The hip flexion a forward-tilted pelvis leaves room for, degrees: 10 short of the 120 degree range (provisional margin). */
-  export const HIP_FLEXION: number = 110;
+  /** How far short of the hip's flexion range a tilted pelvis stops, degrees (provisional: a margin off the joint's end stop, read from no measured source). */
+  export const HIP_MARGIN: number = 10;
+
+  /** The hip flexion a forward-tilted pelvis leaves room for, degrees: `HIP_MARGIN` short of the hip's flexion range in `DEFAULT_HUMANOID_ROM`. */
+  export const HIP_FLEXION: number =
+    DEFAULT_HUMANOID_ROM.leftUpperLeg!.flexion!.max - HIP_MARGIN;
 
   /**
    * The most the pelvis may tilt forward before a planted leg's hip flexion
@@ -235,11 +243,10 @@ export namespace HumanTrunk {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanTrunk.IRegionResult {
     const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
-    const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
+    return surfaceOf(
       frame,
       resolve(body, posture, undefined, resolution, new Set([frame.bone])).get(frame.bone)!,
     );
-    return { point: placed.point, normal: placed.normal };
   }
 
   /**
@@ -264,10 +271,7 @@ export namespace HumanTrunk {
     const frame: IAutoMovieHumanoidSurfaces.IFrame = body.surfaces.regions[region];
     const read: ReturnType<typeof prepareResolve> = prepareResolve(body, new Set([frame.bone]));
     return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): HumanTrunk.ISurface => {
-      const bones: ReturnType<typeof read> = read(posture, resolution);
-      const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-        resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
-      return { point: placed.point, normal: placed.normal };
+      return surfaceOf(frame, read(posture, resolution).get(frame.bone)!);
     };
   }
 
@@ -370,9 +374,7 @@ export namespace HumanTrunk {
       region: (region: AutoMovieHumanoidRegion): HumanTrunk.ISurface => {
         const frame: IAutoMovieHumanoidSurfaces.IFrame =
           body.surfaces.regions[region];
-        const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-          resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
-        return { point: placed.point, normal: placed.normal };
+        return surfaceOf(frame, bones.get(frame.bone)!);
       },
       surface: (from: IAutoMovieVector3, toward: IAutoMovieVector3): HumanTrunk.ISurface => {
         if (colliders === undefined) {
@@ -461,17 +463,27 @@ export namespace HumanTrunk {
   }
 }
 
-/** The existing trunk-ray subset: every canonical name without a side prefix. */
+/** The bones a trunk ray is tested against: the midline ones, none with a side. */
 const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
   "hips", "spine", "chest", "upperChest", "neck", "head", "jaw",
 ]);
 
-/** Add one ordered spinal flexion while preserving its other authored components. */
+/** A region's world point and unit normal, placed on its resolved bone by the engine's surface placement. */
+function surfaceOf(
+  frame: IAutoMovieHumanoidSurfaces.IFrame,
+  bone: IAutoMovieResolvedBone,
+): HumanTrunk.ISurface {
+  const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+    resolveAutoMovieHumanoidSurfaces.place(frame, bone);
+  return { point: placed.point, normal: placed.normal };
+}
+
+/** Add a share of the spine's flexion to one bone, keeping its other angles. */
 function addInclination(joints: IAutoMovieMotionHumanPosture["joints"], bone: "spine" | "chest",
   part: number, spine: number): void {
   const was: readonly [number, number, number] = joints[bone] ?? ZERO;
   joints[bone] = [was[0] + part * spine, was[1], was[2]];
 }
 
-/** Borrowed additive identity; written inclination triples always remain fresh. */
+/** The angles of a bone the record holds none for. */
 const ZERO: readonly [number, number, number] = [0, 0, 0];

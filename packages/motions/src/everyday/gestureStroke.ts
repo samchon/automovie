@@ -50,12 +50,16 @@ import { gestureTouch } from "./gestureTouch";
  *   dominant eye; the side's eye is the provisional choice), at the distance
  *   where the arm reaches with `0.95` of its length, the fingers along the
  *   line and the palm down.
- * - `palmsUp`: both open palms up, forearms forward at the waist, the
- *   offering and not-knowing gesture; `shrug` adds it under raised shoulders.
- * - `beckon`: the palm up at chest height while the fingers curl and open,
- *   about 1.7 cycles a second (provisional).
- * - `clap`: both palms face each other ahead of the chest and meet at
- *   the midpoint on each beat, three beats a second (provisional; free
+ * - `palmsUp`: both open palms up, forearms forward at the waist, turned a
+ *   quarter of the way out, set `0.15` arm lengths out and forward and
+ *   lifted `0.03` in the stroke, the offering and not-knowing gesture;
+ *   `shrug` adds it under raised shoulders.
+ * - `beckon`: the palm up at chest height, `0.05` arm lengths lower and
+ *   nearer, while the fingers curl and open, about 1.7 cycles a second
+ *   (provisional).
+ * - `clap`: both palms face each other ahead of the chest, `0.1` arm lengths
+ *   below and `0.17` ahead of its place, part `0.09` and meet at the
+ *   midpoint on each beat, three beats a second (provisional; free
  *   applause is faster than the near-2 Hz synchronised rhythm, Neda et al.
  *   2000, Nature 403:849).
  * - `thumbsDown`: the fist ahead of the chest, the palm outward and the
@@ -63,7 +67,8 @@ import { gestureTouch } from "./gestureTouch";
  *   toward the knuckles, points down; the elbow is asked out at the
  *   shoulder's height, which leaves the forearm a quarter turn instead of a
  *   half (provisional place, tip and elbow).
- * - `rubHands`: the palms together, sliding opposite ways along the fingers.
+ * - `rubHands`: the palms together, sliding `0.03` arm lengths opposite ways
+ *   along the fingers.
  * - `palmsTogether`: the palms pressed together ahead of the chest, the
  *   fingers up and forward, held: the clap's hand pose without its parting
  *   (a prayer, a wai or gassho greeting).
@@ -76,7 +81,11 @@ import { gestureTouch } from "./gestureTouch";
  * {@link gestureJoints}; pointing and self-touch read the posed trunk in
  * {@link gestureTouch}; the strokes ride the signals of {@link gestureSignal}.
  * Amplitudes and distances that express the gesture's size scale with the
- * Effort extent; contact points and the pointing line do not.
+ * Effort extent; contact points and the pointing line do not. Each hand goal
+ * widens the elbow's hanging hint by its own share of the upper arm (`out`:
+ * 0.3 for a wave, 0.2 for a raised hand, a cheer and open palms, 0.1 for
+ * palms together, none for the rest; provisional, read from no measured
+ * source). Every value above without a source is provisional.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the law, its sources, its units and frames, and which values are provisional.
  * @evidence contracts/development/design.md#principled-representation Pure functions and constants over the interface's vectors and the engine's streams.
@@ -86,11 +95,11 @@ import { gestureTouch } from "./gestureTouch";
 export namespace gestureStroke {
   /**
    * The interface stroke input with the gesture's prepared touch geometry.
-   * The handle is a motions-private nominal brand (`gestureTouch.IPrepared`),
-   * so it extends the dependency-free contract here instead of entering it.
+   * The record (`gestureTouch.IPrepared`) holds motions' own readers, so it
+   * extends the dependency-free contract here instead of entering it.
    */
   export interface IInput extends IAutoMovieMotionHumanGestureStroke.IInput {
-    /** Genuine fixed body/hand/kind geometry owner; every current posture/target still runs ordinary native admission. Cold strokes need no preparation. */
+    /** The plan's touch geometry for this hand, when the gesture prepared it; a stroke read without it computes the geometry itself. */
     prepared?: gestureTouch.IPrepared;
   }
 
@@ -115,7 +124,7 @@ export namespace gestureStroke {
    * @evidence contracts/development/common.md#meaningful-documentation States the beckon-only clinical-degree output, stroke timebase and effort/envelope separation.
    * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same raised-cosine finger pulse at the beckon's published range amplitude; a kind with no extra finger flexion returns zero.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The full stroke goal and planned-arm finger playback consume one scalar law rather than constructing unused world-space goals for finger data.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original beckon amplitude, phase, cycles and extent multiplication order; it changes no working hand shape, contact surface or arm trajectory.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The amplitude is the range table's deep index flexion (`gestureJoints.ANGLES.beckon`); it changes no working hand shape, contact surface or arm trajectory.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One closed-kind decision and fixed arithmetic, with no traversal or algorithm choice.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Full hand goals and geometry-free finger playback share this same pure formula for identical kind/share/cycle/extent inputs.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains nothing.
@@ -136,12 +145,12 @@ export namespace gestureStroke {
    * @returns The goal.
    * @throws {Error} For a gesture that moves no hand, or `point` without a target.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result, the stroke share's range and meaning, and the refusals; the namespace doc gives each gesture's goal and its provisional values. Every public kind retains the common body/measure, root/yaw, oscillation and extent observation order before its branch.
+   * @evidence contracts/development/common.md#meaningful-documentation States the result, the stroke share's range and meaning, and the refusals; the namespace doc gives each gesture's goal and its provisional values.
    * @evidence contracts/development/implementation.md#principled-implementation Builds each goal in the performer's frame from the body's own measure (arm length, shoulder and waist heights), on the eye-to-target line for pointing (Henriques and Crawford 2002, the reach solved as a ray-sphere intersection from the shoulder), or on the body's face regions offset by the finger's collider radius for self-touch, so every gesture fits any stature; periodic strokes ride {@link gestureSignal.oscillation}.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch over the kind; pointing and self-touch, which need the posed trunk, live in {@link gestureTouch}; joint gestures live in {@link gestureJoints}.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased. Pointing, self-touch and no-hand refusal occur only after the original common prelude, preserving getter/callback reads, their counts and the first thrown error; genuine prepared geometry remains inside its existing owner.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures; one lazy coefficient pair serves this query's captured yaw across actual point/direction transforms, while each point reads its borrowed current origin. Pointing/self-touch use their actual demanded trunk FK and fixed geometry owners.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The query's private frame already owns one copied numeric yaw, so point/direction transforms share its lazy zero-origin HumanFrame preparation. Current local coordinates, borrowed origin and variation callbacks remain actual, with no prepared frame or result retained between queries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arm-length shares, swing sizes and outward elbow shares are documented provisional values; no body or scene is special-cased. The `thumbsDown` knuckle tilt is a fixed 45 degrees read off the polygon man's thumb (Limitation: it should aim the fist's thumb down from the body's own digit direction).
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for frame gestures: the heading's sine and cosine are computed once per call, on first need, and serve every point and direction. Pointing and self-touch cost one trunk forward-kinematics pass each.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Within one call, the points and directions share one frame preparation of the base's heading; nothing is kept between calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new goal and retains nothing.
    */
   export function hand(
@@ -151,7 +160,7 @@ export namespace gestureStroke {
     cycles: number,
     input: gestureStroke.IInput,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
-    const { body } = input;
+    const body: IAutoMovieMotionHumanBody = input.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const sign: number = side === "left" ? 1 : -1;
     const L: number = m.upperArm + m.forearm;
@@ -174,7 +183,11 @@ export namespace gestureStroke {
     // scales the distance ahead. `named` is the place without its nudge: when
     // given and the repeat varies, the named place's offset is added, so the
     // offset is one value through the stroke whatever the nudge does.
-    const put = (
+    const put: (
+      place: IAutoMovieMotionHumanTargetGrid.Place,
+      reach?: number,
+      named?: IAutoMovieMotionHumanTargetGrid.Place,
+    ) => IAutoMovieVector3 = (
       place: IAutoMovieMotionHumanTargetGrid.Place,
       reach: number = 1,
       named?: IAutoMovieMotionHumanTargetGrid.Place,
@@ -187,7 +200,7 @@ export namespace gestureStroke {
           : AutoMovieMotionHumanTargetGrid.place(body, side, named);
       const varied: IAutoMovieMotionHumanTarget.IDefault | undefined =
         base === undefined ? undefined : input.vary!(base);
-      const offset = (key: "lateral" | "height" | "range"): number =>
+      const offset: (key: "lateral" | "height" | "range") => number = (key: "lateral" | "height" | "range"): number =>
         base === undefined || varied === undefined
           ? 0
           : (varied[key] ?? 0) - (base[key] ?? 0);
@@ -197,7 +210,10 @@ export namespace gestureStroke {
         (shares.range + offset("range")) * L * reach,
       );
     };
-    const facing = (
+    const facing: (
+      fingers: IAutoMovieMotionHumanHand.Direction,
+      palm: IAutoMovieMotionHumanHand.Direction,
+    ) => IAutoMovieQuaternion = (
       fingers: IAutoMovieMotionHumanHand.Direction,
       palm: IAutoMovieMotionHumanHand.Direction,
     ): IAutoMovieQuaternion =>

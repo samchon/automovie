@@ -84,7 +84,7 @@ export namespace brace {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
   };
 
-  /** Knee flexion of the set posture, degrees (20 to 30 in a braced stance). */
+  /** Knee flexion of the set posture, degrees (provisional: a slightly bent ready stance, read from no measured source). */
   export const KNEE: number = 25;
 
   /** How far the rear foot steps back along the force's line, leg lengths (provisional). */
@@ -93,21 +93,48 @@ export namespace brace {
   /** Lead time to the set posture, seconds (provisional). */
   export const SET: number = 0.6;
 
+  /** The least the set posture is held after it is reached, seconds (provisional: long enough to read as held, read from no measured source). */
+  export const HELD: number = 0.2;
+
+  /** The brace's length when the caller names none, seconds (provisional). */
+  export const SECONDS: number = 1.5;
+
+  /** When the stepping foot leaves and lands, seconds from the start (provisional: a 0.4 s swing ending before the set). */
+  export const STEP: readonly [number, number] = [0.1, 0.5];
+
+  /** The stepping foot's lift at mid-swing, metres (provisional: a shuffle's clearance, read from no measured source). */
+  export const LIFT: number = 0.03;
+
+  /** The trunk's inclination into a force from straight ahead, degrees (provisional). */
+  export const LEAN: number = 10;
+
+  /** How far ahead of the sternum the palms come up, a share of the arm (upper arm and forearm) (provisional: the elbows bent, not reaching). */
+  export const AHEAD: number = 0.55;
+
+  /** How far out from the sternum each palm stands, a share of the half shoulder width (provisional: just inside the shoulders). */
+  export const SPREAD: number = 0.9;
+
+  /** How far below the sternum the palms come to receive a falling body, a share of stature (provisional). */
+  export const RECEIVE: number = 0.1;
+
+  /** The elbows' outward hint, a share of the upper arm (provisional: read from no measured source). */
+  export const ELBOW_OUT: number = 0.2;
+
   /**
    * Plan a brace: the rear foot's step, the lowered and centred set root,
    * and postures that reach the set at `SET` seconds with the palms up toward
    * the force, then hold it.
    *
    * @param context The action's context.
-   * @returns The plan; a duration shorter than `SET + 0.2` s is raised to it.
+   * @returns The plan; a duration shorter than `SET + HELD` is raised to it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, when the set is reached and how a short duration is treated; the law's doc gives the sources and the provisional magnitudes.
    * @evidence contracts/development/implementation.md#principled-implementation The anticipatory adjustments of Massion 1992: the foot away from the force steps back along its line and out to shoulder width, the pelvis drops by the leg-length change of a `KNEE` flexion (law of cosines over thigh and shank), and the root moves so the engine's centre of mass stands over the mean of the new base's hull vertices, measured on the solved posture; the trunk inclines toward the force by the cosine of its bearing, so a force from the side adds no lean.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step and the set root once; the posture closure interpolates root, lean and palms on one minimum-jerk set curve and delegates legs to the stand law and hands to handGoals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts KNEE, STAGGER, SET, the 10 degree lean, the 0.55 reach share and the 0.4 s step with its 3 cm lift are named provisional magnitudes; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation; each posture costs one leg solve, one bone resolve for the hanging palms and a two-hand solve. One fixed-heading standing-leg preparation omits repeated foot-heading quaternions and contact-offset reads while preserving every current knee transform.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Step, set root, same-body/yaw foot metadata and sternum demand prepare once. Initial centring shares fixed authored set-inclination joints, one exact FK workspace and genuine ROM projector across both complete support fits; each changing root is still lowered/fitted. Arm planning lends synchronous prerequisites through prior to actual lowering/sternum fitting, while runtime posture can lend FK to lowering and every current goal remains actual.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The initial centring IIFE releases its FK getter/projector and intermediate maps before returning only the set-root vector. The plan owns fixed body/feet/standing-foot/name metadata without query history. Prior and runtime posture borrow dynamic prerequisites only until synchronous return; no loan enters the root, posture, request data or returned closure.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts KNEE, STAGGER, SET, HELD, SECONDS, STEP, LIFT, LEAN, AHEAD, SPREAD, RECEIVE and ELBOW_OUT are named provisional magnitudes; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation and the arms' one planned trajectory; each posture costs one leg solve and writes the planned arms. The standing legs' heading-dependent foot data is prepared once for the brace's fixed heading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The step, the set root, the foot data and the sternum's bone demand are prepared once per plan. The centring's two support solves share the set inclination's joints, one FK workspace and one ROM projector; each root tried is lowered and fitted afresh. The arm planner lends its FK workspace and ROM projector to each frame it asks for.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The centring releases its FK workspace and projector before returning the set root. The plan holds the body, the feet, the foot data and the bone demand until it is released; borrowed workspaces end with each call and enter no returned value.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBrace.IParams>,
@@ -115,7 +142,7 @@ export namespace brace {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const p: IAutoMovieMotionHumanBrace.IParams = context.params;
-    const duration: number = Math.max(SET + 0.2, p.seconds ?? 1.5);
+    const duration: number = Math.max(SET + HELD, p.seconds ?? SECONDS);
     const yaw: number = context.entry.posture.yaw;
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
@@ -164,7 +191,7 @@ export namespace brace {
         Vector3.scale(out, widen),
       ),
     );
-    const swing: [number, number] = [0.1, 0.5];
+    const swing: readonly [number, number] = STEP;
     const footAt: (side: "left" | "right", t: number) => { ankle: IAutoMovieVector3; planted: boolean } = (
       side: "left" | "right",
       t: number,
@@ -179,7 +206,7 @@ export namespace brace {
         minimumJerk.share(u),
       );
       return {
-        ankle: { ...ankle, y: ankle.y + 0.03 * Math.sin(Math.PI * u) },
+        ankle: { ...ankle, y: ankle.y + LIFT * Math.sin(Math.PI * u) },
         planted: false,
       };
     };
@@ -204,7 +231,7 @@ export namespace brace {
         m.shank * m.shank +
         2 * m.thigh * m.shank * Math.cos((KNEE * Math.PI) / 180),
     );
-    const lean: number = 10;
+    const lean: number = LEAN;
     const forward: number =
       (Math.atan2(toward.x, toward.z) * 180) / Math.PI - yaw;
     const upright: IAutoMovieMotionHumanPosture["joints"] = standUpright.of(body).joints;
@@ -309,7 +336,7 @@ export namespace brace {
     // height (lower to receive a body), so the goal stands clear of the
     // chest's surface however far the trunk leans.
     const catching: boolean = p.kind === "catchBody";
-    const reach: number = (m.upperArm + m.forearm) * 0.55;
+    const reach: number = (m.upperArm + m.forearm) * AHEAD;
     const rotations: Record<"left" | "right", IAutoMovieQuaternion> = {
       left: HumanHand.rotation(
         "left",
@@ -328,11 +355,11 @@ export namespace brace {
     const sternumBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([region.bone]);
     const readSternum: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, sternumBones);
     const leftOffsets: Record<"left" | "right", IAutoMovieVector3> = {
-      left: Vector3.scale(left, m.shoulderHalfWidth * 0.9),
-      right: Vector3.scale(left, -1 * m.shoulderHalfWidth * 0.9),
+      left: Vector3.scale(left, m.shoulderHalfWidth * SPREAD),
+      right: Vector3.scale(left, -1 * m.shoulderHalfWidth * SPREAD),
     };
     const aheadOffset: IAutoMovieVector3 = Vector3.add(Vector3.scale(toward, reach), {
-      x: 0, y: catching ? -0.1 * m.stature : 0, z: 0,
+      x: 0, y: catching ? -RECEIVE * m.stature : 0, z: 0,
     });
     const requests: (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => IAutoMovieMotionHumanArmTarget.ISided[] = (
       posture: IAutoMovieMotionHumanPosture,
@@ -363,7 +390,7 @@ export namespace brace {
             aheadOffset,
           ),
           rotation: rotations[side],
-          bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+          bend: AutoMovieMotionHumanBend.hang(body, posture, side, ELBOW_OUT),
         }),
       );
     };

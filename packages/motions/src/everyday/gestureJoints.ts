@@ -26,15 +26,16 @@ import { gestureSignal } from "./gestureSignal";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each joint gesture's angles, sources and provisional values, and where `bow` is handled.
  * @evidence contracts/development/design.md#principled-representation Signed clinical degrees as levels of each joint's range, added to the posture per bone.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The angle table, cold delta reader and direct additive writer serve the gesture law and existing stroke/tests through one scalar pattern owner.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The angle table, the delta reader and the additive writer serve the gesture law, the stroke and their tests through one pattern function.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the range vocabulary and the gesture's kind union; no consumer is special-cased.
  */
 export namespace gestureJoints {
   /**
    * The size of each joint gesture at full extent, signed clinical degrees:
-   * a level of the joint's range, scaled where the shipped size lay between
-   * two levels (provisional; `everydayGestureVerdicts` checks each gesture
-   * happens).
+   * a level of the joint's range, scaled where the provisional size the
+   * namespace doc states lies between two levels (provisional, read from no
+   * measured source except the nod's; `everydayGestureVerdicts` checks each
+   * gesture happens).
    */
   export const ANGLES = {
     /** The head's flexion in a nod. */
@@ -115,10 +116,10 @@ export namespace gestureJoints {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the result's unit (clinical degrees added to the posture) and each argument's range; the namespace doc gives each gesture's angles and sources.
    * @evidence contracts/development/implementation.md#principled-implementation Joint angles because these gestures bring no body point anywhere: the movement is the segment's own rotation (head nods after Hadar et al. 1985, shrug inside the 30 degree elevation range); each amplitude scales by the envelope times the Effort extent, with nods and shakes on the stroke's cycles.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared exhaustive scalar pattern writes this reader's fresh delta map; hand gestures and bow return no angles because hand strokes/the gesture law own them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive pattern over the kind writes a fresh delta map; hand gestures and bow return no angles because hand strokes and the gesture law own them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The amplitudes are documented provisional values; no body is special-cased.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the original scalar pattern with add, whose actual gesture consumer omits discarded delta maps/triples; this cold reader retains direct delta values and fresh map ownership.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the pattern with `add`, which writes the same deltas into a caller's record instead of a new map.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
   export function at(
@@ -141,13 +142,13 @@ export namespace gestureJoints {
    * @param envelope Transport share in [0,1].
    * @param extent Effort extent multiplier.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines owned output mutation, clinical-degree addition, current kind/phase/cycle/share inputs, unchanged untouched joints and fresh written triples.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses at's same scalar gesture pattern and bone order, then adds each clinical component to its existing authored value or zero, exactly as the gesture's former ordered delta-map addition.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Both public reads delegate one pattern owner; raw at writes its new delta map while this additive writer writes directly into the supplied owned map.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all existing amplitudes, oscillation/rhythm formulas, multiplication groups and bone order. The cold at path writes direct values without an extra zero addition, preserving signed-zero values; no goal, limit or shape is substituted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed one-to-five-bone work writes fresh final triples without an intermediate delta map, delta triples or Object.entries pairs. One shared scalar writer serves every actual query without allocating a per-query callback; no speedup is measured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared pattern owns the exact same at/add scalars; every current phase, envelope and extent remains evaluated normally without reusing a prior time or angle answer.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no output record, input posture, scalar answer, callback, body or history; the caller owns the updated map and fresh written triples.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the mutated caller record, the clinical-degree addition, the inputs and that joints the kind does not move are left as they are.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluates `at`'s pattern and adds each component to the joint's authored value, or to zero where it has none.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure `at` and `add` share one pattern function; `at` writes a new delta map and `add` writes into the caller's record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The amplitudes and rhythms are the pattern's; no goal, limit or shape is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One to five bones written per call, with no intermediate delta map.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the pattern with `at`; every call evaluates its own share, envelope and extent.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the caller owns the updated record.
    */
   export function add(joints: Angles, kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number,
     cycles: number, envelope: number, extent: number): void {
@@ -155,10 +156,10 @@ export namespace gestureJoints {
   }
 }
 
-/** The existing clinical-degree joint record; no second pose is represented. */
+/** The posture's clinical-degree joint record. */
 type Angles = IAutoMovieMotionHumanPosture["joints"];
 
-/** Evaluate every original gesture scalar once, writing deltas or their ordered sum. */
+/** Evaluate a joint gesture at a share, writing its deltas into the record, or adding them to it. */
 function pattern(kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number, cycles: number, envelope: number,
   extent: number, joints: Angles, additive: boolean): Angles {
   const a: number = envelope * extent;
@@ -208,7 +209,7 @@ function pattern(kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number, cycle
   }
 }
 
-/** Write the original ordered delta or addition without a per-query closure. */
+/** Write one bone's delta, or add it to the bone's angles. */
 function write(joints: Angles, additive: boolean, bone: AutoMovieHumanoidBone,
   flexion: number, abduction: number, twist: number): void {
   if (additive) {
@@ -217,5 +218,5 @@ function write(joints: Angles, additive: boolean, bone: AutoMovieHumanoidBone,
   } else joints[bone] = [flexion, abduction, twist];
 }
 
-/** Borrowed additive identity; every written clinical triple remains fresh. */
+/** The angles of a bone the record holds none for. */
 const ZERO: readonly [number, number, number] = [0, 0, 0];

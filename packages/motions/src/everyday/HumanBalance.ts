@@ -48,7 +48,7 @@ import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
  * @evidence contracts/development/design.md#principled-representation Pure balance functions and explicit fixed-body centre/dynamic readers return world-metre shifts/margins/offsets and points. The unchanged body owns its engine mass model, while operation-scoped genuine FK/ROM producers share only static or exact checked dependencies.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the motions balance queries over solved postures; read by the bow, bend, brace and rise laws, the everyday captures and the balance test; the centre-of-mass model, hull and margin belong to the engine and are imported.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No motions-local centre of mass or hull duplicates the engine's and no body or law is special-cased; one gap remains: `margin` is read only by the balance test, a member only a test reads.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No motions-local centre of mass or hull duplicates the engine's and no body or law is special-cased; `margin` serves the trunk's counterbalance composition (`AutoMovieMotionHumanTrunk`) as well as the balance tests.
  */
 export namespace HumanBalance {
   /** How far back the balance search looks unless told otherwise, hip heights: the shift of a trunk pitched over hips that stand over the feet. */
@@ -120,7 +120,7 @@ export namespace HumanBalance {
       model ??= prepareAutoMovieMassModel(body.massModel);
       return model;
     };
-    const at = (back: number): IReading => {
+    const at: (back: number) => IReading = (back: number): IReading => {
       let r: IReading | undefined = read0.get(back);
       if (r === undefined) {
         r = read(body, build(back), resolution, projection, frames, mass);
@@ -142,7 +142,12 @@ export namespace HumanBalance {
       // the planted legs at their range, costs steps and no divergence) and by
       // the engine's bisection (`bracketedBisection`) for a yes-or-no one. With no crossing in the range, the end
       // that comes nearer is returned.
-      const first = (
+      const first: (
+        from: number,
+        sign: number,
+        error: (r: IReading) => number,
+        smooth: boolean,
+      ) => { found: boolean; back: number } = (
         from: number,
         sign: number,
         error: (r: IReading) => number,
@@ -170,7 +175,7 @@ export namespace HumanBalance {
               ),
         };
       };
-      const ahead = (r: IReading): number => r.offset - target;
+      const ahead: (r: IReading) => number = (r: IReading): number => r.offset - target;
       // Flat feet first: a heel the planted leg lifted is brought down by
       // moving the hips back; on flat feet a centre ahead of the target is
       // brought back to it, and one behind it is left while it lies inside.
@@ -403,8 +408,13 @@ export namespace HumanBalance {
 
 /** A posture's balance: `HumanBalance.offset` and `HumanBalance.margin`, metres, and whether both heels bear. */
 interface IReading {
+  /** How far the centre of mass lies ahead of the base's middle along the heading, metres. */
   offset: number;
+
+  /** The static margin of stability, metres, positive inside the base. */
   margin: number;
+
+  /** Whether both heels bear. */
   flat: boolean;
 }
 

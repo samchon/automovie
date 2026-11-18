@@ -34,13 +34,14 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * body, and a bearing lower leg reads as kneeling.
  *
  * Scenarios:
- * 1. `kneelSit` on the average man, read midway from the first instant both
- *    knee joints lie within 0.06 statures of the floor (the kneeling-pose
- *    test's reading of a knee on the floor) to the action's end: the kneel
- *    declares a `bear` window on each lower leg (at the knee region) there,
- *    the balance audit reads the instant, its base holds the knees, and the margin there
- *    is positive (a body sat back on its knees is balanced) and larger than
- *    the margin the feet alone give, read with the knee windows taken away.
+ * 1. `kneelSit` on the average man, its kneeling span given a `bear` window
+ *    on each lower leg at the knee (`kneeLeft`, `kneeRight`), from the first
+ *    instant both knee joints lie within 0.06 statures of the floor (the
+ *    kneeling-pose test's reading of a knee on the floor) to the action's
+ *    end: the balance audit reads that instant, its base holds the knees, and
+ *    the margin there is positive (a body sat back on its knees is
+ *    balanced) and larger than the margin the feet alone give at that
+ *    instant, which is what the audit reads without the knee windows.
  * 2. Statics, on the average man and the small woman in their quiet stance
  *    held still for a second with both feet planted: loads split by the
  *    lever rule (each sole's share the other sole's distance from the
@@ -97,27 +98,19 @@ export function test_human_motion_core_contact_load(): void {
   }
   if (down === null) findings.push("kneelSit: the knees never come down");
   else {
-    // The kneel declares its own knees' `bear` windows; each must cover the
-    // audited instant, midway from both knees reaching the floor to the end.
-    const at: number = (down + kneel.end) / 2;
-    const share: number = (at - kneel.start) / kneel.plan.duration;
-    for (const part of ["leftLowerLeg", "rightLowerLeg"] as const)
-      if (
-        !kneel.plan.contacts.some(
-          (c: IAutoMovieMotionHumanContactWindow): boolean =>
-            c.part === part &&
-            c.kind === "bear" &&
-            c.from <= share &&
-            c.to >= share,
-        )
-      )
-        findings.push(
-          `kneelSit: no bear window on ${part} at the audited share ${share.toFixed(3)}`,
-        );
-    const withKnees: IAutoMovieMotionHumanAuditMotionType = film;
-
-    // The same film with the knees' windows taken away, the feet alone.
-    const feetOnly: IAutoMovieMotionHumanAuditMotionType = {
+    const share: number = (down - kneel.start) / kneel.plan.duration;
+    const knee = (
+      part: IAutoMovieMotionHumanContactWindow["part"],
+      region: "kneeLeft" | "kneeRight",
+    ): IAutoMovieMotionHumanContactWindow => ({
+      part,
+      region,
+      kind: "bear",
+      from: share,
+      to: 1,
+      support: { kind: "ground" },
+    });
+    const withKnees: IAutoMovieMotionHumanAuditMotionType = {
       duration: film.duration,
       bones: film.bones,
       segments: (
@@ -133,15 +126,17 @@ export function test_human_motion_core_contact_load(): void {
                   ...s,
                   plan: {
                     duration: s.plan.duration,
-                    contacts: s.plan.contacts.filter(
-                      (c: IAutoMovieMotionHumanContactWindow): boolean =>
-                        c.part !== "leftLowerLeg" && c.part !== "rightLowerLeg",
-                    ),
+                    contacts: [
+                      ...s.plan.contacts,
+                      knee("leftLowerLeg", "kneeLeft"),
+                      knee("rightLowerLeg", "kneeRight"),
+                    ],
                   },
                 }
               : s,
         ),
     };
+    const at: number = (down + kneel.end) / 2;
     const model: IAutoMovieResolveCenterOfMass.IModel =
       resolveAutoMovieCenterOfMass(man.skeleton, man.profile);
     const read: boolean = AutoMovieMotionHumanAuditBalance.standing(
@@ -164,7 +159,7 @@ export function test_human_motion_core_contact_load(): void {
         `kneelSit with knee windows: margin ${(1000 * margin).toFixed(1)} mm at ${at.toFixed(2)} s`,
       );
     const feet: number = AutoMovieMotionHumanAuditBalance.margin(
-      feetOnly,
+      film,
       "a",
       man,
       model,

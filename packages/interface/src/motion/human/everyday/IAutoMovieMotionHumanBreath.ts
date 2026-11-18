@@ -28,10 +28,14 @@
  * - Exertion: each declared bout raises the rate toward 40 a minute and the
  *   amplitude toward 3 times tidal at level 1 (exercise ventilation reaches
  *   rates near 40 to 50 a minute with tidal volumes several times resting;
- *   provisional scale), and recovers as `(1 - u)^3` over its recovery time
- *   (provisional polynomial; ventilation recovery is roughly exponential, and
- *   a polynomial keeps the computation exact in ECMAScript). The phase is the
- *   closed-form integral of the rate, so a rate change never jumps the phase.
+ *   provisional scale), rising from its start over the first seconds of the
+ *   exercise and recovering as `(1 - u)^3` over its recovery time
+ *   (provisional polynomials; ventilation rises and recovers roughly
+ *   exponentially, and a polynomial keeps the computation exact in
+ *   ECMAScript). Overlapping bouts do not add: the hardest one drives the
+ *   breathing at each instant, so no number of bouts passes the level-1
+ *   rate and amplitude. The phase is the closed-form integral of the rate,
+ *   so a rate change never jumps the phase.
  * - Angles at one tidal breath (provisional; no located study gives the trunk
  *   joint angles of quiet breathing): chest extension 1.5 degrees, upper
  *   chest 1 degree, lumbar spine 0.5 degrees and each shoulder girdle raised
@@ -40,8 +44,8 @@
  * The phase runs on film seconds from a seeded offset, so breathing continues
  * smoothly across action boundaries.
  *
- * @evidence contracts/development/common.md#meaningful-documentation rate: Breaths a minute at rest; a seeded draw from the adult band when absent. recovery: Recovery seconds; 60 when absent (provisional).
- * @evidence contracts/development/design.md#principled-representation rate: Breaths a minute at rest; a seeded draw from the adult band when absent. recovery: Recovery seconds; 60 when absent (provisional).
+ * @evidence contracts/development/common.md#meaningful-documentation rate: Breaths a minute at rest; a seeded draw from the adult band when absent. from: Film second the bout starts; under way since before the film when absent. recovery: Recovery seconds; 60 when absent (provisional).
+ * @evidence contracts/development/design.md#principled-representation rate: Breaths a minute at rest; a seeded draw from the adult band when absent. from: Film second the bout starts; under way since before the film when absent. recovery: Recovery seconds; 60 when absent (provisional).
  * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.state, exertion); everyday/HumanBreath.ts (HumanBreath.state, return); everyday/HumanBreath.ts (HumanBreath.layer, options).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanBreath.state.
  */
@@ -63,14 +67,17 @@ export namespace IAutoMovieMotionHumanBreath {
   }
 
   /**
-   * One bout of exertion, ending at `at`.
+   * One bout of exertion, from `from` to `at`.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation recovery: Recovery seconds; 60 when absent (provisional).
-   * @evidence contracts/development/design.md#principled-representation recovery: Recovery seconds; 60 when absent (provisional).
+   * @evidence contracts/development/common.md#meaningful-documentation from: Film second the bout starts; under way since before the film when absent. at: Film second the bout ends and recovery starts. recovery: Recovery seconds; 60 when absent (provisional).
+   * @evidence contracts/development/design.md#principled-representation from: Film second the bout starts; under way since before the film when absent. at: Film second the bout ends and recovery starts, no earlier than `from`, which HumanBreath.state admits. recovery: Recovery seconds; 60 when absent (provisional).
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.state, exertion).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanBreath.state.
    */
   export interface IExertion {
+    /** Film second the bout starts; under way since before the film when absent. */
+    from?: number;
+
     /** Film second the bout ends and recovery starts. */
     at: number;
 
