@@ -331,11 +331,11 @@ export namespace HumanLimbFit {
             body,
             trunk,
             side,
-            attached.clear ?? [],
+            goal.clear ?? [],
             true,
             rival,
             goal.bend,
-            attached.rests ?? [],
+            goal.rests ?? [],
           );
     const fitter: ReturnType<typeof prepareHumanLimbFit> = prepareHumanLimbFit(
       body,
