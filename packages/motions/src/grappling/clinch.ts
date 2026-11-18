@@ -47,10 +47,11 @@ import { poseBones } from "../posture/poseBones";
  * both hands closed), `strokeStart`, `stroke`, `strokeEnd`, `relax`
  * (`release`).
  *
- * With `under` the clinch is a throw's entry (tsukuri): the body lowers
- * through the reach until its fulcrum region stands at the height of the
- * partner's region that lies on it, the contact the throw turns over
- * (#3439); the throw itself is the partner's `perturb` under the pull.
+ * With `under` the clinch is a throw's entry (tsukuri): the body lowers and
+ * moves across the floor through the reach until its fulcrum region stands
+ * at the partner's region that lies on it, the contact the throw turns over
+ * (#3439), so the fulcrum is under the body it turns; the throw itself is
+ * the partner's `perturb` under the pull.
  *
  * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
  * footwork (Koshida et al. 2016).
@@ -274,29 +275,32 @@ export namespace clinch {
     const under: IAutoMovieMotionHumanClinch.IParams["under"] = context.params.under;
     if (under === undefined) return sampled;
 
-    // The entry: the fulcrum's height over the partner's region's, read on
-    // both placed trunks at the start, taken off the root through the reach.
-    const height = (
+    // The entry (tsukuri): the fulcrum brought under the partner's region,
+    // the region the throw turns over it, both read on the placed trunks at
+    // the start; the root goes by their difference through the reach, down
+    // only (a fulcrum already below the region is not raised) and across
+    // the floor, so the fulcrum stands under the body it turns.
+    const point = (
       who: IAutoMovieMotionHumanBody,
       posture: IAutoMovieMotionHumanPosture,
       region: AutoMovieHumanoidRegion,
-    ): number => {
+    ): IAutoMovieVector3 => {
       const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
         who.surfaces.regions[region];
       return resolveAutoMovieHumanoidSurfaces.point(
         frame,
         HumanTrunk.resolve(who, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([frame.bone])).get(frame.bone)!,
-      ).y;
+      );
     };
     const theirs: IAutoMovieMotionHumanPosture | undefined = partner.posture?.(context.start);
-    const drop: number =
+    const gap: IAutoMovieVector3 =
       theirs === undefined
-        ? 0
-        : Math.max(
-            0,
-            height(body, context.entry.posture, under.fulcrum) -
-              height(partner.body, theirs, under.on),
+        ? { x: 0, y: 0, z: 0 }
+        : Vector3.subtract(
+            point(partner.body, theirs, under.on),
+            point(body, context.entry.posture, under.fulcrum),
           );
+    const drop: number = Math.max(0, -gap.y);
     return {
       ...sampled,
       posture: (
@@ -306,11 +310,14 @@ export namespace clinch {
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
         const posture: IAutoMovieMotionHumanPosture = sampled.posture(seconds, channels, source, projection);
-        const lowered: number =
-          drop * clock.progress(AutoMovieMotionClock.START, "ready", seconds);
+        const entered: number = clock.progress(AutoMovieMotionClock.START, "ready", seconds);
         return {
           ...posture,
-          root: { ...posture.root, y: posture.root.y - lowered },
+          root: {
+            x: posture.root.x + gap.x * entered,
+            y: posture.root.y - drop * entered,
+            z: posture.root.z + gap.z * entered,
+          },
         };
       },
     };

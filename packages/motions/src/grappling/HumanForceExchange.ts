@@ -202,10 +202,10 @@ export namespace HumanForceExchange {
    *
    * @param props The partner's mass, inertia about its centre on the swing's axis, the centre's distance from the fulcrum, its starting angle and rate.
    * @param gravity Gravitational acceleration; standard when absent.
-   * @returns The swing, or null when the rate falls to none before the vertical.
+   * @returns The swing, or null when, the pull's drive ended, the rate falls to none before the release.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the law, the start, the release rule and the null.
-   * @evidence contracts/development/implementation.md#principled-implementation `(I_c + M r²) φ'' = M g r sin φ + τ`, with the pull's moment `τ` while it lasts, integrated by the engine's fixed-step fourth-order integrator, in spans of the free swing's own time scale `sqrt(I / M g r)` until the angle passes `π / 2` or the rate stops; the release is found by bisection on the integrated angle to the step squared, finer than the step at which the motion is read.
+   * @evidence contracts/development/implementation.md#principled-implementation `(I_c + M r²) φ'' = M g r sin φ + τ`, with the pull's moment `τ` while it lasts, integrated by the engine's fixed-step fourth-order integrator, in spans of the free swing's own time scale `sqrt(I / M g r)` until the angle passes `π / 2` or, once the drive has ended, the rate stops (a rate the drive is still reversing is not a stop); the release is found by bisection on the integrated angle to the step squared, finer than the step at which the motion is read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Integrate span by span, detect, bisect, read.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A swing that stops short is null, never a scripted push over the fulcrum.
    * @evidence contracts/development/implementation.md#efficient-algorithms The original four right-hand sides per integrator step, span extension and release bisection remain. Fixed torque/moment and drive cutoff are prepared once, and one rate closure serves every span; every actual time/state still evaluates the pendulum sine and original drive condition. Speedup is unmeasured.
@@ -240,7 +240,10 @@ export namespace HumanForceExchange {
       spans.push(trajectory);
       const end: readonly number[] = trajectory.at(t0 + span).x;
       if (end[0]! >= Math.PI / 2) break;
-      if (!(end[1]! > 0)) return null;
+      // While the pull still drives it, a body carried the other way by the
+      // momentum it broke with is turned back; with the pull gone, a rate
+      // fallen to none is a swing that has stopped.
+      if (!(end[1]! > 0) && t0 + span >= until) return null;
       state = end;
       t0 += span;
     }

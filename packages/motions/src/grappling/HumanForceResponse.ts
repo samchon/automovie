@@ -7,6 +7,7 @@ import {
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -41,7 +42,11 @@ import { HumanForceThrow } from "./HumanForceThrow";
  *
  * The pull is the horizontal sum of the sustained forces on the performer
  * open at the action's start (`IHumanActionContext.forces`), lasting until
- * the first of them ends. Its mechanics are `HumanForceExchange`'s:
+ * the first of them ends; when none is open at the start, the first to open
+ * within the action is answered from its onset, the body standing until
+ * then, as a pull through grips begins only once they close (the grip,
+ * kumikata, comes before kuzushi, tsukuri and kake: Kano, Kodokan Judo,
+ * Kodansha 1986). Its mechanics are `HumanForceExchange`'s:
  *
  * - **resist**: the body leans away from the pull about the ankles until
  *   its centre has moved back by the moment balance's shift, over the
@@ -86,7 +91,7 @@ export namespace HumanForceResponse {
    * @throws {HumanRefusal} A `parameter` refusal on `outcome` when an impulse at the start already fells the body that is asked to resist, when no pull acts at the start, when a resisted pull passes the base, or when the pull ends before the base breaks, each with its feasible force; a `participant` refusal on `fulcrum` for a throw with no thrower, fulcrum or placed thrower posture; a `parameter` refusal on `outcome` when the swing stops before the vertical.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The pull is read from the force input at the start; the centre, the base and its extent along the pull give the instant the base breaks by the pendulum law; a throw reads the thrower's placed posture at that instant for the fulcrum, swings, and flies under conserved momentum.
+   * @evidence contracts/development/implementation.md#principled-implementation The pull is read from the force input at the start, or at its onset when it opens later, the response then shifted by the onset over a standing base; the centre, the base and its extent along the pull give the instant the base breaks by the pendulum law; a throw reads the thrower's placed posture at that instant for the fulcrum, swings, and flies under conserved momentum.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the pull, then one of three motions built from one tip function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every infeasible original force/outcome is refused with its feasible input. Both sensitivity trials, the existing asin domain guard, current-posture pivot/heading mathematics and documented rigid-throw limitation remain; no force, target, mass or success bound is changed.
    * @evidence contracts/development/implementation.md#efficient-algorithms One mass model, one base and, for a throw, one swing and one flight integration at plan time; constant work per evaluated second besides the flight's read.
@@ -94,6 +99,70 @@ export namespace HumanForceResponse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sensitivity's FK reader and ROM projector are released with that synchronous calculation; no returned time evaluator captures it. The plan holds the swing's and flight's trajectories for its lifetime.
    */
   export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
+    chosen: IAutoMovieMotionHumanForceResponse.Outcome,
+    outcome: IAutoMovieResolveBalanceOutcome.IOutcome,
+  ): IAutoMovieMotionHumanActionPlan {
+    // A pull that opens after the start, as one through grips that close
+    // after it does, is answered from its onset: the body stands until then.
+    const sustained = (f: IAutoMovieMotionHumanForce): f is IAutoMovieMotionHumanSustainedForce =>
+      f.kind === "sustained";
+    const onset: number =
+      (context.forces?.(0, 0) ?? []).some(sustained)
+        ? 0
+        : Math.min(
+            Number.POSITIVE_INFINITY,
+            ...(context.forces?.(0, Number.POSITIVE_INFINITY) ?? [])
+              .filter(sustained)
+              .map((f: IAutoMovieMotionHumanSustainedForce): number => f.from - context.start),
+          );
+    if (!(onset > 0 && Number.isFinite(onset)))
+      return respond(context, chosen, outcome);
+    const answer: IAutoMovieMotionHumanActionPlan = respond(
+      {
+        ...context,
+        start: context.start + onset,
+        forces: (from: number, to: number): readonly IAutoMovieMotionHumanForce[] =>
+          context.forces!(from + onset, to + onset),
+      },
+      chosen,
+      outcome,
+    );
+    const standing: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(context, onset);
+    const duration: number = onset + answer.duration;
+    const later = (share: number): number => (onset + share * answer.duration) / duration;
+    return {
+      ...answer,
+      duration,
+      events: answer.events.map((e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({ ...e, share: later(e.share) })),
+      contacts: answer.contacts.map(
+        (w: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+          ...w,
+          // A contact the answer holds from its start is held while the body stands.
+          from: w.from === 0 ? 0 : later(w.from),
+          to: later(w.to),
+        }),
+      ),
+      ...(answer.still === undefined
+        ? {}
+        : { still: [answer.still[0] + onset, answer.still[1] + onset] as const }),
+      ...(answer.legsStill === undefined
+        ? {}
+        : { legsStill: [answer.legsStill[0] + onset, answer.legsStill[1] + onset] as const }),
+      posture: (
+        seconds: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture =>
+        seconds < onset
+          ? standing.posture(seconds, channels, resolution, projection)
+          : answer.posture(seconds - onset, channels, resolution, projection),
+    };
+  }
+
+  /** The response to a pull open at the context's start (`plan`). */
+  function respond(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
     chosen: IAutoMovieMotionHumanForceResponse.Outcome,
     outcome: IAutoMovieResolveBalanceOutcome.IOutcome,

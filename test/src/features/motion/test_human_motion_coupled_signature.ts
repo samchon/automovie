@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCoupled,
+  IAutoMovieMotionHumanMutual,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
@@ -51,7 +52,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    centre over the bearer's feet within 2 % of the bearer's stature; or
  *    the expected capacity refusal.
  * 2. `throwing` over a pairwise covering of its four kinds, the three pairs
- *    and the three outcomes (twelve cells, every pair of factors met):
+ *    and the three outcomes (twelve cells, every pair of factors met). The
+ *    pull acts through the thrower's collar-and-sleeve grips, so it begins
+ *    when they close (the clinch's `ready`, where its entry has also
+ *    lowered the fulcrum): the grip (kumikata) comes before the
+ *    unbalancing, the fitting-in and the execution (kuzushi, tsukuri, kake;
+ *    Kano, Kodokan Judo, Kodansha 1986), and a pull through grips not yet
+ *    closed would break the base before the thrower stands under it.
  *    `thrown`, the pull the thrown body's weight, its centre leaves its base
  *    and its events run `kuzushi`, `release`, `land`; `resist`, the pull
  *    half the force its standing base resists by the moment balance,
@@ -265,21 +272,26 @@ export function test_human_motion_coupled_signature(): void {
     // Half the pull its base resists, read on the standing body.
     const force: number =
       outcome === "resist" ? resistible(bodies.b) / 2 : weight;
+    const performers = (["a", "b"] as const).map((subject) => ({
+      subject,
+      body: bodies[subject],
+      at: {
+        x: 0,
+        y: 0,
+        z: subject === "a" ? bodies.b.measure.footLength : 0,
+      },
+      yaw: 0,
+      proficiency: { level: "trained" as const },
+    }));
     let film: IAutoMovieMotionHumanPerformance;
     try {
+      // The pull acts through the thrower's collar-and-sleeve grips, so it
+      // begins when they close: the clinch's `ready`, read on the thrower's
+      // own entry; the thrown body answers it from that onset.
+      const grip: number = gripped(performers, kind, outcome, START, SECONDS);
       film = new HumanPerformance({
         seed: "coupled-signature",
-        performers: (["a", "b"] as const).map((subject) => ({
-          subject,
-          body: bodies[subject],
-          at: {
-            x: 0,
-            y: 0,
-            z: subject === "a" ? bodies.b.measure.footLength : 0,
-          },
-          yaw: 0,
-          proficiency: { level: "trained" as const },
-        })),
+        performers,
         composition: HumanChain.mutual(
           HumanCoupled.throwing,
           {
@@ -293,8 +305,8 @@ export function test_human_motion_coupled_signature(): void {
           sites: ["chestLeft", "elbowRight"],
           direction: { x: 0, y: 0, z: 1 },
           force,
-          from: START,
-          to: START + SECONDS,
+          from: grip,
+          to: grip + SECONDS,
         }),
       });
       film.segments("b");
@@ -356,6 +368,46 @@ export function test_human_motion_coupled_signature(): void {
     }
   }
   all.assert("the coupled records keep their bounds on every pair");
+}
+
+/**
+ * The instant the thrower's grips close: the `ready` of its clinch, the
+ * thrower's own act of the throw over the thrown body standing.
+ */
+function gripped(
+  performers: readonly {
+    subject: "a" | "b";
+    body: IAutoMovieMotionHumanBody;
+    at: IAutoMovieVector3;
+    yaw: number;
+    proficiency: { level: "trained" };
+  }[],
+  kind: IAutoMovieMotionHumanCoupled.Throw,
+  outcome: "thrown" | "resist" | "yield",
+  start: number,
+  seconds: number,
+): number {
+  const act: IAutoMovieMotionHumanMutual.IAct = HumanCoupled.throwing.act(
+    "thrower",
+    { kind, outcome },
+    { thrower: "a", thrown: "b" },
+  );
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    seed: "coupled-signature",
+    performers,
+    composition: HumanChain.subject("b")
+      .stand({ seconds: start + seconds })
+      .with(
+        HumanChain.subject("a")
+          .stand({ seconds: start })
+          .registered(act.name, act.params),
+      ).node,
+  });
+  const clinch = film.segments("a").find((s) => s.plan.events.some((e) => e.name === "ready"));
+  const ready = clinch?.plan.events.find((e) => e.name === "ready");
+  if (clinch === undefined || ready === undefined)
+    throw new Error("the thrower's clinch has no ready event");
+  return clinch.start + ready.share * clinch.plan.duration;
 }
 
 /**
