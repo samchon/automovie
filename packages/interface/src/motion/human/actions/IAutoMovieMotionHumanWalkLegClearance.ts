@@ -12,41 +12,12 @@ import type { IAutoMovieMotionHumanLegChain } from "../posture/IAutoMovieMotionH
  * keeps two legs that cross, as a sideways recovery's do, clear of each
  * other where the audit would find them run through each other.
  *
- * @evidence contracts/development/common.md#meaningful-documentation excess: The excess, metres. at: The binding piece read for the two legs moved, metres; equal to the excess for the legs read.
- * @evidence contracts/development/design.md#principled-representation excess: The excess, metres. at: The binding piece read for the two legs moved, metres; equal to the excess for the legs read.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegCapsules.ts (walkLegCapsules.bones, leg); actions/walkLegClearance.ts (walkLegClearance.placed, leg); actions/walkLegClearance.ts (walkLegClearance.reading, one); actions/walkLegClearance.ts (walkLegClearance.reading, other); actions/walkLegClearance.ts (walkLegClearance.reading.legs, leg); actions/walkLegClearance.ts (walkLegClearance.reading.segmentsOf, leg).
+ * @evidence contracts/development/common.md#meaningful-documentation ILeg: a posed leg with its side and its foot's world rotation.
+ * @evidence contracts/development/design.md#principled-representation ILeg: the posed leg's joints and bones in world metres and rotations, and the foot's world rotation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkLegCapsules.ts (walkLegCapsules.bones, leg); actions/walkLegCapsules.ts (walkLegCapsules.toes, leg); actions/walkLegClearance.ts (walkLegClearance.excess, one); actions/walkLegClearance.ts (walkLegClearance.excess, other); reaction/staggerAdmission.ts (staggerAdmission, legs).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanWalkLegClearance {
-  /**
-   * A reading of two legs' clearance (`reading`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation The excess and its binding linear piece, as an active-set linearisation reads a piecewise-linear constraint.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by the stance course.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The piece is the audit's own reading of the binding probe.
-   */
-  export interface IReading {
-    /** The excess, metres. */
-    excess: number;
-
-    /**
-     * The binding piece read for the two legs moved, metres; equal to the excess for the legs read.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanWalkLegClearance.IReading.at: The binding piece read for the two legs moved, metres; equal to the excess for the legs read.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanWalkLegClearance.IReading.at is used through packages/motions/src/actions/walkLegCapsules.ts.
-     */
-    at: (
-      one: IAutoMovieMotionHumanWalkLegClearance.ILeg,
-      other: IAutoMovieMotionHumanWalkLegClearance.ILeg,
-    ) => number;
-  }
-
   /**
    * A leg as posed (`IAutoMovieMotionHumanLegChain.IPosed`) with its side and its foot.
    *

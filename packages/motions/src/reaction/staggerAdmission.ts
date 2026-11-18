@@ -90,12 +90,13 @@ export function staggerAdmission(
   // Crossed legs clear in closed form: each leg a two-bone chain whose knee
   // lies on its circle about the hip-to-ankle axis toward its knee hint
   // (`staggerKnots.kneePole`), and each thigh and shank the bounding capsule
-  // of every probe of its segment (`walkLegCapsules.capsules`). Capsules
+  // of every probe of its segment (`walkLegCapsules.prepare`). Capsules
   // that keep apart hold every probe apart, so the legs clear; only legs
   // whose capsules meet are posed by the posture's own fit and read as the
   // tangle audit reads them. The premise is the fit's knee lying in the
   // plane of its hint, which the fit's own hint asks of it.
-  const capsules: ReturnType<typeof walkLegCapsules.capsules> = walkLegCapsules.capsules(body);
+  const clearance: walkLegCapsules.IPrepared = walkLegClearance.prepare(body);
+  const capsules: walkLegCapsules.IPrepared["capsules"] = clearance.capsules;
   const segment: (p: IAutoMovieVector3, q: IAutoMovieVector3, r: IAutoMovieVector3, s: IAutoMovieVector3) => number = (
     p: IAutoMovieVector3,
     q: IAutoMovieVector3,
@@ -145,7 +146,7 @@ export function staggerAdmission(
         [`${side}UpperLeg`, hip, knee],
         [`${side}LowerLeg`, knee, ankle],
       ] as const) {
-        const capsule: ReturnType<ReturnType<typeof walkLegCapsules.capsules>["get"]> = capsules.get(bone);
+        const capsule: walkLegCapsules.ICapsule | undefined = capsules.get(bone);
         if (capsule === undefined) return false;
         const dir: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(to, from));
         parts[side].push({
@@ -246,7 +247,7 @@ export function staggerAdmission(
         if (posed === null) return false;
         legs.push({ ...posed, side, rotation: foot.rotation });
       }
-      if (walkLegClearance.excess(body, legs[0]!, legs[1]!) > walkLegClearance.BOUND)
+      if (walkLegClearance.excess(clearance, legs[0]!, legs[1]!) > walkLegClearance.BOUND)
         return false;
     }
   }

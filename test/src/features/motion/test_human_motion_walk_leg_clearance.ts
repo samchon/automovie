@@ -69,10 +69,12 @@ export function test_human_motion_walk_leg_clearance(): void {
         audited = Math.max(audited, pair.depth);
     return { left: leg("left"), right: leg("right"), audited };
   };
+  const prepared: ReturnType<typeof walkLegClearance.prepare> =
+    walkLegClearance.prepare(body);
   const quietLegs = legs(quiet);
   TestValidator.equals(
     "the quiet stance reads none",
-    walkLegClearance.excess(body, quietLegs.left, quietLegs.right),
+    walkLegClearance.excess(prepared, quietLegs.left, quietLegs.right),
     0,
   );
   let binding: number = 0;
@@ -94,7 +96,11 @@ export function test_human_motion_walk_leg_clearance(): void {
       },
     };
     const read = legs(crossed);
-    const excess: number = walkLegClearance.excess(body, read.left, read.right);
+    const excess: number = walkLegClearance.excess(
+      prepared,
+      read.left,
+      read.right,
+    );
     TestValidator.predicate(
       `the clearance is the audit's reading ${ahead} m ahead`,
       Math.abs(excess - read.audited) <= 1e-9,
