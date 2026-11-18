@@ -131,7 +131,7 @@ export namespace HumanDigitFit {
         // A goal in free space is eased short near the digit's full reach,
         // where a joint's rate per millimetre has no bound; a goal on a bone
         // is a contact, which is met or it is no contact, so it is not eased.
-        ...(goal.on === undefined ? { rate: RATE } : {}),
+          ...(goal.on === undefined && goal.contact !== true ? { rate: RATE } : {}),
         jointAxes: HUMANOID_JOINT_AXES,
         restFrames: HUMANOID_REST_FRAME,
       });

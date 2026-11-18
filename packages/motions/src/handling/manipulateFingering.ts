@@ -9,11 +9,12 @@ import type {
 
 import { manipulate } from "./manipulate";
 import { manipulateReach } from "./manipulateReach";
+import { typeText } from "../everyday/typeText";
 
 /**
  * The digits of a keyed contact sequence (`manipulate`): each contact's own
  * digit, or the Viterbi path over the five digits of its hand that minimizes
- * the wrist's total travel, the wrist standing where the plan places it for
+ * the travel of the limiting part over each stroke, accounting for the lift and descent of a reused digit. The wrist stands where the plan places it for
  * that digit's press (`manipulateReach`, in the rotation the hand keeps for
  * the act), so a difference of two such places is the wrist's travel.
  *
@@ -88,17 +89,23 @@ export function manipulateFingering(
     const back: Map<Finger, Finger>[] = [];
     for (let n: number = 1; n < mine.length; n++) {
       const current: Map<Finger, IAutoMovieVector3> = wrists(mine[n]!);
+      const released: IAutoMovieMotionHumanManipulate.IContactAt = contacts[mine[n - 1]!]!;
+      const pressed: IAutoMovieMotionHumanManipulate.IContactAt = contacts[mine[n]!]!;
+      const lift: number = released.depth + typeText.HOVER;
+      const drop: number = pressed.depth + typeText.HOVER;
+      const sequential: number = Math.hypot(Vector3.distance(pressed.point, released.point), lift + drop);
+      const concurrent: number = Math.max(lift, drop);
       const next: Map<Finger, number> = new Map();
       const from: Map<Finger, Finger> = new Map();
       for (const f of choices(mine[n]!)) {
         let best: number = Infinity;
         let arg: Finger = f;
         for (const [g, c] of cost) {
-          const total: number =
-            c +
-            Vector3.length(
-              Vector3.subtract(current.get(f)!, previous.get(g)!),
-            );
+          const travel: number = Vector3.distance(current.get(f)!, previous.get(g)!);
+          // Distinct digits can release and descend concurrently. A reused
+          // tip must travel through its hover plane between both key bottoms.
+          const tip: number = f === g ? sequential : concurrent;
+          const total: number = c + Math.max(travel, tip);
           if (total < best) {
             best = total;
             arg = g;

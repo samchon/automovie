@@ -1,18 +1,23 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanManipulate,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { typeText } from "../everyday/typeText";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
@@ -59,18 +64,27 @@ export function manipulatePlan(
     const rotation: IAutoMovieQuaternion = manipulateFacing(hold, presses, side);
     const reachAt: ReturnType<typeof manipulateReach.prepare> =
       manipulateReach.prepare(body, side, rotation);
-    const shapes: Map<IAutoMovieMotionHumanManipulate.Finger, IAutoMovieMotionHumanPosture["joints"]> = new Map();
+    const handBone: AutoMovieHumanoidBone = `${side}Hand`;
+    const bones: ReadonlySet<AutoMovieHumanoidBone> = new Set([handBone]);
+    const handFrame: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, bones);
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, hold, side, 0.1);
     const prepared: IPress[] = mine.map((press: IAutoMovieMotionHumanManipulate.IPress): IPress => {
-      let joints: IAutoMovieMotionHumanPosture["joints"] | undefined = shapes.get(press.digit);
-      if (joints === undefined) {
-        joints = manipulateShape(side, press.digit);
-        shapes.set(press.digit, joints);
-      }
+      const wrist: IAutoMovieVector3 = reachAt(press.digit, press.site, press.normal, press.depth);
+      const contact: IAutoMovieVector3 = Quaternion.rotateVector(Quaternion.inverse(rotation),
+        Vector3.subtract(Vector3.addScaled(press.site, press.normal, -press.depth), wrist));
+      const goal: IAutoMovieHumanLimbGoal = { point: wrist, rotation, bend, elbow: "strain", contact };
+      const posed: IAutoMovieMotionHumanPosture = { ...hold, limbs: { ...hold.limbs, [`${side}Arm`]: goal } };
+      const achieved: IAutoMovieResolvedBone = handFrame(
+        resolveHumanPosture.seeded(body, posed, undefined, {}, undefined, bones).pose,
+      ).get(handBone)!;
+      const shape: ReturnType<typeof manipulateShape> =
+        manipulateShape(body, side, press.digit, achieved.worldPosition, achieved.worldRotation, press.site, press.normal);
       return {
         press,
-        joints,
+        ...shape,
         digit: `${side}${press.digit[0]!.toUpperCase()}${press.digit.slice(1)}` as AutoMovieHumanDigit,
-        wrist: reachAt(press.digit, press.site, press.normal, press.depth),
+        wrist,
+        contact,
       };
     });
     const windows: IWindow[] = mine.map(
@@ -86,7 +100,7 @@ export function manipulatePlan(
       window.index = latest;
     }
     hands.push({ side, rotation, prepared, windows,
-      bend: AutoMovieMotionHumanBend.hang(body, hold, side, 0.1) });
+      bend });
   }
   const contacts: IAutoMovieMotionHumanContactWindow[] = (["leftFoot", "rightFoot"] as const).map(
     (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
@@ -110,6 +124,7 @@ export function manipulatePlan(
         const previous: IPress = hand.prepared[Math.max(0, index - 1)]!;
         const press: IAutoMovieMotionHumanManipulate.IPress = current.press;
         Object.assign(joints, current.joints);
+        Object.assign(digits, current.avoid);
         const approach: number = minimumJerk.share(Math.min(1, Math.max(0,
           (time - (press.time - reach * span)) / (reach * span),
         )));
@@ -117,6 +132,8 @@ export function manipulatePlan(
           point: Vector3.lerp(previous.wrist, current.wrist, approach),
           rotation: hand.rotation,
           bend: hand.bend,
+          elbow: "strain",
+          contact: current.contact,
         };
         const down: number = time < press.time ? approach * approach :
           1 - minimumJerk.share(Math.min(1,
@@ -127,6 +144,7 @@ export function manipulatePlan(
           point: Vector3.add(press.site, Vector3.scale(press.normal, lift)),
           normal: press.normal,
           surface: "tip",
+          contact: lift <= 0,
         };
       }
       return { ...hold, joints, limbs, digits };
@@ -138,7 +156,10 @@ export function manipulatePlan(
 interface IPress {
   press: IAutoMovieMotionHumanManipulate.IPress;
   wrist: IAutoMovieVector3;
+  /** Wrist-local pressed tip used to preserve contact when wrist rotation is limited. */
+  contact: IAutoMovieVector3;
   joints: IAutoMovieMotionHumanPosture["joints"];
+  avoid: NonNullable<IAutoMovieMotionHumanPosture["digits"]>;
   digit: AutoMovieHumanDigit;
 }
 
