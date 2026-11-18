@@ -20,13 +20,13 @@ import { TestValidator } from "@nestia/e2e";
  *    20% volume crossing is (25−sqrt(145))/40. Supply a fully oriented
  *    start partway around the feasible rotational route and check the
  *    three final relative contact vectors and the element's volume sign.
- * 2. An actually inverted start on the same mesh cannot be used for an
- *    otherwise unchanged shape. The output retains the reference axes.
+ * 2. An inverted start on the same mesh is replaced by an oriented
+ *    iterate. A shortened positive X edge still requires a solve.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the independently determined contact vectors, orientation and starting cases.
- * @evidence contracts/development/testing.md#behavioral-verification Uses the public adaptation on explicit tetrahedra and compares the resulting relative coordinates and signed volume. A returned inversion or missed constraint fails. Intermediate line-search quantities are not part of the result.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the public adaptation on explicit tetrahedra and compares the resulting relative coordinates and signed volume. A returned inversion or missed constraint fails at the published result.
  * @evidence contracts/development/testing.md#independent-expectations A diagonal tetrahedron's determinant is the product of the signed axis lengths. The rotational seed is positively oriented and every final contact vector follows from the authored target geometry.
- * @evidence contracts/development/testing.md#distinguishing-cases One feasible rotated and compressed target and one inadmissible starting guess for the unchanged target. The real two-body test separately owns measured retargeting and the Delaunay structure.
+ * @evidence contracts/development/testing.md#distinguishing-cases One feasible rotated and compressed target and one inadmissible starting guess for a positive target distinct from the reference. The real two-body test separately owns measured retargeting and the Delaunay structure.
  * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory spec calls the public motion package on authored points without a host.
  */
 export function test_human_motion_interaction_mesh_step(): void {
@@ -51,8 +51,11 @@ export function test_human_motion_interaction_mesh_step(): void {
   const flipped: IAutoMovieVector3[] = [
     zero, reference[2]!, reference[1]!, up,
   ];
+  const shortened: IAutoMovieVector3[] = [
+    zero, { x: 3 / 4, y: 0, z: 0 }, reference[2]!, up,
+  ];
   check(reference, mesh, turned, target);
-  check(reference, mesh, flipped, reference);
+  check(reference, mesh, flipped, shortened);
 }
 
 /** Read relative point contacts and orientation from public adaptation. */
