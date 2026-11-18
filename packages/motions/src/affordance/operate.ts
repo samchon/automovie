@@ -102,9 +102,8 @@ export namespace operate {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "operate";
 
-  /** On request the planted operator balances while the mechanism takes the hand's force. */
+  /** The hand drives the part from strokeStart to strokeEnd. The caller selects the body part that supplies the balancing motion. */
   export const balance: IAutoMovieMotionHumanBalance = {
-    by: "hips",
     from: { event: "strokeStart" },
     to: { event: "strokeEnd" },
   };
@@ -329,12 +328,11 @@ export namespace operate {
       : undefined;
     const corrections: IAutoMovieMotionHumanPrimitive[] = [];
     if (window !== null) {
-      const trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined =
-        window.by === "trunk" ? prepareHumanTrunkBalance(body) : undefined;
+      let trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined;
       corrections.push({
         ...reachLean,
         channels: reachLean?.channels ?? [
-          trunk === undefined ? "root" : "trunk",
+          window.by === "trunk" ? "trunk" : "root",
         ],
         from: reachLean?.from ?? Math.max(0, window.from),
         to: reachLean?.to ?? Math.min(duration, window.to),
@@ -355,8 +353,10 @@ export namespace operate {
             ) ?? posture;
           const weight: number = HumanPhysics.weightAt(window, seconds);
           if (weight === 0) return posture;
-          if (trunk !== undefined)
+          if (window.by === "trunk") {
+            trunk ??= prepareHumanTrunkBalance(body);
             return trunk(posture, weight, resolution, projection);
+          }
           const direction: IAutoMovieVector3 = HumanFrame.forward(posture.yaw);
           const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(
             HumanBalance.support(body, posture, resolution, projection),
