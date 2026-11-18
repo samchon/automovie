@@ -264,7 +264,7 @@ export namespace walkReach {
    * @evidence contracts/development/implementation.md#principled-implementation Solves the smooth maximum's fixed point by a bracketed root with every taking foot's whole claim, once for each set of fading feet kept or left out, and runs between those lowerings by the feet's weights (multilinear), so the lowering is continuous in a weight: a weight inside the fixed point is ill-posed where a stance trades heel rise for lowering at a slope of one. Only stances whose claims read their ankles participate in trial placement, and deferred endpoints fit at that same final root when read.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Pelvis orientation and fixed weights precede trial placement, the scalar root solve and final endpoint completion.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the claim of a whole stance, the bracket expansion, the root tolerance and the foot ranges; a weight of one or none gives the single lowering it gave before, and inactive stances only skip trials whose residual cannot read them.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One root solve when no foot is fading, two with one fading foot and four with both; each root trial fits at most the bearing unnamed stances with a share in it; body-only short-reach preparation is lazy behind an actual unnamed bearing claim, so named/airborne-only claims omit it. Inactive final endpoints fit only if read, and the original root iteration bounds remain. A bearing stance read at a drop already asked (drop 0 under each fading mask) is taken, not read again.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most one root solve when no foot is fading, two with one fading foot and four with both. A fixed lowering is returned directly when no stance in the current mask depends on it, or a tested bracket endpoint already satisfies it. Each root trial fits only the participating bearing stances. Body-only short-reach preparation is lazy behind an unnamed bearing claim. Inactive final endpoints fit only if read. A bearing stance reuses a reading at the same lowering within the solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Stance weights and claim ownership remain fixed within one ground solve, so its root solves and their trials share them and the prepared stance readers without sharing across input postures.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned ground result owns two endpoint records and one deferred final-fit callback until the query releases it; no time history or global cache is retained.
    */
@@ -360,6 +360,8 @@ export namespace walkReach {
     const settle: () => number = (): number => {
       const first: number = asked(0);
       if (!(first > 0)) return 0;
+      // Without a participating stance, neither claim depends on drop.
+      if (share.left === 0 && share.right === 0) return first;
       // Hips lowered by the first claim claim no more than it, so `high` is
       // already the bracket's upper end; the doublings guard a claim that
       // rises with the lowering, as a stance the heel cannot relieve may.
@@ -369,18 +371,17 @@ export namespace walkReach {
         high *= 2;
         over = asked(high) - high;
       }
-      const ends: ReadonlyMap<number, number> = new Map([
-        [0, first],
-        [high, over],
-      ]);
-      return over > 0
-        ? high
-        : bracketedRoot(
-            (d: number): number => ends.get(d) ?? asked(d) - d,
-            0,
-            high,
-            FINE,
-          );
+      if (over >= 0) return high;
+      return bracketedRoot(
+        (d: number): number => {
+          if (d === 0) return first;
+          if (d === high) return over;
+          return asked(d) - d;
+        },
+        0,
+        high,
+        FINE,
+      );
     };
 
     // A fading foot's weight is its share of the settled lowering, not a
