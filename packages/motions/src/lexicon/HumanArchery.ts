@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { operate } from "../affordance/operate";
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
@@ -50,15 +55,21 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  */
 export namespace HumanArchery {
   /** Take an arrow by its shaft. */
-  export const takeArrow = HumanActionRow.of("takeArrow", pickUp, {
+  export const takeArrow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["takeArrow"]
+  > = HumanActionRow.of("takeArrow", pickUp, {
     handle: "shaft",
   });
 
   /** Set the arrow's nock on the bow's string. */
-  export const nockArrow = HumanActionRow.of("nockArrow", putDown, {});
+  export const nockArrow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
+  > = HumanActionRow.of("nockArrow", putDown, {});
 
   /** Hold the bow out in one hand on the line from the face to the target. */
-  export const presentBow = HumanActionRow.of(
+  export const presentBow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["presentBow"]
+  > = HumanActionRow.of(
     "presentBow",
     HumanWeaponPresent.present,
     {
@@ -72,23 +83,33 @@ export namespace HumanArchery {
   );
 
   /** Draw the string back to the anchor, over `presentBow`. */
-  export const drawBow = HumanActionRow.of("drawBow", operate, {});
+  export const drawBow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
+  > = HumanActionRow.of("drawBow", operate, {});
 
   /** Let the string go: the nocked arrow flies at the bow's speed. */
-  export const loose = HumanActionRow.of("loose", release, {});
+  export const loose: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["loose"]
+  > = HumanActionRow.of("loose", release, {});
 
   /** Span a crossbow by its string or its crank. */
-  export const spanCrossbow = HumanActionRow.of("spanCrossbow", operate, {});
+  export const spanCrossbow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["spanCrossbow"]
+  > = HumanActionRow.of("spanCrossbow", operate, {});
 
   /** Hold the crossbow to the cheek on the line to the target. */
-  export const presentCrossbow = HumanActionRow.of(
+  export const presentCrossbow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["presentCrossbow"]
+  > = HumanActionRow.of(
     "presentCrossbow",
     HumanWeaponPresent.present,
     { anchor: "cheek" },
   );
 
   /** Press the crossbow's trigger. */
-  export const shootCrossbow = HumanActionRow.of(
+  export const shootCrossbow: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]
+  > = HumanActionRow.of(
     "shootCrossbow",
     HumanWeaponPresent.fire,
     {},

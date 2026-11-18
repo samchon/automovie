@@ -29,7 +29,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the air) at arm's length:
  * 1. Each of `jab`, `rearHook`, `roundKick`, `pushKick` and `leadKnee`
  *    plans against a person's region, a prop's point and no target.
- * 2. A `jab` answered by `parry` with each forced outcome, in time,
+ * 2. A `jab` answered by `handParry` with each forced outcome, in time,
  *    late and failed, plans; the failed one leaves a hit on the defender,
  *    and the one in time none past the parrying arm. Both fighters first
  *    take a guard at rest (a second, as the striking stages hold it), and
@@ -73,7 +73,7 @@ export function test_human_motion_strike_matrix(): void {
       seed: "matrix",
       laws: [
         ...rows,
-        HumanDefence.parry as IAutoMovieMotionHumanActionLaw<never>,
+        HumanDefence.handParry as IAutoMovieMotionHumanActionLaw<never>,
       ],
       props: [
         HumanObject.prop("bag", bag, {
@@ -141,7 +141,7 @@ export function test_human_motion_strike_matrix(): void {
         AutoMovieComposition.parallel(
           guarded("a", "b").registered("jab", { at: targets[0]![1] }, "strike")
             .node,
-          guarded("b", "a").registered("parry", {
+          guarded("b", "a").registered("handParry", {
             against: "strike",
             outcome,
           }).node,

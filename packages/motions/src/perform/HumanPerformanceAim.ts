@@ -196,9 +196,15 @@ export namespace HumanPerformanceAim {
             Vector3.scale(forward, v.z),
           );
         return {
+          // A point stated in statures is the performer's own measure times its
+          // stature, so it fits any body.
           point: Vector3.add(
             { x: frame.root.x, y: 0, z: frame.root.z },
-            turned(target.at),
+            turned(
+              target.frame === "stature"
+                ? Vector3.scale(target.at, frame.body.measure.stature)
+                : target.at,
+            ),
           ),
           normal:
             target.normal === undefined

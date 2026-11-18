@@ -1,3 +1,8 @@
+import type {
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanLexiconParams,
+} from "@automovie/interface";
+
 import { operate } from "../affordance/operate";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { release } from "../throwing/release";
@@ -20,23 +25,37 @@ import { release } from "../throwing/release";
  */
 export namespace HumanBoltAction {
   /** Lift the bolt handle. */
-  export const liftBolt = HumanActionRow.of("liftBolt", operate, {});
+  export const liftBolt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["boltAction"]["liftBolt"]
+  > = HumanActionRow.of("liftBolt", operate, {});
 
   /** Draw the bolt back. */
-  export const drawBolt = HumanActionRow.of("drawBolt", operate, {});
+  export const drawBolt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["boltAction"]["drawBolt"]
+  > = HumanActionRow.of("drawBolt", operate, {});
 
   /** Run the bolt forward. */
-  export const closeBolt = HumanActionRow.of("closeBolt", operate, {});
+  export const closeBolt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["boltAction"]["closeBolt"]
+  > = HumanActionRow.of("closeBolt", operate, {});
 
   /** Turn the bolt handle down. */
-  export const lowerBolt = HumanActionRow.of("lowerBolt", operate, {});
+  export const lowerBolt: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["boltAction"]["lowerBolt"]
+  > = HumanActionRow.of("lowerBolt", operate, {});
 
   /** Seat a magazine in its well. */
-  export const seatMagazine = HumanActionRow.of("seatMagazine", operate, {});
+  export const seatMagazine: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["boltAction"]["seatMagazine"]
+  > = HumanActionRow.of("seatMagazine", operate, {});
 
   /** Press the magazine release. */
-  export const pressRelease = HumanActionRow.of("pressRelease", operate, {});
+  export const pressRelease: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["boltAction"]["pressRelease"]
+  > = HumanActionRow.of("pressRelease", operate, {});
 
   /** Let the empty magazine drop. */
-  export const dropMagazine = HumanActionRow.of("dropMagazine", release, {});
+  export const dropMagazine: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["boltAction"]["dropMagazine"]
+  > = HumanActionRow.of("dropMagazine", release, {});
 }

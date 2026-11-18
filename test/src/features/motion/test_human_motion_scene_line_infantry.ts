@@ -171,7 +171,7 @@ export function test_human_motion_scene_line_infantry(): void {
         ) => {
           const gun: string = m.prop("musket");
           const marched: IAutoMovieMotionHumanChain = chain
-            .registered("shoulderArms", { prop: gun })
+            .registered("shoulderArms", { gun })
             .registered("march", {
               to: { x: m.place.at.x, y: 0, z: m.place.at.z + 8 },
               regulation: "french1791",

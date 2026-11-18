@@ -96,7 +96,7 @@ export namespace HumanPerformancePlace {
 
     // An action's or a row's parameters are read against its schema first,
     // so a missing or a wrong value is refused at its entry.
-    HumanPerformanceParams.check(name, given, law);
+    HumanPerformanceParams.check(name, given);
     const params: object = law.resolve?.(given) ?? given;
 
     // The parameter through which this action named an id, so a refusal of a

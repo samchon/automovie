@@ -65,6 +65,8 @@ export namespace LexiconRowNet {
     farmersWalk: ahead,
     readingWalk: ahead,
     stroll: ahead,
+    // The gun crew's step clear of the wheels: a walk to the place given.
+    standClear: ahead,
     hurry: ahead,
     march: ahead,
     doubleTime: ahead,

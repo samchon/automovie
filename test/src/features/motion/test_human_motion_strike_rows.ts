@@ -118,7 +118,7 @@ export function test_human_motion_strike_rows(): void {
   // 5. Defences.
   const kinds: [IAutoMovieMotionHumanActionLaw<never>, string][] = [
     [HumanDefence.cover as IAutoMovieMotionHumanActionLaw<never>, "cover"],
-    [HumanDefence.parry as IAutoMovieMotionHumanActionLaw<never>, "parry"],
+    [HumanDefence.handParry as IAutoMovieMotionHumanActionLaw<never>, "parry"],
     [
       HumanDefence.elbowBlock as IAutoMovieMotionHumanActionLaw<never>,
       "elbowBlock",
@@ -129,8 +129,8 @@ export function test_human_motion_strike_rows(): void {
     ],
     [HumanDefence.checkKick as IAutoMovieMotionHumanActionLaw<never>, "check"],
     [HumanDefence.slip as IAutoMovieMotionHumanActionLaw<never>, "slip"],
-    [HumanDefence.roll as IAutoMovieMotionHumanActionLaw<never>, "roll"],
-    [HumanDefence.sway as IAutoMovieMotionHumanActionLaw<never>, "sway"],
+    [HumanDefence.rollUnder as IAutoMovieMotionHumanActionLaw<never>, "roll"],
+    [HumanDefence.swayBack as IAutoMovieMotionHumanActionLaw<never>, "sway"],
   ];
   for (const [law, kind] of kinds)
     TestValidator.equals(
