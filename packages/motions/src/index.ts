@@ -189,7 +189,6 @@ export * from "./posture/HumanPosture";
 export * from "./posture/resolveHumanPosture";
 export * from "./skill/HumanResponse";
 export * from "./skill/HumanSkill";
-export * from "./skill/IAutoMovieProficiency";
 export * from "./striking/DefenceOutcome";
 export * from "./striking/StrikingAim";
 export * from "./striking/StrikingBody";
