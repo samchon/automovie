@@ -1,7 +1,8 @@
-import { Quaternion, Vector3, physicalShapeNormal } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeNearest, physicalShapeNormal } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
+  IAutoMoviePhysicalShapeNearest,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -185,24 +186,24 @@ export namespace HumanArmTrajectoryConvex {
           if (first - r > lower / 1000 && second - r > lower / 1000 && d0 > lower)
             continue;
 
-          // The swept distance's gradient in each end: the shape's normal at
-          // the nearer end, shared by where along the capsule it is nearest.
+          // The swept distance's gradient in each end, exact: the distance
+          // is the least over the segment of a point's distance, so by the
+          // envelope theorem it moves with the segment's own nearest point,
+          // along the shape's outward normal there, which the two ends carry
+          // in the shares of that point's place between them (TrajOpt's
+          // continuous-time gradient, Schulman et al. 2014, section IV-C).
+          const s0: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+          const near: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(s0.pose, s0.shape, pa, pb);
           const span: IAutoMovieVector3 = Vector3.subtract(pb, pa);
           const u: number = Math.min(
             1,
             Math.max(
               0,
-              Vector3.dot(
-                Vector3.subtract(frame.shapes[shape]!.centre, pa),
-                span,
-              ) / Math.max(1e-12, Vector3.dot(span, span)),
+              Vector3.dot(Vector3.subtract(near.at, pa), span) /
+                Math.max(1e-12, Vector3.dot(span, span)),
             ),
           );
-          const g: IAutoMovieVector3 = S.normal(
-            frame,
-            shape,
-            first <= second ? pa : pb,
-          );
+          const g: IAutoMovieVector3 = near.normal;
           const ga: IAutoMovieVector3 = Vector3.scale(g, 1 - u);
           const gb: IAutoMovieVector3 = Quaternion.rotateVector(
             Quaternion.inverse(sweep.turn),
