@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
 import { HUMAN_LEXICON } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -6,10 +7,12 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
 /**
  * The lexicon registers fixed postures and drill entrances on opposite builds.
  *
- * The base pose and stance specs already build one performer per row and
- * check the displayed result. Build only the other performer here, and the
- * drill branches on their established fixtures. Both flinch rows are built
- * on both bodies by `test_human_motion_base_flinch_poses`.
+ * Scenarios:
+ *
+ * 1. Drill branches plan on their established solo and paired fixtures.
+ * 2. Pose and stance rows plan on the performer complementary to the base
+ *    specs' displayed geometry checks. Both flinch rows plan on both bodies
+ *    in `test_human_motion_base_flinch_poses`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names this group's construction boundary and the body and scene variations it exercises.
  * @evidence contracts/development/testing.md#behavioral-verification Places the actual registered law under its authored name on the public chain. A refused or misnamed placement fails the case with the exact row and performer.
@@ -38,13 +41,20 @@ export function test_human_motion_lexicon_rows_posture(): void {
     "wince",
   ];
   // The base stance spec alternates bodies in registration order.
-  const stances = HUMAN_LEXICON.stance!;
+  const stances: readonly IAutoMovieMotionHumanActionLaw<never>[] =
+    HUMAN_LEXICON.stance!;
   const averageStances: string[] = stances
-    .filter((_, index: number): boolean => index % 2 === 0)
-    .map((law): string => law.name);
+    .filter(
+      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
+        index % 2 === 0,
+    )
+    .map((law: IAutoMovieMotionHumanActionLaw<never>): string => law.name);
   const smallStances: string[] = stances
-    .filter((_, index: number): boolean => index % 2 !== 0)
-    .map((law): string => law.name);
+    .filter(
+      (_: IAutoMovieMotionHumanActionLaw<never>, index: number): boolean =>
+        index % 2 !== 0,
+    )
+    .map((law: IAutoMovieMotionHumanActionLaw<never>): string => law.name);
   TestValidator.equals(
     "the fixed postures and drill entrances plan under their registered names",
     [

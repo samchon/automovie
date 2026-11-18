@@ -1,5 +1,6 @@
 import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
 import type {
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
@@ -9,6 +10,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** The seed and independently calculated hold in seconds for one puff. */
 interface IPuff {
   seed: string;
   seconds: number;
@@ -19,9 +21,13 @@ interface IPuff {
  * A single occurrence maps the first counter of the action's seeded channel
  * linearly to that band. The average man mimes the public `smoke` row.
  *
- * The 200-seed spread and distinctness are checked on independent draws.
- * Real plans at the shortest, median and longest draws must publish those
- * seconds between `taskEnd` and `relax`, within the existing 1 ms bound.
+ * Scenarios:
+ *
+ * 1. Across #3346's 200 seeds, every counter draw is within [0, 1), the
+ *    shortest expected puff is under 1.7 s and the longest over 2.0 s.
+ *    At least 190 draws are distinct at a resolution of one microsecond.
+ * 2. The actual shortest, median and longest cases plan and publish the
+ *    independently calculated hold between `taskEnd` and `relax`, within 1 ms.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the real plan's events at the extremes and median. Ignoring either the seed or the authored duration fails.
  * @evidence contracts/development/testing.md#independent-expectations The first counter of the engine stream and linear interpolation between the cited measurements provide expected seconds without running a motion law.
@@ -35,15 +41,18 @@ export function test_human_motion_habit_puffs(): void {
   const shortest: number = 1.6;
   const longest: number = 2.1;
   const band: number = longest - shortest;
-  const puffs: IPuff[] = Array.from({ length: 200 }, (_, i): IPuff => {
-    const seed: string = `cigarette-${i}`;
-    const uniform: number = createAutoMovieRandom(
-      deriveAutoMovieSeed(seed, "a", "smoke", "series", "seconds"),
-    ).float(0);
-    if (!(uniform >= 0 && uniform < 1))
-      complaints.push(`${seed}: the counter gives ${uniform} outside [0, 1)`);
-    return { seed, seconds: shortest + band * uniform };
-  }).sort((a: IPuff, b: IPuff): number => a.seconds - b.seconds);
+  const puffs: IPuff[] = Array.from(
+    { length: 200 },
+    (_: unknown, i: number): IPuff => {
+      const seed: string = `cigarette-${i}`;
+      const uniform: number = createAutoMovieRandom(
+        deriveAutoMovieSeed(seed, "a", "smoke", "series", "seconds"),
+      ).float(0);
+      if (!(uniform >= 0 && uniform < 1))
+        complaints.push(`${seed}: the counter gives ${uniform} outside [0, 1)`);
+      return { seed, seconds: shortest + band * uniform };
+    },
+  ).sort((a: IPuff, b: IPuff): number => a.seconds - b.seconds);
   const first: IPuff = puffs[0]!;
   const last: IPuff = puffs[puffs.length - 1]!;
   if (!(first.seconds < 1.7 && last.seconds > 2))
@@ -79,9 +88,10 @@ export function test_human_motion_habit_puffs(): void {
         });
       const placed: IAutoMovieMotionHumanSegment =
         performance.segments("a")[0]!;
-      const at = (event: string): number =>
-        (placed.plan.events.find((e): boolean => e.name === event)?.share ??
-          NaN) * placed.plan.duration;
+      const at: (event: string) => number = (event: string): number =>
+        (placed.plan.events.find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === event,
+        )?.share ?? NaN) * placed.plan.duration;
       const puff: number = at("relax") - at("taskEnd");
       if (!(Math.abs(puff - seconds) <= 0.001))
         complaints.push(
