@@ -71,6 +71,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_posture_frame_math(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
+  checkElasticReach(complaints);
   checkResolver(complaints);
   // 1. The floor frame.
   const origin: IAutoMovieVector3 = { x: 1, y: 0.5, z: 2 };
@@ -555,5 +556,56 @@ function checkResolver(complaints: motionComplaints.IGatherer): void {
       ...at,
       on: "noSuchBone" as string as AutoMovieHumanoidBone,
     }),
+  );
+}
+
+/** Reconstruct the knee from the hip and ankle triangle across full extension. */
+function checkElasticReach(complaints: motionComplaints.IGatherer): void {
+  const body = motionHumanBody("m-average");
+  const a = body.measure.thigh,
+    b = body.measure.shank;
+  const knee = resolveHumanPosture.KNEE;
+  const reach = Math.sqrt(
+    a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180),
+  );
+  const ankle: IAutoMovieVector3 = { x: 0, y: 0, z: 0.1 };
+  const limit = Math.sqrt(reach * reach - ankle.z * ankle.z);
+  // 0.12 m/s at 30 Hz, the campaign's vertical walking pace.
+  const step = 0.12 / 30;
+  const slack = (v: number, stride?: number) =>
+    resolveHumanPosture.short(body, { x: 0, y: v, z: 0 }, ankle, knee, stride);
+  const maxJump = (stride?: number): number => {
+    let previous: IAutoMovieVector3 | undefined,
+      largest = 0;
+    for (let v = limit - 0.1; v <= limit + 0.1; v += step) {
+      const y = v - Math.max(0, slack(v, stride));
+      const d = Math.hypot(ankle.z, y),
+        along = (a * a - b * b + d * d) / (2 * d);
+      const off = Math.sqrt(Math.max(0, a * a - along * along));
+      const point: IAutoMovieVector3 = {
+        x: 0,
+        y: y - (along * y) / d + (off * ankle.z) / d,
+        z: (along * ankle.z) / d + (off * y) / d,
+      };
+      if (previous)
+        largest = Math.max(
+          largest,
+          Math.hypot(point.y - previous.y, point.z - previous.z),
+        );
+      previous = point;
+    }
+    return largest;
+  };
+  complaints.check(
+    "frame-aware reach holds the knee within its 5 mm step",
+    maxJump(step) <= 0.005 + 1e-9,
+  );
+  complaints.check(
+    "hard reach exceeds the same knee displacement",
+    maxJump() > 0.005,
+  );
+  complaints.check(
+    "hip below the band has slack",
+    slack(limit - 0.3, step) < 0,
   );
 }
