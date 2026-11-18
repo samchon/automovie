@@ -23,6 +23,7 @@ import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
+import { admittedSupportPosture } from "./admittedSupportPosture";
 import { prepareBilateralSupport } from "./prepareBilateralSupport";
 import { prepareRaisedKneeSupport } from "./prepareRaisedKneeSupport";
 import { preparePairedFloorSupport } from "./preparePairedFloorSupport";
@@ -117,7 +118,7 @@ export namespace supportKey {
     const stated: HumanBodyFitMerit.IEvaluation = merit.evaluate(
       HumanFitVariables.vector(variables, preferred),
     );
-    if (merit.holds(stated.misses)) return preferred;
+    if (merit.holds(stated.misses)) return admittedSupportPosture(preferred, stated.r.written);
     if (swings.length === 0) {
       const paired: ReturnType<typeof preparePairedFloorSupport> =
         preparePairedFloorSupport(body, preferred, from, contacts, targets, bearing, merit);
@@ -126,7 +127,7 @@ export namespace supportKey {
     const previous: HumanBodyFitMerit.IEvaluation = preferred === from ? stated : merit.evaluate(
       HumanFitVariables.vector(variables, from),
     );
-    if (held && merit.holds(previous.misses)) return from;
+    if (held && merit.holds(previous.misses)) return admittedSupportPosture(from, previous.r.written);
     let start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
     if (!merit.holds(previous.misses)) {
@@ -139,7 +140,7 @@ export namespace supportKey {
         prepareSupportSeed(body, preferred, contacts, holding);
       if (aligned !== undefined) {
         const corrected: HumanBodyFitMerit.IEvaluation = merit.evaluate(HumanFitVariables.vector(variables, aligned));
-        if (merit.holds(corrected.misses)) return aligned;
+        if (merit.holds(corrected.misses)) return admittedSupportPosture(aligned, corrected.r.written);
         if (corrected.violation < Math.min(stated.violation, previous.violation))
           start = aligned;
       }
