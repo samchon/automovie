@@ -126,6 +126,22 @@ export function test_motion_posture_entry_state(): void {
         },
       },
       {
+        name: "armSetup",
+        interrupts: {},
+        plan: (
+          context: IAutoMovieMotionHumanActionContext<never>,
+        ): IAutoMovieMotionHumanActionPlan => ({
+          ...held(context),
+          posture: () => ({
+            ...context.entry.posture,
+            joints: {
+              ...context.entry.posture.joints,
+              leftLowerArm: [35, 0, 0],
+            },
+          }),
+        }),
+      },
+      {
         name: "mounted",
         interrupts: {},
         plan: (
@@ -144,6 +160,7 @@ export function test_motion_posture_entry_state(): void {
     ];
     const entries = (
       chain: IAutoMovieMotionHumanChain,
+      placement: number = 0,
     ): IAutoMovieMotionHumanEntryState[] => {
       seen.length = 0;
       new HumanPerformance({
@@ -153,7 +170,7 @@ export function test_motion_posture_entry_state(): void {
           {
             subject: "a",
             body,
-            at: { x: 0, y: 0, z: 0 },
+            at: { x: placement, y: 0, z: 0 },
             yaw: 0,
             proficiency: { level: "trained" },
           },
@@ -170,6 +187,29 @@ export function test_motion_posture_entry_state(): void {
     };
     const start = (): IAutoMovieMotionHumanChain => HumanChain.subject("a");
 
+    const entered = (placement: number): IAutoMovieMotionHumanEntryState =>
+      entries(
+        start().registered("armSetup").registered("witness"),
+        placement,
+      )[0]!;
+    const origin = entered(0);
+    const moved = entered(1);
+    TestValidator.predicate(
+      "the incoming root retains its translated placement",
+      Math.abs(moved.posture.root.x - origin.posture.root.x - 1) < 1e-6,
+    );
+    for (const entry of [origin, moved]) {
+      TestValidator.equals(
+        "opposite arm retains its authored pose at entry",
+        entry.posture.joints.leftLowerArm,
+        [35, 0, 0],
+      );
+      TestValidator.equals(
+        "standing support survives the seam",
+        entry.base.kind,
+        "standing",
+      );
+    }
     // 1 and 2. Standing first, seated after sitting down.
     const chair: IAutoMovieMotionHumanSeated.ISeat = {
       at: {

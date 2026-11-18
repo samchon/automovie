@@ -53,13 +53,23 @@ export function test_motion_posture_trunk_frame(): void {
   );
   const posture: IAutoMovieMotionHumanPosture = {
     ...base,
-    joints: { ...base.joints, spine: [10, 3, -4], chest: [10, 3, -4] },
+    joints: {
+      ...base.joints,
+      leftLowerArm: [35, 0, 0],
+      spine: [10, 3, -4],
+      chest: [10, 3, -4],
+    },
   };
   const complaints: string[] = [];
+  TestValidator.equals(
+    "turning the trunk preserves the unrelated elbow",
+    HumanTrunkTurn.turned(body, posture, 0.5, "left").joints.leftLowerArm,
+    posture.joints.leftLowerArm,
+  );
   const near = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-9;
   const of = (
     p: IAutoMovieMotionHumanPosture,
-    bone: "spine" | "chest" | "neck" | "head",
+    bone: TrunkJoint,
   ): readonly [number, number, number] => p.joints[bone] ?? [0, 0, 0];
   const range = (bone: AutoMovieHumanoidBone): Constraint =>
     getConstraint(
@@ -195,3 +205,6 @@ export function test_motion_posture_trunk_frame(): void {
 
 /** A joint's range on the rig. */
 type Constraint = NonNullable<ReturnType<typeof getConstraint>>;
+
+/** A joint recruited by the axial turn. */
+type TrunkJoint = "spine" | "chest" | "neck" | "head";
