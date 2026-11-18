@@ -135,13 +135,15 @@ export class WalkPace {
     // with the period at about the ramp's own rate, so one pass shrinks a
     // period error by about 1 / (2n), a quarter at two steps; the passes run
     // until the period moves by less than `SETTLED`, `PASSES` bounding them.
+    // A fixed-cadence way or an unchanged base period has no next iterate.
+    const fixedCadence: boolean = props.travel !== undefined;
     let T: number = base;
     let accel: number = 0;
     let excess: number = 0;
     for (let k: number = 0; k < WalkPace.PASSES; k++) {
       // A way set from outside keeps the asked period: its pelvis does not ramp by itself.
       const was: number = T;
-      T = base + (props.travel === undefined ? excess / (2 * n) : 0);
+      T = base + (fixedCadence ? 0 : excess / (2 * n));
       const formula: number = Math.max(
         WalkPace.SHORTEST_RAMP,
         2 * (first + props.share * T - (1 - front) * T),
@@ -168,7 +170,12 @@ export class WalkPace {
         accel = high;
       }
       excess = accel - formula;
-      if (k > 0 && Math.abs(T - was) < WalkPace.SETTLED) break;
+      if (
+        fixedCadence ||
+        (T === base && excess === 0) ||
+        (k > 0 && Math.abs(T - was) < WalkPace.SETTLED)
+      )
+        break;
     }
     this.steps = n;
     this.period = T;
