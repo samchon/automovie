@@ -1,10 +1,18 @@
+import { Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAudit,
+  HumanChain,
+  HumanColliders,
+  HumanPerformance,
+  HumanSignature,
+  HumanVerdicts,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -17,6 +25,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * foot almost a whole turn on the way down when the yaw is written past 180.
  *
  * Scenarios:
+ * Knees and bear entry constrain the floor, planted pairs and knee clearance.
+ * Inchworm hands progress before the plank and feet before the fold; at most one limb is free.
  * on the average man, crawling one cycle from standing, read at
  * 24 frames a second from the start to `down`:
  * 1. Facing 270 and facing -90 the left and right toe and foot joints stand
@@ -31,6 +41,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_floor_travel(): void {
   const complaints: string[] = [];
+  checkFloorPhases(complaints);
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const perform: (yaw: number) => IAutoMovieMotionHumanPerformance = (
     yaw: number,
@@ -58,9 +69,7 @@ export function test_motion_posture_floor_travel(): void {
     const [crawl]: readonly IAutoMovieMotionHumanSegment[] = a.segments("a");
     const down: number =
       crawl!.start +
-      (crawl!.plan.events.find(
-        (e): boolean => e.name === "down",
-      )?.share ?? 0) *
+      (crawl!.plan.events.find((e): boolean => e.name === "down")?.share ?? 0) *
         crawl!.plan.duration;
     let worst: IWorstBone = {
       distance: 0,
@@ -97,4 +106,200 @@ export function test_motion_posture_floor_travel(): void {
 }
 
 /** Bone with the greatest discrepancy at a sampled second. */
-interface IWorstBone { distance: number; seconds: number; bone: string }
+interface IWorstBone {
+  distance: number;
+  seconds: number;
+  bone: string;
+}
+
+function checkFloorPhases(findings: string[]): void {
+  const body = motionHumanBody("f-small");
+  for (const kind of ["knees", "bear", "inchworm"] as const) {
+    const p = new HumanPerformance({
+      seed: "crawl",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").crawl({ kind, cycles: 1 }).node,
+    });
+    const segment = p.segments("a")[0]!;
+    const reader = HumanSignature.of(p, "a", body, 0);
+    const time = (share: number): number =>
+      segment.start + share * segment.plan.duration;
+    const event = (name: string): number =>
+      time(segment.plan.events.find((e) => e.name === name)?.share ?? NaN);
+    const down = event("down");
+    const check = (ok: boolean, label: string): void => {
+      if (!ok) findings.push(kind + " " + label);
+    };
+    const limbs = ["leftHand", "rightHand", "leftFoot", "rightFoot"] as const;
+    if (kind !== "inchworm") {
+      for (const fault of HumanVerdicts.of(p, 24, { from: 0, to: down })
+        .findings)
+        if (fault.check !== "floor")
+          findings.push(
+            kind +
+              " " +
+              fault.check +
+              " " +
+              fault.value +
+              " at " +
+              fault.seconds,
+          );
+      let penetration = 0;
+      for (let t = 0; t <= down; t += 1 / 24)
+        for (const placed of HumanColliders.placed(body, p.bones("a", t)))
+          if (!/Hand$|Thumb|Index|Middle|Ring|Little/.test(placed.bone))
+            for (const shape of placed.shapes)
+              penetration = Math.max(
+                penetration,
+                -physicalShapeBounds(placed.pose, shape).min.y,
+              );
+      check(
+        penetration <= AutoMovieMotionHumanAudit.LIMITS.floor,
+        "floor penetration " + penetration,
+      );
+      let low = Infinity;
+      for (let t = down; t <= segment.end; t += 0.05)
+        for (const side of ["left", "right"] as const)
+          low = Math.min(
+            low,
+            HumanSignature.joint(reader, t, `${side}LowerLeg`).y -
+              body.measure.shankRadius,
+          );
+      check(
+        kind === "bear" ? low >= 0.02 : low <= 0.015,
+        "minimum knee clearance " + low,
+      );
+      if (kind === "bear") {
+        const windows = (part: string) =>
+          segment.plan.contacts.filter(
+            (c) => c.part === part && c.kind === "plant",
+          );
+        const landed = Math.min(
+          ...[...windows("leftHand"), ...windows("rightHand")].map(
+            (w) => w.from,
+          ),
+        );
+        for (const [hand, foot] of [
+          ["leftHand", "rightFoot"],
+          ["rightHand", "leftFoot"],
+        ] as const) {
+          const hands = windows(hand),
+            feet = windows(foot);
+          check(
+            hands.length > 0 &&
+              hands.length === feet.length &&
+              hands.every(
+                (w, i) =>
+                  Math.abs(w.from - Math.max(landed, feet[i]!.from)) <= 1e-9 &&
+                  Math.abs(w.to - feet[i]!.to) <= 1e-9,
+              ),
+            "contralateral support " + hand,
+          );
+          for (const w of feet)
+            check(
+              Math.abs(
+                HumanSignature.sole(
+                  reader,
+                  time((w.from + w.to) / 2),
+                  foot === "leftFoot" ? "left" : "right",
+                ).y,
+              ) <= 0.015,
+              "planted " + foot,
+            );
+        }
+      }
+      continue;
+    }
+    const plank = event("plank1"),
+      fold = event("folded1"),
+      rise = event("rising");
+    const middle = (at: number, part: MidJoint): IAutoMovieVector3 =>
+      Vector3.lerp(
+        HumanSignature.joint(reader, at, `left${part}`),
+        HumanSignature.joint(reader, at, `right${part}`),
+        0.5,
+      );
+    const ankles = middle(plank, "Foot"),
+      shoulders = middle(plank, "UpperArm"),
+      hips = middle(plank, "UpperLeg");
+    const line = Vector3.subtract(shoulders, ankles);
+    check(
+      Vector3.length(Vector3.cross(line, Vector3.subtract(hips, ankles))) /
+        Vector3.length(line) <=
+        0.04,
+      "plank hip alignment",
+    );
+    const wrists = Vector3.subtract(middle(plank, "Hand"), shoulders);
+    check(
+      Math.hypot(wrists.x, wrists.z) <=
+        0.1 * (body.measure.upperArm + body.measure.forearm),
+      "wrists below shoulders",
+    );
+    for (const t of [plank, fold])
+      for (const side of ["left", "right"] as const)
+        check(
+          Math.abs(HumanSignature.sole(reader, t, side).y) <= 0.015,
+          "sole support at " + t,
+        );
+    check(
+      middle(fold, "UpperLeg").y - middle(fold, "UpperArm").y >= 0.1,
+      "fold hip clearance",
+    );
+    const end = segment.end - 0.001;
+    check(
+      Math.abs(
+        middle(end, "UpperLeg").y - middle(segment.start, "UpperLeg").y,
+      ) <= 0.03 &&
+        middle(end, "Foot").z - middle(segment.start, "Foot").z >= 0.3,
+      "returns to standing after travel",
+    );
+    // A contact count can only change at a window endpoint. Check each open interval.
+    const bounds = [
+      down,
+      rise,
+      ...segment.plan.contacts
+        .flatMap((w) => [time(w.from), time(w.to)])
+        .filter((t) => t > down && t < rise),
+    ].sort((a, b) => a - b);
+    for (let i = 1; i < bounds.length; i++) {
+      const share =
+        ((bounds[i]! + bounds[i - 1]!) / 2 - segment.start) /
+        segment.plan.duration;
+      check(
+        limbs.filter((part) =>
+          segment.plan.contacts.some(
+            (w) =>
+              w.part === part && w.from <= share + 1e-9 && w.to >= share - 1e-9,
+          ),
+        ).length >= 3,
+        "three bearing limbs at " + share,
+      );
+    }
+    for (const limb of limbs) {
+      const steps = segment.plan.events.filter((e) =>
+        e.name.startsWith(limb + "Liftoff"),
+      );
+      check(steps.length > 0, "has a " + limb + " step");
+      for (const e of steps) {
+        const off = time(e.share),
+          on = event(e.name.replace("Liftoff", "Touchdown"));
+        check(
+          off < on &&
+            (limb.endsWith("Hand")
+              ? on <= plank + 1e-9
+              : on > plank && on <= fold + 1e-9),
+          limb + " step order",
+        );
+      }
+    }
+  }
+}
+type MidJoint = "UpperArm" | "UpperLeg" | "Hand" | "Foot";
