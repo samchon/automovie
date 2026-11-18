@@ -24,6 +24,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { poseBones } from "../posture/poseBones";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
@@ -146,7 +147,7 @@ export namespace pickUp {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Grasp/stance admission precedes finger/transport preparation, original phase body construction and complete arm goals; optional same-person observations follow those existing owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original grasp/lift targets, contact timing, candidate fits, ROM, reference, planting and acceptance bounds remain; no shown endpoint replaces an asked goal and no attitude-only post-fit twist discards position.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed target/hand/digit/transport data prepare once. Active body lowering, shoulder reading and initial carry borrow exact current-person FK/ROM where supplied; every original phase goal and actual solve remains. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Explicit current-call loans flow through original adjusted stance/lift/body/carry paths; absent loans retain native policy and varying current goals are independently fitted without pose/time result reuse.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Display shares the closed grip and unchanged support posture from grip closure through lift-off. The moving phases use current-call FK and ROM loans through their original stance, lift and carry paths.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original chosen grasp/stance/transport/finger geometry; current FK/ROM arguments are used synchronously and never stored in the plan, returned goals or query history.
    */
   export function plan(
@@ -227,6 +228,7 @@ export namespace pickUp {
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
       lowered === null ? held : lowered.at(share, resolution, projection);
+    const raisedAt: ReturnType<typeof pickUpLift.prepare> = pickUpLift.prepare(body, raise, way);
 
     // The digits close on the prop where the arm actually puts the hand.
     const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
@@ -260,7 +262,8 @@ export namespace pickUp {
     // A body lowered for the grip, or inclined for the lift, straightens
     // over as long as the reach after the lift, as a bend descends and
     // rises in one time.
-    const end: number = reach + LOAD + rise;
+    const liftOff: number = reach + LOAD;
+    const end: number = liftOff + rise;
     const up: number = lowered === null && !rising ? 0 : reach;
     const duration: number = end + up;
     const transport: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
@@ -291,13 +294,13 @@ export namespace pickUp {
       up === 0
         ? null
         : shoulder(
-            rising ? pickUpLift.posed(body, raise, way, raise.share, 1) : held,
+            rising ? raisedAt(raise.share, 1) : held,
           );
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "gripClosed", share: reach / duration },
-        { name: "liftOff", share: (reach + LOAD) / duration },
+        { name: "liftOff", share: liftOff / duration },
         { name: "lifted", share: end / duration },
         ...(up === 0 ? [] : [{ name: "upright", share: 1 }]),
       ],
@@ -349,13 +352,12 @@ export namespace pickUp {
         } else if (t <= end) {
           const k: number =
             rising && rise > 0
-              ? minimumJerk.share(Math.min(1, Math.max(0, (t - reach - LOAD) / rise)))
+              ? minimumJerk.share(
+                  Math.min(1, Math.max(0, (t - liftOff) / rise)),
+                )
               : 0;
           if (k > 0)
-            base = pickUpLift.posed(
-              body,
-              raise,
-              way,
+            base = raisedAt(
               1 - (1 - raise.share) * k,
               k,
               resolution,
@@ -364,7 +366,7 @@ export namespace pickUp {
         } else {
           const m: number = 1 - minimumJerk.share((t - end) / up);
           base = rising
-            ? pickUpLift.posed(body, raise, way, raise.share * m, m, resolution, projection)
+            ? raisedAt(raise.share * m, m, resolution, projection)
             : lowered!.at(m, resolution, projection);
         }
         // As the body straightens the hand rides with the shoulder.
@@ -393,7 +395,9 @@ export namespace pickUp {
                         grasp.point.y +
                         (rise > 0
                           ? lift *
-                            minimumJerk.share(Math.min(1, (at - reach - LOAD) / rise))
+                            minimumJerk.share(
+                              Math.min(1, (at - liftOff) / rise),
+                            )
                           : 0),
                     }),
               rotation: at < reach ? transport.turn(at) : chosen.shown.rotation,
@@ -440,6 +444,14 @@ export namespace pickUp {
     // The lift is judged on the plan's own hand: what the body cannot raise
     // as far as asked is refused, never lifted less in silence.
     pickUpLift.judged(context, side, lift, plan, reach, end);
+    // The wrist, support and closed digits stay fixed up to lift-off.
+    const loading: IAutoMovieMotionHumanPosture = plan.posture(reach);
+    HumanPreparedPlayback.attach(plan, body, {
+      mode: "posture",
+      phases: [
+        { from: reach, to: liftOff, sample: () => ({ posture: loading }) },
+      ],
+    });
     return plan;
   }
 

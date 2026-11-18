@@ -110,8 +110,8 @@ export namespace pickUpPosture {
    * @evidence contracts/development/implementation.md#principled-implementation The bend law's choice and solve (`bend.lowering`) and its lowered posture (`bendLower.lower`), the trunk's inclination and the hips' shift both taken a share of the way at each instant, as the bend lowers.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One check of the base, one solve and one closure; a seated body goes to its lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body that is not standing is not lowered from a standing rule (a seated one leans from its seat); a refusal of the solve is passed on with the step named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lowering solve per plan; each instant one lowered posture.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the bend law's lowering, so a bend and a pick up lower a body alike.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The strategy and its body measurements prepare once. Each instant evaluates the actual lowering against current joint frames and planted goals.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reach and recovery read one strategy geometry through the bend law's prepared lowering. Foreign bodies retain live geometry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the entry posture and the solved lowering.
    */
   export function lowered(
@@ -144,11 +144,10 @@ export namespace pickUpPosture {
         fix: "step closer to the prop first",
       });
     }
+    const prepare: ReturnType<typeof bendLower.prepare> = bendLower.prepare(context.body, solved.strategy);
     const lower: IStance["lower"] = (posture: IAutoMovieMotionHumanPosture, share: number, resolution?: IFK): IAutoMovieMotionHumanPosture =>
-      bendLower.lower(
-        context.body,
+      prepare(
         posture,
-        solved.strategy,
         solved.pitch * share,
         share,
         solved.lean * Math.sin((solved.pitch * share * Math.PI) / 180),

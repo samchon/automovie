@@ -149,39 +149,34 @@ export namespace pickUpLift {
    * @param body The body.
    * @param raise The raise.
    * @param at The stance's body at a share of the way down.
-   * @param share The share of the way down.
-   * @param inclined The share of the trunk's inclination, 0 to 1.
-   * @returns The posture.
+   * @returns The posture reader at a share of the way down and a share of the trunk's inclination, each from 0 to 1.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two shares it poses.
-   * @evidence contracts/development/implementation.md#principled-implementation The bend law's own lowering (`bendLower.lower`) applied to the stance's body, its inclination, hip drop and balance shift a share of the solved ones, as the bend lowers.
+   * @evidence contracts/development/implementation.md#principled-implementation The bend law's prepared lowering applied to the stance's body, its inclination, hip drop and balance shift a share of the solved ones.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One stance read and at most one lowering.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Without a trunk, or at none of it, the stance's body is returned unchanged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per sample.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual stance and bendLower receive optional same-person FK/ROM inputs; raw hip lowering borrows only FK and retains its original native policy.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Optional observation loans belong only to this synchronous call and are never stored in the returned posture, stance or history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed strategy preparation serves the lift and recovery phases, with current stance and support evaluated each instant.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance and bend owner receive optional same-person FK and ROM inputs. The bend owner keeps actual hip and goal observations and the native/foreign body policy.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader owns the stance and fixed lowering geometry. Current FK and ROM loans end before return and are never stored.
    */
-  export function posed(
+  export function prepare(
     body: IAutoMovieMotionHumanBody,
     raise: IRaise,
     at: pickUpPosture.IStance["at"],
-    share: number,
-    inclined: number,
+  ): (
+    share: number, inclined: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-  ): IAutoMovieMotionHumanPosture {
-    const posture: IAutoMovieMotionHumanPosture = at(share, resolution, projection);
-    if (raise.trunk === null || inclined <= 0) return posture;
-    const pitch: number = raise.trunk.pitch * inclined;
-    return bendLower.lower(
-      body,
-      posture,
-      raise.trunk.strategy,
-      pitch,
-      inclined,
-      raise.trunk.lean * Math.sin((pitch * Math.PI) / 180),
-      resolution,
-    );
+  ) => IAutoMovieMotionHumanPosture {
+    const trunk: IRaise["trunk"] = raise.trunk;
+    if (trunk === null) return (share, _inclined, resolution, projection) => at(share, resolution, projection);
+    const lower: ReturnType<typeof bendLower.prepare> = bendLower.prepare(body, trunk.strategy);
+    return (share, inclined, resolution, projection): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = at(share, resolution, projection);
+      if (inclined <= 0) return posture;
+      const pitch: number = trunk.pitch * inclined;
+      return lower(posture, pitch, inclined, trunk.lean * Math.sin((pitch * Math.PI) / 180), resolution);
+    };
   }
 
   /**

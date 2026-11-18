@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -27,6 +28,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { qclose } from "../internal/qclose";
+import { vclose } from "../internal/vclose";
 
 interface IHeldLip {
   point: IAutoMovieVector3;
@@ -62,6 +65,7 @@ interface IHeldReading {
  *    it is an `affordance` refusal on `point` that lists `lip`.
  * 4. Asked of a body whose skeleton lacks the right hand's bone, the reading
  *    is a `participant` refusal on `side` that lists only `left`.
+ * 5. The loaded glass and its gripping hand stay in place between grip closure and lift-off.
  *
  * Scenarios:
  * 1. Place a real held working point from the displayed hand and compare with the visible prop, including a refusal when the requested grip is absent.
@@ -190,6 +194,36 @@ export function test_motion_contact_carried_frame(): void {
       continue;
     }
     const lip: IHeldLip = read.lip!;
+
+    // Read the end of loading first, then its interior and closing grip.
+    const pickup: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
+    const closed: number =
+      pickup.start +
+      pickup.plan.duration *
+        pickup.plan.events.find((event) => event.name === "gripClosed")!.share;
+    const liftOff: number =
+      pickup.start +
+      pickup.plan.duration *
+        pickup.plan.events.find((event) => event.name === "liftOff")!.share;
+    const loaded: IAutoMovieRigidTransform = film.prop("glass", liftOff);
+    const wrist: IAutoMovieResolvedBone = film
+      .bones("a", liftOff)
+      .get("rightHand")!;
+    for (const at of [(closed + liftOff) / 2, closed]) {
+      const glass: IAutoMovieRigidTransform = film.prop("glass", at);
+      const hand: IAutoMovieResolvedBone = film
+        .bones("a", at)
+        .get("rightHand")!;
+      if (
+        !vclose(glass.position, loaded.position, 0.001) ||
+        !qclose(glass.rotation, loaded.rotation) ||
+        !vclose(hand.worldPosition, wrist.worldPosition, 0.001) ||
+        !qclose(hand.worldRotation, wrist.worldRotation)
+      )
+        complaints.push(
+          `${name}: glass or hand moves during loading at ${at.toFixed(3)} s`,
+        );
+    }
 
     // 1. The reading, carried by the displayed hand, against the displayed glass.
     const socket: (typeof body.surfaces.sockets)["gripRight"] =

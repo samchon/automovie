@@ -1,6 +1,5 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
@@ -23,9 +22,9 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -35,6 +34,7 @@ import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshakeMeeting } from "./handshakeMeeting";
 import { handshakeOffer } from "./handshakeOffer";
+import { handshakePlayback } from "./handshakePlayback";
 import { handshakeStance } from "./handshakeStance";
 
 /**
@@ -156,7 +156,6 @@ export namespace handshake {
     const body: IAutoMovieMotionHumanBody = context.body;
     const other: IAutoMovieMotionHumanPerformerReader = context.performer(context.params.partner);
     const partner: IAutoMovieMotionHumanBody = other.body;
-    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
 
     // The meeting point from both acting shoulders at the start, read from
     // the one record both partners share (`handshakeMeeting`).
@@ -285,13 +284,19 @@ export namespace handshake {
     };
     const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
     const returnShape: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(open, 0.5);
-    return {
+    const release: number = reach + shake;
+    const playback: ReturnType<typeof handshakePlayback> = handshakePlayback({
+      body, side, base, reach, shake, back, duration, release,
+      clasp, fingers, reference: own.reference, out, home, shapeAt, returnShape,
+      amplitude: AMPLITUDE, frequency: FREQUENCY,
+    });
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "clasp", share: reach / duration },
         { name: "gripClosed", share: reach / duration },
-        { name: "shakeEnd", share: (reach + shake) / duration },
-        { name: "release", share: (reach + shake) / duration },
+        { name: "shakeEnd", share: release / duration },
+        { name: "release", share: release / duration },
       ],
       contacts: [
         ...base.contacts,
@@ -299,7 +304,7 @@ export namespace handshake {
           part: side === "left" ? "leftHand" : "rightHand",
           kind: "grip",
           from: reach / duration,
-          to: (reach + shake) / duration,
+          to: release / duration,
           support: {
             kind: "person",
             subject: context.params.partner,
@@ -308,66 +313,10 @@ export namespace handshake {
         },
       ],
       contact: reach,
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IAutoMovieMotionHumanPosture = base.posture(t, undefined, resolution, projection);
-        let wrist: IAutoMovieVector3;
-        let rotation: IAutoMovieQuaternion;
-        let digits: IAutoMovieMotionHumanPosture["joints"];
-        if (t <= reach) {
-          wrist = out.wrist(t);
-          rotation = out.turn(t);
-          digits = shapeAt(t / reach);
-        } else if (t <= reach + shake) {
-          const tau: number = t - reach;
-          const lift: number =
-            AMPLITUDE *
-            Math.sin(2 * Math.PI * FREQUENCY * tau) *
-            Math.sin((Math.PI * tau) / shake) ** 2;
-          wrist = { ...clasp.point, y: clasp.point.y + lift };
-          rotation = turn;
-          digits = fingers;
-        } else {
-          wrist = home.wrist(t - reach - shake);
-          rotation = home.turn(t - reach - shake);
-          digits = returnShape(minimumJerk.share((t - reach - shake) / back));
-        }
-        const gripping: boolean = t >= reach && t <= reach + shake;
-        return {
-          ...posture,
-          joints: { ...posture.joints, ...digits },
-          limbs: {
-            ...posture.limbs,
-            [limb]: {
-              point: wrist,
-              rotation,
-              bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-              // The clasp's own arm solution anchors the pump, the reach more
-              // and more as it arrives and the return less and less as it
-              // leaves.
-              ...(gripping
-                ? { planted: true, reference: own.reference }
-                : {
-                    reference: {
-                      ...own.reference,
-                      weight:
-                        t < reach
-                          ? minimumJerk.share(t / reach)
-                          : // Clamped, as the minimum-jerk position
-                            // rounds past 1 at the return's end.
-                            Math.max(
-                              0,
-                              1 - minimumJerk.share((t - reach - shake) / back),
-                            ),
-                    },
-                  }),
-            },
-          },
-        };
-      },
+      posture: playback.posture,
     };
+    HumanPreparedPlayback.attach(plan, body, { mode: "posture", phases: playback.phases });
+    return plan;
   }
 
   /**

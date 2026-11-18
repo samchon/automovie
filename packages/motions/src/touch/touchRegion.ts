@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -50,8 +51,8 @@ export namespace touchRegion {
    * @evidence contracts/development/implementation.md#principled-implementation A limb is solved after the trunk, so a leg's region under a lean is read on the legs alone re-solved on the posture so far; the site is fixed once, at plan time, against the first arm's shoulder at the entry.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One site, one shoulder, one closure over them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The other hand's region is never moved by the first hand's site.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One leg resolve per frame, and only for a leg's region under a lean.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates region/site geometry to its owners. A caller may lend genuine same-body ROM metadata and exact FK to each current region observation. Fixed leaning-leg names prepare once; every actual leaning-leg query still runs its original fits and fresh selected-region read-back, no pose or time result is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A region assigned to a stationary entry limb places its frame and site once. A leg's region under a lean still needs a current leg resolve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The authored entry and presented arm supply fixed limb frames. Trunk, moving leg and arbitrary target observations still go through their current readers with optional current ROM and FK.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan reader closes over entry bones, shoulder, fixed site and at most one selected-bone set and genuine fixed-demand producer; borrowed ROM/FK remain within the current query until return or throw, and only the actual frame escapes.
    */
   export function reader(
@@ -97,7 +98,32 @@ export namespace touchRegion {
           ? new Set<AutoMovieHumanoidBone>([body.surfaces.regions[aimed.region].bone])
           : undefined;
       const frames: ReturnType<typeof poseBones.prepare> | undefined =
-        requested === undefined ? undefined : poseBones.prepare(body, requested);
+        requested === undefined
+          ? undefined
+          : poseBones.prepare(body, requested);
+
+      // Self-contact on a limb that is neither leaning nor part of the trunk
+      // already uses the entry or presented-arm bone for the entire phrase.
+      const surface =
+        aimed.kind === "self" ? body.surfaces.regions[aimed.region] : undefined;
+      if (
+        requested === undefined &&
+        surface !== undefined &&
+        !AutoMovieMotionHumanTarget.TRUNK.has(surface.bone)
+      ) {
+        const at: IAutoMovieMotionHumanTouchSite.IFrame =
+          resolveAutoMovieHumanoidSurfaces.place(
+            surface,
+            bones.get(surface.bone)!,
+          );
+        const fixed: IAutoMovieMotionHumanTouchSite.IFrame =
+          aimed === target && sited !== undefined ? sited(at, shoulder) : at;
+        return (): IAutoMovieMotionHumanTouchSite.IFrame => ({
+          point: { ...fixed.point },
+          normal: { ...fixed.normal },
+        });
+      }
+
       return (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,

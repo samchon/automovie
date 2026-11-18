@@ -19,11 +19,11 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  *
  * Scenarios:
  * 1. Align the shoulders of an unequal pair at the original 0.729 m separation.
- * 2. Compare right-hand grip sites at clasp, mid-hold and release, and confirm the hands part again.
+ * 2. Check the right-hand grip at clasp, during both strongest pumps, and at release, including reverse-order seeks. Confirm the hands part again.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Two differently proportioned performers observe the same moving handshake through contact and release.
  * @evidence contracts/development/testing.md#independent-expectations Each grip uses its own skeleton, bone transform and hand socket. Agreement is measured in world metres, without using the planner's intended meeting point.
- * @evidence contracts/development/testing.md#distinguishing-cases Align the shoulders of an unequal pair at the original 0.729 m separation. Compare right-hand grip sites at clasp, mid-hold and release, and confirm the hands part again.
+ * @evidence contracts/development/testing.md#distinguishing-cases Align the shoulders of an unequal pair at 0.729 m and read clasp, moving pump extrema and release out of order.
  * @evidence contracts/development/testing.md#execution-ownership Runs the named public operation in memory and samples its observable outputs.
  * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
@@ -66,7 +66,14 @@ export function test_motion_contact_partner_observation(): void {
     );
   const all: motionComplaints.IGatherer = motionComplaints();
   all.check("the hands begin apart", gap(0) > 0.01);
-  for (const t of [closed, (closed + release) / 2, release])
+  const hold: number = release - closed;
+  for (const t of [
+    release,
+    closed + 0.625 * hold,
+    closed + 0.375 * hold,
+    (closed + release) / 2,
+    closed,
+  ])
     all.check(
       `the two displayed hand skins at ${t} s are ${gap(t)} m apart`,
       Math.abs(gap(t)) <= 0.01,
