@@ -12,17 +12,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanHand } from "../posture/HumanHand";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
 
 /**
  * Place the wrist for a voicing from the key centers and the performer's
- * finger lengths. The wrist point minimizes the sum of squared distances
- * to the individual press placements at the common wrist orientation.
+ * finger lengths. The wrist averages individual press placements at the
+ * common orientation, with its forward reach set by the digit that needs
+ * the wrist closest to the keys.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the input geometry and the shared placement criterion.
- * @evidence contracts/development/implementation.md#principled-implementation Fits one wrist to all keys with a least-squares translation and uses the individual digit shapes as seeds.
+ * @evidence contracts/development/implementation.md#principled-implementation Fits one wrist to all keys with a least-squares translation constrained by each finger's forward press placement. Playing fingers start with the canonical straight seed, while idle fingers use the shared plane-aware shapes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve key geometry, then calculate the wrist and hand shape.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the piano's button frames and the performer's skeleton. The caller admits the fitted contact residuals.
  * @evidence contracts/development/implementation.md#efficient-algorithms Visits each key and its owning digit once during voicing placement.
@@ -73,37 +75,55 @@ export function resolvePianoScoreVoicing(
     [{ site, normal, side: score.side }],
     score.side,
   );
-  const arm: IAutoMovieHumanLimbGoal = {
-    point: mean(
-      notes.map(
-        (note: resolvePianoScoreVoicing.Note): IAutoMovieVector3 =>
-          manipulateReach(
-            context.body,
-            score.side,
-            note.score.digit,
-            note.points[0],
-            note.normal,
-            note.dip,
-            rotation,
-          ),
-      ),
+  const reach: ReturnType<typeof manipulateReach.prepare> =
+    manipulateReach.prepare(context.body, score.side, rotation);
+  const preferred: IAutoMovieVector3[] = notes.map(
+    (note: resolvePianoScoreVoicing.Note): IAutoMovieVector3 =>
+      reach(note.score.digit, note.points[0], note.normal, note.dip),
+  );
+  const average: IAutoMovieVector3 = mean(preferred);
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: score.side === "left" ? 1 : -1,
+    y: 0,
+    z: 0,
+  });
+  // The closest preferred position leaves room for the shortest extension.
+  // A longer digit can flex to absorb its share of the lateral mismatch.
+  const advance: number = Math.max(
+    0,
+    ...preferred.map((point: IAutoMovieVector3): number =>
+      Vector3.dot(Vector3.subtract(point, average), forward),
     ),
+  );
+  const arm: IAutoMovieHumanLimbGoal = {
+    point: Vector3.addScaled(average, forward, advance),
     bend,
     rotation,
   };
 
-  // Each pressing digit uses its own seed. Keep curled idle digits.
+  // Select idle angles against the first key plane. Each additional key
+  // replaces only its playing digit with the straight seed for its own fit.
   const shape: IAutoMovieMotionHumanPosture["joints"] = manipulateShape(
+    context.body,
     score.side,
     score.digit,
-  );
-  for (const note of notes.slice(1)) {
-    const seed: IAutoMovieMotionHumanPosture["joints"] = manipulateShape(
+    arm.point,
+    rotation,
+    first.points[0],
+    normal,
+  ).joints;
+  if (notes.length > 1) {
+    const seed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
       score.side,
-      note.score.digit,
+      "flat",
     );
     for (const bone of Object.keys(seed) as AutoMovieHumanoidBone[])
-      if (bone.startsWith(note.digit)) shape[bone] = seed[bone]!;
+      if (
+        notes.some(({ digit }: resolvePianoScoreVoicing.Note): boolean =>
+          bone.startsWith(digit),
+        )
+      )
+        shape[bone] = seed[bone]!;
   }
   return { score, notes, normal, arm, shape, ends: [{}, {}] };
 }

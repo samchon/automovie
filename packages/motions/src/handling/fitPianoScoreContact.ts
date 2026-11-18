@@ -64,6 +64,7 @@ export function fitPianoScoreContact(
       point: note.points[down ? 1 : 0],
       normal: note.normal,
       surface: "tip",
+      contact: true,
     };
   const fitted: IAutoMoviePose = HumanDigitFit.fitted(
     body,

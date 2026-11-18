@@ -71,7 +71,8 @@ export function test_human_motion_piano_chord(): void {
     digit: "middle",
   } as const satisfies IAutoMovieMotionHumanPianoScore.INote;
   const caseFront: number = archetypeExtent(piano, "z", ["case"]).high;
-  const stanceZ: number = caseFront + body.measure.footLength + 0.025;
+  // Keep the feet clear while placing the bench within chord reach.
+  const stanceZ: number = caseFront + body.measure.footLength + 0.095;
   const bench: ReturnType<typeof createSeat> = createSeat(
     { kind: "bench", places: 1 },
     2,
@@ -84,7 +85,7 @@ export function test_human_motion_piano_chord(): void {
     },
   );
   const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(bench, {
-    at: { x: 0, y: 0, z: stanceZ + 0.15 - benchFrame.at.z },
+    at: { x: 0, y: 0, z: stanceZ - benchFrame.at.z },
     yaw: 180,
   });
   const perform = (

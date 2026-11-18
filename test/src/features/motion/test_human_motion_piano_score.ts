@@ -69,14 +69,15 @@ export function test_human_motion_piano_score(): void {
     ],
   };
   const caseFront: number = archetypeExtent(piano, "z", ["case"]).high;
-  const stanceZ: number = caseFront + body.measure.footLength + 0.025;
+  // The toes clear the case independently of how close the bench sits to the keys.
+  const stanceZ: number = caseFront + body.measure.footLength + 0.095;
   const bench = createSeat({ kind: "bench", places: 1 }, 2);
   const benchFrame = HumanObject.seat(bench, {
     at: { x: 0, y: 0, z: 0 },
     yaw: 180,
   });
   const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(bench, {
-    at: { x: 0, y: 0, z: stanceZ + 0.15 - benchFrame.at.z },
+    at: { x: 0, y: 0, z: stanceZ - benchFrame.at.z },
     yaw: 180,
   });
   const performance: HumanPerformance = new HumanPerformance({

@@ -369,12 +369,14 @@ function depression(
   seconds: number,
 ): number {
   if (seconds <= score.from || seconds >= score.to) return 0;
-  if (seconds < score.at)
-    return minimumJerk((seconds - score.from) / (score.at - score.from)).s;
-  if (seconds <= score.release) return 1;
-  return (
-    1 - minimumJerk((seconds - score.release) / (score.to - score.release)).s
-  );
+  if (seconds >= score.at && seconds <= score.release) return 1;
+  // The symmetric polynomial read keeps a nearly released key nonnegative.
+  // Near full depression, floating-point evaluation can exceed one by an ulp.
+  const share: number =
+    seconds < score.at
+      ? (seconds - score.from) / (score.at - score.from)
+      : (score.to - seconds) / (score.to - score.release);
+  return Math.min(1, minimumJerk.share(share));
 }
 
 /** Find the current voicing or the destination of the hand's transport. */
@@ -480,7 +482,7 @@ function goal(
   point: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ): IAutoMovieHumanDigitGoal {
-  return { point, normal, surface: "tip" };
+  return { point, normal, surface: "tip", contact: true };
 }
 
 /** Report the score field and its corrected authoring direction. */
