@@ -122,6 +122,7 @@ export namespace HumanInteractionMesh {
         return { index, coef, goal: coordinate(reference, index, coef) };
       }),
     );
+    const nearSides: Map<Side.ISide, number> = new Map();
     function evaluate(
       x: Float64Array,
       penalty: number,
@@ -174,10 +175,14 @@ export namespace HumanInteractionMesh {
           else squared(miss, penalty, [a, b], [1, -1]);
         }
       let flipped: number = 0;
-      let near: number = Infinity;
+      let closing: boolean = false;
+      if (model !== undefined) nearSides.clear();
       for (const side of sides) {
         const altitude: number = Side.value(x, side);
-        near = Math.min(near, altitude);
+        if (altitude < NEAR * extent) {
+          if (model !== undefined) nearSides.set(side, altitude);
+          else if (altitude < (nearSides.get(side) ?? -Infinity)) closing = true;
+        }
         if (!(altitude > 0)) ++flipped;
         else if (altitude < side.activation) {
           const log: number = Math.log(altitude / side.activation);
@@ -195,7 +200,7 @@ export namespace HumanInteractionMesh {
           });
         }
       }
-      return { energy: flipped === 0 ? energy + stiffness * barrier : Infinity, barrier, worst, flipped, near };
+      return { energy: flipped === 0 ? energy + stiffness * barrier : Infinity, barrier, worst, flipped, closing };
     }
     const feasible: (at: IEvaluation) => boolean = (at: IEvaluation): boolean => at.worst <= accuracy && at.flipped === 0;
     const original: IEvaluation = evaluate(reference, baseStiffness, baseStiffness);
@@ -250,7 +255,7 @@ export namespace HumanInteractionMesh {
         );
         const result: IEvaluation = evaluate(candidate, penalty, stiffness);
         if (result.energy < current.energy || feasible(result)) {
-          if (current.near < NEAR * extent && result.near < current.near)
+          if (result.closing)
             stiffness = Math.min(upperBarrier, 2 * stiffness);
           const settled: boolean = Math.abs(result.worst - current.worst) <= limit;
           x = candidate;
@@ -360,7 +365,7 @@ export namespace HumanInteractionMesh {
     goal: number;
   }
 
-  /** Merit, exact feasibility and the smallest signed altitude of the current mesh. */
+  /** Merit, exact feasibility and contraction of previously near sides. */
   interface IEvaluation {
     /** Laplacian deformation, equality penalty and active barrier energy. */
     energy: number;
@@ -374,8 +379,8 @@ export namespace HumanInteractionMesh {
     /** Number of elements that lost positive orientation. */
     flipped: number;
 
-    /** The smallest currently measured signed altitude, metres. */
-    near: number;
+    /** Whether a side already near its barrier moved closer during this trial. */
+    closing: boolean;
   }
 
   /** A sparse linear coordinate. */
