@@ -6,10 +6,13 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSupport,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAuditBalance,
+  AutoMovieMotionHumanAuditMotion,
   HumanChain,
   HumanObject,
   HumanPerformance,
@@ -115,6 +118,37 @@ export function test_motion_posture_support_frame(): void {
   };
   const stationary = deck(0),
     moving = deck(2);
+  const feet: IAutoMovieMotionHumanSupport.IContact[] = [
+    { part: "leftFoot", kind: "bear" },
+    { part: "rightFoot", kind: "bear" },
+  ];
+  for (const hand of [true, false]) {
+    const stances: IAutoMovieMotionHumanSupport.IStance[] = [
+      { contacts: feet },
+      {
+        contacts: [
+          feet[0]!,
+          { part: hand ? "rightHand" : "rightKnee", kind: "bear" },
+        ],
+      },
+    ];
+    const transition = new HumanPerformance({
+      seed: "support",
+      performers: [...stationary.performers],
+      composition: HumanChain.subject("a").support({ stances }).node,
+    });
+    const contacts = transition.segments("a")[0]!.plan.contacts;
+    const loaded = contacts.find(
+        (c) => c.part === (hand ? "rightHand" : "rightLowerLeg"),
+      )!,
+      released = contacts.find((c) => c.part === "rightFoot")!;
+    TestValidator.predicate(
+      "transfer clocks agree with hand-first or knee-after-release support",
+      hand
+        ? loaded.from <= released.to && released.to < 1
+        : released.to <= loaded.from,
+    );
+  }
   const span = Math.min(moving.duration, stationary.duration);
   for (const side of ["left", "right"] as const) {
     for (const t of [0.25, span / 3, (span * 2) / 3]) {
@@ -176,12 +210,41 @@ export function test_motion_posture_support_frame(): void {
         composition: HumanChain.subject("a")
           .stand({ seconds: 0.3, sway: 0, on: { prop: "cart" } })
           .sit({ seat, seconds: 0.2 })
+          .handToFace({ task: "drink", seconds: 0.3 })
           .shift({ by: 0.01, seconds: 0.1 })
           .rise({})
           .stand({ seconds: 0.3, sway: 0 }).node,
       });
     };
     const reference: IAutoMovieMotionHumanPerformance = perform(0);
+    const drinking = reference
+      .segments("a")
+      .find((s) => s.name === "handToFace")!;
+    const windows = AutoMovieMotionHumanAuditMotion.windows(reference, "a");
+    const first = reference.bones("a", drinking.entryTime);
+    for (const t of [
+      drinking.entryTime,
+      (drinking.entryTime + drinking.end) / 2,
+      drinking.end - 1e-6,
+    ]) {
+      const bones = reference.bones("a", t);
+      TestValidator.predicate(
+        "seated overlay carries the seat and both feet",
+        ["seat", "leftFoot", "rightFoot"].every((name) =>
+          drinking.plan.contacts.some(
+            (c) => c.part === name && c.from === 0 && c.to === 1,
+          ),
+        ) && !AutoMovieMotionHumanAuditBalance.standing(windows, t),
+      );
+      for (const part of ["hips", "leftFoot", "rightFoot"] as const)
+        TestValidator.predicate(
+          "seat and ankle stay at their loaded anchors",
+          Vector3.distance(
+            first.get(part)!.worldPosition,
+            bones.get(part)!.worldPosition,
+          ) <= (part === "hips" ? 0.01 : 0.005),
+        );
+    }
     for (const floor of [0, 0.3, -0.2]) {
       const moved: IAutoMovieMotionHumanPerformance =
         floor === 0 ? reference : perform(floor);
