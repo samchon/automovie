@@ -57,9 +57,6 @@ export namespace AutoMovieMotionHumanDrinkingArm {
   export const ABDUCTION: number = 39.3 + 2 * 13.0;
 
   /**
-
-
-  /**
    * The shoulder's flexion and abduction as Alt Murphy et al. 2006 measure
    * them for the drinking task, in whose definition `FLEXION` and
    * `ABDUCTION` are bounds: "for shoulder flexion/extension in sagittal

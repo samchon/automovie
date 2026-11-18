@@ -31,17 +31,6 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
  */
 export namespace AutoMovieMotionHumanArmTarget {
   /**
-
-
-  
-
-  
-
-  
-
-  
-
-  /**
    * Where a hand surface is on a pose, as an origin in a floor frame.
    *
    * @param body The body.

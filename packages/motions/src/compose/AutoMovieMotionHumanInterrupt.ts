@@ -20,7 +20,7 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The result is the existing `HumanInterruptRow`, so a row no name states is still written by hand beside the named ones.
  */
 export namespace AutoMovieMotionHumanInterrupt {
-  /** The windows of {@link Window}, as data. */
+  /** The windows of {@link IAutoMovieMotionHumanInterrupt.Window}, as data. */
   export const WINDOWS = [
     "anytime",
     "fromStroke",
@@ -28,7 +28,7 @@ export namespace AutoMovieMotionHumanInterrupt {
     "fromRelax",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanInterrupt.Window>[];
 
-  /** The blends of {@link Blend}, as data. */
+  /** The blends of {@link IAutoMovieMotionHumanInterrupt.Blend}, as data. */
   export const BLEND_NAMES = [
     "reflex",
     "quick",

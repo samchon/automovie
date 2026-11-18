@@ -34,11 +34,6 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  */
 export namespace AutoMovieMotionHumanLeanInto {
   /**
-
-
-  
-
-  /**
    * Solve the lean of a stroke.
    *
    * @param props The body, the standing posture, the hand, the share, the wrist's goal and the arm's.

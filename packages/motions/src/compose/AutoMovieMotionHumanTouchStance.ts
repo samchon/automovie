@@ -48,11 +48,6 @@ export namespace AutoMovieMotionHumanTouchStance {
   export const GIRDLE: IAutoMovieMotionHumanRange.Level = "half";
 
   /**
-
-
-  
-
-  /**
    * Solve the stance of a stroke.
    *
    * @param props The body, the standing posture, the feet, the hand, the share and the wrist's goal.

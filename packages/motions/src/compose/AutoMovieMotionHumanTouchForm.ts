@@ -26,7 +26,7 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Periods are timing spans, amplitudes shares of the hand, so no metre is typed for one body.
  */
 export namespace AutoMovieMotionHumanTouchForm {
-  /** The touch kinds of {@link Kind}, as data. */
+  /** The touch kinds of {@link IAutoMovieMotionHumanTouchForm.Kind}, as data. */
   export const KINDS = [
     "tap",
     "pat",
@@ -76,7 +76,7 @@ export namespace AutoMovieMotionHumanTouchForm {
     },
   };
 
-  /** The tangents of {@link Tangent}, as data. */
+  /** The tangents of {@link IAutoMovieMotionHumanTouchForm.Tangent}, as data. */
   export const TANGENTS = [
     "up",
     "across",

@@ -26,7 +26,7 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No name carries a number of its own beyond the tables and `OVERHEAD`; the record is the target's own `IDefault`.
  */
 export namespace AutoMovieMotionHumanTargetGrid {
-  /** Every height, lowest first: the order `nearest` breaks a tie by and a nudge names a neighbour from, and the list {@link Height} is read from. */
+  /** Every height, lowest first: the order `nearest` breaks a tie by and a nudge names a neighbour from, and the list {@link IAutoMovieMotionHumanTargetGrid.Height} is read from. */
   export const HEIGHTS = [
     "floor",
     "knee",
@@ -47,7 +47,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
    */
   export const OVERHEAD: number = 0.92;
 
-  /** The lateral places of {@link Lateral}, as data. */
+  /** The lateral places of {@link IAutoMovieMotionHumanTargetGrid.Lateral}, as data. */
   export const LATERAL_NAMES = [
     "centre",
     "inside",
@@ -71,7 +71,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
     outside: 1.5,
   };
 
-  /** The distances of {@link Distance}, as data. */
+  /** The distances of {@link IAutoMovieMotionHumanTargetGrid.Distance}, as data. */
   export const DISTANCE_NAMES = [
     "close",
     "near",

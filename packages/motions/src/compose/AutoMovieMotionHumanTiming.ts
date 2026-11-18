@@ -116,7 +116,7 @@ export namespace AutoMovieMotionHumanTiming {
       : transport(distance);
   }
 
-  /** The pauses of {@link Pause}, as data. */
+  /** The pauses of {@link IAutoMovieMotionHumanTiming.Pause}, as data. */
   export const PAUSE_NAMES = [
     "none",
     "brief",

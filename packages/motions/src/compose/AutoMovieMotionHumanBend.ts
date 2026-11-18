@@ -44,7 +44,7 @@ import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
  */
 export namespace AutoMovieMotionHumanBend {
 
-  /** The arm holds of {@link Arm}, as data. */
+  /** The arm holds of {@link IAutoMovieMotionHumanBend.Arm}, as data. */
   export const ARMS = [
     "hang",
     "tucked",

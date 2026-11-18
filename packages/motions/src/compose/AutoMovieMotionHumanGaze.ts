@@ -26,7 +26,7 @@ import { HumanGaze } from "../everyday/HumanGaze";
  */
 export namespace AutoMovieMotionHumanGaze {
 
-  /** The recruitments of {@link Recruit}, as data. */
+  /** The recruitments of {@link IAutoMovieMotionHumanGaze.HeadRecruit}, as data. */
   export const RECRUITS = ["eyes", "head"] as const satisfies readonly NonNullable< IAutoMovieMotionHumanGaze.HeadRecruit>[];
 
   /**

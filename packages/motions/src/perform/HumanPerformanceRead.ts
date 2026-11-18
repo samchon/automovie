@@ -358,7 +358,7 @@ export namespace HumanPerformanceRead {
             ? "none of their actions is placed"
             : `their placed actions end at ${last.end.toFixed(2)} s with ${last.name}`
         }, and ${left} more of theirs come later in the composition`,
-        fix: `compose ${subject}'s actions before self one: put their chain first in the parallel group, or join both chains with a mutual action`,
+        fix: `compose ${subject}'s actions before this one: put their chain first in the parallel group, or join both chains with a mutual action`,
       });
     return person;
   }

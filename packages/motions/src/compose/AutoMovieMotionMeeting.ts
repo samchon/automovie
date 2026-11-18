@@ -35,20 +35,6 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  */
 export namespace AutoMovieMotionMeeting {
   /**
-
-
-  
-
-  
-
-  
-
-  
-  
-
-  
-
-  /**
    * The meeting of a mutual action.
    *
    * @param kind The kind.

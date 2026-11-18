@@ -65,9 +65,6 @@ import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpr
  */
 export namespace AutoMovieMotionHumanTouch {
   /**
-
-
-  /**
    * A region of a target as a frame: a person's region or a prop's point
    * through the context's aim, a trunk or head region of the performer on
    * the posture, and a limb region of the performer on the entry pose, which

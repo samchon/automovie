@@ -43,10 +43,10 @@ import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
  */
 export namespace AutoMovieMotionHumanReach {
 
-  /** The policies of {@link Policy}, as data. */
+  /** The policies of {@link IAutoMovieMotionHumanReach.Policy}, as data. */
   export const POLICIES = ["refuse", "lean", "clamp"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Policy>[];
 
-  /** The limbs of {@link Limb}, as data. */
+  /** The limbs of {@link IAutoMovieMotionHumanReach.Limb}, as data. */
   export const LIMBS = ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Limb>[];
 
   /**

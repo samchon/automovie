@@ -39,9 +39,6 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
  */
 export namespace AutoMovieMotionHumanPlaced {
   /**
-
-
-  /**
    * The arm and the fingers laid at a place.
    * The canonical body and configured surface/shape/bend remain unchanged
    * for the primitive's lifetime; the actual place, facing, forward and

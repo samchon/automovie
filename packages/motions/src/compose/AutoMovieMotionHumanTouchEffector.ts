@@ -30,7 +30,7 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surfaces, shapes and alignment; the pad is a collider query, not a shape's radius.
  */
 export namespace AutoMovieMotionHumanTouchEffector {
-  /** The axes of {@link Axis}, as data. */
+  /** The axes of {@link IAutoMovieMotionHumanTouchEffector.Axis}, as data. */
   export const AXES = [
     "fingers",
     "palm",

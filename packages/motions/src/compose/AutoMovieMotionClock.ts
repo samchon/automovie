@@ -35,13 +35,6 @@ export namespace AutoMovieMotionClock {
   export const END: string = AutoMovieMotionClockNative.END;
 
   /**
-
-
-  
-
-  
-
-  /**
    * Prepare native fixed intervals while preserving arbitrary custom clock callbacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each sample reads only its requested public method once. An original native method resolves names through its saved private at on the first native sample; foreign/replaced methods keep current getters, clock receiver and callback admission.
@@ -356,5 +349,4 @@ export namespace AutoMovieMotionClock {
     });
   }
 }
-
 

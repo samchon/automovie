@@ -274,7 +274,6 @@ export namespace AutoMovieMotionHumanArmCarry {
   }
 
   /**
-  /**
    * An arm carried toward a goal by a weight: the arm's whole action planned
    * once as one trajectory with the other arms of its group
    * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far
