@@ -49,9 +49,9 @@ import { vclose } from "../internal/vclose";
  * 2. Recompose the selected lower and effector frames and independently check two orientation roots.
  * 3. Compare mirrored clinical twists on bent and straight arms.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Projection onto a bounded hinge discards the perpendicular rotation and clips the requested flexion.
- * @evidence contracts/development/testing.md#independent-expectations The absolute quaternion dot with the hinge is proportional to cos((75°−angle)/2), maximized at the allowed 40° endpoint.
- * @evidence contracts/development/testing.md#distinguishing-cases The boundary outcome distinguishes physical change from normalization.
+ * @evidence contracts/development/testing.md#behavioral-verification Recompose world rotation from the selected lower and effector frames, resolve the fitted hinge endpoint and reflect the requested hand frame across the median plane.
+ * @evidence contracts/development/testing.md#independent-expectations The hinge dot is proportional to cos((75°−angle)/2) and peaks at the 40° limit. Collinear turns add: fixed 20° and 15° rotations leave a 30° residual when a 120° turn clips to 90°. Reflection preserves the clinical angles of a mirrored arm.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compare signed limits with interior turns, unique roots with an equal-distance tie, retained output with mutable clamp records, and bent arms with a full-reach swivel degeneracy.
  * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
