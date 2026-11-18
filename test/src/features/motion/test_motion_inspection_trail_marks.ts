@@ -19,6 +19,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { InspectionScene } from "../internal/InspectionScene";
+import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
 /**
  * Motion is read from stills through sampled paths and marks handed over per second: the instrument samples where objects go, and draws whatever a producer hands it at the drawn second.
@@ -38,7 +39,7 @@ import { InspectionScene } from "../internal/InspectionScene";
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit builds its own scene and seek and starts no solver, browser, server or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An object moving one metre per second along X, sampled at five seconds).
  */
-export async function test_inspection_motion(): Promise<void> {
+export async function test_motion_inspection_trail_marks(): Promise<void> {
   const mover: THREE.Mesh = InspectionScene.quad("mover", 0, 0.2);
   const post: THREE.Mesh = InspectionScene.quad("post", 5, 0.2);
   const stage: THREE.Scene = InspectionScene.scene(mover, post);
@@ -48,13 +49,15 @@ export async function test_inspection_motion(): Promise<void> {
   const times: number[] = [0, 1, 2, 3, 4];
 
   // 1. A moving object.
-  const [moving]: IAutoMovieInspectionTrail[] =
+  const trails: IAutoMovieInspectionTrail[] =
     await sampleAutoMovieInspectionTrails({
       scene: stage,
-      pattern: "mover",
+      pattern: "*",
       times,
       seek,
     });
+  const moving = trails.find((t) => t.path === "mover");
+  const still = trails.find((t) => t.path === "post");
   TestValidator.equals(
     "five samples along X",
     [moving!.path, moving!.positions, moving!.stationary],
@@ -81,13 +84,7 @@ export async function test_inspection_motion(): Promise<void> {
   );
 
   // 2. A still object.
-  const [still]: IAutoMovieInspectionTrail[] =
-    await sampleAutoMovieInspectionTrails({
-      scene: stage,
-      pattern: "post",
-      times,
-      seek,
-    });
+
   TestValidator.equals(
     "one tick and stationary",
     [
@@ -129,29 +126,38 @@ export async function test_inspection_motion(): Promise<void> {
   );
 
   // 4. Marks per second.
+  const sphere = PhysicalFixtures.sphere();
+  const identity = {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
   const profile: IAutoMoviePhysicalProfile = {
-    segments: [{ bone: "root" }, { bone: "tip" }],
-    joints: [{ parent: "root", child: "tip" }],
-  } as unknown as IAutoMoviePhysicalProfile;
-  const skeleton = (seconds: number): IAutoMovieMark[] =>
-    markAutoMovieSkeleton({
-      bodies: [{ id: "arm", profile }],
-      frame: {
-        seconds,
-        bodies: {
-          arm: {
-            root: {
-              position: { x: seconds, y: 0, z: 0 },
-              rotation: { x: 0, y: 0, z: 0, w: 1 },
-            },
-            tip: {
-              position: { x: seconds, y: 1, z: 0 },
-              rotation: { x: 0, y: 0, z: 0, w: 1 },
-            },
-          },
-        },
-      } as unknown as IAutoMoviePhysicalFrame,
+    ...sphere,
+    segments: ["root", "tip"].map((bone) => ({ ...sphere.segments[0]!, bone })),
+    joints: [
+      {
+        id: "link",
+        parent: "root",
+        child: "tip",
+        parentFrame: identity,
+        childFrame: identity,
+        axes: [],
+      },
+    ],
+  };
+  const skeleton = (seconds: number): IAutoMovieMark[] => {
+    const state = (height: number) => ({
+      position: { x: seconds, y: height, z: 0 },
+      rotation: identity.rotation,
+      velocity: identity.position,
+      angularVelocity: identity.position,
     });
+    const frame: IAutoMoviePhysicalFrame = {
+      seconds,
+      bodies: { arm: { root: state(0), tip: state(1) } },
+    };
+    return markAutoMovieSkeleton({ bodies: [{ id: "arm", profile }], frame });
+  };
   const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
     scene: stage,
     request: InspectionScene.ask({ marks: ["bone", "joint"] }),
