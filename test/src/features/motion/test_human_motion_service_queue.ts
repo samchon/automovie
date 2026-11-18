@@ -1,10 +1,12 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEnsemble,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanQueueAdvance,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -31,8 +33,8 @@ import { vclose } from "../internal/vclose";
  * 3. A short exit, off-axis mark and reversed rank report their performer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the people, cue change, spacing and refusal measured in the test.
- * @evidence contracts/development/testing.md#behavioral-verification Checks scheduled boundaries and samples the roots during active walks at 24 Hz for headway and the path envelope. The initial and pre-entry hold roots agree, as do the arrival and final hold roots. An independently built performance reproduces named held and moving samples.
- * @evidence contracts/development/testing.md#independent-expectations The 0.25 s wait and authored marks determine each start relative to the predecessor's fitted end and each spatial endpoint. Endpoint error is at most 1 cm. The 10 cm active path envelope allows gait sway and small overshoots. Changing only the cue translates the walk clock, and repeating the same inputs gives the same root components.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks scheduled boundaries and samples the roots during active walks at 24 Hz for headway and the path envelope. The initial and pre-entry hold roots agree, as do the arrival and final hold roots. Displayed ankle midpoints locate the starting stance relative to its floor mark and the walk's final footfall. An independently built performance reproduces named held and moving samples.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.25 s wait and authored marks determine each start relative to the predecessor's fitted end and each spatial endpoint. The opening stance adds the body's rest ankle displacement to its entry floor mark, while the walk ends with the ankles centered at its destination. Both positions are checked within 1 cm. The 10 cm active path envelope allows gait sway and small overshoots. Changing only the cue translates the walk clock, and repeating the same inputs gives the same root components.
  * @evidence contracts/development/testing.md#distinguishing-cases Unequal gaps expose wrong slot selection. Shifted and identical cues distinguish clock translation from exact replay. A 1 cm exit, off-axis mark and reversed rank check distinct refusals.
  * @evidence contracts/development/testing.md#execution-ownership A motions feature test, discovered by its exported name, that builds a real performance on the prepared polygon-man bodies with no host.
  */
@@ -126,12 +128,28 @@ export function test_human_motion_service_queue(): void {
         ? end
         : film.posture(member.subject, walk.end).root;
     TestValidator.predicate(
-      `rank ${rank} holds its own mark then arrives at the vacated mark`,
-      vclose(before, opening, 1e-9) &&
-        vclose(end, arrival, 1e-9) &&
-        Math.abs(before.z - marks[rank]!) <= 0.01 &&
-        Math.abs(end.z - destinations[rank]!) <= 0.01 &&
-        Math.abs(end.x) <= 0.01,
+      `rank ${rank} holds its initial and final postures`,
+      vclose(before, opening, 1e-9) && vclose(end, arrival, 1e-9),
+    );
+    const leftRest: IAutoMovieVector3 = member.body.rest.get("leftFoot")!;
+    const rightRest: IAutoMovieVector3 = member.body.rest.get("rightFoot")!;
+    const expectedStartX: number = (leftRest.x + rightRest.x) / 2;
+    const expectedStartZ: number =
+      marks[rank]! + (leftRest.z + rightRest.z) / 2;
+    const startMark: IAutoMovieVector3 = ankleMidpoint(
+      film,
+      member.subject,
+      hold,
+    );
+    const endMark: IAutoMovieVector3 = ankleMidpoint(
+      film,
+      member.subject,
+      film.duration,
+    );
+    TestValidator.predicate(
+      `rank ${rank} starts at ${startMark.z} m and arrives at ${endMark.z} m, expected ankle midpoints ${expectedStartZ} m and ${destinations[rank]} m`,
+      Math.hypot(startMark.x - expectedStartX, startMark.z - expectedStartZ) <=
+        0.01 && Math.hypot(endMark.x, endMark.z - destinations[rank]!) <= 0.01,
     );
     const middle: number = (walk.entryTime + walk.end) / 2;
     const midRoot: IAutoMovieVector3 = film.posture(
@@ -250,4 +268,21 @@ export function test_human_motion_service_queue(): void {
         placementRefusal.performer === second.subject,
     );
   }
+}
+
+/** Read the midpoint between the displayed ankle joints. */
+function ankleMidpoint(
+  film: IAutoMovieMotionHumanPerformance,
+  subject: string,
+  seconds: number,
+): IAutoMovieVector3 {
+  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    film.bones(subject, seconds);
+  const left: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
+  const right: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
+  return {
+    x: (left.x + right.x) / 2,
+    y: (left.y + right.y) / 2,
+    z: (left.z + right.z) / 2,
+  };
 }

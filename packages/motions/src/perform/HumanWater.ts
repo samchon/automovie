@@ -210,7 +210,7 @@ export namespace HumanWater {
       resolveHydrodynamicForce.volume,
     );
     const segments: readonly IAutoMovieResolveCenterOfMass.ISegment[] =
-      modelOf(body).segments;
+      body.massModel.segments;
     const centres: (readonly IAutoMovieVector3[])[] = [];
     const coefficients: (readonly number[])[] = [];
     for (let index: number = 0; index <= intervals; ++index) {
