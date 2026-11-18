@@ -7,6 +7,10 @@ import type {
  * Measure cold planning and fixed-rate pose reads of an already staged test
  * performance when its label is requested in AUTOMOVIE_PROFILE_MOTION.
  *
+ * The terminal record reports totalWallSeconds from construction through the last
+ * 30 Hz frame or exact endpoint. Refusals propagate after recording completed
+ * frames and successful subject and prop reads, including a partial frame.
+ *
  * @param label The authored case's stable name.
  * @param build Its ordinary performance construction, called once.
  * @param subjects The displayed performers whose poses the film needs.
@@ -39,75 +43,96 @@ export function profileHumanMotion(
     return build();
 
   console.log(JSON.stringify({ motion: label, phase: "plan-start" }));
-  const before: IMark = mark();
-  let film: IAutoMovieMotionHumanPerformance;
-  try {
-    film = build();
-  } catch (error) {
-    emit(label, "plan", before, undefined, undefined, 0, 0, error);
-    throw error;
-  }
-  const segment: IAutoMovieMotionHumanSegment | undefined =
-    action === undefined
-      ? undefined
-      : film
-          .segments(subjects[0]!)
-          .find(
-            (part: IAutoMovieMotionHumanSegment): boolean =>
-              part.name === action,
-          );
-  if (action !== undefined && segment === undefined) {
-    emit(
-      label,
-      "plan",
-      before,
-      undefined,
-      film.duration,
-      0,
-      0,
-      new Error(`no placed motion ${action} for ${subjects[0]}`),
-    );
-    return film;
-  }
-  const from: number = segment?.entryTime ?? 0;
-  const end: number = segment?.end ?? film.duration;
-  const duration: number = end - from;
-  emit(label, "plan", before, duration, film.duration, 0, 0);
-  const started: IMark = mark();
-  let posed: number = 0;
+  let displayStart: IMark | undefined;
+  let duration: number | undefined;
+  let filmDuration: number | undefined;
+  let frames: number = 0;
+  let poses: number = 0;
   let shownProps: number = 0;
+  let failure: unknown;
+  let failed: boolean = false;
+  const before: IMark = mark();
   try {
-    // The site's standard motion views use 30 frames per film second.
-    const frequency: number = 30;
+    const film: IAutoMovieMotionHumanPerformance = build();
+    filmDuration = film.duration;
+    const segment: IAutoMovieMotionHumanSegment | undefined =
+      action === undefined
+        ? undefined
+        : film
+            .segments(subjects[0]!)
+            .find(
+              (part: IAutoMovieMotionHumanSegment): boolean =>
+                part.name === action,
+            );
+    if (action !== undefined && segment === undefined)
+      throw new Error(`no placed motion ${action} for ${subjects[0]}`);
+    const from: number = segment?.entryTime ?? 0;
+    const end: number = segment?.end ?? filmDuration;
+    duration = end - from;
     if (!(Number.isFinite(duration) && duration > 0))
       throw new Error("the profiled action has no positive finite span");
+
+    displayStart = mark();
     const show = (seconds: number): void => {
       for (const subject of subjects) {
         film.pose(subject, seconds);
-        ++posed;
+        ++poses;
       }
       for (const prop of props) {
         film.prop(prop, seconds);
         ++shownProps;
       }
+      ++frames;
     };
-    for (let i: number = 0; from + i / frequency < end; ++i)
-      show(from + i / frequency);
+    for (let i: number = 0; from + i / 30 < end; ++i) show(from + i / 30);
     show(end);
-    emit(label, "display", started, duration, film.duration, posed, shownProps);
+    return film;
   } catch (error) {
-    emit(
-      label,
-      "display",
-      started,
-      duration,
-      film.duration,
-      posed,
-      shownProps,
-      error,
+    failed = true;
+    failure = error;
+    throw error;
+  } finally {
+    const finished: IMark = mark();
+    const error: string | undefined = failed
+      ? failure instanceof Error
+        ? failure.message
+        : String(failure)
+      : undefined;
+    const planEnd: IMark = displayStart ?? finished;
+    console.log(
+      JSON.stringify({
+        motion: label,
+        phase: "plan",
+        duration,
+        filmDuration,
+        frames: 0,
+        poses: 0,
+        props: 0,
+        ...elapsed(before, planEnd),
+        ...(displayStart === undefined
+          ? {
+              error,
+              totalWallSeconds: Number(finished.wall - before.wall) / 1e9,
+            }
+          : {}),
+      }),
     );
+    if (displayStart !== undefined)
+      console.log(
+        JSON.stringify({
+          motion: label,
+          phase: "display",
+          duration,
+          filmDuration,
+          frames,
+          poses,
+          props: shownProps,
+          ...elapsed(displayStart, finished),
+          error,
+          totalWallSeconds: Number(finished.wall - before.wall) / 1e9,
+        }),
+      );
   }
-  return film;
 }
 
 /** Produces the same performance the test uses. */
@@ -127,35 +152,19 @@ function mark(): IMark {
   return { wall: process.hrtime.bigint(), cpu: process.cpuUsage() };
 }
 
-/** A measured operation of one motion case. */
-type Phase = "plan" | "display";
+/** Elapsed process CPU and monotonic wall seconds for a profile phase. */
+interface IElapsed {
+  /** User and system CPU time across the process. */
+  cpuSeconds: number;
+  /** Real time between the two phase boundaries. */
+  wallSeconds: number;
+}
 
-/** Report elapsed seconds, explicit sample count and any refusal. */
-function emit(
-  label: string,
-  phase: Phase,
-  start: IMark,
-  duration: number | undefined,
-  filmDuration: number | undefined,
-  poses: number,
-  props: number,
-  error?: unknown,
-): void {
-  const cpu: NodeJS.CpuUsage = process.cpuUsage(start.cpu);
-  const wall: bigint = process.hrtime.bigint() - start.wall;
-  console.log(
-    JSON.stringify({
-      motion: label,
-      phase,
-      duration,
-      filmDuration,
-      poses,
-      props,
-      cpuSeconds: (cpu.user + cpu.system) / 1e6,
-      wallSeconds: Number(wall) / 1e9,
-      ...(error === undefined
-        ? {}
-        : { error: error instanceof Error ? error.message : String(error) }),
-    }),
-  );
+/** Convert captured boundaries to seconds after display and planning finish. */
+function elapsed(start: IMark, end: IMark): IElapsed {
+  return {
+    cpuSeconds:
+      (end.cpu.user - start.cpu.user + end.cpu.system - start.cpu.system) / 1e6,
+    wallSeconds: Number(end.wall - start.wall) / 1e9,
+  };
 }
