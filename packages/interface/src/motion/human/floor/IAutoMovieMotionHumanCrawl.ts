@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 
 /**
  * Crawling on hands and knees along the heading, from standing: the body
@@ -65,6 +66,13 @@ export namespace IAutoMovieMotionHumanCrawl {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
+     * absent, none, so the posture is the law's own kinematic one with no
+     * balance shift or centre-of-mass reading.
+     */
+    physics?: IAutoMovieMotionHumanPhysics;
+
     /** On what it crawls: `knees` (hands and knees), `bear` (hands and feet, the knees off the floor) or `inchworm` (the hands walked out to a plank, the feet in to the hands); `knees` when absent. */
     kind?: IAutoMovieMotionHumanCrawl.Kind;
 

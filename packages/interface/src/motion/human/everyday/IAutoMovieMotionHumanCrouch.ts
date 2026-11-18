@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 
 /**
  * A crouch or a squat held in place: the hips sink over the planted feet to
@@ -63,6 +64,13 @@ export namespace IAutoMovieMotionHumanCrouch {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
+     * absent, none, so the posture is the law's own kinematic one with no
+     * balance shift or centre-of-mass reading.
+     */
+    physics?: IAutoMovieMotionHumanPhysics;
+
     /** How deep; `partial` when absent. */
     depth?: IAutoMovieMotionHumanCrouch.Depth;
 

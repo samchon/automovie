@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 
 /**
  * A standing bodyweight exercise counted in repetitions (#3245, M24): the
@@ -55,6 +56,13 @@ export namespace IAutoMovieMotionHumanExercise {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
+     * absent, none, so the posture is the law's own kinematic one with no
+     * balance shift or centre-of-mass reading.
+     */
+    physics?: IAutoMovieMotionHumanPhysics;
+
     /** The exercise. */
     kind: IAutoMovieMotionHumanExercise.Kind;
 

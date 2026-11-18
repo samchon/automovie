@@ -15,6 +15,7 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 import type { IAutoMovieMotionHumanHeldUse } from "../handling/IAutoMovieMotionHumanHeldUse";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanTouchEffectors } from "./IAutoMovieMotionHumanTouchEffectors";
@@ -70,6 +71,13 @@ export namespace IAutoMovieMotionHumanTouch {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
+     * absent, none, so the posture is the law's own kinematic one with no
+     * balance shift or centre-of-mass reading.
+     */
+    physics?: IAutoMovieMotionHumanPhysics;
+
     /** The region touched: a partner's (`person`) or the performer's own (`self`). */
     target: IAutoMovieMotionTarget;
 

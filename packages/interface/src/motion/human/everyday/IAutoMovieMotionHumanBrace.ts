@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 
 /**
  * Bracing for an expected impact, push or a falling body: the stance
@@ -50,6 +51,13 @@ export namespace IAutoMovieMotionHumanBrace {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
+     * absent, none, so the posture is the law's own kinematic one with no
+     * balance shift or centre-of-mass reading.
+     */
+    physics?: IAutoMovieMotionHumanPhysics;
+
     /** Where the force comes from; straight ahead when absent. */
     toward?: IAutoMovieMotionTarget;
 

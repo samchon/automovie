@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 
 /**
@@ -75,6 +76,13 @@ export namespace IAutoMovieMotionHumanRise {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
+    /**
+     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
+     * absent, none, so the posture is the law's own kinematic one with no
+     * balance shift or centre-of-mass reading.
+     */
+    physics?: IAutoMovieMotionHumanPhysics;
+
     /**
      * Where the body gets off a high seat: ahead of it, or to one side of a
      * seat sat astride. When absent, the left of a seat the entry's base

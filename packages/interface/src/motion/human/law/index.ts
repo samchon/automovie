@@ -12,6 +12,7 @@ export type { IAutoMovieMotionHumanInterruptRow } from "./IAutoMovieMotionHumanI
 export type { IAutoMovieMotionHumanLayer } from "./IAutoMovieMotionHumanLayer";
 export type { IAutoMovieMotionHumanMutual } from "./IAutoMovieMotionHumanMutual";
 export type { IAutoMovieMotionHumanPerformerReader } from "./IAutoMovieMotionHumanPerformerReader";
+export type { IAutoMovieMotionHumanPhysics } from "./IAutoMovieMotionHumanPhysics";
 export type { IAutoMovieMotionHumanPlacedAction } from "./IAutoMovieMotionHumanPlacedAction";
 export type { IAutoMovieMotionHumanPropReader } from "./IAutoMovieMotionHumanPropReader";
 export type { IAutoMovieMotionHumanRefusal } from "./IAutoMovieMotionHumanRefusal";
