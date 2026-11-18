@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanQuadraticProgram as QP } from "../posture/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
@@ -152,6 +153,7 @@ export namespace HumanCarriedCouplingFit {
       (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
     );
+    let keyBones: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
     // A perturbation of the borne legs leaves the bearer's current stance exact.
     function at(x: readonly number[], sameStance?: Bones): IRead {
       const theirs: Bones =
@@ -173,6 +175,7 @@ export namespace HumanCarriedCouplingFit {
             depth: x[4]!,
           },
           x[5]!,
+          keyBones,
         );
       return { fit: registration.fit, mine: registration.bones, theirs };
     }
@@ -189,6 +192,16 @@ export namespace HumanCarriedCouplingFit {
     )
       return keyed;
 
+    const observed: Set<AutoMovieHumanoidBone> = new Set([
+      borne.surfaces.regions[row.mine].bone,
+    ]);
+    for (const region of [...held, ...grips])
+      if (region !== null) observed.add(borne.surfaces.regions[region].bone);
+    if (row.straddles === true) {
+      observed.add("leftLowerLeg");
+      observed.add("rightLowerLeg");
+    }
+    keyBones = HumanTrunk.prepareResolve(borne, observed);
     // Only an inadmissible key needs to vary the legs or the bearer's stance.
     const spans: number[] = [
       ...legRanges.map((r: IAutoMovieAngleRange): number => r.max - r.min),
@@ -426,7 +439,15 @@ export namespace HumanCarriedCouplingFit {
         reason: `the ${row.mine}-to-${row.theirs} carry's ${sides[met.gaps.indexOf(met.worst)] ?? "knee envelope"} clearance misses by ${(met.worst * 1000).toFixed(2)} mm; the contact-preserving fit stopped on ${solved.reason}`,
         fix: "choose a carry whose holds lie within the bearer's arms, or a bearer of a longer reach",
       });
-    return solved.evaluation.read;
+    // Downstream mass and contact consumers receive the full winning key.
+    if (met.read === keyed) return keyed;
+    return {
+      ...met.read,
+      mine: HumanTrunk.resolve(
+        borne,
+        HumanCarriedCouplingPose.key(row, met.read.fit.legs),
+      ),
+    };
   }
 
   /** The signed reachable distance of one bearing wrist, in metres. */

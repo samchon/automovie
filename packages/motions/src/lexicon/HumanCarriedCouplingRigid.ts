@@ -76,15 +76,18 @@ export namespace HumanCarriedCouplingRigid {
       AutoMovieHumanoidRegion | null,
     ],
     legs: readonly [number, number, number],
-    stance: { incline: number; depth: number },
+    stance: IAutoMovieMotionHumanCarriedCouplingFit.IFit["stance"],
     swivel: number = 0,
+    keyBones?: ReturnType<typeof HumanTrunk.prepareResolve>,
   ): IRead {
     const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(
       row,
       legs,
     );
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(borne, keyed);
+      keyBones === undefined
+        ? HumanTrunk.resolve(borne, keyed)
+        : keyBones(keyed);
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
     const restT: IAutoMovieVector3 = Vector3.add(
       HumanCarriedCouplingPose.region(bearer, theirs, row.theirs),

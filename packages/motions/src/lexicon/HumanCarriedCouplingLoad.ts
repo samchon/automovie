@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarriedCouplingLoad,
   IAutoMovieMotionHumanLoad,
-  IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -170,11 +169,7 @@ export namespace HumanCarriedCouplingLoad {
           )
         : coupling.centre);
     const frame:
-      | {
-          position: IAutoMovieVector3;
-          rotation: IAutoMovieQuaternion;
-          anchor: AutoMovieHumanoidBone;
-        }
+      | NonNullable<IAutoMovieMotionCoupling["bearers"]>[string]
       | undefined =
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
     const centre: IAutoMovieVector3 =

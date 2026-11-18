@@ -114,7 +114,10 @@ export namespace HumanCarriedGripGaps {
         shape === undefined ? undefined : { shape },
       ).wrist;
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
-    return (bones, place): number => {
+    return (
+      bones: Bones,
+      place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
+    ): number => {
       const wrist: IAutoMovieVector3 = palm(
         { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
         place,
