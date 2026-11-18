@@ -12,8 +12,10 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
+import { certifyHumanArmTracks } from "../posture/certifyHumanArmTracks";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -115,15 +117,16 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @param carries The arms.
    * @param before The prefix posture at any second, accepting this same-body plan's synchronous FK/ROM loans through the shared posture signature.
    * @param plan The group's handover: its `warm` read for an earlier plan's solution of these arms, its `last` written with this plan's own when the optimiser ran. Absent, nothing is read or kept.
+   * @param inheritedPace Exact original group pace, supplied only for a trial of one member.
    * @returns Each arm's trajectory.
    * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the problem, the waypoints and their spacing, the sites and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Waypoints, postures and poses, each arm's sites, the bases, one solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The waypoints are refined on the trajectory by what they must bound, never by a declared rate; the goal is read at every waypoint, not interpolated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms An admitted course costs one posture solve per hold instant, constant transport work and one model evaluation on the frame grid, with no optimiser round; the optimiser's waypoints are cut only on its fallback. Each raw posture, removed-arm base and perceived goal is read once per actual refinement instant. Native endpoint arm fits run once per arm/time for ready and relax; ready's initial guess shares that completed fit. A sole planned arm also reuses its exact removed-goal base for unchanged ARC travel sampling. Multiarm bases and all refinement/optimizer work remain native; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture/goal and endpoint second prove fit equivalence within this synchronous plan. One genuine projector/exact FK getter reaches actual prefix reads, removed-arm bases and endpoint fits; FK also serves all original probes/sites. Single-arm at(t).pose equals reaching's removed-goal base; multiarm planners retain original actual requests. Issued provenance still needs exact checks.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the common laid course, then try independent paths for a pair with separate sites when the course fails on collision. One coupled certificate precedes the original fallback optimiser.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Goals are read at every waypoint and the full coupled site, sweep, ROM and speed checks admit any new candidate. A warm solution, linked grip, perceived target or unresolved trial retains the original coupled solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms An admitted first course needs no optimiser. A collision on independent sites can add at most two single-arm plans and one coupled grid certificate. The coupled optimiser's waypoints are cut only on fallback. Postures, removed-arm bases, perceived goals and endpoint fits are computed once per exact instant within their own plan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture/goal and endpoint second prove fit equivalence within this synchronous plan. The retry borrows completed base and goal seconds and the original group pace. Other candidate samples do not call the supplied posture or goal reader.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
    */
   export function planned(
@@ -132,6 +135,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
     before: IAutoMovieMotionHumanActionPlan["posture"],
     plan?: Pick<IAutoMovieMotionHumanArmPlanned.ITogether, "warm" | "last" | "stretches" | "tempo">,
+    inheritedPace?: (seconds: number) => number,
   ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
@@ -374,16 +378,13 @@ export namespace AutoMovieMotionHumanArmPlanned {
     // kept when the model's own reading admits it; otherwise the
     // optimiser's seed.
     const laid: ReturnType<typeof AutoMovieMotionHumanArmCourse.course> =
-      AutoMovieMotionHumanArmCourse.course({
-        body, span, stretches: plan?.stretches === true, tempo: plan?.tempo, arms: carries, at, aimed, problem, resolution,
-      });
-    if (laid?.admitted !== true) {
-      guesses = carries.map(
-        (_: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieMotionHumanArmAngles.IAngles =>
-          fitted(a, span.ready),
+      AutoMovieMotionHumanArmCourse.course(
+        {
+          body, span, stretches: plan?.stretches === true, tempo: plan?.tempo,
+          arms: carries, at, aimed, problem, resolution,
+        },
+        inheritedPace,
       );
-      waypoints();
-    }
     let solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
     if (laid?.admitted === true) solved = laid.trajectories;
     else {
@@ -391,14 +392,34 @@ export namespace AutoMovieMotionHumanArmPlanned {
       // starts the solve; this plan's own is left for the next.
       const key: string = carries.map((c: IAutoMovieMotionHumanArmPlanned.IPlanned): string => c.side).join("+");
       const earlier: IWarm | undefined = plan?.warm?.get(key);
-      const result: HumanArmTrajectory.ISolved = HumanArmTrajectory.solve(
-        problem, times, laid,
-        earlier === undefined ? undefined : AutoMovieMotionHumanArmRetimed(earlier, span),
-        plan?.stretches === true,
-      );
-      if (plan !== undefined)
-        (plan.last ??= new Map()).set(key, { span, state: result.state });
-      solved = result.trajectories;
+      const separate: IAutoMovieMotionHumanArmTrajectory.Trajectory[] | undefined =
+        earlier === undefined &&
+        (laid?.refused === "probe" || laid?.refused === "swept") &&
+        carries.length === 2 &&
+        carries.every(
+          (carry: IAutoMovieMotionHumanArmPlanned.IPlanned): boolean =>
+            carry.on === undefined &&
+            carry.grasp === undefined &&
+            carry.perceived === undefined,
+        )
+          ? independent(laid)
+          : undefined;
+      if (separate !== undefined) solved = separate;
+      else {
+        guesses = carries.map(
+          (_: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): IAutoMovieMotionHumanArmAngles.IAngles =>
+            fitted(a, span.ready),
+        );
+        waypoints();
+        const result: HumanArmTrajectory.ISolved = HumanArmTrajectory.solve(
+          problem, times, laid,
+          earlier === undefined ? undefined : AutoMovieMotionHumanArmRetimed(earlier, span),
+          plan?.stretches === true,
+        );
+        if (plan !== undefined)
+          (plan.last ??= new Map()).set(key, { span, state: result.state });
+        solved = result.trajectories;
+      }
     }
     return new Map(
       carries.map(
@@ -411,6 +432,42 @@ export namespace AutoMovieMotionHumanArmPlanned {
         ],
       ),
     );
+
+    /** Try separate paths while keeping the coupled clock and borrowing completed inputs only. */
+    function independent(
+      course: HumanArmTrajectory.IAdmitted,
+    ): IAutoMovieMotionHumanArmTrajectory.Trajectory[] | undefined {
+      const outside: symbol = Symbol();
+      const prior = (seconds: number): IAutoMovieMotionHumanPosture => {
+        // A completed base at this time proves both original goals were read.
+        if (!bases.has(seconds)) throw outside;
+        return without(read.get(seconds)!.posture);
+      };
+      try {
+        const tracks: IAutoMovieMotionHumanArmTrajectory.Trajectory[] =
+          carries.map(
+            (carry: IAutoMovieMotionHumanArmPlanned.IPlanned, arm: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
+              planned(
+                body,
+                span,
+                [{
+                  ...carry,
+                  goal: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieHumanLimbGoal => {
+                    if (!bases.has(seconds)) throw outside;
+                    return aimed(arm, seconds);
+                  },
+                }],
+                prior,
+                { tempo: plan?.tempo },
+                course.read.context.speed,
+              ).get(carry.side)!,
+          );
+        return certifyHumanArmTracks(course.read.context, tracks);
+      } catch (error: unknown) {
+        if (error === outside || error instanceof HumanRefusal) return undefined;
+        throw error;
+      }
+    }
   }
 
   /**
