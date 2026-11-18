@@ -14,7 +14,7 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  * @evidence contracts/development/common.md#meaningful-documentation States the law's distinguishing inputs and preserves their staged context.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the actual public law and applies the timing, contact, range, spin and display audits to its staged performances.
  * @evidence contracts/development/testing.md#independent-expectations The skin and plant bounds apply across each change of bearing parts. The half-kneel geometry comes from the independent joint bounds in motionKneelSignature.
- * @evidence contracts/development/testing.md#distinguishing-cases The one-knee default and an explicit left knee exercise either support side at opposite stature extremes. Remaining down is verified by core base transitions.
+ * @evidence contracts/development/testing.md#distinguishing-cases The one-knee default and an explicit left knee exercise either support side at opposite stature extremes. The held one-knee exit is verified by the takeAKnee pose.
  * @evidence contracts/development/testing.md#execution-ownership The discovered test shares each real film between the full-interval audit and the held geometry.
  */
 export function test_human_motion_law_sweep_posture_kneel(): void {

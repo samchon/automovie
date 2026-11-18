@@ -78,6 +78,9 @@ export function test_human_motion_base_kneeling_poses(): void {
       return;
     }
     const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
+    const expected: string = row === "kneelBriefly" ? "standing" : "kneeling";
+    if (segment.plan.base?.kind !== expected)
+      complaints.push(`${label}: expected ${expected} at exit, got ${segment.plan.base?.kind}`);
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
       performance,
       "a",

@@ -12,6 +12,7 @@ import { HumanChain, HumanFoot, HumanPhysics } from "@automovie/motions";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionPostureBranches } from "../internal/motionPostureBranches";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 import { vclose } from "../internal/vclose";
@@ -41,6 +42,7 @@ export function test_human_motion_crouch_balance(): void {
     },
   };
   const base: motionHumanLaw.IFilm = crouch(passive);
+  motionPostureBranches.checkBase(all.list, base.performance, "crouch full up f-small", "standing");
   const zero: motionHumanLaw.IFilm = crouch(passive, { weight: 0 });
   const half: motionHumanLaw.IFilm = crouch(body, { weight: 1 / 2 });
   const full: motionHumanLaw.IFilm = crouch(body, {});

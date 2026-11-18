@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanBase, IAutoMovieMotionHumanPerformance } from "@automovie/interface";
+
 import type { motionHumanBody } from "./motionHumanBody";
 import type { motionHumanLaw } from "./motionHumanLaw";
 import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "./MOTION_HUMAN_LAW_STAGES_POSTURE";
@@ -52,4 +54,18 @@ export namespace motionPostureBranches {
 
   /** Read the tested branch's exact audited film. */
   export type Observe = (film: motionHumanLaw.IFilm, branch: Branch) => void;
+
+  /** Check the grammar base declared by the tested action's existing plan. */
+  export function checkBase(
+    findings: string[],
+    performance: IAutoMovieMotionHumanPerformance,
+    label: string,
+    expected: IAutoMovieMotionHumanBase.Kind,
+  ): void {
+    const actual: IAutoMovieMotionHumanBase | undefined = performance.segments("a")[0]!.plan.base;
+    if (actual === undefined)
+      findings.push(`${label}: no base declared, ${expected} expected`);
+    else if (actual.kind !== expected)
+      findings.push(`${label}: ends ${actual.kind}, ${expected} expected`);
+  }
 }

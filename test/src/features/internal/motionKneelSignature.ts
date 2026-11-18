@@ -2,12 +2,13 @@ import type { AutoMovieHumanSide, IAutoMovieMotionHumanKneel } from "@automovie/
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
-import type { motionHumanLaw } from "./motionHumanLaw";
+import { motionHumanLaw } from "./motionHumanLaw";
 import { motionHumanSignature as M } from "./motionHumanSignature";
+import { motionPostureBranches } from "./motionPostureBranches";
 
 /**
  * A settled kneel has the geometry of one knee, both knees or the seated
- * posture on the heels, read between `settled` and `kneeOff`.
+ * posture on the heels, read between `settled` and `kneeOff` or the held exit.
  *
  * The postures are the three standard kneeling postures, the half-kneel, the
  * upright kneel and the seiza; no measured joint angles of them are cited
@@ -40,6 +41,7 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @param name The body in the solo film, facing +Z.
  * @param kind The staged kneeling mode.
  * @param down The staged or default bearing knee of a half-kneel.
+ * @param rise Whether the film stands up after holding the posture.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States every posture and bound with its status.
  * @evidence contracts/development/implementation.md#principled-implementation Reads the displayed knees, hips, trunk and soles midway through the prescribed held support. The limits come from the standard kneeling arrangements.
@@ -55,13 +57,14 @@ export function motionKneelSignature(
   name: motionHumanBody.Name,
   kind: IAutoMovieMotionHumanKneel.Kind,
   down: AutoMovieHumanSide = "right",
+  rise: boolean = true,
 ): void {
   const cell: string = `kneel ${kind} ${down} ${name}`;
+  motionPostureBranches.checkBase(complaints.list, film.performance, cell, rise ? "standing" : "kneeling");
   const s: M.IStaged = { film, body: motionHumanBody(name), yaw: 0 };
-  const t: number =
-    ((M.event(s, "settled") ?? 0) +
-      (M.event(s, "kneeOff") ?? s.film.duration)) /
-    2;
+  const settled: number = motionHumanLaw.event(film, "settled");
+  const release: number = rise ? motionHumanLaw.event(film, "kneeOff") : film.duration;
+  const t: number = (settled + release) / 2;
   const height: (side: AutoMovieHumanSide) => number = (side: AutoMovieHumanSide): number =>
     M.joint(s, t, `${side}LowerLeg`).y;
   const up: AutoMovieHumanSide = down === "left" ? "right" : "left";
