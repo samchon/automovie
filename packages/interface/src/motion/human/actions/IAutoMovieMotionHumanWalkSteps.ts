@@ -118,6 +118,9 @@ export namespace IAutoMovieMotionHumanWalkSteps {
     /** Seconds. */
     duration: number;
 
+    /** Whether alternating flat footprints turn the body without travel. */
+    inPlace?: boolean;
+
     /** Named instants in seconds. */
     events: {
       /** Event label used to synchronise this step with other actions. */

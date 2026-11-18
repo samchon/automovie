@@ -2,6 +2,7 @@ import { wrapDegrees } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanWalkFacing,
@@ -68,6 +69,15 @@ export namespace walkSteps {
   /** One footfall (walkStepFoot.IStep). */
   type IStep = walkStepFoot.IStep;
 
+  /** Heading knots of the turn, in action seconds and unwrapped degrees. */
+  interface IHeading {
+    /** Action seconds. */
+    seconds: number;
+
+    /** Pelvis heading in degrees. */
+    yaw: number;
+  }
+
   /**
    * The stream a take's tempo is drawn from: one per performer and per
    * occurrence of the action in their chain, keyed as a walk whatever the
@@ -133,8 +143,36 @@ export namespace walkSteps {
       y: 0,
       z: (start.left.ankle.z + start.right.ankle.z) / 2,
     };
+    const facing: IAutoMovieMotionHumanWalkFacing.IFacing | undefined = input.facing;
+    const placement: IAutoMovieVector3 = input.entry.posture.root;
+    const floorOf = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
+      const goal: IAutoMovieVector3 =
+        input.entry.posture.limbs[`${side}Leg`]?.point ?? start[side].ankle;
+      const offset: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: yaw0 },
+        body.rest.get(`${side}Foot`)!,
+      );
+      return { x: goal.x - offset.x, y: 0, z: goal.z - offset.z };
+    };
+    const leftFloor: IAutoMovieVector3 = floorOf("left");
+    const rightFloor: IAutoMovieVector3 = floorOf("right");
+    const roundoff: number = Math.sqrt(Number.EPSILON) * Math.max(
+      body.measure.stature, Math.hypot(placement.x, placement.z),
+    );
+    const inPlace: boolean =
+      (input.swing ?? 0.8) <= 1 &&
+      input.face !== undefined &&
+      facing === undefined &&
+      (input.via?.length ?? 0) === 0 &&
+      ((input.to.x === placement.x && input.to.z === placement.z) ||
+        // The scene places a standing body by its footprint datum; the
+        // quiet alignment can translate the pelvis relative to that datum.
+        Math.hypot(
+          input.to.x - (leftFloor.x + rightFloor.x) / 2,
+          input.to.z - (leftFloor.z + rightFloor.z) / 2,
+        ) <= roundoff);
     const path: WalkPath = new WalkPath(
-      [S, ...(input.via ?? []), input.to].map(
+      (inPlace ? [S, S] : [S, ...(input.via ?? []), input.to]).map(
         (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: p.x, y: 0, z: p.z }),
       ),
     );
@@ -169,7 +207,6 @@ export namespace walkSteps {
     const along$: (s: number) => number = (s: number): number =>
       D < 1e-6 ? heading : unwrap(path.heading(s, delta / 2), heading);
     // The heading faced at a floor point, nearest the starting heading.
-    const facing: IAutoMovieMotionHumanWalkFacing.IFacing | undefined = input.facing;
     const faced$: (at: IAutoMovieVector3) => number = (at: IAutoMovieVector3): number =>
       facing === undefined
         ? NaN
@@ -192,8 +229,9 @@ export namespace walkSteps {
     const frame: IAutoMovieMotionHumanFrame = { origin: S, yaw: heading };
     const along: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
-    const lead: "left" | "right" =
-      along("left") < along("right") - 1e-6 ? "left" : "right";
+    const lead: AutoMovieHumanSide = inPlace
+      ? ending >= yaw0 ? "left" : "right"
+      : along("left") < along("right") - 1e-6 ? "left" : "right";
     const half: number = 0.05 * l;
     const restWidth: Record<"left" | "right", number> = {
       left: Math.abs(body.rest.get("leftFoot")!.x), right: Math.abs(body.rest.get("rightFoot")!.x),
@@ -214,9 +252,16 @@ export namespace walkSteps {
       facing === undefined
         ? walkHeading.opening(heading, lead, facings, yaw0, walkReach.TWIST)
         : 0;
-    const n: number = pace.steps + turning;
+    // In a step turn the turning foot moves first, then the other replaces
+    // it at the new heading (Hase and Stein 1999). Adjacent flat footprints
+    // differ by at most one hip's usable twist after both feet's toe-out,
+    // so a support need not spin to make the next step.
+    const turnStep: number = walkReach.TWIST - stand.TOE_OUT;
+    const n: number = inPlace
+      ? Math.max(1, Math.ceil(Math.abs(ending - yaw0) / turnStep))
+      : pace.steps + turning;
     const lag: number = turning * T;
-    const last: number = pace.last + lag;
+    const last: number = inPlace ? first + swing + n * T : pace.last + lag;
     const front: number = pace.front;
     // The stop is made over the final step (`walkRoot`): the take arrives
     // once the closing foot has accepted the weight, its loading response
@@ -252,6 +297,7 @@ export namespace walkSteps {
       { length: n + 1 },
       (_: unknown, i: number): number => {
         const d: number = place(i + 1);
+        if (inPlace) return yaw0 + (ending - yaw0) * Math.min(1, (i + 1) / n);
         if (facing !== undefined)
           return i >= n - 1 ? ending : faced$(path.at(d));
         if (i >= n - 1) return ending;
@@ -260,7 +306,7 @@ export namespace walkSteps {
       },
     );
     const towards: number[] =
-      facing !== undefined
+      inPlace || facing !== undefined
         ? asked
         : walkHeading.about(asked, lead, facings, yaw0, 2);
     const towardAt: (j: number) => number = (j: number): number => towards[j - 1]!;
@@ -271,7 +317,7 @@ export namespace walkSteps {
       Math.tan((walkHeading.ROLL * Math.PI) / 180) *
       (m.hipHeight - m.ankleHeight);
     const steps: IStep[] = [];
-    const knots: { seconds: number; yaw: number }[] = [
+    const knots: IHeading[] = [
       { seconds: 0, yaw: yaw0 },
     ];
     let faced: number = yaw0;
@@ -289,7 +335,7 @@ export namespace walkSteps {
           : Math.sin(((along - towardAt(j)) * Math.PI) / 180) ** 2;
       const lateral: number =
         (side === "left" ? 1 : -1) *
-        (j >= n || j <= turning
+        (inPlace || j >= n || j <= turning
           ? rest(side)
           : half + (rest(side) - half) * aside);
       const toward: number = towardAt(j);
@@ -303,7 +349,7 @@ export namespace walkSteps {
       // this footprint and the next; a hip behind a foot walking a way it
       // does not face leans the leg the other way.
       const footHeading: number =
-        j < n
+        !inPlace && j < n
           ? walkHeading.leaned(
               toward + toeOut,
               point,
@@ -352,13 +398,14 @@ export namespace walkSteps {
       (s: IStep): boolean => s.side === "left",
     )!.heelStrike;
     // A flight gait's straight push is its stance's own (`runStance`).
-    walkStepFoot.pushed(
-      steps,
-      start,
-      yawAt,
-      flight?.push ?? walkStepFoot.PUSH,
-      input.gait?.stiff,
-    );
+    if (!inPlace)
+      walkStepFoot.pushed(
+        steps,
+        start,
+        yawAt,
+        flight?.push ?? walkStepFoot.PUSH,
+        input.gait?.stiff,
+      );
     const gaitBob: { mean: number; amplitude: number } | undefined =
       flight?.bob ?? input.gait?.bob;
     // A cruising stance runs from a heel strike to the same foot's toe-off
@@ -372,7 +419,7 @@ export namespace walkSteps {
       "left" | "right",
       (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled
     > = {
-      left: walkStepFoot.schedule(body, "left", start.left, own.left, typical, raised),
+      left: walkStepFoot.schedule(body, "left", start.left, own.left, typical, raised, inPlace),
       right: walkStepFoot.schedule(
         body,
         "right",
@@ -380,11 +427,15 @@ export namespace walkSteps {
         own.right,
         typical,
         raised,
+        inPlace,
       ),
     };
     const foot: (side: "left" | "right", t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled = (side: "left" | "right", t: number): IAutoMovieMotionHumanWalkFoot.IScheduled =>
       schedules[side](t);
-    const { root, amount }: Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> = walkRoot({
+    const { root, amount }: Pick<IAutoMovieMotionHumanWalkSteps.IPlan, "root" | "amount"> = inPlace ? {
+      root: (): IAutoMovieVector3 => ({ ...placement }),
+      amount: (): number => 0,
+    } : walkRoot({
       body, start: input.entry.posture.root, period: T, lag, first, last,
       front, swing, stop: steps.at(-2)!.heelStrike, firstLeft, bob: gaitBob,
       progress, yaw: yawAt, at: (s: number): IAutoMovieVector3 => path.at(s),
@@ -402,6 +453,7 @@ export namespace walkSteps {
       phase: (t: number): number => (t - firstLeft) / (2 * T) + 0.25,
       amount,
       foot,
+      inPlace,
     };
   }
 }

@@ -491,6 +491,7 @@ export namespace walk {
         reached[side] = (ranged[side] ??= walkReach.prepareSwing(body, side))(
           settled,
           reachedAt(side, swing, resolution)(swing.u),
+          steps.inPlace === true ? swing.u : undefined,
         );
       }
       return { feet, hips, settled, reached };

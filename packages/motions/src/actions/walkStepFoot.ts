@@ -177,6 +177,7 @@ export namespace walkStepFoot {
    * @param own The foot's footfalls, in order.
    * @param typical The gait's cruising stance, seconds, which an opening or closing stance's rockers take their shares of (`walkFoot.prepareStance`).
    * @param raised How far the gait holds the heels off the floor, degrees.
+   * @param inPlace A stepping turn without a heel strike or forefoot push.
    * @returns The foot's scheduled stance at a second, with its swing while it swings.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -194,6 +195,7 @@ export namespace walkStepFoot {
     own: readonly IStep[],
     typical: number,
     raised: number,
+    inPlace: boolean = false,
   ): (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled {
     const stances: ((t: number) => IAutoMovieMotionHumanWalkFoot.IFoot)[] = [];
     for (let i: number = 0; i <= own.length; i++) {
@@ -208,7 +210,12 @@ export namespace walkStepFoot {
       // retain the direction of the footprint they stand on.
       const backward: boolean = (previous ?? next)?.backward === true;
       stances.push(
-        walkFoot.prepareStance(
+        inPlace
+          ? (): IAutoMovieMotionHumanWalkFoot.IFoot => ({
+              placement: { ankle: { ...flat.ankle }, rotation: { ...flat.rotation } },
+              toes: 0,
+            })
+          : walkFoot.prepareStance(
           body,
           side,
           flat,
