@@ -31,6 +31,27 @@ import { stepOver } from "./stepOver";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The margins and angles are `stepOver`'s named constants.
  */
 export namespace stepOverPath {
+  /** The swings' windows as shares of the action: the lead from 8 % to 42 %, the trail from 50 % to 82 % (provisional, as `stepOver` states). */
+  const WINDOWS: readonly [number, number, number, number] = [0.08, 0.42, 0.5, 0.82];
+
+  /** How far beyond the far side the lead heel lands, as a share of the foot's length (provisional, as `stepOver` states). */
+  const BEYOND: number = 0.1;
+
+  /** The nearest the obstacle's near side may stand, as a share of the foot's length, so the lead toe does not start on it (provisional). */
+  const NEAR: number = 0.5;
+
+  /** The highest obstacle a standing step clears, as a share of the hip height (provisional, as `stepOver` states). */
+  const HIGH: number = 0.55;
+
+  /** A step's longest stride as a share of twice the leg's horizontal reach at a hip lowered to `LOW` of its height (provisional). */
+  const STRIDE: number = 0.95;
+
+  /** The hip's height over the stride's widest step, as a share of its standing height (provisional). */
+  const LOW: number = 0.9;
+
+  /** How far into the lead swing the trail heel has risen, as a share of the swing (provisional). */
+  const RISE: number = 0.4;
+
   /** The fixed footprint geometry and random-access readers of one crossing. */
   export interface IPlan {
     /** The performer and its unchanged geometry. */
@@ -47,12 +68,6 @@ export namespace stepOverPath {
 
     /** Starting ankles, world metres. */
     feet: Record<"left" | "right", IAutoMovieVector3>;
-
-    /** The floor frame's origin, world metres. */
-    origin: IAutoMovieVector3;
-
-    /** The landing's forward local coordinate, metres. */
-    landing: number;
 
     /** Each foot's fixed rest lateral coordinate, metres. */
     restX: (side: "left" | "right") => number;
@@ -89,7 +104,7 @@ export namespace stepOverPath {
    * The footprints, timing and swings of a step over.
    *
    * @param context The action's context.
-   * @returns What the plan's pelvis and postures read: the body, the feet's sides, the heading, the start, the landing, the footprints, the timing and the feet at a second.
+   * @returns What the plan's pelvis and postures read: the body, the feet's sides, the heading, the start, the footprints, the timing and the feet at a second.
    * @throws {HumanRefusal} When the prop declares no edge or depth, or the obstacle is too far, behind, too high or too deep to cross in one step.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed body/obstacle geometry, footprint and action-time readers; the namespace supplies all clearance, angle and contact rules.
@@ -125,21 +140,21 @@ export namespace stepOverPath {
     const near: number = framed.local(obstacle.at).z;
     const leg: number = m.thigh + m.shank;
 
-    if (near < 0.5 * m.footLength || near > leg)
+    if (near < NEAR * m.footLength || near > leg)
       throw new HumanRefusal({
         kind: "reach",
         axis: "obstacle",
         value: near,
         feasible: {
           kind: "range",
-          minimum: 0.5 * m.footLength,
+          minimum: NEAR * m.footLength,
           maximum: leg,
           unit: "m",
         },
-        reason: `the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${(0.5 * m.footLength).toFixed(3)} to ${leg.toFixed(3)} m before it`,
+        reason: `the obstacle's near side is ${near.toFixed(3)} m ahead; stand ${(NEAR * m.footLength).toFixed(3)} to ${leg.toFixed(3)} m before it`,
         fix: "stand before the obstacle within that distance of its near side",
       });
-    if (obstacle.height > 0.55 * m.hipHeight)
+    if (obstacle.height > HIGH * m.hipHeight)
       throw new HumanRefusal({
         kind: "parameter",
         axis: "obstacle",
@@ -147,21 +162,21 @@ export namespace stepOverPath {
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum: 0.55 * m.hipHeight,
+          maximum: HIGH * m.hipHeight,
           unit: "m",
         },
-        reason: `an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(0.55 * m.hipHeight).toFixed(3)} m this body steps over`,
+        reason: `an obstacle ${obstacle.height.toFixed(3)} m high is above the ${(HIGH * m.hipHeight).toFixed(3)} m this body steps over`,
         fix: "use an obstacle no higher than that",
       });
     const far: number = near + obstacle.depth;
     const heelBack: number = -HumanFoot.offset(body, lead, "heel").z;
-    const nearest: number = far + 0.1 * m.footLength + heelBack;
+    const nearest: number = far + BEYOND * m.footLength + heelBack;
     const farthest: number =
       framed.local(feet[trail]).z +
-      0.95 *
+      STRIDE *
         2 *
         Math.sqrt(
-          Math.max(0, leg * leg - (0.9 * m.hipHeight - m.ankleHeight) ** 2),
+          Math.max(0, leg * leg - (LOW * m.hipHeight - m.ankleHeight) ** 2),
         );
     if (nearest > farthest)
       throw new HumanRefusal({
@@ -210,10 +225,12 @@ export namespace stepOverPath {
       2.4 *
       Math.sqrt(m.hipHeight / 0.93) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
-    const windows: Record<"left" | "right", [number, number]> = {
-      [lead]: [0.08 * duration, 0.42 * duration],
-      [trail]: [0.5 * duration, 0.82 * duration],
-    } as Record<"left" | "right", [number, number]>;
+    const leading: [number, number] = [WINDOWS[0] * duration, WINDOWS[1] * duration];
+    const trailing: [number, number] = [WINDOWS[2] * duration, WINDOWS[3] * duration];
+    const windows: Record<"left" | "right", [number, number]> =
+      lead === "left"
+        ? { left: leading, right: trailing }
+        : { left: trailing, right: leading };
 
     // Each swing takes the shortest path over what its sole must clear, the
     // taut string over the obstacle (`AutoMovieMotionHumanClearance`): every
@@ -308,17 +325,19 @@ export namespace stepOverPath {
         };
       };
     };
+    const leadSwing: (u: number) => IAutoMovieMotionHumanFoot.IPlacement = path(lead, 0);
+    const trailSwing: (u: number) => IAutoMovieMotionHumanFoot.IPlacement = path(trail, -stepOver.PUSH);
     const swings: Record<
       "left" | "right",
       (u: number) => IAutoMovieMotionHumanFoot.IPlacement
-    > = {
-      [lead]: path(lead, 0),
-      [trail]: path(trail, -stepOver.PUSH),
-    } as Record<"left" | "right", (u: number) => IAutoMovieMotionHumanFoot.IPlacement>;
+    > =
+      lead === "left"
+        ? { left: leadSwing, right: trailSwing }
+        : { left: trailSwing, right: leadSwing };
     // The trail foot rises on its ball as the pelvis leaves it during the
     // lead swing, the forefoot rocker of a stance foot the body passes over.
     const riseFrom: number = windows[lead][0];
-    const riseTo: number = windows[lead][0] + 0.4 * (windows[lead][1] - windows[lead][0]);
+    const riseTo: number = windows[lead][0] + RISE * (windows[lead][1] - windows[lead][0]);
     const rising: IPlan["rising"] = (t: number): number =>
       smooth(
         t,
@@ -351,8 +370,6 @@ export namespace stepOverPath {
       trail,
       yaw,
       feet,
-      origin,
-      landing,
       restX,
       end,
       flat,

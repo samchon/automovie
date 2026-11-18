@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStepOver,
   IAutoMovieVector3,
@@ -115,6 +116,9 @@ export namespace stepOver {
   /** Sole clearance over the obstacle's top, metres (provisional; Patla and Rietdyk 1993). */
   export const MARGIN: number = 0.1;
 
+  /** The pelvis transfers over the feet: the first half from 12 % over 38 % of the action, the second from 70 % over 28 % (provisional; the 70 % is the namespace's). */
+  const TRANSFER: readonly [number, number, number, number] = [0.12, 0.38, 0.7, 0.28];
+
   /**
    * Plan a step over.
    *
@@ -180,7 +184,15 @@ export namespace stepOver {
           windows[trail][0],
           trailMiddle,
         ));
-    const transfers: readonly [number, number, number, number] = [0.12 * duration, 0.38 * duration, 0.7 * duration, 0.28 * duration];
+    // The pelvis goes halfway to the landed feet from TRANSFER[0] over
+    // TRANSFER[1] of the action, and the rest from TRANSFER[2] over
+    // TRANSFER[3].
+    const transfers: readonly [number, number, number, number] = [
+      TRANSFER[0] * duration,
+      TRANSFER[1] * duration,
+      TRANSFER[2] * duration,
+      TRANSFER[3] * duration,
+    ];
     const rootAt: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
       const s: number =
         0.5 * minimumJerk.share((t - transfers[0]) / transfers[1]) +
@@ -194,7 +206,9 @@ export namespace stepOver {
 
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(standUpright.of(body).joints, walk.LEAN);
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = stand.relaxed(body);
-    const short: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, 5);
+    // The lowering a swinging leg needs to reach its landing with the knee
+    // flexed no less than a planted leg's least flexion.
+    const short: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, resolveHumanPosture.KNEE);
     const knees: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>> = {
       left: HumanFrame.preparePoint(yaw, { ...body.rest.get("leftLowerLeg")!, z: body.rest.get("leftLowerLeg")!.z + 1 }),
       right: HumanFrame.preparePoint(yaw, { ...body.rest.get("rightLowerLeg")!, z: body.rest.get("rightLowerLeg")!.z + 1 }),
@@ -211,48 +225,26 @@ export namespace stepOver {
         { name: "trailToeOff", share: share(windows[trail][0]) },
         { name: "trailContact", share: share(windows[trail][1]) },
       ],
-      contacts: [
-        {
-          part: lead === "left" ? "leftFoot" : "rightFoot",
-          kind: "plant",
-          from: 0,
-          to: 0.08,
-          support: HumanSupportFrame.contact(
-            context,
-            lead === "left" ? "leftFoot" : "rightFoot",
-          ),
-        },
-        {
-          part: lead === "left" ? "leftFoot" : "rightFoot",
-          kind: "plant",
-          from: 0.42,
-          to: 1,
-          support: HumanSupportFrame.contact(
-            context,
-            lead === "left" ? "leftFoot" : "rightFoot",
-          ),
-        },
-        {
-          part: trail === "left" ? "leftFoot" : "rightFoot",
-          kind: "plant",
-          from: 0,
-          to: 0.5,
-          support: HumanSupportFrame.contact(
-            context,
-            trail === "left" ? "leftFoot" : "rightFoot",
-          ),
-        },
-        {
-          part: trail === "left" ? "leftFoot" : "rightFoot",
-          kind: "plant",
-          from: 0.82,
-          to: 1,
-          support: HumanSupportFrame.contact(
-            context,
-            trail === "left" ? "leftFoot" : "rightFoot",
-          ),
-        },
-      ],
+      // Each foot plants before its swing and after it, on the floor it
+      // stands on.
+      contacts: [lead, trail].flatMap(
+        (side: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+          {
+            part: `${side}Foot`,
+            kind: "plant",
+            from: 0,
+            to: share(windows[side][0]),
+            support: HumanSupportFrame.contact(context, `${side}Foot`),
+          },
+          {
+            part: `${side}Foot`,
+            kind: "plant",
+            from: share(windows[side][1]),
+            to: 1,
+            support: HumanSupportFrame.contact(context, `${side}Foot`),
+          },
+        ],
+      ),
       posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const root: IAutoMovieVector3 = rootAt(t);
@@ -307,7 +299,7 @@ export namespace stepOver {
           const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, resolution());
           for (const side of swinging) {
             const [a, b]: [number, number] = windows[side];
-            landing = Math.max(smooth(t, (a + b) / 2, b) * short(hips[side], end[side]));
+            landing = Math.max(landing, smooth(t, (a + b) / 2, b) * short(hips[side], end[side]));
           }
         }
         if (landing > 0)
