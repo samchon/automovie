@@ -2,7 +2,6 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieHumanoidRegion } from "../../../skeleton/AutoMovieHumanoidRegion";
-import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHumanFoot";
 
 /**
  * A span of an action during which a body part bears on something: a foot
@@ -63,14 +62,6 @@ export interface IAutoMovieMotionHumanContactWindow {
   support: IAutoMovieMotionHumanContactWindow.Support;
 
   /**
-   * The authored ground anchor and carrier path origin at this window's
-   * beginning. Read by an opt-in walking load; the ordinary pose evaluation
-   * already owns the actual sole. A time warp changes the window's second
-   * and keeps the anchor's coordinates.
-   */
-  anchor?(): IAutoMovieMotionHumanContactWindow.IAnchor;
-
-  /**
    * A grip's in-hand motion of the held object (#3447): a rigid displacement
    * in the hand's frame at a share of this window from 0 to 1, metres, the
    * identity at 0. The performance composes it before the offset it stored
@@ -125,18 +116,6 @@ export interface IAutoMovieMotionHumanContactWindow {
  *
  */
 export namespace IAutoMovieMotionHumanContactWindow {
-  /** The authored world-space start of one scheduled walking contact. */
-  export interface IAnchor {
-    /** The lowest planned sole socket at the start, world metres. */
-    point: IAutoMovieVector3;
-    /** The gait's planned root before leg reach corrections, world metres. */
-    root: IAutoMovieVector3;
-    /** The scheduled ankle position and rotation before stance reach. */
-    foot: IAutoMovieMotionHumanFoot.IPlacement;
-    /** The scheduled toe flexion in degrees. */
-    toes: number;
-  }
-
   /**
    * The frame a contact bears on: the ground, a prop subject, a person's
    * region, or a person's segment, the bone an arm's segment lies along (a

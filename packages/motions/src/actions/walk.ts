@@ -297,7 +297,7 @@ export namespace walk {
         walkPosture.PELVIS * Math.sin(2 * Math.PI * phase) * amount,
       ];
     };
-    const { events, contacts }: ReturnType<typeof walkWindows.of> = walkWindows.of(body, steps);
+    const { events, contacts }: ReturnType<typeof walkWindows.of> = walkWindows.of(steps);
     // A foot as its schedule alone has it, before any pelvis is settled.
     const endOf: (foot: IAutoMovieMotionHumanWalkFoot.IScheduled) => walkFoot.IEnd = (foot: IAutoMovieMotionHumanWalkFoot.IScheduled): walkFoot.IEnd => ({
       ankle: foot.placement.ankle,
