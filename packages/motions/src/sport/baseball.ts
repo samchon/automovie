@@ -168,14 +168,15 @@ export namespace baseball {
         pitch,
         ...(legs === undefined ? {} : { legs }),
       });
-    const placed = (
+    /** Build a placed arm over the prepared baseball clock. */
+    function placed(
       side: AutoMovieHumanSide,
       place: IAutoMovieMotionHumanPlaced.IArm["place"],
       shape: IAutoMovieMotionHumanHand.Shape,
       bend: IAutoMovieMotionHumanPlaced.IArm["bend"],
       together?: IAutoMovieMotionHumanArmPlanned.ITogether,
-    ): IAutoMovieMotionHumanPrimitive[] =>
-      AutoMovieMotionHumanPlaced.arm({
+    ): IAutoMovieMotionHumanPrimitive[] {
+      return AutoMovieMotionHumanPlaced.arm({
         body,
         side,
         from: 0,
@@ -189,6 +190,7 @@ export namespace baseball {
         shape,
         bend,
       });
+    }
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
     const arm: number = m.upperArm + m.forearm;
@@ -293,7 +295,7 @@ export namespace baseball {
           facing,
           forward: fingers,
         });
-        const outside = (pitch: number): boolean => {
+        const outside: (pitch: number) => boolean = (pitch: number): boolean => {
           const bones: ReturnType<typeof read> = read(AutoMovieMotionHumanTrunk.sunk(
             body, planted, depth * modifiers.extent, pitch, 0,
           ));

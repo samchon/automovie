@@ -16,6 +16,7 @@ import type {
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
@@ -129,9 +130,9 @@ export namespace HumanCarriedCouplingFit {
    * @evidence contracts/development/implementation.md#principled-implementation The stance and the legs: the least range-weighted change from upright and the carry's own subject to each held region's gap past its arm being none, by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty (Nocedal and Wright's Algorithm 4.1 schedule), each model the quadratic program of the change with the gaps linearised by central differences, one-sided at a range's end; it settles at the square root of machine epsilon of the arm. The turn about the resting point is Wahba's problem over the hold directions, solved by Horn's absolute orientation (`fitRigidMeshTransform`) on each direction and its mirror about the resting point, so both clouds' centroids are the resting points and only the turn is fitted. With fewer than two holds the key pose's own axes join the directions, so its heading is kept where no hold decides it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the authored key first; prepare the trust-region search only if the key violates a reach or angle constraint.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The resting contact is kept exact and every angle stays within its range: the legs within the range table, the trunk within full forward bending, the lowering within a squat; a hold still beyond its arm is refused, never stretched.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A reachable key takes one registration and one reach check per grip. Fallback linearises at most five angles using two points each, and resolves the bearer's stance once per distinct stance tried. Penalty changes reprice the model without new geometry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A reachable key takes one registration and one reach check per grip. Fallback linearises at most five angles using two points each, and reuses the current stance for leg derivatives and the current gaps at each one-sided endpoint. Penalty changes reprice the model without new geometry.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The fallback starts with the measured key and returns its winning reading. The curvature is built once per objective flag and costs from one linearisation share slopes and solver preparation across penalties.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit holds the bearer's bones for each distinct stance tried, two curvatures and the current linearisation until it returns or throws. Only the winning placement and two maps leave the fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fit holds two curvatures and the current linearisation until it returns or throws. Only the winning placement and two maps leave the fit.
    */
   export function read(
     bearer: IAutoMovieMotionHumanBody,
@@ -165,25 +166,14 @@ export namespace HumanCarriedCouplingFit {
       (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
     );
-    const reach: Gap[] = sides.map((side: AutoMovieHumanSide): Gap => prepareGap(bearer, side));
+    const reach: Gap[] = sides.map((side: AutoMovieHumanSide): Gap => prepareGap(bearer, side, row.holds[side === "left" ? 0 : 1]?.shape));
 
-    // The bearer's bones by stance, so a change of the legs alone reads
-    // them once.
-    const stances: Map<string, Bones> = new Map();
-    const stood: (x: readonly number[]) => Bones = (x: readonly number[]): Bones => {
-      const key: string = `${x[3]}|${x[4]}`;
-      const found: Bones | undefined = stances.get(key);
-      if (found !== undefined) return found;
-      const bones: Bones =
-        HumanCarriedCouplingPose.stood(bearer, {
-          incline: x[3]!,
-          depth: x[4]!,
-        });
-      stances.set(key, bones);
-      return bones;
-    };
-    const at: (x: readonly number[]) => IRead = (x: readonly number[]): IRead => {
-      const theirs: Bones = stood(x);
+    // A perturbation of the borne legs leaves the bearer's current stance exact.
+    function at(x: readonly number[], sameStance?: Bones): IRead {
+      const theirs: Bones = sameStance ?? HumanCarriedCouplingPose.stood(bearer, {
+        incline: x[3]!,
+        depth: x[4]!,
+      });
       const registration: HumanCarriedCouplingRigid.IRead = HumanCarriedCouplingRigid.read(
         bearer,
         theirs,
@@ -197,7 +187,7 @@ export namespace HumanCarriedCouplingFit {
         },
       );
       return { fit: registration.fit, mine: registration.bones, theirs };
-    };
+    }
     const gaps: (reading: IRead) => number[] = (reading: IRead): number[] => {
       const { fit, mine, theirs }: IRead = reading;
       const gaps: number[] = sides.map((side: AutoMovieHumanSide, index: number): number => {
@@ -209,9 +199,12 @@ export namespace HumanCarriedCouplingFit {
             surface,
             mine.get(surface.bone)!,
           );
+        const fingers: IAutoMovieVector3 | undefined = row.holds[k]?.fingers;
         return reach[index]!(theirs, {
           point: fit.place(local.point),
           normal: Quaternion.rotateVector(fit.turn, local.normal),
+          ...(fingers === undefined ? {} : { forward: Quaternion.rotateVector(fit.turn,
+            Quaternion.rotateVector(mine.get("hips")!.worldRotation, fingers)) }),
         });
       });
       return row.straddles === true ? [...gaps, ...HumanCarriedStraddle(bearer, borne, reading)] : gaps;
@@ -288,8 +281,9 @@ export namespace HumanCarriedCouplingFit {
             up[k] = Math.min(ranges[k]!.max, x[k]! + h);
             down[k] = Math.max(ranges[k]!.min, x[k]! - h);
             if (!(up[k]! > down[k]!)) return e.gaps.map((): number => 0);
-            const a: number[] = gaps(at(up));
-            const b: number[] = gaps(at(down));
+            const sameStance: Bones | undefined = k < legRanges.length ? e.read.theirs : undefined;
+            const a: number[] = up[k] === x[k] ? e.gaps : gaps(at(up, sameStance));
+            const b: number[] = down[k] === x[k] ? e.gaps : gaps(at(down, sameStance));
             return a.map(
               (v: number, i: number): number =>
                 (v - b[i]!) / (up[k]! - down[k]!),
@@ -451,17 +445,18 @@ export namespace HumanCarriedCouplingFit {
     bones: Bones,
     side: AutoMovieHumanSide,
     place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
+    shape?: IAutoMovieMotionHumanCarried.IHold["shape"],
   ): number {
-    return prepareGap(bearer, side)(bones, place);
+    return prepareGap(bearer, side, shape)(bones, place);
   }
 
   /** The changing palm normal places its wrist while the fixed hand geometry is shared. */
-  function prepareGap(bearer: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): Gap {
+  function prepareGap(bearer: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide, shape?: IAutoMovieMotionHumanCarried.IHold["shape"]): Gap {
     const palm: ReturnType<typeof HumanHandTarget.prepareMoving>["wrist"] =
-      HumanHandTarget.prepareMoving(bearer, side).wrist;
+      HumanHandTarget.prepareMoving(bearer, side, shape === undefined ? undefined : { shape }).wrist;
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
     return (bones, place): number => Vector3.length(Vector3.subtract(
-      palm({ root: { x: 0, y: 0, z: 0 }, yaw: 0 }, place).point,
+      palm({ root: { x: 0, y: 0, z: 0 }, yaw: 0 }, place, place.forward).point,
       bones.get(`${side}UpperArm`)!.worldPosition,
     )) - arm;
   }
