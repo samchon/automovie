@@ -1,3 +1,4 @@
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -5,7 +6,6 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -13,7 +13,6 @@ import {
   AutoMovieMotionHumanAuditMotion,
   HumanChain,
   HumanPerformance,
-  HumanSignature,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -141,61 +140,34 @@ export function test_human_motion_base_supports(): void {
 
     // 3. The base holds through the drink.
     const drink: IAutoMovieMotionHumanSegment = drinking.segments("a")[1]!;
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-      drinking,
-      "a",
-      body,
-      0,
-    );
-    const moved = (
-      read: (t: number) => IAutoMovieVector3,
-    ): { metres: number; seconds: number } => {
-      const origin: IAutoMovieVector3 = read(drink.entryTime);
-      let worst: { metres: number; seconds: number } = {
-        metres: 0,
-        seconds: drink.entryTime,
-      };
-      for (let t: number = drink.entryTime; t <= drink.end; t += 0.1) {
-        const at: IAutoMovieVector3 = read(t);
-        const metres: number = Math.hypot(
-          at.x - origin.x,
-          at.y - origin.y,
-          at.z - origin.z,
-        );
-        if (metres > worst.metres) worst = { metres, seconds: t };
-      }
-      return worst;
-    };
-    const seat: { metres: number; seconds: number } = moved(
-      (t: number): IAutoMovieVector3 =>
-        HumanSignature.region(reader, "seat", t),
-    );
-    if (seat.metres > 0.01)
-      complaints.push(
-        `${name}: the seat region moves ${(seat.metres * 1000).toFixed(1)} mm during the seated drink (at ${seat.seconds.toFixed(2)} s), within 10 mm expected`,
-      );
-    for (const side of ["left", "right"] as const) {
-      const ankle: { metres: number; seconds: number } = moved(
-        (t: number): IAutoMovieVector3 =>
-          HumanSignature.joint(reader, t, `${side}Foot`),
-      );
-      if (ankle.metres > 0.005)
-        complaints.push(
-          `${name}: the ${side} ankle moves ${(ankle.metres * 1000).toFixed(1)} mm during the seated drink, within 5 mm expected`,
-        );
-    }
-
-    // 4. A seated body is not judged as standing: at no instant of the drink
-    // do the feet alone bear it.
     const windows: ReturnType<typeof AutoMovieMotionHumanAuditMotion.windows> =
       AutoMovieMotionHumanAuditMotion.windows(drinking, "a");
-    for (let t: number = drink.entryTime; t <= drink.end; t += 0.1)
-      if (AutoMovieMotionHumanAuditBalance.standing(windows, t)) {
-        complaints.push(
-          `${name}: at ${t.toFixed(2)} s the seated drink is read as a body standing on its feet alone`,
-        );
-        break;
+    const seat: typeof body.surfaces.regions.seat = body.surfaces.regions.seat;
+    const entry: ReturnType<typeof drinking.bones> = drinking.bones("a", drink.entryTime);
+    const origins: readonly IAutoMovieVector3[] = [
+      resolveAutoMovieHumanoidSurfaces.place(seat, entry.get(seat.bone)!).point,
+      entry.get("leftFoot")!.worldPosition,
+      entry.get("rightFoot")!.worldPosition,
+    ];
+    // Read all three supports from one displayed skeleton per instant. The
+    // final interval can be shorter than 100 ms, so include its endpoint.
+    for (let i: number = 0; i <= Math.ceil((drink.end - drink.entryTime) * 10); i++) {
+      const t: number = Math.min(drink.end, drink.entryTime + i / 10);
+      const bones: typeof entry = i === 0 ? entry : drinking.bones("a", t);
+      const positions: readonly IAutoMovieVector3[] = [
+        resolveAutoMovieHumanoidSurfaces.place(seat, bones.get(seat.bone)!).point,
+        bones.get("leftFoot")!.worldPosition,
+        bones.get("rightFoot")!.worldPosition,
+      ];
+      for (const [index, label] of ["seat", "left ankle", "right ankle"].entries()) {
+        const limit: number = index === 0 ? 0.01 : 0.005;
+        const drift: number = Vector3.distance(origins[index]!, positions[index]!);
+        if (!(drift <= limit))
+          complaints.push(`${name}: ${label} moves ${drift * 1000} mm at ${t} s, limit ${limit * 1000} mm`);
       }
+      if (AutoMovieMotionHumanAuditBalance.standing(windows, t))
+        complaints.push(`${name}: feet alone bear the seated drink at ${t} s`);
+    }
   }
   TestValidator.equals("an act keeps its base's supports", complaints, []);
 }
