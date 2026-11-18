@@ -100,8 +100,11 @@ export namespace stepOverPath {
     /** The actual placement and bearing state at an action second. */
     footAt: (side: "left" | "right", seconds: number) => { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean };
 
-    /** Required lead socket height along the approach, obstacle and landing, world metres. */
-    needed: (socket: IAutoMovieMotionHumanFoot.Socket, point: IAutoMovieVector3) => number;
+    /** Required world height at a fitted socket, including the approach and landing ramps for the lead foot. */
+    needed: (side: "left" | "right", socket: IAutoMovieMotionHumanFoot.Socket, point: IAutoMovieVector3) => number;
+
+    /** Forward correction on the trail socket's landing ramp past the far face, infinity elsewhere. */
+    advance: (ankle: IAutoMovieVector3, socket: IAutoMovieMotionHumanFoot.Socket, point: IAutoMovieVector3) => number;
   }
 
   /**
@@ -398,8 +401,22 @@ export namespace stepOverPath {
     const envelopes: Record<IAutoMovieMotionHumanFoot.Socket, (z: number) => number> = {
       heel: envelope("heel"), ball: envelope("ball"), toe: envelope("toe"),
     };
-    const needed: IPlan["needed"] = (socket, point): number =>
-      origin.y + envelopes[socket](framed.local(point).z);
+    const needed: IPlan["needed"] = (side, socket, point): number => {
+      const z: number = framed.local(point).z;
+      return origin.y + (side === lead ? envelopes[socket](z) : surface(side, z));
+    };
+    const finishOf: (socket: IAutoMovieMotionHumanFoot.Socket) => number =
+      (socket: IAutoMovieMotionHumanFoot.Socket): number =>
+      framed.local(HumanFoot.point(body, trail, socket, flat(trail, end[trail]))).z;
+    const finishes: Record<IAutoMovieMotionHumanFoot.Socket, number> = {
+      heel: finishOf("heel"), ball: finishOf("ball"), toe: finishOf("toe"),
+    };
+    const advance: IPlan["advance"] = (ankle, socket, point): number => {
+      const z: number = framed.local(point).z;
+      if (framed.local(ankle).z <= far || z < near || z > far) return Infinity;
+      const fallen: number = Math.min(1, Math.max(0, 1 - (point.y - origin.y) / top(trail)));
+      return far + (finishes[socket] - far) * fallen - z;
+    };
     return {
       body,
       lead,
@@ -417,6 +434,7 @@ export namespace stepOverPath {
       rocker: (height: number): number => smooth(height, departure, summit),
       footAt,
       needed,
+      advance,
     };
   }
 }
