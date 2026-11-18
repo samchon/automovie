@@ -2,10 +2,18 @@ import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBend,
 } from "@automovie/interface";
-import { HumanPhysics } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanRange,
+  HumanChain,
+  HumanPhysics,
+  HumanRefusal,
+  HumanVerdicts,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
+import { motionCrouchSignature } from "../internal/motionCrouchSignature";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
 import { motionPostureBranches } from "../internal/motionPostureBranches";
 
@@ -28,39 +36,56 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  */
 export function test_motion_posture_bend_strategy(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
+  checkCrouch(complaints);
   const audited: Map<string, M.IStaged> = new Map();
-  complaints.list.push(...motionPostureBranches(AUDITED, (film, [, row, name]): void => {
-    // The default target is above mid-shank, so auto must produce a stoop;
-    // the observations below check that independently on the displayed body.
-    const strategy: string = row === "default" ? "stoop" : row.split(",")[0]!.slice("strategy=".length);
-    audited.set(`${name} ${strategy}`, { film, body: motionHumanBody(name), yaw: 0 });
-  }));
+  complaints.list.push(
+    ...motionPostureBranches(AUDITED, (film, [, row, name]): void => {
+      // The default target is above mid-shank, so auto must produce a stoop;
+      // the observations below check that independently on the displayed body.
+      const strategy: string =
+        row === "default"
+          ? "stoop"
+          : row.split(",")[0]!.slice("strategy=".length);
+      audited.set(`${name} ${strategy}`, {
+        film,
+        body: motionHumanBody(name),
+        yaw: 0,
+      });
+    }),
+  );
   for (const name of BODIES) {
     const knees: Partial<Record<Strategy, number>> = {};
     const trunk: Partial<Record<Strategy, number>> = {};
     for (const strategy of STRATEGIES) {
       const label: string = `${name} ${strategy}`;
-      const missing: boolean = (name === "m-large" && strategy === "semiSquat") ||
+      const missing: boolean =
+        (name === "m-large" && strategy === "semiSquat") ||
         (name === "f-small" && strategy === "squat");
       let bend: M.IStaged | undefined = audited.get(label);
       if (missing)
         try {
           bend = M.stage("bend", `strategy=${strategy}`, name);
         } catch (error) {
-          complaints.check(`${label}: refused, ${error instanceof Error ? error.message : String(error)}`, false);
+          complaints.check(
+            `${label}: refused, ${error instanceof Error ? error.message : String(error)}`,
+            false,
+          );
         }
       if (bend === undefined) continue;
       if (strategy === "stoop") {
         const upright: number = M.trunk(bend, 0);
-        complaints.check(`${name} quiet entry inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
-          Math.abs(upright) <= M.STANCE);
+        complaints.check(
+          `${name} quiet entry inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
+          Math.abs(upright) <= M.STANCE,
+        );
       }
       const t: number | undefined = M.event(bend, "deepest");
       if (t === undefined) {
         complaints.check(`${label}: the deepest event is absent`, false);
         continue;
       }
-      knees[strategy] = (M.knee(bend, t, "left") + M.knee(bend, t, "right")) / 2;
+      knees[strategy] =
+        (M.knee(bend, t, "left") + M.knee(bend, t, "right")) / 2;
       trunk[strategy] = M.trunk(bend, t);
       complaints.check(
         `${label}: both feet bear at the deepest`,
@@ -68,9 +93,11 @@ export function test_motion_posture_bend_strategy(): void {
       );
       complaints.check(
         `${label}: omitted balance stays outside the audit`,
-        !bend.film.segments("a").some(
-          (span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean => HumanPhysics.judged(span),
-        ),
+        !bend.film
+          .segments("a")
+          .some((span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
+            HumanPhysics.judged(span),
+          ),
       );
       if (strategy === "stoop") {
         const retreat: number =
@@ -136,3 +163,56 @@ const STOOP_ANGLE_ROUNDOFF: number =
   (2 ** Math.ceil(Math.log2(6 + 3 + 2 + 2 + 1 + 1)) * Number.EPSILON * 180) /
   // Convert the angular derivative of acos from radians to degrees.
   (Math.PI * Math.sin((STOOP_KNEE * Math.PI) / 180));
+
+function checkCrouch(complaints: motionComplaints.IGatherer): void {
+  const actor = HumanChain.subject("a");
+  for (const [row, name, params] of [
+    ["default", "f-small", { hold: 0.5 }],
+    [
+      "depth=partial,heels=up",
+      "m-large",
+      { hold: 0.5, depth: "partial", heels: "up" },
+    ],
+    ["depth=full", "m-large", { hold: 0.5, depth: "full" }],
+  ] as const) {
+    const body = motionHumanBody(name);
+    const film = motionHumanLaw.perform(
+      "sweep-1",
+      [{ subject: "a", body }],
+      actor.crouch(params),
+    );
+    motionCrouchSignature(complaints, { film, body, yaw: 0 }, row, name);
+    complaints.check(
+      row + " exits standing",
+      film.performance.segments("a")[0]!.plan.base?.kind === "standing",
+    );
+    const verdict = HumanVerdicts.of(film.performance);
+    if (!verdict.clean)
+      complaints.list.push(row + ": " + HumanVerdicts.describe(verdict));
+  }
+  const maximum =
+    AutoMovieMotionHumanRange.limit("leftUpperLeg", "flexion")! +
+    Math.min(28, AutoMovieMotionHumanRange.limit("leftFoot", "flexion")!);
+  let refusal: unknown;
+  try {
+    motionHumanLaw.perform(
+      "flat-full",
+      [{ subject: "a", body: motionHumanBody("f-small") }],
+      actor.crouch({ depth: "full", heels: "flat", hold: 0.5 }),
+    );
+  } catch (error) {
+    refusal = error;
+  }
+  complaints.check(
+    "flat full crouch names the open hip and ankle limit",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "parameter" &&
+      refusal.axis === "depth" &&
+      refusal.value === "full" &&
+      refusal.feasible?.kind === "range" &&
+      refusal.feasible.unit === "degrees" &&
+      refusal.feasible.open === "maximum" &&
+      refusal.feasible.minimum === 0 &&
+      refusal.feasible.maximum === maximum,
+  );
+}

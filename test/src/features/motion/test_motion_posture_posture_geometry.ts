@@ -14,6 +14,7 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanSignature,
+  HumanVerdicts,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -58,6 +59,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_motion_posture_posture_geometry(): void {
   const complaints: string[] = [];
   checkStandingSupports(complaints);
+  checkSupportTransfer(complaints);
   checkCrossedSeat(complaints);
   const rows: readonly string[] = [
     "lieStill",
@@ -351,4 +353,69 @@ function checkCrossedSeat(findings: string[]): void {
       !HumanSignature.bears(reader, rise!.end, side)
     )
       findings.push(side + " sole lacks support after crossing or rising.");
+}
+
+function checkSupportTransfer(findings: string[]): void {
+  const body = motionHumanBody("f-small"),
+    actor = HumanChain.subject("a");
+  const perform = (chain: IAutoMovieMotionHumanChain) =>
+    new HumanPerformance({
+      seed: "sweep-1",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: chain.node,
+    });
+  const feet = [
+    { part: "leftFoot", kind: "bear" },
+    { part: "rightFoot", kind: "bear" },
+  ] as const;
+  const p = perform(
+    actor.support({
+      stances: [
+        { contacts: [...feet] },
+        {
+          contacts: [
+            ...feet,
+            { part: "leftHand", kind: "bear" },
+            { part: "rightHand", kind: "bear" },
+          ],
+        },
+        { contacts: [...feet] },
+      ],
+    }),
+  );
+  const windows = p.segments("a")[0]!.plan.contacts;
+  const palms = windows.filter(
+    (w) => w.part === "leftHand" || w.part === "rightHand",
+  );
+  if (
+    palms.length !== 2 ||
+    palms[0]!.part === palms[1]!.part ||
+    !palms.every((w) => w.from > 0 && w.to < 1) ||
+    Math.max(...palms.map((w) => w.from)) >= Math.min(...palms.map((w) => w.to))
+  )
+    findings.push("The two palms must share an interior contact interval.");
+  for (const side of ["left", "right"] as const) {
+    const foot = windows.filter((w) => w.part === side + "Foot");
+    if (foot.length !== 1 || foot[0]!.from !== 0 || foot[0]!.to !== 1)
+      findings.push(side + " foot loses support during palm transfer");
+  }
+  for (const kind of ["impact", "push", "catchBody"] as const) {
+    const brace = perform(
+      actor.brace({
+        kind,
+        toward: { kind: "point", at: { x: 0, y: 1.2, z: 2 }, frame: "world" },
+      }),
+    );
+    const verdict = HumanVerdicts.of(brace);
+    if (!verdict.clean)
+      findings.push(kind + ": " + HumanVerdicts.describe(verdict));
+  }
 }
