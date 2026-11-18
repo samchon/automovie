@@ -1,5 +1,17 @@
-import type {AutoMovieHumanSide} from "@automovie/interface";
-import { HumanFoot } from "@automovie/motions";
+import {
+  createBall,
+  createHurdle,
+  createKerb,
+  createObstacle,
+} from "@automovie/archetypes";
+import type { AutoMovieHumanSide } from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -43,6 +55,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  */
 export function test_motion_posture_obstacle_step(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
+  checkObjectEdges(complaints);
   const NEAR: number = 0.35;
   const FAR: number = 0.6;
   const TOP: number = 0.3;
@@ -104,4 +117,77 @@ export function test_motion_posture_obstacle_step(): void {
   for (const name of motionHumanBody.EXTREMES)
     for (const c of M.calibrate(name)) complaints.check(c, false);
   complaints.assert("the step over has the signature of obstacle crossing");
+}
+
+/** The authored edge is crossed or refused according to its height and affordances. */
+function checkObjectEdges(findings: motionComplaints.IGatherer): void {
+  const body = motionHumanBody("m-average"),
+    near = 0.3;
+  const cross = (
+    model: Parameters<typeof HumanObject.prop>[1],
+    depth: number,
+  ) =>
+    new HumanPerformance({
+      seed: "step-over",
+      props: [
+        HumanObject.prop("edge", model, {
+          at: { x: 0, y: 0, z: near + depth },
+          yaw: 180,
+        }),
+      ],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").stepOver({ obstacle: "edge" }).node,
+    });
+  const kerb = createKerb({ kind: "kerb" }),
+    step = createKerb({ kind: "step" });
+  const tie = createObstacle({ kind: "crosstie" }),
+    bag = createObstacle({ kind: "sandbag" });
+  for (const [model, depth] of [
+    [kerb, kerb.dimensions.depth!],
+    [step, step.dimensions.depth!],
+    [tie, tie.dimensions.width!],
+    [bag, bag.dimensions.width!],
+  ] as const) {
+    const film = cross(model, depth);
+    let clearance = Infinity;
+    for (let t = 0; t <= film.duration; t += 1 / 60)
+      for (const p of HumanFoot.base(body, film.bones("a", t)))
+        if (p.z > near && p.z < near + depth)
+          clearance = Math.min(clearance, p.y - model.dimensions.height!);
+    findings.check(
+      "the sole clears the occupied depth by " + clearance,
+      Number.isFinite(clearance) && clearance > 0,
+    );
+    for (const side of ["left", "right"] as const)
+      findings.check(
+        "the trailing ankle clears the far edge",
+        film.bones("a", film.duration).get(`${side}Foot`)!.worldPosition.z >
+          near + depth,
+      );
+  }
+  for (const [model, depth] of [
+    [createHurdle({ kind: "women400" }), 0],
+    [createBall({ kind: "football" }), 0],
+    [createObstacle({ kind: "jerseyBarrier" }), 0.61],
+    [createObstacle({ kind: "crowdBarrier" }), 0.61],
+  ] as const) {
+    let refusal: unknown;
+    try {
+      cross(model, depth);
+    } catch (error) {
+      refusal = error;
+    }
+    findings.check(
+      "unavailable or excessive edge reports obstacle",
+      refusal instanceof HumanRefusal && refusal.axis === "obstacle",
+    );
+  }
 }
