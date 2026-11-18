@@ -20,14 +20,6 @@ import { standUpright } from "./standUpright";
 import type { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
 
-/** The settled feet and pelvis the gait's posture reads at one second. */
-interface ISettled {
-  feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
-  hips: readonly [number, number, number];
-  settled: walkReach.IGround;
-  reached: Record<"left" | "right", walkFoot.IEnd>;
-}
-
 /**
  * Prepare one stepping take's standing alignment and assemble its posture
  * before arm carriage, writing only requested leg goals.
@@ -41,11 +33,11 @@ interface ISettled {
  * @returns A clamped action-second reader; omitted leg/channel demand writes the complete posture.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States fixed body preparation, arm units, action time and the optional leg demand.
- * @evidence contracts/development/implementation.md#principled-implementation Preserves the gait's sinusoidal pelvic/chest counter-rotation, arm angles, upright-relative lumbopelvic inclination and footprint-heading knee hints, then pivots the trunk about the hips.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Lower-leg rest points precede one posture reader; standing alignment and relaxed arm preparation start only on their first actual demand, while foot reach remains with the supplied solve owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No gait parameter, contact, joint angle or root formula changes; unread leg goals are omitted only under explicit channel demand.
- * @evidence contracts/development/implementation.md#efficient-algorithms The supplied solve computes only requested swinging feet, with at most two leg goals; root/trunk/leg-only reads skip relaxed-arm clearance preparation and arm tuples, while hand-only shape reads use HumanHand's original shape directly.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes body, gait, arm modifiers and step plan. Each lazily prepared alignment, relaxed record, abduction and hand shape is reused only under those unchanged dependencies, with no queried posture cache.
+ * @evidence contracts/development/implementation.md#principled-implementation The gait's sinusoidal pelvic turn with the chest's counter-rotation (`CHEST`), its arm angles, an upright-relative lumbopelvic inclination and footprint-heading knee hints, then the trunk pivoted about the hips.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Lower-leg rest points precede one posture reader; standing alignment and relaxed arm preparation start only on their first demand, while foot reach stays with the supplied solve owner.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every angle comes from the gait record or a named constant; unread leg goals are omitted only under explicit channel demand.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The supplied solve computes only requested swinging feet, with at most two leg goals; root/trunk/leg-only reads skip relaxed-arm clearance preparation and arm tuples, while hand-only reads take HumanHand's relaxed shape directly.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes body, gait, arm modifiers and step plan. Each lazily prepared alignment, relaxed record, abduction and hand shape depends on those alone and is reused for the take, with no queried posture cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader owns fixed body/step references and standing terms until its plan releases it, without a sample history or external handle.
  */
 export function walkPosture(
@@ -54,7 +46,7 @@ export function walkPosture(
   arms: number,
   elbows: number,
   steps: IAutoMovieMotionHumanWalkSteps.IPlan,
-  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => ISettled,
+  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkPosture.ISettled,
 ): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieMotionHumanPosture {
   let upright: IAutoMovieMotionHumanStandUpright.IAlignment | undefined;
   let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined;
@@ -74,7 +66,7 @@ export function walkPosture(
     const phase: number = steps.phase(t);
     const amount: number = steps.amount(t);
     const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-    const { feet, hips, settled, reached }: ISettled = solve(t, legs, phase, amount, resolution);
+    const { feet, hips, settled, reached }: walkPosture.ISettled = solve(t, legs, phase, amount, resolution);
     const root: IAutoMovieVector3 = settled.root;
     const yaw: number = settled.yaw;
 
@@ -90,7 +82,7 @@ export function walkPosture(
       hips,
       leftToes: [reached.left.toes, 0, 0],
       rightToes: [reached.right.toes, 0, 0],
-      chest: [inclined.joints.chest?.[0] ?? 0, 0, -4 * swing],
+      chest: [inclined.joints.chest?.[0] ?? 0, 0, -walkPosture.CHEST * swing],
     };
     if (swinging) {
       const held: number = abduction ??= stand.abduction(body) + elbows;
@@ -129,4 +121,36 @@ export function walkPosture(
       { pitch: inclined.pitch, roll: 0 },
     );
   };
+}
+
+/**
+ * The record a stepping take's solve hands the posture, and the chest's
+ * counter-rotation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and the constant's unit and status.
+ * @evidence contracts/development/design.md#principled-representation The scheduled feet, the pelvis's clinical angles, the settled ground and the reached feet at one second, one record shared by the take's solve and its posture.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `ISettled`, which `walk.locomote`'s solve returns and `walkPosture` reads, `PELVIS`, which `walk.locomote`'s pelvis reads, and `CHEST`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts One declaration of the record, not one per side of the call.
+ */
+export namespace walkPosture {
+  /** The settled feet and pelvis the gait's posture reads at one second. */
+  export interface ISettled {
+    /** Each foot as its schedule has it. */
+    feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
+
+    /** The pelvis joint's clinical angles, degrees. */
+    hips: readonly [number, number, number];
+
+    /** The pelvis lowered onto its stances. */
+    settled: walkReach.IGround;
+
+    /** Each foot as reached from the settled pelvis. */
+    reached: Record<"left" | "right", walkFoot.IEnd>;
+  }
+
+  /** The pelvis's turn and tilt with the stride, degrees either way (Perry and Burnfield, normal gait kinematics: about 4° each). */
+  export const PELVIS: number = 4;
+
+  /** The chest's counter-rotation against the stride at full gait, degrees: the pelvis's own turn, mirrored. The thorax turns against the pelvis at ordinary walking speeds (relative phase about -140° at 1.5 m/s, Lamoth et al. 2002, Spine 27:E92); its equal amplitude, keeping the shoulders square to the way, is the provisional part, no thorax amplitude having been read. */
+  export const CHEST: number = PELVIS;
 }

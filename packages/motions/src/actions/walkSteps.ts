@@ -67,6 +67,9 @@ export namespace walkSteps {
   /** One footfall (walkStepFoot.IStep). */
   type IStep = walkStepFoot.IStep;
 
+  /** Seconds from the last footfall to the plan's arrival, over which the closing pair settles and the gait amount sheds (provisional: about two thirds of a normal walking step period, past `walkRoot.SHED`). */
+  export const ARRIVAL: number = 0.35;
+
   /**
    * The stream a take's tempo is drawn from: one per performer and per
    * occurrence of the action in their chain, keyed as a walk whatever the
@@ -103,13 +106,13 @@ export namespace walkSteps {
    * @param input The body, its entry state, the destination, the speed, the longest step and the period law.
    * @returns The plan.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines measured footprint geometry, timing and turning; input members name their body/path/time units and the returned plan exposes actual root/foot/phase readers.
-   * @evidence contracts/development/implementation.md#principled-implementation Retains WalkPace timing and flight stance, every original footprint/turn/ankle-lean rule, the same closing pair and shared gait root/stance owners.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed path/body geometry precedes timing, requested/bounded footprint headings, exact step records, per-side schedules and the prepared unconstrained root.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No step, corner, timing draw, bound, opening turn or endpoint is removed; original context period calls and trajectory expressions remain actual.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scales with authored footfalls and the existing path/timing searches. Fixed path segments and rest-foot widths prepare once; each side's hip width is read only on its first actual nonclosing footprint, then reused across later footprints.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes its measured rest body, private floor path and final step timing; fixed scalar geometry is shared without sharing a later queried posture or resampling a numerical result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Constructor-local width/heading work releases on return or throw; the resulting plan owns only its original step/path/schedule/root geometry, linear in footfalls and corners, without an arbitrary-time pose history or external handle.
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines measured footprint geometry, timing and turning; input members name their body/path/time units and the returned plan exposes root/foot/phase readers.
+   * @evidence contracts/development/implementation.md#principled-implementation `WalkPace` timing and the flight stance (`runStance`), the footprint, turn and ankle-lean rules the namespace states, the closing pair, and the shared gait root (`walkRoot`) and stance (`walkStepFoot`) owners; an opening or closing stance's rockers take their shares of the cruising stance, two periods less a swing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed path/body geometry precedes timing, requested/bounded footprint headings, step records, per-side schedules and the unconstrained root.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every step, corner, timing draw, bound, opening turn and endpoint is kept; the context's period law is called for the period, and `ARRIVAL` is named and provisional.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scales with authored footfalls and the path/timing searches. Path segments and rest-foot widths prepare once; each side's hip width is read on its first nonclosing footprint, then reused across later footprints.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes its measured rest body, private floor path and step timing; fixed scalar geometry is shared without sharing a later queried posture or resampling a numerical result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction-local width/heading work releases on return or throw; the plan owns its step/path/schedule/root geometry, linear in footfalls and corners, without an arbitrary-time pose history or external handle.
    */
   export function plan(input: IAutoMovieMotionHumanWalkSteps.IInput): IAutoMovieMotionHumanWalkSteps.IPlan {
     const body: IAutoMovieMotionHumanBody = input.body;
@@ -217,7 +220,7 @@ export namespace walkSteps {
     const lag: number = turning * T;
     const last: number = pace.last + lag;
     const front: number = pace.front;
-    const duration: number = last + 0.35;
+    const duration: number = last + walkSteps.ARRIVAL;
     const progress: (t: number) => number = (t: number): number => pace.progress(t - lag);
     const flight: runStance.IStance | undefined =
       swing > T
@@ -355,6 +358,9 @@ export namespace walkSteps {
     );
     const gaitBob: { mean: number; amplitude: number } | undefined =
       flight?.bob ?? input.gait?.bob;
+    // A cruising stance runs from a heel strike to the same foot's toe-off
+    // two steps on: two periods less a swing.
+    const typical: number = 2 * T - swing;
     const own: Record<"left" | "right", IStep[]> = {
       left: steps.filter((s: IStep): boolean => s.side === "left"),
       right: steps.filter((s: IStep): boolean => s.side === "right"),
@@ -363,12 +369,13 @@ export namespace walkSteps {
       "left" | "right",
       (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled
     > = {
-      left: walkStepFoot.schedule(body, "left", start.left, own.left, raised),
+      left: walkStepFoot.schedule(body, "left", start.left, own.left, typical, raised),
       right: walkStepFoot.schedule(
         body,
         "right",
         start.right,
         own.right,
+        typical,
         raised,
       ),
     };
@@ -386,6 +393,9 @@ export namespace walkSteps {
       stances,
       root,
       yaw: yawAt,
+      // The stride's phase, a quarter at the first left heel strike, where
+      // `sin(2 pi phase)` peaks: the arms are swung furthest, opposite the
+      // legs, as the left leg lands ahead.
       phase: (t: number): number => (t - firstLeft) / (2 * T) + 0.25,
       amount,
       foot,

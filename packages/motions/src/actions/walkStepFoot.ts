@@ -18,19 +18,22 @@ import { walkReach } from "./walkReach";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a foot's schedule is made of and who owns the rockers.
  * @evidence contracts/development/design.md#principled-representation The footfall as data and one schedule built over a side's footfalls.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The footfall, the toe-off pitch, the instants and stance spans, and the schedule, read by the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The footfall, the toe-off pitches, the instants and stance spans, and the schedule, read by the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A swing's two halves read the stances it joins, so no foot place is typed.
  */
 export namespace walkStepFoot {
   /** The toe-off pitch of a straight step, degrees toes-down: the toes' joints are extended about 55° at the end of pre-swing, the toes still flat on the floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves the ankle behind the advancing hip, so the trailing knee straightens through pre-swing where it bends. */
   export const PUSH: number = 55;
 
+  /** The toe-off pitch a foot turned from the pelvis by `walkReach.TWIST` pushes off with, degrees toes-down (provisional: a turning step pivots more and pushes less in the sagittal plane, Hase and Stein 1999; Taylor et al. 2005; no measured pitch was read). */
+  export const TURNED_PUSH: number = 15;
+
   /**
    * One footfall.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
    * @evidence contracts/development/design.md#principled-representation The side, the two instants, the flat footprint, its heading and the push-off before it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by the plan and the schedule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by the plan and the schedule.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The footprint is a placement, the ankle derived by `HumanFoot`.
    */
   export interface IStep {
@@ -52,7 +55,7 @@ export namespace walkStepFoot {
     /** The toe-off pitch of the foot leaving for this footfall, degrees, negative. */
     push: number;
 
-    /** Whether the foot travels backward to this footfall: its stances' rockers run in reverse (`walkFoot.stance`). False when absent. */
+    /** Whether the foot travels backward to this footfall: its stances' rockers run in reverse (`walkFoot.prepareStance`). False when absent. */
     backward?: boolean;
   }
 
@@ -60,7 +63,7 @@ export namespace walkStepFoot {
    * Set each footfall's push-off: a foot turned from the pelvis at its
    * toe-off pushes off less, since a turning step pivots more and pushes
    * less in the sagittal plane (Hase and Stein 1999; Taylor et al. 2005;
-   * provisional, the pitch falls linearly to 15 degrees as the turn reaches
+   * provisional, the pitch falls linearly to `TURNED_PUSH` as the turn reaches
    * `walkReach.TWIST`), and a leg kept straight leaves the floor nearly
    * flat, a steep push-off needing the knee it does not bend.
    *
@@ -73,7 +76,7 @@ export namespace walkStepFoot {
    * @evidence contracts/development/common.md#meaningful-documentation States both rules, their sources and each input.
    * @evidence contracts/development/implementation.md#principled-implementation The turn a foot leaves is its last heading against the pelvis's at the toe-off; the pitch falls with it and is capped for a straight knee.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass per foot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 15 degrees and the linear fall are provisional and stated so.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `TURNED_PUSH` and the linear fall are provisional and stated so.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the footfalls.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes the footfalls given and retains nothing.
@@ -95,7 +98,7 @@ export namespace walkStepFoot {
         );
         step.push =
           -push +
-          (push - Math.min(push, 15)) *
+          (push - Math.min(push, TURNED_PUSH)) *
             Math.min(1, Math.abs(turned) / walkReach.TWIST);
         if (stiff === side)
           step.push = Math.max(step.push, -walkFoot.STIFF_PUSH);
@@ -172,15 +175,16 @@ export namespace walkStepFoot {
    * @param side The foot.
    * @param start The foot flat where the walk begins.
    * @param own The foot's footfalls, in order.
+   * @param typical The gait's cruising stance, seconds, which an opening or closing stance's rockers take their shares of (`walkFoot.prepareStance`).
    * @param raised How far the gait holds the heels off the floor, degrees.
    * @returns The foot's scheduled stance at a second, with its swing while it swings.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each stance is `walkFoot.stance` between a heel strike and the next toe-off; a swing's first half reads the stance it leaves and its second the one it reaches.
+   * @evidence contracts/development/implementation.md#principled-implementation Each stance is `walkFoot.prepareStance` between a heel strike and the next toe-off; a swing's first half reads the stance it leaves and its second the one it reaches.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares one stance reader per footprint, then selects the first unfinished footfall by its heel strike.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The last stance is held open, so a foot after its last footfall stays planted.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation and storage in the foot's footfalls, logarithmic selection and one stance evaluation per planted read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each swing reuses its two scheduled endpoint stances; the body, side, footfalls and raised pitch remain fixed for the schedule.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each swing reuses its two scheduled endpoint stances; the body, side, footfalls, typical stance and raised pitch are fixed for the schedule.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned schedule owns its readers and two endpoints per footfall, released with that plan; no query history is retained.
    */
   export function schedule(
@@ -188,6 +192,7 @@ export namespace walkStepFoot {
     side: "left" | "right",
     start: IAutoMovieMotionHumanFoot.IPlacement,
     own: readonly IStep[],
+    typical: number,
     raised: number,
   ): (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled {
     const stances: ((t: number) => IAutoMovieMotionHumanWalkFoot.IFoot)[] = [];
@@ -211,6 +216,7 @@ export namespace walkStepFoot {
           strike,
           next?.toeOff ?? Infinity,
           next?.push ?? -PUSH,
+          typical,
           raised,
           backward,
         ),

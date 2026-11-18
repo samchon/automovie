@@ -143,7 +143,7 @@ export namespace staggerKnots {
   /**
    * The share of a swing a stepping foot takes to rise clear of the floor:
    * the share of a walking swing its lift takes to set down from the
-   * floor's contact height (`walkFoot.swing`).
+   * floor's contact height (`walkFoot.prepareSwing`).
    *
    * @param body The body.
    * @returns The share.

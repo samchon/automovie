@@ -10,22 +10,22 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { walkFoot } from "./walkFoot";
 
 /**
- * Evaluate a swing from the actual stance reader that owns its endpoints.
- * Scheduled and reached readers remain separate; every observation reads
- * its own endpoints and retains no completed stance or fitted trajectory.
+ * Prepare a swing from the stance reader that owns its endpoints: the
+ * departure, its predecessor a `TICK` earlier and the arrival are read once,
+ * and the returned reader evaluates the swing at any share of it.
  *
  * @param body The plan's fixed body.
  * @param gait The gait's lift, straight leg and landing rule.
- * @param at The stance endpoint reader, in action seconds, borrowing only the current observation's optional FK source.
- * @returns A random-access swing reader that evaluates all three original endpoint observations on every request.
+ * @param at The stance endpoint reader, in action seconds, borrowing only the preparing observation's optional FK source.
+ * @returns A preparer that reads one swing's three endpoints and returns its random-access share reader.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States endpoint ownership, fixed body/gait inputs, action timebase, same-query FK loan and actual three-endpoint observations.
- * @evidence contracts/development/implementation.md#principled-implementation A swing leaves the stance with its ankle, pitch and toe rates read over the same millisecond interval and joins the stance at heel strike; `walkFoot.prepareSwing` owns its unchanged interpolation and clearance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Each request reads departure, its original millisecond predecessor and arrival, then evaluates the shared swing owner for that same observation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every endpoint computation, rate interval, lift, straight-leg and landing rule remains actual; no completed reached endpoint or fitted interpolation reader is replayed from another observation.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each read pays the original three endpoint observations and swing interpolation/clearance costs; body/stance prerequisites remain with their shared owners, without a retained fitted-answer lookup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/gait and the endpoint callback are fixed plan dependencies. Only the current observation's genuine FK metadata may be borrowed; each endpoint and resulting swing are recomputed for this request.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/gait/callback references only. Current endpoints and their interpolation closure end on return/throw, and the returned foot retains no FK loan, endpoint reader, completed-fit entry or query history.
+ * @evidence contracts/development/common.md#meaningful-documentation States endpoint ownership, fixed body/gait inputs, action timebase, the preparing observation's FK loan and the three endpoint reads.
+ * @evidence contracts/development/implementation.md#principled-implementation A swing leaves the stance with its ankle, pitch and toe rates read over one millisecond and joins the stance at heel strike; `walkFoot.prepareSwing` owns its interpolation and clearance.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Each preparation reads departure, its millisecond predecessor and arrival, then prepares the shared swing owner once for them.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every endpoint, rate interval, lift, straight-leg and landing rule is read from its owner; nothing is replayed from another swing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A preparation costs three endpoint reads and the swing's fixed decompositions; each share read then costs only the interpolation and clearance.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A swing's endpoints are fixed by its side, toe-off and heel strike, so the caller may keep one prepared reader per swing for every share of it; the FK loan only lends a workspace and changes no endpoint.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The preparer holds body/gait/callback references only; a prepared reader holds one swing's fixed terms until its caller releases it, with no FK loan or query history.
  */
 export function walkSwing(
   body: IAutoMovieMotionHumanBody,
@@ -34,18 +34,16 @@ export function walkSwing(
 ): (
   side: "left" | "right",
   swing: { off: number; on: number },
-  share: number,
   resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-) => IAutoMovieMotionHumanWalkFoot.IFoot {
+) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
   return (
     side: "left" | "right",
     swing: { off: number; on: number },
-    share: number,
     resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-  ): IAutoMovieMotionHumanWalkFoot.IFoot => {
+  ): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
     const from: walkFoot.IEnd = at(side, swing.off, resolution);
     const before: walkFoot.IEnd = at(side, swing.off - TICK, resolution);
-    const read: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = walkFoot.prepareSwing(body, side, {
+    return walkFoot.prepareSwing(body, side, {
       from,
       velocity: Vector3.scale(
         Vector3.subtract(from.ankle, before.ankle),
@@ -63,9 +61,8 @@ export function walkSwing(
       stiff: gait.stiff === side,
       settles: gait.swing <= 1,
     });
-    return read(share);
   };
 }
 
-/** Seconds before toe-off over which a stance's departure rates are read. */
+/** Seconds before toe-off over which a stance's departure rates are read: a backward difference over a millisecond, far under a stance's tenths of a second, whose endpoints are settled to the reach owner's nanometre root tolerance. */
 const TICK: number = 1e-3;

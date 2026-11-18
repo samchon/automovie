@@ -58,67 +58,8 @@ export namespace walkFoot {
   }
 
   /**
-   * A flat footprint pitched about its heel or ball.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param flat The flat footprint.
-   * @param heading The foot's heading, degrees.
-   * @param degrees The pitch, positive toes up.
-   * @param about The point that stays where the flat footprint has it.
-   * @returns The pitched placement.
-   */
-  export function rocked(
-    body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    flat: IAutoMovieMotionHumanFoot.IPlacement,
-    heading: number,
-    degrees: number,
-    about: "heel" | "mtp",
-  ): IAutoMovieMotionHumanFoot.IPlacement {
-    return HumanFoot.pivot(
-      body,
-      side,
-      about,
-      HumanFoot.point(body, side, about, flat),
-      heading,
-      degrees,
-    );
-  }
-
-  /**
-   * A foot in stance: heel rocker after its strike, flat, forefoot rocker
-   * before its toe-off.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param flat Its flat footprint.
-   * @param heading Its heading, degrees.
-   * @param strike The stance's heel strike, seconds; `-Infinity` for the starting stance.
-   * @param toeOff The stance's toe-off, seconds; `Infinity` for the closing stance.
-   * @param t The instant, seconds.
-   * @param push The pitch at toe-off, degrees, negative.
-   * @param raised How far the heel is held off the floor through the stance, degrees about the toes' joint; 0 for a flat foot that lands heel first. A raised foot lands on its ball with no heel rocker; the starting stance rises to it and the closing stance settles from it over `RISE` seconds.
-   * @param backward Whether the stance is a backward step's: the forward stance played backward, the foot landing on its ball pitched toes-down and settling flat over the forefoot rocker's share, and leaving rolled toes-up about its heel over the heel rocker's share (provisional: the time reversal backward walking is described as, not read from a measurement of its rockers). False when absent.
-   * @returns The planted foot.
-   */
-  export function stance(
-    body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    flat: IAutoMovieMotionHumanFoot.IPlacement,
-    heading: number,
-    strike: number,
-    toeOff: number,
-    t: number,
-    push: number,
-    raised: number = 0,
-    backward: boolean = false,
-  ): IAutoMovieMotionHumanWalkFoot.IFoot {
-    return prepareStance(body, side, flat, heading, strike, toeOff, push, raised, backward)(t);
-  }
-
-  /**
-   * Prepare a footprint's fixed stance timing and rigid rocker pivots.
+   * Prepare a foot in stance on a footprint: heel rocker after its strike,
+   * flat, forefoot rocker before its toe-off.
    *
    * @param body The foot's fixed body.
    * @param side The foot.
@@ -127,17 +68,18 @@ export namespace walkFoot {
    * @param strike Its strike, seconds, or `-Infinity` for the opening stance.
    * @param toeOff Its toe-off, seconds, or `Infinity` for the closing stance.
    * @param push Its toe-off pitch, degrees, negative toes down.
-   * @param raised Its held heel-rise pitch, degrees; zero when absent.
-   * @param backward Whether the foot's rockers run backward; false when absent.
-   * @returns The same stance as `stance` at each queried second.
+   * @param typical The gait's cruising stance, seconds, from a heel strike to the same foot's toe-off: the length the rockers of an opening or closing stance, which has only one of the two ends, take their shares of.
+   * @param raised How far the heel is held off the floor through the stance, degrees about the toes' joint; 0 when absent, a flat foot that lands heel first. A raised foot lands on its ball with no heel rocker; the opening stance rises to it and the closing stance settles from it over `RISE` seconds.
+   * @param backward Whether the stance is a backward step's: the forward stance played backward, the foot landing on its ball pitched toes-down and settling flat over the forefoot rocker's share, and leaving rolled toes-up about its heel over the heel rocker's share (provisional: the time reversal backward walking is described as, not read from a measurement of its rockers). False when absent.
+   * @returns The planted foot at each second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed footprint/time inputs, angular conventions, defaults and the random-access stance reader.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the original forward, backward and raised-heel rocker formulas, with their fixed interval boundaries and heel/toe-joint pivots prepared outside the time reader.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed temporal terms and lazy rigid pivots precede one selected forward, backward or raised-heel reader, each retaining its existing active rocker decisions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps strict branch comparisons, every minimum-jerk/carried term, opening/closing stance rules and toe compensation unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; gait-kind selection and fixed heel/push interval endpoints and denominators leave the time reader. A flat stance copies its fixed rotation, while each rocker contact and yaw/roll prefix is prepared at most once per footprint.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, footprint, heading, strike/toe-off, push and raised/backward gait values fix this stance; queried seconds are never cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader retains one flat rotation and at most two rigid-pivot readers until its step plan releases it, with no time history.
+   * @evidence contracts/development/implementation.md#principled-implementation The forward, backward and raised-heel rockers on minimum-jerk profiles, the heel rocker over `HEEL_SHARE` of the stance and the forefoot rocker over its last `PUSH_SHARE`, a stance with one end taking those shares of the gait's typical stance; the heel and toe-joint pivots are prepared outside the time reader.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed temporal terms and lazy rigid pivots precede one selected forward, backward or raised-heel reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every share and angle is a named constant, sourced or provisional; the toes extend at the ball by the foot's pitch so they stay flat on the floor.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; gait-kind selection and the interval endpoints and denominators leave the time reader. A flat stance copies its fixed rotation, while each rocker contact and yaw/roll prefix is prepared at most once per footprint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, side, footprint, heading, strike/toe-off, push, typical stance and raised/backward gait values fix this stance; queried seconds are never cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One reader holds one flat rotation and at most two rigid-pivot readers until its step plan releases it, with no time history.
    */
   export function prepareStance(
     body: IAutoMovieMotionHumanBody,
@@ -147,15 +89,16 @@ export namespace walkFoot {
     strike: number,
     toeOff: number,
     push: number,
+    typical: number,
     raised: number = 0,
     backward: boolean = false,
   ): (seconds: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
     const struck: boolean = Number.isFinite(strike);
     const leaves: boolean = Number.isFinite(toeOff);
     const length: number =
-      struck && leaves ? toeOff - strike : 1;
-    const settle: number = 0.4 * (leaves ? length : 0.6);
-    const rise: number = leaves ? toeOff - 0.4 * (struck ? length : 0.6) : Infinity;
+      struck && leaves ? toeOff - strike : typical;
+    const settle: number = PUSH_SHARE * length;
+    const rise: number = leaves ? toeOff - PUSH_SHARE * length : Infinity;
     const settled: number = strike + settle;
     const heelSpan: number = HEEL_SHARE * length;
     const heelEnd: number = strike + heelSpan;
@@ -224,37 +167,31 @@ export namespace walkFoot {
     };
   }
 
-  /**
-   * A swinging foot between the stance it left and the stance it lands in.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param props The two ends, the ankle's velocity at the first (m/s), the
-   *   rates its pitch and its toes leave the first with (degrees per second,
-   *   carried over the first half of the swing by the engine's `carriedRate`;
-   *   none when absent), the share of the swing, its duration in seconds and
-   *   the mid-swing lift in hip heights, whether the leg is kept
-   *   straight (`STIFF`, `LEVEL`), and whether the foot sets down at rest
-   *   over its landing in terminal swing (a walking foot; a running one
-   *   strikes moving), true when absent.
-   * @returns The swinging foot.
-   */
-  export function swing(
-    body: IAutoMovieMotionHumanBody,
-    side: "left" | "right",
-    props: {
-      from: IEnd;
-      velocity: IAutoMovieVector3;
-      rates?: { pitch: number; toes: number };
-      to: IEnd;
-      u: number;
-      seconds: number;
-      lift: number;
-      stiff?: boolean;
-      settles?: boolean;
-    },
-  ): IAutoMovieMotionHumanWalkFoot.IFoot {
-    return prepareSwing(body, side, props)(props.u);
+  /** The fixed inputs of a swing between the stance it left and the stance it lands in. */
+  export interface ISwing {
+    /** The stance's end the foot leaves. */
+    from: IEnd;
+
+    /** The ankle's velocity as it leaves, world metres per second. */
+    velocity: IAutoMovieVector3;
+
+    /** The rates its pitch and its toes leave with, degrees per second, carried over the first half of the swing by the engine's `carriedRate`; none when absent. */
+    rates?: { pitch: number; toes: number };
+
+    /** The stance's start the foot lands on. */
+    to: IEnd;
+
+    /** The swing's duration, seconds. */
+    seconds: number;
+
+    /** The mid-swing lift, hip heights. */
+    lift: number;
+
+    /** Whether the leg is kept straight (`STIFF`, `LEVEL`); false when absent. */
+    stiff?: boolean;
+
+    /** Whether the foot sets down at rest over its landing in terminal swing (a walking foot; a running one strikes moving); true when absent. */
+    settles?: boolean;
   }
 
   /**
@@ -263,21 +200,21 @@ export namespace walkFoot {
    *
    * @param body The body whose hip height scales the authored lift.
    * @param side The swinging foot.
-   * @param props The fixed inputs of `swing`, without its queried share.
-   * @returns The same swinging foot as `swing` at each share.
+   * @param props The swing's fixed inputs.
+   * @returns The swinging foot at each share of the swing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, random-access share reader and lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Evaluates the same minimum-jerk travel, carried rates, raised-cosine lift and sole-clearance correction as `swing`; only endpoint angle decomposition and terminal-settle preparation leave the reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift and a sole-clearance correction; endpoint angle decomposition and terminal-settle preparation leave the reader.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed swing geometry precedes one reader of its varying share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule retain their original formulas and bounds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule enter as given; `CLEARANCE` is the cited minimum toe clearance.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and work per share; endpoint quaternion decompositions, coordinate deltas, lift height, fixed time prefixes and terminal-settle inverse trigonometry run once per prepared swing. Height-only heel queries omit unread world-point components.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader shares preparation only for the fixed body, side and endpoint inputs it closes over.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader retains one swing's fixed inputs and scalar terms until its owning plan releases it, with no query-dependent growth.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader holds one swing's fixed inputs and scalar terms until its owning plan releases it, with no query-dependent growth.
    */
   export function prepareSwing(
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    props: Omit<Parameters<typeof swing>[2], "u">,
+    props: ISwing,
   ): (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot {
     const stiff: boolean = props.stiff === true;
 
@@ -384,6 +321,9 @@ export namespace walkFoot {
 
   /** The share of a stance its heel rocker takes (provisional; loading response is the first 10 to 12 % of the cycle, Perry and Burnfield). */
   const HEEL_SHARE: number = 0.12;
+
+  /** The share of a stance the forefoot rocker takes, from the heel's rise to toe-off: its last 40 %, the rise beginning at 60 % of the stance (provisional angles inside the ranges of Perry and Burnfield's rockers, as the namespace states). */
+  const PUSH_SHARE: number = 0.4;
 
   /**
    * The least clearance of a swinging foot's toe and heel at mid-swing,

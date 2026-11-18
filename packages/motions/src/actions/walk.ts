@@ -111,19 +111,44 @@ export namespace walk {
 
   /**
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
-   * 0.85 hip heights, the fast-walking step that keeps the trailing hip's
-   * extension at toe-off inside its range (about 0.8 m at 1.75 m stature), and
-   * 40 % of the stride in swing.
+   * `LONGEST_STEP` hip heights, 40 % of the stride in swing, a mid-swing
+   * lift of `LIFT` hip heights, and arms swinging `SHOULDER` degrees about
+   * the shoulder with the elbow bent `ELBOW` and swinging `ELBOW_SWING` about
+   * it.
    */
   export const walking: (froude: number) => IAutoMovieMotionHumanWalkGait = (froude: number): IAutoMovieMotionHumanWalkGait => ({
     froude,
     step: (fr: number): number =>
-      Math.min(0.85, 1.2 * Math.sqrt(Math.sqrt(fr))),
+      Math.min(LONGEST_STEP, 1.2 * Math.sqrt(Math.sqrt(fr))),
     swing: 0.8,
-    lift: 0.07,
-    arms: { shoulder: 15, elbow: 22, swing: 8 },
+    lift: LIFT,
+    arms: { shoulder: SHOULDER, elbow: ELBOW, swing: ELBOW_SWING },
     lean: LEAN,
   });
+
+  /** The longest walking step, hip heights (provisional: the fast-walking step taken to keep the trailing hip's extension at toe-off inside its range, about 0.8 m at 1.75 m stature; no measured derivation was located). */
+  export const LONGEST_STEP: number = 0.85;
+
+  /** The ankle's mid-swing lift above the line between its footprints, hip heights (provisional, no measured ankle lift was read: about 6.5 cm at a 0.93 m hip; the toe's own clearance is bounded separately, `walkFoot.CLEARANCE`). */
+  export const LIFT: number = 0.07;
+
+  /** The arms' swing about the shoulder, degrees either way (Perry and Burnfield, normal gait kinematics: about 15°). */
+  export const SHOULDER: number = 15;
+
+  /** The elbow's mean flexion through the stride, degrees: the middle of Perry and Burnfield's 15 to 30° elbow range in gait. */
+  export const ELBOW: number = (15 + 30) / 2;
+
+  /** The elbow's flexion swing about its mean, degrees: half of Perry and Burnfield's 15 to 30° elbow range in gait. */
+  export const ELBOW_SWING: number = (30 - 15) / 2;
+
+  /** The admitted step-length scale (`IAutoMovieMotionHumanWalkParams.stride`): inclusive, dimensionless. */
+  export const STRIDE_RANGE: Readonly<{ minimum: number; maximum: number }> = { minimum: 0.6, maximum: 1.3 };
+
+  /** The admitted arm-swing scale (`IAutoMovieMotionHumanWalkParams.armSwing`): inclusive, dimensionless. */
+  export const ARM_SWING_RANGE: Readonly<{ minimum: number; maximum: number }> = { minimum: 0, maximum: 2 };
+
+  /** The admitted added shoulder abduction (`IAutoMovieMotionHumanWalkParams.elbows`): inclusive, degrees. */
+  export const ELBOWS_RANGE: Readonly<{ minimum: number; maximum: number }> = { minimum: 0, maximum: 30 };
 
   /** A walk's forward trunk inclination, degrees (provisional: walkers carry the trunk a few degrees forward of upright, and the inclination grows with speed, Thorstensson et al. 1984, Acta Physiol Scand 121:179). */
   export const LEAN: number = 3;
@@ -166,12 +191,12 @@ export namespace walk {
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the shared gait plan, author context and caller-owned pace; the namespace gives trajectories, contacts and timing sources.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the same planned footprints, pelvis fixed-point reach, swing constraints and hip-pivoted trunk, while explicit channel demand computes only consumed leg goals and arm carriage.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Step planning, fixed-interval swing preparation, pelvis settling and posture assembly each have one owner before the unchanged clock warp.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No footprint, event, authored parameter, solver bound or sampling schedule changes; omitted demand still evaluates the complete posture.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Step lookup is logarithmic in footfalls; every query retains actual bounded pelvis/foot work for demanded channels. Fixed body/stance prerequisites prepare once, while every reached swing endpoint is actually settled for that swing observation.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Root-only pacing omits unread carriage/swing goals; current queries share only exact FK/body prerequisites. Scheduled and reached endpoint readers remain separate, and no completed reached endpoint or fit-derived interpolation reader is retained across observations.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/steps, declared scalar carriage/descent/flight profiles and fixed geometry, released with the plan. Synchronous endpoint construction borrows one exact FK reader until return/throw; completed stance endpoints and their interpolation reader end with the actual swing observation, without a retained fit or arbitrary-time pose cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Planned footprints, a pelvis lowered by its fixed-point reach, constrained swings and a hip-pivoted trunk; explicit channel demand computes only the consumed leg goals and arm carriage.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Step planning, per-swing preparation, pelvis settling and posture assembly each have one owner before the clock warp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every footprint, event, authored parameter and solver bound comes from its owner, the gait's numbers named and sourced or provisional; omitted demand evaluates the complete posture.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Step lookup is logarithmic in footfalls; each query does bounded pelvis/foot work for its demanded channels. A swing's endpoints, its descent or flight claims and its scheduled and reached swing readers are prepared once per swing, at its first read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A swing's endpoints are fixed by its foot and toe-off, so its settled endpoints, its descent or flight and its two prepared swing readers are kept per swing, keyed by foot and toe-off; root-only pacing omits unread carriage/swing goals, and queries share only FK workspaces, which change no result.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds body/steps, the carriage, and per swing three settled endpoints, one descent or flight and two prepared swing readers, so its retention grows linearly with its footfalls and is released with the plan; it keeps no arbitrary-time pose cache.
    */
   export function locomote(
     given: IAutoMovieMotionHumanActionContext<Omit<IAutoMovieMotionHumanWalkParams, "pace">>,
@@ -199,9 +224,9 @@ export namespace walk {
       arms: p.armSwing ?? 1,
     };
     const elbows: number = p.elbows ?? 0;
-    HumanBound.within("stride", authored.stride, 0.6, 1.3);
-    HumanBound.within("armSwing", authored.arms, 0, 2);
-    HumanBound.within("elbows", elbows, 0, 30, "degrees");
+    HumanBound.within("stride", authored.stride, STRIDE_RANGE.minimum, STRIDE_RANGE.maximum);
+    HumanBound.within("armSwing", authored.arms, ARM_SWING_RANGE.minimum, ARM_SWING_RANGE.maximum);
+    HumanBound.within("elbows", elbows, ELBOWS_RANGE.minimum, ELBOWS_RANGE.maximum, "degrees");
     const stride: number = authored.stride * manner.step;
     const arms: number = authored.arms * manner.swing;
     walkClear(context);
@@ -242,8 +267,8 @@ export namespace walk {
     ): readonly [number, number, number] => {
       return [
         0,
-        4 * Math.cos(2 * Math.PI * phase) * amount,
-        4 * Math.sin(2 * Math.PI * phase) * amount,
+        walkPosture.PELVIS * Math.cos(2 * Math.PI * phase) * amount,
+        walkPosture.PELVIS * Math.sin(2 * Math.PI * phase) * amount,
       ];
     };
     const { events, contacts }: ReturnType<typeof walkWindows.of> =
@@ -253,15 +278,29 @@ export namespace walk {
         }).pivots,
       );
     // A foot as its schedule alone has it, before any pelvis is settled.
-    const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (side: "left" | "right", t: number): walkFoot.IEnd => {
-      const foot: IAutoMovieMotionHumanWalkFoot.IScheduled = steps.foot(side, t);
-      return {
-        ankle: foot.placement.ankle,
-        rotation: foot.placement.rotation,
-        toes: foot.toes,
-      };
-    };
+    const endOf: (foot: IAutoMovieMotionHumanWalkFoot.IScheduled) => walkFoot.IEnd = (foot: IAutoMovieMotionHumanWalkFoot.IScheduled): walkFoot.IEnd => ({
+      ankle: foot.placement.ankle,
+      rotation: foot.placement.rotation,
+      toes: foot.toes,
+    });
+    const scheduled: (side: "left" | "right", t: number) => walkFoot.IEnd = (side: "left" | "right", t: number): walkFoot.IEnd =>
+      endOf(steps.foot(side, t));
+
+    // Each swing's endpoints are fixed by its foot and its toe-off, so its
+    // swing reader is prepared once, the scheduled one and the reached one
+    // each, and read at every share of it.
     const scheduledSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, scheduled);
+    const scheduledSwings: Map<string, (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot> = new Map();
+    const scheduledAt: (side: "left" | "right", swing: { off: number; on: number }) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = (side: "left" | "right", swing: { off: number; on: number }): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
+      const key: string = `${side}:${swing.off}`;
+      let read: ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) | undefined = scheduledSwings.get(key);
+      if (read === undefined) {
+        read = scheduledSwing(side, swing);
+        scheduledSwings.set(key, read);
+      }
+      return read;
+    };
+
     // The lowering a swinging leg asks of the pelvis at a share of its swing for the ankle the schedule swings there, read from the schedule alone so that it needs no settled pelvis and every instant settles the same.
     function reaching(
       side: "left" | "right",
@@ -275,10 +314,11 @@ export namespace walk {
           left: steps.foot("left", t),
           right: steps.foot("right", t),
         }, resolution).hips[side],
-        scheduledSwing(side, swing, u).placement.ankle,
+        scheduledAt(side, swing)(u).placement.ankle,
       );
     }
-    // A swing's scheduled descent, memoised by its toe-off.
+
+    // A swing's scheduled descent, kept per swing by its foot and toe-off.
     const descents: Map<string, walkDescent.IPlan> = new Map();
     const flights: Map<string, [number, number]> = new Map();
     function settle(
@@ -337,7 +377,7 @@ export namespace walk {
         read,
       );
     }
-    // Settle every reached endpoint for the current swing observation.
+
     // A swing joins the stance it left and the stance it lands in, each
     // settled at the swing's own two ends: constants of the step, so each is
     // settled once for the plan, as its descent and its flight are, rather
@@ -356,6 +396,16 @@ export namespace walk {
       return known;
     };
     const reachedSwing: ReturnType<typeof walkSwing> = walkSwing(body, gait, end);
+    const reachedSwings: Map<string, (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot> = new Map();
+    const reachedAt: (side: "left" | "right", swing: { off: number; on: number }, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot = (side: "left" | "right", swing: { off: number; on: number }, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) => {
+      const key: string = `${side}:${swing.off}`;
+      let read: ((share: number) => IAutoMovieMotionHumanWalkFoot.IFoot) | undefined = reachedSwings.get(key);
+      if (read === undefined) {
+        read = reachedSwing(side, swing, resolution);
+        reachedSwings.set(key, read);
+      }
+      return read;
+    };
     const ranged: Partial<Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>> = {};
     function solve(
       t: number,
@@ -363,12 +413,7 @@ export namespace walk {
       phase: number,
       amount: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-    ): {
-      feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
-      hips: readonly [number, number, number];
-      settled: walkReach.IGround;
-      reached: Record<"left" | "right", walkFoot.IEnd>;
-    } {
+    ): walkPosture.ISettled {
       const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
         left: steps.foot("left", t),
         right: steps.foot("right", t),
@@ -379,7 +424,7 @@ export namespace walk {
       for (const side of ["left", "right"] as const) {
         const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = feet[side].swing;
         if (!legs.includes(side)) {
-          reached[side] = { ankle: feet[side].placement.ankle, rotation: feet[side].placement.rotation, toes: feet[side].toes };
+          reached[side] = endOf(feet[side]);
           continue;
         }
         if (swing === undefined) {
@@ -388,7 +433,7 @@ export namespace walk {
         }
         reached[side] = (ranged[side] ??= walkReach.prepareSwing(body, side))(
           settled,
-          reachedSwing(side, swing, swing.u, resolution),
+          reachedAt(side, swing, resolution)(swing.u),
         );
       }
       return { feet, hips, settled, reached };
