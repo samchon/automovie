@@ -106,6 +106,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
         lean,
       ),
       AutoMovieMotionHumanBend.hang(body, posture, side),
+      along === "reach",
     );
     return (
       elbow === "level"
@@ -336,6 +337,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
       faced,
       lying,
       hint,
+      along === "reach",
     );
   }
 

@@ -338,6 +338,7 @@ export namespace AutoMovieMotionHumanTouch {
           lean,
         ),
         HumanFrame.point(frame, hint),
+        props.lay === "reach",
       );
 
       // A held rotation turns with the heading and leans with the vessel.
