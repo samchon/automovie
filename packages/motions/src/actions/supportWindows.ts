@@ -80,7 +80,10 @@ export namespace supportWindows {
       );
     const frames: Map<string, IAutoMovieMotionHumanContactWindow.Support> =
       new Map(
-        stances.flatMap((stance: IAutoMovieMotionHumanSupport.IStance) =>
+        stances.flatMap(
+          (
+            stance: IAutoMovieMotionHumanSupport.IStance,
+          ): [string, IAutoMovieMotionHumanContactWindow.Support][] =>
           stance.contacts.map(
             (
               c: IAutoMovieMotionHumanSupport.IContact,
@@ -104,13 +107,28 @@ export namespace supportWindows {
           ),
         ),
       );
-    const close = (key: string, until: number): void => {
+    const parts: Map<string, IAutoMovieMotionHumanSupport.Part> = new Map(
+      stances.flatMap(
+        (
+          st: IAutoMovieMotionHumanSupport.IStance,
+        ): [string, IAutoMovieMotionHumanSupport.Part][] =>
+          st.contacts.map(
+            (
+              c: IAutoMovieMotionHumanSupport.IContact,
+            ): [string, IAutoMovieMotionHumanSupport.Part] => [
+              supportContact.id(c),
+              c.part,
+            ],
+          ),
+      ),
+    );
+    const close: (key: string, until: number) => void = (
+      key: string,
+      until: number,
+    ): void => {
       const from: number = opened.get(key)!;
       opened.delete(key);
-      const [named] = key.split("|") as [string];
-      const window: string = supportContact.window(
-        named as IAutoMovieMotionHumanSupport.Part,
-      );
+      const window: string = supportContact.window(parts.get(key)!);
       const part: IAutoMovieMotionHumanContactWindow["part"] | undefined =
         HumanContactWindow.PARTS.find(
           (p: IAutoMovieMotionHumanContactWindow["part"]): boolean =>
@@ -132,20 +150,23 @@ export namespace supportWindows {
         support: frames.get(key) ?? { kind: "ground" },
       });
     };
-    const keyAt = (name: string): IKey | undefined =>
-      keys.find((k: IKey): boolean => k.name === name);
+    const keyAt: (name: string) => IKey | undefined = (
+      name: string,
+    ): IKey | undefined => keys.find((k: IKey): boolean => k.name === name);
     stances.forEach(
       (stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
         const held: IKey = keyAt(stance.event ?? `stance${i}`)!;
         const placed: IKey = keyAt(`bear${i}`) ?? held;
-        // A part the body already rests on as it enters bears from the start.
+        // A part the body already rests on as it enters bears from the start;
+        // the entry names it by its contact window, as `support.plan` reads it.
         for (const c of stance.contacts)
           if (!opened.has(supportContact.id(c)))
             opened.set(
               supportContact.id(c),
               i === 0 &&
                 context.entry.supports.some(
-                  (s: { part: string }): boolean => s.part === c.part,
+                  (s: { part: string }): boolean =>
+                    s.part === supportContact.window(c.part),
                 )
                 ? 0
                 : placed.seconds,

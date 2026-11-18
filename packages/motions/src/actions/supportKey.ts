@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -27,7 +27,7 @@ import { supportContact } from "./supportContact";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two things the file holds and who reads them.
  * @evidence contracts/development/design.md#principled-representation A key is the static multi-contact posture on its contacts; the course between keys is a blend of their joints.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The support law owns key solving; it and the squat vault consume the same raw or prepared key interpolation.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The support law owns key solving; its intervals and the squat vault consume the same prepared key interpolation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit and the joint blend are their owners' (`HumanBodyFit`, `blendHumanJoint`); no posture is typed.
  */
 export namespace supportKey {
@@ -257,64 +257,28 @@ export namespace supportKey {
   }
 
   /**
-   * Two keys blended by a share, each joint on its own range, the root and
-   * the turn linearly.
-   *
-   * @param body The body.
-   * @param a The key at share 0.
-   * @param b The key at share 1.
-   * @param w The share.
-   * @returns The posture, by joint angles alone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is blended and how.
-   * @evidence contracts/development/implementation.md#principled-implementation A free movement between two postures is smooth in joint space (Flash and Hogan 1985 for its minimum-jerk share), each joint on its range (`blendHumanJoint`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the same prepared interpolation owner as fixed-key consumers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heading takes the shorter arc, so a turn across south is not a spin.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One-shot pair preparation is O(J) for J union joints; its interior pass shares O(B+J) rig metadata instead of repeated per-joint B-bone lookups, followed by the existing numerical blends.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw and prepared calls share one interpolation owner and blendHumanJoint's current synchronous multi-joint metadata, without retaining the current output.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function blended(
-    body: IAutoMovieMotionHumanBody,
-    a: IAutoMovieMotionHumanPosture,
-    b: IAutoMovieMotionHumanPosture,
-    w: number,
-  ): IAutoMovieMotionHumanPosture {
-    return prepareKeyBlend(body, a, b, false)(w);
-  }
-
-  /**
-   * Prepare interpolation between two unchanged joint-space support keys.
-   * Each read retains the original unclipped root/heading progress and
-   * per-joint ROM interpolation; outputs contain no limb goals.
+   * Prepare interpolation between two joint-space support keys the caller
+   * holds unchanged: each joint on its own range (`blendHumanJoint`), the
+   * root linearly and the heading the shorter way. Reads take the share
+   * unclipped; outputs carry no limb goals.
    *
    * @param body The unchanged body and its canonical axes/ranges.
    * @param a The fixed key at zero progress, in world metres and degrees.
    * @param b The fixed key at full progress in the same frame.
-   * @returns A reader of the original progress, with a fresh posture and joint map.
+   * @returns A reader of the share, with a fresh posture and joint map.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States immutable key/body premises, world-metre/degree frame, unclipped root progress, ROM joint interpolation and output ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps blended's same ordered joint union, clinical-zero missing endpoints, blendHumanJoint range rule, Vector3.lerp root and original shortest-heading expression.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private writer serves raw and fixed-key reads; fixed joint pairs/trunk deltas precede per-pair between readers and one current synchronous fallback for missing endpoints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No current joint interpolation, range admission, root arithmetic, heading wrap, endpoint tuple identity or empty-goal rule is replaced with a fitted or sampled pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) construction removes repeated joint-union work. Each complete pair pays its owner's lazy endpoint/rig preparation once, potentially O(BJ) first-read metadata for B bones, then evaluates only the current numerical blend/readback. M missing-endpoint pairs share one O(B+M) current metadata pass; endpoints allocate none.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Immutable endpoint tuples, order, trunk deltas and between-owned fixed endpoint/chart metadata survive across reads under the unchanged body/tuple premise. Missing endpoint zeros remain per-query inputs to the synchronous generic joint owner.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns J fixed pairs and at most J bounded between readers until release. A missing-pair query's generic metadata ends with that query; no queried share, blended output or FK workspace is retained, and missing endpoint zeros are fresh per read.
+   * @evidence contracts/development/common.md#meaningful-documentation States the key/body premises, world-metre/degree frame, unclipped share, ROM joint interpolation and output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation A free movement between two postures is smooth in joint space (Flash and Hogan 1985 for the caller's minimum-jerk share), each joint on its range (`blendHumanJoint`); a joint one key lacks blends from or to clinical zero; the heading difference is wrapped by `wrapDegrees`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed joint pairs and trunk deltas precede per-pair range readers and one per-read fallback for a pair missing an endpoint.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No joint interpolation, range admission, root arithmetic or heading wrap is replaced with a fitted or sampled pose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(J) construction over the J union joints. Each complete pair pays its range reader's lazy preparation once, then each read evaluates only its numerical blend; M missing-endpoint pairs share one O(B+M) metadata pass for B bones per interior read.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Endpoint tuples, order, trunk deltas and each pair's range metadata serve every read, since the caller holds the body and keys unchanged. Missing-endpoint zeros are per-read inputs to the generic joint owner.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One transition owns J fixed pairs and at most J range readers until release. A missing-pair read's metadata ends with that read; no share, blended output or FK workspace is retained.
    */
   export function prepareBlended(
     body: IAutoMovieMotionHumanBody,
     a: IAutoMovieMotionHumanPosture,
     b: IAutoMovieMotionHumanPosture,
-  ): (w: number) => IAutoMovieMotionHumanPosture {
-    return prepareKeyBlend(body, a, b, true);
-  }
-
-  /** One interpolation owner for one-shot metadata and immutable fixed-pair preparation. */
-  function prepareKeyBlend(
-    body: IAutoMovieMotionHumanBody,
-    a: IAutoMovieMotionHumanPosture,
-    b: IAutoMovieMotionHumanPosture,
-    fixed: boolean,
   ): (w: number) => IAutoMovieMotionHumanPosture {
     const bones: Set<AutoMovieHumanoidBone> = new Set([
       ...(Object.keys(a.joints) as AutoMovieHumanoidBone[]),
@@ -329,7 +293,7 @@ export namespace supportKey {
           from,
           to,
           read:
-            fixed && from !== undefined && to !== undefined
+            from !== undefined && to !== undefined
               ? blendHumanJoint.between(body, bone, from, to)
               : undefined,
         };
@@ -338,7 +302,7 @@ export namespace supportKey {
     const generic: boolean = pairs.some(
       (pair: IBlendPair): boolean => pair.read === undefined,
     );
-    const yaw: number = ((b.yaw - a.yaw + 540) % 360) - 180;
+    const yaw: number = wrapDegrees(b.yaw - a.yaw);
     const pitch: number = b.pitch - a.pitch;
     const roll: number = b.roll - a.roll;
     return (w: number): IAutoMovieMotionHumanPosture => {
@@ -383,7 +347,7 @@ export namespace supportKey {
     /** Its authored second tuple, absent for clinical zero. */
     to: readonly [number, number, number] | undefined;
 
-    /** The joint owner's lazy fixed-endpoint reader, absent for fresh-zero fallbacks or raw passes. */
+    /** The joint owner's lazy fixed-endpoint reader, absent when an endpoint falls back to clinical zero. */
     read: ReturnType<typeof blendHumanJoint.between> | undefined;
   }
 }

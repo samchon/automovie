@@ -120,7 +120,7 @@ export namespace IAutoMovieMotionHumanSupport {
    *
    * @evidence contracts/development/common.md#meaningful-documentation A body part that bears: a foot on its ball and toes, a hand on its palm, a knee on the shin's top, the seat on the buttocks, the back or the front of the trunk lying on it.
    * @evidence contracts/development/design.md#principled-representation Closed choices "leftFoot", "rightFoot", "leftHand", "rightHand", "leftKnee", "rightKnee", "seat", "back", "front" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/supportContact.ts (supportContact.window, part); actions/supportContact.ts (supportContact.limb, part); actions/supportContact.ts (supportContact.onFloor, part); actions/supportContact.ts (supportContact.pinned, part); floor/getUp.ts (getUp.plan.stances, part); lexicon/HumanSupportRows.ts (on, part).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/supportContact.ts (supportContact.window, part); actions/supportContact.ts (supportContact.limb, part); actions/supportContact.ts (supportContact.onFloors, parts);floor/getUp.ts (getUp.plan.stances, part); lexicon/HumanSupportRows.ts (on, part).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in supportContact.window.
    */
   export type Part =
