@@ -1,10 +1,10 @@
-import type { AutoMovieHumanSide } from "@automovie/interface";
 import {
   createTable,
   createTableware,
   createTool,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type { AutoMovieHumanSide } from "@automovie/interface";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
@@ -173,44 +173,41 @@ export function test_motion_contact_hand_to_prop(): void {
     (a: IAutoMovieAffordance): boolean => a.id === "face",
   )!.frame.translation;
 
-  // 1-3. Both hands, near and far.
+  // The reachable place setting captures and carries the fork.
+  const label: string = "seated fork";
   try {
-    const label: string = "seated fork";
     const side: AutoMovieHumanSide = "right";
     const ahead: number = 0.5 * reach;
-      const p: IAutoMovieMotionHumanPerformance = scene(side, ahead);
-      const miss: number = closest(p);
-      if (!(miss <= HumanVerdicts.SKIN))
-        complaints.push(
-          `${label}: the fork's face comes ${(miss * 1000).toFixed(1)} mm from the mouth at its closest, within ${(HumanVerdicts.SKIN * 1000).toFixed(0)} mm expected`,
-        );
-
-      // 5. The fork stays in its hand.
-      const grip: number =
-        p.segments("a")[1]!.start + p.segments("a")[1]!.plan.duration;
-      const seat0 = (t: number): IAutoMovieVector3 => {
-        const hand = p.bones("a", t).get(`${side}Hand`)!;
-        return Quaternion.rotateVector(
-          Quaternion.inverse(hand.worldRotation),
-          Vector3.subtract(p.prop("fork", t).position, hand.worldPosition),
-        );
-      };
-      const start: IAutoMovieVector3 = seat0(grip);
-      let slip: number = 0;
-      for (let t: number = grip; t <= p.duration; t += 0.1)
-        slip = Math.max(
-          slip,
-          Vector3.length(Vector3.subtract(seat0(t), start)),
-        );
-      if (!(slip <= 0.001))
-        complaints.push(
-          `${label}: the fork moves ${(slip * 1000).toFixed(2)} mm in the hand, within 1 mm expected`,
-        );
-    } catch (error) {
+    const p: IAutoMovieMotionHumanPerformance = scene(side, ahead);
+    const miss: number = closest(p);
+    if (!(miss <= HumanVerdicts.SKIN))
       complaints.push(
-        `${label}: expected to plan, got ${(error as Error).message}`,
+        `${label}: the fork's face comes ${(miss * 1000).toFixed(1)} mm from the mouth at its closest, within ${(HumanVerdicts.SKIN * 1000).toFixed(0)} mm expected`,
       );
-    }
+
+    // 5. The fork stays in its hand.
+    const grip: number =
+      p.segments("a")[1]!.start + p.segments("a")[1]!.plan.duration;
+    const seat0 = (t: number): IAutoMovieVector3 => {
+      const hand = p.bones("a", t).get(`${side}Hand`)!;
+      return Quaternion.rotateVector(
+        Quaternion.inverse(hand.worldRotation),
+        Vector3.subtract(p.prop("fork", t).position, hand.worldPosition),
+      );
+    };
+    const start: IAutoMovieVector3 = seat0(grip);
+    let slip: number = 0;
+    for (let t: number = grip; t <= p.duration; t += 0.1)
+      slip = Math.max(slip, Vector3.length(Vector3.subtract(seat0(t), start)));
+    if (!(slip <= 0.001))
+      complaints.push(
+        `${label}: the fork moves ${(slip * 1000).toFixed(2)} mm in the hand, within 1 mm expected`,
+      );
+  } catch (error) {
+    complaints.push(
+      `${label}: expected to plan, got ${(error as Error).message}`,
+    );
+  }
 
   // 4. An unreachable plate.
   try {
