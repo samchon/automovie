@@ -1,0 +1,136 @@
+import { createDrinkware } from "@automovie/archetypes";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPickUp,
+  IAutoMovieMotionHumanStrikingHeld,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  StrikingHeld,
+  stand,
+} from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { motionHumanBody } from "../internal/motionHumanBody";
+
+/**
+ * A grip selected while planning a pickup must be one of the grip transforms
+ * considered by the following action. Read the captured transform on entry.
+ *
+ * Scenarios:
+ * 1. Observe the candidate attachment frames for a mug with a named use.
+ * 2. Match the selected attachment against one entire candidate on entry to the next action.
+ * 3. An undeclared working point is refused on use.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the prospective and actual closure frames and their observation times.
+ * @evidence contracts/development/testing.md#behavioral-verification Picks up a mug by its handle for drinking, records the candidate grip frames and compares the chosen attachment on entry to the next action.
+ * @evidence contracts/development/testing.md#independent-expectations Public demand and entry observations must agree on one rigid transform within one micrometre and 0.001 degree, both inside the grip accuracy allowance. Quaternion sign is immaterial.
+ * @evidence contracts/development/testing.md#distinguishing-cases The object starts free and finishes held. The handover test owns the transfer between two attached hands.
+ * @evidence contracts/development/testing.md#execution-ownership Builds one in-memory performance with one real pickup and a local action observing its entry.
+ */
+export function test_motion_contact_grasp_for_use(): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const candidates: IAutoMovieRigidTransform[] = [];
+  const points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "lip" };
+  const actual: IAutoMovieRigidTransform[] = [];
+  const observe: IAutoMovieMotionHumanActionLaw<
+    Pick<IAutoMovieMotionHumanPickUp.IParams, "prop">
+  > = {
+    name: "inspectClosure",
+    interrupts: {},
+    demands: (
+      ahead: IAutoMovieMotionHumanActionLaw.IAhead<
+        Pick<IAutoMovieMotionHumanPickUp.IParams, "prop">
+      >,
+    ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
+      candidates.push(ahead.grip.tool(points).held!.frame);
+      return [];
+    },
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<
+        Pick<IAutoMovieMotionHumanPickUp.IParams, "prop">
+      >,
+    ): IAutoMovieMotionHumanActionPlan => {
+      actual.push(
+        StrikingHeld.of(context, "right", context.params.prop, points).held!
+          .frame,
+      );
+      return stand.plan({ ...context, params: { seconds: 0.1 } });
+    },
+  };
+  const pick = (tip: string): HumanPerformance =>
+    new HumanPerformance({
+      seed: "grasp",
+      laws: [observe],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      props: [
+        HumanObject.prop("mug", createDrinkware({ kind: "mug" }), {
+          at: {
+            x: -body.measure.shoulderHalfWidth,
+            y: body.measure.waistHeight,
+            z: 0.6 * (body.measure.upperArm + body.measure.forearm),
+          },
+          yaw: 0,
+        }),
+      ],
+      composition: HumanChain.subject("a")
+        .pickUp({
+          prop: "mug",
+          handle: "handle",
+          use: { tip, line: "square" },
+        })
+        .registered("inspectClosure", { prop: "mug" }).node,
+    });
+  pick("lip");
+  let failure: unknown;
+  try {
+    pick("undeclared-affordance");
+  } catch (error: unknown) {
+    failure = error;
+  }
+  TestValidator.predicate(
+    "an undeclared working point is refused on use",
+    failure instanceof HumanRefusal && failure.axis === "use",
+  );
+  TestValidator.predicate(
+    "the following action observed the captured grip",
+    actual.length > 0,
+  );
+  for (const captured of actual) {
+    const matched: boolean = candidates.some(
+      (candidate: IAutoMovieRigidTransform): boolean => {
+        const distance: number = Vector3.length(
+          Vector3.subtract(candidate.position, captured.position),
+        );
+        const relative: ReturnType<typeof Quaternion.multiply> =
+          Quaternion.multiply(
+            Quaternion.inverse(candidate.rotation),
+            captured.rotation,
+          );
+        return (
+          distance <= 1e-6 && Math.abs(relative.w) >= Math.cos(Math.PI / 360000)
+        );
+      },
+    );
+    TestValidator.predicate(
+      "the same candidate supplies position and rotation",
+      matched,
+    );
+  }
+}

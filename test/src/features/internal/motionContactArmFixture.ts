@@ -1,5 +1,8 @@
-import { Vector3 } from "@automovie/engine";
+import {physicalShapePairDistance} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
@@ -7,10 +10,15 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionClock, stand } from "@automovie/motions";
+import {
+  AutoMovieMotionClock,
+  HumanColliders,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
+import type { motionHumanLaw } from "./motionHumanLaw";
 
 /**
  * Construct an arm and an explicitly timed phrase. The right wrist moves
@@ -85,5 +93,42 @@ export namespace motionContactArmFixture {
       `at ${time} s wrist ${JSON.stringify(point)} reaches ${JSON.stringify(expected)}`,
       Vector3.distance(point, expected) <= 1e-9,
     );
+  }
+  /** Resolve a named skin landmark using its carrier's displayed transform. */
+  export function site(
+    body: IAutoMovieMotionHumanBody,
+    bones: motionHumanLaw.Bones,
+    region: AutoMovieHumanoidRegion,
+  ): IAutoMovieVector3 {
+    const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      body.surfaces.regions[region];
+    return resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+      .point;
+  }
+
+  /** Signed skin distance in metres from one hand and its fingers to an external world point. */
+  export function skin(
+    body: IAutoMovieMotionHumanBody,
+    bones: motionHumanLaw.Bones,
+    side: AutoMovieHumanSide,
+    point: IAutoMovieVector3,
+  ): number {
+    const prefix: RegExp = new RegExp(
+      "^" + side + "(Hand|Thumb|Index|Middle|Ring|Little)",
+    );
+    const hand: motionHumanLaw.Bones = new Map(
+      [...bones].filter(([bone]) => prefix.test(bone)),
+    );
+    return HumanColliders.distance(body, hand, point).distance;
+  }
+
+  /** Least signed separation of two externally selected sets of displayed physical segments. */
+  export function separation(bodyA:IAutoMovieMotionHumanBody,bonesA:motionHumanLaw.Bones,selectedA:RegExp,bodyB:IAutoMovieMotionHumanBody,bonesB:motionHumanLaw.Bones,selectedB:RegExp):number{
+    const first:ReturnType<typeof HumanColliders.placed>=HumanColliders.placed(bodyA,bonesA).filter((segment)=>selectedA.test(segment.bone));
+    const second:ReturnType<typeof HumanColliders.placed>=HumanColliders.placed(bodyB,bonesB).filter((segment)=>selectedB.test(segment.bone));
+    let least:number=Infinity;
+    for(const a of first)for(const b of second)for(const left of a.shapes)for(const right of b.shapes)
+      least=Math.min(least,physicalShapePairDistance(a.pose,left,b.pose,right));
+    return least;
   }
 }
