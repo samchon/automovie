@@ -19,7 +19,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Every body lies prone in its rest shape, turned a quarter about its left
  * axis, in fresh water whose surface is at 0 m.
  *
- * Scenarios, on every body of `EXTREMES`:
+ * Scenarios:
+ * on every body of `EXTREMES`:
  * 1. Archimedes: lowered by `float`, the body's submerged volume times the
  *    water's density equals its mass within 2 % (the issue's bound). The
  *    profile carries no lung air, so a body whose colliders displace less
@@ -171,8 +172,6 @@ export function test_motion_posture_water_buoyancy(): void {
         break;
       }
     }
-
-
   }
 
   TestValidator.predicate(
@@ -180,4 +179,3 @@ export function test_motion_posture_water_buoyancy(): void {
     findings.length === 0,
   );
 }
-

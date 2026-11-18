@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
@@ -62,9 +63,9 @@ export function test_motion_posture_reach_for_target(): void {
     const upright: ReturnType<typeof poseBones> = read(0);
     const shoulder = (
       bones: ReturnType<typeof poseBones>,
-      side: "left" | "right",
+      side: AutoMovieHumanSide,
     ): IAutoMovieVector3 => bones.get(`${side}UpperArm`)!.worldPosition;
-    const span = (side: "left" | "right"): number =>
+    const span = (side: AutoMovieHumanSide): number =>
       HumanMountRider.ARM *
       (Vector3.length(
         Vector3.subtract(
@@ -78,14 +79,17 @@ export function test_motion_posture_reach_for_target(): void {
             upright.get(`${side}LowerArm`)!.worldPosition,
           ),
         ));
-    const ahead = (side: "left" | "right", times: number): IAutoMovieVector3 =>
+    const ahead = (
+      side: AutoMovieHumanSide,
+      times: number,
+    ): IAutoMovieVector3 =>
       Vector3.add(shoulder(upright, side), {
         x: 0,
         y: 0,
         z: times * span(side),
       });
     const reach: (
-      points: Partial<Record<"left" | "right", IAutoMovieVector3>>,
+      points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
     ) => number = HumanMountReach.reach(body, seated, ["left", "right"]);
 
     // 1. Within reach.
@@ -122,10 +126,18 @@ export function test_motion_posture_reach_for_target(): void {
 
     // At maximum lean construct a point on the measured reach sphere.
     const limitShoulder: IAutoMovieVector3 = shoulder(read(60), "right");
-    const boundary: IAutoMovieVector3 = {...limitShoulder, z:limitShoulder.z + span("right")};
-    const boundaryLean: number = reach({right: boundary});
+    const boundary: IAutoMovieVector3 = {
+      ...limitShoulder,
+      z: limitShoulder.z + span("right"),
+    };
+    const boundaryLean: number = reach({ right: boundary });
     if (Math.abs(boundaryLean - 60) > 1e-6)
-      complaints.push(name + ": exact outer reach uses " + boundaryLean + " degrees instead of 60");
+      complaints.push(
+        name +
+          ": exact outer reach uses " +
+          boundaryLean +
+          " degrees instead of 60",
+      );
     // 5. Beyond every lean.
     const far: number = reach({ right: ahead("right", 3) });
     // Sixty degrees is the published seated lean limit. One unit in the last place can change a boundary comparison.
@@ -149,4 +161,3 @@ export function test_motion_posture_reach_for_target(): void {
   }
   TestValidator.equals("the rider's lean", complaints, []);
 }
-

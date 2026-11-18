@@ -106,8 +106,10 @@ export function test_motion_posture_paired_dance(): void {
     a: HumanSignature.of(performance, "a", lead, 0),
     b: HumanSignature.of(performance, "b", follow, 0),
   };
-  const hips = (who: "a" | "b", seconds: number): IAutoMovieVector3 =>
-    HumanSignature.joint(readers[who], seconds, "hips");
+  const hips = (
+    who: keyof typeof readers,
+    seconds: number,
+  ): IAutoMovieVector3 => HumanSignature.joint(readers[who], seconds, "hips");
 
   // 2. At his right once he stands.
   const settled: number = leading.end + 1.5;
@@ -120,7 +122,7 @@ export function test_motion_posture_paired_dance(): void {
     );
   // 3. At his pace.
   const half: number = (leading.start + leading.end) / 2;
-  const travel = (who: "a" | "b"): number =>
+  const travel = (who: keyof typeof readers): number =>
     hips(who, leading.end).z - hips(who, half).z;
   if (!(travel("b") >= 0.7 * travel("a")))
     complaints.push(
@@ -161,4 +163,3 @@ export function test_motion_posture_paired_dance(): void {
   }
   TestValidator.equals("a walking partner dance", complaints, []);
 }
-

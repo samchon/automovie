@@ -50,7 +50,8 @@ type BoatInstant = ReturnType<typeof rowBoat>["instants"][number];
  * boat lies still while the rower sits and takes hold, then rows 20 m
  * straight.
  *
- * Scenarios, on the average man and the small woman, on still water and on
+ * Scenarios:
+ * on the average man and the small woman, on still water and on
  * a slight sea (significant height 1 m, seed 7):
  * 1. At the first catch, halfway to the next catch, and at the 9.50 s regression
  *    instant, each wrist is within 0.7 of the hand's length of

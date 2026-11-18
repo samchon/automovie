@@ -1,6 +1,7 @@
 import { createPlyoBox } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
@@ -29,7 +30,8 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * (provisional placement). Its far edge is read from its own geometry: its
  * place along the heading plus half its declared depth.
  *
- * Scenarios, on each body:
+ * Scenarios:
+ * on each body:
  * 1. The vault plans and is placed under its row's name.
  * 2. No contact window is open strictly between the push-off (`tucked`)
  *    and `touchdown`: the body flies, borne by nothing.
@@ -99,7 +101,7 @@ export function test_motion_posture_gym_support(): void {
     if (vault === undefined) continue;
     const share = (event: string): number | undefined =>
       vault.plan.events.find(
-        (e: { name: string; share: number }): boolean => e.name === event,
+        (e: IAutoMovieMotionEvent): boolean => e.name === event,
       )?.share;
     const push: number | undefined = share("tucked");
     const down: number | undefined = share("touchdown");
@@ -150,4 +152,3 @@ export function test_motion_posture_gym_support(): void {
   }
   complaints.assert("a box vault flies over its box and lands beyond it");
 }
-

@@ -21,7 +21,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * of where the person is at that moment, not where they were when it set
  * off, and it does not run into them.
  *
- * Scenarios, the average man heading off the small woman and the reverse;
+ * Scenarios:
+ * the average man heading off the small woman and the reverse;
  * the person walks 6 m across the runner's front, from 3 m to the left to
  * 3 m to the right at 5 m ahead, and the runner starts as they do:
  * 1. When the run ends, the runner's sternum is no further from the
@@ -43,9 +44,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_travel_target(): void {
   const complaints: string[] = [];
-  for (const names of [
-    ["m-average", "f-small"],
-  ] as const) {
+  for (const names of [["m-average", "f-small"]] as const) {
     const bodies: readonly [
       IAutoMovieMotionHumanBody,
       IAutoMovieMotionHumanBody,
@@ -143,4 +142,3 @@ export function test_motion_posture_travel_target(): void {
   }
   TestValidator.equals("an interceptor heads a walker off", complaints, []);
 }
-

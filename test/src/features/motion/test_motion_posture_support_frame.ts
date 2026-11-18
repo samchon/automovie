@@ -31,6 +31,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    action durations are unchanged within a microsecond. These numerical
  *    bounds check rigid translation, rather than a clinical motion bound.
  *
+ * Scenarios:
+ * 1. Observe the supplied action through the phases identified above.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the public action chain and reads declared contacts and displayed joints; losing the prop identity or resetting a world height fails.
  * @evidence contracts/development/testing.md#independent-expectations A rigid translation preserves an action's geometry and duration, and a plant stays on the support it continues.
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite body builds and floors above and below ground, with both seated and standing transitions.
@@ -138,4 +141,3 @@ export function test_motion_posture_support_frame(): void {
     [],
   );
 }
-
