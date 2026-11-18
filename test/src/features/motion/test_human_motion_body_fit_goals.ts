@@ -17,6 +17,7 @@ import type {
 import {
   HumanBodyFit,
   HumanChain,
+  HumanColliders,
   HumanHand,
   HumanPerformance,
   poseBones,
@@ -48,10 +49,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 4. An interval reaches its nearest admissible boundary rather than its
  *    midpoint. The same angle with only root translation is reported unmet;
  *    coincident landmark rays are rejected explicitly.
- * 5. The sprint consumer on small, average and short-armed bodies keeps all
- *    four contacts, front knee 90, rear knee 117 +/- 11, front hip 43 +/- 6
- *    degrees and the sex-matched centre projection within 1 mm. A translated
- *    90-degree heading exercises the constraint's coordinate frame.
+ * 5. The sprint consumer on small, average and short-armed bodies keeps the
+ *    feet on their blocks and each hand on the bridge a sprinter sets on, the
+ *    thumb and index over their places on the line within 1 mm, each digit's
+ *    distal phalanx bearing on the track within 1 mm and the palm raised;
+ *    front knee 90, rear knee 117 +/- 11, front hip 43 +/- 6 degrees and the
+ *    sex-matched centre projection within 1 mm. A translated 90-degree
+ *    heading exercises the constraint's coordinate frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios, the independent geometric and mass expectations and every physical bound.
  * @evidence contracts/development/testing.md#behavioral-verification Fits actual bodies through HumanBodyFit and reads displayed bones through the public pose and mass owners; then performs the sprint law through HumanPerformance, so an unwired row, incorrect Jacobian or law that discards the fitted contacts fails.
@@ -346,27 +350,54 @@ export function test_human_motion_body_fit_goals(): void {
         Math.abs(behind - (sex === "female" ? 0.162 : 0.229)) <= 0.001,
       );
       for (const side of ["left", "right"] as const) {
-        const palm: IAutoMovieVector3 = HumanHand.frame(
-          body,
-          bones,
-          side,
-          "palm",
-          "flat",
-        ).point;
-        const expected: IAutoMovieVector3 = Vector3.add(
-          at,
-          Quaternion.rotateVector(
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-            {
-              x: (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth,
-              y: 0,
-              z: body.measure.footLength - body.measure.hand / 2,
-            },
-          ),
+        // The hand bridges on its thumb and index at the line: each pad over
+        // its place, spread as far as the flat hand holds them, the index
+        // outward, and each digit's distal phalanx bearing on the track (its
+        // solid's lowest point on the floor), the palm raised off it.
+        const spread: number = Vector3.distance(
+          HumanHand.offset(body, side, "indexPad", "flat").point,
+          HumanHand.offset(body, side, "thumbPad", "flat").point,
         );
+        const lowest: number[] = HumanColliders.prepareMinima(body, [
+          new Set<AutoMovieHumanoidBone>([`${side}IndexDistal`]),
+          new Set<AutoMovieHumanoidBone>([`${side}ThumbDistal`]),
+        ])(bones);
+        for (const [pad, lateral, k] of [
+          ["indexPad", spread / 2, 0],
+          ["thumbPad", -spread / 2, 1],
+        ] as const) {
+          const point: IAutoMovieVector3 = HumanHand.frame(
+            body,
+            bones,
+            side,
+            pad,
+            "flat",
+          ).point;
+          const expected: IAutoMovieVector3 = Vector3.add(
+            at,
+            Quaternion.rotateVector(
+              Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+              {
+                x:
+                  (side === "left" ? 1 : -1) *
+                  (body.measure.shoulderHalfWidth + lateral),
+                y: 0,
+                z: body.measure.footLength,
+              },
+            ),
+          );
+          all.check(
+            `${name} ${side} ${pad} over its place on the line`,
+            Math.hypot(point.x - expected.x, point.z - expected.z) <= 0.001,
+          );
+          all.check(
+            `${name} ${side} ${pad} digit bears on the track ${lowest[k]}`,
+            Math.abs(lowest[k]!) <= 0.001,
+          );
+        }
         all.check(
-          `${name} ${side} hard palm contact`,
-          Vector3.length(Vector3.subtract(palm, expected)) <= 0.001,
+          `${name} ${side} palm raised off the track`,
+          HumanHand.frame(body, bones, side, "palm", "flat").point.y > 0,
         );
         const foot: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
         const end: Bones = film.bones("a", Math.min(segment.end, set + 0.5));

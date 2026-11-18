@@ -156,13 +156,19 @@ export namespace HumanBodyFitRows {
     ): void => {
       const value: number = f(at);
       const miss: number = (goal - value) * MM;
+
+      // A goal of one value may be missed by the band unpriced, so a step
+      // that meets it to the solver's accuracy holds; a physical interval
+      // already has its width and is held to its own ends, as a target's
+      // physical bound is (`HumanBodyFitMerit`).
+      const band: number = upper > goal ? 0 : BAND;
       rows.push({
         row: {
           key,
           index: all,
           coef,
-          l: miss - BAND * MM,
-          u: (upper - value + BAND) * MM,
+          l: miss - band * MM,
+          u: (upper - value + band) * MM,
           weight,
         },
         f,

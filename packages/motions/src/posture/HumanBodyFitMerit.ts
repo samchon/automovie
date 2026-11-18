@@ -372,8 +372,12 @@ export namespace HumanBodyFitMerit {
           });
         });
         m.angles.forEach((d: number, k: number): void => {
+          // A measured interval is held to its own ends, with no numerical
+          // band beyond them (`HumanBodyFitRows.rows`); one value keeps it.
+          const [lo, hi]: readonly [number, number] = HumanFitGoals.bounds(props.angles[k]!);
           violation +=
-            ((props.angles[k]!.price ?? price) / price) * beyond(Math.abs(d));
+            ((props.angles[k]!.price ?? price) / price) *
+            (hi > lo ? Math.abs(d) : beyond(Math.abs(d)));
         });
         for (const d of m.centre)
           violation +=

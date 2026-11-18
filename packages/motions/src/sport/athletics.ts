@@ -75,11 +75,11 @@ export namespace athletics {
   /** The front block's distance behind the start line, a share of the leg's length (greater trochanter to lateral malleolus): the anthropometry-driven setting (Cavedon et al. 2019, table 2). */
   export const FRONT_DISTANCE: number = sprintStartSet.FRONT_DISTANCE;
 
-  /** The rear block's distance behind the front block, a share of the leg's length: the same setting's spacing (Cavedon et al. 2019). */
-  export const SPACING: number = sprintStartSet.SPACING;
+  /** The rear knee's included angle in the set, degrees (`sprintStartSet.REAR`), from which the rear block is placed. */
+  export const REAR: readonly [number, number] = sprintStartSet.REAR;
 
-  /** The most the trunk's total tilt is searched to, degrees: a half turn, past which the trunk would point back up. */
-  export const TILT: number = sprintStartSet.TILT;
+  /** The front hip's included angle in the set, degrees (`sprintStartSet.HIP`). */
+  export const HIP: readonly [number, number] = sprintStartSet.HIP;
 
   /**
    * The whole body's centre of mass behind the start line in the set, metres
@@ -93,8 +93,6 @@ export namespace athletics {
   export const CENTRE: Readonly<Record<"female" | "male", number>> =
     sprintStartSet.CENTRE;
 
-  /** The most the straight arms are searched to lean forward from the vertical, degrees: a quarter turn, past which the hands would no longer bear. */
-  export const LEAN: number = sprintStartSet.LEAN;
 
   /** The front block's face from the floor, degrees (provisional, within a competition block's adjustment). */
   export const FRONT_BLOCK: number = sprintStartSet.FRONT_BLOCK;
@@ -126,7 +124,7 @@ export namespace athletics {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function set(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
     entry: IAutoMovieMotionHumanPosture,
     front: "left" | "right",
     sex: "female" | "male" = "male",
