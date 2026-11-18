@@ -1,5 +1,7 @@
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 import {
@@ -81,13 +83,17 @@ function recovery(name: motionHumanBody.Name, out: string[]): void {
     label: string,
     speed: number,
     from?: IAutoMovieMotionTarget,
+    lateral: boolean = false,
   ): void => {
     try {
+      const film: HumanPerformance = pushed(speed, from);
       const report: string = HumanVerdicts.describe(
-        HumanVerdicts.of(pushed(speed, from)),
+        HumanVerdicts.of(film),
       );
-      if (report !== "clean")
+      if (report !== "clean") {
         out.push(`${name} ${label} at ${speed} m/s: ${report}`);
+        if (lateral) lateralBoundaries(film, out);
+      }
     } catch (error) {
       out.push(
         `${name} ${label} at ${speed} m/s: threw ${error instanceof Error ? error.message : String(error)}, a recovery expected`,
@@ -108,12 +114,12 @@ function recovery(name: motionHumanBody.Name, out: string[]): void {
     kind: "point",
     at: { x: 1, y: 1.3, z: 0 },
     frame: "world",
-  });
+  }, true);
   caught("pushed to the left", 0.5, {
     kind: "point",
     at: { x: -1, y: 1.3, z: 0 },
     frame: "world",
-  });
+  }, true);
 
   // 2. A push past four steps is refused as a fall, with the body's limit.
   try {
@@ -145,6 +151,34 @@ function recovery(name: motionHumanBody.Name, out: string[]): void {
         out.push(
           `${name} pushed backward at 1.5 m/s: the refusal's range is ${JSON.stringify(range)}, a limit between 0.5 and 1.5 m/s expected`,
         );
+    }
+  }
+}
+
+/** Read the raw and displayed limits only after a lateral verdict fails. */
+function lateralBoundaries(film: HumanPerformance, out: string[]): void {
+  const segment: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
+  const touchdown: number = Math.min(
+    ...segment.plan.contacts
+      .filter((window) => window.kind === "plant" && window.from > 0)
+      .map((window) => segment.start + window.from * segment.plan.duration),
+  );
+  // The two-sided span is a hundredth of the two-millisecond audit neighbourhood.
+  const delta: number = 1e-5;
+  for (const [event, at] of [["cut", segment.entryTime], ["first touchdown", touchdown]] as const) {
+    if (!Number.isFinite(at)) continue;
+    for (const seconds of [at - delta, at, at + delta]) {
+      const posture: IAutoMovieMotionHumanPosture = film.posture("a", seconds);
+      const bones: ReturnType<HumanPerformance["bones"]> = film.bones("a", seconds);
+      const sides = (["left", "right"] as const).map((side) => ({
+        side,
+        goal: posture.limbs[`${side}Leg`]?.point,
+        rotation: posture.limbs[`${side}Leg`]?.rotation,
+        planted: posture.limbs[`${side}Leg`]?.planted ?? false,
+        ankle: bones.get(`${side}Foot`)?.worldPosition,
+        knee: bones.get(`${side}LowerLeg`)?.worldPosition,
+      }));
+      out.push(`${event} at ${seconds.toFixed(8)} s: ${JSON.stringify({ root: posture.root, hips: bones.get("hips")?.worldPosition, sides })}`);
     }
   }
 }

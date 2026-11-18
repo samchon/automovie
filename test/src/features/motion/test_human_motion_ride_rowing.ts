@@ -30,6 +30,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 interface IHandleGap {
   gap: number;
   at: number;
+  shoulder?: IAutoMovieVector3;
   wrist?: IAutoMovieVector3;
   handle?: IAutoMovieVector3;
 }
@@ -215,7 +216,13 @@ export function test_human_motion_ride_rowing(): void {
             wrist.z - handle.z,
           );
           if (gap > worst[side].gap)
-            worst[side] = { gap, at: t, wrist, handle };
+            worst[side] = {
+              gap,
+              at: t,
+              shoulder: frame.get(`${side}UpperArm`)!.worldPosition,
+              wrist,
+              handle,
+            };
         }
       }
       const missedGoals: Map<number, IAutoMovieMotionHumanPosture["limbs"]> = new Map();
@@ -235,10 +242,17 @@ export function test_human_motion_ride_rowing(): void {
           }
           const goal: IAutoMovieHumanLimbGoal | undefined =
             goals[`${side}Arm`];
-          if (goal !== undefined && miss.wrist !== undefined && miss.handle !== undefined)
+          if (goal !== undefined && miss.wrist !== undefined && miss.handle !== undefined) {
+            const geometry: string = JSON.stringify({
+              shoulder: miss.shoulder,
+              wrist: miss.wrist,
+              point: goal.point,
+              handle: miss.handle,
+            });
             complaints.push(
-              `${label}: the ${side} arm goal is ${(1000 * Vector3.length(Vector3.subtract(goal.point, miss.handle))).toFixed(0)} mm from its handle and ${(1000 * Vector3.length(Vector3.subtract(goal.point, miss.wrist))).toFixed(0)} mm from the displayed wrist`,
+              `${label}: the ${side} arm goal is ${(1000 * Vector3.length(Vector3.subtract(goal.point, miss.handle))).toFixed(0)} mm from its handle and ${(1000 * Vector3.length(Vector3.subtract(goal.point, miss.wrist))).toFixed(0)} mm from the displayed wrist (${geometry})`,
             );
+          }
         }
       }
 

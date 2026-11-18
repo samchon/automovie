@@ -89,6 +89,13 @@ type Sphere = ISphere | null;
 export function test_human_motion_interaction_mesh(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const BOUND: number = 0.01;
+  const verify = (label: string, read: () => void): void => {
+    try {
+      read();
+    } catch (error) {
+      all.check(`${label}: ${String(error)}`, false);
+    }
+  };
 
   // Two bodies' joints facing each other a foot apart, the second turned
   // half round, and the bones of each body by its parents.
@@ -167,7 +174,7 @@ export function test_human_motion_interaction_mesh(): void {
   for (const t of mesh.tetrahedra) {
     const v: number = orientedVolume(points, t);
     all.check(
-      `tetrahedron ${t.join(",")} has volume ${v}, positive expected`,
+      () => `tetrahedron ${t.join(",")} has volume ${v}, positive expected`,
       v > 0,
     );
     const sphere: Sphere = circumsphere(points, t);
@@ -178,7 +185,7 @@ export function test_human_motion_interaction_mesh(): void {
         sphere.radius -
         Vector3.length(Vector3.subtract(points[i]!, sphere.centre));
       all.check(
-        `point ${i} lies ${depth.toExponential(2)} m inside the circumsphere of tetrahedron ${t.join(",")}, none past ${(extent * 1e-9).toExponential(2)} m expected`,
+        () => `point ${i} lies ${depth.toExponential(2)} m inside the circumsphere of tetrahedron ${t.join(",")}, none past ${(extent * 1e-9).toExponential(2)} m expected`,
         depth <= extent * 1e-9,
       );
     }
@@ -190,23 +197,24 @@ export function test_human_motion_interaction_mesh(): void {
   );
 
   // 2. Identity.
-  const same: IAutoMovieMotionHumanInteractionMesh.IResult =
-    HumanInteractionMesh.adapt({
-      reference: reference.points,
-      bones: reference.bones,
-      contacts: [],
-      mesh,
-    });
-  const moved: number = Math.max(
-    ...same.points.map((p: IAutoMovieVector3, i: number): number =>
-      Vector3.length(Vector3.subtract(p, reference.points[i]!)),
-    ),
-  );
-  all.check(
-    `the reference adapted to itself moves ${moved.toExponential(2)} m, 1e-6 at most expected`,
-    moved <= 1e-6,
-  );
-
+  verify("reference identity", (): void => {
+    const same: IAutoMovieMotionHumanInteractionMesh.IResult =
+      HumanInteractionMesh.adapt({
+        reference: reference.points,
+        bones: reference.bones,
+        contacts: [],
+        mesh,
+      });
+    const moved: number = Math.max(
+      ...same.points.map((p: IAutoMovieVector3, i: number): number =>
+        Vector3.length(Vector3.subtract(p, reference.points[i]!)),
+      ),
+    );
+    all.check(
+      `the reference adapted to itself moves ${moved.toExponential(2)} m, 1e-6 at most expected`,
+      moved <= 1e-6,
+    );
+  });
   // 3 and 4. Other pairs.
   for (const names of [
     ["f-small", "m-large"],
@@ -308,57 +316,58 @@ export function test_human_motion_interaction_mesh(): void {
     { body: keyBodies[0], bones: film.bones("a", 0.1) },
     { body: keyBodies[1], bones: film.bones("b", 0.1) },
   ];
-  const held: [
-    IAutoMovieMotionHumanHoldMesh.IAdapted,
-    IAutoMovieMotionHumanHoldMesh.IAdapted,
-  ] = HumanHoldMesh.adapt(keys, targets, [{ a: "leftHand", b: "rightHand" }]);
-  const offset: IAutoMovieVector3 = Vector3.subtract(
-    keys[0].bones.get("leftHand")!.worldPosition,
-    keys[1].bones.get("rightHand")!.worldPosition,
-  );
-  const kept: number = Vector3.length(
-    Vector3.subtract(
+  verify("displayed standing hold, f-small with m-large", (): void => {
+    const held: [
+      IAutoMovieMotionHumanHoldMesh.IAdapted,
+      IAutoMovieMotionHumanHoldMesh.IAdapted,
+    ] = HumanHoldMesh.adapt(keys, targets, [{ a: "leftHand", b: "rightHand" }]);
+    const offset: IAutoMovieVector3 = Vector3.subtract(
+      keys[0].bones.get("leftHand")!.worldPosition,
+      keys[1].bones.get("rightHand")!.worldPosition,
+    );
+    const kept: number = Vector3.length(
       Vector3.subtract(
-        held[0].joints.get("leftHand")!,
-        held[1].joints.get("rightHand")!,
+        Vector3.subtract(
+          held[0].joints.get("leftHand")!,
+          held[1].joints.get("rightHand")!,
+        ),
+        offset,
       ),
-      offset,
-    ),
-  );
-  all.check(
-    `the hold adapted to (f-small, m-large) keeps the wrists' key offset within ${(kept * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
-    kept <= BOUND,
-  );
-  held.forEach(
-    (adapted: IAutoMovieMotionHumanHoldMesh.IAdapted, k: number): void => {
-      for (const bone of targets[k]!.skeleton.bones) {
-        if (bone.parent === null) continue;
-        const a: IAutoMovieVector3 | undefined = adapted.joints.get(bone.bone);
-        const b: IAutoMovieVector3 | undefined = adapted.joints.get(
-          bone.parent,
-        );
-        if (a === undefined || b === undefined) continue;
-        const off: number = Math.abs(
-          Vector3.length(Vector3.subtract(a, b)) -
-            Vector3.length(
-              Vector3.subtract(
-                targets[k]!.rest.get(bone.bone)!,
-                targets[k]!.rest.get(bone.parent)!,
+    );
+    all.check(
+      `the hold adapted to (f-small, m-large) keeps the wrists' key offset within ${(kept * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
+      kept <= BOUND,
+    );
+    held.forEach(
+      (adapted: IAutoMovieMotionHumanHoldMesh.IAdapted, k: number): void => {
+        for (const bone of targets[k]!.skeleton.bones) {
+          if (bone.parent === null) continue;
+          const a: IAutoMovieVector3 | undefined = adapted.joints.get(bone.bone);
+          const b: IAutoMovieVector3 | undefined = adapted.joints.get(
+            bone.parent,
+          );
+          if (a === undefined || b === undefined) continue;
+          const off: number = Math.abs(
+            Vector3.length(Vector3.subtract(a, b)) -
+              Vector3.length(
+                Vector3.subtract(
+                  targets[k]!.rest.get(bone.bone)!,
+                  targets[k]!.rest.get(bone.parent)!,
+                ),
               ),
-            ),
-        );
+          );
+          all.check(
+            `the hold's body ${k} bone ${bone.parent}-${bone.bone} is off its length by ${(off * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
+            off <= BOUND,
+          );
+        }
         all.check(
-          `the hold's body ${k} bone ${bone.parent}-${bone.bone} is off its length by ${(off * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
-          off <= BOUND,
+          `the hold's body ${k} has its four limb goals, read ${Object.keys(adapted.limbs).join(", ")}`,
+          Object.keys(adapted.limbs).length === 4,
         );
-      }
-      all.check(
-        `the hold's body ${k} has its four limb goals, read ${Object.keys(adapted.limbs).join(", ")}`,
-        Object.keys(adapted.limbs).length === 4,
-      );
-    },
-  );
-
+      },
+    );
+  });
   // 7. A headlock (the plum clinch's hold on the neck, `HumanStageFight`'s
   // headlock row) adapted from its key pose on the reference pair.
   const lock: IAutoMovieMotionHumanPerformance = new HumanPerformance({
@@ -404,29 +413,32 @@ export function test_human_motion_interaction_mesh(): void {
       IAutoMovieMotionHumanBody,
       IAutoMovieMotionHumanBody,
     ] = [motionHumanBody(order[0]), motionHumanBody(order[1])];
-    const locked: [
-      IAutoMovieMotionHumanHoldMesh.IAdapted,
-      IAutoMovieMotionHumanHoldMesh.IAdapted,
-    ] = HumanHoldMesh.adapt(lockKeys, bodiesOf, lockContacts);
-    for (const c of lockContacts) {
-      const offset: IAutoMovieVector3 = Vector3.subtract(
-        lockKeys[0].bones.get(c.a)!.worldPosition,
-        lockKeys[1].bones.get(c.b)!.worldPosition,
-      );
-      const off: number = Vector3.length(
-        Vector3.subtract(
+    verify(`displayed headlock, ${order[0]} with ${order[1]}`, (): void => {
+      const locked: [
+        IAutoMovieMotionHumanHoldMesh.IAdapted,
+        IAutoMovieMotionHumanHoldMesh.IAdapted,
+      ] = HumanHoldMesh.adapt(lockKeys, bodiesOf, lockContacts);
+      for (const c of lockContacts) {
+        const offset: IAutoMovieVector3 = Vector3.subtract(
+          lockKeys[0].bones.get(c.a)!.worldPosition,
+          lockKeys[1].bones.get(c.b)!.worldPosition,
+        );
+        const off: number = Vector3.length(
           Vector3.subtract(
-            locked[0].joints.get(c.a)!,
-            locked[1].joints.get(c.b)!,
+            Vector3.subtract(
+              locked[0].joints.get(c.a)!,
+              locked[1].joints.get(c.b)!,
+            ),
+            offset,
           ),
-          offset,
-        ),
-      );
-      all.check(
-        `the headlock adapted to (${order[0]}, ${order[1]}): the ${c.a} keeps its key offset from the ${c.b} within ${(off * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
-        off <= BOUND,
-      );
-    }
+        );
+        all.check(
+          `the headlock adapted to (${order[0]}, ${order[1]}): the ${c.a} keeps its key offset from the ${c.b} within ${(off * 1000).toFixed(2)} mm, ${BOUND * 1000} mm at most expected`,
+          off <= BOUND,
+        );
+      }
+    });
+
   }
   // 5. Refusals.
   all.refuses("fewer than four points", () =>

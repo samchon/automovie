@@ -52,6 +52,7 @@ import type { motionHumanBody } from "./motionHumanBody";
  * @param body The body.
  * @param perform The walk performed from the origin facing +Z.
  * @param complaints Where a failed reading is told.
+ * @returns The 2 m straight walk's duration for the backpedal comparison.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the case it comes from, the walks and the 5 scenarios with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Builds the walks through the public chain and reads the displayed hips, pelvis and feet against the walk's own end, the same body's straight gait of the same length, the hip's range and the plan's declared pivots, and the shipped foot verdicts.
@@ -68,7 +69,7 @@ export function motionWalkFacingAbout(
     params: IAutoMovieMotionHumanWalkParams,
   ) => IAutoMovieMotionHumanPerformance,
   complaints: string[],
-): void {
+): number | undefined {
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
   /** A walk performed, and its displayed hips and pelvis's facing. */
   interface IWalked {
@@ -114,8 +115,13 @@ export function motionWalkFacingAbout(
     };
   };
   // The lowest the hips go over a walk, read thirty times a second.
-  const lowest = (walked: IWalked): { y: number; at: number } => {
-    let low: { y: number; at: number } = { y: Infinity, at: 0 };
+  /** A sampled height and the film clock at its minimum. */
+  interface IHeight {
+    y: number;
+    at: number;
+  }
+  const lowest = (walked: IWalked): IHeight => {
+    let low: IHeight = { y: Infinity, at: 0 };
     for (const t of HumanSignature.times(
       walked.segment.entryTime,
       walked.segment.end,
@@ -127,7 +133,8 @@ export function motionWalkFacingAbout(
     return low;
   };
   // A foot's heading, from its ankle to its toes.
-  const foot = (walked: IWalked, side: "left" | "right", t: number): number => {
+  type Side = "left" | "right";
+  const foot = (walked: IWalked, side: Side, t: number): number => {
     const bones: ReturnType<typeof HumanSignature.bones> = HumanSignature.bones(
       walked.reader,
       t,
@@ -142,7 +149,7 @@ export function motionWalkFacingAbout(
   // leaves nothing to read the pivots by.
   const range: number = Math.min(
     ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
-      (bone: "leftUpperLeg" | "rightUpperLeg"): number => {
+      (bone): number => {
         const twist: IAutoMovieAngleRange | null | undefined =
           DEFAULT_HUMANOID_ROM[bone]?.twist;
         if (twist === null || twist === undefined)
@@ -152,6 +159,7 @@ export function motionWalkFacingAbout(
     ),
   );
 
+  let shortStraightDuration: number | undefined;
   for (const [label, to, ahead] of [
     ["the walk behind", at(0, -3), at(0, 3)],
     ["the walk aside", at(-2, 0), at(0, 2)],
@@ -161,6 +169,8 @@ export function motionWalkFacingAbout(
       { to: ahead },
       `${label}'s straight walk`,
     );
+    if (label === "the walk aside" && straight !== null)
+      shortStraightDuration = straight.segment.end - straight.segment.entryTime;
     if (walked === null || straight === null) continue;
     const { segment, hips, pelvis } = walked;
     const stood: IAutoMovieVector3 = hips(segment.entryTime);
@@ -174,8 +184,8 @@ export function motionWalkFacingAbout(
       );
 
     // 7. No lower than walking.
-    const low: { y: number; at: number } = lowest(walked);
-    const own: { y: number; at: number } = lowest(straight);
+    const low: IHeight = lowest(walked);
+    const own: IHeight = lowest(straight);
     if (low.y < own.y - 0.01)
       complaints.push(
         `${name}: ${label}: the hips sink to ${low.y.toFixed(3)} m at ${low.at.toFixed(2)} s, the straight walk's lowest ${own.y.toFixed(3)} m less 10 mm expected at least`,
@@ -205,7 +215,7 @@ export function motionWalkFacingAbout(
       (c: IAutoMovieMotionHumanContactWindow): boolean =>
         c.kind === "pivot" && (c.part === "leftFoot" || c.part === "rightFoot"),
     )) {
-      const side: "left" | "right" =
+      const side: Side =
         window.part === "leftFoot" ? "left" : "right";
       const opened: number =
         segment.start + window.from * segment.plan.duration;
@@ -227,4 +237,5 @@ export function motionWalkFacingAbout(
         `${name}: ${label}: ${finding.check} ${(finding.value * 1000).toFixed(1)} mm at ${finding.seconds.toFixed(2)} s (${finding.where}), within ${(finding.limit * 1000).toFixed(0)} mm expected`,
       );
   }
+  return shortStraightDuration;
 }

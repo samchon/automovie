@@ -188,14 +188,17 @@ export function test_human_motion_core_flight(): void {
       ["layout", layout],
       ["tuck", tucked],
     ] as const) {
-      const [a, b] = span(p);
+      const [a, b] = label === "layout" ? [t0, t1] : span(p);
       const root = (t: number): IAutoMovieQuaternion =>
         p.pose("a", t).root!.rotation;
+      const end: number = b - 1e-6;
+      const takeoff: IAutoMovieQuaternion = root(a);
+      const landing: IAutoMovieQuaternion = root(end);
       const off: IAutoMovieSolveAirborneTakeoff.IAngles = solveAirborneTakeoff.angles(
-        root(a),
-        root(b - 1e-6),
+        takeoff,
+        landing,
       );
-      const last: number = Quaternion.angle(root(b - 2e-6), root(b - 1e-6));
+      const last: number = Quaternion.angle(root(b - 2e-6), landing);
       const worst: number = Math.max(
         Math.abs(off.somersault),
         Math.abs(off.tilt),
@@ -209,7 +212,6 @@ export function test_human_motion_core_flight(): void {
         findings.push(
           `${name} ${label}: lands ${(worst / (2 * Math.PI)).toFixed(4)} revolution off the request`,
         );
-      const takeoff: IAutoMovieQuaternion = root(a);
       let observable: boolean = qunit(takeoff);
       if (!observable)
         findings.push(
@@ -218,14 +220,13 @@ export function test_human_motion_core_flight(): void {
       const frame: IAutoMovieQuaternion = observable
         ? Quaternion.inverse(takeoff)
         : Quaternion.identity();
-      const end: number = b - 1e-6;
       const samples: number = Math.max(1, Math.ceil((end - a) * 60));
       let previous: number = 0;
       let winding: number = 0;
       for (let k: number = 0; observable && k <= samples; k++) {
         const seconds: number =
           k === samples ? end : a + ((end - a) * k) / samples;
-        const shown: IAutoMovieQuaternion = root(seconds);
+        const shown: IAutoMovieQuaternion = k === 0 ? takeoff : k === samples ? landing : root(seconds);
         if (!qunit(shown)) {
           findings.push(
             `${name} ${label}: the displayed root is not a finite unit rotation at ${seconds} s`,
@@ -279,7 +280,9 @@ export function test_human_motion_core_flight(): void {
         model.mass *
         v0 *
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight);
-      const held: number = Vector3.length(momentum(p, (a + b) / 2));
+      const middle: number = (a + b) / 2;
+      const middleMomentum: IAutoMovieVector3 = momentum(p, middle);
+      const held: number = Vector3.length(middleMomentum);
       if (
         !Number.isFinite(held) ||
         !Number.isFinite(ceiling) ||
@@ -288,21 +291,16 @@ export function test_human_motion_core_flight(): void {
         findings.push(
           `${name} ${label}: ${held.toFixed(1)} kg m²/s over the take-off's ceiling ${ceiling.toFixed(1)}`,
         );
-    }
-
-    // 2. The momentum holds through the flight.
-    for (const [label, p] of [
-      ["layout", layout],
-      ["tuck", tucked],
-    ] as const) {
-      const [a, b] = span(p);
-      const L0: IAutoMovieVector3 = momentum(p, a + 0.05 * (b - a));
+      // 2. The momentum holds through the flight. Reuse the ceiling or
+      // reference sample only where the two film clocks coincide exactly.
+      const reference: number = a + 0.05 * (b - a);
+      const L0: IAutoMovieVector3 = momentum(p, reference);
       const magnitude: number = Vector3.length(L0);
       for (let k: number = 1; k < 20; k++) {
         const t: number = a + ((b - a) * k) / 20;
-        const difference: number = Vector3.length(
-          Vector3.subtract(momentum(p, t), L0),
-        );
+        const displayed: IAutoMovieVector3 =
+          t === reference ? L0 : t === middle ? middleMomentum : momentum(p, t);
+        const difference: number = Vector3.length(Vector3.subtract(displayed, L0));
 
         // The same one-percent inequality in absolute units also handles
         // a zero reference: its allowed difference is zero, never 0/0.
@@ -348,13 +346,15 @@ export function test_human_motion_core_flight(): void {
               pose.root.scale.z,
             ];
       const ordered: Map<number, IAutoMoviePose> = new Map();
-      const chronological: Set<number> = new Set(instants);
+      const compared: Set<number> = new Set(instants);
+      const chronological: Set<number> = new Set(compared);
       for (let t: number = 0; t <= layout.duration; t += 1 / 60)
         chronological.add(t);
       for (const t of [...chronological].sort(
         (a: number, b: number): number => a - b,
       )) {
         motionHumanFrame(layout.bones("a", t), `${name} ordered at ${t} s`);
+        if (!compared.has(t)) continue;
         const pose: IAutoMoviePose = layout.pose("a", t);
         ordered.set(t, {
           ...pose,
@@ -396,7 +396,7 @@ export function test_human_motion_core_flight(): void {
             return (
               joint.bone !== other.bone ||
               (["flexion", "abduction", "twist"] as const).some(
-                (axis: "flexion" | "abduction" | "twist"): boolean => {
+                (axis): boolean => {
                   const observed: number | null = joint[axis];
                   const reference: number | null = other[axis];
                   return observed === null || reference === null

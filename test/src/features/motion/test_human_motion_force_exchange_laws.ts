@@ -11,6 +11,9 @@ import {
 
 import { motionComplaints } from "../internal/motionComplaints";
 
+/** Inputs to one constant pull's capture boundary. */
+type Pull = Parameters<typeof HumanForceExchange.breaking>[0];
+
 /**
  * The force exchange's laws (#3439) hold their closed forms: the pull that
  * breaks a base and the instant it breaks it are inverses, the centre's
@@ -31,9 +34,9 @@ import { motionComplaints } from "../internal/motionComplaints";
  * keeps its energy to `(h ω)^4` relative, `ω` the swing's own frequency.
  *
  * Scenarios:
- * 1. For masses 50, 75 and 100 kg, frequencies 3 and 3.5 per second, edges
- *    0.05 and 0.12 m and instants 0.2 and 0.6 s, `broken(breaking(T)) = T`
- *    and the drawn centre's extrapolation at `T` is the edge.
+ * 1. A baseline pull, mass and base scaling, and two frequency/time pairs
+ *    pin the force and its inverse independently. Integrating the forced
+ *    pendulum from rest gives position and speed at the resulting boundary.
  * 2. `broken` of no pull is infinite.
  * 3. A unit square base about the origin: the extent from its centre along
  *    +X is 0.5 m, along the diagonal 0.5 sqrt 2 m; from a point outside it
@@ -53,7 +56,7 @@ import { motionComplaints } from "../internal/motionComplaints";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public laws on inputs whose answers the equations give; a wrong inverse, an extrapolation off the edge, a wrong ray exit, a bound off by its boundary, a swing that gains energy or releases elsewhere, a pull that loses force or a stiffness integrated wrong fails with its numbers.
  * @evidence contracts/development/testing.md#independent-expectations Each expectation is the equation evaluated in the test, never the module's output fed back.
- * @evidence contracts/development/testing.md#distinguishing-cases A grid of masses, frequencies, edges and instants, three base queries, both sides of each bound, three swings, two pulls and the bend's ends and middle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Mass and edge scaling, equal dimensionless time, the longest former pull, three base queries, both sides of each bound, three swings, two pulls and the bend's ends and middle.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory, well under a second; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the laws, the tolerances with their reasons and the 7 scenarios.
  */
@@ -62,44 +65,42 @@ export function test_human_motion_force_exchange_laws(): void {
   const close = (a: number, b: number, relative: number): boolean =>
     Math.abs(a - b) <= relative * Math.max(1, Math.abs(a), Math.abs(b));
 
-  // 1 and 2. The inverse pair and the extrapolation at the break.
-  for (const mass of [50, 75, 100])
-    for (const frequency of [3, 3.5])
-      for (const edge of [0.05, 0.12])
-        for (const seconds of [0.2, 0.6]) {
-          const force: number = HumanForceExchange.breaking({
-            mass,
-            frequency,
-            edge,
-            seconds,
-          });
-          const back: number = HumanForceExchange.broken({
-            mass,
-            frequency,
-            edge,
-            force,
-          });
-          all.check(
-            `${mass} kg, ${frequency}/s, ${edge} m, ${seconds} s: the break comes back at ${back}`,
-            close(back, seconds, 1e-9),
-          );
-          const drawn = HumanForceExchange.drawn({
-            mass,
-            frequency,
-            force,
-            seconds,
-          });
-          const a: number = force / (mass * frequency * frequency);
-          all.check(
-            `${mass} kg, ${frequency}/s, ${edge} m, ${seconds} s: the extrapolated centre is ${drawn.extrapolated} m at the break, the edge expected`,
-            close(drawn.extrapolated, edge, 1e-9) &&
-              close(
-                drawn.offset,
-                a * (Math.cosh(frequency * seconds) - 1),
-                1e-9,
-              ),
-          );
-        }
+  // X = x + x'/ω satisfies X' = ωX + F/(Mω), X(0) = 0.
+  // Thus X(T) = e fixes F independently of both implementations. Holding
+  // ωT fixed isolates the quadratic frequency dependence of that force.
+  const faster: number = 3.5;
+  const base: Pull = { mass: 75, frequency: 3, edge: 0.05, seconds: 0.2 };
+  const pulls: Pull[] = [
+    base,
+    { ...base, mass: 50 },
+    { ...base, mass: 100 },
+    { ...base, edge: 0.12 },
+    { ...base, frequency: faster, seconds: (base.frequency * base.seconds) / faster },
+    { mass: 100, frequency: faster, edge: 0.12, seconds: 0.6 },
+  ];
+  for (const pull of pulls) {
+    const nondimensionalTime: number = pull.frequency * pull.seconds;
+    const growth: number = Math.exp(nondimensionalTime);
+    const inertia: number = pull.mass * pull.frequency ** 2;
+    const expectedForce: number = (pull.edge * inertia) / (growth - 1);
+    const force: number = HumanForceExchange.breaking(pull);
+    const back: number = HumanForceExchange.broken({ ...pull, force: expectedForce });
+    const drawn: ReturnType<typeof HumanForceExchange.drawn> = HumanForceExchange.drawn({
+      ...pull,
+      force: expectedForce,
+    });
+    const offset: number = (expectedForce / inertia) * ((growth + 1 / growth) / 2 - 1);
+    const speed: number = (expectedForce / inertia) * pull.frequency * (growth - 1 / growth) / 2;
+    const label: string = `${pull.mass} kg, ${pull.frequency}/s, ${pull.edge} m, ${pull.seconds} s`;
+    all.check(`${label}: break force ${force}, expected ${expectedForce}`, close(force, expectedForce, 1e-9));
+    all.check(`${label}: break at ${back}, expected ${pull.seconds}`, close(back, pull.seconds, 1e-9));
+    all.check(
+      `${label}: drawn state ${drawn.offset} m, ${drawn.speed} m/s, ${drawn.extrapolated} m; expected ${offset} m, ${speed} m/s, ${pull.edge} m`,
+      close(drawn.offset, offset, 1e-9) &&
+        close(drawn.speed, speed, 1e-9) &&
+        close(drawn.extrapolated, pull.edge, 1e-9),
+    );
+  }
   all.check(
     "no pull never breaks the base",
     HumanForceExchange.broken({

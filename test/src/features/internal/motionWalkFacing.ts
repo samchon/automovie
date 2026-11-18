@@ -13,14 +13,18 @@ import {
   HumanSignature,
   HumanVerdicts,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
-
 import { motionHumanBody } from "./motionHumanBody";
 import { motionWalkFacingAbout } from "./motionWalkFacingAbout";
 
+/** A requested path and the independent heading it should maintain. */
+interface IWalk {
+  label: string;
+  params: IAutoMovieMotionHumanWalkParams;
+  faces: (root: IAutoMovieVector3) => number;
+}
+
 /**
- * A walk that does not face its way, on one body, which the
- * `test_human_motion_walk_facing_*` specs read by body and by walks (#3360): the
+ * A walk that does not face its way, on one body (#3360): the
  * body walks backward, sideways or round while it faces a heading or a
  * point (`walk`'s `facing`).
  *
@@ -50,22 +54,21 @@ import { motionWalkFacingAbout } from "./motionWalkFacingAbout";
  * states its scenarios 6 to 9).
  *
  * @param name The body.
- * @param which The backpedal with its forward walk (`back`), the side-walk (`side`), the backward arc (`arc`) or the walks set off toward a way not faced (`about`).
+ * @param complaints Collected expectations for both bodies.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the walks and the 5 scenarios with their bounds and sources, and where the turn-about's are stated.
  * @evidence contracts/development/implementation.md#principled-implementation Builds the walks through the public chain and reads displayed joints and soles against the asked headings and the plan's declared plants.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per scenario, gathered as complaints and asserted once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A walk that does not plan is a complaint with the refusal's words.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four short walks read at ten or twenty instants a second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The prescribed paths are read at ten to thirty instants a second, with one displayed frame per instant and heading observation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The 2 m straight walk serves both the turn-about height baseline and the backpedal duration comparison.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionWalkFacing(
   name: motionHumanBody.Name,
-  which: "back" | "side" | "arc" | "about",
+  complaints: string[],
 ): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const complaints: string[] = [];
   const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
   const perform = (
     params: IAutoMovieMotionHumanWalkParams,
@@ -88,11 +91,7 @@ export function motionWalkFacing(
   const off = (a: number, b: number): number =>
     Math.abs(((((a - b) % 360) + 540) % 360) - 180);
   const centre: IAutoMovieVector3 = at(0, 1.5);
-  const walks: {
-    label: string;
-    params: IAutoMovieMotionHumanWalkParams;
-    faces: (root: IAutoMovieVector3) => number;
-  }[] = [
+  const walks: IWalk[] = [
     {
       label: "the backpedal",
       params: { to: at(0, -2), facing: { yaw: 0 } },
@@ -120,17 +119,8 @@ export function motionWalkFacing(
         heading({ x: centre.x - root.x, y: 0, z: centre.z - root.z }),
     },
   ];
-  const durations: Record<string, number> = {};
-  for (const one of walks.filter(
-    (w: { label: string }): boolean =>
-      w.label ===
-      {
-        back: "the backpedal",
-        side: "the side-walk",
-        arc: "the backward arc",
-        about: "",
-      }[which],
-  )) {
+  let backward: number = NaN;
+  for (const one of walks) {
     let performance: IAutoMovieMotionHumanPerformance;
     try {
       performance = perform(one.params);
@@ -147,7 +137,7 @@ export function motionWalkFacing(
       0,
     );
     const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
-    durations[one.label] = segment.end - segment.entryTime;
+    if (one.label === "the backpedal") backward = segment.end - segment.entryTime;
 
     // 1. It arrives.
     const hips = (t: number): IAutoMovieVector3 =>
@@ -176,7 +166,7 @@ export function motionWalkFacing(
         z: left.z - right.z,
       };
       const facing: number = heading({ x: -across.z, y: 0, z: across.x });
-      const asked: number = one.faces(hips(t));
+      const asked: number = one.faces(bones.get("hips")!.worldPosition);
       if (off(facing, asked) > 15)
         complaints.push(
           `${name}: ${one.label}: at ${t.toFixed(2)} s the pelvis faces ${facing.toFixed(0)} degrees, the asked ${asked.toFixed(0)} within 15 expected`,
@@ -204,29 +194,16 @@ export function motionWalkFacing(
   }
 
   // 6 to 9. A walk set off from standing toward a way it does not face.
-  if (which === "about") motionWalkFacingAbout(name, body, perform, complaints);
+  const forward: number | undefined = motionWalkFacingAbout(
+    name, body, perform, complaints,
+  );
 
   // 5. Backward against forward.
-  if (which === "back")
-    try {
-      const forward: IAutoMovieMotionHumanSegment = perform({
-        to: at(0, 2),
-      }).segments("a")[0]!;
-      const ratio: number =
-        (durations["the backpedal"] ?? NaN) / (forward.end - forward.entryTime);
-      if (!(ratio >= 1.1 && ratio <= 1.4))
-        complaints.push(
-          `${name}: the backpedal takes ${ratio.toFixed(2)} times the forward walk's time, between 1.1 and 1.4 expected`,
-        );
-    } catch (error) {
+  if (forward !== undefined) {
+    const ratio: number = backward / forward;
+    if (!(ratio >= 1.1 && ratio <= 1.4))
       complaints.push(
-        `${name}: the forward walk: expected to plan, got ${error instanceof Error ? error.message : String(error)}`,
+        `${name}: the backpedal takes ${ratio.toFixed(2)} times the forward walk's time, between 1.1 and 1.4 expected`,
       );
-    }
-
-  TestValidator.equals(
-    `a walk faces apart from its way (${name}, ${which})`,
-    complaints,
-    [],
-  );
+  }
 }
