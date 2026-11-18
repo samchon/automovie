@@ -25,6 +25,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
@@ -80,10 +81,10 @@ export namespace handOver {
   /** Cancel table: after the release the hand is free. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     walk: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
   /** Time the fingers take to open at the release, seconds; provisional. */

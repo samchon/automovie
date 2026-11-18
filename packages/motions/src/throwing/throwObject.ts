@@ -31,6 +31,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBendTrack } from "../compose/AutoMovieMotionHumanBendTrack";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -105,7 +106,7 @@ export namespace throwObject {
         window: ["followThrough", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
     walk: [
@@ -113,7 +114,7 @@ export namespace throwObject {
         window: ["followThrough", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
   };

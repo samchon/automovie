@@ -3,8 +3,10 @@ import type {
   IAutoMovieMotionHumanInterruptRow,
 } from "@automovie/interface";
 
-/** Seconds over which a cut into a walk inertializes the outgoing pose (provisional: about half a walking step; no measured value was read). */
-const BLEND: number = 0.3;
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+
+/** Seconds over which a cut into a walk inertializes the outgoing pose (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
+const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
 /** Seconds over which a jump's cut into a walk inertializes (provisional: half the walk's `BLEND`; no measured value was read). */
 const JUMP_BLEND: number = 0.15;

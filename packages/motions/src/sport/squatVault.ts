@@ -23,6 +23,7 @@ import type {
 import { stand } from "../actions/stand";
 import { support } from "../actions/support";
 import { supportKey } from "../actions/supportKey";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -66,7 +67,7 @@ export namespace squatVault {
   /** Cancel table: a vault in the air cannot be cut; standing again once it has landed, from its `touchdown` on. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 

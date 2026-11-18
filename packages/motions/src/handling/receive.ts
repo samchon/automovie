@@ -23,6 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -73,9 +74,9 @@ export namespace receive {
   /** Cancel table: once taken the prop is held. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["taken", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
-    walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [{ window: ["taken", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
   };
 
   /** How far the carrying forearm may be raised above level, degrees, level first (provisional: up to the half right angle, a cup held toward the chest). */

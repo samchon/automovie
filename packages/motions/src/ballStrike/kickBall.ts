@@ -18,6 +18,7 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
 import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -65,10 +66,10 @@ export namespace kickBall {
   /** Cancel table: stand or walk after the follow-through. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     walk: [
-      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 

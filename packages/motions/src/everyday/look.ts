@@ -15,6 +15,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -61,7 +62,7 @@ export namespace look {
   /** Cancel table: a look holds no contact beyond the stand, so it can be cut anywhere. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 

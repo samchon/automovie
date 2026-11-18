@@ -21,6 +21,7 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -68,7 +69,7 @@ export namespace clinch {
     knee: [
       { window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 },
     ],
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
   };
 
   /** How far each plum hand lies from the nape's middle, a share of the partner's half shoulder width (provisional). */

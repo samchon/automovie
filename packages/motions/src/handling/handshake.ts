@@ -24,6 +24,7 @@ import type {
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../law/HumanBound";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -117,11 +118,11 @@ export namespace handshake {
   /** Cancel table: declined before the clasp, or ended after the release. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "clasp"], kind: "inertialize", entry: 0, blend: 0.3 },
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: [0, "clasp"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     walk: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 

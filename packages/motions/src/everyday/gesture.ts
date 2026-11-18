@@ -29,6 +29,7 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
@@ -102,8 +103,8 @@ export namespace gesture {
       { window: ["strokeEnd", 1], kind: "inertialize", entry: 0 },
     ],
     walk: [
-      { window: [0, "strokeStart"], kind: "inertialize", entry: 0, blend: 0.3 },
-      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: [0, "strokeStart"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     look: [{ window: ["strokeEnd", 1], kind: "inertialize", entry: 0 }],
     gesture: [{ window: ["retract", 1], kind: "inertialize", entry: 0 }],

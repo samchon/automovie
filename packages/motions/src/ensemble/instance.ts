@@ -13,6 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
@@ -58,7 +59,7 @@ export namespace instance {
 
   /** The cuts: any action may follow it at any instant, inertialized. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    any: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
   };
 
   /**

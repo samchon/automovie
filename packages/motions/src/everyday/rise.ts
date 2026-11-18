@@ -18,6 +18,7 @@ import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -100,11 +101,11 @@ export namespace rise {
   /** Cancel table: a rise cut before seat-off returns to sitting; after standing it may become anything a stand can. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     sit: [
-      { window: [0, "seatOff"], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: [0, "seatOff"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     stand: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
     walk: [
-      { window: ["standing", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["standing", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 

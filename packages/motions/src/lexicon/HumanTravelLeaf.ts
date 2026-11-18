@@ -17,6 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -77,7 +78,7 @@ export namespace HumanTravelLeaf {
   export const openDoor: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelLeaf.IParams> = {
     name: "openDoor",
     interrupts: {
-      walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+      walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
     },
     yields: ["head"],
     plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelLeaf.IParams>): IAutoMovieMotionHumanActionPlan => {

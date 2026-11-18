@@ -25,6 +25,7 @@ import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanClearance } from "../compose/AutoMovieMotionHumanClearance";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -39,8 +40,8 @@ import { climbStairsFlight } from "./climbStairsFlight";
 import { climbStairsPelvis } from "./climbStairsPelvis";
 import { climbStairsProfile } from "./climbStairsProfile";
 
-/** Offset decay time of a cut out of the arrived climb, seconds (provisional: no study of the transition was located). */
-const BLEND: number = 0.3;
+/** Offset decay time of a cut out of the arrived climb, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
+const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
 /**
  * Climbing a flight of stairs up or down from standing before its first

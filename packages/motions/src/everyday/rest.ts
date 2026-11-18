@@ -22,6 +22,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -102,7 +103,7 @@ export namespace rest {
   /** Cancel table: holding a rest place has no stroke, so it can be cut anywhere. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     gesture: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     rest: [{ window: [0, 1], kind: "inertialize", entry: 0 }],

@@ -19,6 +19,7 @@ import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanCourse } from "../compose/AutoMovieMotionHumanCourse";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -76,16 +77,16 @@ export namespace kneel {
   /** Cancel table: the body stands, crouches or handles a low thing once it has settled. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     crouch: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     pickUp: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     putDown: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 

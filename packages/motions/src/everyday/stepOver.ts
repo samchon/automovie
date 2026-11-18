@@ -16,6 +16,7 @@ import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -105,7 +106,7 @@ export namespace stepOver {
         window: ["trailContact", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
   };

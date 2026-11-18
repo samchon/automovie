@@ -21,6 +21,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -106,12 +107,12 @@ export namespace pickUp {
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "gripClosed"], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: [0, "gripClosed"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
       {
         window: ["lifted", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
         keep: ["grip"],
       },
     ],
@@ -120,7 +121,7 @@ export namespace pickUp {
         window: ["lifted", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
         keep: ["grip"],
       },
     ],

@@ -20,6 +20,7 @@ import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
@@ -96,14 +97,14 @@ export namespace crouch {
 
   /** Cancel table: a crouch stands up at any time, and kneels or handles a low thing from its lowest pose. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
     crouch: [{ window: ["ascend", 1], kind: "inertialize", entry: 0 }],
     kneel: [
       {
         window: ["lowest", "ascend"],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
     pickUp: [
@@ -111,7 +112,7 @@ export namespace crouch {
         window: ["lowest", "ascend"],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
     putDown: [
@@ -119,7 +120,7 @@ export namespace crouch {
         window: ["lowest", "ascend"],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
       },
     ],
   };

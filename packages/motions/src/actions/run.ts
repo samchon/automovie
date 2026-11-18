@@ -7,10 +7,11 @@ import type {
   IAutoMovieMotionHumanWalkGait,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { walk } from "./walk";
 
-/** Offset decay time of a cut out of a run into another locomotion or a stand, seconds (provisional: no study of the transition was located). */
-const BLEND: number = 0.3;
+/** Offset decay time of a cut out of a run into another locomotion or a stand, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
+const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
 /** Offset decay time of a cut from a run into a jump, seconds (provisional). */
 const TAKEOFF_BLEND: number = 0.15;

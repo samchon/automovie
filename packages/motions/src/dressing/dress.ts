@@ -28,6 +28,7 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -87,9 +88,9 @@ export namespace dress {
   /** Cancel table: the hands come down and the body stands or walks. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["relax", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
-    walk: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [{ window: ["relax", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
   };
 
   /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */

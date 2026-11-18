@@ -12,6 +12,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { seated } from "./seated";
@@ -55,7 +56,7 @@ export namespace shift {
   /** Cancel table: after setting down a shift may continue sitting. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [
-      { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     shift: [{ window: ["seatContact", 1], kind: "inertialize", entry: 0 }],
   };

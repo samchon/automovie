@@ -21,6 +21,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -42,8 +43,8 @@ import { jumpTakeoff } from "./jumpTakeoff";
 import { prepareJumpPosture } from "./prepareJumpPosture";
 import { standUpright } from "./standUpright";
 
-/** Offset decay time of a cut out of the settled jump, seconds (provisional: no study of the transition was located). */
-const BLEND: number = 0.3;
+/** Offset decay time of a cut out of the settled jump, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
+const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
 /** How far the take-off root rises above the entry root, hip heights (provisional). */
 const TAKEOFF_RISE: number = 0.03;
