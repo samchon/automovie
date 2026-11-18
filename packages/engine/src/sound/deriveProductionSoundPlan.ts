@@ -5,8 +5,10 @@ import {
   IAutoMovieCompiledInstanceSet,
   IAutoMovieCompiledShotSource,
   type IAutoMovieDeriveProductionSoundPlan,
+  IAutoMovieFilmTimeline,
   IAutoMovieFilmTimelineSegment,
   IAutoMovieFormationBounds,
+  IAutoMovieProductionSoundCue,
   IAutoMovieProductionSoundEvent,
   IAutoMovieProductionSoundPlan,
   type IAutoMovieResolvedCamera,
@@ -28,15 +30,16 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationBounds } from "../transformFormationBounds";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
+import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCues";
 
 /**
  * Lower semantic shot events and authored cues/dialogue onto one finished-film sound clock.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Event trim joins use the film frame clock; subject masses combine count-weighted centroids and parallel-axis variance, approximating formations/instances as uniform axis-aligned boxes. sqrt(memberCount), RMS distance, softened attenuation and clamped pan are declared source-model choices, not measured member distributions.
+ * @evidence contracts/development/implementation.md#principled-implementation Event trim joins use the film frame clock and optional adopted cues resolve against those same picture occurrences; subject masses combine count-weighted centroids and parallel-axis variance, approximating formations/instances as uniform axis-aligned boxes. sqrt(memberCount), RMS distance, softened attenuation and clamped pan are declared source-model choices, not measured member distributions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owner joins current shot contract/compiled source and camera sampling, while propagation is optional receipt derivation; acousticProfile is copied into the plan but does not derive per-event acoustic responses here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown individual subjects are skipped if another resolves, but zero total resolved mass throws. Missing compiled evidence/camera/events throws, and finite assumptions do not establish byte provenance or universal cross-host transcendental identity.
  * @evidence contracts/development/common.md#meaningful-documentation Documents event/cue/dialogue clocks, spatial approximation and fresh arrays; static resolved camera positions can be borrowed in event.listener, so the plan is not deeply immutable. Production delivery validation consumes this planner to compare expected plans.
- * @evidence contracts/development/implementation.md#efficient-algorithms For E event samples, each event can scan declared events, subject node/formation/instance lists and object motions; camera/source sampling plus final O(E log E) sort dominate, and event/cue/dialogue arrays use O(E+C+L) storage.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For E event samples, each event can scan declared events, subject node/formation/instance lists and object motions; camera/source sampling plus final O(E log E) sort dominate, and event/cue/dialogue arrays use O(E+C+L) storage. Event cue expansion adds one entry per matching cue and retained occurrence.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Current contract/source maps share identity lookup and one camera/source mass serves each event's pan/attenuation/optional propagation; all object motions are still sampled per resolved event, with no cross-event pose cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh plan arrays and copied profiles, while listener positions may retain static camera translations; local mass parts and sampled channels leave scope, and no audio assets or decoder handles are acquired.
  */
@@ -149,6 +152,37 @@ export const deriveProductionSoundPlan: (
       }
     },
   );
+  events.sort(
+    (
+      left: IAutoMovieProductionSoundEvent,
+      right: IAutoMovieProductionSoundEvent,
+    ): number => left.frame - right.frame || compareCodeUnits(left.id, right.id),
+  );
+
+  const placements: IAutoMovieFilmTimeline["tracks"]["audio"] = [
+    ...props.timeline.tracks.audio,
+    ...resolveProductionSoundEventCues(props, events),
+  ];
+  const cues: IAutoMovieProductionSoundCue[] = placements.map(
+    (
+      cue: IAutoMovieFilmTimeline["tracks"]["audio"][number],
+    ): IAutoMovieProductionSoundCue => ({
+      id: cue.id,
+      asset: cue.asset,
+      startFrame: cue.startFrame,
+      durationFrames: cue.durationFrames,
+      sourceOffsetFrame: cue.sourceOffsetFrame,
+      sourceDurationFrames: cue.sourceDurationFrames,
+      gain: cue.gain,
+      fadeInFrames: cue.fadeInFrames,
+      fadeOutFrames: cue.fadeOutFrames,
+      bus: cue.bus,
+      seed: soundSeed(
+        `${props.timeline.inputFingerprint}|cue|${cue.id}|${cue.asset}`,
+      ),
+    }),
+  );
+
   return {
     version: 1,
     inputFingerprint: props.timeline.inputFingerprint,
@@ -165,53 +199,8 @@ export const deriveProductionSoundPlan: (
     ...(props.acousticProfile === undefined
       ? {}
       : { acousticProfile: cloneAcousticProfile(props.acousticProfile) }),
-    events: events.sort(
-      (
-        left: IAutoMovieProductionSoundEvent,
-        right: IAutoMovieProductionSoundEvent,
-      ): number =>
-        left.frame - right.frame || compareCodeUnits(left.id, right.id),
-    ),
-    cues: props.timeline.tracks.audio.map(
-      (cue: {
-        id: string;
-        asset: string;
-        sourceDurationFrames: number;
-        sourceOffsetFrame: number;
-        startFrame: number;
-        durationFrames: number;
-        gain: number;
-        fadeInFrames: number;
-        fadeOutFrames: number;
-        bus: "dialogue" | "music" | "effects" | "ambience";
-      }): {
-        id: string;
-        asset: string;
-        startFrame: number;
-        durationFrames: number;
-        sourceOffsetFrame: number;
-        sourceDurationFrames: number;
-        gain: number;
-        fadeInFrames: number;
-        fadeOutFrames: number;
-        bus: "dialogue" | "music" | "effects" | "ambience";
-        seed: number;
-      } => ({
-        id: cue.id,
-        asset: cue.asset,
-        startFrame: cue.startFrame,
-        durationFrames: cue.durationFrames,
-        sourceOffsetFrame: cue.sourceOffsetFrame,
-        sourceDurationFrames: cue.sourceDurationFrames,
-        gain: cue.gain,
-        fadeInFrames: cue.fadeInFrames,
-        fadeOutFrames: cue.fadeOutFrames,
-        bus: cue.bus,
-        seed: soundSeed(
-          `${props.timeline.inputFingerprint}|cue|${cue.id}|${cue.asset}`,
-        ),
-      }),
-    ),
+    events,
+    cues,
     dialogue: props.timeline.tracks.captions.map(
       (line: {
         id: string;
