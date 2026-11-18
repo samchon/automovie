@@ -1,14 +1,15 @@
+import { integrateAirborneRotation } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanPlayback,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
+import { deepStrictEqual } from "node:assert/strict";
 
-import { HumanPreparedPlayback } from "../../../../packages/motions/src/perform/HumanPreparedPlayback";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { vclose } from "../internal/vclose";
 
@@ -17,23 +18,23 @@ import { vclose } from "../internal/vclose";
  *
  * Scenarios:
  * 1. Seek across both endpoints and the footfall events of a fast walk and a sprint.
- * 2. Pass a different reader and check that it cannot use the plan's playback.
+ * 2. Compare a separate film using a replacement callback with the original film.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the clocks, gaits and posture properties compared.
- * @evidence contracts/development/testing.md#behavioral-verification Checks native admission, root, foot goals and bearing with the original writer and checks callback identity.
+ * @evidence contracts/development/testing.md#behavioral-verification Compares the public display, root and foot goals, and confirms display invokes the replacement reader.
  * @evidence contracts/development/testing.md#independent-expectations The public posture reader and declared gait events supply the expected geometry and query times.
- * @evidence contracts/development/testing.md#distinguishing-cases Action endpoints, stance and swing reads, and a foreign reader distinguish an absent, mistimed or overly permissive binding.
- * @evidence contracts/development/testing.md#execution-ownership Constructs two real in-memory films without replacing their writers.
+ * @evidence contracts/development/testing.md#distinguishing-cases Endpoints, stance and swing reads cover both gaits. Counting calls proves that the changed callback runs in the reference film.
+ * @evidence contracts/development/testing.md#execution-ownership Uses independent film instances and replaces only the publicly returned reference plan's callback.
  */
 export function test_motion_posture_gait_playback(): void {
   const body: ReturnType<typeof motionHumanBody> = motionHumanBody("m-average");
   const to: IAutoMovieVector3 = { x: 0, y: 0, z: 4 };
-  const chains: readonly HumanChain[] = [
+  const chains: readonly IAutoMovieMotionHumanChain[] = [
     HumanChain.subject("a").walk({ to, pace: "fast" }),
     HumanChain.subject("a").run({ to, pace: "sprint" }),
   ];
   for (const chain of chains) {
-    const film: HumanPerformance = new HumanPerformance({
+    const input: ConstructorParameters<typeof HumanPerformance>[0] = {
       seed: "gait-playback",
       performers: [
         {
@@ -45,9 +46,28 @@ export function test_motion_posture_gait_playback(): void {
         },
       ],
       composition: chain.node,
-    });
+    };
+    const film: HumanPerformance = new HumanPerformance(
+      input,
+      integrateAirborneRotation.observe(),
+    );
+    const reference: HumanPerformance = new HumanPerformance(
+      input,
+      integrateAirborneRotation.observe(),
+    );
     const segment: IAutoMovieMotionHumanSegment = film.segments("a")[0]!;
+    const expected: IAutoMovieMotionHumanSegment = reference.segments("a")[0]!;
     const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
+    const ordinary: IAutoMovieMotionHumanActionPlan["posture"] =
+      expected.plan.posture;
+    let fallbackReads: number = 0;
+    expected.plan.posture = function (
+      this: IAutoMovieMotionHumanActionPlan,
+      ...args: Parameters<typeof ordinary>
+    ): IAutoMovieMotionHumanPosture {
+      ++fallbackReads;
+      return Reflect.apply(ordinary, this, args);
+    };
     const seconds: readonly number[] = [
       plan.duration,
       0,
@@ -55,26 +75,19 @@ export function test_motion_posture_gait_playback(): void {
       plan.duration * 0.35,
     ];
     for (const at of seconds) {
-      const native: IAutoMovieMotionHumanPlayback.ISample | undefined =
-        HumanPreparedPlayback.read(
-          plan,
-          body,
-          plan.posture,
-          true,
-          true,
-          undefined,
-          at,
-        );
-      if (native === undefined)
-        throw new Error(`Missing gait playback at ${at} s`);
-      const authored: IAutoMovieMotionHumanPosture = plan.posture(at);
+      const native: IAutoMovieMotionHumanPosture = plan.posture(at);
+      const authored: IAutoMovieMotionHumanPosture = Reflect.apply(
+        ordinary,
+        expected.plan,
+        [at],
+      );
       TestValidator.predicate(
         "the gait keeps its root",
-        vclose(native.posture.root, authored.root),
+        vclose(native.root, authored.root),
       );
       for (const leg of ["leftLeg", "rightLeg"] as const) {
         const got: IAutoMovieMotionHumanPosture["limbs"][typeof leg] =
-          native.posture.limbs[leg];
+          native.limbs[leg];
         const want: IAutoMovieMotionHumanPosture["limbs"][typeof leg] =
           authored.limbs[leg];
         TestValidator.predicate(
@@ -85,20 +98,15 @@ export function test_motion_posture_gait_playback(): void {
             vclose(got.point, want.point),
         );
       }
+      deepStrictEqual(
+        film.pose("a", segment.start + at),
+        reference.pose("a", expected.start + at),
+        `${segment.name} at ${at} s`,
+      );
     }
-    const other: IAutoMovieMotionHumanActionPlan["posture"] = (at) =>
-      plan.posture(at);
     TestValidator.predicate(
-      "a different callback is ineligible",
-      HumanPreparedPlayback.read(
-        plan,
-        body,
-        other,
-        true,
-        true,
-        undefined,
-        0,
-      ) === undefined,
+      "the reference display calls the replacement callback",
+      fallbackReads > 0,
     );
   }
 }
