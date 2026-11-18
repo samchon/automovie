@@ -83,7 +83,11 @@ export function AirborneTakeoffTrial(
       }, frame);
       return retarget({
         local: [...local], end, r: [], flight,
-        jacobian: sensitive ? AirborneTakeoffJacobian(end, axes, flight.variations(props.t1)) : undefined,
+        // Only Newton consumes angle derivatives. The judged flight still
+        // carries the integrated momentum sensitivities for public playback.
+        jacobian: sensitive && judged !== true
+          ? AirborneTakeoffJacobian(end, axes, flight.variations(props.t1))
+          : undefined,
       }, target);
     },
   };
@@ -93,16 +97,16 @@ export function AirborneTakeoffTrial(
  * Physical shooting points and their call-local evaluator.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Point members state momentum coordinates, radian residuals and optional actual integrated Jacobians. Companion IPoint: Each member states physical momentum, actual radian endpoint/residual, derivative availability and completed-flight ownership. Companion IOperation: Defines actual optional-sensitivity evaluation, pure retargeting and operation release.
- * @evidence contracts/development/design.md#principled-representation A point owns its physical flight, endpoint angles and numeric momentum; an absent Jacobian explicitly means no sensitivities were integrated. Companion IPoint: An actual solved trajectory accompanies every endpoint and residual; a missing Jacobian explicitly represents a residual-only evaluation. Companion IOperation: One evaluator owns one fixed physical history epoch; it cannot accept a trajectory on the solver's behalf.
+ * @evidence contracts/development/design.md#principled-representation A point owns its physical flight, endpoint angles and numeric momentum; a search point requiring angle derivatives also owns its Jacobian. Companion IPoint: An actual solved trajectory accompanies every endpoint and residual, including the judged flight with its public momentum sensitivities. Companion IOperation: One evaluator owns one fixed physical history epoch; it cannot accept a trajectory on the solver's behalf.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The takeoff solver alone constructs this operation and consumes its point, retarget and release surface. Companion IPoint: The Newton and continuation owners consume exactly these numeric results and the original completed flight. Companion IOperation: Newton uses evaluate, continuation reuses retarget, and the takeoff operation calls clear in finally.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional Jacobian distinguishes a real derivative from a residual-only trial without a trusted success flag or duplicate body model. Companion IPoint: Reuses the existing angle and flight contracts without a second physical state, synthetic derivative or success flag. Companion IOperation: Candidate reuse requires current exact numeric momentum and actual derivative availability, without a public trusted-cache flag.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional Jacobian records derivatives computed for Newton without a trusted success flag or duplicate body model. Companion IPoint: Reuses the existing angle and flight contracts without a second physical state, synthetic derivative or success flag. Companion IOperation: Candidate reuse requires current exact numeric momentum and actual derivative availability, without a public trusted-cache flag.
  */
 export namespace AirborneTakeoffTrial {
   /**
    * A physical trial at takeoff-frame momentum components, kg m squared per second.
    *
    * Each member states physical momentum, actual radian endpoint/residual, derivative availability and completed-flight ownership.
-   * An actual solved trajectory accompanies every endpoint and residual; a missing Jacobian explicitly represents a residual-only evaluation.
+   * An actual solved trajectory accompanies every endpoint and residual. Only a search point requiring angle derivatives materializes its Jacobian.
    * The Newton and continuation owners consume exactly these numeric results and the original completed flight.
    * Reuses the existing angle and flight contracts without a second physical state, synthetic derivative or success flag.
    */
@@ -113,7 +117,7 @@ export namespace AirborneTakeoffTrial {
     end: IAutoMovieSolveAirborneTakeoff.IAngles;
     /** Endpoint minus the current full stage target, radians. */
     r: number[];
-    /** Actual integrated angle derivatives, absent on a residual-only trial. */
+    /** Angle derivatives for Newton, absent on residual-only and judged trials. */
     jacobian: number[][] | undefined;
     /** The actual numeric flight whose endpoint and residual were observed. */
     flight: IAutoMovieIntegrateAirborneRotation.IFlight;
