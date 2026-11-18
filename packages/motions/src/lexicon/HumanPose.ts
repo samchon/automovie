@@ -115,6 +115,14 @@ export namespace HumanPose {
    * degrees backward, 20 forward). A shove at walking speed, 1.2 m/s, is a
    * fall for every body: four recovery steps catch at most 0.95 m/s
    * pushed backward on the small woman and 1.17 m/s on the average man.
+   * Those limits are people's: released from a backward lean, young adults
+   * recover by stepping from at most 16.4 +- 3.1 degrees (Telonio, Cyr,
+   * Moglo and Smeesters 2005, ISB XX abstract 430), and more steps do not
+   * raise the lean recovered from (Cyr, Moglo and Smeesters 2005, ISB XX
+   * abstract 401: 30.4, 33.2 and 32.2 degrees forward with one step, two
+   * and no limit); the same pendulum reads 16.4 degrees as 0.90 m/s on the
+   * small woman and 0.97 m/s on the average man, and 1.2 m/s as a lean of
+   * 22.0 and 20.3 degrees, past the measured threshold.
    */
   export const stumble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["stumble"]
