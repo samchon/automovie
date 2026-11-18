@@ -1,4 +1,4 @@
-import {physicalShapePairDistance} from "@automovie/engine";
+import { physicalShapePairDistance } from "@automovie/engine";
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -123,12 +123,31 @@ export namespace motionContactArmFixture {
   }
 
   /** Least signed separation of two externally selected sets of displayed physical segments. */
-  export function separation(bodyA:IAutoMovieMotionHumanBody,bonesA:motionHumanLaw.Bones,selectedA:RegExp,bodyB:IAutoMovieMotionHumanBody,bonesB:motionHumanLaw.Bones,selectedB:RegExp):number{
-    const first:ReturnType<typeof HumanColliders.placed>=HumanColliders.placed(bodyA,bonesA).filter((segment)=>selectedA.test(segment.bone));
-    const second:ReturnType<typeof HumanColliders.placed>=HumanColliders.placed(bodyB,bonesB).filter((segment)=>selectedB.test(segment.bone));
-    let least:number=Infinity;
-    for(const a of first)for(const b of second)for(const left of a.shapes)for(const right of b.shapes)
-      least=Math.min(least,physicalShapePairDistance(a.pose,left,b.pose,right));
+  export function separation(
+    bodyA: IAutoMovieMotionHumanBody,
+    bonesA: motionHumanLaw.Bones,
+    selectedA: RegExp,
+    bodyB: IAutoMovieMotionHumanBody,
+    bonesB: motionHumanLaw.Bones,
+    selectedB: RegExp,
+  ): number {
+    const first: ReturnType<typeof HumanColliders.placed> =
+      HumanColliders.placed(bodyA, bonesA).filter((segment) =>
+        selectedA.test(segment.bone),
+      );
+    const second: ReturnType<typeof HumanColliders.placed> =
+      HumanColliders.placed(bodyB, bonesB).filter((segment) =>
+        selectedB.test(segment.bone),
+      );
+    let least: number = Infinity;
+    for (const a of first)
+      for (const b of second)
+        for (const left of a.shapes)
+          for (const right of b.shapes)
+            least = Math.min(
+              least,
+              physicalShapePairDistance(a.pose, left, b.pose, right),
+            );
     return least;
   }
 }

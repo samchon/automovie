@@ -1,4 +1,3 @@
-import {motionContactArmFixture as fixture} from "../internal/motionContactArmFixture";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -12,6 +11,7 @@ import {
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
+import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 
@@ -55,8 +55,16 @@ export function test_motion_contact_partner_observation(): void {
   );
   const closed: number = motionHumanLaw.event(film, "gripClosed");
   const release: number = motionHumanLaw.event(film, "release");
-  const hand:RegExp=/^right(Hand|Thumb|Index|Middle|Ring|Little)/;
-  const gap=(t:number):number=>fixture.separation(a,film.bones("a",t),hand,b,film.bones("b",t),hand);
+  const hand: RegExp = /^right(Hand|Thumb|Index|Middle|Ring|Little)/;
+  const gap = (t: number): number =>
+    fixture.separation(
+      a,
+      film.bones("a", t),
+      hand,
+      b,
+      film.bones("b", t),
+      hand,
+    );
   const all: motionComplaints.IGatherer = motionComplaints();
   all.check("the hands begin apart", gap(0) > 0.01);
   for (const t of [closed, (closed + release) / 2, release])

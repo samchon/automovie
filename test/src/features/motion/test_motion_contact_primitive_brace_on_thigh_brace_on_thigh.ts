@@ -51,8 +51,18 @@ export function test_motion_contact_primitive_brace_on_thigh_brace_on_thigh(): v
     f.body,
     resolveHumanPosture(f.body, arm.write(rest, 1, before)),
   );
-  const gap:number=fixture.separation(f.body,held,/^right(Hand|Thumb|Index|Middle|Ring|Little)/,f.body,held,/^rightUpperLeg$/);
-  TestValidator.predicate(`the displayed hand and thigh have signed separation ${gap} m`,Math.abs(gap)<=0.01);
+  const gap: number = fixture.separation(
+    f.body,
+    held,
+    /^right(Hand|Thumb|Index|Middle|Ring|Little)/,
+    f.body,
+    held,
+    /^rightUpperLeg$/,
+  );
+  TestValidator.predicate(
+    `the displayed hand and thigh have signed separation ${gap} m`,
+    Math.abs(gap) <= 0.01,
+  );
   const released: ReturnType<typeof poseBones> = poseBones(
     f.body,
     resolveHumanPosture(f.body, arm.write(rest, 2, before)),

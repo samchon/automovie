@@ -1,11 +1,15 @@
-import {motionContactArmFixture as fixture} from "../internal/motionContactArmFixture";
-import {AutoMovieMotionHumanReach,poseBones,resolveHumanPosture,stand} from "@automovie/motions";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import {
+  AutoMovieMotionHumanReach,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import {
   HumanChain,
   HumanHand,
@@ -14,6 +18,7 @@ import {
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
+import { motionContactArmFixture as fixture } from "../internal/motionContactArmFixture";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -33,13 +38,24 @@ export function test_motion_contact_two_arm_coordination(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   for (const name of ["f-small", "m-average", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const rest=stand.posture(body,{x:0,y:0,z:0},0);
-    const resting=poseBones(body,resolveHumanPosture(body,rest));
-    const shoulder0=resting.get("leftUpperArm")!.worldPosition;
-    const outside=Vector3.add(shoulder0,{x:0,y:0,z:body.measure.upperArm+body.measure.forearm+body.measure.hand});
-    let refused=false;
-    try{AutoMovieMotionHumanReach.fit(body,rest,"leftArm",outside,"refuse");}catch(error:unknown){refused=error instanceof Error;}
-    all.check(`${name}: a fixed-shoulder marker beyond both links is refused`,refused);
+    const rest = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+    const resting = poseBones(body, resolveHumanPosture(body, rest));
+    const shoulder0 = resting.get("leftUpperArm")!.worldPosition;
+    const outside = Vector3.add(shoulder0, {
+      x: 0,
+      y: 0,
+      z: body.measure.upperArm + body.measure.forearm + body.measure.hand,
+    });
+    let refused = false;
+    try {
+      AutoMovieMotionHumanReach.fit(body, rest, "leftArm", outside, "refuse");
+    } catch (error: unknown) {
+      refused = error instanceof Error;
+    }
+    all.check(
+      `${name}: a fixed-shoulder marker beyond both links is refused`,
+      refused,
+    );
     try {
       const film: HumanPerformance = new HumanPerformance({
         seed: "lexicon",
@@ -72,8 +88,18 @@ export function test_motion_contact_two_arm_coordination(): void {
           "a",
           time,
         );
-        const gap:number=fixture.separation(body,bones,/^left(Hand|Thumb|Index|Middle|Ring|Little)/,body,bones,/^right(Hand|Thumb|Index|Middle|Ring|Little)/);
-        all.check(`the two moving hands do not penetrate beyond the skin allowance: ${gap} m`,gap>=-0.01);
+        const gap: number = fixture.separation(
+          body,
+          bones,
+          /^left(Hand|Thumb|Index|Middle|Ring|Little)/,
+          body,
+          bones,
+          /^right(Hand|Thumb|Index|Middle|Ring|Little)/,
+        );
+        all.check(
+          `the two moving hands do not penetrate beyond the skin allowance: ${gap} m`,
+          gap >= -0.01,
+        );
         for (const side of ["left", "right"] as const) {
           const shoulder: IAutoMovieVector3 = bones.get(
             `${side}UpperArm`,

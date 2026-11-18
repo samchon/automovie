@@ -1,4 +1,5 @@
-import {TestValidator} from "@nestia/e2e";
+import { TestValidator } from "@nestia/e2e";
+
 import { motionKissMeeting } from "../internal/motionKissMeeting";
 
 /**
@@ -14,5 +15,9 @@ import { motionKissMeeting } from "../internal/motionKissMeeting";
  * @evidence contracts/development/common.md#meaningful-documentation States the phase, coordinate frame and quantitative basis of the check.
  */
 export function test_motion_contact_forehead_meeting(): void {
-  TestValidator.equals("the lips meet their named skin target",motionKissMeeting("forehead"),[]);
+  TestValidator.equals(
+    "the lips meet their named skin target",
+    motionKissMeeting("forehead"),
+    [],
+  );
 }

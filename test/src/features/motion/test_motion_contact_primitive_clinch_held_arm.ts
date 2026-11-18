@@ -52,10 +52,19 @@ export function test_motion_contact_primitive_clinch_held_arm(): void {
     const side: AutoMovieHumanSide = w.part === "leftHand" ? "left" : "right";
     for (const share of [w.from, (w.from + w.to) / 2, w.to]) {
       const time: number = segment.start + share * segment.plan.duration;
-      const targetBone= b.surfaces.regions[w.support.region].bone;
-      const hand=new RegExp("^"+side+"(Hand|Thumb|Index|Middle|Ring|Little)");
-      const target=new RegExp("^"+targetBone+"$");
-      const gap:number=fixture.separation(a,film.bones("a",time),hand,b,film.bones("b",time),target);
+      const targetBone = b.surfaces.regions[w.support.region].bone;
+      const hand = new RegExp(
+        "^" + side + "(Hand|Thumb|Index|Middle|Ring|Little)",
+      );
+      const target = new RegExp("^" + targetBone + "$");
+      const gap: number = fixture.separation(
+        a,
+        film.bones("a", time),
+        hand,
+        b,
+        film.bones("b", time),
+        target,
+      );
       all.check(
         `${side} on ${w.support.region} at ${time}: signed gap ${gap} m`,
         Math.abs(gap) <= 0.01,

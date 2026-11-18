@@ -163,10 +163,19 @@ export function motionKissMeeting(region: KissRegion): string[] {
       );
     }
     if (region === "forehead") {
-      const seconds:number=film.performance.segments("a").at(-1)!.end;
-      const lips=resolveAutoMovieHumanoidSurfaces.place(mouthFrame,film.bones("a",seconds).get(mouthFrame.bone)!).point;
-      const forehead=resolveAutoMovieHumanoidSurfaces.place(targetFrame,film.bones("b",seconds).get(targetFrame.bone)!).point;
-      all.check("the planted forehead kiss separates after its held contact",Vector3.distance(lips,forehead)>0.005);
+      const seconds: number = film.performance.segments("a").at(-1)!.end;
+      const lips = resolveAutoMovieHumanoidSurfaces.place(
+        mouthFrame,
+        film.bones("a", seconds).get(mouthFrame.bone)!,
+      ).point;
+      const forehead = resolveAutoMovieHumanoidSurfaces.place(
+        targetFrame,
+        film.bones("b", seconds).get(targetFrame.bone)!,
+      ).point;
+      all.check(
+        "the planted forehead kiss separates after its held contact",
+        Vector3.distance(lips, forehead) > 0.005,
+      );
     }
     const worst: ReturnType<
       typeof AutoMovieMotionHumanAuditPartner.measure
