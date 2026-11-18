@@ -21,7 +21,7 @@ const ELBOW: number = (1.61 * 180) / Math.PI;
 /** The elbows' flexion swing amplitude about that mean, degrees: half the 38.8 ± 12.6 degree range distance runners show (Tartaruga et al. 2012, Res Q Exerc Sport 83:367). */
 const ELBOW_SWING: number = 38.8 / 2;
 
-/** The step frequency in pendulum units at a Froude number of zero (provisional fit: 170 steps a minute at 2.9 m/s on a 0.93 m hip, Heiderscheit et al. 2011). */
+/** The step frequency in pendulum units at a Froude number of zero (provisional fit: 170 steps a minute at 2.9 m/s on the reference hip, `walkRoot.REFERENCE_HIP`, Heiderscheit et al. 2011). */
 const CADENCE_BASE: number = 0.8;
 
 /** The step frequency's rise in pendulum units per unit Froude number (provisional fit, rising toward a sprint, Cavagna et al. 1988). */
@@ -37,14 +37,14 @@ const CADENCE_PER_FROUDE: number = 0.08;
  * 1998, "The biomechanics of running", Gait & Posture 7): 0.4 at a jog, 0.35
  * at a run and 0.25 at a sprint, so the swing lasts `2 (1 - duty)` step
  * periods. The speed comes from the Froude number, `v = sqrt(Fr g l)`, at
- * 0.6, 1.3 and 5 (about 2.4, 3.5 and 6.8 m/s at a 0.93 m hip). The step
+ * 0.6, 1.3 and 5 (about 2.4, 3.5 and 6.8 m/s at the reference hip, `walkRoot.REFERENCE_HIP`). The step
  * frequency is the measured quantity: nearly constant over endurance speeds
  * and rising toward a sprint (Cavagna, Franzetti, Heglund and Willems 1988,
  * J Physiol 399:81), about 172 steps a minute at a recreational runner's
  * preferred 2.9 m/s (Heiderscheit et al. 2011, Med Sci Sports Exerc 43:296).
  * Scaled by the pendulum time `sqrt(l / g)` (Alexander 1984), it is
  * `0.8 + 0.08 Fr` (a provisional fit: 170 steps a minute at 2.9 m/s on a
- * 0.93 m hip), so the longest step is `l sqrt(Fr) / (0.8 + 0.08 Fr)`, about
+ * reference hip, `walkRoot.REFERENCE_HIP`), so the longest step is `l sqrt(Fr) / (0.8 + 0.08 Fr)`, about
  * 0.9, 1.3 and 1.9 hip heights, inside the step lengths measured across
  * running speeds (Novacheck 1998). The foot lands on its ball with the heel
  * held `FOREFOOT` degrees up, the forefoot strike of sprinters (Novacheck
