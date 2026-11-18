@@ -54,7 +54,7 @@ export namespace HumanSwordThrust {
   export const thrust: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.IAttack> =
     {
       name: "swordThrust",
-      interrupts: HumanSword.follows("stroke"),
+      interrupts: StrikingHeld.follows("stroke"),
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
       ): IAutoMovieMotionHumanActionPlan => {

@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHand,
@@ -43,6 +44,35 @@ import { StrikingHeldGoal } from "./StrikingHeldGoal";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: the points are affordance ids the caller gives, and a missing one is refused with the ids the prop has.
  */
 export namespace StrikingHeld {
+  /**
+   * The cancel table of an action whose effector is a held tool: anything
+   * may follow from the named instant on, blended in by inertialization, the
+   * grip kept so the tool stays in the hand.
+   *
+   * @param instant The event from which a follow-up may cut in.
+   * @returns The table.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the window, the blend and what is kept.
+   * @evidence contracts/development/implementation.md#principled-implementation One row for every follow-up: the held tool's actions differ only in the instant they open from.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The blade's and the firearm's actions read this one table instead of a copy each.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by `HumanSword`, `HumanSwordGuard`, `HumanSwordThrust`, `HumanSwordParry` and `HumanWeaponPresent`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export const follows = (
+    instant: string,
+  ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
+    any: [
+      {
+        window: [instant, 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: 0.15,
+        keep: ["grip"],
+      },
+    ],
+  });
 
     /**
    * Read what a hand holds at an action's entry.

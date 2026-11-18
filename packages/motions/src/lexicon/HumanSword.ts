@@ -52,7 +52,7 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the effector, how the blade is given, the vocabulary with its source, how a parried attack is declared and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation One law record over the stroke planner; the lines a cut comes from are a closed union with a table of directions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The cut, the attack's parameters, aim and clock the thrust shares, the tables and constants, and the setup and cancel table every blade law shares.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The cut, the attack's parameters, aim and clock the thrust shares, the tables and constants, and the setup every blade law shares.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sword kind is named; lengths are shares of the arm and the blade's own length.
  */
 export namespace HumanSword {
@@ -170,20 +170,6 @@ export namespace HumanSword {
     };
   };
 
-  /** The cancel table of a blade action: anything may follow from the named instant on, the grip kept. */
-  export const follows = (
-    instant: string,
-  ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
-    any: [
-      {
-        window: [instant, 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.15,
-        keep: ["grip"],
-      },
-    ],
-  });
 
   /** Read an attack's target, line and advance: the target named, or with none a stand-in opponent of the performer's own measure whose sternum lies straight ahead at the arm's `REACH` and the landing part's span from the shoulder, the centre of the fencing target; and with no advance named the least that reaches. */
   export const aim = (
@@ -334,7 +320,7 @@ export namespace HumanSword {
   export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> =
     {
       name: "swordCut",
-      interrupts: follows("strokeEnd"),
+      interrupts: StrikingHeld.follows("strokeEnd"),
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.ICut>,
       ): IAutoMovieMotionHumanActionPlan => {

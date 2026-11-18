@@ -222,7 +222,7 @@ export namespace HumanSwordParry {
   export const parry: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwordParry.IParry> =
     {
       name: "swordParry",
-      interrupts: HumanSword.follows("stroke"),
+      interrupts: StrikingHeld.follows("stroke"),
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
       ): IAutoMovieMotionHumanActionPlan => {

@@ -24,6 +24,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBlade } from "../striking/StrikingBlade";
+import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPose } from "./HumanWeaponPose";
@@ -99,21 +100,6 @@ export namespace HumanWeaponPresent {
     recover: 0.25,
   };
 
-  /** The cancel table of a firearm action: anything may follow from the named instant on, the grip kept. */
-  const from = (
-    instant: string,
-  ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
-    any: [
-      {
-        window: [instant, 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.15,
-        keep: ["grip"],
-      },
-    ],
-  });
-
   /**
    * Present the weapon: bring the muzzle onto the line from the eye to the target, or to a ready position, by `stroke`, and hold it. A target more than `TURN` degrees off the heading is refused on `target`, a long gun in one hand on `hands`, a fore-end the support arm cannot reach on `gun`.
    *
@@ -130,7 +116,7 @@ export namespace HumanWeaponPresent {
   export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> =
     {
       name: "presentWeapon",
-      interrupts: from("stroke"),
+      interrupts: StrikingHeld.follows("stroke"),
       overlay: true,
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>,
@@ -290,7 +276,7 @@ export namespace HumanWeaponPresent {
   export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> =
     {
       name: "fireWeapon",
-      interrupts: from("relax"),
+      interrupts: StrikingHeld.follows("relax"),
       overlay: true,
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,
