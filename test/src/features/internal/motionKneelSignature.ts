@@ -62,6 +62,8 @@ export function motionKneelSignature(
   const cell: string = `kneel ${kind} ${down} ${name}`;
   motionPostureBranches.checkBase(complaints.list, film.performance, cell, rise ? "standing" : "kneeling");
   const s: M.IStaged = { film, body: motionHumanBody(name), yaw: 0 };
+  const upright: number = M.trunk(s, 0);
+  complaints.check(`${cell}: quiet entry inclines ${upright}°, at most ${M.STANCE}°`, Math.abs(upright) <= M.STANCE);
   const settled: number = motionHumanLaw.event(film, "settled");
   const release: number = rise ? motionHumanLaw.event(film, "kneeOff") : film.duration;
   const t: number = (settled + release) / 2;

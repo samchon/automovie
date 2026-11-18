@@ -18,22 +18,20 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @param crouch The actual acted film and its body.
  * @param row The authored branch named in a measure.
  * @param name The body whose quiet stance is the reference.
- * @param stance Quiet-stance observations local to the owning test.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the measured phases, both heel modes, literature windows and balance gate.
- * @evidence contracts/development/implementation.md#principled-implementation The knee angles come from the cited studies. The actual heel sockets and a separate quiet stance supply the geometric reference for heel lift and trunk inclination.
+ * @evidence contracts/development/implementation.md#principled-implementation The knee angles come from the cited studies. The actual heel sockets and the same rig at its quiet entry supply the geometric reference for heel lift and trunk inclination.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two heel sockets contribute to one relevant extreme and the held frames supply the two segment readings.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original heel sampling intervals, angle limits and judge gate.
  * @evidence contracts/development/implementation.md#efficient-algorithms Reads the displayed pose once per requested instant, shared by both heel sockets or the held geometric measurements.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the caller's actual film and borrows its quiet-stance number when available.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The result is complaint text and a scalar reference posture measurement in the caller's map.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the caller's actual film for its quiet entry and held posture.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The implementation retains only complaint text after each measurement.
  */
 export function motionCrouchSignature(
   complaints: motionComplaints.IGatherer,
   crouch: M.IStaged,
   row: string,
   name: motionHumanBody.Name,
-  stance: Map<motionHumanBody.Name, number>,
 ): void {
   const label: string = `${name} crouch ${row}`;
   const lowest: number = M.event(crouch, "lowest")!;
@@ -70,15 +68,11 @@ export function motionCrouchSignature(
     );
   }
 
-  let upright: number | undefined = stance.get(name);
-  if (upright === undefined) {
-    upright = M.trunk(M.stage("stand", "default", name), 1);
-    stance.set(name, upright);
-    complaints.check(
-      `${name} quiet stance inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
-      Math.abs(upright) <= M.STANCE,
-    );
-  }
+  const upright: number = M.trunk(crouch, 0);
+  complaints.check(
+    `${label}: quiet entry inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
+    Math.abs(upright) <= M.STANCE,
+  );
   const inclination: number =
     M.mean(held, (t: number): number => M.trunk(crouch, t)) - upright;
   const minimum: number = full ? 5 : 0;

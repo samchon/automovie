@@ -1,5 +1,4 @@
 import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanSignature } from "../internal/motionHumanSignature";
 import { motionKneelSignature } from "../internal/motionKneelSignature";
 import { motionPostureBranches } from "../internal/motionPostureBranches";
 
@@ -28,10 +27,6 @@ export function test_human_motion_law_sweep_posture_kneel(): void {
       motionKneelSignature(signature, film, name, "one", row === "default" ? "right" : "left");
     },
   );
-  signature.list.push(
-    ...findings,
-    ...motionHumanSignature.calibrate("m-large"),
-    ...motionHumanSignature.calibrate("f-small"),
-  );
+  signature.list.push(...findings);
   signature.assert("A half-kneel has the prescribed held geometry and contact throughout");
 }
