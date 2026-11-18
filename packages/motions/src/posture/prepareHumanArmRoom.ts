@@ -1,5 +1,6 @@
 import { preparePoseResolution } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieJointPose,
@@ -48,7 +49,7 @@ import { poseBones } from "./poseBones";
 export function prepareHumanArmRoom(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
   baseline: IAutoMovieMotionHumanArmClearance.IBaseline = { forearm: 0, segments: 0 },
   operation?: ReturnType<typeof preparePoseResolution>,
@@ -86,7 +87,7 @@ export function prepareHumanArmRoom(
   const place: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body, moved);
   const fixed: ReturnType<IAutoMovieMotionHumanBody["poseResolution"]["preparePose"]> =
     body.poseResolution.preparePose(pose, moved, operation);
-  const other: readonly ("left" | "right")[] = [side === "left" ? "right" : "left"];
+  const other: readonly AutoMovieHumanSide[] = [side === "left" ? "right" : "left"];
   const targets: NonNullable<Parameters<typeof AutoMovieMotionHumanAuditTangle.arm>[4]> = [];
 
   const exceeded: ((degrees: number) => boolean) | undefined = threshold === undefined
@@ -149,7 +150,7 @@ export namespace prepareHumanArmRoom {
   /** Whether writing an arm back (`HumanArmClearance.posed`) leaves every record of its three joints with the values it holds. */
   export function matches(
     pose: IAutoMoviePose,
-    side: "left" | "right",
+    side: AutoMovieHumanSide,
     arm: IAutoMovieMotionHumanArmClearance.IArm,
   ): boolean {
     const written: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> = {
