@@ -15,6 +15,7 @@ import { walk } from "../actions/walk";
 import { walkFoot } from "../actions/walkFoot";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 import { sitPlace } from "./sitPlace";
@@ -134,6 +135,7 @@ export function prepareSitWorkingFeet(
       lift: gait.lift,
     }),
   );
+  const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(body);
   const contacts: IAutoMovieMotionHumanContactWindow[] = [
     plant(order[1]!, 0, step / duration),
     plant(order[0]!, step / duration, 1),
@@ -164,7 +166,7 @@ export function prepareSitWorkingFeet(
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = legs(root, ankles);
         const leg: IAutoMovieHumanLimbGoal = limbs[`${side}Leg`]!;
         limbs[`${side}Leg`] = { ...leg, rotation: swing.placement.rotation, planted: false, contact: undefined };
-        return resolveHumanPosture.lower(body, { ...next, root, limbs }, undefined, resolution);
+        return lower({ ...next, root, limbs }, resolution);
       },
     },
   };

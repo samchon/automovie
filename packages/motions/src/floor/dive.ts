@@ -18,6 +18,7 @@ import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
@@ -303,7 +304,7 @@ export namespace dive {
           ]
         : []),
     ];
-    return {
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "takeOff", share: share(crouch) },
@@ -330,6 +331,18 @@ export namespace dive {
         };
       },
     };
+    HumanPreparedPlayback.attach(planned, body, {
+      mode: "posture",
+      phases: [{
+        from: crouch,
+        to: crouch,
+        sample: (_seconds, _channels, resolution) =>
+          prepareHumanPoseResolution.isNativeSource(resolution)
+            ? { posture: structuredClone(takeoff) }
+            : undefined,
+      }],
+    });
+    return planned;
   }
 
   /** Only ankles are measured while placing the crouch over its feet. */

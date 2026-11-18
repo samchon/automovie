@@ -34,8 +34,10 @@ import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { HumanTrunk } from "./HumanTrunk";
@@ -283,6 +285,7 @@ export namespace brace {
 
     // The posture without its arms at a second: the root, lean and legs on
     // the set curve, and the hands opened flat once the brace begins.
+    const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(body);
     const bodyAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture = (
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -306,10 +309,8 @@ export namespace brace {
         if (!(side === "left" ? leftFoot : rightFoot).planted)
           legs[limb] = { ...legs[limb]!, planted: false };
       }
-      const raw: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-        body,
+      const raw: IAutoMovieMotionHumanPosture = lower(
         { root, yaw, pitch: tilt.pitch, roll: 0, joints: tilt.joints, limbs: legs },
-        resolveHumanPosture.KNEE,
         resolution,
       );
       let posture: IAutoMovieMotionHumanPosture = adjust(raw, t, undefined, resolution);
@@ -462,7 +463,7 @@ export namespace brace {
         ),
       },
     ];
-    return {
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       ...HumanPhysics.declared(context.params, window),
@@ -473,5 +474,26 @@ export namespace brace {
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       ): IAutoMovieMotionHumanPosture => gestureHands.written(bodyAt(seconds, resolution), arms, seconds),
     };
+    // Once the heel has accepted the load and the set is reached, the body
+    // stays in the same stance. Optional balance keeps its live window.
+    const heldFrom: number = Math.max(SET, swing[1] + swing[0]);
+    if (window === null && heldFrom <= duration) {
+      let held: IAutoMovieMotionHumanPosture;
+      HumanPreparedPlayback.attach(planned, body, {
+        mode: "posture",
+        prepare: (): void => { held = bodyAt(heldFrom); },
+        phases: [
+          {
+            from: heldFrom,
+            to: duration,
+            sample: (seconds, _channels, resolution) =>
+              prepareHumanPoseResolution.isNativeSource(resolution)
+                ? { posture: gestureHands.written(structuredClone(held), arms, seconds) }
+                : undefined,
+          },
+        ],
+      });
+    }
+    return planned;
   }
 }

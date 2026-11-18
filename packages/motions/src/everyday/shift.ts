@@ -14,8 +14,12 @@ import { stand } from "../actions/stand";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seated } from "./seated";
+import { seatedHands } from "./seatedHands";
 
 /**
  * Shifting along a bench while seated: the seat socket slides sideways
@@ -72,8 +76,8 @@ export namespace shift {
    * @evidence contracts/development/implementation.md#principled-implementation The original minimum-jerk seat-socket slide derives the root under unchanged heading, while native planted-leg goals and thigh hand-rest targets keep their original geometry.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate side reach/base, prepare fixed feet, then evaluate the original socket course and hand-rest owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original body-scaled side bound and high-seat refusal remain, with no moved plant, added base transition, changed contact time or relaxed range.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/contact/knee coefficients prepare once; each query keeps constant socket/root geometry and actual current hand observation/fits, omitting unused minimum-jerk derivatives.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body/entry heading/ankles share leg metadata. Current knee/root targets stay fresh and hand observations borrow parent FK/ROM sources only during that synchronous call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/contact/knee coefficients prepare once; each query evaluates socket/root geometry and current thigh frames. Native phases transport prepared skin hits and use prepared flat-hand extent readers.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/entry heading/ankles share leg metadata and fixed local thigh and flat-hand geometry. Current knee/root targets stay fresh and hand observations borrow parent FK/ROM sources only during that synchronous call.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed entry/feet and scalar timing until release; current hand maps and borrowed FK/ROM sources end on return or throw and never enter its retained geometry.
    */
   export function plan(
@@ -121,7 +125,7 @@ export namespace shift {
     );
     const lift: number = UNWEIGHT * slide;
     const set: number = (1 - UNWEIGHT) * slide;
-    return {
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       // A shift slides along the seat it was entered on and stays seated on
       // it (#3363: a base transition declares the base it ends in).
@@ -156,27 +160,49 @@ export namespace shift {
           support: HumanSupportFrame.contact(context, "seat"),
         },
       ],
-      posture: (
-        seconds: number,
-        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number = minimumJerk.share(t / slide);
-        const socket: IAutoMovieVector3 = {
-          x: start.x + (goal.x - start.x) * s,
-          y: start.y,
-          z: start.z + (goal.z - start.z) * s,
-        };
-        const root: IAutoMovieVector3 = seated.root(body, socket, entry);
-        const posture: IAutoMovieMotionHumanPosture = {
-          ...entry,
-          root,
-          limbs: legged(root, feet),
-        };
-        return seated.arms(body, posture, 1, resolution, projection);
-      },
+      posture: (seconds, channels, resolution, projection) =>
+        read(seconds, channels, resolution, projection),
     };
+    const bounds: readonly number[] = [0, lift, set, slide, duration];
+    let palms: ReturnType<typeof prepareSeatedPalms> | undefined;
+    HumanPreparedPlayback.attach(planned, body, {
+      mode: "posture",
+      prepare: (): void => {
+        palms = prepareSeatedPalms(body, entry);
+      },
+      phases: bounds.slice(0, -1).map((from, index) => ({
+        from,
+        to: bounds[index + 1]!,
+        sample: (seconds, channels, resolution, projection) =>
+          prepareHumanPoseResolution.isNativeSource(resolution)
+            ? { posture: read(seconds, channels, resolution, projection, palms) }
+            : undefined,
+      })),
+    });
+    return planned;
+
+    /** Follow the authored socket and observe the current legs at their plants. */
+    function read(
+      seconds: number,
+      _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      prepared?: ReturnType<typeof prepareSeatedPalms>,
+    ): IAutoMovieMotionHumanPosture {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const s: number = minimumJerk.share(t / slide);
+      const socket: IAutoMovieVector3 = {
+        x: start.x + (goal.x - start.x) * s,
+        y: start.y,
+        z: start.z + (goal.z - start.z) * s,
+      };
+      const root: IAutoMovieVector3 = seated.root(body, socket, entry);
+      const posture: IAutoMovieMotionHumanPosture = {
+        ...entry,
+        root,
+        limbs: legged(root, feet),
+      };
+      return seatedHands.arms(body, posture, 1, resolution, projection, prepared);
+    }
   }
 }

@@ -13,6 +13,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -134,29 +135,37 @@ export namespace roll {
       share: number,
     ): IAutoMovieMotionHumanPosture["joints"] =>
       prepareHumanShapeBlend(entry.joints, { ...entry.joints, ...TUCK })(share);
-    const posed = (share: number, turn: number): IAutoMovieMotionHumanPosture => ({
+    const posed = (
+      share: number,
+      turn: number,
+      blend: typeof joints = joints,
+    ): IAutoMovieMotionHumanPosture => ({
       ...entry,
       root: { x: 0, y: 0, z: 0 },
       pitch: entry.pitch + sign * turn,
-      joints: joints(share),
+      joints: blend(share),
       limbs: {},
     });
-    const ankleMid = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => {
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body,
-        resolveHumanPosture(body, posture),
-        undefined,
-        FEET,
-      );
+    const ankleMid = (
+      posture: IAutoMovieMotionHumanPosture,
+      observe: (pose: ReturnType<typeof resolveHumanPosture>) => ReturnType<typeof poseBones> = rawAnkles,
+    ): IAutoMovieVector3 => {
+      const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture(body, posture);
+      const bones: ReturnType<typeof poseBones> = observe(pose);
       const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
       const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
       return { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
     };
 
     // The crouch: the ankles kept where they stood.
-    const crouched = (share: number, at: IAutoMovieVector3): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = posed(share, 0);
-      const local: IAutoMovieVector3 = ankleMid(posture);
+    const crouched = (
+      share: number,
+      at: IAutoMovieVector3,
+      blend?: typeof joints,
+      observe?: Parameters<typeof ankleMid>[1],
+    ): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = posed(share, 0, blend);
+      const local: IAutoMovieVector3 = ankleMid(posture, observe);
       return {
         ...posture,
         root: { x: at.x - local.x, y: at.y - local.y, z: at.z - local.z },
@@ -182,8 +191,11 @@ export namespace roll {
       return values[k]! + (values[k + 1]! - values[k]!) * (at - k);
     };
     const start: IAutoMovieVector3 = crouched(1, ankles).root;
-    const rolled = (turn: number): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = posed(1, turn);
+    const rolled = (
+      turn: number,
+      blend?: typeof joints,
+    ): IAutoMovieMotionHumanPosture => {
+      const posture: IAutoMovieMotionHumanPosture = posed(1, turn, blend);
       const along: number = table(travels, turn);
       return {
         ...posture,
@@ -236,7 +248,7 @@ export namespace roll {
         support: { kind: "ground" },
       },
     ];
-    return {
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "tucked", share: share(CROUCH) },
@@ -256,6 +268,43 @@ export namespace roll {
         );
       },
     };
+    const observe: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, FEET);
+    let blend: typeof joints;
+    HumanPreparedPlayback.attach(planned, body, {
+      mode: "posture",
+      prepare: (): void => {
+        blend = prepareHumanShapeBlend(entry.joints, { ...entry.joints, ...TUCK });
+      },
+      phases: [
+        {
+          from: 0,
+          to: CROUCH,
+          sample: (seconds) => entry.digits === undefined
+            ? { posture: crouched(minimumJerk.share(seconds / CROUCH), ankles, blend, observe) }
+            : undefined,
+        },
+        {
+          from: CROUCH,
+          to: CROUCH + TURN,
+          sample: (seconds) => ({
+            posture: rolled(360 * minimumJerk.share((seconds - CROUCH) / TURN), blend),
+          }),
+        },
+        {
+          from: CROUCH + TURN,
+          to: duration,
+          sample: (seconds) => entry.digits === undefined
+            ? { posture: crouched(1 - minimumJerk.share((seconds - CROUCH - TURN) / CROUCH), end, blend, observe) }
+            : undefined,
+        },
+      ],
+    });
+    return planned;
+
+    /** Measure the raw reader's canonical ankle demand. */
+    function rawAnkles(pose: ReturnType<typeof resolveHumanPosture>): ReturnType<typeof poseBones> {
+      return poseBones(body, pose, undefined, FEET);
+    }
   }
 
   /** Only the ankles place each crouch on its authored floor points. */

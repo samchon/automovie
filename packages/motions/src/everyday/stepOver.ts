@@ -27,6 +27,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { stepOverPath } from "./stepOverPath";
@@ -226,6 +227,7 @@ export namespace stepOver {
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = stand.relaxed(body);
     // The lowering a swinging leg needs to reach its landing with the knee
     // flexed no less than a planted leg's least flexion.
+    const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(body);
     const short: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, resolveHumanPosture.KNEE);
     const knees: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>> = {
       left: HumanFrame.preparePoint(yaw, { ...body.rest.get("leftLowerLeg")!, z: body.rest.get("leftLowerLeg")!.z + 1 }),
@@ -309,8 +311,7 @@ export namespace stepOver {
         // The trunk carries a walk's forward inclination over the step, the
         // pelvis's share tipping the body about the hips.
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
-          body,
+        const posture: IAutoMovieMotionHumanPosture = lower(
           AutoMovieMotionHumanLean.pivot(
             body,
             {
@@ -328,7 +329,6 @@ export namespace stepOver {
             },
             { pitch: inclined.pitch, roll: 0 },
           ),
-          undefined,
           resolution,
         );
         // A swinging foot's leg reaches for its landing over the second half

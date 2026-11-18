@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
@@ -105,6 +105,7 @@ export function prepareSitLowering(
   };
   const downDuration: number = contact - down;
   const settleDuration: number = descent - contact;
+  const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(body);
   let transfer: number = 0;
   const read = (
     t: number,
@@ -161,8 +162,7 @@ export function prepareSitLowering(
       tilt.joints.spine = [spine[0] - moved, spine[1], spine[2]];
       tilt.joints.chest = [chest[0] + moved, chest[1], chest[2]];
     }
-    return resolveHumanPosture.lower(
-      body,
+    return lower(
       {
         root,
         yaw,
@@ -171,7 +171,6 @@ export function prepareSitLowering(
         joints: tilt.joints,
         limbs: props.legs(root, yaw, t),
       },
-      undefined,
       resolution,
     );
   };

@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
@@ -147,7 +148,7 @@ export namespace sit {
    * @evidence contracts/development/implementation.md#principled-implementation The seat socket follows its original descent/balanced travel while planted-leg and achieved hand goals retain canonical fitting; high seats delegate to the existing mount law.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed descent geometry and the original balance table feed one body base and two carried hand rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original seat/facing/reach refusals, all balance samples/bracket trials, contact times and authored interpolation remain; no fit or tolerance is relaxed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning retains the original SHARES balance brackets and actual complete mass-centre fits, with no unused support geometry. Each query retains actual root lowering and hand trajectory/fits; fixed intervals, joint entries and frame coefficients prepare once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning retains the original SHARES balance brackets and actual complete mass-centre fits, with no unused support geometry. Moving queries retain actual root lowering and hand trajectory/fits; the native settled hold reuses its delivered lower-body key; fixed intervals, joint entries and frame coefficients prepare once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed descent/socket/joint metadata share across queries; balance construction lends one synchronous FK/ROM source and returns only scalar travel. Current base lowering and carried thigh goals borrow composition loans without sharing a posed answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns finite clock/geometry/travel and arm plans until release. Construction/current-query FK/ROM sources end on synchronous return or throw and never enter those records.
    */
@@ -317,6 +318,12 @@ export namespace sit {
         });
     // The body lowered over its feet and onto the seat, its arms hanging and
     // its fingers straightening as each hand comes to rest.
+    // After the hands have arrived and any ankle crossing has completed,
+    // the planted lower body is the delivered seat key for the entire hold.
+    const settled = (t: number): boolean =>
+      t >= descent && (!crossed || (t - descent) / CROSS >= 1);
+    const seatedKey: IAutoMovieMotionHumanPosture | undefined =
+      settled(duration) ? lowered(duration, 1) : undefined;
     const lowering: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
@@ -334,7 +341,10 @@ export namespace sit {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return sitHands(
-          lowered(t, travel(t), resolution),
+          seatedKey !== undefined && settled(t) &&
+          resolution !== undefined && prepareHumanPoseResolution.isNativeSource(resolution)
+            ? structuredClone(seatedKey)
+            : lowered(t, travel(t), resolution),
           (side: "left" | "right"): number => hand(side, t),
         );
       },

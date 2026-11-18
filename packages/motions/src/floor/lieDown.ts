@@ -29,6 +29,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { lieDownPoses } from "./lieDownPoses";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
@@ -236,6 +237,7 @@ export namespace lieDown {
         body.rest.get("hips")!,
       ),
     );
+    const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(body);
     let held: IAutoMovieMotionHumanPosture | undefined;
     let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
     let folded: ReturnType<typeof floorSeat.prepare> | undefined;
@@ -378,7 +380,7 @@ export namespace lieDown {
       plants ??= prepareLieDownFootPins(
         body, readFeet!(stoodPose, read, project), readFeet!(posedAt(0, 1), read, project),
       );
-      return resolveHumanPosture.lower(body, plants(rooted, current), undefined, read);
+      return lower(plants(rooted, current), read);
     }
     const at: (
       seconds: number,
