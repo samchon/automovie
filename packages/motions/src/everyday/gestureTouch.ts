@@ -1,4 +1,4 @@
-import { Vector3, physicalHullFaces } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -81,7 +82,7 @@ export namespace gestureTouch {
     /** The gesture kind. */
     readonly kind: IAutoMovieMotionHumanGestureStroke.Kind;
 
-    /** The fingertip's axis-to-skin padding for self-touch, metres. */
+    /** The fingertip's landmark-to-skin padding for self-touch, metres. */
     padding?: number;
 
     /** The pointing reach from the shoulder to the fingertip, metres, once first read. */
@@ -183,7 +184,7 @@ export namespace gestureTouch {
    * @returns The goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the goal; the namespace gives each gesture's slide.
-   * @evidence contracts/development/implementation.md#principled-implementation The fingertip's axis stands off the region's surface point by the finger's collider radius along the surface normal, and slides along the surface's upward tangent.
+   * @evidence contracts/development/implementation.md#principled-implementation The material fingertip stands off the region by its measured depth in the distal collider along the surface normal, and slides along the surface's upward tangent.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The region, its upward tangent, the slide, then the goal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The slide sizes are documented provisional values; no body is special-cased.
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk forward-kinematics pass demanding the region's bone and constant vector work; a prepared record supplies the padding and the region reader, and without one the padding's profile scan runs here.
@@ -245,52 +246,22 @@ export namespace gestureTouch {
   }
 
   /**
-   * How far the finger's axis stands off the skin it touches: the distal
-   * index phalanx's collider radius (the hand's thinnest half-extent on a
-   * profile without finger colliders: a box's least half extent, or the
-   * radius of the sphere a hull holds about its centre), so a fingertip laid
-   * on a surface touches it rather than sinking its axis into it.
+   * Distance from the material fingertip landmark to its own collision surface.
    *
    * @param body The body whose profile defines the fingertip.
    * @param side The touching hand.
-   * @returns The axis-to-skin padding, metres.
+   * @returns The landmark-to-skin padding, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fingertip and hand fallback, the profile source and the metre output.
-   * @evidence contracts/development/implementation.md#principled-implementation Takes the least nonzero half-thickness of the distal index segment's colliders, or of the hand segment's when no distal segment exists: a sphere's or capsule's radius, a box's least half extent, a hull's inscribed depth.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ordered segment searches choose the segment, then one shape scan finds the least half-thickness.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The thickness is the colliders'; no skin thickness or contact allowance is guessed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans at most twice the S profile segments and the chosen segment's F shapes, plus the hull faces when a hull is read; a gesture computes it once per touching hand.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same posed fingertip landmark and signed collider distance as the touch law.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the signed distance query to the hand effector owner.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the profile at the actual fingertip landmark and retains its measured depth.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A prepared gesture measures the signed distance once per touching hand.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The padding depends only on the body's profile and the hand, so `prepare` computes it once per plan; a stroke read without a prepared record computes it here.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and retains no body, profile, shape or frame.
    */
   export function padding(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): number {
-    type Segment = IAutoMovieMotionHumanBody["profile"]["segments"][number];
-    const segment: Segment | undefined =
-      body.profile.segments.find((s: Segment): boolean => s.bone === `${side}IndexDistal`) ??
-      body.profile.segments.find((s: Segment): boolean => s.bone === `${side}Hand`);
-    let thin: number = 0;
-    for (const shape of segment?.shapes ?? []) {
-      const half: number = thickness(shape);
-      thin = thin === 0 ? half : Math.min(thin, half);
-    }
-    return thin;
-  }
-
-  /** A shape's thinnest half extent, metres. */
-  function thickness(
-    shape: IAutoMovieMotionHumanBody["profile"]["segments"][number]["shapes"][number],
-  ): number {
-    if (shape.kind === "sphere") return shape.radius;
-    if (shape.kind === "capsule") return shape.radius;
-    if (shape.kind === "box")
-      return Math.min(
-        shape.halfExtents.x,
-        shape.halfExtents.y,
-        shape.halfExtents.z,
-      );
-    if (shape.kind === "hull") return physicalHullFaces(shape.points).depth;
-    shape satisfies never;
-    throw new Error("Unknown physical shape kind");
+    return AutoMovieMotionHumanTouchEffector.pad(body, side, { surface: "indexTip", shape: "flat" });
   }
 }
 
