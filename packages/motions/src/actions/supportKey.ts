@@ -18,6 +18,7 @@ import { HumanBodyFitMerit } from "../posture/HumanBodyFitMerit";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFitPairs } from "../posture/HumanFitPairs";
 import { HumanFitVariables } from "../posture/HumanFitVariables";
+import { HumanFoot } from "../posture/HumanFoot";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -91,7 +92,7 @@ export namespace supportKey {
         (f: supportContact.IForm): IAutoMovieMotionHumanBodyFitTypes.ITarget =>
           f.target,
       ),
-      ...heels(body, from, contacts, points),
+      ...heels(body, from, preferred, contacts, points),
     ];
     const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [...holding, ...swings];
     // Select the less violated of the previous solution and the geometrically
@@ -179,6 +180,7 @@ export namespace supportKey {
   function heels(
     body: IAutoMovieMotionHumanBody,
     from: IAutoMovieMotionHumanPosture,
+    preferred: IAutoMovieMotionHumanPosture,
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
     points: readonly ContactPoint[],
   ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] {
@@ -191,6 +193,7 @@ export namespace supportKey {
       if (frame === undefined) continue;
       feet.push({
         frame,
+        side,
         toes: `${side}Toes`,
         target,
       });
@@ -205,9 +208,21 @@ export namespace supportKey {
       undefined,
       names,
     );
+    const intended: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      preferred === from ? bones : poseBones(body, resolveHumanPosture(body, preferred), undefined, names);
     return feet.map((foot: IHeel): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
       const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(foot.frame, bones.get(foot.frame.bone)!);
       const toes: IAutoMovieVector3 = bones.get(foot.toes)!.worldPosition;
+      const sole: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(body, intended, foot.side);
+      const lowest: (typeof sole)[number] = sole.reduce((a: (typeof sole)[number], b: (typeof sole)[number]): (typeof sole)[number] =>
+        a.point.y <= b.point.y ? a : b);
+      // A foot supported on the ball or toe can carry its heel above the
+      // floor in quadruped or half kneel. Place the supporting skin itself.
+      if (sole[0]!.point.y > lowest.point.y + HumanFoot.BEARING) {
+        const socket: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.sockets[`${lowest.socket}${foot.side === "left" ? "Left" : "Right"}`];
+        return { bone: socket.bone, point: socket.point, goal: foot.target, axes: ["y"] };
+      }
       return {
         bone: foot.frame.bone,
         point: foot.frame.point,
@@ -222,6 +237,8 @@ export namespace supportKey {
 
   /** An existing floor toe target and the heel whose horizontal offset it keeps. */
   interface IHeel {
+    /** The foot whose sole bears on the floor. */
+    side: AutoMovieHumanSide;
     /** The rig's heel socket. */
     frame: IAutoMovieHumanoidSurfaces.IFrame;
 

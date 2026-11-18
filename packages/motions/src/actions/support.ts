@@ -113,7 +113,7 @@ export namespace support {
    * @evidence contracts/development/implementation.md#principled-implementation Each key is the whole-body fit on its contacts, seeded from the key before; a transition key holds both stances' contacts at once; the course between keys is a minimum-jerk blend of each joint on its range.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Keys are solved once and each fixed interval is prepared, then a posture reads its surrounding keys and that interval's actual interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two fits per stance after the first, three for a step, remain once at plan time. A query finds its active interval in O(log K) for K ordered keys, keeping the last-equal boundary rule; fixed pairs/common pin/source point prepare once, while current ROM interpolation, achieved-point solve and floor reading remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two fits per stance after the first, three for a step, run once at plan time. A query finds its active interval in O(log K) for K ordered keys, keeping the last-equal boundary rule; fixed pairs/common pin/source point prepare once, while current ROM interpolation, achieved-point solve and floor reading remain.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Solved keys and contact order define immutable interval geometry; entry-target/source-point observations share only within one schedule generation and settle clears them. Current posture calls forward parent FK/ROM loans to actual contact/floor observations, with every current solve retained.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns keys and one finite preparation per adjacent interval until release. Intervals retain fixed endpoint metadata and at most one source/target record until settle, without current poses, queried times or borrowed FK/ROM workspaces.
    */
@@ -183,10 +183,14 @@ export namespace support {
       );
     };
 
-    const { inherited, laid, recordFloors } = prepareSupportFloor(body, context.entry, stances[0]!.contacts, at);
     const paired: ReturnType<typeof supportAssist.of> = supportAssist.of(context);
-    const locate: (index: number) => Place = (index: number): Place =>
-      (c: IAutoMovieMotionHumanSupport.IContact): Point => paired?.(c, index) ?? at(c) ?? laid.get(supportContact.id(c)) ?? null;
+    const { inherited, laid, recordFloors } = prepareSupportFloor(
+      body, context.entry, stances[0]!.contacts,
+      (c: IAutoMovieMotionHumanSupport.IContact): Point => paired?.(c, 0) ?? at(c),
+      context,
+    );
+    const locate: (phase: number) => Place = (phase: number): Place =>
+      (c: IAutoMovieMotionHumanSupport.IContact): Point => paired?.(c, phase) ?? at(c) ?? laid.get(supportContact.id(c)) ?? null;
 
     // A stance's preferred posture (`supportKey.preferred`).
     const preference: (
@@ -350,16 +354,19 @@ export namespace support {
           place,
         });
         seconds += move / 3;
-      } else if (i > 0 && added.length > 0) {
+      } else if (i > 0 && (added.length > 0 || (paired !== undefined && i === 1))) {
         const union: IAutoMovieMotionHumanSupport.IContact[] = [...previous, ...added];
+        // The helped performer sets the feet down halfway from take to seat.
+        // The helper needs the same grip key to follow the same timed course.
+        const midway: Place = paired !== undefined && i === 1 ? locate(i - 0.5) : place;
         seconds += move / 2;
         push({
           posture: supportKey.solved(
             body,
-            preference(stance, before, place),
+            preference(stance, before, midway),
             before,
             union,
-            place,
+            midway,
             `bear${i}`,
             MISS,
             [],
@@ -368,7 +375,7 @@ export namespace support {
           seconds,
           name: `bear${i}`,
           contacts: union,
-          place,
+          place: midway,
         });
         seconds += move / 2;
       } else seconds += move;

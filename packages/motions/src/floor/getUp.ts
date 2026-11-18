@@ -1,6 +1,7 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanActionContext,
@@ -14,8 +15,10 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionManner,
+  IAutoMovieMotionTarget,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
@@ -23,6 +26,7 @@ import { support } from "../actions/support";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
@@ -237,6 +241,7 @@ export namespace getUp {
     // it lay.
     // The leading foot steps ahead into the half kneel, and the trailing foot
     // steps up beside it to stand.
+    const floorFeet: FootTargets = pattern === "symmetric" ? symmetricFeet(context.body, entered, stood) : {};
     const stances: IAutoMovieMotionHumanSupport.IStance[] = route.map(
       ([key, event]: (typeof route)[number], i: number): IAutoMovieMotionHumanSupport.IStance => ({
         contacts: BEARS[key].map(
@@ -250,6 +255,7 @@ export namespace getUp {
                   ? `${trail}Knee`
                   : part,
             kind: "bear",
+            ...(part === "leftFoot" ? floorFeet.left : part === "rightFoot" ? floorFeet.right : {}),
             ...((key === "halfKneel" && part === `${lead}Foot`) ||
             (key === "stood" &&
               route[i - 1]?.[0] === "halfKneel" &&
@@ -262,13 +268,31 @@ export namespace getUp {
         prefer:
           key === "stood"
             ? stood
-            : key === "halfKneel" && lead === "left"
-              ? mirrored(POSES.halfKneel)
+            : key === "halfKneel"
+              ? halfKneeling(lead)
               : POSES[key],
         turn: supine && pattern === "rotation" ? 180 : 0,
         event,
       }),
     );
+    if (kind === "lying" && pattern === "rotation") {
+      // The palms take the upper body's weight before the trunk leaves the
+      // floor for the hand-and-knee stance (VanSant 1988).
+      // Introduce their contact within the original quadruped phase.
+      const index: number = supine ? 1 : 0;
+      const handsAndKnees: IAutoMovieMotionHumanSupport.IStance = stances[index]!;
+      const placement: IAutoMovieMotionHumanSupport.IStance = {
+        ...handsAndKnees,
+        prefer: PUSH,
+        contacts: [
+          { part: "front", kind: "bear" },
+          ...handsAndKnees.contacts.filter((contact: IAutoMovieMotionHumanSupport.IContact): boolean => contact.part.endsWith("Hand")),
+        ],
+        seconds: phase / 2,
+        event: "palmsDown",
+      };
+      stances.splice(index, 1, placement, { ...handsAndKnees, seconds: phase / 2 });
+    }
     const planned: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,
       params: { stances },
@@ -303,6 +327,22 @@ export namespace getUp {
     }
     return { pitch: 0, roll: 0, joints };
   }
+  /**
+   * The half-kneeling key with the specified leading foot. The other knee
+   * is the bearing knee. The same key seeds transfers onto a raised knee.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States which side names the key and which site bears.
+   * @evidence contracts/development/implementation.md#principled-implementation The route's own half-kneel pose, with its limb roles mirrored when the other foot leads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the existing authored key and mirror helper.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No limb angles or surface coordinates are added.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Copies only the named body key's joints on a mirror.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The canonical authored key is the source.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No runtime data is retained.
+   */
+  export function halfKneeling(lead: AutoMovieHumanSide): IAutoMovieMotionHumanLieDown.IPose {
+    return lead === "left" ? mirrored(POSES.halfKneel) : POSES.halfKneel;
+  }
+
   /** A floor posture from its tilt and symmetric limb angles. */
   function keyed(
     pitch: number,
@@ -338,3 +378,45 @@ export namespace getUp {
     return { ...pose, joints };
   }
 }
+
+/** The new supports established before the symmetric crouch. */
+type FootTargets = Partial<Record<AutoMovieHumanSide, IFootTarget>>;
+
+/** A newly placed foot's fixed world target. */
+interface IFootTarget {
+  target: IAutoMovieMotionTarget;
+}
+
+/** Named toe joints demanded on the seated and upright keys. */
+const TOE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftToes", "rightToes"]);
+
+/**
+ * Place the unplanted feet at the sit key's preferred centre with their
+ * eventual quiet stance's separation. Only the new placement is set here;
+ * the same two contacts persist through squat and stand.
+ */
+function symmetricFeet(
+  body: IAutoMovieMotionHumanBody,
+  entry: IAutoMovieMotionHumanPosture,
+  stood: IAutoMovieMotionHumanLieDown.IPose,
+): FootTargets {
+  const seated = getUp.POSES.sit;
+  const feet = (key: IAutoMovieMotionHumanLieDown.IPose): Record<AutoMovieHumanSide, IAutoMovieVector3> => {
+    const read = poseBones(body, resolveHumanPosture(body, { ...entry, ...key, limbs: {} }), undefined, TOE_BONES);
+    return { left: read.get("leftToes")!.worldPosition, right: read.get("rightToes")!.worldPosition };
+  };
+  const sitting = feet(seated);
+  const standing = feet(stood);
+  const centre = Vector3.scale(Vector3.add(sitting.left, sitting.right), 0.5);
+  const across = Vector3.scale(Vector3.subtract(standing.left, standing.right), 0.5);
+  return {
+    left: { target: { kind: "point", at: { ...Vector3.add(centre, across), y: 0 }, frame: "world" } },
+    right: { target: { kind: "point", at: { ...Vector3.subtract(centre, across), y: 0 }, frame: "world" } },
+  };
+}
+
+/** Prone key with both elbows near right angles as the palms take the press. */
+const PUSH: IAutoMovieMotionHumanLieDown.IPose = {
+  ...lieDown.POSES.prone,
+  joints: { ...lieDown.POSES.prone.joints, leftLowerArm: [90, 0, 0], rightLowerArm: [90, 0, 0] },
+};
