@@ -31,6 +31,7 @@ export namespace HumanSegmentShown {
    *
    * @param person The person.
    * @param seconds Film seconds.
+   * @param retain Whether a miss may produce a full pose for later readers. A transient observation uses the existing guarded bone selection.
    * @param requested Optional observational bones. Where the person keeps poses the whole pose is read and kept, so every later reader of the second takes it; elsewhere only their frames are guaranteed and such a pose is not kept.
    * @param prepared Same-body preparation borrowed for the evaluation.
    * @returns The pose, and its record when the person keeps it: absent while the schedule is resolved outside any action's planning, where a bone demand is also evaluated alone.
@@ -48,19 +49,21 @@ export namespace HumanSegmentShown {
     seconds: number,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
+    retain: boolean = true,
   ): { pose: IAutoMoviePose; kept?: HumanSegment.IShown } {
     const cached: HumanSegment.IShown | undefined = person.resolving
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
     if (cached !== undefined) return { pose: cached.pose, kept: cached };
 
-    // Where the person keeps poses, a bone demand reads the whole pose and
+    // A transient observation consumes just its demand. Otherwise, where
+    // the person keeps poses, a bone demand reads the whole pose and
     // keeps it, so every later reader of this second, whatever bones it asks,
     // takes the pose already produced; no second is resolved twice. Only
     // outside any planning while the schedule is resolved is the demand
     // evaluated alone, since nothing is kept there.
     const demand: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      person.resolving && person.planning === undefined ? requested : undefined;
+      !retain || (person.resolving && person.planning === undefined) ? requested : undefined;
 
     // Where the pose holds still back to an earlier second
     // (`HumanSegmentStill.representative`), it is that second's pose: read

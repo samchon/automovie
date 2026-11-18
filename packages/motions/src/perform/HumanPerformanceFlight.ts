@@ -30,6 +30,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
+import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
 import { HumanPoseKnots } from "./HumanPoseKnots";
@@ -232,10 +233,14 @@ export namespace HumanPerformanceFlight {
     const t0: number = segment.start + declared.from * plan.duration;
     const t1: number = segment.start + declared.to * plan.duration;
     const evaluation: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
+    // These mass-bearing frames are consumed by the flight before its turn
+    // invalidates every displayed pose. Other scene readers own their full pose.
+    const isolated: boolean = person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0;
     const unturned: (seconds: number) => IAutoMoviePose = (
       seconds: number,
     ): IAutoMoviePose =>
-      HumanPerformanceRead.pose(self, subject, seconds, requested, evaluation);
+      isolated ? HumanSegmentShown.of(person, seconds, requested, evaluation, false).pose
+        : HumanPerformanceRead.pose(self, subject, seconds, requested, evaluation);
     const readResolution: prepareHumanSegmentPose.IPrepared["resolution"] = evaluation.resolution;
     const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (
       pose: IAutoMoviePose,
