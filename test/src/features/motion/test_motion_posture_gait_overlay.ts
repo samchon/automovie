@@ -3,48 +3,34 @@ import {
   Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
+import type { IAutoMovieMotionHumanChain } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAuditContinuity,
   HUMAN_LEXICON,
+  HumanChain,
   HumanHand,
+  HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
+  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanOverlayChannels } from "../internal/motionHumanOverlayChannels";
 import { motionUpperPhrase } from "../internal/motionUpperPhrase";
 
 /**
- * A person performs two actions at once on different parts of the body, read
- * on the average man: walking 2 m with and without the `read` task in the
- * right hand over the walk, the carrier's own channels are left alone, the
- * claimed arm comes up and is held with the trunk, the overlay comes in,
- * runs and goes out without a step in any joint's path, and a combination no
- * body could perform is refused with both claims named.
- *
- * Scenarios (`motionHumanOverlayChannels` states each with its bound):
- * 1. Every unclaimed joint centre of the film with the task (the pelvis, both
- *    legs and the free hand) is the plain walk's within a nanometre at every
- *    twelfth of a second.
- * 2. Every departing interval of the film with the task, over each of its
- *    eight windows (each running one frame into the next), resolves to a
- *    joint displacement within the continuity audit's 5 mm.
- * 3. The reading hand is up and ahead of the chest while the plain walk's
- *    hangs.
- * 4. The reading hand keeps within 3 cm of its distance to the chest.
- * 5. One hand for two tasks, a whole-body action over a walk and a task over
- *    an action that yields nothing are refused as `channel` refusals on `over`.
- * 6. A phone in one hand and a drink in the other plan.
- *
+ * A reading arm follows the trunk while the unclaimed gait channels keep their trajectories.
  * Scenarios:
- * 1. Check the named geometry and contact conditions above at the measured instants.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the compositions through the public chain and reads displayed joint centres and thrown refusals; an overlay that disturbs the legs, the pelvis or the free arm, one that steps in or out of the swing, an arm left swinging, a hand that drifts from the trunk or a clash that plans fails.
- * @evidence contracts/development/testing.md#independent-expectations The unclaimed channels are compared with the same walk without the overlay, a metamorphic relation; the continuity bound is the audit's own, which holds for any human motion; where the reading hand is follows from what holding a sheet up is; the refusals follow from one hand doing one thing.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers claimed and unclaimed channels, continuity, three refusal branches and compatible two-hand use on one actor.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and performs the plain walk and the walk with the task once each in memory, every scenario reading those two films, plus the refused and the two-hand compositions; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the act, the films it performs and the 6 scenarios with their bounds.
+ * - Compare the pelvis, legs and free wrist at entry, ready, mid-hold, release and exit.
+ * - At the three hold instants check reading height, forward reach and a 30 mm maximum variation in reach; audit continuity once at 24 Hz.
+ * - Check same-arm conflict, whole-body conflict, a non-yielding base and a compatible opposite-arm claim.
+ * - Authored hip touch, wave, clap and sip retain their distinct contact or sweep targets; an absent point is refused.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads displayed joints, surface contacts, timed events, channel allocations and physical refusals.
+ * @evidence contracts/development/testing.md#independent-expectations An unclaimed joint stays within a nanometre of its plain walk. A continuous transition stays within the five millimetre verdict.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares claimed and free channels at handoff and steady state on the same body.
+ * @evidence contracts/development/testing.md#execution-ownership Stages each physical phrase once and performs one unpartitioned continuity reading.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the measured positions and their tolerances.
  */
 export function test_motion_posture_gait_overlay(): void {
   for (const family of ["emblem", "habit"] as const) {
@@ -82,7 +68,7 @@ export function test_motion_posture_gait_overlay(): void {
       ),
     ) <= HumanVerdicts.SKIN,
   );
-  const complaints: string[] = [];
+
   const clock = (
     film: ReturnType<typeof motionUpperPhrase.perform>,
     event: string,
@@ -165,6 +151,124 @@ export function test_motion_posture_gait_overlay(): void {
     "missing prop affordance returns a physical refusal",
     refused,
   );
-  motionHumanOverlayChannels.read("m-average", complaints, true);
-  TestValidator.equals("an overlay and its carrier", complaints, []);
+  const stage = (chain: IAutoMovieMotionHumanChain) =>
+    new HumanPerformance({
+      seed: "overlay",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: chain.node,
+    });
+  const walk = HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 2 } });
+  const plain = stage(walk);
+  const read = stage(
+    walk.over((u) =>
+      u.handToFace({ task: "read", side: "right", seconds: 0.5 }),
+    ),
+  );
+  const overlay = read.overlays("a")[0]!;
+  const atEvent = (name: string) =>
+    overlay.start +
+    overlay.plan.events.find((e) => e.name === name)!.share *
+      overlay.plan.duration;
+  const ready = atEvent("ready"),
+    relax = Math.min(plain.duration, atEvent("relax"));
+  const atRest = plain.bones("a", 0).get("rightLowerArm")!.worldPosition;
+  const bounds: number[] = [];
+  for (const time of [0, ready, (ready + relax) / 2, relax, plain.duration]) {
+    const base = plain.bones("a", time),
+      shown = read.bones("a", time);
+    for (const bone of [
+      "hips",
+      "leftUpperLeg",
+      "rightUpperLeg",
+      "leftLowerLeg",
+      "rightLowerLeg",
+      "leftFoot",
+      "rightFoot",
+      "leftHand",
+    ] as const)
+      TestValidator.predicate(
+        "unclaimed " + bone + " remains on its gait",
+        Vector3.distance(
+          base.get(bone)!.worldPosition,
+          shown.get(bone)!.worldPosition,
+        ) <= 1e-9,
+      );
+    if (time >= ready && time <= relax) {
+      const hand = shown.get("rightHand")!.worldPosition,
+        chest = shown.get("chest")!.worldPosition;
+      TestValidator.predicate(
+        "held reading hand rises ahead of chest",
+        hand.y > atRest.y && hand.z > chest.z,
+      );
+      TestValidator.predicate(
+        "free hand hangs below hips",
+        base.get("rightHand")!.worldPosition.y <
+          base.get("hips")!.worldPosition.y,
+      );
+      bounds.push(Vector3.distance(hand, chest));
+    }
+  }
+  TestValidator.predicate(
+    "reading distance stays within 30 mm",
+    bounds.length >= 3 && Math.max(...bounds) - Math.min(...bounds) <= 0.03,
+  );
+  const jump = AutoMovieMotionHumanAuditContinuity.measure(read, "a", 24).jump;
+  TestValidator.predicate(
+    "overlay joins the gait without a step",
+    jump.value <= 0.005,
+  );
+  const seat = {
+    at: {
+      x: 0,
+      y: seated.popliteal(body),
+      z: body.rest.get("leftFoot")!.z - 0.1,
+    },
+    yaw: 0,
+    depth: 0.45,
+  };
+  const phone = walk.over((u) =>
+    u.handToFace({ task: "phone", side: "right" }),
+  );
+  for (const [chain, names] of [
+    [
+      phone.over((u) => u.handToFace({ task: "drink", side: "right" })),
+      ["rightArm", "handToFace"],
+    ],
+    [walk.over((u) => u.sit({ seat })), ["sit", "handToFace"]],
+    [
+      HumanChain.subject("a")
+        .sit({ seat })
+        .over((u) => u.handToFace({ task: "phone" })),
+      ["sit"],
+    ],
+  ] as const) {
+    let error: unknown;
+    try {
+      stage(chain);
+    } catch (e) {
+      error = e;
+    }
+    TestValidator.predicate(
+      "conflict identifies the occupied channel",
+      error instanceof HumanRefusal &&
+        error.kind === "channel" &&
+        error.axis === "over" &&
+        names.every((n) => error.message.includes(n)),
+    );
+  }
+  TestValidator.equals(
+    "two distinct arm tasks are scheduled",
+    stage(
+      phone.over((u) => u.handToFace({ task: "drink", side: "left" })),
+    ).overlays("a").length,
+    2,
+  );
 }

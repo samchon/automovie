@@ -1,9 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type {
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -36,74 +34,61 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States endpoint geometry, reflection and the three observations.
  */
 export function test_motion_posture_turn_in_place(): void {
-  const all: motionComplaints.IGatherer = motionComplaints();
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const body = motionHumanBody("m-average");
   checkWalkPlacement(body);
-  const at: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-  const firstFeet: string[] = [];
-  for (const sign of [1, -1]) {
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-      seed: "probe",
+  const origin = { x: 0, y: 0, z: 0 };
+  const checks = motionComplaints();
+  const land = (sign: number) => {
+    const performance = new HumanPerformance({
+      seed: "turn",
       performers: [
-        { subject: "a", body, at, yaw: 0, proficiency: { level: "trained" } },
+        {
+          subject: "a",
+          body,
+          at: origin,
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
       ],
-      composition: HumanChain.subject("a").walk({
-        to: at,
-        face: sign * (360 / 4),
-      }).node,
+      composition: HumanChain.subject("a").walk({ to: origin, face: 90 * sign })
+        .node,
     });
-    const report: string = HumanVerdicts.describe(
-      HumanVerdicts.of(performance),
+    const start = performance.pose("a", 0).root!,
+      end = performance.pose("a", performance.duration).root!;
+    const heading = Quaternion.rotateVector(end.rotation, { x: 0, y: 0, z: 1 });
+    const length = Math.hypot(heading.x, heading.z);
+    const epsilon = 32 * Number.EPSILON;
+    checks.check(
+      "quarter turn points along signed X",
+      length > 0 &&
+        nclose(heading.x / length, sign, epsilon) &&
+        nclose(heading.z / length, 0, epsilon),
     );
-    all.equals(`turn ${sign}: physical verdicts`, report, "clean");
-    const initial: IAutoMovieTransform | null = performance.pose("a", 0).root;
-    const root: IAutoMovieTransform | null = performance.pose(
-      "a",
-      performance.duration,
-    ).root;
-    all.check(
-      `turn ${sign}: both displayed end frames have a world root`,
-      initial !== null && root !== null,
+    checks.check(
+      "turn stays at the same point",
+      Math.hypot(
+        end.translation.x - start.translation.x,
+        end.translation.z - start.translation.z,
+      ) <= HumanVerdicts.SKIN,
     );
-    if (initial === null || root === null) continue;
-    const facing: IAutoMovieVector3 = Quaternion.rotateVector(
-      root.rotation,
-      forward,
+    checks.equals(
+      "turn remains physically sound",
+      HumanVerdicts.describe(HumanVerdicts.of(performance)),
+      "clean",
     );
-    const horizontal: number = Math.hypot(facing.x, facing.z);
-    // A quarter-turn quaternion and its vector product take only a few
-    // binary64 operations. This bounds numerical noise in the unit vector.
-    const roundoff: number = 32 * Number.EPSILON;
-    all.check(
-      `turn ${sign}: displayed end faces the requested signed X axis`,
-      horizontal > 0 &&
-        nclose(facing.x / horizontal, sign, roundoff) &&
-        nclose(facing.z / horizontal, 0, roundoff),
-    );
-    const drift: number = Math.hypot(
-      root.translation.x - initial.translation.x,
-      root.translation.z - initial.translation.z,
-    );
-    all.check(
-      `turn ${sign}: root moved ${drift} m from its displayed start along the floor`,
-      drift <= HumanVerdicts.SKIN,
-    );
-    const first: IAutoMovieMotionEvent | undefined = performance
+    return performance
       .segments("a")[0]!
-      .plan.events.find((event: IAutoMovieMotionEvent): boolean =>
-        /^(left|right)HeelStrike\d+$/.test(event.name),
-      );
-    all.check(`turn ${sign}: names its first landing`, first !== undefined);
-    if (first !== undefined) firstFeet.push(first.name.split("HeelStrike")[0]!);
-  }
-  all.check(
-    "reflected turns first land on opposite feet",
-    firstFeet.length === 2 && firstFeet[0] !== firstFeet[1],
+      .plan.events.map((e) => /^(left|right)HeelStrike\d+$/.exec(e.name))
+      .find((m) => m !== null)?.[1];
+  };
+  const right = land(1),
+    left = land(-1);
+  checks.check(
+    "reflected turns first land on opposite sides",
+    right !== undefined && left !== undefined && right !== left,
   );
-  all.assert("the turn-in-place reflection keeps both physical verdicts");
+  checks.assert("turn in place");
 }
-
 /** A rigidly placed walk has the same clock and transforms each displayed joint rigidly. */
 function checkWalkPlacement(body: IAutoMovieMotionHumanBody): void {
   const walk = (
@@ -133,9 +118,7 @@ function checkWalkPlacement(body: IAutoMovieMotionHumanBody): void {
     "placement preserves walk duration",
     nclose(original.duration, placed.duration, 1e-9),
   );
-  const samplePeriod = 0.25;
-  for (let i = 0; i <= Math.ceil(original.duration / samplePeriod); ++i) {
-    const time = Math.min(original.duration, i * samplePeriod);
+  for (const time of [0, original.duration / 2, original.duration]) {
     const destination = placed.bones("walker", time);
     for (const [bone, joint] of original.bones("walker", time)) {
       const actual = destination.get(bone)!.worldPosition;

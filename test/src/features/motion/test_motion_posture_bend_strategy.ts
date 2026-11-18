@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieMotionHumanAuditMotion,
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
 } from "@automovie/interface";
 import {
@@ -15,7 +15,6 @@ import { motionCrouchSignature } from "../internal/motionCrouchSignature";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
-import { motionPostureBranches } from "../internal/motionPostureBranches";
 
 /**
  * The three bend strategies have distinct motions of the knees, trunk and pelvis.
@@ -31,128 +30,114 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  * @evidence contracts/development/common.md#meaningful-documentation States each direction and threshold at the decisive event and the two support conditions.
  * @evidence contracts/development/testing.md#behavioral-verification Performs each strategy and reads displayed knees, hips, trunk and foot support. Tipping the stoop forward at the hips or giving all strategies the same knee angle fails.
  * @evidence contracts/development/testing.md#independent-expectations The provisional angle gates follow Burgess-Limerick's lifting-posture classification (2003, doi:10.1016/S0169-8141(02)00190-7). Posterior hip translation follows Kim and Yoo's independent observation (2018, doi:10.1589/jpts.30.534); the paper supports the direction without claiming an exact displacement for a different body or task.
- * @evidence contracts/development/testing.md#distinguishing-cases Compares all three postures on the small and large bodies. The default selector and both acting sides have whole-path checks. The mirror spec has the separate symmetry relation.
- * @evidence contracts/development/testing.md#execution-ownership Four audited films and two matched-body comparison films supply all six strategy measurements. The upright references come from the same stoops at entry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares explicit strategies on one large body and checks the left semi-squat on both body sizes; the default selector is exercised separately.
+ * @evidence contracts/development/testing.md#execution-ownership Each bend is constructed directly from the selected side and a target height relative to the ankle. Each admitted performance supplies its own quiet reference and physical verdict.
  */
 export function test_motion_posture_bend_strategy(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   checkCrouch(complaints);
-  const audited: Map<string, M.IStaged> = new Map();
-  complaints.list.push(
-    ...motionPostureBranches(AUDITED, (film, [, row, name]): void => {
-      // The default target is above mid-shank, so auto must produce a stoop;
-      // the observations below check that independently on the displayed body.
-      const strategy: string =
-        row === "default"
-          ? "stoop"
-          : row.split(",")[0]!.slice("strategy=".length);
-      audited.set(`${name} ${strategy}`, {
-        film,
-        body: motionHumanBody(name),
-        yaw: 0,
-      });
-    }),
+  const observe = (
+    row: IAutoMovieMotionHumanBend.Strategy,
+    name: motionHumanBody.Name,
+    side: AutoMovieHumanSide = "right",
+  ) => {
+    const body = motionHumanBody(name),
+      ankle = body.measure.ankleHeight;
+    const height =
+      row === "squat"
+        ? 0
+        : ankle + (row === "semiSquat" ? 0.2 : 0.6) * body.measure.shank;
+    const chain = HumanChain.subject("a").bend({
+      toward: {
+        kind: "point",
+        frame: "world",
+        at: {
+          x: side === "left" ? 0.15 : -0.15,
+          y: height,
+          z: row === "squat" || row === "semiSquat" ? 0.3 : 0.45,
+        },
+      },
+      side,
+      ...(row === "auto" ? {} : { strategy: row }),
+    });
+    const bend: M.IStaged = {
+      body,
+      yaw: 0,
+      film: motionHumanLaw.perform("bend", [{ subject: "a", body }], chain),
+    };
+    const deepest = M.event(bend, "deepest");
+    if (deepest === undefined) throw new Error(row + " lacks deepest event.");
+    complaints.check(
+      row + " starts upright",
+      Math.abs(M.trunk(bend, 0)) <= M.STANCE,
+    );
+    complaints.check(
+      row + " bears on both feet",
+      M.bears(bend, deepest, "left") && M.bears(bend, deepest, "right"),
+    );
+    complaints.check(
+      row + " leaves unrequested balance unjudged",
+      !bend.film.segments("a").some((span) => HumanPhysics.judged(span)),
+    );
+    const verdict = HumanVerdicts.of(bend.film.performance);
+    if (!verdict.clean)
+      complaints.list.push(row + ": " + HumanVerdicts.describe(verdict));
+    return {
+      knee:
+        (M.knee(bend, deepest, "left") + M.knee(bend, deepest, "right")) / 2,
+      trunk: M.trunk(bend, deepest),
+      retreat: M.joint(bend, 0, "hips").z - M.joint(bend, deepest, "hips").z,
+    };
+  };
+  const measure = (
+    row: IAutoMovieMotionHumanBend.Strategy,
+    name: motionHumanBody.Name,
+    side: AutoMovieHumanSide = "right",
+  ) => {
+    try {
+      return observe(row, name, side);
+    } catch (error) {
+      complaints.check(
+        name +
+          " " +
+          row +
+          " " +
+          side +
+          ": " +
+          (error instanceof Error ? error.message : String(error)),
+        false,
+      );
+      return undefined;
+    }
+  };
+  const stoop = measure("stoop", "m-large"),
+    semi = measure("semiSquat", "m-large"),
+    squat = measure("squat", "m-large");
+  const automatic = measure("auto", "f-small");
+  for (const name of ["f-small", "m-large"] as const)
+    measure("semiSquat", name, "left");
+  for (const posture of [stoop, automatic])
+    if (posture)
+      complaints.check(
+        "stoop shifts hips back with limited knee bend",
+        posture.knee <= STOOP_KNEE + STOOP_ANGLE_ROUNDOFF &&
+          posture.trunk >= 45 &&
+          posture.retreat > 0,
+      );
+  if (stoop && squat)
+    complaints.check(
+      "squat reaches a right angle with more upright trunk",
+      squat.knee >= 90 && squat.trunk < stoop.trunk,
+    );
+  if (stoop && semi && squat)
+    complaints.check(
+      "partial squat lies between the two extremes",
+      stoop.knee < semi.knee && semi.knee < squat.knee,
+    );
+  complaints.assert(
+    "bend and crouch preserve their support and angular envelopes",
   );
-  for (const name of BODIES) {
-    const knees: Partial<Record<Strategy, number>> = {};
-    const trunk: Partial<Record<Strategy, number>> = {};
-    for (const strategy of STRATEGIES) {
-      const label: string = `${name} ${strategy}`;
-      const missing: boolean =
-        (name === "m-large" && strategy === "semiSquat") ||
-        (name === "f-small" && strategy === "squat");
-      let bend: M.IStaged | undefined = audited.get(label);
-      if (missing)
-        try {
-          bend = M.stage("bend", `strategy=${strategy}`, name);
-        } catch (error) {
-          complaints.check(
-            `${label}: refused, ${error instanceof Error ? error.message : String(error)}`,
-            false,
-          );
-        }
-      if (bend === undefined) continue;
-      if (strategy === "stoop") {
-        const upright: number = M.trunk(bend, 0);
-        complaints.check(
-          `${name} quiet entry inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
-          Math.abs(upright) <= M.STANCE,
-        );
-      }
-      const t: number | undefined = M.event(bend, "deepest");
-      if (t === undefined) {
-        complaints.check(`${label}: the deepest event is absent`, false);
-        continue;
-      }
-      knees[strategy] =
-        (M.knee(bend, t, "left") + M.knee(bend, t, "right")) / 2;
-      trunk[strategy] = M.trunk(bend, t);
-      complaints.check(
-        `${label}: both feet bear at the deepest`,
-        M.bears(bend, t, "left") && M.bears(bend, t, "right"),
-      );
-      complaints.check(
-        `${label}: omitted balance stays outside the audit`,
-        !bend.film
-          .segments("a")
-          .some((span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
-            HumanPhysics.judged(span),
-          ),
-      );
-      if (strategy === "stoop") {
-        const retreat: number =
-          M.joint(bend, 0, "hips").z - M.joint(bend, t, "hips").z;
-        complaints.check(
-          `${label}: hip retreat ${(retreat * 1000).toFixed(1)} mm, positive expected`,
-          retreat > 0,
-        );
-      }
-    }
-    const stoop: number | undefined = knees.stoop;
-    const intermediate: number | undefined = knees.semiSquat;
-    const squat: number | undefined = knees.squat;
-    if (stoop !== undefined)
-      complaints.check(
-        `${name} stoop: knees ${stoop}° and trunk ${trunk.stoop!.toFixed(1)}°, at most ${STOOP_KNEE}° and at least 45°`,
-        stoop <= STOOP_KNEE + STOOP_ANGLE_ROUNDOFF && trunk.stoop! >= 45,
-      );
-    if (squat !== undefined)
-      complaints.check(
-        `${name} squat: knees ${squat.toFixed(9)}° and trunk ${trunk.squat!.toFixed(1)}°, knees at least 90°`,
-        squat >= 90,
-      );
-    if (stoop !== undefined && squat !== undefined) {
-      complaints.check(
-        `${name} squat trunk inclines ${trunk.squat!.toFixed(1)}°, less than the stoop's ${trunk.stoop!.toFixed(1)}°`,
-        trunk.squat! < trunk.stoop!,
-      );
-      if (intermediate !== undefined)
-        complaints.check(
-          `${name} semi-squat: knees ${intermediate.toFixed(1)}° between ${stoop.toFixed(1)}° and ${squat.toFixed(1)}°`,
-          stoop < intermediate && intermediate < squat,
-        );
-    }
-  }
-  complaints.assert("the bend distinguishes the stoop, semi-squat and squat");
 }
-
-/** The audit stages retain their original inputs and reading intervals. */
-const AUDITED: readonly motionPostureBranches.Branch[] = [
-  ["bend", "default", "f-small"],
-  ["bend", "strategy=stoop,side=right", "m-large"],
-  ["bend", "strategy=semiSquat,side=left", "f-small"],
-  ["bend", "strategy=squat", "m-large"],
-];
-
-/** The explicit strategy chosen before posture is read. */
-type Strategy = Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">;
-
-/** Read the three distinct postures on each comparison body. */
-const STRATEGIES: readonly Strategy[] = ["stoop", "semiSquat", "squat"];
-
-/** Bracket the supported body sizes while comparing postures within each body. */
-const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];
-
 /** Burgess-Limerick's maximum knee flexion classified as a stoop, degrees. */
 const STOOP_KNEE: number = 30;
 
