@@ -10,7 +10,7 @@ Enable entities, behaviors and composition when their folders get the first decl
 
 ## Story
 
-Choose the route option that matches the adopted [route](../story/workflow/routes.md#choosing-the-route), or the option for [no narrative pass](../story/workflow/routes.md#who-writes-the-screenplay) when the user's choice of writer runs none, under which the code realizes the instructions in place of the narrative passes.
+Use the adopted [route](../story/workflow/routes.md#choosing-the-route) when it runs narrative passes. For [a screenplay without passes](../story/workflow/routes.md#who-writes-the-screenplay), use `narrative: { mode: "none" }` when configuring its film. With development composition enabled, code realizes the instructions as well as the screenplay. Omit `narrative` for a standalone asset.
 
 Open the narrative stage on a finished draft. Follow the route for when to enable and disable it. A closed layer can be disabled without affecting subsequent layers.
 

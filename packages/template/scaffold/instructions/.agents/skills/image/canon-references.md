@@ -25,3 +25,11 @@ A canon reference or plate needs no render beside its prompt, except where [cont
 ## States
 
 A wardrobe, makeup or wound state of a story day is its own reference set. Generate it from the base canon references, then freeze it as that state's canon references.
+
+## Accepted and derived images
+
+Keep each accepted original and its content credentials. Record it under [media records](../production/media-records.md) and reuse it.
+
+Create the initial canon references from the subject record. Start derivative views, shot frames and variants from the frozen canon references.
+
+Judge each image from stills and compare it with its record and applicable canon references. Check identity and wardrobe, hands, scale against a door or a figure, light direction, lettering, and the blur or oversharpened edges that repeated edits leave.

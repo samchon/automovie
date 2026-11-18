@@ -63,6 +63,8 @@ The profile records, for each delivered video:
 
 For a film with sound, it also records the audio tracks and sample rate, the loudness target with its measurement method and true-peak limit, and any stems or music-and-effects mix the release requires.
 
+For standalone audio, record the promised format, sample rate and any required loudness targets.
+
 This file owns the profile. The film implements it, and long-form settings state matching runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
 
 ## When to read and update it

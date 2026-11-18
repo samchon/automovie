@@ -6,6 +6,12 @@ Apply prompting's [verification](../prompting/SKILL.md#verification) to producti
 
 Inspect the `createAutoMovieScaffold` map, substitutions and expanded shared files. Untracked scaffold files ship.
 
+Ship [shared rules](../prompting/SKILL.md#shared-skills) through empty `$` placeholders. Keep scaffold-owned text for production rules. Use production-relative paths and local skill links within `.agents`.
+
+When a skill has supporting documents, use `SKILL.md` as their contents page. Link from each overview to the applicable details.
+
+Keep scaffold lint independent of folders. Keep engineering checks enabled when productions opt into narrative Evidence.
+
 Use development checks for program behavior. For installation changes, run the installed entry point and `lint`, `evidence` and `test` in a generated project.
 
 To update an existing production with authorization, compare its files with the scaffold and preserve local choices, contracts and repairs. Apply its own rules to affected answers and reviews. Verify any changed approval conditions.

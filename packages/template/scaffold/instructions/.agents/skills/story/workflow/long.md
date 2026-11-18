@@ -2,7 +2,7 @@
 
 Long work runs settings, treatments, scripts and screenplay, one layer at a time, and each layer is a pass that closes before the next builds on it.
 
-Ask the user under [asking the user](../planning/requirements.md#asking-the-user) first, and run [discovery](../planning/discovery.md) before bulk settings and again at each of its three [checkpoints](../planning/discovery.md#checkpoints).
+Ask the user under [asking the user](../planning/requirements.md#asking-the-user). Run [discovery](../planning/discovery.md) before bulk settings and [again after settings](../planning/discovery.md#checkpoints).
 
 ## Parents
 

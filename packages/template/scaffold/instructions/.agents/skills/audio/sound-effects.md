@@ -18,6 +18,6 @@ Pick dry takes. Layer and trim them to distinguish contact and intensity. Set me
 
 Cap overlapping instances per sound and per source, and duck beds and effects under speech. Measure the mix's loudness as [film sound](film-sound.md#loudness) sets.
 
-At a mixed passage's [listening](acquisition.md#listening), the user hears the complete working passage with moving picture at normal speed, replays uncertain contacts and transitions, and reports synchronization, repetition, perspective and balance against speech and ambience.
+At a mixed passage's [listening](listening.md#user-listening), the user hears the complete working passage with moving picture at normal speed, replays uncertain contacts and transitions, and reports synchronization, repetition, perspective and balance against speech and ambience.
 
 For a commissioned soundtrack, hand accepted bytes and measured cues to [assembly](../production/assembly.md), and ask for the affected listening again after picture or sound changes.

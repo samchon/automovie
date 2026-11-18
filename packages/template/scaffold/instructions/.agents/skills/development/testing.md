@@ -23,3 +23,7 @@ Exercise real code without monkey-patching globals or internals or replaying rec
 Write cases where and as the README's test section sets, with the assertion helpers it names, and keep helpers outside the test files or unexported. Each exported test function answers the testing checklist.
 
 Run the suite, or a selection of it, with the README's test command. An empty suite, an invalid or unmatched selection, or an import or test failure leaves the run unsuccessful; report the executed cases and totals.
+
+## Finishing a change
+
+Read compile errors from the README's single running checker. Finish source work with the README's lint, Evidence and test commands. Verify preserved and changed behavior through the [actual consumer](../review/source-review.md#the-actual-consumer), using affected stills and user observations where the change requires them.

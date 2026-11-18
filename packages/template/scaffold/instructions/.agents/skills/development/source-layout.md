@@ -30,7 +30,7 @@ An entity realizes its settings or brief record's facts and the research its mea
 
 ### Scenes and films
 
-A scene realizes its screenplay file, sections and beats. A film owns scene order, transitions, titles, subtitles, grade, control channels and [delivery profile](../production/project-context.md). Apply the [composition contract](../contracts/development/composition.md) to both and to catalog cases.
+A scene realizes its screenplay file, sections and beats. A film owns scene order, transitions, titles, subtitles, grade and control channels. It implements the [delivery profile](../production/project-context.md#the-delivery-profile). Apply the [composition contract](../contracts/development/composition.md) to both and to catalog cases.
 
 A catalog case takes the parameters of the behavior or entity state it exhibits. The catalog film gives the case its interval.
 
@@ -70,7 +70,7 @@ Each settings or brief domain maps onto code:
 | Sound palettes | Each shot's sound description |
 | Weather and atmosphere | A set's state by story day |
 
-The sound description goes in the video-diffusion prompt under [audio](../audio/SKILL.md), and ambience also reads the set's state.
+For a generated film, carry the sound description into [video requests](../audio/generated-sound.md). For a commissioned separate soundtrack, follow the [soundtrack route](../audio/soundtrack.md). Derive ambience from the set's state where sound is in scope.
 
 A generated film carries its look in the video prompts' shared description, a direct 3D film in the materials of the entities' detail options and the film's grade.
 
