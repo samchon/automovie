@@ -165,9 +165,9 @@ export namespace HumanArmTrajectoryKnots {
    * @evidence contracts/development/implementation.md#principled-implementation With the grid's step `d = W s` for the knots' step `s`: `1/2 d'Pd + q'd = 1/2 s'(W'PW)s + (W'q)'s` and a row `a.d` is `(aW).s`; a knot the problem holds fixed takes no step, so its column is left out. The grid's upper band is read as the symmetric matrix it stores.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the prepared moving knots to carry the curvature, the gradient and the rows in turn.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Projects every row in its original order. A row is omitted only when none of its grid variables has a moving-knot weight.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The grid band's stored entries times at most sixteen knot pairs each, into the knots' upper band of the widest coupling those pairs can write (V x W doubles for V variables, not V x V), whose nonzero band is then read off.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each linearisation reads the solve's unchanged interpolation support directly.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary upper band becomes eligible for collection on return. The caller owns the projected subproblem.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The grid band's stored entries times at most sixteen knot pairs each, into the knots' upper band of the widest coupling those pairs can write (V x W doubles for V variables, not V x V), whose nonzero band is then read off. Constraint rows share one pair of scratch arrays of length V and clear only touched variables.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each linearisation reads the solve's unchanged interpolation support directly. Each constraint row reuses the accumulation arrays after the preceding row clears its entries.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary upper band and row scratch become eligible for collection on return. The caller owns the projected subproblem.
    */
   export function reduce(
     c: M.IContext,
@@ -242,26 +242,34 @@ export namespace HumanArmTrajectoryKnots {
       }
     }
     const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
+    // Each row visits the grid coefficients in their original order. Track
+    // touched variables separately so cancellation preserves a zero coefficient.
+    const sums: Float64Array = new Float64Array(vars);
+    const seen: Uint8Array = new Uint8Array(vars);
     for (const row of model.rows) {
-      const sum: Map<number, number> = new Map();
+      const index: number[] = [];
       row.index.forEach((r: number, at: number): void => {
         const slot: number = r % width;
         const frame: number = Math.floor(r / width) + 1;
         const end: number = starts[frame + 1]!;
         for (let j: number = starts[frame]!; j < end; ++j) {
           const a: number = (knots[j]! - 1) * width + slot;
-          sum.set(a, (sum.get(a) ?? 0) + weights[j]! * row.coef[at]!);
+          if (seen[a] === 0) {
+            seen[a] = 1;
+            index.push(a);
+          }
+          sums[a] = sums[a]! + weights[j]! * row.coef[at]!;
         }
       });
-      if (sum.size === 0) continue;
-      const index: number[] = [...sum.keys()].sort(
-        (a: number, b: number): number => a - b,
-      );
-      rows.push({
-        ...row,
-        index,
-        coef: index.map((a: number): number => sum.get(a)!),
+      if (index.length === 0) continue;
+      index.sort((a: number, b: number): number => a - b);
+      const coef: number[] = index.map((a: number): number => {
+        const value: number = sums[a]!;
+        sums[a] = 0;
+        seen[a] = 0;
+        return value;
       });
+      rows.push({ ...row, index, coef });
     }
 
     // The band holds the curvature's farthest entry and every row's span,
