@@ -1,7 +1,9 @@
+import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannelClaim,
+  IAutoMovieAngleRange,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanArmAngles,
@@ -46,8 +48,8 @@ import { HumanHand } from "../posture/HumanHand";
  *   the trunk leans back over it (Chaffin et al. 2006's front load).
  * - `hip`: the hand of the hip side lies palm up under the child's seat
  *   before that hip, and the trunk leans away to the other side.
- * - `push`: both hands grip a handle at the elbow's height 0.6 of the arm
- *   before the root, a shoulder width apart, and the trunk leans forward
+ * - `push`: both hands grip a handle at the elbow's height a forearm
+ *   before the shoulders, the upper arms hanging, a shoulder width apart, and the trunk leans forward
  *   (Hoozemans et al. 1998 on handle height in pushing).
  *
  * Each lean is `LEAN` degrees per unit of the load's mass share
@@ -65,7 +67,7 @@ import { HumanHand } from "../posture/HumanHand";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the base, each way of carrying with its source, the lean law, the mass band, the events and what is missing, with provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record composed over the walk's plan: arm rows and a trunk row on the walk's clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the lean table, the hold places and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the lean table, the hanging arm, the hold places and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a share of the body's measure in its moving floor frame.
  */
 export namespace carry {
@@ -114,17 +116,40 @@ export namespace carry {
 
   /**
    * The one-hand load's hanging arm, clinical `[flexion, abduction, twist]`
-   * degrees: the elbow all but straight under the load and the upper arm
-   * abducted just enough that the hand and its bag clear the thigh
-   * (provisional: no located study measures the carrying arm's angles).
+   * degrees. The load pulls the arm straight down, so the elbow sits at its
+   * range's full extension (`DEFAULT_HUMANOID_ROM`), and the upper arm is
+   * abducted just enough that the straight arm's wrist clears the thigh: the
+   * wrist's line, a forearm's radius in from the wrist's outer side, lies
+   * beside the thigh's outer surface (the hip joint's half width plus the
+   * thigh's radius), reached from the shoulder's half width over the arm's
+   * length. A body whose shoulders stand wider than that hangs its arm
+   * plumb.
+   *
+   * @param body The body.
+   * @param side The loaded arm.
+   * @returns The upper arm's and the elbow's angles.
+   * @throws {Error} When the range-of-motion table gives the elbow no flexion.
    */
-  export const HANG: Readonly<{
+  export function hang(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): {
     upper: readonly [number, number, number];
     lower: readonly [number, number, number];
-  }> = {
-    upper: [0, 8, 0],
-    lower: [3, 0, 0],
-  };
+  } {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const elbow: IAutoMovieAngleRange | null | undefined =
+      DEFAULT_HUMANOID_ROM[`${side}LowerArm`]?.flexion;
+    if (elbow === null || elbow === undefined)
+      throw new Error("The range-of-motion table gives the elbow no flexion");
+    const out: number =
+      m.hipHalfWidth + m.thighRadius + m.forearmRadius - m.shoulderHalfWidth;
+    const abduction: number =
+      (Math.asin(Math.min(1, Math.max(0, out) / (m.upperArm + m.forearm))) *
+        180) /
+      Math.PI;
+    return { upper: [0, abduction, 0], lower: [elbow.min, 0, 0] };
+  }
 
   /**
    * A hand's hold place in the performer's moving floor frame.
@@ -152,12 +177,12 @@ export namespace carry {
     };
     const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
-    // The places are shares of the body's own measures (provisional: no
-    // located study gives them): a box 0.8 of the shoulders wide a third of
-    // the arm before the root at the waist; a handle at the elbow's height
-    // (the shoulder less the upper arm, Hoozemans et al. 1998) 0.6 of the
-    // arm ahead; a child's seat 5 cm below the hip joint a fifth of the arm
-    // before that hip.
+    // A pushed handle at the elbow's height (Hoozemans et al. 1998) is held
+    // with the upper arm hanging and the forearm level, so the grip lies the
+    // shoulder less the upper arm high and a forearm ahead, a shoulder width
+    // apart. The box's and the child's places are shares of the body's
+    // measures standing in for the load's own size, which a load that is not
+    // yet a prop cannot give (the namespace's "not yet").
     switch (how) {
       case "twoHands":
         return {
@@ -173,7 +198,7 @@ export namespace carry {
           point: HumanFrame.point(frame, {
             x: out * m.shoulderHalfWidth,
             y: m.shoulderHeight - m.upperArm,
-            z: 0.6 * arm,
+            z: m.forearm,
           }),
           normal: { x: 0, y: 1, z: 0 },
         };
@@ -207,7 +232,8 @@ export namespace carry {
     const p: IAutoMovieMotionHumanCarry.IParams = context.params;
     const how: IAutoMovieMotionHumanCarry.How = p.how;
     const loaded: AutoMovieHumanSide = p.side ?? "right";
-    // A tenth of the body's mass when the author names none (provisional).
+    // A tenth of the body's mass when the author names none, the
+    // contract's default (`IAutoMovieMotionHumanCarry.IParams.load`).
     const load: number = p.load ?? 0.1;
     HumanBound.within("load", load, 0, 0.25, "of the body's mass");
     const base: IAutoMovieMotionHumanActionPlan = walk.plan({
@@ -281,6 +307,7 @@ export namespace carry {
         // left the arm and the hand closes on the handle continuously.
         const rest: IAutoMovieMotionHumanArmAngles.IAngles =
           AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+        const hung: ReturnType<typeof hang> = hang(body, side);
         const close: (weight: number) => IAutoMovieMotionHumanPosture["joints"] =
           prepareHumanShapeBlend(rest.fingers ?? {}, HumanHand.shape(side, "fist"));
         arms.push({
@@ -297,8 +324,8 @@ export namespace carry {
               joints: {
                 ...posture.joints,
                 ...close(s),
-                [`${side}UpperArm`]: blendHumanJoint(body, `${side}UpperArm`, rest.upper, HANG.upper, s),
-                [`${side}LowerArm`]: blendHumanJoint(body, `${side}LowerArm`, rest.lower, HANG.lower, s),
+                [`${side}UpperArm`]: blendHumanJoint(body, `${side}UpperArm`, rest.upper, hung.upper, s),
+                [`${side}LowerArm`]: blendHumanJoint(body, `${side}LowerArm`, rest.lower, hung.lower, s),
                 [`${side}Hand`]: blendHumanJoint(body, `${side}Hand`, rest.hand, [0, 0, 0], s),
               },
             };
