@@ -416,9 +416,8 @@ export namespace HumanArmTrajectory {
           stretches[0]![1] === grid.length - 1)
       )
         return undefined;
-      const x: number[][][] = laid.read.x.map((arm: number[][]): number[][] =>
-        arm.map((v: number[]): number[] => [...v]),
-      );
+      const x: number[][][] = laid.read.x.map((arm: number[][]): number[][] => [...arm]);
+      const changed: boolean[] = new Array<boolean>(grid.length).fill(false);
       let penalty: number = 0;
       for (const [from, to] of stretches) {
         // The stretch's problem: the course's arms at its two instants as
@@ -498,12 +497,15 @@ export namespace HumanArmTrajectory {
         // Interior joins hold their last pose. An open end of the full
         // action is a solved contact and must keep the repaired last frame.
         const after: number = to === grid.length - 1 && fine.open ? to + 1 : to;
-        played.forEach((arm: number[][], a: number): void => {
-          for (let g: number = from + 1; g < after; ++g) x[a]![g] = arm[g - from]!;
-        });
+        for (let g: number = from + 1; g < after; ++g) {
+          changed[g] = true;
+          for (let a: number = 0; a < x.length; ++a)
+            x[a]![g] = played[a]![g - from]!;
+        }
         penalty = Math.max(penalty, solved.state.penalty);
       }
-      if (M.evaluate(fine, x).worst.value > M.TOLERANCE) return undefined;
+      if (M.evaluate(fine, x, { reading: verdict, laid: changed }).worst.value > M.TOLERANCE)
+        return undefined;
       return {
         trajectories: problem.arms.map(
           (_: IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
