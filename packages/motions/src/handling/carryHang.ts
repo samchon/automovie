@@ -1,8 +1,9 @@
-import { minimumJerk } from "@automovie/engine";
+import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
+  AutoMovieMotionHumanChannelClaim,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -11,6 +12,7 @@ import type {
   IAutoMovieMotionHumanCarryHang,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -18,6 +20,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -29,7 +32,8 @@ import { HumanGrip } from "./HumanGrip";
  * Loads carried at the sides with the arms hanging, performed over a walk
  * (`HumanChain.over`): a farmer's walk. Each hand that holds a prop is let
  * down until its arm hangs nearly straight from the shoulder, a little out
- * from the thigh, the hand turned as it held the prop, and holds it there.
+ * from the thigh, the hand turned as it held the prop (carried round with the
+ * body when the walk turns), and holds it there.
  *
  * Each wrist goes `HANG` of the arm (upper arm and forearm) below its
  * shoulder, read on the walk's posture each second, and `OUT` of the half
@@ -40,7 +44,7 @@ import { HumanGrip } from "./HumanGrip";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the place of each wrist, what keeps the props and the timing.
  * @evidence contracts/development/design.md#principled-representation An overlay of both arms over a walk, a place of the trunk's own frame carried with it, with the holds kept.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the overlay flag, three constants, the parameters and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the overlay flag, four constants, the parameters and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The props are the hands' holds, never placed by hand.
  */
 export namespace carryHang {
@@ -64,6 +68,9 @@ export namespace carryHang {
   /** Seconds the arms take to let the loads down (provisional). */
   export const SETTLE: number = 0.5;
 
+  /** Seconds a carry lasts when its parameters name none (provisional: a farmer's walk set of a few seconds). */
+  export const SECONDS: number = 3;
+
   /**
    * Plan a carry with hanging arms.
    *
@@ -72,19 +79,19 @@ export namespace carryHang {
    * @throws {HumanRefusal} When the carry's length is not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each wrist is a place below its shoulder on the posture of each second, the hand turned as it holds the prop at the start, and the arm carried there from the carrier's own arm by the settle's envelope.
+   * @evidence contracts/development/implementation.md#principled-implementation Each wrist is a place below its shoulder on the posture of each second, the hand at the turn it held the prop at the start relative to the heading, the elbow on the hanging preset (`AutoMovieMotionHumanBend.hang`), and the arm carried there from the carrier's own arm by the settle's minimum-jerk envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Sides, duration, the held fingers, the posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive length throws; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each active frame demands only carrying shoulders and shares one yaw transform across both wrist/bend placements. The carrier's full posture supplies baseline arm angles only during settle, since carry returns the goal body unchanged at share one. Empty carries read only their base body; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Entry hand turns and finger tuples prepare once; each changing carrier posture still supplies its original shoulder and settle solve. Optional same-person FK/ROM loans pass through the complete carrier, raw shoulder FK, actual baseline seeded solve and carry without changing their source policies.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its original base/hand geometry; optional current-call FK/ROM inputs are borrowed only synchronously and never retained in the plan, goals, returned posture or a time history.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive length throws; nothing is clamped; the shares are named provisional.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each frame resolves only the carrying shoulders; the carrier's full posture is solved for its arm angles only during the settle.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The entry hand turns and finger angles are read once at planning.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its base plan, the entry turns and fingers; the FK workspace and projection a caller passes are used within the call only.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarryHang.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanCarryHang.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const duration: number = p.seconds ?? 3;
+    const duration: number = p.seconds ?? SECONDS;
     HumanBound.above("seconds", duration, 0, "s");
     const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
@@ -108,6 +115,7 @@ export namespace carryHang {
       fingers[side] = HumanGrip.fingers(context.entry.pose, side);
     }
     const arm: number = body.measure.upperArm + body.measure.forearm;
+    const entryYaw: number = context.entry.posture.yaw;
     return {
       duration,
       events: [{ name: "settled", share: Math.min(1, SETTLE / duration) }],
@@ -125,7 +133,7 @@ export namespace carryHang {
         ),
       ],
       hands: sides,
-      holds: sides.map((side: AutoMovieHumanSide) => ({
+      holds: sides.map((side: AutoMovieHumanSide): IAutoMovieMotionPropHold => ({
         side,
         prop: p[side]!,
         from: 0,
@@ -134,9 +142,9 @@ export namespace carryHang {
       ...(context.carrier === undefined
         ? {}
         : {
-            channels: sides.flatMap((side: AutoMovieHumanSide) => [
-              `${side}Arm` as const,
-              `${side}Hand` as const,
+            channels: sides.flatMap((side: AutoMovieHumanSide): AutoMovieMotionHumanChannelClaim[] => [
+              `${side}Arm`,
+              `${side}Hand`,
             ]),
           }),
       posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -149,6 +157,10 @@ export namespace carryHang {
         const trunk: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           HumanTrunk.resolve(body, posture, undefined, resolution, shoulders);
         const heading: HumanFrame.IPrepared = HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw });
+
+        // The hand keeps the turn it held the prop at relative to the body,
+        // so a walk that turns carries it round with the trunk.
+        const turned: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, posture.yaw - entryYaw);
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
         const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
         for (const side of sides) {
@@ -164,15 +176,10 @@ export namespace carryHang {
               ),
               y: shoulder.y - HANG * arm,
             },
-            rotation: turns[side]!,
-            bend: heading.point(
-              {
-                x: sign * 0.2 * body.measure.upperArm,
-                y: -0.5 * arm,
-                z: -0.1 * arm,
-              },
-              shoulder,
-            ),
+            rotation: Quaternion.normalize(Quaternion.multiply(turned, turns[side]!)),
+
+            // The hanging arm's elbow: down, a little out and behind.
+            bend: AutoMovieMotionHumanBend.hang(body, posture, side),
           };
           Object.assign(joints, fingers[side]);
         }
@@ -183,7 +190,7 @@ export namespace carryHang {
         const run: Partial<
           Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
         > = Object.fromEntries(
-          sides.map((side: AutoMovieHumanSide) => [
+          sides.map((side: AutoMovieHumanSide): [AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles] => [
             side,
             AutoMovieMotionHumanArm.angles(walked, side),
           ]),
@@ -201,3 +208,6 @@ export namespace carryHang {
     };
   }
 }
+
+/** The world's up, the axis a heading turns about. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
