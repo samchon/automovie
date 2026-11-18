@@ -50,6 +50,14 @@ const continueContact = (
  * target uses the fitted carrying knee and the performer's lower-leg
  * dimensions. The pose is a rigid, first-draft approximation of that contact.
  *
+ * Ganokroj et al. (2021), https://doi.org/10.1186/s12891-021-04487-z,
+ * distinguish the chair figure-four by its coupled hip flexion, abduction,
+ * and external rotation. The current rig measures hip twist about the
+ * pelvis axis. The canonical chair fixture reaches the refusal. A separate
+ * fit allowing the carrying knee to swivel with its sole planted also
+ * missed the contact. Qualification calls for a calibrated thigh-axis hip
+ * model and a contact fit that preserves the seat and grounded sole.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Names the entry, staged contact, source, provisional timing and return.
  * @evidence contracts/development/design.md#principled-representation A reversible ankle placement on a seated base with authored hold and explicit support windows.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered action consumes the existing seat and grounds the other foot.
