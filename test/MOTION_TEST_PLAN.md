@@ -14,7 +14,7 @@ The earlier proposal retained 40 scenarios in other features. Inspection found 3
 | Posture | Inspection paths and physics checks | 3 |
 | Contact | Shot event receipt admission | 1 |
 
-The runner selects scenario names by substring. Comparing the old common suite by actual public accessor and assertion revealed 54 further motion scenarios whose names lack the selection term. The inventory lists these as selector-independent retirements. They add 16 source files for Catalogue, 14 for Dynamics, 16 for Posture and eight for Contact. General static geometry, generic range clamping and other independently exercised utility contracts keep their own tests. The website workflow has its own suite.
+The runner selects scenario names by substring. Comparing the old common suite by actual public accessor and assertion revealed 54 further motion scenarios whose names lack the selection term. The inventory lists these as selector-independent retirements. They add ten source files for Catalogue, 14 for Dynamics, 16 for Posture, eight for Contact and six for Website. General static geometry, generic range clamping and other independently exercised utility contracts keep their own tests. The website workflow has its own suite.
 
 Confirm the final scenario identities and package-level coverage against all retirement records before enabling the full motion run. Treat focused assertion results and missing coverage as separate observations.
 
