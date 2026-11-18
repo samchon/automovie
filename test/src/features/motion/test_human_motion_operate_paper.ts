@@ -1,5 +1,6 @@
 import { createStationery } from "@automovie/archetypes";
 import type {
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
@@ -11,7 +12,7 @@ import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose, vclose } from "../internal/predicates";
+import { nclose, qclose, vclose } from "../internal/predicates";
 
 /**
  * A standing performer can turn a single supported leaf or unfold a supported
@@ -26,11 +27,13 @@ import { nclose, vclose } from "../internal/predicates";
  *    on the opposite side from the book's spine, the edge travels the other way.
  * 3. In each fixture the hand reaches the moving edge, and after release the
  *    edge stays on the far side of the hinge for another second.
+ * 4. Exact and off-grid reads agree with the ordinary posture reader, including
+ *    the external articulation callback order and values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the supported cases and the independent directions and held final state.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public HumanChain operation in HumanPerformance and observes a single drive, its progress, wrist proximity, retained prop state and the resolved aim at the edge.
  * @evidence contracts/development/testing.md#independent-expectations A 180 degree turn reflects the edge across its hinge in the plane normal to the hinge line. The expected far-side points use the authored 130 mm width and 20 mm thickness or the 110 mm by 7 mm folded map. The wrist proximity uses the same 0.7 hand-length limit as the door-drive specification.
- * @evidence contracts/development/testing.md#distinguishing-cases Opposite fold directions, two body sizes, independent pre-existing cover state, during the stroke and after release.
+ * @evidence contracts/development/testing.md#distinguishing-cases Opposite fold directions, two body sizes, independent pre-existing cover state, during the stroke and after release. Out-of-order reads distinguish prepared and ordinary hinge display while observing the same external articulation calls.
  * @evidence contracts/development/testing.md#execution-ownership Runs two in-memory public performances with canonical bodies.
  */
 export function test_human_motion_operate_paper(): void {
@@ -68,35 +71,51 @@ export function test_human_motion_operate_paper(): void {
       subject: "paper",
       point,
     };
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-      seed: "supported-paper",
-      props: [
-        HumanObject.prop(
-          "paper",
-          model,
-          { at, yaw: 0, fixed: true },
-          undefined,
-          undefined,
-          tracks,
-        ),
-      ],
-      performers: [
-        {
-          subject: "reader",
-          body,
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
-          proficiency: { level: "trained" },
-        },
-      ],
-      composition: HumanChain.subject("reader")
-        .stand({ seconds: 1 })
-        .operate({
-          hand: "right",
-          mechanism: { kind: "hinge", at: target, swing: 180 },
-        })
-        .stand({ seconds: 1 }).node,
-    });
+    /** Create an independent fixture that records its model's pose observations. */
+    const stage = (
+      observations: string[],
+    ): IAutoMovieMotionHumanPerformance => {
+      const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+        "paper",
+        model,
+        { at, yaw: 0, fixed: true },
+        undefined,
+        undefined,
+        tracks,
+      );
+      const articulate: NonNullable<IAutoMovieMotionHumanProp["articulate"]> =
+        prop.articulate!;
+      return new HumanPerformance({
+        seed: "supported-paper",
+        props: [
+          {
+            ...prop,
+            articulate: (state: Readonly<Record<string, number>>) => {
+              observations.push(JSON.stringify(state));
+              return articulate(state);
+            },
+          },
+        ],
+        performers: [
+          {
+            subject: "reader",
+            body,
+            at: { x: 0, y: 0, z: 0 },
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+        ],
+        composition: HumanChain.subject("reader")
+          .stand({ seconds: 1 })
+          .operate({
+            hand: "right",
+            mechanism: { kind: "hinge", at: target, swing: 180 },
+          })
+          .stand({ seconds: 1 }).node,
+      });
+    };
+    const observed: string[] = [];
+    const performance: IAutoMovieMotionHumanPerformance = stage(observed);
     const operation: IAutoMovieMotionHumanSegment =
       performance.segments("reader")[1]!;
     const drives: readonly IAutoMovieMotionPropDrive[] =
@@ -110,6 +129,56 @@ export function test_human_motion_operate_paper(): void {
       operation.start + drive.from * operation.plan.duration;
     const strokeEnd: number =
       operation.start + drive.to * operation.plan.duration;
+    const ordinaryObserved: string[] = [];
+    const ordinary: IAutoMovieMotionHumanPerformance = stage(ordinaryObserved);
+    const reader: IAutoMovieMotionHumanActionPlan =
+      ordinary.segments("reader")[1]!.plan;
+    const posture: IAutoMovieMotionHumanActionPlan["posture"] = reader.posture;
+    let ordinaryReads: number = 0;
+    reader.posture = (...args: Parameters<typeof posture>) => {
+      ++ordinaryReads;
+      return Reflect.apply(posture, reader, args);
+    };
+    const interior: number = strokeStart + 0.371 * (strokeEnd - strokeStart);
+    for (const seconds of [
+      strokeEnd,
+      interior,
+      strokeStart,
+      strokeEnd + 0.013,
+      interior,
+    ]) {
+      observed.length = 0;
+      ordinaryObserved.length = 0;
+      const actual: ReturnType<typeof performance.bones> = performance.bones(
+        "reader",
+        seconds,
+      );
+      const expected: ReturnType<typeof ordinary.bones> = ordinary.bones(
+        "reader",
+        seconds,
+      );
+      TestValidator.predicate(
+        `${kind}: hand and body match ordinary evaluation at ${seconds} s`,
+        actual.size === expected.size &&
+          [...expected].every(([name, bone]) => {
+            const sample: typeof bone | undefined = actual.get(name);
+            return (
+              sample !== undefined &&
+              vclose(sample.worldPosition, bone.worldPosition, 1e-12) &&
+              qclose(sample.worldRotation, bone.worldRotation, 1e-12)
+            );
+          }),
+      );
+      TestValidator.equals(
+        `${kind}: articulation calls occur in the same order at ${seconds} s`,
+        observed,
+        ordinaryObserved,
+      );
+    }
+    TestValidator.predicate(
+      `${kind}: the replaced reader reaches the ordinary path`,
+      ordinaryReads > 0,
+    );
     const midway: Readonly<Record<string, number>> = performance.state(
       "paper",
       (strokeStart + strokeEnd) / 2,
