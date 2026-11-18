@@ -11,12 +11,14 @@ import { HumanHand } from "../posture/HumanHand";
 
 /**
  * The set's hands on the bridge of the thumb and index finger: in the set a
- * sprinter supports the hands on the thumb and index finger spread along the
- * start line, just behind it and shoulder-width apart, the palm raised off
- * the track (the "high bridge" of the thumb and fingers: Harland and Steele
- * 1997, Sports Med 23:11, "Biomechanics of the sprint start"; World
- * Athletics' "Run! Jump! Throw!" start technique, hands "behind the line,
- * thumb and fingers forming a bridge").
+ * sprinter supports the hands on the fingertips, the forefinger and thumb
+ * against the start line, the palm raised off the track (Davidson 2013,
+ * "Teaching athletes to use the sprinter's block", Coach and Athletic
+ * Director: "Pyramid the hands as to be on the fingertips with thumbs
+ * pointing in toward the body", "The forefinger and thumb are against the
+ * starting line"; Badon 2015, "Acceleration mechanics, drills, synthesis",
+ * Techniques (USTFCCCA): "The hands form a bridge, maximizing the distance
+ * of the shoulders off the track").
  *
  * Each hand's index and thumb pads (`HumanHand.offset`, the flat hand) lie on
  * the track at the line, the pair centred a shoulder's half-width out of the
