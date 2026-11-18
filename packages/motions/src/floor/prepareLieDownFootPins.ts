@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, getConstraint } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -23,6 +23,9 @@ interface IPin {
 
   /** The foot's point of contact at the standing key, world metres. */
   point: IAutoMovieVector3;
+
+  /** The toe hinge's available extension, degrees, when its skin bears. */
+  extension: number;
 }
 
 /** Place the actual landed root and its two foot goals. */
@@ -60,6 +63,7 @@ export function prepareLieDownFootPins(
     return {
       side,
       socket,
+      extension: socket === "toe" ? getConstraint(`${side}Toes`, body.bones.get(`${side}Toes`)?.constraint ?? null)?.flexion?.max ?? 0 : 0,
       point: HumanFoot.sockets(body, standing, side).find(
         (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === socket,
       )!.point,
@@ -67,12 +71,27 @@ export function prepareLieDownFootPins(
   });
   return (posture: IAutoMovieMotionHumanPosture, bones: Bones): IAutoMovieMotionHumanPosture => {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    for (const { side, socket, point } of feet) {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    for (const { side, socket, point, extension } of feet) {
+      const ankle: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
+      const knee: IAutoMovieResolvedBone = bones.get(`${side}LowerLeg`)!;
+      if (socket === "toe") {
+        // The front of the forefoot stays level on its entry point while
+        // the heel rises, up to the toe hinge's admitted extension. The
+        // ankle retains its actual world rotation about the material toe.
+        const toes: number = Math.min(extension, Math.max(0, -HumanFoot.pitch(ankle.worldRotation)));
+        const local: IAutoMovieVector3 = HumanFoot.offset(body, side, socket, toes);
+        joints[`${side}Toes`] = [toes, 0, 0];
+        limbs[`${side}Leg`] = {
+          point: Vector3.subtract(point, Quaternion.rotateVector(ankle.worldRotation, local)),
+          rotation: ankle.worldRotation,
+          bend: Vector3.add(knee.worldPosition, posture.root), planted: true,
+        };
+        continue;
+      }
       const placed: IAutoMovieVector3 = HumanFoot.sockets(body, bones, side).find(
         (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === socket,
       )!.point;
-      const ankle: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
-      const knee: IAutoMovieResolvedBone = bones.get(`${side}LowerLeg`)!;
       limbs[`${side}Leg`] = {
         point: Vector3.add(point, Vector3.subtract(ankle.worldPosition, placed)),
         rotation: ankle.worldRotation,
@@ -80,7 +99,7 @@ export function prepareLieDownFootPins(
         planted: true,
       };
     }
-    return { ...posture, limbs };
+    return { ...posture, joints, limbs };
   };
 }
 

@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
@@ -10,7 +11,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
-  IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanLieDown,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -26,7 +26,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanHand } from "../posture/HumanHand";
+import { lieDownPoses } from "./lieDownPoses";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -96,66 +96,10 @@ export namespace lieDown {
   export const PHASE: number = 1.2;
 
   /** Relative hip adduction of parallel legs in side lying, degrees. */
-  export const STACKED: number = 0;
+  export const STACKED: number = lieDownPoses.STACKED;
 
-  /** The floor postures (provisional angles). */
-  export const POSES: Readonly<
-    Record<"sit" | "kneel" | "quadruped" | IAutoMovieMotionHumanLieDown.Position, IAutoMovieMotionHumanLieDown.IPose>
-  > = {
-    sit: pose(-30, 0, { hip: 110, knee: 100, shoulder: -40, elbow: 5 }),
-    kneel: pose(0, 0, {
-      hip: 0,
-      knee: 110,
-      shoulder: 0,
-      elbow: 12,
-      ankle: -30,
-    }),
-    quadruped: pose(85, 0, {
-      hip: 85,
-      knee: 95,
-      shoulder: 85,
-      elbow: 0,
-      neck: -40,
-      ankle: -40,
-    }),
-    supine: pose(-90, 0, {
-      hip: 5,
-      knee: 5,
-      shoulder: 0,
-      elbow: 10,
-      ankle: -20,
-    }),
-    prone: pose(88, 0, {
-      hip: 0,
-      knee: 10,
-      shoulder: 0,
-      elbow: 10,
-      ankle: -45,
-      neck: -10,
-    }),
-    lateralLeft: pose(
-      0,
-      -88,
-      { hip: 40, knee: 60, shoulder: 70, elbow: 60, ankle: -15 },
-      "left",
-    ),
-    lateralRight: pose(
-      0,
-      88,
-      { hip: 40, knee: 60, shoulder: 70, elbow: 60, ankle: -15 },
-      "right",
-    ),
-
-    // Seated on the floor with the legs ahead (provisional angles).
-    sitLong: pose(-8, 0, { hip: 82, knee: 5, shoulder: -25, elbow: 15 }),
-
-    // Seated cross-legged, and with the legs folded to the right and the trunk leant to the left hand (provisional angles). The legs here are only what the pelvis is rested on the floor with: a thigh both flexed level and spread is not a set of these angles, so `floorSeat` folds the legs by goals on the floor.
-    sitCrossed: pose(0, 0, { hip: 90, knee: 5, shoulder: 10, elbow: 40 }),
-    sitSide: bent(
-      pose(0, 0, { hip: 90, knee: 5, shoulder: 0, elbow: 20 }),
-      [-25, -15],
-    ),
-  };
+  /** The floor posture keys for the route, in clinical degrees. */
+  export const POSES: typeof lieDownPoses.POSES = lieDownPoses.POSES;
 
   /** The sittings whose legs `floorSeat` folds. */
   const FOLDED: Readonly<Partial<Record<IAutoMovieMotionHumanLieDown.Position, floorSeat.Kind>>> = {
@@ -310,7 +254,7 @@ export namespace lieDown {
     let bearing: Record<"left" | "right", IAutoMovieMotionHumanFoot.Socket> | undefined;
     let plants: Pins;
     let release: Release;
-    const rollSide: "left" | "right" | undefined =
+    const rollSide: AutoMovieHumanSide | undefined =
       position === "lateralLeft" ? "left" : position === "lateralRight" ? "right" : undefined;
     const posedAt: (index: number, u: number) => IAutoMovieMotionHumanPosture = (index: number, u: number): IAutoMovieMotionHumanPosture => ({
       root: { x: 0, y: 0, z: 0 },
@@ -434,12 +378,7 @@ export namespace lieDown {
       plants ??= prepareLieDownFootPins(
         body, readFeet!(stoodPose, read, project), readFeet!(posedAt(0, 1), read, project),
       );
-      const planted: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, plants(rooted, current), undefined, read);
-      // The fitted knees and toes can become the lowest skin after the
-      // descent's leg solve. Ground the actual articulation for the release.
-      const shown: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(body, planted, read, project);
-      const height: number = floor(shown, read, project);
-      return height > shown.root.y ? { ...shown, root: { ...shown.root, y: height } } : planted;
+      return resolveHumanPosture.lower(body, plants(rooted, current), undefined, read);
     }
     const at: (
       seconds: number,
@@ -551,61 +490,5 @@ export namespace lieDown {
       ...planned,
       base: sitting ? { kind: "seated" } : { kind: "lying" },
     };
-  }
-
-  /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
-  function bent(posture: IAutoMovieMotionHumanLieDown.IPose, side: readonly [number, number]): IAutoMovieMotionHumanLieDown.IPose {
-    const spine: readonly [number, number, number] = posture.joints.spine ?? [
-      0, 0, 0,
-    ];
-    const chest: readonly [number, number, number] = posture.joints.chest ?? [
-      0, 0, 0,
-    ];
-    return {
-      ...posture,
-      joints: {
-        ...posture.joints,
-        spine: [spine[0], spine[1] + side[0], spine[2]],
-        chest: [chest[0], chest[1] + side[1], chest[2]],
-      },
-    };
-  }
-
-  /**
-   * A floor posture from its whole-body tilt and symmetric limb angles. Lying
-   * on a side, no limb spreads away from the trunk into the floor: the arms
-   * and both flexed legs remain parallel at the separation of the hips.
-   */
-  function pose(
-    pitch: number,
-    roll: number,
-    a: {
-      hip: number;
-      knee: number;
-      shoulder: number;
-      elbow: number;
-      neck?: number;
-      ankle?: number;
-    },
-    down?: "left" | "right",
-  ): IAutoMovieMotionHumanLieDown.IPose {
-    // The hands at rest; every arm angle is the posture's own below.
-    const joints: IAutoMovieMotionHumanJoints.Angles = {
-      ...HumanHand.shape("left", "relaxed"),
-      ...HumanHand.shape("right", "relaxed"),
-    };
-    for (const side of ["left", "right"] as const) {
-      joints[`${side}UpperLeg`] = [
-        a.hip,
-        down === undefined ? 5 : side === down ? 0 : -STACKED,
-        0,
-      ];
-      joints[`${side}LowerLeg`] = [a.knee, 0, 0];
-      joints[`${side}Foot`] = [a.ankle ?? 0, 0, 0];
-      joints[`${side}UpperArm`] = [a.shoulder, down === undefined ? 10 : 0, 0];
-      joints[`${side}LowerArm`] = [a.elbow, 0, 0];
-    }
-    joints.neck = [a.neck ?? 0, 0, 0];
-    return { pitch, roll, joints };
   }
 }
