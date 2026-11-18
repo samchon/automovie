@@ -217,7 +217,18 @@ export namespace jumpAirborne {
     /** The plan's flight members, none for a flight with no turns. */
     declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember>;
 
-    /** Read the handed-back touchdown offset once after the native flight pass. */
+    /**
+     * Prepare the handed-back touchdown offset after the native flight pass
+     * when landing has a nonempty absorption interval.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the handback ordering and the absorption precondition.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature leaves the touchdown offset calculation to the turning producer.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The turning producer owns the implementation and its call to the touchdown reader.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer owns the physical handback and absorption checks.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature performs no calculation.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The turning producer owns the offset and its invalidation on new handback.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resources. The turning producer owns the offset's lifetime.
+     */
     prepareLanding(): void;
 
     /**

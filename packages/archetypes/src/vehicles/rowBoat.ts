@@ -40,19 +40,21 @@ const SOURCES: WeakMap<Ride, IBindingSource> = new WeakMap();
  *
  * Each stroke is World Rowing's cycle (2015 media guide glossary, p. 12, https://d2cx26qpfwuhvu.cloudfront.net/worldrowing/wp-content/uploads/2020/12/04181521/GlossaryofRowingTerms_Neutral.pdf): the catch puts the blade in the water, the drive pulls it from the catch to the finish in the water, the finish takes it out, and the recovery carries it clear back to the catch. The boat covers `STROKE` metres a stroke, so the stroke rate is the speed over that, and the drive takes Kleshnev's share of the cycle at that rate. The oars sweep the `BoatOars.ARC`, easing in and out of each end; through the drive the blade sinks from the water's surface at the catch to its working depth and rises back to the surface at the finish, and through the recovery it lifts `BoatOars.CLEAR` above the water and comes down again. The ride's instants add `catch<k>` at each stroke's catch, so a rower's hands follow the handles as a cyclist's feet follow the pedals.
  *
+ * Use `rowBoat.bind` to give a native ride one film start and pass its paired root and socket readers to the prop adapter. Both hold the initial pose before the start. On still water they also hold the final pose strictly after the course ends.
+ *
  * @param boat The rowboat.
  * @param course The course its root follows, or its plan.
  * @param options `sea`, a sea the boat rides on (`ArchetypeSea`); still water when absent.
  * @returns The ride.
  * @throws {ArchetypeRefusal} When the boat has no oars, or as `ArchetypeCourse.plan` does for a malformed course.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the stroke cycle and its source, how the rate follows the speed, what the oars do in each phase, the instants and the sea.
+ * @evidence contracts/development/common.md#meaningful-documentation States the stroke cycle and its source, how the rate follows speed, what the oars do in each phase, and how a native ride can be bound to film time.
  * @evidence contracts/development/implementation.md#principled-implementation Strokes are counted by the distance covered, so a stroke's phase is the distance's fraction of `STROKE` and needs no integration; the drive's share is Kleshnev's rhythm at the stroke rate, 0.84 r + 25.1 percent with r in strokes a minute (ISBS 1996, p. 322, https://ojs.ub.uni-konstanz.de/cpa/article/view/2726/2573), its rate held inside the study's 26 to 36.5 strokes a minute. The sweep eases by half a cosine; the lift is the touch angle less a half sine of it through the drive and the touch angle plus a half sine of the rest of the clearance through the recovery, so the blade is below the water exactly between the catch and the finish.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan, find the catches, then one pose per second, floated on the sea when there is one.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `STROKE` is a named provisional value, and Kleshnev's rhythm and the arc were read for sliding-seat boats; the blade's feathering is not turned.
- * @evidence contracts/development/implementation.md#efficient-algorithms One course sample per pose; the catches by bisection, about forty course samples each, once per ride.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and the oars' geometry are shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the boat, the plan and the sea for as long as the caller keeps the ride.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the course and locate its catches, then read each pose and apply the sea. Keep native binding metadata beside the original ride's paired root and socket readers.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `STROKE` is a named provisional value. Kleshnev's rhythm and the arc were read for sliding-seat boats, and the blade's feathering is not turned. A foreign plan gains no native binding.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One course sample per pose. Catch bisection uses forty course samples per catch once per ride. The binding's root-only reader skips socket articulation.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Samples reuse the plan and oar geometry. The film binding shares the native clock across its original root and socket procedures and labels only proven stationary domains.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride owns the boat, plan and sea. Native ride and reader identities weakly own binding metadata. No prior sampled output is retained by the binding.
  */
 export function rowBoat(
   boat: Archetype<createBoat.Affordance, createBoat.Dimension>,
@@ -215,14 +217,6 @@ export namespace rowBoat {
    * @param start Film second corresponding to course second zero.
    * @returns The independently callable root and socket readers in film seconds.
    * @throws {RangeError} For an unbound, external course or a nonfinite start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the film offset, the exact stationary domains and how to pass the readers.
-   * @evidence contracts/development/implementation.md#principled-implementation Both readers use the same clamped film clock. A constant argument fixes the initial state, and only still water fixes the world frame strictly beyond the course end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rowing producer owns the clock conversion and sends callbacks and domain predicates together.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied plan's timing is opaque. A sea always retains its actual evolving time after course completion. The root-only read uses the same placement and sea calculations as the full sample.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The binding adds constant work per read and the root-only reader skips computing articulated sockets.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Keeps the already authored course and articulation procedures. Only fully constant domains receive interval metadata.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride and the returned readers weakly own their bindings. No sampled outputs are retained.
    */
   export function bind(ride: Ride, start: number): RigidCarrierSample.IBinding {
     const source: IBindingSource | undefined = SOURCES.get(ride);

@@ -71,7 +71,14 @@ export function prepareJumpFlight(
   );
 }
 
-/** Native jump flight shape and its owned preparation seam. */
+/**
+ * Native jump flight shape and its owned preparation seam.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the reader's normalized share, world centre of mass, optional same-read sources and setup timing.
+ * @evidence contracts/development/design.md#principled-representation A current share and requested centre of mass describe the sampled airborne posture. The placement setup uses the same owned canonical curve.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The jump posture owner uses this reader to sample the current flight and optionally prepare its starting anchor.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A prepared anchor provides the solver's starting state. The caller still supplies the actual current share and centre of mass.
+ */
 export namespace prepareJumpFlight {
   /** Read the achieved shape at the requested ballistic centre. */
   export interface IReader {

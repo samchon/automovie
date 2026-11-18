@@ -349,7 +349,14 @@ export function prepareHumanFreeCurve(
   );
 }
 
-/** The deterministic native curve and its placement-time anchor construction. */
+/**
+ * The deterministic native curve and its placement-time anchor construction.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the normalized action phase, optional resolution and projection loans, and the scope of setup.
+ * @evidence contracts/development/design.md#principled-representation The reader receives a normalized phase and produces the current solver's prepared posture. Its setup method prepares the canonical origin under live-rig admission.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The curve's owner exposes current evaluation and origin preparation to jump flight while keeping interval selection and retention private.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The setup method accepts no poses or supplied anchors. Current demands remain subject to the normal fitting checks.
+ */
 export namespace prepareHumanFreeCurve {
   /** Same-time fit of authored goals and optional setup of the immutable curve's canonical start. */
   export interface IReader {
