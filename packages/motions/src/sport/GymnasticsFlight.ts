@@ -461,9 +461,9 @@ export namespace GymnasticsFlight {
   ): number {
     let low: number = from;
     let high: number = until;
-      if (middle === low || middle === high) break;
     while (high - low > 1e-4) {
       const middle: number = (low + high) / 2;
+      if (middle === low || middle === high) break;
       if (lowest(middle) > height) low = middle;
       else high = middle;
     }
