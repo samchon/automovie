@@ -186,15 +186,16 @@ export namespace seated {
 
   /**
    * Refuse a seat too low to sit on from standing, naming the least height.
-   * A seat above the band is not refused: it is a high seat ({@link high}).
+   * A fixed working seat is judged by physical reach; its sitting surface
+   * must stand above the feet's floor. An ordinary seat uses the height band.
    *
    * @param body The body.
    * @param seat The seat.
    * @param under The floor's height under the feet, world metres; the ground's 0 when absent.
-   * @throws {HumanRefusal} When the seat height lies below the band.
+   * @throws {HumanRefusal} When the seat lies below its appropriate height range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the refusal and the least height it names.
-   * @evidence contracts/development/implementation.md#principled-implementation The `ratio` against the band's lower end; the least height is that end times the popliteal height over the floor.
+   * @evidence contracts/development/implementation.md#principled-implementation An ordinary seat needs the height band's lower end times popliteal height above the floor. A working seat above the floor then proceeds to the seated joint reach test.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One ratio and one refusal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A low seat is refused with the feasible range, never sat on lower than the body can.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
@@ -207,8 +208,9 @@ export namespace seated {
     under: number = 0,
   ): void {
     const r: number = ratio(body, seat, under);
-    const least: number = under + RATIO[0] * popliteal(body);
-    if (r < RATIO[0])
+    const working: boolean = seat.workingSeat === true;
+    const least: number = working ? under : under + RATIO[0] * popliteal(body);
+    if (working ? seat.at.y <= least : seat.at.y < least)
       throw new HumanRefusal({
         kind: "reach",
         axis: "seat",
@@ -219,8 +221,10 @@ export namespace seated {
           maximum: null,
           unit: "m",
         },
-        reason: `A seat ${(seat.at.y - under).toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(RATIO[0] * popliteal(body)).toFixed(3)} m up suit it`,
-        fix: "use a seat whose height suits this body",
+        reason: working
+          ? "The working seat must be above the floor that supports the feet"
+          : `A seat ${(seat.at.y - under).toFixed(3)} m high is ${r.toFixed(2)} of this body's popliteal height; seats from ${(least - under).toFixed(3)} m up suit it`,
+        fix: working ? "put the working seat above its floor" : "use a seat whose height suits this body",
       });
   }
 

@@ -5,6 +5,7 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -37,6 +38,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanBalance } from "./HumanBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
+import { prepareSitWorkingFeet } from "./prepareSitWorkingFeet";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
 import { sitHands } from "./sitHands";
@@ -187,13 +189,21 @@ export namespace sit {
     if (seated.high(body, seat, under) || seat.astride === true)
       return HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn);
     // The feet stand on that floor.
-    const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
+    const entered: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
       context.entry.posture.yaw,
     );
     const goal: IAutoMovieVector3 = seated.point(body, seat);
-    sitPlace.reach(body, seat, goal, feet, sitPlace.BACKS[back].pitch);
+    const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
+      ...stand.relaxed(body),
+      ...standUpright.of(body).joints,
+    };
+    const adjusted: ReturnType<typeof prepareSitWorkingFeet> =
+      prepareSitWorkingFeet(context, entered, goal, final.pitch, relaxed);
+    const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = adjusted?.feet ?? entered;
+    sitPlace.reach(body, seat, goal, feet, final.pitch);
 
     const r: number = seated.ratio(body, seat, under);
     const descent: number =
@@ -206,12 +216,7 @@ export namespace sit {
     HumanBound.least("seconds", hold, 0, "s");
     const duration: number = descent + hold;
     const yaw0: number = context.entry.posture.yaw;
-    const start: IAutoMovieVector3 = seated.socket(body, context.entry.posture);
-    const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
-      ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
-    };
+    const start: IAutoMovieVector3 = seated.socket(body, adjusted?.entry ?? context.entry.posture);
 
     // Crossed at the ankles: once seated the left foot lifts and is set down ahead of the right ankle and across it, by shares of the feet's own spacing at rest (provisional).
     const crossed: boolean = context.params.legs === "crossed";
@@ -485,6 +490,7 @@ export namespace sit {
       primitives: [arm("left"), arm("right")],
       contact: "seatContact",
     });
-    return { ...composed, base: lowering.base };
+    const planned: IAutoMovieMotionHumanActionPlan = { ...composed, base: lowering.base };
+    return adjusted === undefined ? planned : prepareSitWorkingFeet.prepend(adjusted.prefix, planned);
   }
 }

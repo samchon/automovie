@@ -222,24 +222,23 @@ export namespace seatedHands {
       if (rest === undefined) continue;
       const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
       const goal: IAutoMovieHumanLimbGoal = armrest(body, posture, side, rest, yaw);
-      limbs[`${side}Arm`] = {
+      limbs[`${side}Arm`] = s >= 1 ? goal : {
         point: Vector3.lerp(hand.worldPosition, goal.point, s),
         rotation: Quaternion.slerp(hand.worldRotation, goal.rotation!, s),
         bend: goal.bend,
-        planted: s >= 1,
       };
     }
-    return { ...posture, limbs };
+    return flattened({ ...posture, limbs }, SIDES.filter((side: AutoMovieHumanSide): boolean => rests[side] !== undefined), s);
   }
 
   /**
-   * The bearing wrist a fifth of this body's hand length above an armrest,
+   * The bearing wrist that puts the body's flat palm on an armrest,
    * palm down and fingers along the seat's yaw, in world metres and degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the offset, frame, orientation and bearing state.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the existing provisional hand-thickness share, canonical hand orientation and hanging-elbow preset.
+   * @evidence contracts/development/implementation.md#principled-implementation Places the exact flat palm surface, with the canonical hand orientation and hanging-elbow preset.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs one world arm goal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing 0.2 thickness and elbow shares; no new fitted posture or body special case.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing elbow share and uses the body's measured palm instead of assuming a wrist height.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work without pose resolution.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Independent point and posture inputs require their own goal.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state or resources.
@@ -251,15 +250,21 @@ export namespace seatedHands {
     rest: IAutoMovieVector3,
     yaw: number,
   ): IAutoMovieHumanLimbGoal {
-    return {
-      point: { ...rest, y: rest.y + 0.2 * body.measure.hand },
-      rotation: HumanHand.rotation(side, {
+    const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: HumanFrame.point(
           { origin: { x: 0, y: 0, z: 0 }, yaw },
           { x: 0, y: 0, z: 1 },
         ),
         palm: { x: 0, y: -1, z: 0 },
-      }),
+    });
+    // The stated rest is beneath the wrist. The palm plane extends from
+    // its centre back under the carpus to the bearing heel of the hand.
+    const palm: IAutoMovieVector3 = Quaternion.rotateVector(rotation, HumanHand.offset(body, side, "palm", "flat").point);
+    const underside: IAutoMovieVector3 = { x: 0, y: Math.min(0, palm.y), z: 0 };
+    return {
+      point: Vector3.subtract(rest, underside),
+      contact: Quaternion.rotateVector(Quaternion.inverse(rotation), underside),
+      rotation,
       bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       planted: true,
     };
@@ -287,7 +292,7 @@ export namespace seatedHands {
       );
     const goals: IAutoMovieMotionHumanPosture["limbs"] = thighs(body, posture, bones, sides);
     if (share >= 1)
-      return { ...posture, limbs: { ...posture.limbs, ...goals } };
+      return flattened({ ...posture, limbs: { ...posture.limbs, ...goals } }, sides, 1);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     for (const side of sides) {
       const goal: IAutoMovieHumanLimbGoal = goals[`${side}Arm`]!;
@@ -298,7 +303,30 @@ export namespace seatedHands {
         bend: goal.bend,
       };
     }
-    return { ...posture, limbs };
+    return flattened({ ...posture, limbs }, sides, share);
+  }
+
+  /** Actuate the fingers of each placed hand along with its wrist. */
+  function flattened(
+    posture: IAutoMovieMotionHumanPosture,
+    sides: readonly AutoMovieHumanSide[],
+    share: number,
+  ): IAutoMovieMotionHumanPosture {
+    if (sides.length === 0) return posture;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    for (const side of sides) {
+      const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
+      for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
+        const from = joints[bone] ?? [0, 0, 0];
+        const to = flat[bone]!;
+        joints[bone] = [
+          from[0] + share * (to[0] - from[0]),
+          from[1] + share * (to[1] - from[1]),
+          from[2] + share * (to[2] - from[2]),
+        ];
+      }
+    }
+    return { ...posture, joints };
   }
 
   /** Measure only target surfaces this invocation will return. */
