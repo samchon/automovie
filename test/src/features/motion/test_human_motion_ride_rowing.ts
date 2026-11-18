@@ -217,6 +217,10 @@ export function test_human_motion_ride_rowing(): void {
             wrist.y - handle.y,
             wrist.z - handle.z,
           );
+          if (!Number.isFinite(gap)) {
+            complaints.push(`${label}: the ${side} wrist or handle has no finite displayed gap at ${t} s`);
+            continue;
+          }
           if (gap > worst[side].gap)
             worst[side] = {
               gap,
