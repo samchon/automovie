@@ -1,5 +1,5 @@
 import { createPlyoBox } from "@automovie/archetypes";
-import { Quaternion, physicalShapeBounds } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
@@ -14,6 +14,8 @@ import {
   HumanGymnastics,
   HumanObject,
   HumanPerformance,
+  HumanSignature,
+  HumanSportThrow,
   workout,
 } from "@automovie/motions";
 
@@ -50,6 +52,7 @@ import { motionHumanStance } from "../internal/motionHumanStance";
 export function test_motion_posture_gym_support(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   checkSupportedWorkout(complaints);
+  checkInvertedSupport(complaints);
   const box: ReturnType<typeof createPlyoBox> = createPlyoBox({
     height: 0.762,
   });
@@ -203,6 +206,99 @@ function checkSupportedWorkout(complaints: motionComplaints.IGatherer): void {
       );
     } catch (error) {
       complaints.list.push(kind + ": " + String(error));
+    }
+  }
+}
+
+/** A lateral cartwheel maintains heading. A round-off reverses it on landing. */
+function checkInvertedSupport(findings: motionComplaints.IGatherer): void {
+  const body = motionHumanBody("m-average"),
+    stature = body.measure.stature;
+  for (const law of [
+    HumanSportThrow.cartwheelLeft,
+    HumanGymnastics.roundOffLeft,
+    HumanGymnastics.roundOffRight,
+  ]) {
+    const p = new HumanPerformance({
+      seed: "inverted",
+      laws: [law],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a")
+        .stand({ seconds: 0.3 })
+        .registered(law.name).node,
+    });
+    const span = p.segments("a")[1]!,
+      reader = HumanSignature.of(p, "a", body, 0);
+    const t = (share: number) => span.start + share * span.plan.duration;
+    const half = t(span.plan.events.find((e) => e.name === "inverted")!.share);
+    const hips = (at: number) =>
+      Vector3.lerp(
+        HumanSignature.joint(reader, at, "leftUpperLeg"),
+        HumanSignature.joint(reader, at, "rightUpperLeg"),
+        0.5,
+      );
+    findings.check(
+      law.name + " inverts over both palms",
+      HumanSignature.joint(reader, half, "head").y < hips(half).y &&
+        (["leftHand", "rightHand"] as const).every(
+          (b) => HumanSignature.joint(reader, half, b).y <= 0.1 * stature,
+        ),
+    );
+    const hands = span.plan.contacts.filter(
+      (w) => w.part === "leftHand" || w.part === "rightHand",
+    );
+    findings.check(
+      law.name + " plants each hand",
+      hands.length === 2 && hands[0]!.part !== hands[1]!.part,
+    );
+    for (const w of hands) {
+      const hand = w.part === "leftHand" ? "leftHand" : "rightHand",
+        anchor = HumanSignature.joint(reader, t(w.from), hand);
+      for (const share of [(w.from + w.to) / 2, w.to])
+        findings.check(
+          law.name + " " + hand + " planted slip",
+          Vector3.distance(
+            anchor,
+            HumanSignature.joint(reader, t(share), hand),
+          ) <= 0.005,
+        );
+    }
+    const end = span.end;
+    const facing = (at: number) =>
+      Quaternion.rotateVector(p.bones("a", at).get("hips")!.worldRotation, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
+    const direction = Vector3.dot(facing(span.start), facing(end)),
+      travel = Vector3.subtract(hips(end), hips(span.start));
+    findings.check(
+      law.name + " ends upright",
+      HumanSignature.joint(reader, end, "head").y - hips(end).y > 0.3 * stature,
+    );
+    if (law === HumanSportThrow.cartwheelLeft)
+      findings.check(
+        law.name + " lateral advance and heading",
+        travel.x > 0.8 * stature && direction >= 0.99,
+      );
+    else {
+      findings.check(
+        law.name + " advances and reverses heading",
+        travel.z > 0.5 * stature && direction <= -0.99,
+      );
+      for (const side of ["left", "right"] as const)
+        findings.check(
+          law.name + " sole landing",
+          Math.abs(HumanSignature.sole(reader, end, side).y) <= 0.015,
+        );
     }
   }
 }
