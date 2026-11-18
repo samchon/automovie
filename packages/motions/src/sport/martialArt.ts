@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanMartialArt,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPlaced,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
   IAutoMovieVector3,
@@ -320,6 +321,11 @@ export namespace martialArt {
     }
     if (p.kind === "taiChiPush") {
       const stride: number = 0.35 * m.stature * modifiers.extent;
+      const arm: number = m.upperArm + m.forearm;
+      const near: number = AutoMovieMotionHumanTargetGrid.DISTANCES.near * arm;
+      const far: number = AutoMovieMotionHumanTargetGrid.DISTANCES.far * arm;
+      const inside: number = (1 - AutoMovieMotionHumanTargetGrid.LATERALS.inside) * m.shoulderHalfWidth;
+      const below: number = m.chestHeight - m.shoulderHeight;
       const shift: (s: number) => number = (s: number): number =>
         clock.envelope(["strokeStart", "stroke"], ["stroke", "strokeEnd"], s);
       // The hips travel between the feet and sink until each bearing leg
@@ -367,19 +373,17 @@ export namespace martialArt {
             rest: rest(side),
             weight: into,
             span,
-            place: (posture: IAutoMovieMotionHumanPosture, s: number) => ({
-              point: Vector3.lerp(
-                AutoMovieMotionHumanPlaced.grid(body, posture, side, {
-                  height: "chest",
-                  lateral: "inside",
-                  distance: "near",
-                }),
-                AutoMovieMotionHumanPlaced.grid(body, posture, side, {
-                  height: "chest",
-                  lateral: "inside",
-                  distance: "far",
-                }),
-                shift(s),
+            place: (
+              posture: IAutoMovieMotionHumanPosture,
+              s: number,
+              resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+            ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
+              point: Vector3.add(
+                AutoMovieMotionHumanPlaced.joint(body, posture, `${side}UpperArm`, resolution),
+                HumanFrame.point(
+                  { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+                  { x: side === "left" ? -inside : inside, y: below, z: near + (far - near) * shift(s) },
+                ),
               ),
               facing: HumanFrame.point(
                 { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
