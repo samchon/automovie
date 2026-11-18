@@ -84,7 +84,7 @@ export function test_film_editorial_markers(): void {
 
   const cut: ReturnType<typeof cutSequence> = cutSequence(
     {
-      sequence: { id: "markers", name: null },
+      sequence: { id: "markers", name: "Editorial markers" },
       fps: 24,
       pacing: "Let the dialogue overlap.",
       continuity: "Repeat the retained reply.",

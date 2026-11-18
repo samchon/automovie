@@ -45,7 +45,7 @@ export function test_render_editorial_marker_seam(): void {
   };
   const cut: ReturnType<typeof cutSequence> = cutSequence(
     {
-      sequence: { id: "decimal-seam", name: null },
+      sequence: { id: "decimal-seam", name: "Decimal seam" },
       fps: 24,
       entries: [
         {
@@ -109,7 +109,7 @@ export function test_render_editorial_marker_seam(): void {
   };
   const replay = cutSequence(
     {
-      sequence: { id: "tail-replay", name: null },
+      sequence: { id: "tail-replay", name: "Tail replay" },
       fps: 24,
       entries: [
         { shot: shot.id, trim: null, playbackRate: 4, transition: null },

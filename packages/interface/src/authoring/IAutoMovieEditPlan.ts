@@ -22,28 +22,21 @@ export interface IAutoMovieEditPlan {
   fps: number;
 
   /** Shot placements in playback order; at least one is required. */
-  entries: (IAutoMovieSequenceEntry &
-    (
-      | { trimByEvents?: never }
-      | {
-          /** A symbolic trim is exclusive with numeric trim. */
-          trim: null;
+  entries: (IAutoMovieSequenceEntry & {
+    /**
+     * Resolve both bounds in the referenced shot's built events before
+     * applying the normal trim and seam rules. The edit gate requires
+     * `trim: null` with these bounds. Both ids must be non-blank and each
+     * must match exactly once. The end must follow the start on the shot clock.
+     */
+    trimByEvents?: {
+      /** Exact id of the event at the trim start. */
+      startEvent: string;
 
-          /**
-           * Resolve both bounds in the referenced shot's built events before
-           * applying the normal trim and seam rules. Both ids must be non-blank
-           * and each must match exactly once. Times are in shot-local seconds,
-           * and the end must be after the start.
-           */
-          trimByEvents: {
-            /** Exact id of the event at the trim start. */
-            startEvent: string;
-
-            /** Exact id of the event at the trim end. */
-            endEvent: string;
-          };
-        }
-    ))[];
+      /** Exact id of the event at the trim end. */
+      endEvent: string;
+    };
+  })[];
 
   /**
    * Require exactly one event with the given id in the given playback entry,
