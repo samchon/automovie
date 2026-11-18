@@ -28,11 +28,11 @@ type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
 /**
  * The ASSEMBLE consumer: fold the editor's cut-list into an {@link IAutoMovieSequence} over the shots the pipeline actually built, or return every violation at once.
  *
- * The layout gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. Pacing and continuity rationale stay prose.
+ * The layout gates are editorial arithmetic. Built shot ids are unique; the sequence id and each entry's shot id are non-blank; the frame rate is finite and positive; there is at least one entry; every entry names a built shot whose duration is finite and positive; a trim has a finite positive duration and a finite start, and lies inside `[0, shot.duration]`; the entry rate is finite and positive with a representable positive output span; the first entry has no transition; and a transition is finite and positive, no longer than either neighbour's played span, and does not overlap the previous entry's own incoming transition inside that entry. Pacing and continuity rationale stay prose.
  *
- * `runtime` is in seconds: the sum of each entry's played span (its trim's duration, else the whole shot) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. For a structurally valid cut, each required event must appear exactly once in the named playback entry after trim and seam ownership. The event requirement reads built shot interaction events. Declared prop requirements compare sampled object-motion channels from the two retained sides of hard cuts. An absent requirement slot is refused. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference.
+ * `runtime` is in seconds: the sum of each entry's played output span (retained source duration divided by the entry rate) minus each transition's duration, since a transition overlaps the previous entry's tail. A clean plan whose accumulated clock is non-finite is refused at entries instead of publishing an unusable runtime. For a structurally valid cut, each required event must appear exactly once in the named playback entry after trim and seam ownership. The event requirement reads built shot interaction events. Declared prop requirements compare sampled object-motion channels from the two retained sides of hard cuts. An absent requirement slot is refused. Outer records and populated entry objects are typed premises; an absent array slot is reported explicitly. The sequence copies the plan's id, name, frame rate and entries in order, sharing each trim and transition object by reference and recording only nondefault playback rates.
  *
- * @evidence contracts/development/implementation.md#principled-implementation The edit clock follows [OpenTimelineIO time ranges](https://github.com/AcademySoftwareFoundation/OpenTimelineIO/blob/main/docs/tutorials/time-ranges.md#markers), with source instants placed in a parent timeline. One ordered pass carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice. After layout admission, the number of projected matches for each entry and event address must be one and each declared prop channel must agree within its tolerance at its hard cut.
+ * @evidence contracts/development/implementation.md#principled-implementation The edit clock follows [OpenTimelineIO time ranges](https://github.com/AcademySoftwareFoundation/OpenTimelineIO/blob/main/docs/tutorials/time-ranges.md#markers), with source instants placed in a parent timeline. The [OpenTimelineIO linear time warp](https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-serialized-schema.html#LinearTimeWarp-1) uses the same constant source-time scale per output second. One ordered pass carries the previous entry's played span and incoming transition, which is all an OpenTimelineIO-style end-to-end track needs to check overlaps and accumulate runtime; a later check is skipped when an earlier fault leaves its operand undefined, such as an unknown shot or an invalid trim, so one cause is not reported twice. After layout admission, the number of projected matches for each entry and event address must be one and each declared prop channel must agree within its tolerance at its hard cut.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates and assembles in one function because every check reads the same running timeline state; event requirements reuse `sequenceEventTimeline` after edit admission to respect the same trim and seam rules as playback. Prop comparisons delegate to checkCutPropContinuity.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no shot or fixture, and refuses an out-of-range trim or transition with its overshoot rather than clamping it into range.
  * @evidence contracts/development/common.md#meaningful-documentation States every gate with its bound, which transitions are compared with which played spans, the runtime formula and unit, and what the sequence copies or shares.
@@ -155,6 +155,38 @@ export function cutSequence(
           );
         } else played = duration;
       }
+      const playbackRate: number =
+        entry.playbackRate === undefined ? 1 : entry.playbackRate;
+      if (!Number.isFinite(playbackRate) || !(playbackRate > 0)) {
+        validPlayedSpan = false;
+        out.push(
+          "range",
+          `$input.entries[${i}].playbackRate`,
+          `playback rate must be finite and positive, but was ${playbackRate}`,
+          playbackRate,
+        );
+      } else if (validPlayedSpan && playbackRate !== 1) {
+        const start: number = runtime - (entry.transition?.duration ?? 0);
+        played /= playbackRate;
+        const end: number = start + played;
+        if (!Number.isFinite(played) || !(played > 0)) {
+          validPlayedSpan = false;
+          out.push(
+            "range",
+            `$input.entries[${i}].playbackRate`,
+            "the playback rate must produce a finite positive output duration",
+            playbackRate,
+          );
+        } else if (Number.isFinite(start) && !(end > start)) {
+          validPlayedSpan = false;
+          out.push(
+            "range",
+            `$input.entries[${i}].playbackRate`,
+            "the output span is too short to advance the output clock",
+            playbackRate,
+          );
+        }
+      }
       if (entry.transition !== null) {
         if (i === 0)
           out.push(
@@ -234,6 +266,9 @@ export function cutSequence(
         shot: entry.shot,
         trim: entry.trim,
         transition: entry.transition,
+        ...(entry.playbackRate === undefined || entry.playbackRate === 1
+          ? {}
+          : { playbackRate: entry.playbackRate }),
       }),
     ),
     fps: assemble.fps,

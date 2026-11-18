@@ -1,10 +1,10 @@
 # Frame evaluation
 
-Frame evaluation maps film time onto the performance at every frame the film draws. The installed engine and renderer own frame schedules, trims, transitions and shot-local time; use them rather than reproducing their arithmetic in the host.
+Frame evaluation maps film time onto the performance at every frame the film draws. The installed engine and renderer own frame schedules, source trims, playback rates, transitions and shot-local time; use them rather than reproducing their arithmetic in the host.
 
 ## Output time and performance
 
-Keep output frame, output time, shot-local time and simulation time distinct, and give each shot in a transition its own local time and state.
+Keep output frame, output time, shot-local time and simulation time distinct, and give each shot in a transition its own local time and state. Set an edit entry's `playbackRate` to a positive constant when a retained excerpt needs a different pace. The trim stays in shot-local seconds and the transition stays in output seconds. Place fixed soundtrack cues on the output clock.
 
 Join actions at their named instants through the motion vocabulary's [operators](compose/composition.md#operators), which carry the exit pose, velocity, support and held objects into the successor, and synchronize interacting participants and their sound to the same resolved contact event.
 

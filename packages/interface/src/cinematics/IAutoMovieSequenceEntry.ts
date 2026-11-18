@@ -2,20 +2,21 @@ import type { IAutoMovieTransition } from "./IAutoMovieTransition";
 import type { IAutoMovieTrim } from "./IAutoMovieTrim";
 
 /**
- * One shot's placement in a sequence: the shot it plays, an optional trim, and
+ * One shot's placement in a sequence with a source trim, a playback rate and
  * an optional incoming transition.
  *
- * The entry's played span is its trim's duration, else the whole shot, and its
- * output start is the previous entry's end minus the incoming transition's
- * duration.
- * cutSequence admits nonblank built-shot ids, a positive played span inside the
- * shot and incoming overlap bounded by both adjacent spans; combined incoming
- * overlaps may not consume more than the intervening played span.
+ * The retained source duration divided by the playback rate gives the output
+ * span. The output start is the previous entry's end minus the incoming
+ * transition's duration.
+ * `cutSequence` requires a nonblank built-shot id, a positive source span
+ * inside the shot, a positive finite rate and a representable output span.
+ * Each overlap must fit both adjacent output spans and leave room for any
+ * other overlap in those spans.
  *
- * @evidence contracts/development/design.md#principled-representation `sequenceTimeline` reads `trim.start` as the source offset and `trim.duration` (else the shot duration) as the played span, and subtracts `transition.duration` from the running cursor to place the entry, mirroring the OpenTimelineIO `source_range` and transition model.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A shot id plus two nullable modifiers covers every placement; the shot itself is referenced, not copied, so a retimed shot needs no entry edit beyond its trim.
+ * @evidence contracts/development/design.md#principled-representation `sequenceTimeline` takes its source offset from `trim.start` and divides the retained source duration by the rate. The incoming transition duration shifts the placement start on the output clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One optional scalar retimes the referenced source without rewriting the source trim or copying the shot.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A transition on the first entry is refused by `cutSequence` and thrown by `sequenceTimeline` rather than silently dropped, and an unknown shot id is refused rather than skipped.
- * @evidence contracts/development/common.md#meaningful-documentation States how the played span and output start follow from the fields, what each `null` means, and that the first entry may not carry a transition.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the source trim, playback rate and transition determine the played span and output start, and lists admission and default rules.
  */
 export interface IAutoMovieSequenceEntry {
   /** Id of the {@link IAutoMovieShot} played here; it must name a built shot. */
@@ -26,6 +27,9 @@ export interface IAutoMovieSequenceEntry {
    * analogue, or `null` to play the whole shot.
    */
   trim: IAutoMovieTrim | null;
+
+  /** Finite positive source seconds per output second. Omit for 1× playback. */
+  playbackRate?: number;
 
   /**
    * Blend into this entry from the previous one, or `null` for a hard cut (the

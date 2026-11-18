@@ -9,11 +9,11 @@ import {
 /**
  * Build a playback layout and the shot index its frame and event consumers share.
  *
- * The sequence must have passed cutSequence: trims and overlaps already fit their source spans. This preparation still refuses empty cuts, duplicate supplied shot ids, missing referenced shots and a first-entry transition. Extra supplied shots are indexed but do not add playback entries.
+ * The sequence must have passed cutSequence: source trims, playback rates and output overlaps already fit their respective clocks. This preparation still refuses empty cuts, duplicate supplied shot ids, missing referenced shots, a first-entry transition and nondefault rates that cannot produce a representable output interval. Extra supplied shots are indexed but do not add playback entries.
  *
  * @returns The output-clock timeline and its unambiguous supplied-shot index.
  *
- * @evidence contracts/development/implementation.md#principled-implementation A running cursor adds each played span and subtracts the incoming transition overlap; accepted trims and overlaps therefore preserve the cutSequence runtime. Indexing ids first makes every entry lookup unambiguous and preserves the first duplicate's position in its refusal.
+ * @evidence contracts/development/implementation.md#principled-implementation A running cursor adds the retained source duration divided by each entry's rate and subtracts the incoming transition overlap; accepted trims and overlaps therefore preserve the cutSequence runtime. Indexing ids first makes every entry lookup unambiguous and preserves the first duplicate's position in its refusal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns layout and its required shot index together because sequenceTimeline needs the layout and sequenceEventTimeline needs both; public timeline records retain their existing fields without keeping an otherwise unused index.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every supplied shot is indexed and every sequence entry is laid out in authored order; extra shots cannot affect timing and duplicate ids are refused rather than resolved by insertion order.
  * @evidence contracts/development/common.md#meaningful-documentation States the accepted-cut precondition, remaining structural refusals, extra-shot behavior and the two returned products; entry start and runtime remain seconds on the output clock.
@@ -52,16 +52,32 @@ export function preparePlaybackTimeline(
         throw new Error(
           `sequence shot "${entry.shot}" at sequence.shots[${index}].shot was not provided`,
         );
-      const played: number = entry.trim?.duration ?? found.shot.duration;
+      const rate: number =
+        entry.playbackRate === undefined ? 1 : entry.playbackRate;
+      const played: number =
+        (entry.trim?.duration ?? found.shot.duration) / rate;
       const start: number = cursor - (entry.transition?.duration ?? 0);
+      const end: number = start + played;
+      if (
+        rate !== 1 &&
+        (!Number.isFinite(rate) ||
+          !(rate > 0) ||
+          !Number.isFinite(end) ||
+          !(played > 0) ||
+          !(end > start))
+      )
+        throw new Error(
+          `sequence.shots[${index}].playbackRate must be finite and positive and produce a representable output span`,
+        );
       entries.push({
         entry: index,
         shot: entry.shot,
         start,
         played,
         offset: entry.trim?.start ?? 0,
+        ...(rate === 1 ? {} : { playbackRate: rate }),
       });
-      cursor = start + played;
+      cursor = end;
     },
   );
   return { timeline: { entries, runtime: cursor }, shotById };

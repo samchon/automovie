@@ -15,9 +15,9 @@ import { frameTimes } from "./frameTimes.js";
 import { renderPathStem } from "./renderPathStem.js";
 
 /**
- * Build the render-layer manifest for a committed sequence. The output FPS is controlled by the render spec; the cut's fps is preserved as editorial metadata. Trim and transition arithmetic is delegated to the engine playback timeline, then copied into the manifest so the capture host has no hidden timing rules.
+ * Build the render-layer manifest for a committed sequence. The output FPS is controlled by the render spec; the cut's fps is preserved as editorial metadata. Trim, playback-rate and transition arithmetic is delegated to the engine playback timeline, then copied into the manifest so the capture host has no hidden timing rules.
  *
- * @evidence contracts/development/implementation.md#principled-implementation sequenceTimeline owns trim and overlap arithmetic, frameTimes supplies increasing half-open output samples, and one playbackCursor resolves those samples without changing the sequence's editorial fps.
+ * @evidence contracts/development/implementation.md#principled-implementation sequenceTimeline owns trim, playback-rate and overlap arithmetic, frameTimes supplies increasing half-open output samples, and one playbackCursor resolves those samples without changing the sequence's editorial fps.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The manifest gathers timeline spans, resolved frame samples and paths so a capture host reads one plan instead of independently implementing the cut.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A mismatched render target or empty schedule refuses; output path overrides are caller data and no sequence identity is specially recognized.
  * @evidence contracts/development/common.md#meaningful-documentation The planner documents editorial versus output fps and target equality; manifest members state seconds, trim offsets, blend weights and host paths.
@@ -70,6 +70,9 @@ export const planSequenceRender: (
         played: entry.played,
         offset: entry.offset,
         trim: props.sequence.shots[entry.entry]!.trim,
+        ...(entry.playbackRate === undefined
+          ? {}
+          : { playbackRate: entry.playbackRate }),
       }),
     ),
     transitionSpans: transitionSpans(props.sequence, timeline),
