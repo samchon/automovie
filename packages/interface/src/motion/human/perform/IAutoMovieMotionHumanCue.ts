@@ -1,6 +1,6 @@
 /**
- * Cue tracks: the named instants of a film's speech and music, for actions
- * to be synced to and cut on (`IAutoMovieMotionHumanPerformance.IInput.cues`).
+ * Cue tracks: the named instants for speech, music and staged actions,
+ * to sync to and cut on (`IAutoMovieMotionHumanPerformance.IInput.cues`).
  *
  * The screenplay and the score decide these instants; nothing here listens
  * to audio or guesses a stress. A track is a list of named film seconds, so
@@ -13,6 +13,33 @@
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanCue.orders.
  */
 export namespace IAutoMovieMotionHumanCue {
+  /**
+   * Timing for successive sections along an authored path or for sections
+   * responding at authored film seconds. The list order is the cue index.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both inputs, their units and how section indices are assigned.
+   * @evidence contracts/development/design.md#principled-representation Either film seconds or distances along a path with an origin time and constant speed.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Provides the inputs of HumanCue.sectionWave in the existing cue contract.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Exclusive fields prevent competing timing sources. Runtime admission is owned by HumanCue.sectionWave.
+   */
+  export type ISectionWave =
+    | {
+        /** Nondecreasing, finite nonnegative film seconds. Equal seconds cue sections together. */
+        seconds: readonly number[];
+        distances?: never;
+        from?: never;
+        speed?: never;
+      }
+    | {
+        seconds?: never;
+        /** Nondecreasing finite nonnegative distances in metres along the path. Equal marks cue sections together. */
+        distances: readonly number[];
+        /** Finite nonnegative film second when the wave reaches the path origin. */
+        from: number;
+        /** Finite positive propagation speed in metres per second. */
+        speed: number;
+      };
+
   /**
    * A beat track: `beat` at every beat and `downbeat` at the first beat of every bar, so `{ event: "beat", index: 5 }` is the sixth beat and `{ event: "downbeat", index: 1 }` the start of the second bar. A score's pulse.
    *

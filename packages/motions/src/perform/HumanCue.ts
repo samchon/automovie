@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Cue tracks: the named instants of a film's speech and music, for actions
- * to be synced to and cut on (`HumanPerformance.IInput.cues`).
+ * Cue tracks: the named instants for speech, music and staged actions,
+ * to sync to and cut on (`HumanPerformance.IInput.cues`).
  *
  * The screenplay and the score decide these instants; nothing here listens
  * to audio or guesses a stress. A track is a list of named film seconds, so
@@ -14,10 +14,86 @@ import type {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a track is, who decides its instants and what is out of scope.
  * @evidence contracts/development/design.md#principled-representation A track is the schedule's own list of named instants, so cues are addressed exactly as an action's events are.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two tracks a film has, a score's beats and a dialogue's lines, and their inputs.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Adds builders for the authored sources of named schedule cues.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No instant is derived from a guessed speech rate; an accent is given or absent.
  */
 export namespace HumanCue {
+  /**
+   * Emit one `section` cue per authored section, addressed by its zero-based
+   * index. Sections may share an authored film second. With path distances,
+   * a section responds at `from + distance / speed`.
+   *
+   * A stadium wave passes from section to section
+   * ([Farkas, Helbing and Vicsek, 2002](https://doi.org/10.1038/419131a)).
+   * Commencement can cue several sections together
+   * ([Penn's ceremony instructions](https://commencement.upenn.edu/graduates)).
+   *
+   * @param wave The sections' film seconds or their distances, origin second and speed.
+   * @returns A cue track ready for `HumanPerformance` or the schedule resolver.
+   * @throws {Error} If timing sources conflict, the list is empty, values are outside the documented ranges, or computed seconds are nonfinite or fail to advance at distinct distances.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines cue indexing, time units, application examples and refusal conditions.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes every propagated time independently from the path origin and preserves the input order in the track.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admits one timing source before a single scan of section values and resulting seconds.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the authored speed and distances directly. It rejects malformed timing instead of sorting, clamping or inserting a guessed interval.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear time and output space in the number of sections.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns ordinary schedule cues so alignment and section indexing use the existing scheduler.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the returned list and retains no input or state.
+   */
+  export function sectionWave(
+    wave: IAutoMovieMotionHumanCue.ISectionWave,
+  ): IAutoMovieScheduleCue[] {
+    const {
+      seconds,
+      distances,
+      from,
+      speed,
+    }: IAutoMovieMotionHumanCue.ISectionWave = wave;
+    if (
+      seconds !== undefined &&
+      (distances !== undefined || from !== undefined || speed !== undefined)
+    )
+      throw new Error("A section wave needs exactly one timing source");
+
+    const values: readonly number[] | undefined = seconds ?? distances;
+    if (!Array.isArray(values) || values.length === 0)
+      throw new Error("A section wave needs at least one section");
+
+    let origin: number = 0;
+    let rate: number = 1;
+    if (seconds === undefined) {
+      if (typeof from !== "number" || !Number.isFinite(from) || from < 0)
+        throw new Error(
+          "A section wave needs a finite nonnegative origin second",
+        );
+      if (typeof speed !== "number" || !Number.isFinite(speed) || speed <= 0)
+        throw new Error("A section wave needs a finite positive speed");
+      origin = from;
+      rate = speed;
+    }
+
+    const track: IAutoMovieScheduleCue[] = [];
+    let previous: number = 0;
+    let previousSecond: number = origin;
+    for (let index: number = 0; index < values.length; ++index) {
+      const value: number = values[index]!;
+      if (!Number.isFinite(value) || value < 0)
+        throw new Error(`Section ${index} needs a finite nonnegative value`);
+      if (value < previous) throw new Error(`Section ${index} is out of order`);
+
+      const at: number = seconds === undefined ? origin + value / rate : value;
+      if (!Number.isFinite(at) || (value > previous && at <= previousSecond))
+        throw new Error(
+          `Section ${index} needs a finite, advancing film second`,
+        );
+
+      track.push({ name: "section", seconds: at });
+      previous = value;
+      previousSecond = at;
+    }
+    return track;
+  }
+
   /**
    * A command track: for each order its preparatory word `${word}Caution`
    * (when it has one) and its word of execution `${word}`, in film order, as
