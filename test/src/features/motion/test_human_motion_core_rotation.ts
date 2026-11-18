@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanPostureRotation,
   IAutoMovieHumanoidSurfaces,
@@ -47,7 +48,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. Slerp: mixing two rotations about different axes at 0.25, 0.5 and 0.75
  *    gives turns whose angle from the first is that share of the whole
  *    angle within 1e-9 rad; a posture without a rotation mixes as the
- *    identity about the other's point; neither having one leaves none.
+ *    identity about the other's point; neither having one leaves none. A
+ *    digit goal both postures hold is halfway at 0.5 within 1e-12 m, and
+ *    one only one holds is kept, never dropped between the ends.
  * 3. Continuity through the vertical: a body pitched through 90 degrees in
  *    steps of a degree while turning about its long axis moves no bone more
  *    between steps than a degree's arc at the stature (no snap at the
@@ -177,6 +180,33 @@ export function test_human_motion_core_rotation(): void {
       findings.push(`${name}: a missing rotation does not mix as the identity`);
     if (mixHumanPosture(free, free, 0.5).rotation !== undefined)
       findings.push(`${name}: two postures without a rotation mix into one`);
+
+    // A digit goal either posture holds stays through the mix: its point
+    // moves by the weight where both hold it, and stays where one does.
+    const tip: (y: number) => IAutoMovieHumanDigitGoal = (
+      y: number,
+    ): IAutoMovieHumanDigitGoal => ({
+      point: { x: -0.15, y, z: 0.4 },
+      surface: "tip",
+    });
+    const pinched: IAutoMovieMotionHumanPosture = {
+      ...free,
+      digits: { rightIndex: tip(chest) },
+    };
+    const between: IAutoMovieHumanDigitGoal | undefined = mixHumanPosture(
+      pinched,
+      { ...free, digits: { rightIndex: tip(chest + 0.02) } },
+      0.5,
+    ).digits?.rightIndex;
+    if (
+      between === undefined ||
+      Math.abs(between.point.y - (chest + 0.01)) > 1e-12
+    )
+      findings.push(
+        `${name}: a digit goal both postures hold is ${between === undefined ? "dropped" : `at ${between.point.y} m`} halfway, not at ${chest + 0.01} m`,
+      );
+    if (mixHumanPosture(pinched, free, 0.5).digits?.rightIndex === undefined)
+      findings.push(`${name}: a digit goal one posture holds is dropped halfway`);
 
     // 3. Through the vertical without a snap.
     let previous: Bones | null = null;
