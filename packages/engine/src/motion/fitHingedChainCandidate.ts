@@ -40,6 +40,7 @@ import { distalTwistRange } from "./distalTwistRange";
 import { fitHingedClosedRoots } from "./fitHingedClosedRoots";
 import { fitHingedRotationError } from "./fitHingedRotationError";
 import { hingedChainSide } from "./hingedChainSide";
+import { hingedReferenceInterval } from "./hingedReferenceInterval";
 import { hingedRotationStart } from "./hingedRotationStart";
 import { hingedTwistStart } from "./hingedTwistStart";
 import { posedHingeSwing } from "./posedHingeSwing";
@@ -702,24 +703,8 @@ export function fitHingedChainCandidate(
                   ? sided
                   : (low: number, high: number): number => sided(low, high) + miss(low, high);
               if (!anchored) return geometric;
-              // The hinge angle stays fixed on this branch. Its upper rotation
-              // changes by exactly the swivel difference about the target line.
               const lower: number = before[1] === null ? 0 : apart(posed(0).lower, before[1]);
-              const reference: IAutoMovieQuaternion | null = before[0];
-              if (reference === null) return (low: number, high: number): number => geometric(low, high) + anchor * lower;
-              let last: number | undefined;
-              let distance: number = 0;
-              return (low: number, high: number): number => {
-                const middle: number = (low + high) / 2;
-                if (middle !== last) {
-                  distance = apart(upper(middle), reference);
-                  last = middle;
-                }
-                // Triangle inequality in degrees. The existing ROM tolerance
-                // protects the angle calculation as in distalEndSwivelMiss.
-                const minimum: number = Math.max(0, distance - (high - low) / 2 - ROM_TOLERANCE);
-                return geometric(low, high) + anchor * (minimum + lower);
-              };
+              return hingedReferenceInterval(geometric, upper, before[0], lower, anchor);
             },
           }
         : {}),
