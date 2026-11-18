@@ -11,6 +11,7 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,8 +27,11 @@ import { braceOnThighPoint } from "./braceOnThighPoint";
 import { seatedPairDepth } from "./seatedPairDepth";
 
 type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
-/** A world-fixed wrist or the wrist carried by the current target surface. */
-type Wrist = IAutoMovieVector3 | ((posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3);
+/** A fixed wrist or one on a carried surface. A trial offers its same-pose displayed bones. */
+type Wrist = IAutoMovieVector3 | ((
+  posture: IAutoMovieMotionHumanPosture,
+  bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+) => IAutoMovieVector3);
 type Course = (
   posture: IAutoMovieMotionHumanPosture,
   share: number,
@@ -56,6 +60,7 @@ const RAD: number = Math.PI / 180;
  *
  * @evidence contracts/development/implementation.md#principled-implementation Bilateral material sockets, knee circles, opposing thigh hulls and both wrist spheres constrain the same lower-body posture; the closed two-link phase starts from the current standing support.
  * @evidence contracts/development/implementation.md#efficient-algorithms The nominal lumbar hull is checked first. Only an obstructed squat enters a single projected descent at contact; playback transports the one chosen trunk disposition by its authored movement share.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A descent trial offers its displayed bones to the carried wrist reader as well as using them for both arm reach residuals, foot sockets and hulls. The wrist owner controls admission of a shared observation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Joint bounds come from this body and the action's strategy. The descent stops at the rig's angular resolution and never reads fixture or archetype names.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The course retains its contact geometry and the entry shank orientation. Each actual standing pose supplies its own sway.
  */
@@ -211,8 +216,10 @@ export function prepareBendSquat(
     const rows: number[] = [
       Math.max(
         0,
-        Vector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, typeof wrist === "function" ? wrist(p) : wrist) -
-          span,
+        Vector3.distance(
+          bones.get(`${side}UpperArm`)!.worldPosition,
+          typeof wrist === "function" ? wrist(p, bones) : wrist,
+        ) - span,
       ),
       Math.max(
         0,

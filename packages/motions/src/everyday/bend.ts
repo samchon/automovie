@@ -17,11 +17,13 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
+import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { prepareBendGoal } from "./prepareBendGoal";
@@ -134,7 +136,7 @@ export namespace bend {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The chosen lowering writes root, trunk, gaze and legs. Two arm goals and the fingers read the resulting pose, each on its channel. The hold reads the same authored lowest key.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only strategy fallback is the stated automatic squat where the semi-squat cannot reach. The reached point stays where authored. The hold and the reaching elbow hint are provisional.
    * @evidence contracts/development/implementation.md#efficient-algorithms The lowering and its pitch are planned once. The planner lays trajectories over the actual descent and ascent and refines failed stretches. Hold duration adds no arm waypoints or posture fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per instance and every posture reads them.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per course. Each native squat trial reads its carried wrist from the same displayed bones as its support residuals. Each eligible native arm goal reads the target, shoulder and shins from one pose. Custom readers keep separate observations in their original order.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains this body's lowered geometry and arm courses, released with the performance. No query history grows in playback.
    */
   export function plan(
@@ -261,9 +263,16 @@ export namespace bend {
       lateralTilt,
     );
 
-    const squat = strategy === "stoop" ? undefined : prepareBendSquat(
+    const squat: ReturnType<typeof prepareBendSquat> = strategy === "stoop" ? undefined : prepareBendSquat(
       body, atContact, bendLower.lower(body, atContact, strategy, pitch, 1, lean * Math.sin(pitch * Math.PI / 180), undefined, lateralTilt),
-      strategy, side, fixedWrist ?? ((posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => goal(posture).point),
+      strategy, side, fixedWrist ?? ((
+        posture: IAutoMovieMotionHumanPosture,
+        placed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      ): IAutoMovieVector3 => {
+        const shared: typeof placed = placed !== undefined && createHumanBody.owns(body)
+          ? placed : undefined;
+        return goal(posture, undefined, undefined, shared).point;
+      }),
     );
     const base: IAutoMovieMotionHumanActionPlan = window === null ? standing : {
       ...standing,
@@ -325,6 +334,8 @@ export namespace bend {
     const lowerLegs: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftLowerLeg", "rightLowerLeg"]);
     const readShins: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, lowerLegs);
     const placeShins: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body, lowerLegs);
+    let contactBones: ReadonlySet<AutoMovieHumanoidBone> | undefined;
+    let readContact: ReturnType<typeof poseBones.prepare> | undefined;
     const reach: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
       body,
       side,
@@ -339,6 +350,22 @@ export namespace bend {
         source?: Parameters<typeof prepareHumanPoseResolution>[0],
         projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieHumanLimbGoal =>
         {
+          // Native target and shin readers observe one posture with no edit between them.
+          // The union requests every chain required by either observation. Bind it only
+          // after checking the actual body and loan, since binding itself is observable.
+          if (strategy !== "stoop" && region !== undefined && createHumanBody.owns(body) &&
+              prepareHumanPoseResolution.isNativeSource(source) &&
+              (projection === undefined || projection === body.projection)) {
+            contactBones ??= new Set<AutoMovieHumanoidBone>([
+              ...lowerLegs, region.bone, `${side}UpperArm`,
+            ]);
+            const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+            const frame: ReturnType<typeof resolveHumanPosture.seeded> =
+              resolveHumanPosture.seeded(body, posture, undefined, {}, read, contactBones, projection);
+            readContact ??= poseBones.prepare(body, contactBones);
+            const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readContact(frame.pose, read());
+            return { ...goal(posture, source, projection, placed), clear: placeShins(placed) };
+          }
           const site: IAutoMovieHumanLimbGoal = goal(posture, source, projection);
           if (strategy === "stoop") return site;
           const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
