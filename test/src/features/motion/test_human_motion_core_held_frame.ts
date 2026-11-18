@@ -94,6 +94,8 @@ export function test_human_motion_core_held_frame(): void {
           AutoMovieMotionHumanHeld.of(
             {
               ...context,
+              // The body indexes its rig by name once, when it is made, so
+              // a rig with the hand taken out carries its index without it.
               body: {
                 ...context.body,
                 skeleton: {
@@ -103,6 +105,12 @@ export function test_human_motion_core_held_frame(): void {
                       bone.bone !== "rightHand",
                   ),
                 },
+                bones: new Map(
+                  [...context.body.bones].filter(
+                    ([bone]: [string, IAutoMovieBone]): boolean =>
+                      bone !== "rightHand",
+                  ),
+                ),
               },
             },
             "right",
