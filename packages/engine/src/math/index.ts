@@ -45,6 +45,7 @@ export * from "./pointHullDistance";
 export * from "./pointInHull";
 export * from "./pointSegmentDistance";
 export * from "./polishAutoMovieQuadraticProgram";
+export * from "./polynomialUnitRoots";
 export * from "./positiveModulo";
 export * from "./quaternionFromAutoMovieBasis";
 export * from "./quaternionInterpolationCriticalRatios";
