@@ -1,5 +1,8 @@
 import { validateMotion } from "@automovie/engine";
-import type { IAutoMovieMotion, IAutoMovieValidation } from "@automovie/interface";
+import type {
+  IAutoMovieMotion,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton } from "../internal/createSkeleton";
@@ -25,16 +28,33 @@ export function test_validation_clip_clock_domain(): void {
   const motion: IAutoMovieMotion = createValidMotion();
   const skeleton = createSkeleton();
   const inspect = (duration: number, times: number[]): IAutoMovieValidation =>
-    validateMotion({skeleton, motion: {...motion, duration, keyframes: times.map(time => keyframe(time, makePose([])))}});
-  TestValidator.equals("both endpoints admitted", inspect(1, [0, 1]).success, true);
+    validateMotion({
+      skeleton,
+      motion: {
+        ...motion,
+        duration,
+        keyframes: times.map((time) => keyframe(time, makePose([]))),
+      },
+    });
+  TestValidator.equals(
+    "both endpoints admitted",
+    inspect(1, [0, 1]).success,
+    true,
+  );
   const cases: Array<[number, number[], string]> = [
-    [1, [], "$input.keyframes"], [1, [0], "$input.keyframes"],
-    [0, [0, 1], "$input.duration"], [Infinity, [0, 1], "$input.duration"],
-    [1, [0, NaN], "$input.keyframes[1].time"], [1, [0, 2], "$input.keyframes[1].time"],
+    [1, [], "$input.keyframes"],
+    [1, [0], "$input.keyframes"],
+    [0, [0, 1], "$input.duration"],
+    [Infinity, [0, 1], "$input.duration"],
+    [1, [0, NaN], "$input.keyframes[1].time"],
+    [1, [0, 2], "$input.keyframes[1].time"],
     [1, [0, 0.5, 0.5], "$input.keyframes[2].time"],
   ];
   for (const [duration, times, path] of cases) {
     const result = inspect(duration, times);
-    TestValidator.predicate(`${duration} seconds with keys ${times} locates ${path}`, !result.success && hasViolation(result, "temporal", path));
+    TestValidator.predicate(
+      `${duration} seconds with keys ${times} locates ${path}`,
+      !result.success && hasViolation(result, "temporal", path),
+    );
   }
 }

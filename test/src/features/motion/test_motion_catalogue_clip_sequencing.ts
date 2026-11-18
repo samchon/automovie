@@ -20,17 +20,55 @@ import { throwsError } from "../internal/throwsError";
  */
 export function test_motion_catalogue_clip_sequencing(): void {
   const part = (seconds: number): IAutoMovieMotion =>
-    makeMotion([keyframe(0, makePose([]), "easeIn"), keyframe(seconds, makePose([]), "step")], seconds);
+    makeMotion(
+      [
+        keyframe(0, makePose([]), "easeIn"),
+        keyframe(seconds, makePose([]), "step"),
+      ],
+      seconds,
+    );
   const first = part(1);
   const second = part(2);
   const joined = sequenceMotion("joined", [first, second], true);
-  TestValidator.equals("clock and interpolation owner", joined.keyframes.map(key => [key.time, key.easing]), [
-    [0, "easeIn"], [first.duration, "easeIn"], [first.duration + second.duration, "step"],
-  ]);
-  TestValidator.equals("clip envelope", [joined.duration, joined.skeleton, joined.loop], [3, first.skeleton, true]);
-  TestValidator.equals("single clip defaults to a single play", sequenceMotion("once", [first]).loop, false);
-  TestValidator.predicate("empty parts", throwsError(() => sequenceMotion("empty", []), "sequence parts must not be empty"));
-  TestValidator.predicate("incompatible rigs", throwsError(() => sequenceMotion("mixed", [first, {...second, skeleton: "other"}]), "sequence part skeletons must match"));
+  TestValidator.equals(
+    "clock and interpolation owner",
+    joined.keyframes.map((key) => [key.time, key.easing]),
+    [
+      [0, "easeIn"],
+      [first.duration, "easeIn"],
+      [first.duration + second.duration, "step"],
+    ],
+  );
+  TestValidator.equals(
+    "clip envelope",
+    [joined.duration, joined.skeleton, joined.loop],
+    [3, first.skeleton, true],
+  );
+  TestValidator.equals(
+    "single clip defaults to a single play",
+    sequenceMotion("once", [first]).loop,
+    false,
+  );
+  TestValidator.predicate(
+    "empty parts",
+    throwsError(
+      () => sequenceMotion("empty", []),
+      "sequence parts must not be empty",
+    ),
+  );
+  TestValidator.predicate(
+    "incompatible rigs",
+    throwsError(
+      () => sequenceMotion("mixed", [first, { ...second, skeleton: "other" }]),
+      "sequence part skeletons must match",
+    ),
+  );
   for (const duration of [0, -1, NaN])
-    TestValidator.predicate(`invalid duration ${duration}`, throwsError(() => sequenceMotion("bad", [{...first, duration}]), "sequence part duration must be finite and positive"));
+    TestValidator.predicate(
+      `invalid duration ${duration}`,
+      throwsError(
+        () => sequenceMotion("bad", [{ ...first, duration }]),
+        "sequence part duration must be finite and positive",
+      ),
+    );
 }

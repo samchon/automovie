@@ -19,19 +19,47 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States time ownership and admission.
  */
 export function test_motion_catalogue_clip_arrangement(): void {
-  const first = holdMotion("first", "rig", makePose([joint("spine", {flexion: 10})]), 1);
-  const second = holdMotion("second", "rig", makePose([joint("spine", {flexion: 20})]), 1);
+  const first = holdMotion(
+    "first",
+    "rig",
+    makePose([joint("spine", { flexion: 10 })]),
+    1,
+  );
+  const second = holdMotion(
+    "second",
+    "rig",
+    makePose([joint("spine", { flexion: 20 })]),
+    1,
+  );
   for (const gap of [0, 1]) {
     const start = first.duration + gap;
-    const timeline = arrangeMotion("arranged", [{ start, motion: second }, { start: 0, motion: first }]);
-    const expected = [[0, 10], [first.duration, 10]];
+    const timeline = arrangeMotion("arranged", [
+      { start, motion: second },
+      { start: 0, motion: first },
+    ]);
+    const expected = [
+      [0, 10],
+      [first.duration, 10],
+    ];
     if (gap) expected.push([start, 10]);
     expected.push([start + second.duration, 20]);
-    TestValidator.equals("times and joint ownership", timeline.keyframes.map(key => [key.time, key.pose.joints[0]!.flexion]), expected);
-    TestValidator.equals("rig and end", [timeline.skeleton, timeline.duration], [first.skeleton, start + second.duration]);
+    TestValidator.equals(
+      "times and joint ownership",
+      timeline.keyframes.map((key) => [key.time, key.pose.joints[0]!.flexion]),
+      expected,
+    );
+    TestValidator.equals(
+      "rig and end",
+      [timeline.skeleton, timeline.duration],
+      [first.skeleton, start + second.duration],
+    );
   }
   const empty = arrangeMotion("empty", []);
-  TestValidator.equals("empty layout", [empty.skeleton, empty.duration, empty.keyframes.length], ["", 0, 0]);
+  TestValidator.equals(
+    "empty layout",
+    [empty.skeleton, empty.duration, empty.keyframes.length],
+    ["", 0, 0],
+  );
   // 5. invalid timeline scalars reject before emitting malformed keyframes
   for (const duration of [Number.NaN, 0, -1])
     TestValidator.predicate(
@@ -60,7 +88,9 @@ export function test_motion_catalogue_clip_arrangement(): void {
     "arrange rejects empty placement keyframes",
     throwsError(
       (): IAutoMovieMotion =>
-        arrangeMotion("badArrange", [{ start: 0, motion: { ...first, keyframes: [] } }]),
+        arrangeMotion("badArrange", [
+          { start: 0, motion: { ...first, keyframes: [] } },
+        ]),
       'motion placement "first" must have keyframes',
     ),
   );
@@ -77,4 +107,3 @@ export function test_motion_catalogue_clip_arrangement(): void {
       ),
     );
 }
-

@@ -23,13 +23,24 @@ export function test_validation_clip_identity(): void {
   const motion = createValidMotion();
   const skeleton = createSkeleton();
   for (const loop of [true, false])
-    TestValidator.equals(`loop ${loop} admitted`, validateMotion({skeleton, motion: {...motion, loop}}).success, true);
+    TestValidator.equals(
+      `loop ${loop} admitted`,
+      validateMotion({ skeleton, motion: { ...motion, loop } }).success,
+      true,
+    );
   const cases: Array<[Partial<IAutoMovieMotion>, string]> = [
-    [{id: " "}, "$input.id"], [{skeleton: skeleton.id + "-other"}, "$input.skeleton"],
-    [{loop: "false" as unknown as boolean}, "$input.loop"],
+    [{ id: " " }, "$input.id"],
+    [{ skeleton: skeleton.id + "-other" }, "$input.skeleton"],
+    [{ loop: "false" as unknown as boolean }, "$input.loop"],
   ];
   for (const [change, path] of cases) {
-    const result = validateMotion({skeleton, motion: {...motion, ...change}});
-    TestValidator.predicate(path, !result.success && hasViolation(result, "type", path));
+    const result = validateMotion({
+      skeleton,
+      motion: { ...motion, ...change },
+    });
+    TestValidator.predicate(
+      path,
+      !result.success && hasViolation(result, "type", path),
+    );
   }
 }
