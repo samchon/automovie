@@ -11,6 +11,7 @@ import {
   HumanPerformance,
   HumanVerdicts,
   HumanWeaponFirearm,
+  HumanWeaponPresent,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -143,7 +144,7 @@ export function test_human_motion_firearm_shot_launch(): void {
     TestValidator.predicate(
       `it leaves along the bore within the dispersion (${off.toFixed(3)} degrees)`,
       off <=
-        HumanWeaponFirearm.DISPERSION +
+        HumanWeaponPresent.DISPERSION +
           (Number.EPSILON * 2 ** Math.ceil(Math.log2(8)) * 180) / Math.PI,
     );
     TestValidator.predicate(

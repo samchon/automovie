@@ -14,6 +14,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
+import { walk } from "../actions/walk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
@@ -133,9 +134,9 @@ export namespace HumanMountOn {
     // The seat's height above the floor the feet leave (`seated.floor`).
     const under: number = seated.floor(body, context.entry);
 
-    // A body already on the seat, as when getting off was broken off, only settles: no climb and no hop.
+    // A body already on the seat, as when getting off was broken off, only settles: no climb and no hop. It is on it when nearer its place than a hop rises, so a climb would overshoot its own seat.
     const settled: boolean =
-      Vector3.length(Vector3.subtract(goal, start)) < 0.1 * m.thigh;
+      Vector3.length(Vector3.subtract(goal, start)) < HumanMount.HOP * m.thigh;
     const climb: number =
       (settled
         ? HumanMount.SETTLE
@@ -331,7 +332,7 @@ export namespace HumanMountOn {
       places[side].rests &&
       Vector3.length(
         Vector3.subtract(starts[side].ankle, places[side].foot.ankle),
-      ) < 0.005;
+      ) < HumanMount.ON;
     const stays: Record<"left" | "right", boolean> = {
       left: stay("left"),
       right: stay("right"),
@@ -454,7 +455,7 @@ export namespace HumanMountOn {
                 : starts[side],
               places[side].foot,
               share,
-              0.1 * m.shank,
+              walk.LIFT * m.hipHeight,
               astride && side === push ? over : undefined,
             ),
             places[side].rests && t >= bearing[side],

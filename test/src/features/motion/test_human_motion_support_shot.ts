@@ -16,6 +16,7 @@ import {
   HumanPerformance,
   HumanVerdicts,
   HumanWeaponFirearm,
+  HumanWeaponPresent,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -159,6 +160,6 @@ export function test_human_motion_support_shot(): void {
     Math.PI;
   TestValidator.predicate(
     `it leaves along the displayed bore (${off.toFixed(3)} degrees)`,
-    off <= HumanWeaponFirearm.DISPERSION + skew,
+    off <= HumanWeaponPresent.DISPERSION + skew,
   );
 }

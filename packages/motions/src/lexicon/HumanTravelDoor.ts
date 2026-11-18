@@ -16,9 +16,11 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * of one of the performance's obstacles, passes through its middle and
  * comes out beyond it. Register `HumanTravelDoor.passThrough` to use it.
  *
- * The walker passes two places on the opening's own line, `CLEAR` before
- * its sill and the same beyond it, so the body crosses the opening at
- * right angles to its width wherever the walk began. The walk itself asks
+ * The walker passes two places on the opening's own line, one of its own
+ * steps at its pace before the sill and one beyond it (`walk.walking`, the
+ * step `1.2 l Fr^0.25` of Alexander's walking model), so the last footfall
+ * before the opening and the first after it lie on that line and the body
+ * crosses the opening at right angles to its width wherever the walk began. The walk itself asks
  * the obstacles about each stretch (`walkClear`), so an opening narrower
  * than the walker's chest or lower than the walker stands is refused there
  * with the measure it would need. First pass: the leaf of a door is not
@@ -26,14 +28,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the law is, how the way is laid, where a misfit is refused and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation A law record over the walk: the opening is named by its obstacle and its id, as the obstacle declares it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law, its parameters and one distance.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The law and its parameters; the squaring distance is the walker's own step.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No door is special-cased; the fit is the obstacle owner's test, not restated here.
  */
 export namespace HumanTravelDoor {
-
-  /** How far before and beyond the sill the walker squares up and comes out, metres (provisional: about a step, so the body is past the wall's thickness). */
-  export const CLEAR: number = 0.6;
-
   /** Walk through a named opening. */
   export const passThrough: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelDoor.IParams> = {
     name: "passThrough",
@@ -96,6 +94,10 @@ export namespace HumanTravelDoor {
         y: 0,
         z: opening.across.x * side,
       };
+      // One step of the walk at its pace, metres, before and beyond the sill.
+      const froude: number = walk.FROUDE[context.params.pace ?? "normal"];
+      const step: number =
+        walk.walking(froude).step(froude) * context.body.measure.hipHeight;
       const along: (metres: number) => IAutoMovieVector3 = (metres: number): IAutoMovieVector3 => ({
         x: opening.at.x + out.x * metres,
         y: 0,
@@ -104,8 +106,8 @@ export namespace HumanTravelDoor {
       return walk.plan({
         ...context,
         params: {
-          to: along(CLEAR),
-          via: [along(-CLEAR)],
+          to: along(step),
+          via: [along(-step)],
           ...(context.params.pace === undefined
             ? {}
             : { pace: context.params.pace }),

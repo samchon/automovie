@@ -35,19 +35,25 @@ export namespace HumanRideHands {
    */
   export interface IHands {
     /**
-     * The trunk's forward lean that brings the holding hands in reach at a
-     * film second, the support in its frame then, degrees: the grips are
-     * followed as they move, as a rower leans to the catch the oar's handle
-     * comes to (`HumanMountReach.reach`).
+     * The trunk's forward lean that brings the holding hands in reach of
+     * what they hold, read by `gripAt` at a film second, the support in its
+     * frame then, degrees: the grips are followed as they move, as a rower
+     * leans to the catch the oar's handle comes to (`HumanMountReach.reach`).
      */
-    lean: (film: number, frame: IAutoMovieRigidTransform) => number;
+    lean: (
+      grips: Partial<
+        Record<"left" | "right", Parameters<typeof HumanMountRider.hold>[3]>
+      >,
+      frame: IAutoMovieRigidTransform,
+    ) => number;
 
-    /** What a hand holds, where the support has it at a film second in its frame then. */
-    gripAt: (
-      id: string,
+    /** What each holding hand holds, where the support has it at a film second in its frame then. */
+    gripsAt: (
       film: number,
       frame: IAutoMovieRigidTransform,
-    ) => Parameters<typeof HumanMountRider.hold>[3];
+    ) => Partial<
+      Record<"left" | "right", Parameters<typeof HumanMountRider.hold>[3]>
+    >;
 
     /** Each holding hand's fingers, closed on the support's colliders. */
     closures: Partial<
@@ -70,7 +76,7 @@ export namespace HumanRideHands {
    * @evidence contracts/development/implementation.md#principled-implementation The grip is the support's point carried by its frame, a moving part's own reading preferred; the lean and the closure are `HumanMountRider`'s.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The points checked, the lean, the reader, then one closure per hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hand on a missing point, or fingers with nothing to close on, is refused rather than left open.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fingers are closed once, where the ride begins.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The fingers are closed once, where the ride begins; each second reads each grip once (`gripsAt`), and the lean is computed from those reads.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanMountRider.lean`, `leant` and `closed`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The record holds the support's reader and the closures only.
    */
@@ -158,31 +164,55 @@ export namespace HumanRideHands {
       };
     };
 
-    // The lean at a film second: what the hands hold then, carried back into the frame the rider sat down in, where the circles of `reach` were read.
-    const lean = (film: number, frame: IAutoMovieRigidTransform): number => {
+    // The lean for what the hands hold at a second: carried back into the frame the rider sat down in, where the circles of `reach` were read.
+    const lean = (
+      grips: Partial<
+        Record<"left" | "right", Parameters<typeof HumanMountRider.hold>[3]>
+      >,
+      frame: IAutoMovieRigidTransform,
+    ): number => {
       const back: IAutoMovieQuaternion = Quaternion.multiply(
         origin.rotation,
         Quaternion.inverse(frame.rotation),
       );
       const points: Partial<Record<"left" | "right", IAutoMovieVector3>> = {};
-      for (const side of holding)
-        points[side] = Vector3.add(
-          origin.position,
-          Quaternion.rotateVector(
-            back,
-            Vector3.subtract(
-              gripAt(context.params.hands![side]!, film, frame).point,
-              frame.position,
+      for (const side of holding) {
+        const grip: Parameters<typeof HumanMountRider.hold>[3] | undefined =
+          grips[side];
+        if (grip !== undefined)
+          points[side] = Vector3.add(
+            origin.position,
+            Quaternion.rotateVector(
+              back,
+              Vector3.subtract(grip.point, frame.position),
             ),
-          ),
-        );
+          );
+      }
       return reach(points);
+    };
+
+    // What every holding hand holds at a film second, read once.
+    const gripsAt = (
+      film: number,
+      frame: IAutoMovieRigidTransform,
+    ): Partial<
+      Record<"left" | "right", Parameters<typeof HumanMountRider.hold>[3]>
+    > => {
+      const grips: Partial<
+        Record<"left" | "right", Parameters<typeof HumanMountRider.hold>[3]>
+      > = {};
+      for (const side of holding)
+        grips[side] = gripAt(context.params.hands![side]!, film, frame);
+      return grips;
     };
 
     // Each holding hand's fingers, closed once on the support's own colliders where it stands when the ride begins.
     const closures: Partial<
       Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
     > = {};
+    const begun: Partial<
+      Record<"left" | "right", Parameters<typeof HumanMountRider.hold>[3]>
+    > = gripsAt(context.start, origin);
     for (const side of ["left", "right"] as const) {
       const id: string | undefined = context.params.hands?.[side];
       if (id === undefined) continue;
@@ -198,12 +228,12 @@ export namespace HumanRideHands {
       closures[side] = HumanMountRider.closed(
         context.body,
         side,
-        HumanMountRider.leant(seated, lean(context.start, origin)),
-        gripAt(id, context.start, origin),
+        HumanMountRider.leant(seated, lean(begun, origin)),
+        begun[side]!,
         support.prop.shapes!,
         origin,
       );
     }
-    return { lean, gripAt, closures };
+    return { lean, gripsAt, closures };
   }
 }

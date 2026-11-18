@@ -214,9 +214,15 @@ export namespace HumanWeaponHeld {
     const limit: number =
       s.arm +
       Vector3.length(HumanHand.offset(context.body, other, "grip").point);
-    for (let back: number = 0; back <= s.slide + 1e-9; back += 0.01)
-      if (far(back) <= limit)
-        return { ...s.support, offset: { ...offset, x: offset.x - back } };
+    // The least slide back along the fore-end that brings the grip within
+    // the arm's reach, in closed form (`rise`).
+    const back: number | undefined = rise(
+      Vector3.subtract(middle, shoulder),
+      Vector3.scale(axis, -1),
+      limit,
+    );
+    if (back !== undefined && back <= s.slide)
+      return { ...s.support, offset: { ...offset, x: offset.x - back } };
     throw new HumanRefusal({
       kind: "reach",
       axis: "gun",
@@ -226,6 +232,33 @@ export namespace HumanWeaponHeld {
       fix: "present a shorter weapon, or a handgun",
     });
   };
+
+  /**
+   * The least step along a line from a point that brings it within a
+   * distance of a centre: 0 when it already is, the smaller root of
+   * `|d + s u|^2 = r^2` ahead of it otherwise, with `d` the point's offset
+   * from the centre and `u` the line's unit direction; undefined when the
+   * line never comes that near ahead.
+   *
+   * @param d The point's offset from the centre, metres.
+   * @param u The line's unit direction.
+   * @param r The distance, metres.
+   * @returns The step, metres, or undefined.
+   */
+  export const rise = (
+    d: IAutoMovieVector3,
+    u: IAutoMovieVector3,
+    r: number,
+  ): number | undefined => {
+    const c: number = Vector3.dot(d, d) - r * r;
+    if (c <= 0) return 0;
+    const b: number = Vector3.dot(d, u);
+    const disc: number = b * b - c;
+    if (disc < 0) return undefined;
+    const step: number = -b - Math.sqrt(disc);
+    return step >= 0 ? step : undefined;
+  };
+
   /**
    * A presenting plan over a carrier (#3491): carried by the support it is
    * entered on (`HumanSupportCarry`), claiming the trunk's turn and the

@@ -329,7 +329,7 @@ export namespace HumanWeaponPose {
             held.rotation,
             "relaxed",
           ).point;
-          const lift: number | undefined = rise(
+          const lift: number | undefined = HumanWeaponHeld.rise(
             Vector3.subtract(wrist, shoulder),
             along,
             s.arm - HumanVerdicts.SKIN,
@@ -420,25 +420,5 @@ export namespace HumanWeaponPose {
     const b: number = Vector3.dot(d, u);
     const disc: number = b * b - Vector3.dot(d, d) + r * r;
     return disc < 0 ? undefined : -b + Math.sqrt(disc);
-  }
-
-  /**
-   * The least step along a line from a point that brings it within a
-   * distance of a centre: 0 when it already is, the smaller root of
-   * `|d + s u|^2 = r^2` ahead of it otherwise; undefined when the line never
-   * comes that near ahead.
-   */
-  function rise(
-    d: IAutoMovieVector3,
-    u: IAutoMovieVector3,
-    r: number,
-  ): number | undefined {
-    const c: number = Vector3.dot(d, d) - r * r;
-    if (c <= 0) return 0;
-    const b: number = Vector3.dot(d, u);
-    const disc: number = b * b - c;
-    if (disc < 0) return undefined;
-    const step: number = -b - Math.sqrt(disc);
-    return step >= 0 ? step : undefined;
   }
 }

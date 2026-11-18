@@ -40,13 +40,50 @@ export namespace sitPlace {
     slump: { pitch: -10, joints: { chest: [12, 0, 0], spine: [8, 0, 0] } },
   };
 
-  /** The farthest a seated leg reaches its ankle, as a share of its full length: just short of a locked knee (provisional). */
-  const STRAIGHT: number = 0.995;
+  /**
+   * The distances from a hip joint at which a leg places its ankle, metres:
+   * the knee flexed to the range table's limit (`AutoMovieMotionHumanRange`)
+   * at the near end, and at the far end the knee kept at the least flexion
+   * of a planted leg (`resolveHumanPosture.KNEE`, Perry and Burnfield's
+   * knee at initial contact), each by the law of cosines on the thigh and
+   * the shank. Sitting, getting onto a high seat and getting off it place
+   * feet within this one band.
+   *
+   * @param body The body.
+   * @param side The leg.
+   * @returns The least and the greatest distance.
+   * @throws {Error} When the range table gives the knee no flexion limit.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both ends, their sources, the unit and who reads the band.
+   * @evidence contracts/development/implementation.md#principled-implementation The hip-to-ankle chord of a two-segment leg at a knee flexion by the law of cosines; the far end keeps the planted leg's least flexion, so no placed foot locks the knee.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chord at two flexions.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both ends come from the range table and a cited stance flexion, never a share of the leg.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knee's limit is `AutoMovieMotionHumanRange`'s and the least flexion `resolveHumanPosture.KNEE`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function band(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): readonly [number, number] {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const limit: number | null = AutoMovieMotionHumanRange.limit(
+      `${side}LowerLeg`,
+      "flexion",
+    );
+    if (limit === null) throw new Error(`${side}LowerLeg has no flexion limit`);
+    const chord = (flexion: number): number =>
+      Math.sqrt(
+        m.thigh * m.thigh +
+          m.shank * m.shank +
+          2 * m.thigh * m.shank * Math.cos((flexion * Math.PI) / 180),
+      );
+    return [chord(limit), chord(resolveHumanPosture.KNEE)];
+  }
 
   /**
    * Refuse feet the legs cannot reach from the seated hips: each ankle must
-   * lie within `STRAIGHT` of the leg's length from its hip joint and beyond
-   * the distance a knee flexed to the range table's limit leaves.
+   * lie within the leg's reachable band from its hip joint (`band`).
    *
    * @param body The body.
    * @param seat The seat.
@@ -56,7 +93,7 @@ export namespace sitPlace {
    * @throws {HumanRefusal} When a foot is out of reach, with the reachable distances ahead of the front edge.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reachable band and the refusal's range.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip joints by FK under the seated root; the band's ends by the law of cosines for a knee at `STRAIGHT` and at the range table's flexion limit.
+   * @evidence contracts/development/implementation.md#principled-implementation The hip joints by FK under the seated root; the band's ends are `band`'s.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One root, two hips and one band test per foot.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot outside the band is refused with the distances that work, never moved.
    * @evidence contracts/development/implementation.md#efficient-algorithms One two-hip FK read and constant work per foot.
@@ -70,28 +107,19 @@ export namespace sitPlace {
     feet: Record<"left" | "right", IAutoMovieVector3>,
     pitch: number,
   ): void {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const root: IAutoMovieVector3 = seated.root(body, goal, {
       yaw: seat.yaw,
       pitch,
       roll: 0,
     });
-    const longest: number = STRAIGHT * (m.thigh + m.shank);
+
     const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
       body,
       root,
       resolveHumanPosture.heading({ yaw: seat.yaw, pitch, roll: 0 }),
     );
     for (const side of ["left", "right"] as const) {
-      // The knee's interior angle at its flexion limit.
-      const limit: number | null = AutoMovieMotionHumanRange.limit(`${side}LowerLeg`, "flexion");
-      if (limit === null) throw new Error(`${side}LowerLeg has no flexion limit`);
-      const folded: number = 180 - limit;
-      const shortest: number = Math.sqrt(
-        m.thigh * m.thigh +
-          m.shank * m.shank -
-          2 * m.thigh * m.shank * Math.cos((folded * Math.PI) / 180),
-      );
+      const [shortest, longest]: readonly [number, number] = band(body, side);
       const hip: IAutoMovieVector3 = hips[side];
       const d: number = Vector3.length(Vector3.subtract(feet[side], hip));
       if (d > longest || d < shortest) {

@@ -15,6 +15,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
+import { walk } from "../actions/walk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
@@ -221,9 +222,8 @@ export namespace HumanMountOff {
 
     // A leg reaches a place within its reachable band, or as far as it stands stretched in the quiet stance the getting off ends in, which holds it nearer straight than the band's edge.
     const standingReach: Record<"left" | "right", number> = {
-      left: Math.max(span[1], stretch(duration, "left", landing.left)) + 1e-6,
-      right:
-        Math.max(span[1], stretch(duration, "right", landing.right)) + 1e-6,
+      left: Math.max(span[1], stretch(duration, "left", landing.left)),
+      right: Math.max(span[1], stretch(duration, "right", landing.right)),
     };
     const reaches = (
       t: number,
@@ -351,7 +351,7 @@ export namespace HumanMountOff {
                   yaw: yaw + (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
                 },
                 minimumJerk.share((t - departs) / (arrives - departs)),
-                0.1 * m.shank,
+                walk.LIFT * m.hipHeight,
                 sideways && side === leader ? over : undefined,
               ),
               false,

@@ -198,7 +198,7 @@ export namespace HumanRide {
         }
 
         // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
-        const { lean, gripAt, closures }: HumanRideHands.IHands =
+        const { lean, gripsAt, closures }: HumanRideHands.IHands =
           HumanRideHands.of(context, on, support, seated, origin);
         const saddle: string | undefined = context.params.seat;
         if (saddle !== undefined && support.prop.points[saddle] === undefined)
@@ -309,6 +309,9 @@ export namespace HumanRide {
                 ),
               };
             }
+            // What the hands hold now, read once for the lean and the holds.
+            const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> =
+              gripsAt(film, now);
             const seat: IAutoMovieVector3 =
               sat === undefined || saddle === undefined
                 ? { x: 0, y: 0, z: 0 }
@@ -316,7 +319,7 @@ export namespace HumanRide {
             const out: IAutoMovieMotionHumanPosture = {
               ...HumanMountRider.leant(
                 carried,
-                lean(film, now) * minimumJerk(Math.min(1, at / TAKE)).s,
+                lean(grips, now) * minimumJerk(Math.min(1, at / TAKE)).s,
               ),
               limbs,
               root: {
@@ -333,14 +336,15 @@ export namespace HumanRide {
             // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
             const grasp: IAutoMovieMotionHumanPosture["joints"] = {};
             for (const side of ["left", "right"] as const) {
-              const id: string | undefined = context.params.hands?.[side];
-              if (id === undefined) continue;
+              const grip: ReturnType<HumanRideHands.IHands["gripsAt"]>["left"] =
+                grips[side];
+              if (grip === undefined) continue;
               const held: ReturnType<typeof HumanMountRider.hold> =
                 HumanMountRider.hold(
                   context.body,
                   side,
                   out,
-                  gripAt(id, film, now),
+                  grip,
                   minimumJerk(Math.min(1, at / TAKE)).s,
                   closures[side] ?? {},
                 );
@@ -366,7 +370,7 @@ export namespace HumanRide {
                   context.body,
                   pedal.side,
 
-                  // A pedalling foot bears on its ball, so where the ankle cannot give the foot its turn (at the top of the stroke) the ball stays on the pedal and the turn gives way; its knee tracks ahead of its hip, over the pedal, whichever way the leg came onto it.
+                  // A pedalling foot bears on its ball, so where the ankle cannot give the foot its turn (at the top of the stroke) the ball stays on the pedal and the turn gives way; its knee bends forward, toward a point a thigh's length ahead of its hip (the bend hint picks the side only), whichever way the leg came onto it.
                   {
                     ...goal,
                     contact:
@@ -376,11 +380,7 @@ export namespace HumanRide {
                       hips[pedal.side],
                       Quaternion.rotateVector(
                         resolveHumanPosture.heading(out),
-                        {
-                          x: 0,
-                          y: 0.3 * context.body.measure.thigh,
-                          z: context.body.measure.thigh,
-                        },
+                        { x: 0, y: 0, z: context.body.measure.thigh },
                       ),
                     ),
                   },

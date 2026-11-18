@@ -15,8 +15,8 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * weapon where in it it can.
  *
  * The region's freedoms are the muzzle's elevation, the weapon's roll about
- * its bore, and the hand's place ahead of and above the chest. The pose the
- * carriage has always stated is tried first, then its rolls, and the arm's
+ * its bore, and the hand's place ahead of and above the chest. The nominal
+ * pose is tried first, then its rolls, and the arm's
  * fit chooses and refines inside the bounds (`StrikingRoll.chosen`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a ready position is, its freedoms and how the pose is chosen.
@@ -29,9 +29,6 @@ export namespace HumanFirearmReady {
   export interface IReady {
     /** The muzzle's elevation above level, degrees: the least, the greatest and the nominal. */
     elevation: readonly [number, number, number];
-
-    /** The bore's run at the nominal elevation, ahead and up, the shares the carriage has always stated. */
-    run: readonly [number, number];
 
     /** How far the weapon may roll about its bore either way, degrees. */
     roll: number;
@@ -63,14 +60,12 @@ export namespace HumanFirearmReady {
   export const READY: Readonly<Record<"lowReady" | "highReady", IReady>> = {
     lowReady: {
       elevation: [-45, -30, -45],
-      run: [0.7, -0.7],
       roll: 30,
       ahead: [0.4, 0.75, 0.4],
       rise: [-0.5, -0.2, -0.3],
     },
     highReady: {
       elevation: [45, 75, (Math.atan2(0.85, 0.5) * 180) / Math.PI],
-      run: [0.5, 0.85],
       roll: 30,
       ahead: [0.3, 0.5, 0.4],
       rise: [0, null, 0],
@@ -114,7 +109,7 @@ export namespace HumanFirearmReady {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation The bore runs at its elevation along the line, the sights face back up high and ahead down low turned by the roll, and the hand sits ahead of and above the chest; the arm's fit chooses inside the region (`StrikingRoll.chosen`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The frame of the freedoms, the tried values, one choice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The nominal values give the carriage's former pose exactly, so a pose the arm already held is kept; the presentation still judges the result (`StrikingRoll.reachable`).
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The nominal values are tried first, so a pose the arm holds at them is kept; the presentation still judges the result (`StrikingRoll.reachable`).
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The chooser's fits, at most its budget.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -136,18 +131,12 @@ export namespace HumanFirearmReady {
         number,
         number,
       ];
+      // The bore along the level line raised by the elevation.
       const e: number = (elevation * Math.PI) / 180;
-      // The nominal elevation is the region's own run of the bore.
-      const bore: IAutoMovieVector3 =
-        elevation === region.elevation[2]
-          ? Vector3.add(
-              Vector3.scale(line, region.run[0]),
-              Vector3.scale(up, region.run[1]),
-            )
-          : Vector3.add(
-              Vector3.scale(line, Math.cos(e)),
-              Vector3.scale(up, Math.sin(e)),
-            );
+      const bore: IAutoMovieVector3 = Vector3.add(
+        Vector3.scale(line, Math.cos(e)),
+        Vector3.scale(up, Math.sin(e)),
+      );
       return StrikingHeld.hand(
         tool,
         tool.length,
