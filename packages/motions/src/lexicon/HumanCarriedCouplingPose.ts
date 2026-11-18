@@ -12,7 +12,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarriedCouplingPose,
-  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -23,12 +22,12 @@ import { stand } from "../actions/stand";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { resolveCarriedHoldGeometry } from "./resolveCarriedHoldGeometry";
 
 /**
  * The borne body of a coupled carry placed on its bearer (#3437): the carry's
@@ -284,9 +283,9 @@ export namespace HumanCarriedCouplingPose {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the order and the null.
    * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body rides by, in the same anchor frame, so the bearer reaches where the borne body lies without reading it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key resolution and one frame change per holding hand.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to the shared carried-hold geometry reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bearer never reads the borne body's displayed bones, which read the bearer's, so the two cannot chase each other.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key read places the rigid torso and occupied palms' bearing bones. Both grips share the collider placement and there is no key read when both hands are free.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key read resolves the collider profile's bone demand and the occupied hold regions' bones with their ancestors. Both grips share the collider placement and there is no key read when both hands are free.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The actual contact point already belongs to the coupling when it supplies `at`. Each grip shares the key heading and the inverse of a further bearer's anchor.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
@@ -296,138 +295,7 @@ export namespace HumanCarriedCouplingPose {
     row: IAutoMovieMotionHumanCarried.IRow,
     role: string = coupling.bearer,
   ): IAutoMovieMotionHumanCarriedCouplingPose.IHoldsResult {
-    // A further bearer reads the places in its own anchor frame.
-    const frame: BearerFrame | undefined =
-      role === coupling.bearer ? undefined : coupling.bearers?.[role];
-    const contactFor: (palm: AutoMovieHumanoidRegion) => MaybeContact = (
-      palm: AutoMovieHumanoidRegion,
-    ): MaybeContact =>
-      coupling.contacts.find(
-        (c: IAutoMovieMotionCoupling.IContact): boolean =>
-          c.kind === "bear" && c.on.role === role && c.on.region === palm,
-      );
-    const left: ReturnType<typeof contactFor> = contactFor("palmLeft");
-    const right: ReturnType<typeof contactFor> = contactFor("palmRight");
-    const anchor: AutoMovieHumanoidBone = frame?.anchor ?? coupling.anchor;
-    if (left === undefined && right === undefined)
-      return { anchor, places: [null, null] };
-
-    const keyed: IAutoMovieMotionHumanPosture = key(row, coupling.key.legs);
-    const wanted: Set<AutoMovieHumanoidBone> = new Set([
-      "hips",
-      "spine",
-      "chest",
-      "upperChest",
-    ]);
-    if (left !== undefined)
-      wanted.add(borne.surfaces.regions[left.region].bone);
-    if (right !== undefined)
-      wanted.add(borne.surfaces.regions[right.region].bone);
-    const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      HumanTrunk.resolve(borne, keyed, undefined, undefined, wanted);
-    const back: IAutoMovieQuaternion = Quaternion.inverse(
-      resolveHumanPosture.heading(keyed),
-    );
-    const inverse: IAutoMovieQuaternion | undefined =
-      frame === undefined ? undefined : Quaternion.inverse(frame.rotation);
-    // Compose the borne key into this bearer's anchor once. The torso and
-    // fitted leg joints keep this transform throughout the hold.
-    const turn: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(coupling.key.rotation, back),
-    );
-    const ownTurn: IAutoMovieQuaternion =
-      inverse === undefined
-        ? turn
-        : Quaternion.normalize(Quaternion.multiply(inverse, turn));
-    const origin: IAutoMovieVector3 =
-      frame === undefined || inverse === undefined
-        ? coupling.key.position
-        : Quaternion.rotateVector(
-            inverse,
-            Vector3.subtract(coupling.key.position, frame.position),
-          );
-    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanColliders.placed(borne, mine).map(
-        (
-          segment: IAutoMovieMotionHumanColliders.IPlaced,
-        ): IAutoMovieMotionHumanColliders.IPlaced => ({
-          ...segment,
-          pose: {
-            position: Vector3.add(
-              origin,
-              Quaternion.rotateVector(ownTurn, segment.pose.position),
-            ),
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(ownTurn, segment.pose.rotation),
-            ),
-          },
-        }),
-      );
-    const at: (contact: MaybeContact, index: number) => MaybeGrip = (
-      contact: ReturnType<typeof contactFor>,
-      index: number,
-    ): IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null => {
-      if (contact === undefined) return null;
-      const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-        borne.surfaces.regions[contact.region];
-      const placed: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-        resolveAutoMovieHumanoidSurfaces.pointNormal(
-          surface,
-          mine.get(surface.bone)!,
-        );
-      const point: IAutoMovieVector3 =
-        contact.at ??
-        Vector3.add(
-          coupling.key.position,
-          Quaternion.rotateVector(
-            coupling.key.rotation,
-            Quaternion.rotateVector(back, placed.point),
-          ),
-        );
-      const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-        coupling.key.rotation,
-        Quaternion.rotateVector(back, placed.normal),
-      );
-      const fingers: IAutoMovieVector3 | undefined = row.holds[index]?.fingers;
-      return {
-        point:
-          frame === undefined || inverse === undefined
-            ? point
-            : Quaternion.rotateVector(
-                inverse,
-                Vector3.subtract(point, frame.position),
-              ),
-        normal:
-          inverse === undefined
-            ? normal
-            : Quaternion.rotateVector(inverse, normal),
-        ...(fingers === undefined
-          ? {}
-          : {
-              forward: Quaternion.rotateVector(
-                ownTurn,
-                Quaternion.rotateVector(
-                  mine.get(surface.bone)!.worldRotation,
-                  fingers,
-                ),
-              ),
-            }),
-        clearance: {
-          clear: shapes.filter(
-            (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-              segment.bone !== surface.bone,
-          ),
-          rests: shapes.filter(
-            (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-              segment.bone === surface.bone,
-          ),
-        },
-      };
-    };
-    return {
-      anchor,
-      places: [at(left, 0), at(right, 1)],
-    };
+    return resolveCarriedHoldGeometry(borne, coupling, row, role, key);
   }
 
   /**
@@ -559,10 +427,6 @@ export namespace HumanCarriedCouplingPose {
   }
 }
 
-/** An optional bearing contact or fitted grip in a two-hand carry. */
-type MaybeContact = IAutoMovieMotionCoupling.IContact | undefined;
-type MaybeGrip = IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null;
-
 /** The known bearers and prepared hand geometry for one carried plan. */
 type Bearers = Readonly<
   Record<string, IAutoMovieMotionHumanCarriedCouplingPose.IBearer>
@@ -573,6 +437,3 @@ interface ICling {
   side: AutoMovieHumanSide;
   palm: ReturnType<typeof HumanHandTarget.prepareGoal>;
 }
-
-/** A further bearer's anchor in the shared coupling frame. */
-type BearerFrame = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];
