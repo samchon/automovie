@@ -148,7 +148,7 @@ export namespace HumanForceThrow {
         axis: "outcome",
         value: "thrown",
         feasible: null,
-        reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}`,
+        reason: `the momentum the pull left does not carry the body over the thrower's ${fulcrum}: at the broken base (${broken.toFixed(3)} s) the centre stands ${(centre.y - point.y).toFixed(3)} m above the fulcrum and ${Vector3.dot(r, direction).toFixed(3)} m along the pull, ${((start * 180) / Math.PI).toFixed(1)} degrees from its vertical, turning at ${((props.speed * Vector3.dot(direction, tangent)) / radius).toFixed(3)} rad/s`,
         fix: "pull harder, or bring the fulcrum under the body's centre",
       });
     const turnAt: (angle: number) => IAutoMovieQuaternion = (angle: number): IAutoMovieQuaternion =>
