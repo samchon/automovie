@@ -5,12 +5,14 @@ import type {
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditPartner,
   HumanChain,
   HumanMutual,
+  HumanPerception,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -24,17 +26,19 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
 import { nclose } from "./nclose";
 
 /**
- * Reads the original extreme-pair kiss on the articulated left hand back or the stationary forehead.
+ * Reads the extreme-pair kiss on the articulated left or right hand back or the stationary forehead. The left uses a mutual join, and the right follows the presenter's held touch.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Checks three instants within the contact, event agreement for the mutual hand presentation and penetration across the performance.
  * @evidence contracts/development/implementation.md#principled-implementation The displayed bones carry the two anatomical region frames. A failure of forehead admission also reports the planted rigid-chain reach bound.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A film for the chosen branch supplies the contact frames and whole-film partner audit.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both targets retain their existing casts, stage, 5 mm separation and 10 mm skin allowance.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All targets retain the extreme cast, their original stage, 5 mm separation and 10 mm skin allowance.
  * @evidence contracts/development/implementation.md#efficient-algorithms The kiss is planned once and sampled at the two contact boundaries and their midpoint; the partner audit samples the complete film.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both specifications share measurement code and each supplies its own distinct target.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The three specifications share measurement code and each supplies its own distinct target.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each performance and its sampled frames are local to its test.
  */
-export function motionKissMeeting(region: "handBackLeft" | "forehead"): void {
+export function motionKissMeeting(
+  region: "handBackLeft" | "handBackRight" | "forehead",
+): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const a: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const b: IAutoMovieMotionHumanBody = motionHumanBody("m-large");
@@ -71,10 +75,31 @@ export function motionKissMeeting(region: "handBackLeft" | "forehead"): void {
         nclose(contact, motionHumanLaw.event(film, "contact", "b")) &&
           nclose(part, motionHumanLaw.event(film, "part", "b")),
       );
+    } else if (region === "handBackRight") {
+      const ready: number = motionHumanLaw.event(film, "ready", "b");
+      const relax: number = motionHumanLaw.event(film, "relax", "b");
+      const kiss: IAutoMovieMotionHumanSegment =
+        film.performance.segments("a")[0]!;
+      all.check(
+        `right hand: kiss starts at ${kiss.start} s after presentation at ${ready} s`,
+        nclose(kiss.start - ready, HumanPerception.REACTION),
+      );
+      all.check(
+        `right hand: lip contact from ${contact} to ${part} s stays within the presentation from ${ready} to ${relax} s`,
+        ready < contact && part <= relax,
+      );
     }
     const mouthFrame: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] =
       a.surfaces.regions.mouth;
     const targetFrame: typeof mouthFrame = b.surfaces.regions[region];
+    if (region !== "forehead") {
+      const presented: AutoMovieHumanoidBone =
+        region === "handBackLeft" ? "leftHand" : "rightHand";
+      all.check(
+        `${region} must be carried by the presented ${presented}, got ${targetFrame.bone}`,
+        targetFrame.bone === presented,
+      );
+    }
     for (const seconds of [contact, (contact + part) / 2, part]) {
       const mouth: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
         mouthFrame,

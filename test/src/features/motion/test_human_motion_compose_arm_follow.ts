@@ -38,8 +38,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * and the follower follows that as it should.
  *
  * Scenarios:
- * 1. With a stationary goal the arm equals the plan at entry, readiness,
- *    mid-hold, release and completion.
+ * 1. With a stationary goal the arm equals the plan at each 240 Hz tick
+ *    from entry through completion.
  * 2. The goal sways 60 mm side to side at 0.75 Hz on the hold, a person
  *    rocking on their feet (peak 0.28 m/s): no wrist, elbow or fingertip
  *    sampled at 240 Hz moves faster than the audit's travel bound (1.92 m/s); from a quarter
@@ -49,7 +49,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    where the goal is, the delay one frame of feedback has by its nature;
  *    and after the span the arm is the plan again.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Drives the follower with a still and a moving goal and reads the displayed bones; a correction left on a still goal, a wrist that lags more than a frame, a step past the travel bound or a plan not rejoined fails with its reading.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the written arm for a still goal and the displayed bones for a moving one at 240 Hz. An unwanted correction, a wrist lag beyond one frame, travel beyond the bound or failure to rejoin the plan fails with its reading.
  * @evidence contracts/development/testing.md#independent-expectations The plan is the goal's own solution; the bounds are the audit's travel bound and one frame of the goal's own motion, a feedback's delay by its nature; nothing is read from the follower.
  * @evidence contracts/development/testing.md#distinguishing-cases A goal that keeps still, where the correction must be exactly zero, and one that sways, where it must follow within its bounds.
  * @evidence contracts/development/testing.md#execution-ownership In memory, one body; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
@@ -163,24 +163,38 @@ export function test_human_motion_compose_arm_follow(): void {
       (): IAutoMovieMotionHumanPosture => base,
     );
   const step: number = 1 / 240;
-
+  const lastTick: number = Math.round(span.end / step);
+  // Keep independent numeric expectations in case a follower alters the
+  // joint triples returned by its plan while applying feedback.
+  const expected: IAutoMovieMotionHumanArmAngles.IAngles = {
+    upper: [...planned.upper],
+    lower: [...planned.lower],
+    hand: [...planned.hand],
+  };
+  const joints = ["upper", "lower", "hand"] as const;
+  const checkPlan = (
+    condition: string,
+    seconds: number,
+    arm: IAutoMovieMotionHumanArmAngles.IAngles,
+  ): void => {
+    for (const joint of joints) {
+      const got = arm[joint];
+      const want = expected[joint];
+      if (got[0] !== want[0] || got[1] !== want[1] || got[2] !== want[2])
+        complaints.check(
+          `${condition} at ${seconds.toFixed(4)} s: ${joint} got ${got}, expected ${want}`,
+          false,
+        );
+    }
+  };
   // 1. A still goal leaves the plan exactly.
   const resting: IAutoMovieMotionHumanArmTrajectory.Trajectory = follow(
     (): IAutoMovieVector3 => still,
   );
-  for (const t of [
-    span.start,
-    span.ready,
-    (span.ready + span.relax) / 2,
-    span.relax,
-    span.end,
-  ]) {
+  for (let tick: number = 0; tick <= lastTick; ++tick) {
+    const t: number = tick * step;
     const arm: IAutoMovieMotionHumanArmAngles.IAngles = resting(t);
-    complaints.equals(
-      `still, at ${t.toFixed(4)} s: the written arm is the plan`,
-      [arm.upper, arm.lower, arm.hand],
-      [planned.upper, planned.lower, planned.hand],
-    );
+    checkPlan("still", t, arm);
   }
 
   // 2. A swaying goal is followed within its bounds.
@@ -196,7 +210,7 @@ export function test_human_motion_compose_arm_follow(): void {
   const swaying: IAutoMovieMotionHumanArmTrajectory.Trajectory = follow(sway);
   const frame: number = 1 / 30;
   let previous: Bones | undefined;
-  for (let tick: number = 0; tick <= Math.round(span.end / step); ++tick) {
+  for (let tick: number = 0; tick <= lastTick; ++tick) {
     const t: number = tick * step;
     const arm: IAutoMovieMotionHumanArmAngles.IAngles = swaying(t);
     const shown: Bones = written(arm);
@@ -224,12 +238,7 @@ export function test_human_motion_compose_arm_follow(): void {
         lag <= reach,
       );
     }
-    if (t === span.end)
-      complaints.equals(
-        "swaying, at the span's end: the arm is the plan again",
-        [arm.upper, arm.lower, arm.hand],
-        [planned.upper, planned.lower, planned.hand],
-      );
+    if (t === span.end) checkPlan("swaying at the end", t, arm);
     previous = shown;
   }
   complaints.assert(
