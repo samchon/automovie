@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
@@ -243,6 +244,14 @@ export namespace HumanSegmentEntry {
             h.side,
             h.prop,
           ]),
+      ),
+      uses: Object.fromEntries(
+        person.holds.flatMap(
+          (h: IAutoMovieMotionHumanSegment.IHeld): [["left" | "right", IAutoMovieMotionHumanGraspUse.IUse]] | [] =>
+            h.from <= seconds && seconds < h.until && h.use !== undefined
+              ? [[h.side, h.use]]
+              : [],
+        ),
       ),
       ...(previous === undefined
         ? {}

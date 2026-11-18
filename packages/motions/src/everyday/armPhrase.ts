@@ -390,7 +390,13 @@ export namespace armPhrase {
     return {
       ...composed,
       contacts: [...composed.contacts, grip],
-      holds: [...(composed.holds ?? []), { side, prop: p.held, from: 1 }],
+      // The same grip is kept, with the use it was chosen for.
+      holds: [...(composed.holds ?? []), {
+        side,
+        prop: p.held,
+        from: 1,
+        ...(context.entry.uses[side] === undefined ? {} : { use: context.entry.uses[side] }),
+      }],
     };
   }
 }

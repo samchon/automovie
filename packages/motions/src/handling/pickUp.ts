@@ -331,6 +331,7 @@ export namespace pickUp {
           prop: context.params.prop,
           from: reach / duration,
           fingers: closed,
+          ...(context.params.use === undefined ? {} : { use: context.params.use }),
         },
       ],
       contact: reach,

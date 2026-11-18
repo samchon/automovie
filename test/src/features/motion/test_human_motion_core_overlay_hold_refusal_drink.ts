@@ -18,18 +18,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios, on the average man; a glass is picked up with the right hand by
  * its body grip with no `use`, then the person walks 2 m:
  * 1. A drink from the glass over the walk is a `reach` refusal on `facing`:
- *    at every lean tried and every turn the forearm's twist ends at its
- *    range (measured 2026-11-14 up to 60 degrees, the bound then; the bound
- *    is now the level wall's 90: the nearest arm raised 58.3 degrees,
- *    the elbow 149 mm below the shoulder, the twist 0 degrees inside its
- *    range), and its fix names taking the glass for its use. Taken for its
- *    use, the same drink plans (`test_human_motion_core_overlay_hold`).
+ *    the grip was chosen for its reach alone, set by where the glass stood
+ *    and not by the drink, and the drinking task grasps the glass for the
+ *    drink before transporting it to the mouth (Alt Murphy et al. 2006), so
+ *    the law refuses the grip, not an arm it searched (before, it searched
+ *    every lean and turn and refused only while the lean's bound was 60
+ *    degrees; at the level wall's 90 that search found an arm, which says
+ *    nothing of the grip), and its fix names taking the glass for its use.
+ *    Taken for its use, the same drink plans
+ *    (`test_human_motion_core_overlay_hold`).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the composition through the public input and reads the thrown refusal; a drink planned with no arm at the lips, or refused without the way to take the glass, fails.
  * @evidence contracts/development/testing.md#independent-expectations A glass is drunk from by its lip at the mouth, which a grip chosen for reach alone need not allow; the fix is the grip taken for that use.
  * @evidence contracts/development/testing.md#distinguishing-cases The holding hand used for its own prop by a grip it cannot drink with; the same drink with the glass taken for its use is `test_human_motion_core_overlay_hold`'s, and the holding hand used for something else is `test_human_motion_core_overlay_hold_refusal_wave`'s.
  * @evidence contracts/development/testing.md#execution-ownership Prepares a polygon man and one archetype and builds one performance in memory; it runs locally and wherever CI runs the human motion tests.
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the measured row behind it and the scenario.
+ * @evidence contracts/development/common.md#meaningful-documentation States the rule, its source and the scenario.
  */
 export function test_human_motion_core_overlay_hold_refusal_drink(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");

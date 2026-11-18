@@ -7,6 +7,7 @@ import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieS
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
 import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
+import type { IAutoMovieMotionHumanGraspUse } from "../handling/IAutoMovieMotionHumanGraspUse";
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
@@ -212,6 +213,9 @@ export namespace IAutoMovieMotionHumanSegment {
 
     /** The action that took hold. */
     source: IAutoMovieMotionHumanSegment;
+
+    /** The use the grip was chosen for (`IAutoMovieMotionPropHold.use`); absent when it was chosen for its reach alone. */
+    use?: IAutoMovieMotionHumanGraspUse.IUse;
 
     /** Film second the hold starts. */
     from: number;

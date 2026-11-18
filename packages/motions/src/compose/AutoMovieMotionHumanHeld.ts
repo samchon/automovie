@@ -260,7 +260,8 @@ export namespace AutoMovieMotionHumanHeld {
 
   /**
    * The hold the prop is left in when the action ends, with the fingers the
-   * hand had closed on it at the entry.
+   * hand had closed on it at the entry and the use that grip was chosen for,
+   * since the grip is the same one.
    *
    * @param context The action's context.
    * @param held The held prop.
@@ -278,11 +279,13 @@ export namespace AutoMovieMotionHumanHeld {
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
     held: IAutoMovieMotionHumanHeld.IHeld,
   ): IAutoMovieMotionPropHold {
+    const use: IAutoMovieMotionPropHold["use"] = context.entry.uses[held.side];
     return {
       side: held.side,
       prop: held.prop,
       from: 0,
       fingers: HumanGrip.fingers(context.entry.pose, held.side),
+      ...(use === undefined ? {} : { use }),
     };
   }
 }

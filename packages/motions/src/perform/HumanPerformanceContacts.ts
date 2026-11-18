@@ -100,6 +100,7 @@ export namespace HumanPerformanceContacts {
         prop: hold.prop,
         fingers: hold.fingers ?? {},
         source: segment,
+        ...(hold.use === undefined ? {} : { use: hold.use }),
         from: segment.start + hold.from * plan.duration,
         until: Infinity,
       });

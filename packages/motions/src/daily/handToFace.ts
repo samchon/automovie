@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanGrasp,
+  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanHandToFace,
   IAutoMovieMotionHumanHandToFaceArm,
   IAutoMovieMotionHumanHandToFaceRows,
@@ -42,6 +43,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { handToFaceArm } from "./handToFaceArm";
 import { handToFaceRegion } from "./handToFaceRegion";
@@ -146,7 +148,7 @@ export namespace handToFace {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the time at the face is negative, `prop` names a prop the hand does not hold or a point the prop lacks, `grasp` comes without a held prop, its point or a region of the face, or `other` comes without `grasp` or names a handle the prop lacks.
+   * @throws {HumanRefusal} When the count is not a positive whole number, the time at the face is negative, `prop` names a prop the hand does not hold or a point the prop lacks, a vessel drunk from is held by a grip not taken for drinking (`pickUp` without a `use` at the mouth), `grasp` comes without a held prop, its point or a region of the face, or `other` comes without `grasp` or names a handle the prop lacks.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases, the rows and the sources.
    * @evidence contracts/development/implementation.md#principled-implementation The drinking task's phases (Alt Murphy et al. 2006) as a phrase clock, with the task's row run by the touch stroke per hand and the head's flexion pulsed on the same envelope; with `prop`, the acting hand's effector is the held prop's own point, a vessel drunk from without a kept grasp on the rim side its drink admits (`handToFaceVessel`), any other on its steadiest side (`HumanHeld`), the fingers are kept and the grip is declared.
@@ -250,6 +252,25 @@ export namespace handToFace {
     ): IAutoMovieMotionHumanTouchEffector.IEffector => {
       if (row.region === null)
         return HumanHeld.effector(context, row, first, subject, p.point);
+      // A vessel is drunk from with the grip it was taken for drinking: the
+      // drinking task grasps the glass in its reach phase and transports it
+      // to the mouth in that grasp (Alt Murphy et al. 2006). A grip chosen
+      // for its reach alone (`pickUp` without a `use` at this region) is set
+      // by where the vessel stood, not by the drink, so the drink is refused
+      // with the way to take it, never searched for an arm it may not leave.
+      // A prop the hand does not hold is refused by its owner (`HumanHeld`).
+      if (
+        row.upright === true &&
+        context.entry.holds[first] === subject &&
+        !drinkable(context.entry.uses[first], mirrored(row.region, first))
+      )
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "facing",
+          value: first,
+          reason: `the ${first} hand holds ${subject} by a grip chosen for its reach alone, not for drinking from it at the ${row.region}, so no arm brings it to the lips as a person drinks`,
+          fix: `take ${subject} by a grip for its use: \`pickUp\` with \`use\` bringing its ${row.point ?? "lip"} to the mouth`,
+        });
       const at: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
@@ -425,4 +446,14 @@ export namespace handToFace {
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);
   }
+}
+
+/** Whether a grip was chosen for a use at a region of the face: its `use` brings the working point to that region, the mouth named as `mouth` or as the region itself. */
+function drinkable(
+  use: IAutoMovieMotionHumanGraspUse.IUse | undefined,
+  region: AutoMovieHumanoidRegion,
+): boolean {
+  if (use === undefined || use.at === undefined || use.at === "ahead")
+    return false;
+  return use.at === "mouth" ? region === "mouth" : use.at.region === region;
 }
