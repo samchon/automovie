@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
+import { HumanGrip } from "../handling/HumanGrip";
 import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
@@ -88,12 +89,24 @@ export namespace HumanArmFrame {
       G.parent(body, bones.upper),
     )!;
     const hand: IAutoMovieResolvedBone = resolved.get(bones.hand)!;
-    const distal: IAutoMovieResolvedBone =
-      resolved.get(`${side}MiddleDistal`) ?? hand;
+    // The middle fingertip: the distal phalanx's end, its joint carried by
+    // the phalanx's own tip offset (`HumanGrip.chain`), the point the speed
+    // bound reads. The distal joint alone stood a phalanx short of it.
+    const distal: IAutoMovieResolvedBone | undefined = resolved.get(`${side}MiddleDistal`);
+    const end: IAutoMovieVector3 =
+      distal === undefined
+        ? hand.worldPosition
+        : Vector3.add(
+            distal.worldPosition,
+            Quaternion.rotateVector(
+              distal.worldRotation,
+              HumanGrip.chain(body, side, "Middle").tip,
+            ),
+          );
     const unturn: IAutoMovieQuaternion = Quaternion.inverse(hand.worldRotation);
     const tip: IAutoMovieVector3 = Quaternion.rotateVector(
       unturn,
-      Vector3.subtract(distal.worldPosition, hand.worldPosition),
+      Vector3.subtract(end, hand.worldPosition),
     );
     const model: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(body);
@@ -295,7 +308,7 @@ export namespace HumanArmFrame {
     const length: number =
       Vector3.distance(frames.lower.worldPosition, shoulder) +
       Vector3.distance(hand.worldPosition, frames.lower.worldPosition) +
-      Vector3.distance(distal.worldPosition, hand.worldPosition);
+      Vector3.distance(end, hand.worldPosition);
     const around: number =
       length +
       Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
