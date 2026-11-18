@@ -26,6 +26,10 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import {
+  type ICarriedWristCircle,
+  humanCarriedWristCircle,
+} from "./HumanCarriedWristCircle";
 
 /** A shape's signed distance to a pair of world points. */
 type Distance = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
@@ -65,12 +69,10 @@ export function HumanCarriedGrip(
   const placed: readonly AutoMovieHumanSide[] = freeOther
     ? [side === "left" ? "right" : "left"]
     : [];
-  const frame: IAutoMovieResolvedBone = poseBones(
-    body,
-    source,
-    undefined,
-    new Set([anchor]),
-  ).get(anchor)!;
+  const shoulder: AutoMovieHumanoidBone = `${side}UpperArm`;
+  const anchors: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    poseBones(body, source, undefined, new Set([anchor, shoulder]));
+  const frame: IAutoMovieResolvedBone = anchors.get(anchor)!;
   const back: IAutoMovieQuaternion = Quaternion.inverse(frame.worldRotation);
   const point: IAutoMovieVector3 = Vector3.add(
     frame.worldPosition,
@@ -174,6 +176,37 @@ export function HumanCarriedGrip(
   if (best <= HumanVerdicts.SKIN || tangent === undefined || radius === 0)
     return grip.forward;
   let chosen: IAutoMovieVector3 | undefined = grip.forward;
+  if (preferred === undefined) {
+    const wrist: ReturnType<
+      ReturnType<typeof HumanHandTarget.prepareMoving>["wrist"]
+    > = HumanHandTarget.prepareMoving(body, side, { shape: hold.shape }).wrist(
+      stance,
+      place,
+    );
+    const shoulderPoint: IAutoMovieVector3 =
+      anchors.get(shoulder)!.worldPosition;
+    if (
+      Vector3.distance(wrist.point, shoulderPoint) >
+      body.measure.upperArm + body.measure.forearm
+    ) {
+      const circle: ICarriedWristCircle = humanCarriedWristCircle(
+        point,
+        normal,
+        wrist.point,
+        shoulderPoint,
+      );
+      const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.fromAxisAngle(normal, circle.degrees),
+        tangent,
+      );
+      const violation: number = error(forward);
+      if (violation < best) {
+        chosen = Quaternion.rotateVector(back, forward);
+        best = violation;
+        if (best <= HumanVerdicts.SKIN) return chosen;
+      }
+    }
+  }
   // Adjacent sampled rotations displace even the farthest digit by at most one contact skin.
   const intervals: number = Math.ceil(
     Math.PI / Math.asin(Math.min(1, HumanVerdicts.SKIN / (2 * radius))),

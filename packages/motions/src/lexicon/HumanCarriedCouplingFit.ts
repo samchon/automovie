@@ -27,6 +27,7 @@ import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
+import { humanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
 /** A borne region a hand holds, or no grip for that hand. */
 type HeldRegion = AutoMovieHumanoidRegion | null;
@@ -145,9 +146,9 @@ export namespace HumanCarriedCouplingFit {
     bends: boolean,
     grips: Grip = held,
   ): IRead {
-    // The five angles: the borne hip flexion, knee flexion and hip
+    // The borne hip flexion, knee flexion and hip
     // abduction, the bearer's trunk inclination and lowering; each one's
-    // bounds, and the span its change is weighed by.
+    // bounds, and the swivel about the fixed resting contact normal.
     const legRanges: IAutoMovieAngleRange[] = (
       [
         ["leftUpperLeg", "flexion"],
@@ -160,7 +161,7 @@ export namespace HumanCarriedCouplingFit {
           axis
         ] ?? { min: row.legs[k]!, max: row.legs[k]! },
     );
-    const start: number[] = [...row.legs, 0, 0];
+    const start: number[] = [...row.legs, 0, 0, 0];
     const sides: AutoMovieHumanSide[] = SIDES.filter(
       (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
@@ -190,6 +191,7 @@ export namespace HumanCarriedCouplingFit {
             incline: x[3]!,
             depth: x[4]!,
           },
+          x[5]!,
         );
       return { fit: registration.fit, mine: registration.bones, theirs };
     }
@@ -243,13 +245,15 @@ export namespace HumanCarriedCouplingFit {
       ...legRanges.map((r: IAutoMovieAngleRange): number => r.max - r.min),
       BENT,
       1,
+      360,
     ];
-    // Share the widest range's trust region among all five coordinates.
+    // A full turn spans every distinct orientation about the fixed support normal.
     const widest: number = Math.max(...spans);
     const ranges: IAutoMovieAngleRange[] = [
       ...legRanges,
       { min: 0, max: bends ? BENT : 0 },
       { min: 0, max: bends ? 1 : 0 },
+      { min: -180, max: 180 },
     ];
     const weight: number[] = spans.map((s: number): number =>
       s > 0 ? 1 / s ** 2 : 0,
@@ -313,7 +317,7 @@ export namespace HumanCarriedCouplingFit {
             down[k] = Math.max(ranges[k]!.min, x[k]! - h);
             if (!(up[k]! > down[k]!)) return e.gaps.map((): number => 0);
             const sameStance: Bones | undefined =
-              k < legRanges.length ? e.read.theirs : undefined;
+              k < legRanges.length || k === 5 ? e.read.theirs : undefined;
             const a: number[] =
               up[k] === x[k] ? e.gaps : gaps(at(up, sameStance));
             const b: number[] =
@@ -470,14 +474,7 @@ export namespace HumanCarriedCouplingFit {
         kind: "reach",
         axis: "carry",
         value: solved.evaluation.worst,
-        reason: `the carry's reach or straddling clearance misses by ${solved.evaluation.worst.toFixed(3)} m; the local fit stopped on ${solved.reason} at leg angles ${[
-          ...solved.x,
-        ]
-          .slice(0, 3)
-          .map((v: number): string => v.toFixed(2))
-          .join(
-            ", ",
-          )} degrees and bearer inclination ${solved.x[3]!.toFixed(2)} degrees, squat depth ${solved.x[4]!.toFixed(4)}`,
+        reason: `the ${row.mine}-to-${row.theirs} carry's ${sides[met.gaps.indexOf(met.worst)] ?? "knee envelope"} clearance misses by ${(met.worst * 1000).toFixed(2)} mm; the contact-preserving fit stopped on ${solved.reason}`,
         fix: "choose a carry whose holds lie within the bearer's arms, or a bearer of a longer reach",
       });
     return solved.evaluation.read;
@@ -516,16 +513,23 @@ export namespace HumanCarriedCouplingFit {
         shape === undefined ? undefined : { shape },
       ).wrist;
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
-    return (bones, place): number =>
-      Vector3.length(
-        Vector3.subtract(
-          palm({ root: { x: 0, y: 0, z: 0 }, yaw: 0 }, place, place.forward)
-            .point,
-          bones.get(`${side}UpperArm`)!.worldPosition,
-        ),
-      ) - arm;
+    return (bones, place): number => {
+      const wrist: IAutoMovieVector3 = palm(
+        { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
+        place,
+        place.forward,
+      ).point;
+      const shoulder: IAutoMovieVector3 = bones.get(
+        `${side}UpperArm`,
+      )!.worldPosition;
+      if (place.forward !== undefined)
+        return Vector3.distance(wrist, shoulder) - arm;
+      return (
+        humanCarriedWristCircle(place.point, place.normal, wrist, shoulder)
+          .distance - arm
+      );
+    };
   }
-
   /** The trunk's forward inclination at full forward bending, degrees: about 70 of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71, the measure `HumanTrunk.RHYTHM` shares). */
   const BENT: number = 110;
 

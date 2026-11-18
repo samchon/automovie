@@ -55,6 +55,7 @@ export namespace HumanCarriedCouplingRigid {
    * @param held The borne region held by each hand, left then right.
    * @param legs The borne legs' three angles, degrees.
    * @param stance The bearer's inclination in degrees and fractional squat depth.
+   * @param swivel Rotation in degrees about the support normal through the fixed resting point.
    * @returns The placement and the borne key pose's bones it was read on.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed contact, the hand fit, each frame and the bones returned with the placement.
@@ -76,8 +77,12 @@ export namespace HumanCarriedCouplingRigid {
     ],
     legs: readonly [number, number, number],
     stance: { incline: number; depth: number },
+    swivel: number = 0,
   ): IRead {
-    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(row, legs);
+    const keyed: IAutoMovieMotionHumanPosture = HumanCarriedCouplingPose.key(
+      row,
+      legs,
+    );
     const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       HumanTrunk.resolve(borne, keyed);
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
@@ -94,7 +99,8 @@ export namespace HumanCarriedCouplingRigid {
     const to: IAutoMovieVector3[] = [];
     (["left", "right"] as const).forEach(
       (side: "left" | "right", index: number): void => {
-        const hold: IAutoMovieMotionHumanCarried.IHold | null = row.holds[index] ?? null;
+        const hold: IAutoMovieMotionHumanCarried.IHold | null =
+          row.holds[index] ?? null;
         const region0: AutoMovieHumanoidRegion | null = held[index] ?? null;
         if (hold === null || region0 === null) return;
         const target: IAutoMovieVector3 = Vector3.add(
@@ -139,7 +145,7 @@ export namespace HumanCarriedCouplingRigid {
         const b: IAutoMovieVector3 = Vector3.subtract(origin, d);
         return [a.x, a.y, a.z, b.x, b.y, b.z];
       });
-    const turn: IAutoMovieQuaternion = fitRigidMeshTransform({
+    const registered: IAutoMovieQuaternion = fitRigidMeshTransform({
       reference: mirrored(restB, from),
       target: mirrored(restT, to),
       vertices: Array.from(
@@ -147,6 +153,23 @@ export namespace HumanCarriedCouplingRigid {
         (_: unknown, i: number): number => i,
       ),
     }).rotation;
+    const support: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
+      bearer.surfaces.regions[row.theirs];
+    const turn: IAutoMovieQuaternion =
+      swivel === 0
+        ? registered
+        : Quaternion.normalize(
+            Quaternion.multiply(
+              Quaternion.fromAxisAngle(
+                Quaternion.rotateVector(
+                  theirs.get(support.bone)!.worldRotation,
+                  support.normal,
+                ),
+                swivel,
+              ),
+              registered,
+            ),
+          );
     const fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit = {
       stance,
       legs,
