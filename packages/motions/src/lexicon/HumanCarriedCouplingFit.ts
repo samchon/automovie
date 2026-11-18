@@ -27,7 +27,7 @@ import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
-import { humanCarriedWristCircle } from "./HumanCarriedWristCircle";
+import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
 /** A borne region a hand holds, or no grip for that hand. */
 type HeldRegion = AutoMovieHumanoidRegion | null;
@@ -525,7 +525,7 @@ export namespace HumanCarriedCouplingFit {
       if (place.forward !== undefined)
         return Vector3.distance(wrist, shoulder) - arm;
       return (
-        humanCarriedWristCircle(place.point, place.normal, wrist, shoulder)
+        HumanCarriedWristCircle(place.point, place.normal, wrist, shoulder)
           .distance - arm
       );
     };

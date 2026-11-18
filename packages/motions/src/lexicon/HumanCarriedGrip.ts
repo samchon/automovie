@@ -26,10 +26,7 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import {
-  type ICarriedWristCircle,
-  humanCarriedWristCircle,
-} from "./HumanCarriedWristCircle";
+import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
 /** A shape's signed distance to a pair of world points. */
 type Distance = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
@@ -189,12 +186,8 @@ export function HumanCarriedGrip(
       Vector3.distance(wrist.point, shoulderPoint) >
       body.measure.upperArm + body.measure.forearm
     ) {
-      const circle: ICarriedWristCircle = humanCarriedWristCircle(
-        point,
-        normal,
-        wrist.point,
-        shoulderPoint,
-      );
+      const circle: ReturnType<typeof HumanCarriedWristCircle> =
+        HumanCarriedWristCircle(point, normal, wrist.point, shoulderPoint);
       const forward: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.fromAxisAngle(normal, circle.degrees),
         tangent,

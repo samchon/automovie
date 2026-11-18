@@ -2,7 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /** The nearest wrist on the circle traced by rotating a palm about its contact normal. */
-export interface ICarriedWristCircle {
+interface ICarriedWristCircle {
   /** Distance from the fixed shoulder to that wrist, metres. */
   distance: number;
   /** Signed turn about the outward normal, degrees. */
@@ -20,7 +20,7 @@ export interface ICarriedWristCircle {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Admission and actual grip placement consume the same wrist circle.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources All vectors belong to the current contact query.
  */
-export function humanCarriedWristCircle(
+export function HumanCarriedWristCircle(
   point: IAutoMovieVector3,
   normal: IAutoMovieVector3,
   wrist: IAutoMovieVector3,
