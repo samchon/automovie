@@ -207,8 +207,13 @@ export namespace defendGeometry {
     // the root's dip and shift.
     const trunkLength: number = m.eyeHeight - m.hipHeight;
     const clear: number = m.headRadius + fist + 0.04;
-    const tilt = (lateral: number): number =>
-      (Math.asin(Math.min(0.9, lateral / trunkLength)) * 180) / Math.PI;
+    // The lean that moves the eyes `lateral` off the hips' vertical; a
+    // displacement past the trunk's own length is no lean at all.
+    const tilt = (lateral: number): number => {
+      if (!(lateral < trunkLength))
+        throw new Error(`A defence's head displacement of ${lateral.toFixed(3)} m exceeds the trunk's ${trunkLength.toFixed(3)} m`);
+      return (Math.asin(lateral / trunkLength) * 180) / Math.PI;
+    };
     let shift: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let roll: number = 0;
     let pitch: number = 0;
