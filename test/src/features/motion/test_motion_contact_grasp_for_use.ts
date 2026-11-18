@@ -66,7 +66,7 @@ export function test_motion_contact_grasp_for_use(): void {
       return stand.plan({ ...context, params: { seconds: 0.1 } });
     },
   };
-  const pick = (tip: string): HumanPerformance =>
+  const pick = (tip: string, lift: number = 0.1): HumanPerformance =>
     new HumanPerformance({
       seed: "grasp",
       laws: [observe],
@@ -93,11 +93,34 @@ export function test_motion_contact_grasp_for_use(): void {
         .pickUp({
           prop: "mug",
           handle: "handle",
+          lift,
           use: { tip, line: "square" },
         })
         .registered("inspectClosure", { prop: "mug" }).node,
     });
-  pick("lip");
+  const lifted: HumanPerformance = pick("lip");
+  const segment = lifted.segments("a")[0]!;
+  const event = segment.plan.events.find((e) => e.name === "lifted")!;
+  const liftAt: number = segment.start + event.share * segment.plan.duration;
+  const height: number =
+    lifted.prop("mug", liftAt).position.y - lifted.prop("mug", 0).position.y;
+  TestValidator.predicate(
+    "the authored lift reaches 100 mm within the 10 mm skin allowance",
+    height >= 0.09,
+  );
+  let overshoot: unknown;
+  try {
+    pick("lip", body.measure.stature);
+  } catch (error) {
+    overshoot = error;
+  }
+  TestValidator.predicate(
+    "an impossible lift identifies its height and a smaller alternative",
+    overshoot instanceof HumanRefusal &&
+      overshoot.kind === "reach" &&
+      overshoot.axis === "lift" &&
+      /smaller|lower|reduce/i.test(overshoot.fix ?? ""),
+  );
   let failure: unknown;
   try {
     pick("undeclared-affordance");
