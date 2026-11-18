@@ -135,27 +135,12 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
     seconds: number,
     fixed: IAutoMovieVector3,
   ): string => {
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-      performance,
-      "a",
-      body,
-      0,
-    );
-    const shoulder: IAutoMovieVector3 = HumanSignature.joint(
-      reader,
-      seconds,
-      "rightUpperArm",
-    );
-    const elbow: IAutoMovieVector3 = HumanSignature.joint(
-      reader,
-      seconds,
-      "rightLowerArm",
-    );
-    const wrist: IAutoMovieVector3 = HumanSignature.joint(
-      reader,
-      seconds,
-      "rightHand",
-    );
+    const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+      performance.bones("a", seconds);
+    const shoulder: IAutoMovieVector3 =
+      bones.get("rightUpperArm")!.worldPosition;
+    const elbow: IAutoMovieVector3 = bones.get("rightLowerArm")!.worldPosition;
+    const wrist: IAutoMovieVector3 = bones.get("rightHand")!.worldPosition;
     const forearm: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(wrist, elbow),
     );

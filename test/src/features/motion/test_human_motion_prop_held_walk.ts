@@ -1,5 +1,9 @@
 import { createDrinkware } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
@@ -15,11 +19,11 @@ import {
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSignature,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { profileHumanMotion } from "../internal/profileHumanMotion";
 
 /**
  * A person picks a glass up, walks on and sips from it while walking: the
@@ -60,39 +64,46 @@ export function test_human_motion_prop_held_walk(): void {
   // 1. The sip rides the walk with the glass the hand holds.
   let performance: IAutoMovieMotionHumanPerformance;
   try {
-    performance = new HumanPerformance({
-      seed: "held-walk",
-      props: [
-        HumanObject.prop("glass", glass, {
-          at: {
-            x: -body.measure.shoulderHalfWidth,
-            y: body.measure.waistHeight,
-            z: 0.6 * (body.measure.upperArm + body.measure.forearm),
-          },
-          yaw: 0,
+    performance = profileHumanMotion(
+      "held-walk",
+      (): IAutoMovieMotionHumanPerformance =>
+        new HumanPerformance({
+          seed: "held-walk",
+          props: [
+            HumanObject.prop("glass", glass, {
+              at: {
+                x: -body.measure.shoulderHalfWidth,
+                y: body.measure.waistHeight,
+                z: 0.6 * (body.measure.upperArm + body.measure.forearm),
+              },
+              yaw: 0,
+            }),
+          ],
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a")
+            .pickUp({
+              prop: "glass",
+              handle: "body",
+              use: { tip: "lip", line: "square", at: "mouth" },
+            })
+            .walk({ to: { x: 0, y: 0, z: 2 } })
+            .over(
+              (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+                u.handToFace({ task: "sip", prop: "glass" }),
+            ).node,
         }),
-      ],
-      performers: [
-        {
-          subject: "a",
-          body,
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
-          proficiency: { level: "trained" },
-        },
-      ],
-      composition: HumanChain.subject("a")
-        .pickUp({
-          prop: "glass",
-          handle: "body",
-          use: { tip: "lip", line: "square", at: "mouth" },
-        })
-        .walk({ to: { x: 0, y: 0, z: 2 } })
-        .over(
-          (u: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            u.handToFace({ task: "sip", prop: "glass" }),
-        ).node,
-    });
+      ["a"],
+      undefined,
+      ["glass"],
+    );
   } catch (error) {
     TestValidator.equals(
       "a sip from a held glass over a walk plans",
@@ -116,12 +127,15 @@ export function test_human_motion_prop_held_walk(): void {
     y: 1,
     z: 0,
   });
+  const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+    performance.bones("a", seconds);
+  const mouthRegion: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] =
+    body.surfaces.regions.mouth;
   const mouth: IAutoMovieVector3 = Vector3.subtract(
-    HumanSignature.region(
-      HumanSignature.of(performance, "a", body, 0),
-      "mouth",
-      seconds,
-    ),
+    resolveAutoMovieHumanoidSurfaces.place(
+      mouthRegion,
+      bones.get(mouthRegion.bone)!,
+    ).point,
     Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, { x: 0, y: lip.y, z: 0 }),
@@ -140,9 +154,7 @@ export function test_human_motion_prop_held_walk(): void {
   // The lean the law asked: the glass's axis carried by the hand rotation
   // the arm was asked for, against the shown one.
   const tilt: number = (Math.acos(Math.min(1, axis.y)) * 180) / Math.PI;
-  const hand: IAutoMovieQuaternion = performance
-    .bones("a", seconds)
-    .get("rightHand")!.worldRotation;
+  const hand: IAutoMovieQuaternion = bones.get("rightHand")!.worldRotation;
   const askedAxis: IAutoMovieVector3 = Quaternion.rotateVector(
     performance.posture("a", seconds).limbs.rightArm?.rotation ?? hand,
     Quaternion.rotateVector(Quaternion.inverse(hand), axis),
@@ -177,7 +189,7 @@ export function test_human_motion_prop_held_walk(): void {
   };
   const first: IAutoMovieVector3 = seat(from);
   let drift: number = 0;
-  for (let at: number = from; at <= performance.duration; at += 0.25)
+  for (let at: number = from + 0.25; at <= performance.duration; at += 0.25)
     drift = Math.max(drift, Vector3.length(Vector3.subtract(seat(at), first)));
   if (!(drift <= 0.001))
     complaints.push(
