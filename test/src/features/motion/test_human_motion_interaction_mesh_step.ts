@@ -5,7 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanInteractionMesh, HumanVerdicts } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
+
+import { motionComplaints } from "../internal/motionComplaints";
 
 /**
  * The mesh adaptation keeps the requested point relations and returns an
@@ -30,6 +31,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory spec calls the public motion package on authored points without a host.
  */
 export function test_human_motion_interaction_mesh_step(): void {
+  const all: motionComplaints.IGatherer = motionComplaints();
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const up: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
   const reference: IAutoMovieVector3[] = [
@@ -54,12 +56,15 @@ export function test_human_motion_interaction_mesh_step(): void {
   const shortened: IAutoMovieVector3[] = [
     zero, { x: 3 / 4, y: 0, z: 0 }, reference[2]!, up,
   ];
-  check(reference, mesh, turned, target);
-  check(reference, mesh, flipped, shortened);
+  check(all, "rotation and compression", reference, mesh, turned, target);
+  check(all, "inverted start", reference, mesh, flipped, shortened);
+  all.assert("public mesh adaptation preserves oriented constrained shapes");
 }
 
 /** Read relative point contacts and orientation from public adaptation. */
 function check(
+  all: motionComplaints.IGatherer,
+  name: string,
   reference: readonly IAutoMovieVector3[],
   mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
   start: readonly IAutoMovieVector3[],
@@ -70,14 +75,19 @@ function check(
     .map((offset: IAutoMovieVector3, index: number): IAutoMovieMotionHumanInteractionMesh.IContact =>
       ({ a: index + 1, b: 0, offset }),
     );
-  const result: IAutoMovieMotionHumanInteractionMesh.IResult =
-    HumanInteractionMesh.adapt({ reference, mesh, start, bones: [], contacts });
+  let result: IAutoMovieMotionHumanInteractionMesh.IResult;
+  try {
+    result = HumanInteractionMesh.adapt({ reference, mesh, start, bones: [], contacts });
+  } catch (error) {
+    all.check(`${name}: ${String(error)}`, false);
+    return;
+  }
   const edges: IAutoMovieVector3[] = result.points.slice(1).map(
     (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Vector3.subtract(point, result.points[0]!),
   );
-  TestValidator.predicate(
-    "the public deformation satisfies its contacts and remains oriented",
+  all.check(
+    `${name}: the public deformation satisfies its contacts and remains oriented`,
     edges.length === contacts.length &&
       Vector3.dot(edges[0]!, Vector3.cross(edges[1]!, edges[2]!)) > 0 &&
       edges.every(

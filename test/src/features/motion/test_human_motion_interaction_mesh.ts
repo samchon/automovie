@@ -227,7 +227,13 @@ export function test_human_motion_interaction_mesh(): void {
         contacts: [contact],
         mesh,
       });
-    const adapted: IAutoMovieMotionHumanInteractionMesh.IResult = adapt();
+    let adapted: IAutoMovieMotionHumanInteractionMesh.IResult;
+    try {
+      adapted = adapt();
+    } catch (error) {
+      all.check(`${cell}: adaptation failed with ${String(error)}`, false);
+      continue;
+    }
     let stretched: number = 0;
     for (const b of target.bones)
       stretched = Math.max(

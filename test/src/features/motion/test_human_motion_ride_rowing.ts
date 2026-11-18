@@ -3,8 +3,10 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
@@ -28,6 +30,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 interface IHandleGap {
   gap: number;
   at: number;
+  wrist?: IAutoMovieVector3;
+  handle?: IAutoMovieVector3;
 }
 
 /** One authored instant of the boat's ride. */
@@ -210,15 +214,32 @@ export function test_human_motion_ride_rowing(): void {
             wrist.y - handle.y,
             wrist.z - handle.z,
           );
-          if (gap > worst[side].gap) worst[side] = { gap, at: t };
+          if (gap > worst[side].gap)
+            worst[side] = { gap, at: t, wrist, handle };
         }
       }
+      const missedGoals: Map<number, IAutoMovieMotionHumanPosture["limbs"]> = new Map();
       for (const side of ["left", "right"] as const) {
         const miss: IHandleGap = worst[side];
-        if (!(miss.gap <= 0.7 * body.measure.hand))
+        if (!(miss.gap <= 0.7 * body.measure.hand)) {
           complaints.push(
             `${label}: the ${side} wrist is ${(miss.gap * 1000).toFixed(0)} mm from its handle at ${miss.at.toFixed(2)} s, within ${(700 * body.measure.hand).toFixed(0)} mm expected`,
           );
+          // The displayed rule above decides the verdict. Diagnose a
+          // missed goal only at the instant already observed to fail.
+          let goals: IAutoMovieMotionHumanPosture["limbs"] | undefined =
+            missedGoals.get(miss.at);
+          if (goals === undefined) {
+            goals = performance.posture("a", miss.at).limbs;
+            missedGoals.set(miss.at, goals);
+          }
+          const goal: IAutoMovieHumanLimbGoal | undefined =
+            goals[`${side}Arm`];
+          if (goal !== undefined && miss.wrist !== undefined && miss.handle !== undefined)
+            complaints.push(
+              `${label}: the ${side} arm goal is ${(1000 * Vector3.length(Vector3.subtract(goal.point, miss.handle))).toFixed(0)} mm from its handle and ${(1000 * Vector3.length(Vector3.subtract(goal.point, miss.wrist))).toFixed(0)} mm from the displayed wrist`,
+            );
+        }
       }
 
       // The boat's rest time can already show the handles in catch position.
