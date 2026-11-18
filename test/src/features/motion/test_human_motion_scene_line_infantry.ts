@@ -1,4 +1,5 @@
 import { createLongGun } from "@automovie/archetypes";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionLaw,
@@ -45,8 +46,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    is no larger than the militia's.
  * 3. Halt: every member stands still within one step's time after the word
  *    "halt" plus its reaction latency.
- * 4. Volley: each member shoulders its flintlock musket (`HumanMusketDrill`
- *    on #3483's musket), makes ready on "ready" (the firelock to the recover,
+ * 4. Volley: each member takes its flintlock musket (`HumanMusketDrill` on
+ *    #3483's musket) up by the butt in the left hand and shoulders it, in the
+ *    1764 Manual Exercise's order ("Quit the left Hand and place it strong
+ *    Upon the Butt", Shoulder your Firelocks), seizes it with the right hand
+ *    on "ready" ("Seize the firelock with your right hand", Poise, first
+ *    motion), makes ready after it (the firelock to the recover,
  *    and over it the thumb on the cock's spur drawing it to full cock, its
  *    hinge's own travel), presents on
  *    "present" and fires on "fire", each synced with a
@@ -154,11 +159,16 @@ export function test_human_motion_scene_line_infantry(): void {
       props: ensemble.members.map(
         (m: IAutoMovieMotionHumanEnsemble.IMember): IAutoMovieMotionHumanProp =>
           HumanObject.prop(m.prop("musket"), musket, {
-            at: {
-              x: m.place.at.x - m.body.measure.shoulderHalfWidth,
-              y: m.body.measure.waistHeight,
-              z: m.place.at.z + 0.35,
-            },
+            // Its butt within the left hand's reach: before the left
+            // shoulder at the waist, a forearm ahead.
+            at: Vector3.subtract(
+              {
+                x: m.place.at.x + m.body.measure.shoulderHalfWidth,
+                y: m.body.measure.waistHeight,
+                z: m.place.at.z + m.body.measure.forearm,
+              },
+              musket.affordance("butt").frame.translation,
+            ),
             yaw: 0,
           }),
       ),
@@ -171,6 +181,7 @@ export function test_human_motion_scene_line_infantry(): void {
         ) => {
           const gun: string = m.prop("musket");
           const marched: IAutoMovieMotionHumanChain = chain
+            .registered("takeFirelock", { prop: gun })
             .registered("shoulderArms", { gun })
             .registered("march", {
               to: { x: m.place.at.x, y: 0, z: m.place.at.z + 8 },
@@ -181,6 +192,8 @@ export function test_human_motion_scene_line_infantry(): void {
             .registered("stand", { seconds: 1 })
             .sync({ of: "orders", event: "halt", latency: "reaction" });
           const presented: IAutoMovieMotionHumanChain = marched
+            .registered("seize", { prop: gun })
+            .sync({ of: "orders", event: "ready", latency: "reaction" })
             .registered("recover", {
               gun,
               target: {
@@ -198,7 +211,6 @@ export function test_human_motion_scene_line_infantry(): void {
                 },
               }),
             )
-            .sync({ of: "orders", event: "ready", latency: "reaction" })
             .registered("presentMusket", {
               gun,
               target: {
