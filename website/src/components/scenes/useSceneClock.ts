@@ -20,9 +20,9 @@ export function useSceneClock(): SceneClock {
   useEffect((): (() => void) => {
     const preference: MediaQueryList = window.matchMedia(REDUCED_MOTION);
     if (!clock.playing && !preference.matches) clock.toggle();
-    const pause = (): void => {
+    function pause(): void {
       if (preference.matches && clock.playing) clock.toggle();
-    };
+    }
     preference.addEventListener("change", pause);
     return (): void => preference.removeEventListener("change", pause);
   }, [clock]);
