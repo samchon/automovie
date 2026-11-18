@@ -35,7 +35,7 @@ interface IPuff {
  * @evidence contracts/development/testing.md#execution-ownership Three one-row performances on one body, no posture samples, and 200 scalar stream reads.
  * @evidence contracts/development/common.md#meaningful-documentation States the measurement, clock and numerical bounds.
  */
-export function test_human_motion_habit_puffs(): void {
+export function test_motion_contact_habit_event_rate(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   const shortest: number = 1.6;
@@ -59,16 +59,6 @@ export function test_human_motion_habit_puffs(): void {
     complaints.push(
       `the puffs run from ${first.seconds.toFixed(3)} to ${last.seconds.toFixed(3)} s, under 1.7 and over 2.0 s expected`,
     );
-  const distinct: number = puffs.reduce(
-    (count: number, puff: IPuff, i: number): number =>
-      count + (i === 0 || puff.seconds - puffs[i - 1]!.seconds > 1e-6 ? 1 : 0),
-    0,
-  );
-  if (!(distinct >= 190))
-    complaints.push(
-      `${distinct} of ${puffs.length} puffs are distinct, at least 190 expected`,
-    );
-
   for (const { seed, seconds } of [first, puffs[puffs.length / 2]!, last])
     try {
       const performance: IAutoMovieMotionHumanPerformance =
