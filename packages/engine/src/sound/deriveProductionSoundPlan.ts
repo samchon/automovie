@@ -29,6 +29,7 @@ import { sampleFormationMotion } from "../sampleFormationMotion";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationBounds } from "../transformFormationBounds";
 import { transformFormationPoint } from "../transformFormationPoint";
+import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
 import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
 import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCues";
 
@@ -48,6 +49,9 @@ export const deriveProductionSoundPlan: (
 ) => IAutoMovieProductionSoundPlan = (
   props: IAutoMovieDeriveProductionSoundPlan.IProps,
 ): IAutoMovieProductionSoundPlan => {
+  const scoreDucking: IAutoMovieProductionSoundPlan["scoreDucking"] =
+    props.scoreDucking;
+  assertProductionScoreDucking(scoreDucking);
   const events: IAutoMovieProductionSoundPlan["events"] = [];
   props.timeline.segments.forEach(
     (segment: IAutoMovieFilmTimelineSegment, segmentIndex: number): void => {
@@ -156,7 +160,8 @@ export const deriveProductionSoundPlan: (
     (
       left: IAutoMovieProductionSoundEvent,
       right: IAutoMovieProductionSoundEvent,
-    ): number => left.frame - right.frame || compareCodeUnits(left.id, right.id),
+    ): number =>
+      left.frame - right.frame || compareCodeUnits(left.id, right.id),
   );
 
   const placements: IAutoMovieFilmTimeline["tracks"]["audio"] = [
@@ -199,6 +204,9 @@ export const deriveProductionSoundPlan: (
     ...(props.acousticProfile === undefined
       ? {}
       : { acousticProfile: cloneAcousticProfile(props.acousticProfile) }),
+    ...(scoreDucking === undefined
+      ? {}
+      : { scoreDucking: { ...scoreDucking } }),
     events,
     cues,
     dialogue: props.timeline.tracks.captions.map(

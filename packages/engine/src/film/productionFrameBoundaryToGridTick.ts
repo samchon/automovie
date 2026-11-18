@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
+import { roundProductionGridTick } from "./roundProductionGridTick";
 
 /**
  * Map one non-negative film-frame boundary onto a destination integer clock, such as audio samples or WebVTT milliseconds.
@@ -16,7 +17,7 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * @param props.rounding How a boundary between two ticks is resolved.
  * @returns The boundary's tick on the destination clock.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Exact rational arithmetic in `BigInt`: the numerator `f·d·ticksPerSecond` is formed without rounding, one integer division and remainder decide the tick, and the remainder alone picks the rounding, so the answer is exact for every input whose result is a safe integer and identical on every machine.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact rational arithmetic in `BigInt`: the numerator `f·d·ticksPerSecond` is formed without rounding, one integer division handles floor and ceiling, and the shared nearest rule compares the remainder to the halfway point, so the answer is exact for every input whose result is a safe integer and identical on every machine.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One boundary map shared by production sound rendering, delivery validation and the interval form behind WebVTT captions, so audio, captions and validation place a frame boundary on the same tick.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No clock or frame rate is special-cased and no float product is used; out-of-range inputs and results throw instead of being clamped.
  * @evidence contracts/development/common.md#meaningful-documentation States the formula, what each rounding mode does with a half tick, each thrown condition, and each parameter's unit and domain.
@@ -46,14 +47,12 @@ export function productionFrameBoundaryToGridTick(
     BigInt(rate.denominator) *
     BigInt(props.ticksPerSecond);
   const denominator: bigint = BigInt(rate.numerator);
-  const quotient: bigint = numerator / denominator;
-  const remainder: bigint = numerator % denominator;
   const tick: bigint =
     props.rounding === "floor"
-      ? quotient
+      ? numerator / denominator
       : props.rounding === "ceiling"
-        ? quotient + (remainder === 0n ? 0n : 1n)
-        : quotient + (remainder * 2n >= denominator ? 1n : 0n);
+        ? (numerator + denominator - 1n) / denominator
+        : roundProductionGridTick(numerator, denominator);
   if (tick > BigInt(Number.MAX_SAFE_INTEGER))
     throw new Error(
       `Production frame boundary ${props.frame} exceeds the safe ${props.ticksPerSecond}-tick destination clock.`,

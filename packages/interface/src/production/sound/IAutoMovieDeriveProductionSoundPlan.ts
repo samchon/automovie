@@ -1,6 +1,7 @@
 import type { IAutoMovieAcousticResponseProfile } from "../IAutoMovieAcousticResponseProfile";
 import type { IAutoMovieCompiledShotSource } from "../IAutoMovieCompiledShotSource";
 import type { IAutoMovieFilmTimeline } from "../IAutoMovieFilmTimeline";
+import type { IAutoMovieProductionSoundPlan } from "../IAutoMovieProductionSoundPlan";
 import type { IAutoMovieShotContract } from "../IAutoMovieShotContract";
 import type { IAutoMovieSoundPropagationProfile } from "../IAutoMovieSoundPropagationProfile";
 
@@ -91,5 +92,11 @@ export namespace IAutoMovieDeriveProductionSoundPlan {
      * is supplied separately through renderProductionSound's assets input.
      */
     eventCueAssets?: ReadonlySet<string> | undefined;
+
+    /**
+     * Optional score attenuation policy, validated and copied into the plan.
+     * Callers include it in any aggregate mix input fingerprint they compute.
+     */
+    scoreDucking?: IAutoMovieProductionSoundPlan["scoreDucking"];
   };
 }
