@@ -1,5 +1,3 @@
-
-
 export * from "./AutoMovieEnvelope";
 export * from "./MotionTrajectoryFailure";
 export * from "./arrangeMotion";
@@ -28,6 +26,7 @@ export * from "./gestureMotion";
 export * from "./holdMotion";
 export * from "./importedNodeClipToAutoMovieMotion";
 export * from "./inertializeOffset";
+export * from "./AirborneTakeoffQuadrature";
 export * from "./integrateAirborneRotation";
 export * from "./integrateMotionTrajectory";
 export * from "./resolveHydrodynamicForce";

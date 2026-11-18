@@ -11,6 +11,12 @@ import { AirborneQuadratureAggregate } from "./AirborneQuadratureAggregate";
  * The caller measures each panel's componentwise absolute estimates in
  * its output's unit. Those measured errors are summed, and the panel with
  * the largest error is split until the global estimate meets the budget.
+ * A panel component whose error added to that component's magnitude (the
+ * coarse integral of its absolute value) leaves it unchanged in floating
+ * point is resolved and counts no error, Gander and Gautschi's termination
+ * test: no refinement can move the computed sum there. So a budget below
+ * the arithmetic's resolution ends once every panel is resolved, instead of
+ * splitting every panel toward machine width.
  *
  * @param props The finite interval, pure integrand, output-error measure and budget.
  * @returns The Richardson-corrected integral vector.
@@ -19,7 +25,7 @@ import { AirborneQuadratureAggregate } from "./AirborneQuadratureAggregate";
  * @evidence contracts/development/common.md#meaningful-documentation States the nested Simpson rules, Richardson estimate, global criterion, failure and output-unit ownership.
  * @evidence contracts/development/implementation.md#principled-implementation Uses adaptive Simpson with Richardson factor 15 and the triangle inequality. An explicitly separable nonnegative error measure admits component aggregates and current-weight maximum bounds; additional pairwise-sum roundoff is charged to that same output budget. Arbitrary callback measures retain the original full scan. Smoothness remains an estimator premise, not a continuous or final-flight certificate.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One actual panel producer serves the original general measure loop or the explicitly decomposed aggregate loop. Both refine the actual current maximum using the same samples, midpoint and Simpson rules.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No frame grid, tolerance floor, guessed history or iteration cap replaces evaluation; unresolved error at machine resolution throws.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No frame grid, tolerance floor, guessed history or iteration cap replaces evaluation; a panel stops only where its error is below the floating-point resolution of the integral (Gander and Gautschi's test) or the budget is met, and an unresolved error at machine width throws.
  * @evidence contracts/development/implementation.md#efficient-algorithms P leaves require 4P+1 actual integrand calls. Generic measures retain O(P squared times n) aggregation over refinement. A separable k-component measure updates O(D(n+k)) ancestor aggregates at tree depth D and selects by valid current-weight bounds, with O(Pk) worst-case search when bounds overlap. Actual end-to-end gain is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each child's endpoints and midpoint are the parent's actual samples, and its coarse Simpson value is the parent's computed half-panel value; no time quantization or cross-history memo is used.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only O(Pn) numeric leaf samples and estimates live during integration. They and the pure callback are released on return or throw; only the numeric result escapes, with no handle or global cache.
@@ -179,12 +185,27 @@ export function AirborneTakeoffQuadrature(props: {
       left,
       right,
       value,
-      error: delta.map((v: number): number => Math.abs(v)),
+      // A component whose estimated error leaves the whole integral's
+      // magnitude unchanged in floating point is resolved: no refinement
+      // can move the computed sum (Gander and Gautschi's termination test,
+      // is + (i2 - i1) == is).
+      error: delta.map((v: number, i: number): number =>
+        scale[i]! + Math.abs(v) === scale[i]! ? 0 : Math.abs(v),
+      ),
     };
   };
   const fa: readonly number[] = read(props.t0);
   const fm: readonly number[] = read(props.t0 + (props.t1 - props.t0) / 2);
   const fb: readonly number[] = read(props.t1);
+  // Each component's magnitude the roundoff test reads: the coarse Simpson
+  // integral of its absolute value over the whole interval.
+  const scale: readonly number[] = simpson(
+    props.t0,
+    props.t1,
+    fa.map(Math.abs),
+    fm.map(Math.abs),
+    fb.map(Math.abs),
+  );
   const leaves: IPanel[] = [
     panel(
       props.t0,
@@ -196,21 +217,47 @@ export function AirborneTakeoffQuadrature(props: {
     ),
   ];
   if (props.separable !== undefined) {
-    const tree: AirborneQuadratureAggregate.ITree<IPanel> = AirborneQuadratureAggregate(
-      leaves[0]!, props.separable.components,
-    );
+    const tree: AirborneQuadratureAggregate.ITree<IPanel> =
+      AirborneQuadratureAggregate(leaves[0]!, props.separable.components);
     for (;;) {
-      const { value, roundoff }: AirborneQuadratureAggregate.IRead = tree.read();
+      const { value, roundoff }: AirborneQuadratureAggregate.IRead =
+        tree.read();
       const weights: readonly number[] = props.separable.weights(value);
       const rounding: number = props.error(value, roundoff);
       if (!(rounding >= 0))
-        throw new Error("AirborneTakeoffQuadrature received an invalid panel error");
-      if (tree.estimate(weights, rounding) <= props.tolerance) return [...value];
+        throw new Error(
+          "AirborneTakeoffQuadrature received an invalid panel error",
+        );
+      if (tree.estimate(weights, rounding) <= props.tolerance)
+        return [...value];
       const selected: IPanel = tree.worst(weights);
+      // No leaf left with an error the budget weighs: every one is resolved,
+      // and the rest is the arithmetic's own roundoff.
+      if (
+        props.separable
+          .components(selected.error)
+          .every((c: number, i: number): boolean => c * weights[i]! === 0)
+      )
+        return [...value];
       const middle: number = selected.a + (selected.b - selected.a) / 2;
-      tree.replace(selected,
-        panel(selected.a, middle, selected.fa, selected.fl, selected.fm, selected.left),
-        panel(middle, selected.b, selected.fm, selected.fr, selected.fb, selected.right),
+      tree.replace(
+        selected,
+        panel(
+          selected.a,
+          middle,
+          selected.fa,
+          selected.fl,
+          selected.fm,
+          selected.left,
+        ),
+        panel(
+          middle,
+          selected.b,
+          selected.fm,
+          selected.fr,
+          selected.fb,
+          selected.right,
+        ),
       );
     }
   }
