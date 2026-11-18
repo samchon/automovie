@@ -26,6 +26,12 @@ import { nclose } from "../internal/predicates";
  *    lowering, even for a rate that makes the source tolerance smaller than one ULP.
  * 7. Distinct events just outside the selected anchors at 1 and 2 seconds
  *    are absent from the exact one-second output and cannot satisfy requirements.
+ * 8. A 2× numeric play retains the same source events within a half-second.
+ * 9. Precise hard cuts assign nearby events once when the two entries use
+ *    different rates or only one side uses event bounds. A deliberately
+ *    authored source gap keeps both its adjacent events in their own plays.
+ * 10. A numeric sum that rounds past the next trim's 0.3-second source start
+ *     partitions at 0.3 when the incoming play is retimed.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public edit gate and event projection and checks normalized trims, runtime, seam ownership and refusal paths.
  * @evidence contracts/development/testing.md#independent-expectations Start, seam and end are at 0.5, 1.5 and 3.5 source seconds. Each played duration is divided by two, so the film spans 1.5 seconds and the seam belongs to the second play at 0.5 output seconds.
@@ -331,5 +337,141 @@ export function test_film_cut_sequence_event_trim(): void {
       "each excluded event reports its requirement path",
       excluded.violations.map((item) => item.path),
       ["$input.requiredEvents[0].event", "$input.requiredEvents[1].event"],
+    );
+
+  const retimed: IAutoMovieCut = cutSequence(
+    {
+      ...exactPlan,
+      entries: [
+        {
+          shot: exactShot.id,
+          trim: { start: 1, duration: 1 },
+          playbackRate: 2,
+          transition: null,
+        },
+      ],
+    },
+    [exactShot],
+  );
+  TestValidator.equals("retimed numeric cut succeeds", retimed.success, true);
+  if (retimed.success)
+    TestValidator.equals(
+      "retimed events stay within the exact half-second play",
+      sequenceEventTimeline(retimed.sequence, [exactShot]).map((event) => ({
+        id: event.id,
+        time: event.globalTime,
+      })),
+      [
+        { id: start.id, time: 0 },
+        { id: seam.id, time: 0.25 },
+        { id: end.id, time: 0.5 },
+      ],
+    );
+
+  const seamShot: IAutoMovieShot = {
+    ...shot,
+    events: [
+      { ...start, time: 0 },
+      before,
+      { ...seam, time: 1 },
+      { ...after, time: 1.0000000005 },
+      { ...end, time: 2 },
+    ],
+  };
+  type Entry = IAutoMovieEditPlan["entries"][number];
+  const left: Entry = {
+    shot: seamShot.id,
+    trim: { start: 0, duration: 1 },
+    transition: null,
+  };
+  const right: Entry = {
+    ...left,
+    trim: { start: 1, duration: 1 },
+  };
+  const symbolicLeft: Entry = {
+    ...left,
+    trim: null,
+    trimByEvents: { startEvent: start.id, endEvent: seam.id },
+  };
+  const symbolicRight: Entry = {
+    ...right,
+    trim: null,
+    trimByEvents: { startEvent: seam.id, endEvent: end.id },
+  };
+  const plays: readonly [string, Entry, Entry, number][] = [
+    ["faster before", left, { ...right, playbackRate: 0.001 }, 1],
+    ["slower before", { ...left, playbackRate: 0.001 }, right, 1],
+    ["event bounds before", symbolicLeft, right, 1],
+    ["event bounds after", left, symbolicRight, 1],
+    [
+      "source gap before numeric play",
+      symbolicLeft,
+      { ...right, trim: { start: 1.0000000005, duration: 0.9999999995 } },
+      0,
+    ],
+    [
+      "source gap before event-bounded play",
+      left,
+      {
+        ...symbolicRight,
+        trimByEvents: { startEvent: after.id, endEvent: end.id },
+      },
+      0,
+    ],
+  ];
+  for (const [label, outgoing, incoming, boundaryEntry] of plays) {
+    const result: IAutoMovieCut = cutSequence(
+      { ...exactPlan, entries: [outgoing, incoming] },
+      [seamShot],
+    );
+    TestValidator.equals(label + " admits", result.success, true);
+    if (result.success)
+      TestValidator.equals(
+        label + " partitions the events at the source seam",
+        sequenceEventTimeline(result.sequence, [seamShot]).map((event) => ({
+          id: event.id,
+          entry: event.entry,
+        })),
+        [
+          { id: start.id, entry: 0 },
+          { id: before.id, entry: 0 },
+          { id: seam.id, entry: boundaryEntry },
+          { id: after.id, entry: 1 },
+          { id: end.id, entry: 1 },
+        ],
+      );
+  }
+
+  const decimalShot: IAutoMovieShot = {
+    ...shot,
+    events: [
+      { ...before, time: 0.29999999999999993 },
+      { ...seam, time: 0.3 },
+      { ...after, time: 0.30000000000000004 },
+    ],
+  };
+  const decimal: IAutoMovieCut = cutSequence(
+    {
+      ...exactPlan,
+      entries: [
+        { ...left, trim: { start: 0.1, duration: 0.2 } },
+        { ...right, trim: { start: 0.3, duration: 0.3 }, playbackRate: 2 },
+      ],
+    },
+    [decimalShot],
+  );
+  TestValidator.equals("decimal hard cut succeeds", decimal.success, true);
+  if (decimal.success)
+    TestValidator.equals(
+      "decimal boundary uses the incoming source time",
+      sequenceEventTimeline(decimal.sequence, [decimalShot]).map((event) => ({
+        id: event.id,
+        entry: event.entry,
+      })),
+      [
+        { id: before.id, entry: 0 },
+        { id: seam.id, entry: 1 },
+        { id: after.id, entry: 1 },
+      ],
     );
 }
