@@ -27,7 +27,6 @@ import { operate } from "../affordance/operate";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
-import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -36,21 +35,23 @@ import { AutoMovieMotionHumanTouchContacts } from "../compose/AutoMovieMotionHum
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchForm } from "../compose/AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
-import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { touchEffectors } from "./touchEffectors";
+import { touchBalance } from "./touchBalance";
 import { touchHold } from "./touchHold";
 import { touchLayouts } from "./touchLayouts";
 import { touchPresented } from "./touchPresented";
 import { touchReach } from "./touchReach";
 import { touchRegion } from "./touchRegion";
 import { touchSide } from "./touchSide";
+import { touchStance } from "./touchStance";
 
 /**
  * One or both hands touch a partner's or the performer's own region with a
@@ -60,9 +61,10 @@ import { touchSide } from "./touchSide";
  *
  * Free-space transport brings the hand to the region; the kind's stroke
  * repeats `count` times, holds, then returns in the reach's time. Manner
- * scales tempo, lift and travel. Feet stay planted and the entry body holds,
- * except for the rise and lean the arm needs (`AutoMovieMotionHumanTouchStance`).
- * Seated or carried bodies do not rise; a region beyond the lean limit is refused.
+ * scales tempo, lift and travel. The entry body holds except for the rise
+ * and lean the arm needs. A grounded performer can take one step toward an
+ * external site beyond its planted reach (`touchStance`). Seated and
+ * carried touches are bounded by the reach from their existing base.
  * Self regions use the entry limb, except that the other arm is presented
  * across the waist, palm down, on the same envelope (`touchPresented`). A leg's
  * region follows the legs as a lean leaves them. Thus a touched limb stays
@@ -247,15 +249,16 @@ export namespace touch {
         placed(p.target, true)(posture, 0),
         leading.tangent,
         AutoMovieMotionHumanBend.hang(body, posture, first),
-        "arm",
+        leading.lay,
+        undefined,
+        p.elbow,
       );
-    const stance: IAutoMovieMotionHumanTouchStance.IStance =
-      AutoMovieMotionHumanTouchStance.solve({
+    const adjusted: touchStance.IChosen = touchStance(
+      {
         body,
         standing: entry,
         ...(grounded ? { feet: context.entry.feet } : {}),
-        // Balance only when the caller asks (`IAutoMovieMotionHumanBalance`).
-        ...(HumanPhysics.balanced(p) ? { balance: true } : {}),
+        fixed: context.carrier === undefined,
         side: first,
         share: REACH,
         wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
@@ -263,7 +266,10 @@ export namespace touch {
         arm: laidOn,
         refuse: (beyond: number, limit: number): string =>
           `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
-      });
+      },
+      grounded && p.target.kind !== "self",
+    );
+    const stance: IAutoMovieMotionHumanTouchStance.IStance = adjusted.stance;
     const leaning: boolean = stance.leaning;
     const region = (target: IAutoMovieMotionTarget) => placed(target, leaning);
 
@@ -327,8 +333,18 @@ export namespace touch {
       modifiers,
     );
 
-    const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    primitives.push(...stance.primitives(clock));
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      p, {}, context.start, { duration: clock.duration, events: clock.events() }, context.instant,
+    );
+    if (window !== null && !grounded)
+      throw new HumanRefusal({
+        kind: "base", axis: "balance", value: window.by, feasible: null,
+        reason: "this touch has no planted foot base for the requested balance shift",
+        fix: "give the touch a planted foot base or omit the shift",
+      });
+    const primitives: IAutoMovieMotionHumanPrimitive[] = stance.primitives(
+      clock, touchBalance(body, window, first, laidOn),
+    );
     if (shown !== null)
       primitives.push(
         touchPresented.carry(body, context.entry.pose, shown, clock),
@@ -457,13 +473,15 @@ export namespace touch {
         }),
       );
     }
-    const plan: IAutoMovieMotionHumanActionPlan =
-      composeAutoMovieMotionHumanAction({
-        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+    const plan: IAutoMovieMotionHumanActionPlan = {
+      ...composeAutoMovieMotionHumanAction({
+        base: adjusted.base(context, clock),
         clock,
         primitives,
         contact: "ready",
-      });
+      }),
+      ...HumanPhysics.declared(context.params, window),
+    };
     return p.prop === undefined
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);

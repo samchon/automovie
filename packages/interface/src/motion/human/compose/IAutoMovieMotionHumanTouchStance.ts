@@ -5,6 +5,7 @@ import type { IAutoMovieMotionHumanRise } from "../everyday/IAutoMovieMotionHuma
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
+import type { AutoMovieMotionHumanChannel } from "./AutoMovieMotionHumanChannel";
 import type { IAutoMovieMotionHumanPrimitive } from "./IAutoMovieMotionHumanPrimitive";
 
 /**
@@ -34,7 +35,7 @@ export namespace IAutoMovieMotionHumanTouchStance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and the meaning of its absence.
    * @evidence contracts/development/design.md#principled-representation The body, the posture it stands in, the feet it may rise on, the arm, the share of its length kept and the wrist's goal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Eight members, all read by `solve`; the arm's goal only passes to the lean.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `solve` reads the stance inputs and shares the arm's goal with the lean.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The feet are optional because a seated or carried body has none to rise on; the refusal's words are the caller's.
    */
   export interface IProps {
@@ -49,6 +50,15 @@ export namespace IAutoMovieMotionHumanTouchStance {
 
     /** Whether the lean balances its hips (`IAutoMovieMotionHumanLeanInto.IProps.balance`); absent or false, no centre of mass is computed. */
     balance?: boolean;
+
+    /** The wrist uses one anchored target for all stroke progress and the lean is keyed from the reached stance. */
+    fixed?: boolean;
+
+    /** The current ankle frames when the base's adjustment step moves them during the stroke. */
+    placements?: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanRise.Stance;
+
+    /** The heel rise's share when a step has to finish before its foot rolls onto the toes. */
+    heels?: (clock: IAutoMovieMotionClock, seconds: number) => number;
 
     /** The working hand. */
     side: AutoMovieHumanSide;
@@ -136,6 +146,16 @@ export namespace IAutoMovieMotionHumanTouchStance {
      */
     primitives: (
       clock: IAutoMovieMotionClock,
+      correction?: ICorrection,
     ) => IAutoMovieMotionHumanPrimitive[];
+  }
+
+  /** An admitted balance correction written after the stance and before the reaching arm. */
+  export interface ICorrection {
+    /** The body channel the correction changes. */
+    channel: AutoMovieMotionHumanChannel;
+
+    /** The event-windowed posture correction. */
+    write: IAutoMovieMotionHumanPrimitive["write"];
   }
 }
