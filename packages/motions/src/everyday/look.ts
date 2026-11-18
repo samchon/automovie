@@ -51,7 +51,7 @@ import { HumanGaze } from "./HumanGaze";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the overlay flag, the field and the plan the performance dispatches through, and `reactionLaw`, which `HumanResponse` reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
  */
 export namespace look {
@@ -93,7 +93,7 @@ export namespace look {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLook.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const recruit: IAutoMovieMotionHumanGaze.Recruit = context.params.with ?? "auto";
-    const at = (seconds: number): IAutoMovieVector3 =>
+    const at: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 =>
       context.aim(context.params.target, context.start + seconds).point;
     const first: { yaw: number; pitch: number } = HumanGaze.direction(
       context.body,
@@ -104,10 +104,10 @@ export namespace look {
       throw new HumanRefusal({
         kind: "parameter",
         axis: "cue",
-        value: context.params.cue ?? "seen",
-        feasible: { kind: "alternatives", values: ["signal"] },
+        value: null,
+        feasible: { kind: "alternatives", values: ["seen", "signal"] },
         reason: `the target lies ${first.yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`,
-        fix: 'declare the cue that draws the look (cue: "signal"), or turn toward the target first',
+        fix: 'declare the cue that draws the look (cue: "seen" or "signal"), or turn toward the target first',
       });
     const delay: number =
       context.params.cue === undefined
@@ -139,7 +139,7 @@ export namespace look {
       context.carrier === undefined
         ? stand.plan({ ...context, params: { seconds: duration } })
         : AutoMovieMotionHumanBase.under(context, duration);
-    const weight = (seconds: number, span: number): number =>
+    const weight: (seconds: number, span: number) => number = (seconds: number, span: number): number =>
       minimumJerk.share((seconds - delay) / span);
     return {
       duration,
@@ -196,7 +196,7 @@ export namespace look {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Deterministic in its stream; the plan calls it once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function reaction(
+  function reaction(
     skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     cue: "seen" | "signal",

@@ -107,6 +107,9 @@ export function prepareCrouchInclination(
       let hi: number = props.most;
       if (error(lo) >= 0) hi = lo;
       else if (error(hi) <= 0) lo = hi;
+      // Twelve halvings bound a table entry within the lumbar range over 4096,
+      // under a hundredth of a degree for a range under 40 degrees; the
+      // query's secant refines between entries.
       else
         for (let i: number = 0; i < 12; i++) {
           const mid: number = (lo + hi) / 2;
@@ -139,6 +142,9 @@ export function prepareCrouchInclination(
     );
     const error: (q: number) => number = (q: number): number =>
       ahead(current, q, read, project) - target;
+    // The secant's second point lies half a degree from the table's seed,
+    // inside one table interval; five steps at most, each a full posture
+    // fit, and it stops once the centre lies within 10 um of its course.
     let ea: number = error(a);
     let b: number = within(a + (ea < 0 ? 0.5 : -0.5));
     for (let i: number = 0; i < 5 && b !== a; i++) {
