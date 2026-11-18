@@ -15,6 +15,7 @@ import type {
   IAutoMovieMotionHumanGesture,
   IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanHand,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanTarget,
@@ -38,6 +39,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -142,7 +144,7 @@ export namespace gesture {
    * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, the moving arms planned to, on and from them as one trajectory clear of the body; joint gestures added under an envelope; a bow is `AutoMovieMotionHumanLean.bow`, its hip shift from the engine's centre of mass solved at the peak pitch and scaled by the pitch's sine between. The entry's and the rest's arm angles are joint angles, so they follow the standing body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing, transport and the channels and hands it declares; the body under it is the stand law's or, over a carrier, the carrier's (`under`); gestureStroke owns each gesture's goals and angles, `AutoMovieMotionHumanLean` the bowed posture, handGoals the arm solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; `BOW`, `DEEPEST_BOW`, `BOW_DOWN` and `BOW_UP` are the conventional and measured bow's; `JOINT_TRANSPORT` is a named provisional constant with no source found; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Only moving hands resolve entry and rest arms and plan trajectories; a bow solves its balance once. Between the ends, a posture reads the base, the direct joints, the fingers and the planned arms, building no hand goal; the two ends fit the hand goals. Kinds with no direct joints write none, and the hand and touch geometry is prepared once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Only moving hands plan trajectories. Between the ends, native playback and ordinary sampling read the live base, direct joints, fingers and planned arms without building a hand goal. Exact endpoints still fit the hand goals.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The phase times, the hand preparations and the kind's direct bones belong to one plan. Each posture read lends its FK workspace and ROM projector to the base, the hand goals and the end carry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its inputs, preparations and planned arm trajectories until it is released; borrowed workspaces end with each posture call.
    */
@@ -347,11 +349,7 @@ export namespace gesture {
       HumanPhysics.unsupported(window.by, "only the bow gesture moves the hips under an inclined trunk");
     const base: IAutoMovieMotionHumanActionPlan = under(duration);
 
-    // What the gesture moves, which an overlay takes from its carrier: the
-    // moving arms with their hands, the parts its joint angles belong to and,
-    // for a bow, the root and the trunk.
-    // The bones a kind writes do not depend on the share, envelope or
-    // extent it is read at, so any reading lists them.
+    // Any sample lists the direct bones this kind claims from its carrier.
     const direct: readonly AutoMovieHumanoidBone[] = Object.keys(
       gestureJoints.at(p.kind, 0, cycles, 1, 1),
     ) as AutoMovieHumanoidBone[];
@@ -367,8 +365,6 @@ export namespace gesture {
       claimed.add("trunk");
     }
 
-    // The posture before the arms at a second, the stroke's hand requests
-    // and the transport's share.
     const weight: (t: number) => number = (t: number): number =>
       t < prepare
         ? minimumJerk.share(t / prepare)
@@ -406,8 +402,6 @@ export namespace gesture {
       if (direct.length !== 0)
         gestureJoints.add(joints, p.kind, u, cycles, envelope, mods.extent);
 
-      // Hands: on the stroke's goals, and planned to its start and back
-      // to rest.
       const requests: IAutoMovieMotionHumanArmTarget.ISided[] = [];
       for (const side of sides) {
         if (!geometry) {
@@ -450,7 +444,7 @@ export namespace gesture {
             AutoMovieMotionHumanArmPlanned.together(context.handover, true, context.tempo),
           );
 
-    return {
+    const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       ...HumanPhysics.declared(context.params, window),
@@ -467,25 +461,39 @@ export namespace gesture {
               (c: AutoMovieMotionHumanChannel): boolean => claimed.has(c),
             ),
           }),
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      posture: (seconds, _channels, resolution, projection) => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const planned: boolean = arms !== undefined && t > 0 && t < duration;
-        const { posture, requests, envelope }: gestureHands.IPrior = prior(t, !planned, read, projection);
-        if (arms === undefined) return posture;
-        if (planned) return gestureHands.written(posture, arms!, t);
-        return AutoMovieMotionHumanArm.carry(
-          body,
-          handGoals(body, posture, requests),
-          t < prepare ? begin : rest,
-          envelope,
-          undefined,
-          read,
-          projection,
+        if (t > 0 && t < duration) return interior(t, resolution, projection);
+        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+        const { posture, requests, envelope }: gestureHands.IPrior = prior(t, true, read, projection);
+        return arms === undefined ? posture : AutoMovieMotionHumanArm.carry(
+          body, handGoals(body, posture, requests), t < prepare ? begin : rest,
+          envelope, undefined, read, projection,
         );
       },
     };
+    /** Read fingers and the base at the actual second, then write the prepared moving arms. */
+    function interior(t: number, resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture {
+      const { posture }: gestureHands.IPrior = prior(t, false, resolution, projection);
+      return arms === undefined ? posture : gestureHands.written(posture, arms, t);
+    }
+
+    const exact: IAutoMovieMotionHumanActionPlan["posture"] = planned.posture;
+    const bounds: readonly number[] = [0, prepare, strokeEnd, retractAt, duration];
+    const sourcePlayback: IAutoMovieMotionHumanPlayback = {
+      mode: "posture",
+      phases: bounds.slice(0, -1).map((from, index) => ({
+        from, to: bounds[index + 1]!,
+        sample: (t, channels, resolution, projection) =>
+          prepareHumanPoseResolution.isNativeSource(resolution)
+            ? { posture: t === 0 || t === duration
+                ? exact(t, channels, resolution, projection)
+                : interior(t, resolution, projection) }
+            : undefined,
+      })),
+    };
+    HumanPreparedPlayback.attach(planned, body, sourcePlayback);
+    return planned;
   }
 }

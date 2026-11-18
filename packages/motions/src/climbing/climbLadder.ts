@@ -14,6 +14,7 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanLadder,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
@@ -29,6 +30,7 @@ import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
@@ -126,7 +128,7 @@ export namespace climbLadder {
    * @evidence contracts/development/implementation.md#principled-implementation Preserves each original minimum-jerk limb move and rung contact, the pelvis height and lowering, and initial hand reach from the entry arms.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Body/ladder admission precedes fixed footprint/handhold preparation and per-limb beat arrays; separate support and arm primitives let root/leg demand omit arm work.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the authored rung count, beat order, clearance, approach bounds and contact windows, and still fits every requested hand against its actual wrist pose and ROM.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation holds each fixed rung contact, arc and socket once. Each evaluated posture has a logarithmic limb lookup and only the requested posture work.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each fixed rung contact, arc and socket is prepared once. Ordinary requests use logarithmic limb lookups. Native interior evaluations index the four intervals selected at event boundaries.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body, still base and ladder share rung/arc/socket geometry, root-line scalars and entry arms. Held grips read their prepared point directly and moving grips keep their continuous anatomy-based bend reference.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Plan-owned rung/beat and fixed-geometry arrays release with the plan. Current FK/ROM loans end with the synchronous write.
    */
@@ -149,8 +151,7 @@ export namespace climbLadder {
     const quiet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = stood.settled;
     const flat: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => flats[side];
 
-    // The climber stands before the ladder, facing it, the toes near the
-    // rungs and the feet between the rails.
+    // Admit the stance against the ladder before preparing limb moves.
     const turned: number = Math.abs(wrapDegrees(standing.yaw - yaw));
     HumanBound.within("facing", turned, 0, FACING, "degrees");
     const toe: number = Math.max(
@@ -211,9 +212,7 @@ export namespace climbLadder {
       left: AutoMovieMotionHumanLeg.preparePlacement(body, "left", footprints.left[1]!.rotation),
       right: AutoMovieMotionHumanLeg.preparePlacement(body, "right", footprints.right[1]!.rotation),
     };
-    // A fixed rung leaves the across-rung coordinate free. The closest grip
-    // to each shoulder's sagittal plane keeps the arms in their own lanes,
-    // independently of how narrowly the feet were placed on entry.
+    // Pick a grip in each shoulder's plane, within the rung's width.
     const halfWidth: number = ladder.width / 2;
     const handLane: (side: AutoMovieHumanSide) => number = (side: AutoMovieHumanSide): number =>
       Math.max(-halfWidth, Math.min(halfWidth, body.rest.get(`${side}UpperArm`)!.x));
@@ -232,13 +231,7 @@ export namespace climbLadder {
     const normal: IAutoMovieVector3 = HumanFrame.point(direction, { x: 0, y: 0, z: -1 });
     const handGoal: ReturnType<typeof climbLadderHands> = climbLadderHands(body, normal);
 
-    // How far a moving limb backs off the rungs at mid-move, read from the
-    // body and the ladder. A foot standing on its ball has its toe ahead of
-    // the rung by the toe's reach past the ball; backed off by that reach,
-    // the rung's radius and `CLEARANCE`, its toe passes the rung above
-    // `CLEARANCE` clear. A gripping hand's fingers wrap the rung to its far
-    // side; backed off by the rung's diameter and `CLEARANCE`, they open
-    // past it.
+    // Clear the rung by the toe's reach past the ball or the fingers' wrap.
     const toeReach: (side: "left" | "right") => number = (
       side: "left" | "right",
     ): number =>
@@ -281,12 +274,8 @@ export namespace climbLadder {
     );
     const reaching: (seconds: number) => number = AutoMovieMotionClock.prepare(clock, "start", "handsOn").progress;
 
-    // The active rung interval and its original minimum-jerk share.
-    function level(
-      limb: IAutoMovieMotionHumanClimbLadder.Limb,
-      seconds: number,
-    ): { index: number; u: number; moving: boolean } {
-      const base: number = limb.endsWith("Hand") ? reach : 0;
+    /** Find the first interval whose landing has yet to happen. */
+    function nextMove(limb: IAutoMovieMotionHumanClimbLadder.Limb, seconds: number): number {
       const own: (typeof moves)[IAutoMovieMotionHumanClimbLadder.Limb] = moves[limb];
       let low: number = 0;
       let high: number = own.length;
@@ -295,15 +284,27 @@ export namespace climbLadder {
         if (seconds >= own[middle]!.to) low = middle + 1;
         else high = middle;
       }
-      const move: (typeof own)[number] | undefined = own[low];
+      return low;
+    }
+
+    /** Evaluate the known interval without retaining the sampled limb state. */
+    function rung(limb: IAutoMovieMotionHumanClimbLadder.Limb, seconds: number,
+      next: number): { index: number; u: number; moving: boolean } {
+      const base: number = limb.endsWith("Hand") ? reach : 0;
+      const own: (typeof moves)[IAutoMovieMotionHumanClimbLadder.Limb] = moves[limb];
+      const move: (typeof own)[number] | undefined = own[next];
       if (move !== undefined && seconds > move.from)
         return {
           index: base + move.n,
           u: minimumJerk.share((seconds - move.from) / (move.to - move.from)),
           moving: true,
         };
-      const index: number = base + (own[low - 1]?.n ?? 0);
-      return { index, u: 1, moving: false };
+      return { index: base + (own[next - 1]?.n ?? 0), u: 1, moving: false };
+    }
+
+    /** Determine the rung for an ordinary query. */
+    function level(limb: IAutoMovieMotionHumanClimbLadder.Limb, seconds: number): ReturnType<typeof rung> {
+      return rung(limb, seconds, nextMove(limb, seconds));
     }
 
     // Both feet follow authored ankle paths. Their reach is continuous when
@@ -342,13 +343,17 @@ export namespace climbLadder {
       reads: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number, _before?: IAutoMovieMotionHumanPrimitive.Reader, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanPosture => {
+      write: (posture, seconds, _before, resolution) => legsAt(posture, seconds, resolution, level),
+    };
+    /** Write both ankle goals, then solve the live stance reach. */
+    function legsAt(posture: IAutoMovieMotionHumanPosture, seconds: number,
+      resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], readLevel: typeof level): IAutoMovieMotionHumanPosture {
         const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
           left: flat("left"),
           right: flat("right"),
         };
         const footLevels: Record<"left" | "right", ReturnType<typeof level>> = {
-          left: level("leftFoot", seconds), right: level("rightFoot", seconds),
+          left: readLevel("leftFoot", seconds), right: readLevel("rightFoot", seconds),
         };
         for (const side of ["left", "right"] as const) {
           const at: ReturnType<typeof level> = footLevels[side];
@@ -375,8 +380,7 @@ export namespace climbLadder {
         }
 
         return stance(posture, feet, footLevels, resolution);
-      },
-    };
+    }
     const arms: IAutoMovieMotionHumanPrimitive = {
       channels: ["leftArm", "rightArm"],
       reads: (seconds: number): readonly AutoMovieMotionHumanChannel[] =>
@@ -385,13 +389,18 @@ export namespace climbLadder {
           : HumanChannels.ORDER,
       from: 0,
       to: duration,
-      write: (lowered: IAutoMovieMotionHumanPosture, seconds: number, _before?: IAutoMovieMotionHumanPrimitive.Reader, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+      write: (lowered, seconds, _before, resolution, projection) => armsAt(lowered, seconds, resolution, projection, level),
+    };
+    /** Write the current grip goals and carry the entering arm angles through the first reach. */
+    function armsAt(lowered: IAutoMovieMotionHumanPosture, seconds: number,
+      resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3], readLevel: typeof level): IAutoMovieMotionHumanPosture {
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...lowered.limbs };
 
         // Each hand grips its rung, reaching it from where it hung at first.
         const reachShare: number = reaching(seconds);
         for (const side of ["left", "right"] as const) {
-          const at: ReturnType<typeof level> = level(`${side}Hand`, seconds);
+          const at: ReturnType<typeof level> = readLevel(`${side}Hand`, seconds);
           const grip: IAutoMovieVector3 = at.moving
             ? handArcs[side][at.index - reach - 1]!(at.u)
             : handholds[side][at.index - reach]!;
@@ -423,8 +432,7 @@ export namespace climbLadder {
           resolution,
           projection,
         );
-      },
-    };
+    }
 
     // Contact windows between each limb's moves.
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
@@ -455,7 +463,7 @@ export namespace climbLadder {
       }
     }
 
-    return {
+    const planned: IAutoMovieMotionHumanClimbLadder.IPlan = {
       ...composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
@@ -464,5 +472,26 @@ export namespace climbLadder {
       }),
       ladder,
     };
+    const exact: IAutoMovieMotionHumanActionPlan["posture"] = planned.posture;
+    const mergeLegs: ReturnType<typeof HumanChannels.prepareMerge> = HumanChannels.prepareMerge(climb.channels);
+    const mergeArms: ReturnType<typeof HumanChannels.prepareMerge> = HumanChannels.prepareMerge(arms.channels);
+    const bounds: number[] = [...new Set([0, ...instants.map((instant) => instant.seconds), duration])].sort((a, b) => a - b);
+    const playback: IAutoMovieMotionHumanPlayback = {
+      mode: "posture",
+      phases: bounds.slice(0, -1).map((from, index) => {
+        const to: number = bounds[index + 1]!;
+        const intervals: Map<IAutoMovieMotionHumanClimbLadder.Limb, number> =
+          new Map(ORDER.map((limb) => [limb, nextMove(limb, from)]));
+        const at: typeof level = (limb, seconds) => rung(limb, seconds, intervals.get(limb)!);
+        return { from, to, sample: (t, channels, resolution, projection) => {
+          if (!prepareHumanPoseResolution.isNativeSource(resolution) || channels !== undefined) return undefined;
+          if (t === from || t === to) return { posture: exact(t, channels, resolution, projection) };
+          const lowered: IAutoMovieMotionHumanPosture = mergeLegs(standing, legsAt(standing, t, resolution, at));
+          return { posture: mergeArms(lowered, armsAt(lowered, t, resolution, projection, at)) };
+        } };
+      }),
+    };
+    HumanPreparedPlayback.attach(planned, body, playback);
+    return planned;
   }
 }
