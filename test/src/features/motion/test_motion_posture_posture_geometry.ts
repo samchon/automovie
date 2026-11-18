@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -7,6 +8,7 @@ import type {
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanAuditDifference,
   HUMAN_LEXICON,
   HumanChain,
   HumanFoot,
@@ -20,6 +22,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanLaw } from "../internal/motionHumanLaw";
 
 /**
  * A body that sits or lies down on the floor ends on the floor: lying, the
@@ -59,6 +62,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_motion_posture_posture_geometry(): void {
   const complaints: string[] = [];
   checkStandingSupports(complaints);
+  checkSideReflection(complaints);
   checkSupportTransfer(complaints);
   checkCrossedSeat(complaints);
   const rows: readonly string[] = [
@@ -417,5 +421,44 @@ function checkSupportTransfer(findings: string[]): void {
     const verdict = HumanVerdicts.of(brace);
     if (!verdict.clean)
       findings.push(kind + ": " + HumanVerdicts.describe(verdict));
+  }
+}
+
+function checkSideReflection(findings: string[]): void {
+  const body = motionHumanBody("m-average"),
+    actor = HumanChain.subject("a");
+  const actions = (side: AutoMovieHumanSide) => [
+    actor.gesture({ kind: "wave", side }),
+    actor.kneel({ knee: side, hold: 0.5 }),
+    actor.bend({
+      side,
+      toward: {
+        kind: "point",
+        frame: "world",
+        at: {
+          x: side === "left" ? 0.15 : -0.15,
+          y: body.measure.ankleHeight + 0.6 * body.measure.shank,
+          z: 0.45,
+        },
+      },
+    }),
+  ];
+  const right = actions("right");
+  for (const [i, left] of actions("left").entries()) {
+    const film = (node: IAutoMovieMotionHumanChain) =>
+      motionHumanLaw.perform("sweep-1", [{ subject: "a", body }], node);
+    const result = AutoMovieMotionHumanAuditDifference.measure(
+      film(left),
+      film(right[i]!),
+      "a",
+      { mirror: 0, rate: 4 },
+    ).distance;
+    if (!(result.value <= 0.01))
+      findings.push(
+        "Reflected posture exceeds 10 mm at " +
+          result.seconds +
+          ": " +
+          result.value,
+      );
   }
 }

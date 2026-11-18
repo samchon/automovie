@@ -4,13 +4,19 @@ import {
   createKerb,
   createObstacle,
 } from "@automovie/archetypes";
-import type { AutoMovieHumanSide } from "@automovie/interface";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanObstacle,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanFoot,
   HumanObject,
+  HumanObstacle,
   HumanPerformance,
   HumanRefusal,
+  HumanTravelDoor,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -56,6 +62,7 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
 export function test_motion_posture_obstacle_step(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   checkObjectEdges(complaints);
+  checkWallCrossing(complaints);
   const NEAR: number = 0.35;
   const FAR: number = 0.6;
   const TOP: number = 0.3;
@@ -190,4 +197,145 @@ function checkObjectEdges(findings: motionComplaints.IGatherer): void {
       refusal instanceof HumanRefusal && refusal.axis === "obstacle",
     );
   }
+}
+
+function checkWallCrossing(findings: motionComplaints.IGatherer): void {
+  const body = motionHumanBody("m-average"),
+    actor = HumanChain.subject("a");
+  const wall = (width?: number, height = 2) =>
+    HumanObstacle.wall(
+      "wall",
+      { x: -2, y: 0, z: 2 },
+      { x: 2, y: 0, z: 2 },
+      0.2,
+      2.5,
+      width === undefined
+        ? []
+        : [
+            {
+              id: "door",
+              at: { x: 0, y: 0, z: 2 },
+              across: { x: 1, y: 0, z: 0 },
+              width,
+              height,
+            },
+          ],
+    );
+  const run = (
+    obstacle: IAutoMovieMotionHumanObstacle,
+    chain: IAutoMovieMotionHumanChain,
+    x = 0,
+  ) =>
+    new HumanPerformance({
+      seed: "wall",
+      laws: [HumanTravelDoor.passThrough],
+      obstacles: [obstacle],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+        {
+          subject: "b",
+          body: motionHumanBody("f-small"),
+          at: { x: 0, y: 0, z: 2.6 },
+          yaw: 180,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: chain.node,
+    });
+  const walk = actor.walk({ to: { x: 0, y: 0, z: 4 } });
+  const via = actor.walk({
+    to: { x: 0, y: 0, z: 4 },
+    via: [
+      { x: 3, y: 0, z: 0.5 },
+      { x: 3, y: 0, z: 3.5 },
+    ],
+  });
+  for (const [obstacle, minimum] of [
+    [wall(), undefined],
+    [wall(0.3), body.measure.chestBreadth],
+    [wall(0.9, 1.2), body.measure.stature],
+  ] as const) {
+    let e: unknown;
+    try {
+      run(obstacle, walk);
+    } catch (error) {
+      e = error;
+    }
+    findings.check(
+      "blocked walk reports wall and needed clearance",
+      e instanceof HumanRefusal &&
+        e.kind === "reach" &&
+        e.axis === "path" &&
+        e.message.includes("wall") &&
+        (minimum === undefined ||
+          (e.feasible?.kind === "range" &&
+            (e.feasible.minimum ?? -Infinity) >= minimum)),
+    );
+  }
+  const open = wall(0.9);
+  const pass = actor.registered("passThrough", { through: "wall" });
+  for (const [obstacle, chain, x] of [
+    [open, walk, 0],
+    [wall(), via, 0],
+    [open, pass, 1.5],
+  ] as const) {
+    const p = run(obstacle, chain, x);
+    const hips = (t: number) => {
+      const b = p.bones("a", t),
+        l = b.get("leftUpperLeg")!.worldPosition,
+        r = b.get("rightUpperLeg")!.worldPosition;
+      return { x: (l.x + r.x) / 2, z: (l.z + r.z) / 2 };
+    };
+    if (chain === pass) {
+      let closest = hips(0);
+      for (let t = 0; t <= p.duration; t += 1 / 8) {
+        const now = hips(t);
+        if (Math.abs(now.z - 2) < Math.abs(closest.z - 2)) closest = now;
+      }
+      findings.check(
+        "portal leads off-axis walker through its aperture",
+        Math.abs(closest.x) <= 0.25 && hips(p.duration).z >= 2.3,
+      );
+    } else
+      findings.check(
+        "admitted path reaches beyond the wall",
+        Math.abs(hips(p.duration).z - 4) <= 0.3,
+      );
+  }
+  let blocked: unknown;
+  try {
+    run(
+      wall(),
+      actor.approach({
+        target: { kind: "person", subject: "b", region: "sternum" },
+      }),
+    );
+  } catch (error) {
+    blocked = error;
+  }
+  findings.check(
+    "wall between approaching actors",
+    blocked instanceof HumanRefusal &&
+      blocked.kind === "reach" &&
+      blocked.axis === "path" &&
+      blocked.message.includes("between"),
+  );
+  let absent: unknown;
+  try {
+    run(wall(), pass, 1.5);
+  } catch (error) {
+    absent = error;
+  }
+  findings.check(
+    "no aperture for passage",
+    absent instanceof HumanRefusal &&
+      absent.kind === "affordance" &&
+      absent.axis === "aperture",
+  );
 }
