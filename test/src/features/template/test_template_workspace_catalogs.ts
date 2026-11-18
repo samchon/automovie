@@ -12,7 +12,7 @@ import { parse } from "yaml";
  *
  * Scenarios:
  * 1. Registry pins, catalog links and overrides supply the appropriate resolutions.
- * 2. An unrelated catalog using the same YAML anchor keeps its original entries.
+ * 2. Aliases in either direction keep unrelated catalogs, overrides and a snapshot of all catalogs unchanged.
  * 3. A repeated add preserves the file's bytes. Absent catalogs are filled and malformed settings fail.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the template API used by add and checks its returned YAML against the generated production manifest and the pre-existing workspace choices.
@@ -87,6 +87,21 @@ export function test_template_workspace_catalogs(): void {
   assert.ok(
     parse(complete("packages: []\n")).catalogs.automovie["@automovie/motions"],
   );
+  const anchored = parse(
+    complete(
+      [
+        "catalogs: &all",
+        "  automovie: &sdk {}",
+        "  unrelated: *sdk",
+        "overrides: *sdk",
+        "originalCatalogs: *all",
+      ].join("\n"),
+    ),
+  );
+  assert.deepEqual(anchored.overrides, {});
+  assert.deepEqual(anchored.catalogs.unrelated, {});
+  assert.deepEqual(anchored.originalCatalogs, { automovie: {}, unrelated: {} });
+  assert.ok(anchored.catalogs.automovie["@automovie/archetypes"]);
   for (const source of [
     "catalogs: [",
     "catalogs: []",

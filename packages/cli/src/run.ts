@@ -3,6 +3,7 @@ import {
   createAutoMovieScaffold,
   renderAutoMovieWorkspace,
 } from "@automovie/template";
+import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -216,7 +217,7 @@ function completeCatalogs(file: string): void {
     source,
   });
   if (next === source) return;
-  const pending: string = `${target}.automovie-tmp`;
+  const pending: string = `${target}.${randomUUID()}.tmp`;
   const descriptor: number = fs.openSync(
     pending,
     "wx",
@@ -225,12 +226,14 @@ function completeCatalogs(file: string): void {
   let renamed: boolean = false;
   try {
     try {
-      if (fs.readFileSync(target, "utf8") !== source)
-        throw new Error(`${file} changed during add. Run the command again.`);
       fs.writeFileSync(descriptor, next);
     } finally {
       fs.closeSync(descriptor);
     }
+    const current: string = fs.readFileSync(target, "utf8");
+    if (current === next) return;
+    if (current !== source)
+      throw new Error(`${file} changed during add. Run the command again.`);
     fs.renameSync(pending, target);
     renamed = true;
   } finally {

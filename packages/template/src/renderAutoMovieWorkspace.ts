@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { type Document, isMap, parseDocument, stringify } from "yaml";
+import { type Document, isMap, parseDocument, stringify, visit } from "yaml";
 
 /** Catalog dependencies and build policy collected from the shipped manifests at build time. */
 interface IScaffoldSettings {
@@ -89,23 +89,42 @@ export function renderAutoMovieWorkspace(
       current.get(catalog),
       `catalogs.${catalog}`,
     );
-    for (const [name, range] of Object.entries(dependencies)) {
-      if (entries.has(name)) continue;
-
-      // Materialize an aliased or inherited map locally before extending it.
-      if (!isMap(document.get("catalogs", true)))
-        document.set("catalogs", document.createNode(current));
-      if (!isMap(document.getIn(["catalogs", catalog], true)))
-        document.setIn(["catalogs", catalog], document.createNode(entries));
+    const missing: [string, string][] = Object.entries(dependencies).filter(
+      ([name]) => !entries.has(name),
+    );
+    if (missing.length === 0) continue;
+    if (!changed) isolateMapping(document, ["catalogs"], current);
+    isolateMapping(document, ["catalogs", catalog], entries);
+    for (const [name, range] of missing) {
       const link: string | undefined =
         catalog === "automovie" && !overrides.has(name)
           ? linkedSibling(workspace.directory, directories, name)
           : undefined;
       document.setIn(["catalogs", catalog, name], link ?? range);
-      changed = true;
     }
+    changed = true;
   }
   return changed ? document.toString() : workspace.source;
+}
+
+/** Give this path its own entries, preserving the old values at other uses of its anchor. */
+function isolateMapping(
+  document: Document,
+  keys: string[],
+  values: Map<string, unknown>,
+): void {
+  const node = document.getIn(keys, true);
+  if (!isMap(node)) {
+    document.setIn(keys, document.createNode(values));
+    return;
+  }
+  if (node.anchor)
+    visit(document, {
+      Alias: (_key, alias) => {
+        if (alias.resolve(document) === node)
+          return document.createNode(values, { aliasDuplicateObjects: false });
+      },
+    });
 }
 
 /** Read an optional YAML mapping, refusing malformed pnpm settings before edits. */
