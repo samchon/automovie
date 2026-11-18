@@ -32,28 +32,32 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
   const anchor: IAutoMovieVector3 = Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, goal.contact));
   let point: IAutoMovieVector3 = goal.point;
   let last: { image: IAutoMovieVector3; miss: IAutoMovieVector3 } | undefined;
-  let toes: number = 0;
-  let nearest: { fitted: IAutoMovieSeededChainFit; miss: number; toes: number } = { fitted, miss: Infinity, toes: 0 };
+  let nearestRotation: IAutoMovieQuaternion | undefined;
+  let nearest: IAutoMovieSeededChainFit = fitted;
+  let nearestMiss: number = Infinity;
 
   // A current orientation changes the offset point; keep its best actual contact if mixing does not close.
   for (let i: number = 0; i < REAIM_PASSES; ++i) {
     const reached: IAutoMovieQuaternion = fitter.rotation(fitted.pose);
-    const off: ReturnType<typeof HumanFoot.heelOff> = HumanFoot.heelOff(goal.rotation, reached, anchor, goal.contact);
-    toes = off.toes;
-    const miss: IAutoMovieVector3 = Vector3.subtract(off.ankle, point);
+    const aim: IAutoMovieVector3 = Vector3.subtract(anchor, Quaternion.rotateVector(reached, goal.contact));
+    const miss: IAutoMovieVector3 = Vector3.subtract(aim, point);
     const missSize: number = Vector3.length(miss);
-    if (missSize < nearest.miss) nearest = { fitted, miss: missSize, toes };
+    if (missSize < nearestMiss) {
+      nearest = fitted;
+      nearestMiss = missSize;
+      if (leg) nearestRotation = reached;
+    }
     if (missSize < REAIM_TOLERANCE || i === REAIM_PASSES - 1) break;
-    let next: IAutoMovieVector3 = off.ankle;
+    let next: IAutoMovieVector3 = aim;
     if (last !== undefined) {
       const change: IAutoMovieVector3 = Vector3.subtract(miss, last.miss);
       const size: number = Vector3.dot(change, change);
       if (size > 1e-18) {
         const mixing: number = Math.max(-20, Math.min(20, Vector3.dot(change, miss) / size));
-        next = Vector3.subtract(off.ankle, Vector3.scale(Vector3.subtract(off.ankle, last.image), mixing));
+        next = Vector3.subtract(aim, Vector3.scale(Vector3.subtract(aim, last.image), mixing));
       }
     }
-    last = { image: off.ankle, miss };
+    last = { image: aim, miss };
     point = next;
 
     // A re-aimed target lies millimetres from the last one, so its fit
@@ -62,9 +66,10 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
     fitted = fit(point, fitted.seed === null ? undefined
       : { ...fitted.seed, tolerance: hingedArmSwivel.RESOLUTION });
   }
-  fitted = nearest.fitted;
-  toes = nearest.toes;
-  if (!leg || toes === 0) return fitted;
+  fitted = nearest;
+  if (nearestRotation === undefined) return fitted;
+  const toes: number = Math.max(0, HumanFoot.pitch(goal.rotation) - HumanFoot.pitch(nearestRotation));
+  if (toes === 0) return fitted;
   const bone: AutoMovieHumanoidBone = `${side}Toes`;
   return {
     pose: { ...fitted.pose, joints: fitted.pose.joints.map((joint: IAutoMovieJointPose): IAutoMovieJointPose =>
