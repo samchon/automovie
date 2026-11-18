@@ -105,40 +105,55 @@ export function test_human_motion_ride_rowing(): void {
       },
       water === "swell" ? { sea: { height: 1, seed: 7 } } : {},
     );
+    const placed: (seconds: number) => IAutoMovieRigidTransform = (seconds: number): IAutoMovieRigidTransform => {
+      const placement: IAutoMovieTransform = ride.at(
+        Math.max(0, seconds - WAIT),
+      ).placement;
+      return {
+        position: placement.translation,
+        rotation: placement.rotation,
+      };
+    };
+    const part: (id: string, seconds: number) => IAutoMovieTransform = (id: string, seconds: number): IAutoMovieTransform =>
+      ride.frame(
+        id as Parameters<typeof ride.frame>[0],
+        Math.max(0, seconds - WAIT),
+      );
+    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+      boat,
+      placed(0),
+      thwart,
+    );
+    // The rower stands on the boat's floor before sitting, so the thwart
+    // is measured from that floor (`seated.floor`), on the swell too.
+    const floor: IAutoMovieVector3 = Quaternion.rotateVector(
+      placed(0).rotation,
+      affordances.find(
+        (a: IAutoMovieAffordance): boolean => a.id === "floor",
+      )!.frame.translation,
+    );
+    const standing: IAutoMovieVector3 = HumanFrame.point(
+      { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
+      { x: 0, y: 0, z: 0.4 },
+    );
+    // 1. The wrists on the handles at each catch and halfway to the next.
+    const catches: number[] = ride.instants
+      .filter((i: BoatInstant): boolean => /^catch\d+$/.test(i.label))
+      .map((i: BoatInstant): number => WAIT + i.seconds);
+    if (catches.length === 0)
+      complaints.push(`${water} water: the ride names no catch`);
+    const instants: number[] = catches.flatMap(
+      (t: number, k: number): number[] =>
+        k + 1 < catches.length ? [t, (t + catches[k + 1]!) / 2] : [t],
+    );
+    const targets: ReadonlyArray<readonly [number, Record<AutoMovieHumanSide, IAutoMovieVector3>]> =
+      instants.map((seconds: number): readonly [number, Record<AutoMovieHumanSide, IAutoMovieVector3>] => [
+        seconds,
+        { left: part("leftHandle", seconds).translation, right: part("rightHandle", seconds).translation },
+      ]);
     for (const name of ["m-average", "f-small"] as const) {
       const label: string = `${name} on ${water} water`;
       const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-      const placed = (seconds: number): IAutoMovieRigidTransform => {
-        const placement: IAutoMovieTransform = ride.at(
-          Math.max(0, seconds - WAIT),
-        ).placement;
-        return {
-          position: placement.translation,
-          rotation: placement.rotation,
-        };
-      };
-      const part = (id: string, seconds: number): IAutoMovieTransform =>
-        ride.frame(
-          id as Parameters<typeof ride.frame>[0],
-          Math.max(0, seconds - WAIT),
-        );
-      const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
-        boat,
-        placed(0),
-        thwart,
-      );
-      // The rower stands on the boat's floor before sitting, so the thwart
-      // is measured from that floor (`seated.floor`), on the swell too.
-      const floor: IAutoMovieVector3 = Quaternion.rotateVector(
-        placed(0).rotation,
-        affordances.find(
-          (a: IAutoMovieAffordance): boolean => a.id === "floor",
-        )!.frame.translation,
-      );
-      const standing: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
-        { x: 0, y: 0, z: 0.4 },
-      );
       let performance: IAutoMovieMotionHumanPerformance;
       try {
         performance = new HumanPerformance({
@@ -177,16 +192,6 @@ export function test_human_motion_ride_rowing(): void {
         0,
       );
 
-      // 1. The wrists on the handles at each catch and halfway to the next.
-      const catches: number[] = ride.instants
-        .filter((i: BoatInstant): boolean => /^catch\d+$/.test(i.label))
-        .map((i: BoatInstant): number => WAIT + i.seconds);
-      if (catches.length === 0)
-        complaints.push(`${label}: the ride names no catch`);
-      const instants: number[] = catches.flatMap(
-        (t: number, k: number): number[] =>
-          k + 1 < catches.length ? [t, (t + catches[k + 1]!) / 2] : [t],
-      );
       const neckAhead = (frame: ReturnType<typeof HumanSignature.bones>, t: number): number => {
         const neck: IAutoMovieVector3 = frame.get("neck")!.worldPosition;
         const hips: IAutoMovieVector3 = frame.get("hips")!.worldPosition;
@@ -201,15 +206,12 @@ export function test_human_motion_ride_rowing(): void {
         right: { gap: 0, at: 0 },
       };
       let firstCatch: number | undefined;
-      for (const t of instants) {
+      for (const [t, handles] of targets) {
         const frame: ReturnType<typeof HumanSignature.bones> = HumanSignature.bones(reader, t);
         if (t === catches[0]) firstCatch = neckAhead(frame, t);
         for (const side of ["left", "right"] as const) {
           const wrist: IAutoMovieVector3 = frame.get(`${side}Hand`)!.worldPosition;
-          const handle: IAutoMovieVector3 = part(
-            `${side}Handle`,
-            t,
-          ).translation;
+          const handle: IAutoMovieVector3 = handles[side];
           const gap: number = Math.hypot(
             wrist.x - handle.x,
             wrist.y - handle.y,
