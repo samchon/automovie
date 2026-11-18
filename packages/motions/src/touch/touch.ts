@@ -23,6 +23,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { operate } from "../affordance/operate";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -102,8 +103,8 @@ export namespace touch {
     >
   > = touchEffectors.TABLE;
 
-  /** The share of the arm's length (upper arm and forearm) the wrist is kept within before the trunk leans in, so the elbow never locks straight on a region (provisional, as `operate.REACH`). */
-  export const REACH: number = 0.97;
+  /** The share of the arm's length (upper arm and forearm) the wrist is kept within before the trunk leans in, so the elbow never locks straight on a region: the one provisional share an operated part is reached by too (`operate.REACH`). */
+  export const REACH: number = operate.REACH;
 
   /**
    * Plan a touch.
@@ -154,7 +155,7 @@ export namespace touch {
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     // The part of the hand that touches; the hand is the author's, or the
-    // one whose arm reaches the region with the least strain (	ouchSide).
+    // one whose arm reaches the region with the least strain (`touchSide`).
     const touching: IAutoMovieMotionHumanTouchEffector.IEffector =
       AutoMovieMotionHumanTouchForm.curled(EFFECTORS[p.with ?? "palm"], kind);
     const first: AutoMovieHumanSide = touchSide.of(context, touching);
