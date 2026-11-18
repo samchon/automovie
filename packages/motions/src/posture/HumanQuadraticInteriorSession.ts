@@ -19,11 +19,11 @@ export namespace HumanQuadraticInteriorSession {
    * One caller's session of solves.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each member, who sets it and when the caller clears the point.
-   * @evidence contracts/development/design.md#principled-representation The first solve's variable and cost scales, the solver's n- and m-sized scratch, and the last converged point of a program of the same rows.
+   * @evidence contracts/development/design.md#principled-representation The first solve's variable and cost scales, the last preparation of the session's data, the solver's n- and m-sized scratch, and the last converged point of a program of the same rows.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Set by the solve; the caller clears `point` when its next programs have other rows (a new linearisation).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point whose sizes are not the next program's is not used.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point whose sizes are not the next program's is not used; a preparation is reused only on equal data and scaling (`HumanQuadraticPreparation.scaled`).
    */
-  export interface ISession {
+  export interface ISession extends Preparation.IOwner {
     /** The variables' and cost's scales of the session's first solve, which every later solve of the session is scaled by (`HumanQuadraticPreparation.IScaling`). */
     scaling?: Preparation.IScaling;
 

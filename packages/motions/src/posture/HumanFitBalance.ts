@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanFitBalanceBase } from "./HumanFitBalanceBase";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
@@ -31,7 +32,13 @@ import { HumanJacobian } from "./HumanJacobian";
  * past the segment's ends or nowhere at all. The centre of mass is the
  * engine's mass model's (`resolveAutoMovieCenterOfMass`) and its Jacobian
  * the mass-weighted sum of its segments' centres' point columns
- * (`HumanJacobian.velocity`).
+ * (`HumanJacobian.velocity`). Where the bearing points' bones are given, the
+ * base's corners ride them: a row's slope is the exact derivative of its
+ * half-plane's signed distance, the centre's motion less the motion of the
+ * line through the corners, and a trial is measured through its own
+ * corners, so a fit's model moves the base as its merit's reading of the
+ * next posture does (Nocedal and Wright 2006, section 18.5: an l1 merit and
+ * the model it is predicted by must price the same function).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance kept, its base with its source, the rows and the centre's Jacobian.
  * @evidence contracts/development/design.md#principled-representation The base of support as a convex polygon's half-planes, the linear form a quadratic program bounds a point by.
@@ -59,7 +66,36 @@ export namespace HumanFitBalance {
 
     /** Each half-plane's signed distance of the centre inside it, metres, in the anchors' order. */
     inside: number[];
+
+    /** The base's corners as points riding the bones they bear through, in hull order, where the bearing points' bones were given (`of`'s `owners`); absent, the base is read as fixed in the world. */
+    riders?: IRider[];
+
+    /** Each half-plane's corners among `riders`, in the anchors' order, present with `riders`. */
+    through?: IThrough[];
   }
+
+  /**
+   * A corner of the base: a bearing point riding its bone, which moves with
+   * the posture as the centre does.
+   *
+   * @evidence contracts/development/design.md#principled-representation The bone, the point in the bone's frame and its world place at the reading, the data a point's Jacobian column and its place at another posture are read from.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Made by `of` from the bearing points' bones; read by `slopes` and `at`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the bearing candidate's own, never a bone origin standing in for it.
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
+   */
+  export interface IRider {
+    /** The bone the point rides. */
+    bone: AutoMovieHumanoidBone;
+
+    /** The point in the bone's frame, metres. */
+    local: IAutoMovieVector3;
+
+    /** The point in the world at the reading, metres. */
+    world: IAutoMovieVector3;
+  }
+
+  /** Which corners a half-plane passes through (`HumanFitBalanceBase.IThrough`). */
+  export type IThrough = HumanFitBalanceBase.IThrough;
 
   /**
    * The balance of a posed body.
@@ -68,14 +104,15 @@ export namespace HumanFitBalance {
    * @param bones Its resolved bones.
    * @param points The points that bear, world metres, whose convex hull on the floor is the base; the feet's bearing outline (`HumanFoot.base`) when absent.
    * @param com Optional already computed centre for this unchanged body and bones, borrowed without mutation; computed here when absent.
+   * @param owners The bone each of `points` rides, in their order: the base's corners then move with the posture (`IReading.riders`); absent, the base is read as fixed in the world.
    * @returns The reading.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the segmental mass centre and constructs Andrew's monotone-chain convex hull of the actual bearing points, then measures each half-plane that bounds it: a polygon's edges, a segment's sides and end caps, or a point's four axis half-planes.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the segmental mass centre and the half-planes of the actual bearing points' convex hull (`HumanFitBalanceBase.of`: a polygon's edges, a segment's sides and end caps, or a point's four axis half-planes), then measures each; with the points' bones, each corner is kept as the point riding its bone in that bone's frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional current centre and one hull feed the ordered edge distances; their mass and geometry owners remain separate.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No half-plane is dropped or zeroed for a degenerate base, so a point or segment support still holds the centre; a supplied centre must be the actual value for the same unchanged body and bones.
    * @evidence contracts/development/implementation.md#efficient-algorithms For P bearing points and H hull edges, hull construction takes O(P log P) and mean/normal/distance preparation O(H), plus delegated mass-model construction and placement when no centre is supplied.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Accepts the same-reading positional mass centre and computes the unchanged corner mean once; each resulting inward normal serves its distance, slope and fixed-model callbacks.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh outline, inward-direction and distance arrays and borrows the supplied/computed centre without mutation; no reading, points or derivative columns are cached globally.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh outline, inward-direction, distance and corner arrays, borrowing the supplied/computed centre and the bearing points as the corners' world places without mutation; no reading, points or derivative columns are cached globally.
    * @evidence contracts/development/common.md#meaningful-documentation States bearing defaults, same-reading centre premise, hull method, units, costs and ownership.
    */
   export function of(
@@ -83,16 +120,12 @@ export namespace HumanFitBalance {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     points: readonly IAutoMovieVector3[] = HumanFoot.base(body, bones),
     com: IAutoMovieVector3 = centre(body, bones),
+    owners?: readonly AutoMovieHumanoidBone[],
   ): IReading {
-    const planes: { anchors: { x: number; z: number }[]; normals: { x: number; z: number }[] } =
-      halfPlanes(
-        hull(
-          points.map((p: IAutoMovieVector3): { x: number; z: number } => ({
-            x: p.x,
-            z: p.z,
-          })),
-        ),
-      );
+    // Each corner of the hull keeps the index of the bearing point it
+    // projects, so it is known as the point that rides its bone.
+    const planes: ReturnType<typeof HumanFitBalanceBase.of> = HumanFitBalanceBase.of(points);
+    const corners: HumanFitBalanceBase.ICorner[] = planes.corners;
     return {
       com,
       anchors: planes.anchors,
@@ -100,7 +133,72 @@ export namespace HumanFitBalance {
       inside: planes.anchors.map((_: { x: number; z: number }, k: number): number =>
         distance(planes.anchors, k, com, planes.normals[k]!),
       ),
+      ...(owners === undefined
+        ? {}
+        : {
+            riders: corners.map((c: HumanFitBalanceBase.ICorner): IRider => {
+              const b: IAutoMovieResolvedBone = bones.get(owners[c.i]!)!;
+              const world: IAutoMovieVector3 = points[c.i]!;
+              return {
+                bone: owners[c.i]!,
+                local: Quaternion.rotateVector(
+                  Quaternion.inverse(b.worldRotation),
+                  Vector3.subtract(world, b.worldPosition),
+                ),
+                world,
+              };
+            }),
+            through: planes.through,
+          }),
     };
+  }
+
+  /**
+   * A half-plane's signed distance of a centre at another posture, its base's
+   * corners carried by their bones there (`IReading.riders`): a side's line
+   * through its two corners as they are placed, a cap across the segment as
+   * placed, a point's axes through its corner. Without riders the base is the
+   * reading's own, fixed.
+   *
+   * @param reading The balance read at the linearisation.
+   * @param k The half-plane.
+   * @param bones The other posture's resolved bones.
+   * @param com The centre at the other posture, world metres.
+   * @returns Metres, positive inside.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation The function `slopes` differentiates, evaluated: the half-plane through its corners where they are now, each side's inward orientation kept from the reading, so a second-order correction measures what the linear row models.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placement of the corners the half-plane names and one dot product.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No corner is left where the reading had it while its bone moves.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(1): two corner placements.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the reading's riders and orientations; places only the half-plane's own corners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one scalar and retains nothing.
+   * @evidence contracts/development/common.md#meaningful-documentation States the three kinds, the fixed fallback, units and sign.
+   */
+  export function at(
+    reading: IReading,
+    k: number,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    com: IAutoMovieVector3,
+  ): number {
+    const through: IThrough | undefined = reading.through?.[k];
+    if (reading.riders === undefined || through === undefined)
+      return distance(reading.anchors, k, com, reading.normals[k]!);
+    const placed: (r: IRider) => IAutoMovieVector3 = (r: IRider): IAutoMovieVector3 => {
+      const b: IAutoMovieResolvedBone = bones.get(r.bone)!;
+      return Vector3.add(b.worldPosition, Quaternion.rotateVector(b.worldRotation, r.local));
+    };
+    const p: IAutoMovieVector3 = placed(reading.riders[through.p]!);
+    const n: { x: number; z: number } = reading.normals[k]!;
+    if (through.kind === "point") return n.x * (com.x - p.x) + n.z * (com.z - p.z);
+    const q: IAutoMovieVector3 = placed(reading.riders[through.q]!);
+    const length: number = Math.hypot(q.x - p.x, q.z - p.z);
+    const t: { x: number; z: number } = { x: (q.x - p.x) / length, z: (q.z - p.z) / length };
+    if (through.kind === "cap") return t.x * (com.x - p.x) + t.z * (com.z - p.z);
+
+    // A side keeps the reading's inward orientation of its line.
+    const was: { x: number; z: number } = side(reading, through);
+    const sign: number = n.x * -was.z + n.z * was.x >= 0 ? 1 : -1;
+    return sign * (-t.z * (com.x - p.x) + t.x * (com.z - p.z));
   }
 
   /**
@@ -141,13 +239,13 @@ export namespace HumanFitBalance {
    * @param columns Optional current centre velocities for these same body, bones and ordered motions; computed here when absent.
    * @returns One slope row per edge, one entry per variable.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Projects the actual segmental-centre velocity columns onto each current outline edge's inward normal, preserving the fixed-outline linearisation used by this model.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional equivalent centre Jacobian feeds all ordered edge rows; the same velocity owner serves positional centre goals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every variable, edge and original dot-product expression; supplied columns must match this unchanged body, bones and ordered motion list.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For n variables and H edges, projection costs O(H*n) time and result storage, plus velocities' cost only when columns are absent.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the reading's unchanged prepared normals and completed current centre columns supplied by the same model's goal rows; absent columns it computes the original velocities here.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows columns without mutation and returns fresh scalar rows; no current pose or Jacobian survives in module state.
-   * @evidence contracts/development/common.md#meaningful-documentation States frame, units, variable/edge ordering, current-input premise, optional computation and output ownership.
+   * @evidence contracts/development/implementation.md#principled-implementation The exact first derivative of each half-plane's signed distance (`at`): the centre's velocity columns on the inward normal, less the motion of the line itself. A side through corners P and Q moves at P's and Q's velocities blended at the share s along PQ where the centre projects, d' = n.(c' - (1 - s) P' - s Q'); a cap at P across PQ turns with the segment, d' = t.(c' - P') + (n.(c - P)) n.(Q' - P') / |PQ|; a point's axis moves with its corner, d' = n.(c' - P'). Without riders the base is fixed and only the centre moves.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional equivalent centre Jacobian and one velocity column per corner feed all ordered half-plane rows; the same velocity owner serves positional centre goals.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every variable and half-plane; supplied columns must match this unchanged body, bones and ordered motion list. No corner's motion is dropped, so the model moves the base as the merit's own reading of the next posture does.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For n variables, H half-planes and C corners, O((H + C)*n) time and result storage, plus velocities' cost only when columns are absent.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the reading's unchanged prepared normals, the completed current centre columns supplied by the same model's goal rows, and each corner's columns once for every half-plane through it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows columns without mutation and returns fresh scalar rows; corner columns live for this call; no current pose or Jacobian survives in module state.
+   * @evidence contracts/development/common.md#meaningful-documentation States frame, units, variable/edge ordering, the moving base, current-input premise, optional computation and output ownership.
    */
   export function slopes(
     body: IAutoMovieMotionHumanBody,
@@ -156,12 +254,45 @@ export namespace HumanFitBalance {
     reading: IReading,
     columns: readonly IAutoMovieVector3[] = velocities(body, bones, motions),
   ): number[][] {
+    const riders: IRider[] | undefined = reading.riders;
+    const corners: IAutoMovieVector3[][] | undefined = riders?.map(
+      (r: IRider): IAutoMovieVector3[] =>
+        motions.map((m: IAutoMovieMotionHumanJacobian.IMotion): IAutoMovieVector3 =>
+          HumanJacobian.velocity(m, r.bone, r.world)),
+    );
+    const c: IAutoMovieVector3 = reading.com;
     return reading.anchors.map(
       (_: { x: number; z: number }, k: number): number[] => {
         const n: { x: number; z: number } = reading.normals[k]!;
-        return columns.map(
-          (v: IAutoMovieVector3): number => n.x * v.x + n.z * v.z,
-        );
+        const through: IThrough | undefined = reading.through?.[k];
+        if (corners === undefined || through === undefined)
+          return columns.map(
+            (v: IAutoMovieVector3): number => n.x * v.x + n.z * v.z,
+          );
+        const p: IAutoMovieVector3 = riders![through.p]!.world;
+        const vp: IAutoMovieVector3[] = corners[through.p]!;
+        if (through.kind === "point")
+          return columns.map((v: IAutoMovieVector3, j: number): number =>
+            n.x * (v.x - vp[j]!.x) + n.z * (v.z - vp[j]!.z));
+        const q: IAutoMovieVector3 = riders![through.q]!.world;
+        const vq: IAutoMovieVector3[] = corners[through.q]!;
+        const length: number = Math.hypot(q.x - p.x, q.z - p.z);
+        const t: { x: number; z: number } = { x: (q.x - p.x) / length, z: (q.z - p.z) / length };
+        if (through.kind === "cap") {
+          // The cap turns with the segment: the centre's offset across it
+          // times the segment's own turn.
+          const across: number = -t.z * (c.x - p.x) + t.x * (c.z - p.z);
+          return columns.map((v: IAutoMovieVector3, j: number): number =>
+            t.x * (v.x - vp[j]!.x) + t.z * (v.z - vp[j]!.z) +
+            (across * (-t.z * (vq[j]!.x - vp[j]!.x) + t.x * (vq[j]!.z - vp[j]!.z))) / length);
+        }
+
+        // A side moves at its corners' velocities blended where the
+        // centre projects on it.
+        const s: number = (t.x * (c.x - p.x) + t.z * (c.z - p.z)) / length;
+        return columns.map((v: IAutoMovieVector3, j: number): number =>
+          n.x * (v.x - (1 - s) * vp[j]!.x - s * vq[j]!.x) +
+          n.z * (v.z - (1 - s) * vp[j]!.z - s * vq[j]!.z));
       },
     );
   }
@@ -248,114 +379,12 @@ export namespace HumanFitBalance {
     });
   }
 
-  /**
-   * The half-planes whose intersection is a convex hull of floor points: a
-   * polygon's edges, each with its inward normal; a segment's two sides,
-   * whose intersection is its line, and an inward cap at each end; a point's
-   * four axis half-planes, which meet only at it. No hull has none but an
-   * empty one, which bears nothing.
-   */
-  function halfPlanes(corners: readonly { x: number; z: number }[]): {
-    anchors: { x: number; z: number }[];
-    normals: { x: number; z: number }[];
-  } {
-    if (corners.length === 0) return { anchors: [], normals: [] };
-    const a: { x: number; z: number } = corners[0]!;
-    const b: { x: number; z: number } = corners[corners.length - 1]!;
-    const span: number = Math.hypot(b.x - a.x, b.z - a.z);
-    if (corners.length === 1 || (corners.length === 2 && span === 0))
-      return {
-        anchors: [a, a, a, a],
-        normals: [{ x: 1, z: 0 }, { x: -1, z: 0 }, { x: 0, z: 1 }, { x: 0, z: -1 }],
-      };
-    if (corners.length === 2) {
-      const d: { x: number; z: number } = { x: (b.x - a.x) / span, z: (b.z - a.z) / span };
-      return {
-        anchors: [a, a, a, b],
-        normals: [{ x: -d.z, z: d.x }, { x: d.z, z: -d.x }, d, { x: -d.x, z: -d.z }],
-      };
-    }
-    const middle: { x: number; z: number } = mean(corners);
-    return {
-      anchors: [...corners],
-      normals: corners.map((_: { x: number; z: number }, k: number): { x: number; z: number } =>
-        inward(corners, k, middle)),
-    };
-  }
-
-  /** The unit inward normal of a convex polygon's edge from corner `k` to the next; the monotone chain leaves no edge of zero length. */
-  function inward(
-    outline: readonly { x: number; z: number }[],
-    k: number,
-    middle: { x: number; z: number },
-  ): { x: number; z: number } {
-    const a: { x: number; z: number } = outline[k]!;
-    const b: { x: number; z: number } = outline[(k + 1) % outline.length]!;
-    const dx: number = b.x - a.x;
-    const dz: number = b.z - a.z;
-    const length: number = Math.hypot(dx, dz);
-    const n: { x: number; z: number } = { x: -dz / length, z: dx / length };
-
-    // The normal that points toward the outline's centroid, which a convex
-    // outline holds inside, whichever way the corners run.
-    return n.x * (middle.x - a.x) + n.z * (middle.z - a.z) >= 0 ? n : { x: -n.x, z: -n.z };
-  }
-
-  /** The same ordered arithmetic mean of corners previously read independently for every edge. */
-  function mean(outline: readonly { x: number; z: number }[]): { x: number; z: number } {
-    let x: number = 0;
-    let z: number = 0;
-    for (const p of outline) {
-      x += p.x / outline.length;
-      z += p.z / outline.length;
-    }
-    return { x, z };
-  }
-
-  /** Andrew's monotone chain on the caller's owned planar projection, sorted in place and traversed in both directions without a reversed copy. */
-  function hull(
-    points: { x: number; z: number }[],
-  ): { x: number; z: number }[] {
-    const sorted: { x: number; z: number }[] = points.sort(
-      (a: { x: number; z: number }, b: { x: number; z: number }): number =>
-        a.x - b.x || a.z - b.z,
-    );
-    if (sorted.length < 3) return sorted;
-    const turn: (
-      o: { x: number; z: number },
-      a: { x: number; z: number },
-      b: { x: number; z: number },
-    ) => number = (
-      o: { x: number; z: number },
-      a: { x: number; z: number },
-      b: { x: number; z: number },
-    ): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-    const chain: (
-      first: number,
-      end: number,
-      stride: 1 | -1,
-    ) => { x: number; z: number }[] = (
-      first: number,
-      end: number,
-      stride: 1 | -1,
-    ): { x: number; z: number }[] => {
-      const out: { x: number; z: number }[] = [];
-      for (let i: number = first; i !== end; i += stride) {
-        const p: { x: number; z: number } = sorted[i]!;
-        while (
-          out.length >= 2 &&
-          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-        )
-          out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
-    const lower: { x: number; z: number }[] = chain(0, sorted.length, 1);
-    const upper: { x: number; z: number }[] = chain(sorted.length - 1, -1, -1);
-    for (const p of upper) lower.push(p);
-    return lower;
+  /** A side's unit direction from its first corner to its second at the reading. */
+  function side(reading: IReading, through: IThrough): { x: number; z: number } {
+    const p: IAutoMovieVector3 = reading.riders![through.p]!.world;
+    const q: IAutoMovieVector3 = reading.riders![through.q]!.world;
+    const length: number = Math.hypot(q.x - p.x, q.z - p.z);
+    return { x: (q.x - p.x) / length, z: (q.z - p.z) / length };
   }
 
   /** The mass models made, by body. */

@@ -85,6 +85,7 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * solves of one optimisation's subproblems), the session's first solve's
  * variable and cost scales scale every later solve
  * (`HumanQuadraticPreparation.scaled`'s `fixed`, one pass in place of ten),
+ * its last preparation is reused for a program of the same data and scaling,
  * the scratch is kept for programs of the same sizes, and a program of the
  * same rows as the last converged one starts from its point shifted into
  * the interior (`HumanQuadraticInteriorSession.warm`); a warm solve that
@@ -99,9 +100,9 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * @evidence contracts/development/implementation.md#principled-implementation Newton's method on the perturbed optimality conditions of a convex program with Mehrotra's predictor-corrector, derived above and matching HPIPM's reduced system; convex curvature is the caller's premise as for the OSQP solve, and the method's own premises (positive slacks and multipliers) are kept by the step length.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and equilibration stay with `HumanQuadraticPreparation`, the banded assembly, factor and substitution with the OSQP solve's owners; this file owns the iteration alone.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No row, bound or penalty is dropped or relaxed: a zero-weight soft end, which costs nothing, and an empty row, which holds no variable, are the only ends left out, and a hard empty row that excludes zero fails the solve. `ITERATIONS`, `BOUNDARY`, `REGULAR` and `ACCURACY` are named parameters with their origins stated; a solve that misses its accuracy returns nothing rather than an approximate answer.
- * @evidence contracts/development/implementation.md#efficient-algorithms An iteration costs O(n w^2 + n w + Z + m) for Z stored row coefficients and m rows, at most `ITERATIONS` of them, independent of the curvature's conditioning; storage is O(n w + n + m). No speedup is claimed.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One factor serves an iteration's two solves; the equilibration is shared with every solve of the same numeric data through `HumanQuadraticPreparation.scaled`, and within a session its variable and cost scales, its scratch and its last converged point as a start: any positive diagonal scaling leaves the program's minimiser, and a start decides no answer since a warm solve short of its accuracy is solved again cold.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Without a session all scratch is the call's own, one banded factor and O(n + m) vectors, released on return or throw; a session holds one scaling, one scratch set of its sizes and one point until its caller drops it; the returned arrays are fresh.
+ * @evidence contracts/development/implementation.md#efficient-algorithms An iteration costs O(n w^2 + n w + Z + m) for Z stored row coefficients and m rows, at most `ITERATIONS` of them and one last residual reading, independent of the curvature's conditioning; storage is O(n w + n + m). No speedup is claimed.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One factor serves an iteration's two solves; within a session its last preparation serves a program of the same data and scaling (`HumanQuadraticPreparation.scaled`), and its variable and cost scales, its scratch and its last converged point as a start: any positive diagonal scaling leaves the program's minimiser, and a start decides no answer since a warm solve short of its accuracy is solved again cold.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Without a session all scratch is the call's own, one banded factor and O(n + m) vectors, released on return or throw; a session holds one scaling, one preparation, one scratch set of its sizes and one point until its caller drops it; the returned arrays are fresh.
  */
 export function HumanQuadraticInterior(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -109,7 +110,7 @@ export function HumanQuadraticInterior(
 ): IAutoMovieMotionHumanQuadraticProgram.IState | undefined {
   // A session's later solves are scaled by its first one's variable and
   // cost scales (`HumanQuadraticPreparation.IScaling`).
-  const s: B.IScaled = Preparation.scaled(problem, session?.scaling);
+  const s: B.IScaled = Preparation.scaled(problem, session?.scaling, session);
   if (session !== undefined && session.scaling === undefined)
     session.scaling = { d: Float64Array.from(s.d), c: s.c };
   const { n, m, start, cols, vals, lo, hi, weight }: B.IScaled = s;
@@ -306,7 +307,10 @@ export function HumanQuadraticInterior(
     // vanishing, and must not keep the solve from ending).
     let moved: number = Infinity;
     let held: number = 0;
-    for (let it: number = 0; it < ITERATIONS; ++it) {
+
+    // The residuals are read once more after the last iteration's step, so
+    // the iterate returned is the last one, tested as every other is.
+    for (let it: number = 0; it <= ITERATIONS; ++it) {
       // The residuals of the unregularised conditions at the iterate.
       products(x, value);
       Workspace.curvature(s, x, dual);
@@ -378,6 +382,7 @@ export function HumanQuadraticInterior(
       // An iterate within the accepted accuracy is kept, should the solve
       // end short of the accuracy it aims at.
       fair = within(ACCEPTED) ? Session.unscaled(s, x, value, lambda) : undefined;
+      if (it === ITERATIONS) break;
 
       // The reduced matrix, factored once for the predictor and the corrector.
       const matrices: Workspace.IFactor = Workspace.system(s, REGULAR, work);

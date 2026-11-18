@@ -1,5 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFitGoals,
   IAutoMovieMotionHumanJacobian,
@@ -201,25 +202,29 @@ export namespace HumanBodyFitMerit {
       prepareHumanPoseResolution();
 
     // The points the named bearing parts bear on at a reading: each of their
-    // support candidates within the bearing margin of the part's lowest.
+    // support candidates within the bearing margin of the part's lowest,
+    // with the bone each rides, so the base moves with them in the rows.
     const named: Set<string> = new Set(
       typeof props.balance === "object"
         ? props.balance.parts.map((p: RegExp): string => p.source)
         : [],
     );
-    const supports: (r: HumanFloorReading.IReading) => IAutoMovieVector3[] = (
+    const supports: (r: HumanFloorReading.IReading) => { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } = (
       r: HumanFloorReading.IReading,
-    ): IAutoMovieVector3[] => {
+    ): { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } => {
       const out: IAutoMovieVector3[] = [];
+      const owners: AutoMovieHumanoidBone[] = [];
       bearing.forEach((part: RegExp, k: number): void => {
         if (!named.has(part.source)) return;
         const mine: Set<number> = new Set(r.members[k] ?? []);
         r.heights.forEach((h: number, c: number): void => {
-          if (mine.has(r.of[c]!) && h <= r.parts[k]! + HumanBodyFitRows.MARGIN)
+          if (mine.has(r.of[c]!) && h <= r.parts[k]! + HumanBodyFitRows.MARGIN) {
             out.push(r.spots[c]!);
+            owners.push(r.owners[r.of[c]!]!);
+          }
         });
       });
-      return out;
+      return { points: out, owners };
     };
     const read: (x: Float64Array) => HumanBodyFitRows.IReading = (
       x: Float64Array,
@@ -253,13 +258,15 @@ export namespace HumanBodyFitMerit {
             measured.centre,
           ),
         };
+      const bearers: { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } = supports(r);
       return {
         ...measured,
         balance: HumanFitBalance.of(
           body,
           r.bones,
-          supports(r),
+          bearers.points,
           measured.centre,
+          bearers.owners,
         ),
       };
     };

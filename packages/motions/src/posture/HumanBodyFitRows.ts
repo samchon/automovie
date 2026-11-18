@@ -129,7 +129,7 @@ export namespace HumanBodyFitRows {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Linearises actual selected floor contacts, effector/geometric goals and the base-of-support inequalities using their owning analytic Jacobians, preserving the common l1 prices and numerical band.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One equality builder serves contact and goal rows; targets and balance retain their own measurement and derivative owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps existing goal tolerances, prices, contact multiplicity and frozen base outline; no missing physical row is replaced with a numerical success flag.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps existing goal tolerances, prices and contact multiplicity, and moves the base of support with its corners' bones as the merit's next reading does; no missing physical row is replaced with a numerical success flag.
    * @evidence contracts/development/implementation.md#efficient-algorithms Adds the delegated goal and Jacobian costs and O(n*R) coefficient storage for R rows over n variables; one pure f(at) value now supplies both interval ends.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares variable indices and each pure f(at) value; when both centre and balance exist, a lazy same-body/bones/motions producer computes their mass Jacobian once at the original post-angle phase, and a new model rebuilds its current slopes.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns owned row coefficients and geometric-reading callbacks for the model lifetime; no model or reading is stored globally.
@@ -200,10 +200,12 @@ export namespace HumanBodyFitRows {
     HumanFitGoals.rows(step, equal, MM, readColumns);
 
     // The centre of mass inside each half-plane of the base of support, the
-    // half-planes read where the step starts.
+    // half-planes read where the step starts and moved with their corners'
+    // bones (`HumanFitBalance.slopes`); a trial is measured on the same
+    // half-planes through its own corners (`HumanFitBalance.at`), the
+    // function the row linearises.
     if (at.balance !== undefined) {
       const balance: HumanFitBalance.IReading = at.balance;
-      const anchors: { x: number; z: number }[] = balance.anchors;
       HumanFitBalance.slopes(
         step.body,
         at.bones,
@@ -214,12 +216,7 @@ export namespace HumanBodyFitRows {
         const inside: (r: IReading) => number = (r: IReading): number =>
           r === at
             ? balance.inside[e]!
-            : HumanFitBalance.distance(
-                anchors,
-                e,
-                r.balance!.com,
-                balance.normals[e]!,
-              );
+            : HumanFitBalance.at(balance, e, r.bones, r.balance!.com);
         rows.push({
           row: {
             key: `balance:${e}`,
