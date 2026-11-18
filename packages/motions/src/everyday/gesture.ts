@@ -317,8 +317,9 @@ export namespace gesture {
     // Each transport lasts at least what its arms need to keep within the
     // audit's travel bound (`gestureHands.reaching`), from the entry to the
     // stroke's start and from its end to rest.
+    const tempo: number = context.tempo ?? 1;
     const arcs: (u: number, from: typeof begin) => number = (u: number, from: typeof begin): number =>
-      Math.max(0, ...sides.map((side: AutoMovieHumanSide): number =>
+      tempo * Math.max(0, ...sides.map((side: AutoMovieHumanSide): number =>
         gestureHands.reaching(body, at0, side, from[side]!, hands[side]!,
           gestureStroke.hand(p.kind, side, u, cycles, input(at0, 0, side)))));
     // A bow comes up slower than it goes down (Kawabata et al. 2009).
@@ -444,7 +445,7 @@ export namespace gesture {
               prior(at, true, resolution, projection),
             weight,
             // The gesture's span is its own, timed by its tempo.
-            AutoMovieMotionHumanArmPlanned.together(context.handover, true),
+            AutoMovieMotionHumanArmPlanned.together(context.handover, true, context.tempo),
           );
 
     return {
