@@ -1,26 +1,14 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { stringify } from "yaml";
 
 import type { IAutoMovieScaffoldProps } from "./IAutoMovieScaffoldProps";
 import { assertScaffoldProjectName } from "./assertScaffoldProjectName";
 import { listAutoMovieScaffoldFiles } from "./listAutoMovieScaffoldFiles";
+import { renderAutoMovieWorkspace } from "./renderAutoMovieWorkspace";
 import { scaffoldSharedSkillPath } from "./scaffoldSharedSkillPath";
 
 /** The package root: `src` under ttsx and `lib` when published both sit one level below it. */
 const PACKAGE: string = path.resolve(__dirname, "..");
-
-/** The pnpm settings `build/prepare.ts` reads from the repository's own `pnpm-workspace.yaml`. */
-interface IScaffoldPnpmSettings {
-  /** Names of the packages in the `automovie` catalog, whose range is this package's own version. */
-  automovie: string[];
-
-  /** Every other catalog the scaffold's `package.json` files reference, with the repository's ranges. */
-  catalogs: Record<string, Record<string, string>>;
-
-  /** The repository's dependency build policy. */
-  allowBuilds: Record<string, boolean>;
-}
 
 /**
  * Create the files of a new AutoMovie installation as a `{ posixPath: content }` map.
@@ -73,7 +61,7 @@ export const createAutoMovieScaffold: (
   if (props.kind !== "workspace-production") readLayer("instructions", add);
   readLayer(props.kind === "workspace" ? "workspace" : "production", add);
   if (props.kind !== "workspace-production")
-    add("pnpm-workspace.yaml", renderPnpmWorkspace(props.kind === "workspace"));
+    add("pnpm-workspace.yaml", renderAutoMovieWorkspace(props.kind));
   if (props.kind !== "workspace")
     add(
       "evidence.config.ts",
@@ -104,31 +92,6 @@ const readLayer = (
         add(`${target}/${toPosix(file)}`, read(path.join(item, file)));
     else add(target, read(item));
   }
-};
-
-/** The `pnpm-workspace.yaml` of a single production, or with `packages` of a workspace root. */
-const renderPnpmWorkspace = (packages: boolean): string => {
-  const settings: IScaffoldPnpmSettings = JSON.parse(
-    read(path.join(PACKAGE, "generated", "pnpm-workspace.json")),
-  ) as IScaffoldPnpmSettings;
-  const manifest: { version: string } = JSON.parse(
-    read(path.join(PACKAGE, "package.json")),
-  ) as { version: string };
-  return stringify({
-    ...(packages
-      ? { packages: ["movies/shorts/*", "movies/series/*", "packages/*"] }
-      : {}),
-    catalogs: {
-      automovie: Object.fromEntries(
-        settings.automovie.map((key: string): [string, string] => [
-          key,
-          `^${manifest.version}`,
-        ]),
-      ),
-      ...settings.catalogs,
-    },
-    allowBuilds: settings.allowBuilds,
-  });
 };
 
 /** The `evidence.config.ts` of a production, reading its own skills or, inside a workspace, the root's. */

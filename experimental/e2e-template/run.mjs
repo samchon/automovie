@@ -29,6 +29,7 @@
 // failing one, or always with `--keep`.
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
+import { createRequire } from "node:module";
 import * as os from "node:os";
 import * as path from "node:path";
 
@@ -305,6 +306,18 @@ if (layout === "production") {
   bind(target);
   if (!install(target)) finish();
   const productions = ["shorts/alpha", "series/beta"];
+  // An older workspace still has its pinned CLI and tarball overrides, but
+  // predates these production dependencies. The installed add must fill both.
+  const { parseDocument } = createRequire(path.join(ROOT, "test/package.json"))(
+    "yaml",
+  );
+  const config = path.join(target, "pnpm-workspace.yaml");
+  const workspace = parseDocument(fs.readFileSync(config, "utf8"));
+  const missing = ["@automovie/archetypes", "@automovie/motions"];
+  for (const name of missing)
+    if (!workspace.deleteIn(["catalogs", "automovie", name]))
+      throw new Error(`Fresh scaffold lacks ${name}`);
+  fs.writeFileSync(config, workspace.toString());
   for (const production of productions)
     if (
       !run(
@@ -315,6 +328,11 @@ if (layout === "production") {
       )
     )
       finish();
+  const completed = parseDocument(fs.readFileSync(config, "utf8"));
+  results.push({
+    label: "add restores both missing SDK catalog entries",
+    ok: missing.every((name) => completed.hasIn(["catalogs", "automovie", name])),
+  });
   if (!install(target)) finish();
   verifyLockfile(target);
   for (const production of productions)
