@@ -83,27 +83,79 @@ export function test_human_conic_featured(): void {
     }
     return out;
   };
+  // The farthest a point of `from` lies from the closed polyline `to`: the
+  // one-sided Hausdorff distance, each point's distance being its minimum
+  // over every segment of `to`. The segments are filed in a grid of square
+  // cells as wide as the longest segment's larger extent, each in every cell
+  // its bounding box meets. A point reads the rings of cells around its own
+  // outward and stops after ring r once its nearest distance is at most r
+  // cell widths: a segment filed in no cell read lies wholly outside the
+  // square those rings cover, which is at least that far from the point. So
+  // the minimum is the one over every segment, read in time that grows with
+  // the points rather than with their product.
   const far = (from: readonly P[], to: readonly P[]): number => {
+    const n: number = to.length;
+    const segment = (p: P, i: number): number => {
+      const a: P = to[i]!,
+        b: P = to[(i + 1) % n]!;
+      const dx: number = b[0] - a[0],
+        dy: number = b[1] - a[1];
+      const t: number = Math.max(
+        0,
+        Math.min(
+          1,
+          ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy || 1),
+        ),
+      );
+      return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+    };
+    let width: number = 0;
+    for (let i: number = 0; i < n; ++i)
+      width = Math.max(
+        width,
+        Math.abs(to[(i + 1) % n]![0] - to[i]![0]),
+        Math.abs(to[(i + 1) % n]![1] - to[i]![1]),
+      );
+    if (!(width > 0)) width = 1;
+    const cell = (x: number): number => Math.floor(x / width);
+    const cells: Map<string, number[]> = new Map();
+    let low: P = [Infinity, Infinity];
+    let high: P = [-Infinity, -Infinity];
+    for (let i: number = 0; i < n; ++i) {
+      const a: P = to[i]!,
+        b: P = to[(i + 1) % n]!;
+      const x0: number = cell(Math.min(a[0], b[0])),
+        x1: number = cell(Math.max(a[0], b[0]));
+      const y0: number = cell(Math.min(a[1], b[1])),
+        y1: number = cell(Math.max(a[1], b[1]));
+      low = [Math.min(low[0], x0), Math.min(low[1], y0)];
+      high = [Math.max(high[0], x1), Math.max(high[1], y1)];
+      for (let x: number = x0; x <= x1; ++x)
+        for (let y: number = y0; y <= y1; ++y) {
+          const key: string = `${x},${y}`;
+          const filed: number[] | undefined = cells.get(key);
+          if (filed === undefined) cells.set(key, [i]);
+          else filed.push(i);
+        }
+    }
     let worst: number = 0;
     for (const p of from) {
+      const cx: number = cell(p[0]),
+        cy: number = cell(p[1]);
       let best: number = Infinity;
-      for (let i: number = 0; i < to.length; ++i) {
-        const a: P = to[i]!,
-          b: P = to[(i + 1) % to.length]!;
-        const dx: number = b[0] - a[0],
-          dy: number = b[1] - a[1];
-        const t: number = Math.max(
-          0,
-          Math.min(
-            1,
-            ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) /
-              (dx * dx + dy * dy || 1),
-          ),
-        );
-        best = Math.min(
-          best,
-          Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy),
-        );
+      for (let r: number = 0; ; ++r) {
+        for (let x: number = cx - r; x <= cx + r; ++x)
+          for (let y: number = cy - r; y <= cy + r; ++y) {
+            if (Math.max(Math.abs(x - cx), Math.abs(y - cy)) !== r) continue;
+            for (const i of cells.get(`${x},${y}`) ?? [])
+              best = Math.min(best, segment(p, i));
+          }
+        const covered: boolean =
+          cx - r <= low[0] &&
+          cy - r <= low[1] &&
+          cx + r >= high[0] &&
+          cy + r >= high[1];
+        if (best <= r * width || covered) break;
       }
       worst = Math.max(worst, best);
     }
@@ -166,11 +218,11 @@ export function test_human_conic_featured(): void {
 
   // 2. Kept medians: the median re-resolves on its new neighbours and the chain leaves the base.
   const plain: IAutoMovieHumanConicSection.ILayout = S.featured(base, runs, []);
-  const kept: number[] = stored(S.convert(section(0), base, runs, []), plain);
-  const off: number = Math.max(
-    far(draw(kept, plain), b),
-    far(b, draw(kept, plain)),
+  const kept: P[] = draw(
+    stored(S.convert(section(0), base, runs, []), plain),
+    plain,
   );
+  const off: number = Math.max(far(kept, b), far(b, kept));
   if (!(off > 0.01))
     failures.push(
       `kept medians: the plain conversion stands only ${off.toFixed(4)} mm off the base; it should leave it beside the medians`,
@@ -207,12 +259,11 @@ export function test_human_conic_featured(): void {
     ),
   );
   let between: number = 0;
-  for (const s of [1, 2, 3, 5, 6, 7])
-    between = Math.max(
-      between,
-      far(draw(linedFamily(s), lined), draw(baseFamily(s), base)),
-      far(draw(baseFamily(s), base), draw(linedFamily(s), lined)),
-    );
+  for (const s of [1, 2, 3, 5, 6, 7]) {
+    const drawn: P[] = draw(linedFamily(s), lined);
+    const reference: P[] = draw(baseFamily(s), base);
+    between = Math.max(between, far(drawn, reference), far(reference, drawn));
+  }
   if (!(between <= 0.01))
     failures.push(
       `between knots: the converted family stands ${between.toFixed(4)} mm off the base, over 0.01`,
