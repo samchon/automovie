@@ -3,7 +3,10 @@ import {
   carriedRate,
   dampedSpring,
   inertializeOffset,
+  inertializePose,
+  samplePoseVelocity,
 } from "@automovie/engine";
+import type { IAutoMoviePose } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
@@ -23,6 +26,35 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_spring_response(): void {
+  const knee = (angle: number): IAutoMoviePose => ({
+    skeleton: "knee",
+    root: null,
+    joints: [{ bone: "leftLowerLeg", flexion: angle, abduction: 0, twist: 0 }],
+  });
+  const target = (t: number): IAutoMoviePose => knee(10 - 20 * t);
+  const source = samplePoseVelocity((t) => knee(40 + 100 * t), 0);
+  const blend = inertializePose(source, samplePoseVelocity(target, 0), 0.3);
+  const read = (t: number): number => blend(t, target(t)).joints[0]!.flexion!;
+  TestValidator.predicate(
+    "moving pose joins the source tangent before tracking the target",
+    nclose(read(0), 40, 1e-9) &&
+      nclose((read(1e-6) - read(0)) / 1e-6, 100, 1e-2) &&
+      read(0.3) === 4 &&
+      read(0.5) === 0,
+  );
+  const passing = samplePoseVelocity((t) => knee(10.01 - 24 * t), 0);
+  const fixed = samplePoseVelocity(() => knee(10), 0);
+  TestValidator.predicate(
+    "pass-through mode crosses the target pose",
+    inertializePose(passing, fixed, 0.3, false)(0.01, knee(10)).joints[0]!
+      .flexion === 10 &&
+      inertializePose(passing, fixed, 0.3, true)(0.01, knee(10)).joints[0]!
+        .flexion! < 9.9,
+  );
+  TestValidator.predicate(
+    "refuses nonpositive decay",
+    throwsError(() => inertializeOffset(1, 0, 0, 0)),
+  );
   const initialOffset: number = 0.01,
     velocity: number = -24,
     decay: number = 0.3;
