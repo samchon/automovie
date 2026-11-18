@@ -88,6 +88,10 @@ export function test_motion_contact_grasp_for_use(): void {
         },
       ],
       props: [
+        HumanObject.prop("spare", createDrinkware({ kind: "glass" }), {
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+        }),
         HumanObject.prop("mug", createDrinkware({ kind: "mug" }), {
           at: {
             x: -body.measure.shoulderHalfWidth,
@@ -115,6 +119,20 @@ export function test_motion_contact_grasp_for_use(): void {
   TestValidator.predicate(
     "the authored lift reaches 100 mm within the 10 mm skin allowance",
     height >= 0.09,
+  );
+  const closed = segment.plan.events.find((e) => e.name === "gripClosed")!;
+  const closeTime = segment.start + closed.share * segment.plan.duration;
+  const occupiedAt = lifted.prop("mug", 0).position;
+  const spareAt = lifted.prop("spare", 0).position;
+  TestValidator.predicate(
+    "the unowned mug waits for its grip",
+    Vector3.distance(occupiedAt, lifted.prop("mug", closeTime / 2).position) <=
+      0.001,
+  );
+  TestValidator.predicate(
+    "taking one object leaves its neighbour where it was",
+    Vector3.distance(spareAt, lifted.prop("spare", lifted.duration).position) <=
+      0.001,
   );
   let overshoot: unknown;
   try {

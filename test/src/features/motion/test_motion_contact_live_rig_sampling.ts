@@ -51,6 +51,57 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable engine unit owns the existing bare-arm kernel fixture, contexts, mutable rig/frame records, callbacks, traces and snapshots. It calls public synthesis/sampling/FK only, adds no new producer/API, replaces no foreign function/global, and starts no Human producer, viewer, process or compiler.
  */
 export function test_motion_contact_live_rig_sampling(): void {
+  const rig = motionFitArms.arms();
+  const context: IAutoMovieActorContext = {
+    skeleton: rig.id,
+    rig,
+    gaits: [],
+    position: { x: 0, y: 0, z: 0 },
+    speed: 1,
+    facingDeg: 0,
+    eyeHeight: 1.6,
+    restPose: { skeleton: rig.id, root: null, joints: [] },
+  };
+  const marker: IAutoMovieVector3 = { x: -0.18, y: 1.2, z: 0.35 };
+  const action: IAutoMovieActionCall = {
+    verb: "gesture",
+    kind: "point",
+    actor: "a",
+    start: 0,
+    duration: 1,
+    at: { kind: "node", node: "mark" },
+  };
+  const point = (actor: IAutoMovieActorContext): IAutoMovieMotion => {
+    const clip = makeActorSynthesizer(
+      new Map([["a", actor]]),
+      new Map([["mark", marker]]),
+    )(action, "a");
+    if (!clip)
+      throw new Error(
+        "a stage marker and a complete arm must yield a point motion",
+      );
+    return clip;
+  };
+  const defaultPoint = point(context);
+  const clinical = point({ ...context, restFrames: HUMANOID_REST_FRAME });
+  const raw = point({ ...context, restFrames: {} });
+  const elbow = (clip: IAutoMovieMotion): number =>
+    sampleMotion(clip, 1).pose.joints.find((j) => j.bone === "rightLowerArm")!
+      .flexion!;
+  TestValidator.predicate(
+    "the clinical and raw elbow describe the same terminal hinge",
+    Math.abs(elbow(raw) - elbow(clinical)) <= 1e-12,
+  );
+  TestValidator.equals(
+    "omitting the rest frames uses the clinical sample",
+    sampleMotion(defaultPoint, 1).pose,
+    sampleMotion(clinical, 1).pose,
+  );
+  TestValidator.equals(
+    "the terminal point holds still",
+    sampleMotion(defaultPoint, 0.75).pose,
+    sampleMotion(defaultPoint, 1).pose,
+  );
   for (const mode of ["geometry", "frames"] as const) {
     const rig: IAutoMovieSkeleton = motionFitArms.arms();
     const lower: IAutoMovieBone = rig.bones.find(

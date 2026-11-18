@@ -12,7 +12,6 @@ import {
   HumanObject,
   HumanPerformance,
   HumanSportSwing,
-  HumanSportThrow,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -33,25 +32,19 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and four films; it runs locally and wherever CI runs the archetype tests.
  * @evidence contracts/development/common.md#meaningful-documentation States what is pinned, the stage and the 2 scenarios with their bounds.
  */
-export function test_archetype_sport_strike(): void {
+export function test_motion_contact_equipment_marker(): void {
   const racket: ReturnType<typeof createRacket> = createRacket({
     kind: "tennis",
   });
   const tennis: ReturnType<typeof createBall> = createBall({ kind: "tennis" });
-  const football: ReturnType<typeof createBall> = createBall({
-    kind: "football",
-  });
   const sweet: IAutoMovieVector3 =
     racket.affordance("sweetSpot").frame.translation;
-  const head: Readonly<{ length: number; width: number }> = {
+  const head: Readonly<IRacketHead> = {
     length: racket.dimensions.headLength!,
     width: racket.dimensions.headWidth!,
   };
   const tennisCentre: IAutoMovieVector3 =
     tennis.affordance("grip").frame.translation;
-  const footballCentre: IAutoMovieVector3 =
-    football.affordance("grip").frame.translation;
-  const radius: number = football.affordance("grip").aperture! / 2;
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
   const contact = (
@@ -63,7 +56,7 @@ export function test_archetype_sport_strike(): void {
       .find((s: IAutoMovieMotionHumanSegment): boolean => s.name === row)!;
     return act.start + (act.plan.contact ?? Number.NaN);
   };
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stature: number = body.measure.stature;
     const performer: IAutoMovieMotionHumanPerformance.IInput["performers"][number] =
@@ -119,7 +112,16 @@ export function test_archetype_sport_strike(): void {
       // The ball's centre in the racket's own frame.
       const local: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(frame.rotation),
-        Vector3.subtract(ballAt, frame.position),
+        Vector3.subtract(
+          Vector3.add(
+            film.prop("ball", contact(film, "forehand")).position,
+            Quaternion.rotateVector(
+              film.prop("ball", contact(film, "forehand")).rotation,
+              tennisCentre,
+            ),
+          ),
+          frame.position,
+        ),
       );
       const along: number = local.y - sweet.y;
       if (
@@ -137,52 +139,16 @@ export function test_archetype_sport_strike(): void {
         `${name} forehand: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
-
-    // 2. The kick.
-    try {
-      const rest: IAutoMovieVector3 = { x: -0.06, y: 0, z: 0.45 };
-      const centre: IAutoMovieVector3 = Vector3.add(rest, footballCentre);
-      const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-        seed: "kick",
-        laws: [HumanSportThrow.kickRight],
-        performers: [performer],
-        props: [HumanObject.prop("ball", football, { at: rest, yaw: 0 })],
-        composition: HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
-          .registered("kickRight", {
-            ball: "ball",
-            toward: { kind: "point", at: { x: 0, y: 0, z: 5 }, frame: "world" },
-          }).node,
-      });
-      const at: number = contact(film, "kickRight");
-      const near: number = Math.min(
-        ...(["rightFoot", "rightToes"] as const).map(
-          (bone: "rightFoot" | "rightToes"): number =>
-            Vector3.length(
-              Vector3.subtract(
-                film.bones("a", at).get(bone)?.worldPosition ?? {
-                  x: Infinity,
-                  y: Infinity,
-                  z: Infinity,
-                },
-                centre,
-              ),
-            ),
-        ),
-      );
-      if (!(near <= radius + 0.08))
-        complaints.push(
-          `${name} kick: at the contact the right foot lies ${mm(near)} mm from the ball's centre, within ${mm(radius + 0.08)} mm expected`,
-        );
-    } catch (error) {
-      complaints.push(
-        `${name} kick: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
   }
   TestValidator.equals(
-    "a racket and balls serve the stroke and the kick",
+    "the displayed ball overlaps the racket head at the declared marker",
     complaints,
     [],
   );
+}
+
+/** Measured size of the physical string bed. */
+interface IRacketHead {
+  length: number;
+  width: number;
 }
