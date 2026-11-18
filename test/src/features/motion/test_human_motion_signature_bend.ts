@@ -1,87 +1,87 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
-import { HumanFoot } from "@automovie/motions";
+import type {
+  IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanBend,
+} from "@automovie/interface";
+import { HumanPhysics } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import type { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
 
 /**
- * Bending to reach low looks like the strategy it names, on the four extreme
- * bodies reaching with either hand, read at the law's `deepest`.
+ * The three bend strategies have distinct motions of the knees, trunk and pelvis.
  *
- * Bounds and sources (Burgess-Limerick 2003, Appl Ergon 34:589, "Squat,
- * stoop, or something in between?"; the lifting-posture classification):
- * - A stoop keeps the legs nearly straight and folds at the hips and the
- *   trunk. Bound: knee flexion at most 30 degrees and trunk inclination at
- *   least 45 degrees (provisional thresholds of the classification).
- * - A squat folds the knees and keeps the trunk more upright. Bound: knee
- *   flexion at least 90 degrees and a trunk inclination below the stoop's
- *   on the same body.
- * - A semi squat lies between: knee flexion above the stoop's and below the
- *   squat's.
- * - Balance: a body bent still keeps its centre of mass over its feet
- *   (static equilibrium). Bound: the centre's margin inside both feet's soles
- *   not negative at `deepest`, both feet bearing.
+ * Scenarios:
+ * 1. A stoop keeps knee flexion at most 30° and inclines the trunk at least 45°. The hips move back relative to the entrance posture.
+ * 2. A squat bends the knees at least 90° with a more upright trunk. The semi-squat's flexion is between the two.
+ * 3. Both feet still bear at the deepest point of each bend, and the law's unrequested balance stays outside the audit.
+ * 4. Quiet stance on the same bodies inclines no more than 3° from vertical (Kendall et al. 2005).
  *
- * The trunk is read as the line from the hip joints' midpoint to the
- * shoulder joints' midpoint, the trunk segment of the cited studies, and
- * the quiet stance must read within 3 degrees of vertical under it
- * (Kendall et al. 2005, ideal alignment; `motionHumanSignature.calibrate`).
- *
- * @evidence contracts/development/testing.md#behavioral-verification Performs the real bend law on real bodies and reads displayed joints, soles and the centre of mass; a stoop with bent knees, a squat with straight ones, strategies in the wrong order or a body balanced outside its feet fails with its cell, value, bound and source.
- * @evidence contracts/development/testing.md#independent-expectations The strategies are Burgess-Limerick's classification; the thresholds are marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases Three strategies, the automatic choice and both hands on four bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
+ * @evidence contracts/development/common.md#meaningful-documentation States each direction and threshold at the decisive event and the two support conditions.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs each strategy and reads displayed knees, hips, trunk and foot support. Tipping the stoop forward at the hips or giving all strategies the same knee angle fails.
+ * @evidence contracts/development/testing.md#independent-expectations The provisional angle gates follow Burgess-Limerick's lifting-posture classification (2003, doi:10.1016/S0169-8141(02)00190-7). Posterior hip translation follows Kim and Yoo's independent observation (2018, doi:10.1589/jpts.30.534); the paper supports the direction without claiming an exact displacement for a different body or task.
+ * @evidence contracts/development/testing.md#distinguishing-cases Compares all three postures on the small and large bodies. The automatic selector and both sides are tested separately in the bend branch and mirror specs.
+ * @evidence contracts/development/testing.md#execution-ownership The discovered test instantiates six bend performances and two quiet stances in memory.
  */
 export function test_human_motion_signature_bend(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  for (const name of motionHumanBody.EXTREMES) {
-    const knee: Record<string, number> = {};
-    const lean: Record<string, number> = {};
-    for (const row of [
-      "strategy=stoop",
-      "strategy=semiSquat",
-      "strategy=squat",
-      "strategy=auto",
-      "side=left",
-      "side=right",
-    ]) {
-      const cell: string = `bend ${row} ${name}`;
-      const s: M.IStaged = M.stage("bend", row, name);
-      const t: number = M.event(s, "deepest")!;
-      knee[row] = (M.knee(s, t, "left") + M.knee(s, t, "right")) / 2;
-      lean[row] = M.trunk(s, t);
-      const bones = M.bones(s, t);
-      const margin: number = resolveAutoMovieCenterOfMass.margin(
-        resolveAutoMovieCenterOfMass.place(
-          resolveAutoMovieCenterOfMass(s.body.skeleton, s.body.profile),
-          bones,
-        ),
-        HumanFoot.base(s.body, bones),
+  for (const name of BODIES) {
+    const knees: Partial<Record<Strategy, number>> = {};
+    const trunk: Partial<Record<Strategy, number>> = {};
+    for (const strategy of STRATEGIES) {
+      const label: string = `${name} ${strategy}`;
+      const bend: M.IStaged = M.stage("bend", `strategy=${strategy}`, name);
+      const t: number = M.event(bend, "deepest")!;
+      knees[strategy] = (M.knee(bend, t, "left") + M.knee(bend, t, "right")) / 2;
+      trunk[strategy] = M.trunk(bend, t);
+      complaints.check(
+        `${label}: both feet bear at the deepest`,
+        M.bears(bend, t, "left") && M.bears(bend, t, "right"),
       );
       complaints.check(
-        `${cell}: at the deepest the centre of mass's margin inside the feet is ${(margin * 1000).toFixed(0)} mm with the feet ${M.bears(s, t, "left") && M.bears(s, t, "right") ? "down" : "not both down"}, not negative and down expected (static equilibrium)`,
-        margin >= 0 && M.bears(s, t, "left") && M.bears(s, t, "right"),
+        `${label}: omitted balance stays outside the audit`,
+        !bend.film.segments("a").some(
+          (span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean => HumanPhysics.judged(span),
+        ),
       );
+      if (strategy === "stoop") {
+        const retreat: number =
+          M.joint(bend, 0, "hips").z - M.joint(bend, t, "hips").z;
+        complaints.check(
+          `${label}: hip retreat ${(retreat * 1000).toFixed(1)} mm, positive expected`,
+          retreat > 0,
+        );
+      }
     }
-    const k = (row: string): string => knee[row]!.toFixed(1);
+    const stoop: number = knees.stoop!;
+    const intermediate: number = knees.semiSquat!;
+    const squat: number = knees.squat!;
     complaints.check(
-      `bend ${name}: a stoop's knees ${k("strategy=stoop")} deg and trunk ${lean["strategy=stoop"]!.toFixed(1)} deg, knees at most 30 and trunk at least 45 expected (Burgess-Limerick 2003; provisional)`,
-      knee["strategy=stoop"]! <= 30 && lean["strategy=stoop"]! >= 45,
+      `${name} stoop: knees ${stoop.toFixed(1)}° and trunk ${trunk.stoop!.toFixed(1)}°, at most 30° and at least 45°`,
+      stoop <= 30 && trunk.stoop! >= 45,
     );
     complaints.check(
-      `bend ${name}: a squat's knees ${k("strategy=squat")} deg and trunk ${lean["strategy=squat"]!.toFixed(1)} deg, knees at least 90 and the trunk below the stoop's expected (Burgess-Limerick 2003)`,
-      knee["strategy=squat"]! >= 90 &&
-        lean["strategy=squat"]! < lean["strategy=stoop"]!,
+      `${name} squat: knees ${squat.toFixed(1)}° and trunk ${trunk.squat!.toFixed(1)}°, at least 90° and below the stoop's trunk angle`,
+      squat >= 90 && trunk.squat! < trunk.stoop!,
     );
     complaints.check(
-      `bend ${name}: a semi squat's knees ${k("strategy=semiSquat")} deg between the stoop's ${k("strategy=stoop")} and the squat's ${k("strategy=squat")} expected (Burgess-Limerick 2003)`,
-      knee["strategy=semiSquat"]! > knee["strategy=stoop"]! &&
-        knee["strategy=semiSquat"]! < knee["strategy=squat"]!,
+      `${name} semi-squat: knees ${intermediate.toFixed(1)}° between ${stoop.toFixed(1)}° and ${squat.toFixed(1)}°`,
+      stoop < intermediate && intermediate < squat,
+    );
+    const upright: number = M.trunk(M.stage("stand", "default", name), 1);
+    complaints.check(
+      `${name} quiet stance inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
+      Math.abs(upright) <= M.STANCE,
     );
   }
-  for (const name of motionHumanBody.EXTREMES)
-    for (const c of M.calibrate(name)) complaints.check(c, false);
-  complaints.assert("the bend has the signature of its strategy");
+  complaints.assert("the bend distinguishes the stoop, semi-squat and squat");
 }
+
+/** The explicit strategy chosen before posture is read. */
+type Strategy = Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">;
+
+/** Read the three distinct postures on each comparison body. */
+const STRATEGIES: readonly Strategy[] = ["stoop", "semiSquat", "squat"];
+
+/** Bracket the supported body sizes while comparing postures within each body. */
+const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];

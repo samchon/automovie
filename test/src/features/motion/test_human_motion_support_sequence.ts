@@ -1,10 +1,13 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanRefusal,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanPerformance,
   HumanRefusal,
   crawl,
@@ -60,9 +63,10 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * 7. At `bear1` the left toe joint lies on its new place across the floor
  *    within the miss.
  * 8. The right toe joint stays on its place across the floor within the
- *    miss at every thirtieth of a second of the step.
+ *    miss at every thirtieth of a second of the step. Its heel and ball
+ *    also keep their own world points, which rules out pivoting about the toe.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Plans real sequences through the public chain and reads the plan's own windows; a release before the new support bears, a palm bearing outside its stance, or a contact silently missed fails with its numbers.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans real sequences through the public chain, then evaluates declared windows and displayed joint and sole positions. A release before the new support bears, or a stance heel drifting even while its toe stays still, fails with the measured distance.
  * @evidence contracts/development/testing.md#independent-expectations The release order is the transition configuration of the cited planner; the refusal distance is the stature plus the arm's span plus half a metre beyond the toes, read from the body, past what the body laid out reaches with its feet held where the quiet stance has them.
  * @evidence contracts/development/testing.md#distinguishing-cases A met sequence, a refused one and a step of one part between two places, read at its lift, its set-down and throughout on the bearing foot; getUp's routes are test_human_motion_floor_get_up's.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and plans two performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
@@ -323,7 +327,7 @@ export function test_human_motion_support_sequence(): void {
         rightWindows[0]!.from === 0 &&
         rightWindows[0]!.to === 1,
     );
-    const joint = (t: number, side: "left" | "right") =>
+    const joint = (t: number, side: AutoMovieHumanSide): IAutoMovieVector3 =>
       stepped!.bones("a", t).get(`${side}Toes`)!.worldPosition;
     if (lift !== undefined && bear !== undefined) {
       // 6. At the top of the swing the left toe joint is over the step's
@@ -345,20 +349,39 @@ export function test_human_motion_support_sequence(): void {
       );
       // 8. The bearing right foot does not slide over the step.
       let slide: number = 0;
+      let soleDrift: number = 0;
+      const plantedSole: ReturnType<typeof HumanFoot.sockets> =
+        HumanFoot.sockets(body, stepped.bones("a", step.start), "right");
       for (
         let t: number = step.start;
         t <= step.start + step.plan.duration;
         t += 1 / 30
       ) {
-        const r = joint(t, "right");
+        const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
+          stepped.bones("a", t);
+        const r: IAutoMovieVector3 = bones.get("rightToes")!.worldPosition;
         slide = Math.max(
           slide,
           Math.hypot(r.x - toes("right").x, r.z - toes("right").z),
         );
+        const sole: ReturnType<typeof HumanFoot.sockets> =
+          HumanFoot.sockets(body, bones, "right");
+        for (let i: number = 0; i < sole.length; ++i) {
+          const prior: IAutoMovieVector3 = plantedSole[i]!.point;
+          const now: IAutoMovieVector3 = sole[i]!.point;
+          soleDrift = Math.max(
+            soleDrift,
+            Math.hypot(now.x - prior.x, now.y - prior.y, now.z - prior.z),
+          );
+        }
       }
       all.check(
         `the right toe joint keeps its place within ${support.MISS} mm, read ${(slide * 1000).toFixed(1)} mm`,
         slide <= miss,
+      );
+      all.check(
+        `the independent sole points drift at most ${(soleDrift * 1000).toFixed(1)} mm, within ${support.MISS} mm expected`,
+        soleDrift <= miss,
       );
     }
   }

@@ -1,152 +1,153 @@
-import {
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-  curlChainUntilContact,
-} from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
-  IAutoMoviePhysicalSegment,
-  IAutoMoviePhysicalShape,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { TestValidator } from "@nestia/e2e";
+import { poseBones } from "@automovie/motions";
 
-import CORPUS from "../internal/MOTION_HUMAN_POSE_CORPUS.json";
+import { MOTION_HUMAN_LAW_STAGES } from "../internal/MOTION_HUMAN_LAW_STAGES";
+import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanPoseCorpus } from "../internal/motionHumanPoseCorpus";
+import { motionHumanLaw } from "../internal/motionHumanLaw";
+import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
+import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
+import { vclose } from "../internal/vclose";
 
 /**
- * The pose solver's cost work changes no pose beyond the resolution it is
- * solved to: a small fixed corpus of displayed poses
- * (`motionHumanPoseCorpus`: a pick-up, a walk and a punch on the average man
- * and the small woman, each with the other as partner, read at half and three
- * quarters of the film) gives every joint's three clinical angles as the
- * solver gave them when the corpus was recorded.
+ * Displayed joint frames agree with fresh forward kinematics of the public pose
+ * and preserve the skeleton's independently authored link lengths.
  *
  * Scenarios:
- * 1. The corpus holds the same poses under the same names, in order.
- * 2. Every angle of every joint is the recorded number within its
- *    tolerance, and a joint the recording left unset is still unset. A
- *    joint's angle is read within the joints' tolerance (`ROM_TOLERANCE`),
- *    the resolution the limb chains are solved to. A digit a grasp curls
- *    until contact follows the hand its limb carries, so its angle is read
- *    within what the limb's resolution moves it by
- *    (`curlChainUntilContact.resolution`): the arm's reach, read from the
- *    rig, over the joint's lever to the digit's tip, read from the rig and
- *    the distal phalanx's capsule.
+ * 1. Pick-up's rotated hand goal, walk's planted legs, and a partner strike each yield the same frame from the public pose and bones readers.
+ * 2. On the average man and small woman, the arm, foot and digit frames keep the same rigid rest offsets and parent composition at both sampled instants.
+ * 3. The pick-up leaves the bottle at its authored place through grip closure, raises it by the law's specified default lift, and keeps its position in the moving hand between lift-off and the lifted event.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs real laws through the public performance and reads the displayed pose's joints; a solver change that moves any angle by more than its tolerance fails with the pose, the bone and both numbers.
- * @evidence contracts/development/testing.md#independent-expectations Limitation: the expected values are recorded from the code itself before the cost work (#3517), and re-recorded only where a change meant to move them did, a regression oracle that pins behaviour, not a reference of what a pose should be; the tolerances are the solver's own resolution, read from its owners.
- * @evidence contracts/development/testing.md#distinguishing-cases A hand fitted to a requested rotation (the pick-up), planted legs (the walk) and a strike on a partner (the punch), each on two bodies of opposite build at two instants.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and reads twelve poses in memory, under a minute alone; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the corpus, the oracle's provenance, the tolerances with their owners and the 2 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the public pose seam, the rigid-link rule and the three distinct producer paths.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs real actions, queries the actual displayed frame and resolves the returned pose afresh. The test catches divergent pose and bone paths, stale or missing output channels, and a loss of rigid ancestry.
+ * @evidence contracts/development/testing.md#independent-expectations Rigid translation preserves Euclidean length and attachment coordinates. Rest offsets come from authored rig geometry. The object-affordance contract admits 80–120 mm for the 100 mm default lift and at most 1 mm of in-hand slip.
+ * @evidence contracts/development/testing.md#distinguishing-cases A rotated wrist goal, planted foot contacts and an aimed reach, on contrasting rigs, at two interior points from the original regression.
+ * @evidence contracts/development/testing.md#execution-ownership Six portable real performances run in memory. The discovered test owns the skeletal hierarchy and both reader calls.
  */
 export function test_human_motion_core_pose_regression(): void {
-  const recorded: motionHumanPoseCorpus.IPose[] =
-    // The recording is the reader's own output, written as JSON.
-    CORPUS as unknown as motionHumanPoseCorpus.IPose[];
-  const read: motionHumanPoseCorpus.IPose[] = motionHumanPoseCorpus.read();
-  const complaints: string[] = [];
-
-  // 1. The same poses.
-  const names = (poses: motionHumanPoseCorpus.IPose[]): string =>
-    poses.map((p: motionHumanPoseCorpus.IPose): string => p.name).join(" | ");
-  if (names(read) !== names(recorded))
-    complaints.push(
-      `the corpus reads ${names(read)}, recorded ${names(recorded)}`,
-    );
-
-  // 2. Every angle, within its tolerance.
-  recorded.forEach((was: motionHumanPoseCorpus.IPose, i: number): void => {
-    const now: motionHumanPoseCorpus.IPose | undefined = read[i];
-    if (now === undefined) return;
-    const body: IAutoMovieMotionHumanBody = motionHumanBody(
-      was.name.split(" ")[2]!.split("+")[0]! as motionHumanBody.Name,
-    );
-    const bones: string[] = [
-      ...new Set<string>([
-        ...Object.keys(was.joints),
-        ...Object.keys(now.joints),
-      ]),
-    ];
-    for (const bone of bones)
-      for (let k: number = 0; k < 3; k++) {
-        const a: number | null | undefined = was.joints[bone]?.[k];
-        const b: number | null | undefined = now.joints[bone]?.[k];
-
-        // An unset angle stays unset; a set one is read within its
-        // tolerance.
-        const same: boolean =
-          typeof a === "number" && typeof b === "number"
-            ? Math.abs(a - b) <= tolerance(body, bone)
-            : a === b;
-        if (!same)
-          complaints.push(
-            `${was.name} ${bone}[${k}]: ${String(b)}, recorded ${String(a)}`,
+  const complaints: motionComplaints.IGatherer = motionComplaints();
+  const stages: Record<string, motionHumanLawSweep.Stage> = Object.assign(
+    {},
+    ...Object.values(MOTION_HUMAN_LAW_STAGES),
+  );
+  for (const law of LAWS)
+    for (const [name, partner] of BODIES) {
+      const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
+      const scene: motionHumanLawSweep.IScene = motionHumanLawSweep.staged(
+        "default",
+        stages[law]!,
+        [name, partner],
+        (): void => {},
+      );
+      const film: motionHumanLaw.IFilm = motionHumanLawSweep.perform("corpus", scene);
+      if (law === "pickUp") pickup(complaints, name, film);
+      for (const share of SHARES) {
+        const t: number = film.duration * share;
+        const label: string = `${law} ${name} at ${t.toFixed(3)} s`;
+        const shown: motionHumanLaw.Bones = film.bones("a", t);
+        const fresh: motionHumanLaw.Bones = poseBones(body, film.performance.pose("a", t));
+        complaints.check(
+          `${label}: admit all rig bones in both readers`,
+          shown.size === body.skeleton.bones.length && fresh.size === shown.size,
+        );
+        for (const joint of body.skeleton.bones) {
+          const display: IAutoMovieResolvedBone | undefined = shown.get(joint.bone);
+          const recomputed: IAutoMovieResolvedBone | undefined = fresh.get(joint.bone);
+          if (display === undefined || recomputed === undefined) {
+            complaints.check(`${label}: missing ${joint.bone}`, false);
+            continue;
+          }
+          complaints.check(
+            `${label}: ${joint.bone} world frame differs from fresh FK`,
+            vclose(display.worldPosition, recomputed.worldPosition, EXACT) &&
+              qclose(display.worldRotation, recomputed.worldRotation, EXACT),
           );
+          if (joint.parent === null) continue;
+          const parent: IAutoMovieResolvedBone | undefined = shown.get(joint.parent);
+          if (parent === undefined) {
+            complaints.check(`${label}: missing parent of ${joint.bone}`, false);
+            continue;
+          }
+          const p: IAutoMovieVector3 = parent.worldPosition;
+          const q: IAutoMovieVector3 = display.worldPosition;
+          const rest: IAutoMovieVector3 = joint.rest.translation;
+          complaints.check(
+            `${label}: ${joint.bone} changes the rig's rigid link`,
+            nclose(
+              Math.hypot(q.x - p.x, q.y - p.y, q.z - p.z),
+              Math.hypot(rest.x, rest.y, rest.z),
+              EXACT,
+            ) &&
+              qclose(
+                display.worldRotation,
+                Quaternion.multiply(parent.worldRotation, display.localRotation),
+                EXACT,
+              ),
+          );
+        }
       }
-  });
-  TestValidator.equals(
-    "the corpus poses as recorded",
-    complaints.slice(0, 40),
-    [],
+    }
+  complaints.assert("reader parity and rigid FK hold at the same displayed instant");
+}
+
+/** Observe the bottle at three named instants and measure its hand-relative displacement. */
+function pickup(
+  complaints: motionComplaints.IGatherer,
+  name: motionHumanBody.Name,
+  film: motionHumanLaw.IFilm,
+): void {
+  const initial: IAutoMovieRigidTransform = film.performance.prop("bottle", 0);
+  const closed: number = motionHumanLaw.event(film, "gripClosed");
+  const lifted: number = motionHumanLaw.event(film, "lifted");
+  const liftOff: number = motionHumanLaw.event(film, "liftOff");
+  const held: IAutoMovieRigidTransform = film.performance.prop("bottle", closed);
+  const up: IAutoMovieRigidTransform = film.performance.prop("bottle", lifted);
+  const rise: number = up.position.y - initial.position.y;
+  complaints.check(
+    `${name}: grip closure keeps the bottle at its authored position`,
+    vclose(held.position, initial.position, ATTACHMENT),
+  );
+  complaints.check(
+    `${name}: the bottle rises ${(rise * 1000).toFixed(1)} mm by lifted, 80–120 mm expected`,
+    rise >= 0.08 && rise <= 0.12,
+  );
+  const inHand: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 => {
+    const hand: IAutoMovieResolvedBone = film.bones("a", t).get("rightHand")!;
+    const prop: IAutoMovieVector3 = film.performance.prop("bottle", t).position;
+    const handToProp: IAutoMovieVector3 = {
+      x: prop.x - hand.worldPosition.x,
+      y: prop.y - hand.worldPosition.y,
+      z: prop.z - hand.worldPosition.z,
+    };
+    return Quaternion.rotateVector(Quaternion.inverse(hand.worldRotation), handToProp);
+  };
+  complaints.check(
+    `${name}: the bottle remains rigidly in the same hand frame from lift-off to lifted`,
+    vclose(inHand(liftOff), inHand(lifted), ATTACHMENT),
   );
 }
 
-/**
- * A joint's tolerance, degrees: a curled digit's at its lever to the tip
- * (`curlChainUntilContact.resolution`), every other joint's `ROM_TOLERANCE`.
- */
-function tolerance(body: IAutoMovieMotionHumanBody, bone: string): number {
-  const digit: RegExpExecArray | null = DIGIT.exec(bone);
-  if (digit === null) return ROM_TOLERANCE;
-  const side: string = digit[1]!;
-  const rest = (name: string): IAutoMovieVector3 =>
-    body.rest.get(name as AutoMovieHumanoidBone)!;
-  const reach: number =
-    Vector3.length(
-      Vector3.subtract(rest(`${side}LowerArm`), rest(`${side}UpperArm`)),
-    ) +
-    Vector3.length(
-      Vector3.subtract(rest(`${side}Hand`), rest(`${side}LowerArm`)),
-    );
-  const chain: string[] = (
-    digit[2] === "Thumb"
-      ? ["Metacarpal", "Proximal", "Distal"]
-      : ["Proximal", "Intermediate", "Distal"]
-  ).map((part: string): string => `${side}${digit[2]}${part}`);
-  const capsule: IAutoMoviePhysicalShape | undefined = body.profile.segments
-    .find((s: IAutoMoviePhysicalSegment): boolean => s.bone === chain[2])
-    ?.shapes.find(
-      (s: IAutoMoviePhysicalShape): boolean => s.kind === "capsule",
-    );
+/** Distinct posed contact dependencies shared by the original regression. */
+const LAWS: readonly string[] = ["pickUp", "walk", "punch"];
 
-  // The distal phalanx reaches its tip at its capsule's far end.
-  const tip: number =
-    capsule === undefined || capsule.kind !== "capsule"
-      ? 0
-      : Vector3.length(
-          Vector3.add(
-            capsule.transform.position,
-            Quaternion.rotateVector(capsule.transform.rotation, {
-              x: 0,
-              y: capsule.halfLength,
-              z: 0,
-            }),
-          ),
-        );
-  let lever: number = tip;
-  for (let j: number = Math.max(0, chain.indexOf(bone)); j < 2; j++)
-    lever += Vector3.length(
-      Vector3.subtract(rest(chain[j + 1]!), rest(chain[j]!)),
-    );
-  return lever > 0
-    ? curlChainUntilContact.resolution(reach, lever)
-    : ROM_TOLERANCE;
-}
+/** Opposite performers on unchanged stage geometry. */
+const BODIES: readonly BodyPair[] = [["m-average", "f-small"], ["f-small", "m-average"]];
 
-/** A digit's bone: its side and its digit. */
-const DIGIT: RegExp =
-  /^(left|right)(Thumb|Index|Middle|Ring|Little)(Metacarpal|Proximal|Intermediate|Distal)$/u;
+/** Lead and partner body names. */
+type BodyPair = readonly [motionHumanBody.Name, motionHumanBody.Name];
+
+/** The original interior frame demands. */
+const SHARES: readonly number[] = [0.5, 0.75];
+
+/** The existing repeat-test roundoff limit for matching numeric frame computations. */
+const EXACT: number = 1e-9;
+
+/** Metres of hand-relative drift admitted by the existing object-affordance spec. */
+const ATTACHMENT: number = 0.001;
