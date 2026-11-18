@@ -80,7 +80,8 @@ export namespace AutoMovieMotionHumanArmChain {
 
     // An instant's goals fitted continuing the seeds given: the arms the fit
     // chose and their seeds; a fit that names no seed leaves the one it
-    // continued, and an arm with no goal at the instant has none.
+    // continued. A released arm supplies its actual unforced endpoint
+    // angles for the preceding interpolation without supplying an IK seed.
     const fit = (
       at: IAutoMovieMotionHumanPosture,
       near: IAutoMovieMotionHumanResolveHumanPosture.INear,
@@ -100,8 +101,8 @@ export namespace AutoMovieMotionHumanArmChain {
       > = { ...near };
       for (const side of sides) {
         const limb: "leftArm" | "rightArm" = `${side}Arm`;
-        if (at.limbs[limb] === undefined) continue;
         arms[side] = AutoMovieMotionHumanArmAngles.angles(solved.pose, side);
+        if (at.limbs[limb] === undefined) continue;
         const seed: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][typeof limb] =
           solved.seeds[limb];
         if (seed !== undefined && seed !== null)
