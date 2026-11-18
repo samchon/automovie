@@ -1,6 +1,5 @@
-import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
+import { Vector3, rootsAutoMovieCubicBernstein64, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieTetrahedralizeDelaunay,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -9,13 +8,14 @@ import type {
  * The sides an interaction mesh records (`HumanInteractionMesh`): each
  * tetrahedron not flat on the key pose keeps its orientation, so no point
  * passes through the face across from it, which is how one body would pass
- * into another. Its signed volume, read as a length over the squared
- * extent, has a hard zero lower bound in each linear model; the nonlinear
- * solve's domain keeps it strictly positive.
+ * into another. The determinant is scaled by the reference's largest
+ * face area, giving an altitude in metres. Close to zero, the barrier of
+ * Li et al. 2020 §4.2 repels compression. Their §4.4 line filter finds an
+ * admissible step before the first possible element collapse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a side is, why it is kept, its unit and its bound.
- * @evidence contracts/development/design.md#principled-representation A side as a tetrahedron's corners, the signed-volume inequality a convex model linearises.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The side record, its builder, its reading and its model row.
+ * @evidence contracts/development/design.md#principled-representation The four corners and a fixed local metric define the determinant, derivatives and line polynomial of the same constraint.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One side record plus its measurements and the inversion line filter.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The sides are read off the reference, never off the adapted points.
  */
 export namespace HumanInteractionMeshSide {
@@ -30,6 +30,12 @@ export namespace HumanInteractionMeshSide {
   export interface ISide {
     /** The corners, in the mesh's positive orientation. */
     corners: readonly [number, number, number, number];
+
+    /** The largest double face area of the reference element, in square metres. */
+    area: number;
+
+    /** The altitude below which the side's barrier acts, metres. */
+    activation: number;
   }
 
   /**
@@ -39,6 +45,7 @@ export namespace HumanInteractionMeshSide {
    * @param mesh The mesh.
    * @param reference The key pose's points, world metres.
    * @param extent The points' extent, metres.
+   * @param accuracy The adaptation's geometric accuracy, metres.
    * @returns The sides.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which tetrahedra record a side and the bound each keeps.
@@ -53,6 +60,7 @@ export namespace HumanInteractionMeshSide {
     mesh: IAutoMovieTetrahedralizeDelaunay.IMesh,
     reference: readonly IAutoMovieVector3[],
     extent: number,
+    accuracy: number,
   ): ISide[] {
     const joggle: number =
       tetrahedralizeAutoMovieDelaunay.JOGGLE * Number.EPSILON * extent;
@@ -62,65 +70,77 @@ export namespace HumanInteractionMeshSide {
         (t: readonly [number, number, number, number]): boolean =>
           tetrahedralizeAutoMovieDelaunay.volume(reference, t) > flat,
       )
-      .map(
-        (t: readonly [number, number, number, number]): ISide => ({
-          corners: t,
-        }),
-      );
+      .map((corners: ISide["corners"]): ISide => {
+        const [a, b, c, d] = corners;
+        const e1: IAutoMovieVector3 = Vector3.subtract(reference[b]!, reference[a]!);
+        const e2: IAutoMovieVector3 = Vector3.subtract(reference[c]!, reference[a]!);
+        const e3: IAutoMovieVector3 = Vector3.subtract(reference[d]!, reference[a]!);
+        const bc: IAutoMovieVector3 = Vector3.cross(e1, e2);
+        const bd: IAutoMovieVector3 = Vector3.cross(e1, e3);
+        const cd: IAutoMovieVector3 = Vector3.cross(e2, e3);
+        const area: number = Math.max(
+          Vector3.length(bc),
+          Vector3.length(bd),
+          Vector3.length(cd),
+          Vector3.length(Vector3.add(Vector3.subtract(cd, bd), bc)),
+        );
+        // The activation distance is physical, even for a very thin
+        // reference element. Using the element's thin original altitude as
+        // its own distance would leave that element effectively unprotected.
+        return { corners, area, activation: accuracy };
+      });
   }
 
   /**
-   * A side's signed volume on the points, read as a length over the
-   * squared extent.
+   * A side's oriented determinant divided by the reference face area.
    *
    * @param x The points, x then y then z by point.
    * @param side The side.
-   * @param extent The points' extent, metres.
    * @returns Metres; positive where the side is kept.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the reading, its unit and its sign.
-   * @evidence contracts/development/implementation.md#principled-implementation The triple product `(b - a) x (c - a) . (d - a)`, six times the volume, over the squared extent.
+   * @evidence contracts/development/implementation.md#principled-implementation The scalar triple product divided by the fixed double face area has the signed volume's orientation and the units of altitude.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One triple product.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's volume.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The line filter uses the same edge triple product.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
-  export function value(x: Float64Array, side: ISide, extent: number): number {
-    return (
-      tetrahedralizeAutoMovieDelaunay.volume(
-        side.corners.map((i: number): IAutoMovieVector3 => at(x, i)),
-        [0, 1, 2, 3],
-      ) /
-      extent ** 2
-    );
+  export function value(x: Float64Array, side: ISide): number {
+    const [a, b, c, d] = side.corners;
+    const p: IAutoMovieVector3 = at(x, a);
+    return triple(
+      Vector3.subtract(at(x, b), p),
+      Vector3.subtract(at(x, c), p),
+      Vector3.subtract(at(x, d), p),
+    ) / side.area;
+  }
+
+  /** The indexed gradient of one signed altitude. */
+  interface IGradient {
+    /** The affine coordinate index of each entry. */
+    index: number[];
+
+    /** The derivative of the altitude at each coordinate. */
+    coef: number[];
   }
 
   /**
-   * A side's row in a convex model: its signed volume linearised at the
-   * points, with a hard zero lower bound. Positivity is a domain constraint,
-   * not a residual that a contact or a bone may trade against.
+   * The gradient of a side's signed altitude for the barrier model.
    *
    * @param x The points, x then y then z by point.
    * @param side The side.
-   * @param extent The points' extent, metres.
-   * @param key The row's key.
-   * @returns The row over the step.
+   * @returns Its twelve sparse Cartesian derivatives.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the linearisation and the bound.
-   * @evidence contracts/development/implementation.md#principled-implementation The gradient of `(b - a) x (c - a) . (d - a)` is `(c - a) x (d - a)` at `b`, `(d - a) x (b - a)` at `c`, `(b - a) x (c - a)` at `d` and minus their sum at `a`, each over the squared extent.
+   * @evidence contracts/development/implementation.md#principled-implementation The signed determinant's gradient is the opposite face normal at each corner, divided by the fixed reference area.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Three edges, four gradients, one row.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The row is hard with no upper bound; a side is never pinned at its reference volume or traded against another constraint.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All four vertices contribute, including the negative sum at the origin vertex.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `value` gives the reading the row is offset by.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The scalar altitude and its gradient share the same local metric.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
-  export function row(
-    x: Float64Array,
-    side: ISide,
-    extent: number,
-    key: string,
-  ): IAutoMovieMotionHumanQuadraticProgram.IRow {
+  export function gradient(x: Float64Array, side: ISide): IGradient {
     const [a, b, c, d] = side.corners;
     const e1: IAutoMovieVector3 = Vector3.subtract(at(x, b), at(x, a));
     const e2: IAutoMovieVector3 = Vector3.subtract(at(x, c), at(x, a));
@@ -132,33 +152,77 @@ export namespace HumanInteractionMeshSide {
       Vector3.add(Vector3.add(gb, gc), gd),
       -1,
     );
-    const corners: { point: number; g: IAutoMovieVector3 }[] = [
-      { point: a, g: ga },
-      { point: b, g: gb },
-      { point: c, g: gc },
-      { point: d, g: gd },
-    ];
     return {
-      key,
-      index: corners.flatMap((k: { point: number }): number[] => [
-        3 * k.point,
-        3 * k.point + 1,
-        3 * k.point + 2,
+      index: side.corners.flatMap((i: number): number[] => [
+        3 * i,
+        3 * i + 1,
+        3 * i + 2,
       ]),
-      coef: corners.flatMap((k: { g: IAutoMovieVector3 }): number[] => [
-        k.g.x / extent ** 2,
-        k.g.y / extent ** 2,
-        k.g.z / extent ** 2,
+      coef: [ga, gb, gc, gd].flatMap((g: IAutoMovieVector3): number[] => [
+        g.x / side.area,
+        g.y / side.area,
+        g.z / side.area,
       ]),
-      l: -value(x, side, extent),
-      u: Infinity,
     };
   }
 
+  /**
+   * Largest admissible fraction of a Cartesian step.
+   *
+   * @param x The orientation-preserving iterate.
+   * @param step The proposed Cartesian displacement.
+   * @param sides The recorded elements.
+   * @returns One, or the first conservative compression event on the step.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that the admissible maximum can cut a step even when its end is oriented.
+   * @evidence contracts/development/implementation.md#principled-implementation Expands the trilinear determinant in cubic Bernstein coefficients. The convex hull omits safe elements; the shared cubic root owner finds the earliest contact with 20% of the current determinant as in Li et al. 2020 technical supplement §4.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One element scan, each either passing its coefficient lower bound or reducing the allowed fraction.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Endpoint signs alone do not rule out intermediate inversion; nonlinear merit still verifies strict positivity.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per element before the root search, which is needed only where the Bernstein interval spans the barrier.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The solver uses the same tetrahedra and determinant as the barrier.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the scalar fraction.
+   */
+  export function limit(x: Float64Array, step: Float64Array, sides: readonly ISide[]): number {
+    let fraction: number = 1;
+    for (const side of sides) {
+      const [a, b, c, d] = side.corners;
+      const origin: IAutoMovieVector3 = at(x, a);
+      const move: IAutoMovieVector3 = at(step, a);
+      const e1: IAutoMovieVector3 = Vector3.subtract(at(x, b), origin);
+      const e2: IAutoMovieVector3 = Vector3.subtract(at(x, c), origin);
+      const e3: IAutoMovieVector3 = Vector3.subtract(at(x, d), origin);
+      const f1: IAutoMovieVector3 = Vector3.add(e1, Vector3.scale(Vector3.subtract(at(step, b), move), fraction));
+      const f2: IAutoMovieVector3 = Vector3.add(e2, Vector3.scale(Vector3.subtract(at(step, c), move), fraction));
+      const f3: IAutoMovieVector3 = Vector3.add(e3, Vector3.scale(Vector3.subtract(at(step, d), move), fraction));
+      const initial: number = triple(e1, e2, e3);
+      const floor: number = (1 - COMPRESSION) * initial;
+      const coefficients: number[] = [
+        initial - floor,
+        (triple(f1, e2, e3) + triple(e1, f2, e3) + triple(e1, e2, f3)) / 3 - floor,
+        (triple(e1, f2, f3) + triple(f1, e2, f3) + triple(f1, f2, e3)) / 3 - floor,
+        triple(f1, f2, f3) - floor,
+      ];
+      if (coefficients.every((v: number): boolean => v > 0)) continue;
+      const scale: number = Math.max(...coefficients.map(Math.abs));
+      const root: number | undefined = rootsAutoMovieCubicBernstein64(
+        coefficients.map((v: number): number => v / scale),
+      )[0];
+      if (root !== undefined) fraction *= root;
+      if (fraction === 0) break;
+    }
+    return fraction;
+  }
+
+  /** Fraction of an element's current volume it may lose in one feasible step (Li et al. 2020 technical supplement §4). */
+  const COMPRESSION: number = 0.8;
+
+  /** The oriented determinant of three tetrahedron edge vectors. */
+  function triple(a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3): number {
+    return Vector3.dot(a, Vector3.cross(b, c));
+  }
+
   /** A point of the array. */
-  const at = (x: Float64Array, i: number): IAutoMovieVector3 => ({
-    x: x[3 * i]!,
-    y: x[3 * i + 1]!,
-    z: x[3 * i + 2]!,
-  });
+  function at(x: Float64Array, i: number): IAutoMovieVector3 {
+    return { x: x[3 * i]!, y: x[3 * i + 1]!, z: x[3 * i + 2]! };
+  }
 }

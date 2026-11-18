@@ -1,8 +1,6 @@
-import { Vector3, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
+import { tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanInteractionMesh,
-  IAutoMovieMotionHumanQuadraticProgram,
-  IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieTetrahedralizeDelaunay,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -10,8 +8,7 @@ import type {
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanInteractionMeshLaplacian as Laplacian } from "./HumanInteractionMeshLaplacian";
 import { HumanInteractionMeshSide as Side } from "./HumanInteractionMeshSide";
-import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
-import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
+import { HumanInteractionMeshStep as Step } from "./HumanInteractionMeshStep";
 
 /**
  * Adapt the spatial relations of a multi-body key pose to bodies of other
@@ -30,25 +27,20 @@ import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
  *   weighted mean of its neighbours, excluding bone edges so deformation
  *   does not oppose the bone lengths being changed (Ho et al. 2010,
  *   equation 3 and section 5.1; `HumanInteractionMeshLaplacian`).
- * - **Solve.** `min sum_i |L(p)_i - d_i|^2 / 2` subject to each bone's
- *   length and each contact's pairing, by the l1 exact penalty's sequential
- *   convex optimisation with a trust region and a steered penalty
- *   (`HumanSequentialConvex`; Nocedal and Wright 2006, "Numerical
- *   Optimization", 2nd ed., sections 17.2 and 18.5; Byrd, Nocedal and Waltz
- *   2008): each convex model linearizes a bone `|p_i - p_j| = l` along its
- *   current direction and holds the Laplacian's quadratic exactly, solved by
- *   `HumanQuadraticProgram` within the region; a step is taken only where
- *   the merit falls, so a large change of proportions is approached in
- *   steps the linearization holds over.
+ * - **Solve.** A connected set of fixed offsets determines the whole shape
+ *   up to translation. Other cases minimize the deformation of the
+ *   Laplacian coordinates with a progressively tightened equality penalty
+ *   (Nocedal and Wright 2006, §17.1). Each sparse Gauss–Newton model holds
+ *   the Cartesian terms exactly and linearizes the length of a bone along
+ *   its current direction. The line search uses the actual energy.
  *
- * - **Sides.** Each tetrahedron not flat on the key pose keeps its
- *   orientation (`HumanInteractionMeshSide`), an inequality on its signed
- *   volume linearised as a hard row in each model: a point that crossed the face across from it would have passed
- *   through the bodies the mesh spans, the interpenetration the paper's
- *   mesh is built to reduce. The strictly positive determinant is the
- *   nonlinear solve's domain: a trial outside it has infinite merit and is
- *   rejected by the trust region, as an inversion barrier excludes flips
- *   (Schueller et al. 2013, "Locally Injective Mappings", section 3).
+ * - **Sides.** An element's determinant must stay strictly positive.
+ *   Within the geometric accuracy of collapse, the smooth IPC barrier adds
+ *   repulsion from the element's reference altitude scale. The projected
+ *   Gauss–Newton component of the Hessian gives the local quadratic model,
+ *   and the determinant's cubic in the step fraction limits the line
+ *   before an element can turn inside out (Li et al. 2020 §§4.2–4.4,
+ *   technical supplement §§4 and 6).
  *
  * Ho et al.'s full text (author upload: https://www.researchgate.net/publication/220183715_Spatial_Relationship_Preserving_Character_Motion_Adaptation)
  * uses collision constraints on bounding volumes during iterative
@@ -72,18 +64,18 @@ export namespace HumanInteractionMesh {
    * @throws {Error} When fewer than four points are given, an index is out of range, a bone's length is not positive, or the solve cannot meet the bones and contacts while preserving the recorded sides.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the errors.
-   * @evidence contracts/development/implementation.md#principled-implementation The interaction mesh's least inverse-distance Laplacian deformation with bone edges omitted (Ho et al. 2010, equation 3 and section 5.1), under the bones and contacts by the l1 exact penalty's trust-region sequential convex optimisation with a steered penalty, inside the positive-determinant domain of every recorded side (Schueller et al. 2013, section 3); inverted trials have infinite merit, so the region shrinks before another trial, starting from the reference if the optional guess inverts a side. Bones and contact coordinates must meet the whole-body fit's 0.5 mm tolerance and every side remain strictly positive, or the adaptation throws; a feasible reference has zero deformation energy and is returned exactly, preserving identity.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, mesh, coordinates, then one minimisation over a reading and a convex model.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves Ho et al. 2010's inverse-distance Laplacian and the actual bone and contact constraints. Li et al. 2020's locally supported barrier acts on signed altitudes; positive curvature of the scalar barrier composed with the altitude gradient gives its projected Gauss–Newton term, and the cubic line filter keeps determinant signs positive. The original geometric tolerance and identity return still govern admission.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, mesh, coordinates, then a fixed-offset solution or a sparse local minimization.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Malformed input throws; no point is clamped after the solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Mesh insertion is quadratic in points at worst; each linearization solves a QP over three coordinates per point. Fixed Laplacian curvature is assembled once per objective flag. Penalty steering reprices O(m) rows without repeating bone/side linearization; radius retries refresh intervals on one admitted P/q/A. Actual OSQP and nonlinear trials remain, with no measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The Laplacian, dimensions and objective flag fix P throughout one adapt call. At fixed x/e/objective, bone/contact/side coefficients and q do not depend on mu: fresh penalty shells change only existing soft weights, retain hard side rows and reset local warm state while sharing numeric preparation. Accepted-step keyed multipliers and radius warm policy remain unchanged; mesh reuse stays explicit through props.mesh.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One adapt call owns at most two fixed curvatures; its current linearization owns coefficients, one numeric preparation and bounded scratch shared by fresh penalty shells without linked history. Returned points/mesh remain caller-owned, with no cached deformation or query history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Resolve constrained offsets by one graph walk where they determine every point. Other cases build one sparse model per iterate with barrier curvature only at compressed elements. Bernstein coefficients skip safe elements without a root isolation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The Laplacian, contact offsets and mesh topology are fixed for one adaptation. Line search trials reuse these even though their coordinates change.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the current sparse terms and a fixed number of coordinate arrays, with no iterated trajectory or cached deformation.
    */
   export function adapt(props: IAutoMovieMotionHumanInteractionMesh.IProps): IAutoMovieMotionHumanInteractionMesh.IResult {
     const n: number = props.reference.length;
     if (n < 4)
       throw new Error("An interaction mesh needs at least four points");
-    const inside = (index: number): boolean =>
+    const inside: (index: number) => boolean = (index: number): boolean =>
       Number.isInteger(index) && index >= 0 && index < n;
     for (const bone of props.bones)
       if (!(bone.length > 0) || !inside(bone.from) || !inside(bone.to))
@@ -106,332 +98,299 @@ export namespace HumanInteractionMesh {
       Number.MIN_VALUE,
     );
     const accuracy: number = HumanBodyFitMerit.TOLERANCE;
+    const contactOffsets: number[][] = props.contacts.map(offset);
 
-    // The Laplacian rows, each a point's own coefficient and its
-    // neighbours' (one per axis), and their coordinates at the reference.
     const rows: Laplacian.Row[] = Laplacian.rows(
       props.reference,
       neighbours,
       props.bones,
     );
-    const coordinate = (x: Float64Array, i: number, k: number): number =>
-      rows[i]!.reduce(
-        (s: number, e: { point: number; value: number }): number =>
-          s + e.value * x[3 * e.point + k]!,
-        0,
-      );
     const reference: Float64Array = flat(props.reference);
-    const delta: number[] = Array.from(
-      { length: 3 * n },
-      (_: unknown, c: number): number =>
-        coordinate(reference, Math.floor(c / 3), c % 3),
+    const sides: Side.ISide[] = Side.record(mesh, props.reference, extent, accuracy);
+    const baseStiffness: number = Math.max(
+      Number.EPSILON,
+      rows.reduce((sum: number, row: Laplacian.Row): number =>
+        sum + row.reduce((s: number, entry): number => s + entry.value ** 2, 0), 0) / n,
     );
 
-    // The curvature L^T L, the same on each axis, in the band its
-    // couplings span.
-    const couplings: Map<string, number> = new Map();
-    for (const row of rows)
-      for (const a of row)
-        for (const b of row)
-          if (a.point <= b.point) {
-            const key: string = `${a.point}|${b.point}`;
-            couplings.set(key, (couplings.get(key) ?? 0) + a.value * b.value);
-          }
-    const spans: number[] = [
-      ...[...couplings.keys()].map((key: string): number => {
-        const [a, b] = key.split("|").map(Number) as [number, number];
-        return 3 * (b - a);
+    // Cartesian components share each immutable Laplacian row. Only their
+    // residuals change while the deformation is solved.
+    const laplace: ILaplace[] = rows.flatMap((row: Laplacian.Row): ILaplace[] =>
+      AXES.map((axis: number): ILaplace => {
+        const index: number[] = row.map((entry): number => 3 * entry.point + axis);
+        const coef: number[] = row.map((entry): number => entry.value);
+        return { index, coef, goal: coordinate(reference, index, coef) };
       }),
-      ...props.bones.map(
-        (bone: IAutoMovieMotionHumanInteractionMesh.IBone): number => 3 * Math.abs(bone.from - bone.to) + 2,
-      ),
-      ...props.contacts.map((c: IAutoMovieMotionHumanInteractionMesh.IContact): number => 3 * Math.abs(c.a - c.b)),
-      // A side's row couples every axis of its four corners.
-      ...mesh.tetrahedra.map(
-        (t: readonly [number, number, number, number]): number =>
-          3 * (Math.max(...t) - Math.min(...t)) + 2,
-      ),
-    ];
-    const band: number = Math.max(0, ...spans);
-    const curvatures: (Float64Array[] | undefined)[] = [undefined, undefined];
-
-    // The sides the mesh records (`HumanInteractionMeshSide`).
-    const sided: Side.ISide[] = Side.record(mesh, props.reference, extent);
-
-    const evaluate = (x: Float64Array): IEvaluation => {
-      let objective: number = 0;
-      for (let c: number = 0; c < 3 * n; c++)
-        objective +=
-          (coordinate(x, Math.floor(c / 3), c % 3) - delta[c]!) ** 2 / 2;
-      let violation: number = 0;
+    );
+    function evaluate(
+      x: Float64Array,
+      penalty: number,
+      stiffness: number,
+      model?: Step.IRow[],
+    ): IEvaluation {
+      let energy: number = 0;
+      let barrier: number = 0;
       let worst: number = 0;
-      const miss = (v: number): void => {
-        violation += Math.abs(v);
-        worst = Math.max(worst, Math.abs(v));
-      };
-      for (const bone of props.bones)
-        miss(length(x, bone.from, bone.to) - bone.length);
-      for (const c of props.contacts) {
-        const off: number[] = offset(c);
-        for (let k: number = 0; k < 3; k++)
-          miss(x[3 * c.a + k]! - x[3 * c.b + k]! - off[k]!);
+      function squared(
+        residual: number,
+        weight: number,
+        index: readonly number[],
+        coef: readonly number[],
+      ): void {
+        energy += weight * residual * residual / 2;
+        model?.push({ index, coef, slope: weight * residual, curvature: weight });
       }
-      let flipped: number = 0;
-      for (const t of sided) {
-        const h: number = Side.value(x, t, extent);
-        if (!(h > 0)) ++flipped;
-      }
-      return {
-        objective: flipped === 0 ? objective : Infinity,
-        violation,
-        worst,
-        flipped,
-      };
-    };
-    const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<Float64Array, IEvaluation> = {
-      evaluate,
-      feasible: (e: IEvaluation): boolean =>
-        e.worst <= accuracy && e.flipped === 0,
-      convexify: (
-        x: Float64Array,
-        _e: IEvaluation,
-        mu: number,
-        _radius: number,
-        objective: boolean,
-      ): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
-        const retained: Float64Array[] | undefined = curvatures[objective ? 1 : 0];
-        const p: Float64Array[] = retained ?? Array.from(
-          { length: 3 * n },
-          (): Float64Array => new Float64Array(band + 1),
-        );
-        const q: Float64Array = new Float64Array(3 * n);
-        if (objective) {
-          if (retained === undefined)
-            for (const [key, value] of couplings) {
-              const [a, b] = key.split("|").map(Number) as [number, number];
-              // Each pair once, the band's upper half: `x^T P x / 2` reads a
-              // diagonal entry halved and an off-diagonal one whole.
-              for (let k: number = 0; k < 3; k++)
-                p[3 * a + k]![3 * (b - a)]! += value;
-            }
-          for (let i: number = 0; i < n; i++)
-            for (let k: number = 0; k < 3; k++) {
-              const r: number = coordinate(x, i, k) - delta[3 * i + k]!;
-              for (const e of rows[i]!) q[3 * e.point + k]! += e.value * r;
-            }
+      for (const term of laplace)
+        squared(coordinate(x, term.index, term.coef) - term.goal, 1, term.index, term.coef);
+      for (const bone of props.bones) {
+        const first: number = 3 * bone.from;
+        const second: number = 3 * bone.to;
+        const dx: number = x[first]! - x[second]!;
+        const dy: number = x[first + 1]! - x[second + 1]!;
+        const dz: number = x[first + 2]! - x[second + 2]!;
+        const length: number = Math.hypot(dx, dy, dz);
+        const miss: number = length - bone.length;
+        worst = Math.max(worst, Math.abs(miss));
+        if (model === undefined) energy += penalty * miss * miss / 2;
+        else {
+          const unit: readonly number[] = length > 0
+            ? [dx / length, dy / length, dz / length]
+            : [0, 1, 0];
+          squared(
+            miss,
+            penalty,
+            [first, first + 1, first + 2, second, second + 1, second + 2],
+            [unit[0]!, unit[1]!, unit[2]!, -unit[0]!, -unit[1]!, -unit[2]!],
+          );
         }
-        curvatures[objective ? 1 : 0] = p;
-        const held: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [
-          ...props.bones.map((bone: IAutoMovieMotionHumanInteractionMesh.IBone, b: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
-            const d: number[] = [0, 1, 2].map(
-              (k: number): number =>
-                x[3 * bone.from + k]! - x[3 * bone.to + k]!,
-            );
-            const l: number = Math.hypot(d[0]!, d[1]!, d[2]!);
-            const u: number[] =
-              l > 0 ? d.map((v: number): number => v / l) : [0, 1, 0];
-            const [lo, hi]: [number, number] =
-              bone.from < bone.to ? [bone.from, bone.to] : [bone.to, bone.from];
-            const sign: number = lo === bone.from ? 1 : -1;
-            return {
-              key: `b|${b}`,
-              index: [0, 1, 2, 0, 1, 2].map(
-                (k: number, a: number): number => 3 * (a < 3 ? lo : hi) + k,
-              ),
-              coef: [0, 1, 2, 0, 1, 2].map(
-                (k: number, a: number): number =>
-                  (a < 3 ? sign : -sign) * u[k]!,
-              ),
-              l: bone.length - l,
-              u: bone.length - l,
-              weight: mu,
-            };
-          }),
-          ...props.contacts.flatMap((c: IAutoMovieMotionHumanInteractionMesh.IContact, h: number): IAutoMovieMotionHumanQuadraticProgram.IRow[] => {
-            const off: number[] = offset(c);
-            return [0, 1, 2].map((k: number): IAutoMovieMotionHumanQuadraticProgram.IRow => {
-              const r: number = off[k]! - (x[3 * c.a + k]! - x[3 * c.b + k]!);
-              return {
-                key: `c|${h}|${k}`,
-                index: [3 * c.a + k, 3 * c.b + k],
-                coef: [1, -1],
-                l: r,
-                u: r,
-                weight: mu,
-              };
-            });
-          }),
-          // Each side kept, its signed volume linearised.
-          ...sided.map(
-            (t: Side.ISide, s: number): IAutoMovieMotionHumanQuadraticProgram.IRow =>
-              Side.row(x, t, extent, `o|${s}`),
-          ),
-        ];
-        let prepared: ReturnType<typeof QP.prepare> | undefined;
-        const priced: (price: number) => IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> = (price: number): IAutoMovieMotionHumanSequentialConvex.IModel<Float64Array> => {
-          const current: IAutoMovieMotionHumanQuadraticProgram.IRow[] = price === mu ? held : held.map((row: IAutoMovieMotionHumanQuadraticProgram.IRow): IAutoMovieMotionHumanQuadraticProgram.IRow =>
-            row.weight === undefined ? row : { ...row, weight: price });
-          const model: IAutoMovieMotionHumanQuadraticProgram.IProblem = { n: 3 * n, band, p, q, rows: current };
-          let zero: number | undefined;
-          let trusted: IAutoMovieMotionHumanQuadraticProgram.IProblem | undefined;
-          let warm: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-          return {
-            reprice: priced,
-            solve: (r: number): IAutoMovieMotionHumanSequentialConvex.IStep<Float64Array> => {
-              trusted = {
-                ...model,
-                rows: [
-                  ...current,
-                  ...Array.from(
-                    { length: 3 * n },
-                    (_: unknown, i: number): IAutoMovieMotionHumanQuadraticProgram.IRow => ({
-                      index: [i],
-                      coef: [1],
-                      l: -r,
-                      u: r,
-                      key: `t|${i}`,
-                    }),
-                  ),
-                ],
-              };
-              prepared ??= QP.prepare(trusted);
-              warm = prepared.solve(trusted.rows, warm, duals);
-              const solved: Float64Array = warm.x;
-              let longest: number = 0;
-              for (let i: number = 0; i < warm.x.length; ++i)
-                longest = Math.max(longest, Math.abs(warm.x[i]!));
-              // The constraints the step leaves unmet on their linearisation,
-              // which the steered penalty reads.
-              const left: number[] = current.map((row: IAutoMovieMotionHumanQuadraticProgram.IRow): number => {
-                let s: number = 0;
-                for (let a: number = 0; a < row.index.length; ++a)
-                  s += row.coef[a]! * warm!.x[row.index[a]!]!;
-                return Math.max(0, row.l - s, s - row.u);
-              });
-              let trial: Float64Array | undefined;
-              return {
-                violation: left.reduce(
-                  (s: number, v: number): number => s + v,
-                  0,
-                ),
-                met: Math.max(0, ...left) <= accuracy,
-                get trial(): Float64Array {
-                  return (trial ??= Float64Array.from(
-                    x,
-                    (v: number, i: number): number => v + solved[i]!,
-                  ));
-                },
-                predicted: (zero ??= QP.value(model)) - QP.value(model, warm.x),
-                length: longest,
-                // The step at the region's edge, to the solver's own accuracy.
-                full: longest >= r * (1 - QP.TOLERANCE),
-              };
-            },
-            taken: (): void => {
-              duals = QP.multipliers(trusted!, warm!);
-            },
-          };
-        };
-        return priced(mu);
-      },
-    };
-    // Zero deformation is the global minimum. Returning a feasible
-    // reference exactly also makes identity independent of QP round-off.
-    const original: IEvaluation = evaluate(reference);
-    if (problem.feasible(original))
+      }
+      for (const [i, contact] of props.contacts.entries())
+        for (const axis of AXES) {
+          const a: number = 3 * contact.a + axis;
+          const b: number = 3 * contact.b + axis;
+          const miss: number = x[a]! - x[b]! - contactOffsets[i]![axis]!;
+          worst = Math.max(worst, Math.abs(miss));
+          if (model === undefined) energy += penalty * miss * miss / 2;
+          else squared(miss, penalty, [a, b], [1, -1]);
+        }
+      let flipped: number = 0;
+      let near: number = Infinity;
+      for (const side of sides) {
+        const altitude: number = Side.value(x, side);
+        near = Math.min(near, altitude);
+        if (!(altitude > 0)) ++flipped;
+        else if (altitude < side.activation) {
+          const log: number = Math.log(altitude / side.activation);
+          const gap: number = altitude - side.activation;
+          barrier -= gap * gap * log;
+          if (model === undefined) continue;
+
+          // The positive term of the barrier's projected Hessian is the
+          // rank-one curvature along the altitude's exact gradient.
+          const ratio: number = gap / altitude;
+          model.push({
+            ...Side.gradient(x, side),
+            slope: -stiffness * gap * (2 * log + ratio),
+            curvature: stiffness * (-2 * log - 4 * ratio + ratio * ratio),
+          });
+        }
+      }
+      return { energy: flipped === 0 ? energy + stiffness * barrier : Infinity, barrier, worst, flipped, near };
+    }
+    const feasible: (at: IEvaluation) => boolean = (at: IEvaluation): boolean => at.worst <= accuracy && at.flipped === 0;
+    const original: IEvaluation = evaluate(reference, baseStiffness, baseStiffness);
+    if (feasible(original))
       return {
-        points: props.reference.map(
-          (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
-        ),
+        points: props.reference.map((point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point })),
         mesh,
       };
-    // The multipliers of the last step taken, which the next model starts from.
-    let duals: Map<string, number> | undefined;
-    const tries: number = Math.max(
-      1,
-      Math.ceil(Math.log(extent / accuracy) / Math.log(1 / SHRINK)),
-    );
-    const guess: Float64Array = flat(props.start ?? props.reference);
-    const solved: IAutoMovieMotionHumanSequentialConvex.IResult<Float64Array, IEvaluation> = SCO.minimise(
-      problem,
-      evaluate(guess).flipped === 0 ? guess : reference,
-      {
-        schedule: {
-          eta: ACCEPTED,
-          low: POOR,
-          high: GOOD,
-          shrink: SHRINK,
-          expand: EXPAND,
-          boundary: true,
-          widest: extent,
-          trust: extent,
-          least: accuracy,
-          tries,
-          improved: (merit: number): number =>
-            Number.EPSILON ** 0.5 * Math.max(accuracy, merit),
-        },
-        penalties: [extent],
-        rounds: 3 * n,
-        steer: true,
-      },
-    );
-    if (!problem.feasible(solved.evaluation))
-      throw new Error(
-        `The interaction mesh could not preserve its contacts and bone lengths: ${solved.evaluation.worst} m residual, ${solved.evaluation.flipped} inverted tetrahedra (${solved.reason})`,
+
+    // Starting from the authored geometric guess where its sides allow,
+    // tighten the equality penalty between converged sparse local solves.
+    // The barrier coefficient stays fixed throughout each line search.
+    const guess: Float64Array = props.start === undefined ? reference : flat(props.start);
+    let x: Float64Array = evaluate(guess, baseStiffness, baseStiffness).flipped === 0 ? guess : reference;
+    if (props.bones.length === 0) {
+      const direct: Float64Array | undefined = fixedContacts(props.contacts, reference);
+      if (direct !== undefined && feasible(evaluate(direct, baseStiffness, baseStiffness))) {
+        const displacement: Float64Array = direct.map((coordinate: number, i: number): number => coordinate - x[i]!);
+        if (Side.limit(x, displacement, sides) === 1) return { points: points(direct, n), mesh };
+      }
+    }
+    const lowerBarrier: number = stiffnessFloor(baseStiffness, extent, accuracy);
+    const upperBarrier: number = STIFFNESS_LIMIT * lowerBarrier;
+    let stiffness: number = lowerBarrier;
+    // Start halfway between the Laplacian scale and the penalty whose
+    // quadratic energy gives the whole extent the target accuracy.
+    let penalty: number = baseStiffness * (extent / accuracy);
+    const largest: number = baseStiffness * (extent / accuracy) ** 2;
+    const limit: number = Math.sqrt(Number.EPSILON) * extent;
+    let current: IEvaluation = evaluate(x, penalty, stiffness);
+    for (let round: number = 0; round < x.length && !feasible(current); round++) {
+      const terms: Step.IRow[] = [];
+      current = evaluate(x, penalty, round === 0 ? 1 : stiffness, terms);
+      if (round === 0) {
+        const constraints: number = laplace.length + props.bones.length + 3 * props.contacts.length;
+        stiffness = Math.min(upperBarrier, Math.max(lowerBarrier, Step.balance(x.length, terms, constraints)));
+        for (let i: number = constraints; i < terms.length; i++) {
+          terms[i]!.slope *= stiffness;
+          terms[i]!.curvature *= stiffness;
+        }
+        current.energy += (stiffness - 1) * current.barrier;
+      }
+      const displacement: Float64Array = Step.of(x.length, terms, baseStiffness);
+      const magnitude: number = displacement.reduce(
+        (maximum: number, value: number): number => Math.max(maximum, Math.abs(value)), 0,
       );
-    return {
-      points: Array.from(
-        { length: n },
-        (_: unknown, i: number): IAutoMovieVector3 => ({
-          x: solved.x[3 * i]!,
-          y: solved.x[3 * i + 1]!,
-          z: solved.x[3 * i + 2]!,
-        }),
-      ),
-      mesh,
-    };
+      let fraction: number = Side.limit(x, displacement, sides);
+      let moved: boolean = false;
+      while (fraction * magnitude > limit) {
+        const candidate: Float64Array = Float64Array.from(
+          x, (value: number, i: number): number => value + fraction * displacement[i]!,
+        );
+        const result: IEvaluation = evaluate(candidate, penalty, stiffness);
+        if (result.energy < current.energy || feasible(result)) {
+          if (current.near < NEAR * extent && result.near < current.near)
+            stiffness = Math.min(upperBarrier, 2 * stiffness);
+          const settled: boolean = Math.abs(result.worst - current.worst) <= limit;
+          x = candidate;
+          current = result;
+          moved = true;
+          if (settled && penalty < largest) penalty = Math.min(largest, penalty * PENALTY_GROWTH);
+          break;
+        }
+        // Li et al. §4.4's line search halves the fraction after each trial.
+        fraction /= 2;
+      }
+      if (!moved) {
+        if (penalty >= largest) break;
+        penalty = Math.min(largest, penalty * PENALTY_GROWTH);
+      }
+    }
+    if (!feasible(current))
+      throw new Error(
+        `The interaction mesh could not preserve its contacts and bone lengths: ${current.worst} m residual, ${current.flipped} inverted tetrahedra`,
+      );
+    return { points: points(x, n), mesh };
   }
 
-  /** A step is taken where the merit falls by more than this share of the model's prediction: Nocedal and Wright's Algorithm 4.1 asks for one in [0, 1/4). */
-  const ACCEPTED: number = 0.1;
+  /** A fixed Cartesian edge to a mesh point. */
+  interface IOffsetEdge {
+    index: number;
+    by: readonly number[];
+  }
 
-  /** The ratio below which the region shrinks, and its factor: Nocedal and Wright's Algorithm 4.1. */
-  const POOR: number = 1 / 4;
+  /** Propagate fixed offsets from a point and pin the remaining translation to the reference centroid. */
+  function fixedContacts(
+    contacts: readonly IAutoMovieMotionHumanInteractionMesh.IContact[],
+    reference: Float64Array,
+  ): Float64Array | undefined {
+    const n: number = reference.length / 3;
+    const edges: IOffsetEdge[][] = Array.from({ length: n }, (): IOffsetEdge[] => []);
+    for (const contact of contacts) {
+      const by: readonly number[] = offset(contact);
+      edges[contact.b]!.push({ index: contact.a, by });
+      edges[contact.a]!.push({ index: contact.b, by: by.map((v: number): number => -v) });
+    }
+    const found: Uint8Array = new Uint8Array(n);
+    const result: Float64Array = new Float64Array(reference.length);
+    const visited: number[] = [0];
+    found[0] = 1;
+    for (let q: number = 0; q < visited.length; q++) {
+      const p: number = visited[q]!;
+      for (const edge of edges[p]!) {
+        if (found[edge.index] === 1) continue;
+        for (const axis of AXES) result[3 * edge.index + axis] = result[3 * p + axis]! + edge.by[axis]!;
+        found[edge.index] = 1;
+        visited.push(edge.index);
+      }
+    }
+    if (visited.length !== n) return undefined;
+    for (const axis of AXES) {
+      let translate: number = 0;
+      for (let i: number = axis; i < result.length; i += 3) translate += reference[i]! - result[i]!;
+      for (let i: number = axis; i < result.length; i += 3) result[i]! += translate / n;
+    }
+    return result;
+  }
 
-  /** The ratio above which a step at the region's edge grows it: Nocedal and Wright's Algorithm 4.1. */
-  const GOOD: number = 3 / 4;
+  /** The solved Cartesian points, indexed as in the reference. */
+  function points(x: Float64Array, n: number): IAutoMovieVector3[] {
+    return Array.from({ length: n }, (_: unknown, i: number): IAutoMovieVector3 => ({
+      x: x[3 * i]!, y: x[3 * i + 1]!, z: x[3 * i + 2]!,
+    }));
+  }
 
-  /** The region's factor where it shrinks: Nocedal and Wright's Algorithm 4.1. */
-  const SHRINK: number = 1 / 4;
+  /** Cartesian coordinates within each mesh point. */
+  const AXES: readonly number[] = [0, 1, 2];
 
-  /** The region's factor where it grows: Nocedal and Wright's Algorithm 4.1. */
-  const EXPAND: number = 2;
+  /** Tightening factor for the equality penalty from Byrd, Nocedal and Waltz's steered penalty schedule. */
+  const PENALTY_GROWTH: number = 10;
 
-  /** An iterate's reading: the objective, the summed violation, the worst and the sides lost. */
-  interface IEvaluation extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
-    /** The worst constraint's violation, metres. */
+  /** Gap below which the adaptive barrier responds to conditioning (Li et al. 2020 technical supplement §6). */
+  const NEAR: number = 1e-9;
+
+  /** Maximum barrier stiffness relative to its starting scale (Li et al. 2020 technical supplement §6). */
+  const STIFFNESS_LIMIT: number = 100;
+
+  /** The characteristic clearance of the conditioning measurement and its curvature multiplier (Li et al. 2020 technical supplement §6). */
+  const CONDITIONING_DISTANCE: number = 1e-8;
+  const CONDITIONING_CURVATURE: number = 1e11;
+
+  /** The IPC conditioning scale, using the deformation diagonal in place of lumped nodal mass. */
+  function stiffnessFloor(background: number, extent: number, activation: number): number {
+    const distance: number = Math.min(activation / 2, CONDITIONING_DISTANCE * extent);
+    const ratio: number = (distance - activation) / distance;
+    const curvature: number = -2 * Math.log(distance / activation) - 4 * ratio + ratio * ratio;
+    // Our signed altitude already has a unit derivative at the reference
+    // face with the largest double area. IPC's squared distance needs the
+    // extra derivative factor at this point.
+    return CONDITIONING_CURVATURE * background / curvature;
+  }
+
+  /** One unchanged Cartesian Laplacian row and its reference coordinate. */
+  interface ILaplace {
+    /** Which global coordinates the row reads. */
+    index: readonly number[];
+
+    /** Linear coefficients in those coordinates. */
+    coef: readonly number[];
+
+    /** Reference differential coordinate, metres. */
+    goal: number;
+  }
+
+  /** Merit, exact feasibility and the smallest signed altitude of the current mesh. */
+  interface IEvaluation {
+    /** Laplacian deformation, equality penalty and active barrier energy. */
+    energy: number;
+
+    /** The energy of the active barrier before applying its stiffness. */
+    barrier: number;
+
+    /** The worst bone or contact residual in metres. */
     worst: number;
 
-    /** How many tetrahedra that record a side have lost it, their signed volume no longer positive. */
+    /** Number of elements that lost positive orientation. */
     flipped: number;
+
+    /** The smallest currently measured signed altitude, metres. */
+    near: number;
+  }
+
+  /** A sparse linear coordinate. */
+  function coordinate(x: Float64Array, index: readonly number[], coef: readonly number[]): number {
+    let value: number = 0;
+    for (const [i, c] of index.entries()) value += coef[i]! * x[c]!;
+    return value;
   }
 
   /** Points as one array, x then y then z by point. */
-  const flat = (points: readonly IAutoMovieVector3[]): Float64Array =>
-    Float64Array.from(
-      points.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]),
-    );
+  const flat: (points: readonly IAutoMovieVector3[]) => Float64Array = (points: readonly IAutoMovieVector3[]): Float64Array =>
+    Float64Array.from(points.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]));
 
-  /** The distance between two points of the array. */
-  const length = (x: Float64Array, a: number, b: number): number =>
-    Vector3.length({
-      x: x[3 * a]! - x[3 * b]!,
-      y: x[3 * a + 1]! - x[3 * b + 1]!,
-      z: x[3 * a + 2]! - x[3 * b + 2]!,
-    });
-
-  /** A contact's offset as an array. */
-  const offset = (c: IAutoMovieMotionHumanInteractionMesh.IContact): number[] => [
+  /** A contact's world-metre relative offset. */
+  const offset: (c: IAutoMovieMotionHumanInteractionMesh.IContact) => number[] = (c: IAutoMovieMotionHumanInteractionMesh.IContact): number[] => [
     c.offset?.x ?? 0,
     c.offset?.y ?? 0,
     c.offset?.z ?? 0,
