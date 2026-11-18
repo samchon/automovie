@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  getConstraint,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { getConstraint } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -12,22 +7,19 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarriedCouplingFit,
-  IAutoMovieMotionHumanCarriedCouplingPose,
   IAutoMovieMotionHumanQuadraticProgram,
   IAutoMovieMotionHumanSequentialConvex,
   IAutoMovieResolvedBone,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { HumanQuadraticProgram as QP } from "../posture/HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "../posture/HumanSequentialConvex";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
+import { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
-import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
 /** A borne region a hand holds, or no grip for that hand. */
 type HeldRegion = AutoMovieHumanoidRegion | null;
@@ -43,12 +35,6 @@ type LegCoordinate = readonly [AutoMovieHumanoidBone, LegAxis];
 
 /** A complete kinematic reading before carrying either body. */
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
-/** The current gap for one bearing arm at a known surface. */
-type Gap = (
-  bones: Bones,
-  place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
-) => number;
 
 /** Grip indices follow the carry row's left-to-right order. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -166,11 +152,6 @@ export namespace HumanCarriedCouplingFit {
       (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
     );
-    const reach: Gap[] = sides.map(
-      (side: AutoMovieHumanSide): Gap =>
-        prepareGap(bearer, side, row.holds[side === "left" ? 0 : 1]?.shape),
-    );
-
     // A perturbation of the borne legs leaves the bearer's current stance exact.
     function at(x: readonly number[], sameStance?: Bones): IRead {
       const theirs: Bones =
@@ -195,40 +176,8 @@ export namespace HumanCarriedCouplingFit {
         );
       return { fit: registration.fit, mine: registration.bones, theirs };
     }
-    const gaps: (reading: IRead) => number[] = (reading: IRead): number[] => {
-      const { fit, mine, theirs }: IRead = reading;
-      const gaps: number[] = sides.map(
-        (side: AutoMovieHumanSide, index: number): number => {
-          const k: number = side === "left" ? 0 : 1;
-          const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-            borne.surfaces.regions[grips[k]!];
-          const local: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
-            resolveAutoMovieHumanoidSurfaces.place(
-              surface,
-              mine.get(surface.bone)!,
-            );
-          const fingers: IAutoMovieVector3 | undefined = row.holds[k]?.fingers;
-          return reach[index]!(theirs, {
-            point: fit.place(local.point),
-            normal: Quaternion.rotateVector(fit.turn, local.normal),
-            ...(fingers === undefined
-              ? {}
-              : {
-                  forward: Quaternion.rotateVector(
-                    fit.turn,
-                    Quaternion.rotateVector(
-                      mine.get(surface.bone)!.worldRotation,
-                      fingers,
-                    ),
-                  ),
-                }),
-          });
-        },
-      );
-      return row.straddles === true
-        ? [...gaps, ...HumanCarriedStraddle(bearer, borne, reading)]
-        : gaps;
-    };
+    const gaps: ReturnType<typeof HumanCarriedGripGaps.prepare> =
+      HumanCarriedGripGaps.prepare(bearer, borne, row, grips, sides);
     const keyed: IRead = at(start);
     const keyGaps: number[] = gaps(keyed);
     if (
@@ -480,56 +429,9 @@ export namespace HumanCarriedCouplingFit {
     return solved.evaluation.read;
   }
 
-  /**
-   * Distance in metres beyond the bearing arm's real wrist reach, or at most zero within reach.
-   * @evidence contracts/development/common.md#meaningful-documentation States the distance and its sign.
-   * @evidence contracts/development/implementation.md#principled-implementation A bearing palm faces the held surface, so its hand offset fixes the wrist goal tested against the arm span.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepared wrist reader and one distance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the held surface's real current normal and the same palm offset as playback.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reads only the modeled shoulder and wrist, with no elbow solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance and further helper use the same prepared wrist gap.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after the observation.
-   */
-  export function gap(
-    bearer: IAutoMovieMotionHumanBody,
-    bones: Bones,
-    side: AutoMovieHumanSide,
-    place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
-    shape?: IAutoMovieMotionHumanCarried.IHold["shape"],
-  ): number {
-    return prepareGap(bearer, side, shape)(bones, place);
-  }
+  /** The signed reachable distance of one bearing wrist, in metres. */
+  export const gap: typeof HumanCarriedGripGaps.gap = HumanCarriedGripGaps.gap;
 
-  /** The changing palm normal places its wrist while the fixed hand geometry is shared. */
-  function prepareGap(
-    bearer: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    shape?: IAutoMovieMotionHumanCarried.IHold["shape"],
-  ): Gap {
-    const palm: ReturnType<typeof HumanHandTarget.prepareMoving>["wrist"] =
-      HumanHandTarget.prepareMoving(
-        bearer,
-        side,
-        shape === undefined ? undefined : { shape },
-      ).wrist;
-    const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
-    return (bones, place): number => {
-      const wrist: IAutoMovieVector3 = palm(
-        { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
-        place,
-        place.forward,
-      ).point;
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      if (place.forward !== undefined)
-        return Vector3.distance(wrist, shoulder) - arm;
-      return (
-        HumanCarriedWristCircle(place.point, place.normal, wrist, shoulder)
-          .distance - arm
-      );
-    };
-  }
   /** The trunk's forward inclination at full forward bending, degrees: about 70 of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71, the measure `HumanTrunk.RHYTHM` shares). */
   const BENT: number = 110;
 
