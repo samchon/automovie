@@ -4,7 +4,7 @@ An action law takes a body, parameters, skill, entry state and targets.
 
 ## Plan and time
 
-Compute the instance plan at entry, then evaluate poses from the plan and time. Follow [Pose by time](transitions.md#pose-by-time) for solvers and caches.
+Resolve the instance plan from its entry and bound inputs before playback. Follow [pose by time](transitions.md#pose-by-time) for the work that preparation and sampling each own.
 
 ## Entry state
 
@@ -12,7 +12,7 @@ Start from displayed pose and velocity, planted feet and held objects. Plan root
 
 ## Events and the decisive instant
 
-Name phase boundaries, contact starts and ends, and the decisive instant if any. Use those events for cuts, partners, sound and review.
+Name phase boundaries, contact starts and ends, and the decisive instant if any. Resolve them on the action clock at their actual times. Use those events for cuts, partners, sound and review.
 
 ## Outcome as input
 

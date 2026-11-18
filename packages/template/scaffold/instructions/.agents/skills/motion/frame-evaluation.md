@@ -6,17 +6,15 @@ Use the installed engine and renderer to map film time to frame schedules, trims
 
 Keep output frame, output time, shot-local time and simulation time distinct, and give each shot in a transition its own local time and state.
 
-Use [operators](compose/composition.md#operators) at named instants to carry pose, velocity, support and held objects into the next action. Sync participants and sound to the resolved contact.
+Schedule participants, camera and sound from the same resolved events. A contact or interruption can fall between output frames. Keep the event's time and sample on either side when verifying the join.
 
 Verify the first and last frames and both sides of cuts and trims against the plan.
 
 ## Sampling and retained state
 
-The installed packages evaluate every pose from the resolved plan and the requested time, and a production's own behavior does the same under the [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) item.
+Resolve the performance once for the shot or sequence. At output time sample its plan under [pose by time](laws/transitions.md#pose-by-time). All commissioned channels use the same resolved state and schedule. Follow [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) for production behavior.
 
 Before enabling seeks, retries or split renders, identify state retained across frames. Reset it to a defined initial state and update repeatably, or restore a supported cache before evaluating later frames.
-
-Choose simulation steps for solver stability, independent of display refresh, and sample results onto output times, as [Fix Your Timestep](https://gafferongames.com/post/fix_your_timestep/) explains. Use supported lifecycle operations, never private-field resets.
 
 ## Verification
 

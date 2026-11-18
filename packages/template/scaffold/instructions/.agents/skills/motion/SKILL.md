@@ -9,9 +9,7 @@ A scene starts from its screenplay and the study [research](../story/planning/re
 
 ## The motion vocabulary
 
-Read the installed parameters and operators under [reading a package](../automovie/SKILL.md#reading-a-package). Compose the [entities'](../development/entities.md) actions with the required participants, targets, outcomes, manner and timing.
-
-The vocabulary owns body movement, fitting, supports and contact bounds, and its performance is kinematic.
+The screenplay owns what happens and when it matters. The composition directs kinematic performance through the [entities'](../development/entities.md) capabilities. The installed vocabulary resolves body movement, fitting, supports and contact bounds. Read its [parameters and operators](../automovie/SKILL.md#reading-a-package) before authoring.
 
 ## Order
 
@@ -30,10 +28,6 @@ Use [frame evaluation](frame-evaluation.md) for clocks, seeking and split render
 | Read | For |
 | --- | --- |
 | [Vocabulary extension](laws/extension.md) | An action or moving body the vocabulary lacks |
-| [Physical feedback](physical-feedback.md) | A simulated response the screenplay decides |
+| [Physical feedback](physical-feedback.md) | A scripted physical response the composed performance cannot realize |
 | [Retargeting](retargeting.md) | A clip the user chose or the commission supplies, or a changed rig |
 | [Motion diffusion](diffusion/SKILL.md) | Motion generation or tracing the user chooses |
-
-Vocabulary extension first checks whether composing again stages the beat, and leads to [motion laws](laws/SKILL.md) only for a new law.
-
-When an installed action fails under its documented use, report the package defect and continue independent work. Keep production offsets, laws, simulation and generated clips out of that repair.

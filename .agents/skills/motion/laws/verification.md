@@ -15,11 +15,13 @@ A check states the bound it tests and tests exactly that bound. A value reported
 
 Measure the displayed result, never the plan's own output. A check that compares two outputs of the same plan, or reads back the target the plan reached, cannot catch the plan being wrong.
 
-Sample slip and penetration densely enough to cover the shortest contact.
+Check phase boundaries, the shortest contact and between-frame extrema. Use a supported swept query where a fast crossing can slip through discrete checks. State the resolution and any unproven interval.
 
 Take every bound from the requirement or its study, never widening one until a case passes.
 
-Test across statures, proportions, partners and props. Cut in every declared window and move tracked targets mid-action.
+Cover statures, proportions, partners and props with independent expectations and relations such as symmetry or body scaling. Check branch boundaries, cuts within declared windows and moving tracked targets. Compare sequential, repeated and out-of-order samples at the same times when evaluation changes.
+
+When changing cost, compare preparation and new-time sampling separately on the same bodies, events and output times. Report the complete measured workload, including simulated duration, cases, actors and sampled poses. Keep playback, capture and encoding costs separate from planning and sampling.
 
 ## Frame review
 
