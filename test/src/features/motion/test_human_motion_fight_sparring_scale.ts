@@ -17,7 +17,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * not much more than twice the time.
  *
  * Each exchange is a straight punch at the face, anchored, answered by a
- * parry in time, then both back in their guard for 0.6 s. The two fighters
+ * parry whose outcome the defence outcome law draws from the defender's
+ * skill, then both back in their guard for 0.6 s. The outcome is left to
+ * the law because forcing one is the author's claim that plausible timing
+ * meets it, which the law refuses when it does not (`DefenceOutcome`): the
+ * second jab, thrown from the stance the first one's step left, 4 cm
+ * nearer, lands 0.37 s after its launch, and a reaction then sets the
+ * parry at best 2 ms after the contact, so an in-time parry was refused;
+ * this spec times the plan, whatever the parry's outcome. The two fighters
  * stand 1.3 arm lengths apart, the punching range of the striking captures.
  * Each film plans on bodies wrapped afresh from the same people, so no memo
  * of the first film is read by the second and each pays for its own poses.
@@ -68,7 +75,7 @@ export function test_human_motion_fight_sparring_scale(): void {
         .punch({ technique: "straight", at: face("b") }, `punch${k}`)
         .guard({ seconds: 0.6, facing: face("b") });
       b = b
-        .defend({ kind: "parry", against: `punch${k}`, outcome: "inTime" })
+        .defend({ kind: "parry", against: `punch${k}` })
         .guard({ seconds: 0.6, facing: face("a") });
     }
     const start: number = performance.now();
