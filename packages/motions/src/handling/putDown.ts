@@ -2,6 +2,7 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
@@ -21,6 +22,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -67,6 +69,11 @@ import { putDownTravel } from "./putDownTravel";
  * A rigid receiver with an authored motion track may translate horizontally
  * at constant speed during a direct placement. The hand arrives with the
  * receiver's velocity, opens while tracking it, and eases away afterward.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, destinations, phases, transfer events and refusals.
+ * @evidence contracts/development/design.md#principled-representation The prop's resting frame is the goal, with the hand placed through the stored rigid grip offset.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The law owns placement and the demands it places on an earlier grasp.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Destinations are authored points, bones or sockets.
  */
 export namespace putDown {
   /** The action's name. */
@@ -75,10 +82,10 @@ export namespace putDown {
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     walk: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 
@@ -94,7 +101,15 @@ export namespace putDown {
    * @param context The action's context.
    * @param aperture Offset from the seat to the opening, world metres, when the registered aperture law shares this planner.
    * @returns The plan.
-   * @throws {Error} When the placing frame lies beyond the arm's reach.
+   * @throws {HumanRefusal} When no destination is named, the placing wrist lies beyond the arm's reach, or a socket placement's grasp cannot lay its socket on the receiver.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The offset, the resting frame, the wrist, the reach check, the timing, the posture.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist beyond the arm is refused, never clamped; the tilt the carry gives the prop is discarded for its rest rotation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two demanded hand readings, at most one heading search and one posture solve for the hanging hand at plan time; constant work per frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable`, `putDownTarget`, the held-tool goal, `HumanPrehension` and the pick up's reach.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the transports, the shapes, the reference and the wrist.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
@@ -108,6 +123,8 @@ export namespace putDown {
     const hand: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
     const prop: IAutoMovieRigidTransform = context
       .prop(context.params.prop)
@@ -135,18 +152,20 @@ export namespace putDown {
     // Turn the prop's declared rest attitude to the requested heading.
     const authored: IAutoMovieQuaternion = context.prop(context.params.prop)
       .prop.frame.rotation;
-    const holding = (yaw: number): IAutoMovieMotionHumanHand.IWrist => {
+    const declaredHeading: number = heading(authored);
+    const unhold: IAutoMovieQuaternion = Quaternion.inverse(offset.rotation);
+    const holding: (yaw: number) => IAutoMovieMotionHumanHand.IWrist = (yaw: number): IAutoMovieMotionHumanHand.IWrist => {
       const rest: IAutoMovieQuaternion = Quaternion.normalize(
         Quaternion.multiply(
           Quaternion.fromAxisAngle(
             { x: 0, y: 1, z: 0 },
-            yaw - heading(authored),
+            yaw - declaredHeading,
           ),
           authored,
         ),
       );
       const r: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(rest, Quaternion.inverse(offset.rotation)),
+        Quaternion.multiply(rest, unhold),
       );
       return {
         point: Vector3.subtract(
@@ -165,8 +184,7 @@ export namespace putDown {
       side,
     );
     const on = context.params.on;
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
-      context.params.onto;
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] = context.params.onto;
     const wearing: IAutoMovieRigidTransform | undefined = putDownTarget.of(
       context,
       context.entry.pose,
@@ -216,11 +234,11 @@ export namespace putDown {
             ).wrist
           : holding(context.params.yaw);
 
-    const reference: IAutoMovieHumanLimbReference =
-      resolveHumanPosture.reference(
-        context.entry.pose,
-        side === "left" ? "leftArm" : "rightArm",
-      );
+    // The arm keeps the configuration it carried the prop in.
+    const reference: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+      context.entry.pose,
+      side === "left" ? "leftArm" : "rightArm",
+    );
     const rotation: IAutoMovieQuaternion = chosen.rotation;
     const place: IAutoMovieVector3 = chosen.point;
 
@@ -262,9 +280,12 @@ export namespace putDown {
     // Timing: carry down, open, return.
     const hanging: IAutoMovieMotionHumanPosture["limbs"] = { ...held.limbs };
     delete hanging[side === "left" ? "leftArm" : "rightArm"];
+    const handBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
     const home: IAutoMovieResolvedBone = poseBones(
       body,
-      resolveHumanPosture(body, { ...held, limbs: hanging }),
+      resolveHumanPosture.seeded(body, { ...held, limbs: hanging }, undefined, {}, undefined, handBones).pose,
+      undefined,
+      handBones,
     ).get(`${side}Hand`)!;
     const travel: putDownTravel.ITravel = putDownTravel(
       context,
@@ -305,14 +326,10 @@ export namespace putDown {
       context.entry.pose,
       side,
     );
-    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
-      side,
-      "flat",
-    );
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
-      side,
-      "relaxed",
-    );
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
+    const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "relaxed");
+    const openAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape({ entry: closed, open: flat, closed: flat }, 1);
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape({ entry: flat, open: relaxed, closed: relaxed }, 1);
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const part: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
@@ -384,20 +401,12 @@ export namespace putDown {
         } else if (t <= down + OPEN) {
           wrist = place;
           turned = rotation;
-          digits = HumanPrehension.shape(
-            { entry: closed, open: flat, closed: flat },
-            1,
-            (t - down) / OPEN,
-          );
+          digits = openAt((t - down) / OPEN);
         } else {
           const r: number = t - down - OPEN;
           wrist = travel.retreat.wrist(back - r);
           turned = travel.retreat.turn(back - r);
-          digits = HumanPrehension.shape(
-            { entry: flat, open: relaxed, closed: relaxed },
-            1,
-            r / back,
-          );
+          digits = returnShape(r / back);
         }
         // Ease the receiver's displacement in and out while matching its velocity through opening.
         if (displacement !== undefined) {
@@ -455,7 +464,7 @@ export namespace putDown {
    * @evidence contracts/development/implementation.md#principled-implementation The destination prop frame P and prop-in-grip offset O require the grip frame P O^-1; the same source-socket contact and held-tool bound as the placing plan judge it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Filter the grip and tracked destinations, read the fixed destination, undo its rigid offset and declare one demand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No object kind is named, and a free world placement keeps its existing freedom.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One destination lookup and constant rigid-frame work per candidate grasp.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One destination lookup and constant rigid-frame work per candidate grasp; the body pose is supplied lazily and this prop-socket branch never acquires its formerly unused full posture solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan and demand share putDownTarget and the held-tool goal and measure owners.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one immutable demand and retains nothing.
    */
@@ -474,11 +483,10 @@ export namespace putDown {
       return [];
     const destination: IAutoMovieRigidTransform = putDownTarget.of(
       ahead,
-      resolveHumanPosture(ahead.body, ahead.grip.posture),
+      (): ReturnType<typeof resolveHumanPosture> =>
+        resolveHumanPosture(ahead.body, ahead.grip.posture),
     )!;
-    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({
-      tip: via,
-    });
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = ahead.grip.tool({ tip: via });
     const frame: IAutoMovieRigidTransform = HumanPropFrame.parent(
       destination,
       tool.held!.frame,

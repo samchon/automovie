@@ -1,30 +1,30 @@
-import {
-  Vector3,
-  minimumJerk,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Vector3, bracketedBisection, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmWrestle,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { HumanTrunk } from "../everyday/HumanTrunk";
-import { gestureBow } from "../everyday/gestureBow";
 import { HumanForceTrunk } from "../grappling/HumanForceTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanTrunkTurn } from "../posture/HumanTrunkTurn";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -52,8 +52,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * at its eccentric internal-rotation peak per body mass (Tasiopoulos et al.
  * 2018, provisional beyond men at 60 degrees a second) and its trunk holds
  * that torque at the side-bending share its stiffness gives (Watt, Callaway
- * and Williams 2022). The author declares the winner (#3350's
- * outcome-first rule).
+ * and Williams 2022), but no further than keeps its elbow on the pad, which
+ * the sport's rules hold down throughout (World Armwrestling Federation
+ * rules: lifting the elbow off the pad is a foul): the shoulder stays an
+ * upper arm, within `HELD`, from the elbow's place. The author declares the
+ * winner (#3350's outcome-first rule).
  *
  * First pass: the elbow's bearing on the table is not declared as a contact
  * window, the fingers are left as they were and do not clasp, and the free
@@ -93,12 +96,12 @@ export namespace armWrestle {
    * @throws {HumanRefusal} When the struggle's length is negative, no lean from the hips puts the shoulder an upper arm from the elbow's place on the table, or the pin's angle lies outside 0 to 90 degrees or past what this arm holds with its elbow in place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the geometry and the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths; the pin's range is read from the arm the posture resolver fits, by the elbow's whole place; the loser's trunk bends toward the pin by `HumanForceTrunk.share` of the torque its shoulder resists with, as the pin comes.
+   * @evidence contracts/development/implementation.md#principled-implementation The clasp height and the two elbows follow from the two forearms; the lean is the root of the shoulder-to-elbow distance less the upper arm, bisected over the trunk's pitch; the forearm's turn is a rotation about the elbows' line, which keeps both forearms' lengths; the pin's range is read from the arm the posture resolver fits, by the elbow's whole place; the loser's trunk bends toward the pin by `HumanForceTrunk.share` of the torque its shoulder resists with, as the pin comes, bounded by the largest share that keeps the shoulder an upper arm from the planted elbow.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared geometry, the lean, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean that cannot close the distance throws; the sway is a fixed sine, not a draw, so the two roles stay together.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of twenty-four trunk resolves and one posture resolve per five degrees up to the asked pin at plan time; constant work per frame before the posture resolve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the bow's trunk pitch, the trunk resolver, the posture resolver and the arm carry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base plan, the geometry and the entry's arm angles.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One bisection of twenty-four trunk resolves and one posture resolve per five degrees up to the asked pin at plan time, and for a loser whose resisted bend would lift the elbow one more bisection of twenty-four trunk-only shoulder reads; constant work per frame before the posture resolve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the bow, trunk, full posture resolver and arm carry. All original twenty-four lean probes re-read the borrowed entry through ordinary bowed, sharing only fixed raw-shoulder name/rig metadata; raw root/heading getters are never frozen. Changing runtime postures also use ordinary bowed, and the complete same-body base evaluation receives only its current synchronous FK/ROM loan. Pin trials share one genuine unchanged-body ROM projector and prepared elbow FK demand; every changed pin angle still solves the complete pose and keeps rival clearance.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its base, geometry and entry arm angles. Planning-only exact FK, genuine ROM metadata and prepared elbow readers end on return or refusal; returned evaluators retain none of those workspaces.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanArmWrestle.IParams>,
@@ -109,7 +112,12 @@ export namespace armWrestle {
     HumanBound.least("seconds", struggle, 0, "s");
     const side: AutoMovieHumanSide = "right";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const partner = context.performer(p.partner).body;
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(p.partner);
+    const partner: IAutoMovieMotionHumanActionContext["body"] = other.body;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
+    const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
+    const elbowBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
 
     // The arm's two lengths are this body's own, between its rest joints: the
     // elbow falls on its place only on the circle those lengths allow.
@@ -118,12 +126,10 @@ export namespace armWrestle {
       from: "UpperArm" | "LowerArm",
       to: "LowerArm" | "Hand",
     ): number =>
-      Vector3.length(
-        Vector3.subtract(
+      Vector3.distance(
           of.rest.get(`${side}${to}`)!,
           of.rest.get(`${side}${from}`)!,
-        ),
-      );
+        );
     const upperArm: number = span(body, "UpperArm", "LowerArm");
     const forearm: number = span(body, "LowerArm", "Hand");
 
@@ -160,11 +166,8 @@ export namespace armWrestle {
     };
 
     // The lean that puts the shoulder an upper arm from the elbow.
-    const leaned = (
-      pitch: number,
-      posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieMotionHumanPosture =>
-      gestureBow.bowed(body, posture, pitch, 0);
+    const leaned = (pitch: number, posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture =>
+      AutoMovieMotionHumanLean.tip(body, posture, pitch, 0);
 
     // A posture with the arm asked onto the wrist's place at a turn, the
     // elbow hinted onto the table. No hand rotation is asked: the fit gives
@@ -172,10 +175,7 @@ export namespace armWrestle {
     // cannot give both (`resolveHumanPosture`: it searches bend planes when
     // the hinted one misses), and the elbow on the table is the contact the
     // contest is about, so the hand turns as the arm leaves it.
-    const armed = (
-      posture: IAutoMovieMotionHumanPosture,
-      degrees: number,
-    ): IAutoMovieMotionHumanPosture => ({
+    const armed = (posture: IAutoMovieMotionHumanPosture, degrees: number): IAutoMovieMotionHumanPosture => ({
       ...posture,
       limbs: {
         ...posture.limbs,
@@ -187,21 +187,25 @@ export namespace armWrestle {
     // the arm only as the force between the two bends it (#3439): the
     // loser's trunk takes the torque its shoulder resists with, and bends
     // toward the pin until its stiffness holds it (`HumanForceTrunk`).
+    const shoulders: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(body, shoulderBones);
     const short = (pitch: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          HumanTrunk.resolve(body, leaned(pitch, entry)).get(`${side}UpperArm`)!
+      Vector3.distance(
+          shoulders(leaned(pitch, entry), resolution).get(`${side}UpperArm`)!
             .worldPosition,
           elbow,
-        ),
-      ) - upperArm;
-    let low: number = -20;
-    let high: number = 70;
-    if (!(short(low) * short(high) <= 0))
+        ) - upperArm;
+    // The lean is searched from 20 degrees back to 70 forward of upright
+    // (provisional: a standing trunk's working range over a table), and
+    // bisected 24 times, to 90 / 2^24 of a degree.
+    const low: number = -20;
+    const high: number = 70;
+    const below: number = short(low);
+    const above: number = short(high);
+    if (!(below * above <= 0))
       throw new HumanRefusal({
         kind: "reach",
         axis: "table",
-        value: `${(short(high) * 1000).toFixed(0)} mm`,
+        value: `${(above * 1000).toFixed(0)} mm`,
         feasible: {
           kind: "alternatives",
           values: [
@@ -209,47 +213,48 @@ export namespace armWrestle {
             "a seat at the table",
           ],
         },
-        reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(short(low) * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(short(high) * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
+        reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(below * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(above * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
         fix: "sit the performer at the table, or give a table point nearer the shoulder",
       });
-    for (let i: number = 0; i < 24; i++) {
-      const mid: number = (low + high) / 2;
-      if (short(low) * short(mid) <= 0) high = mid;
-      else low = mid;
-    }
-    const lean: number = (low + high) / 2;
+    const lean: number = bracketedBisection(
+      (pitch: number): boolean => below * short(pitch) > 0,
+      low,
+      high,
+      (high - low) / 2 ** 24,
+    );
 
     // The body at a turn: leant, the arm on its goal.
     const set = (
       posture: IAutoMovieMotionHumanPosture,
       degrees: number,
       envelope: number,
-    ): IAutoMovieMotionHumanPosture =>
-      armed(leaned(lean * envelope, posture), degrees);
+    ): IAutoMovieMotionHumanPosture => armed(leaned(lean * envelope, posture), degrees);
     // The pin stops at this arm's own range: past it the arm leaves the
     // elbow's place for its other solution, which only a force would do. The
     // place is read whole, its height and its position on the top: an arm
     // that slides its elbow along the top has left it too.
     const asked: number = p.pin ?? PIN;
     HumanBound.within("pin", asked, 0, 90);
+    let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
+    const elbows: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, elbowBones);
     const off = (degrees: number): number =>
-      Vector3.length(
-        Vector3.subtract(
-          poseBones(
-            body,
-            resolveHumanPosture(body, set(entry, degrees, 1)),
+      Vector3.distance(
+          elbows(
+            resolveHumanPosture.seeded(body, set(entry, degrees, 1), undefined, {}, resolution, undefined,
+              projection ??= prepareHumanPostureProjection(body)).pose,
+            resolution(),
           ).get(`${side}LowerArm`)!.worldPosition,
           elbow,
-        ),
-      );
+        );
     const upright: number = off(0);
-    if (!(off(asked) <= upright + HELD)) {
+    const pinGap: number = off(asked);
+    if (!(pinGap <= upright + HELD)) {
       // What the fit made of the arm, for the refusal: the displayed
       // shoulder's distance to the elbow's place and the upper arm's
       // clinical angles, upright and at the asked angle.
       const read = (degrees: number): string => {
-        const pose = resolveHumanPosture(body, set(entry, degrees, 1));
-        const shoulder: IAutoMovieVector3 = poseBones(body, pose).get(
+        const pose: ReturnType<typeof resolveHumanPosture> = resolveHumanPosture.seeded(body, set(entry, degrees, 1), undefined, {}, resolution, undefined, projection).pose;
+        const shoulder: IAutoMovieVector3 = poseBones(body, pose, resolution(), shoulderBones).get(
           `${side}UpperArm`,
         )!.worldPosition;
         const joint = pose.joints.find(
@@ -258,7 +263,7 @@ export namespace armWrestle {
         const at: IAutoMovieVector3 = wrist(degrees);
         const v = (q: IAutoMovieVector3): string =>
           `(${q.x.toFixed(4)}, ${q.y.toFixed(4)}, ${q.z.toFixed(4)})`;
-        return `at ${degrees} degrees the wrist is asked at ${v(at)}, turned about the elbows' line through ${v(elbow)} along ${v(own)}, the elbow hinted at ${v(elbow)}, and the shoulder lies ${(Vector3.length(Vector3.subtract(shoulder, elbow)) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
+        return `at ${degrees} degrees the wrist is asked at ${v(at)}, turned about the elbows' line through ${v(elbow)} along ${v(own)}, the elbow hinted at ${v(elbow)}, and the shoulder lies ${(Vector3.distance(shoulder, elbow) * 1000).toFixed(0)} mm from the elbow's place (the upper arm is ${(upperArm * 1000).toFixed(0)} mm) and the upper arm stands at flexion ${(joint?.flexion ?? NaN).toFixed(0)}, abduction ${(joint?.abduction ?? NaN).toFixed(0)}, twist ${(joint?.twist ?? NaN).toFixed(0)} degrees`;
       };
       let most: number = 0;
       for (let degrees: number = 5; degrees < asked; degrees += 5)
@@ -269,13 +274,13 @@ export namespace armWrestle {
         axis: "pin",
         value: asked,
         feasible: { kind: "range", minimum: 0, maximum: most, unit: "degrees" },
-        reason: `With the forearm ${asked} degrees from upright the elbow leaves its place on the table's top by ${(off(asked) * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees (${read(0)}; ${read(asked)})`,
+        reason: `With the forearm ${asked} degrees from upright the elbow leaves its place on the table's top by ${(pinGap * 1000).toFixed(0)} mm, against ${(upright * 1000).toFixed(0)} mm upright: the arm holds the place up to ${most} degrees (${read(0)}; ${read(asked)})`,
         fix: "ask a pin within that angle for both roles; an arm forced past its range is not this law's",
       });
     }
 
     // The clock: reach and set, go, the struggle, the pin, its hold, leave.
-    const from: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
+    const from: IAutoMovieVector3 = poseBones(body, context.entry.pose, resolution(), requested).get(
       `${side}Hand`,
     )!.worldPosition;
     // Both roles set together: the longer of the two hands' transports, the
@@ -286,18 +291,15 @@ export namespace armWrestle {
     );
     const arrive: number = Math.max(
       AutoMovieMotionHumanTiming.transport(
-        Vector3.length(Vector3.subtract(wrist(0), from)),
+        Vector3.distance(wrist(0), from),
       ),
       AutoMovieMotionHumanTiming.transport(
-        Vector3.length(
-          Vector3.subtract(
+        Vector3.distance(
             theirs,
-            context
-              .performer(p.partner)
-              .bones(context.start)
+            other
+              .bones(context.start, requested)
               .get(`${side}Hand`)!.worldPosition,
           ),
-        ),
       ),
     );
     const go: number = arrive + 0.3;
@@ -305,8 +307,10 @@ export namespace armWrestle {
     const pin: number = turn + 0.4;
     const relax: number = pin + 0.5;
     const duration: number = relax + arrive;
-    const base: IAutoMovieMotionHumanActionPlan =
-      AutoMovieMotionHumanBase.under(context, duration);
+    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
+      context,
+      duration,
+    );
     const begin: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
 
@@ -314,13 +318,33 @@ export namespace armWrestle {
     // eccentric peak per body mass, held by the trunk's side-bending
     // stiffness; the pin goes toward the winner's left, the loser's own
     // arm side.
-    const bend: number = p.wins
+    const resisted: number = p.wins
       ? 0
       : HumanForceTrunk.share(
           HumanForceTrunk.ROTATION *
-            resolveAutoMovieCenterOfMass(body.skeleton, body.profile).mass,
+            body.massModel.mass,
           HumanForceTrunk.range(body, side),
         );
+    // The elbow stays on the pad throughout (World Armwrestling Federation
+    // rules: an elbow lifted off the pad is a foul), so the trunk bends no
+    // further than keeps the shoulder an upper arm, within `HELD`, from the
+    // elbow's place at the pin: the share of the resisted bend the planted
+    // elbow allows, bisected on the shoulder's distance alone.
+    const lifts = (share: number): boolean =>
+      Math.abs(
+        Vector3.distance(
+          shoulders(
+            HumanTrunkTurn.turned(body, set(entry, asked, 1), resisted * share, side),
+            resolution,
+          ).get(`${side}UpperArm`)!.worldPosition,
+          elbow,
+        ) - upperArm,
+      ) > HELD;
+    const bend: number =
+      resisted > 0 && lifts(1)
+        ? resisted *
+          bracketedBisection((share: number): boolean => !lifts(share), 0, 1, 2 ** -24)
+        : resisted;
     return {
       duration,
       events: [
@@ -331,14 +355,19 @@ export namespace armWrestle {
       ],
       contacts: base.contacts,
       hands: [side],
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const envelope: number =
           t < arrive
-            ? minimumJerk(t / arrive).s
+            ? minimumJerk.share(t / arrive)
             : t <= relax
               ? 1
-              : 1 - minimumJerk((t - relax) / arrive).s;
+              : 1 - minimumJerk.share((t - relax) / arrive);
         const degrees: number =
           t <= go
             ? 0
@@ -347,19 +376,15 @@ export namespace armWrestle {
               : t <= pin
                 ? SWAY * Math.sin((2 * Math.PI * struggle) / 1.5) +
                   (asked - SWAY * Math.sin((2 * Math.PI * struggle) / 1.5)) *
-                    minimumJerk((t - turn) / (pin - turn)).s
+                    minimumJerk.share((t - turn) / (pin - turn))
                 : asked;
         const pinned: number =
           t <= turn
             ? 0
             : t <= pin
-              ? minimumJerk((t - turn) / (pin - turn)).s
+              ? minimumJerk.share((t - turn) / (pin - turn))
               : 1;
-        const posed: IAutoMovieMotionHumanPosture = set(
-          base.posture(t),
-          degrees,
-          envelope,
-        );
+        const posed: IAutoMovieMotionHumanPosture = set(base.posture(t, undefined, source, projection), degrees, envelope);
         return AutoMovieMotionHumanArm.carry(
           body,
           bend > 0

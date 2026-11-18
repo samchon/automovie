@@ -127,11 +127,7 @@ export function everydayTypeCases(
       passed: dips[0]! >= 0.002 && dips.at(-1)! <= 0.004 + 2e-5,
       detail: `${(dips[0]! * 1000).toFixed(1)} to ${(dips.at(-1)! * 1000).toFixed(1)} mm below the key tops`,
     });
-    verdicts.push({
-      name: "desk height reported",
-      passed: true,
-      detail: `${(keyboard.at.y - 0.03).toFixed(3)} m work surface under a keyboard at ${keyboard.at.y.toFixed(3)} m`,
-    });
+
     const boxes: {
       centre: IAutoMovieVector3;
       half: IAutoMovieVector3;

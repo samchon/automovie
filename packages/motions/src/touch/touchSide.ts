@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
-  IAutoMovieBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointConstraint,
   IAutoMovieMotionHumanActionContext,
@@ -15,6 +14,7 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
+import { readHumanBone } from "../body/readHumanBone";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { poseBones } from "../posture/poseBones";
@@ -39,6 +39,11 @@ import { touchRegion } from "./touchRegion";
  * carried through the strain's terms) are one, and keep the right hand, the
  * law's default before this choice; a mirrored body's two strains differ
  * only by rounding.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the candidates, the holder's rule, the strain measure, the pairing, the own-arm rule and the tie.
+ * @evidence contracts/development/design.md#principled-representation A choice between the two closed hand sides, ranked by the elbow search's own strain measure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One selector, read by the touch law; the strain's resolution stays private.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No row, region, partner or body is named; the tie keeps the law's default.
  */
 export namespace touchSide {
   /**
@@ -50,11 +55,11 @@ export namespace touchSide {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the candidates, the held prop's rule, the measure, how feasibility ranks first, the pairing with `other`, the own-arm rule and the tie.
    * @evidence contracts/development/implementation.md#principled-implementation Target plus optimiser: the hand is the arm whose goal is reachable with the least joint strain, read by the elbow search's own measure, so no new score or constant enters; a hand cannot lie on its own arm, and a held prop's point is laid only by its holder.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The author's side, the holder, then one strain per hand and target.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No row, region or partner is special-cased; the tie keeps the law's previous default.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two laid goals and two elbow searches (four with `other`) at plan time, one bounded sweep each.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the region reader, the lay, the laid rest and the elbow search the plan itself uses.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The author's side, holder and original ordered hand/target goals feed their separate actual solve/strain sweeps, each admitting the borrowed entry's current raw trunk fields.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No row, region or partner is special-cased; a hand with a held goal is taken over one without before any strain is compared, and the tie keeps the law's previous default.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The original two hand costs, or four with other, retain both distinct solve and strain sweeps/refinements and their current chain/trunk preparation. No measured speedup is claimed for this selection path.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Region, laid goal and bend owners remain shared, but a native entry can retain raw prior-plan posture fields/getters. Object identity cannot certify immutable root/heading, so every original solve and strain reads/admit its current source independently without a prepared-trunk or elbow-result snapshot.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only each actual goal and its independent temporary chain/sweep data live through this synchronous selector. They end on return or failure; the returned hand name retains no trunk context, reader, pose, rank or query history.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -130,8 +135,12 @@ export namespace touchSide {
       (p.other === undefined ? 0 : strain(other(side), p.other));
     const left: number = cost("left");
     const right: number = cost("right");
-    return right - left >
-      resolution(body, "left", left) + resolution(body, "right", right)
+    // Feasibility first: a hand whose goal no elbow place allows loses to
+    // one whose goal is held, whatever the other's strain. Its resolution is
+    // infinite, so the tie below would keep it.
+    if (Number.isFinite(left) !== Number.isFinite(right))
+      return Number.isFinite(left) ? "left" : "right";
+    return right - left > resolution(body, "left", left) + resolution(body, "right", right)
       ? "left"
       : "right";
   }
@@ -153,6 +162,14 @@ export namespace touchSide {
    * @param side The arm.
    * @param strain The strain, unitless.
    * @returns The bound, unitless; `Infinity` for an infinite strain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the bound, its derivation and the terms and ranges it reads.
+   * @evidence contracts/development/implementation.md#principled-implementation First-order error propagation of the angle resolution through the strain's squared terms, bounded over the terms by Cauchy-Schwarz with the least half range.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The five half ranges, then one closed form.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An axis without a range adds no term; an infinite strain has an infinite bound.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The ranges are the engine's `getConstraint` on the body's rig, as the elbow search reads them.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   function resolution(
     body: IAutoMovieMotionHumanBody,
@@ -160,14 +177,10 @@ export namespace touchSide {
     strain: number,
   ): number {
     if (!Number.isFinite(strain)) return Infinity;
-    const range = (
-      bone: AutoMovieHumanoidBone,
-    ): IAutoMovieJointConstraint | null =>
+    const range = (bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null =>
       getConstraint(
         bone,
-        body.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === bone,
-        )?.constraint ?? null,
+        readHumanBone(body, bone)?.constraint ?? null,
       );
     const shoulder: IAutoMovieJointConstraint | null = range(`${side}UpperArm`);
     const halves: number[] = [
@@ -178,9 +191,7 @@ export namespace touchSide {
       range(`${side}Hand`)?.flexion,
     ]
       .filter(
-        (
-          r: IAutoMovieAngleRange | null | undefined,
-        ): r is IAutoMovieAngleRange =>
+        (r: IAutoMovieAngleRange | null | undefined): r is IAutoMovieAngleRange =>
           r !== null && r !== undefined && r.max > r.min,
       )
       .map((r: IAutoMovieAngleRange): number => (r.max - r.min) / 2);

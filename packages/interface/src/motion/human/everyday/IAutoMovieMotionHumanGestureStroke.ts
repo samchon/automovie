@@ -1,6 +1,7 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanTarget } from "../compose/IAutoMovieMotionHumanTarget";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
@@ -154,6 +155,9 @@ export namespace IAutoMovieMotionHumanGestureStroke {
 
     /** Effort extent multiplier. */
     extent: number;
+
+    /** Exact FK source borrowed only during this synchronous actual goal query; never retained in the returned goal. */
+    resolution?: IAutoMoviePoseResolution.ISource;
 
     /**
      * This repeat's variation of a named place, for `wave` and `stopPalm`;

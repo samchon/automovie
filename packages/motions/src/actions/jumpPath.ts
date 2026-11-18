@@ -1,5 +1,8 @@
 import { AutoMovieStationHermite, wrapDegrees } from "@automovie/engine";
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieStationHermite,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * The paths the jump's phases are drawn on: a quintic Hermite path for the
@@ -24,42 +27,46 @@ export namespace jumpPath {
    * @param p1 The end, metres.
    * @param v1 The end's velocity, metres per second.
    * @param duration The path's seconds.
-   * @param t Seconds along it, clamped to the path.
    * @param a0 The start's acceleration, metres per second squared; rest when absent.
-   * @returns The point at `t`.
+   * @returns A point reader at local seconds, held at the path's ends.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the ends, the accelerations and why the start's is kept.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's quintic Hermite rule over seconds, values, velocities and accelerations at both ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weight set and one combination.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the fixed endpoint jets once, then each local-time read uses one engine weight set and combination.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The share is clamped, so the path holds its ends outside its span.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieStationHermite`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed endpoint arrays/records prepare once per phase instead of being reallocated at each read; varying time still evaluates the original fixed-degree engine basis and ordered sum. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses AutoMovieStationHermite for every read and shares only the copied unchanged endpoint jets/duration within this phase's plan; no queried time or point is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The phase reader owns two fixed endpoint records and six three-number arrays until the plan releases it; each read returns a fresh point and retains no history or handle.
    */
-  export function hermite(
+  export function prepare(
     p0: IAutoMovieVector3,
     v0: IAutoMovieVector3,
     p1: IAutoMovieVector3,
     v1: IAutoMovieVector3,
     duration: number,
-    t: number,
     a0: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
-  ): IAutoMovieVector3 {
+  ): (t: number) => IAutoMovieVector3 {
     // The engine's quintic Hermite rule over seconds: values, velocities and
     // accelerations (curvatures) at both ends.
-    const u: number = Math.min(1, Math.max(0, t / duration));
-    const rest: readonly number[] = [0, 0, 0];
-    const [x, y, z] = AutoMovieStationHermite.combine(
-      {
-        value: [p0.x, p0.y, p0.z],
-        slope: [v0.x, v0.y, v0.z],
-        curvature: [a0.x, a0.y, a0.z],
-      },
-      { value: [p1.x, p1.y, p1.z], slope: [v1.x, v1.y, v1.z], curvature: rest },
-      AutoMovieStationHermite.weights(u, duration, 0, true),
-    );
-    // combine maps the three-entry value array entry by entry, so all three exist.
-    return { x: x!, y: y!, z: z! };
+    const from: IAutoMovieStationHermite.IEnd = {
+      value: [p0.x, p0.y, p0.z],
+      slope: [v0.x, v0.y, v0.z],
+      curvature: [a0.x, a0.y, a0.z],
+    };
+    const into: IAutoMovieStationHermite.IEnd = {
+      value: [p1.x, p1.y, p1.z],
+      slope: [v1.x, v1.y, v1.z],
+      curvature: [0, 0, 0],
+    };
+    return (t: number): IAutoMovieVector3 => {
+      const u: number = Math.min(1, Math.max(0, t / duration));
+      const [x, y, z]: number[] = AutoMovieStationHermite.combine(
+        from, into, AutoMovieStationHermite.weights(u, duration, 0, true),
+      );
+
+      // The copied endpoint arrays have exactly three entries.
+      return { x: x!, y: y!, z: z! };
+    };
   }
 
   /**

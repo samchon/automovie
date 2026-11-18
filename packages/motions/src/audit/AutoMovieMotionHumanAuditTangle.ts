@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, advanceAutoMovieGrid } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -13,7 +13,9 @@ import type {
 import { HumanColliders } from "../posture/HumanColliders";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
-import { AutoMovieMotionHumanAuditTangleModel } from "./AutoMovieMotionHumanAuditTangleModel";
+import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "./AutoMovieMotionHumanAuditTangleMargin";
+import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
+import type { IAutoMovieMotionHumanAuditExemption as IExemption } from "./IAutoMovieMotionHumanAuditExemption";
 
 /**
  * How deep a displayed body's own parts pass into one another: the tangle a
@@ -64,13 +66,10 @@ import { AutoMovieMotionHumanAuditTangleModel } from "./AutoMovieMotionHumanAudi
  * that segment only beyond `BUILT` over its window: a resting forearm may
  * press the skin as far as it gives, and no deeper.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the probes, the depth, both removals with their reasons and the declared-contact exemption.
- * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex polytope is its least distance to the supporting planes; the engine's hull faces and shape distance are the owners of both.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A per-body model built once, a bounding-sphere pass, then probes against shapes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is exempt beyond the stated structural ones, the joint a collider meets being read through bones without colliders; the reference depth is per pair for corners and per point for a bone's axis, so a crossing limb is read at its full depth.
- * @evidence contracts/development/implementation.md#efficient-algorithms Bounding spheres reject distant pairs before any probe is transformed; a probe costs one plane product per face.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The probes, spheres, pair relation and rest depths of a body are remembered per body by `AutoMovieMotionHumanAuditTangleModel`, which builds them and reads the depths.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model per live body, released with it; rest depths are bounded by segment pairs.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines canonical surface/axis probes, structural and reference-depth removals, sampled contacts and their skin allowances.
+ * @evidence contracts/development/design.md#principled-representation The displayed body's posed profile parts and two directed probe depths yield segment-pair penetration in metres; ROM-built overlaps and declared contact windows remain distinct allowances.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Owns sampled self and directed external collision readings, arm clearing's degree score and unordered bone keys; probe geometry and reference depths stay with AutoMovieMotionHumanAuditTangleModel.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the original per-pair/per-axis references, joint exclusions and declared contacts for every body, with no new clearance, fixture or fallback geometry.
  */
 export namespace AutoMovieMotionHumanAuditTangle {
   /**
@@ -80,15 +79,31 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * the body stands at rest cannot be told apart by their corners.
    */
   export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
-
   /**
    * Read a person's self-penetration over the whole motion.
+   *
+   * The result is the one reading every pair at every grid instant gives
+   * ({@link pose} at each instant, each pair keeping its deepest, first
+   * instant on a tie), from fewer pair readings: a pair read at an instant
+   * is read again only at the first instant its margin does not certify
+   * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceAutoMovieGrid`), the
+   * margin being how far its depth can grow before it would add to the
+   * pair's record and the bound how far its two segments can have moved,
+   * measured from the motion's own poses on the grid.
    *
    * @param motion The motion.
    * @param subject The person.
    * @param body Their body.
    * @param rate Grid samples per second.
    * @returns The deepest pair and every pair.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States subject, body, sampling rate, the deepest-per-pair sampled motion result and the certified reading that gives it; contact windows explain skipped or depth-allowed pairs.
+   * @evidence contracts/development/implementation.md#principled-implementation A deterministic motion grid reads actual poses; active declared self-contacts supply the original exclusions/skin depths, and each unordered pair retains its deepest sampled instant. Conservative advancement leaves a pair unread only at instants where its depth, less any allowance, cannot exceed what it already recorded (or the nanometre a first record needs), so the record is the full scan's.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build contact windows, place every grid instant's segments and their travel, visit the grid in order reading the pairs that are due, accumulate deepest pair records, then sort by depth.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps inclusive window endpoints, grid order, strict first-time ties, structural baselines and original contact mapping; a pair is left unread only by a certificate measured on the motion's own poses, never by sampling; existing contact-part/skeleton casts reflect the canonical Human-window producer and are not broadened.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For G grid samples and S parts, O(G*S) placements and travel, O(G*S*S) broad comparisons, and bidirectional probe/shape queries only for the pairs a margin leaves due: none while a pair's segments hold still or stay clear by more than they move. Local pair storage is bounded by encountered pairs; the placements are G*S.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The model owns shared body probes and baselines; each instant still resolves its actual displayed bones, which the audit's other readings share through the caller's motion.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Grid placements, travel table, due indices, exemption and deepest maps end with the call; returned results are owned by the caller. Existing weak body models retain only their own geometry/reference state.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -96,10 +111,31 @@ export namespace AutoMovieMotionHumanAuditTangle {
     body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditTangle.IResult {
+    const m: M.IModel = M.model(body);
     const exempt: IExemption[] = exemptions(motion, subject, body);
     const deepest: Map<string, IAutoMovieMotionHumanAuditTangle.IPair> =
       new Map();
-    for (const t of HumanAuditMotion.grid(0, motion.duration, rate)) {
+    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
+
+    // Every instant's placed segments and each segment's travel to it, so a
+    // pair read at an instant is next read at the first instant its margin
+    // does not certify (`advanceAutoMovieGrid`); `due` holds that instant
+    // per pair, by the pair's index.
+    const frames: IAutoMovieMotionHumanColliders.IPlaced[][] = times.map(
+      (t: number): IAutoMovieMotionHumanColliders.IPlaced[] =>
+        HumanColliders.placed(body, motion.bones(subject, t)),
+    );
+    const travelled: Float64Array[] = Margin.travel(m, frames);
+    const count: number = m.parts.length;
+    const due: Int32Array = new Int32Array(count * count);
+
+    // Each pair's record, by its index: the greatest depth it read, or the
+    // nanometre a first record must pass.
+    const recorded: Float64Array = new Float64Array(count * count).fill(
+      Margin.NANOMETRE,
+    );
+    for (let k: number = 0; k < times.length; k++) {
+      const t: number = times[k]!;
       const skip: Set<string> = new Set();
       const pressed: Map<string, number> = new Map();
       for (const e of exempt)
@@ -107,7 +143,42 @@ export namespace AutoMovieMotionHumanAuditTangle {
           for (const key of e.pairs)
             if (e.depth === undefined) skip.add(key);
             else pressed.set(key, Math.max(pressed.get(key) ?? 0, e.depth));
-      for (const pair of pose(body, motion.bones(subject, t), skip, pressed)) {
+      for (const pair of Margin.within(
+        m,
+        frames[k]!,
+        skip,
+        pressed,
+        unordered,
+        {
+          due: (index: number): boolean => k >= due[index]!,
+
+          // A pair read here cannot add to its record while both segments
+          // travel less than its base plus the depth recorded for it (the
+          // nanometre a depth must pass to be recorded at all, before any);
+          // a pressed allowance only lowers what is read, so it is left
+          // out. A pair whose bounding spheres were apart is not read
+          // before the two travel the gap between them.
+          heard: (
+            index: number,
+            base: number,
+            apart: boolean,
+            depth: number,
+          ): void => {
+            recorded[index] = Math.max(recorded[index]!, depth);
+            const i: number = Math.floor(index / count);
+            const j: number = index % count;
+            due[index] = advanceAutoMovieGrid(
+              k,
+              times.length - 1,
+              apart ? base : base + recorded[index]!,
+              (from: number, to: number): number =>
+                travelled[to]![i]! -
+                travelled[from]![i]! +
+                (travelled[to]![j]! - travelled[from]![j]!),
+            );
+          },
+        },
+      )) {
         const key: string = unordered(pair.a, pair.b);
         const known: IAutoMovieMotionHumanAuditTangle.IPair | undefined =
           deepest.get(key);
@@ -144,6 +215,14 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @param skip Unordered pair keys (`unordered`) not to read.
    * @param pressed Unordered pair keys read only beyond a depth, metres: a declared rest's give.
    * @returns The pairs, each once, with the deeper direction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines a single displayed pose, unordered skips/depth allowances and one result per penetrating self pair.
+   * @evidence contracts/development/implementation.md#principled-implementation The model's structural/reference rules and both probe directions give the same excess depth, with conservative spheres rejecting distant pairs.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Place actual colliders, form sphere centres, scan unordered part pairs, then keep the deeper direction past the existing allowance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps related-pair skips, sphere comparison, direction order, reference depths and the original 1e-9 roundoff threshold; no query or tolerance is changed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms S parts require O(S*S) broad comparisons and the original selected probe/shape work; collider placement and centre arrays remain per pose. Each segment a probe is read in is prepared once for the pose (`M.beyond`'s `targets`), and a pair's key is built only where some pair is skipped or pressed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the body's canonical model, its pair baselines and the existing centre/excess owners without reusing pose-dependent answers.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh pair records and releases local placements/centres; the existing model lifetime belongs to its weak body owner.
    */
   export function pose(
     body: IAutoMovieMotionHumanBody,
@@ -151,50 +230,13 @@ export namespace AutoMovieMotionHumanAuditTangle {
     skip: ReadonlySet<string> = new Set(),
     pressed: ReadonlyMap<string, number> = new Map(),
   ): IAutoMovieMotionHumanAuditTangle.IPair[] {
-    const m: AutoMovieMotionHumanAuditTangleModel.IModel =
-      AutoMovieMotionHumanAuditTangleModel.model(body);
-    const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanColliders.placed(body, bones);
-    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
-    const centres: IAutoMovieVector3[] = placed.map(
-      (
-        p: IAutoMovieMotionHumanColliders.IPlaced,
-        i: number,
-      ): IAutoMovieVector3 =>
-        AutoMovieMotionHumanAuditTangleModel.centre(p, m.parts[i]!),
+    return Margin.within(
+      M.model(body),
+      HumanColliders.placed(body, bones),
+      skip,
+      pressed,
+      unordered,
     );
-    for (let i: number = 0; i < placed.length; i++)
-      for (let j: number = i + 1; j < placed.length; j++) {
-        if (m.related[i]![j]!) continue;
-        const reach: number = m.parts[i]!.radius + m.parts[j]!.radius;
-        if (Vector3.length(Vector3.subtract(centres[i]!, centres[j]!)) >= reach)
-          continue;
-        if (skip.has(unordered(placed[i]!.bone, placed[j]!.bone))) continue;
-        const forward: number = AutoMovieMotionHumanAuditTangleModel.excess(
-          m,
-          placed,
-          i,
-          j,
-        );
-        const backward: number = AutoMovieMotionHumanAuditTangleModel.excess(
-          m,
-          placed,
-          j,
-          i,
-        );
-        const depth: number =
-          Math.max(forward, backward) -
-          (pressed.get(unordered(placed[i]!.bone, placed[j]!.bone)) ?? 0);
-        // A nanometre: below it a depth is the rounding of the two frames.
-        if (depth > 1e-9)
-          out.push({
-            a: placed[forward >= backward ? i : j]!.bone,
-            b: placed[forward >= backward ? j : i]!.bone,
-            depth,
-            seconds: 0,
-          });
-      }
-    return out;
   }
 
   /**
@@ -207,6 +249,14 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @param other The body they are read against.
    * @param otherBones That body's displayed bones.
    * @returns The pairs, `a` of `body` in `b` of `other`, with `seconds` zero.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States two bodies' displayed bone maps and the requested body-to-other directed pairs at second zero.
+   * @evidence contracts/development/implementation.md#principled-implementation Different bodies share no structural joints or default-pose allowance, so original directed probe depths are read in full.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Place both bodies, scan their ordered part pairs, conservatively screen spheres and read every selected directed depth.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps full external depth, part order, strict depth updates and the original 1e-9 threshold; no own-body reference is applied.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For S and T parts, O(S*T) broad comparisons precede original selected probe/shape work, with each of the other body's segments prepared once for the pose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses each body's canonical model and the same centre/depth owners; no other-body pose result is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local placements and results are released or returned with this call; only the existing weak per-body models survive.
    */
   export function across(
     body: IAutoMovieMotionHumanBody,
@@ -214,34 +264,12 @@ export namespace AutoMovieMotionHumanAuditTangle {
     other: IAutoMovieMotionHumanBody,
     otherBones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanAuditTangle.IPair[] {
-    const m: AutoMovieMotionHumanAuditTangleModel.IModel =
-      AutoMovieMotionHumanAuditTangleModel.model(body);
-    const o: AutoMovieMotionHumanAuditTangleModel.IModel =
-      AutoMovieMotionHumanAuditTangleModel.model(other);
-    const mine: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanColliders.placed(body, bones);
-    const theirs: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanColliders.placed(other, otherBones);
-    const out: IAutoMovieMotionHumanAuditTangle.IPair[] = [];
-    for (let i: number = 0; i < mine.length; i++)
-      for (let j: number = 0; j < theirs.length; j++) {
-        const reach: number = m.parts[i]!.radius + o.parts[j]!.radius;
-        const apart: IAutoMovieVector3 = Vector3.subtract(
-          AutoMovieMotionHumanAuditTangleModel.centre(mine[i]!, m.parts[i]!),
-          AutoMovieMotionHumanAuditTangleModel.centre(theirs[j]!, o.parts[j]!),
-        );
-        if (Vector3.length(apart) >= reach) continue;
-        let depth: number = 0;
-        for (const d of AutoMovieMotionHumanAuditTangleModel.depths(
-          m.parts[i]!.probes,
-          mine[i]!,
-          theirs[j]!,
-        ))
-          depth = Math.max(depth, d);
-        if (depth > 1e-9)
-          out.push({ a: mine[i]!.bone, b: theirs[j]!.bone, depth, seconds: 0 });
-      }
-    return out;
+    return Margin.entering(
+      M.model(body),
+      HumanColliders.placed(body, bones),
+      M.model(other),
+      HumanColliders.placed(other, otherBones),
+    );
   }
 
   /**
@@ -255,100 +283,100 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @param body The body.
    * @param bones Its posed bones.
    * @param side The arm.
+   * @param prepared Optional exact placement of this body and bone map in the same unchanged evaluation, in original profile order; computed here when absent.
+   * @param targets The caller's list of the segments already prepared as read-in targets (`prepareAutoMovieMotionHumanAuditDepths`), by index in `prepared`; an entry must belong to the very placed segment at its index, so a caller that replaces a placed segment between reads clears that entry. A list of this read's own when absent.
+   * @param exceeded A monotone predicate for an optional lower-bound decision. When absent every part is scored for the maximum.
    * @returns Degrees; 0 when no probe of the arm lies deeper than at rest or in the quiet stance.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the segments, the depth's baseline and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The same probes, pair relation and baselines as `pose`, so a cleared arm and an audited one agree; a depth at a probe is the shoulder's turn that carries the probe that far, its arc over its radius.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the arm's parts and the body's other parts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pairs of one part or one joint are skipped as `pose` skips them; nothing else is exempt.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Bounding spheres reject distant pairs before any probe is read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the per-body model and its remembered baselines.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The model is the audit's own, held per live body.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual posed bones, arm segments, degree-valued excess and an optional exact same-epoch collider placement.
+   * @evidence contracts/development/implementation.md#principled-implementation The model's original probes, references and both depth directions yield shoulder-arc degrees; an optional placement is the same body's unchanged posed geometry in original profile order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the model, borrow an exact supplied placement or create one, then run the original arm-to-body and reverse probe loops.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all part/joint exclusions, sphere comparisons, reference queries, forward/reverse order, probe radii and degree arithmetic; supplied geometry must belong to these exact body/bones and unchanged evaluation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For A arm parts and S total parts, keeps O(A*S) broad norms and every selected depth query. Each required part centre and positive-depth probe's world placement is composed once; every lever norm and radius clamp still runs. Which segments are the arm's is the model's table, read by index, and each segment a probe is read in is prepared once for the placement. A room read also shares its collider construction.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Clearance.room lends one exact placement used by obstacles. Its unchanged poses and model geometry also prove local centre/probe placement reuse by index within this arm read. Every sphere/lever distance, radius clamp, depth and score remains an actual reading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps at most S centres and the queried model probes' world points only through this synchronous arm read; no borrowed pose, geometry workspace or scalar score survives return. The existing weak body model still owns reference lifetime.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     side: "left" | "right",
+    prepared?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+    targets: NonNullable<Parameters<typeof M.beyond>[4]> = [],
+    exceeded?: (degrees: number) => boolean,
   ): number {
-    const m: AutoMovieMotionHumanAuditTangleModel.IModel =
-      AutoMovieMotionHumanAuditTangleModel.model(body);
-    const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
-      HumanColliders.placed(body, bones);
+    const m: M.IModel = M.model(body);
+    const placed: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
+      prepared ?? HumanColliders.placed(body, bones);
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const mine = (bone: AutoMovieHumanoidBone): boolean =>
-      bone === `${side}UpperArm` ||
-      bone === `${side}LowerArm` ||
-      AutoMovieMotionHumanAuditTangleModel.group(bone) === `${side}Hand`;
+    const mine: readonly boolean[] = m.arms[side];
+
+    // Geometry stays fixed for this arm read; share only completed first-use
+    // world placements, never depth or score results.
+    const centres: IAutoMovieVector3[] = [];
+    const points: IAutoMovieVector3[][] = [];
+    const centre: (part: number) => IAutoMovieVector3 = (
+      part: number,
+    ): IAutoMovieVector3 => {
+      let point: IAutoMovieVector3 | undefined = centres[part];
+      if (point === undefined) {
+        point = M.centre(placed[part]!, m.parts[part]!);
+        centres[part] = point;
+      }
+      return point;
+    };
+
+    // A positive depth still measures and clamps its lever on every query.
+    const lever: (part: number, corner: number) => number = (
+      part: number,
+      corner: number,
+    ): number => {
+      let list: IAutoMovieVector3[] | undefined = points[part];
+      if (list === undefined) {
+        list = [];
+        points[part] = list;
+      }
+      let point: IAutoMovieVector3 | undefined = list[corner];
+      if (point === undefined) {
+        point = Vector3.add(
+          placed[part]!.pose.position,
+          Quaternion.rotateVector(
+            placed[part]!.pose.rotation,
+            m.parts[part]!.probes[corner]!,
+          ),
+        );
+        list[corner] = point;
+      }
+      return Math.max(1e-3, Vector3.distance(point, shoulder));
+    };
+
     let worst: number = 0;
     for (let i: number = 0; i < placed.length; i++) {
-      if (!mine(placed[i]!.bone)) continue;
-      const a: IAutoMovieVector3 = AutoMovieMotionHumanAuditTangleModel.centre(
-        placed[i]!,
-        m.parts[i]!,
-      );
+      if (!mine[i]) continue;
+      const a: IAutoMovieVector3 = centre(i);
       for (let j: number = 0; j < placed.length; j++) {
-        if (m.related[i]![j]! || mine(placed[j]!.bone)) continue;
+        if (m.related[i]![j]! || mine[j]) continue;
         const reach: number = m.parts[i]!.radius + m.parts[j]!.radius;
-        if (
-          Vector3.length(
-            Vector3.subtract(
-              a,
-              AutoMovieMotionHumanAuditTangleModel.centre(
-                placed[j]!,
-                m.parts[j]!,
-              ),
-            ),
-          ) >= reach
-        )
-          continue;
-        const over: Float64Array = AutoMovieMotionHumanAuditTangleModel.beyond(
-          m,
-          placed,
-          i,
-          j,
-        );
+        if (Vector3.distance(a, centre(j)) >= reach) continue;
+        const over: Float64Array = M.beyond(m, placed, i, j, targets);
         for (let k: number = 0; k < over.length; k++) {
           if (!(over[k]! > 0)) continue;
-          const probe: IAutoMovieVector3 = Vector3.add(
-            placed[i]!.pose.position,
-            Quaternion.rotateVector(
-              placed[i]!.pose.rotation,
-              m.parts[i]!.probes[k]!,
-            ),
-          );
-          const radius: number = Math.max(
-            1e-3,
-            Vector3.length(Vector3.subtract(probe, shoulder)),
-          );
+          const radius: number = lever(i, k);
           worst = Math.max(worst, ((over[k]! / radius) * 180) / Math.PI);
+          if (exceeded?.(worst)) return worst;
         }
 
         // The other part's probes inside the arm's part: a corner of the
         // belly lying in the forearm is the same tangle read from the other
         // side, and `pose` takes the deeper of the two, so an arm is clear
         // only when neither direction reads a depth.
-        const under: Float64Array = AutoMovieMotionHumanAuditTangleModel.beyond(
-          m,
-          placed,
-          j,
-          i,
-        );
+        const under: Float64Array = M.beyond(m, placed, j, i, targets);
         for (let k: number = 0; k < under.length; k++) {
           if (!(under[k]! > 0)) continue;
-          const probe: IAutoMovieVector3 = Vector3.add(
-            placed[j]!.pose.position,
-            Quaternion.rotateVector(
-              placed[j]!.pose.rotation,
-              m.parts[j]!.probes[k]!,
-            ),
-          );
-          const radius: number = Math.max(
-            1e-3,
-            Vector3.length(Vector3.subtract(probe, shoulder)),
-          );
+          const radius: number = lever(j, k);
           worst = Math.max(worst, ((under[k]! / radius) * 180) / Math.PI);
+          if (exceeded?.(worst)) return worst;
         }
       }
     }
@@ -361,6 +389,14 @@ export namespace AutoMovieMotionHumanAuditTangle {
    * @param a One bone.
    * @param b The other.
    * @returns The same key for either order.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States two bone identities and the identical key returned for either ordering.
+   * @evidence contracts/development/implementation.md#principled-implementation Lexicographic ordering of the two canonical bone names defines one deterministic unordered pair key.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One original string comparison and delimiter composition.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the exact comparison and delimiter used by all skip/rest/reference maps, without remapping names.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant comparisons and key construction in bone-name length, independent of pose or probe count.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work All pair readers and exemption production share this key owner instead of choosing another ordering.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a string scalar and retains no names, pose or key history.
    */
   export function unordered(
     a: AutoMovieHumanoidBone,
@@ -370,25 +406,21 @@ export namespace AutoMovieMotionHumanAuditTangle {
   }
 }
 
-/** A declared self-contact: pair keys left unread, or read beyond a depth, in a span of film seconds. */
-interface IExemption {
-  from: number;
-  to: number;
-  pairs: string[];
-  /** How deep the pairs may press, metres; left unread when absent. */
-  depth?: number;
-}
-
 /** The declared contacts of a person with their own body, as pair keys and spans. */
-const exemptions = (
+const exemptions: (
+  motion: IAutoMovieMotionHumanAuditMotion,
+  subject: string,
+  body: IAutoMovieMotionHumanBody,
+) => IExemption[] = (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,
   body: IAutoMovieMotionHumanBody,
 ): IExemption[] => {
   const out: IExemption[] = [];
   for (const window of HumanAuditMotion.windows(motion, subject)) {
-    const support = window.contact.support;
+    const support: typeof window.contact.support = window.contact.support;
     if (support.kind !== "person" || support.subject !== subject) continue;
+
     // An arm's segment declared lying on a segment of the same person: read
     // only beyond the skin's give (`BUILT`).
     if ("bone" in support) {
@@ -411,7 +443,7 @@ const exemptions = (
       body.surfaces.regions[support.region].bone;
     const pairs: string[] = [];
     for (const bone of body.skeleton.bones as IAutoMovieBone[])
-      if (AutoMovieMotionHumanAuditTangleModel.group(bone.bone) === part)
+      if (M.group(bone.bone) === part)
         pairs.push(
           AutoMovieMotionHumanAuditTangle.unordered(bone.bone, touched),
         );

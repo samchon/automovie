@@ -46,8 +46,8 @@ export namespace WorkoutHanging {
     anchor: "bar",
     pin: ["gripLeft", "gripRight"],
     supports: [
-      { part: "leftHand", kind: "grip" },
-      { part: "rightHand", kind: "grip" },
+      { part: "leftHand", kind: "grip", prop: true },
+      { part: "rightHand", kind: "grip", prop: true },
     ],
     enter: 1,
     reps,

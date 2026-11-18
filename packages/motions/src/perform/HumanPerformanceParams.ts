@@ -44,6 +44,8 @@ export namespace HumanPerformanceParams {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure check that retains nothing.
    */
   export function check(row: string, given: object): void {
+    // Every row of the lexicon has a name of its own, so a row's schema is
+    // listed under that name and an action's under its own.
     const schema: IAutoMovieMotionHumanLexiconSchemas.ISchema | undefined =
       HUMAN_LEXICON_SCHEMAS.rows[row] ?? HUMAN_LEXICON_SCHEMAS.actions[row];
     if (schema === undefined) return;
@@ -59,6 +61,7 @@ export namespace HumanPerformanceParams {
     });
   }
 }
+
 
 /** The first member a schema does not accept. */
 interface IFault {
@@ -138,9 +141,7 @@ const typed = (value: unknown, type: string): boolean => {
 };
 
 /** A number's bounds as the range a refusal offers, in the unit its type carries into the schema (`HumanUnit`, `x-unit`); null when it has none. */
-const bounds = (
-  own: Record<string, unknown>,
-): IAutoMovieMotionHumanRefusal.IRange | null => {
+const bounds = (own: Record<string, unknown>): IAutoMovieMotionHumanRefusal.IRange | null => {
   const low: number | undefined =
     typeof own.minimum === "number"
       ? own.minimum
@@ -189,12 +190,7 @@ const read = (
     const alternatives: readonly unknown[] = own.oneOf;
     const faults: (IFault | null)[] = alternatives.map(
       (alternative: unknown): IFault | null =>
-        read(
-          alternative as IAutoMovieMotionHumanLexiconSchemas.ISchema,
-          value,
-          path,
-          what,
-        ),
+        read(alternative as IAutoMovieMotionHumanLexiconSchemas.ISchema, value, path, what),
     );
     if (faults.some((fault: IFault | null): boolean => fault === null))
       return null;

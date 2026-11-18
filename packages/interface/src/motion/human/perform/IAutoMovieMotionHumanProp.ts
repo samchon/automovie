@@ -1,3 +1,4 @@
+import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
@@ -85,14 +86,7 @@ export interface IAutoMovieMotionHumanProp {
   point?(
     id: string,
     seconds: number,
-  ):
-    | {
-        /** Contact point on the prop in world metres. */
-        point: IAutoMovieVector3;
-        /** Outward contact normal in world coordinates. */
-        normal: IAutoMovieVector3;
-      }
-    | undefined;
+  ): IAutoMovieMotionHumanProp.IPlacedPoint | undefined;
 
   /**
    * The person and bone the prop is worn on from the film's start, with its
@@ -210,6 +204,25 @@ export namespace IAutoMovieMotionHumanProp {
 
     /** The model span's declared rest length in metres. Absent keeps the domain's supplied rest shape. */
     length?: number;
+  }
+
+  /**
+   * A moving contact in world space.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame of the point and normal and when full orientation is available.
+   * @evidence contracts/development/design.md#principled-representation Preserves the existing world point and normal records; the world rotation carries the grip tangent of a moving affordance.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.prop supplies the rotation when its callback has a full contact transform; HumanRideHands reads its grip axis.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A point-only provider can omit the rotation; no rotation is inferred from a normal that leaves its tangent undetermined.
+   */
+  export interface IPlacedPoint {
+    /** Contact point on the prop in world metres. */
+    point: IAutoMovieVector3;
+
+    /** Outward contact normal in world coordinates. */
+    normal: IAutoMovieVector3;
+
+    /** World rotation of the placed affordance, when the provider has its full frame. */
+    rotation?: IAutoMovieQuaternion;
   }
 
   /**

@@ -24,7 +24,7 @@ Every case is accepted only when no still shows a flaw. What else it owes depend
 
 [Testing](../development/testing.md) sets those tests and says why installed actions take none. The report is the vocabulary's own for the case, and its README names the report and its measures.
 
-A flaw that remains in an installed action is never corrected in the production; tell the user.
+Route an installed action defect through [refusals](compose/refusals.md#when-no-repair-holds).
 
 ## Record
 

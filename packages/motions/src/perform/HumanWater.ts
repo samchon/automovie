@@ -3,7 +3,6 @@ import {
   Quaternion,
   Vector3,
   integrateMotionTrajectory,
-  resolveAutoMovieCenterOfMass,
   resolveHydrodynamicForce,
 } from "@automovie/engine";
 import type {
@@ -41,7 +40,7 @@ import type {
  * @evidence contracts/development/implementation.md#principled-implementation Archimedes' principle summed over the segments for the float, solved by bisection on a monotone function; Newton's second law under the summed quadratic drag for the glide, integrated by the engine's fixed-step integrator.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment-force sum for each posed evaluation. The stroke samples centre paths and volumes before integration.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body denser than the water is reported as sinking, never floated by a clamp.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation. Float bisects to a micrometre and the stroke samples one bounded phase grid.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation. Float bisects to a micrometre or adjacent representable heights, whichever is coarser. The stroke samples one bounded phase grid.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned trajectory.
  */
@@ -65,7 +64,7 @@ export namespace HumanWater {
     let drag: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     let submerged: number = 0;
     let volume: number = 0;
-    const model: IAutoMovieResolveCenterOfMass.IModel = modelOf(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     body.profile.segments.forEach(
       (segment: IAutoMoviePhysicalSegment, i: number): void => {
         const v: number = resolveHydrodynamicForce.volume(segment);
@@ -116,8 +115,16 @@ export namespace HumanWater {
     let low: number = water.surface - Math.max(...heights) - reach;
     let high: number = water.surface - Math.min(...heights) + reach;
     if (lift(low) < weight) return null;
+
+    // A micrometre or the heights' own resolution, whichever is coarser: a
+    // surface past 2^33 m spaces adjacent heights wider than a micrometre,
+    // and there the midpoint rounds onto an end, so the bisection also ends
+    // there: after log2 of the bracket over the coarser of the two, at most
+    // 2098 halvings of any finite bracket (binary64 spans 2^1024 down to
+    // spacings of 2^-1074).
     while (high - low > 1e-6) {
       const middle: number = (low + high) / 2;
+      if (middle === low || middle === high) break;
       if (lift(middle) >= weight) low = middle;
       else high = middle;
     }
@@ -315,29 +322,5 @@ export namespace HumanWater {
         worldPosition: { ...r.worldPosition, y: r.worldPosition.y + dy },
       });
     return out;
-  }
-
-  /** Each body's mass model, built once. */
-  const MODELS: WeakMap<
-    IAutoMovieMotionHumanBody,
-    IAutoMovieResolveCenterOfMass.IModel
-  > = new WeakMap();
-
-  /**
-   * A body's mass model, built once.
-   *
-   * @param body The body.
-   * @returns The model, its segments in the profile's order.
-   */
-  function modelOf(
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieResolveCenterOfMass.IModel {
-    let model: IAutoMovieResolveCenterOfMass.IModel | undefined =
-      MODELS.get(body);
-    if (model === undefined) {
-      model = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-      MODELS.set(body, model);
-    }
-    return model;
   }
 }

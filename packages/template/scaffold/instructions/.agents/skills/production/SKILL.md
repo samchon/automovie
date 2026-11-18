@@ -7,8 +7,9 @@ description: Keeps a production's scope, workflow, caches, media and assembly.
 
 | Read | For |
 | --- | --- |
-| [Project context](project-context.md) | Establishing scope, the delivery profile, decisions and setup authority |
-| [Production workflow](workflow.md) | Planning the path, its branches and each task's handoff |
+| [Project context](project-context.md) | Taking the commission and recording its scope, decisions and delivery profile |
+| [Director](director.md) | Assigning work and deciding whether to accept it or return it for revision |
+| [Production workflow](workflow.md) | Following the stages for the commissioned output |
 | [Sustained runs](sustained-runs.md) | Running, observing or resuming sustained work |
 | [Stage caches](stage-caches.md) | Caching and resuming expensive stages |
 | [Media records](media-records.md) | Saving media and generation requests with their records |

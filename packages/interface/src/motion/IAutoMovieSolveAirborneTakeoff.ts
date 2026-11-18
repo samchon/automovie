@@ -57,7 +57,18 @@ export namespace IAutoMovieSolveAirborneTakeoff {
     h?: number;
 
     /** The integrator's error control, as the flight that reads the momentum integrates it; the fixed step when absent. */
-    integration?: IAutoMovieIntegrateMotionTrajectory.ITolerance;
+    integration?: Pick< IAutoMovieIntegrateMotionTrajectory.ITolerance,
+      "relative" | "absolute"
+    >;
+
+    /** Explicit per-read world-momentum defect budget: relative share of the target momentum and absolute kg m squared per second. Requires integration error control and remains independent of its orientation/sensitivity RMS budget. */
+    momentumTolerance?: Pick<
+      IAutoMovieIntegrateMotionTrajectory.ITolerance,
+      "relative" | "absolute"
+    >;
+
+    /** Optional caller-owned unique symbol forwarded to each flight's numeric failure, never to the shape history. Admitted before seed/history reads; it changes no shooting or integration decision. */
+    errorScope?: symbol;
   }
 
   /**

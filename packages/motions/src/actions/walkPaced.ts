@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
+import type { walkStation } from "./walkStation";
 
 /**
  * A stepping plan played on a tabulated clock: at each film second the body
@@ -28,21 +29,21 @@ import type {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds the plan and the table for as long as the returned plan is held.
  */
 export function walkPaced(
-  plan: IAutoMovieMotionHumanActionPlan,
+  plan: walkStation.IPlan,
   step: number,
   clock: readonly number[],
-): IAutoMovieMotionHumanActionPlan {
+): walkStation.IPlan {
   const last: number = clock.length - 1;
   const until: number = last * step;
   if (last < 1) return plan;
-  const toPlan = (film: number): number => {
+  const toPlan: (film: number) => number = (film: number): number => {
     const at: number = Math.min(last, Math.max(0, film / step));
     const i: number = Math.min(last - 1, Math.floor(at));
     return clock[i]! + (clock[i + 1]! - clock[i]!) * (at - i);
   };
 
   // The first film second at which the clock has reached a plan second.
-  const toFilm = (planned: number): number => {
+  const toFilm: (planned: number) => number = (planned: number): number => {
     if (planned <= clock[0]!) return 0;
     let low: number = 0;
     let high: number = last;
@@ -57,7 +58,8 @@ export function walkPaced(
       step
     );
   };
-  const moved = (was: number): number => toFilm(was * plan.duration) / until;
+  const moved: (was: number) => number = (was: number): number => toFilm(was * plan.duration) / until;
+  const source: walkStation.HorizontalRoot | undefined = plan.horizontalRoot;
   return {
     ...plan,
     duration: until,
@@ -68,16 +70,17 @@ export function walkPaced(
       }),
     ),
     contacts: plan.contacts.map(
-      (
-        c: IAutoMovieMotionHumanContactWindow,
-      ): IAutoMovieMotionHumanContactWindow => ({
+      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: moved(c.from),
         to: moved(c.to),
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    posture: (film: number): IAutoMovieMotionHumanPosture =>
-      plan.posture(toPlan(film)),
+    ...(source === undefined ? {} : {
+      horizontalRoot: (seconds: number): walkStation.HorizontalPoint => source(toPlan(seconds)),
+    }),
+    posture: (film: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
+      plan.posture(toPlan(film), channels, resolution, projection),
   };
 }

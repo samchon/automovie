@@ -352,7 +352,7 @@ function movingBounds(
   const base: IAutoMovieTransform =
     actorMotion === undefined
       ? node.transform
-      : foldRoot(node.transform, sampleMotion(actorMotion, seconds).pose.root);
+      : foldRoot(node.transform, sampleMotion.root(actorMotion, seconds));
   const translation: number[] | undefined = sampled.get(
     channelKey({ kind: "node", node: node.id, path: "translation" }),
   )?.value;

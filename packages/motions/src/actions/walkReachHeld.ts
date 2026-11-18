@@ -1,27 +1,20 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { walkFoot } from "./walkFoot";
-import { walkReach } from "./walkReach";
-import { walkReachStance } from "./walkReachStance";
 
 /**
- * A stance course's pelvis over its feet (`walkStanceCourse`): the pelvis
- * tilted with the trunk about the hips, and the pelvis and the stances held
- * where a course's reading puts them, the walk's own pelvis (`walkReach`)
- * read with the course's drop, pitches and turns.
+ * The pelvis tilted with the trunk about the hips, the tilt a walk's ground
+ * solve settles its lowering on (`walkReach.ground`'s `tilt`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and who reads it.
- * @evidence contracts/development/design.md#principled-representation The course's half of the walk's pelvis, apart from the walk's own settling.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions, read by the stagger's knots and feet.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `walkReach.pelvis` and its records.
+ * @evidence contracts/development/design.md#principled-representation The pelvis's tilt apart from the walk's own settling.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One tilt, read by `StaggerFeet`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The pivot is the body's own hips bone.
  */
 export namespace walkReachHeld {
   /**
@@ -35,6 +28,14 @@ export namespace walkReachHeld {
    * @param joints The upright hip joints under that root, world metres.
    * @param trunk The posture's added pitch and roll, degrees.
    * @returns The pelvis's world rotation and the tilted hip joints.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the hips pivot, world-metre geometry and added trunk angles.
+   * @evidence contracts/development/implementation.md#principled-implementation The rigid turn from the upright heading to the tilted one, rotation times the upright's inverse, applied to each hip joint about the hips bone at the root plus its rotated rest offset.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One turn and one pivot serve both hip joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the body's rest hips bone and the posture's heading convention without a changed angle or position.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: two heading quaternions, one inverse and two joint rotations.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the posture's heading owner; each call evaluates its own root, joints and trunk.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
    */
   export function tilt(
     body: IAutoMovieMotionHumanBody,
@@ -64,96 +65,13 @@ export namespace walkReachHeld {
       root,
       Quaternion.rotateVector(upright, body.rest.get("hips")!),
     );
-    const at = (side: "left" | "right"): IAutoMovieVector3 =>
+    const at: (side: "left" | "right") => IAutoMovieVector3 = (
+      side: "left" | "right",
+    ): IAutoMovieVector3 =>
       Vector3.add(
         centre,
         Quaternion.rotateVector(turn, Vector3.subtract(joints[side], centre)),
       );
     return { rotation, hips: { left: at("left"), right: at("right") } };
-  }
-
-  /**
-   * The pelvis and the stances a stance course chose (`walkStanceCourse`):
-   * the pelvis turned toward its stances as `pelvis` turns it, tilted with
-   * the trunk (`tilt`) and lowered by the course's drop, and each planted
-   * foot turned on the floor and pitched about its ball as the course chose,
-   * so nothing is solved per second but the pelvis's turn.
-   *
-   * @param body The body.
-   * @param root The upright root before the drop, world metres.
-   * @param planned The unconstrained heading, degrees.
-   * @param hips The pelvis joint's clinical angles, degrees.
-   * @param feet Each foot as scheduled.
-   * @param course The course read at the second: its drop, metres, each foot's pitch and turn and the trunk's tilt, degrees.
-   * @returns The pelvis and each stance as held.
-   */
-  export function held(
-    body: IAutoMovieMotionHumanBody,
-    root: IAutoMovieVector3,
-    planned: number,
-    hips: readonly [number, number, number],
-    feet: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
-    >,
-    course: {
-      drop: number;
-      pitch: Record<"left" | "right", number>;
-      turn: Record<"left" | "right", number>;
-      trunk: { pitch: number; roll: number };
-    },
-  ): walkReach.IGround {
-    const {
-      yaw,
-      pivots,
-      hips: upright,
-    }: walkReach.IPelvis = walkReach.pelvis(body, root, planned, hips, feet);
-    const lowered: IAutoMovieVector3 = { ...root, y: root.y - course.drop };
-    const tilted = tilt(
-      body,
-      lowered,
-      yaw,
-      {
-        left: { ...upright.left, y: upright.left.y - course.drop },
-        right: { ...upright.right, y: upright.right.y - course.drop },
-      },
-      course.trunk,
-    );
-    const placed = {} as Record<"left" | "right", walkFoot.IEnd>;
-    const contacts = {} as Record<"left" | "right", IAutoMovieVector3>;
-    for (const side of walkReach.SIDES) {
-      // A swinging foot is the swing's to place; it stands as scheduled.
-      if (feet[side].swing !== undefined) {
-        placed[side] = { ...feet[side].placement, toes: feet[side].toes };
-        contacts[side] = HumanFoot.offset(body, side, "mtp");
-        continue;
-      }
-      const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
-        walkReachStance.of(
-          body,
-          side,
-          {
-            ...feet[side],
-            placement: HumanFoot.turned(
-              feet[side].placement,
-              course.turn[side],
-            ),
-          },
-          tilted.hips[side],
-          yaw,
-          pivots[side],
-          0,
-          course.pitch[side],
-        );
-      placed[side] = out.end;
-      contacts[side] = out.contact;
-    }
-    return {
-      yaw,
-      root: lowered,
-      hips: tilted.hips,
-      feet: placed,
-      contacts,
-      pelvis: tilted.rotation,
-    };
   }
 }

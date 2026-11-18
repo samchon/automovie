@@ -54,7 +54,8 @@ export namespace AutoMovieHumanDigitStations {
    * @param first Arc length of the first own section along the digit's line, mm.
    * @param cap Arc length where the rounded tip starts, mm.
    * @param joints Arc lengths of the digit's interphalangeal joints along the line, mm.
-   * @param windows The profile's narrow reliefs along the line (`AutoMovieHumanDigitProfile.windows`).
+   * @param windows The profile's narrow reliefs along the line (`AutoMovieHumanDigitProfile.windows`), each of a positive finite half width.
+   * @throws {RangeError} For a first section or cap that is not finite, a window whose half width is not positive and finite, or a station step the line's arc lengths cannot represent.
    */
   export function of(
     first: number,
@@ -62,11 +63,23 @@ export namespace AutoMovieHumanDigitStations {
     joints: readonly number[],
     windows: readonly IAutoMovieHumanDigitProfile.IWindow[],
   ): number[] {
+    if (!(Number.isFinite(first) && Number.isFinite(cap)))
+      throw new RangeError(
+        `A digit's stations need a finite first section and cap, not ${first} and ${cap} mm`,
+      );
+    for (const w of windows)
+      if (!(Number.isFinite(w.half) && w.half > 0))
+        throw new RangeError(
+          `A digit's relief window at ${w.at} mm needs a positive finite half width, not ${w.half} mm`,
+        );
     const out: number[] = [first];
     const last: number = cap - 2.5;
 
     // Walk from the first section, closing the step inside a joint's window
-    // and inside every relief window to a share of its half width.
+    // and inside every relief window to a share of its half width. Every
+    // step is positive, so the walk reaches the cap after at most
+    // (last - first) over the least step; a step under half an ulp of the
+    // arc length would leave it standing, and is refused.
     let s: number = first;
     while (s < last) {
       const near: boolean = joints.some(
@@ -79,6 +92,10 @@ export namespace AutoMovieHumanDigitStations {
             : step,
         near ? JOINT_STEP : STEP,
       );
+      if (!(s + fine > s))
+        throw new RangeError(
+          `A digit's station step of ${fine} mm does not advance its arc length past ${s} mm`,
+        );
       s += fine;
       if (s < last) out.push(s);
     }

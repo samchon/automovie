@@ -140,15 +140,12 @@ export namespace AutoMovieHumanSkeletonLaw {
     const eyeMid: AutoMovieVector3Tuple = [0, 1, 2].map(
       (i: number): number =>
         eyes.reduce(
-          (a: number, e: IAutoMovieHumanEyeSeat): number => a + e.centre[i]!,
+          (a: number, e: IAutoMovieHumanEyeSeat): number =>
+            a + e.centre[i]!,
           0,
         ) / Math.max(1, eyes.length),
     ) as AutoMovieVector3Tuple;
-    const tmj: AutoMovieVector3Tuple = [
-      occiput[0] + 0.006 * S,
-      occiput[1] + 0.008 * S,
-      0,
-    ];
+    const tmj: AutoMovieVector3Tuple = [occiput[0] + 0.006 * S, occiput[1] + 0.008 * S, 0];
     const chin: AutoMovieVector3Tuple = [eyeMid[0], eyeMid[1] - 0.068 * S, 0];
     add("jaw", "head", tmj, chin, chin);
     for (const eye of eyes) {
@@ -182,8 +179,7 @@ export namespace AutoMovieHumanSkeletonLaw {
   ): IAutoMovieHumanSkeletonLaw.IOutput {
     const S: number = root.stature;
     const bones: IAutoMovieHumanCalibrationBone[] = [];
-    const hands: IAutoMovieHumanSkeletonLaw.IOutput["hands"] =
-      {} as IAutoMovieHumanSkeletonLaw.IOutput["hands"];
+    const hands: IAutoMovieHumanSkeletonLaw.IOutput["hands"] = {} as IAutoMovieHumanSkeletonLaw.IOutput["hands"];
     const add: (
       bone: string,
       parent: string | null,
@@ -223,17 +219,11 @@ export namespace AutoMovieHumanSkeletonLaw {
 
     // Trunk column: hip centres, de Leva trunk boundaries, neck base.
     const hipY: number = HIP * S;
-    const pelvis: AutoMovieVector3Tuple = lerp(
-      legs.left.hip,
-      legs.right.hip,
-      0.5,
-    );
+    const pelvis: AutoMovieVector3Tuple = lerp(legs.left.hip, legs.right.hip, 0.5);
     const span: number = CERVICALE * S;
 
     // The trunk's generating sagittal definition owns the column's axis.
-    const spineAt: (y: number) => AutoMovieVector3Tuple = (
-      y: number,
-    ): AutoMovieVector3Tuple =>
+    const spineAt: (y: number) => AutoMovieVector3Tuple = (y: number): AutoMovieVector3Tuple =>
       AutoMovieHumanTrunkLandmarks.axisAt(inputs.trunk, y);
     const lumbar: AutoMovieVector3Tuple = spineAt(hipY + OMPHALION * span);
     const thoracic: AutoMovieVector3Tuple = spineAt(hipY + XIPHION * span);
@@ -266,8 +256,7 @@ export namespace AutoMovieHumanSkeletonLaw {
 
       // Thumb: the carpometacarpal and metacarpophalangeal joints the hand's
       // anatomy places, the IP at its proximal phalanx's measured share.
-      const [cmc, mcp, ip, thumbTip]: AutoMovieVector3Tuple[] =
-        hand.thumb.centres;
+      const [cmc, mcp, ip, thumbTip]: AutoMovieVector3Tuple[] = hand.thumb.centres;
       add(`${side}ThumbMetacarpal`, `${side}Hand`, cmc!, mcp!);
       add(`${side}ThumbProximal`, `${side}ThumbMetacarpal`, mcp!, ip!);
       add(
@@ -278,8 +267,7 @@ export namespace AutoMovieHumanSkeletonLaw {
         thumbTip!,
       );
       for (const name of ["Index", "Middle", "Ring", "Little"] as const) {
-        const [mcp_, pip, dip, tip]: AutoMovieVector3Tuple[] =
-          hand.fingers[name].centres;
+        const [mcp_, pip, dip, tip]: AutoMovieVector3Tuple[] = hand.fingers[name].centres;
         add(`${side}${name}Proximal`, `${side}Hand`, mcp_!, pip!);
         add(`${side}${name}Intermediate`, `${side}${name}Proximal`, pip!, dip!);
         add(
@@ -293,9 +281,7 @@ export namespace AutoMovieHumanSkeletonLaw {
 
       // Leg, foot and the five toes, the foot moved under the stance.
       const own: IAutoMovieHumanLimbRest.ILeg = legs[side];
-      const moved: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
-        p: AutoMovieVector3Tuple,
-      ): AutoMovieVector3Tuple => [
+      const moved: (p: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
         p[0] + own.shift[0],
         p[1],
         p[2] + own.shift[1],
@@ -303,8 +289,8 @@ export namespace AutoMovieHumanSkeletonLaw {
 
       // The foot's own centres: the metatarsal heads and each toe's joints.
       const centres: IAutoMovieHumanFootBones.IBones = own.foot;
-      const toes: AutoMovieVector3Tuple[][] = centres.toes.map(
-        (t: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple[] => t.map(moved),
+      const toes: AutoMovieVector3Tuple[][] = centres.toes.map((t: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple[] =>
+        t.map(moved),
       );
       const ball: AutoMovieVector3Tuple = moved(centres.ball);
       const midfoot: AutoMovieVector3Tuple = lerp(own.ankle, ball, 0.4);
@@ -334,7 +320,6 @@ export namespace AutoMovieHumanSkeletonLaw {
     return { bones, hands };
   }
 }
-
 /** Fixed-size interpolation of the generating joint references. */
 const { lerp }: typeof AutoMovieHumanSkeletonChain =
   AutoMovieHumanSkeletonChain;

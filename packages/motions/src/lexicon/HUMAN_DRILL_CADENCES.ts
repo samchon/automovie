@@ -15,6 +15,14 @@ import type { IAutoMovieMotionHumanDrillRegulation } from "@automovie/interface"
  * - `us2021`: quick time 120 and double time 180 on 30 inches: US Army TC
  *   3-21.5, Drill and Ceremonies, the march's own `HumanGait.MARCH` and
  *   `HumanGait.DOUBLE`.
+ *
+ * `HumanGait.march` reads a row by its `regulation` and its time by name;
+ * the pace is every marcher's, as a regulation prescribes one step to all.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States each regulation's times and pace with their sources and what is provisional, and who reads the table.
+ * @evidence contracts/development/design.md#principled-representation One row per regulation name, its times in steps a minute by the regulation's own names and its pace in metres, the interface's record.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The table the march reads; the row type is interface's.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No body is named: the pace is the regulation's, the same for every marcher.
  */
 export const HUMAN_DRILL_CADENCES: Readonly<
   Record<

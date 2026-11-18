@@ -144,9 +144,15 @@ export namespace WorkoutBodyweight {
       base: "kneeling",
       anchor: "hips",
       pin: ["leftLowerLeg", "rightLowerLeg"],
+      // On all fours each hand and knee bears; reached level, the raised
+      // arm's hand and the reached leg's knee leave the floor, the right
+      // arm and the left leg first and the other pair on alternate
+      // repetitions.
       supports: [
         { part: "leftHand", kind: "plant" },
-        { part: "rightHand", kind: "plant" },
+        { part: "rightHand", kind: "plant", at: ["kneeling"] },
+        { part: "rightLowerLeg", kind: "bear" },
+        { part: "leftLowerLeg", kind: "bear", at: ["kneeling"] },
       ],
       alternate: true,
       enter: 2.4,
@@ -310,8 +316,8 @@ export namespace WorkoutBodyweight {
       pin: ["gripLeft", "gripRight"],
       bars: (body: IAutoMovieMotionHumanBody): number => body.measure.hipHeight,
       supports: [
-        { part: "leftHand", kind: "grip" },
-        { part: "rightHand", kind: "grip" },
+        { part: "leftHand", kind: "grip", prop: true },
+        { part: "rightHand", kind: "grip", prop: true },
       ],
       enter: 1,
       reps: 5,

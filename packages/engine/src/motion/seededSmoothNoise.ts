@@ -23,11 +23,11 @@ import type { IAutoMovieRandom } from "@automovie/interface";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Cites the construction, states the window's boundary property, the draw indices and the value range.
  * @evidence contracts/development/implementation.md#principled-implementation A seeded sum of sines (Perlin and Goldberg 1996) under a polynomial window whose derivatives vanish at the ends.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over terms, then the window.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and explicitly prepared reads share parameter admission, one sine-term formula and the polynomial window. The prepared reader owns only its fixed numeric spectrum; the direct path draws each term in its original order.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Non-positive durations, frequencies or term counts throw.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the term count.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Direct reads take O(T) time and constant auxiliary storage for T terms. Explicit preparation is constant until its first interior read, which draws and stores O(T) coefficients; subsequent reads retain the original T sine evaluations without repeated indexed random draws or fixed frequency/phase products.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work IAutoMovieRandom is a pure counter-based stream, so fixed stream indices and copied duration/frequency/term parameters define one spectrum. prepare snapshots those exact coefficients lazily; direct reads stay independent and every requested time evaluates its actual sine/window values without quantization or a result cache.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct reads retain nothing. One returned prepared reader owns its stream reference and at most two T-element numeric arrays plus a normalizer until the owning action releases it; no queried times, outputs, body, process or handle are retained.
  */
 export function seededSmoothNoise(
   random: IAutoMovieRandom,
@@ -36,6 +36,98 @@ export function seededSmoothNoise(
   maxFrequency: number,
   terms: number = 4,
 ): number {
+  admit(duration, maxFrequency, terms);
+  if (!(u > 0 && u < 1)) return 0;
+  let sum: number = 0;
+  for (let k: number = 0; k < terms; k++) {
+    const frequency: number = maxFrequency * (0.3 + 0.7 * random.float(2 * k));
+    const phase: number = 2 * Math.PI * random.float(2 * k + 1);
+    sum += oscillation(2 * Math.PI * frequency, phase, u, duration);
+  }
+  return windowed(sum, u, Math.sqrt(terms));
+}
+
+/**
+ * Explicit fixed-window spectrum preparation for repeated motion reads.
+ * The ordinary function remains the direct one-shot evaluation.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed-window reader, lazy admission/draw phases and unchanged direct entry.
+ * @evidence contracts/development/design.md#principled-representation A reader owns fixed spectral coefficients while each call supplies only normalized time; the random source's pure indexed contract proves coefficient equivalence.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface prepare serves standing-motion repeated samples and exposes no spectrum mutation, diagnostic or answer-cache control.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the original term count, frequencies, phase law, sine arithmetic and window rather than a sampled or fitted noise track.
+ */
+export namespace seededSmoothNoise {
+  /**
+   * Bind one pure indexed stream and fixed window. Parameter admission stays
+   * at the first read, including an endpoint; endpoints/outside/NaN consume
+   * no draws. The first interior read draws indices 0..2*terms-1 in their
+   * original order and copies the exact angular rates and phases.
+   *
+   * Each later interior read uses the original left-associated rate*u*duration
+   * expression, term addition order, polynomial window and normalization.
+   * It performs every sine evaluation, keeps no time/output history and
+   * returns an independent number. Releasing the reader releases its O(T)
+   * spectrum and fixed stream reference.
+   *
+   * @param random The same pure counter-based stream used by direct reads.
+   * @param duration Fixed window seconds, with the direct entry's domain.
+   * @param maxFrequency Fixed highest frequency in hertz.
+   * @param terms Fixed positive safe-integer term count, four by default.
+   * @returns A reader of normalized time with the direct function's behavior.
+   * @throws {Error} On the first read when the fixed parameters are invalid.
+   */
+  export function prepare(
+    random: IAutoMovieRandom,
+    duration: number,
+    maxFrequency: number,
+    terms: number = 4,
+  ): (u: number) => number {
+    let admitted: boolean = false;
+    let spectrum: ISpectrum | undefined;
+    return (u: number): number => {
+      if (!admitted) {
+        admit(duration, maxFrequency, terms);
+        admitted = true;
+      }
+      if (!(u > 0 && u < 1)) return 0;
+      if (spectrum === undefined) {
+        const rates: number[] = [];
+        const phases: number[] = [];
+        for (let k: number = 0; k < terms; ++k) {
+          const frequency: number =
+            maxFrequency * (0.3 + 0.7 * random.float(2 * k));
+          rates.push(2 * Math.PI * frequency);
+          phases.push(2 * Math.PI * random.float(2 * k + 1));
+        }
+        spectrum = { rates, phases, normalizer: Math.sqrt(terms) };
+      }
+      let sum: number = 0;
+      for (let k: number = 0; k < terms; ++k)
+        sum += oscillation(
+          spectrum.rates[k]!,
+          spectrum.phases[k]!,
+          u,
+          duration,
+        );
+      return windowed(sum, u, spectrum.normalizer);
+    };
+  }
+}
+
+/** Copied spectral inputs; no current or previous motion value is stored. */
+interface ISpectrum {
+  /** Exact 2*pi*frequency products in original term order, radians/second. */
+  rates: readonly number[];
+
+  /** Exact indexed phase products in original term order, radians. */
+  phases: readonly number[];
+
+  /** The direct function's square root of the term count. */
+  normalizer: number;
+}
+
+/** Keep the direct entry's parameter domain and first-read refusal text. */
+function admit(duration: number, maxFrequency: number, terms: number): void {
   if (
     !(duration > 0) ||
     !(maxFrequency > 0) ||
@@ -44,13 +136,20 @@ export function seededSmoothNoise(
     throw new Error(
       "Smooth noise needs a positive duration, frequency and term count",
     );
-  if (!(u > 0 && u < 1)) return 0;
-  let sum: number = 0;
-  for (let k: number = 0; k < terms; k++) {
-    const frequency: number = maxFrequency * (0.3 + 0.7 * random.float(2 * k));
-    const phase: number = 2 * Math.PI * random.float(2 * k + 1);
-    sum += Math.sin(2 * Math.PI * frequency * u * duration + phase);
-  }
+}
+
+/** Preserve the original multiplication grouping for every actual term. */
+function oscillation(
+  rate: number,
+  phase: number,
+  u: number,
+  duration: number,
+): number {
+  return Math.sin(rate * u * duration + phase);
+}
+
+/** One owner of the original contact-preserving window and normalization. */
+function windowed(sum: number, u: number, normalizer: number): number {
   const bump: number = 16 * u * u * (1 - u) * (1 - u);
-  return (bump * bump * sum) / Math.sqrt(terms);
+  return (bump * bump * sum) / normalizer;
 }

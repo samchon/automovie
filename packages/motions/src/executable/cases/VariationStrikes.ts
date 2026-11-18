@@ -99,7 +99,8 @@ export namespace VariationStrikes {
     const narrow: number = VariationSeries.dispersion(offsets(expert));
     verdicts.push({
       name: "strike point dispersion ratio",
-      passed: wide >= VariationSeries.RATIO * narrow,
+      // A novice whose strike points do not spread at all shows no variation.
+      passed: wide > 0 && wide >= VariationSeries.RATIO * narrow,
       detail: `${(1000 * wide).toFixed(1)} mm at proficiency 0, ${(1000 * narrow).toFixed(1)} mm at 1, ratio ${(wide / narrow).toFixed(2)}; bound ${VariationSeries.RATIO}`,
     });
     verdicts.push(...defended(body, struck));

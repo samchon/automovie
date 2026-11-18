@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
@@ -268,7 +269,7 @@ export namespace putDownTarget {
    * The prop's fixed placing frame, or undefined for a free world placement.
    *
    * @param context The authored destination, body, props and entry second.
-   * @param pose The body at that entry, including a prospective grasp's stance.
+   * @param pose The body at that entry, including a prospective grasp's stance, or its synchronous supplier evaluated only for a bone-mounted destination.
    * @returns The placing frame, world metres and a unit quaternion.
    * @throws {HumanRefusal} On onto when either named socket is absent.
    *
@@ -276,8 +277,8 @@ export namespace putDownTarget {
    * @evidence contracts/development/implementation.md#principled-implementation Composes a worn offset with its posed bone; for a socket placement composes the receiver frame and socket, then the inverse of the placed prop's own socket.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The bone case, the receiving socket, then the inverse source socket.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each socket is read from its prop's posed affordances, rather than substituting its rest frame.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward-kinematics read for a worn destination, or one linear affordance lookup on each of two props.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanPropFrame's rigid composition and the props' articulation owners.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A bone destination evaluates its pose supplier once and demands only that bone's ancestry; prop-socket destinations never evaluate the supplier and retain the original affordance lookups/rigid composition.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses HumanPropFrame's rigid composition and articulation owners; lazy acquisition shares no pose result and simply omits a body solve when the chosen destination never reads a body.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure reader that retains nothing.
    */
   export function of(
@@ -285,15 +286,16 @@ export namespace putDownTarget {
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
       "params" | "body" | "prop" | "start"
     >,
-    pose: IAutoMoviePose,
+    pose: IAutoMoviePose | (() => IAutoMoviePose),
   ): IAutoMovieRigidTransform | undefined {
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
-      context.params.onto;
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] = context.params.onto;
     if (onto === undefined) {
       const on: IAutoMovieMotionHumanPutDown.IParams["on"] = context.params.on;
       if (on === undefined) return undefined;
       return HumanPropFrame.compose(
-        HumanPropFrame.bone(poseBones(context.body, pose).get(on.bone)!),
+        HumanPropFrame.bone(poseBones(context.body,
+          typeof pose === "function" ? pose() : pose, undefined,
+          new Set<AutoMovieHumanoidBone>([on.bone])).get(on.bone)!),
         on.offset,
       );
     }

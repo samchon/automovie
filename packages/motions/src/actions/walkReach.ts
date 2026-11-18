@@ -1,27 +1,29 @@
 import {
   DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Vector3,
   bracketedRoot,
   minimumJerk,
+  preparePoseResolution,
   smoothMinimum,
   wrapDegrees,
 } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareWalkReachSwing } from "./prepareWalkReachSwing";
 import type { walkFoot } from "./walkFoot";
+import { walkHipTwist } from "./walkHipTwist";
 import { walkLeg } from "./walkLeg";
+import { walkReachFeet } from "./walkReachFeet";
+import { walkReachShort } from "./walkReachShort";
 import { walkReachStance } from "./walkReachStance";
 
 /**
@@ -30,7 +32,7 @@ import { walkReachStance } from "./walkReachStance";
  * are enforced by IK, and the root moves so the IK can meet them.
  *
  * `ground` settles the pelvis against the stances. It lowers the root until
- * each stance's ankle is reached with the knee at least `KNEE` degrees bent
+ * each stance's ankle is reached with the knee at least `walkReachShort.KNEE` degrees bent
  * and turns the pelvis no further than `TWIST` from each stance's foot
  * (`pelvis`). Each foot claims a lowering (`short`), signed, so a leg with
  * slack claims less than none. A swinging foot claims through the stance it
@@ -78,6 +80,9 @@ export namespace walkReach {
     hips: Record<"left" | "right", IAutoMovieVector3>;
   }
 
+  /** A requested heading, or the pelvis already evaluated at the same stance. */
+  type PlannedPelvis = number | IPelvis;
+
   /** The pelvis settled against the stances. */
   export interface IGround {
     /** The heading, degrees. */
@@ -105,33 +110,19 @@ export namespace walkReach {
    * @param foot The foot.
    * @returns 1 in stance, fading to 0 in mid-swing.
    */
-  export function weight(
-    foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
-  ): number {
+  export function weight(foot: IAutoMovieMotionHumanWalkFoot.IScheduled): number {
     if (foot.swing === undefined) return 1;
     const u: number = foot.swing.u;
     return u < 0.5
-      ? 1 - minimumJerk(Math.min(1, u / FADE)).s
-      : minimumJerk(Math.max(0, (u - (1 - FADE)) / FADE)).s;
+      ? 1 - minimumJerk.share(Math.min(1, u / FADE))
+      : minimumJerk.share(Math.max(0, (u - (1 - FADE)) / FADE));
   }
 
-  /**
-   * The lowering a leg asks of the root to reach an ankle with the knee
-   * `KNEE` bent (`resolveHumanPosture.short`).
-   *
-   * @param body The body.
-   * @param hip The hip joint, world metres.
-   * @param ankle The ankle, world metres.
-   * @returns Metres, negative by the leg's slack and no less than a metre
-   *   under none, which claims as little as any slack does.
-   */
-  export function short(
-    body: IAutoMovieMotionHumanBody,
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-  ): number {
-    return Math.max(-1, resolveHumanPosture.short(body, hip, ankle, KNEE));
-  }
+  /** The lowering a leg asks of the root at the knee floor (`walkReachShort.short`). */
+  export const short: typeof walkReachShort.short = walkReachShort.short;
+
+  /** Prepare the fixed body's lowering claims (`walkReachShort.prepare`). */
+  export const prepareShort: typeof walkReachShort.prepare = walkReachShort.prepare;
 
   /**
    * Turn the pelvis toward its stances: no further than `TWIST` from each
@@ -144,6 +135,7 @@ export namespace walkReach {
    * @param planned The unconstrained heading, degrees.
    * @param hips The pelvis joint's clinical angles, degrees.
    * @param feet Each foot as scheduled.
+   * @param resolution Optional exact FK reader borrowed from this synchronous descent construction; the returned points never retain it.
    * @returns The heading, the pivots and the hip joints under that root.
    */
   export function pelvis(
@@ -151,10 +143,42 @@ export namespace walkReach {
     root: IAutoMovieVector3,
     planned: number,
     hips: readonly [number, number, number],
-    feet: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
-    >,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
+    resolution?: ReturnType<typeof preparePoseResolution>,
   ): IPelvis {
+    const { yaw, pivots }: Pick<IPelvis, "yaw" | "pivots"> = turn(planned, feet);
+    return {
+      yaw,
+      pivots,
+      hips: hipJoints(
+        body,
+        root,
+        resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
+        hips,
+        resolution,
+      ),
+    };
+  }
+
+  /**
+   * Read the pelvis heading and stance pivots before any root or hip placement.
+   *
+   * @param planned The unconstrained heading, degrees.
+   * @param feet Each actual scheduled foot and its swing share.
+   * @returns The same heading and toe-pad pivots used by pelvis, in degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States heading/pivot units and the scheduled-foot dependency; root and pelvis-joint angles cannot affect this orientation decision.
+   * @evidence contracts/development/implementation.md#principled-implementation Applies each claiming foot's original weighted hip-twist band, heel-rise pivot share and two-band gap rule in the same left/right order as pelvis.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One orientation owner serves full pelvis placement and contact-window pivot reads, separating the later hip FK that only full placement consumes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every heading/pitch, weight, strict comparison, wrap, twist and heel-rise coefficient; no contact sample or bound changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work for two feet; pivot-only contact sampling omits unread root-path evaluation, pelvic-angle trigonometry and hip FK while retaining all actual stance samples.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Full placement and pivot-only reading share this exact formula owner; every distinct scheduled-foot pair is actually evaluated and no completed orientation is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns only two local bands and one fresh pivot record per call; no body, pose, query history or external resource is retained.
+   */
+  export function turn(
+    planned: number,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
+  ): Pick<IPelvis, "yaw" | "pivots"> {
     const pivots: Record<"left" | "right", number> = { left: 0, right: 0 };
     let yaw: number = planned;
     // Each claiming foot's band: its pivoted heading, near the planned one,
@@ -165,12 +189,9 @@ export namespace walkReach {
       const w: number = weight(feet[side]);
       if (w <= 0) continue;
       const rotation: IAutoMovieQuaternion = feet[side].placement.rotation;
-      const heading: number = HumanFoot.heading(rotation);
-      const off: number = wrapDegrees(planned - heading);
-      const excess: number =
-        Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
-      pivots[side] =
-        excess * Math.min(1, Math.max(0, -HumanFoot.pitch(rotation) / HEEL_UP));
+      const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(rotation);
+      const heading: number = direction.heading;
+      pivots[side] = pivot(planned, direction);
       bands.push({
         centre: planned + wrapDegrees(heading + pivots[side] - planned),
         half: TWIST / w,
@@ -179,10 +200,7 @@ export namespace walkReach {
       if (Math.abs(turned) > TWIST / w)
         yaw -= turned - (Math.sign(turned) * TWIST) / w;
     }
-    // Feet further apart than their bands, as in a stepping turn, hold the
-    // pelvis in the gap between the bands, at the planned heading as near as
-    // the gap allows, so the pelvis turns on with the plan as the claims pass
-    // from one foot to the other.
+    // Disjoint stance bands hold the pelvis at the nearest heading in their gap.
     if (bands.length === 2) {
       const a: IBand =
         bands[0]!.centre <= bands[1]!.centre ? bands[0]! : bands[1]!;
@@ -191,16 +209,35 @@ export namespace walkReach {
       const lower: number = b.centre - b.half;
       if (upper < lower) yaw = Math.min(lower, Math.max(upper, planned));
     }
-    return {
-      yaw,
-      pivots,
-      hips: hipJoints(
-        body,
-        root,
-        resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
-        hips,
-      ),
-    };
+    return { yaw, pivots };
+  }
+
+  /**
+   * One scheduled foot's toe pivot, in degrees. Contact classification only
+   * needs this foot, whereas pelvis heading depends on both stance bands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the angle's unit and independent stance dependency.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same claim, heel pitch and permitted hip twist as the full pelvis evaluation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One foot's claim and direction feed the shared pivot formula.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the declared twist and heel range unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work, with no opposite-foot, root or FK evaluation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The contact-window reader shares its pivot formula with turn.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no value or caller state.
+   */
+  export function footPivot(
+    planned: number,
+    foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
+  ): number {
+    return weight(foot) > 0
+      ? pivot(planned, HumanFoot.headingPitch(foot.placement.rotation))
+      : 0;
+  }
+
+  /** The requested toe rotation after consuming the available hip twist. */
+  function pivot(planned: number, direction: ReturnType<typeof HumanFoot.headingPitch>): number {
+    const off: number = wrapDegrees(planned - direction.heading);
+    const excess: number = Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
+    return excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));
   }
 
   /**
@@ -208,7 +245,7 @@ export namespace walkReach {
    *
    * @param body The body.
    * @param root The unconstrained root, world metres.
-   * @param planned The unconstrained heading, degrees.
+   * @param planned The unconstrained heading in degrees or the pelvis already evaluated at this stance.
    * @param hips The pelvis joint's clinical angles, degrees.
    * @param feet Each foot as scheduled.
    * @param claims The lowering a foot claims in place of its faded stance's,
@@ -217,56 +254,93 @@ export namespace walkReach {
    *   degrees; `walkLeg.ROCKER` when absent. A gait gives less while it
    *   starts and stops: a foot that is not stepping keeps its heel down until
    *   its ankle can bend no further.
+   * @param resolution Optional exact FK loan from this synchronous person observation; only the actual hip read borrows it.
+   * @param tilt The pelvis's tilt from upright under its settled heading, given the unlowered root, that heading and the upright hip joints (`walkReachHeld.tilt`): its world rotation and the hip joints it carries. A caller that shows the pelvis tilted (a trunk tipped about the hips) gives it, so the lowering is settled on the hip joints as shown; upright when absent.
+   * @param dorsal Each planted foot's dorsal limit, degrees, by the weight it bears (`walkLeg.dorsal`); an unloaded foot's for a side absent.
+   * @param step The hip's largest vertical step a frame of the caller's planned course, metres, which eases each leg's reach over a soft band (`walkReachShort.prepare`); a hard reach when absent.
    * @returns The pelvis and each stance as reached.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States frames, units, claim replacement, rocker onset, the tilted pelvis and both returned stances.
+   * @evidence contracts/development/implementation.md#principled-implementation Solves the smooth maximum's fixed point by a bracketed root with every taking foot's whole claim, once for each set of fading feet kept or left out, and runs between those lowerings by the feet's weights (multilinear), so the lowering is continuous in a weight: a weight inside the fixed point is ill-posed where a stance trades heel rise for lowering at a slope of one. Only stances whose claims read their ankles participate in trial placement, and deferred endpoints fit at that same final root when read.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pelvis orientation and fixed weights precede trial placement, the scalar root solve and final endpoint completion.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the claim of a whole stance, the bracket expansion, the root tolerance and the foot ranges; a weight of one or none gives the single lowering it gave before, and inactive stances only skip trials whose residual cannot read them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most one root solve when no foot is fading, two with one fading foot and four with both. A fixed lowering is returned directly when no stance in the current mask depends on it, or a tested bracket endpoint already satisfies it. Each root trial fits only the participating bearing stances. Body-only short-reach preparation is lazy behind an unnamed bearing claim. Inactive final endpoints fit only if read. A bearing stance reuses a reading at the same lowering within the solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Stance weights and claim ownership remain fixed within one ground solve, so its root solves and their trials share them and the prepared stance readers without sharing across input postures.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned ground result owns two endpoint records and one deferred final-fit callback until the query releases it; no time history or global cache is retained.
    */
   export function ground(
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
-    planned: number,
+    planned: PlannedPelvis,
     hips: readonly [number, number, number],
-    feet: Readonly<
-      Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>
-    >,
+    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>>,
     claims: Readonly<Partial<Record<"left" | "right", number>>> = {},
     rocker: number = walkLeg.ROCKER,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    tilt?: (
+      root: IAutoMovieVector3,
+      yaw: number,
+      joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
+    ) => { rotation: IAutoMovieQuaternion; hips: Record<"left" | "right", IAutoMovieVector3> },
+    dorsal: Readonly<Partial<Record<"left" | "right", number>>> = {},
+    step?: number,
   ): IGround {
     const {
       yaw,
       pivots,
-      hips: joints,
-    }: IPelvis = pelvis(body, root, planned, hips, feet);
-    const hip = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
+      hips: upright,
+    }: IPelvis = typeof planned === "number"
+      ? pelvis(body, root, planned, hips, feet, resolution === undefined ? undefined : prepareHumanPoseResolution.read(resolution))
+      : planned;
+
+    // The tilted hip joints translate uniformly with the lowering.
+    const tilted: ReturnType<NonNullable<typeof tilt>> | undefined = tilt?.(root, yaw, upright);
+    const joints: Record<"left" | "right", IAutoMovieVector3> = tilted?.hips ?? upright;
+    const hip: (side: "left" | "right", drop: number) => IAutoMovieVector3 = (side: "left" | "right", drop: number): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = joints[side];
       return { x: p.x, y: p.y - drop, z: p.z };
     };
-    const placed = {} as Record<"left" | "right", walkFoot.IEnd>;
-    const contacts = {} as Record<"left" | "right", IAutoMovieVector3>;
-    const place = (drop: number): void => {
+    const weights: Record<"left" | "right", number> = {
+      left: weight(feet.left),
+      right: weight(feet.right),
+    };
+    let short: ReturnType<typeof prepareShort> | undefined;
+    const bearing: Record<"left" | "right", boolean> = {
+      left: claims.left === undefined && weights.left > 0,
+      right: claims.right === undefined && weights.right > 0,
+    };
+    let share: Record<"left" | "right", number> = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
+    const placed: IGround["feet"] = {} as IGround["feet"];
+    const contacts: IGround["contacts"] = {} as IGround["contacts"];
+    const readers: Partial<Record<"left" | "right", ReturnType<typeof walkReachStance.prepare>>> = {};
+    const read: Record<"left" | "right", Map<number, { end: walkFoot.IEnd; contact: IAutoMovieVector3 }>> = { left: new Map(), right: new Map() };
+    const place: (drop: number, inactive?: boolean, requested?: "left" | "right") => void = (drop: number, inactive: boolean = false, requested?: "left" | "right"): void => {
       for (const side of SIDES) {
-        const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } =
-          walkReachStance.of(
-            body,
-            side,
-            feet[side],
-            hip(side, drop),
-            yaw,
-            pivots[side],
-            rocker,
-          );
+        if (requested !== undefined && side !== requested) continue;
+        // A named swing claim, or a foot with no stance weight, does not
+        // read its stance during the root solve. Place it only at the final
+        // root, where the caller may need the returned endpoint.
+        if (bearing[side] === inactive) continue;
+        if (!inactive && !(share[side] > 0)) continue;
+        // A bearing stance's reading is its hip's alone, so a lowering asked again (drop 0 under each fading mask) takes it.
+        const known: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } | undefined = inactive ? undefined : read[side].get(drop);
+        const out: { end: walkFoot.IEnd; contact: IAutoMovieVector3 } = known ??
+          (readers[side] ??= walkReachStance.prepare(body, side, feet[side], yaw, pivots[side], rocker, dorsal[side]))(hip(side, drop));
+        if (!inactive && known === undefined) read[side].set(drop, out);
         placed[side] = out.end;
         contacts[side] = out.contact;
       }
     };
-    // A fading foot's claim runs from its stance's to `CLAIM` under none.
-    const claim = (side: "left" | "right"): number => {
+    // A foot claims its stance's lowering, or `CLAIM` under none when it
+    // has no share in the lowering being solved.
+    const claim: (side: "left" | "right") => number = (side: "left" | "right"): number => {
       const named: number | undefined = claims[side];
       if (named !== undefined) return named;
-      const w: number = weight(feet[side]);
-      return w <= 0
-        ? -CLAIM
-        : w * short(body, joints[side], placed[side].ankle) + (w - 1) * CLAIM;
+      if (!(share[side] > 0)) return -CLAIM;
+      if (short === undefined) short = prepareShort(body, step);
+      return short(joints[side], placed[side].ankle);
     };
-    const lowering = (): number =>
+    const lowering: () => number = (): number =>
       -smoothMinimum(
         smoothMinimum(-claim("left"), -claim("right"), CLAIM),
         0,
@@ -279,40 +353,70 @@ export namespace walkReach {
     // stretched leg stands at its straight knee, where the shank's lean turns
     // on a square root; the lowering that asks for itself keeps every knee
     // bent, so none of that reaches the root.
-    const asked = (drop: number): number => {
+    const asked: (drop: number) => number = (drop: number): number => {
       place(drop);
       return lowering();
     };
-    const first: number = asked(0);
-    let drop: number = 0;
-    if (first > 0) {
+    const settle: () => number = (): number => {
+      const first: number = asked(0);
+      if (!(first > 0)) return 0;
+      // Without a participating stance, neither claim depends on drop.
+      if (share.left === 0 && share.right === 0) return first;
+      // Hips lowered by the first claim claim no more than it, so `high` is
+      // already the bracket's upper end; the doublings guard a claim that
+      // rises with the lowering, as a stance the heel cannot relieve may.
       let high: number = first;
       let over: number = asked(high) - high;
-      for (let k: number = 0; k < 8 && over > 0; k++) {
+      for (let k: number = 0; k < DOUBLINGS && over > 0; k++) {
         high *= 2;
         over = asked(high) - high;
       }
-      const ends: ReadonlyMap<number, number> = new Map([
-        [0, first],
-        [high, over],
-      ]);
-      drop =
-        over > 0
-          ? high
-          : bracketedRoot(
-              (d: number): number => ends.get(d) ?? asked(d) - d,
-              0,
-              high,
-              FINE,
-            );
-      place(drop);
+      if (over >= 0) return high;
+      return bracketedRoot(
+        (d: number): number => {
+          if (d === 0) return first;
+          if (d === high) return over;
+          return asked(d) - d;
+        },
+        0,
+        high,
+        FINE,
+      );
+    };
+
+    // A fading foot's weight is its share of the settled lowering, not a
+    // factor on its claim: a stance trades its heel's rise for the hips'
+    // lowering one for one, so over that trade a claim follows the lowering
+    // at a slope of one and a factor a little under one on it would carry
+    // the fixed point from one end of the trade to the other at once. The
+    // lowering with the foot's whole claim and the lowering without it are
+    // each well placed, and the weight runs between the two, continuous in
+    // the weight by construction and theirs at its two ends.
+    const fading: ("left" | "right")[] = SIDES.filter(
+      (side: "left" | "right"): boolean => bearing[side] && weights[side] < 1,
+    );
+    let drop: number = 0;
+    for (let mask: number = 0; mask < 1 << fading.length; mask++) {
+      let part: number = 1;
+      share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
+      fading.forEach((side: "left" | "right", i: number): void => {
+        const kept: boolean = (mask & (1 << i)) !== 0;
+        share[side] = kept ? 1 : 0;
+        part *= kept ? weights[side] : 1 - weights[side];
+      });
+      drop += part * settle();
     }
+    share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };
+    place(drop);
+    const completed: Pick<IGround, "feet" | "contacts"> = walkReachFeet(
+      { feet: placed, contacts }, bearing, (side: "left" | "right"): void => place(drop, true, side),
+    );
     return {
       yaw,
       root: { ...root, y: root.y - drop },
       hips: { left: hip("left", drop), right: hip("right", drop) },
-      feet: placed,
-      contacts,
+      ...completed,
+      ...(tilted === undefined ? {} : { pelvis: tilted.rotation }),
     };
   }
   /**
@@ -338,161 +442,56 @@ export namespace walkReach {
     foot: IAutoMovieMotionHumanWalkFoot.IFoot,
     share?: number,
   ): walkFoot.IEnd {
-    const m = body.measure;
-    const h: IAutoMovieVector3 = settled.hips[side];
-    // The hip's extension is read in the pelvis's frame, so a pelvis tilted
-    // with the trunk counts.
-    const frame: IAutoMovieQuaternion =
-      settled.pelvis ??
-      resolveHumanPosture.heading({ yaw: settled.yaw, pitch: 0, roll: 0 });
-    const limit: number = Math.sqrt(
-      m.thigh ** 2 +
-        m.shank ** 2 +
-        2 * m.thigh * m.shank * Math.cos((KNEE * Math.PI) / 180),
-    );
-    let v: IAutoMovieVector3 = Vector3.subtract(foot.placement.ankle, h);
-    const d: number = Vector3.length(v);
-    if (d > limit) v = Vector3.scale(v, limit / d);
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(frame),
-      v,
-    );
-    // The leg is read in its own plane, the hip's abduction carrying it
-    // aside by `beta`: its reach below the hip there is `down`, so the
-    // extension's test and its correction see the same leg as `behind`.
-    const down: number = Math.hypot(local.x, local.y);
-    const beta: number = Math.atan2(local.x, -local.y);
-    const extension: number =
-      (EXTENSION * Math.PI) / 180 + walkLeg.behind(body, Vector3.length(v));
-    if (local.y < 0 && Math.atan2(-local.z, down) > extension) {
-      // Project the direction onto the extension cone on the same sphere:
-      // the knee's angle stays, and the ankle changes continuously as it
-      // reaches the cone. Keeping the rear coordinate instead changed the
-      // radius, then jumped where the shank could no longer keep it.
-      const reach: number = Math.hypot(local.z, down);
-      const y: number = -reach * Math.cos(extension);
-      v = Quaternion.rotateVector(frame, {
-        x: -y * Math.sin(beta),
-        y: y * Math.cos(beta),
-        z: -reach * Math.sin(extension),
-      });
-    }
-    let ankle: IAutoMovieVector3 = Vector3.add(h, v);
-    let rotation: IAutoMovieQuaternion = foot.placement.rotation;
-    const off: number = wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
-    if (Math.abs(off) > TWIST)
-      rotation = HumanFoot.rotation(
-        settled.yaw + Math.sign(off) * TWIST,
-        HumanFoot.pitch(rotation),
-      );
-
-    // The ankle comes in under the hip until the leg's line leans no further
-    // to the side of the foot than the ankle inverts or everts.
-    const across: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: HumanFoot.heading(rotation) },
-      { x: 1, y: 0, z: 0 },
-    );
-    const aside: number =
-      (ankle.x - h.x) * across.x + (ankle.z - h.z) * across.z;
-    const most: number =
-      Math.tan((SIDE * Math.PI) / 180) * Math.max(0, h.y - ankle.y);
-    if (Math.abs(aside) > most) {
-      const shift: number = aside - Math.sign(aside) * most;
-      ankle = {
-        x: ankle.x - shift * across.x,
-        y: ankle.y,
-        z: ankle.z - shift * across.z,
-      };
-    }
-
-    // The foot keeps the clearance its swing gave it: where the ankle's range
-    // turns it, the ankle rises so its lowest point stays as high over the
-    // floor as the swing put it, never on the floor while it travels. Lifting
-    // the foot leans its shank further, so the pitch is held inside the
-    // ankle's range again after each lift.
-    const lowest = (placement: IAutoMovieMotionHumanFoot.IPlacement): number =>
-      Math.min(
-        HumanFoot.point(body, side, "toe", placement, foot.toes).y,
-        HumanFoot.point(body, side, "heel", placement).y,
-      );
-    const clear: number = Math.max(0, lowest(foot.placement));
-    for (let k: number = 0; k < 8; k++) {
-      rotation = walkLeg.ankleRange(body, h, ankle, rotation);
-      const low: number = lowest({ ankle, rotation });
-      if (low >= clear - 1e-6) break;
-      ankle = { ...ankle, y: ankle.y + clear - low };
-    }
-    if (share === undefined) return { ankle, rotation, toes: foot.toes };
-
-    // The ranges come in after lift-off and go before landing, so a swing
-    // leaves and joins its stances where they stand; the clearance holds
-    // throughout.
-    const held: number = Math.min(
-      minimumJerk(Math.min(1, Math.max(0, share) / FADE)).s,
-      minimumJerk(Math.min(1, Math.max(0, 1 - share) / FADE)).s,
-    );
-    let joined: IAutoMovieVector3 = Vector3.lerp(
-      foot.placement.ankle,
-      ankle,
-      held,
-    );
-    const turned: IAutoMovieQuaternion = Quaternion.slerp(
-      foot.placement.rotation,
-      rotation,
-      held,
-    );
-    const low: number = lowest({ ankle: joined, rotation: turned });
-    if (low < clear) joined = { ...joined, y: joined.y + clear - low };
-    return { ankle: joined, rotation: turned, toes: foot.toes };
+    return prepareSwing(body, side)(settled, foot, share);
   }
 
+  /**
+   * Prepare fixed body and foot geometry for repeated swing-range reads.
+   *
+   * @param body The action's unchanged body.
+   * @param side The swinging foot.
+   * @returns This law's same swing constraints with its fixed bounds prepared.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed body/side and the returned settled-pelvis, foot and optional-share reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the unchanged sphere/cone, hip/ankle and clearance rules to one prepared owner with this law's exact named bounds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound record and one prepared swing owner; raw swing delegates here too.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same knee, extension, side, twist and fade values govern raw and prepared paths, with every varying input evaluated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation per side; repeated reads retain the bounded solver work while sharing body-only reach and socket terms.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A reader is valid for the unchanged body and side only; no pelvis, foot or share result is cached.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action releases one reader per used side with its plan, without growing query history.
+   */
+  export function prepareSwing(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): ReturnType<typeof prepareWalkReachSwing> {
+    return prepareWalkReachSwing(body, side, {
+      knee: walkReachShort.KNEE, extension: EXTENSION, side: SIDE, twist: TWIST, fade: FADE,
+    });
+  }
   /** Both feet. */
   export const SIDES: readonly ["left", "right"] = ["left", "right"];
 
   /** The width, metres, to which the root's lowering is solved: a nanometre, under which its error adds less than a micrometre per second to a rate read over a frame. */
   const FINE: number = 1e-9;
 
-  /** The largest extension, degrees, of a leg's thigh, swinging or planted, 2° inside the hip's 30° extension (DEFAULT_HUMANOID_ROM); the ankle trails further by the knee's bend. */
-  export const EXTENSION: number = 28;
+  /** The largest extension, degrees, of a leg's thigh, swinging or planted: the hip's extension in the range table (`DEFAULT_HUMANOID_ROM`, 30° on either hip, the lesser taken), kept inside by the margin a foot keeps inside its ankle's range (`walkLeg.ANKLE`); the ankle trails further by the knee's bend. */
+  export const EXTENSION: number = Math.min(
+    ...(["leftUpperLeg", "rightUpperLeg"] as const).map((bone: "leftUpperLeg" | "rightUpperLeg"): number => {
+      const flexion: IAutoMovieAngleRange | null | undefined = DEFAULT_HUMANOID_ROM[bone]?.flexion;
+      if (flexion === null || flexion === undefined)
+        throw new Error(`The range-of-motion table gives ${bone} no flexion`);
+      return -flexion.min;
+    }),
+  ) - walkLeg.ANKLE;
 
-  /** The furthest a swinging leg's line leans to the side of its foot, degrees: the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), the same bound a stance stands inside, so a swing joins its stances where they are. */
+  /** The furthest a swinging leg's line leans to the side of its foot, degrees: the ankle's inversion and eversion (`walkReachStance.SIDE`), the same bound a stance stands inside, so a swing joins its stances where they are. */
   const SIDE: number = walkReachStance.SIDE;
 
-  /** The least knee flexion of a planted or reaching leg, degrees (provisional): a walking knee never locks straight. */
-  const KNEE: number = 10;
+  /** The largest heading, degrees, a foot may keep from the pelvis: the hip's own internal and external rotation (`DEFAULT_HUMANOID_ROM`, 45° either way, `walkHipTwist`); a turn that asks more is taken by spinning on the ball of the foot (a spin turn, Hase and Stein 1999). */
+  export const TWIST: number = walkHipTwist(DEFAULT_HUMANOID_ROM);
 
-  /**
-   * The hips' rotation in a range-of-motion table: the least of either
-   * hip's internal and external rotation, degrees.
-   *
-   * @param rom The table.
-   * @returns Degrees, the lesser way of the stiffer hip.
-   * @throws {Error} When the table gives a hip no rotation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hip's twist interval, the smaller of its two sides, the smaller hip.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read per hip.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A table without a hip's rotation is refused, never read as no limit.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once, into `TWIST`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function hipTwist(rom: typeof DEFAULT_HUMANOID_ROM): number {
-    return Math.min(
-      ...(["leftUpperLeg", "rightUpperLeg"] as const).map(
-        (bone: "leftUpperLeg" | "rightUpperLeg"): number => {
-          const twist: IAutoMovieAngleRange | null | undefined =
-            rom[bone]?.twist;
-          if (twist === null || twist === undefined)
-            throw new Error(`The range-of-motion table gives ${bone} no twist`);
-          return Math.min(-twist.min, twist.max);
-        },
-      ),
-    );
-  }
-
-  /** The largest heading, degrees, a foot may keep from the pelvis: the hip's own internal and external rotation (DEFAULT_HUMANOID_ROM, 45° either way, `hipTwist`); a turn that asks more is taken by spinning on the ball of the foot (a spin turn, Hase and Stein 1999). */
-  export const TWIST: number = hipTwist(DEFAULT_HUMANOID_ROM);
+  /** A cap on the doublings of the root's bracket past the first claim, a guard and not a tolerance: claims that do not rise as the hips lower never enter the loop (see `ground`), and 2⁸ = 256 times the first claim bounds the guard's cost; a claim still over its lowering after them takes the bracket's end as its lowering. */
+  const DOUBLINGS: number = 8;
 
   /** Pitch, degrees toes-down, at which a planted foot's heel is far enough up to take the whole pivot turn on its toe pad (provisional). */
   const HEEL_UP: number = 30;

@@ -16,9 +16,10 @@ import type {
 export namespace gestureStrokeTables {
   /**
    * A gesture's timing: cycles in the stroke and the time of one cycle, a
-   * named pause or a pause scaled (the seconds each resolves to are the ones
-   * the gestures shipped with; the clap's three beats a second is no scaled
-   * pause and stays explicit).
+   * named pause or a pause scaled (provisional, read from no measured source
+   * except the rates `gestureStroke` and `gestureJoints` cite; the clap's
+   * four beats a second, free applause's rate, is no scaled pause and stays
+   * explicit, and so is the bow's hold at its deepest, Kawabata et al.'s).
    */
   export const RHYTHM: Readonly<
     Record<
@@ -35,7 +36,7 @@ export namespace gestureStrokeTables {
     beckon: { cycles: 2, period: { pause: "beat", scale: 1.5 } },
     clap: {
       cycles: 4,
-      period: { seconds: 1 / 3, source: "provisional: everyday-gesture-clap" },
+      period: { seconds: 1 / 4, source: "Neda et al. 2000, Nature 403:849, Fig. 1: free applause near 4 Hz" },
     },
     rubHands: { cycles: 3, period: { pause: "beat", scale: 0.875 } },
     palmsTogether: { cycles: 1, period: "long" },
@@ -46,7 +47,10 @@ export namespace gestureStrokeTables {
     shrug: { cycles: 1, period: { pause: "long", scale: 0.875 } },
     nod: { cycles: 2, period: { pause: "beat", scale: 1.25 } },
     shakeHead: { cycles: 3, period: { pause: "beat", scale: 1.125 } },
-    bow: { cycles: 1, period: { pause: "beat", scale: 1.5 } },
+    bow: {
+      cycles: 1,
+      period: { seconds: 0.95, source: "Kawabata et al. 2009, ISBS 27, Table 2: the standing bow held 0.95 +- 0.35 s at its deepest" },
+    },
     chinLift: { cycles: 1, period: "long" },
     squareShoulders: { cycles: 1, period: "long" },
     slump: { cycles: 1, period: "long" },

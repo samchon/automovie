@@ -20,7 +20,8 @@ export interface IAutoMovieMotionHumanPerformerReader {
    * Their displayed world bones at a film second.
    *
    * @param seconds Film seconds.
-   * @returns Resolved bones by rig bone.
+   * @param requested Optional observed bone names; omission requests the complete displayed hierarchy.
+     * @returns Fresh resolved bones by rig bone, containing only requested reachable bones when supplied.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformerReader.bones: Their displayed world bones at a film second.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPerformerReader.bones is used through packages/motions/src/perform/HumanPerformancePlace.ts.
@@ -30,7 +31,8 @@ export interface IAutoMovieMotionHumanPerformerReader {
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPerformerReader.bones is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPerformerReader.bones is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
-  bones(seconds: number): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  bones(seconds: number,
+      requested?: ReadonlySet<AutoMovieHumanoidBone>): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
   /**
    * Where their placed actions put their root at a film second, readable while a law plans: a follower, an escort or an interception plans its own path from where the other will be, not from where they stood when it began.

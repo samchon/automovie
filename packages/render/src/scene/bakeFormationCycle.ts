@@ -27,7 +27,8 @@ import { formationCycleStride } from "./formationCycleStride.js";
  *
  * The poses are the given pose takes (`IBakeFormationCycleProps.takes`, a
  * performed member's cycle) or, without them, come from {@link gaitMotion}, whose keyframe `i` of `samples` sits
- * exactly at cycle position `i / samples`, and is applied through the same
+ * exactly at cycle position `i / samples`. The loop-closing duplicate is
+ * omitted because texture playback wraps the last column to the first. Each sample passes through the same
  * {@link applyPose} used by named performers. This bake passes default
  * joint axes and no clinical rest frames; a caller using different explicit
  * axes/rest frames may therefore obtain a different attitude at the same phase.
@@ -69,7 +70,7 @@ export const bakeFormationCycle: (
           skeleton.id,
           gait,
           samples,
-        ).keyframes.map((k: IAutoMovieKeyframe): IAutoMoviePose => k.pose),
+        ).keyframes.slice(0, samples).map((k: IAutoMovieKeyframe): IAutoMoviePose => k.pose),
       }),
     );
   if (sources.length === 0) return null;

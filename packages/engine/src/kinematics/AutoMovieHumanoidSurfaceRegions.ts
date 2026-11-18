@@ -6,6 +6,16 @@ import type {
 } from "@automovie/interface";
 
 /**
+ * The costal margin's lowest point as a share of stature: the tenth rib
+ * height of ANSUR II (Gordon et al. 2014, NATICK/TR-15/007; means of the
+ * public records, 1,986 women and 4,082 men: tenth rib 1056.3 and 1120.7 mm,
+ * stature 1628.5 and 1756.2 mm), the greater of the women's and the men's
+ * shares, so the station stands at or just above the margin on either body.
+ * Declared before the table, whose initialiser reads it.
+ */
+const COSTAL_MARGIN: number = Math.max(1056.3 / 1628.5, 1120.7 / 1756.2);
+
+/**
  * The definitions of the anatomical regions a humanoid's surfaces resolve
  * (`resolveAutoMovieHumanoidSurfaces`): each region's station on a bone's
  * segment and its outward direction in the rest frame, the ray that finds
@@ -17,50 +27,44 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keys are the interface's closed region union.
  */
 export namespace AutoMovieHumanoidSurfaceRegions {
+  /**
+   * The interface contract (`IAutoMovieHumanoidSurfaceRegions.ILevel`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the interface record this owner's name stands for.
+   * @evidence contracts/development/design.md#principled-representation The record is the interface's; the alias adds nothing.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Kept so this owner's readers name the record by its owner, as master keeps such aliases.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No copy of the record: one declaration, in `@automovie/interface`.
+   */
+  export type ILevel = IAutoMovieHumanoidSurfaceRegions.ILevel;
+
   /** Every region's definition, both sides from one table: +X is the body's left. */
   export const TABLE: Readonly<
-    Partial<
-      Record<
-        AutoMovieHumanoidRegion,
-        IAutoMovieHumanoidSurfaceRegions.IDefinition
-      >
-    >
+    Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>>
   > = (() => {
     const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({
       x,
       y,
       z,
     });
-    const head: IAutoMovieHumanoidSurfaceRegions.IStation = {
-      bone: "head",
-      toward: "centre",
-      share: 0,
-    };
-    const neck: IAutoMovieHumanoidSurfaceRegions.IStation = {
-      bone: "neck",
-      toward: "head",
-      share: 0.5,
-    };
-    const chest = (
-      share: number,
-    ): IAutoMovieHumanoidSurfaceRegions.IStation => ({
+    const head: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "head", toward: "centre", share: 0 };
+    const neck: IAutoMovieHumanoidSurfaceRegions.IStation = { bone: "neck", toward: "head", share: 0.5 };
+    const chest = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "chest",
       toward: "neck",
       share,
     });
-    const spine = (
-      share: number,
-    ): IAutoMovieHumanoidSurfaceRegions.IStation => ({
+    const spine = (share: number): IAutoMovieHumanoidSurfaceRegions.IStation => ({
       bone: "spine",
       toward: "chest",
       share,
     });
-    const table: Partial<
-      Record<
-        AutoMovieHumanoidRegion,
-        IAutoMovieHumanoidSurfaceRegions.IDefinition
-      >
-    > = {
+
+    // The lower rib cage: the costal margin's lowest point, the tenth rib,
+    // which a body kick, a hook to the liver or a punch to the kidney lands
+    // on or just above. The rig's spine runs from the omphalion to the
+    // xiphion, so the margin lies on it, at the tenth rib's height.
+    const costal: ILevel = { bone: "spine", toward: "chest", level: COSTAL_MARGIN };
+    const table: Partial<Record<AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaceRegions.IDefinition>> = {
       crown: { station: head, direction: v(0, 1, 0) },
       forehead: { station: head, direction: v(0, 0.45, 1) },
       face: { station: head, direction: v(0, 0, 1) },
@@ -73,8 +77,13 @@ export namespace AutoMovieHumanoidSurfaceRegions {
       nape: { station: neck, direction: v(0, 0, -1) },
       sternum: { station: chest(0.5), direction: v(0, 0, 1) },
       solarPlexus: { station: chest(0), direction: v(0, 0, 1) },
-      liver: { station: chest(0.1), direction: v(-0.8, 0, 0.6) },
-      spleen: { station: chest(0.1), direction: v(0.8, 0, 0.6) },
+
+      // The liver lies under the right lower ribs and the spleen under the
+      // left ninth to eleventh, both above the costal margin's lowest point
+      // (Moore, Dalley and Agur, Clinically Oriented Anatomy, 7th ed., ch.
+      // 2); a strike reaches them through the margin, front and side.
+      liver: { station: costal, direction: v(-0.8, 0, 0.6) },
+      spleen: { station: costal, direction: v(0.8, 0, 0.6) },
       upperBack: { station: chest(0.5), direction: v(0, 0, -1) },
       abdomen: { station: spine(0.4), direction: v(0, 0, 1) },
       lowerBack: { station: spine(0.4), direction: v(0, 0, -1) },
@@ -89,10 +98,7 @@ export namespace AutoMovieHumanoidSurfaceRegions {
     ] as const) {
       const s = (name: string): AutoMovieHumanoidBone =>
         `${Side.toLowerCase()}${name}` as AutoMovieHumanoidBone;
-      const set = (
-        name: string,
-        def: IAutoMovieHumanoidSurfaceRegions.IDefinition,
-      ): void => {
+      const set = (name: string, def: IAutoMovieHumanoidSurfaceRegions.IDefinition): void => {
         table[`${name}${Side}` as AutoMovieHumanoidRegion] = def;
       };
       set("jaw", { station: head, direction: v(0.7 * x, -0.55, 0.45) });
@@ -104,8 +110,12 @@ export namespace AutoMovieHumanoidSurfaceRegions {
       set("ear", { station: head, direction: v(x, 0, 0) });
       set("neck", { station: neck, direction: v(x, 0, 0) });
       set("chest", { station: chest(0.55), direction: v(0.45 * x, 0, 1) });
-      set("ribs", { station: chest(0.25), direction: v(x, 0, 0.15) });
-      set("kidney", { station: spine(0.8), direction: v(0.6 * x, 0, -0.8) });
+      set("ribs", { station: costal, direction: v(x, 0, 0.15) });
+
+      // The kidney lies behind the lowest ribs, from the twelfth thoracic to
+      // the third lumbar vertebra (Moore, Dalley and Agur, ch. 2), so the
+      // flank at the costal margin's height is over it.
+      set("kidney", { station: costal, direction: v(0.6 * x, 0, -0.8) });
       set("hip", {
         station: { bone: s("UpperLeg"), toward: s("LowerLeg"), share: 0 },
         direction: v(x, 0, 0),

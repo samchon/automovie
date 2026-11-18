@@ -24,6 +24,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBlade } from "../striking/StrikingBlade";
+import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPose } from "./HumanWeaponPose";
@@ -99,21 +100,6 @@ export namespace HumanWeaponPresent {
     recover: 0.25,
   };
 
-  /** The cancel table of a firearm action: anything may follow from the named instant on, the grip kept. */
-  const from = (
-    instant: string,
-  ): IAutoMovieMotionHumanActionLaw["interrupts"] => ({
-    any: [
-      {
-        window: [instant, 1],
-        kind: "inertialize",
-        entry: 0,
-        blend: 0.15,
-        keep: ["grip"],
-      },
-    ],
-  });
-
   /**
    * Present the weapon: bring the muzzle onto the line from the eye to the target, or to a ready position, by `stroke`, and hold it. A target more than `TURN` degrees off the heading is refused on `target`, a long gun in one hand on `hands`, a fore-end the support arm cannot reach on `gun`.
    *
@@ -130,7 +116,7 @@ export namespace HumanWeaponPresent {
   export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> =
     {
       name: "presentWeapon",
-      interrupts: from("stroke"),
+      interrupts: StrikingHeld.follows("stroke"),
       overlay: true,
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>,
@@ -145,7 +131,7 @@ export namespace HumanWeaponPresent {
         // Over a carrier the weapon is presented from the carrier's posture
         // where the presentation begins (a stance raised onto a cart's bed),
         // not from the state before the carrier began.
-        const { turn, bladed, eye, target, line, carriage, pose } =
+        const { turn, bladed, eye, target, line, carriage, pose, tool, back }: HumanWeaponPose.IPosed =
           HumanWeaponPose.of(
             context,
             context.carrier?.posture(0) ?? context.entry.posture,
@@ -154,9 +140,9 @@ export namespace HumanWeaponPresent {
           );
         StrikingRoll.reachable(
           context,
-          s.tool,
+          tool,
           pose,
-          s.tool.length,
+          carriage === "aim" ? tool.length : back,
           bladed,
           "face the target, or present the weapon at a ready position",
         );
@@ -169,7 +155,7 @@ export namespace HumanWeaponPresent {
           context,
           s,
           StrikingBlade.plan(context, {
-            tool: s.tool,
+            tool,
             clock: AutoMovieMotionManner.time(
               AutoMovieMotionClock.phrase({
                 prepare: set,
@@ -185,7 +171,7 @@ export namespace HumanWeaponPresent {
               eye,
               carriage === "aim" ? target : null,
             ),
-            back: carriage === "aim" ? 0 : s.tool.length,
+            back,
             // At the recover the left hand holds the firelock above the lock.
             support:
               carriage === "recover" && s.lock !== undefined
@@ -223,7 +209,7 @@ export namespace HumanWeaponPresent {
           ): IAutoMovieMotionHumanStrikingHeld.ITool => grip.tool(points),
         );
         try {
-          const { bladed, pose, carriage } = HumanWeaponPose.of(
+          const { bladed, pose, tool, back }: HumanWeaponPose.IPosed = HumanWeaponPose.of(
             ahead,
             grip.posture,
             ahead.start,
@@ -232,9 +218,9 @@ export namespace HumanWeaponPresent {
           return [
             {
               posture: bladed,
-              tool: s.tool,
+              tool,
               frame: pose,
-              back: carriage === "aim" ? 0 : s.tool.length,
+              back,
               bound: StrikingRoll.MISS,
             },
           ];
@@ -290,7 +276,7 @@ export namespace HumanWeaponPresent {
   export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> =
     {
       name: "fireWeapon",
-      interrupts: from("relax"),
+      interrupts: StrikingHeld.follows("relax"),
       overlay: true,
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IWield>,

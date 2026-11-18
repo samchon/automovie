@@ -1,19 +1,22 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouch,
   IAutoMovieMotionHumanTouchSite,
   IAutoMovieMotionTarget,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTouch } from "../compose/AutoMovieMotionHumanTouch";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { touchSite } from "./touchSite";
 
@@ -48,9 +51,9 @@ export namespace touchRegion {
    * @evidence contracts/development/implementation.md#principled-implementation A limb is solved after the trunk, so a leg's region under a lean is read on the legs alone re-solved on the posture so far; the site is fixed once, at plan time, against the first arm's shoulder at the entry.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One site, one shoulder, one closure over them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The other hand's region is never moved by the first hand's site.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One leg resolve per frame, and only for a leg's region under a lean.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `AutoMovieMotionHumanTouch.region` and `touchSite.of`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader closes over the bones, the shoulder and the fixed site.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A region assigned to a stationary entry limb places its frame and site once. A leg's region under a lean still needs a current leg resolve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The authored entry and presented arm supply fixed limb frames. Trunk, moving leg and arbitrary target observations still go through their current readers with optional current ROM and FK.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan reader closes over entry bones, shoulder, fixed site and at most one selected-bone set and genuine fixed-demand producer; borrowed ROM/FK remain within the current query until return or throw, and only the actual frame escapes.
    */
   export function reader(
     context: Pick<
@@ -64,10 +67,7 @@ export namespace touchRegion {
   ): (
     target: IAutoMovieMotionTarget,
     legs: boolean,
-  ) => (
-    posture: IAutoMovieMotionHumanPosture,
-    seconds: number,
-  ) => IAutoMovieMotionHumanTouchSite.IFrame {
+  ) => IAutoMovieMotionHumanTouch.ITouch["region"] {
     const body: IAutoMovieMotionHumanBody = context.body;
     const sited: ReturnType<typeof touchSite.of> | undefined =
       site === undefined ? undefined : touchSite.of(context, site);
@@ -90,39 +90,71 @@ export namespace touchRegion {
       along = touchSite.span(context, target.subject, target.point, site.along);
     }
     return (
-        aimed: IAutoMovieMotionTarget,
-        legs: boolean,
-      ): ((
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ) => IAutoMovieMotionHumanTouchSite.IFrame) =>
-      (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanTouchSite.IFrame => {
-        const frame: IAutoMovieMotionHumanTouchSite.IFrame =
-          AutoMovieMotionHumanTouch.region(
-            context,
-            aimed,
-            context.start + seconds,
-            posture,
-            legs && onLeg(body, aimed)
-              ? poseBones(
-                  body,
-                  resolveHumanPosture(body, {
-                    ...posture,
-                    limbs: {
-                      ...(posture.limbs.leftLeg === undefined
-                        ? {}
-                        : { leftLeg: posture.limbs.leftLeg }),
-                      ...(posture.limbs.rightLeg === undefined
-                        ? {}
-                        : { rightLeg: posture.limbs.rightLeg }),
-                    },
-                  }),
-                )
-              : bones,
+      aimed: IAutoMovieMotionTarget,
+      legs: boolean,
+    ): IAutoMovieMotionHumanTouch.ITouch["region"] => {
+      const requested: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+        legs && aimed.kind === "self" && onLeg(body, aimed)
+          ? new Set<AutoMovieHumanoidBone>([body.surfaces.regions[aimed.region].bone])
+          : undefined;
+      const frames: ReturnType<typeof poseBones.prepare> | undefined =
+        requested === undefined
+          ? undefined
+          : poseBones.prepare(body, requested);
+
+      // Self-contact on a limb that is neither leaning nor part of the trunk
+      // already uses the entry or presented-arm bone for the entire phrase.
+      const surface =
+        aimed.kind === "self" ? body.surfaces.regions[aimed.region] : undefined;
+      if (
+        requested === undefined &&
+        surface !== undefined &&
+        !AutoMovieMotionHumanTarget.TRUNK.has(surface.bone)
+      ) {
+        const at: IAutoMovieMotionHumanTouchSite.IFrame =
+          resolveAutoMovieHumanoidSurfaces.place(
+            surface,
+            bones.get(surface.bone)!,
           );
+        const fixed: IAutoMovieMotionHumanTouchSite.IFrame =
+          aimed === target && sited !== undefined ? sited(at, shoulder) : at;
+        return (): IAutoMovieMotionHumanTouchSite.IFrame => ({
+          point: { ...fixed.point },
+          normal: { ...fixed.normal },
+        });
+      }
+
+      return (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        source?: Parameters<IAutoMovieMotionHumanTouch.ITouch["region"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanTouch.ITouch["region"]>[3],
+      ): IAutoMovieMotionHumanTouchSite.IFrame => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+          requested === undefined ? undefined : prepareHumanPoseResolution(source);
+        const frame: IAutoMovieMotionHumanTouchSite.IFrame = AutoMovieMotionHumanTouch.region(
+          context,
+          aimed,
+          context.start + seconds,
+          posture,
+          requested !== undefined
+            ? frames!(
+                resolveHumanPosture.seeded(body, {
+                  ...posture,
+                  limbs: {
+                    ...(posture.limbs.leftLeg === undefined
+                      ? {}
+                      : { leftLeg: posture.limbs.leftLeg }),
+                    ...(posture.limbs.rightLeg === undefined
+                      ? {}
+                      : { rightLeg: posture.limbs.rightLeg }),
+                  },
+                }, undefined, {}, resolution, requested, projection).pose,
+                resolution?.(),
+              )
+            : bones,
+          resolution ?? source,
+        );
         if (sited === undefined || aimed !== target) return frame;
         return along === undefined
           ? sited(frame, shoulder)
@@ -131,6 +163,7 @@ export namespace touchRegion {
               normal: frame.normal,
             };
       };
+    };
   }
 
   /**
@@ -143,6 +176,14 @@ export namespace touchRegion {
    * @param target The hand's target.
    * @param site The hand's site, the first hand's only.
    * @returns Metres, or `undefined`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the three sources of the radius in their order and when there is none.
+   * @evidence contracts/development/implementation.md#principled-implementation A site's own radius bounds where the hand lands about it; without one the region's own extent on its body does, read from the body's surface table.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Four guarded returns, one per source.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is invented for a prop or a point.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The radius is the surface table's, read and not restated.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function disc(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,

@@ -53,21 +53,7 @@ export namespace HumanCarried {
       ): IAutoMovieMotionHumanActionPlan => {
         const { by, seconds } = context.params;
         const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
-        if (!(seconds > 0))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "seconds",
-            value: seconds,
-            feasible: {
-              kind: "range",
-              minimum: 0,
-              maximum: null,
-              unit: "s",
-              open: "minimum",
-            },
-            reason: "being carried lasts a positive time",
-            fix: "give the seconds carried",
-          });
+        HumanCarriedBorne.lasting(seconds);
         if (by === context.subject)
           throw new HumanRefusal({
             kind: "participant",
@@ -138,6 +124,7 @@ export namespace HumanCarried {
       turn: 0,
       pitch: 20,
       legs: [70, 80, 25],
+      straddles: true,
       clings: ["shoulderLeft", "shoulderRight"],
       holds: [
         { region: "hipLeft", offset: { out: 0.15, up: 0, forward: -0.1 } },
@@ -152,7 +139,13 @@ export namespace HumanCarried {
       legs: [80, 70, 0],
       clings: [null, null],
       holds: [
-        { region: "sternum", offset: { out: 0.25, up: -0.15, forward: 0.35 } },
+        {
+          region: "sternum",
+          offset: { out: 0.25, up: -0.15, forward: 0.35 },
+          // Support the back with the fingers along it toward the head.
+          fingers: { x: 0, y: 1, z: 0 },
+          shape: "flat",
+        },
         { region: "sternum", offset: { out: 0.25, up: -0.15, forward: 0.35 } },
       ],
     },
@@ -165,7 +158,13 @@ export namespace HumanCarried {
       clings: [null, null],
       holds: [
         null,
-        { region: "shoulderRight", offset: { out: 0, up: 0, forward: 0.3 } },
+        {
+          region: "shoulderRight",
+          offset: { out: 0, up: 0, forward: 0.3 },
+          // The open palm supports the thigh; the fingers follow it away from the hip.
+          shape: "flat",
+          fingers: { x: 0, y: -1, z: 0 },
+        },
       ],
     },
     supported: {

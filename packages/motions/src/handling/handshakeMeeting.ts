@@ -137,7 +137,7 @@ export namespace handshakeMeeting {
    * @evidence contracts/development/implementation.md#principled-implementation The meeting is read through the context, so the first partner planned computes it and the other reads that record; the finger line is the first ordered partner's, turned for the second; the lean is this partner's least lean that brings the point within its arm, the target first (`HumanSeatedReach.need`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the meeting, two points back to the world, one lean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A standing partner leans none, so its plan is the standing one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting per pair; one bisection for a seated partner.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One meeting per pair and one original bisection for a seated partner. Entry FK emits only the actual shoulder for standing, adding exactly the original seated spine/hip/chest/neck/left-thigh observations when a seat bears the role; every authored joint is still admitted.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's meeting reader, `HumanFrame.point` and `HumanSeatedReach.need`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure reading.
    */
@@ -163,9 +163,17 @@ export namespace handshakeMeeting {
       HumanFrame.point(shared.frame, shared.contacts.along!),
       point,
     );
+    const seated: boolean = context.entry.supports.some(
+      (support: IAutoMovieMotionHumanEntryState.ISupport): boolean => support.kind === "seat");
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${side}UpperArm`, ...(seated
+        ? ["hips", "chest", "neck", "leftUpperLeg", "leftLowerLeg", ...HumanSeatedReach.SPINE] as const : []),
+    ]);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
+      undefined,
+      requested,
     );
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
@@ -185,10 +193,7 @@ export namespace handshakeMeeting {
           body: context.body,
           posture: context.entry.posture,
           bones,
-          seated: context.entry.supports.some(
-            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-              s.kind === "seat",
-          ),
+          seated,
         },
         shoulder,
         point,
@@ -212,8 +217,8 @@ export namespace handshakeMeeting {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One weight per second, one leaned posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No lean returns the very base, so a standing handshake is the standing one.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanSeatedReach.posed` and `minimumJerk`.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the base, the joints and four numbers.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanSeatedReach.posed and minimumJerk retain their original owners; optional same-person FK/ROM metadata forwards only through the actual original full-base observation, without changing the lean's arithmetic or projection policy.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its original base/joints/phase scalars; current metadata arguments release with each synchronous call and never enter the returned numeric posture, plan state or history.
    */
   export function leaned(
     body: IAutoMovieMotionHumanBody,
@@ -225,17 +230,19 @@ export namespace handshakeMeeting {
     const { reach, shake, back } = phases;
     return {
       ...base,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(reach + shake + back, Math.max(0, seconds));
         const w: number =
           t < reach
-            ? minimumJerk(t / reach).s
+            ? minimumJerk.share(t / reach)
             : t <= reach + shake
               ? 1
-              : Math.max(0, 1 - minimumJerk((t - reach - shake) / back).s);
+              : Math.max(0, 1 - minimumJerk.share((t - reach - shake) / back));
         return HumanSeatedReach.posed(
           body,
-          base.posture(seconds),
+          base.posture(seconds, undefined, resolution, projection),
           lean.joints,
           lean.share * w,
         );

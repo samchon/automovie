@@ -44,7 +44,7 @@ const meta: MetaRecord = {
     theme: APPLICATION,
   },
   objects: {
-    title: "Objects",
+    title: "Archetypes",
     type: "page",
     theme: APPLICATION,
   },

@@ -30,7 +30,7 @@ import { HumanHand } from "../posture/HumanHand";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hand's surfaces, shapes and alignment; the pad is a collider query, not a shape's radius.
  */
 export namespace AutoMovieMotionHumanTouchEffector {
-  /** The axes of {@link Axis}, as data. */
+  /** The axes of {@link IAutoMovieMotionHumanTouchEffector.Axis}, as data. */
   export const AXES = [
     "fingers",
     "palm",
@@ -233,24 +233,27 @@ export namespace AutoMovieMotionHumanTouchEffector {
   ): number {
     admit(effector);
     if (effector.tool !== undefined) return 0;
-    const bones = new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>();
     const own: AutoMovieHumanoidBone = HumanHand.bone(side, effector.surface);
     const rest: IAutoMovieVector3 | undefined = body.rest.get(own);
-    if (rest !== undefined)
-      bones.set(own, {
-        bone: own,
-        worldPosition: rest,
-        worldRotation: Quaternion.identity(),
-      } as IAutoMovieResolvedBone);
+
+    // A rig without the bone, or a profile with no collider on it, has no
+    // skin there to stand off.
+    if (
+      rest === undefined ||
+      !body.profile.segments.some(
+        (segment: IAutoMovieMotionHumanBody["profile"]["segments"][number]): boolean =>
+          segment.bone === own && (segment.shapes?.length ?? 0) !== 0,
+      )
+    )
+      return 0;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([
+      [own, { bone: own, worldPosition: rest, worldRotation: Quaternion.identity() } as IAutoMovieResolvedBone],
+    ]);
     const at: IAutoMovieVector3 = Vector3.add(
       body.rest.get(`${side}Hand`)!,
       local(body, side, effector).point,
     );
-    try {
-      return Math.max(0, -HumanColliders.distance(body, bones, at).distance);
-    } catch {
-      return 0;
-    }
+    return Math.max(0, -HumanColliders.distance(body, bones, at).distance);
   }
 
   /**
@@ -332,6 +335,7 @@ export namespace AutoMovieMotionHumanTouchEffector {
    * @param normal The region's outward normal, world.
    * @param tangent The tangent the effector's along axis follows, world.
    * @param bend The elbow hint, world.
+   * @param endOn Align the ray from the wrist to the actual contact point with the approach. A contact at the wrist keeps its surface normal.
    * @returns The arm's goal, with the effector as the contact the resolver keeps.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' frames and what the goal carries.
@@ -350,10 +354,15 @@ export namespace AutoMovieMotionHumanTouchEffector {
     normal: IAutoMovieVector3,
     tangent: IAutoMovieVector3,
     bend: IAutoMovieVector3,
+    endOn: boolean = false,
   ): IAutoMovieHumanLimbGoal {
     const rest = local(body, side, effector);
     const rotation: IAutoMovieQuaternion = HumanHand.align(
-      { normal: rest.normal, forward: rest.forward },
+      {
+        normal: endOn && Vector3.length(rest.point) > 0
+          ? Vector3.normalize(rest.point) : rest.normal,
+        forward: rest.forward,
+      },
       { normal: Vector3.scale(normal, -1), forward: tangent },
     );
     return {

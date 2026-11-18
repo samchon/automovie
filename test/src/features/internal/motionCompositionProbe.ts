@@ -238,9 +238,13 @@ export namespace motionCompositionProbe {
               start("b")
                 .stand({ seconds: 6 })
                 .until({ of: "push", event: "ready" })
+                // A push she steps out of: the stumble's 0.5 m/s, about
+                // the largest backward lean young adults recover from by
+                // stepping (`HumanPose.stumble`); 1 m/s pushed backward is
+                // past what four recovery steps catch on her.
                 .stagger({
                   from: { kind: "person", subject: "a", region: "sternum" },
-                  speed: 1,
+                  speed: 0.5,
                 }),
             ).node,
       },
@@ -252,13 +256,19 @@ export namespace motionCompositionProbe {
             .approach({ target: chestOfB, pace: "fast" })
             .with(start("b").walk({ to: { x: 0, y: 0, z: 6 } })).node,
       },
+      // A chase at a run: both run the same distance, the chaser stopping the
+      // gap behind where the quarry stops. A quarry who walks is overtaken
+      // inside the gap (a run's speed is about 3.5 m/s at a 0.93 m hip, a
+      // walk's 1.35, `run` and `walk`), so the chaser's run to a point behind
+      // where she stops would pass through her; the vocabulary's chase of a
+      // walker is `chaseApproach`.
       chaseRun: {
         gap: 2,
         partner: true,
         composition: (): IAutoMovieMotionHumanChain["node"] =>
           start()
             .run({ to: { x: 0, y: 0, z: 5 } })
-            .with(start("b").walk({ to: { x: 0, y: 0, z: 6 } })).node,
+            .with(start("b").run({ to: { x: 0, y: 0, z: 7 } })).node,
       },
     };
   }

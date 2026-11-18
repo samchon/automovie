@@ -199,7 +199,7 @@ export namespace HumanManoeuvre {
         const place: IAutoMovieMotionHumanFormation.ILocal =
           HumanFormation.local(manoeuvre.to, slots[i]!);
         const rear: boolean =
-          place.rank === lastRank(manoeuvre.to, place.block);
+          place.rank === HumanFormation.rear(manoeuvre.to, place.block);
         const arrive: "stand" | "kneel" =
           (place.rank === 0 ? rule.arrive?.front : undefined) ??
           (rear ? rule.arrive?.rear : undefined) ??
@@ -310,19 +310,6 @@ const ALONE: IAutoMovieMotionHumanFormation.IBlock = {
   count: 1,
 };
 
-/** The last rank of a block of a formation. */
-function lastRank(
-  formation: IAutoMovieMotionHumanFormation,
-  block: number,
-): number {
-  let first: number = 0;
-  for (let b: number = 0; b < block; ++b) first += formation.blocks[b]!.count;
-  let last: number = 0;
-  for (let k: number = 0; k < formation.blocks[block]!.count; ++k)
-    last = Math.max(last, HumanFormation.local(formation, first + k).rank);
-  return last;
-}
-
 /** Each member's speed in the manoeuvre's travel at its leg length, m/s: the walk's or the run's Froude speed, or the drill's step times its cadence. */
 function travelSpeeds(
   members: readonly IAutoMovieMotionHumanEnsemble.IMember[],
@@ -336,7 +323,7 @@ function travelSpeeds(
       return Math.sqrt(run.GAITS.run.froude * AutoMovieGravity.STANDARD * l);
     const drill: { cadence: number; step: number } =
       manoeuvre.gait === "double" ? HumanGait.DOUBLE : HumanGait.MARCH;
-    return (drill.step * l * drill.cadence) / 60;
+    return (drill.step * drill.cadence) / 60;
   });
 }
 
@@ -411,7 +398,7 @@ function crossings(
       );
     }
   }
-  for (let t: number = 0; t <= end + 1e-9; t += 1 / 24) {
+  for (let t: number = 0; t <= end + 1e-9; t += HumanCrowd.STEP) {
     const points: IAutoMovieVector3[] = parts.map(
       (_: IAutoMovieMotionHumanManoeuvre.IPart, i: number): IAutoMovieVector3 =>
         where(i, t),
@@ -493,7 +480,12 @@ function steered(
       const way: IAutoMovieVector3[] = frame.samples
         .filter(
           (_: IAutoMovieMotionHumanFormation.ISample, k: number): boolean =>
-            k % Math.max(1, Math.round(HumanManoeuvre.STEERED * 24)) === 0,
+            k %
+              Math.max(
+                1,
+                Math.round(HumanManoeuvre.STEERED / HumanCrowd.STEP),
+              ) ===
+            0,
         )
         .map(
           (s: IAutoMovieMotionHumanFormation.ISample): IAutoMovieVector3 => ({

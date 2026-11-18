@@ -14,6 +14,7 @@ import type { Profiler } from "node:inspector";
 import { Session } from "node:inspector/promises";
 
 import { ConstructionConicFieldOracle } from "../../internal/construction/ConstructionConicFieldOracle";
+import { moduleFunctionCoverage } from "../../internal/moduleFunctionCoverage";
 import { nclose } from "../../internal/nclose";
 
 /** Actual regular station value and its first two derivatives. */
@@ -51,11 +52,6 @@ export async function test_construction_conic_preparation(): Promise<void> {
   ask("input admission", admission, failures);
   try {
     const counts: number[] = await work();
-    console.log({
-      conicPreparationWork: counts,
-      ceiling: 8,
-      scope: "endpoint calls per field preparation; no wall/heap claim",
-    });
     if (counts.some((count: number): boolean => count > 8))
       failures.push(
         `Endpoint work ${counts.join("/")} exceeds eight own endpoints`,
@@ -359,6 +355,7 @@ async function work(): Promise<number[]> {
   try {
     session.connect();
     connected = true;
+    await session.post("Debugger.enable");
     await session.post("Profiler.enable");
     await session.post("Profiler.startPreciseCoverage", {
       callCount: true,
@@ -370,18 +367,14 @@ async function work(): Promise<number[]> {
       made(e, r);
       const coverage: Profiler.TakePreciseCoverageReturnType =
         await session.post("Profiler.takePreciseCoverage");
-      const scripts: Profiler.ScriptCoverage[] = coverage.result.filter(
-        (script: Profiler.ScriptCoverage): boolean =>
-          /[/\\]AutoMovieConicArcField\.ts$/.test(script.url),
-      );
-      if (scripts.length !== 1)
-        throw new Error(
-          "The actual endpoint formula script is absent or ambiguous",
-        );
+      // The endpoint formula by its module, whether that module runs as its
+      // own script or inside a bundle's chunk.
       const functions: Profiler.FunctionCoverage[] =
-        scripts[0]!.functions.filter(
-          (fn: Profiler.FunctionCoverage): boolean =>
-            fn.functionName === "curvature",
+        await moduleFunctionCoverage(
+          session,
+          coverage,
+          /[/\\]AutoMovieConicArcField\.ts$/u,
+          "curvature",
         );
       if (functions.length !== 1)
         throw new Error(
@@ -407,6 +400,11 @@ async function work(): Promise<number[]> {
     if (connected) {
       try {
         await session.post("Profiler.disable");
+      } catch (error: unknown) {
+        cleanup.push(error);
+      }
+      try {
+        await session.post("Debugger.disable");
       } catch (error: unknown) {
         cleanup.push(error);
       }

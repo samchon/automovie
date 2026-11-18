@@ -1,6 +1,5 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
@@ -12,6 +11,7 @@ import type {
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanHandshake,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrehension,
   IAutoMovieQuaternion,
@@ -22,9 +22,9 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { HumanTrunk } from "../everyday/HumanTrunk";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -34,6 +34,8 @@ import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshakeMeeting } from "./handshakeMeeting";
 import { handshakeOffer } from "./handshakeOffer";
+import { handshakePlayback } from "./handshakePlayback";
+import { handshakeStance } from "./handshakeStance";
 
 /**
  * Shaking hands with a partner: both bring the same hand's palm to one
@@ -103,6 +105,11 @@ import { handshakeOffer } from "./handshakeOffer";
  * starts; the mutual goal refuses a gap neither arm can close. The partner's shoulder is
  * read at the start, so the partner's earlier actions must be placed first,
  * which `HumanChain.pair` arranges.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the shared meeting, the offering arm and its provisional angles, the clasp, the phases with their sources, the events, the declined cut and the refusal.
+ * @evidence contracts/development/design.md#principled-representation A mutual law: both partners read one meeting record and solve their own arm onto its point with an effector socket.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the pump's two constants, the plan, the stance offsets, the standing gap and the offering arm the meeting, the high five and the handover read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither partner derives the other's hand: both read the meeting, computed once from both shoulders.
  */
 export namespace handshake {
   /** The action's name. */
@@ -111,11 +118,11 @@ export namespace handshake {
   /** Cancel table: declined before the clasp, or ended after the release. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "clasp"], kind: "inertialize", entry: 0, blend: 0.3 },
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: [0, "clasp"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
     walk: [
-      { window: ["release", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["release", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
     ],
   };
 
@@ -131,6 +138,14 @@ export namespace handshake {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the partners stand beyond reach of each other, or the pump count is not a positive integer.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law states actual partner/hand, shared meeting, peak/pump timing and refusal; this method returns the original grasp/pump/release contacts and pose course.
+   * @evidence contracts/development/implementation.md#principled-implementation Both hands use the same meeting and actual constrained clasp choice; original minimum-jerk transports and cited sinusoidal pump carry the hand, fingers and grasp reference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry observations and meeting precede original shared timing, clasp selection, transports and the complete posture request.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original pumps, amplitudes, grip windows, actual paired candidate fits/clearance, references, seated/standing behavior and all refusals remain.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each entry observation requests only hips/feet/acting shoulder/hand; the same unchanged partner/start observation serves shoulder and standing prediction. Every original meeting/clasp solve remains, while runtime shape schedules reuse fixed phase geometry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed partner/start entry observations and shared meeting-role computation retain their original owners. Runtime current-person FK/ROM loans reach only its own original full base/leaned wrapper; partner planning never borrows that source and no pose/time result history is added.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Entry maps/clasp workspaces release with planning; the plan owns original base/transports/shapes/wrist/reference/timing. Runtime loans stay inside the current full-base call and no returned goal, partner reader or history retains them.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandshake.IParams>,
@@ -139,31 +154,28 @@ export namespace handshake {
     const pumps: number = context.params.pumps ?? 2;
     HumanBound.whole("pumps", pumps);
     const body: IAutoMovieMotionHumanBody = context.body;
-    const partner: IAutoMovieMotionHumanBody = context.performer(
-      context.params.partner,
-    ).body;
-    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
+    const other: IAutoMovieMotionHumanPerformerReader = context.performer(context.params.partner);
+    const partner: IAutoMovieMotionHumanBody = other.body;
 
     // The meeting point from both acting shoulders at the start, read from
     // the one record both partners share (`handshakeMeeting`).
+    const observed: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      "hips", "leftFoot", "rightFoot", `${side}UpperArm`, `${side}Hand`,
+    ]);
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, context.entry.pose);
+      poseBones(body, context.entry.pose, undefined, observed);
     const mine: IAutoMovieVector3 = entered.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const theirs: IAutoMovieVector3 = context
-      .performer(context.params.partner)
-      .bones(context.start)
-      .get(`${side}UpperArm`)!.worldPosition;
+    const otherBones: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> = other.bones(context.start, observed);
+    const theirs: IAutoMovieVector3 = otherBones.get(`${side}UpperArm`)!.worldPosition;
     const shake: number = pumps / FREQUENCY;
     const { meeting, lean }: handshakeMeeting.IRead = handshakeMeeting.read(
       context,
       side,
       { pump: AMPLITUDE, shake },
-      (
-        b: IAutoMovieMotionHumanBody,
-        shoulder: IAutoMovieVector3,
-      ): IAutoMovieResolveMutualGoal.ISide => arm(b, side, shoulder),
+      (b: IAutoMovieMotionHumanBody, shoulder: IAutoMovieVector3): IAutoMovieResolveMutualGoal.ISide =>
+        arm(b, side, shoulder),
     );
     const meet: IAutoMovieVector3 = meeting.point;
 
@@ -178,8 +190,7 @@ export namespace handshake {
     // shaking hand's frame, so a left handshake mirrors a right one
     // (`stand.plan`); seated, it holds the seat it was entered on.
     const seated: boolean = context.entry.supports.some(
-      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        s.kind === "seat",
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
     );
     const base: IAutoMovieMotionHumanActionPlan = handshakeMeeting.leaned(
       body,
@@ -213,10 +224,7 @@ export namespace handshake {
       {
         subject: context.params.partner,
         body: partner,
-        posture: HumanGrasp.standing(
-          partner,
-          context.performer(context.params.partner).bones(context.start),
-        ),
+        posture: HumanGrasp.standing(partner, otherBones),
         palm: Vector3.scale(palm, -1),
         fingers: Vector3.scale(meeting.fingers, -1),
       },
@@ -235,56 +243,60 @@ export namespace handshake {
     const entry: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
     const rest: IAutoMovieResolvedBone = poseBones(
       body,
-      resolveHumanPosture(body, base.posture(duration)),
+      resolveHumanPosture(body, base.posture(duration)), undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
-    const out: IAutoMovieMotionHumanPrehension.ITransport =
-      HumanPrehension.transport(
-        entry.worldPosition,
-        clasp.point,
-        palm,
-        0,
-        { from: entry.worldRotation, to: turn },
-        reach,
-      );
-    const home: IAutoMovieMotionHumanPrehension.ITransport =
-      HumanPrehension.transport(
-        clasp.point,
-        rest.worldPosition,
-        Vector3.scale(palm, -1),
-        0,
-        { from: turn, to: rest.worldRotation },
-        back,
-      );
+    const out: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
+      entry.worldPosition,
+      clasp.point,
+      palm,
+      0,
+      { from: entry.worldRotation, to: turn },
+      reach,
+    );
+    const home: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
+      clasp.point,
+      rest.worldPosition,
+      Vector3.scale(palm, -1),
+      0,
+      { from: turn, to: rest.worldRotation },
+      back,
+    );
     const peak: number = HumanPrehension.peak(context.random("peak"));
 
     // The fingers close from the offered hand round the partner's hand as it
     // will lie at the clasp, posed as the partner's arm will be.
-    const offered: IAutoMovieMotionHumanPosture["joints"] = HumanClasp.open(
-      body,
-      side,
-    );
+    const offered: IAutoMovieMotionHumanPosture["joints"] = HumanClasp.open(body, side);
     const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanClasp.close(
       side,
       choice,
       ...hands,
     );
-    const shapes = {
+    const shapes: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: HumanGrip.fingers(context.entry.pose, side),
       open: offered,
       closed: fingers,
     };
-    const open = {
+    const open: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: fingers,
       open: offered,
       closed: HumanHand.shape(side, "relaxed"),
     };
-    return {
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
+    const returnShape: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(open, 0.5);
+    const release: number = reach + shake;
+    const playback: ReturnType<typeof handshakePlayback> = handshakePlayback({
+      body, side, base, reach, shake, back, duration, release,
+      clasp, fingers, reference: own.reference, out, home, shapeAt, returnShape,
+      amplitude: AMPLITUDE, frequency: FREQUENCY,
+    });
+    const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "clasp", share: reach / duration },
         { name: "gripClosed", share: reach / duration },
-        { name: "shakeEnd", share: (reach + shake) / duration },
-        { name: "release", share: (reach + shake) / duration },
+        { name: "shakeEnd", share: release / duration },
+        { name: "release", share: release / duration },
       ],
       contacts: [
         ...base.contacts,
@@ -292,7 +304,7 @@ export namespace handshake {
           part: side === "left" ? "leftHand" : "rightHand",
           kind: "grip",
           from: reach / duration,
-          to: (reach + shake) / duration,
+          to: release / duration,
           support: {
             kind: "person",
             subject: context.params.partner,
@@ -301,68 +313,10 @@ export namespace handshake {
         },
       ],
       contact: reach,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const posture: IAutoMovieMotionHumanPosture = base.posture(t);
-        let wrist: IAutoMovieVector3;
-        let rotation: IAutoMovieQuaternion;
-        let digits: IAutoMovieMotionHumanPosture["joints"];
-        if (t <= reach) {
-          wrist = out.wrist(t);
-          rotation = out.turn(t);
-          digits = HumanPrehension.shape(shapes, peak, t / reach);
-        } else if (t <= reach + shake) {
-          const tau: number = t - reach;
-          const lift: number =
-            AMPLITUDE *
-            Math.sin(2 * Math.PI * FREQUENCY * tau) *
-            Math.sin((Math.PI * tau) / shake) ** 2;
-          wrist = { ...clasp.point, y: clasp.point.y + lift };
-          rotation = turn;
-          digits = fingers;
-        } else {
-          wrist = home.wrist(t - reach - shake);
-          rotation = home.turn(t - reach - shake);
-          digits = HumanPrehension.shape(
-            open,
-            0.5,
-            minimumJerk((t - reach - shake) / back).s,
-          );
-        }
-        const gripping: boolean = t >= reach && t <= reach + shake;
-        return {
-          ...posture,
-          joints: { ...posture.joints, ...digits },
-          limbs: {
-            ...posture.limbs,
-            [limb]: {
-              point: wrist,
-              rotation,
-              bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-              // The clasp's own arm solution anchors the pump, the reach more
-              // and more as it arrives and the return less and less as it
-              // leaves.
-              ...(gripping
-                ? { planted: true, reference: own.reference }
-                : {
-                    reference: {
-                      ...own.reference,
-                      weight:
-                        t < reach
-                          ? minimumJerk(t / reach).s
-                          : // Clamped, as the minimum-jerk position
-                            // rounds past 1 at the return's end.
-                            Math.max(
-                              0,
-                              1 - minimumJerk((t - reach - shake) / back).s,
-                            ),
-                    },
-                  }),
-            },
-          },
-        };
-      },
+      posture: playback.posture,
     };
+    HumanPreparedPlayback.attach(plan, body, { mode: "posture", phases: playback.phases });
+    return plan;
   }
 
   /**
@@ -373,25 +327,20 @@ export namespace handshake {
    * @param body The body.
    * @param side The acting arm; `right` when absent.
    * @returns The offsets.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is read and on which posture.
+   * @evidence contracts/development/implementation.md#principled-implementation The stand law's own posture, read by forward kinematics (`handshakeStance`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No offset is estimated from the body's measures.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded trunk reading.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work `handshakeStance` owns the reading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function stance(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide = "right",
   ): IAutoMovieMotionHumanHandshake.IStance {
-    const posture: IAutoMovieMotionHumanPosture = stand.posture(
-      body,
-      { x: 0, y: 0, z: 0 },
-      0,
-    );
-    const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, posture).get(
-      `${side}UpperArm`,
-    )!.worldPosition;
-    return {
-      height: shoulder.y,
-      sternum: HumanTrunk.region(body, posture, "sternum").point.z,
-      shoulder: shoulder.z,
-      across: Math.abs(shoulder.x),
-    };
+    return handshakeStance(body, side);
   }
 
   /**
@@ -414,6 +363,14 @@ export namespace handshake {
    * @param b The other.
    * @param side The shaking hand of both; `right` when absent.
    * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the geometry summed and how it matches the meeting's rule.
+   * @evidence contracts/development/implementation.md#principled-implementation Each offering arm's forward reach in the plane through the shoulders, shaped by `handshakeOffer.shape` for a height difference, summed and laid against the shoulders' lateral offsets by Pythagoras, less both sternum leads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two stances, one shape, two reaches, one distance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the bodies' own; the shape is the meeting's.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work but for the shape's bisections.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `stance` and `handshakeOffer`'s shape and forearm.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function gap(
     a: IAutoMovieMotionHumanBody,
@@ -423,15 +380,11 @@ export namespace handshake {
     const sa: IAutoMovieMotionHumanHandshake.IStance = stance(a, side);
     const sb: IAutoMovieMotionHumanHandshake.IStance = stance(b, side);
     const s: number = (handshakeOffer.SHOULDER * Math.PI) / 180;
-    const elbow = (
-      body: IAutoMovieMotionHumanBody,
-      stood: IAutoMovieMotionHumanHandshake.IStance,
-    ): number => stood.height - body.measure.upperArm * Math.cos(s);
+    const elbow = (body: IAutoMovieMotionHumanBody, stood: IAutoMovieMotionHumanHandshake.IStance): number =>
+      stood.height - body.measure.upperArm * Math.cos(s);
     const drop: number = elbow(a, sa) - elbow(b, sb);
-    const [higher, lower]: [
-      IAutoMovieMotionHumanBody,
-      IAutoMovieMotionHumanBody,
-    ] = drop >= 0 ? [a, b] : [b, a];
+    const [higher, lower]: [IAutoMovieMotionHumanBody, IAutoMovieMotionHumanBody] =
+      drop >= 0 ? [a, b] : [b, a];
     const shaped: handshakeOffer.IShape = handshakeOffer.shape(
       higher.measure.upperArm,
       handshakeOffer.forearm(higher, side),
@@ -439,11 +392,7 @@ export namespace handshake {
       Math.abs(drop),
       AMPLITUDE,
     );
-    const ahead = (
-      body: IAutoMovieMotionHumanBody,
-      lowered: number,
-      down: number,
-    ): number =>
+    const ahead = (body: IAutoMovieMotionHumanBody, lowered: number, down: number): number =>
       body.measure.upperArm *
         Math.sin(((handshakeOffer.SHOULDER - lowered) * Math.PI) / 180) +
       handshakeOffer.forearm(body, side) *
@@ -472,6 +421,14 @@ export namespace handshake {
    * @param side The arm.
    * @param shoulder The shoulder joint, world metres.
    * @returns The side.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the two reaches and the units.
+   * @evidence contracts/development/implementation.md#principled-implementation The law of cosines on the upper arm and the forearm to the palm socket at the offering elbow's flexion; the limit is the straight arm less the pump.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's own.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The forearm is `handshakeOffer.forearm`'s.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,

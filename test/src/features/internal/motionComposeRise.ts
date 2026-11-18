@@ -17,7 +17,7 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "./motionComplaints";
+import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -36,8 +36,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * raised placements while the toes' joints and the toes stay as they stood,
  * flat on the floor.
  *
- * Scenarios, on one body of the sweep (the `test_human_motion_compose_rise_*`
- * specs run one body each), at headings of 0
+ * Scenarios, on one body of `test_human_motion_compose_rise`, at headings of 0
  * and 90 degrees, for both feet and raises of 0, 10, 20 and 35 degrees:
  * 1. `foot` keeps the toes' joint, the lever's length and the foot's
  *    heading, pitches the foot toes-down by the raise, lifts the ankle by the
@@ -51,16 +50,18 @@ import { motionHumanBody } from "./motionHumanBody";
  *    toes' joint where it stood and the toes as flat as they stood.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the owner's results on a real body through the public functions and the resolver, as the scenarios state.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One body's cells, gathered as complaints and asserted once.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects one body's geometric readings in the owning test's complaint gatherer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its numbers; no cell is sampled away for time.
  * @evidence contracts/development/implementation.md#efficient-algorithms One body per call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The owning test runs the same checks on each relevant body geometry.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The postures live as long as the call; the body is the shared fixture's.
  */
-export function motionComposeRise(name: motionHumanBody.Name): void {
+export function motionComposeRise(
+  name: motionHumanBody.Name,
+  all: motionComplaints.IGatherer,
+): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const RAD: number = Math.PI / 180;
-  const all: motionComplaints.IGatherer = motionComplaints();
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const mm = (metres: number): string => (metres * 1000).toFixed(2);
@@ -296,5 +297,4 @@ export function motionComposeRise(name: motionHumanBody.Name): void {
       }
     }
   }
-  all.assert(`the rise holds on every body (${name})`);
 }

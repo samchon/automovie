@@ -1,6 +1,7 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
@@ -64,12 +65,6 @@ import { HumanGrasp } from "./HumanGrasp";
  * @evidence contracts/development/design.md#principled-representation A law record over a held prop and a kind with its own inputs, with a pure plan.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the parameters and the plan; rows fix the kind.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the hold's stored offset, the grip window's in-hand motion and the grasp's own hand placement.
- * @evidence contracts/development/implementation.md#principled-implementation A rigid turn of the wrist about the object's axis line, or the object's displacement in the hand interpolated between two grips' offsets, each on a minimum-jerk profile.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The start frames once, one branch per kind, then one profile per posture or share.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hand that does not hold the object, a missing input or an unknown affordance is refused; the provisional timing is named.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture after one forward kinematics at plan time.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is computed once per instance.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's closures hold the instance's inputs only.
  */
 export namespace regrasp {
   /** The law's name, as productions register it. */
@@ -77,13 +72,20 @@ export namespace regrasp {
 
   /** Cancel table: none declared. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
-
   /**
    * Plan the act.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hand does not hold the object, or a kind's input is missing or names no affordance.
+   * @throws {HumanRefusal} When the hand does not hold the object, a kind's input is missing or names no affordance, or a twist's angle is none or not finite.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the held-hand premise, missing-input refusals and returned plan; the namespace gives twist/regrip/roll goals and timing.
+   * @evidence contracts/development/implementation.md#principled-implementation A twist retains the original world-axis rigid orbit and wrist-local pivot contact; regrip/roll retain their original in-hand displacement law.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed prop/hand/axis preparation precedes the original time-profiled posture and grip-window outputs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No twist angle, quarter-turn time, held relation, input refusal or grip contact changes.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Only the entry hand ancestry is read; fixed pivot contact/orbital offset prepare once and the twist's axis length prepares lazily at first actual angle, leaving the original actual time-dependent rotation/point work per posture.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The prop/start frame, entry hand and axis fix those offsets for the entire action; each requested time still computes its own rotation and placement.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains constant-size frames, offsets and the in-hand displacement closure, without sampled-time poses or solver readers.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
@@ -103,6 +105,8 @@ export namespace regrasp {
     const placed: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
     const hand: IAutoMovieRigidTransform = {
       position: placed.worldPosition,
@@ -117,8 +121,23 @@ export namespace regrasp {
       point: hand.position,
       rotation: hand.rotation,
     };
+    // The hand is no longer choosing a pickup posture. Its new goal has a
+    // world-space axis; the preceding grasp's elbow selection and joint
+    // reference would compete with the rotation that keeps that line fixed.
+    const { reference: _reference, elbow: _elbow, on: _on, clearanceOn: _clearanceOn, ...twisting }: IAutoMovieHumanLimbGoal = still;
     const angle: number =
       kind === "twist" ? need(context.params.angle, "angle") : 90;
+
+    // A twist's time is in proportion to its angle, so a twist of none has
+    // no time to turn in.
+    if (!(Math.abs(angle) > 0) || !Number.isFinite(angle))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "angle",
+        value: angle,
+        reason: "a twist turns the held object by a finite angle other than none",
+        fix: "give the twist's angle in degrees, positive or negative",
+      });
     const duration: number = (QUARTER * Math.abs(angle)) / 90;
     const window: IAutoMovieMotionHumanContactWindow = {
       part: side === "left" ? "leftHand" : "rightHand",
@@ -131,16 +150,20 @@ export namespace regrasp {
         : { inHand: inHand(context, read.prop, frame, hand) }),
     };
     const profile: (seconds: number) => number = (seconds: number): number =>
-      minimumJerk(Math.min(1, Math.max(0, seconds / duration))).s;
+      minimumJerk.share(Math.min(1, Math.max(0, seconds / duration)));
 
     // A twist turns the hand rigidly about the object's axis line.
-    const axis: {
-      pivot: IAutoMovieVector3;
-      direction: IAutoMovieVector3;
-    } | null =
+    const axis: OptionalAxis =
       kind === "twist"
         ? line(read.prop, frame, need(context.params.axis, "axis"))
         : null;
+    const contact: IAutoMovieVector3 | undefined = axis === null ? undefined :
+      Quaternion.rotateVector(Quaternion.inverse(hand.rotation),
+        Vector3.subtract(axis.pivot, hand.position));
+    const orbit: IAutoMovieVector3 | undefined = axis === null ? undefined :
+      Vector3.subtract(hand.position, axis.pivot);
+    const turning: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined = axis === null
+      ? undefined : Quaternion.prepareAxisAngle(axis.direction);
     return {
       duration,
       events: [{ name: "done", share: 1 }],
@@ -149,28 +172,22 @@ export namespace regrasp {
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         if (axis === null)
           return { ...hold, limbs: { ...hold.limbs, [limb]: still } };
-        const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          axis.direction,
-          angle * profile(seconds),
-        );
+        const turn: IAutoMovieQuaternion = turning!(angle * profile(seconds));
         return {
           ...hold,
           limbs: {
             ...hold.limbs,
             [limb]: {
-              ...still,
+              ...twisting,
 
               // The object turns about its axis, so that axis point is the
               // contact the fit must keep when the wrist gives up rotation.
-              contact: Quaternion.rotateVector(
-                Quaternion.inverse(hand.rotation),
-                Vector3.subtract(axis.pivot, hand.position),
-              ),
+              contact: contact!,
               point: Vector3.add(
                 axis.pivot,
                 Quaternion.rotateVector(
                   turn,
-                  Vector3.subtract(hand.position, axis.pivot),
+                  orbit!,
                 ),
               ),
               rotation: Quaternion.normalize(
@@ -193,6 +210,14 @@ export namespace regrasp {
    * @param frame Its world frame at the act's start.
    * @param hand The hand's world frame at the act's start.
    * @returns The displacement by share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines actual held-prop/start-hand frames, original twist/regrip/roll affordance inputs, dimensionless share and fresh hand-local rigid displacement; missing affordances retain their existing refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Computes the original start/end in-hand frames, normalized end-times-inverse-start arc and minimum-jerk share. The canonical quaternion owner retains the same shorter-arc identity-to-arc interpolation before the original position-minus-rotated-start displacement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Original regrip and roll endpoint branches feed one fixed arc preparation and one actual-share displacement reader; shape, grasp and quaternion mathematics stay with their existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every actual share keeps the original clipping, profile, slerp/normalization and position expression, with unchanged named axis/radius/grip admission and roll distance. No target, contact bound or endpoint is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed start/end construction precedes Q constant-size reads. The first actual slerp prepares its fixed dot, sign and angle/sine once; all actual weight sines, quaternion normalization and displacement calculations remain. Runtime improvement is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Private start/end/arc records are immutable for this plan, so only their identity-to-arc invariants are shared. Every actual input share computes a fresh displacement without a sampled time, target or pose answer cache.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned contact-window reader retains constant-size private start/end frames and one lazy arc reader until its plan is released. It returns fresh position/rotation data without body/context, FK loan, queried-share history or external handle.
    */
   export function inHand(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
@@ -263,13 +288,12 @@ export namespace regrasp {
     const arc: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(end.rotation, Quaternion.inverse(start.rotation)),
     );
+    const turning: ReturnType<typeof Quaternion.prepareSlerp> = Quaternion.prepareSlerp(
+      Quaternion.identity(), arc,
+    );
     return (share: number): IAutoMovieRigidTransform => {
-      const s: number = minimumJerk(Math.min(1, Math.max(0, share))).s;
-      const rotation: IAutoMovieQuaternion = Quaternion.slerp(
-        Quaternion.identity(),
-        arc,
-        s,
-      );
+      const s: number = minimumJerk.share(Math.min(1, Math.max(0, share)));
+      const rotation: IAutoMovieQuaternion = turning(s);
       const position: IAutoMovieVector3 = Vector3.lerp(
         start.position,
         end.position,
@@ -306,10 +330,7 @@ const need: <T>(value: T | undefined, axis: string) => T = <T>(
 };
 
 /** An affordance of the object, refused with its alternatives when absent. */
-const site: (
-  prop: IAutoMovieMotionHumanProp,
-  id: string,
-) => IAutoMovieAffordance = (
+const site: (prop: IAutoMovieMotionHumanProp, id: string) => IAutoMovieAffordance = (
   prop: IAutoMovieMotionHumanProp,
   id: string,
 ): IAutoMovieAffordance => {
@@ -333,25 +354,50 @@ const site: (
   return found;
 };
 
-/** An affordance's axis line in the world: its translation and its `+X`. */
+/** The pivot on the affordance's axis and that axis's world direction. */
+interface IAxis {
+  pivot: IAutoMovieVector3;
+  direction: IAutoMovieVector3;
+}
+
+/** A turn has an axis, while a regrip or roll has only an in-hand transform. */
+type OptionalAxis = IAxis | null;
+
+/**
+ * The affordance's +X line in the world. In exact rotation any point on
+ * this line defines the same transform. Pin the midpoint of the projected
+ * extent of the prop and its affordance so any orientation error has the
+ * shortest possible maximum lever arm to either end of that extent.
+ */
 const line: (
   prop: IAutoMovieMotionHumanProp,
   frame: IAutoMovieRigidTransform,
   id: string,
-) => { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } = (
+) => IAxis = (
   prop: IAutoMovieMotionHumanProp,
   frame: IAutoMovieRigidTransform,
   id: string,
-): { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } => {
+): IAxis => {
   const affordance: IAutoMovieAffordance = site(prop, id);
+  const oriented: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, affordance.frame.rotation);
+  const direction: IAutoMovieVector3 = Quaternion.rotateVector(oriented, { x: 1, y: 0, z: 0 });
+  let low: number = 0;
+  let high: number = 0;
+  if (prop.shapes !== undefined && prop.shapes.length !== 0) {
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(affordance.frame.rotation);
+    const relative: IAutoMovieRigidTransform = {
+      position: Quaternion.rotateVector(inverse, Vector3.scale(affordance.frame.translation, -1)),
+      rotation: inverse,
+    };
+    for (const shape of prop.shapes) {
+      const bounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(relative, shape);
+      low = Math.min(low, bounds.min.x);
+      high = Math.max(high, bounds.max.x);
+    }
+  }
   return {
-    pivot: Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
-    ),
-    direction: Quaternion.rotateVector(
-      Quaternion.multiply(frame.rotation, affordance.frame.rotation),
-      { x: 1, y: 0, z: 0 },
-    ),
+    pivot: Vector3.add(Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, affordance.frame.translation)),
+      Vector3.scale(direction, (low + high) / 2)),
+    direction,
   };
 };

@@ -80,6 +80,22 @@ export namespace IAutoMovieMotionHumanForceExchange {
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
      */
     rate(seconds: number): number;
+
+    /**
+     * Both readings from one trajectory evaluation, radians and radians per second.
+     *
+     * @param seconds Seconds since the base's break.
+     * @returns A fresh angle and rate record, held at release afterward.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the argument, units, release clamp and fresh result.
+     * @evidence contracts/development/implementation.md#principled-implementation Reads the same integrated state as angle and rate once for consumers needing both.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One trajectory reading and two scalar fields.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not expose or retain the trajectory's state array.
+     * @evidence contracts/development/implementation.md#efficient-algorithms swing selects one span by index and reads its trajectory once for both scalar components, replacing the two separate release reads in HumanForceThrow.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The angle and rate share one actual state at the same clamped second of this swing's fixed physical trajectory; no reading is shared across calls or swings.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the captured trajectories; each call returns a fresh scalar record without exposing state arrays or adding query history.
+     */
+    sample?(seconds: number): { angle: number; rate: number };
   }
 
   /**

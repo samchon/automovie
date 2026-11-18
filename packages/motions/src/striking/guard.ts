@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanGuard,
@@ -14,7 +15,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingGuardYield } from "./StrikingGuardYield";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
@@ -31,12 +34,17 @@ import { StrikingTarget } from "./StrikingTarget";
  * the start), otherwise it keeps the entry's line: a performer already in a
  * stance keeps its line, and one standing square faces straight ahead.
  *
+ * A guard facing a person steps back from them by its half of the least
+ * step along the line between them that keeps its guard and theirs, both
+ * held, clear of each other (`StrikingGuardYield`), so two fighters in
+ * guard never stand inside each other, whatever their sizes.
+ *
  * The bounce: kickboxers keep a rhythmic bounce between exchanges; its
  * height is a third of the stance's sink and its rate two bounces a second,
  * provisional readings of coaching footage (the kickboxing research's
  * rhythm share) with no located measurement.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the stance is taken, the line's source, the stay-planted tolerance and the provisional bounce.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the stance is taken, the line's source, the yield of a guard to the person it faces, the stay-planted tolerance and the provisional bounce.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters and a pure plan of postures in world metres and seconds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the timing constants and the plan the law table and the performance dispatch through.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stance, posture, plan and target types; the stance is measured on each body.
@@ -67,12 +75,12 @@ export namespace guard {
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input and its plan; the namespace states the behaviour.
-   * @evidence contracts/development/implementation.md#principled-implementation Each foot steps on a minimum-jerk unit to its measured stance place in turn, the root sinks and turns, the gloves rise to the guard, then a bounce through the knees; the limbs are solved by the shared fit.
+   * @evidence contracts/development/implementation.md#principled-implementation Each foot steps on a minimum-jerk unit to its measured stance place in turn, the root sinks and turns, the gloves rise to the guard, then a bounce through the knees; the limbs are solved by the shared fit. Facing a person, the stance is laid back by its reciprocal half of the least step that keeps both guards held clear (`StrikingGuardYield.back`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the geometry on first use and evaluates each posture from it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A too-short duration is raised to the setting time, as documented; the bounce is a named provisional value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the leg and arm fits.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per plan and every posture reads it; settle drops it when the faced target may have moved.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry, cleared by settle and released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every actual leg/guard/native fit remains. Facing a person adds the yield's resolves and bisection (`StrikingGuardYield.back`) when the geometry is built; fixed guard rig demand and each moving foot's exact Slerp arc prepare once; current raw entry heading is still read by the original per-query expression, and one current native workspace serves lower and guard ancestry, retaining all progress-dependent quaternion weights and normalization. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The built native geometry fixes body, entry/stance feet, heading and lead. Only those arc/name/scalar invariants are shared; every current root/joint/foot/goal and query-scoped genuine FK/ROM input reaches its original numerical owner. Settle drops geometry when the faced target can change, without sharing any posed result across times.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one settled geometry and at most two lazy fixed-foot arc readers until settle or plan release. Each posture owns its exact getter and fresh authored goals; optional parent FK/ROM loans end on return/failure and enter no retained output or pose/time history.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
@@ -89,8 +97,14 @@ export namespace guard {
       get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry().contacts;
       },
-      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-        geometry().posture(Math.min(duration, Math.max(0, seconds))),
+      posture: (
+        seconds: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => geometry().posture(
+        Math.min(duration, Math.max(0, seconds)), channels, resolution, projection,
+      ),
       settle: (): void => {
         built = undefined;
       },
@@ -99,19 +113,19 @@ export namespace guard {
 
   /** A built guard. */
   interface IGeometry {
-    /** The posture at seconds since the start. */
-    posture(seconds: number): IAutoMovieMotionHumanPosture;
+    /** The complete posture at action-relative seconds, with same-call FK/ROM borrowing and no retained query source. */
+    posture: IAutoMovieMotionHumanActionPlan["posture"];
     /** The feet's contact windows. */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
-  /** Build the stance from the entry and the line. */
+  /** Build the stance from the entry and the line, stepped back from a faced person's guard. */
   function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
     duration: number,
   ): IGeometry {
-    const body = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
     const lead: "left" | "right" =
       context.params.stance === undefined
         ? StrikingTarget.lead(context.entry)
@@ -152,9 +166,49 @@ export namespace guard {
       y: 0,
       z: (from.left.ankle.z + from.right.ankle.z) / 2,
     };
+
+    // The stance laid back along the line from a faced person's guard it
+    // would enter (`StrikingGuardYield`).
+    const laid: IGeometry = lay(context, duration, joints, stance, from, centre);
+    const back: IAutoMovieVector3 | null = StrikingGuardYield.back(
+      context,
+      laid.posture(SET),
+    );
+    return back === null
+      ? laid
+      : lay(context, duration, joints, stance, from, Vector3.add(centre, back));
+  }
+
+  /** Lay the stance about a centre on the floor. */
+  function lay(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
+    duration: number,
+    joints: IAutoMovieMotionHumanPosture["joints"],
+    stance: IAutoMovieMotionHumanStrikingStance.IStance,
+    from: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    centre: IAutoMovieVector3,
+  ): IGeometry {
+    const body: IAutoMovieMotionHumanBody = context.body;
+    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const lead: "left" | "right" = stance.lead;
+    const line: number = stance.line;
     const to: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingStance.feet(body, stance, centre);
     const heading: number = StrikingStance.heading(stance);
+
+    // The body turns from the line by the stance turn and the face does
+    // not: "tuck your chin down and look forward" (IABA, A Beginner's
+    // Guide). The neck and the head each turn back by half the body's turn
+    // from the line (`StrikingStance.facing`'s shares and bound), reached as
+    // the stance is taken from whatever turn the entry holds. Without it the
+    // head rode the stance turn, the fighter looked thirty degrees past the
+    // opponent, and the gloves, placed from the face, stood off the line.
+    const neck: readonly [number, number, number] = joints.neck ?? [0, 0, 0];
+    const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
+    const faced: number = -Math.max(
+      -StrikingStance.FACING,
+      Math.min(StrikingStance.FACING, 0.5 * wrapDegrees(heading - line)),
+    );
     // The pelvis over the stance centre, the feet being symmetric about it on
     // the line.
     const rootAt: IAutoMovieVector3 = { x: centre.x, y: 0, z: centre.z };
@@ -164,8 +218,10 @@ export namespace guard {
     });
 
     // Each foot's swing window, the rear first; a foot already in place stays.
-    const moves = (side: "left" | "right"): boolean =>
-      Vector3.length(Vector3.subtract(from[side].ankle, to[side].ankle)) > 0.01;
+    const moving: Record<"left" | "right", boolean> = {
+      left: Vector3.distance(from.left.ankle, to.left.ankle) > 0.01,
+      right: Vector3.distance(from.right.ankle, to.right.ankle) > 0.01,
+    };
     const first: readonly [number, number] = [0, 0.3];
     const second: readonly [number, number] = [0.25, 0.55];
     const window: Record<"left" | "right", readonly [number, number]> =
@@ -173,27 +229,27 @@ export namespace guard {
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
-    const foot = (
-      side: "left" | "right",
-      t: number,
-    ): IAutoMovieMotionHumanFoot.IPlacement => {
-      if (!moves(side)) return from[side];
+    const rotations: Partial<Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>>> = {};
+    const foot = (side: "left" | "right", t: number): IAutoMovieMotionHumanFoot.IPlacement => {
+      if (!moving[side]) return from[side];
       const [a, b] = window[side];
-      const s: number = minimumJerk((t - a) / (b - a)).s;
+      const s: number = minimumJerk.share((t - a) / (b - a));
       const ankle: IAutoMovieVector3 = Vector3.lerp(
         from[side].ankle,
         to[side].ankle,
         s,
       );
+      const rotation: ReturnType<typeof Quaternion.prepareSlerp> = rotations[side] ??=
+        Quaternion.prepareSlerp(from[side].rotation, to[side].rotation);
       return {
         ankle: { ...ankle, y: ankle.y + lift * 4 * s * (1 - s) },
-        rotation: Quaternion.slerp(from[side].rotation, to[side].rotation, s),
+        rotation: rotation(s),
       };
     };
     const contacts: IAutoMovieMotionHumanContactWindow[] = (
       ["left", "right"] as const
     ).flatMap((side): IAutoMovieMotionHumanContactWindow[] => {
-      if (!moves(side))
+      if (!moving[side])
         return [
           {
             part: `${side}Foot`,
@@ -222,12 +278,19 @@ export namespace guard {
       ];
     });
     const bounce: number = Math.abs(sunk) / 3;
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead });
     return {
       contacts,
-      posture: (t: number): IAutoMovieMotionHumanPosture => {
-        const s: number = minimumJerk(t / SET).s;
+      posture: (
+        t: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+        const s: number = minimumJerk.share(t / SET);
         const fade: number =
-          s * (1 - minimumJerk((t - (duration - 0.2)) / 0.2).s);
+          s * (1 - minimumJerk.share((t - (duration - 0.2)) / 0.2));
         const hop: number =
           bounce *
           fade *
@@ -239,21 +302,22 @@ export namespace guard {
             y: entry.root.y + (sunk - entry.root.y) * s - hop,
             z: entry.root.z + (rootAt.z - entry.root.z) * s,
           },
-          yaw: entry.yaw + angle(heading - entry.yaw) * s,
+          yaw: entry.yaw + wrapDegrees(heading - entry.yaw) * s,
           pitch: entry.pitch * (1 - s),
           roll: entry.roll * (1 - s),
-          joints: { ...entry.joints, ...StrikingStance.joints() },
+          joints: {
+            ...joints,
+            neck: [neck[0], neck[1], neck[2] + (faced - neck[2]) * s],
+            head: [head[0], head[1], head[2] + (faced - head[2]) * s],
+          },
           limbs: {},
         };
-        const feet: Record<
-          "left" | "right",
-          IAutoMovieMotionHumanFoot.IPlacement
-        > = {
+        const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
           left: foot("left", t),
           right: foot("right", t),
         };
         const down = (side: "left" | "right"): boolean =>
-          !moves(side) || t <= window[side][0] || t >= window[side][1];
+          !moving[side] || t <= window[side][0] || t >= window[side][1];
         const legs = StrikingStance.legs(body, feet, {
           left: down("left"),
           right: down("right"),
@@ -264,9 +328,10 @@ export namespace guard {
         const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           { ...posture, limbs: legs },
-          5,
+          resolveHumanPosture.KNEE,
+          resolution,
         );
-        const hands = StrikingStance.guard(body, lowered, { lead });
+        const hands: ReturnType<typeof StrikingStance.guard> = guardAt(lowered, resolution, projection);
         return {
           ...lowered,
           limbs: { ...lowered.limbs, ...blendArms(context, hands, s) },
@@ -281,10 +346,7 @@ export namespace guard {
     hands: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm">,
     s: number,
   ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const out: Pick<
-      IAutoMovieMotionHumanPosture["limbs"],
-      "leftArm" | "rightArm"
-    > = {};
+    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
     for (const arm of ["leftArm", "rightArm"] as const) {
       const to: IAutoMovieHumanLimbGoal = hands[arm]!;
       const from: IAutoMovieHumanLimbGoal | undefined =
@@ -301,11 +363,6 @@ export namespace guard {
             };
     }
     return out;
-  }
-
-  /** A heading difference wrapped into (-180, 180]. */
-  function angle(degrees: number): number {
-    return ((((degrees + 180) % 360) + 360) % 360) - 180;
   }
 
   /** The horizontal forward of a heading. */

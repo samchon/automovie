@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMovieJointRotationFrame } from "../../../pose/IAutoMovieJointRotationFrame";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieBone } from "../../../skeleton/IAutoMovieBone";
@@ -31,9 +32,9 @@ export namespace IAutoMovieMotionHumanArmGeometry {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieJointConstraint, IAutoMovieJointRotationFrame identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ISetup {
-    /** The body. */
+    /** The borrowed body, unchanged for this setup's operation. */
     body: IAutoMovieMotionHumanBody;
-    /** The arm's three bones. */
+    /** The arm's upper-arm, forearm and hand identities. */
     bones: {
       /** The upper arm. */
       upper: AutoMovieHumanoidBone;
@@ -42,30 +43,58 @@ export namespace IAutoMovieMotionHumanArmGeometry {
       /** The hand. */
       hand: AutoMovieHumanoidBone;
     };
-    /** Each joint's range; the elbow's and the wrist's may be absent. */
+    /** Effective joint ROM; the upper domain requires swing-twist data. */
     constraint: {
-      /** The shoulder's, with its swing-twist record. */
+      /** The shoulder's range. */
       upper: IAutoMovieJointConstraint;
-      /** The elbow's. */
+      /** The elbow's range, or unconstrained. */
       lower: IAutoMovieJointConstraint | null;
-      /** The wrist's. */
+      /** The wrist's range, or unconstrained. */
       hand: IAutoMovieJointConstraint | null;
     };
-    /** The shoulder's swing-twist frame. */
+    /** The shoulder's canonical swing-twist frame. */
     joint: IAutoMovieJointRotationFrame;
-    /** The skeleton's joint axes. */
+    /** Current skeleton-declared axes over the canonical family table. */
     axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
-    /** Each bone's rest transform from its parent. */
+    /** Borrowed bone-local rest transforms, translation in metres. */
     rest: {
-      /** The upper arm's. */
+      /** The upper arm's rest transform. */
       upper: IAutoMovieBone["rest"];
-      /** The forearm's. */
+      /** The forearm's rest transform. */
       lower: IAutoMovieBone["rest"];
-      /** The hand's. */
+      /** The hand's rest transform. */
       hand: IAutoMovieBone["rest"];
     };
     /** Whether each of nine coordinates is free: shoulder chart coordinates 0..2, elbow clinical angles 3..5, then wrist clinical angles 6..8. */
     free: boolean[];
+
+    /**
+     * Project an actual clinical-degree joint through this unchanged setup;
+     * an unconstrained input returns by identity.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States clinical-degree projection, fixed-setup scope and unconstrained input identity.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable field is a type signature; HumanArmGeometry.prepare supplies the shared engine clamp factory's implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared on this callable field; implementation decomposition belongs to its producer and engine clamp owner.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature performs no computation; actual projection and its unchanged-rig premise are documented on the producer and engine clamp owner.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration contains no algorithm; the producer and shared clamp factory document setup and per-joint costs.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration retains no state; setup-scoped metadata reuse belongs to the supplied clamp implementation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resource; the setup producer documents its actual closure and metadata lifetime.
+     */
+    clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+
+    /**
+     * Read a bone's admitted unit basis at its first conversion's original
+     * diagnostic path; failed admission throws and is not remembered.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States unit-basis output, the first conversion's diagnostic path and failed-admission behavior.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable field is a type signature; HumanArmGeometry.prepare owns the lazy admission implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared on this callable field; its producer owns the per-bone map and normalization delegation.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature performs no computation; basis admission and failed-entry handling are implemented by its producer and normalizeJointAxes.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration contains no algorithm; actual one-time admission and map-hit costs belong to the producer.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration retains no state; the supplied reader owns unchanged-setup basis reuse.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resource; the setup producer owns and bounds its basis map until release.
+     */
+    basis: (bone: AutoMovieHumanoidBone, path: string) => IAutoMovieJointAxes;
   }
 
   /**
@@ -75,26 +104,29 @@ export namespace IAutoMovieMotionHumanArmGeometry {
    * must keep the borrowed input geometry and returned arrays stable during reuse.
    * surface, owners, segments and corners have equal lengths and correspond by index.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion.
-   * @evidence contracts/development/design.md#principled-representation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion.
+   * @evidence contracts/development/common.md#meaningful-documentation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. resting: The external parts the hand rests on in this frame (the base's `rests`, by frame part index): their pairs with the hand are its contact, not a collision.
+   * @evidence contracts/development/design.md#principled-representation tip: Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. corners: Each surface probe's index among its part's own probes, for the audit's reference depth of it. related: Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. resting: The external parts the hand rests on in this frame (the base's `rests`, by frame part index): their pairs with the hand are its contact, not a collision.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: posture/HumanArmDifferential.ts (HumanArmDifferential.step, frame); posture/HumanArmFrame.ts (HumanArmFrame.of, return); posture/HumanArmFrame.ts (HumanArmFrame.built, return); posture/HumanArmFrame.ts (HumanArmFrame.built.near, c); posture/HumanArmGeometry.ts (HumanArmGeometry.placed, at); posture/HumanArmJacobian.ts (HumanArmJacobian.columns, at).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieQuaternion, IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieMotionHumanColliders.IPlaced, IAutoMovieMotionHumanArmGeometry.IShape identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IFrame {
-    /** The shoulder's parent's world rotation and position. */
+    /** The shoulder parent's unit world rotation and world position, metres. */
     parent: {
-      /** Its world rotation. */
+      /** Its unit world rotation. */
       rotation: IAutoMovieQuaternion;
-      /** Its world position. */
+      /** Its world position, metres. */
       position: IAutoMovieVector3;
     };
+
+    /** Actual full-FK shoulder position for this same parent/rest frame, when already available; otherwise chain placement computes it. */
+    shoulder?: IAutoMovieVector3;
     /** Mapped MiddleDistal bone origin in hand-local metres; zero when that distal bone is absent. This is a bone origin, not a measured physical fingertip. */
     tip: IAutoMovieVector3;
-    /** The arm's collider probes (the tangle audit's corners), each in the frame of the arm's segment it rides on (`owners`). */
+    /** Collider probes in the frame of their owning arm segment, metres. */
     surface: IAutoMovieVector3[];
-    /** The segment of the arm each surface probe rides on. */
+    /** The segment carrying each corresponding surface probe. */
     owners: ("upper" | "lower" | "hand")[];
-    /** A sphere about each segment's surface probes, in that segment's frame: the broad phase that spares the probes of a segment far from a shape. */
+    /** Broad-phase spheres about each segment's local surface probes. */
     bounds: Record<
       "upper" | "lower" | "hand",
       {
@@ -104,28 +136,31 @@ export namespace IAutoMovieMotionHumanArmGeometry {
         radius: number;
       }
     >;
-    /** The tangle audit's part each surface probe belongs to, by the order the colliders are placed. */
+    /** Each surface probe's own-body audit part index. */
     segments: number[];
-    /** Each surface probe's index among its part's own probes, for the audit's reference depth of it. */
+    /** Each surface probe's corner index within that part. */
     corners: number[];
-    /** Whether two own-body audit parts are one part or share a joint (`AutoMovieMotionHumanAuditTangleModel.IModel.related`); external frame parts lie beyond this table and have no exclusion. */
+    /** Own-body part pairs that share a joint or are the same part. */
     related: boolean[][];
-    /** The arm's own collider segments, each in the frame of the arm's segment it rides on: what another moving arm keeps clear of. */
+
+    /** The external parts the hand rests on in this frame (the base's `rests`, by frame part index): their pairs with the hand are its contact, not a collision. */
+    resting: ReadonlySet<number>;
+    /** Actual arm colliders in their carrying arm segment's local frame. */
     colliders: {
-      /** The arm's segment it rides on. */
+      /** The segment carrying this collider. */
       owner: "upper" | "lower" | "hand";
-      /** Its bone. */
+      /** Its rig bone. */
       bone: AutoMovieHumanoidBone;
-      /** The tangle audit's part it is. */
+      /** Its own-body audit part. */
       part: number;
-      /** Its pose in the riding segment's frame. */
+      /** Its pose relative to the carrying arm segment. */
       pose: IAutoMovieMotionHumanColliders.IPlaced["pose"];
-      /** Its shapes. */
+      /** Its borrowed physical shapes. */
       shapes: IAutoMovieMotionHumanColliders.IPlaced["shapes"];
     }[];
-    /** The shapes in the arm's way. */
+    /** Posed obstruction shapes in the world. */
     shapes: IAutoMovieMotionHumanArmGeometry.IShape[];
-    /** The collider probes in the arm's way (the tangle audit's corners), in the world, the solved arms left out: each one's point, frame part, index among that part's probes, and bone. Includes external bodies, whose frame parts follow the body's audit parts and have no own-body reference depth. The audit reads a pair both ways, so these are read inside the arm's own colliders as the arm's are inside the shapes. */
+    /** World collider corners outside the moving arms, including external bodies. */
     body: {
       /** Obstacle probe position in world metres. */
       point: IAutoMovieVector3;
@@ -149,13 +184,13 @@ export namespace IAutoMovieMotionHumanArmGeometry {
   export interface IShape {
     /** The bone the shape's segment rides on. */
     bone: AutoMovieHumanoidBone;
-    /** The frame's collider part: the body's audit indices first, then the external placed segments in their order in the base. */
+    /** Own-body audit index, followed by external segments in base order. */
     part: number;
     /** The segment's world pose. */
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"];
-    /** The shape in the segment's frame. */
+    /** The borrowed shape in the segment's frame. */
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];
-    /** Its bounding sphere's world centre. */
+    /** Its bounding sphere's world centre, metres. */
     centre: IAutoMovieVector3;
     /** Its bounding sphere's radius, metres. */
     radius: number;

@@ -2,6 +2,7 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 
@@ -37,7 +38,7 @@ export namespace IAutoMovieMotionHumanArmTarget {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its frame; each member gives its unit and its meaning when absent.
    * @evidence contracts/development/design.md#principled-representation The surface, its point and the hand's rotation fix the wrist; the bend hint fixes the elbow's one remaining freedom; the shape and the curl fix the fingers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, each read by `goal` or `move`; `curl` is optional because most shapes need none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, each read by `goal` or `move`; `curl` is optional because most shapes need none, `offset` because only an issuer that fixes the surface and shape reads it once.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieMotionHumanHand.Surface` and `IAutoMovieMotionHumanHand.Shape` and the interface's vector and quaternion types.
    */
   export interface ITarget {
@@ -58,6 +59,9 @@ export namespace IAutoMovieMotionHumanArmTarget {
 
     /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
     curl?: number;
+
+    /** The surface's offset from the wrist under the shape, hand-local metres, when the row's issuer read it once for every row of one body, side, surface and shape (`AutoMovieMotionHumanArmTarget.prepareTarget`); read from the hand when absent. A row that changes its surface or shape drops it. */
+    offset?: IAutoMovieVector3;
   }
 
   /**
@@ -78,9 +82,11 @@ export namespace IAutoMovieMotionHumanArmTarget {
    *
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start.
+   * @param resolution Optional same-body FK metadata borrowed only during this target invocation.
+   * @param projection Optional genuine same-body ROM projector borrowed only during this invocation.
    * @returns The target.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what each argument is and when the function is called.
+   * @evidence contracts/development/common.md#meaningful-documentation States the current posture/local seconds and optional synchronous same-body FK/genuine ROM loans; target rows contain only the actual numeric hand placement.
    * @evidence contracts/development/design.md#principled-representation A target that rides on something (the performer's trunk, a partner, a prop) is a function of the posture so far and the time, evaluated when the row is written.
    * @evidence contracts/development/design.md#minimal-and-owned-surface One function type, taken by every arm primitive.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A fixed target is the constant function, so there is no second form for it.
@@ -88,6 +94,8 @@ export namespace IAutoMovieMotionHumanArmTarget {
   export type Frame = (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
 
   /**

@@ -1,0 +1,262 @@
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
+} from "@automovie/interface";
+
+import { HumanArmClearance } from "../posture/HumanArmClearance";
+import { HumanArmClearing } from "../posture/HumanArmClearing";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+
+/** An arm's blended joint triples at a unitless share. */
+type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
+
+/**
+ * Prepare or evaluate the correction of a joint-space arm carry. The live
+ * carry takes the current solved arm and planning pose. A fixed course owns
+ * endpoint triples, the arrival clearance geometry and its correction knots.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the inputs that vary and what the course represents.
+ * @evidence contracts/development/design.md#principled-representation The authored shoulder and elbow correction is piecewise linear over joint-space blends. Earlier carried arms contribute their corrected angles and later ones their uncorrected angles at the same share.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The live carry and native fixed-arrival writer share the same geometry and clearance functions.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A moving goal or clearance body calls the live course. Preparation preserves every existing key and threshold.
+ */
+export namespace AutoMovieMotionHumanArmCarryCourse {
+  /**
+   * Prepare a carry whose selected arms are set directly to the same arrival
+   * triples on every source posture and have no limb goals at any share.
+   * The law supplies an invariant arrival posture and still owns the actual
+   * posture at each second, including its changing fingers.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the eligibility premise, returned writer's inputs and ownership of current posture.
+   * @evidence contracts/development/implementation.md#principled-implementation With the goal removed the arm's current resolved endpoint is its direct ROM projection. Uncarried joints and fingers cannot change those three selected joint records. The clearance geometry and both blends are therefore the fixed arrival's, with no world-space goal or obstacle read from the varying posture.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the arrival once, prepare its correction coefficients and write over the current posture at the share supplied by the law.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preparation samples the existing clearance keys only and carries the original angle blend at every queried share. The law handles start and arrival endpoint semantics.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One arrival solve and the original clearance calculation at each fixed key per carried arm. Samples evaluate the chart-aware arm blends and two scalar correction interpolants.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged arrival and absence of goals for the carried arms give identical endpoints. The fixed clearance keys depend on that arrival only.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the fixed blends and scalar corrections until the owning plan releases them. Temporary collision poses and resolution metadata end with preparation.
+   */
+  export function fixed(
+    body: IAutoMovieMotionHumanBody,
+    arrival: IAutoMovieMotionHumanPosture,
+    from: Partial<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
+    >,
+    sides: readonly AutoMovieHumanSide[],
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    share: number,
+  ) => IAutoMovieMotionHumanPosture {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      arrival,
+      undefined,
+      undefined,
+      resolution,
+    ).pose;
+    const course: ReturnType<typeof arms> = arms(
+      body,
+      sides,
+      from,
+      pose,
+      pose,
+      arrival.limbs,
+      resolution,
+      true,
+    );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
+      for (const side of sides) {
+        const arm: IAutoMovieMotionHumanArmClearance.IArm =
+          course[side]!(share);
+        joints[`${side}UpperArm`] = arm.upper;
+        joints[`${side}LowerArm`] = arm.lower;
+        joints[`${side}Hand`] = arm.hand;
+      }
+      return { ...posture, joints };
+    };
+  }
+
+  /**
+   * Build the arm courses from the exact goals and plan pose. With fixed
+   * input the plans are compiled before return. Otherwise the readers are
+   * scoped to one current carry evaluation.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States clearance and endpoint inputs, preparation mode and lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation The correction uses the original clearance function and the corresponding share of the other arm. The fixed option supplies the same share to the already prepared preceding arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare both plain blends before computing correction knots in arm order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Baselines, clearance candidates and blend charts use their original owners and accept no changed bounds.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Live reads inspect only the enclosing keys. Fixed reads interpolate original coefficients compiled across the authored key set.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed data are supplied only by the invariant arrival constructor. Within a live carry, each key's geometry and correction is shared only among identical requests.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Live readers own their query maps for one carry. Compilation replaces those readers with the coefficient-only samplers.
+   */
+  export function arms(
+    body: IAutoMovieMotionHumanBody,
+    sides: readonly AutoMovieHumanSide[],
+    from: Partial<
+      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
+    >,
+    solved: IAutoMoviePose,
+    planning: IAutoMoviePose,
+    limbs: IAutoMovieMotionHumanPosture["limbs"],
+    resolution: ReturnType<typeof prepareHumanPoseResolution>,
+    fixed: boolean = false,
+  ): Partial<Record<AutoMovieHumanSide, Arm>> {
+    // Each carried arm at a share of the carry: the plain blend of its two
+    // ends, and its course, the blend kept clear. An arm's course at a share
+    // is solved in the pose every other carried arm has at that same share
+    // (an earlier arm on its course, a later one on its plain blend), so two
+    // arms that travel together keep clear of each other as they are shown,
+    // and a course does not depend on the instant it is read at.
+
+    const plains: Partial<Record<AutoMovieHumanSide, Arm>> = {};
+    const courses: Partial<Record<AutoMovieHumanSide, Arm>> = {};
+    const prepare: (() => void)[] = [];
+    for (const side of sides) {
+      const held: IAutoMovieMotionHumanArmAngles.IAngles = from[side]!;
+      const goal: IAutoMovieMotionHumanArmAngles.IAngles =
+        AutoMovieMotionHumanArmAngles.angles(solved, side);
+      const blended: (to: IAutoMovieMotionHumanArmAngles.IAngles) => Arm = (
+        to: IAutoMovieMotionHumanArmAngles.IAngles,
+      ): Arm => {
+        const upper: ReturnType<typeof blendHumanJoint.between> =
+          blendHumanJoint.between(
+            body,
+            `${side}UpperArm`,
+            held.upper,
+            to.upper,
+          );
+        const lower: ReturnType<typeof blendHumanJoint.between> =
+          blendHumanJoint.between(
+            body,
+            `${side}LowerArm`,
+            held.lower,
+            to.lower,
+          );
+        const hand: ReturnType<typeof blendHumanJoint.between> =
+          blendHumanJoint.between(body, `${side}Hand`, held.hand, to.hand);
+        return (share: number): IAutoMovieMotionHumanArmClearance.IArm => ({
+          upper: upper(share),
+          lower: lower(share),
+          hand: hand(share),
+        });
+      };
+      const plain: Arm = blended(goal);
+      plains[side] = plain;
+      const aimed: IAutoMovieMotionHumanArmAngles.IAngles =
+        planning === solved
+          ? goal
+          : AutoMovieMotionHumanArmAngles.angles(planning, side);
+      const plan: Arm = planning === solved ? plain : blended(aimed);
+      const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
+        limbs[`${side}Arm`]?.clear ?? [];
+      const posed: Map<number, IAutoMoviePose> = new Map();
+      const pose = (share: number): IAutoMoviePose => {
+        let at: IAutoMoviePose | undefined = posed.get(share);
+        if (at === undefined) {
+          at = planning;
+          // Read after every arm's blend and course exist; an earlier arm
+          // is on its course, a later one on its plain blend, so no two
+          // courses wait on each other.
+          for (const other of sides)
+            if (other !== side)
+              at = HumanArmClearance.posed(
+                at,
+                other,
+                (sides.indexOf(other) < sides.indexOf(side)
+                  ? courses[other]!
+                  : plains[other]!)(share),
+              );
+          posed.set(share, at);
+        }
+        return at;
+      };
+      // Each of the room's two readings keeps the share's blend of its own
+      // two ends: the depth an end's upper arm lies in the chest is not
+      // room for the forearm on the way.
+      const reading = (
+        of: IAutoMovieMotionHumanArmClearance.IArm,
+        share: number,
+        fingers?: IAutoMovieMotionHumanArmAngles.IAngles["fingers"],
+      ): IAutoMovieMotionHumanArmClearance.IBaseline =>
+        HumanArmClearance.baseline(
+          body,
+          fingers === undefined
+            ? pose(share)
+            : HumanArmClearance.fingered(pose(share), side, fingers),
+          side,
+          of,
+          others,
+          resolution(),
+        );
+      let ends:
+        | readonly [
+            IAutoMovieMotionHumanArmClearance.IBaseline,
+            IAutoMovieMotionHumanArmClearance.IBaseline,
+          ]
+        | undefined;
+      const known: Map<number, IAutoMovieMotionHumanArmClearance.IArm> =
+        new Map();
+      // Between two arms that clear the body the blended one may not, so its
+      // elbow is let out by as much as the forearm lacks; each end keeps the
+      // room it holds, so the carry leaves and joins them without a step.
+      // The turn is one course over the carry (`HumanArmClearing.course`),
+      // so two neighbouring instants read neighbouring arms.
+      const clear: Parameters<typeof HumanArmClearing.course>[0]["clear"] = (
+        of: IAutoMovieMotionHumanArmClearance.IArm,
+        key: number,
+      ): IAutoMovieMotionHumanArmClearance.IArm => {
+        ends ??= [reading(held, 0, held.fingers), reading(aimed, 1)];
+        return HumanArmClearance.cleared(
+          body,
+          pose(key),
+          side,
+          of,
+          0,
+          others,
+          {
+            forearm: ends[0].forearm * (1 - key) + ends[1].forearm * key,
+            segments: ends[0].segments * (1 - key) + ends[1].segments * key,
+          },
+          resolution,
+        );
+      };
+      const inputs: Parameters<typeof HumanArmClearing.prepareCourse>[0] = {
+        plain,
+        planned: plan,
+        clear,
+      };
+      courses[side] = (
+        share: number,
+      ): IAutoMovieMotionHumanArmClearance.IArm => {
+        let arm: IAutoMovieMotionHumanArmClearance.IArm | undefined =
+          known.get(share);
+        if (arm === undefined) {
+          arm = HumanArmClearing.course({ ...inputs, share });
+          known.set(share, arm);
+        }
+        return arm;
+      };
+      if (fixed)
+        prepare.push((): void => {
+          courses[side] = HumanArmClearing.prepareCourse(inputs);
+        });
+    }
+    for (const compile of prepare) compile();
+    return courses;
+  }
+}

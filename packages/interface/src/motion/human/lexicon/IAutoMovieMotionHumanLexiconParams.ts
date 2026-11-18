@@ -1,19 +1,25 @@
 import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
+import type { IAutoMovieMotionHumanLexiconArcheryParams } from "./IAutoMovieMotionHumanLexiconArcheryParams";
 import type { IAutoMovieMotionHumanLexiconBladeParams } from "./IAutoMovieMotionHumanLexiconBladeParams";
+import type { IAutoMovieMotionHumanLexiconBoltActionParams } from "./IAutoMovieMotionHumanLexiconBoltActionParams";
 import type { IAutoMovieMotionHumanLexiconCarriedParams } from "./IAutoMovieMotionHumanLexiconCarriedParams";
+import type { IAutoMovieMotionHumanLexiconDefenceParams } from "./IAutoMovieMotionHumanLexiconDefenceParams";
 import type { IAutoMovieMotionHumanLexiconDrillParams } from "./IAutoMovieMotionHumanLexiconDrillParams";
 import type { IAutoMovieMotionHumanLexiconEmblemParams } from "./IAutoMovieMotionHumanLexiconEmblemParams";
 import type { IAutoMovieMotionHumanLexiconFirearmParams } from "./IAutoMovieMotionHumanLexiconFirearmParams";
 import type { IAutoMovieMotionHumanLexiconFloorFallParams } from "./IAutoMovieMotionHumanLexiconFloorFallParams";
 import type { IAutoMovieMotionHumanLexiconFloorRollParams } from "./IAutoMovieMotionHumanLexiconFloorRollParams";
 import type { IAutoMovieMotionHumanLexiconGaitParams } from "./IAutoMovieMotionHumanLexiconGaitParams";
+import type { IAutoMovieMotionHumanLexiconGunDrillParams } from "./IAutoMovieMotionHumanLexiconGunDrillParams";
 import type { IAutoMovieMotionHumanLexiconGymnasticsParams } from "./IAutoMovieMotionHumanLexiconGymnasticsParams";
 import type { IAutoMovieMotionHumanLexiconHabitParams } from "./IAutoMovieMotionHumanLexiconHabitParams";
 import type { IAutoMovieMotionHumanLexiconLabourParams } from "./IAutoMovieMotionHumanLexiconLabourParams";
 import type { IAutoMovieMotionHumanLexiconManipulateParams } from "./IAutoMovieMotionHumanLexiconManipulateParams";
+import type { IAutoMovieMotionHumanLexiconMusketDrillParams } from "./IAutoMovieMotionHumanLexiconMusketDrillParams";
 import type { IAutoMovieMotionHumanLexiconPoseParams } from "./IAutoMovieMotionHumanLexiconPoseParams";
 import type { IAutoMovieMotionHumanLexiconPursuitParams } from "./IAutoMovieMotionHumanLexiconPursuitParams";
 import type { IAutoMovieMotionHumanLexiconRegraspParams } from "./IAutoMovieMotionHumanLexiconRegraspParams";
+import type { IAutoMovieMotionHumanLexiconRevolverParams } from "./IAutoMovieMotionHumanLexiconRevolverParams";
 import type { IAutoMovieMotionHumanLexiconRideParams } from "./IAutoMovieMotionHumanLexiconRideParams";
 import type { IAutoMovieMotionHumanLexiconSocialParams } from "./IAutoMovieMotionHumanLexiconSocialParams";
 import type { IAutoMovieMotionHumanLexiconSportCarryParams } from "./IAutoMovieMotionHumanLexiconSportCarryParams";
@@ -24,8 +30,10 @@ import type { IAutoMovieMotionHumanLexiconSportThrowParams } from "./IAutoMovieM
 import type { IAutoMovieMotionHumanLexiconSportWorkoutParams } from "./IAutoMovieMotionHumanLexiconSportWorkoutParams";
 import type { IAutoMovieMotionHumanLexiconStageFightParams } from "./IAutoMovieMotionHumanLexiconStageFightParams";
 import type { IAutoMovieMotionHumanLexiconStanceParams } from "./IAutoMovieMotionHumanLexiconStanceParams";
+import type { IAutoMovieMotionHumanLexiconStrikeParams } from "./IAutoMovieMotionHumanLexiconStrikeParams";
 import type { IAutoMovieMotionHumanLexiconSupportParams } from "./IAutoMovieMotionHumanLexiconSupportParams";
 import type { IAutoMovieMotionHumanLexiconSwordParams } from "./IAutoMovieMotionHumanLexiconSwordParams";
+import type { IAutoMovieMotionHumanLexiconThrownWeaponParams } from "./IAutoMovieMotionHumanLexiconThrownWeaponParams";
 import type { IAutoMovieMotionHumanLexiconUpperDressParams } from "./IAutoMovieMotionHumanLexiconUpperDressParams";
 import type { IAutoMovieMotionHumanLexiconUpperFaceParams } from "./IAutoMovieMotionHumanLexiconUpperFaceParams";
 import type { IAutoMovieMotionHumanLexiconUpperGestureParams } from "./IAutoMovieMotionHumanLexiconUpperGestureParams";
@@ -154,6 +162,30 @@ export interface IAutoMovieMotionHumanLexiconParams {
 
   /** Export-name to open parameters for the upperTool family; registered law names are read from the runtime law records. */
   upperTool: IAutoMovieMotionHumanLexiconUpperToolParams;
+
+  /** Export-name to open parameters for the strike family; registered law names are read from the runtime law records. */
+  strike: IAutoMovieMotionHumanLexiconStrikeParams;
+
+  /** Export-name to open parameters for the defence family; registered law names are read from the runtime law records. */
+  defence: IAutoMovieMotionHumanLexiconDefenceParams;
+
+  /** Export-name to open parameters for the thrownWeapon family; registered law names are read from the runtime law records. */
+  thrownWeapon: IAutoMovieMotionHumanLexiconThrownWeaponParams;
+
+  /** Export-name to open parameters for the gunDrill family; registered law names are read from the runtime law records. */
+  gunDrill: IAutoMovieMotionHumanLexiconGunDrillParams;
+
+  /** Export-name to open parameters for the musketDrill family; registered law names are read from the runtime law records. */
+  musketDrill: IAutoMovieMotionHumanLexiconMusketDrillParams;
+
+  /** Export-name to open parameters for the boltAction family; registered law names are read from the runtime law records. */
+  boltAction: IAutoMovieMotionHumanLexiconBoltActionParams;
+
+  /** Export-name to open parameters for the revolver family; registered law names are read from the runtime law records. */
+  revolver: IAutoMovieMotionHumanLexiconRevolverParams;
+
+  /** Export-name to open parameters for the archery family; registered law names are read from the runtime law records. */
+  archery: IAutoMovieMotionHumanLexiconArcheryParams;
 }
 
 /**

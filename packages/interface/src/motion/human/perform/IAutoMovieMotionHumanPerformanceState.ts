@@ -1,9 +1,11 @@
+import type { IAutoMovieInteractionEvent } from "../../../cinematics/IAutoMovieInteractionEvent";
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieIntent } from "../../composition/IAutoMovieIntent";
 import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
 import type { IAutoMovieScheduleCue } from "../../composition/IAutoMovieScheduleCue";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
+import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionPropHold } from "../law/IAutoMovieMotionPropHold";
@@ -12,8 +14,11 @@ import type { IAutoMovieMotionHumanBlast } from "./IAutoMovieMotionHumanBlast";
 import type { IAutoMovieMotionHumanForce } from "./IAutoMovieMotionHumanForce";
 import type { IAutoMovieMotionHumanObstacle } from "./IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPerformance } from "./IAutoMovieMotionHumanPerformance";
+import type { IAutoMovieMotionHumanPerformanceSoft } from "./IAutoMovieMotionHumanPerformanceSoft";
+import type { IAutoMovieMotionHumanPerformanceTrial } from "./IAutoMovieMotionHumanPerformanceTrial";
 import type { IAutoMovieMotionHumanPerformer } from "./IAutoMovieMotionHumanPerformer";
 import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
+import type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
 import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
 
 /**
@@ -28,7 +33,7 @@ import type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegmen
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the record holds, who reads it, why its members are public and that it is not exported. bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
  * @evidence contracts/development/design.md#principled-representation One record of the resolved performance, built in one place and read by functions that take it, in place of one class of two thousand lines. bone: The bone it is worn on; held in the hand when absent. mount: The other prop's socket it rides (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when absent. inHand: The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members are the ones the performance kept privately before the split (#3399); none was added. Runtime boundary references: perform/HumanHitTrack.ts (HumanHitTrack.instants, self); perform/HumanHitTrack.ts (HumanHitTrack.provisional, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.reader, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.find, self); perform/HumanPerformanceAim.ts (HumanPerformanceAim.aim, self); perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.contacts, self).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members are the ones the performance kept privately before the split (#3399), and the readers' per-performance results (soft parts, prop writers and posings, flights, hits) the performance owns. Runtime boundary references: perform/HumanHitTrack.ts (HumanHitTrack.instants, self); perform/HumanHitTrack.ts (HumanHitTrack.provisional, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.reader, self); perform/HumanPerformanceAhead.ts (HumanPerformanceAhead.find, self); perform/HumanPerformanceAim.ts (HumanPerformanceAim.aim, self); perform/HumanPerformanceContacts.ts (HumanPerformanceContacts.contacts, self).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader keeps a copy of a member; the caches live here and are settled here. Shares the canonical IAutoMovieMotionHumanPerformance.IInput, AutoMovieHumanoidBone, IAutoMovieRigidTransform, IAutoMovieMotionHumanContactWindow, IAutoMovieMotionHumanSegment, IAutoMovieMotionWeaponPath identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanPerformanceState {
@@ -105,8 +110,47 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
   resolving: boolean;
-}
 
+  /** The performance's resolved flight policy (`IAutoMovieMotionHumanPerformance.IInput.flight`), captured once for this input. */
+  readonly flight: NonNullable<
+    IAutoMovieMotionHumanPerformance.IInput["flight"]
+  >;
+
+  /** How many actions have been placed so far, the count an alignment trial is checked against. */
+  placements: number;
+
+  /** The plan the last alignment trial made, kept until the next placement reads or drops it; none otherwise. */
+  trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
+
+  /** Incumbent arm solutions lent between plans of one intent while resolving the schedule. */
+  readonly handovers: Map<IAutoMovieIntent, IAutoMovieMotionHumanActionContext.IHandover["last"]>;
+
+  /** Each performer's solved soft parts, by subject, kept once the performance is placed (`HumanPerformanceSoft.of`). */
+  readonly soft: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved>;
+
+  /** Each prop's articulation writers in film order, by the prop, kept once the performance is placed (`HumanPerformanceObject.writers`). */
+  readonly writers: Map<string, readonly IAutoMovieMotionHumanPerformanceState.IWriter[]>;
+
+  /** Each prop's last posed reading with its film second, by the prop, kept once the performance is placed (`HumanPerformanceObject.posed`). */
+  readonly posed: Map<
+    string,
+    {
+      /** The film second read. */
+      seconds: number;
+      /** The prop posed at that second. */
+      posed: IAutoMovieMotionHumanProp.IPosed;
+    }
+  >;
+
+  /** Each launched prop's flights, by the prop, kept once the performance is placed (`HumanPropFlight.flights`). */
+  readonly flights: Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]>;
+
+  /** The flights of each prop being found, so a launch reading its prop sees the flights before it; emptied of a prop when its flights are found. */
+  readonly flying: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]>;
+
+  /** Every hit of the placed performance in time order (`HumanPerformanceHits.hits`), kept on its first read once the performance is placed; none before. */
+  hits: readonly IAutoMovieInteractionEvent[] | undefined;
+}
 /**
  * Companion types of {@link HumanPerformanceState}.
  *
@@ -171,6 +215,50 @@ export namespace IAutoMovieMotionHumanPerformanceState {
 
     /** The grip window's in-hand motion of the prop, composed on `offset` by the span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the prop keeps its offset. */
     inHand?: IAutoMovieMotionHumanContactWindow["inHand"];
+  }
+
+  /**
+   * One timed writer of a prop articulation's travel (`HumanPerformanceObject.writers`).
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
+   * @evidence contracts/development/design.md#principled-representation A writer names its authored coordinate and the independent degree of freedom it addresses, its film-second window and its travel there.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, all read by `HumanPerformanceObject`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A prop's own track leaves the source absent, so one list orders both kinds.
+   */
+  export interface IWriter {
+    /** The articulation affordance. */
+    articulation: string;
+
+    /** The independent degree of freedom this coordinate addresses. */
+    leader: string;
+
+    /** Film second it begins. */
+    from: number;
+
+    /** Film second it ends. */
+    to: number;
+
+    /**
+     * The travel at a film second inside the window.
+     *
+     * @param seconds Film seconds within `from` to `to`.
+     * @returns The coordinate's travel, in the articulation's own unit.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the input's frame and the result.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable member has no algorithm body; the placed performance supplies it from the driving action's writer.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the provider owns its decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns its cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature defines no cache; the provider owns result equivalence.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handle; the provider owns what it keeps.
+     */
+    travel(seconds: number): number;
+
+    /** The action that drives it, or undefined for the prop's own track. */
+    source?: IAutoMovieMotionHumanSegment & {
+      /** The driving performer's subject id. */
+      subject: string;
+    };
   }
 
   /**

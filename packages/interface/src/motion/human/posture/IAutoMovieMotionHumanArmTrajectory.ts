@@ -34,4 +34,24 @@ export namespace IAutoMovieMotionHumanArmTrajectory {
   export type Trajectory = (
     seconds: number,
   ) => IAutoMovieMotionHumanArmClearance.IArm;
+
+  /**
+   * A solved trajectory as plan data: what a later solve of the same action
+   * (a replan at another start or over a longer span) starts from.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning, frame and what the record is for.
+   * @evidence contracts/development/design.md#principled-representation The knots' seconds, each arm's coordinates at each knot in the frame the problem was solved in (its mirror image for a left-first problem), and the penalty reached, the three things a penalty method's continuation needs.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `solve` and taken back by `solve`; a holder passes it on unread.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No verdict is carried: a state is only a start, admitted anew by the solve that takes it.
+   */
+  export interface IState {
+    /** The knots' seconds, ascending. */
+    times: readonly number[];
+
+    /** Each arm's coordinates at each knot, in the solved problem's own order and mirror image. */
+    x: readonly (readonly (readonly number[])[])[];
+
+    /** The penalty the solution was reached at. */
+    penalty: number;
+  }
 }

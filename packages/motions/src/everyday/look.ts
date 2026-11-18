@@ -15,8 +15,10 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 
@@ -50,7 +52,7 @@ import { HumanGaze } from "./HumanGaze";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the overlay flag, the field and the plan the performance dispatches through, and `reactionLaw`, which `HumanResponse` reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
  */
 export namespace look {
@@ -60,7 +62,7 @@ export namespace look {
   /** Cancel table: a look holds no contact beyond the stand, so it can be cut anywhere. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    walk: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
@@ -85,15 +87,14 @@ export namespace look {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan times the shift; the stand law places the body, or the carrier does when the look is an overlay, which then takes the head and, when recruited, the trunk; direction, split, durations and the aiming solve are owned by HumanGaze, and the reaction draw is `reaction`.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts FIELD is a named constant and the 0.6 s hold after settling is the documented default duration; nothing is special-cased per target or body.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning is constant work plus one base plan; each posture costs one aim of the target, one base posture (the stand's or the carrier's) and one gaze solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The split, durations and delay are computed once per instance; the target is re-read per instant because it may move.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's context, timing and stand base, released with the performance; nothing grows per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Split, durations and delay prepare once; every instant re-reads its actual target and lends one local/host FK workspace to the complete base and raw gaze aim. A supplied genuine ROM projector is forwarded to the base only, preserving gaze's raw authored-trunk policy.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains fixed context/timing/base until performance release. Its current lazy FK getter and optional ROM loan end on synchronous return/throw, without entering the returned posture or retained callback.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLook.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const recruit: IAutoMovieMotionHumanGaze.Recruit =
-      context.params.with ?? "auto";
-    const at = (seconds: number): IAutoMovieVector3 =>
+    const recruit: IAutoMovieMotionHumanGaze.Recruit = context.params.with ?? "auto";
+    const at: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 =>
       context.aim(context.params.target, context.start + seconds).point;
     const first: { yaw: number; pitch: number } = HumanGaze.direction(
       context.body,
@@ -104,10 +105,10 @@ export namespace look {
       throw new HumanRefusal({
         kind: "parameter",
         axis: "cue",
-        value: context.params.cue ?? "seen",
-        feasible: { kind: "alternatives", values: ["signal"] },
+        value: null,
+        feasible: { kind: "alternatives", values: ["seen", "signal"] },
         reason: `the target lies ${first.yaw.toFixed(1)} degrees off the heading, outside the attended ${FIELD} degrees; declare the cue that draws the look`,
-        fix: 'declare the cue that draws the look (cue: "signal"), or turn toward the target first',
+        fix: 'declare the cue that draws the look (cue: "seen" or "signal"), or turn toward the target first',
       });
     const delay: number =
       context.params.cue === undefined
@@ -139,8 +140,8 @@ export namespace look {
       context.carrier === undefined
         ? stand.plan({ ...context, params: { seconds: duration } })
         : AutoMovieMotionHumanBase.under(context, duration);
-    const weight = (seconds: number, span: number): number =>
-      minimumJerk((seconds - delay) / span).s;
+    const weight: (seconds: number, span: number) => number = (seconds: number, span: number): number =>
+      minimumJerk.share((seconds - delay) / span);
     return {
       duration,
       events: [
@@ -159,10 +160,13 @@ export namespace look {
                 ? (["head"] as const)
                 : (["trunk", "head"] as const),
           }),
-      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-        HumanGaze.aim(
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+        return HumanGaze.aim(
           context.body,
-          base.posture(seconds),
+          base.posture(seconds, undefined, read, projection),
           at(seconds),
           recruit,
           {
@@ -170,7 +174,9 @@ export namespace look {
             head: weight(seconds, head),
             trunk: weight(seconds, trunk),
           },
-        ),
+          read,
+        );
+      },
     };
   }
 
@@ -191,7 +197,7 @@ export namespace look {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Deterministic in its stream; the plan calls it once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function reaction(
+  function reaction(
     skill: IAutoMovieMotionHumanSkill,
     random: IAutoMovieRandom,
     cue: "seen" | "signal",

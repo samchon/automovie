@@ -1,8 +1,10 @@
 import { Quaternion, samplePoseVelocity } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
@@ -16,6 +18,7 @@ import { HumanBase } from "../law/HumanBase";
 import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
+import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
  * The state a person enters an action from: the displayed pose and its
@@ -24,7 +27,7 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and what it reads from its siblings.
  * @evidence contracts/development/design.md#principled-representation One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Split from `HumanSegment` unchanged, so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One entry constructor and one support reader use HumanSegment's existing records; the two rate-reading policies remain private.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the sibling owners; nothing is duplicated between them.
  */
 export namespace HumanSegmentEntry {
@@ -36,6 +39,14 @@ export namespace HumanSegmentEntry {
    * @param seconds The entry second.
    * @param blend The inertialization the cut into the action decays over, seconds; absent for an action entered over another.
    * @returns The entry state.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines film-second entry, optional decay duration, displayed pose/rates and the feet/support/base/hold state returned to the next action.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserves the existing complete shown or cold-plus-continued one-sided pose/rate samples at STEP seconds. World foot velocity, acceleration and spin consume only the two foot frames and retain their original difference formulas; four demanded FK reads share exact scalar prerequisites under the same unchanged skeleton topology.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One same-body evaluation preparation reaches every actual source pose, raw posture, layer and four foot FK reads; then derive the two feet and one support list read by both the entry and its base classification.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the cold pose distinct from a continued instant and evaluates every distinct source pose and FK input. The sample times, rate arithmetic, contacts, and admissions stay the same.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Before a first action, the same static initial pose serves all three rate samples and the two foot frames are read once. A moving entry computes only the foot ancestors and does not repeat FK when the displayed and sampled poses are the same object. One O(C) support scan serves entry and base.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unresolved initial posture has no time input, so its rate samples read one unchanged result. Distinct moving and continued samples keep their own frames. Base classification borrows the current support list without mutating or retaining it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One entry-owned preparation holds rig metadata and last successful joint/world scalar snapshots per visited bone name, O(K) for K identities, until return or throw. The four fresh demanded maps are local; returned foot vectors/quaternions retain their original value ownership, while complete pose/posture/from-plan/support references remain as before. No reader or supplier enters the returned entry or a retained plan.
    */
   export function entry(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -43,7 +54,9 @@ export namespace HumanSegmentEntry {
     seconds: number,
     blend?: number,
   ): IAutoMovieMotionHumanEntryState {
-    const body = person.performer.body;
+    const body: IAutoMovieMotionHumanBody = person.performer.body;
+    const prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
+
     // The difference interval of every rate read here, seconds.
     const step: number = HumanSegmentPose.STEP;
 
@@ -55,8 +68,8 @@ export namespace HumanSegmentEntry {
     // shown.
     const read: HumanSegmentPose.IContinued =
       previous !== undefined && blend !== undefined
-        ? left(person, previous, seconds, blend)
-        : shown(person, previous, seconds, step);
+        ? left(person, previous, seconds, blend, prepared)
+        : shown(person, previous, seconds, step, prepared);
     const state: IAutoMoviePoseState = read.state;
     const posture: IAutoMovieMotionHumanPosture =
       previous === undefined
@@ -68,14 +81,23 @@ export namespace HumanSegmentEntry {
                 previous.plan.duration,
                 Math.max(0, seconds - previous.start),
               ),
+              undefined,
+              prepared.resolution,
+              prepared.clamp,
             ),
             seconds,
+            prepared.resolution,
+            prepared.clamp,
           );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    const bones: ReturnType<typeof poseBones> = poseBones(
       body,
       state.pose,
+      prepared.resolution(),
+      FEET,
     );
-    const planted = (part: "leftFoot" | "rightFoot"): boolean => {
+    const planted: (part: "leftFoot" | "rightFoot") => boolean = (
+      part: "leftFoot" | "rightFoot",
+    ): boolean => {
       if (previous === undefined) return true;
       const u: number = Math.min(
         1,
@@ -89,33 +111,37 @@ export namespace HumanSegmentEntry {
           u <= c.to + 1e-9,
       );
     };
+
     // The same three samples the pose velocity was read from, so a foot's
     // rate is the one-sided difference of the motion that ends here.
-    const [instant, near, far] = read.samples.map(
-      (
-        pose: IAutoMoviePose,
-      ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
-        poseBones(body, pose),
-    ) as [
-      Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ];
-    const foot = (
+    const frames = (pose: IAutoMoviePose): ReturnType<typeof poseBones> =>
+      pose === state.pose ? bones : poseBones(body, pose, prepared.resolution(), FEET);
+    const instant: ReturnType<typeof poseBones> = frames(read.samples[0]);
+    const near: ReturnType<typeof poseBones> = frames(read.samples[1]);
+    const far: ReturnType<typeof poseBones> = frames(read.samples[2]);
+    const foot: (side: "left" | "right") => IAutoMovieMotionHumanEntryState.IFoot = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanEntryState.IFoot => {
       const here: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
       const from: IAutoMovieResolvedBone = instant.get(`${side}Foot`)!;
       const a: IAutoMovieResolvedBone = near.get(`${side}Foot`)!;
       const b: IAutoMovieResolvedBone = far.get(`${side}Foot`)!;
-      const rate = (x: number, y: number, z: number): number =>
-        (3 * x - 4 * y + z) / (2 * step);
-      const bend = (x: number, y: number, z: number): number =>
-        (x - 2 * y + z) / (step * step);
+      const rate: (x: number, y: number, z: number) => number = (
+        x: number,
+        y: number,
+        z: number,
+      ): number => (3 * x - 4 * y + z) / (2 * step);
+      const bend: (x: number, y: number, z: number) => number = (
+        x: number,
+        y: number,
+        z: number,
+      ): number => (x - 2 * y + z) / (step * step);
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(
         from.worldRotation,
       );
-      const turn = (bone: IAutoMovieResolvedBone): IAutoMovieVector3 =>
+      const turn: (bone: IAutoMovieResolvedBone) => IAutoMovieVector3 = (
+        bone: IAutoMovieResolvedBone,
+      ): IAutoMovieVector3 =>
         samplePoseVelocity.rotationVector(
           Quaternion.multiply(bone.worldRotation, inverse),
         );
@@ -142,36 +168,57 @@ export namespace HumanSegmentEntry {
         },
       };
     };
+
     // The root's acceleration by the one-sided second difference of the same
     // three samples; a body with no previous action stands at rest.
-    const [p0, p1, p2] = read.samples.map(
-      (pose: IAutoMoviePose): IAutoMovieVector3 =>
-        pose.root?.translation ?? { x: 0, y: 0, z: 0 },
-    ) as [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
-    const second = (x: number, y: number, z: number): number =>
-      (x - 2 * y + z) / (step * step);
+    const p0: IAutoMovieVector3 = read.samples[0].root?.translation ?? {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+    const p1: IAutoMovieVector3 = read.samples[1].root?.translation ?? {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+    const p2: IAutoMovieVector3 = read.samples[2].root?.translation ?? {
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+    const second: (x: number, y: number, z: number) => number = (
+      x: number,
+      y: number,
+      z: number,
+    ): number => (x - 2 * y + z) / (step * step);
+    const acceleration: IAutoMovieVector3 =
+      previous === undefined
+        ? { x: 0, y: 0, z: 0 }
+        : {
+            x: second(p0.x, p1.x, p2.x),
+            y: second(p0.y, p1.y, p2.y),
+            z: second(p0.z, p1.z, p2.z),
+          };
+    const feet: IAutoMovieMotionHumanEntryState["feet"] = {
+      left: foot("left"),
+      right: foot("right"),
+    };
+    const bearing: IAutoMovieMotionHumanEntryState.ISupport[] = supports(previous, seconds);
     return {
       seconds,
       pose: state.pose,
       velocity: state.velocity,
-      acceleration:
-        previous === undefined
-          ? { x: 0, y: 0, z: 0 }
-          : {
-              x: second(p0.x, p1.x, p2.x),
-              y: second(p0.y, p1.y, p2.y),
-              z: second(p0.z, p1.z, p2.z),
-            },
+      acceleration,
       posture,
-      feet: { left: foot("left"), right: foot("right") },
-      supports: supports(previous, seconds),
+      feet,
+      supports: bearing,
       base:
         previous === undefined
           ? { kind: "standing" }
           : HumanBase.after({
               declared: previous.plan.base,
               entered: previous.context.entry.base,
-              supports: supports(previous, seconds),
+              supports: bearing,
               share: (seconds - previous.start) / previous.plan.duration,
             }),
       holds: Object.fromEntries(
@@ -180,11 +227,18 @@ export namespace HumanSegmentEntry {
             (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
               h.from <= seconds && seconds < h.until,
           )
-          .map(
-            (
-              h: IAutoMovieMotionHumanSegment.IHeld,
-            ): ["left" | "right", string] => [h.side, h.prop],
-          ),
+          .map((h: IAutoMovieMotionHumanSegment.IHeld): ["left" | "right", string] => [
+            h.side,
+            h.prop,
+          ]),
+      ),
+      uses: Object.fromEntries(
+        person.holds.flatMap(
+          (h: IAutoMovieMotionHumanSegment.IHeld): [["left" | "right", IAutoMovieMotionHumanGraspUse.IUse]] | [] =>
+            h.from <= seconds && seconds < h.until && h.use !== undefined
+              ? [[h.side, h.use]]
+              : [],
+        ),
       ),
       ...(previous === undefined
         ? {}
@@ -215,6 +269,14 @@ export namespace HumanSegmentEntry {
    * @param previous The action left, if any.
    * @param seconds The film second.
    * @returns The supports.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States initial ground plants and current non-grip/non-strike supports at film seconds.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the previous plan's actual contact windows at its clamped share, retaining the existing 1e-9 comparison allowance and declared contact/support representations.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Return two initial ground plants or one ordered contact filter and projection.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps duplicates and order, excludes only grip/strike kinds and does not alter window endpoints or invent a support for an existing action.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Scans C contact windows in O(C) time and returns O(A) wrappers for A active supports; the initial case has two entries.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads current windows and creates its own result; no support snapshot is cached across changing placement or queries.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state. The returned array/wrappers are fresh; existing contact support payloads stay borrowed, while initial ground payloads are new.
    */
   export function supports(
     previous: IAutoMovieMotionHumanSegment | undefined,
@@ -222,9 +284,7 @@ export namespace HumanSegmentEntry {
   ): IAutoMovieMotionHumanEntryState.ISupport[] {
     if (previous === undefined)
       return (["leftFoot", "rightFoot"] as const).map(
-        (
-          part: "leftFoot" | "rightFoot",
-        ): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanEntryState.ISupport => ({
           part,
           kind: "plant",
           support: { kind: "ground" },
@@ -243,9 +303,7 @@ export namespace HumanSegmentEntry {
           u <= c.to + 1e-9,
       )
       .map(
-        (
-          c: IAutoMovieMotionHumanContactWindow,
-        ): IAutoMovieMotionHumanEntryState.ISupport => ({
+        (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanEntryState.ISupport => ({
           part: c.part,
           kind: c.kind,
           support: c.support,
@@ -269,15 +327,21 @@ export namespace HumanSegmentEntry {
     previous: IAutoMovieMotionHumanSegment | undefined,
     seconds: number,
     step: number,
+    prepared: prepareHumanSegmentPose.IPrepared,
   ): HumanSegmentPose.IContinued {
+    const rig: ReturnType<typeof humanRig> = humanRig(person.performer.body);
+    if (previous === undefined) {
+      const pose: IAutoMoviePose = HumanSegmentPose.initial(person, undefined, prepared);
+      return {
+        state: samplePoseVelocity((): IAutoMoviePose => pose, seconds, step, "before", rig),
+        samples: [pose, pose, pose],
+      };
+    }
     const poses: Map<number, IAutoMoviePose> = new Map();
-    const read = (t: number): IAutoMoviePose => {
+    const read: (t: number) => IAutoMoviePose = (t: number): IAutoMoviePose => {
       let pose: IAutoMoviePose | undefined = poses.get(t);
       if (pose === undefined) {
-        pose =
-          previous === undefined
-            ? HumanSegmentPose.initial(person)
-            : HumanSegmentPose.of(person, previous, t);
+        pose = HumanSegmentPose.of(person, previous, t, prepared);
         poses.set(t, pose);
       }
       return pose;
@@ -287,7 +351,7 @@ export namespace HumanSegmentEntry {
       seconds,
       step,
       "before",
-      humanRig(person.performer.body),
+      rig,
     );
     return {
       state,
@@ -311,10 +375,11 @@ export namespace HumanSegmentEntry {
     previous: IAutoMovieMotionHumanSegment,
     seconds: number,
     blend: number,
+    prepared: prepareHumanSegmentPose.IPrepared,
   ): HumanSegmentPose.IContinued {
     return HumanSegmentPose.continued(
       (t: number, near?: HumanSegmentPose.INear): HumanSegmentPose.ISeeded =>
-        HumanSegmentPose.seeded(person, previous, t, near),
+        HumanSegmentPose.seeded(person, previous, t, near, prepared),
       seconds,
       "before",
       humanRig(person.performer.body),
@@ -322,3 +387,6 @@ export namespace HumanSegmentEntry {
     );
   }
 }
+
+/** Entry foot rates consume no world frames outside these two end bones. */
+const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);

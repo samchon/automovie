@@ -129,7 +129,11 @@ export function everydayPostureCases(
         ),
         within(
           "thighs not inside the seat",
-          Math.max(0, -thighs(sit!.end)),
+          // Thighs never over the seat are no seated thighs: an unread
+          // reading fails rather than passing as zero.
+          Number.isFinite(thighs(sit!.end))
+            ? Math.max(0, -thighs(sit!.end))
+            : Infinity,
           0.01,
           "mm",
         ),
@@ -255,8 +259,11 @@ export function everydayPostureCases(
       verdicts: [
         {
           name: "sole clearance over the box",
-          passed: clearance >= 0.05,
-          detail: `${(clearance * 1000).toFixed(1)} mm (at least 50 mm)`,
+          // A sole never over the box did not step over it.
+          passed: Number.isFinite(clearance) && clearance >= 0.05,
+          detail: Number.isFinite(clearance)
+            ? `${(clearance * 1000).toFixed(1)} mm (at least 50 mm)`
+            : "no sole over the box",
         },
         ...everydayVerdicts.standard(performance, "a", body),
       ],

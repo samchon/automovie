@@ -1,4 +1,4 @@
-import {
+import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
   IAutoMovieJointConstraint,
@@ -93,7 +93,15 @@ const THUMB_END = constraint(range(-5, 90), null, null);
  * 108:215), not reached; the figure is horizontal adduction from 90 degrees
  * of abduction, 130 in Physiotutors' active range of motion norms (IDEA
  * gives 140; Norkin and White tabulate none), and applied elsewhere it
- * clamps a hand wiping the mouth, which reaches 131.
+ * clamps a hand wiping the mouth, which reaches 131, and an elbow brought
+ * to the midline ahead of the chest (half the shoulder breadth across: 135
+ * degrees for an upper arm of 0.226 m on a half breadth of 0.153 m). That
+ * figure is the clinical angle only on the horizontal great circle: the
+ * test starts at the T-pose and turns the arm in the horizontal plane, so
+ * its angle is this swing there and no other circle has a stated norm. The
+ * arm planner's variables are the swing-twist chart this radius scales, so
+ * the figure is not changed for one place: a wider one changes every arm
+ * trajectory's chart.
  */
 const REACH: number = 130;
 

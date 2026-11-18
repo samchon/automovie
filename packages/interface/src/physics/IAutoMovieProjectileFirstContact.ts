@@ -46,6 +46,27 @@ export namespace IAutoMovieProjectileFirstContact {
     /** Unique id among the colliders. */
     id: string;
 
+    /**
+     * Measure signed separation from the world segment at launch-relative seconds.
+     * Coincident endpoints represent a point. Return the same separation in metres
+     * as nearest, before subtracting projectile radius. The sweep uses nearest
+     * when this reader is absent and to construct the chosen surface witness.
+     * Errors propagate.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the world inputs, flight clock, signed scalar, fallback and failure behavior.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The collider producer implements the shape calculation under the documented equality contract.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable signature leaves computation structure to the collider producer.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer implements and establishes exact equality with its nearest reader.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The collider producer's geometry determines the work.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature implements no sharing. The collider producer owns any shared computation between its readers.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resources. The collider producer owns any state captured by its reader.
+     */
+    distance?(
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      seconds: number,
+    ): number;
+
     /** Optional synchronous certificate for an explicitly resolved initial contact, on the supplied flight clock. Return undefined when the model cannot prove departure; shared resolver validation may throw. No callback is retained after the search.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Specifies the departure callback or sampling contract, including its clock and ownership obligations.

@@ -1,9 +1,13 @@
 import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
+import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
 import type { IAutoMovieMotionEvent } from "../../IAutoMovieMotionEvent";
+import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
+import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanFlight } from "./IAutoMovieMotionHumanFlight";
 import type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
@@ -35,10 +39,41 @@ export interface IAutoMovieMotionHumanActionPlan {
   /** Contact windows, shares of the duration. */
   contacts: IAutoMovieMotionHumanContactWindow[];
 
+  /** The balance window this plan actually uses, or null when its balance is off. */
+  balanceWindow?: IAutoMovieMotionHumanBalance.Window;
+
+  /** Physical phase in action seconds. Null marks a kinematic outcome of a physical law. Omission preserves its whole-span judgement. */
+  physicalWindow?: IAutoMovieMotionHumanActionPlan.IPhysicalWindow | null;
+
+  /**
+   * Seconds since the action's start, from and to, over which `posture`
+   * returns one and the same posture, for a plan that holds still there (a
+   * stand without sway once it has settled). A reader may treat the body as
+   * not moving there; absent, no such window is declared.
+   */
+  still?: readonly [number, number];
+
+  /**
+   * Seconds since the action's start, from and to, over which `posture`
+   * keeps its root, its heading, its trunk and both legs' goals and joints
+   * one and the same while only the head, the arms or the hands move (a
+   * composed action whose primitives write only those, over a base that holds
+   * still): every record a leg fit reads is the same there, so a reader may
+   * keep the legs' fit of one second for another. Absent, no such window is
+   * declared.
+   */
+  legsStill?: readonly [number, number];
+
   /**
    * The channels the plan's own movements write, when it is composed of part primitives over a base: what an overlay takes from its carrier. Absent for a plan that writes the whole body.
    */
   channels?: readonly AutoMovieMotionHumanChannelClaim[];
+
+  /** Claimed channels whose authored transport starts from the displayed entry pose.
+   * Their planned movement already includes acquisition from the carrier.
+   * Release of these channels still follows the overlay handback.
+   */
+  enteredChannels?: readonly AutoMovieMotionHumanChannel[];
 
   /**
    * What this instance lets an overlay take, where its parameters decide it apart from its law (`IAutoMovieMotionHumanActionLaw.yields`): a carry in one hand yields its free arm, one in both hands none. The law's when absent.
@@ -67,7 +102,10 @@ export interface IAutoMovieMotionHumanActionPlan {
    * The posture at a second of the action.
    *
    * @param seconds Seconds since the action's start, in [0, duration]; outside, the nearest end.
-   * @returns The posture.
+   * @param channels Optional demand for these channels only. A reader using it inspects only these channels; implementations may still compute the whole posture. Omission requests every channel.
+   * @param resolution Optional exact FK source borrowed only for this synchronous unchanged-body evaluation; never retained in the plan, posture, preparation evidence or a returned callback.
+   * @param projection Optional genuine same-body ROM projector borrowed for this call only; every actual direct joint is still projected, and unknown functions fall back to ordinary admission.
+   * @returns The borrowed posture; when a demand is supplied, only requested channels are guaranteed current.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.posture: The posture at a second of the action.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
@@ -77,7 +115,12 @@ export interface IAutoMovieMotionHumanActionPlan {
    * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
    */
-  posture(seconds: number): IAutoMovieMotionHumanPosture;
+  posture(
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+    resolution?: IAutoMoviePoseResolution.ISource,
+    projection?: (pose: IAutoMoviePose) => IAutoMoviePose,
+  ): IAutoMovieMotionHumanPosture;
 
   /**
    * Drop anything memoised from reads made before the performance settled. A plan whose geometry depends on another person or prop may build it on its first posture call; a call during schedule resolution can read a half-placed performance, so the performance calls this on every plan once every action is placed, before any pose is evaluated again.
@@ -169,4 +212,23 @@ export interface IAutoMovieMotionHumanActionPlan {
   airborne?(
     rotation: (seconds: number) => IAutoMovieHumanPostureRotation,
   ): void;
+}
+
+/** Prepared terms shared by an action plan and its readers. */
+export namespace IAutoMovieMotionHumanActionPlan {
+  /**
+   * The closed physical phase on the plan's own clock, in seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the clock, unit and endpoint rule.
+   * @evidence contracts/development/design.md#principled-representation The two event times delimit the part of an action whose outcome requires physical judgement.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the law that places the phase and the motion audit that judges it.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The phase is declared explicitly by its producer without inferring it from poses.
+   */
+  export interface IPhysicalWindow {
+    /** Seconds from the action start to the beginning of the physical phase. */
+    from: number;
+
+    /** Seconds from the action start to the end of the physical phase. */
+    to: number;
+  }
 }

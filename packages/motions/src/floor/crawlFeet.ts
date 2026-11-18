@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -45,7 +46,8 @@ export namespace crawlFeet {
    * A standing foot rolled onto its toes: the heel rises about the toes'
    * joint, the toes staying flat on the floor, until the toes reach their
    * extension range, and from there the foot turns on the tips of its toes,
-   * the toes held at that range, so the toes never slide.
+   * the toes held at that range. The foot's turn to its tucked heading is
+   * taken about the toes' tip throughout, so the toes never slide.
    *
    * @param body The body.
    * @param side The foot.
@@ -56,7 +58,7 @@ export namespace crawlFeet {
    * @returns The foot's placement, its toes' extension in degrees and its toes' joint, world metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two pivots, why and each input.
-   * @evidence contracts/development/implementation.md#principled-implementation A foot rolling onto its toes turns about the metatarsophalangeal joints while the toes lie flat, then about the toes' tips once the toes are at their range (the forefoot rocker, Perry and Burnfield), the contact held by `HumanFoot`'s offsets.
+   * @evidence contracts/development/implementation.md#principled-implementation A foot rolling onto its toes pitches about the metatarsophalangeal joints while the toes lie flat, then about the toes' tips once the toes are at their range (the forefoot rocker, Perry and Burnfield); its heading turns about the tip that bears, the contact held by `HumanFoot`'s offsets.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per pivot.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The range is read from the range table; the heading turns about the contact that bears.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -70,7 +72,29 @@ export namespace crawlFeet {
     heading: number,
     lift: number,
     share: number,
-  ): {
+  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3; } {
+    return prepareRoll(body, side, standing, heading, lift)(share);
+  }
+
+  /**
+   * Prepare a fixed standing foot's roll for independent progress queries.
+   * The heading, toe range and standing toes' tip are invariant.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs and independent progress; rolled documents units and the two contact phases.
+   * @evidence contracts/development/implementation.md#principled-implementation The toes' tip bears throughout: with the toes flat the heel's pitch about their joint leaves the tip in place, so one placement about the standing tip serves both phases, the toes' extension capped at their range; the heading turns about that tip toward the tucked heading along the shortest arc, as angle blends must, whatever turn of the circle the yaw is written in.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed geometry precedes one evaluator about one point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change the toe-extension range, heading interpolation or endpoint progress.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The heading, range, tip and the native toe offset and MTP point readers are prepared once; each share is one rotation and one offset.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged body and standing placement, heading and lift establish the invariant geometry. Native HumanFoot readers share only fixed socket/rest prerequisites; current progress, rotation, articulation and placement are independently evaluated.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owning plan retains its tip, scalar limits, one MTP point reader and one offset reader until release; no pose, solver reader or history is cached.
+   */
+  export function prepareRoll(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    standing: IAutoMovieMotionHumanFoot.IPlacement,
+    heading: number,
+    lift: number,
+  ): (share: number) => {
     placement: IAutoMovieMotionHumanFoot.IPlacement;
     toes: number;
     mtp: IAutoMovieVector3;
@@ -80,41 +104,51 @@ export namespace crawlFeet {
       lift,
       AutoMovieMotionHumanRange.limit(`${side}Toes`, "flexion") ?? lift,
     );
-    const mtp: IAutoMovieVector3 = HumanFoot.point(body, side, "mtp", standing);
-    const turned = (q: number): number => from + ((heading - from) * q) / lift;
-    const about = (
-      contact: "mtp" | "toe",
-      at: IAutoMovieVector3,
-      q: number,
-      toes: number,
-    ) => {
-      const rotation = HumanFoot.rotation(turned(q), -q);
-      const placement: IAutoMovieMotionHumanFoot.IPlacement = {
-        ankle: Vector3.subtract(
-          at,
-          Quaternion.rotateVector(
-            rotation,
-            HumanFoot.offset(body, side, contact, toes),
-          ),
-        ),
-        rotation,
-      };
-      return {
-        placement,
-        toes,
-        mtp: HumanFoot.point(body, side, "mtp", placement),
-      };
-    };
-    const q: number = lift * share;
-    if (q <= extension) return about("mtp", mtp, q, q);
+    const mtpAt: ReturnType<typeof HumanFoot.preparePoint> =
+      HumanFoot.preparePoint(body, side, "mtp");
+    const offset: ReturnType<typeof HumanFoot.prepareOffset> =
+      HumanFoot.prepareOffset(body, side, "toe");
+
+    // The standing heading is read off the foot in (-180, 180] while the
+    // tucked heading is the body's yaw as written, so the turn is taken the
+    // short way round: a body facing 270 degrees would otherwise spin its
+    // foot almost a whole turn as it rolls.
+    const turn: number = ((((heading - from) % 360) + 540) % 360) - 180;
+
+    // The toes' tip bears throughout: while the toes lie flat the heel's
+    // pitch about the toes' joint leaves the tip where it stood, and once
+    // they reach their range the foot turns on it. The heading's turn is
+    // taken about that tip too; taken about the toes' joint, it would sweep
+    // the flat toes across the floor.
     const tip: IAutoMovieVector3 = HumanFoot.point(
       body,
       side,
       "toe",
-      about("mtp", mtp, extension, extension).placement,
-      extension,
+      standing,
+      0,
     );
-    return about("toe", tip, q, extension);
+    return (
+      share: number,
+    ): {
+      placement: IAutoMovieMotionHumanFoot.IPlacement;
+      toes: number;
+      mtp: IAutoMovieVector3;
+    } => {
+      const q: number = lift * share;
+      const toes: number = Math.min(q, extension);
+      const rotation: IAutoMovieQuaternion = HumanFoot.rotation(
+        from + (turn * q) / lift,
+        -q,
+      );
+      const placement: IAutoMovieMotionHumanFoot.IPlacement = {
+        ankle: Vector3.subtract(
+          tip,
+          Quaternion.rotateVector(rotation, offset(toes)),
+        ),
+        rotation,
+      };
+      return { placement, toes, mtp: mtpAt(placement) };
+    };
   }
 
   /**
@@ -146,10 +180,7 @@ export namespace crawlFeet {
     measured: IAutoMovieMotionHumanFrame,
     knees: Record<"left" | "right", IAutoMovieVector3>,
     ahead: number,
-  ): {
-    frame: IAutoMovieMotionHumanFrame;
-    tucks: Record<"left" | "right", ITuck>;
-  } {
+  ): { frame: IAutoMovieMotionHumanFrame; tucks: Record<"left" | "right", ITuck>; } {
     const forward: IAutoMovieVector3 = HumanFrame.forward(measured.yaw);
     const sides = ["left", "right"] as const;
     const feet = sides.map((side: "left" | "right") => {

@@ -1,8 +1,9 @@
 import { createDrinkware } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { Vector3, physicalShapeBounds, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanAudit,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMotion,
+  IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -13,7 +14,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAudit,
+  AutoMovieMotionHumanAuditMotion,
+  AutoMovieMotionHumanAuditGround,
+  HumanColliders,
   HumanChain,
   HumanHand,
   HumanObject,
@@ -23,9 +26,9 @@ import {
   HumanVerdicts,
   seated,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
-
 import { motionHumanBody } from "./motionHumanBody";
+import { motionHumanLaw } from "./motionHumanLaw";
+import { nclose } from "./nclose";
 
 /**
  * A seated person picks up a glass beyond the seated arm by leaning forward
@@ -46,34 +49,34 @@ import { motionHumanBody } from "./motionHumanBody";
  * 3. The pick up keeps the seat: read five times over the plan, the body's
  *    seat socket stays within 5 mm of its point on the seat (the campaign's
  *    contact bound).
- * 4. Over the pick up, the shipped audit reads no foot sliding, lifting or
- *    sinking while planted (the campaign's 5 mm bounds), its other checks
- *    left unread.
+ * 4. Over the pick up, foot sockets and colliders show no sliding, lifting or
+ *    sinking while planted (the campaign's 5 mm bounds). Whole-body checks are
+ *    covered separately by the continuous verdict.
  * 5. A glass two arm lengths beyond the seated shoulder, past any lean, is
  *    refused as a `reach` refusal on `prop` that names standing up and
- *    stepping closer.
- * And, read apart (`verdicts`, the `test_human_motion_pick_up_seated_tangle_*`
- * specs), for the glass of 1:
+ *    stepping closer. The forward population limit is 163.3% of arm-plus-hand
+ *    length (Haas et al., 2023, Table 4). Inside it, the straight arm after
+ *    maximal lean supplies the tighter anatomical limit.
+ * The same displayed film supplies the complete verdicts for the glass of 1:
  * 6. Over the pick up, the whole shipped verdicts read clean: no tangle, no
  *    foot sliding, lifting or sinking, no joint past its range, no jump.
  *
  * @param name The body.
- * @param which Scenarios 1 to 5 (`pick`) or scenario 6 (`verdicts`).
+ * @param complaints The owning test gathers the geometry and verdicts on both bodies here.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stage, the case it comes from and the 6 scenarios with their bounds.
- * @evidence contracts/development/implementation.md#principled-implementation The chain's own sit and pick up of a real glass archetype, read on the displayed glass, chest and soles and the plan's declared contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One seated pick up and one refused, one reading per scenario, gathered as complaints and asserted once.
+ * @evidence contracts/development/implementation.md#principled-implementation Reads a real glass, chest, seated socket and soles on the displayed frame, and computes both reach limits independently of the refusal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The seated pick-up film supplies both the planned contact observations and the whole verdict before the far refusal case.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pick up that does not plan is a complaint with the refusal's words.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three short performances, a few readings.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three short performances per body. The global 24 Hz grid and the original quarter points share one skeletal read for the seat and two feet per instant; whole-body verdicts retain their action-local grid.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The admitted performance supplies the geometry and full verdicts that previously staged it twice.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPickUpSeated(
   name: motionHumanBody.Name,
-  which: "pick" | "verdicts",
+  complaints: string[],
 ): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const complaints: string[] = [];
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
@@ -115,22 +118,9 @@ export function motionPickUpSeated(
   // The seated shoulder and chest, from a film that only sits.
   const still: IAutoMovieMotionHumanPerformance = perform(null);
   const sat: IAutoMovieMotionHumanSegment = still.segments("a")[0]!;
-  const reader0: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-    still,
-    "a",
-    body,
-    0,
-  );
-  const shoulder: IAutoMovieVector3 = HumanSignature.joint(
-    reader0,
-    sat.end,
-    "rightUpperArm",
-  );
-  const chest: IAutoMovieVector3 = HumanSignature.joint(
-    reader0,
-    sat.end,
-    "chest",
-  );
+  const seatedBones: ReturnType<typeof still.bones> = still.bones("a", sat.end);
+  const shoulder: IAutoMovieVector3 = seatedBones.get("rightUpperArm")!.worldPosition;
+  const chest: IAutoMovieVector3 = seatedBones.get("chest")!.worldPosition;
   const socket: number = Vector3.length(
     HumanHand.offset(body, "right", "grip").point,
   );
@@ -160,82 +150,60 @@ export function motionPickUpSeated(
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??
         Number.NaN) *
         pick.plan.duration;
-    if (which === "verdicts") {
-      // 6. The whole shipped verdicts over the pick up.
-      const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
-        film,
-        24,
-        {
-          from: pick.start,
-          to: pick.end,
-        },
+    // 6. The whole shipped verdicts over the pick up.
+    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+      film,
+      24,
+      {
+        from: pick.start,
+        to: pick.end,
+      },
+    );
+    if (!report.clean)
+      complaints.push(
+        `${name}: the shipped verdicts over the pick up: ${HumanVerdicts.describe(report)}`,
       );
-      if (!report.clean)
-        complaints.push(
-          `${name}: the shipped verdicts over the pick up: ${HumanVerdicts.describe(report)}`,
-        );
-    } else {
-      const lifted: number = film.prop("glass", pick.end).position.y - at.y;
-      if (!(lifted >= 0.05))
-        complaints.push(
-          `${name}: the glass ends ${(lifted * 1000).toFixed(0)} mm above where it stood, at least 50 expected`,
-        );
-      const forward: number =
-        HumanSignature.joint(reader, grasp, "chest").z - chest.z;
-      if (!(forward >= 0.05))
-        complaints.push(
-          `${name}: at the grasp the chest has gone ${(forward * 1000).toFixed(0)} mm forward, at least 50 expected`,
-        );
-      const sitting: IAutoMovieVector3 = seated.point(body, chair);
-      let drift: number = 0;
-      for (let i: number = 0; i <= 4; i++) {
-        const t: number = (pick.plan.duration * i) / 4;
-        drift = Math.max(
-          drift,
-          Vector3.length(
-            Vector3.subtract(
-              seated.socket(body, pick.plan.posture(t)),
-              sitting,
-            ),
-          ),
-        );
-      }
-      if (!(drift <= 0.005))
-        complaints.push(
-          `${name}: the seat socket leaves the seat by ${(drift * 1000).toFixed(1)} mm during the pick up, within 5 mm expected`,
-        );
-      // The shipped audit's floor, slip and lift on the feet, its other
-      // checks left unread (`AutoMovieMotionHumanAudit.run`'s null limits).
-      const motion: IAutoMovieMotionHumanAuditMotion = {
-        duration: film.duration,
-        segments: (
-          subject: string,
-        ): ReturnType<IAutoMovieMotionHumanAuditMotion["segments"]> =>
-          film.segments(subject),
-        bones: (
-          subject: string,
-          seconds: number,
-        ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
-          film.bones(subject, seconds),
-      };
-      for (const finding of AutoMovieMotionHumanAudit.run(motion, "a", body, {
-        limits: {
-          tangle: null,
-          jump: null,
-          reversal: null,
-          speed: null,
-          balance: null,
-        },
-      }).findings.filter(
-        (f: IAutoMovieMotionHumanAudit.IFinding): boolean =>
-          f.seconds >= pick.start - 1e-6 &&
-          f.seconds <= pick.end + 1e-6 &&
-          /Foot|Toes/.test(f.where),
-      ))
-        complaints.push(
-          `${name}: ${finding.check} ${(finding.value * 1000).toFixed(1)} mm at ${finding.seconds.toFixed(2)} s (${finding.where}), within ${(finding.limit * 1000).toFixed(0)} mm expected`,
-        );
+
+    const lifted: number = film.prop("glass", pick.end).position.y - at.y;
+    if (!(lifted >= 0.05))
+      complaints.push(
+        `${name}: the glass ends ${(lifted * 1000).toFixed(0)} mm above where it stood, at least 50 expected`,
+      );
+    const forward: number =
+      HumanSignature.joint(reader, grasp, "chest").z - chest.z;
+    if (!(forward >= 0.05))
+      complaints.push(
+        `${name}: at the grasp the chest has gone ${(forward * 1000).toFixed(0)} mm forward, at least 50 expected`,
+      );
+    const sitting: IAutoMovieVector3 = seated.point(body, chair);
+    const seat: typeof body.surfaces.sockets.seat = body.surfaces.sockets.seat;
+    const soles: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body,
+      new Set<AutoMovieHumanoidBone>(["leftFoot", "leftToes", "rightFoot", "rightToes"]));
+    const times: Set<number> = new Set([pick.start, pick.end]);
+    for (const t of AutoMovieMotionHumanAuditMotion.grid(0, film.duration, 24))
+      if (t >= pick.start && t <= pick.end) times.add(t);
+    for (let i: number = 1; i < 4; ++i) times.add(pick.start + (i * pick.plan.duration) / 4);
+    // Retain the audit's global frame clock, per-window endpoints and
+    // bearing-socket anchor. Its result now covers just the pick-up, so
+    // a larger slip elsewhere in the sitting film cannot hide this one.
+    const shared: motionHumanLaw.IFilm = motionHumanLaw.film(film);
+    const picking: IAutoMovieMotionHumanAuditMotion = {
+      duration: film.duration, segments: () => [pick], bones: shared.bones,
+    };
+    const slip: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditGround.slip(picking, "a", body, 24);
+    const lift: IAutoMovieMotionHumanAuditMeasure = AutoMovieMotionHumanAuditGround.lift(picking, "a", body, 24);
+    let seatDrift: number = 0;
+    let depth: number = 0;
+    for (const t of times) {
+      const bones: motionHumanLaw.Bones = shared.bones("a", t);
+      const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(seat, bones.get(seat.bone)!).point;
+      seatDrift = Math.max(seatDrift, Vector3.distance(point, sitting));
+      for (const part of soles(bones))
+        for (const shape of part.shapes)
+          depth = Math.max(depth, -physicalShapeBounds(part.pose, shape).min.y);
     }
+    if (!(seatDrift <= 0.005 && slip.value <= 0.005 && lift.value <= 0.005 && depth <= 0.005))
+      complaints.push(`${name}: seat drift ${seatDrift * 1000}, sole slip ${slip.value * 1000}, lift ${lift.value * 1000}, penetration ${depth * 1000} mm, each within 5 mm expected`);
   } catch (error) {
     complaints.push(
       `${name}: a glass just beyond the seated arm: expected to plan, got ${said(error)}`,
@@ -243,29 +211,34 @@ export function motionPickUpSeated(
   }
 
   // 5. Past any lean.
-  if (which === "pick") {
-    let thrown: unknown = null;
-    try {
-      perform(placed(2 * arm));
-    } catch (error) {
-      thrown = error;
-    }
-    if (
-      !(
-        thrown instanceof HumanRefusal &&
-        thrown.kind === "reach" &&
-        thrown.axis === "prop" &&
-        /stand/.test(thrown.fix ?? "")
-      )
-    )
-      complaints.push(
-        `${name}: a glass two arm lengths ahead: expected a reach refusal on prop that names standing, got ${said(thrown)}`,
-      );
+  let thrown: unknown = null;
+  try {
+    perform(placed(2 * arm));
+  } catch (error) {
+    thrown = error;
   }
-
-  TestValidator.equals(
-    `a seated person leans to pick up (${name})`,
-    complaints,
-    [],
-  );
+  // Straight ahead the Haas et al. (2023) seated reach is 163.3% of the
+  // acromion-to-fingertip length. Horizontal and vertical offsets form
+  // the independent hypotenuse from this seated shoulder to the grip.
+  const maximum: number = 1.633 * (arm + body.measure.hand);
+  const distance: number = Math.hypot(2 * arm, chair.at.y + grip.y - shoulder.y);
+  // A grip inside the population reach envelope can still exceed this
+  // body's two straight arm segments after maximal seated lean. Then
+  // leaning must shorten the distance, yet leave a positive reach deficit.
+  const envelopeExceeded: boolean = distance > maximum;
+  if (
+    !(
+      thrown instanceof HumanRefusal &&
+      thrown.kind === "reach" &&
+      thrown.axis === "prop" &&
+      /stand/.test(thrown.fix ?? "") &&
+      typeof thrown.value === "number" &&
+      (envelopeExceeded ? nclose(thrown.value, distance) : thrown.value > arm && thrown.value < distance) &&
+      thrown.feasible?.kind === "range" && thrown.feasible.minimum === 0 &&
+      thrown.feasible.unit === "m" && nclose(thrown.feasible.maximum ?? NaN, envelopeExceeded ? maximum : arm)
+    )
+  )
+    complaints.push(
+      `${name}: a glass two arm lengths ahead: starting distance ${distance} m, expected maximum ${envelopeExceeded ? maximum : arm} m, got ${said(thrown)}`,
+    );
 }

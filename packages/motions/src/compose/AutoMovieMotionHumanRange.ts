@@ -41,7 +41,7 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Levels and motions are closed unions; the ranges are the engine's and are not copied here.
  */
 export namespace AutoMovieMotionHumanRange {
-  /** The levels of {@link Level}, as data. */
+  /** The levels of {@link IAutoMovieMotionHumanRange.Level}, as data. */
   export const LEVEL_NAMES = [
     "slight",
     "light",
@@ -65,7 +65,7 @@ export namespace AutoMovieMotionHumanRange {
     full: 0.9,
   };
 
-  /** The motions of {@link Motion}, as data. */
+  /** The motions of {@link IAutoMovieMotionHumanRange.Motion}, as data. */
   export const MOTIONS = [
     "flexion",
     "extension",

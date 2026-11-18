@@ -1,18 +1,16 @@
-import { physicalShapeBounds } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExerciseKey,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanWorkoutFloor,
   IAutoMovieMotionHumanWorkoutKind,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { HumanColliders } from "../posture/HumanColliders";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
+import { prepareWorkoutKeyFrames } from "./prepareWorkoutKeyFrames";
 
 /**
  * The exercises of the workout law done on the hands and the toes or feet
@@ -53,10 +51,7 @@ export namespace WorkoutFloor {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function plank(
-    body: IAutoMovieMotionHumanBody,
-    height: number,
-  ): number {
+  export function plank(body: IAutoMovieMotionHumanBody, height: number): number {
     const length: number =
       body.measure.shoulderHeight - body.measure.ankleHeight;
     return 90 - (Math.asin(Math.min(1, height / length)) * 180) / Math.PI;
@@ -75,23 +70,27 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#principled-implementation The height is read by forward kinematics of the key itself, feet and toes included, so the foot stood on its toes raises the ankles as it does on the body; the first pass measured 0.2 m of error from treating the body as a line from the ankles.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the pitch.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pitch is sought between 10 degrees (nearly upright, the hands on something high) and 150 (the head lower than the feet, the feet on something high); a height outside what that range gives ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty forward kinematics per key, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each of the unchanged twenty pitch trials resolves one requested shoulder/toe bone map instead of separate full maps for the two means.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both height means read one exact trial map. Fixed name demand and genuine same-search FK/ROM metadata share only checked prerequisites; every arbitrary key callback's current clinical angles still resolve normally, with no source-shape inference, height or FK answer reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The fixed-name/exact FK readers and bounded ROM metadata end on return or throw; no trial pose/map escapes and only the final authored key returns.
    */
   export function pitched(
     body: IAutoMovieMotionHumanBody,
     height: number,
     key: (pitch: number) => IAutoMovieMotionHumanExerciseKey.IKey,
   ): IAutoMovieMotionHumanExerciseKey.IKey {
+    const read: ReturnType<typeof prepareWorkoutKeyFrames> =
+      prepareWorkoutKeyFrames(body, PITCHED);
     const above = (pitch: number): number => {
-      const posed: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
+      const {
+        posture: posed,
+        bones,
+      }: ReturnType<ReturnType<typeof prepareWorkoutKeyFrames>> = read(
         key(pitch),
-        0,
       );
       return (
-        ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"]).y -
-        ExerciseKey.mean(body, posed, ["leftToes", "rightToes"]).y
+        ExerciseKey.mean(body, posed, ["leftUpperArm", "rightUpperArm"], bones)
+          .y - ExerciseKey.mean(body, posed, ["leftToes", "rightToes"], bones).y
       );
     };
     let steep: number = 10;
@@ -103,6 +102,14 @@ export namespace WorkoutFloor {
     }
     return key((steep + level) / 2);
   }
+
+  /** Only shoulder and toe positions determine the pitch residual. */
+  const PITCHED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+    "leftUpperArm",
+    "rightUpperArm",
+    "leftToes",
+    "rightToes",
+  ]);
 
   /**
    * The key of a family of keys by roll that rests on its side on two
@@ -119,33 +126,28 @@ export namespace WorkoutFloor {
    * @evidence contracts/development/implementation.md#principled-implementation A body on two supports rests on both, so the roll is the one that puts both on the floor, read by forward kinematics of the key on the body's own colliders, the reading the floor audit makes; a straight line from the feet to the shoulder, as `plank` models a prone support, leaves the forearm's thickness and the hand's place out.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection over the roll.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The roll is sought between upright and lying on the side; a support that cannot reach the floor in that range ends at the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twenty forward kinematics per key, once per plan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The two collider groups (the bearing bones the pattern names, and the feet) and their neutral entries are prepared once for the twenty trials; each trial resolves its key and reads both groups' exact minima in one pass (`HumanColliders.prepareMinima`).
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The collider floor minimum is the colliders' owner's; only the unchanged body's group membership and same-search FK/ROM metadata share, and each key is observed in full.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed native collider-entry metadata, exact FK reader and bounded ROM metadata end with this synchronous search; only the final authored key returns, without a selector observation, trial map or workspace retained.
    */
   export function rolled(
     body: IAutoMovieMotionHumanBody,
     on: RegExp,
     key: (roll: number) => IAutoMovieMotionHumanExerciseKey.IKey,
   ): IAutoMovieMotionHumanExerciseKey.IKey {
-    // How far the bearing bones' lowest point lies above the feet's.
-    const above = (roll: number): number => {
-      const posed: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
-        key(roll),
-        0,
-      );
-      let bearing: number = Infinity;
-      let feet: number = Infinity;
-      for (const segment of HumanColliders.placed(
-        body,
-        poseBones(body, resolveHumanPosture(body, posed)),
-      ))
-        for (const shape of segment.shapes) {
-          const low: number = physicalShapeBounds(segment.pose, shape).min.y;
-          if (on.test(segment.bone)) bearing = Math.min(bearing, low);
-          if (/(Foot|Toes)$/.test(segment.bone)) feet = Math.min(feet, low);
-        }
-      return bearing - feet;
+    const read: ReturnType<typeof prepareWorkoutKeyFrames> =
+      prepareWorkoutKeyFrames(body);
+    // How far the bearing bones' lowest point lies above the feet's, read by
+    // the collider floor minimum's one owner over the two groups.
+    const colliders: AutoMovieHumanoidBone[] = [...HumanColliders.bones(body)];
+    const minima: ReturnType<typeof HumanColliders.prepareMinima> =
+      HumanColliders.prepareMinima(body, [
+        new Set(colliders.filter((bone: AutoMovieHumanoidBone): boolean => on.test(bone))),
+        new Set(colliders.filter((bone: AutoMovieHumanoidBone): boolean => /(Foot|Toes)$/.test(bone))),
+      ]);
+    const above: (roll: number) => number = (roll: number): number => {
+      const [bearing, feet]: number[] = minima(read(key(roll)).bones);
+      return bearing! - feet!;
     };
     let upright: number = 0;
     let side: number = -90;
@@ -198,12 +200,7 @@ export namespace WorkoutFloor {
   ];
 
   /** The exercises. */
-  export const KINDS: Readonly<
-    Record<
-      IAutoMovieMotionHumanWorkoutFloor.Name,
-      IAutoMovieMotionHumanWorkoutKind
-    >
-  > = {
+  export const KINDS: Readonly<Record<IAutoMovieMotionHumanWorkoutFloor.Name, IAutoMovieMotionHumanWorkoutKind>> = {
     /** A push-up: 1 s down, 1 s up (provisional). */
     pushUp: {
       base: "leaning",
@@ -213,9 +210,7 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 1.5,
       reps: 5,
-      route: (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(top(body), 1, "press", "top"),
         WorkoutKind.step(bottom(body), 1, "lower", "bottom"),
       ],
@@ -230,9 +225,7 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 1.5,
       reps: 5,
-      route: (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(top(body, 30), 1, "press", "top"),
         WorkoutKind.step(bottom(body, 30), 1, "lower", "bottom"),
       ],
@@ -247,9 +240,7 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 1.5,
       reps: 1,
-      route: (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(top(body), 0, 30),
       ],
     },
@@ -260,16 +251,19 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftHand", "rightHand"],
       hands: true,
+      // The hands and the planted foot bear throughout; the driving foot
+      // bears only as it stands back in the plank, the right foot first and
+      // the left on alternate repetitions.
       supports: [
         { part: "leftHand", kind: "plant" },
         { part: "rightHand", kind: "plant" },
+        { part: "leftFoot", kind: "plant" },
+        { part: "rightFoot", kind: "plant", at: ["extended"] },
       ],
       alternate: true,
       enter: 1.5,
       reps: 8,
-      route: (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => {
         const up: IAutoMovieMotionHumanExerciseKey.IKey = top(body);
         return [
           WorkoutKind.step(up, 0.3, "back", "extended"),
@@ -295,15 +289,19 @@ export namespace WorkoutFloor {
       anchor: "hips",
       pin: ["leftHand", "rightHand"],
       hands: true,
+      // The hands bear throughout; the feet bear crouched and in the plank,
+      // and leave the floor as they are shot back and brought in between.
       supports: [
         { part: "leftHand", kind: "plant" },
         { part: "rightHand", kind: "plant" },
+        { part: "leftFoot", kind: "plant", at: ["crouched"] },
+        { part: "rightFoot", kind: "plant", at: ["crouched"] },
+        { part: "leftFoot", kind: "plant", at: ["plank"] },
+        { part: "rightFoot", kind: "plant", at: ["plank"] },
       ],
       enter: 0.8,
       reps: 3,
-      route: (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,
@@ -335,9 +333,7 @@ export namespace WorkoutFloor {
       supports: PRONE,
       enter: 2,
       reps: 1,
-      route: (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.pose(
           ExerciseKey.from(
             body,
@@ -362,9 +358,7 @@ export namespace WorkoutFloor {
       ],
       enter: 2.4,
       reps: 1,
-      route: (
-        body: IAutoMovieMotionHumanBody,
-      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      route: (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         WorkoutKind.step(
           ExerciseKey.from(
             body,

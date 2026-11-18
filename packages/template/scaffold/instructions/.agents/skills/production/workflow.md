@@ -1,12 +1,16 @@
 # Production workflow
 
+## Director
+
+Follow the [director's responsibilities](director.md) for assignments, creative decisions and acceptance at each handoff.
+
 ## Commissioned outputs
 
 Record the output and its limits in [project context](project-context.md#commissioned-scope). Follow the commissioned route and its [completion checks](#completion).
 
 ### Screenplay
 
-[Choose how the screenplay is written](../story/workflow/SKILL.md). Complete any [required narrative passes](../story/workflow/routes.md#completion), then check the [text handoff](../review/delivery-review.md#narrative). This output requires no source or media.
+[Choose how the screenplay is written](../story/workflow/SKILL.md). Complete any [required narrative passes](../story/workflow/routes.md#completion), then check the [text handoff](../review/delivery-review.md#narrative). Include source or media when separately commissioned.
 
 ### Whole motion hint
 
@@ -24,13 +28,13 @@ Follow the [generated-film workflow](../video/generated-film.md), [assemble](ass
 
 ### Standalone asset
 
-Set the promised form, behavior or sound from the commission. Where that choice is delegated, use [direction](../story/planning/direction.md). Prepare it under [3D modeling](../3d-modeling/SKILL.md), [motion](../motion/SKILL.md) or [audio](../audio/SKILL.md), as applicable. Verify it in its consumer under [asset review](../review/delivery-review.md#assets). This route has no narrative pass.
+Set the promised asset and its use from the commission. Where the choice is delegated, use [direction](../story/planning/direction.md). Prepare it under [image](../image/SKILL.md), [3D modeling](../3d-modeling/SKILL.md), [motion](../motion/SKILL.md) or [audio](../audio/SKILL.md), as applicable. Verify it under [asset review](../review/delivery-review.md#assets). This route has no narrative pass.
 
 ## Programmed performance
 
 [Prepare the screenplay](../story/workflow/SKILL.md). For a short with narrative passes, use the [programmed draft](../story/workflow/short.md#4-programmed-film-draft) built and repaired during the short route.
 
-For long films or films whose screenplays skip narrative passes, start [programmed motion](../motion/performance.md#order) from the finished text. Run the [pre-composition discovery checkpoint](../story/planning/discovery.md#checkpoints) first when the long route runs narrative passes.
+For long films or films whose screenplays skip narrative passes, start [programmed motion](../motion/performance.md) from the finished text. Run the [pre-composition discovery checkpoint](../story/planning/discovery.md#checkpoints) first when the long route runs narrative passes.
 
 A motion hint or direct 3D film is silent by default. Follow the [soundtrack route](../audio/soundtrack.md) when the commission includes sound.
 

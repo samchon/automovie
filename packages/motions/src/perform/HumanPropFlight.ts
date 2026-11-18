@@ -66,18 +66,18 @@ export namespace HumanPropFlight {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Collection/order, flight construction and per-performance retention stay distinct; sweep and continuation laws remain with their existing owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Existing 1e-9-second action-window and 1e-6-second grip-close margins remain explicit planning policies; no CCD time shift or producer-specific flight equation is added. Final-state cache identity does not independently detect caller mutation of performance inputs.
    * @evidence contracts/development/implementation.md#efficient-algorithms A cache hit is O(1); uncached collection computes the provisional horizon during the existing segment/launch traversal, sorts L matching launches in O(L log L), and then adds each flight's sweep/continuation cost and output. Final capture admission walks the sorted grip and flight lists once and samples one flight per staged grip. Missing or unlaunched props are not memoized, so those reads repeat collection work where applicable.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Placed non-resolving performances reuse results by performance identity and prop subject, relying on their plans/placements/props remaining fixed. BUILDING shares predecessor output only during one recursive construction; resolving performances do not publish final cache results.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources BUILDING removes the subject in finally on success or refusal; final weak-state entries retain at most the queried launched props and their launch/contact/trajectory output until the performance is released. Returned records remain borrowed and mutable, and no host task is acquired.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Placed non-resolving performances reuse results by performance identity and prop subject, relying on their plans/placements/props remaining fixed. The flying map shares predecessor output only during one recursive construction; resolving performances do not publish final cache results.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The flying map removes the subject in finally on success or refusal; the flight map retain at most the queried launched props and their launch/contact/trajectory output until the performance is released. Returned records remain borrowed and mutable, and no host task is acquired.
    */
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
-      KEPT.get(self)?.get(subject);
+      self.flights.get(subject);
     if (kept !== undefined) return kept;
     const building: IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
-      BUILDING.get(self)?.get(subject);
+      self.flying.get(subject);
     if (building !== undefined) return building;
     const prop: IAutoMovieMotionHumanProp | undefined = self.props.get(subject);
     if (prop === undefined) return [];
@@ -111,10 +111,7 @@ export namespace HumanPropFlight {
       return [];
     }
     const out: IAutoMovieMotionHumanPropFlight.IFlight[] = [];
-    const map: Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]> =
-      BUILDING.get(self) ?? new Map();
-    map.set(subject, out);
-    BUILDING.set(self, map);
+    self.flying.set(subject, out);
     try {
       for (const [index, { seconds, source, launch }] of launches.entries())
         out.push(
@@ -130,16 +127,9 @@ export namespace HumanPropFlight {
         );
       if (!self.resolving) admitCaptures(self, subject, out);
     } finally {
-      map.delete(subject);
+      self.flying.delete(subject);
     }
-    if (!self.resolving) {
-      const done: Map<
-        string,
-        readonly IAutoMovieMotionHumanPropFlight.IFlight[]
-      > = KEPT.get(self) ?? new Map();
-      done.set(subject, out);
-      KEPT.set(self, done);
-    }
+    if (!self.resolving) self.flights.set(subject, out);
     return out;
   }
 
@@ -460,16 +450,4 @@ export namespace HumanPropFlight {
         return undefined;
     }
   }
-
-  /** The flights found, per placed performance and prop. */
-  const KEPT: WeakMap<
-    IAutoMovieMotionHumanPerformanceState,
-    Map<string, readonly IAutoMovieMotionHumanPropFlight.IFlight[]>
-  > = new WeakMap();
-
-  /** The flights being found, so a launch reading its prop sees the flights before it. */
-  const BUILDING: WeakMap<
-    IAutoMovieMotionHumanPerformanceState,
-    Map<string, IAutoMovieMotionHumanPropFlight.IFlight[]>
-  > = new WeakMap();
 }

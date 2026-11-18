@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a phrase is and what it is built on.
  * @evidence contracts/development/design.md#principled-representation A phrase is one foot's stance, its clock with the standard instants and an optional contact, the arm's phrase mirrored.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The phrase record, the contact window, the blend of two placements and the four phrases; split from `AutoMovieMotionHumanLeg` so each file holds one responsibility.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The phrase record, contact window, raw/fixed-pair placement interpolation and four phrases; fixed exercise/stretch endpoints use the prepared interpolation while changing phrase callbacks retain their live raw path.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `HumanFoot.IPlacement`, the clock and the leg's movement; no action name appears.
  */
 export namespace AutoMovieMotionHumanLegPhrase {
@@ -110,6 +110,39 @@ export namespace AutoMovieMotionHumanLegPhrase {
         to.rotation,
         Math.min(1, Math.max(0, share)),
       ),
+    };
+  }
+
+  /**
+   * Prepare repeated interpolation of one unchanged pair of placements.
+   * The ankle still extrapolates outside the unit interval, while the
+   * quaternion receives the original explicit [0, 1] clamp.
+   *
+   * @param from The unchanged departure placement, borrowed for this reader.
+   * @param to The unchanged arrival placement, borrowed for this reader.
+   * @returns A reader producing a fresh ankle, rotation and placement at every actual share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States fixed borrowed endpoints, fresh output ownership and the distinct unclipped ankle/clipped rotation policies.
+   * @evidence contracts/development/implementation.md#principled-implementation Native Vector3.prepareLerp retains between's a+(b-a)*share component arithmetic, and Quaternion.prepareSlerp retains its shorter-arc choice, interpolation threshold, actual weights and final normalization after the same explicit rotation clamp.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed quaternion reader and one lazy fixed ankle reader feed the two original placement fields; dynamic phrase callbacks continue using between with their current endpoints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No share, endpoint, interpolation or ownership shortcut is introduced. The ankle extrapolates unchanged, rotation still clamps, and even endpoint queries compute fresh records with the native arithmetic.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The first actual read prepares fixed endpoint vector differences and quaternion metadata once across Q evaluations; every query still computes the current affine point, spherical weights and normalization. Runtime speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller establishes unchanged placement point/rotation values for this reader's lifetime; changed endpoints require a new preparation. No current share, ankle, rotation or achieved posture is reused.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains its two fixed placements, one bounded quaternion reader and at most one six-scalar vector reader until release; returned placements retain no reader or query history.
+   */
+  export function prepareBetween(
+    from: IAutoMovieMotionHumanFoot.IPlacement,
+    to: IAutoMovieMotionHumanFoot.IPlacement,
+  ): (share: number) => IAutoMovieMotionHumanFoot.IPlacement {
+    const rotation: ReturnType<typeof Quaternion.prepareSlerp> =
+      Quaternion.prepareSlerp(from.rotation, to.rotation);
+    let ankle: ReturnType<typeof Vector3.prepareLerp> | undefined;
+    return (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
+      ankle ??= Vector3.prepareLerp(from.ankle, to.ankle);
+      return {
+        ankle: ankle(share),
+        rotation: rotation(Math.min(1, Math.max(0, share))),
+      };
     };
   }
 

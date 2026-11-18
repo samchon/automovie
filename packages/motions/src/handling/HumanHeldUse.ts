@@ -31,6 +31,8 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspHand } from "./HumanGraspHand";
+import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 
@@ -77,10 +79,7 @@ export namespace HumanHeldUse {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function kept(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
     side: AutoMovieHumanSide,
     kept: IAutoMovieMotionHumanHeldUse.IKept,
     region: AutoMovieHumanoidRegion | null,
@@ -129,17 +128,14 @@ export namespace HumanHeldUse {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the key, its inputs and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The grasp was chosen so that this key holds (`pickUp`'s use), so an act that keeps its rotation asks only a pose the grip was taken for, the roll the same chooser takes; the closed hand is the entry's own digits, each phalanx and tip less its radius from the body's colliders, whose depth in the face adds to a roll's miss.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry hand and its digits, the clearance, one delegation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The entry's hand, digits and body colliders, one clearance reader, then the use owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tool is named; the region is the act's own.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanGraspUse.presented`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry pose read and a few arm fits per act.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The clearance reader places the entry's digit points and the body's colliders once for every roll the use search tries.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK supplies the D digit points and the body's collider placement; each roll's clearance costs D distance queries.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The digit points and collider reader end with the key search; the returned key's judge holds its tool or contact geometry only.
    */
   export function key(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext,
-      "body" | "entry" | "prop" | "start"
-    >,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
     side: AutoMovieHumanSide,
     prop: string,
     point: string,
@@ -159,7 +155,7 @@ export namespace HumanHeldUse {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand?.worldRotation ?? Quaternion.identity(),
     );
-    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, hand?.worldPosition ?? point),
@@ -171,13 +167,11 @@ export namespace HumanHeldUse {
         side,
         digit,
       );
-      const phalanges: IAutoMovieResolvedBone[] = HumanGrip.bones(side, digit)
-        .map((bone: AutoMovieHumanoidBone) => bones.get(bone))
-        .filter(
-          (
-            bone: IAutoMovieResolvedBone | undefined,
-          ): bone is IAutoMovieResolvedBone => bone !== undefined,
-        );
+      const phalanges: IAutoMovieResolvedBone[] = [];
+      for (const name of HumanGrip.bones(side, digit)) {
+        const phalanx: IAutoMovieResolvedBone | undefined = bones.get(name);
+        if (phalanx !== undefined) phalanges.push(phalanx);
+      }
       for (const phalanx of phalanges)
         digits.push({
           point: local(phalanx.worldPosition),
@@ -199,29 +193,25 @@ export namespace HumanHeldUse {
     const holding: RegExp = new RegExp(
       `^${side}(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)`,
     );
-    const apart: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      [...bones].filter(
-        ([bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean =>
-          !holding.test(bone),
-      ),
-    );
-    const clear = (wrist: IAutoMovieMotionHumanHand.IWrist): number => {
+    const apart: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+    for (const [bone, frame] of bones)
+      if (!holding.test(bone)) apart.set(bone, frame);
+    const geometry: ReturnType<typeof HumanColliders.reading> =
+      HumanColliders.reading(body, apart);
+    const clear: (wrist: IAutoMovieMotionHumanHand.IWrist) => number = (wrist: IAutoMovieMotionHumanHand.IWrist): number => {
       let least: number = Infinity;
-      for (const digit of digits)
+      for (const digit of digits) {
+        const point: IAutoMovieVector3 = Vector3.add(
+          wrist.point, Quaternion.rotateVector(wrist.rotation, digit.point),
+        );
         least = Math.min(
           least,
-          HumanColliders.distance(
-            body,
-            apart,
-            Vector3.add(
-              wrist.point,
-              Quaternion.rotateVector(wrist.rotation, digit.point),
-            ),
-          ).distance - digit.radius,
+          geometry.segment(point, point).distance - digit.radius,
         );
+      }
       return least;
     };
-    return HumanGraspUse.presented({
+    const use: Parameters<typeof HumanGraspUse.presented>[0] = {
       context,
       prop,
       handle: grasp.handle,
@@ -232,7 +222,8 @@ export namespace HumanHeldUse {
       },
       use: { tip: point, line: grasp.line, at: { region } },
       clear,
-    });
+    };
+    return HumanGraspUse.presented(use);
   }
 
   /**
@@ -258,12 +249,11 @@ export namespace HumanHeldUse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the held owner, the grasp's target, hand and reachable search, the bend solver and the arm carry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitives close over the tool read at plan time and one hint.
    */
-  export function second(
-    props: IAutoMovieMotionHumanHeldUse.ISecondProps,
-  ): IAutoMovieMotionHumanPrimitive[] {
+  export function second(props: IAutoMovieMotionHumanHeldUse.ISecondProps ): IAutoMovieMotionHumanPrimitive[] {
     const { context, clock } = props;
     const body: IAutoMovieMotionHumanBody = context.body;
     const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
+    const place: ReturnType<typeof HumanGraspHand.prepare> = HumanGraspHand.prepare(body, other);
     const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       props.side,
@@ -277,10 +267,9 @@ export namespace HumanHeldUse {
     ).point;
 
     // The other handle where a wrist of the holding hand puts the tool.
-    const target = (
-      wrist: IAutoMovieMotionHumanHand.IWrist,
-    ): IAutoMovieMotionHumanGrasp.ITarget =>
-      HumanGrasp.at(record, props.handle, {
+    const prepared: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(record, props.handle);
+    const target: (wrist: IAutoMovieMotionHumanHand.IWrist) => HumanGrasp.IFrame = (wrist: IAutoMovieMotionHumanHand.IWrist): HumanGrasp.IFrame =>
+      prepared.frame({
         position: Vector3.add(
           wrist.point,
           Quaternion.rotateVector(
@@ -297,18 +286,19 @@ export namespace HumanHeldUse {
     // at its use, and the elbow the arm takes there, carried with the body
     // as the place it falls back to where no place is legal.
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const used: IAutoMovieMotionHumanGrasp.ITarget = target(props.key.wrist);
+    const used: HumanGrasp.IFrame = target(props.key.wrist);
     const chosen: IAutoMovieMotionHumanGrasp.IReach = HumanGrasp.reachable(
       body,
       entry,
       other,
       AutoMovieMotionHumanBend.hang(body, entry, other),
       (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
-        HumanGrasp.hand(body, other, HumanGrasp.around(used, turn), tilt),
+        place(HumanGrasp.around(used, turn), tilt),
     );
     const hint: IAutoMovieVector3 = HumanFrame.local(
       { origin: entry.root, yaw: entry.yaw },
-      poseBones(body, chosen.pose).get(`${other}LowerArm`)!.worldPosition,
+      poseBones(body, chosen.pose, undefined,
+        new Set<AutoMovieHumanoidBone>([`${other}LowerArm`])).get(`${other}LowerArm`)!.worldPosition,
     );
     // The other hand's reach, hold and return, as its weight states them.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined =
@@ -327,9 +317,7 @@ export namespace HumanHeldUse {
           seconds: number,
         ): IAutoMovieHumanLimbGoal => {
           const first: IAutoMovieHumanLimbGoal = props.goal(posture, seconds);
-          const wrist: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
-            body,
-            other,
+          const wrist: IAutoMovieMotionHumanHand.IWrist = place(
             HumanGrasp.around(
               target({
                 point: first.point,

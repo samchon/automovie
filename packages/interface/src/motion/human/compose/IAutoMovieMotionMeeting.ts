@@ -27,6 +27,9 @@ export interface IAutoMovieMotionMeeting {
   /** Each contact's point in the frame; `x` left, `y` up, `z` forward, metres. */
   contacts: Readonly<Record<string, IAutoMovieVector3>>;
 
+  /** Outward contact normals in the shared frame when anatomical surfaces define the meeting. */
+  normals?: Readonly<Record<string, IAutoMovieVector3>>;
+
   /** The shared instants, film seconds. */
   instants: IAutoMovieMotionMeetingTiming;
 

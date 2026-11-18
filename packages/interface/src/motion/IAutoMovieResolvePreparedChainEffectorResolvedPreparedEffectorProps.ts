@@ -1,4 +1,5 @@
 import type { IAutoMovieJointPose } from "../pose/IAutoMovieJointPose";
+import type { IAutoMoviePrepareChainFit } from "./IAutoMoviePrepareChainFit";
 import type { IAutoMovieSolvePreparedChainPlantProps } from "./IAutoMovieSolvePreparedChainPlantProps";
 
 /**
@@ -18,4 +19,7 @@ export interface IAutoMovieResolvePreparedChainEffectorResolvedPreparedEffectorP
 
   /** Candidate mid clinical articulation after the same clamping. */
   lower: IAutoMovieJointPose;
+
+  /** Optional matching call-local basis preparation, shared with the inverse solve. */
+  rig?: IAutoMoviePrepareChainFit.IRig;
 }

@@ -8,6 +8,8 @@ Use the first applicable route below. User-chosen generated or traced motion fol
 
 Check the closest action's parameters and the [operators](../compose/composition.md#operators). Try another target, effector, object, manner or seed, or compose actions with an overlay or mutual join.
 
+Send an installed action that fails under documented use to its [package owner](../compose/refusals.md#when-no-repair-holds).
+
 ### Registering a row
 
 Register a missing table row as the README specifies. Its owning action keeps the open parameters and operators.
@@ -22,9 +24,9 @@ Write a law only when the missing action owns what no shipped action plans:
 
 Register the law with the vocabulary as its README shows, and the vocabulary composes, cuts, refuses and checks it like its own actions.
 
-### What is not a person
+### Other moving bodies
 
-Add a law only for a moving body the installed packages cannot drive. Use the installed engine for its contacts and reactions under [physical feedback](../physical-feedback.md).
+Use the installed model and motion capabilities for other moving bodies. Extend a missing reusable capability at its owner, following [physical feedback](../physical-feedback.md) when a scripted response requires simulation.
 
 ## What an extension owes
 

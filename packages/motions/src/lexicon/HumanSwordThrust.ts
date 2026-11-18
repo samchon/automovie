@@ -1,18 +1,23 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieMotionHumanSword,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanSword } from "./HumanSword";
+import { HumanSwordTiming } from "./HumanSwordTiming";
 
 /**
  * The thrust of blade work: the point driven straight onto the target, from
@@ -39,9 +44,9 @@ export namespace HumanSwordThrust {
    * Thrust: the point driven straight onto the target at the decisive instant (`stroke`), with a step or a lunge when asked, then recovered. A target beyond the arm with the chosen advance, or so near that the hand would land within `NEAR` of the arm from the shoulder in a pose the arm cannot hold, is refused on `target`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, the advance and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The landed pose puts the point on the target with the blade along the line from the shoulder, as it stands after the advance; the hilt starts drawn back beside the lower ribs with the point already on the line, and point and turn run to the landed pose on one progress. The attack lasts as a minimum-jerk unit arrested at its peak speed, the sword's cited peak velocity in a lunge.
+   * @evidence contracts/development/implementation.md#principled-implementation The landed pose puts the point on the target with the blade along the line from the shoulder, as it stands after the advance; the hilt starts drawn back by the side, the upper arm hanging and the forearm square to it with the point already on the line, and point and turn run to the landed pose on one progress. The attack lasts as a minimum-jerk unit arrested at its peak speed, the sword's cited peak velocity in a lunge.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The aim, the landed pose, the chamber, then the shared stroke planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chamber's place is provisional; the shoulder used for the reach ignores the lunge's sink, stated at `StrikingBlade.shoulder`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The chamber is the arm's own segments; the shoulder used for the reach ignores the lunge's sink, stated at `StrikingBlade.shoulder`.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan; each posture costs the stroke planner's elbow searches and, in an advance, one root lowering.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
@@ -49,7 +54,7 @@ export namespace HumanSwordThrust {
   export const thrust: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.IAttack> =
     {
       name: "swordThrust",
-      interrupts: HumanSword.follows("stroke"),
+      interrupts: StrikingHeld.follows("stroke"),
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
       ): IAutoMovieMotionHumanActionPlan => {
@@ -57,7 +62,6 @@ export namespace HumanSwordThrust {
         const a: IAutoMovieMotionHumanSword.IAim = HumanSword.aim(
           context,
           s,
-          { out: 0, up: -0.15, forward: 0.85 },
           s.tool.length,
         );
 
@@ -110,13 +114,18 @@ export namespace HumanSwordThrust {
             });
           }
 
-        // The chamber: the hilt drawn back beside the lower ribs, the point
-        // already on the line to the target.
+        // The chamber: the hilt drawn back by the side, the upper arm hanging
+        // and the forearm square to it toward the target, the point already
+        // on the line to the target.
         const hilt: IAutoMovieVector3 = Vector3.add(
           s.shoulder,
-          Vector3.scale(
-            s.world({ out: 0.05, up: -0.45, forward: 0.3 }, a.yaw),
-            s.arm,
+          s.world(
+            {
+              out: 0,
+              up: -context.body.measure.upperArm,
+              forward: context.body.measure.forearm,
+            },
+            a.yaw,
           ),
         );
 
@@ -134,6 +143,31 @@ export namespace HumanSwordThrust {
             0,
             context.entry.posture,
           );
+        // What the advance carries the shoulder by the decisive instant: the
+        // displayed shoulder of the advanced body there against the entry's,
+        // each read on the whole fitted posture, since the trunk-only read
+        // leaves out the fit's own placement of the root.
+        const shoulderOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+          poseBones(
+            context.body,
+            resolveHumanPosture(context.body, posture),
+            undefined,
+            new Set<AutoMovieHumanoidBone>([`${s.tool.side}UpperArm`]),
+          ).get(`${s.tool.side}UpperArm`)!.worldPosition;
+        const carried: number =
+          a.advance === "none"
+            ? 0
+            : Vector3.length(
+                Vector3.subtract(
+                  shoulderOf(a.posture),
+                  shoulderOf(context.entry.posture),
+                ),
+              );
+
+        // The hand sets from its entry hold to the chamber and returns to it
+        // from where the point lands.
+        const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+          HumanSword.held(context, s.tool.side);
         return StrikingBlade.plan(context, {
           tool: s.tool,
           clock: HumanSword.timed(
@@ -143,7 +177,9 @@ export namespace HumanSwordThrust {
             ),
             s.skill(HumanSword.SPEED.thrust),
             0,
-            Vector3.length(Vector3.subtract(a.reach, s.shoulder)),
+            carried,
+            HumanSwordTiming.travel(s.tool, entered, drawn),
+            HumanSwordTiming.travel(s.tool, landed, entered),
           ),
           path: (
             progress: number,

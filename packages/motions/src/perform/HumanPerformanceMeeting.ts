@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionMeeting,
   IAutoMovieMotionMeetingKind,
@@ -70,9 +71,9 @@ export namespace HumanPerformanceMeeting {
         posture: entry.posture,
         bones: poseBones(body, entry.pose),
         seated: entry.supports.some(
-          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-            s.kind === "seat",
+          (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
         ),
+        entry: { posture: entry.posture, pose: entry.pose },
       };
       const others: readonly IAutoMovieMotionHumanActionContext.IPartner[] =
         partner === undefined ? [] : "subject" in partner ? [partner] : partner;
@@ -85,8 +86,7 @@ export namespace HumanPerformanceMeeting {
       const key: string = `${kind.name}|${[
         subject,
         ...others.map(
-          (other: IAutoMovieMotionHumanActionContext.IPartner): string =>
-            other.subject,
+          (other: IAutoMovieMotionHumanActionContext.IPartner): string => other.subject,
         ),
       ]
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -98,30 +98,42 @@ export namespace HumanPerformanceMeeting {
         kept.meeting.instants.relax > start
       )
         return kept.meeting;
-      const meeting: IAutoMovieMotionMeeting = AutoMovieMotionMeeting.of(
-        kind,
-        [
-          own,
-          ...others.map(
-            (
-              other: IAutoMovieMotionHumanActionContext.IPartner,
-            ): IAutoMovieMotionMeetingRole => ({
-              name: other.role,
-              subject: other.subject,
-              body: HumanPerformanceRead.person(self, other.subject).performer
-                .body,
-              posture: HumanPerformanceRead.posture(self, other.subject, start),
-              bones: HumanPerformanceRead.bones(self, other.subject, start),
-              seated: seated(
-                HumanPerformanceRead.segments(self, other.subject),
-                start,
-              ),
-            }),
-          ),
-        ],
-        context,
-        window,
-      );
+      const meeting: IAutoMovieMotionMeeting =
+        AutoMovieMotionMeeting.of(
+          kind,
+          [
+            own,
+            ...others.map(
+              (
+                other: IAutoMovieMotionHumanActionContext.IPartner,
+              ): IAutoMovieMotionMeetingRole => {
+                const posture: IAutoMovieMotionHumanPosture = HumanPerformanceRead.posture(
+                  self,
+                  other.subject,
+                  start,
+                );
+                return {
+                  name: other.role,
+                  subject: other.subject,
+                  body: HumanPerformanceRead.person(self, other.subject).performer
+                    .body,
+                  posture,
+                  bones: HumanPerformanceRead.bones(self, other.subject, start),
+                  seated: seated(
+                    HumanPerformanceRead.segments(self, other.subject),
+                    start,
+                  ),
+                  entry: {
+                    posture,
+                    pose: HumanPerformanceRead.pose(self, other.subject, start),
+                  },
+                };
+              },
+            ),
+          ],
+          context,
+          window,
+        );
       self.meetings.set(key, { subject, meeting });
       return meeting;
     };

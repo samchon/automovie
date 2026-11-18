@@ -5,45 +5,37 @@ import {
   bracketedRoot,
   convexHull2D,
   pointInHull,
+  prepareAutoMovieMassModel,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieResolveCenterOfMass,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysics } from "../law/HumanPhysics";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
+import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
 /**
- * How far the hips move back so the whole-body centre of mass stands over
- * the feet, found on the solved posture itself.
- *
- * A law that pitches the trunk forward over planted feet (a bow, a stoop)
- * builds its posture as a function of the hips' backward shift; this finds
- * the shift at which the engine's whole-body centre of mass
- * (`resolveAutoMovieCenterOfMass.place`, the segmental method of Winter,
- * Biomechanics and Motor Control of Human Movement, ch. 4) lies over the
- * middle of the base of support along the heading, the feet where they bear
- * (`HumanFoot.base`), the static balance condition. The posture is solved
- * (legs on their planted goals, arms on theirs) and the centre placed from the solved bones at each trial of a
- * scan and bisection over the shift. A bow solves it once per plan at its
- * deepest pitch and scales the shift with the sine of the pitch in between,
- * which is exact for a rigid upper body and leaves only the legs'
- * reconfiguration unmodelled at intermediate pitches; a lean into work,
- * whose reaching arm is no rigid part of the trunk, solves it at steps of
- * the pitch (`AutoMovieMotionHumanLeanInto`). Their captures check
- * the margin of stability (Hof et al. 2005) on every frame they draw.
+ * Backward hip travel to support the body's segmental centre (Winter, ch. 4).
+ * The closest boundary suffices (Hof et al. 2005). The planted legs may
+ * move during fitting, so a rigid correction is checked on the actual pose.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
- * @evidence contracts/development/design.md#principled-representation A namespace of pure functions over a body and postures returning world metres (shifts, margins, offsets) and points; the mass model is the engine's, memoized per body.
+ * @evidence contracts/development/design.md#principled-representation Pure balance functions and explicit fixed-body centre/dynamic readers return world-metre shifts/margins/offsets and points. The unchanged body owns its engine mass model, while operation-scoped genuine FK/ROM producers share only static or exact checked dependencies.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the motions balance queries over solved postures; read by the bow, bend, brace and rise laws, the everyday captures and the balance test; the centre-of-mass model, hull and margin belong to the engine and are imported.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No motions-local centre of mass or hull duplicates the engine's and no body or law is special-cased; one gap remains: `margin` is read only by the balance test, a member only a test reads.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No motions-local centre of mass or hull duplicates the engine's and no body or law is special-cased; `margin` serves the trunk's counterbalance composition (`AutoMovieMotionHumanTrunk`) as well as the balance tests.
  */
 export namespace HumanBalance {
   /** How far back the balance search looks unless told otherwise, hip heights: the shift of a trunk pitched over hips that stand over the feet. */
@@ -66,114 +58,134 @@ export namespace HumanBalance {
    * (`HumanFoot.base`): over its middle (`offset`), or a stated distance
    * ahead of it (`target`), as a lean holds the centre where the body stood.
    *
-   * The feet stand flat where they can, the larger base: a heel the planted
-   * leg lifted with its ankle at its range is brought down by moving the
-   * hips back, and on flat feet a centre ahead of the target is brought back
-   * to it while one behind it is left where it is inside the base. Where no
-   * shift within the range stands the body on flat feet with its centre
-   * inside, it stands on the forefoot, and the hips and trunk bring the
-   * centre over the middle of the forefoot, back when it is ahead and
-   * forward when it is outside behind, as a deep squat with its heels up
-   * does. Each search's bracket is its start and the end of the range,
-   * `range` hip heights the needed way; the crossing in it is refined to
-   * `TOLERANCE` by the engine's bracketed root for the centre's place (the
-   * Illinois false position, `bracketedRoot`), whose bracket keeps it safe
-   * where the centre stops following the hips
-   * once the planted legs reach the limit of their range, and by the engine's
-   * bisection (`bracketedBisection`) for whether the heels are down. When no shift in the range balances the
-   * body, the end that comes nearer is returned, and the law's
-   * margin-of-stability verdict reports the remainder.
+   * Where fitting changes support, a feasible endpoint brackets the first
+   * supported shift to `TOLERANCE`. If the heel cannot bear, the forefoot
+   * bears, and a missing crossing leaves the nearer endpoint for the audit.
    *
    * @param body The body.
    * @param build The posture for a backward shift of the hips, metres; a negative shift moves them forward.
    * @param range How far the search looks either way, hip heights; `RANGE` when absent, and `REACH` for a posture whose hips do not start over the feet.
-   * @param target How far ahead of the base's middle the centre is put, metres; 0, the middle itself, when absent.
+   * @param target How far ahead of the base's middle the centre is put, metres. Without a target, first keep a supported posture or try the nearest boundary.
    * @returns The shift, metres, negative forward; 0 when the centre lies inside the base no farther ahead than the target without one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the flat feet sought before the forefoot, the cases on each, the search range in hip heights, the tolerance, the bracket and its refinement, and the nearer end when none balances.
-   * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass inside the base that bears after the leg fit, over its middle along the heading) found on one bracket per search, by the engine's bracketed root (`bracketedRoot`, the Illinois false position) for the centre's continuous place and bisection for the heels' yes-or-no; both need only a bracket, so they hold where the solved legs saturate their range and where the base changes under a lifting heel. A flat foot is the larger base, so it is sought before the forefoot.
+   * @evidence contracts/development/implementation.md#principled-implementation Without a requested target, an already supported mass needs no shift. The closest directional hull point first gives the rigid translation. A planted-leg refit verifies the candidate's support and heel state. The original bracketed centre and heel searches apply where this closed candidate does not hold or the caller requests a target.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per trial (`read`), each shift read once per call, and one bracketed search per case; the balance measures live in one place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each search reads its bracket's two ends, then the bracketed root converges superlinearly where the centre's place is smooth, and bisection takes log2(range / tolerance), near 10, posture solves; each solve is one forward-kinematics pass with limb fits, read once for both measures and once per shift in the call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call balances its own builder.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One genuine same-body ROM projector and exact FK workspace serve all complete current fits. At the original first mass-placement point, one genuine mass-model epoch snapshots the unchanged classic model; exact current frame scalar keys share only fixed local rotations while every ordered mass sum runs. After the first original full observation succeeds, one poseBones.prepare demand binds actual mass-profile and foot socket/outline names for later final frames. Every joint still projects and admits in order, all changed FK dependencies are checked, and each trial shares only its actual sole placement between base and heel tests.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The trial map, fixed-name FK demand, genuine ROM projector and exact FK workspace end with this solve; each foot reader ends with its synchronous trial, the classic model is borrowed lazily from the body and its operation token is released in finally on every success/failure; no dynamic context or model/result cache survives the search.
    */
   export function shift(
     body: IAutoMovieMotionHumanBody,
     build: (back: number) => IAutoMovieMotionHumanPosture,
     range: number = RANGE,
-    target: number = 0,
+    target?: number,
   ): number {
     // Each shift is read once within a call: the searches below revisit
     // their brackets' ends.
     const read0: Map<number, IReading> = new Map();
-    const at = (back: number): IReading => {
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+    let frames: ReturnType<typeof poseBones.prepare> | undefined;
+    let model: prepareAutoMovieMassModel.IPrepared | undefined;
+    const mass: () => prepareAutoMovieMassModel.IPrepared = (): prepareAutoMovieMassModel.IPrepared => {
+      model ??= prepareAutoMovieMassModel(body.massModel);
+      return model;
+    };
+    const at: (back: number) => IReading = (back: number): IReading => {
       let r: IReading | undefined = read0.get(back);
       if (r === undefined) {
-        r = read(body, build(back));
+        r = read(body, build(back), resolution, projection, frames, mass, back === 0 && target === undefined);
+        if (frames === undefined)
+          frames = poseBones.prepare(body, new Set([...HumanColliders.bones(body), ...HumanFoot.bones(body)]));
         read0.set(back, r);
       }
       return r;
     };
-    const start: IReading = at(0);
-    const span: number = range * body.measure.hipHeight;
-    // The shift from `from` the given way, within the range, at which
-    // `error` is no longer positive: the bracket is the range's two ends,
-    // and the crossing in it is refined to the tolerance, by the engine's
-    // bracketed root for a continuous error (`bracketedRoot`, the Illinois
-    // false position of Dowell and Jarratt 1971, superlinear and never
-    // leaving the bracket, so a stretch where the error stops responding,
-    // the planted legs at their range, costs steps and no divergence) and by
-    // the engine's bisection (`bracketedBisection`) for a yes-or-no one. With no crossing in the range, the end
-    // that comes nearer is returned.
-    const first = (
-      from: number,
-      sign: number,
-      error: (r: IReading) => number,
-      smooth: boolean,
-    ): { found: boolean; back: number } => {
-      const near: number = error(at(from));
-      if (near <= 0) return { found: true, back: from };
-      const end: number = from + sign * span;
-      const far: number = error(at(end));
-      if (far > 0) return { found: false, back: far < near ? end : from };
-      return {
-        found: true,
-        back: smooth
-          ? bracketedRoot(
-              (b: number): number => error(at(b)),
-              from,
-              end,
-              TOLERANCE,
-            )
-          : bracketedBisection(
-              (b: number): boolean => error(at(b)) > 0,
-              from,
-              end,
-              TOLERANCE,
-            ),
+    try {
+      const start: IReading = at(0);
+      const span: number = range * body.measure.hipHeight;
+      if (target === undefined && start.margin >= 0) return 0;
+      const nearest: (back: number) => number = (back: number): number => {
+        if (target !== undefined || at(back).margin <= 0) return back;
+        let supported: number = back;
+        bracketedBisection((current: number): boolean => {
+          if (at(current).margin < 0) return true;
+          supported = current;
+          return false;
+        }, 0, back, TOLERANCE);
+        return supported;
       };
-    };
-    const ahead = (r: IReading): number => r.offset - target;
-    // Flat feet first: a heel the planted leg lifted is brought down by
-    // moving the hips back; on flat feet a centre ahead of the target is
-    // brought back to it, and one behind it is left while it lies inside.
-    const down: { found: boolean; back: number } = first(
-      0,
-      1,
-      (r: IReading): number => (r.flat ? 0 : 1),
-      false,
-    );
-    if (down.found) {
-      const landed: IReading = at(down.back);
-      if (ahead(landed) > 0) return first(down.back, 1, ahead, true).back;
-      if (landed.margin > 0) return down.back;
+      if (start.candidate !== undefined && Math.abs(start.candidate) <= span) {
+        const landed: IReading = at(start.candidate);
+        if (landed.margin >= 0 && landed.flat === start.flat) return nearest(start.candidate);
+      }
+      // The shift from `from` the given way, within the range, at which
+      // `error` is no longer positive: the bracket is the range's two ends,
+      // and the crossing in it is refined to the tolerance, by the engine's
+      // bracketed root for a continuous error (`bracketedRoot`, the Illinois
+      // false position of Dowell and Jarratt 1971, superlinear and never
+      // leaving the bracket, so a stretch where the error stops responding,
+      // the planted legs at their range, costs steps and no divergence) and by
+      // the engine's bisection (`bracketedBisection`) for a yes-or-no one. With no crossing in the range, the end
+      // that comes nearer is returned.
+      const first: (
+        from: number,
+        sign: number,
+        error: (r: IReading) => number,
+        smooth: boolean,
+      ) => { found: boolean; back: number } = (
+        from: number,
+        sign: number,
+        error: (r: IReading) => number,
+        smooth: boolean,
+      ): { found: boolean; back: number } => {
+        const near: number = error(at(from));
+        if (near <= 0) return { found: true, back: from };
+        const end: number = from + sign * span;
+        const far: number = error(at(end));
+        if (far > 0) return { found: false, back: far < near ? end : from };
+        return {
+          found: true,
+          back: smooth
+            ? bracketedRoot(
+                (b: number): number => error(at(b)),
+                from,
+                end,
+                TOLERANCE,
+              )
+            : bracketedBisection(
+                (b: number): boolean => error(at(b)) > 0,
+                from,
+                end,
+                TOLERANCE,
+              ),
+        };
+      };
+      const ahead: (r: IReading) => number = (r: IReading): number => r.offset - (target ?? 0);
+      // Flat feet first: a heel the planted leg lifted is brought down by
+      // moving the hips back; on flat feet a centre ahead of the target is
+      // brought back to it, and one behind it is left while it lies inside.
+      const down: { found: boolean; back: number } = first(
+        0,
+        1,
+        (r: IReading): number => (r.flat ? 0 : 1),
+        false,
+      );
+      if (down.found) {
+        const landed: IReading = at(down.back);
+        if (ahead(landed) > 0) return nearest(first(down.back, 1, ahead, true).back);
+        if (landed.margin > 0) return nearest(down.back);
+      }
+      // Otherwise the forefoot: the centre brought over its middle, back when
+      // ahead of it, forward when outside behind it.
+      if (ahead(start) > 0) return nearest(first(0, 1, ahead, true).back);
+      if (start.margin > 0) return 0;
+      return nearest(first(0, -1, (r: IReading): number => -ahead(r), true).back);
+    } finally {
+      if (model !== undefined) prepareAutoMovieMassModel.release(model);
     }
-    // Otherwise the forefoot: the centre brought over its middle, back when
-    // ahead of it, forward when outside behind it.
-    if (ahead(start) > 0) return first(0, 1, ahead, true).back;
-    if (start.margin > 0) return 0;
-    return first(0, -1, (r: IReading): number => -ahead(r), true).back;
   }
 
   /**
@@ -188,18 +200,59 @@ export namespace HumanBalance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the measured quantity, its sign, the support points used and the static (zero-velocity) form of Hof's margin.
    * @evidence contracts/development/implementation.md#principled-implementation Hof et al. 2005 margin with zero velocity: the engine's segmental centre of mass to the convex hull of the feet's bearing outlines (`HumanFoot.base`), from the solved posture's bones.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Solves the posture once for both balance measures (`read`), gathers the feet's bearing outline points and delegates the hull distance to the engine's `resolveAutoMovieCenterOfMass.margin`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Solves common centre/support geometry once and delegates only the requested hull margin to the engine, leaving directional projection and heel-state queries to consumers that need them.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: every posture uses the same bearing outlines and the engine's model.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve plus the hull of the two outlines' points.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One full posture solve, common mass/support placement and the hull of the two outlines' points; it no longer computes an unused heading offset or repeats sole-socket queries for heel state.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse across calls.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during this synchronous query and retains no model or result.
    */
-  export function margin(
+  export function margin(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
+    const placed: IPlaced = placement(body, posture);
+    return resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
+  }
+
+  /**
+   * Whole-body mass centre of the actual solved posture, without foot-support
+   * geometry for callers that only need the centre's position.
+   *
+   * @param body The unchanged body owning its prepared classic mass model.
+   * @param posture The actual posture with every limb and digit goal retained.
+   * @param resolution Optional exact FK workspace or lazy supplier borrowed from the same synchronous body operation.
+   * @param projection Optional genuine same-body ROM projector borrowed only from that synchronous operation; unissued functions keep ordinary admission.
+   * @param resolved The cold resolve of this very posture when its caller already holds it, read in place of solving the posture here.
+   * @returns The whole-body centre, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States actual complete posture solving, classic mass-model ownership and world-metre output, with support geometry outside this request.
+   * @evidence contracts/development/implementation.md#principled-implementation Runs the ordinary complete canonical posture solver, then demands the actual profile-bearing FK frames consumed by the same classic mass model and engine placement used by support; no leg, contact or digit fit is omitted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy exact reader serves the actual complete pose solve and final profile FK, then body-owned mass placement exposes the centre-only dependency that reaction entry and bending observations need.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps original authored goals, clamping, actual limb/digit fitting and mass model; it omits unused foot-outline/socket/hull work without substituting a guessed centre or achieved target.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Costs one full posture solve, ordered joint admission, demanded profile/ancestor FK and linear placement over mass segments; centre-only requests allocate no unrelated bone frames or foot bearing points and run no support projection/hull query.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The classic mass model and collider metadata share actual profile-name demands. A local/borrowed operation FK reader shares exact dependencies, and a genuine same-body projection loan shares only static ROM metadata through seeded's provenance gate; every current joint, fit and mass placement still evaluates.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local getter ends with the synchronous query, while an optional parent retains only its own operation workspace. The returned fresh vector retains no body, pose, model, reader or support data.
+   */
+  export function centre(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-  ): number {
-    return read(body, posture).margin;
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    resolved?: ReturnType<typeof resolveHumanPosture>,
+  ): IAutoMovieVector3 {
+    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+    return resolveAutoMovieCenterOfMass.place(
+      body.massModel,
+      body.colliderBones.map(resolved ?? resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose, read()),
+    );
   }
+
+  /**
+   * Fixed-body centre observations owned by prepareHumanBalanceCentre.
+   * Its actual profile-name producer prepares only immutable FK demand;
+   * each reader call keeps complete fitting, current mass placement and
+   * optional same-operation FK/ROM borrowing. Release it with the owning action.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names prepareHumanBalanceCentre as the implementation owner and states fixed metadata, complete current fitting, borrowed operation context and lifetime.
+   */
+  export const prepareCentre: typeof prepareHumanBalanceCentre = prepareHumanBalanceCentre;
 
   /**
    * The dynamic margin of stability at an instant of a movement (Hof,
@@ -218,37 +271,25 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the centre at three instants and hands extrapolation and margin to the engine; the base's gathering repeats `margin`'s reading on the bones already solved for the instant.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 1/240 s step is a numerical choice finer than the 24 Hz film and the length is Hof's (`resolveAutoMovieCenterOfMass.pendulum`); the difference amplifies any discontinuity in the caller's posture function, which callers must keep smooth.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three posture solves per call.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Not shared: each call evaluates its own instant.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One mass-name demand serves both neighbours and one genuine ROM projector/exact FK workspace serves all three actual full fits/display readings. Each joint still projects in order and every changed FK dependency is checked, without fitted-pose or finite-difference sample reuse.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model for these actual three solves, retaining no model, sampled frame or result after return.
    */
   export function extrapolated(
     body: IAutoMovieMotionHumanBody,
     at: (seconds: number) => IAutoMovieMotionHumanPosture,
     seconds: number,
   ): number {
-    const h: number = 1 / 240;
-    const com = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(
-        model(body),
-        poseBones(body, resolveHumanPosture(body, at(t))),
-      );
-    const a: IAutoMovieVector3 = com(seconds - h);
-    const b: IAutoMovieVector3 = com(seconds + h);
-    const velocity: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(b, a),
-      1 / (2 * h),
-    );
-    const bones = poseBones(body, resolveHumanPosture(body, at(seconds)));
-    const xcom: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.extrapolate(
-      resolveAutoMovieCenterOfMass.place(model(body), bones),
-      velocity,
-      resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
-    );
-    return resolveAutoMovieCenterOfMass.margin(
-      xcom,
-      HumanFoot.base(body, bones),
-    );
+    return HumanBalanceExtrapolated.of(body, at, seconds);
   }
+
+  /**
+   * Fixed-body dynamic margin reader owned by HumanBalanceExtrapolated.prepare.
+   * Every t-h, t+h and t callback/full fit remains actual; current callbacks may
+   * synchronously borrow FK/ROM metadata and no sample enters retained state.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the fixed-body dynamic reader owner, original three-instant full-fit policy, optional synchronous loans and absence of retained movement samples.
+   */
+  export const prepareExtrapolated: typeof HumanBalanceExtrapolated.prepare = HumanBalanceExtrapolated.prepare;
 
   /**
    * The engine's whole-body centre of mass of a posture and the support
@@ -256,6 +297,8 @@ export namespace HumanBalance {
    *
    * @param body The body.
    * @param posture The posture.
+   * @param resolution Optional exact FK workspace or lazy supplier borrowed only from this synchronous same-body operation.
+   * @param projection Optional genuine same-body ROM metadata; every current joint and goal still receives ordinary complete admission.
    * @returns The centre and the support points.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is returned, its frame and which sockets form the support.
@@ -263,17 +306,20 @@ export namespace HumanBalance {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Returns the raw centre and points so `along` can measure any direction without solving again.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case present.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Callers reuse its result for several directions (the brace verdicts read the push and lateral margins from one call).
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Callers reuse its result for several directions (brace reads push and lateral margins from one observation), and may lend genuine same-operation FK/ROM metadata across repeated full fits. Current goals, joint projection, mass and support placement remain actual.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model and optional synchronous exact FK/genuine ROM metadata, returning fresh support data without retaining a reader, projector, result, model or sampled history.
    */
   export function support(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-  ): IAutoMovieMotionHumanBalance.ISupportResult {
-    const bones = poseBones(body, resolveHumanPosture(body, posture));
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    sides?: readonly AutoMovieHumanSide[],
+  ): IAutoMovieMotionHumanBalance.ISupport {
+    const placed: IPlaced = placement(body, posture, resolution, projection, undefined, undefined, sides);
     return {
-      centre: resolveAutoMovieCenterOfMass.place(model(body), bones),
-      points: HumanFoot.base(body, bones),
+      centre: placed.centre,
+      points: placed.base,
     };
   }
 
@@ -338,87 +384,117 @@ export namespace HumanBalance {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the quantity, the reference (the bearing base's middle along the heading), the axis (the posture's heading) and the sign.
    * @evidence contracts/development/implementation.md#principled-implementation The engine's centre of mass minus the middle of the base that bears after the leg fit, both projected on the heading from the posture's yaw: the static balance error `shift` drives to zero, which a heel-off moves with the base.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solve read for both balance measures (`read`) and one projection; `shift` uses it as its error.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One solved centre/support preparation feeds the same heading projection shared by shift's complete reading; offset requests do not compute hull margins or heel state.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case present.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One full posture solve and linear projection over actual bearing points; the unused support-hull margin and heel-state socket queries are omitted.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure query; nothing to reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing itself; the per-body mass model it reads is memoized in a WeakMap keyed by the body and released with it.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Borrows the body's prepared mass model during one synchronous solve and retains no duplicate model or output.
    */
-  export function offset(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-  ): number {
-    return read(body, posture).offset;
+  export function offset(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
+    return projected(placement(body, posture), posture.yaw);
   }
 }
 
 /** A posture's balance: `HumanBalance.offset` and `HumanBalance.margin`, metres, and whether both heels bear. */
 interface IReading {
+  /** How far the centre of mass lies ahead of the base's middle along the heading, metres. */
   offset: number;
+
+  /** The static margin of stability, metres, positive inside the base. */
   margin: number;
+
+  /** Whether both heels bear. */
   flat: boolean;
+
+  /** Rigid backward translation to the closest reachable boundary, when requested. */
+  candidate?: number;
 }
 
 /** A posture's balance, read on one solve of it. */
 function read(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
+  resolution: ReturnType<typeof prepareHumanPoseResolution>,
+  projection: ReturnType<typeof prepareHumanPostureProjection>,
+  frames?: ReturnType<typeof poseBones.prepare>,
+  mass?: () => prepareAutoMovieMassModel.IPrepared,
+  propose: boolean = false,
 ): IReading {
-  const bones: ReturnType<typeof poseBones> = poseBones(
-    body,
-    resolveHumanPosture(body, posture),
-  );
-  const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-    model(body),
-    bones,
-  );
-  const base: IAutoMovieVector3[] = HumanFoot.base(body, bones);
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
-    { x: 0, y: 0, z: 1 },
-  );
-  let rear: number = Infinity;
-  let front: number = -Infinity;
-  for (const p of base) {
-    const along: number = Vector3.dot(p, forward);
-    rear = Math.min(rear, along);
-    front = Math.max(front, along);
-  }
+  const placed: IPlaced = placement(body, posture, resolution, projection, frames, mass);
+  const margin: number = resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
+  const candidate: HumanPhysics.SupportOffset = propose && margin < 0
+    ? HumanPhysics.supportOffset({ centre: placed.centre, points: placed.base }, heading(posture.yaw))
+    : null;
   return {
-    offset: Vector3.dot(com, forward) - (rear + front) / 2,
-    margin: resolveAutoMovieCenterOfMass.margin(com, base),
-    // A heel bears within the bearing height of the foot's lowest sole
-    // socket, the ball or the toe a foot stands on either way.
+    offset: projected(placed, posture.yaw),
+    margin,
+    ...(candidate === null ? {} : { candidate: -candidate }),
+
+    // A heel bears within the bearing height of the lowest sole socket.
     flat: (["left", "right"] as const).every(
       (side: "left" | "right"): boolean => {
-        const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
-          body,
-          bones,
-          side,
-        );
-        return (
-          sockets[0]!.point.y <=
-          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING
-        );
+        const sockets: readonly IAutoMovieMotionHumanFoot.ISocket[] = placed.feet.sockets(side);
+        return sockets[0]!.point.y <=
+          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING;
       },
     ),
   };
 }
 
-/** Mass models by body. */
-const MODELS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  IAutoMovieResolveCenterOfMass.IModel
-> = new WeakMap();
+/** Common solved geometry needed by all static balance measurements. */
+interface IPlaced {
+  /** Borrowed sole geometry bound to this trial's complete displayed FK. */
+  feet: ReturnType<typeof HumanFoot.reading>;
 
-/** The engine's mass model of a body, made once. */
-function model(
-  body: IAutoMovieMotionHumanBody,
-): IAutoMovieResolveCenterOfMass.IModel {
-  let out: IAutoMovieResolveCenterOfMass.IModel | undefined = MODELS.get(body);
-  if (out === undefined) {
-    out = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-    MODELS.set(body, out);
-  }
-  return out;
+  /** Actual whole-body mass centre in world metres. */
+  centre: IAutoMovieVector3;
+
+  /** Original foot-outline bearing points in their original order. */
+  base: IAutoMovieVector3[];
 }
+
+/** Solve once and prepare only the common mass-centre and support geometry. */
+function placement(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  frames?: ReturnType<typeof poseBones.prepare>,
+  mass?: () => prepareAutoMovieMassModel.IPrepared,
+  sides?: readonly AutoMovieHumanSide[],
+): IPlaced {
+  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+  const pose: ReturnType<typeof resolveHumanPosture> =
+    resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose;
+  const bones: ReturnType<typeof poseBones> = frames === undefined
+    ? poseBones(body, pose, read()) : frames(pose, read());
+  const feet: ReturnType<typeof HumanFoot.reading> = HumanFoot.reading(body, bones);
+  return {
+    feet,
+    centre: mass === undefined ? resolveAutoMovieCenterOfMass.place(body.massModel, bones)
+      : prepareAutoMovieMassModel.place(mass(), bones),
+    base: feet.base(sides),
+  };
+}
+
+/** Project the same mass centre and base on the heading without a hull or heel query. */
+function projected(placed: IPlaced, yaw: number): number {
+  const forward: IAutoMovieVector3 = heading(yaw);
+  let rear: number = Infinity;
+  let front: number = -Infinity;
+  for (const p of placed.base) {
+    const along: number = Vector3.dot(p, forward);
+    rear = Math.min(rear, along);
+    front = Math.max(front, along);
+  }
+  return Vector3.dot(placed.centre, forward) - (rear + front) / 2;
+}
+
+/** World heading of a yaw, used by the support's directional reads. */
+function heading(yaw: number): IAutoMovieVector3 {
+  return Quaternion.rotateVector(
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+    { x: 0, y: 0, z: 1 },
+  );
+}
+

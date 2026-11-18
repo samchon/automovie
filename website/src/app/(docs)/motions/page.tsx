@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { MotionCatalogue } from "../../../components/motions/MotionCatalogue";
 import { MotionNav } from "../../../components/motions/MotionNav";
+import { SceneCard } from "../../../components/scenes/SceneCard";
 import { MotionReference } from "../../../motions/package/MotionReference";
 import type { IMotionReference } from "../../../motions/structures/IMotionReference";
+import { SCENES } from "../../../scenes/SCENES";
+import { SceneStatus } from "../../../scenes/package/SceneStatus";
+import type { IScene } from "../../../scenes/structures/IScene";
 
 export const metadata: Metadata = {
   title: "Motions",
@@ -20,17 +24,21 @@ export const metadata: Metadata = {
  */
 export default function MotionsPage(): ReactElement {
   const reference: IMotionReference = MotionReference.read();
-  const rows: number = reference.families.reduce(
-    (sum: number, f: IMotionReference.IFamily): number => sum + f.rows.length,
-    0,
+  const examples: IScene[] = SCENES.filter(
+    (scene: IScene): boolean =>
+      scene.featured !== undefined &&
+      scene.hidden !== true &&
+      scene.takes.length > 0 &&
+      SceneStatus.of(scene).kind === "plays",
+  ).sort(
+    (left: IScene, right: IScene): number => left.featured! - right.featured!,
   );
   return (
-    <main className="am-app" data-pagefind-body>
+    <main className="am-app am-library" data-pagefind-body>
       <header className="am-app-head">
         <h1>Motions</h1>
         <p className="am-lede">
-          The pieces every scene is composed from. A scene chains them per
-          person; this reference lists each one with what it takes and the
+          Browse the action vocabulary by family. Open a movement to find the
           scenes that use it.
         </p>
       </header>
@@ -46,39 +54,32 @@ export default function MotionsPage(): ReactElement {
           current={null}
         />
         <div className="am-stack">
-          <p>
-            <Link href="/motions/actions/">
-              {reference.actions.length} actions
-            </Link>{" "}
-            make up the vocabulary
-            {reference.families.length === 0
-              ? ". The installed release has no lexicon of named rows yet."
-              : `, and the lexicon names ${rows} rows in ${reference.families.length} families that compose them.`}
-          </p>
-          {reference.families.length === 0 ? null : (
-            <ul className="am-family-grid">
-              {reference.families.map(
-                (family: IMotionReference.IFamily): ReactElement => (
-                  <li key={family.name} className="am-roadmap-item">
-                    <Link href={`/motions/${family.name}/`}>
-                      <strong>{family.name}</strong>
-                    </Link>
-                    <span className="am-muted am-small">
-                      {family.rows.length} rows:{" "}
-                      {family.rows
-                        .slice(0, 6)
-                        .map((r: IMotionReference.IRow): string => r.name)
-                        .join(", ")}
-                      {family.rows.length > 6 ? ", …" : ""}
-                    </span>
-                  </li>
-                ),
-              )}
-            </ul>
+          {examples.length > 0 && (
+            <details className="am-motion-examples" open>
+              <summary>Featured scenes</summary>
+              <ul className="am-scene-grid">
+                {examples.map(
+                  (scene: IScene): ReactElement => (
+                    <SceneCard key={scene.id} scene={scene} />
+                  ),
+                )}
+              </ul>
+            </details>
           )}
+          <MotionCatalogue
+            groups={[
+              { name: "actions", rows: reference.actions },
+              ...reference.families,
+            ].map((family: IMotionReference.IFamily) => ({
+              name: family.name,
+              motions: family.rows.map(
+                (row: IMotionReference.IRow): string => row.name,
+              ),
+            }))}
+          />
           {reference.grammar === null ? null : (
-            <>
-              <h2>The grammar</h2>
+            <details>
+              <summary>Motion grammar</summary>
               {(["axes", "operators"] as const).map(
                 (part: "axes" | "operators"): ReactElement => (
                   <div key={part} className="am-table-wrap">
@@ -110,7 +111,7 @@ export default function MotionsPage(): ReactElement {
                   </div>
                 ),
               )}
-            </>
+            </details>
           )}
         </div>
       </div>

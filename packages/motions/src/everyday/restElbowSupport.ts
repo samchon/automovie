@@ -10,6 +10,7 @@ import type {
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { handGoals } from "./handGoals";
 
@@ -30,8 +31,8 @@ import { handGoals } from "./handGoals";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One arm solve, one region placement and one hand turn.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow is read from the solved pose, never estimated from the hint.
  * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `handGoals` for the supported arm and the engine's surface placement for its elbow.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work handGoals owns the supported arm request and engine surface placement owns its actual elbow. One synchronous exact FK workspace serves the full native fitting and final actual elbow-frame observation, checking every changed dependency and retaining no fitted-pose result.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local exact FK getter and temporary solved frames end at return or throw; only the fresh hand goal and its actual point/rotation escape, retaining no workspace or time history.
  */
 export function restElbowSupport(
   body: IAutoMovieMotionHumanBody,
@@ -58,10 +59,13 @@ export function restElbowSupport(
       },
     ],
   );
-  const bones = poseBones(body, resolveHumanPosture(body, solved));
-  const frame =
+  const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"]["elbowLeft"] =
     body.surfaces.regions[other === "left" ? "elbowLeft" : "elbowRight"];
-  const placed = resolveAutoMovieHumanoidSurfaces.place(
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const bones: ReturnType<typeof poseBones> = poseBones(
+    body, resolveHumanPosture.seeded(body, solved, undefined, {}, resolution).pose, resolution(), new Set([frame.bone]),
+  );
+  const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
     frame,
     bones.get(frame.bone)!,
   );

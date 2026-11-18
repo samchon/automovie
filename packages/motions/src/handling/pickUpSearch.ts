@@ -14,6 +14,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { pickUpPosture } from "./pickUpPosture";
@@ -43,7 +44,14 @@ export namespace pickUpSearch {
     none: [0],
   };
 
-  /** A grasp chosen from a stance, the elbow hint its arm hangs by, and the stance. */
+  /**
+   * A grasp chosen from its actual stance and hanging elbow hint.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Members identify the original chosen reach, world-metre elbow hint and exact body stance that produced them.
+   * @evidence contracts/development/design.md#principled-representation Retains HumanGrasp's reach and pickUpPosture's stance types with their original world coordinates, complete goals, reference and judgement reports.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface pickUpStance chooses among these records and pickUp consumes all three fields to author the original lift; no prepared token or new pose representation escapes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every record comes from its own actual stance search, without reusing another stance's wrist, goal, solution or refusal verdict.
+   */
   export interface ISearched {
     /** The grasp the arm reaches best. */
     chosen: IAutoMovieMotionHumanGrasp.IReach;
@@ -71,8 +79,8 @@ export namespace pickUpSearch {
    * @evidence contracts/development/implementation.md#principled-implementation The grip's turns and tilts judged by the arm's fit over the grasp, the lift and any use's pose (`HumanGrasp.reachable`), the use's pose first when one is asked.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The elbow hint, the goals, one search.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grasp beyond the straight arm is tried only when every one is.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One grasp search; a use's roll is fitted once per roll and candidate (`HumanGraspUse.presented`).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each use roll's fit is kept for its candidate's search (`HumanGraspUse.presented`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preserves all original candidate goals, coupled fits, lazy stroke keys and required-first wider search. Each candidate that reaches a use or demand reads its current geometry at that original point; arbitrary callbacks prevent sharing direct source assembly across fits or stances.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The public reachable owner shares only exact current FK dependencies. Entry, params, prop reads and demanded postures remain live across external demand callbacks; no object identity or callback absence is treated as proof of a fixed body/posture source.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
    */
   export function of(
@@ -86,6 +94,7 @@ export namespace pickUpSearch {
   ): ISearched {
     const body: IAutoMovieMotionHumanBody = context.body;
     const held: IAutoMovieMotionHumanPosture = stance.posture;
+
     // The same grip must still hold at the top of the lift, so the lifted
     // pose is a key of the choice.
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -94,30 +103,27 @@ export namespace pickUpSearch {
       side,
     );
 
-    const goal = (
-      turn: number,
-      tilt: number,
-    ): IAutoMovieMotionHumanHand.IWrist =>
-      HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
     // Without a use, the hand takes the grip as the archetype declares it:
     // never tilted, and turned about the wrapped axis only as far as the
     // grip is the same turned (`IAutoMovieAffordance.symmetry`).
-    const declared: readonly number[] =
-      TURNS[
-        context
-          .prop(context.params.prop)
-          .prop.affordances?.find(
-            (a: IAutoMovieAffordance): boolean =>
-              a.id === context.params.handle,
-          )?.symmetry ?? "none"
-      ];
+    const goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist = (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
+      HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
+    const declared: readonly number[] = TURNS[
+      context
+        .prop(context.params.prop)
+        .prop.affordances?.find(
+          (a: IAutoMovieAffordance): boolean =>
+            a.id === context.params.handle,
+        )?.symmetry ?? "none"
+    ];
+
     // The keys a grip must hold besides the grasp: the lifted pose, any
     // use's pose, and every pose the performer's next action on the prop
     // demands of it (`HumanGraspDemand`), asked from the body the pick up
     // ends in, its stance straightened back up.
-    const demands: IAutoMovieMotionHumanActionContext["demands"] =
-      context.demands;
+    const demands: IAutoMovieMotionHumanActionContext["demands"] = context.demands;
     const after: IAutoMovieMotionHumanPosture = stance.at(0);
+
     // What a grip must hold: every judged key within its own bound (the
     // demanding action's, or the held tool's for a use), measured as the
     // worst judgement's share of its bound; the grasp's and the lift's are
@@ -146,18 +152,20 @@ export namespace pickUpSearch {
                 0,
               ),
           };
+
     // The keys of a candidate, built only as the search reaches them: the
     // lifted pose, any use's pose, then the next action's demands, whose
     // grip is read for this candidate alone.
-    const stroke = function* (
+    const stroke: (wrist: IAutoMovieMotionHumanHand.IWrist, shown: IAutoMovieMotionHumanHand.IWrist) => Generator<IAutoMovieMotionHumanGrasp.IKey> = function* (
       wrist: IAutoMovieMotionHumanHand.IWrist,
       shown: IAutoMovieMotionHumanHand.IWrist,
     ): Generator<IAutoMovieMotionHumanGrasp.IKey> {
       if (lift > 0)
         yield {
           posture: held,
-          // Lifted, the hand keeps the rotation it shows at the grasp, as
-          // the lift holds it (`HumanHandAttitude`).
+
+          // Lifted, the complete position/rotation goal asks the hand to
+          // keep the rotation it shows at the grasp, as the plan does.
           wrist: {
             point: {
               x: wrist.point.x + (carried?.x ?? 0),
@@ -194,6 +202,7 @@ export namespace pickUpSearch {
         ))
           yield HumanGraspDemand.key(body, demand);
     };
+
     // A grasp whose wrist lies beyond the straight arm is tried only when
     // every one does: the choice and the refusal below read the same reach,
     // so a grip a millimetre beyond it is never chosen over one within it for
@@ -201,15 +210,13 @@ export namespace pickUpSearch {
     // only while all its tilts were within reach fell back to every turn when
     // none kept all seven, and a glass across the body was refused a grip
     // 9 mm beyond the arm while others lay within it.
-    const search = (
+    const reachable: ReturnType<typeof HumanGraspSearch> = HumanGraspSearch(body, held, side, bend, true);
+    const admits: ReturnType<typeof pickUpPosture.reaches> = pickUpPosture.reaches(context, side, held);
+    const search: (tilts: readonly number[], turns: readonly number[]) => IAutoMovieMotionHumanGrasp.IReach = (
       tilts: readonly number[],
       turns: readonly number[],
     ): IAutoMovieMotionHumanGrasp.IReach =>
-      HumanGrasp.reachable(
-        body,
-        held,
-        side,
-        bend,
+      reachable(
         goal,
         tilts,
         stroke,
@@ -217,7 +224,7 @@ export namespace pickUpSearch {
         // A grasp that holds every judged key comes before any that does
         // not, whatever else each costs.
         required,
-        pickUpPosture.reaches(context, side, held),
+        admits,
       );
 
     // A use may need the far side of the handle, so it searches every turn
@@ -227,10 +234,7 @@ export namespace pickUpSearch {
       context.params.use !== undefined
         ? search(HumanGraspUse.OBLIQUE, HumanGraspUse.AROUND)
         : ((): IAutoMovieMotionHumanGrasp.IReach => {
-            const first: IAutoMovieMotionHumanGrasp.IReach = search(
-              [0],
-              declared,
-            );
+            const first: IAutoMovieMotionHumanGrasp.IReach = search([0], declared);
             return required === undefined ||
               required.measure(first.keys, first.judged, first.bounds) <=
                 required.bound

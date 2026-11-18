@@ -72,6 +72,23 @@ export namespace ScenePlayer {
   /** Build the scene of a computed take. */
   function build(record: IScene, take: ITake): IScenePlayer {
     const track: SceneTrack.ITrack = take.track;
+    const entriesPerFrame: number = track.orders.reduce(
+      (count: number, order: string[]): number => count + order.length,
+      0,
+    );
+    if (
+      !Number.isFinite(take.duration) ||
+      take.duration < 0 ||
+      !Number.isFinite(track.fps) ||
+      track.fps <= 0 ||
+      !Number.isInteger(track.frames) ||
+      track.frames < 1 ||
+      entriesPerFrame === 0 ||
+      track.orders.length !== take.figures.length + take.props.length ||
+      track.orders.some((order: string[]): boolean => order.length === 0) ||
+      track.values.length !== track.frames * entriesPerFrame * SceneTrack.STRIDE
+    )
+      throw new Error(`The scene ${record.id} has no trackable take.`);
     const scene: THREE.Scene = new THREE.Scene();
     const style: CSSStyleDeclaration = getComputedStyle(
       document.documentElement,
@@ -137,22 +154,39 @@ export namespace ScenePlayer {
       },
     );
 
-    // The floor under everything the take moves through, read from the
-    // first entry of every figure and prop at every second.
-    const box: THREE.Box3 = new THREE.Box3();
-    const point: THREE.Vector3 = new THREE.Vector3();
-    for (let s: number = 0; s <= take.duration + 1e-9; s += 0.5)
-      SceneTrack.sample(track, s).forEach(
-        (entries: SceneTrack.IPlacement[], i: number): void => {
-          for (const entry of entries) {
-            point.fromArray(entry.position);
-            if (i < figures.length) point.applyMatrix4(reflect);
-            box.expandByPoint(point);
-          }
-        },
+    const seek: (seconds: number) => void = (seconds: number): void => {
+      const sampled: SceneTrack.IPlacement[][] = SceneTrack.sample(
+        track,
+        seconds,
       );
-    box.min.y = 0;
-    box.max.y = Math.max(box.max.y, 1.8);
+      figures.forEach(
+        (drawing: AutoMovieHumanPolygon.IDrawing, i: number): void =>
+          drawing.setPose({ posed: sampled[i]! }),
+      );
+      props.forEach((object: THREE.Object3D, i: number): void => {
+        const entry: SceneTrack.IPlacement = sampled[figures.length + i]![0]!;
+        object.position.fromArray(entry.position);
+        object.quaternion.fromArray(entry.rotation);
+      });
+    };
+    seek(0);
+
+    // Start with the drawn bodies and props, then include every recorded
+    // position. Interpolated positions lie between the recorded endpoints.
+    const box: THREE.Box3 = new THREE.Box3().setFromObject(scene);
+    const point: THREE.Vector3 = new THREE.Vector3();
+    let offset: number = 0;
+    for (let frame: number = 0; frame < track.frames; frame++)
+      for (const [group, order] of track.orders.entries())
+        for (let entry: number = 0; entry < order.length; entry++) {
+          point
+            .fromArray(track.values, offset)
+            .divideScalar(SceneTrack.POSITION_SCALE);
+          if (group < figures.length) point.applyMatrix4(reflect);
+          box.expandByPoint(point);
+          offset += SceneTrack.STRIDE;
+        }
+    box.min.y = Math.min(0, box.min.y);
     const centre: THREE.Vector3 = box.getCenter(new THREE.Vector3());
     const floor: THREE.Box3 = box.clone().expandByScalar(1);
     const lines: number[] = [];
@@ -187,39 +221,24 @@ export namespace ScenePlayer {
 
     // The camera stands where the record's view looks from, far enough for
     // the whole action to fit.
-    const size: number = box.getSize(new THREE.Vector3()).length();
+    const bounds: THREE.Sphere = box.getBoundingSphere(new THREE.Sphere());
+    const fieldOfView: number = 35;
+    const distance: number =
+      record.camera.distance ??
+      bounds.radius / Math.sin(THREE.MathUtils.degToRad(fieldOfView / 2));
     const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-      35,
+      fieldOfView,
       16 / 9,
       0.05,
-      size * 20 + 10,
+      distance + bounds.radius * 2,
     );
     const frame: (view: IScene.ICamera["view"]) => void = (
       view: IScene.ICamera["view"],
     ): void => {
-      const distance: number =
-        record.camera.distance ?? Math.max(3, size * 1.15);
       camera.position.copy(centre).addScaledVector(VIEWS[view], distance);
       camera.lookAt(centre);
     };
     frame(record.camera.view);
-
-    const seek: (seconds: number) => void = (seconds: number): void => {
-      const sampled: SceneTrack.IPlacement[][] = SceneTrack.sample(
-        track,
-        seconds,
-      );
-      figures.forEach(
-        (drawing: AutoMovieHumanPolygon.IDrawing, i: number): void =>
-          drawing.setPose({ posed: sampled[i]! }),
-      );
-      props.forEach((object: THREE.Object3D, i: number): void => {
-        const entry: SceneTrack.IPlacement = sampled[figures.length + i]![0]!;
-        object.position.fromArray(entry.position);
-        object.quaternion.fromArray(entry.rotation);
-      });
-    };
-    seek(0);
 
     return {
       scene,

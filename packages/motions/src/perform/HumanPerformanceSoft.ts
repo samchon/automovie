@@ -257,22 +257,15 @@ export namespace HumanPerformanceSoft {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Boundaries, then grips in time order, then the final solve.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An over-budget span is refused with its budget named, never truncated.
    * @evidence contracts/development/implementation.md#efficient-algorithms (W + 1) replays of K steps for W grips, each linear in particles times sweeps; the displayed bones are read once per step and person.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Kept per state and subject.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak in the state; (K + 1) x 3P doubles per prop.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Kept by the placed performance, per subject (`soft`).
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owned by the performance; (K + 1) x 3P doubles per prop.
    */
   export function of(
     state: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): IAutoMovieMotionHumanPerformanceSoft.ISolved {
-    let memo:
-      | Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved>
-      | undefined = SOLVED.get(state);
-    if (memo === undefined) {
-      memo = new Map();
-      SOLVED.set(state, memo);
-    }
     const known: IAutoMovieMotionHumanPerformanceSoft.ISolved | undefined =
-      memo.get(subject);
+      state.soft.get(subject);
     if (known !== undefined) return known;
     const prop: IAutoMovieMotionHumanProp | undefined =
       state.props.get(subject);
@@ -477,13 +470,7 @@ export namespace HumanPerformanceSoft {
       steps: whole.steps,
       loads: whole.loads,
     };
-    if (!state.resolving) memo.set(subject, out);
+    if (!state.resolving) state.soft.set(subject, out);
     return out;
   }
 }
-
-/** The solves kept per performance. */
-const SOLVED: WeakMap<
-  IAutoMovieMotionHumanPerformanceState,
-  Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved>
-> = new WeakMap();

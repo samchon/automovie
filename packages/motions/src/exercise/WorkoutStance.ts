@@ -87,7 +87,7 @@ export namespace WorkoutStance {
    * @returns The step.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the event names.
-   * @evidence contracts/development/implementation.md#principled-implementation The body's relaxed standing key itself (`ExerciseKey.standing`), which the workout law recognises as the posture stood in before and after.
+   * @evidence contracts/development/implementation.md#principled-implementation The body's relaxed standing key (`ExerciseKey.standing`); a stance kind stays on its feet, so the step needs no identity with the workout's own standing key.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.

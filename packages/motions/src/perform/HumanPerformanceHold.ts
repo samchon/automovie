@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformanceHold,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
@@ -47,7 +48,7 @@ export namespace HumanPerformanceHold {
    * @throws {HumanRefusal} If the selected socket chain revisits a prop at the same film second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Points to the reader's documentation and states the in-hand composition.
-   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset.
+   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset. An authored worn or mounted span reads its parent from its first instant, including supplied poses propagated through socket chains.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the carrying grip, seat its offset once, compose any in-hand motion, place by the hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stored offset is never re-derived while held; an in-hand motion is the window's own pure function.
    * @evidence contracts/development/implementation.md#efficient-algorithms Scans each visited prop's grips and does a constant number of map and set operations per socket hop. The offset is memoized on the grip record.
@@ -92,9 +93,17 @@ export namespace HumanPerformanceHold {
     let active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     let steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    let since: number = -Infinity;
     for (const g of grips) {
-      // A grip carries from after it closes; at its closing the prop is where it was.
-      if (g.from >= seconds) continue;
+      // Hand closure preserves the previous frame at its instant. An authored
+      // attachment starts on its parent at that instant.
+      const from: number = g.from;
+      if (
+        from > seconds ||
+        (from === seconds && g.bone === undefined && g.mount === undefined)
+      )
+        continue;
+      if (from < seconds) since = Math.max(since, from);
       if (seconds <= g.to) {
         // A performer's other hand on a prop that performer already holds
         // steadies it and does not take it over: a camera's far end held
@@ -117,13 +126,6 @@ export namespace HumanPerformanceHold {
     // A launch after the latest grip's start sets the prop flying, and it
     // flies until a later grip takes it (#3479: a grip, then a worn bone,
     // then a flight or its rest).
-    const since: number = grips.reduce(
-      (
-        latest: number,
-        g: IAutoMovieMotionHumanPerformanceState.IGrip,
-      ): number => (g.from < seconds ? Math.max(latest, g.from) : latest),
-      -Infinity,
-    );
     const flown: IAutoMovieRigidTransform | undefined = HumanPropFlight.frame(
       self,
       subject,
@@ -164,6 +166,7 @@ export namespace HumanPerformanceHold {
         self,
         w.subject,
         at,
+        new Set([w.bone]),
       ).get(w.bone)!;
       return { position: bone.worldPosition, rotation: bone.worldRotation };
     };
@@ -227,20 +230,28 @@ export namespace HumanPerformanceHold {
     // Carried by the performer reading it: their own body as the read gives it.
     const hold = (
       w: IAutoMovieMotionHumanPerformanceState.IGrip,
-    ): HumanPropHold.IHand => ({
-      offset: moved(w, at),
-      hand:
-        own !== undefined &&
-        active !== undefined &&
-        w.mount === undefined &&
-        w.subject === own.subject
-          ? HumanPropHold.frame(
-              HumanPerformanceRead.person(self, own.subject).performer.body,
-              own.bones(),
-              w,
-            )
-          : carrier(w, at, own),
-    });
+    ): HumanPropHold.IHand => {
+      const offset: IAutoMovieRigidTransform = moved(w, at);
+      if (
+        own === undefined ||
+        active === undefined ||
+        w.mount !== undefined ||
+        w.subject !== own.subject
+      )
+        return { offset, hand: carrier(w, at, own) };
+      const body: IAutoMovieMotionHumanBody = HumanPerformanceRead.person(
+        self,
+        own.subject,
+      ).performer.body;
+      const bone: AutoMovieHumanoidBone =
+        w.bone ??
+        body.surfaces.sockets[w.side === "left" ? "gripLeft" : "gripRight"]
+          .bone;
+      return {
+        offset,
+        hand: HumanPropHold.frame(body, own.bones(new Set([bone])), w),
+      };
+    };
     // Taken in both of the performer's hands at once, it is one rigid thing
     // between the two fists; a hand closing on it later only steadies it.
     if (

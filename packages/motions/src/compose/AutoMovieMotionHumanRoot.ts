@@ -102,6 +102,7 @@ export namespace AutoMovieMotionHumanRoot {
   ): IAutoMovieMotionHumanPrimitive {
     return {
       channels: ["root"],
+      reads: ["root"],
       from: props.from,
       to: props.to,
       write: (

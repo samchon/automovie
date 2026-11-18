@@ -15,6 +15,7 @@ import { loadGalleryCard } from "../../gallery/loadGalleryCard";
 import type { IGalleryCard } from "../../gallery/structures/IGalleryCard";
 import type { IGalleryCatalogue } from "../../gallery/structures/IGalleryCatalogue";
 import { SharedStage } from "../../stage/SharedStage";
+import { REDUCED_MOTION } from "../scenes/prefersReducedMotion";
 
 /**
  * One archetype in the object gallery: the model drawn on the page's shared
@@ -34,13 +35,17 @@ export function ObjectCard(props: {
   const { subject }: typeof props = props;
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
   const hovered: RefObject<boolean> = useRef(false);
-  const [failed, setFailed]: [boolean, Dispatch<SetStateAction<boolean>>] =
-    useState<boolean>(false);
+  const focused: RefObject<boolean> = useRef(false);
+  const [note, setNote]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>("Loading model…");
 
   useEffect((): (() => void) => {
+    const preference: MediaQueryList = window.matchMedia(REDUCED_MOTION);
     let alive: boolean = true;
     let release: (() => void) | null = null;
-    setFailed(false);
+    setNote("Loading model…");
 
     // The model waits until the card comes near the window.
     let cancel: () => void = (): void => undefined;
@@ -67,20 +72,22 @@ export function ObjectCard(props: {
           tick: (now: number): boolean => {
             const delta: number = last === null ? 0 : now - last;
             last = now;
-            if (!hovered.current) return false;
+            if ((!hovered.current && !focused.current) || preference.matches)
+              return false;
             heading += delta * 0.0012;
             card.turn(heading);
             return true;
           },
         });
         card.turn(heading);
+        setNote(null);
         release = (): void => {
           registration.release();
           card.dispose();
         };
       })
       .catch((): void => {
-        if (alive) setFailed(true);
+        if (alive) setNote("The model did not build.");
       });
     return (): void => {
       alive = false;
@@ -99,10 +106,10 @@ export function ObjectCard(props: {
         hovered.current = false;
       }}
       onFocus={(): void => {
-        hovered.current = true;
+        focused.current = true;
       }}
       onBlur={(): void => {
-        hovered.current = false;
+        focused.current = false;
       }}
     >
       {/* A full navigation: an archetype's page reads its request from the
@@ -113,9 +120,9 @@ export function ObjectCard(props: {
       >
         <span className="am-object-view">
           <canvas ref={canvas} aria-hidden="true" />
-          {failed ? (
+          {note !== null ? (
             <span className="am-scene-view-note" aria-hidden="true">
-              The model did not build.
+              {note}
             </span>
           ) : null}
         </span>

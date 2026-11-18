@@ -16,12 +16,6 @@ import type { IAutoMovieMotionHumanPunch } from "../striking/IAutoMovieMotionHum
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconDrillParams {
-  /** A jab: the lead straight. */
-  jab: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
-
-  /** A cross: the rear straight. */
-  cross: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
-
   /** A lead hook. */
   hook: Omit<IAutoMovieMotionHumanPunch.IParams, "technique" | "hand">;
 
@@ -30,9 +24,6 @@ export interface IAutoMovieMotionHumanLexiconDrillParams {
 
   /** A front push kick with the lead leg, as a teep or a door kick. */
   frontKick: Omit<IAutoMovieMotionHumanKick.IParams, "technique" | "leg">;
-
-  /** A rear round kick. */
-  roundKick: Omit<IAutoMovieMotionHumanKick.IParams, "technique" | "leg">;
 
   /** A southpaw guard. */
   southpaw: Omit<IAutoMovieMotionHumanGuard.IParams, "stance">;

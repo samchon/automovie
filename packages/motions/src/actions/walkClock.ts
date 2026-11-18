@@ -1,6 +1,5 @@
 import type {
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanFormation,
   IAutoMovieMotionHumanWalkGait,
   IAutoMovieMotionHumanWalkParams,
@@ -46,9 +45,9 @@ export function walkClock(
   context: IAutoMovieMotionHumanActionContext<
     Omit<IAutoMovieMotionHumanWalkParams, "pace">
   >,
-  planned: IAutoMovieMotionHumanActionPlan,
+  planned: walkStation.IPlan,
   gait: IAutoMovieMotionHumanWalkGait,
-): IAutoMovieMotionHumanActionPlan {
+): walkStation.IPlan {
   const entrained: number[] | null =
     context.params.cadence === undefined
       ? null
@@ -57,7 +56,7 @@ export function walkClock(
           context.params.cadence,
           walkTempo.strikes(planned),
         );
-  const tempo: IAutoMovieMotionHumanActionPlan =
+  const tempo: walkStation.IPlan =
     entrained !== null
       ? walkTempo.entrained(
           planned,

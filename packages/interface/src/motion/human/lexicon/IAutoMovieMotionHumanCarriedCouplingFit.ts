@@ -10,7 +10,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  *
  * @evidence contracts/development/common.md#meaningful-documentation stance: The bearer's stance (`HumanCarriedCouplingPose.stance`): trunk inclination, degrees, and lowering, a share of a squat's drop. legs: Both legs' hip flexion, knee flexion and hip abduction the key pose takes, degrees.
  * @evidence contracts/development/design.md#principled-representation stance: The bearer's stance (`HumanCarriedCouplingPose.stance`): trunk inclination, degrees, and lowering, a share of a squat's drop. legs: Both legs' hip flexion, knee flexion and hip abduction the key pose takes, degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit, return); lexicon/HumanCarriedCouplingRigid.ts (HumanCarriedCouplingRigid.fit, return); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.gaps).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit, return); lexicon/HumanCarriedCouplingRigid.ts (HumanCarriedCouplingRigid.read, return); lexicon/HumanCarriedCoupling.ts (HumanCarriedCoupling.couple); lexicon/HumanCarriedCouplingFit.ts (HumanCarriedCouplingFit.fit.gaps).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieQuaternion, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCarriedCouplingFit {

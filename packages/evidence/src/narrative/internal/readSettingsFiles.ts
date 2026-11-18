@@ -9,13 +9,14 @@ import { SETTINGS_DOMAINS } from "./SETTINGS_DOMAINS";
  *
  * The scaffold's layout is `docs/body/settings/<domain>/<subject>.md` with the
  * domains `world`, `cast`, `crowds`, `props`, `sets`, `cinematography` and
- * `sound`, read in that order and alphabetically within a domain. Numbered
- * `NNN-subject/NNN-entry.md` folders read in number order. One settings root
- * uses one layout; `outline` is navigation, not canon.
+ * `sound`, read in that order and alphabetically within a domain. Domain
+ * files use lower-kebab-case names and exclude the numbered `NNN-entry.md`
+ * form. Numbered `NNN-subject/NNN-entry.md` folders read in number order.
+ * One settings root uses one layout; `outline` is navigation, not canon.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Concrete directory entries select legacy flat Markdown, the scaffold's closed domain folders or numbered subject folders, forbid mixed/nested/symlinked layouts, enforce unique three-digit order keys for numbered folders and return deterministic relative reading order.
+ * @evidence contracts/development/implementation.md#principled-implementation Concrete directory entries select legacy flat Markdown, the scaffold's closed domain folders or numbered subject folders, forbid mixed/nested/symlinked layouts, exclude the shared NUMBERED_FILE grammar from domain filenames, enforce unique three-digit order keys for numbered folders and return deterministic relative reading order.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The filesystem reader owns canon layout validation; callers build outline and evidence relationships from the returned order without rewriting existing files.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Legacy flat settings and numbered folders stay supported; absent settings return empty, while unknown domains, malformed names, mixed layouts, duplicate order keys and symlinks fail for every production.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Legacy flat settings and numbered folders stay supported; absent settings return empty, while unknown domains, malformed names, numbered files inside domains, mixed layouts, duplicate order keys and symlinks fail for every production. Domain admission excludes exactly the existing numbered-file grammar, preserving other digit-bearing lower-kebab-case names.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the scaffold domain layout and its reading order, numbered and legacy retention, and that outline is navigation; errors identify mixed layouts, naming, empty folders, nesting and duplicate order numbers.
  * @evidence contracts/development/implementation.md#efficient-algorithms For e root/subject entries, directory enumeration and name validation scan entry text; sorting folders and entries costs O(e log e) comparisons in the worst distribution, with O(e) output/sets and directory arrays. No canon bytes are read.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each directory is listed once per call and duplicate-number sets avoid repeated pairwise comparisons; later calls rerun because current settings topology can change.
@@ -87,7 +88,7 @@ const NUMBERED: RegExp = /^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 /** A numbered canon file name. */
 const NUMBERED_FILE: RegExp = /^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
 
-/** A lower-kebab-case canon file name. */
+/** Base domain filename grammar; list additionally excludes NUMBERED_FILE. */
 const KEBAB_FILE: RegExp = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
 
 /** Code-unit order, independent of locale. */
@@ -95,15 +96,19 @@ function compare(left: string, right: string): 1 | -1 | 0 {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-/** The sorted Markdown files of one settings folder, refusing nesting, bad names and emptiness. */
+/** The sorted Markdown files of one settings folder, keeping domain and numbered names disjoint and refusing nesting, bad names and emptiness. */
 function list(root: string, folder: string, pattern: RegExp): string[] {
   const names: string[] = [];
   for (const entry of fs.readdirSync(path.join(root, folder), {
     withFileTypes: true,
   })) {
-    if (!entry.isFile() || !pattern.test(entry.name))
+    if (
+      !entry.isFile() ||
+      !pattern.test(entry.name) ||
+      (pattern === KEBAB_FILE && NUMBERED_FILE.test(entry.name))
+    )
       throw new Error(
-        `${path.join(root, folder, entry.name)}: settings folders hold ${pattern === NUMBERED_FILE ? "numbered" : "lower-kebab-case"} Markdown files only, without nesting.`,
+        `${path.join(root, folder, entry.name)}: settings folders hold ${pattern === NUMBERED_FILE ? "numbered" : "unnumbered lower-kebab-case"} Markdown files only, without nesting.`,
       );
     names.push(entry.name);
   }

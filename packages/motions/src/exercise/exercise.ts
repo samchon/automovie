@@ -26,6 +26,7 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
 import { exerciseLunge } from "./exerciseLunge";
 
@@ -85,18 +86,14 @@ export namespace exercise {
     });
 
   /** The thigh's angle from the horizontal at the bottom, degrees, by depth. */
-  export const THIGH: Readonly<
-    Record<IAutoMovieMotionHumanExercise.Depth, number>
-  > = {
+  export const THIGH: Readonly<Record<IAutoMovieMotionHumanExercise.Depth, number>> = {
     quarter: 60,
     half: 45,
     parallel: 0,
   };
 
   /** The trunk's pitch at the bottom, degrees, by depth (provisional). */
-  export const PITCH: Readonly<
-    Record<IAutoMovieMotionHumanExercise.Depth, number>
-  > = {
+  export const PITCH: Readonly<Record<IAutoMovieMotionHumanExercise.Depth, number>> = {
     quarter: 15,
     half: 25,
     parallel: 40,
@@ -145,16 +142,16 @@ export namespace exercise {
    * @evidence contracts/development/implementation.md#principled-implementation One repetition clock; per repetition a crouch, a step, a lift or a jump over its four spans.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per kind.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lengths are shares of the measure; provisional values are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One balance solve per squat repetition at plan time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the crouch, the leg placement and the placed arm.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed native repetition envelopes prepare their interval names once while all original repetition reductions and custom callback calls remain, including NaN propagation. Fixed jack endpoints share native interpolation metadata; current high-knee targets and borrowed entry observations remain per query. Root rows request only current root.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only native clock intervals, body metadata and original fixed jack placements share. Each squat factory observes the borrowed entry in its original repetition order; each high-knee placement rereads its original entry-derived destination before computing its share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanExercise.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanExercise.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
     const reps: number = p.reps ?? 3;
     HumanBound.whole("reps", reps);
     const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
@@ -182,10 +179,7 @@ export namespace exercise {
       { holds: [] },
     );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const stance: Record<
-      "left" | "right",
-      IAutoMovieMotionHumanFoot.IPlacement
-    > = {
+    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -212,45 +206,85 @@ export namespace exercise {
     const lead: "left" | "right" = p.side ?? "right";
     const trail: "left" | "right" = lead === "right" ? "left" : "right";
     // The share of the way into repetition i's low (or open) position.
-    const into = (i: number, seconds: number): number =>
-      clock.envelope(
-        [`eccentricStart${i}`, `bottom${i}`],
-        [`concentricStart${i}`, `top${i}`],
-        seconds,
-      );
-    const any = (seconds: number): number => {
+    const envelopes: ((seconds: number) => number)[] = Array.from(
+      { length: reps },
+      (_: unknown, index: number): ((seconds: number) => number) =>
+        AutoMovieMotionClock.prepareEnvelope(
+          clock,
+          [`eccentricStart${index + 1}`, `bottom${index + 1}`],
+          [`concentricStart${index + 1}`, `top${index + 1}`],
+        ),
+    );
+    const into: (i: number, seconds: number) => number = (i: number, seconds: number): number =>
+      envelopes[i - 1]!(seconds);
+    const any: (seconds: number) => number = (seconds: number): number => {
       let w: number = 0;
       for (let i: number = 1; i <= reps; i++) w = Math.max(w, into(i, seconds));
       return w;
     };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    const shifted = (
+
+    // A foot's plant windows between the spans it travels in, as shares of
+    // the duration: it bears from the start, between its moves and to the
+    // end, a window of no length left out.
+    const share: (instant: string) => number = (instant: string): number =>
+      clock.at(instant) / clock.duration;
+    const plant: (
+      part: "leftFoot" | "rightFoot",
+      moves: readonly (readonly [number, number])[],
+    ) => IAutoMovieMotionHumanContactWindow[] = (
+      part: "leftFoot" | "rightFoot",
+      moves: readonly (readonly [number, number])[],
+    ): IAutoMovieMotionHumanContactWindow[] => {
+      const windows: IAutoMovieMotionHumanContactWindow[] = [];
+      let from: number = 0;
+      for (const [start, end] of [...moves, [1, 1] as const]) {
+        if (start > from)
+          windows.push({
+            part,
+            kind: "plant",
+            from,
+            to: start,
+            support: { kind: "ground" },
+          });
+        from = Math.max(from, end);
+      }
+      return windows;
+    };
+    const shifted: (
+      placement: IAutoMovieMotionHumanFoot.IPlacement,
+      by: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanFoot.IPlacement = (
       placement: IAutoMovieMotionHumanFoot.IPlacement,
       by: IAutoMovieVector3,
     ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: Vector3.add(placement.ankle, by),
       rotation: placement.rotation,
     });
-    const root = (
+    const root: (
+      offset: (seconds: number) => IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       offset: (seconds: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
+      reads: ["root"],
       from: 0,
       to: clock.duration,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => ({
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(seconds)),
       }),
     });
 
+    const window: HumanPhysics.Window = HumanPhysics.fromClock(
+      p, p.kind === "squat" ? { balance: { by: "hips" } } : {}, context.start, clock, context.instant,
+    );
+    if (window !== null && p.kind !== "squat")
+      HumanPhysics.unsupported(window.by, "only the squat exercise has a planted hip counterbalance");
     switch (p.kind) {
       case "squat": {
-        const depth: IAutoMovieMotionHumanExercise.Depth =
-          p.depth ?? "parallel";
+        const depth: IAutoMovieMotionHumanExercise.Depth = p.depth ?? "parallel";
         for (let i: number = 1; i <= reps; i++)
           primitives.push(
             AutoMovieMotionHumanTrunk.crouch({
@@ -261,7 +295,7 @@ export namespace exercise {
               fall: [`concentricStart${i}`, `top${i}`],
               depth: drop(m, depth) * modifiers.extent,
               pitch: PITCH[depth] * modifiers.extent,
-            }),
+            }, window),
           );
         contacts.push(...AutoMovieMotionHumanBase.plants());
         break;
@@ -284,9 +318,7 @@ export namespace exercise {
         break;
       }
       case "highKnees": {
-        const raised = (
-          side: "left" | "right",
-        ): IAutoMovieMotionHumanFoot.IPlacement => {
+        const raised: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
           const hip: IAutoMovieVector3 = HumanFrame.point(
             { origin: entry.root, yaw: entry.yaw },
             body.rest.get(`${side}UpperLeg`)!,
@@ -299,9 +331,9 @@ export namespace exercise {
             rotation: stance[side].rotation,
           };
         };
-        const sideOf = (i: number): "left" | "right" =>
+        const sideOf: (i: number) => "left" | "right" = (i: number): "left" | "right" =>
           i % 2 === 1 ? lead : trail;
-        const lifted = (side: "left" | "right", s: number): number => {
+        const lifted: (side: "left" | "right", s: number) => number = (side: "left" | "right", s: number): number => {
           let w: number = 0;
           for (let i: number = 1; i <= reps; i++)
             if (sideOf(i) === side) w = Math.max(w, into(i, s));
@@ -327,10 +359,7 @@ export namespace exercise {
               side,
               from: 0,
               to: clock.duration,
-              placement: (
-                _: IAutoMovieMotionHumanPosture,
-                s: number,
-              ): IAutoMovieMotionHumanFoot.IPlacement =>
+              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
                 AutoMovieMotionHumanLegPhrase.between(
                   stance[side],
                   raised(side),
@@ -339,15 +368,29 @@ export namespace exercise {
               planted: (s: number): boolean => lifted(side, s) <= 0,
             }),
           );
+
+        // Each foot bears except over its own repetitions, from their
+        // lowering's start to their top.
+        for (const side of ["left", "right"] as const) {
+          const moves: [number, number][] = [];
+          for (let i: number = 1; i <= reps; i++)
+            if (sideOf(i) === side)
+              moves.push([share(`eccentricStart${i}`), share(`top${i}`)]);
+          contacts.push(...plant(`${side}Foot`, moves));
+        }
         break;
       }
       case "jumpingJack": {
         const width: number = 1.5 * m.shoulderHalfWidth * modifiers.extent;
+
+        // The hop lifts the root and both travelling feet alike, so the
+        // legs keep their length while the feet are off the floor.
+        const hop: (s: number) => number = (s: number): number => {
+          const w: number = any(s);
+          return 0.04 * 4 * w * (1 - w);
+        };
         primitives.push(
-          root((s: number): IAutoMovieVector3 => {
-            const w: number = any(s);
-            return { x: 0, y: 0.04 * 4 * w * (1 - w), z: 0 };
-          }),
+          root((s: number): IAutoMovieVector3 => ({ x: 0, y: hop(s), z: 0 })),
         );
         for (const side of ["left", "right"] as const) {
           const out: IAutoMovieMotionHumanFoot.IPlacement = shifted(
@@ -367,21 +410,22 @@ export namespace exercise {
                 ),
             ),
           );
+          const open: ReturnType<
+            typeof AutoMovieMotionHumanLegPhrase.prepareBetween
+          > = AutoMovieMotionHumanLegPhrase.prepareBetween(stance[side], out);
           primitives.push(
             AutoMovieMotionHumanLeg.place({
               body,
               side,
               from: 0,
               to: clock.duration,
-              placement: (
-                _: IAutoMovieMotionHumanPosture,
-                s: number,
-              ): IAutoMovieMotionHumanFoot.IPlacement =>
-                AutoMovieMotionHumanLegPhrase.between(
-                  stance[side],
-                  out,
-                  any(s),
-                ),
+              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement => {
+                const placed: IAutoMovieMotionHumanFoot.IPlacement = open(any(s));
+                return {
+                  ...placed,
+                  ankle: { ...placed.ankle, y: placed.ankle.y + hop(s) },
+                };
+              },
               planted: (s: number): boolean => any(s) <= 0 || any(s) >= 1,
             }),
             ...AutoMovieMotionHumanPlaced.arm({
@@ -406,13 +450,24 @@ export namespace exercise {
             }),
           );
         }
+
+        // Both feet bear while closed and while open, and travel in the
+        // jumps out and in.
+        const moves: [number, number][] = [];
+        for (let i: number = 1; i <= reps; i++)
+          moves.push(
+            [share(`eccentricStart${i}`), share(`bottom${i}`)],
+            [share(`concentricStart${i}`), share(`top${i}`)],
+          );
+        contacts.push(...plant("leftFoot", moves), ...plant("rightFoot", moves));
         break;
       }
     }
-    return composeAutoMovieMotionHumanAction({
+    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
       clock,
       primitives,
     });
+    return { ...plan, ...HumanPhysics.declared(context.params, window) };
   }
 }

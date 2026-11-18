@@ -1,6 +1,6 @@
 import type {
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
 import { HumanArmSwing } from "../posture/HumanArmSwing";
@@ -8,8 +8,9 @@ import { HumanArmSwing } from "../posture/HumanArmSwing";
 /**
  * The arm carriage of a stepping take (`HumanArmSwing.carriage`), read over
  * one full stride: from the left heel strike before the take's middle to
- * the next, at `HumanArmSwing.PHASES` phases; a take with no such stride is
- * read over its whole length.
+ * the next, or the full stride nearest the middle when none spans it, at
+ * `HumanArmSwing.PHASES` phases; a take with fewer than two left heel
+ * strikes is read over its whole length.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which stride is read and the fallback.
  * @evidence contracts/development/design.md#principled-representation The take's postures before the carriage and its named events, read by the swing's owner.
@@ -24,12 +25,14 @@ export namespace walkCarriage {
    * @param events The take's named instants, seconds.
    * @param duration The take's seconds.
    * @param posture The take's posture before the carriage.
+   * @param resolution Optional same-person FK loan for the actual synchronous phase observations.
+   * @param projection Optional genuine same-body ROM loan, never retained in the numeric carriage.
    * @returns Degrees of abduction per arm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation A stride is periodic in its phases, so one full stride in the take's middle, at full gait, holds every place the swinging hands pass the thighs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One stride, one carriage.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A take too short for a stride is read over its whole length.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A take with a full stride is read over the one nearest its middle; only a take with fewer than two left heel strikes is read over its whole length.
    * @evidence contracts/development/implementation.md#efficient-algorithms `HumanArmSwing.PHASES` postures, once per take.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanArmSwing.carriage`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -38,12 +41,19 @@ export namespace walkCarriage {
     body: IAutoMovieMotionHumanBody,
     events: readonly { name: string; seconds: number }[],
     duration: number,
-    posture: (seconds: number) => IAutoMovieMotionHumanPosture,
+    posture: IAutoMovieMotionHumanActionPlan["posture"],
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+    projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
   ): Record<"left" | "right", number> {
     const left: number[] = events
       .filter((e: { name: string }): boolean => /^leftHeelStrike/.test(e.name))
       .map((e: { seconds: number }): number => e.seconds);
-    const i: number = left.findIndex((s: number): boolean => s >= duration / 2);
+    // The stride that spans the middle, or else the full stride nearest it:
+    // the first when every strike falls after the middle, the last when
+    // every strike falls before it.
+    const found: number = left.findIndex((s: number): boolean => s >= duration / 2);
+    const i: number =
+      left.length < 2 ? -1 : found === -1 ? left.length - 1 : Math.max(1, found);
     const [a, b]: [number, number] =
       i > 0 ? [left[i - 1]!, left[i]!] : [0, duration];
     return HumanArmSwing.carriage(
@@ -55,6 +65,8 @@ export namespace walkCarriage {
       ),
       posture,
       ["left", "right"],
+      resolution,
+      projection,
     );
   }
 }

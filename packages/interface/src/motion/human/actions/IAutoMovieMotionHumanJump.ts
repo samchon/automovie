@@ -98,10 +98,11 @@ export namespace IAutoMovieMotionHumanJump {
      * Turns the body makes in flight (#3428): somersaults about the axis
      * across the heading (`forward` or `backward`) or about the axis along it
      * (`left` or `right`, a side salto), and twists about the body's long
-     * axis, signed by the right-hand rule about up. The flight turns by the
-     * angular momentum that lands these turns on the composed body's shape
-     * (`HumanPerformanceFlight`), so a tuck laid over the flight turns it
-     * faster. No turn when absent.
+     * axis, signed by the right-hand rule about up. The performance's staged
+     * default follows the authored turn clock and requires a complete net
+     * rotation for this feet-first landing. Explicit physical mode solves
+     * angular momentum on the composed body, so a tuck can change its rate.
+     * Staged turns make no momentum-conservation claim. No turn when absent.
      */
     rotation?: IAutoMovieMotionHumanJumpAirborne.IRotation;
 

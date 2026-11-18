@@ -1,38 +1,35 @@
-import {
-  closestPointsBetweenSegments,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditBalance } from "../../audit/AutoMovieMotionHumanAuditBalance";
 import { HumanFoot } from "../../posture/HumanFoot";
 
 /**
  * Measures of a held stance on displayed poses, shared by the step 4
- * capture cases (stretching, dance, sport): how far the centre of mass
- * stands outside one standing foot, a joint's clinical angle, and the angle
- * between two bones.
+ * capture cases (stretching, dance, sport): how far the body's extrapolated
+ * centre of mass stands outside one standing foot, a joint's clinical angle,
+ * and the angle between two bones.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each measure reads and on which poses.
- * @evidence contracts/development/implementation.md#principled-implementation The centre of mass is the engine's segment model on the displayed bones; the foot is its heel-to-toe line on the displayed sockets, widened by the foot's breadth.
+ * @evidence contracts/development/implementation.md#principled-implementation Balance is Hof's margin of stability (Hof, Gazendam and Sinke 2005): the body's own mass model on the displayed bones, its centre extrapolated by its velocity over the inverted pendulum's eigenfrequency, against the standing foot's bearing outline (`HumanFoot.base`), as the balance audit reads it.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Three small measures.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No measure reads a law's goal or a collider's shape.
- * @evidence contracts/development/implementation.md#efficient-algorithms One centre-of-mass model per call.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three displayed poses per balance reading, for the centre and its central difference.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Run once per capture.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace StanceVerdicts {
   /**
-   * How far the centre of mass's floor point lies outside one foot, metres:
-   * its distance to the foot's heel-to-toe line less half the foot's
-   * breadth; negative inside.
+   * How far the extrapolated centre of mass lies outside one standing foot's
+   * bearing outline, metres: the margin of stability negated, negative
+   * inside. The velocity is the central difference over the balance audit's
+   * step (`AutoMovieMotionHumanAuditBalance.STEP`), clamped into the film.
    *
    * @param performance The performance.
    * @param subject The performer.
@@ -48,27 +45,41 @@ export namespace StanceVerdicts {
     side: "left" | "right",
     seconds: number,
   ): number {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      performance.bones(subject, seconds);
-    const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile),
-      bones,
+    const centre: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 =>
+      resolveAutoMovieCenterOfMass.place(
+        body.massModel,
+        performance.bones(subject, t),
+      );
+    const before: number = Math.max(
+      0,
+      seconds - AutoMovieMotionHumanAuditBalance.STEP,
     );
-    const sockets: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
-      body,
-      bones,
-      side,
+    const after: number = Math.min(
+      performance.duration,
+      seconds + AutoMovieMotionHumanAuditBalance.STEP,
     );
-    const heel: IAutoMovieVector3 = { ...sockets[0]!.point, y: 0 };
-    const toe: IAutoMovieVector3 = { ...sockets[2]!.point, y: 0 };
-    const floor: IAutoMovieVector3 = { ...com, y: 0 };
-    const near = closestPointsBetweenSegments(heel, toe, floor, floor);
-    return (
-      Math.hypot(near.pointA.x - floor.x, near.pointA.z - floor.z) -
-      body.measure.footBreadth / 2
+    const a: IAutoMovieVector3 = centre(before);
+    const b: IAutoMovieVector3 = centre(after);
+    const span: number = after - before;
+    const velocity: IAutoMovieVector3 =
+      span > 0
+        ? {
+            x: (b.x - a.x) / span,
+            y: (b.y - a.y) / span,
+            z: (b.z - a.z) / span,
+          }
+        : { x: 0, y: 0, z: 0 };
+    return -resolveAutoMovieCenterOfMass.margin(
+      resolveAutoMovieCenterOfMass.extrapolate(
+        centre(seconds),
+        velocity,
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      ),
+      HumanFoot.base(body, performance.bones(subject, seconds), [side]),
     );
   }
-
   /**
    * The worst of `outside` over a window on the 24 Hz grid.
    *

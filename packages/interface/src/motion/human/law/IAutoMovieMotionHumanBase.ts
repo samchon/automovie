@@ -72,6 +72,9 @@ export namespace IAutoMovieMotionHumanBase {
     /** Depth back from the front edge, metres; deep enough for the thigh when absent. */
     depth?: number;
 
+    /** Whether the seated task uses the seat as a fixed working support, as on a rowing thwart. */
+    workingSeat?: boolean;
+
     /** Backrest height above the surface, metres; backless when absent. */
     back?: number;
 

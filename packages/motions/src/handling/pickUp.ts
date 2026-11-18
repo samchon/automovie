@@ -2,6 +2,7 @@ import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -20,9 +21,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanHandAttitude } from "../posture/HumanHandAttitude";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { poseBones } from "../posture/poseBones";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
@@ -107,12 +109,12 @@ export namespace pickUp {
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: [0, "gripClosed"], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: [0, "gripClosed"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
       {
         window: ["lifted", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
         keep: ["grip"],
       },
     ],
@@ -121,7 +123,7 @@ export namespace pickUp {
         window: ["lifted", 1],
         kind: "inertialize",
         entry: 0,
-        blend: 0.3,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
         keep: ["grip"],
       },
     ],
@@ -133,7 +135,22 @@ export namespace pickUp {
   /** The load phase between contact and lift-off, seconds; provisional. */
   export const LOAD: number = 0.15;
 
-  /** Plan a pickup using the prop's entry frame, with the grasp, lift and refusals of `planGrasp`. */
+  /**
+   * Plan a pick up.
+   *
+   * @param context The action's context.
+   * @returns The plan.
+   * @throws {HumanRefusal} When no lowering brings the grip within reach, no grasp serves the use, the hand cannot rise as far as the lift asks, or a second hand asks to lift independently of the hand already carrying the prop.
+   * @throws {Error} When the lift is negative, or the prop has no such affordance or no colliders.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The law and parameters define original grasp/use/lift/steadied-hand goals, contact events, variation and refusals; this plan preserves complete position/attitude requests through the actual lift.
+   * @evidence contracts/development/implementation.md#principled-implementation Existing stance/grasp/prehension owners choose and transport the grip, close its actual contacts, carry the original complete arm/digit/reference goals and apply the original lift-height judgement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Grasp/stance admission precedes finger/transport preparation, original phase body construction and complete arm goals; optional same-person observations follow those existing owners.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Original grasp/lift targets, contact timing, candidate fits, ROM, reference, planting and acceptance bounds remain; no shown endpoint replaces an asked goal and no attitude-only post-fit twist discards position.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed target/hand/digit/transport data prepare once. Active body lowering, shoulder reading and initial carry borrow exact current-person FK/ROM where supplied; every original phase goal and actual solve remains. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Display shares the closed grip and unchanged support posture from grip closure through lift-off for a stationary pickup. The moving phases use current-call FK and ROM loans through their original stance, lift and carry paths.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns original chosen grasp/stance/transport/finger geometry; current FK/ROM arguments are used synchronously and never stored in the plan, returned goals or query history.
+   */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
@@ -204,10 +221,7 @@ export namespace pickUp {
     );
     const { chosen, bend, stance }: pickUpSearch.ISearched = found;
     const held: IAutoMovieMotionHumanPosture = stance.posture;
-    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(
-      authored,
-      chosen.turn,
-    );
+    const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(authored, chosen.turn);
     const grasp: IAutoMovieMotionHumanHand.IWrist = chosen.wrist;
     pickUpPosture.reachable(context, side, grasp.point, held);
 
@@ -240,8 +254,11 @@ export namespace pickUp {
     const rising: boolean = raise.trunk !== null || raise.share < 1;
     // The stance's body a share of the way down; the entry's when it was
     // not lowered.
-    const way = (share: number): IAutoMovieMotionHumanPosture =>
-      lowered === null ? held : lowered.at(share);
+    const way: pickUpPosture.IStance["at"] = (share: number,
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
+      lowered === null ? held : lowered.at(share, resolution, projection);
+    const raisedAt: ReturnType<typeof pickUpLift.prepare> = pickUpLift.prepare(body, raise, way);
 
     // The digits close on the prop where the arm actually puts the hand.
     const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
@@ -260,6 +277,8 @@ export namespace pickUp {
     const entry: IAutoMovieResolvedBone = poseBones(
       body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     ).get(`${side}Hand`)!;
 
     // Timing: reach, load, lift.
@@ -282,18 +301,18 @@ export namespace pickUp {
     // A body lowered for the grip, or inclined for the lift, straightens
     // over as long as the reach after the lift, as a bend descends and
     // rises in one time.
-    const end: number = reach + LOAD + rise;
+    const liftOff: number = reach + LOAD;
+    const end: number = liftOff + rise;
     const up: number = lowered === null && !rising ? 0 : reach;
     const duration: number = end + up;
-    const transport: IAutoMovieMotionHumanPrehension.ITransport =
-      HumanPrehension.transport(
-        entry.worldPosition,
-        grasp.point,
-        target.approach,
-        HumanPrehension.aperture(target.width),
-        { from: entry.worldRotation, to: grasp.rotation },
-        reach,
-      );
+    const transport: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
+      entry.worldPosition,
+      grasp.point,
+      target.approach,
+      HumanPrehension.aperture(target.width),
+      { from: entry.worldRotation, to: grasp.rotation },
+      reach,
+    );
     const peak: number = HumanPrehension.peak(context.random("peak"));
     /** Add the support's remaining displacement as the fingers close, then brake. */
     const interceptionOffset = (
@@ -309,32 +328,32 @@ export namespace pickUp {
           : load * (1 - load / (2 * LOAD)),
       );
     };
-    const shapes = {
+    const shapes: Parameters<typeof HumanPrehension.shape>[0] = {
       entry: HumanGrip.fingers(context.entry.pose, side),
       open,
       closed,
     };
+    const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> = HumanPrehension.prepareShape(shapes, peak);
     const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
     const rest: IAutoMovieMotionHumanArmAngles.IAngles =
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const hand: IAutoMovieMotionHumanContactWindow["part"] =
       side === "left" ? "leftHand" : "rightHand";
-    const shoulder = (
-      posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieVector3 =>
-      HumanTrunk.resolve(body, posture).get(`${side}UpperArm`)!.worldPosition;
+    const shoulder: (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieVector3 =
+      (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieVector3 =>
+        HumanTrunk.resolve(body, posture, undefined, resolution, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!.worldPosition;
     // Where the straightening after the lift starts from.
     const bottom: IAutoMovieVector3 | null =
       up === 0
         ? null
         : shoulder(
-            rising ? pickUpLift.posed(body, raise, way, raise.share, 1) : held,
+            rising ? raisedAt(raise.share, 1) : held,
           );
     const plan: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
         { name: "gripClosed", share: reach / duration },
-        { name: "liftOff", share: (reach + LOAD) / duration },
+        { name: "liftOff", share: liftOff / duration },
         { name: "lifted", share: end / duration },
         ...(up === 0 ? [] : [{ name: "upright", share: 1 }]),
       ],
@@ -348,9 +367,7 @@ export namespace pickUp {
               s.part !== "leftFoot" && s.part !== "rightFoot",
           )
           .map(
-            (
-              s: IAutoMovieMotionHumanEntryState.ISupport,
-            ): IAutoMovieMotionHumanContactWindow => ({
+            (s: IAutoMovieMotionHumanEntryState.ISupport): IAutoMovieMotionHumanContactWindow => ({
               ...s,
               from: 0,
               to: 1,
@@ -370,10 +387,13 @@ export namespace pickUp {
           prop: context.params.prop,
           from: reach / duration,
           fingers: closed,
+          ...(context.params.use === undefined ? {} : { use: context.params.use }),
         },
       ],
       contact: reach,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
 
         // The body at the second: the entry, lowered over the reach; over the
@@ -381,31 +401,31 @@ export namespace pickUp {
         // straightened after it, back to the entry.
         let base: IAutoMovieMotionHumanPosture = held;
         if (t < reach) {
-          if (lowered !== null) base = lowered.at(minimumJerk(t / reach).s);
+          if (lowered !== null) base = lowered.at(minimumJerk.share(t / reach), resolution, projection);
         } else if (t <= end) {
           const k: number =
             rising && rise > 0
-              ? minimumJerk(Math.min(1, Math.max(0, (t - reach - LOAD) / rise)))
-                  .s
+              ? minimumJerk.share(
+                  Math.min(1, Math.max(0, (t - liftOff) / rise)),
+                )
               : 0;
           if (k > 0)
-            base = pickUpLift.posed(
-              body,
-              raise,
-              way,
+            base = raisedAt(
               1 - (1 - raise.share) * k,
               k,
+              resolution,
+              projection,
             );
         } else {
-          const m: number = 1 - minimumJerk((t - end) / up).s;
+          const m: number = 1 - minimumJerk.share((t - end) / up);
           base = rising
-            ? pickUpLift.posed(body, raise, way, raise.share * m, m)
-            : lowered!.at(m);
+            ? raisedAt(raise.share * m, m, resolution, projection)
+            : lowered!.at(m, resolution, projection);
         }
         // As the body straightens the hand rides with the shoulder.
         const raised: IAutoMovieVector3 =
           t > end
-            ? Vector3.subtract(shoulder(base), bottom!)
+            ? Vector3.subtract(shoulder(base, resolution), bottom!)
             : { x: 0, y: 0, z: 0 };
 
         /** The wrist's transport, lift and optional conveyor displacement. */
@@ -419,7 +439,7 @@ export namespace pickUp {
                     grasp.point.y +
                     (rise > 0
                       ? lift *
-                        minimumJerk(Math.min(1, (at - reach - LOAD) / rise)).s
+                        minimumJerk.share(Math.min(1, (at - liftOff) / rise))
                       : 0),
                 });
           return interception === undefined
@@ -429,14 +449,11 @@ export namespace pickUp {
 
         // The posture whose arm goal is the transport's at a second of the
         // action, with the fingers shaped as they are at `shaped`.
-        const goaled = (
-          at: number,
-          shaped: number,
-        ): IAutoMovieMotionHumanPosture => ({
+        const goaled: (at: number, shaped: number) => IAutoMovieMotionHumanPosture = (at: number, shaped: number): IAutoMovieMotionHumanPosture => ({
           ...base,
           joints: {
             ...base.joints,
-            ...HumanPrehension.shape(shapes, peak, shaped / reach),
+            ...shapeAt(shaped / reach),
           },
           limbs: {
             ...base.limbs,
@@ -463,16 +480,12 @@ export namespace pickUp {
         // apart 1/120 s apart). From there the transport's goal alone leads
         // to the grip. The blend eases in and arrives moving.
         const leave: number = LEAVE * reach;
-        // Gripped, the hand keeps the rotation it showed as the fingers
-        // closed, solved at the wrist (`HumanHandAttitude`), so what it holds
-        // keeps the attitude it was taken in: a glass is lifted upright.
-        if (t >= reach)
-          return HumanHandAttitude.held(
-            body,
-            goaled(t, t),
-            side,
-            chosen.shown.rotation,
-          );
+
+        // Keep the complete position-and-attitude request after closure.
+        // A wrist-only attitude edit after the fit can move the hand by
+        // twisting the forearm and would discard the lift's position goal.
+        // The ordinary resolver keeps the other limb/digit constraints and
+        // the original grip reference while fitting both at the actual time.
         return t >= leave
           ? goaled(t, t)
           : AutoMovieMotionHumanArm.carry(
@@ -480,6 +493,9 @@ export namespace pickUp {
               goaled(leave, t),
               { [side]: rest },
               (t / leave) ** 2,
+              undefined,
+              resolution,
+              projection,
             );
       },
     };
@@ -487,6 +503,14 @@ export namespace pickUp {
     // The lift is judged on the plan's own hand: what the body cannot raise
     // as far as asked is refused, never lifted less in silence.
     pickUpLift.judged(context, side, lift, plan, reach, end);
+    // A stationary grip keeps the wrist, support and digits fixed while loading.
+    if (interception === undefined) {
+      const loading: IAutoMovieMotionHumanPosture = plan.posture(reach);
+      HumanPreparedPlayback.attach(plan, body, {
+        mode: "posture",
+        phases: [{ from: reach, to: liftOff, sample: () => ({ posture: loading }) }],
+      });
+    }
     return plan;
   }
 

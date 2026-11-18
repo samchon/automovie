@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanTrunkLandmarks,
 } from "@automovie/interface";
@@ -21,6 +21,7 @@ import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
  * (by `shoulderToApex`) and the shoulder point's breadth (by `acrossShoulder`).
  */
 export namespace AutoMovieHumanTrunkLandmarks {
+
   /** Buttock point (the hip tape's site): ANSUR II buttock height 0.5118 S women, 0.5054 S men. Measured. */
   export const BUTTOCK: number = 0.073;
 
@@ -83,8 +84,8 @@ export namespace AutoMovieHumanTrunkLandmarks {
    * @returns The glenohumeral centre `[x, y, z]`, mm.
    */
   export function glenohumeral(
-    shoulder: Readonly<AutoMovieVector3Tuple>,
-    neck: Readonly<AutoMovieVector3Tuple>,
+    shoulder: Readonly< AutoMovieVector3Tuple>,
+    neck: Readonly< AutoMovieVector3Tuple>,
     scale: number,
   ): AutoMovieVector3Tuple {
     return AutoMovieHumanShoulderJoint.of(shoulder, neck, scale).centre;
@@ -96,9 +97,7 @@ export namespace AutoMovieHumanTrunkLandmarks {
    * @param p A point `[x, y, z]`, mm.
    * @returns The point with z negated.
    */
-  export function mirror(
-    p: Readonly<AutoMovieVector3Tuple>,
-  ): AutoMovieVector3Tuple {
+  export function mirror(p: Readonly< AutoMovieVector3Tuple>): AutoMovieVector3Tuple {
     return [p[0], p[1], -p[2]];
   }
 
@@ -106,14 +105,11 @@ export namespace AutoMovieHumanTrunkLandmarks {
    * The column's axis at a height, interpolated between its samples and held
    * beyond them.
    *
-   * @param landmarks The trunk's landmarks.
+   * @param landmarks The trunk's landmarks, of which only the axis is read.
    * @param y Height, mm.
    * @returns The axis point `[x, y, 0]`, mm.
    */
-  export function axisAt(
-    landmarks: IAutoMovieHumanTrunkLandmarks,
-    y: number,
-  ): AutoMovieVector3Tuple {
+  export function axisAt(landmarks: Pick<IAutoMovieHumanTrunkLandmarks, "axis">, y: number): AutoMovieVector3Tuple {
     const a: [number, number][] = landmarks.axis;
     if (y <= a[0]![0]) return [a[0]![1], y, 0];
 

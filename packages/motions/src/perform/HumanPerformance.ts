@@ -1,3 +1,4 @@
+import { integrateAirborneRotation } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
@@ -29,6 +30,7 @@ import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropFracture } from "./HumanPropFracture";
+import { HumanSegment } from "./HumanSegment";
 
 /**
  * A performance of people and props: their chained actions placed on the
@@ -42,13 +44,18 @@ import { HumanPropFracture } from "./HumanPropFracture";
  * (an intent's `until`) is legal only inside a window of the cut action's
  * interrupt table for the next action; otherwise construction throws with
  * the legal windows. A `proximity` cut is found by scanning the 24 Hz grid for
- * the first frame within the distance and bisecting 20 times, about 1e-7 s,
+ * the first frame within the distance and closing on the crossing by a
+ * bracketed root search to `HumanPerformanceSchedule.CUT`, about 4e-8 s,
  * deterministic on a fixed grid whose last sample is the action's end; a
  * distance never met leaves the action uncut. Given rules, the placed schedule is checked
  * with the engine's legality check and a violation refuses the performance.
  * An input equal to one the process resolved recently reads that resolution
  * again (`HumanPerformanceState.of`): the resolution is a pure function of
  * its input.
+ * Authored airborne turn counts use staged rigid rotation by default, keeping
+ * the law's centre path, heading and articulation. Explicit physical mode
+ * solves their angular momentum instead; a supplied momentum always uses
+ * physical integration regardless of this authored-turn policy.
  *
  * Sampling a person at a second takes the active action's posture, resolves
  * it to a pose, adds the decaying inertialization offset of the transition
@@ -77,9 +84,13 @@ export class HumanPerformance {
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
+   * @param observation Optional native airborne-work observer. This explicit diagnostic request resolves a fresh performance instead of reading or populating the whole-performance memo; the authored input and physical admission are unchanged.
    */
-  public constructor(input: IAutoMovieMotionHumanPerformance.IInput) {
-    this.resolved = HumanPerformanceState.of(input);
+  public constructor(
+    input: IAutoMovieMotionHumanPerformance.IInput,
+    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
+  ) {
+    this.resolved = HumanPerformanceState.of(input, observation);
     this.schedule = this.resolved.schedule;
     this.duration = this.resolved.duration;
     this.performers = this.resolved.performers;
@@ -104,10 +115,7 @@ export class HumanPerformance {
    * @param seconds Film seconds.
    * @returns The posture.
    */
-  public posture(
-    subject: string,
-    seconds: number,
-  ): IAutoMovieMotionHumanPosture {
+  public posture(subject: string, seconds: number): IAutoMovieMotionHumanPosture {
     return HumanPerformanceRead.posture(this.resolved, subject, seconds);
   }
 
@@ -161,8 +169,7 @@ export class HumanPerformance {
    * @returns Travel by articulation id, in each articulation's own unit.
    */
   public state(subject: string, seconds: number): Record<string, number> {
-    const prop: IAutoMovieMotionHumanProp | undefined =
-      this.resolved.props.get(subject);
+    const prop: IAutoMovieMotionHumanProp | undefined = this.resolved.props.get(subject);
     if (prop === undefined)
       throw HumanPerformanceRead.missing("prop", subject, [
         ...this.resolved.props.keys(),
@@ -178,9 +185,7 @@ export class HumanPerformance {
    * @param subject The prop.
    * @returns The flights; none for a prop never launched.
    */
-  public flights(
-    subject: string,
-  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+  public flights(subject: string): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
     return HumanPropFlight.flights(this.resolved, subject);
   }
 
@@ -300,9 +305,7 @@ export class HumanPerformance {
    * @param subject The person.
    * @returns The overlays.
    */
-  public overlays(
-    subject: string,
-  ): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
+  public overlays(subject: string): readonly IAutoMovieMotionHumanSegment.IOverlay[] {
     return HumanPerformanceRead.overlays(this.resolved, subject);
   }
 

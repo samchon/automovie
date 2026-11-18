@@ -16,7 +16,7 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is written, in which angles, and for which parts.
  * @evidence contracts/development/design.md#principled-representation The parts with no end effector are posed by joint angles, added to what the posture holds so two sources of one joint's angle sum.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The channel lookup, one primitive (`add`) and one named time course (`pulse`).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The channel lookup, one primitive (`add`) and one named time course (`pulse`); add owns its checked addition directly.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Angles are keyed by the rig's bone union in the posture's own clinical triple.
  */
 export namespace AutoMovieMotionHumanJoints {
@@ -34,11 +34,11 @@ export namespace AutoMovieMotionHumanJoints {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.of` and `ORDER`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function channels(
-    angles: IAutoMovieMotionHumanJoints.Angles,
-  ): AutoMovieMotionHumanChannel[] {
+  export function channels(angles: IAutoMovieMotionHumanJoints.Angles): AutoMovieMotionHumanChannel[] {
     const found: Set<AutoMovieMotionHumanChannel> = new Set(
-      (Object.keys(angles) as AutoMovieHumanoidBone[]).map(HumanChannels.of),
+      (Object.keys(angles) as AutoMovieHumanoidBone[]).map(
+        HumanChannels.of,
+      ),
     );
     return HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean => found.has(c),
@@ -52,28 +52,23 @@ export namespace AutoMovieMotionHumanJoints {
    * @returns The primitive.
    * @throws {Error} At a second when an angle is given for a bone outside the channels.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is added to what and when it throws.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is added to what and when it throws. Writing copies held joints before reading this second's delta, then reads claimed channels separately for each added bone.
    * @evidence contracts/development/implementation.md#principled-implementation Each angle triple is summed with the joint's held triple, or with zero when the posture holds none.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the angles of the second.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone outside the claimed channels throws, since the merge would drop its angle without a sign.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the angles given.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanChannel.of`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy held joints, read the delta once, then check and add its entries in their original order. No second addition API or wrapper is required.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone outside the claimed channels throws. The original copy-before-delta, per-bone channel lookup and final posture spread preserve getter/callback observations and the first thrown error.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the held joints and angles given; every original property/callback observation remains.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses AutoMovieMotionHumanChannel.covers. Construction's already required channels value also supplies read metadata without another props getter; writing still checks current props.channels per bone.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
-  export function add(
-    props: IAutoMovieMotionHumanJoints.IAdd,
-  ): IAutoMovieMotionHumanPrimitive {
+  export function add(props: IAutoMovieMotionHumanJoints.IAdd): IAutoMovieMotionHumanPrimitive {
+    const channels: IAutoMovieMotionHumanJoints.IAdd["channels"] = props.channels;
     return {
-      channels: props.channels,
+      channels,
+      reads: channels,
       from: props.from,
       to: props.to,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => {
-        const joints: IAutoMovieMotionHumanPosture["joints"] = {
-          ...posture.joints,
-        };
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
         for (const [bone, more] of Object.entries(props.delta(seconds)) as [
           AutoMovieHumanoidBone,
           readonly [number, number, number],

@@ -1,12 +1,17 @@
 import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanColliders,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFoot } from "@automovie/motions";
+import { HumanColliders, HumanFoot, HumanSignature } from "@automovie/motions";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanSignature as M } from "./motionHumanSignature";
+import { motionKickTarget } from "./motionKickTarget";
 
 /**
  * The reading of a kick's signature on one body, which the kick signature
@@ -71,18 +76,20 @@ export function motionKickSignature(
       `${cell}: launch to impact ${(impact - launch).toFixed(3)} s, [0.2, 1.0] expected (Kim et al. 2010; provisional)`,
       impact - launch >= 0.2 && impact - launch <= 1.0,
     );
-    const ribs: IAutoMovieVector3 = M.region(
-      s,
-      "b",
-      partner,
-      "ribsLeft",
-      impact,
+    // The region the stage aimed the row at, read from the row's one
+    // `param=value` as the stage reads it.
+    const value = (param: string): string | undefined =>
+      row.startsWith(`${param}=`) ? row.slice(param.length + 1) : undefined;
+    const target: AutoMovieHumanoidRegion = motionKickTarget(
+      value("technique"),
+      value("leg"),
     );
+    const aimed: IAutoMovieVector3 = M.region(s, "b", partner, target, impact);
     const ankle: IAutoMovieVector3 = M.joint(s, impact, `${side}Foot`);
     const reach: number = Math.hypot(
-      ribs.x - ankle.x,
-      ribs.y - ankle.y,
-      ribs.z - ankle.z,
+      aimed.x - ankle.x,
+      aimed.y - ankle.y,
+      aimed.z - ankle.z,
     );
     const heel: IAutoMovieVector3 = HumanFoot.offset(s.body, side, "heel");
     const toe: IAutoMovieVector3 = HumanFoot.offset(s.body, side, "toe");
@@ -92,13 +99,13 @@ export function motionKickSignature(
       toe.z - heel.z,
     );
     complaints.check(
-      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ribs at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
+      `${cell}: the kicking ankle is ${(reach * 1000).toFixed(0)} mm from the partner's ${target} at impact, within a foot length (${(footLength * 1000).toFixed(0)} mm) expected`,
       reach <= footLength,
     );
     const set: number = M.event(s, "set") ?? launch;
     const clear: number = M.apart(s, set, partner);
     complaints.check(
-      `${cell}: in the guard (${set.toFixed(2)} s) the two fighters stand ${(clear * 1000).toFixed(0)} mm apart (least joint-to-body distance), not inside each other expected`,
+      `${cell}: in the guard (${set.toFixed(2)} s) the two fighters stand ${(clear * 1000).toFixed(0)} mm apart (least joint-to-body distance), not inside each other expected${clear >= 0 ? "" : `; deepest: ${deepest(s, set, partner)}`}`,
       clear >= 0,
     );
     const foot: IAutoMovieVector3 = M.joint(s, impact, `${side}Foot`);
@@ -110,16 +117,59 @@ export function motionKickSignature(
 }
 
 /**
+ * Which joint of either fighter lies deepest inside the other's colliders at
+ * a second, and in which bone, so a failing guard row names the parts.
+ */
+function deepest(
+  s: M.IStaged,
+  seconds: number,
+  partner: IAutoMovieMotionHumanBody,
+): string {
+  const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    HumanSignature.bones(M.reader(s), seconds);
+  const theirs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    HumanSignature.bones(
+      HumanSignature.of(s.film, "b", partner, s.yaw),
+      seconds,
+    );
+  let worst: { depth: number; text: string } = { depth: Infinity, text: "" };
+  for (const [name, bone] of mine) {
+    const read: IAutoMovieMotionHumanColliders.IDistance =
+      HumanColliders.distance(partner, theirs, bone.worldPosition);
+    if (read.distance < worst.depth)
+      worst = {
+        depth: read.distance,
+        text: `the kicker's ${name} ${(-read.distance * 1000).toFixed(0)} mm inside the partner's ${read.bone}`,
+      };
+  }
+  for (const [name, bone] of theirs) {
+    const read: IAutoMovieMotionHumanColliders.IDistance =
+      HumanColliders.distance(s.body, mine, bone.worldPosition);
+    if (read.distance < worst.depth)
+      worst = {
+        depth: read.distance,
+        text: `the partner's ${name} ${(-read.distance * 1000).toFixed(0)} mm inside the kicker's ${read.bone}`,
+      };
+  }
+  return worst.text;
+}
+
+/**
  * Companion lists of {@link motionKickSignature}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each list states its rows.
  * @evidence contracts/development/design.md#principled-representation The rows of each split as data.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Three row lists.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rows are the spec's own, none dropped.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The rows are the spec's own; only the row that leaves the technique is not listed, since its stage repeats `technique=round`'s scene.
  */
 export namespace motionKickSignature {
-  /** The round kick, as the row leaves it and as the technique names it. */
-  export const ROUND: readonly string[] = ["default", "technique=round"];
+  /**
+   * The round kick as the technique names it. The row that leaves the
+   * technique stages this same scene, because the kick's stage names the
+   * round kick itself when the row leaves it (`MOTION_HUMAN_LAW_STAGES`), so
+   * a film of that row would repeat this one.
+   */
+  export const ROUND: readonly string[] = ["technique=round"];
 
   /** The push kick. */
   export const PUSH: readonly string[] = ["technique=push"];

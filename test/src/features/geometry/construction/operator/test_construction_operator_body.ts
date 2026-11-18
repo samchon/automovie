@@ -197,35 +197,6 @@ export function test_construction_operator_body(): void {
       failures.push(`made defect, ${what}: no "${check}" finding`);
 
   if (failures.length !== 0) {
-    console.log(
-      `construction_operator_body source record: ${JSON.stringify({
-        ranges,
-        faces: body.faces.map(
-          (
-            face: IAutoMovieSolidBody.IFace,
-          ): {
-            name: string;
-            stations: number[];
-            phases: number[];
-            cycles: IAutoMovieSolidBody.IFace["cycles"];
-          } => ({
-            name: face.surface.name,
-            stations: face.stations,
-            phases: face.phases,
-            cycles: face.cycles,
-          }),
-        ),
-        mesh: {
-          positions: mesh.positions,
-          indices: mesh.indices,
-          coordinates: mesh.coordinates,
-          owners: mesh.owners.map(
-            (owner: IAutoMovieSolidMesh.IOwner): string => owner.name,
-          ),
-        },
-        open,
-      })}`,
-    );
     body.faces.forEach((f: IAutoMovieSolidBody.IFace, i: number): void => {
       failures.push(
         `face ${f.surface.name}: cycles ${f.cycles.map((c: { kind: string; vertices: number[] }): string => `${c.kind}(${c.vertices.length})`).join(", ")}; open ${(open[i] ?? []).map((c: IAutoMovieSolidMesh.IOpen): string => String(c.vertices.length)).join(", ")}`,

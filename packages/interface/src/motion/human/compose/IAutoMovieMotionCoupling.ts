@@ -102,7 +102,7 @@ export namespace IAutoMovieMotionCoupling {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member gives its meaning and unit.
    * @evidence contracts/development/design.md#principled-representation A part and its region on one body, the other body's role and region it lies on, how it bears and its load share: a contact window between two people.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, the ones a borne law turns into its windows and a bearer into its holds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, the ones a borne law turns into its windows and a bearer into its holds and its balance.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The part and the kind are the contact window's own unions.
    */
   export interface IContact {
@@ -125,5 +125,8 @@ export namespace IAutoMovieMotionCoupling {
 
     /** The share of the borne weight it carries, in [0, 1]; a grip carries none. */
     load: number;
+
+    /** Where it bears at the key, metres in the frame of the first bearer's anchor bone (`IAutoMovieMotionCoupling.anchor`): the point its share of the weight presses the bearer at. */
+    at?: IAutoMovieVector3;
   }
 }

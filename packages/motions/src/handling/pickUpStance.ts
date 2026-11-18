@@ -68,9 +68,9 @@ export namespace pickUpStance {
    * @evidence contracts/development/implementation.md#principled-implementation Each stage runs only where the one before leaves the grip, or the lift, out of reach, and the grasp is chosen again from each stance taken.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The stages in order, each one guarded by the same reach test.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A standing body's lowering refusal falls through to the turn and the step; any other is passed on.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One grasp search per stance taken: at most four, and one more for each grip side the step for the lift is solved for, each side at most once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance owners' solves and the grasp search, reused.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original stance/grip-side search and full fit; each actual stance invokes the ordinary current-input search, including original use/demand callback admission rather than reusing cross-stance source assembly.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Lowering, turning, stepping and whole-task lift candidates remain independent current computations. No immutability is inferred for the action context across external demand or stance callbacks, and the local search adapter stores no prepared geometry or fit answer.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous chooser releases its argument-binding callback and original tried-side list on return or throw. Returned chosen/stance/raise data retain no search preparation, FK workspace, callback map or query history.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
@@ -80,7 +80,9 @@ export namespace pickUpStance {
     carried?: IAutoMovieVector3,
     closure?: IAutoMovieRigidTransform,
   ): IChosen {
-    const missed = (found: pickUpSearch.ISearched): boolean =>
+    const search: (stance: pickUpPosture.IStance) => pickUpSearch.ISearched =
+      (stance: pickUpPosture.IStance): pickUpSearch.ISearched => pickUpSearch.of(context, side, lift, authored, stance, carried, closure);
+    const missed: (found: pickUpSearch.ISearched) => boolean = (found: pickUpSearch.ISearched): boolean =>
       !pickUpPosture.reaches(
         context,
         side,
@@ -89,11 +91,7 @@ export namespace pickUpStance {
 
     // The grasp chosen from the entry's body; where its arm does not reach,
     // from the body lowered toward the grip (`pickUpPosture`).
-    let found: pickUpSearch.ISearched = pickUpSearch.of(
-      context,
-      side,
-      lift,
-      authored,
+    let found: pickUpSearch.ISearched = search(
       {
         posture: context.entry.posture,
         at: (): IAutoMovieMotionHumanPosture => context.entry.posture,
@@ -101,8 +99,6 @@ export namespace pickUpStance {
           posture: IAutoMovieMotionHumanPosture,
         ): IAutoMovieMotionHumanPosture => posture,
       },
-      carried,
-      closure,
     );
     // A standing body no stoop or squat brings to the grip may still turn
     // or step toward it, below; anything else the lowering refuses stands.
@@ -115,15 +111,7 @@ export namespace pickUpStance {
         if (!(standing && error instanceof HumanRefusal)) throw error;
       }
     if (lowered !== null)
-      found = pickUpSearch.of(
-        context,
-        side,
-        lift,
-        authored,
-        lowered,
-        carried,
-        closure,
-      );
+      found = search(lowered);
 
     // Still out of reach, the trunk turns toward the grip first.
     if (missed(found)) {
@@ -133,22 +121,14 @@ export namespace pickUpStance {
         found.chosen.wrist.point,
         found.stance,
       );
-      found = pickUpSearch.of(
-        context,
-        side,
-        lift,
-        authored,
-        lowered,
-        carried,
-        closure,
-      );
+      found = search(lowered);
     }
 
     // Still out of reach, one foot takes one adjustment step toward it; and
     // where the lift is still out of reach of every freedom of the body,
     // the step is taken for the grasp and the lift together.
     const before: pickUpSearch.ISearched = found;
-    const step = (
+    const step: (lifted?: IAutoMovieVector3) => Omit<IChosen, "raise"> | null = (
       lifted?: IAutoMovieVector3,
     ): Omit<IChosen, "raise"> | null => {
       const stepped: pickUpPosture.IStance | null = pickUpAdjust.stepped(
@@ -162,15 +142,7 @@ export namespace pickUpStance {
         ? null
         : {
             lowered: stepped,
-            found: pickUpSearch.of(
-              context,
-              side,
-              lift,
-              authored,
-              stepped,
-              carried,
-              closure,
-            ),
+            found: search(stepped),
           };
     };
     if (standing && missed(found)) {

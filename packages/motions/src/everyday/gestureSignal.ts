@@ -32,7 +32,7 @@ export namespace gestureSignal {
     if (!(u > 0 && u < 1)) return 0;
     return (
       Math.sin(2 * Math.PI * cycles * u) *
-      Math.min(minimumJerk(u / 0.15).s, minimumJerk((1 - u) / 0.15).s)
+      Math.min(minimumJerk.share(u / 0.15), minimumJerk.share((1 - u) / 0.15))
     );
   }
 
@@ -70,6 +70,6 @@ export namespace gestureSignal {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function rise(u: number): number {
-    return minimumJerk(u / 0.6).s;
+    return minimumJerk.share(u / 0.6);
   }
 }

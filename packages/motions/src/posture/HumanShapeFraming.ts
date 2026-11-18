@@ -6,6 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanColliderBound } from "./HumanColliderBound";
+
 /**
  * A placed collider shape's bounding sphere and, for a hull, its face
  * planes in its own frame: the bounds a clearance reading tests a point
@@ -81,7 +83,7 @@ export namespace HumanShapeFraming {
         lead: 0,
         ...(shape.kind === "hull"
           ? {
-              faces: planes(physicalHullFaces(shape.points).faces),
+              faces: planes(shape.points),
               origin: Vector3.add(
                 pose.position,
                 Quaternion.rotateVector(
@@ -100,19 +102,25 @@ export namespace HumanShapeFraming {
     return found;
   }
 
-  /** A hull's face planes packed four numbers each, the normal then the offset. */
-  function planes(
-    faces: IAutoMoviePhysicalHullFaces.IHull["faces"],
-  ): Float64Array {
+  /**
+   * A hull's face planes packed four numbers each, the normal then the
+   * offset, in the hull's own frame: the same for every posed frame of the
+   * same hull, so packed once per hull's points and shared by every framing
+   * of it (a fit frames a fresh pose's colliders, the planes do not move
+   * with it).
+   */
+  function planes(points: readonly IAutoMovieVector3[]): Float64Array {
+    const known: Float64Array | undefined = PLANES.get(points);
+    if (known !== undefined) return known;
+    const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] = physicalHullFaces(points).faces;
     const packed: Float64Array = new Float64Array(4 * faces.length);
-    faces.forEach(
-      (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
-        packed[4 * index] = face.normal.x;
-        packed[4 * index + 1] = face.normal.y;
-        packed[4 * index + 2] = face.normal.z;
-        packed[4 * index + 3] = face.offset;
-      },
-    );
+    faces.forEach((face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
+      packed[4 * index] = face.normal.x;
+      packed[4 * index + 1] = face.normal.y;
+      packed[4 * index + 2] = face.normal.z;
+      packed[4 * index + 3] = face.offset;
+    });
+    PLANES.set(points, packed);
     return packed;
   }
 
@@ -187,29 +195,18 @@ export namespace HumanShapeFraming {
    * meets the surface within the sphere.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each shape kind's sphere and why it bounds the signed distance.
-   * @evidence contracts/development/implementation.md#principled-implementation A hull's own bounding sphere, a sphere itself, a capsule's about its middle and a box's about its centre, placed by the shape's and the segment's frames.
+   * @evidence contracts/development/implementation.md#principled-implementation The shape's own containing sphere (`HumanColliderBound`), placed by the shape's and the segment's frames.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One local sphere and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is padded.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per shape, a hull's own sphere aside.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a placed shape's bounding sphere, read by the framing and the trajectory's shapes.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a placed shape's bounding sphere, read by the framing, the trajectory's shapes, the body's distance screen and the digits' near colliders; the local sphere is HumanColliderBound's and every world placement is recomputed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a fresh world centre and scalar radius escape; no input or computed placement is retained by this function.
    */
   export function sphere(
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): { centre: IAutoMovieVector3; radius: number } {
-    const local: { centre: IAutoMovieVector3; radius: number } =
-      shape.kind === "hull"
-        ? physicalHullFaces(shape.points)
-        : {
-            centre: { x: 0, y: 0, z: 0 },
-            radius:
-              shape.kind === "sphere"
-                ? shape.radius
-                : shape.kind === "capsule"
-                  ? shape.halfLength + shape.radius
-                  : Vector3.length(shape.halfExtents),
-          };
+    const local: IAutoMovieMotionHumanColliders.IBall = HumanColliderBound(shape);
     return {
       centre: Vector3.add(
         pose.position,
@@ -226,11 +223,11 @@ export namespace HumanShapeFraming {
   }
 }
 
+/** Each hull's packed face planes in its own frame, by its points, kept while the points live (`planes`). */
+const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> = new WeakMap();
+
 /** Each posed segment frame's shapes as `HumanShapeFraming.of` reads them, kept while the frame lives. */
 const FRAMED: WeakMap<
   IAutoMovieMotionHumanColliders.IPlaced["pose"],
-  Map<
-    IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
-    HumanShapeFraming.IFramed
-  >
+  Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"][number], HumanShapeFraming.IFramed>
 > = new WeakMap();

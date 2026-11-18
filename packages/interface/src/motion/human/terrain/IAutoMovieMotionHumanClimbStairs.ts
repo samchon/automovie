@@ -55,7 +55,7 @@ export namespace IAutoMovieMotionHumanClimbStairs {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
    * @evidence contracts/development/design.md#principled-representation The flight's architecture and the stepping pattern.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, all read by `plan`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Nine members with the flight's, all read by `plan`.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No footprint is typed; they follow from the flight.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
@@ -67,6 +67,9 @@ export namespace IAutoMovieMotionHumanClimbStairs {
 
     /** The foot that steps first; `right` when absent. */
     lead?: "left" | "right";
+
+    /** The prop the flight belongs to, its subject id, so a foot on a tread bears on it; the fixed floor frame when absent. */
+    on?: string;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

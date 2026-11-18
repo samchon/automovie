@@ -3,9 +3,12 @@ import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionClockPhase,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionPhraseDurations,
 } from "@automovie/interface";
+
+import { AutoMovieMotionClockNative } from "./AutoMovieMotionClockNative";
+import type { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
+import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
 
 /**
  * The clock of one action: its duration and its named instants, and the only
@@ -19,18 +22,48 @@ import type {
  * `strokeEnd`, `retract`. A family adds its own (`chamber`, `takeoff`,
  * `landing`). `start` and `end` always exist, at 0 and at the duration.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what a clock owns, why a primitive asks it instead of computing windows, where the shared instant names come from and which two always exist.
+ * @evidence contracts/development/common.md#meaningful-documentation States clock ownership, shared instant origins and fixed start/end names; prepare and prepareEnvelope resolve a fixed window's instants once, and wave/prepareWave delegate count admission and waveform ownership to AutoMovieMotionWave.
  * @evidence contracts/development/design.md#principled-representation An action's timing is a duration and named instants in seconds, the phase boundaries of gesture research; every window is a pair of names, so a row never repeats a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two constructors, the clock they return and the two records they take; it names no body part, so any performer's action can use it.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Clock constructors, timing transformations and fixed-window/wave readers serve current action primitives without naming any body part; the clock record, interval arithmetic and waveform each retain one owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Instants are plain records and names are checked when the clock is built; an unknown name throws instead of reading as zero.
  */
 export namespace AutoMovieMotionClock {
   /** The instant every clock has at 0 seconds. */
-  export const START: string = "start";
+  export const START: string = AutoMovieMotionClockNative.START;
 
   /** The instant every clock has at its duration. */
-  export const END: string = "end";
+  export const END: string = AutoMovieMotionClockNative.END;
 
+  /**
+   * A fixed window's uniform and minimum-jerk readers, its two instants resolved once.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed window; ClockNative.prepare states when its names are resolved.
+   * @evidence contracts/development/implementation.md#principled-implementation The clock's named times are fixed for its life, so the window's two seconds read once serve every sample.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to ClockNative, the clock's constructor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every sample runs the interval arithmetic and the profile; no sample value is kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two name lookups once, then constant arithmetic per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the window's two seconds, constants of the clock, are shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the clock, two names and at most one interval until release.
+   */
+  export function prepare(clock: IAutoMovieMotionClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
+    return AutoMovieMotionClockNative.prepare(clock, from, to);
+  }
+
+  /**
+   * A fixed rise and fall's envelope, each window's instants resolved once.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed windows; ClockNative.prepareEnvelope states the resolution order and the clamp.
+   * @evidence contracts/development/implementation.md#principled-implementation The clock's named times are fixed for its life, so each window's two seconds read once serve every sample.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates to ClockNative, the clock's constructor.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every sample evaluates both progresses and the clamp; no sample value is kept.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Four name lookups once, then constant work per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the windows' seconds, constants of the clock, are shared.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the clock, four names and at most two intervals until release.
+   */
+  export function prepareEnvelope(clock: IAutoMovieMotionClock, rise: readonly [string, string],
+    fall: readonly [string, string]): (seconds: number) => number {
+    return AutoMovieMotionClockNative.prepareEnvelope(clock, rise, fall);
+  }
   /**
    * A clock from a duration and its named instants.
    *
@@ -41,81 +74,14 @@ export namespace AutoMovieMotionClock {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, their order, the result and each refused input.
    * @evidence contracts/development/implementation.md#principled-implementation Uniform progress is the clamped linear map of the window, minimum-jerk progress is `minimumJerk` of it (Flash and Hogan 1985), and the envelope is the rise's progress less the fall's, clamped at zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One name-to-seconds map checked once, and four closures over it; `progress` and `envelope` are built on `linear`, so the window rule exists once.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates construction to ClockNative, which owns the validated map and the at, linear, progress and envelope closures.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A repeated or reserved name, an instant outside the duration and an unknown name throw; the only tolerance is 1e-9 s on the duration's end, for an instant computed as a sum of phase lengths.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each query is two map lookups and a polynomial, constant time, which matters because every primitive asks at every evaluated second.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `minimumJerk`, the engine's one owner of the minimum-jerk profile.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one map and one sorted array of the instants given, for the clock's own lifetime.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The constructed clock retains one map, one sorted array and its closures, with no query history or external resource.
    */
-  export function of(
-    duration: number,
-    instants: readonly IAutoMovieMotionClockInstant[],
-  ): IAutoMovieMotionClock {
-    if (!(duration > 0)) throw new Error("A clock lasts a positive time");
-    const times: Map<string, number> = new Map([
-      [START, 0],
-      [END, duration],
-    ]);
-    for (const instant of instants) {
-      if (times.has(instant.name))
-        throw new Error(`A clock names "${instant.name}" once`);
-      if (!(instant.seconds >= 0 && instant.seconds <= duration + 1e-9))
-        throw new Error(
-          `The instant "${instant.name}" lies outside the clock's duration`,
-        );
-      times.set(instant.name, Math.min(duration, instant.seconds));
-    }
-    const sorted: IAutoMovieMotionClockInstant[] = instants
-      .map(
-        (i: IAutoMovieMotionClockInstant): IAutoMovieMotionClockInstant => ({
-          name: i.name,
-          seconds: times.get(i.name)!,
-        }),
-      )
-      .sort(
-        (
-          a: IAutoMovieMotionClockInstant,
-          b: IAutoMovieMotionClockInstant,
-        ): number => a.seconds - b.seconds,
-      );
-    const at = (name: string): number => {
-      const seconds: number | undefined = times.get(name);
-      if (seconds === undefined)
-        throw new Error(`The clock has no instant "${name}"`);
-      return seconds;
-    };
-    const linear = (from: string, to: string, seconds: number): number => {
-      const a: number = at(from);
-      const b: number = at(to);
-      if (b - a < 1e-12) return seconds >= b ? 1 : 0;
-      return Math.min(1, Math.max(0, (seconds - a) / (b - a)));
-    };
-    const progress = (from: string, to: string, seconds: number): number =>
-      minimumJerk(linear(from, to, seconds)).s;
-    return {
-      duration,
-      instants: sorted,
-      at,
-      linear,
-      progress,
-      envelope: (
-        rise: readonly [string, string],
-        fall: readonly [string, string],
-        seconds: number,
-      ): number =>
-        Math.max(
-          0,
-          progress(rise[0], rise[1], seconds) -
-            progress(fall[0], fall[1], seconds),
-        ),
-      events: (): IAutoMovieMotionEvent[] =>
-        sorted.map(
-          (i: IAutoMovieMotionClockInstant): IAutoMovieMotionEvent => ({
-            name: i.name,
-            share: i.seconds / duration,
-          }),
-        ),
-    };
+  export function of(duration: number, instants: readonly IAutoMovieMotionClockInstant[]): IAutoMovieMotionClock {
+    return AutoMovieMotionClockNative.of(duration, instants);
   }
 
   /**
@@ -134,9 +100,7 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over a handful of phases, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
-  export function sequence(
-    phases: readonly IAutoMovieMotionClockPhase[],
-  ): IAutoMovieMotionClock {
+  export function sequence(phases: readonly IAutoMovieMotionClockPhase[]): IAutoMovieMotionClock {
     const instants: IAutoMovieMotionClockInstant[] = [];
     let seconds: number = 0;
     for (const phase of phases) {
@@ -179,9 +143,7 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One pass over six lengths, with no algorithm to choose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing of its own; the clock it returns is `of`'s.
    */
-  export function phrase(
-    durations: IAutoMovieMotionPhraseDurations,
-  ): IAutoMovieMotionClock {
+  export function phrase(durations: IAutoMovieMotionPhraseDurations ): IAutoMovieMotionClock {
     const lengths: readonly number[] = [
       durations.prepare,
       durations.wait ?? 0,
@@ -219,21 +181,16 @@ export namespace AutoMovieMotionClock {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function repeat(
-    span: readonly IAutoMovieMotionClockPhase[],
-    count: number,
-  ): IAutoMovieMotionClockPhase[] {
+  export function repeat(span: readonly IAutoMovieMotionClockPhase[], count: number): IAutoMovieMotionClockPhase[] {
     if (!(Number.isInteger(count) && count > 0))
       throw new Error("A movement repeats a positive whole number of times");
-    return Array.from(
-      { length: count },
-      (_: unknown, i: number): IAutoMovieMotionClockPhase[] =>
-        span.map(
-          (phase: IAutoMovieMotionClockPhase): IAutoMovieMotionClockPhase => ({
-            name: `${phase.name}${i + 1}`,
-            seconds: phase.seconds,
-          }),
-        ),
+    return Array.from({ length: count }, (_: unknown, i: number): IAutoMovieMotionClockPhase[] =>
+      span.map(
+        (phase: IAutoMovieMotionClockPhase): IAutoMovieMotionClockPhase => ({
+          name: `${phase.name}${i + 1}`,
+          seconds: phase.seconds,
+        }),
+      ),
     ).flat();
   }
 
@@ -272,46 +229,14 @@ export namespace AutoMovieMotionClock {
       seconds <= b || arrested
         ? k * clock.linear(window[0], window[1], seconds)
         : k + (1 - k) * clock.linear(window[1], window[2], seconds);
-    return minimumJerk(u).s / minimumJerk(k).s;
+    return minimumJerk.share(u) / minimumJerk.share(k);
   }
 
-  /**
-   * A movement back and forth about a pose between two instants: a sine of a
-   * whole number of cycles, grown over its first half cycle and shrunk over
-   * its last on the minimum-jerk profile, so it leaves and rejoins the pose
-   * at rest.
-   *
-   * @param clock The clock.
-   * @param window The instants the movement starts and ends at.
-   * @param cycles How many cycles; a positive integer.
-   * @param seconds Seconds since the action's start.
-   * @returns A value in [-1, 1]; 0 outside the window.
-   * @throws {Error} On a cycle count that is not a positive integer.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shape, how it starts and ends, the range, the value outside the window and the refused count.
-   * @evidence contracts/development/implementation.md#principled-implementation A sine of whole cycles is zero at both ends of the window; the product of two minimum-jerk ramps, each one half cycle long, brings its speed to zero there too, so the pose is left and rejoined at rest.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The window's linear progress, the two ramps and the sine.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A count of zero or a fraction throws instead of giving a wave that ends away from the pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the window through the clock's `linear` and the ramps through `minimumJerk`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
-   */
-  export function wave(
-    clock: IAutoMovieMotionClock,
-    window: readonly [string, string],
-    cycles: number,
-    seconds: number,
-  ): number {
-    if (!(Number.isInteger(cycles) && cycles > 0))
-      throw new Error("A movement repeats a positive whole number of times");
-    const u: number = clock.linear(window[0], window[1], seconds);
-    const half: number = 1 / (2 * cycles);
-    const grown: number =
-      minimumJerk(Math.min(1, u / half)).s *
-      minimumJerk(Math.min(1, (1 - u) / half)).s;
-    return grown * Math.sin(2 * Math.PI * cycles * u);
-  }
+  /** The original clock-driven oscillation, owned by AutoMovieMotionWave.sample. */
+  export const wave: typeof AutoMovieMotionWave.sample = AutoMovieMotionWave.sample;
 
+  /** Fixed wave constants with every actual custom clock.linear callback preserved. */
+  export const prepareWave: typeof AutoMovieMotionWave.prepare = AutoMovieMotionWave.prepare;
   /**
    * A clock with each of its spans stretched by a factor of its own. A span
    * runs from one instant to the next in time order and is named by the
@@ -424,3 +349,4 @@ export namespace AutoMovieMotionClock {
     });
   }
 }
+

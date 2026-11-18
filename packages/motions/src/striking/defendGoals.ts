@@ -1,13 +1,15 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanDefend,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -90,6 +92,12 @@ export namespace defendGoals {
 
     /** What the defender saw. */
     sight: ISight;
+
+    /** This exact body's posture's trunk bones, borrowed within the current synchronous evaluation when already resolved. */
+    bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+    /** This exact body's fixed region/tangent frame, when already prepared by the defence's geometry. */
+    frame?: ReturnType<typeof StrikingBody.frame>;
   }
 
   /**
@@ -102,20 +110,34 @@ export namespace defendGoals {
    * @evidence contracts/development/implementation.md#principled-implementation Each goal is placed on the defender's own posed trunk and the seen incoming line, so it follows the body's evasion and the strike's aim.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared points first, then one exhaustive switch over the kinds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The segment shares are documented provisional values; no body is special-cased.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk forward-kinematics pass and constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of the instant's posture, which changes each instant.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Evasions return no limb changes without trunk resolution; selected limb defences read at most one actual trunk. Cover/parry request only the struck-region point and omit unused normal/forward rotations/wrappers; elbow/high blocks retain every normal they consume. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied trunk belongs to this exact synchronous body/posture observation. Original frame-property and bone lookup order remain; only the demanded fixed body-region fields are placed through their canonical owner. The two cover gloves share their one original current region observation, and no world point/pose enters another call or time.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new record and retains nothing.
    */
-  export function at(
-    props: IProps,
-  ): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
+  export function at(props: IProps): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
+    if (props.kind === "slip" || props.kind === "roll" || props.kind === "sway")
+      return {};
     const { body, sight } = props;
     const { incoming, across, outside, attackedSide } = sight;
     const m = body.measure;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const fist: number = StrikingQuality.fist(m.hand);
-    const bones = StrikingBody.trunk(body, props.posture);
-    const region = StrikingBody.region(body, bones, props.region, props.aimed);
+    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      props.bones ?? StrikingBody.trunk(body, props.posture);
+    let centre: IAutoMovieVector3 | undefined;
+    const regionPoint: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
+      if (centre !== undefined) return centre;
+      if (props.frame === undefined) {
+        const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, props.region, props.aimed);
+        centre = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
+      } else centre = resolveAutoMovieHumanoidSurfaces.point(props.frame, bones.get(props.frame.bone)!);
+      return centre;
+    };
+    let placed: ReturnType<typeof StrikingBody.region> | undefined;
+    const region: () => ReturnType<typeof StrikingBody.region> = (): ReturnType<typeof StrikingBody.region> =>
+      (placed ??= props.frame === undefined
+        ? StrikingBody.region(body, bones, props.region, props.aimed)
+        : resolveAutoMovieHumanoidSurfaces.place(props.frame, bones.get(props.frame.bone)!));
     const glove = (
       side: "left" | "right",
       at: IAutoMovieVector3,
@@ -143,7 +165,7 @@ export namespace defendGoals {
       // The glove on the incoming line just in front of the region, where
       // the weapon will pass, not merely on the region's own normal.
       const at: IAutoMovieVector3 = Vector3.subtract(
-        region.point,
+        regionPoint(),
         Vector3.scale(incoming, m.forearmRadius + 2 * fist),
       );
       out[arm(side)] = glove(side, at, low(side));
@@ -160,7 +182,7 @@ export namespace defendGoals {
         const side: "left" | "right" = outside > 0 ? "left" : "right";
         const meet: IAutoMovieVector3 = Vector3.add(
           Vector3.subtract(
-            region.point,
+            regionPoint(),
             Vector3.scale(incoming, 0.6 * m.forearm),
           ),
           Vector3.scale(across, -outside * 0.5 * fist),
@@ -182,8 +204,8 @@ export namespace defendGoals {
           attackedSide,
           at,
           Vector3.add(
-            region.point,
-            Vector3.scale(region.normal, 0.5 * m.upperArm),
+            region().point,
+            Vector3.scale(region().normal, 0.5 * m.upperArm),
           ),
         );
         break;
@@ -261,11 +283,6 @@ export namespace defendGoals {
         };
         break;
       }
-      case "slip":
-      case "roll":
-      case "sway":
-        // Evasions move the whole body; the gloves keep their guard.
-        break;
     }
     return out;
   }

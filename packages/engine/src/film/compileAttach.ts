@@ -1,7 +1,7 @@
-import {
+import type {
   IAutoMovieAttachment,
   IAutoMovieClip,
-  type IAutoMovieCompileAttach,
+  IAutoMovieCompileAttach,
   IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -9,6 +9,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { preparePoseResolution } from "../kinematics/preparePoseResolution";
+import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { resolveAttachment } from "../kinematics/resolveAttachment";
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
@@ -35,13 +37,11 @@ const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One baker for both per-beat `attachTo` and staged mounts, called by `coupleObjects`, which owns chain order and id uniqueness; the optional `parentTransformAt` is the single seam through which a chained parent's ridden frame enters, so the composition is not duplicated for chains.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Names no bone, rig or prop; the bake uses the supplied bone-local offset directly or identity on omission, with unit offset scale and no parent-scale compensation.
  * @evidence contracts/development/common.md#meaningful-documentation States the per-sample composition formula, the parent frame choices, the unapplied scale, which joint tables must match the renderer, the rest-pose case, the clip's time base, sample count, id and both read semantics, and the throw.
- * @evidence contracts/development/implementation.md#efficient-algorithms For S = max(1, round(duration × fps)) + 1 feasible samples, resolves one FK per moving-parent sample plus delegated motion sampling; FK spans B bones. A motionless parent's bone and offset are resolved once, while its world callback is still read at each sample.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call bakes one coupling from its own inputs; `coupleObjects` coordinates the shot's couplings and shares a parent's baked clips with its riders.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after returning; the two tracks share one time array and own position and rotation arrays, holding 1 + 3 + 4 numbers per sample for the caller.
+ * @evidence contracts/development/implementation.md#efficient-algorithms S unchanged feasible samples retain motion sampling and ordered J-joint admission. Raw omission resolves B bones per moving sample; an explicit immutable parent prepares one bone-name demand and exact reader, so only its D ancestors compose on changes and only one output is copied. Motionless rest FK remains once, and every world callback still runs. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work A supplied genuine poseResolution must match this fixed parent rig/clinical mapping. Its sorted one-bone demand and exact current dependency rows serve all samples in this synchronous bake; changed poses still receive full ordered joint admission and world callbacks remain per sample. No time, clip sample or attachment result is memoized.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The optional demand and O(U+B) exact rows release when this synchronous bake returns or throws. Only numeric position/rotation tracks escape, sharing one time array and holding 1+3+4 numbers per sample; no rig workspace, pose or callback is retained by the result.
  */
-export function compileAttach(
-  props: IAutoMovieCompileAttach.IProps,
-): IAutoMovieClip {
+export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
   const fps: number = props.fps ?? 30;
   // `performShot` rejects a zero-span coupling before it reaches here; this
   // precondition, the one `projectileTrajectory` enforces, keeps any other
@@ -68,6 +68,10 @@ export function compileAttach(
         ? IDENTITY_OFFSET
         : Transform.of(props.offset.position, props.offset.rotation),
   };
+  const demand: prepareSkeletonPoseResolution.IBoneDemand | undefined =
+    props.poseResolution?.prepareBones(new Set([props.bone]));
+  const resolution: ReturnType<typeof preparePoseResolution> | undefined =
+    demand === undefined ? undefined : preparePoseResolution();
   function boneAt(pose: IAutoMoviePose): IAutoMovieTransform {
     return resolveAttachment(
       pose,
@@ -75,6 +79,8 @@ export function compileAttach(
       attachment,
       props.jointAxes,
       props.restFrames,
+      demand,
+      resolution,
     );
   }
   const parentMotion: IAutoMovieMotion | undefined = props.parentMotion;
@@ -89,7 +95,7 @@ export function compileAttach(
   for (let i: number = 0; i <= count; ++i) {
     const t: number = props.start + (i / count) * props.duration;
     const local: IAutoMovieTransform =
-      restBone ?? boneAt(sampleMotion(parentMotion!, t).pose);
+      restBone ?? boneAt(sampleMotion.pose(parentMotion!, t));
     const parentWorld: IAutoMovieTransform =
       props.parentTransformAt?.(t) ?? props.parentTransform;
     const worldPos: IAutoMovieVector3 = Vector3.add(
@@ -124,4 +130,20 @@ export function compileAttach(
       },
     ],
   };
+}
+
+/**
+ * Companion types of {@link compileAttach}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the one engine-owned extension of the interface attachment props and its absence rule.
+ * @evidence contracts/development/design.md#principled-representation The canonical attachment props stay in `IAutoMovieCompileAttach.IProps`; this extension adds only the prepared parent rig, an engine object whose methods read `preparePoseResolution` operations, so it cannot live in the dependency-free interface.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `coupleObjects` supplies the prepared rig when its caller passes `prepareRig`; every other caller keeps the interface props unchanged.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the interface contract instead of copying it; the optional rig is the genuine `prepareSkeletonPoseResolution` product, never a structural stand-in.
+ */
+export namespace compileAttach {
+  /** The attachment props with an optional prepared parent rig. */
+  export interface IProps extends IAutoMovieCompileAttach.IProps {
+    /** Explicit immutable snapshot of this exact parent rig and clinical mappings, kept unchanged throughout the bake. Omission preserves raw full FK. */
+    poseResolution?: prepareSkeletonPoseResolution.IRig;
+  }
 }

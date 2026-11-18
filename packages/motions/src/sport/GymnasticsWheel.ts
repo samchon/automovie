@@ -4,12 +4,16 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
-import { StrikingBody } from "../striking/StrikingBody";
+import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The supported phase of a gymnastic turn (#3377): the body, a shape that
@@ -46,47 +50,53 @@ export namespace GymnasticsWheel {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Rolling without slipping: within a spoke's run the root is the spoke's place less its offset from the root, and at a change the place is handed over while both are down.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forward kinematics per row, one choice of spoke, one root.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bind the body's actual fixed spoke-bone demand once, then resolve the original trunk, read every spoke's mean once and choose the bearing/root for each row.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A spoke takes the weight only when lower by `LEVEL`, so a pair level with its single feet keeps bearing as the pair and the choice does not flicker on rounding.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One forward kinematics per row: the angle over the step.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Built once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table holds one record per row and is released with the plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms R rows retain ordinary canonical joint admission; demanded FK visits spoke ancestry instead of unrelated descendants, with fixed name lookup/sorting paid once by the body's producer. Each row reduces each spoke once in O(P) named incidences using three scalars and one result vector per spoke, avoiding repeated means and per-bone sum vectors. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each row's spoke means supply every comparison/support handover. One scoped exact FK reader and genuine same-body projector share equal FK prerequisites/static ROM metadata across real stations; every current joint is projected and changed shape/root dependencies compute normally, without a rounded time/shape key.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The table retains one record per original row. Fixed demand, scoped FK getter/projector and temporary row maps/means release at construction return/throw; neither workspace nor a temporal cache enters the root reader or rows.
    */
-  export function roll(
-    props: IAutoMovieMotionHumanGymnasticsWheel.IRollProps,
-  ): IAutoMovieMotionHumanGymnasticsWheel.IWheel {
+  export function roll(props: IAutoMovieMotionHumanGymnasticsWheel.IRollProps ): IAutoMovieMotionHumanGymnasticsWheel.IWheel {
     const count: number = Math.max(1, Math.ceil(props.until / props.step));
     const rows: IAutoMovieMotionHumanGymnasticsWheel.IRow[] = [];
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
+    const requested: Set<AutoMovieHumanoidBone> = new Set();
+    for (const spoke of props.spokes)
+      for (const bone of spoke.bones) requested.add(bone);
+    const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(props.body, requested);
     let place: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     for (let i: number = 0; i <= count; i++) {
       const angle: number = (props.until * i) / count;
+      const shaped: IAutoMovieMotionHumanPosture = props.shaped(angle);
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        StrikingBody.trunk(props.body, props.shaped(angle));
-      const middle = (
-        spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke,
-      ): IAutoMovieVector3 => {
-        let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+        readBones(resolveHumanPosture.seeded(props.body, { ...shaped, limbs: {} }, undefined, undefined, resolution, undefined, projection).pose, resolution());
+      const middles: IAutoMovieVector3[] = props.spokes.map((spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke): IAutoMovieVector3 => {
+        let x: number = 0;
+        let y: number = 0;
+        let z: number = 0;
         for (const bone of spoke.bones) {
           const p: IAutoMovieVector3 = bones.get(bone)!.worldPosition;
-          sum = { x: sum.x + p.x, y: sum.y + p.y, z: sum.z + p.z };
+          x += p.x;
+          y += p.y;
+          z += p.z;
         }
         const n: number = spoke.bones.length;
-        return { x: sum.x / n, y: sum.y / n, z: sum.z / n };
-      };
-      const reach = (index: number): number =>
-        middle(props.spokes[index]!).y - props.spokes[index]!.height;
+        return { x: x / n, y: y / n, z: z / n };
+      });
+      const reach: (index: number) => number = (index: number): number =>
+        middles[index]!.y - props.spokes[index]!.height;
       let bears: number = 0;
       for (let s: number = 1; s < props.spokes.length; s++)
         if (reach(s) < reach(bears) - LEVEL) bears = s;
-      const at: IAutoMovieVector3 = middle(props.spokes[bears]!);
-      const before: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined =
-        rows.at(-1);
+      const at: IAutoMovieVector3 = middles[bears]!;
+      const before: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined = rows.at(-1);
       if (before === undefined)
         place = { x: props.start.x + at.x, y: 0, z: props.start.z + at.z };
       else if (before.bears !== bears) {
         // Both spokes are down: the new one takes its place from where the
         // old one holds the root.
-        const old: IAutoMovieVector3 = middle(props.spokes[before.bears]!);
+        const old: IAutoMovieVector3 = middles[before.bears]!;
         place = {
           x: place.x - old.x + at.x,
           y: 0,
@@ -128,56 +138,58 @@ export namespace GymnasticsWheel {
    *
    * @param wheel The table.
    * @param spokes Its spokes.
-   * @param share The share of the action at which the turn reaches an angle.
+   * @param share Pure, total angle-to-time conversion for this fixed turn, returning its action share; the law's analytic or inverse minimum-jerk clock.
    * @returns The windows, in order of their start.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the joining and the order.
-   * @evidence contracts/development/implementation.md#principled-implementation A window runs from the first row its spoke bears to the last, each read at its angle's share.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the rows.
+   * @evidence contracts/development/implementation.md#principled-implementation A window runs from the first row its spoke bears to the last, each endpoint converted at its exact angle's share. The time conversion is pure and total over all rows, as the fixed-law clocks supplied by the callers are.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Scan every geometric row into ordered contiguous contact runs, then convert only emitted endpoints through the one time reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in rows.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The full R-row/P-spoke incidence scan remains; W emitted windows demand K distinct endpoint conversions, K at most 2W, instead of converting every overwritten interior endpoint. This avoids unused inverse-clock bisections without dropping a geometry station or contact, with speedup unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Object.is-equivalent endpoint angles share one exact conversion within this call because the supplied law clock is fixed, pure and total. A distinct negative-zero key retains the original clock's signed-zero result; no physical callback, shape evaluation or effectful work is skipped or memoized.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources O(W) run records, O(P) running-bone entries and O(K) converted angles release at return or throw; only fresh final windows escape, with their existing borrowed support records.
    */
   export function contacts(
     wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel,
     spokes: readonly IAutoMovieMotionHumanGymnasticsWheel.ISpoke[],
     share: (angle: number) => number,
   ): IAutoMovieMotionHumanContactWindow[] {
-    const windows: IAutoMovieMotionHumanContactWindow[] = [];
+    const runs: IContactRun[] = [];
 
     // Each joint's running window and the last row it bore at.
-    const open: Map<
-      string,
-      { window: IAutoMovieMotionHumanContactWindow; row: number }
-    > = new Map();
-    wheel.rows.forEach(
-      (row: IAutoMovieMotionHumanGymnasticsWheel.IRow, index: number): void => {
-        const at: number = share(row.angle);
-        const spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke =
-          spokes[row.bears]!;
-        for (const bone of spoke.bones) {
-          const running:
-            | { window: IAutoMovieMotionHumanContactWindow; row: number }
-            | undefined = open.get(bone);
-          if (running !== undefined && running.row === index - 1) {
-            running.window.to = at;
-            running.row = index;
-          } else {
-            const window: IAutoMovieMotionHumanContactWindow = {
-              part: bone,
-              kind: "plant",
-              from: at,
-              to: at,
-              support: spoke.support,
-            };
-            windows.push(window);
-            open.set(bone, { window, row: index });
-          }
+    const open: Map<string, IContactRun> = new Map();
+    wheel.rows.forEach((row: IAutoMovieMotionHumanGymnasticsWheel.IRow, index: number): void => {
+      const spoke: IAutoMovieMotionHumanGymnasticsWheel.ISpoke = spokes[row.bears]!;
+      for (const bone of spoke.bones) {
+        const running: IContactRun | undefined = open.get(bone);
+        if (running !== undefined && running.row === index - 1) {
+          running.to = row.angle;
+          running.row = index;
+        } else {
+          const run: IContactRun = {
+            part: bone,
+            from: row.angle,
+            to: row.angle,
+            row: index,
+            support: spoke.support,
+          };
+          runs.push(run);
+          open.set(bone, run);
         }
-      },
-    );
-    return windows;
+      }
+    });
+    const times: Map<number | "-0", number> = new Map();
+    const at: (angle: number) => number = (angle: number): number => {
+      const key: number | "-0" = Object.is(angle, -0) ? "-0" : angle;
+      const kept: number | undefined = times.get(key);
+      if (kept !== undefined) return kept;
+      const value: number = share(angle);
+      times.set(key, value);
+      return value;
+    };
+    return runs.map((run: IContactRun): IAutoMovieMotionHumanContactWindow => ({
+      part: run.part, kind: "plant", from: at(run.from), to: at(run.to), support: run.support,
+    }));
   }
 
   /**
@@ -203,7 +215,7 @@ export namespace GymnasticsWheel {
     let high: number = 1;
     for (let i: number = 0; i < 30; i++) {
       const middle: number = (low + high) / 2;
-      if (until * minimumJerk(middle).s < angle) low = middle;
+      if (until * minimumJerk.share(middle) < angle) low = middle;
       else high = middle;
     }
     return ((low + high) / 2) * duration;
@@ -231,4 +243,22 @@ export namespace GymnasticsWheel {
       forward: { x: 0, y: 0, z: 1 },
     }).y;
   }
+}
+
+/** One ordered contact run before its fixed geometric endpoint angles become times. */
+interface IContactRun {
+  /** The bone that bears throughout this contiguous run. */
+  part: IAutoMovieMotionHumanContactWindow["part"];
+
+  /** The first bearing row's angle, degrees. */
+  from: number;
+
+  /** The last bearing row's angle, degrees. */
+  to: number;
+
+  /** The last bearing row's index, used only to join contiguous rows. */
+  row: number;
+
+  /** The support retained from the run's first row, as in the original contact rule. */
+  support: IAutoMovieMotionHumanContactWindow.Support;
 }

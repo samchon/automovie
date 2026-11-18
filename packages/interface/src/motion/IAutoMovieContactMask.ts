@@ -22,9 +22,12 @@ export namespace IAutoMovieContactMask {
     /** End-effector bone judged against the ground. */
     effector: AutoMovieHumanoidBone;
 
-    /** Per-frame FK bone lookups. */
+    /** Per-frame actual FK position lookups; complete bone frames are also accepted. */
     resolved: ReadonlyArray<
-      ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+      ReadonlyMap<
+        AutoMovieHumanoidBone,
+        IAutoMovieResolvedBone | Pick<IAutoMovieResolvedBone, "worldPosition">
+      >
     >;
 
     /**

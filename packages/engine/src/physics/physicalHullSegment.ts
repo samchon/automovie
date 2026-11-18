@@ -44,16 +44,18 @@ export function physicalHullSegment(
 ): number {
   const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
+  const vertices: readonly IAutoMovieVector3[] = hull.vertices;
   const support = (d: IAutoMovieVector3): IVertex => {
     let vertex: number = 0;
     let most: number = -Infinity;
-    hull.vertices.forEach((p: IAutoMovieVector3, i: number): void => {
-      const along: number = dot(p, d);
+    for (let i: number = 0; i < vertices.length; ++i) {
+      const p: IAutoMovieVector3 = vertices[i]!;
+      const along: number = p.x * d.x + p.y * d.y + p.z * d.z;
       if (along > most) {
         most = along;
         vertex = i;
       }
-    });
+    }
     const end: number = dot(d, a) <= dot(d, b) ? 0 : 1;
     return { w: minus(hull.vertices[vertex]!, end === 0 ? a : b), vertex, end };
   };
@@ -302,22 +304,23 @@ const deepest = (
   b: IAutoMovieVector3,
 ): number | null => {
   const e: IAutoMovieVector3 = minus(b, a);
-  const level: number[] = hull.faces.map(
-    (f: IAutoMoviePhysicalHullFaces.IFace): number =>
-      dot(f.normal, a) - f.offset,
-  );
-  const slope: number[] = hull.faces.map(
-    (f: IAutoMoviePhysicalHullFaces.IFace): number => dot(f.normal, e),
-  );
+  const faces: readonly IAutoMoviePhysicalHullFaces.IFace[] = hull.faces;
+  const level: Float64Array = new Float64Array(faces.length);
+  const slope: Float64Array = new Float64Array(faces.length);
+  for (let f: number = 0; f < faces.length; f++) {
+    level[f] = dot(faces[f]!.normal, a) - faces[f]!.offset;
+    slope[f] = dot(faces[f]!.normal, e);
+  }
   // The plane greatest just after the start: the steepest among equals.
   let current: number = 0;
-  level.forEach((l: number, f: number): void => {
+  for (let f: number = 0; f < level.length; f++) {
+    const l: number = level[f]!;
     if (
       l > level[current]! ||
       (l === level[current]! && slope[f]! > slope[current]!)
     )
       current = f;
-  });
+  }
   let t: number = 0;
   while (slope[current]! < 0) {
     let meet: number = 1;

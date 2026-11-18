@@ -30,9 +30,7 @@ export function sitHands(
   const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
   for (const side of ["left", "right"] as const) {
     const s: number = progress(side);
-    for (const [bone, flat] of Object.entries(
-      HumanHand.shape(side, "flat"),
-    ) as [AutoMovieHumanoidBone, readonly [number, number, number]][]) {
+    for (const [bone, flat] of FLAT[side]) {
       const was: readonly [number, number, number] = posture.joints[bone] ?? [
         0, 0, 0,
       ];
@@ -45,3 +43,18 @@ export function sitHands(
   }
   return { ...posture, joints };
 }
+
+/** Flat-hand clinical endpoints depend only on side, not on body or time. */
+const FLAT: Record<
+  "left" | "right",
+  [AutoMovieHumanoidBone, readonly [number, number, number]][]
+> = {
+  left: Object.entries(HumanHand.shape("left", "flat")) as [
+    AutoMovieHumanoidBone,
+    readonly [number, number, number],
+  ][],
+  right: Object.entries(HumanHand.shape("right", "flat")) as [
+    AutoMovieHumanoidBone,
+    readonly [number, number, number],
+  ][],
+};

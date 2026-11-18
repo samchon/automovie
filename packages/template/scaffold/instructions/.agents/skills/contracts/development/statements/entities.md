@@ -5,11 +5,12 @@
 1. Every fact the entity realizes is named by its record path and anchor, with how it is realized.
 2. Show each cited fact in the entity or identify the consumer that carries it.
 3. Hand off facts the adopted form cannot show. Model them only on a commissioned detail option that can show them.
-4. A person's body parameters derive from the cast record's body facts, or on a short from the standing state for a person only one scene shows, and one prepared body serves both the polygon man and the motion planned for it.
+4. Derive body parameters from the cast record for a cast member or the scene's standing state for an incidental person. Without a cast layer, use the commissioned appearance record, the screenplay or the standalone asset's instructions, as applicable.
 5. Derive each law, action or archetype parameter from a cited fact and keep it within its owner's range.
-6. Each measurement names its study and section. Exception: a measurement an installed package supplies with its own source.
+6. Source each measurement from its [study](../../../story/planning/research.md#when-to-study) and section, or from an installed package that supplies the measurement and its source.
 7. Placements, weights, texture coordinates and measurements derive from the subject's generating definition, so changing the detail option moves none of them.
-8. Record missing decisions in settings or brief and [study](../../../story/planning/research.md#when-to-study) unsupported measurements first. Cite choices [delegated to a short's screenplay](../../../story/layers/brief.md#what-it-holds) by scene file and anchor. With [no narrative pass](../../../story/workflow/routes.md#who-writes-the-screenplay), record the choice in the screenplay. For a fixed screenplay, record only [implementation choices](../../../story/correction/repair.md#concretization) in the instructions.
+8. Keep new decisions with the record that owns them. Cite a [short's scene decisions](../../../story/layers/brief.md#what-it-holds) by file and anchor. A directly written screenplay owns its story choices. The instructions own [implementation choices for a fixed screenplay](../../../story/correction/repair.md#concretization) and decisions for a standalone asset.
+9. The same prepared body serves the polygon man and its motion.
 
 ## Object shape
 

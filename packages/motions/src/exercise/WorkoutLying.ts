@@ -73,7 +73,14 @@ export namespace WorkoutLying {
       base: "lying",
       anchor: "hips",
       pin: ["leftUpperLeg", "rightUpperLeg"],
-      supports: SEATED,
+      // The seat and the hooked feet bear throughout; the back lies on the
+      // floor at the bottom and leaves it as the trunk curls up.
+      supports: [
+        ...SEATED,
+        { part: "leftFoot", kind: "plant" },
+        { part: "rightFoot", kind: "plant" },
+        { part: "back", kind: "lie", at: ["down"] },
+      ],
       enter: 2.4,
       reps: 5,
       route: (
@@ -198,7 +205,7 @@ export namespace WorkoutLying {
       anchor: "hips",
       pin: ["leftFoot", "rightFoot"],
       supports: [
-        { part: "leftHand", kind: "plant" },
+        { part: "leftLowerArm", kind: "bear" },
         { part: "leftFoot", kind: "plant" },
       ],
       enter: 2.4,
@@ -283,7 +290,12 @@ export namespace WorkoutLying {
       pin: ["leftUpperLeg", "rightUpperLeg"],
       raise: (body: IAutoMovieMotionHumanBody): number =>
         body.measure.shank + body.measure.ankleHeight,
-      supports: SUPINE,
+      // On the back on the bench, the feet on the floor.
+      supports: [
+        ...SUPINE,
+        { part: "leftFoot", kind: "plant" },
+        { part: "rightFoot", kind: "plant" },
+      ],
       enter: 2.4,
       reps: 5,
       route: (

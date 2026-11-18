@@ -1,6 +1,8 @@
 import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionWeaponContact,
@@ -10,8 +12,13 @@ import type {
 } from "@automovie/interface";
 
 import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { KickForm } from "./KickForm";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { StrikingWeaponBones } from "./StrikingWeaponBones";
+import { StrikingWeaponGirth } from "./StrikingWeaponGirth";
+import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";
+import { StrikingWeaponSample } from "./StrikingWeaponSample";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
@@ -25,16 +32,37 @@ import { KickForm } from "./KickForm";
  * from one joint to the next is a tapered capsule between the two girths, so
  * a capsule never carries the widest girth of its segment to the joint where
  * the shown limb has narrowed.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States free-course ownership, capsule coverage, world-frame sampling and tapered girths.
+ * @evidence contracts/development/design.md#principled-representation Uses the existing plan weapons, canonical body and vector types; a chain's capsules share its per-second posing.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Provides the weapon's tail past its contact, actual fitted limb axes, capsule construction, girths, first-contact selection and synchronous complete-axis sampling to the performance consumers.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose/time answer is stored; chain metadata preserves the existing body/course owner and all physical fits remain with resolveHumanPosture.
  */
 export namespace StrikingWeapon {
+  /** How long past the planned contact a striking limb stays a weapon and its stop is looked for, seconds, every strike's limb alike (provisional: the through-travel's settling). */
+  export const TAIL: number = 0.1;
+
   /**
    * The striking action's free course: its posture at a film second before
    * any committed stop moves it.
    *
    * @param seconds Film seconds.
+   * @param channels Optional demands whose observed values equal the complete course; unsupported producers return the complete posture.
+   * @param resolution Optional exact FK supplier borrowed only for this synchronous sample, never retained by the course.
+   * @param projection Optional lazy genuine same-body ROM metadata supplier for this unchanged-table sample; never retained, and legacy courses may ignore it.
    * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the absolute film-time input and free-course posture output.
+   * @evidence contracts/development/design.md#principled-representation Reuses the authored posture representation with a numeric film-second argument.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One time reader supplies the actual limb course; optional channels select observation demand, while optional synchronous FK and lazy genuine ROM suppliers coordinate existing clamps/fits without storing a pose, time or result.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A callback leaves the actual action law responsible for its free course.
    */
-  export type Course = (seconds: number) => IAutoMovieMotionHumanPosture;
+  export type Course = (
+    seconds: number,
+    channels?: readonly AutoMovieMotionHumanChannel[],
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: () => ReturnType<typeof prepareHumanPostureProjection>,
+  ) => IAutoMovieMotionHumanPosture;
 
   /**
    * A striking arm at a film second, fitted on its action's free course:
@@ -47,14 +75,53 @@ export namespace StrikingWeapon {
    * @param side The arm's side.
    * @param seconds Film seconds.
    * @returns The four axis ends, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States side, film time, fitted course and axis order including the fist-radius offset.
+   * @evidence contracts/development/implementation.md#principled-implementation Resolves the actual authored posture before placing its canonical shoulder, elbow, wrist and fist socket.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure StrikingWeaponBones owns actual pose/FK and fixed genuine demand preparation; posed owns arm endpoint geometry.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every limb fit, ROM clamp and canonical socket; FK computes only the three requested arm outputs and their ancestors.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Pays the actual whole-posture fit plus admitted-joint scan and requested-arm FK ancestry, with four returned vectors.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the pose/FK and socket owners; operation-local grouped sampling shares this actual read only within one chain/time/context.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each call owns its pose/map until return or throw; only endpoint vectors escape, with no query history.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
     course: Course,
     side: "left" | "right",
     seconds: number,
+    near?: Parameters<typeof StrikingWeaponBones>[5],
+    kept?: Parameters<typeof StrikingWeaponBones>[6],
+    prepared?: Parameters<typeof StrikingWeaponBones>[7],
   ): IAutoMovieVector3[] {
-    return posed(body, fitted(body, course, seconds), side);
+    return posed(
+      body,
+      StrikingWeaponBones(body, course, seconds, ENDS[`${side}Arm`], undefined, near, kept, prepared),
+      side,
+    );
+  }
+
+  /**
+   * The endpoint reader of a striking limb, prepared once by the plan whose
+   * chain reads that limb at every second it scans, and passed to `arm` or
+   * `leg`.
+   *
+   * @param body The performer's body.
+   * @param limb The striking limb.
+   * @returns The reader of the limb's three joint frames on a posed body.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is prepared, by whom and where it is passed.
+   * @evidence contracts/development/implementation.md#principled-implementation The canonical fixed-demand FK reader of the limb's three joints (`poseBones.prepare`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One preparation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every authored joint is still admitted when the reader runs; only the output set is fixed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The canonical sorting and demand preparation of the limb's outputs, paid once per plan instead of once per scanned second.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan owns the reader for its one body and limb; no module store keeps it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader lives with the plan's chain closures and is released with them.
+   */
+  export function frames(
+    body: IAutoMovieMotionHumanBody,
+    limb: AutoMovieHumanLimb,
+  ): ReturnType<typeof poseBones.prepare> {
+    return poseBones.prepare(body, ENDS[limb]);
   }
 
   /**
@@ -65,6 +132,14 @@ export namespace StrikingWeapon {
    * @param bones Its posed bones, world frame.
    * @param side The arm's side.
    * @returns The four axis ends, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the already-fitted world map, side and fist-axis offset.
+   * @evidence contracts/development/implementation.md#principled-implementation Places the canonical knuckles then retreats one forearm radius along the wrist-to-knuckle axis, bounded at the wrist.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One socket placement and four ordered endpoints expose the capsule joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses body-measured radius and actual world frames; the original 1e-9 divisor guard is unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant map lookups and rigid/vector work, without a fit or full scan.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the caller's already-fitted bone frames; creates only the fist-axis end.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned array borrows existing bone positions and owns its new fist end.
    */
   export function posed(
     body: IAutoMovieMotionHumanBody,
@@ -102,17 +177,33 @@ export namespace StrikingWeapon {
    * @param side The leg's side.
    * @param seconds Film seconds.
    * @returns The four axis ends, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States side, film time and ordered hip/knee/ankle/ball outputs.
+   * @evidence contracts/development/implementation.md#principled-implementation Fits the actual course then reads canonical leg joints and places the ball socket with the fitted foot frame.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fit/FK followed by four endpoint reads.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every fit affecting the requested leg and all authored ROM admission; the posture owner's conservative dependency rule may omit only proven unrelated free goals, with full fallback for unsupported context.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Pays the requested leg's dependent physical fits, admitted-joint scan and FK ancestry plus constant socket work; unsupported coupling retains the original complete resolution cost.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The course, lowering, requested hip and final actual fit/FK borrow one synchronous exact reader; grouped sampling shares a chain only inside that exact read and retains no supplier.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The temporary pose and map end at return or throw; only four endpoint vectors escape.
    */
   export function leg(
     body: IAutoMovieMotionHumanBody,
     course: Course,
     side: "left" | "right",
     seconds: number,
+    near?: Parameters<typeof StrikingWeaponBones>[5],
+    kept?: Parameters<typeof StrikingWeaponBones>[6],
+    prepared?: Parameters<typeof StrikingWeaponBones>[7],
   ): IAutoMovieVector3[] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = fitted(
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = StrikingWeaponBones(
       body,
       course,
       seconds,
+      ENDS[`${side}Leg`],
+      LEG_CHANNELS[side],
+      near,
+      kept,
+      prepared,
     );
     const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
     return [
@@ -126,16 +217,15 @@ export namespace StrikingWeapon {
     ];
   }
 
-  /** The bones of a course's posture at a film second, its limbs fitted to their goals. */
-  function fitted(
-    body: IAutoMovieMotionHumanBody,
-    course: Course,
-    seconds: number,
-  ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return poseBones(body, resolveHumanPosture(body, course(seconds)));
-  }
 
-  /** A limb's capsules. */
+  /**
+   * A limb's capsules.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its order, seconds, world metres and tapered-radius convention.
+   * @evidence contracts/development/design.md#principled-representation A chain owns one fitted course and adjacent endpoints for its existing plan weapons.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only ids, limb, radii, live span and actual axis ends are required to construct and sample capsules.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses plan limb and vector types without storing a pose, approximation or contact outcome.
+   */
   export interface IChain {
     /** One id per capsule, from the trunk outward. */
     ids: readonly string[];
@@ -156,14 +246,28 @@ export namespace StrikingWeapon {
     /** Film second they stop being live. */
     to: number;
 
+    /** The reader of the record the ends are read on: kept ends hold while it returns the same object. */
+    on: StrikingWeaponRecord;
+
     /**
      * The capsules' axis ends at a film second, one more than the capsules:
      * capsule `i` runs from end `i` to end `i + 1`.
      *
      * @param seconds Film seconds.
      * @returns World metres.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines exact film seconds, ordered adjacent capsule endpoints and world-metre output.
+     * @evidence contracts/development/implementation.md#principled-implementation The supplied arm/leg producer fits the action's actual free-course posture and places canonical joints and fist/ball sockets; the chain retains its authored girths and live interval.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure A single fitted limb reader supplies all ordered ends; capsule construction records adjacent indices so read/sample can serve real contact consumers together.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every needed physical fit and authored ROM admission still executes; arms retain rival-clearance resolution, and unsupported selective leg dependencies fall back to full resolution.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each demanded chain evaluation pays its actual pose resolution and requested FK ancestry, then constant endpoint work; grouped W-weapon samples evaluate C distinct chains once each using O(W+C) temporary space.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Only constructor-proven same-chain endpoints share one exact synchronous second/context evaluation; no pose, other actor, changed stops or time answer survives between calls.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan's weapons retain their chain callback; sampled poses/maps end on return or throw and only actual endpoint vectors escape.
      */
     ends(seconds: number): readonly IAutoMovieVector3[];
+
+    /** The same ends with the limb's fits continued from a neighbouring second's and their seeds returned; with it the capsules read the course off its knot table (`StrikingWeaponTable`) instead of solving every second cold. */
+    read?: StrikingWeaponTable.IRead;
   }
 
   /**
@@ -172,78 +276,127 @@ export namespace StrikingWeapon {
    * @param chain The capsules.
    * @returns One weapon per id.
    * @throws {Error} When the radii do not match the ids.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the one-id/one-radius constraint and original plan-weapon result.
+   * @evidence contracts/development/implementation.md#principled-implementation Adjacent actual chain ends define each sphere-swept or tapered capsule with its authored radius and live interval.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered map constructs weapons and records their chain/index correspondence.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Radius-count mismatch throws; existing individual path/tail callbacks and physical dimensions remain unchanged.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) setup for W capsules; the course is posed once for each distinct second any of the plan's weapons is read at, so a contact scan of S seconds costs S posed chains whatever the number of capsules and passes that read them. Measured: test_human_motion_hit_punch 5.9 s to 4.0 s.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain's ends are its action's free course posed at a second, a pure function of the exact second for the plan's life (a stop freezes what is shown, not the free course), so the ends posed at a second serve every later read of that second by these weapons; equivalence is the exact second on this one chain.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posed ends are kept by the returned weapons' closures, one array of axis ends per distinct second read (the seconds the contact scans visit, a few hundred a strike), and are released with the plan's weapons; there is no bound short of that.
    */
   export function capsules(chain: IChain): IAutoMovieMotionWeaponPath[] {
     if (chain.radii.length !== chain.ids.length)
       throw new Error("A weapon chain has one radius per capsule");
-    return chain.ids.map(
+
+    // The chain's ends are its action's course posed at a second: a pure
+    // function of the second on one built geometry (`IChain.on`). The
+    // contact scans of a limb's capsules, the provisional hit track and the
+    // settled resolution all read the same seconds, so each second is posed
+    // once for a geometry and forgotten when the law builds another.
+    const posed: Map<number, readonly IAutoMovieVector3[]> = new Map();
+    let on: object | undefined;
+    //
+    // A chain that can continue a fit is read off its knot table, one table a
+    // geometry: the first knot cold, each later one from the knot before.
+    let free: IChain["ends"] | undefined;
+    const shared: IChain = {
+      ...chain,
+      ends: (seconds: number): readonly IAutoMovieVector3[] => {
+        const now: object = chain.on();
+        if (now !== on) {
+          posed.clear();
+          free = undefined;
+          on = now;
+        }
+        let ends: readonly IAutoMovieVector3[] | undefined = posed.get(seconds);
+        if (ends === undefined) {
+          free ??=
+            chain.read === undefined
+              ? chain.ends
+              : StrikingWeaponTable.of(chain.read, chain.from);
+          ends = free(seconds);
+          posed.set(seconds, ends);
+        }
+        return ends;
+      },
+    };
+    return shared.ids.map(
       (id: string, i: number): IAutoMovieMotionWeaponPath => ({
         id,
         limb: chain.limb,
-        ...radius(chain.radii[i]!),
-        from: chain.from,
-        to: chain.to,
-        path: (seconds: number): IAutoMovieVector3 => chain.ends(seconds)[i]!,
+        ...radius(shared.radii[i]!),
+        from: shared.from,
+        to: shared.to,
+        path: (seconds: number): IAutoMovieVector3 => shared.ends(seconds)[i]!,
         tail: (seconds: number): IAutoMovieVector3 =>
-          chain.ends(seconds)[i + 1]!,
+          shared.ends(seconds)[i + 1]!,
       }),
     );
   }
 
   /**
-   * A shown leg's girths at its joints, metres, as its tapered capsules'
-   * radii: the thigh narrows from its own radius at the hip to the shank's
-   * at the knee, where the shown thigh meets the shank, and the shank from
-   * there to the foot capsule's radius at the ankle (half the foot's depth,
-   * `KickForm.FOOT_RADIUS_SHARE`), which the foot keeps to the ball.
+   * A weapon's actual centre and optional other capsule end, world metres.
    *
-   * @param body The leg's body.
-   * @returns The thigh's, the shank's and the foot's radii.
+   * @evidence contracts/development/common.md#meaningful-documentation States endpoint order, world units and the sphere's absent end.
+   * @evidence contracts/development/design.md#principled-representation A readonly pair keeps the centre and other end from one synchronous course evaluation together.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Both complete-axis and grouped-weapon consumers need these two values only.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses interface vectors and the existing sphere/capsule distinction without duplicating a pose or body representation.
    */
-  export function legRadii(
-    body: IAutoMovieMotionHumanBody,
-  ): [readonly [number, number], readonly [number, number], number] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const foot: number = KickForm.FOOT_RADIUS_SHARE * m.ankleHeight;
-    return [[m.thighRadius, m.shankRadius], [m.shankRadius, foot], foot];
+  export type IAxis = readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined];
+
+  /**
+   * Read both ends of one weapon in one synchronous sample.
+   *
+   * @param weapon The original plan weapon, before consumer adapters wrap it.
+   * @param seconds The exact film second requested by the consumer.
+   * @returns Its centre and optional capsule end.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States original weapon identity, absolute time, world units and the optional sphere end.
+   * @evidence contracts/development/implementation.md#principled-implementation A chain capsule's two ends come from the chain posed once at that second (`capsules`); a weapon of another producer answers its own path and tail callbacks.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The weapon's own path and tail callbacks, which a chain's capsule answers from the chain's posing of the second.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every read asks the weapon at the exact second; the only reuse is the chain's posing of that second on one built geometry.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A chain capsule's second end costs a lookup of the chain's posing of the second; other weapons pay their callbacks.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain's per-second posing, keyed by the exact second on one built geometry and cleared when the law builds another (`capsules`).
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each read retains only its returned endpoint vectors, with no query history.
+   */
+  export function read(weapon: IAutoMovieMotionWeaponPath, seconds: number): IAxis {
+    return StrikingWeaponSample.read(weapon, seconds);
   }
 
   /**
-   * A shown arm's girths at its joints, metres, as its capsules' radii: the
-   * upper arm narrows from its own radius at the shoulder to the forearm's
-   * at the elbow, where the shown upper arm meets the forearm; the forearm
-   * and the fist keep the forearm's radius, which places the fist's axis end
-   * one radius behind the knuckles ({@link posed}).
+   * Read requested weapons together at one exact second and context state.
    *
-   * @param body The arm's body.
-   * @returns The upper arm's, the forearm's and the fist's radii.
+   * @param weapons Original plan weapons in the consumer's existing order.
+   * @param seconds The exact film second of this synchronous sample.
+   * @returns One axis per requested weapon, keyed by its original identity.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States original identities, ordered demand, exact time and operation scope.
+   * @evidence contracts/development/implementation.md#principled-implementation One `read` per weapon; capsules of one chain share that chain's posing of the second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered weapon traversal into one result map.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every weapon is read at the exact second; no other second, actor or stop state is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms W weapons perform at most C chain posings for their C distinct chains plus each other producer's path/tail; the returned axes use O(W) space. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain's per-second posing is the only sharing; one explicit invocation fixes time and caller state. The consumer releases the result before any state-changing stop application.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned axes contain only endpoint vectors and weapon keys, and no store enters any body or plan.
    */
-  export function armRadii(
-    body: IAutoMovieMotionHumanBody,
-  ): [readonly [number, number], number, number] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    return [
-      [m.upperArmRadius, m.forearmRadius],
-      m.forearmRadius,
-      m.forearmRadius,
-    ];
+  export function sample(
+    weapons: readonly IAutoMovieMotionWeaponPath[],
+    seconds: number,
+  ): ReadonlyMap<IAutoMovieMotionWeaponPath, IAxis> {
+    return StrikingWeaponSample.sample(weapons, seconds);
   }
 
-  /**
-   * A chain capsule's radius at a share of its axis from its first end.
-   *
-   * @param radii The capsule's radius or its two end radii.
-   * @param share 0 at the first end, 1 at the other.
-   * @returns Metres.
-   */
-  export function girth(
-    radii: number | readonly [number, number],
-    share: number,
-  ): number {
-    return typeof radii === "number"
-      ? radii
-      : radii[0] + (radii[1] - radii[0]) * share;
-  }
+
+  /** A shown leg's girths at its joints (`StrikingWeaponGirth.legRadii`). */
+  export const legRadii: typeof StrikingWeaponGirth.legRadii =
+    StrikingWeaponGirth.legRadii;
+
+  /** A shown arm's girths at its joints (`StrikingWeaponGirth.armRadii`). */
+  export const armRadii: typeof StrikingWeaponGirth.armRadii =
+    StrikingWeaponGirth.armRadii;
+
+  /** A chain capsule's radius at a share of its axis (`StrikingWeaponGirth.girth`). */
+  export const girth: typeof StrikingWeaponGirth.girth = StrikingWeaponGirth.girth;
 
   /** A capsule's radius members as a weapon carries them. */
   function radius(
@@ -259,6 +412,14 @@ export namespace StrikingWeapon {
    *
    * @param events The action's weapons' contacts.
    * @returns The earliest, or null when the weapons met nothing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States earliest-event selection and the empty result.
+   * @evidence contracts/development/implementation.md#principled-implementation A strict minimum retains the original first event on equal seconds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pass and one retained minimum.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves supplied event identities and tie order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(E) time and constant extra space for E events.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One ordered selection with no repeated work.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond return.
    */
   export function first(
     events: readonly IAutoMovieMotionWeaponContact[],
@@ -277,6 +438,14 @@ export namespace StrikingWeapon {
    * @param seconds Film seconds.
    * @returns Its two axis ends, world metres.
    * @throws {Error} When the chain has no such capsule.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the capsule id, exact film time, world endpoints and missing-id refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The id's chain index selects its two adjacent actual axis ends.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One id lookup, refusal and combined chain read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing ids throw and no nearest capsule is substituted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(W) id lookup plus one actual chain evaluation for W capsules.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads both adjacent ends from the same actual chain evaluation.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no query state.
    */
   export function axis(
     chain: Pick<IChain, "ids" | "ends">,
@@ -289,3 +458,17 @@ export namespace StrikingWeapon {
     return [ends[i]!, ends[i + 1]!];
   }
 }
+
+/** Fixed demanded limb outputs; FK still admits all joints and computes every required ancestor. */
+const ENDS: Readonly<Record<AutoMovieHumanLimb, ReadonlySet<AutoMovieHumanoidBone>>> = {
+  leftArm: new Set<AutoMovieHumanoidBone>(["leftUpperArm", "leftLowerArm", "leftHand"]),
+  rightArm: new Set<AutoMovieHumanoidBone>(["rightUpperArm", "rightLowerArm", "rightHand"]),
+  leftLeg: new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "leftLowerLeg", "leftFoot"]),
+  rightLeg: new Set<AutoMovieHumanoidBone>(["rightUpperLeg", "rightLowerLeg", "rightFoot"]),
+};
+
+/** A striking leg depends on its base and trunk, while arms are fitted later and cannot move it. */
+const LEG_CHANNELS: Readonly<Record<"left" | "right", readonly AutoMovieMotionHumanChannel[]>> = {
+  left: ["root", "trunk", "leftLeg"],
+  right: ["root", "trunk", "rightLeg"],
+};

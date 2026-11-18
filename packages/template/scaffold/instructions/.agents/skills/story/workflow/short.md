@@ -10,7 +10,7 @@ These steps apply when [the screenplay choice](routes.md#who-writes-the-screenpl
 
 ### 1. Questions
 
-Ask the user under [asking the user](../planning/requirements.md#asking-the-user), and run [discovery](../planning/discovery.md) once on the answers. A short runs none of discovery's later checkpoints.
+Run [discovery](../planning/discovery.md) once on the director's [recorded answers](../planning/requirements.md#asking-the-user). A short runs none of discovery's later checkpoints.
 
 ### 2. Brief
 
@@ -22,7 +22,7 @@ Write the complete [screenplay](../layers/screenplay.md). Repair brief decisions
 
 ### 4. Programmed film draft
 
-Skip this step for a screenplay-only commission. For a whole motion hint, direct 3D film or generated film, [program the performance](../../motion/performance.md#order) from the screenplay.
+Skip this step for a screenplay-only commission. For a whole motion hint, direct 3D film or generated film, [program the performance](../../motion/performance.md) from the screenplay.
 
 Judge the film on captured stills, and repair each cause where it lies, in the screenplay, the brief or the code, until the film reads as intended.
 
@@ -30,7 +30,7 @@ Judge the film on captured stills, and repair each cause where it lies, in the s
 
 Read the full brief and screenplay against the selected contracts. Repair their defects and dependent code and film by cause. Skip independent classification on this route.
 
-Then enable the brief and screenplay construction stages, and the development stages the code needs, through [evidence configuration](../../evidence/configuration.md). The [evidence answerer](../answers.md) writes the answers, and the author fills the gaps it returns.
+The [Evidence answerer](../answers.md) enables the brief and screenplay construction stages and any required development stages under [Evidence configuration](../../evidence/configuration.md). The answerer writes the answers and returns gaps to the writer for repair.
 
 ### 6. Review
 

@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieBone,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
@@ -12,8 +13,10 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { swingTwist } from "../math/swingTwist";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
+import { getConstraint } from "../rom/getConstraint";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { toRigAngle } from "../rom/toRigAngle";
+import { prepareDistalTwistEffector } from "./prepareDistalTwistEffector";
+import { prepareJointRotationProjection } from "./prepareJointRotationProjection";
 
 /**
  * The twist a distally twisting mid bone (a forearm, which pronates and
@@ -39,29 +42,57 @@ import { toRigAngle } from "../rom/toRigAngle";
  * start: the current twist plus the swing-twist share (`swingTwist`) of the
  * change from the effector's current rotation to the requested one. So only
  * the residual beyond the current pose moves, a request near the current
- * hand rotation moves the forearm little, and a rotation the two joints can
- * reach together is reached exactly.
+ * hand rotation prefers a nearby forearm twist. The bounded candidate law is
+ * retained; it does not globally minimize over both joints. Every candidate
+ * is ranked through the same effector projection that final orientation uses.
  *
  * @param props The mid joint's and the effector's current clinical angles;
  *   `above`, the world rotation the mid joint's articulation composes after
  *   (its parent's world rotation and its rest); the mid and effector bases
- *   (normalized) and rest frames; the effector's rest rotation; the requested
+ *   (normalized) and rest frames; the fixed lower-to-effector rotation,
+ *   including unchanged intermediate bones and the effector rest; the requested
  *   effector world rotation; the skeleton whose ranges clamp; and, from a
  *   caller that solves many candidates, the two joints' clamps resolved once
- *   on that skeleton (`clampJointToSkeleton.of`).
+ *   on that skeleton (`clampJointToSkeleton.of`) and optional shared effector
+ *   projection prepared for those same axes, frame, domain and clamp. An
+ *   optional effectorRestInverse must be Quaternion.inverse of that exact
+ *   fixed rest frame; otherwise this solve computes it once for all trials.
+ *   Optional articulation readers return this joint's raw composition, its
+ *   rig-zero-twist composition and the actual held effector world-relative
+ *   composition. They run at the original first-use sites; callers may share
+ *   only unchanged joint/basis/frame inputs, never target-dependent answers.
+ *   An optional composeLower belongs to this request on that same admitted
+ *   lower basis/frame; it shares pure axis factors with the caller's immediate
+ *   lower recomposition while still validating each joint and returning its
+ *   fresh outer product; a private matching inner pair may also be shared.
+ *   Optional preparedEffector borrows the fixed effector-frame readings from
+ *   prepare under exactly the same rest, admitted basis and clinical frame.
+ *   readHeldInverse may share Quaternion.inverse of the actual held raw
+ *   quaternion. Its raw reader and angle/frame admission still run first,
+ *   and the inverse callback runs only at the original inverse-use site.
+ *   The target, preceding frame and admitted inputs stay unchanged throughout
+ *   this synchronous solve, including while its pure readers/clamps run.
  * @returns The mid joint with its twist solved, clamped to the rig's range.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the effector cannot take, the equation its twist makes, how it is solved, which solution is taken and the start that breaks a tie.
- * @evidence contracts/development/implementation.md#principled-implementation The effector's twist is read exactly as its decomposition reads it, so the solution leaves it nothing to drop; a vector turned about an axis is Rodrigues' formula, linear in the cosine and sine of the turn, so the condition is a first-order trigonometric equation with a closed-form solution; every solution is weighed by the rotation the clamped effector then shows.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One equation, its two solutions and one choice among a handful of candidates.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every twist is clamped to the rig's range, so none past pronation or supination is returned; with no solution the range's nearer end or the start is taken by the same measure.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: a few compositions and at most five decompositions, cheap enough for every swivel the limb fit ranks; each distinct clamped twist is read once (the start not again, a candidate clamped onto a twist already read not at all), and a start the effector shows within `TIE` ends the search, since nothing can beat or tie it nearer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Composes and decomposes on the caller's normalized bases and reads the rig's own angle maps (`toRigAngle`, `toClinicalAngle`).
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation States the degree-valued lower/effector articulations, model/local rotation frames, bounded roots/range/start law and tie. withProjection's child documentation defines the selected lower joint plus copied actual effector joint/raw quaternion/local demand, exact-demand reuse condition and caller ownership; prepare documents lazy unchanged fixed-frame readings.
+ * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Both ordinary and withProjection entries use one private bounded search; only paired mode retains the actual winning projection. prepare delegates fixed axis/clinical-zero readers to prepareDistalTwistEffector, leaving one equation/root/ranking owner here.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every lower twist is clamped to actual ROM, and every miss is read from actual projected articulation. The existing angular TIE policy chooses nearer starts among small differences; it is not a roundoff proof or a claim that the residual is zero. The chosen twist always owns its stored score.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Setup is O(B) without shared clamps/projector. At most five distinct clamped twists query the projector; eligible queries score at most nineteen unique articulations and generic queries keep their bounded refinement. Paired mode additionally copies one fixed-size actual reading per query, retaining only current/selected readings, so matching immediate consumers avoid another complete query. Original TIE stopping and all candidate counts remain, with unmeasured speedup.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching source bases/clamps/inverses/projector and fixed effector readings share unchanged dependencies. Raw/untwisted/held readers keep first-use order; component-identical rotations share needed as K after both reads. Only clampJointToSkeleton's genuine nonretaining factory callables may memoize Object.is-identical twists, preserving signed zero. Unknown/wrapped lower callbacks retain a fresh input and actual callback on every original at invocation, so a reused mutable callback output cannot stand for an older reading. Paired projection preserves actual demand/raw articulation and angleAfterNormalize keeps both normalization/Hamilton/atan2 boundaries. No answer crosses solves.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources With a genuine lower factory, one solve retains at most eight requested-twist/clamped-joint rows; foreign callbacks allocate no memo rows. Five candidate twists, harmonic data and current/selected paired readings remain bounded. Everything releases on return/throw except the selected caller-owned result; source preparation remains its caller's, without growing history or handles.
  */
 export function solveDistalTwist(
-  props: IAutoMovieSolveDistalTwist.IProps,
+  props: solveDistalTwist.IProps,
 ): IAutoMovieJointPose {
+  return solve(props, false).joint;
+}
+
+/** Solve once, optionally retaining only the selected candidate's actual projection. */
+function solve(
+  props: Parameters<typeof solveDistalTwist>[0],
+  paired: boolean,
+): ISolution {
   // Each joint's clamp, resolved once for the call or handed in by a sweep
   // that resolved it once for all its candidates.
   const clampLower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
@@ -70,61 +101,106 @@ export function solveDistalTwist(
   const clampEffector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
     props.clamps?.effector ??
     clampJointToSkeleton.of(props.effector.bone, props.skeleton);
-  const at = (twist: number): IAutoMovieJointPose =>
-    clampLower({ ...props.joint, twist });
-  const effectorOf = (joint: IAutoMovieJointPose): IAutoMovieQuaternion =>
-    Quaternion.normalize(
-      Quaternion.multiply(
-        Quaternion.inverse(props.effectorRest),
-        Quaternion.multiply(
+  const suppliedProject: typeof props.projectEffector = props.projectEffector;
+  let project: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose;
+  let projectWithQuaternion: typeof props.projectEffectorWithQuaternion;
+  if (suppliedProject === undefined) {
+    const preparedProject: prepareJointRotationProjection.IProjector = prepareJointRotationProjection({
+      domain: {
+        bone: props.effector.bone,
+        constraint: getConstraint(
+          props.effector.bone,
+          props.skeleton.bones.find(
+            (bone: IAutoMovieBone): boolean =>
+              bone.bone === props.effector.bone,
+          )?.constraint ?? null,
+        ),
+      },
+      basis: props.effectorBasis,
+      frame: props.effectorFrame,
+      clamp: clampEffector,
+    });
+    project = preparedProject;
+    projectWithQuaternion = props.projectEffectorWithQuaternion ?? preparedProject.withQuaternion;
+  } else {
+    project = suppliedProject;
+    projectWithQuaternion = props.projectEffectorWithQuaternion;
+  }
+  const readings: { twist: number; joint: IAutoMovieJointPose }[] | undefined =
+    clampJointToSkeleton.borrow(clampLower) === undefined ? undefined : [];
+  const at: (twist: number) => IAutoMovieJointPose = (
+    twist: number,
+  ): IAutoMovieJointPose => {
+    if (readings !== undefined)
+      for (const reading of readings)
+        if (Object.is(reading.twist, twist)) return reading.joint;
+    const joint: IAutoMovieJointPose = clampLower({ ...props.joint, twist });
+    readings?.push({ twist, joint });
+    return joint;
+  };
+  const effectorRestInverse: IAutoMovieQuaternion =
+    props.effectorRestInverse ?? Quaternion.inverse(props.effectorRest);
+  let composeLower: ReturnType<typeof jointToQuaternionOnBasis.prepare> | undefined =
+    props.composeLower;
+
+  /** Keep exact axis factors only for this solve's changing lower joint. */
+  const lowerRotation: ReturnType<typeof jointToQuaternionOnBasis.prepare> = (
+    joint: Parameters<ReturnType<typeof jointToQuaternionOnBasis.prepare>>[0],
+  ): IAutoMovieQuaternion => {
+    composeLower ??= jointToQuaternionOnBasis.prepare(props.lowerBasis, props.lowerFrame);
+    return composeLower(joint);
+  };
+  const effectorOf: (joint: IAutoMovieJointPose) => IAutoMovieQuaternion = (
+    joint: IAutoMovieJointPose,
+  ): IAutoMovieQuaternion => {
+    // The same three coordinates on this fixed basis/frame compose the
+    // original articulation, so its already completed needed rotation is exact.
+    const unchanged: boolean = Object.is(joint.flexion, props.joint.flexion) &&
+      Object.is(joint.abduction, props.joint.abduction) &&
+      Object.is(joint.twist, props.joint.twist);
+    const carried: IAutoMovieQuaternion = unchanged ? needed : Quaternion.multiply(
           Quaternion.inverse(
             Quaternion.multiply(
               props.above,
-              jointToQuaternionOnBasis(
-                joint,
-                props.lowerBasis,
-                props.lowerFrame,
-              ),
+              lowerRotation(joint),
             ),
           ),
           props.rotation,
-        ),
-      ),
     );
+    return Quaternion.normalize(Quaternion.multiply(effectorRestInverse, carried));
+  };
 
   // How far the effector, clamped to its range, shows its asked rotation.
-  const missed = (twist: number): number => {
+  let latestProjection: solveDistalTwist.IProjection | undefined;
+  const missed: (twist: number) => number = (twist: number): number => {
     const local: IAutoMovieQuaternion = effectorOf(at(twist));
-    const a = decomposeJointRotationOnBasis(
+    let effector: IAutoMovieJointPose;
+    let shown: IAutoMovieQuaternion;
+    if (projectWithQuaternion === undefined) {
+      effector = project(local);
+      shown = jointToQuaternionOnBasis(effector, props.effectorBasis, props.effectorFrame);
+    } else {
+      const projected: prepareJointRotationProjection.IProjection = projectWithQuaternion(local);
+      effector = projected.joint;
+      shown = projected.quaternion;
+    }
+    if (paired) latestProjection = {
       local,
-      props.effectorBasis,
-      props.effectorFrame,
-    );
-    const shown: IAutoMovieQuaternion = jointToQuaternionOnBasis(
-      clampEffector({
-        bone: props.effector.bone,
-        flexion: a.flexion,
-        abduction: a.abduction,
-        twist: a.twist,
-      }),
-      props.effectorBasis,
-      props.effectorFrame,
-    );
-    return Quaternion.angle(Quaternion.normalize(shown), local);
+      joint: { bone: effector.bone, flexion: effector.flexion,
+        abduction: effector.abduction, twist: effector.twist },
+      quaternion: { x: shown.x, y: shown.y, z: shown.z, w: shown.w },
+    };
+    return Quaternion.angleAfterNormalize(shown, local);
   };
 
   // The start: the current twist plus the twist, about the mid bone's axis,
   // of the change from the effector's current rotation to the requested one.
-  const articulated: IAutoMovieQuaternion = jointToQuaternionOnBasis(
-    props.joint,
-    props.lowerBasis,
-    props.lowerFrame,
-  );
+  const articulated: IAutoMovieQuaternion = props.readArticulated?.() ?? lowerRotation(props.joint);
   const needed: IAutoMovieQuaternion = Quaternion.multiply(
     Quaternion.inverse(Quaternion.multiply(props.above, articulated)),
     props.rotation,
   );
-  const held: IAutoMovieQuaternion = Quaternion.multiply(
+  const held: IAutoMovieQuaternion = props.readHeldRotation?.() ?? Quaternion.multiply(
     props.effectorRest,
     jointToQuaternionOnBasis(
       props.effector,
@@ -132,8 +208,10 @@ export function solveDistalTwist(
       props.effectorFrame,
     ),
   );
-  const { twist } = swingTwist(
-    Quaternion.normalize(Quaternion.multiply(needed, Quaternion.inverse(held))),
+  const { twist }: ReturnType<typeof swingTwist> = swingTwist(
+    Quaternion.normalize(Quaternion.multiply(
+      needed, props.readHeldInverse?.(held) ?? Quaternion.inverse(held),
+    )),
     props.lowerBasis.twist,
   );
   const start: number =
@@ -146,49 +224,65 @@ export function solveDistalTwist(
     ).twist ?? 0;
 
   // K: the request seen from the mid bone's articulation before its twist.
-  const untwisted: IAutoMovieQuaternion = jointToQuaternionOnBasis(
+  const untwisted: IAutoMovieQuaternion = props.readUntwisted?.() ?? lowerRotation(
     { ...props.joint, twist: toClinicalAngle(0, props.lowerFrame?.twist) },
-    props.lowerBasis,
-    props.lowerFrame,
   );
-  const K: IAutoMovieQuaternion = Quaternion.multiply(
+  // Both raw readers still ran. Equal components on this query's unchanged
+  // above/request give the same original multiply-inverse-multiply result.
+  const sameRawRotation: boolean = Object.is(articulated.x, untwisted.x) &&
+    Object.is(articulated.y, untwisted.y) && Object.is(articulated.z, untwisted.z) &&
+    Object.is(articulated.w, untwisted.w);
+  const K: IAutoMovieQuaternion = sameRawRotation ? needed : Quaternion.multiply(
     Quaternion.inverse(Quaternion.multiply(props.above, untwisted)),
     props.rotation,
   );
   const u: IAutoMovieVector3 = props.lowerBasis.twist;
   const e: IAutoMovieJointAxes = props.effectorBasis;
-  const flexion: IAutoMovieVector3 = Quaternion.rotateVector(
-    props.effectorRest,
-    e.flexion,
-  );
-  const abduction: IAutoMovieVector3 = Quaternion.rotateVector(
-    props.effectorRest,
-    e.abduction,
-  );
+  const fixed: solveDistalTwist.IPrepared = props.preparedEffector ?? solveDistalTwist.prepare({
+    effectorRest: props.effectorRest,
+    effectorBasis: e,
+    effectorFrame: props.effectorFrame,
+  });
+  const abduction: IAutoMovieVector3 = fixed.abduction();
+  let previousNormal: IAutoMovieVector3 | undefined;
+  let normalProjection: number | undefined;
+  let previousVector: IAutoMovieVector3 | undefined;
+  let vectorProjection: number | undefined;
+  let vectorCross: IAutoMovieVector3 | undefined;
   // n . T(u, -r) x = alpha + beta cos r + gamma sin r (Rodrigues).
-  const harmonic = (
+  const harmonic: (
+    n: IAutoMovieVector3,
+    x: IAutoMovieVector3,
+  ) => [number, number, number] = (
     n: IAutoMovieVector3,
     x: IAutoMovieVector3,
   ): [number, number, number] => {
-    const along: number = Vector3.dot(n, u) * Vector3.dot(u, x);
+    if (previousNormal !== n || normalProjection === undefined) {
+      previousNormal = n;
+      normalProjection = Vector3.dot(n, u);
+    }
+    if (previousVector !== x) {
+      previousVector = x;
+      vectorProjection = undefined;
+      vectorCross = undefined;
+    }
+    const along: number = normalProjection * (vectorProjection ??= Vector3.dot(u, x));
+    const across: number = Vector3.dot(n, x) - along;
+    vectorCross ??= Vector3.cross(u, x);
     return [
       along,
-      Vector3.dot(n, x) - along,
-      -Vector3.dot(n, Vector3.cross(u, x)),
+      across,
+      -Vector3.dot(n, vectorCross),
     ];
   };
   const x: IAutoMovieVector3 = Quaternion.rotateVector(K, e.flexion);
-  const y: IAutoMovieVector3 = Quaternion.rotateVector(K, e.abduction);
   const [P, Q]: [number, number, number][] =
     e.twistPlacement === "distal"
-      ? [harmonic(abduction, x), harmonic(abduction, y)]
-      : [harmonic(abduction, x), harmonic(flexion, x)];
-  const handed: number =
-    Vector3.dot(e.twist, Vector3.cross(e.flexion, e.abduction)) >= 0 ? 1 : -1;
-  const phi: number =
-    (handed * (toRigAngle(0, props.effectorFrame?.twist) ?? 0) * Math.PI) / 180;
+      ? [harmonic(abduction, x), harmonic(abduction, Quaternion.rotateVector(K, e.abduction))]
+      : [harmonic(abduction, x), harmonic(fixed.flexion(), x)];
+  const { cosine, sine }: solveDistalTwist.IZero = fixed.zero();
   const [A, B, C]: number[] = [0, 1, 2].map(
-    (i: number): number => P[i]! * Math.cos(phi) - Q[i]! * Math.sin(phi),
+    (i: number): number => P[i]! * cosine - Q[i]! * sine,
   );
 
   // The forearm's range, and the clinical twist of each solution inside it.
@@ -212,10 +306,12 @@ export function solveDistalTwist(
   // nearest to the start.
   let chosen: number = start;
   let least: number = missed(start);
+  let chosenProjection: solveDistalTwist.IProjection | undefined = latestProjection;
 
   // A start the effector shows within TIE can be neither beaten, since no
   // miss is below zero, nor tied by a twist nearer to itself.
-  if (least <= TIE && at(start).twist === start) return at(start);
+  if (least <= TIE && at(start).twist === start)
+    return { joint: at(start), projection: chosenProjection };
 
   // A candidate that clamps to a twist already read is the same pose: the
   // same miss, never strictly nearer, so it is not read again.
@@ -232,11 +328,146 @@ export function solveDistalTwist(
           Math.abs((at(chosen).twist ?? 0) - start))
     ) {
       chosen = t;
-      least = Math.min(least, m);
+      least = m;
+      chosenProjection = latestProjection;
     }
   }
-  return at(chosen);
+  return { joint: at(chosen), projection: chosenProjection };
 }
 
-/** The difference, radians, under which two misses are equal: a few hundred times the rounding of the quaternion products a miss is read through, so a solution does not displace an exact start over rounding. */
+/** Existing distal-candidate angular tie policy, radians; this is not a numerical-roundoff bound or a reached-target threshold. */
 const TIE: number = 1e-6;
+
+/** Internal joint-only and paired modes share one candidate search. */
+interface ISolution {
+  /** Selected actual clamped mid articulation. */
+  joint: IAutoMovieJointPose;
+
+  /** Retained only in paired mode, after at least the start was scored. */
+  projection: solveDistalTwist.IProjection | undefined;
+}
+
+/**
+ * Fixed-source effector readers and one solve's paired candidate/result records.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged lower-to-effector rest/basis/clinical-frame readers and paired results: normalized local demand, copied effector clinical joint, actual raw quaternion and selected clamped lower joint. Child/member prose gives frames, ownership, first-use admission and operation lifetimes.
+ * @evidence contracts/development/design.md#principled-representation Fixed rotated axes/clinical-zero sine-cosine are source-only, while each paired projection belongs to one actually scored target candidate. IResult pairs its actual lower winner with that candidate's required projection; final consumers still recompute their actual demand before reuse.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface IPrepared supplies two axis readers and one zero reader. IProjection/IResult serve actual hinged error and immediate orientation consumers that need the completed effector joint/raw composition plus exact local-equivalence proof; no target-history controls are exposed. IProps extends the interface demand with the operation's optional prepared readers and projectors, whose engine types keep that extension out of the dependency-free interface.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Fixed preparation admits nothing eagerly and stores no target. Paired fields are mandatory because every paired solve scores its start; no optional invalid winner, approximate match, achieved-point substitution or alternate ROM representation is encoded.
+ */
+export namespace solveDistalTwist {
+  /**
+   * A candidate's exact local demand and raw displayed effector articulation.
+   *
+   * The local demand and selected articulation belong to the same actual
+   * query under fixed basis/rest/domain/clamp dependencies. The joint is
+   * copied in clinical degrees and the quaternion remains raw, preserving
+   * final display's normalization boundary. No score or approximate key
+   * replaces the original demand.
+   */
+  export interface IProjection {
+    /** Normalized local target used by that candidate's actual projector query. */
+    local: IAutoMovieQuaternion;
+
+    /** Actual selected effector articulation in clinical degrees, copied for this result. */
+    joint: IAutoMovieJointPose;
+
+    /** Its selected raw articulation, before the score's normalization. */
+    quaternion: IAutoMovieQuaternion;
+  }
+
+  /**
+   * The selected lower joint paired with its completed effector projection.
+   *
+   * This joint is the lower articulation; projection.joint is the effector.
+   * Both describe the same bounded-search winner. A paired solve always
+   * scores its start, so projection is required, and consumers recompute
+   * their actual demand from the selected lower clamp before reuse.
+   */
+  export interface IResult {
+    /** Selected clamped mid joint, with the ordinary entry's ownership. */
+    joint: IAutoMovieJointPose;
+
+    /** Actual selected-candidate projection, retained from the bounded search. */
+    projection: IProjection;
+  }
+
+  /**
+   * Run the identical bounded candidate law and also return the winning
+   * candidate's completed local demand and raw effector projection. A
+   * consumer may reuse that projection only for a component-identical
+   * local demand under the same unchanged projector dependencies. The final
+   * lower joint is the actual clamp and the consumer recomputes its demand;
+   * an earlier score never substitutes a different requested rotation.
+   *
+   * One selected fixed-size reading survives the solve; at most the current
+   * and selected readings are retained during it, with no target history.
+   * Candidate count, score/tie order and every numerical projection in the
+   * solve remain unchanged. Callers release the fresh result after composing
+   * the actual displayed world rotation.
+   *
+   * Ordinary and paired entries share one search, candidate order and TIE.
+   * Paired mode only retains the winning query's actual effector joint/raw
+   * quaternion and local target, adding fixed-size current/selected readings.
+   * Exact matching avoids another projection; a different demand still runs
+   * its own query. These readings never cross targets or operations and the
+   * selected caller-owned result retains no solver, history or handles.
+   */
+  export function withProjection(
+    props: Parameters<typeof solveDistalTwist>[0],
+  ): IResult {
+    const result: ISolution = solve(props, true);
+    return { joint: result.joint, projection: result.projection! };
+  }
+
+  /** The interface contract (`IAutoMovieSolveDistalTwist.IZero`). */
+  export type IZero = IAutoMovieSolveDistalTwist.IZero;
+
+  /** The interface contract (`IAutoMovieSolveDistalTwist.IPrepared`). */
+  export type IPrepared = IAutoMovieSolveDistalTwist.IPrepared;
+
+  /**
+   * Borrow one operation's unchanged effector rest, admitted basis and clinical
+   * frame. Construction admits no angle or unused frame. Each reader computes
+   * its original expression once, where a solve first needs it, then lends the
+   * derived record unchanged. Release the object with this operation; a new
+   * rest, basis or clinical frame requires a new preparation.
+   */
+  export function prepare(
+    props: Pick<Parameters<typeof solveDistalTwist>[0], "effectorRest" | "effectorBasis" | "effectorFrame">,
+  ): IPrepared {
+    return prepareDistalTwistEffector(props);
+  }
+
+  /** The solve's props: the interface demand with optional readers and projectors an operation prepared once for this same chain. */
+  export interface IProps extends IAutoMovieSolveDistalTwist.IProps {
+    /** The inverse of `effectorRest`, already computed; absent, the solve inverts it. */
+    effectorRestInverse?: IAutoMovieQuaternion;
+
+    /** The effector's clinical projection of a raw rotation; absent, the solve prepares it from the effector's basis and frame. */
+    projectEffector?: (rotation: IAutoMovieQuaternion) => IAutoMovieJointPose;
+
+    /** The same projection paired with its raw quaternion; absent, the prepared projector's own paired reader is used. */
+    projectEffectorWithQuaternion?: (
+      rotation: IAutoMovieQuaternion,
+    ) => prepareJointRotationProjection.IProjection;
+
+    /** The mid bone's articulated rotation at `joint`; absent, it is composed from the joint. */
+    readArticulated?: () => IAutoMovieQuaternion;
+
+    /** The mid bone's rotation with its twist removed; absent, it is composed from the joint. */
+    readUntwisted?: () => IAutoMovieQuaternion;
+
+    /** The effector's held world rotation; absent, it is composed from `above` and the mid bone. */
+    readHeldRotation?: () => IAutoMovieQuaternion;
+
+    /** The inverse of a held rotation; absent, the solve inverts it. */
+    readHeldInverse?: (heldRaw: IAutoMovieQuaternion) => IAutoMovieQuaternion;
+
+    /** The mid bone's prepared clinical composition on its basis; absent, the solve composes it directly. */
+    composeLower?: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
+
+    /** The effector's fixed-source readers (`prepare`); absent, the solve prepares them. */
+    preparedEffector?: IPrepared;
+  }
+}

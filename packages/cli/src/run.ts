@@ -1,7 +1,9 @@
 import {
   type IAutoMovieScaffoldProps,
   createAutoMovieScaffold,
+  renderAutoMovieWorkspace,
 } from "@automovie/template";
+import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -77,7 +79,7 @@ Options:
  *
  * - `help` and `version` write to stdout; the version is read from this package's `package.json`.
  * - `create` writes a single production, or with `--workspace` a workspace root, into the directory resolved against the working directory. The name is the typed `--name`, else derived from the target's basename; for the working directory itself the terminal is asked, offering `automovie-examples`, which is used without asking when no terminal is attached.
- * - `add` requires `pnpm-workspace.yaml` in the working directory, which it takes as the workspace root without searching elsewhere, and writes a workspace production into `movies/<family>/<directory>`, named by `--name`, else by the npm-safe name derived from the directory segment as `create` derives one.
+ * - `add` fills missing scaffold catalog entries in the working directory's `pnpm-workspace.yaml` and writes a production into `movies/<family>/<directory>`. Its name is `--name` or the npm-safe name derived from the directory segment.
  * - `capture` runs `captureAutoMovie` in the working directory as the production, resolving to its status: 1 when a cell was not drawn.
  * - `inspect` runs `inspectAutoMovie` in the working directory, serving the inspector page until the process is interrupted.
  * - `render` runs `renderAutoMovie` in the working directory as the production, resolving to 0 once the video is written.
@@ -147,6 +149,7 @@ export async function run(argv: readonly string[]): Promise<number> {
           name: command.name ?? deriveAutoMovieProjectName(command.directory),
         },
         command.force,
+        path.join(root, "pnpm-workspace.yaml"),
       );
       return 0;
     }
@@ -179,6 +182,7 @@ function write(
   directory: string,
   props: IAutoMovieScaffoldProps,
   force: boolean,
+  workspaceFile?: string,
 ): void {
   const files: Record<string, string> = createAutoMovieScaffold(props);
   if (
@@ -189,6 +193,7 @@ function write(
     throw new Error(
       `${directory} is not empty; pass --force to write into it, replacing same-path files.`,
     );
+  if (workspaceFile !== undefined) completeCatalogs(workspaceFile);
   for (const [relative, content] of Object.entries(files)) {
     const file: string = path.join(directory, relative);
     fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -201,6 +206,39 @@ function write(
         .join("\n") +
       renderAutoMovieScaffoldNextSteps(directory, props.kind),
   );
+}
+
+/** Replace an incomplete catalog atomically. A concurrent updater or editor leaves this invocation free to retry. */
+function completeCatalogs(file: string): void {
+  const target: string = fs.realpathSync(file);
+  const source: string = fs.readFileSync(target, "utf8");
+  const next: string = renderAutoMovieWorkspace({
+    directory: path.dirname(file),
+    source,
+  });
+  if (next === source) return;
+  const pending: string = `${target}.${randomUUID()}.tmp`;
+  const descriptor: number = fs.openSync(
+    pending,
+    "wx",
+    fs.statSync(target).mode,
+  );
+  let renamed: boolean = false;
+  try {
+    try {
+      fs.writeFileSync(descriptor, next);
+    } finally {
+      fs.closeSync(descriptor);
+    }
+    const current: string = fs.readFileSync(target, "utf8");
+    if (current === next) return;
+    if (current !== source)
+      throw new Error(`${file} changed during add. Run the command again.`);
+    fs.renameSync(pending, target);
+    renamed = true;
+  } finally {
+    if (!renamed) fs.unlinkSync(pending);
+  }
 }
 
 /**

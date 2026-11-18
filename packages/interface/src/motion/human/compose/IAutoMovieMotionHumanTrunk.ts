@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionClock } from "./IAutoMovieMotionClock";
 
@@ -26,13 +27,7 @@ export namespace IAutoMovieMotionHumanTrunk {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Seven required members and the legs the crouch plants, read only by `crouch`; the legs exist because one caller (the batting stance) steps one foot out itself while the body sinks.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No hip shift: the shift is solved, so a caller cannot state one that unbalances the body; the feet are read off the standing posture, so a caller cannot plant them somewhere the body does not stand.
    */
-  export interface ICrouch {
-    /** The body. */
-    body: IAutoMovieMotionHumanBody;
-
-    /** A standing posture of the action, the one the balance is solved on. */
-    standing: IAutoMovieMotionHumanPosture;
-
+  export interface ICrouch extends IShape {
     /** The action's clock. */
     clock: IAutoMovieMotionClock;
 
@@ -41,6 +36,26 @@ export namespace IAutoMovieMotionHumanTrunk {
 
     /** The instants the body starts rising and stands again at. */
     fall: readonly [string, string];
+
+  }
+
+  /**
+   * Fixed stance, planted limbs and geometric demand shared by repetitions of one crouch.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Depth measures hip descent in metres and pitch measures inclination in degrees. The standing pose supplies the plants.
+   * @evidence contracts/development/design.md#principled-representation prepareCrouch checks depth and pitch are nonnegative and derives foot placement from the body and standing pose.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Repeated crouches share this shape. The caller can reserve a leg for another goal and supply an optional balance request.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The shape stores geometry and selected legs without storing sampled keyframes or an assumed shift.
+   */
+  export interface IShape {
+    /** The body. */
+    body: IAutoMovieMotionHumanBody;
+
+    /** The physical terms asked (`IAutoMovieMotionHumanBalance`): absent, the hips sink where they stand and no centre of mass is read; with `balance` they move back so the centre of mass stays over the feet. */
+    balance?: IAutoMovieMotionHumanBalance;
+
+    /** A standing posture of the action, the one the balance is solved on. */
+    standing: IAutoMovieMotionHumanPosture;
 
     /** How far the hips sink at the lowest, metres; not negative. */
     depth: number;

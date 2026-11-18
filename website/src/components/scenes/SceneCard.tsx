@@ -8,13 +8,12 @@ import { SceneFacts } from "../../scenes/SceneFacts";
 import type { IScene } from "../../scenes/structures/IScene";
 import type { IScenePlayer } from "../../scenes/structures/IScenePlayer";
 import { SceneView } from "./SceneView";
-import { prefersReducedMotion } from "./prefersReducedMotion";
 import { useSceneClock } from "./useSceneClock";
 
 /**
  * One scene in the gallery: its first take playing, its title, who and what
  * is in it, and a link to its page. A visitor who asked for reduced motion
- * sees a held frame that plays only while the card is hovered or focused.
+ * sees a held frame and can open the scene to play it.
  *
  * The link is named by the title alone: the view and its notes are
  * decoration inside it. A scene its record marks refused says so under the
@@ -26,18 +25,8 @@ import { useSceneClock } from "./useSceneClock";
 export function SceneCard(props: { scene: IScene }): ReactElement {
   const { scene }: typeof props = props;
   const clock: SceneClock = useSceneClock();
-  const hold: (playing: boolean) => void = (playing: boolean): void => {
-    if (!prefersReducedMotion() || clock.playing === playing) return;
-    clock.toggle();
-  };
   return (
-    <li
-      className="am-scene-card"
-      onPointerEnter={(): void => hold(true)}
-      onPointerLeave={(): void => hold(false)}
-      onFocus={(): void => hold(true)}
-      onBlur={(): void => hold(false)}
-    >
+    <li className="am-scene-card">
       <Link href={`/scenes/${scene.id}/`} className="am-scene-card-link">
         <SceneView
           scene={scene}

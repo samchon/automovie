@@ -4,6 +4,7 @@ export * from "./AutoMovieScheduleCut";
 export * from "./AutoMovieScheduleError";
 export * from "./AutoMovieSchedulePlace";
 export * from "./AutoMovieScheduleWalk";
+export * from "./advanceAutoMovieGrid";
 export * from "./auditAutoMovieOutcome";
 export * from "./checkAutoMovieLegality";
 export * from "./evaluateAutoMovieSchedule";

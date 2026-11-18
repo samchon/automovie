@@ -140,44 +140,52 @@ export namespace motionHumanMetamorphic {
         ];
   }
 
-  /**
-   * The dynamic similarity of one gait's pace across the four extreme bodies.
-   *
-   * @param law `walk` or `run`.
-   * @param row The pace, `pace=value`.
-   * @returns The findings.
-   */
-  export function similarity(law: string, row: string): string[] {
-    const read: Record<
-      string,
-      { frequency: number; duty: number; stride: number }
-    > = {};
-    for (const name of motionHumanBody.EXTREMES) {
-      const s: M.IStaged = M.stage(law, row, name);
-      const from: number = 0.25 * s.film.duration;
-      const to: number = 0.75 * s.film.duration;
-      const g: M.IGait = M.gait(s, from, to);
-      const l: number = s.body.measure.hipHeight;
-      const hips = (t: number): IAutoMovieVector3 => {
-        const a: IAutoMovieVector3 = M.joint(s, t, "leftUpperLeg");
-        const b: IAutoMovieVector3 = M.joint(s, t, "rightUpperLeg");
-        return { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 };
-      };
-      const p: IAutoMovieVector3 = hips(from);
-      const q: IAutoMovieVector3 = hips(to);
-      const speed: number = Math.hypot(q.x - p.x, q.z - p.z) / (to - from);
-      // A stride is two steps.
-      const strides: number = g.cadence / 120;
-      read[name] = {
-        frequency: (g.cadence / 60) * Math.sqrt(l / 9.81),
-        duty: g.duty,
-        stride: strides > 0 ? speed / strides / l : 0,
-      };
-    }
+  /** Alexander's reduced step frequency, duty factor and stride per hip height. */
+  export interface ISimilarityReading {
+    /** Steps per characteristic pendulum time. */
+    frequency: number;
+    /** Fraction of elapsed time a foot bears. */
+    duty: number;
+    /** Travel per two steps, divided by hip height. */
+    stride: number;
+  }
+
+  /** Read the same steady interval used by the gait signature. */
+  export function similarityReading(
+    staged: M.IStaged,
+    from: number,
+    to: number,
+    gait: M.IGait,
+  ): ISimilarityReading {
+    const hips = (seconds: number): IAutoMovieVector3 => {
+      const bones: ReturnType<typeof M.bones> = M.bones(staged, seconds);
+      const a: IAutoMovieVector3 = bones.get("leftUpperLeg")!.worldPosition;
+      const b: IAutoMovieVector3 = bones.get("rightUpperLeg")!.worldPosition;
+      return { x: (a.x + b.x) / 2, y: 0, z: (a.z + b.z) / 2 };
+    };
+    const p: IAutoMovieVector3 = hips(from);
+    const q: IAutoMovieVector3 = hips(to);
+    const speed: number = Math.hypot(q.x - p.x, q.z - p.z) / (to - from);
+    const length: number = staged.body.measure.hipHeight;
+    // A stride is two steps. Use the standard gravity in m/s² as in Alexander's relation.
+    const strides: number = gait.cadence / 120;
+    return {
+      frequency: (gait.cadence / 60) * Math.sqrt(length / 9.81),
+      duty: gait.duty,
+      stride: strides > 0 ? speed / strides / length : 0,
+    };
+  }
+
+  /** Compare one pace's independent readings with their common mean. */
+  export function compareSimilarity(
+    law: string,
+    row: string,
+    read: Readonly<Record<string, ISimilarityReading>>,
+  ): string[] {
     const out: string[] = [];
     for (const measure of ["frequency", "duty", "stride"] as const) {
       const values: number[] = Object.values(read).map(
-        (r: { frequency: number; duty: number; stride: number }) => r[measure],
+        (r: ISimilarityReading) => r[measure],
       );
       const mean: number =
         values.reduce((x: number, y: number) => x + y, 0) / values.length;

@@ -26,4 +26,7 @@ export interface IAutoMovieHumanDigitGoal {
    * written by its law in the world from the prop's frame at the instant.
    */
   on?: AutoMovieHumanoidBone;
+
+  /** The fingertip bears on a world-space surface at this instant. The digit reaches the point without the easing used for an aim in free space. */
+  contact?: boolean;
 }

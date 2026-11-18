@@ -21,13 +21,14 @@ import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVa
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
-import { StrikingRecord } from "./StrikingRecord";
 import { StrikingRide } from "./StrikingRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
+import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { punchGeometry } from "./punchGeometry";
+import { punchLaunch } from "./punchLaunch";
 
 /**
  * A punch: the fist's knuckles brought onto the target along a measured path
@@ -109,9 +110,7 @@ export namespace punch {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function hand(
-    params: IAutoMovieMotionHumanPunch.IParams,
-  ): "lead" | "rear" {
+  export function hand(params: IAutoMovieMotionHumanPunch.IParams): "lead" | "rear" {
     return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
   }
 
@@ -128,7 +127,7 @@ export namespace punch {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target beyond the step-in and the arm's band is the declared miss at maximum reach, not a stretched arm; provisional constants are named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the display's limb fits.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The geometry is built once per committed stop and dropped on settle, when the stop or the target may have changed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and one stop second, released with the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one geometry and one stop second until plan release. Optional FK/ROM loans are borrowed only by the current full posture/weapon observation and never retained in the plan or goal.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
@@ -152,8 +151,7 @@ export namespace punch {
     ) {
       const elapsed: number =
         from.share * from.plan.duration - from.plan.contact;
-      const same: boolean =
-        hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
+      const same: boolean = hand(from.params as IAutoMovieMotionHumanPunch.IParams) === which;
       delivery = Math.max(
         0.12,
         (same
@@ -218,22 +216,30 @@ export namespace punch {
     // girth to the elbow's.
     const limb: "leftArm" | "rightArm" =
       side === "left" ? "leftArm" : "rightArm";
+    const course: StrikingWeapon.Course = (at: number, _channels?: Parameters<StrikingWeapon.Course>[1], resolution?: Parameters<StrikingWeapon.Course>[2], projection?: Parameters<StrikingWeapon.Course>[3]): IAutoMovieMotionHumanPosture =>
+      geometry().posture(Math.min(duration, Math.max(0, at - context.start)), resolution, projection?.());
+    const frames: ReturnType<typeof StrikingWeapon.frames> = StrikingWeapon.frames(context.body, limb);
     const chain: StrikingWeapon.IChain = {
       ids: ["upperArm", "forearm", "fist"],
       limb,
       radii: StrikingWeapon.armRadii(context.body),
       from: context.start,
-      to: context.start + shown + 0.1,
+      to: context.start + shown + StrikingWeapon.TAIL,
       ends: (seconds: number): IAutoMovieVector3[] =>
         StrikingWeapon.arm(
           context.body,
-          (at: number): IAutoMovieMotionHumanPosture =>
-            geometry().posture(
-              Math.min(duration, Math.max(0, at - context.start)),
-            ),
+          course,
           side,
           seconds,
+          undefined,
+          undefined,
+          frames,
         ),
+      read: StrikingWeaponTable.reader(
+        (seconds: number, near: Parameters<typeof StrikingWeapon.arm>[4], kept: NonNullable<Parameters<typeof StrikingWeapon.arm>[5]>): IAutoMovieVector3[] =>
+          StrikingWeapon.arm(context.body, course, side, seconds, near, kept, frames),
+      ),
+      on: (): object => geometry(),
     };
 
     // The contact the performance committed, and the stopped arm's ride on
@@ -284,6 +290,11 @@ export namespace punch {
     };
     let built: punchGeometry.IGeometry | undefined;
     let building: boolean = false;
+
+    // What the punch reads of its own entry alone, made once for the plan;
+    // the geometry, which follows the target and the committed stop, is
+    // built on it at every settle.
+    let launched: punchLaunch.ILaunch | undefined;
     const geometry = (): punchGeometry.IGeometry => {
       if (built !== undefined) return built;
       if (building)
@@ -292,24 +303,25 @@ export namespace punch {
         );
       building = true;
       try {
-        built = punchGeometry.build(context, timing, fixed, aimed());
+        built = punchGeometry.build(context, timing, fixed, aimed(), (launched ??= punchLaunch(context, timing)));
       } finally {
         building = false;
       }
       return built;
     };
-    const out: IAutoMovieMotionHumanActionPlan = {
+    const out: IAutoMovieMotionHumanStrikingRecord.IPlan = {
       duration,
       events,
       get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry().contacts;
       },
+      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
       ...(p.feint === undefined
         ? { contact: delivery }
         : { feigned: delivery }),
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
+      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        return carried(geometry().posture(t), t);
+        return carried(geometry().posture(t, source, projection), t);
       },
       settle: (): void => {
         built = undefined;
@@ -322,6 +334,10 @@ export namespace punch {
               met = StrikingWeapon.first(found);
               fixed = met === null ? null : met.seconds;
               ride = undefined;
+
+              // The geometry is built on the stop it was given: a stop
+              // committed now makes it another, whoever settles after.
+              built = undefined;
             },
           }
         : {}),
@@ -330,10 +346,6 @@ export namespace punch {
     // is planned.
     if (source !== undefined)
       Object.defineProperty(out, "aimed", { enumerable: true, get: aimed });
-    StrikingRecord.register(
-      out,
-      (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
-    );
     return out;
   }
 }

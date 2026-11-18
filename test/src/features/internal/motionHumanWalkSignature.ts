@@ -1,11 +1,14 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import type { motionComplaints } from "./motionComplaints";
 import type { motionHumanBody } from "./motionHumanBody";
+import { motionHumanMetamorphic } from "./motionHumanMetamorphic";
 import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
- * The walking signature of one body (the specs
- * `test_human_motion_signature_walk_<body>`), read at each pace over the
- * steady middle half of a 3 m walk.
+ * The walking signature of one body, read at each pace over the steady middle
+ * half of a 3 m walk. The explicit paces lend their readings to the similarity
+ * comparison, which observes the same steady interval.
  *
  * Bounds and sources:
  * - Trunk: walking carries the trunk inclined forward a few degrees, and the
@@ -46,22 +49,43 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader for one body: a pass per pace, then the checks across paces.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every limit is marked provisional or cited; nothing is skipped.
  * @evidence contracts/development/implementation.md#efficient-algorithms Four films, read on 30 and 120 Hz grids.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Films and readings come from `motionHumanSignature`.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each explicit pace supplies both the signature and Froude comparisons from one staged film and one gait reading.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps nothing once read.
  */
 export namespace motionHumanWalkSignature {
+  /** One uninterrupted span of single-foot support. */
+  interface ISupport {
+    from: number;
+    to: number;
+    side: Side;
+  }
+
+  /** The first sample of an open single-foot support. */
+  type IOpen = Pick<ISupport, "from" | "side">;
+
+  /** The two stance sides. */
+  type Side = "left" | "right";
+
+  /** One law's independent gait reading at each authored pace. */
+  export type SimilarityByPace = Record<
+    string,
+    motionHumanMetamorphic.ISimilarityReading
+  >;
+
   /**
    * Read one body's walks into a gatherer.
    *
    * @param name The body.
    * @param complaints Receives every check.
+   * @returns The explicit paces' reduced gait quantities.
    */
   export function read(
     name: motionHumanBody.Name,
     complaints: motionComplaints.IGatherer,
-  ): void {
+  ): SimilarityByPace {
     const lean: Record<string, number> = {};
     const cadence: Record<string, number> = {};
+    const similarity: SimilarityByPace = {};
     for (const row of ["pace=slow", "pace=normal", "pace=fast", "default"]) {
       const cell: string = `walk ${row} ${name}`;
       const s: M.IStaged = M.stage("walk", row, name);
@@ -75,58 +99,50 @@ export namespace motionHumanWalkSignature {
       );
       const g: M.IGait = M.gait(s, from, to);
       cadence[row] = g.cadence;
+      if (row !== "default")
+        similarity[row] = motionHumanMetamorphic.similarityReading(s, from, to, g);
       complaints.check(
         `${cell}: duty factor ${g.duty.toFixed(3)} outside [0.55, 0.75] (Alexander 1984; Perry and Burnfield 2010)`,
         g.duty >= 0.55 && g.duty <= 0.75,
       );
       let doubles: number = 0;
-      let singles: { from: number; to: number; side: "left" | "right" }[] = [];
-      let open: { from: number; side: "left" | "right" } | undefined;
+      const singles: ISupport[] = [];
+      let open: IOpen | undefined;
       for (const t of M.times(from, to, 120)) {
         const l: boolean = M.bears(s, t, "left");
         const r: boolean = M.bears(s, t, "right");
         if (l && r) doubles++;
-        const side: "left" | "right" | undefined =
+        const side: Side | undefined =
           l && !r ? "left" : r && !l ? "right" : undefined;
         if (open !== undefined && side !== open.side) {
-          singles.push({ from: open.from, to: t, side: open.side });
+          // Only complete supports of at least the same 0.1 s minimum.
+          if (open.from > from + 1e-9 && t - open.from >= 0.1)
+            singles.push({ from: open.from, to: t, side: open.side });
           open = undefined;
         }
         if (side !== undefined && open === undefined) open = { from: t, side };
       }
-      // Only supports wholly inside the window: one cut by the window's start
-      // is not a whole support, and its middle is not mid-support.
-      singles = singles.filter(
-        (p: { from: number; to: number }): boolean =>
-          p.from > from + 1e-9 && p.to - p.from >= 0.1,
-      );
       complaints.check(
         `${cell}: ${doubles} instants of double support over ${g.strikes.length} strikes (Alexander 1984)`,
         doubles > 0,
       );
       for (const p of singles) {
         const mid: number = (p.from + p.to) / 2;
+        const c: IAutoMovieVector3 = M.centre(s, mid);
         const rise: number =
-          M.centre(s, mid).y -
-          (M.centre(s, p.from).y + M.centre(s, p.to).y) / 2;
+          c.y - (M.centre(s, p.from).y + M.centre(s, p.to).y) / 2;
         complaints.check(
           `${cell}: the centre of mass at mid single support (${p.side}, ${mid.toFixed(2)} s) stands ${(rise * 1000).toFixed(1)} mm above its ends, at least 5 mm expected (Cavagna et al. 1976)`,
           rise >= 0.005,
         );
-        const c: { x: number; z: number } = M.centre(s, mid);
-        const ankle: { x: number; z: number } = M.joint(
-          s,
-          mid,
-          `${p.side}Foot`,
-        );
-        const other: { x: number; z: number } = M.joint(
-          s,
-          mid,
+        const bones: ReturnType<typeof M.bones> = M.bones(s, mid);
+        const ankle: IAutoMovieVector3 = bones.get(`${p.side}Foot`)!.worldPosition;
+        const other: IAutoMovieVector3 = bones.get(
           p.side === "left" ? "rightFoot" : "leftFoot",
-        );
-        const f: { x: number; z: number } = M.forward(s.yaw);
+        )!.worldPosition;
+        const f: IAutoMovieVector3 = M.forward(s.yaw);
         const along: number = (c.x - ankle.x) * f.x + (c.z - ankle.z) * f.z;
-        const lateral = (q: { x: number; z: number }): number =>
+        const lateral = (q: IAutoMovieVector3): number =>
           q.x * f.z - q.z * f.x;
         const between: boolean =
           (lateral(c) - lateral(ankle)) * (lateral(c) - lateral(other)) <= 0;
@@ -154,5 +170,6 @@ export namespace motionHumanWalkSignature {
         cadence["pace=normal"]! < cadence["pace=fast"]!,
     );
     for (const c of M.calibrate(name)) complaints.check(c, false);
+    return similarity;
   }
 }

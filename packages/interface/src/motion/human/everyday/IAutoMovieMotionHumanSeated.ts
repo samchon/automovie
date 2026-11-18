@@ -24,7 +24,9 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * as a boat's) lies within 0.8 to 1.2 of the popliteal height, the ratio
  * the campaign sets (#3363): a lower
  * seat needs more trunk flexion and a longer rise (Janssen, Bussmann and
- * Stam 2002, Phys Ther 82:866) and is refused. A higher one is a high seat:
+ * Stam 2002, Phys Ther 82:866) and is refused for ordinary furniture. A
+ * seat fixed by a task, such as a rowing thwart, uses the actor's actual
+ * reach to its contacts. A higher seat instead is a high seat:
  * a bar stool, a saddle, a wall. The feet leave the floor for its rests or
  * hang, and the body gets onto it by a step up or a swing of a leg. The
  * popliteal height is the knee joint's height less the thigh's radius, where
@@ -56,6 +58,9 @@ export namespace IAutoMovieMotionHumanSeated {
 
     /** Backrest height above the surface, metres; backless when absent. */
     back?: number;
+
+    /** For a seat fixed by task geometry, use the body's reachable contacts. */
+    workingSeat?: boolean;
 
     /** Whether the seat is sat astride, a leg on either side, as a saddle is; both legs ahead when absent. */
     astride?: boolean;

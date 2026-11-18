@@ -49,7 +49,8 @@ export namespace IAutoMovieMotionHumanPerformanceAim {
      * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
      */
-    bones: () => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+    bones: (
+      requested?: ReadonlySet<AutoMovieHumanoidBone>) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
     /** Their subject id. */
     subject?: string;

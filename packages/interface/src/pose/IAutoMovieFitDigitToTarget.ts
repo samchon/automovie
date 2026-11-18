@@ -4,7 +4,9 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 import type { IAutoMoviePose } from "./IAutoMoviePose";
+import type { IAutoMoviePoseResolution } from "./IAutoMoviePoseResolution";
 import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
+import type { IAutoMovieSkeletonPoseResolution } from "./IAutoMovieSkeletonPoseResolution";
 import type { IAutoMovieSkeletonTopology } from "./IAutoMovieSkeletonTopology";
 
 /**
@@ -61,6 +63,12 @@ export namespace IAutoMovieFitDigitToTarget {
 
     /** The rig's topology, when the caller has it. */
     topology?: IAutoMovieSkeletonTopology;
+
+    /** Exact FK workspace borrowed only for this synchronous fit, or a local one when absent. It never enters the result. */
+    prepared?: IAutoMoviePoseResolution;
+
+    /** Explicit immutable snapshot of this exact skeleton, axes and clinical frames. Borrowed only while those dependencies remain unchanged; without it, raw FK retains live admission. */
+    rig?: IAutoMovieSkeletonPoseResolution.IRig;
 
     /** Desired radial extension rate near full reach, positive finite degrees per metre. Derives a soft-IK band from the chain's smallest full-extension hinge curvature; targets in that band are eased short of full reach, and `residual` still measures the original target. Other constrained-IK basin changes are not bounded by this value. No softening when absent. */
     rate?: number;

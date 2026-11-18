@@ -24,7 +24,10 @@ export function Landing(): ReactElement {
     <LandingMovie
       featured={SCENES.filter(
         (s: IScene): boolean =>
-          s.featured !== undefined && SceneStatus.of(s).kind === "plays",
+          s.featured !== undefined &&
+          s.hidden !== true &&
+          s.takes.length > 0 &&
+          SceneStatus.of(s).kind === "plays",
       ).sort((a: IScene, b: IScene): number => a.featured! - b.featured!)}
       coming={SCENES.filter(
         (s: IScene): boolean =>

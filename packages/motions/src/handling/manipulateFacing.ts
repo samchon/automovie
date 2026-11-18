@@ -34,12 +34,10 @@ export function manipulateFacing(
   presses: readonly IAutoMovieMotionHumanManipulateFacing.ISite[],
   side: AutoMovieHumanSide,
 ): IAutoMovieQuaternion {
-  const mine: IAutoMovieMotionHumanManipulateFacing.ISite[] = presses.filter(
-    (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean =>
-      p.side === side,
+  const mine: IAutoMovieMotionHumanManipulateFacing.ISite | undefined = presses.find(
+    (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean => p.side === side,
   );
-  const first: IAutoMovieMotionHumanManipulateFacing.ISite =
-    mine.length > 0 ? mine[0]! : presses[0]!;
+  const first: IAutoMovieMotionHumanManipulateFacing.ISite = mine === undefined ? presses[0]! : mine;
   const toward: IAutoMovieVector3 = Vector3.subtract(first.site, hold.root);
   const along: IAutoMovieVector3 = Vector3.subtract(
     toward,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, clampJointToSkeleton } from "@automovie/engine";
+import { Quaternion, clampJointToSkeleton } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -18,10 +18,14 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
+import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
-import { HumanGrasp } from "./HumanGrasp";
+import { HumanClaspCandidateFrames } from "./HumanClaspCandidateFrames";
+import { HumanClaspClearance } from "./HumanClaspClearance";
+import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
 
 /**
@@ -59,7 +63,7 @@ import { HumanGrip } from "./HumanGrip";
  * (`HumanGrasp.reachable`), so a clasp both arms take with the elbow low
  * ranks above one an arm reaches only by raising it; the smaller turns win
  * ties by a
- * hundredth of a degree per degree. When no pair is clear, the pair with the
+ * hundredth of a millimetre per degree. When no pair is clear, the pair with the
  * largest clearance is taken. Both partners compute the same choice from the
  * same two standing postures, enumerating the pairs in the order of their
  * subject ids, so each hand's fingers close on the hand the other actually
@@ -72,10 +76,10 @@ import { HumanGrip } from "./HumanGrip";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the open hand, why the turns are chosen together, the clearance test and its source, the ranking, the fallback and how both partners agree.
  * @evidence contracts/development/implementation.md#principled-implementation Collision-free grasp candidates ranked by reachability, the grasp planners' practice, on the body's own phalanx and forearm colliders.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The open shape, the joint choice, the ordered closure, the clearance and the colliders as five functions.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The open shape, the joint choice, the ordered closure and the colliders as four functions; candidate admission and clearance geometry live in `HumanClaspCandidateFrames` and `HumanClaspClearance`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is trusted without the clearance test; an unclear clasp is ranked by its clearance, not by a tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms One arm fit per turn and person, then a constant clearance test per pair of turns, once per plan.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable` for every fit, `HumanGrip.chain` for the phalanges and `HumanColliders` for every distance and placement.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each turn of each person is fitted once; each admitted candidate places its phalanx segments and forearm once before the pair distances are queried.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work HumanClaspClearance places candidate geometry from HumanGrip's capsules and HumanColliders' posed forearm reader; each pair computes its own signed distances.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export namespace HumanClasp {
@@ -162,14 +166,14 @@ export namespace HumanClasp {
 
   /**
    * The largest miss of a fit that still counts as reaching the clasp and
-   * the pump's top and bottom: 1, a degree of hand rotation plus a millimetre
-   * of position, the bound the carried object's cases hold a grip to. A turn
-   * past it leaves the wrist short at one end of the pump (the wrist's ulnar
-   * deviation ends at 30 degrees and the pump takes about 5.5 more), where
-   * the hand then swings 15 mm into the partner's forearm on the sweep's
-   * bodies.
+   * the pump's top and bottom, millimetres of the hand (the position's miss
+   * plus the rotation's arc over the hand's length, `HumanGraspSearch`): the
+   * limb solver's own place tolerance (`HumanArmTrajectoryTerms.TOLERANCE`),
+   * the miss it accepts as feasible. A turn past it leaves the wrist short at
+   * one end of the pump (the wrist's ulnar deviation ends at 30 degrees and
+   * the pump takes about 5.5 more).
    */
-  export const REACHED: number = 1;
+  export const REACHED: number = HumanArmTrajectoryTerms.TOLERANCE;
 
   /**
    * Choose both hands' turns about their palms' normals, with each palm
@@ -181,6 +185,14 @@ export namespace HumanClasp {
    * @param mine This person's hand.
    * @param theirs The partner's hand.
    * @returns Both grips and their clearance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both hand inputs, the world meeting point and pump amplitude, and the reciprocal result; the namespace gives the reach, posture-band, clearance and subject-order rules.
+   * @evidence contracts/development/implementation.md#principled-implementation Each turn is fitted over the clasp and both pump ends; admitted candidates are paired, a pair is clear when no phalanx capsule of either open hand enters the other's forearm collider, and clear pairs rank by the worse arm's miss plus its elbow departure's arc on the upper arm, millimetres of the hand, with a hundredth-millimetre-per-degree turn preference.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit each person's turns, admit them (`HumanClaspCandidateFrames`), place admitted digit and forearm geometry once each, then rank the pairs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is accepted without the clearance test; with none clear, the largest clearance wins and is reported.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen turn fits per person share one body FK workspace; digit and forearm geometry is placed once per admitted candidate (O(A+B)), and each of the A*B pairs runs two fifteen-segment distance reductions.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A candidate's placed digits and forearm serve every pair it enters; each pair computes its own distances.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Candidate geometry ends with the synchronous search; the returned reach records hold no reader.
    */
   export function choose(
     side: AutoMovieHumanSide,
@@ -189,7 +201,7 @@ export namespace HumanClasp {
     mine: IHand,
     theirs: IHand,
   ): IChoice {
-    const fits = (hand: IHand): IAutoMovieMotionHumanGrasp.IReach[] => {
+    const fits: (hand: IHand) => IAutoMovieMotionHumanGrasp.IReach[] = (hand: IHand): IAutoMovieMotionHumanGrasp.IReach[] => {
       const posture: IAutoMovieMotionHumanPosture = {
         ...hand.posture,
         joints: { ...hand.posture.joints, ...open(hand.body, side) },
@@ -199,22 +211,18 @@ export namespace HumanClasp {
         posture,
         side,
       );
+      const search: ReturnType<typeof HumanGraspSearch> = HumanGraspSearch(hand.body, posture, side, bend);
       const facing: IAutoMovieQuaternion = HumanHand.rotation(side, {
         fingers: hand.fingers,
         palm: hand.palm,
       });
+      const palm: IAutoMovieVector3 = HumanHand.offset(hand.body, side, "palm", "flat").point;
       return TURNS.map(
         (turn: number): IAutoMovieMotionHumanGrasp.IReach =>
-          HumanGrasp.reachable(
-            hand.body,
-            posture,
-            side,
-            bend,
+          search(
             (angle: number): IAutoMovieMotionHumanHand.IWrist =>
-              HumanHand.place(
-                hand.body,
-                side,
-                "palm",
+              placeHumanHandSurface(
+                palm,
                 meet,
                 Quaternion.normalize(
                   Quaternion.multiply(
@@ -222,12 +230,9 @@ export namespace HumanClasp {
                     facing,
                   ),
                 ),
-                "flat",
               ),
             [0],
-            (
-              wrist: IAutoMovieMotionHumanHand.IWrist,
-            ): IAutoMovieMotionHumanGrasp.IKey[] =>
+            (wrist: IAutoMovieMotionHumanHand.IWrist): IAutoMovieMotionHumanGrasp.IKey[] =>
               [-amplitude, amplitude].map(
                 (lift: number): IAutoMovieMotionHumanGrasp.IKey => ({
                   posture,
@@ -250,58 +255,43 @@ export namespace HumanClasp {
       : [mine, theirs];
     const a: IAutoMovieMotionHumanGrasp.IReach[] = fits(one);
     const b: IAutoMovieMotionHumanGrasp.IReach[] = fits(two);
-    type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    const aBones: Bones[] = a.map(
-      (r: IAutoMovieMotionHumanGrasp.IReach): Bones =>
-        poseBones(one.body, r.pose),
-    );
-    const bBones: Bones[] = b.map(
-      (r: IAutoMovieMotionHumanGrasp.IReach): Bones =>
-        poseBones(two.body, r.pose),
-    );
-    // Each arm's admissible turns: those it reaches through the pump, and of
-    // those the ones in the lowest upper-arm band any of them attains.
-    const admitted = (
-      reaches: IAutoMovieMotionHumanGrasp.IReach[],
-      bones: Bones[],
-    ): number[] => {
-      const band = (index: number): number => {
-        const upper: IAutoMovieVector3 = Vector3.subtract(
-          bones[index]!.get(`${side}LowerArm`)!.worldPosition,
-          bones[index]!.get(`${side}UpperArm`)!.worldPosition,
-        );
-        const raised: number =
-          (Math.acos(
-            Math.max(-1, Math.min(1, -upper.y / Vector3.length(upper))),
-          ) *
-            180) /
-          Math.PI;
-        const found: number = BANDS.findIndex(
-          (limit: number): boolean => raised <= limit,
-        );
-        return found === -1 ? BANDS.length : found;
-      };
-      const all: number[] = reaches.map(
-        (_: IAutoMovieMotionHumanGrasp.IReach, index: number): number => index,
-      );
-      const reached: number[] = all.filter(
-        (index: number): boolean => reaches[index]!.miss <= REACHED,
-      );
-      if (reached.length === 0) return all;
-      const lowest: number = Math.min(...reached.map(band));
-      return reached.filter((index: number): boolean => band(index) === lowest);
-    };
-    const aAdmitted: number[] = admitted(a, aBones);
-    const bAdmitted: number[] = admitted(b, bBones);
+    const aFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(one.body, side, a, REACHED, BANDS);
+    const bFrames: ReturnType<typeof HumanClaspCandidateFrames> = HumanClaspCandidateFrames(two.body, side, b, REACHED, BANDS);
+    const aAdmitted: number[] = aFrames.indices;
+    const bAdmitted: number[] = bFrames.indices;
+    const digitsOne: ReturnType<typeof HumanClaspClearance.prepareDigits> = HumanClaspClearance.prepareDigits(one.body, side);
+    const digitsTwo: ReturnType<typeof HumanClaspClearance.prepareDigits> = HumanClaspClearance.prepareDigits(two.body, side);
+    const aDigits: Map<number, readonly HumanClaspClearance.IPhalanx[]> = new Map(aAdmitted.map(
+      (index: number): [number, readonly HumanClaspClearance.IPhalanx[]] =>
+        [index, digitsOne(aFrames.bones.get(index)!)],
+    ));
+    const bDigits: Map<number, readonly HumanClaspClearance.IPhalanx[]> = new Map(bAdmitted.map(
+      (index: number): [number, readonly HumanClaspClearance.IPhalanx[]] =>
+        [index, digitsTwo(bFrames.bones.get(index)!)],
+    ));
+    const aForearms: Map<number, ReturnType<typeof HumanClaspClearance.forearm>> = new Map(aAdmitted.map(
+      (index: number): [number, ReturnType<typeof HumanClaspClearance.forearm>] =>
+        [index, HumanClaspClearance.forearm(one.body, aFrames.bones.get(index)!, side)],
+    ));
+    const bForearms: Map<number, ReturnType<typeof HumanClaspClearance.forearm>> = new Map(bAdmitted.map(
+      (index: number): [number, ReturnType<typeof HumanClaspClearance.forearm>] =>
+        [index, HumanClaspClearance.forearm(two.body, bFrames.bones.get(index)!, side)],
+    ));
     let best: { i: number; j: number; clear: number; cost: number } | undefined;
     for (const i of aAdmitted)
       for (const j of bAdmitted) {
         const clear: number = Math.min(
-          clearance(one.body, aBones[i]!, two.body, bBones[j]!, side),
-          clearance(two.body, bBones[j]!, one.body, aBones[i]!, side),
+          HumanClaspClearance.between(aDigits.get(i)!, bForearms.get(j)!),
+          HumanClaspClearance.between(bDigits.get(j)!, aForearms.get(i)!),
         );
+        // Each hand's miss, millimetres of the hand, with its elbow's
+        // departure from the hint carried the same way, as the arc the elbow
+        // swings on its upper arm; the turns break ties.
         const cost: number =
-          Math.max(a[i]!.miss + a[i]!.departure, b[j]!.miss + b[j]!.departure) +
+          Math.max(
+            a[i]!.miss + arc(a[i]!.departure, one.body.measure.upperArm),
+            b[j]!.miss + arc(b[j]!.departure, two.body.measure.upperArm),
+          ) +
           0.01 * (Math.abs(a[i]!.turn) + Math.abs(b[j]!.turn));
         const better: boolean =
           best === undefined ||
@@ -317,56 +307,6 @@ export namespace HumanClasp {
       theirs: swapped ? first : second,
       clearance: best!.clear,
     };
-  }
-
-  /**
-   * The least gap from one hand's phalanges to another person's forearm
-   * collider: each phalanx is the segment and radius the closing curl moves
-   * (`HumanGrip.chain`), from its joint to the next, the last to the digit's
-   * tip.
-   *
-   * @param body The hand's owner.
-   * @param bones Their posed bones, world frame.
-   * @param other The other person.
-   * @param others The other person's posed bones, world frame.
-   * @param side The hand, and the other person's forearm on the same side.
-   * @returns Metres, negative inside.
-   */
-  export function clearance(
-    body: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    other: IAutoMovieMotionHumanBody,
-    others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    side: AutoMovieHumanSide,
-  ): number {
-    const forearm: AutoMovieHumanoidBone = `${side}LowerArm`;
-    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      new Map([[forearm, others.get(forearm)!]]);
-    let least: number = Infinity;
-    for (const digit of HumanGrip.CLOSING.power) {
-      const chain: IAutoMovieCurlChainUntilContact.IChain = HumanGrip.chain(
-        body,
-        side,
-        digit,
-      );
-      chain.bones.forEach((bone: AutoMovieHumanoidBone, k: number): void => {
-        const from: IAutoMovieResolvedBone = bones.get(bone)!;
-        const next: AutoMovieHumanoidBone | undefined = chain.bones[k + 1];
-        const to: IAutoMovieVector3 =
-          next === undefined
-            ? Vector3.add(
-                from.worldPosition,
-                Quaternion.rotateVector(from.worldRotation, chain.tip),
-              )
-            : bones.get(next)!.worldPosition;
-        least = Math.min(
-          least,
-          HumanColliders.distanceToSegment(other, only, from.worldPosition, to)
-            .distance - chain.radius,
-        );
-      });
-    }
-    return least;
   }
 
   /**
@@ -394,16 +334,16 @@ export namespace HumanClasp {
     const [one, two]: [IHand, IHand] = swapped
       ? [theirs, mine]
       : [mine, theirs];
-    const [a, b]: [
-      IAutoMovieMotionHumanGrasp.IReach,
-      IAutoMovieMotionHumanGrasp.IReach,
-    ] = swapped ? [choice.theirs, choice.mine] : [choice.mine, choice.theirs];
+    const [a, b]: [IAutoMovieMotionHumanGrasp.IReach, IAutoMovieMotionHumanGrasp.IReach] = swapped
+      ? [choice.theirs, choice.mine]
+      : [choice.mine, choice.theirs];
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = HumanClaspClearance.bones(side);
     const first: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
       one.body,
       side,
       "power",
       a.shown,
-      colliders(two.body, poseBones(two.body, b.pose), side),
+      colliders(two.body, poseBones(two.body, b.pose, undefined, requested), side),
       open(one.body, side),
     ).joints;
     if (!swapped) return first;
@@ -433,7 +373,7 @@ export namespace HumanClasp {
       side,
       "power",
       b.shown,
-      colliders(one.body, poseBones(one.body, closed), side),
+      colliders(one.body, poseBones(one.body, closed, undefined, requested), side),
       open(two.body, side),
     ).joints;
   }
@@ -465,18 +405,20 @@ export namespace HumanClasp {
           p.bone === `${side}LowerArm` ||
           digits.has(p.bone),
       )
-      .flatMap(
-        (
-          p: IAutoMovieMotionHumanColliders.IPlaced,
-        ): IAutoMovieCurlChainUntilContact.ICollider[] =>
-          p.shapes.map(
-            (
-              shape: IAutoMoviePhysicalShape,
-            ): IAutoMovieCurlChainUntilContact.ICollider => ({
-              shape,
-              frame: { position: p.pose.position, rotation: p.pose.rotation },
-            }),
-          ),
+      .flatMap((p: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieCurlChainUntilContact.ICollider[] =>
+        p.shapes.map(
+          (
+            shape: IAutoMoviePhysicalShape,
+          ): IAutoMovieCurlChainUntilContact.ICollider => ({
+            shape,
+            frame: { position: p.pose.position, rotation: p.pose.rotation },
+          }),
+        ),
       );
   }
+}
+
+/** An angle in degrees carried as the arc it swings at a length in metres, millimetres. */
+function arc(degrees: number, length: number): number {
+  return ((degrees * Math.PI) / 180) * 1000 * length;
 }

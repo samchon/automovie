@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieBodyMeasure,
@@ -17,7 +18,7 @@ import { stand } from "../actions/stand";
 import { walk } from "../actions/walk";
 import { walkClear } from "../actions/walkClear";
 import { walkDelayed } from "../actions/walkDelayed";
-import { walkFollowed } from "../actions/walkFollowed";
+import { walkStation } from "../actions/walkStation";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanEffort } from "./HumanEffort";
@@ -53,7 +54,7 @@ import { HumanTrunk } from "./HumanTrunk";
  * named in `avoid`, so a stop behind them is not reached through them.
  * People named in `avoid` are walked round: where the straight
  * leg would pass one nearer than the walker's lateral clearance (0.5 m,
- * provisional; walkers keep an elliptical personal space wider ahead than to
+ * `CLEARANCE`; walkers keep an elliptical personal space wider ahead than to
  * the side while circumventing a person, Gerin-Lajoie, Richards and McFadyen
  * 2005, Motor Control 9:242) plus half the walker's chest breadth, a
  * waypoint abeam that person takes the walk round on the side that deviates
@@ -69,7 +70,7 @@ import { HumanTrunk } from "./HumanTrunk";
  * `LAG` after they stop, which keeps the follower behind a leader on the
  * leader's own line. Where their way bends by more than `BEND` the walk
  * goes by the places they passed, and with `track: "pace"` it matches
- * their speed instead of waiting (`walkFollowed`; Rio, Rhea and Warren
+ * their speed instead of waiting (`walkStation`; Rio, Rhea and Warren
  * 2014).
  *
  * Events are the walk's (each foot's toe-offs and heel strikes,
@@ -77,7 +78,7 @@ import { HumanTrunk } from "./HumanTrunk";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the goal, the method, the timing, the events and the refusals, with sources and provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters and the plan the performance dispatches through, plus the helpers its tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the named constants and the plan the performance dispatches through, and the chest lead the pursuit lexicon also reads; the waypoint helper stays private to the law.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, hand and frame types; no body is special-cased.
  */
 export namespace approach {
@@ -91,7 +92,7 @@ export namespace approach {
   /** What it yields to an overlay: the walk's own. */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
-  /** Lateral clearance a walker keeps from a person it passes, metres (provisional; Gerin-Lajoie, Richards and McFadyen 2005). */
+  /** Lateral clearance a walker keeps from a person it passes, metres: the lateral half axis of the elliptical personal space walkers keep while circumventing a person, 0.48 m on average (Gerin-Lajoie, Richards and McFadyen 2005, Motor Control 9:242; 2006, Gait Posture 24:364), to which the plan adds half the walker's chest breadth. */
   export const CLEARANCE: number = 0.5;
 
   /**
@@ -106,8 +107,8 @@ export namespace approach {
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, the arrival correction, the returned plan and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The stop is the proxemic gap (Hall) measured from the sternum region along the line to the target, the partner's own measure for the handing gap; the walk law places whole footprints to it, and one correction moves the stop by the arriving sternum's measured gap error, since the walk's arrival lean shifts the chest off the standing estimate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes the stop, then the waypoints through `abeam`, then delegates stepping to the walk law; the gap arithmetic lives in HumanProxemics and the chest lead in `chest`.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.002 m acceptance of the arrival error and the single correction are the law's precision policy, not a tuned case; the 0.5 m clearance is a named provisional constant; Effort modifiers are clamped to the walk's documented parameter ranges.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two walk plans and one posture evaluation for the arrival check, plus one aim per avoided person; linear in the avoid list.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.002 m acceptance of the arrival error and the single correction are the law's precision policy, not a tuned case; the 0.5 m clearance is the cited personal space (`CLEARANCE`); Effort modifiers are clamped to the walk's own parameter ranges (`walk.STRIDE_RANGE`, `walk.ARM_SWING_RANGE`, `walk.ELBOWS_RANGE`). Limitation: the elbow modifier, in upper-arm lengths, is read as degrees by a factor of 100 that no source gives.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most two walk plans and one posture evaluation for the arrival check, plus one aim per avoided person, linear in the avoid list; a tracked person adds `HORIZON / REST_STEP` (120) reads of their placed root and four more for their way.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the first walk plan when its arrival is within tolerance instead of planning again; nothing is shared across instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the returned walk plan, whose closures hold this instance's inputs and are released with the performance; the first plan is dropped when a corrected one replaces it.
    */
@@ -130,7 +131,7 @@ export namespace approach {
         fix: "leave track out for a target that is not a person",
       });
 
-    // Where and when the person comes to rest: their placed root is read ahead in half seconds over the horizon, and the last instant it moved is kept.
+    // Where and when the person comes to rest: their placed root is read ahead every `REST_STEP` over the horizon, and the last instant it moved or turned is kept.
     const leader: IAutoMovieMotionHumanPerformerReader = context.performer(
       target.subject,
     );
@@ -139,7 +140,7 @@ export namespace approach {
     );
     let rests: number = context.start;
     let last: IAutoMovieMotionHumanActionContext.IRoot = began;
-    for (let ahead: number = 0.5; ahead <= HORIZON; ahead += 0.5) {
+    for (let ahead: number = REST_STEP; ahead <= HORIZON; ahead += REST_STEP) {
       const next: IAutoMovieMotionHumanActionContext.IRoot = leader.root(
         context.start + ahead,
       );
@@ -147,22 +148,24 @@ export namespace approach {
         Math.hypot(
           next.position.x - last.position.x,
           next.position.z - last.position.z,
-        ) > 1e-3 ||
-        Math.abs(next.yaw - last.yaw) > 0.1
+        ) > REST_MOVE ||
+        Math.abs(turnBetween(last.yaw, next.yaw)) > REST_TURN
       )
         rests = context.start + ahead;
       last = next;
     }
 
-    // The target as it will be then: carried and turned with the person's root.
+    // The target as it will be then: carried with the person's root and
+    // turned about it by the root's turn, so a region ahead of the root
+    // stays ahead of them however they face.
+    const turned: number = turnBetween(began.yaw, last.yaw);
     const there: IAutoMovieMotionHumanApproach.IAim = {
-      point: {
-        x: aimed.point.x + last.position.x - began.position.x,
-        y: aimed.point.y,
-        z: aimed.point.z + last.position.z - began.position.z,
-      },
+      point: HumanFrame.point(
+        { origin: last.position, yaw: turned },
+        Vector3.subtract(aimed.point, began.position),
+      ),
       normal: HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: last.yaw - began.yaw },
+        { origin: { x: 0, y: 0, z: 0 }, yaw: turned },
         aimed.normal,
       ),
     };
@@ -176,7 +179,7 @@ export namespace approach {
       last.position.x - began.position.x,
       last.position.z - began.position.z,
     );
-    const off = (p: IAutoMovieVector3): number =>
+    const off: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
       line < 1e-6
         ? Math.hypot(p.x - began.position.x, p.z - began.position.z)
         : Math.abs(
@@ -187,6 +190,14 @@ export namespace approach {
     const bent: boolean = passed.some(
       (p: IAutoMovieVector3): boolean => off(p) > BEND,
     );
+
+    // A place within `BEND` of where the follower stops, the requested gap
+    // short of the person, is dropped: the walk's own last leg reaches it.
+    const gap: number = HumanProxemics.gap(
+      context.params.at ?? "personal",
+      context.body.measure,
+      leader.body.measure,
+    );
     const path: IAutoMovieVector3[] = !bent
       ? []
       : passed
@@ -194,14 +205,14 @@ export namespace approach {
             (p: IAutoMovieVector3): boolean =>
               Math.hypot(p.x - here.x, p.z - here.z) > BEND &&
               Math.hypot(p.x - last.position.x, p.z - last.position.z) >
-                BEND + HumanProxemics.GAPS.social,
+                BEND + gap,
           )
           .map((p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, y: 0 }));
 
     // The walk there, begun late enough to arrive `LAG` after the person has stopped, so it never gets ahead of them on their own line.
     const walked: IAutoMovieMotionHumanActionPlan = to(context, there, path);
     if (context.params.track === "pace")
-      return walkFollowed(
+      return walkStation(
         walked,
         (seconds: number): IAutoMovieVector3 => leader.root(seconds).position,
         context.start,
@@ -214,14 +225,28 @@ export namespace approach {
     return wait < 1e-6 ? walked : walkDelayed(walked, wait);
   }
 
-  /** How far ahead a tracked person's placed root is read for where they come to rest, seconds (provisional: longer than a shot). */
+  /** How far ahead a tracked person's placed root is read for where they come to rest, seconds. A numerical policy bounding the scan at `HORIZON / REST_STEP` reads: a minute, longer than any one shot a follower is planned in, so a leader still moving after it is followed to where they are then. */
   export const HORIZON: number = 60;
 
-  /** How far a tracked person's way must leave the straight line for the follower to take it by their places, and how near either end such a place is dropped, metres (provisional: about a body's clearance, as `CLEARANCE`). */
-  export const BEND: number = 0.5;
+  /** Seconds between two reads of a tracked person's placed root: one walking step, 0.50 to 0.56 s at the 1.8 to 2.0 steps a second of 800 pedestrians (Pachi and Ji 2005, Struct Eng 83(3):36), so a stop is found within the step it is made on. */
+  export const REST_STEP: number = 0.5;
+
+  /** How far a tracked person's root may move between two reads and still count as at rest, metres. A numerical policy: the millimetre the balance margins are reported in (`HumanBalance.TOLERANCE` resolves to half of it), far below the shortest step and far above a placed root's round-off. */
+  export const REST_MOVE: number = 1e-3;
+
+  /** How far a tracked person's heading may turn between two reads and still count as at rest, degrees. A numerical policy: a tenth of a degree carries a shoulder, about 0.2 m from the root, by 0.35 mm, under `REST_MOVE`, so a turn is read at least as finely as a move. */
+  export const REST_TURN: number = 0.1;
+
+  /** How far a tracked person's way must leave the straight line for the follower to take it by their places, and how near either end such a place is dropped, metres: the lateral clearance walkers keep from a person (`CLEARANCE`, Gerin-Lajoie et al. 2005), under which taking the leader's turn would not change the follower's path by more than its own personal space. */
+  export const BEND: number = CLEARANCE;
 
   /** How long after a tracked person has stopped a walk that waited for them arrives, seconds: a follower's visual-motor delay, the mean optimal delay between a leader's and a follower's acceleration (420 ms; Rio, Rhea and Warren 2014, J Vis 14(2):4). */
   export const LAG: number = 0.42;
+
+  /** The turn from one heading to another, degrees in [-180, 180), so a heading crossing ±180 is not read as a whole turn. */
+  function turnBetween(from: number, to: number): number {
+    return ((((to - from) % 360) + 540) % 360) - 180;
+  }
 
   /** Plan the walk to the stop place of a target given where it is: the stop, the waypoints, the walk and its one arrival correction. */
   function to(
@@ -314,7 +339,7 @@ export namespace approach {
       ).point;
       const from: IAutoMovieVector3 = via.at(-1) ?? feet;
       const pass: number = CLEARANCE + body.measure.chestBreadth / 2;
-      const waypoint: IAutoMovieVector3 | undefined = approach.abeam(
+      const waypoint: IAutoMovieVector3 | undefined = abeam(
         from,
         stop.at,
         at,
@@ -338,9 +363,9 @@ export namespace approach {
           ...(p.effort === undefined
             ? {}
             : {
-                stride: Math.min(1.3, Math.max(0.6, mods.step)),
-                armSwing: Math.min(2, Math.max(0, mods.swing)),
-                elbows: Math.min(30, Math.max(0, 100 * mods.elbow)),
+                stride: Math.min(walk.STRIDE_RANGE.maximum, Math.max(walk.STRIDE_RANGE.minimum, mods.step)),
+                armSwing: Math.min(walk.ARM_SWING_RANGE.maximum, Math.max(walk.ARM_SWING_RANGE.minimum, mods.swing)),
+                elbows: Math.min(walk.ELBOWS_RANGE.maximum, Math.max(walk.ELBOWS_RANGE.minimum, 100 * mods.elbow)),
               }),
         },
       });
@@ -387,7 +412,7 @@ export namespace approach {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function with nothing to share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates only the returned point and retains nothing.
    */
-  export function abeam(
+  function abeam(
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
     point: IAutoMovieVector3,

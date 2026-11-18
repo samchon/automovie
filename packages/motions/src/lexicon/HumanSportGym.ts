@@ -23,7 +23,7 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what it leaves open and where its limits are stated.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that plans and refuses.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One row per exercise a programme names; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the kind is the only value fixed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; each fixes its law's kind and nothing else.
  */
 export namespace HumanSportGym {
   /** A bear crawl: on the hands and the feet, the knees held off the floor. */

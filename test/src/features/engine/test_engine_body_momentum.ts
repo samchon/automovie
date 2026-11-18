@@ -18,6 +18,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * The whole-body inertia tensor and momenta of a posed body (#3422), read
@@ -310,9 +311,12 @@ export function test_engine_body_momentum(): void {
         );
 
   // 6. A non-positive interval is refused.
-  TestValidator.error("a zero interval is refused", (): void => {
-    resolveAutoMovieMomentum(twoBox, pair, pair, 0);
-  });
+  TestValidator.predicate(
+    "a zero interval is refused",
+    throwsError((): void => {
+      resolveAutoMovieMomentum(twoBox, pair, pair, 0);
+    }),
+  );
 
   TestValidator.predicate(
     `whole-body inertia and momentum: ${findings.join("; ") || "all hold"}`,

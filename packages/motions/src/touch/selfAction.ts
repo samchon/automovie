@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanPosture,
@@ -268,12 +269,24 @@ export namespace selfAction {
     );
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
 
+
+    // Two arms raised over one span are planned on one base, each beside
+    // the other at its rest (`IAutoMovieMotionHumanArmCarry.beside`): they
+    // rise on their own sides and never share space. Planned one after the
+    // other, the right arm was solved beside a left arm at rest and the left
+    // beside the right arm's solved course, so the stretch's two arms were
+    // not each other's mirror: the little fingers stood 0.24 m apart from
+    // their mirror places (measured). As one problem of both arms they
+    // mirrored, at several times the cost of two.
+    const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
+      AutoMovieMotionHumanArmPlanned.together(context.handover);
     const raise = (r: IRaised): void => {
       const side: AutoMovieHumanSide = r.side;
       primitives.push(
         AutoMovieMotionHumanArm.carried({
           body,
           side,
+          ...(together === undefined ? {} : { beside: together }),
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),

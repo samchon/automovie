@@ -1,37 +1,38 @@
-import {
+import type {
   IAutoMovieActionCall,
-  type IAutoMovieActionSynthesizer,
+  IAutoMovieActionSynthesizer,
   IAutoMovieBeatEndState,
   IAutoMovieCamera,
   IAutoMovieClip,
   IAutoMovieCompiledFormation,
-  type IAutoMovieCompiledPerformance,
+  IAutoMovieCompiledPerformance,
   IAutoMovieConstraintViolation,
-  type IAutoMovieCoupleObjects,
-  type IAutoMovieEnginePerformShotActionPlan,
-  type IAutoMovieEnginePerformShotGateContext,
+  IAutoMovieCoupleObjects,
+  IAutoMovieEnginePerformShotActionPlan,
+  IAutoMovieEnginePerformShotGateContext,
   IAutoMovieFormationMotion,
   IAutoMovieInteractionEvent,
   IAutoMovieLight,
-  type IAutoMovieMaskedContent,
+  IAutoMovieMaskedContent,
   IAutoMovieMotion,
-  type IAutoMoviePerformShotCoverageJob,
-  type IAutoMoviePerformShotProps,
+  IAutoMoviePerformShotCoverageJob,
+  IAutoMoviePerformShotProps,
   IAutoMoviePerformance,
-  type IAutoMoviePerformedShot,
-  type IAutoMoviePracticalSurfaceTrack,
+  IAutoMoviePerformedShot,
+  IAutoMoviePracticalSurfaceTrack,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
   IAutoMovieScript,
   IAutoMovieShot,
   IAutoMovieShotPerformance,
   IAutoMovieSkeleton,
-  type IAutoMovieStagedSet,
-  type IAutoMovieValidation,
+  IAutoMovieStagedSet,
+  IAutoMovieValidation,
   IAutoMovieVector3,
-  type IAutoMovieViolationCollector,
+  IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
+import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { compilePerformance } from "../perform/compilePerformance";
 import { scenePlacements } from "../perform/scenePlacements";
 import { sampleFormationMotion } from "../sampleFormationMotion";
@@ -45,11 +46,13 @@ import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSu
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
+import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
 import { compilePerformShotPracticalLights } from "./compilePerformShotPracticalLights";
 import { copyPolygonBodyCue } from "./copyPolygonBodyCue";
 import { coupleObjects } from "./coupleObjects";
+import { createPerformShotSubjectFramer } from "./createPerformShotSubjectFramer";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";
 import { gatePerformShotActions } from "./gatePerformShotActions";
 import { gatePerformShotBlocking } from "./gatePerformShotBlocking";
@@ -90,8 +93,8 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No beat, actor, camera or prop is special-cased; every refusal carries a path into the author's input, and the artifact check throws rather than downgrading an engine defect into an authoring violation.
  * @evidence contracts/development/common.md#meaningful-documentation States which list performs, every stage in order with its owner, the stop-at-first-failing-group rule, the locked-off fallback, how cameras and formations may be targeted, and when and why it throws; each input field documents its meaning and what omitting it does.
  * @evidence contracts/development/implementation.md#efficient-algorithms Gates include pairwise same-actor region overlap checks and sorted frame spans, so their cost is not uniformly linear; delegated launch, planting, camera, clip and artifact checks add their own population costs. Synthesis is invoked at most once per action object and actor within this call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Synthesis is memoized per action object and actor, so the overlap gate, the launch probe and the performance compile share one clip per pair; the staged lookup tables are built once into the gate context, and model extents once per node in the subject framer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synthesis memo is a `WeakMap` keyed by the caller's action objects and is dropped with the call, as are the gate context and the framer; the caller owns the returned shot, motions and plants.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Synthesis is memoized per action/actor, sharing one clip across overlap, launch and performance stages; staged lookups and per-node subject extents prepare once. After rig/clip admission, each attachment bake receives a genuine immutable snapshot of its actual fixed parent rig/mappings, sharing only static prerequisites and exact demanded-bone dependencies across its current samples. Stable gate/compile inputs remain the premise; target callbacks and pose samples are not memoized by this FK owner.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call releases its synthesis WeakMap, gate context and framer. Each synchronous attachment bake releases its prepared demand/operation rows before returning only numeric tracks; no FK reader enters the returned shot. The caller owns the returned shot, motions and plants.
  */
 export function performShot(
   props: IAutoMoviePerformShotProps,
@@ -313,7 +316,7 @@ export function performShot(
   }
   if (out.items.length > 0) return failure();
 
-  // 4. Coupling, now that the parents' poses have compiled.
+  // 4. Admitted parent rigs can prepare only their demanded attachment ancestry.
   const coupled: IAutoMovieCoupleObjects.IResult = coupleObjects({
     attachments: plan.attachments,
     mounts: staged.mounts,
@@ -322,6 +325,7 @@ export function performShot(
     skeleton,
     jointAxes: props.jointAxes,
     restFrames: props.restFrames,
+    prepareRig: prepareSkeletonPoseResolution,
     duration: performance.duration,
   });
   objectMotions.push(...coupled.clips);

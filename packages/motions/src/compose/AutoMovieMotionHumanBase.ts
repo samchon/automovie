@@ -1,9 +1,12 @@
 import type {
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
+
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
  * Bases of composed actions: the plan whose posture every unclaimed channel
@@ -12,6 +15,9 @@ import type {
  * Most actions happen on a body that otherwise stays as it is (a stance, a
  * seat, the posture the action was entered in), so their base is one posture
  * held for the action's duration with the supports it stands on.
+ * A held base borrows its posture and returns that exact object on every
+ * read, including later caller edits. An explicit constructor that owns
+ * copied coefficients is separate from this public borrowing contract.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a base is and what most actions take as theirs.
  * @evidence contracts/development/design.md#principled-representation A base is an action plan like any other, so a moving base (a walk) and a held one compose the same way.
@@ -23,17 +29,17 @@ export namespace AutoMovieMotionHumanBase {
    * A base that holds one posture.
    *
    * @param duration Seconds; the composed action's clock lasts as long.
-   * @param posture The posture held.
+   * @param posture The borrowed posture; every read returns this exact object and observes later edits.
    * @param contacts The supports it stands on, shares of the duration.
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and meaning and the default supports.
-   * @evidence contracts/development/implementation.md#principled-implementation A held posture is the constant function of time, with the supports it was given and no events.
+   * @evidence contracts/development/implementation.md#principled-implementation The reader returns the exact borrowed posture, a value its caller does not change, for every second, so the plan declares itself still over its whole span (`still`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The contacts are copied, so a later change of the caller's list does not reach the plan.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Construction copies C contact references; each posture read is constant work and neither traverses nor copies the borrowed authoring graph.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the one posture it returns.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the borrowed posture and copied contact list until release; it owns no source snapshot, canonical pose or numerical metadata.
    */
   export function still(
     duration: number,
@@ -44,6 +50,9 @@ export namespace AutoMovieMotionHumanBase {
       duration,
       events: [],
       contacts: [...contacts],
+
+      // One posture throughout: still over the whole plan.
+      still: [0, duration],
       posture: (): IAutoMovieMotionHumanPosture => posture,
     };
   }
@@ -71,27 +80,26 @@ export namespace AutoMovieMotionHumanBase {
     duration: number,
     contacts?: readonly IAutoMovieMotionHumanContactWindow[],
   ): IAutoMovieMotionHumanActionPlan {
-    const carrier: IAutoMovieMotionHumanActionContext.ICarrier | undefined =
-      context.carrier;
+    const carrier: IAutoMovieMotionHumanActionContext.ICarrier | undefined = context.carrier;
     if (carrier === undefined)
       return still(
         duration,
         context.entry.posture,
         contacts ??
           context.entry.supports.map(
-            (s): IAutoMovieMotionHumanContactWindow => ({
-              ...s,
-              from: 0,
-              to: 1,
-            }),
+            (s): IAutoMovieMotionHumanContactWindow => ({ ...s, from: 0, to: 1 }),
           ),
       );
     return {
       duration,
       events: [],
       contacts: [],
-      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-        carrier.posture(seconds),
+      posture: (
+        seconds: number,
+        channels?: readonly AutoMovieMotionHumanChannel[],
+        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => carrier.posture(seconds, channels, resolution, projection),
     };
   }
 

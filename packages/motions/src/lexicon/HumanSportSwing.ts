@@ -24,7 +24,7 @@ import { HumanSwordGuard } from "./HumanSwordGuard";
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is a row of, what the composition gives and what the first pass leaves out.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a registered law (`HumanActionRow`), so it is data over a law that fits the body, refuses and is checked.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One row per swing a screenplay names; a production registers the ones it uses.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; the line a swing comes from is the only value fixed.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own; a row fixes the line a swing comes from, and where its name means it the hands, the checked share or the guard.
  */
 export namespace HumanSportSwing {
   /** A baseball swing: both hands, level from the bat hand's side. */

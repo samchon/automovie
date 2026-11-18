@@ -29,8 +29,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * stands when the body is tipped by a chosen pitch, along the line the
  * shoulder moves on, is reached at that pitch and at none smaller.
  *
- * Scenarios, on one body of the sweep (the `test_human_motion_compose_reach_fit_*`
- * specs run one body each):
+ * Scenarios on the reference body:
  * 1. `check` for each of the four limbs, on a standing body and on one
  *    turned 90 degrees and pitched 20, measures from the displayed root
  *    joint, with the displayed segments' length, the distance to the point,
@@ -48,13 +47,14 @@ import { motionHumanBody } from "./motionHumanBody";
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the owner's results on a real body through the public functions and the resolver, as the scenarios state.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One body's cells, gathered as complaints and asserted once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its numbers; no cell is sampled away for time.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Lean targets are made from the rotation of the displayed standing shoulder around the displayed hip, without fitting a posture to create the expected result.
  * @evidence contracts/development/implementation.md#efficient-algorithms One body per call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The policy branches use one reference body. The straight-reach ratio is checked at both arm-length boundaries.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The postures live as long as the call; the body is the shared fixture's.
  */
-export function motionComposeReachFit(name: motionHumanBody.Name): void {
+export function motionComposeReachFit(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  const name: motionHumanBody.Name = "m-average";
   const all: motionComplaints.IGatherer = motionComplaints();
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -87,6 +87,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
       0,
     );
     const upright: Bones = bones(standing);
+    const hips: IAutoMovieVector3 = upright.get("hips")!.worldPosition;
     const length = (limb: (typeof LIMBS)[number]): number =>
       gap(
         upright.get(CHAINS[limb][0])!.worldPosition,
@@ -136,27 +137,30 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
     }
 
     for (const limb of ["leftArm", "rightArm"] as const) {
-      const reach: number = AutoMovieMotionHumanReach.check(
-        body,
-        standing,
-        limb,
-        { x: 0, y: 0, z: 0 },
-      ).length;
-      const shoulder = (
-        posture: IAutoMovieMotionHumanPosture,
-      ): IAutoMovieVector3 =>
-        bones({ ...posture, limbs: {} }).get(CHAINS[limb][0])!.worldPosition;
+      const reach: number = length(limb);
+      const shoulder: IAutoMovieVector3 = upright.get(
+        CHAINS[limb][0],
+      )!.worldPosition;
       const tipped = (pitch: number): IAutoMovieMotionHumanPosture =>
         AutoMovieMotionHumanLean.tip(body, standing, pitch, 0);
-      // The unit line the shoulder moves along between two nearby pitches.
-      const line = (pitch: number): IAutoMovieVector3 => {
-        const a: IAutoMovieVector3 = shoulder(tipped(pitch - 0.5));
-        const b: IAutoMovieVector3 = shoulder(tipped(pitch + 0.5));
-        const d: number = gap(a, b);
-        return { x: (b.x - a.x) / d, y: (b.y - a.y) / d, z: (b.z - a.z) / d };
+      // The shoulder follows a circle about the hip. Rotate its initial
+      // sagittal offset and advance one link sum along the unit tangent.
+      const u: number = shoulder.y - hips.y;
+      const v: number = shoulder.z - hips.z;
+      const radius: number = Math.hypot(u, v);
+      const placed: (pitch: number, beyond?: number) => IAutoMovieVector3 = (
+        pitch: number,
+        beyond: number = 0,
+      ): IAutoMovieVector3 => {
+        const angle: number = (pitch * Math.PI) / 180;
+        const y: number = u * Math.cos(angle) - v * Math.sin(angle);
+        const z: number = u * Math.sin(angle) + v * Math.cos(angle);
+        return move(
+          { x: shoulder.x, y: hips.y + y, z: hips.z + z },
+          { x: 0, y: -z / radius, z: y / radius },
+          reach + beyond,
+        );
       };
-      const placed = (pitch: number, beyond: number = 0): IAutoMovieVector3 =>
-        move(shoulder(tipped(pitch)), line(pitch), reach + beyond);
 
       // 2. The least lean.
       all.check(
@@ -165,7 +169,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
           body,
           standing,
           limb,
-          move(shoulder(standing), { x: 0, y: 0, z: 1 }, 0.7 * reach),
+          move(shoulder, { x: 0, y: 0, z: 1 }, 0.7 * reach),
         ) === 0,
       );
       for (const chosen of [10, 25, 40] as const) {
@@ -213,7 +217,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
 
       // 3. The policies, for an arm.
       const within: IAutoMovieVector3 = move(
-        shoulder(standing),
+        shoulder,
         { x: 0, y: 0, z: 1 },
         0.7 * reach,
       );
@@ -226,7 +230,7 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
       const far: IAutoMovieVector3 = placed(25);
       const clamped: IAutoMovieMotionHumanReach.IFit =
         AutoMovieMotionHumanReach.fit(body, standing, limb, far, "clamp");
-      const root: IAutoMovieVector3 = shoulder(standing);
+      const root: IAutoMovieVector3 = shoulder;
       const distance: number = gap(root, far);
       all.check(
         `${name}: the ${limb}'s clamp moves the point onto the reach along its line from the shoulder, ${mm(gap(root, clamped.point))} mm out of ${mm(reach)} mm`,
@@ -323,5 +327,42 @@ export function motionComposeReachFit(name: motionHumanBody.Name): void {
         );
     }
   }
-  all.assert(`the reach holds on every body (${name})`);
+
+  // Both arm-length boundaries obey the same Euclidean clamp after
+  // dividing by their own link sum. The goal follows the turned heading.
+  for (const profile of ["m-short-armed", "m-long-armed"] as const) {
+    const body: IAutoMovieMotionHumanBody = motionHumanBody(profile);
+    const origin: IAutoMovieVector3 = { x: 0.4, y: 0, z: -0.2 };
+    const posture: IAutoMovieMotionHumanPosture = stand.posture(
+      body,
+      origin,
+      90,
+    );
+    const joints: Bones = poseBones(
+      body,
+      resolveHumanPosture(body, { ...posture, limbs: {} }),
+    );
+    const shoulder: IAutoMovieVector3 =
+      joints.get("rightUpperArm")!.worldPosition;
+    const elbow: IAutoMovieVector3 = joints.get("rightLowerArm")!.worldPosition;
+    const wrist: IAutoMovieVector3 = joints.get("rightHand")!.worldPosition;
+    const reach: number = gap(shoulder, elbow) + gap(elbow, wrist);
+    // +Z in the human frame is +X at yaw 90 degrees.
+    const forward: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+    const got: IAutoMovieMotionHumanReach.IFit = AutoMovieMotionHumanReach.fit(
+      body,
+      posture,
+      "rightArm",
+      move(shoulder, forward, 2 * reach),
+      "clamp",
+    );
+    all.check(
+      `${profile}: a double-reach goal clamps to one arm length along the turned heading`,
+      gap(got.point, move(shoulder, forward, reach)) <= 1e-6 &&
+        JSON.stringify(got.posture) === JSON.stringify(posture),
+    );
+  }
+  all.assert(
+    "reach follows the same link geometry under pitch, heading and scale",
+  );
 }

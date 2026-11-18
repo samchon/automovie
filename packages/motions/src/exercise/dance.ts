@@ -27,6 +27,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareDanceFootCourse } from "./prepareDanceFootCourse";
 
 /**
  * A solo dance step locked to a declared beat (#3253, M23): the bounce, the
@@ -109,16 +110,16 @@ export namespace dance {
    * @evidence contracts/development/implementation.md#principled-implementation A beat clock with one instant per beat; each step's root and foot curves are written against the beats.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per step.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The beat is never moved by the manner: the manner scales sizes only.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the beats per written second.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg placement and its arc.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the beat list and the stance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Beat lists, world placements and fixed course pairs prepare in O(beats); each foot query uses logarithmic selection and its original observation. Fixed arcs prepare on first actual pair read; sway shifts read each foot offset once for both coordinates. Bounce uses a prepared native phase envelope with custom-callback guards; root rows request only preceding root.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each exact authored foot offset is transformed once in the unchanged entry frame. Native fixed-pair arc metadata share across actual placement reads; current progress, lateral interpolation, rigid placement and leg goals remain independently evaluated without time-result reuse.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(beats) footfalls, world placements and bounded held/travelling arc preparations until release, alongside its existing beat clock; no time, solved pose, FK source or query history is retained.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDance.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanDance.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.beats ?? 8;
     HumanBound.above("bpm", bpm, 0, "beats per minute");
@@ -139,7 +140,8 @@ export namespace dance {
             )
             .slice(0, beats)
             .map(
-              (c: IAutoMovieScheduleCue): number => c.seconds - context.start,
+              (c: IAutoMovieScheduleCue): number =>
+                c.seconds - context.start,
             );
     if (locked !== null && locked.length < Math.min(2, beats))
       throw new HumanRefusal({
@@ -150,22 +152,23 @@ export namespace dance {
         reason: `the track ${p.lock!.of} has ${locked.length} ${p.lock!.event ?? "beat"} instants after the step starts, fewer than the ${Math.min(2, beats)} a tempo needs`,
         fix: "lock to a track with beats after the step's start, or give bpm instead",
       });
+    // A single locked beat has no interval of its own, so it keeps the
+    // tempo's: its offset from the start is a lead, not a period, and is
+    // zero when the beat falls on the start.
     const period: number =
-      locked === null
+      locked === null || locked.length < 2
         ? 60 / bpm
-        : locked.length < 2
-          ? locked[0]!
-          : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
+        : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
     const lead: number = locked === null ? period : locked[0]!;
-    const beatAt = (k: number): number => lead + (k - 1) * period;
+    const beatAt: (k: number) => number = (k: number): number => lead + (k - 1) * period;
     const instants: IAutoMovieMotionClockInstant[] = [];
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
     const duration: number = beatAt(beats) + period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
-      ...instants,
-      { name: "relax", seconds: beatAt(beats) },
-    ]);
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+      duration,
+      [...instants, { name: "relax", seconds: beatAt(beats) }],
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const leftward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
@@ -175,10 +178,7 @@ export namespace dance {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const stance: Record<
-      "left" | "right",
-      IAutoMovieMotionHumanFoot.IPlacement
-    > = {
+    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -188,30 +188,33 @@ export namespace dance {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    // Rises from 0 at the start to 1 by the first beat and falls after the last.
-    const settle = (seconds: number): number =>
-      clock.envelope(["start", "beat1"], ["relax", "end"], seconds);
-    const root = (
+    const root: (
+      offset: (seconds: number) => IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       offset: (seconds: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
+      reads: ["root"],
       from: 0,
       to: duration,
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-      ): IAutoMovieMotionHumanPosture => ({
+      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(seconds)),
       }),
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] =
-      AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
 
     switch (p.kind) {
       case "bounce": {
         const depth: number = BOUNCE * m.stature * modifiers.extent;
+        // Rises by the first beat and falls after the last, as before.
+        const settle: (seconds: number) => number =
+          AutoMovieMotionClock.prepareEnvelope(
+            clock,
+            ["start", "beat1"],
+            ["relax", "end"],
+          );
         primitives.push(
           root(
             (s: number): IAutoMovieVector3 => ({
@@ -241,10 +244,12 @@ export namespace dance {
           m.hipHeight +
           entry.root.y -
           (stance.left.ankle.y + stance.right.ankle.y) / 2;
-        const ease = (u: number): number => u * u * (3 - 2 * u);
-        const side = (s: number): number =>
+        const ease: (u: number) => number = (u: number): number => u * u * (3 - 2 * u);
+        const side: (s: number) => number = (s: number): number =>
           s <= lead
-            ? ease(s / lead)
+            ? lead > 0
+              ? ease(s / lead)
+              : 1
             : s >= beatAt(beats)
               ? Math.cos(Math.PI * (beats - 1)) *
                 (1 - ease(Math.min(1, (s - beatAt(beats)) / period)))
@@ -298,55 +303,64 @@ export namespace dance {
           }
           falls.push({ foot, beat: beatAt(k), at: offset[foot] });
         }
-        const lateral = (
-          foot: "left" | "right",
-          s: number,
-        ): { at: IOffset; swing: number; from: IOffset } => {
-          let at: IOffset = { x: 0, z: 0 };
-          for (const f of falls)
-            if (f.foot === foot) {
-              const start: number = f.beat - period / 2;
-              if (s >= f.beat) at = f.at;
-              else if (s > start)
-                return {
-                  at: f.at,
-                  swing: (s - start) / (period / 2),
-                  from: at,
-                };
-            }
-          return { at, swing: 1, from: at };
+        const paths: Record<"left" | "right", typeof falls> = {
+          left: falls.filter(
+            (fall: (typeof falls)[number]): boolean => fall.foot === "left",
+          ),
+          right: falls.filter(
+            (fall: (typeof falls)[number]): boolean => fall.foot === "right",
+          ),
         };
-        const placed = (
-          foot: "left" | "right",
-          s: number,
-        ): IAutoMovieMotionHumanFoot.IPlacement => {
-          const l = lateral(foot, s);
-          const shift = (o: IOffset): IAutoMovieMotionHumanFoot.IPlacement => ({
-            ankle: Vector3.add(
-              stance[foot].ankle,
-              Vector3.add(
-                Vector3.scale(leftward, o.x),
-                Vector3.scale(forward, o.z),
-              ),
+        const origin: IOffset = { x: 0, z: 0 };
+        const placements: Record<
+          "left" | "right",
+          Map<IOffset, IAutoMovieMotionHumanFoot.IPlacement>
+        > = { left: new Map(), right: new Map() };
+        for (const foot of ["left", "right"] as const)
+          for (const at of [
+            origin,
+            ...paths[foot].map(
+              (fall: (typeof falls)[number]): IOffset => fall.at,
             ),
-            rotation: stance[foot].rotation,
-          });
-          return AutoMovieMotionHumanLeg.arc(
-            shift(l.from),
-            shift(l.at),
+          ])
+            placements[foot].set(at, {
+              ankle: Vector3.add(
+                stance[foot].ankle,
+                Vector3.add(
+                  Vector3.scale(leftward, at.x),
+                  Vector3.scale(forward, at.z),
+                ),
+              ),
+              rotation: stance[foot].rotation,
+            });
+        const courses: Record<
+          "left" | "right",
+          ReturnType<typeof prepareDanceFootCourse>
+        > = {
+          left: prepareDanceFootCourse(
+            paths.left,
+            placements.left,
+            origin,
+            period,
             0.04 * m.stature,
-            l.swing,
-          );
+          ),
+          right: prepareDanceFootCourse(
+            paths.right,
+            placements.right,
+            origin,
+            period,
+            0.04 * m.stature,
+          ),
         };
-        const planted = (foot: "left" | "right", s: number): boolean =>
-          lateral(foot, s).swing >= 1;
-        const along = (foot: "left" | "right", s: number): IOffset => {
-          const l = lateral(foot, s);
-          return {
-            x: l.from.x + (l.at.x - l.from.x) * l.swing,
-            z: l.from.z + (l.at.z - l.from.z) * l.swing,
-          };
-        };
+        const placed: (
+          foot: "left" | "right",
+          s: number,
+        ) => IAutoMovieMotionHumanFoot.IPlacement = (
+          foot: "left" | "right",
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement => courses[foot].placed(s);
+        const planted: (foot: "left" | "right", s: number) => boolean = (foot: "left" | "right", s: number): boolean =>
+          courses[foot].planted(s);
         // The hips follow the feet's mean and sink until each leg reaches
         // its foot, the travelling one too: feet a shoulder width further
         // apart lie beyond the legs' standing length, and hips that waited
@@ -361,11 +375,15 @@ export namespace dance {
               pitch: 0,
               roll: 0,
             }),
-            shift: (s: number): IAutoMovieVector3 => ({
-              x: (along("left", s).x + along("right", s).x) / 2,
-              y: 0,
-              z: (along("left", s).z + along("right", s).z) / 2,
-            }),
+            shift: (s: number): IAutoMovieVector3 => {
+              const left: IOffset = courses.left.along(s);
+              const right: IOffset = courses.right.along(s);
+              return {
+                x: (left.x + right.x) / 2,
+                y: 0,
+                z: (left.z + right.z) / 2,
+              };
+            },
             legs: (s: number) => ({
               leftLeg: AutoMovieMotionHumanLeg.goal(
                 body,
@@ -391,14 +409,33 @@ export namespace dance {
               side: foot,
               from: 0,
               to: duration,
-              placement: (
-                _: IAutoMovieMotionHumanPosture,
-                s: number,
-              ): IAutoMovieMotionHumanFoot.IPlacement => placed(foot, s),
+              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
+                placed(foot, s),
               planted: (s: number): boolean => planted(foot, s),
             }),
           );
+
+        // Each foot bears between its travels, the half beat before each of
+        // its footfalls (`prepareDanceFootCourse`).
         contacts = [];
+        for (const foot of ["left", "right"] as const) {
+          let from: number = 0;
+          for (const fall of [
+            ...paths[foot],
+            { beat: duration + period / 2 },
+          ]) {
+            const lifts: number = Math.max(from, fall.beat - period / 2);
+            if (lifts > from)
+              contacts.push({
+                part: `${foot}Foot`,
+                kind: "plant",
+                from: from / duration,
+                to: Math.min(duration, lifts) / duration,
+                support: { kind: "ground" },
+              });
+            from = fall.beat;
+          }
+        }
         break;
       }
     }

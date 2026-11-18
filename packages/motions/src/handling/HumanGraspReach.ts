@@ -1,310 +1,28 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanResolveHumanPosture,
-  IAutoMoviePose,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { HumanFrame } from "../posture/HumanFrame";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanGrasp } from "./HumanGrasp";
+import type { HumanGrasp } from "./HumanGrasp";
 
 /**
- * Which grip of a target an arm reaches: the search over a grip's turns and
- * tilts by the error the arm's fit leaves over the grasp and its stroke, the
- * standing posture another person's arm is predicted from, and a target
- * turned about its wrapped axis. `HumanGrasp` declares the records and
- * passes these through by name.
+ * Where another person's arm is predicted from and how a grip turns about
+ * its handle: the standing posture a person settles into, and a target
+ * turned about its wrapped axis. `HumanGrasp` passes these through by name.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and where its records are declared.
- * @evidence contracts/development/design.md#principled-representation The reach search of a grasp, over the target, key and reach records `HumanGrasp` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Split from `HumanGrasp` unchanged, so each file holds one responsibility.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture resolver and the stand law; nothing is duplicated.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and who exposes it.
+ * @evidence contracts/development/design.md#principled-representation The stand law's posture over displayed feet, and a rigid turn of a grasp target.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Two operations, read through `HumanGrasp` and by `HumanGraspHand`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the stand law and the engine's quaternions; nothing is duplicated.
  */
 export namespace HumanGraspReach {
-  /**
-   * The reachable variant of a symmetric hand goal: among the goals a
-   * family of turns produces (about a grasped part's own axis, where any
-   * azimuth wraps it alike, or about the palm's normal, where the palm's
-   * contact is unchanged), the one the arm can actually take from a posture,
-   * by the error left after the arm's fit over its three goals: the hand's
-   * rotation in degrees, the wrist's position in millimetres and the elbow's
-   * turn from its hint about the shoulder-to-wrist line in degrees, the one
-   * freedom a placed wrist leaves the elbow (Tolani, Goswami and Badler
-   * 2000). The fit gives up the elbow hint before the hand, so a hand turn
-   * the wrist's range cannot hold with the hinted elbow is reached by the
-   * other arm pose, the elbow raised; counting that turn as error ranks the
-   * grip the arm takes as the law asked above one it takes by leaving its
-   * bend. The authored turn wins ties by a hundredth of a
-   * degree per degree of turn. Grasp planners rank a part's symmetric grasps
-   * by reachability the same way (Miller et al. 2003, Automatic grasp
-   * planning using shape primitives), since an authored grip frame alone may
-   * ask the wrist for more deviation than it has.
-   *
-   * A grip is held through a stroke, not at one instant: a lifted bottle is
-   * still in the same grip at the top of the lift, a clasped hand at both
-   * ends of the pump. `stroke` names those further key poses for a candidate
-   * grip, and a candidate's error is the worst over the grasp and its keys,
-   * so the chosen grip is the one the arm keeps over the whole stroke; a key
-   * that judges what it places (`HumanGrasp.IKey.judge`) also reports that
-   * judgement, which `required` reads. Each
-   * key is fitted with the grasp's own arm solution as its reference, the way
-   * the law will show it. The returned `reference` is that solution, for the
-   * law to pass on every goal of the stroke
-   * (`HumanPosture.IGoal.reference`).
-   *
-   * @param body The body.
-   * @param posture The posture the arm is fitted in (its other limbs and trunk).
-   * @param side The arm.
-   * @param bend The elbow hint.
-   * @param goal The wrist goal of a turn and a tilt, degrees.
-   * @param tilts The tilts tried at each turn; only the authored one when absent.
-   * @param stroke The further key poses the same grip must reach, from its grasp goal and from the hand the arm shows for that goal: what is held is rigid in the shown hand, so a key that places the held thing is built from the shown one. None when absent.
-   * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when absent.
-   * @param required What a grip must hold before its cost counts: a measure of its per-key errors, judgements and the bounds the keys hold their judgements to (the grasp's, then each stroke key's, `IKey.judge` and `IKey.bound`; `NaN` where none) and the most it may be. A grip within the bound is chosen before any beyond it; with none within, the one nearest the bound is returned for the caller to refuse. Absent, the least cost alone decides.
-   * @param admits Whether the caller can take a candidate's grasp goal at all (a pick-up's wrist within the straight arm's reach, which it refuses beyond): a candidate it refuses is tried only when it refuses every one, so a cheaper fit never wins a grip the caller must then refuse. Every candidate when absent.
-   * @returns The best turn and tilt, their goal, the hand the arm achieves for it, and the arm's solution there.
-   */
-  export function reachable(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    side: AutoMovieHumanSide,
-    bend: IAutoMovieVector3,
-    goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist,
-    tilts: readonly number[] = [0],
-    stroke?: (
-      wrist: IAutoMovieMotionHumanHand.IWrist,
-      shown: IAutoMovieMotionHumanHand.IWrist,
-    ) => Iterable<IAutoMovieMotionHumanGrasp.IKey>,
-    turns: readonly number[] = HumanGrasp.TURNS,
-    required?: {
-      bound: number;
-      measure: (
-        keys: readonly number[],
-        judged: readonly number[],
-        bounds: readonly number[],
-      ) => number;
-    },
-    admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean,
-  ): IAutoMovieMotionHumanGrasp.IReach {
-    const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
-    // One key pose fitted, its elbow left to the body (`elbow`): the pose and
-    // the error the arm leaves there, the rotation in degrees plus the
-    // position in millimetres. The rotation is the fit's own optimal value
-    // where it reports one: the least hand error over the arm's legal
-    // swivels, continuous in the key (Berge's maximum theorem), where a
-    // quantity read at the chosen swivel jumps wherever two swivels trade
-    // places. The elbow's departure from `bend` is measured for the report and
-    // costs nothing.
-    const fit = (
-      key: IAutoMovieMotionHumanGrasp.IKey,
-      reference: IAutoMovieHumanLimbReference | undefined,
-    ): {
-      pose: IAutoMoviePose;
-      shown: IAutoMovieMotionHumanHand.IWrist;
-      miss: number;
-      departure: number;
-      judged: number;
-    } => {
-      // A key another action asks is fitted as that action fits its pose:
-      // its own goal, on its own arm solution, not the grasp's.
-      const anchored: IAutoMovieHumanLimbReference | undefined =
-        key.reference === false ? undefined : reference;
-      const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-        resolveHumanPosture.seeded(body, {
-          ...key.posture,
-          limbs: {
-            ...key.posture.limbs,
-            [limb]: {
-              ...(key.goal ?? {
-                point: key.wrist.point,
-                rotation: key.wrist.rotation,
-                bend: key.bend,
-                elbow: "strain",
-              }),
-              ...(anchored === undefined ? {} : { reference: anchored }),
-            },
-          },
-        });
-      const pose: IAutoMoviePose = resolved.pose;
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, pose);
-      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      // How far the elbow sits from its hint about the shoulder-to-wrist
-      // line, the one freedom the wrist's place leaves it.
-      const shoulder: IAutoMovieVector3 = bones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      const line: IAutoMovieVector3 = Vector3.subtract(
-        hand.worldPosition,
-        shoulder,
-      );
-      const span: number = Vector3.dot(line, line);
-      const radial = (point: IAutoMovieVector3): IAutoMovieVector3 => {
-        const from: IAutoMovieVector3 = Vector3.subtract(point, shoulder);
-        return span > 0
-          ? Vector3.subtract(
-              from,
-              Vector3.scale(line, Vector3.dot(from, line) / span),
-            )
-          : from;
-      };
-      const shownSide: IAutoMovieVector3 = radial(
-        bones.get(`${side}LowerArm`)!.worldPosition,
-      );
-      const hintSide: IAutoMovieVector3 = radial(key.bend);
-      const sides: number =
-        Vector3.length(shownSide) * Vector3.length(hintSide);
-      const departure: number =
-        sides > 1e-12
-          ? (Math.acos(
-              Math.max(
-                -1,
-                Math.min(1, Vector3.dot(shownSide, hintSide) / sides),
-              ),
-            ) *
-              180) /
-            Math.PI
-          : 0;
-      const dot: number = Math.min(
-        1,
-        Math.abs(
-          hand.worldRotation.x * key.wrist.rotation.x +
-            hand.worldRotation.y * key.wrist.rotation.y +
-            hand.worldRotation.z * key.wrist.rotation.z +
-            hand.worldRotation.w * key.wrist.rotation.w,
-        ),
-      );
-      return {
-        pose,
-        shown: { point: hand.worldPosition, rotation: hand.worldRotation },
-        miss:
-          (resolved.values[limb]?.error ??
-            (2 * Math.acos(dot) * 180) / Math.PI) +
-          1000 *
-            Vector3.length(
-              Vector3.subtract(hand.worldPosition, key.wrist.point),
-            ),
-        departure,
-        judged: key.judge === undefined ? Number.NaN : key.judge(bones),
-      };
-    };
-    let best: IAutoMovieMotionHumanGrasp.IReach | undefined;
-    let least: number = Infinity;
-
-    // With a required measure, a candidate that holds it comes before any
-    // that does not, whatever their costs; among those that do not, the one
-    // that misses it least is kept, for the caller's refusal.
-    let held: boolean = required === undefined;
-    let nearest: number = Infinity;
-    // Every candidate's grasp is fitted first. Its error there bounds its
-    // cost from below, since a stroke's keys only add to it, so the
-    // candidates are then taken least grasp error first: once one that
-    // holds what is required is found, the first candidate whose grasp
-    // alone is no cheaper ends the search, with every candidate after it.
-    // The choice is the one fitting every key of every candidate gives.
-    const candidates: {
-      turn: number;
-      tilt: number;
-      wrist: IAutoMovieMotionHumanHand.IWrist;
-      grasp: ReturnType<typeof fit>;
-      preference: number;
-      floor: number;
-    }[] = [];
-    // The candidates the caller can take, or every one when it can take none.
-    const pairs: [number, number][] = turns.flatMap(
-      (turn: number): [number, number][] =>
-        tilts.map((tilt: number): [number, number] => [turn, tilt]),
-    );
-    const taken: [number, number][] =
-      admits === undefined
-        ? pairs
-        : pairs.filter(([turn, tilt]: [number, number]): boolean =>
-            admits(goal(turn, tilt)),
-          );
-    for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
-      const wrist: IAutoMovieMotionHumanHand.IWrist = goal(turn, tilt);
-      const grasp = fit({ posture, wrist, bend }, undefined);
-      const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
-      candidates.push({
-        turn,
-        tilt,
-        wrist,
-        grasp,
-        preference,
-        floor: grasp.miss + preference,
-      });
-    }
-    candidates.sort(
-      (a: { floor: number }, b: { floor: number }): number => a.floor - b.floor,
-    );
-    for (const { turn, tilt, wrist, grasp, preference, floor } of candidates) {
-      if (held && floor >= least) break;
-      const reference: IAutoMovieHumanLimbReference =
-        resolveHumanPosture.reference(grasp.pose, limb);
-      let miss: number = grasp.miss;
-      let departure: number = grasp.departure;
-      let beaten: boolean = false;
-      const keys: number[] = [grasp.miss];
-      const judged: number[] = [Number.NaN];
-      const bounds: number[] = [Number.NaN];
-      // The keys are built as they are reached, so a key a candidate never
-      // reaches, beaten by an earlier one, is never built.
-      for (const key of stroke?.(wrist, grasp.shown) ?? []) {
-        const fitted = fit(key, reference);
-        keys.push(fitted.miss);
-        judged.push(fitted.judged);
-        bounds.push(key.bound ?? Number.NaN);
-        miss = Math.max(miss, fitted.miss);
-        departure = Math.max(departure, fitted.departure);
-        if (held && miss + preference >= least) {
-          beaten = true;
-          break;
-        }
-      }
-      if (beaten) continue;
-      const cost: number = miss + preference;
-      const measured: number =
-        required === undefined ? 0 : required.measure(keys, judged, bounds);
-      const holds: boolean =
-        required === undefined || measured <= required.bound;
-      if (
-        best === undefined ||
-        (holds && !held) ||
-        (holds === held && (holds ? cost < least : measured < nearest))
-      ) {
-        held = holds;
-        nearest = measured;
-        least = cost;
-        best = {
-          turn,
-          tilt,
-          wrist,
-          shown: grasp.shown,
-          reference,
-          miss,
-          departure,
-          keys,
-          judged,
-          bounds,
-          pose: grasp.pose,
-        };
-      }
-    }
-    return best!;
-  }
-
   /**
    * The standing posture a person settles into from where they stand: the
    * stand law's posture centred over the person's displayed feet, facing the
@@ -350,7 +68,24 @@ export namespace HumanGraspReach {
   export function around(
     target: IAutoMovieMotionHumanGrasp.ITarget,
     turn: number,
-  ): IAutoMovieMotionHumanGrasp.ITarget {
+  ): IAutoMovieMotionHumanGrasp.ITarget;
+  /** The same wrapped-axis rotation for the hand-only target view. */
+  export function around(target: HumanGrasp.IFrame, turn: number): HumanGrasp.IFrame;
+  /**
+   * Preserve all supplied target fields while turning only its approach.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The complete and hand-only overloads keep the world target point, wrapped axis and metre width while turning the inward approach by degrees.
+   * @evidence contracts/development/implementation.md#principled-implementation A rotation of the approach about the wrapped axis by the turn.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One target spread and one approach transform serve both existing target views.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every other target field is kept and no collider list, width or contact point is manufactured.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant rigid-transform work with no variable population.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete closure and narrow hand goals use this same numerical owner.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh target wrapper and approach vector without retained state.
+   */
+  export function around(
+    target: HumanGrasp.IFrame,
+    turn: number,
+  ): HumanGrasp.IFrame {
     return {
       ...target,
       approach: Quaternion.rotateVector(

@@ -1,37 +1,31 @@
 # Physical feedback
 
-Use the installed vocabulary's kinematic [supports, contacts and forces](compose/composition.md#forces-and-outcomes) for performance. Use this page for added physical responses or a law for an unsupported body.
+Author the performance with the installed vocabulary's [supports, contacts and forces](compose/composition.md#forces-and-outcomes). Use [effector goals](laws/authoring.md) for an action or moving body that needs its own law.
 
 ## Simulation
 
 ### When to simulate
 
-Simulate only a scripted response that kinematic performance cannot show.
+Use an analytic result when available, such as free flight with specified initial conditions. Simulate only the bodies, degrees of freedom and interval whose physical response the beat requires and the composed performance cannot supply.
 
-The scene's composition comment names the response and why the composed performance cannot supply it, the bodies and time window it affects, and whether it is a simulated window or a stated departure from the solved result.
+In the scene's composition comment, name the required response, why it needs simulation, and the bodies and interval it affects. State any departure from the solved result.
 
 ### Simulated windows
 
-In a simulated window the engine's solver produces the bodies' response, then hands back to the composed motion. The solver realizes the decided outcome, so the window changes how the outcome looks and never which outcome happens.
+Initialize the engine's solver from the displayed entry state. Hand the resolved exit pose, velocity and retained contacts back to the composition. Judge whether the result realizes the scripted outcome and route an infeasible outcome through [refusals](compose/refusals.md).
 
 Record the value and reason for any deliberately exaggerated impulse, gravity or compliance.
 
 Check the window's promised contacts, misses, falls and timing on the contacts the solver reports. Two bodies drawn close together prove no contact.
 
-### Cached simulation
+### Preparing simulation
 
-Bake fixed inputs once under [stage caches](../production/stage-caches.md) and read by film time. Reuse a prefix only after verifying unchanged inputs and a complete solver and controller checkpoint.
+Run the interval before frame sampling. Choose integration steps for stability and accuracy independently of display refresh. Keep the events and trajectory needed to reproduce the checked response. Prefix reuse requires matching inputs and a live solver checkpoint with its controller state. Use [stage caches](../production/stage-caches.md) for playback archives.
 
 Keep dimensions, mass or material assumptions, initial state, time sampling, transforms and constraints explicit where the chosen API needs them. Keep simple collision or control representations separate from display tessellation.
 
-## A production law's goals
-
-Use the public engine solvers for [effector goals](laws/authoring.md). Follow [fit order](laws/authoring.md#fit-order) and solve coupled goals together where supported. Report a missing solver to the user.
-
-A residual, refusal or range-limited pose marks an unreachable goal, repaired at its owner as [staging](staging.md#blocking) directs.
-
 ## Review
 
-Review the resolved performance against the decided outcome under [segment review](segment-review.md). Both hand-backs of a simulated window are joins, so they take the consecutive frames [times](../visual-debugging/capture.md#times) requires.
+Review the resolved performance against the scripted outcome under [segment review](segment-review.md). Inspect consecutive frames at both joins of the simulated window.
 
 After changing detail, proportions or attachments, check that physical inputs and visible contacts still agree.

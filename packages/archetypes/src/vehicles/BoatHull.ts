@@ -72,9 +72,10 @@ export namespace BoatHull {
    * @param edge The station of its front edge, the sitter's knees' side.
    * @param width Its width across.
    * @param facing 1 for a sitter facing the bow, -1 for one facing the stern.
+   * @param workingSeat Whether the sitter works on the oars from this fixed bearing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the board, where its seat stands and what `facing` means.
-   * @evidence contracts/development/implementation.md#principled-implementation A board `createBoat.THWART` deep and `createBoat.ESTIMATES.seat` thick with its top at the seat's height, behind its front edge as the sitter faces; the seat's frame on that edge, `+Y` up and `+X` toward the side the sitter faces.
+   * @evidence contracts/development/implementation.md#principled-implementation A board `createBoat.THWART` deep and `createBoat.ESTIMATES.seat` thick with its top at the seat's height, behind its front edge as the sitter faces. The seat's frame on that edge has `+Y` up and `+Z` along the sitter's heading.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One box, one seat.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The board's depth and thickness are the named estimates, as `createBoat` states.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
@@ -88,6 +89,7 @@ export namespace BoatHull {
     edge: number,
     width: number,
     facing: number,
+    workingSeat: boolean = false,
   ): void {
     const depth: number = createBoat.THWART;
     const board: number = createBoat.ESTIMATES.seat;
@@ -111,6 +113,7 @@ export namespace BoatHull {
       extent: null,
       depth,
       width,
+      ...(workingSeat ? { workingSeat } : {}),
     });
   }
 }

@@ -464,12 +464,6 @@ export function test_geometry_bicubic_atlas_realization(): void {
           }
           observations.push(record);
         }
-  console.log(
-    JSON.stringify({
-      schema: "generic-atlas-translated-face-regression-v1",
-      observations,
-    }),
-  );
   for (const record of observations) {
     TestValidator.predicate(
       "translated curved charts retain complete immutable owned geometry",

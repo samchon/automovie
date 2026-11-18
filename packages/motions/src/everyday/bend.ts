@@ -1,28 +1,59 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
+import { createHumanBody } from "../body/createHumanBody";
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { prepareBendGoal } from "./prepareBendGoal";
+import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
+import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanPhysics } from "../law/HumanPhysics";
+import { HumanBalance } from "./HumanBalance";
 import { HumanBound } from "../law/HumanBound";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 import { bendLower } from "./bendLower";
-import { handGoals } from "./handGoals";
+import { prepareBendSquat } from "./prepareBendSquat";
+import { bendFloorHand } from "./bendFloorHand";
+import { bendReleasedFingers } from "./bendReleasedFingers";
+import { braceOnThigh } from "./braceOnThigh";
+
+/** The offset-corrected wrist point for a strategy. */
+type AutoMovieBendWrist = bendLower.WristAt;
+
+/** One physical lowering strategy selected by the automatic planner. */
+type AutoMovieBendStrategy = Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">;
 
 /**
  * Bending down to bring a hand to a low point (the floor, a low shelf, a
@@ -30,14 +61,15 @@ import { handGoals } from "./handGoals";
  * semi-squat, then straightening up.
  *
  * The goal is the palm on the target, facing it from above. The body is
- * found from that goal: the strategy sets how far the hips drop (a stoop
- * keeps the knees nearly straight, a squat lowers the hips to 0.45 of their
- * height, a semi-squat to 0.75; provisional shares, the postures the lifting
- * literature compares), and the trunk then inclines forward just enough to
+ * found from that goal: the strategy sets how far the hips drop, to the
+ * height the body's own leg keeps at the strategy's knee flexion (a stoop's
+ * knees as straight as a planted leg holds them, a semi-squat's 90 degrees,
+ * a squat's 135, Washmuth, McAfee and Bickel 2022; `bendLower.hipShare`),
+ * and the trunk then inclines forward just enough to
  * bring the shoulder within the arm's reach of the target (`bendLower.REACH`,
  * where freely reaching people lean in, of the arm's length plus the palm's
- * offset), found by bisection, while the hips
- * move back to keep the body balanced over the feet ({@link HumanBalance}).
+ * offset), found by bisection. A stoop carries its measured hip retreat
+ * from Kim and Yoo (2018). An explicitly balanced bend may add a shift.
  * The inclination is shared by the lumbopelvic rhythm of forward bending:
  * about 40 degrees of lumbar flexion against 70 of hip flexion at full
  * bending (Esola et al. 1996, Spine 21:71), so the pelvis pitches 0.64 of
@@ -54,9 +86,10 @@ import { handGoals } from "./handGoals";
  * the rule the campaign sets, and squats where the semi-squat cannot reach
  * (a short-armed body cannot reach the floor from a semi-squat).
  *
- * The descent takes Fitts's time for the hand's travel, `a + b log2(2 D / W)`
- * with `a` 0.3 s, `b` 0.15 s and a 3 cm target width (Fitts 1954, J Exp Psychol
- * 47:381; constants provisional, scaled from 1.4 to 1.0 by the `speed` axis),
+ * The descent takes the time of a movement that stops on a target for the
+ * hand's travel, the package's timing owner for aimed movements
+ * (`AutoMovieMotionHumanTiming.aimed`, McIntosh et al. 2018's two-factor fit,
+ * the palm's target a point), scaled from 1.4 to 1.0 by the `speed` axis;
  * the hand holds for `hold` seconds and the rise takes the same time. Events:
  * `contact` and `deepest` at the bottom, `upright` at the end. A target the
  * strategy cannot reach is refused with the lowest height it reaches.
@@ -72,24 +105,26 @@ export namespace bend {
 
   /** Cancel table. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
     bend: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
     // A pick up continues the deepest point of a bend, the body held as it
     // is lowered and the arm taken from the target over to the grip.
     pickUp: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Fitts's constants: intercept and slope, seconds, and the target width, metres (provisional). */
-  export const FITTS: Readonly<{ a: number; b: number; width: number }> = {
-    a: 0.3,
-    b: 0.15,
-    width: 0.03,
-  };
+  /** A requested shift uses the pelvis over the feet throughout the bend. */
+  export const balance: IAutoMovieMotionHumanBalance = { by: "hips", from: { event: "start" }, to: { event: "end" } };
+
+  /** How long the palm holds on the target when the caller names no hold, seconds (provisional: half a second, a brief touch, read from no measured source). */
+  export const HOLD: number = 0.5;
+
+  /** The reaching elbow's outward hint, a share of the upper arm (provisional: read from no measured source). */
+  export const REACH_OUT: number = 0.2;
 
   /**
    * Plan a bend: choose the strategy, solve the balance shift and the least
-   * trunk inclination that brings the palm to the target, time the descent by
-   * Fitts's law, and return postures that lower the body, put the palm on the
+   * trunk inclination that brings the palm to the target, time the descent as
+   * an aimed movement, and return postures that lower the body, put the palm on the
    * target and the free palm on its thigh, hold, and rise.
    *
    * @param context The action's context.
@@ -97,35 +132,91 @@ export namespace bend {
    * @throws {HumanRefusal} When the target lies beyond the strategy's reach, or the hold is negative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the solve, the timing, the postures and both refusals; the law's doc gives the sources and the provisional constants.
-   * @evidence contracts/development/implementation.md#principled-implementation The palm goal is solved by the arm's inverse kinematics on a body lowered by the strategy and inclined by the lumbopelvic rhythm (Esola et al. 1996); the hips' back shift keeps the engine's centre of mass over the feet (HumanBalance.shift), found once at 60 degrees and again at the needed pitch; descent time is Fitts's law; the free hand braces on the thigh (Kingma et al. 2016). Limitation: the doc promises the refusal names the lowest height the strategy reaches, but the message names only the target's height.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The choice is `choose`, the lowered body `lower`, the inclination `pitch`; the plan composes them and the posture closure only interpolates and adds the hand goals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only fallback, `auto` squatting where the semi-squat refuses, is the documented strategy rule; bendLower's HIPS and HEEL, FITTS, the 0.2 and 0.3 elbow hints and the 0.6 brace point are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning runs two balance solves and two pitch solves (`bendLower.solve`), each a scan and a 30-step bisection of lowered postures with a trunk forward-kinematics pass (one more set when `auto` falls back); each posture then costs one lowering, a gaze aim, one bone resolve and a two-hand solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per instance and every posture reads them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The posture closure holds this instance's body, target, solved quantities and stand base, released with the performance; nothing grows per call.
+   * @evidence contracts/development/implementation.md#principled-implementation Esola et al.'s lumbopelvic rhythm and the strategy's lowered body carry the arm planner. The palm faces down against a flat target, and the free hand braces on the thigh (Kingma et al. 2016). The two motions share one clock with the measured aimed timing and the named hold.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The chosen lowering writes root, trunk, gaze and legs. Two arm goals and the fingers read the resulting pose, each on its channel. The hold reads the same authored lowest key.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The only strategy fallback is the stated automatic squat where the semi-squat cannot reach. The reached point stays where authored. The hold and the reaching elbow hint are provisional.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The lowering and its pitch are planned once. The planner lays trajectories over the actual descent and ascent and refines failed stretches. Hold duration adds no arm waypoints or posture fits.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The strategy, lean, pitch, timing and stand base are computed once per course. Each native squat trial reads its carried wrist from the same displayed bones as its support residuals. Each eligible native arm goal reads the target, shoulder and shins from one pose. Custom readers keep separate observations in their original order.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains this body's lowered geometry and arm courses, released with the performance. No query history grows in playback.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
+    const target: IAutoMovieVector3 = context.aim(context.params.toward, context.start).point;
+    const requested: IAutoMovieMotionHumanBend.Strategy = context.params.strategy ?? "auto";
+    if (context.params.toward.kind !== "self")
+      return planStrategy(context, requested, target);
+    // A surface on the moving body can be occluded by the lowered thigh
+    // even when the shoulder lies within reach. Admit the complete arm
+    // course before committing to one of the law's lowering strategies.
+    const nominal: AutoMovieBendStrategy = choose(context.body, target, requested);
+    const candidates: ReadonlySet<AutoMovieBendStrategy> = new Set<AutoMovieBendStrategy>(
+      requested === "auto" ? [nominal, "stoop", "semiSquat", "squat"] : [nominal],
+    );
+    const side: AutoMovieHumanSide = context.params.side ?? "right";
+    const elbow: number = (stand.relaxed(context.body)[`${side}LowerArm`]?.[0] ?? 0) * Math.PI / 180;
+    const upper: number = context.body.measure.upperArm;
+    const lower: number = context.body.measure.forearm;
+    // Voluntary trunk recruitment begins before anatomical extension runs
+    // out. If that preferred course is obstructed, a relaxed elbow still
+    // reaches the law-of-cosines span without locking the hinge.
+    const available: number = Math.sqrt(upper * upper + lower * lower + 2 * upper * lower * Math.cos(elbow));
+    const comfortable: number = bendLower.REACH * (upper + lower);
+    let failure: HumanRefusal | undefined;
+    for (const alignTrunk of [false, true]) {
+      for (const candidate of candidates) {
+        for (const reach of new Set([comfortable, Math.max(comfortable, available)])) {
+          try {
+            return planStrategy(context, candidate, target, reach, alignTrunk);
+          } catch (error) {
+            if (!(error instanceof HumanRefusal) || (error.axis !== "toward" && error.axis !== "region"))
+              throw error;
+            if (failure === undefined || (error.axis === "region" && failure.axis === "toward")) failure = error;
+          }
+        }
+      }
+    }
+    throw failure!;
+  }
+
+  /** Fit one complete lowering, both arm courses and the held surface. */
+  function planStrategy(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,
+    requested: IAutoMovieMotionHumanBend.Strategy,
+    target: IAutoMovieVector3,
+    wristReach?: number,
+    alignTrunk: boolean = false,
+  ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const side: AutoMovieHumanSide = context.params.side ?? "right";
-    const hold: number = context.params.hold ?? 0.5;
+    const hold: number = context.params.hold ?? HOLD;
     HumanBound.least("hold", hold, 0, "s");
-    const target: IAutoMovieVector3 = context.aim(
-      context.params.toward,
-      context.start,
-    ).point;
-    const requested: IAutoMovieMotionHumanBend.Strategy =
-      context.params.strategy ?? "auto";
     const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { seconds: 1 } },
       side,
     );
     const upright: IAutoMovieMotionHumanPosture = probe.posture(0);
-    const { strategy, lean, pitch }: IAutoMovieMotionHumanBendLower.ISolved =
-      bend.lowering(body, upright, target, side, requested);
-
-    // Fitts's time for the hand's travel, scaled by skill.
+    // When the sagittal course is obstructed, direct the upper trunk's
+    // inclination toward the unilateral contact. The angle is the lateral
+    // displacement of the contact over the pelvis-to-shoulder lever.
+    const hips: IAutoMovieVector3 = body.rest.get("hips")!;
+    const armBase: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
+    const local: IAutoMovieVector3 = HumanFrame.local({ origin: upright.root, yaw: upright.yaw }, target);
+    const lateralTilt: number = alignTrunk
+      ? Math.atan2(hips.x - local.x, armBase.y - hips.y) * 180 / Math.PI
+      : 0;
+    const region: IAutoMovieHumanoidSurfaces.IFrame | undefined = context.params.toward.kind === "self"
+      ? body.surfaces.regions[context.params.toward.region] : undefined;
+    const floorContact: boolean = region === undefined && probe.contacts.some(
+      ({ support }): boolean => support.kind === "ground" && target.y === (support.height ?? 0),
+    );
+    const goal: ReturnType<typeof prepareBendGoal> = prepareBendGoal(body, side, target, region, REACH_OUT);
+    const fixedWrist: IAutoMovieVector3 | undefined = region === undefined ? goal(upright).point : undefined;
+    const wristAt: AutoMovieBendWrist = fixedWrist === undefined
+      ? (lowered: IAutoMovieMotionHumanPosture, read: ReturnType<typeof prepareHumanPoseResolution>): IAutoMovieVector3 => goal(lowered, read).point
+      : () => fixedWrist;
+    // The time of a movement that stops on a target, for the hand's travel
+    // (`AutoMovieMotionHumanTiming.aimed`), scaled by skill.
     const hand: IAutoMovieVector3 = HumanHand.frame(
       body,
       bones(body, upright),
@@ -134,139 +225,219 @@ export namespace bend {
     ).point;
     const D: number = Vector3.length(Vector3.subtract(target, hand));
     const speed: number = HumanSkill.quantity(context.skill, "speed", 1.4, 1.0);
-    const down: number =
-      speed *
-      (FITTS.a + FITTS.b * Math.log2(Math.max(1, (2 * D) / FITTS.width)));
+    const down: number = speed * AutoMovieMotionHumanTiming.aimed(D, 0);
     const duration: number = 2 * down + hold;
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+      { name: "contact", seconds: down },
+      { name: "deepest", seconds: down },
+      { name: "upright", seconds: duration },
+    ]);
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      context.params, bend, context.start, { duration, events: clock.events() }, context.instant,
+    );
+    if (window !== null && window.by !== "hips")
+      throw new HumanRefusal({
+        kind: "parameter", axis: "balance.by", value: window.by,
+        reason: "the bend carries its trunk inclination through the hips above planted feet",
+        fix: "give hips for balance.by",
+      });
+    // A changing balance window can move the body during its hold.
+    const moving: number = window === null ? 2 * down : duration;
+    const rise: number = moving - down;
     // The body stands under the bend, its sway signed in the bending side's
     // frame, so a left bend mirrors a right one (`stand.plan`).
-    const base: IAutoMovieMotionHumanActionPlan = stand.plan(
-      { ...context, params: { seconds: duration } },
+    const standing: IAutoMovieMotionHumanActionPlan = stand.plan(
+      { ...context, params: { seconds: 2 * down } },
       side,
     );
+    const atContact: IAutoMovieMotionHumanPosture = standing.posture(down);
+    const { strategy, lean, pitch }: IAutoMovieMotionHumanBendLower.ISolved = bend.lowering(
+      body,
+      atContact,
+      target,
+      side,
+      requested,
+      wristReach ?? bendLower.REACH * (body.measure.upperArm + body.measure.forearm),
+      undefined,
+      wristAt,
+      lateralTilt,
+    );
 
-    return {
-      duration,
-      events: [
-        { name: "contact", share: down / duration },
-        { name: "deepest", share: down / duration },
-        { name: "upright", share: 1 },
-      ],
-      contacts: base.contacts,
-      contact: down,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        const s: number =
-          t <= down + hold
-            ? minimumJerk(t / down).s
-            : 1 - minimumJerk((t - down - hold) / down).s;
-        const standing: IAutoMovieMotionHumanPosture = base.posture(t);
-        const lowered: IAutoMovieMotionHumanPosture = bendLower.lower(
-          body,
-          standing,
-          strategy,
-          pitch * s,
-          s,
-          lean * Math.sin((pitch * s * Math.PI) / 180),
-        );
-        const aimed: IAutoMovieMotionHumanPosture = HumanGaze.aim(
-          body,
-          lowered,
-          target,
-          "head",
-          { eyes: s, head: s, trunk: 0 },
-        );
+    const squat: ReturnType<typeof prepareBendSquat> = strategy === "stoop" ? undefined : prepareBendSquat(
+      body, atContact, bendLower.lower(body, atContact, strategy, pitch, 1, lean * Math.sin(pitch * Math.PI / 180), undefined, lateralTilt),
+      strategy, side, fixedWrist ?? ((
+        posture: IAutoMovieMotionHumanPosture,
+        placed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      ): IAutoMovieVector3 => {
+        const shared: typeof placed = placed !== undefined && createHumanBody.owns(body)
+          ? placed : undefined;
+        return goal(posture, undefined, undefined, shared).point;
+      }),
+    );
+    const base: IAutoMovieMotionHumanActionPlan = window === null ? standing : {
+      ...standing,
+      duration: moving,
+      posture: (seconds, channels, resolution, projection): IAutoMovieMotionHumanPosture =>
+        standing.posture(
+          Math.min(down, seconds) + Math.max(0, seconds - rise),
+          channels, resolution, projection,
+        ),
+    };
 
-        // The palm from where it hangs to the target, facing down onto it.
-        const hanging = bones(body, lowered);
-        const from: IAutoMovieVector3 = HumanHand.frame(
-          body,
-          hanging,
-          side,
-          "palm",
-        ).point;
-        const turn = HumanHand.rotation(side, {
-          fingers: HumanFrame.point(
-            { origin: { x: 0, y: 0, z: 0 }, yaw: lowered.yaw },
-            { x: 0, y: -0.3, z: 1 },
-          ),
-          palm: { x: 0, y: -1, z: 0 },
-        });
+    // How far down the bend is at a second: down over the descent, held,
+    // and up again over as long.
+    const share: (seconds: number) => number = (seconds: number): number => {
+      const t: number = Math.min(moving, Math.max(0, seconds));
+      return 1 - minimumJerk.share(Math.max(down - t, t - rise, 0) / down);
+    };
 
-        // The free palm braces on its own thigh just above the knee, as people
-        // support the trunk in one-handed lifting (Kingma, Faber and van Dieen
-        // 2016, J Biomech 49:881), moving there from where it hangs.
-        const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
-        const thigh = hanging.get(`${free}UpperLeg`)!;
-        const kneeAt: IAutoMovieVector3 = hanging.get(
-          `${free}LowerLeg`,
-        )!.worldPosition;
-        const region =
-          body.surfaces.regions[
-            free === "left" ? "thighFrontLeft" : "thighFrontRight"
-          ];
-        const onThigh: IAutoMovieVector3 = Vector3.add(
-          thigh.worldPosition,
-          Quaternion.rotateVector(thigh.worldRotation, region.point),
+    const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const lowerAt: ReturnType<typeof bendLower.prepare> = bendLower.prepare(body, strategy);
+    const armSpan: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: 0, ready: down, relax: rise, end: moving,
+    };
+    const sink: IAutoMovieMotionHumanPrimitive = {
+      channels: ["root", "trunk", "head", "leftLeg", "rightLeg"],
+      reads: ["root", "trunk", "head", "leftLeg", "rightLeg"],
+      from: 0,
+      to: moving,
+      write: (
+        standing: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        _before?: IAutoMovieMotionHumanPrimitive.Reader,
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      ): IAutoMovieMotionHumanPosture => {
+        const s: number = share(seconds);
+        const angle: number = pitch * s;
+        const back: number = lean * Math.sin((angle * Math.PI) / 180);
+        let lowered: IAutoMovieMotionHumanPosture = lowerAt(
+          standing, angle, s, back, resolution, lateralTilt,
         );
-        const brace: IAutoMovieVector3 = Vector3.lerp(
-          onThigh,
-          Vector3.add(
-            kneeAt,
-            Vector3.subtract(
-              onThigh,
-              Vector3.lerp(thigh.worldPosition, kneeAt, 0.5),
-            ),
-          ),
-          0.6,
-        );
-        const normal: IAutoMovieVector3 = Quaternion.rotateVector(
-          thigh.worldRotation,
-          region.normal,
-        );
-        const rest: IAutoMovieVector3 = HumanHand.frame(
-          body,
-          hanging,
-          free,
-          "palm",
-        ).point;
-        const freeTurn = HumanHand.rotation(free, {
-          fingers: Vector3.subtract(kneeAt, thigh.worldPosition),
-          palm: Vector3.scale(normal, -1),
-        });
-        return handGoals(
-          body,
-          {
-            ...aimed,
-            joints: { ...aimed.joints, ...HumanHand.shape(side, "flat") },
-          },
-          [
-            {
-              side,
-              surface: "palm",
-              shape: "flat",
-              point: Vector3.lerp(from, target, s),
-              rotation: turn,
-              bend: AutoMovieMotionHumanBend.hang(body, lowered, side, 0.2),
-            },
-            {
-              side: free,
-              surface: "palm",
-              shape: "relaxed",
-              point: Vector3.lerp(rest, brace, s),
-              rotation: Quaternion.slerp(
-                hanging.get(`${free}Hand`)!.worldRotation,
-                freeTurn,
-                s,
-              ),
-              bend: AutoMovieMotionHumanBend.hang(body, lowered, free, 0.3),
-            },
-          ],
-        );
+        if (squat !== undefined) lowered = squat(lowered, s, standing);
+        const weight: number = HumanPhysics.weightAt(window, seconds);
+        if (weight > 0) {
+          const support: IAutoMovieMotionHumanBalance.ISupport = HumanBalance.support(body, lowered, resolution);
+          const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(support, HumanFrame.forward(lowered.yaw));
+          if (shift !== null && shift !== 0)
+            lowered = squat === undefined
+              ? lowerAt(standing, angle, s, back - weight * shift, resolution, lateralTilt)
+              : resolveHumanPosture.lower(body, { ...lowered, root: Vector3.addScaled(lowered.root, HumanFrame.forward(lowered.yaw), weight * shift) }, undefined, resolution);
+        }
+        return HumanGaze.aim(body, lowered, target, "head", { eyes: s, head: s, trunk: 0 });
       },
     };
-  }
 
+    // The measured target and the supporting thigh are each held in their
+    // own frames. The arm planner lays their routes on the lowered body.
+    const arms: IAutoMovieMotionHumanArmPlanned.ITogether = AutoMovieMotionHumanArm.together();
+    const lateral: number = HumanFrame.local({ origin: upright.root, yaw: upright.yaw }, target).x;
+    const apart: boolean = side === "left" ? lateral > 0 : lateral < 0;
+    const lowerLegs: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftLowerLeg", "rightLowerLeg"]);
+    const readShins: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, lowerLegs);
+    const placeShins: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body, lowerLegs);
+    let contactBones: ReadonlySet<AutoMovieHumanoidBone> | undefined;
+    let readContact: ReturnType<typeof poseBones.prepare> | undefined;
+    const reach: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
+      body,
+      side,
+      from: 0,
+      to: moving,
+      span: armSpan,
+      ...(region === undefined ? {} : { on: region.bone }),
+      ...(apart ? { beside: arms } : { together: arms }),
+      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+      weight: share,
+      goal: (posture: IAutoMovieMotionHumanPosture, _seconds: number,
+        source?: Parameters<typeof prepareHumanPoseResolution>[0],
+        projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieHumanLimbGoal =>
+        {
+          // Native target and shin readers observe one posture with no edit between them.
+          // The union requests every chain required by either observation. Bind it only
+          // after checking the actual body and loan, since binding itself is observable.
+          if (strategy !== "stoop" && region !== undefined && createHumanBody.owns(body) &&
+              prepareHumanPoseResolution.isNativeSource(source) &&
+              (projection === undefined || projection === body.projection)) {
+            contactBones ??= new Set<AutoMovieHumanoidBone>([
+              ...lowerLegs, region.bone, `${side}UpperArm`,
+            ]);
+            const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+            const frame: ReturnType<typeof resolveHumanPosture.seeded> =
+              resolveHumanPosture.seeded(body, posture, undefined, {}, read, contactBones, projection);
+            readContact ??= poseBones.prepare(body, contactBones);
+            const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readContact(frame.pose, read());
+            return { ...goal(posture, source, projection, placed), clear: placeShins(placed) };
+          }
+          const site: IAutoMovieHumanLimbGoal = goal(posture, source, projection);
+          if (strategy === "stoop") return site;
+          const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+          const frame: ReturnType<typeof resolveHumanPosture.seeded> =
+            resolveHumanPosture.seeded(body, posture, undefined, {}, read, lowerLegs, projection);
+          return { ...site, clear: placeShins(readShins(frame.pose, read())) };
+        },
+    });
+    const brace: IAutoMovieMotionHumanPrimitive = braceOnThigh(
+      body, free, AutoMovieMotionHumanArm.angles(context.entry.pose, free),
+      moving, share, armSpan, arms, apart, squat === undefined ? undefined : { x: 0, y: 1, z: 0 },
+    );
+    const fingers: (hand: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive =
+      (hand: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
+        hand !== side || !floorContact
+          ? AutoMovieMotionHumanHand.shape({side:hand, shape:"flat",from:0,to:moving,weight:share})
+          : bendFloorHand(body, upright, hand, moving, share);
+    const travel: IAutoMovieMotionClock = AutoMovieMotionClock.of(moving, [
+      { name: "contact", seconds: down },
+      { name: "deepest", seconds: down },
+      { name: "upright", seconds: moving },
+    ]);
+    const armCourse: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+      base,
+      clock: travel,
+      contact: "contact",
+      primitives: [sink, reach, brace, fingers(side), fingers(free)],
+    });
+    const course: IAutoMovieMotionHumanActionPlan = floorContact ? composeAutoMovieMotionHumanAction({
+      base: armCourse, clock: travel, contact: "contact",
+      primitives: [bendReleasedFingers(body,side,moving,share,target.y,D)],
+    }) : armCourse;
+    // A point-only wrist fit may turn its palm away when the wrist's
+    // preferred rotation is beyond range. A thigh can bear this motion
+    // only on the palm and between the ends of the femur.
+    let held: IAutoMovieMotionHumanPosture | undefined;
+    if (region !== undefined) {
+      held = course.posture(down);
+      const shown: ReturnType<typeof bones> = bones(body, held);
+      const knee: IAutoMovieVector3 = shown.get(`${free}LowerLeg`)!.worldPosition;
+      const femur: IAutoMovieVector3 = Vector3.subtract(shown.get(`${free}UpperLeg`)!.worldPosition, knee);
+      const axis: IAutoMovieVector3 = Vector3.normalize(femur);
+      const contact: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(body, shown, free, "palm", "flat");
+      const delta: IAutoMovieVector3 = Vector3.subtract(contact.point, knee);
+      const station: number = Vector3.dot(delta, axis);
+      const radial: IAutoMovieVector3 = Vector3.addScaled(delta, axis, -station);
+      const margin: number = body.measure.hand / 2 - AutoMovieMotionHumanAuditTangle.BUILT;
+      if (Vector3.dot(contact.normal, radial) >= 0 || station < margin || Vector3.length(femur) - station < margin)
+        throw new HumanRefusal({
+          kind: "reach", axis: "region", value: `${free}UpperLeg`,
+          reason: "the open support palm cannot bear against the front of the thigh between its ends",
+          fix: "choose a lowering that leaves room for the bracing wrist",
+        });
+    }
+    if (hold === 0 || window !== null) return { ...course, ...HumanPhysics.declared(context.params, window) };
+
+    // Nothing changes while holding a bend. Measure one actual lowest
+    // body with both hands placed. The reaching and returning courses
+    // meet on this single key regardless of how long it is held.
+    const posture: IAutoMovieMotionHumanActionPlan["posture"] = (seconds, channels, resolution, projection) =>
+      seconds < down || seconds > down + hold
+        ? course.posture(seconds < down ? seconds : seconds - hold, channels, resolution, projection)
+        : (held ??= course.posture(down));
+    return {
+      ...course,
+      ...HumanPhysics.declared(context.params, window),
+      duration,
+      events: clock.events(),
+      posture,
+    };
+  }
   /**
    * The lowering that brings a hand within reach of a target: the strategy
    * `choose` gives, solved by `bendLower.solve`, and for `auto` a squat where
@@ -278,6 +449,7 @@ export namespace bend {
    * @param side The hand.
    * @param strategy The requested strategy.
    * @param reach How near the shoulder must come to the target, metres; the bend's palm reach when absent.
+   * @param instant Action-local time and the event clock when observing an optional balance window on this key.
    * @returns The solved lowering.
    * @throws {HumanRefusal} When the strategy, and for `auto` the squat after it, cannot reach the target.
    *
@@ -296,17 +468,26 @@ export namespace bend {
     side: AutoMovieHumanSide,
     strategy: IAutoMovieMotionHumanBend.Strategy,
     reach?: number,
+    balance?: IAutoMovieMotionHumanBalance,
+    wristAt?: AutoMovieBendWrist,
+    lateralTilt: number = 0,
+    instant?: bendLower.IInstant,
   ): IAutoMovieMotionHumanBendLower.ISolved {
-    const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(
-      body,
-      target,
-      strategy,
-    );
+    const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(body, target, strategy);
+    const solve: (candidate: typeof chosen) => IAutoMovieMotionHumanBendLower.ISolved =
+      (candidate: typeof chosen): IAutoMovieMotionHumanBendLower.ISolved => {
+        return bendLower.solve(body, upright, target, side, candidate, reach, balance, wristAt, lateralTilt, instant);
+      };
     try {
-      return bendLower.solve(body, upright, target, side, chosen, reach);
+      return solve(chosen);
     } catch (error) {
-      if (strategy !== "auto" || chosen !== "semiSquat") throw error;
-      return bendLower.solve(body, upright, target, side, "squat", reach);
+      if (
+        !(error instanceof HumanRefusal) ||
+        strategy !== "auto" ||
+        chosen !== "semiSquat"
+      )
+        throw error;
+      return solve("squat");
     }
   }
 

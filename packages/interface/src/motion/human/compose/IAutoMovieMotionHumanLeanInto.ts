@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
@@ -40,6 +41,9 @@ export namespace IAutoMovieMotionHumanLeanInto {
     /** The posture the body stands in before it leans. */
     standing: IAutoMovieMotionHumanPosture;
 
+    /** Whether the hips move back by the balance shift of the lean (`IAutoMovieMotionHumanBalance`); absent or false, the trunk tips about the hips where they stand and no centre of mass is computed. */
+    balance?: boolean;
+
     /** The working hand. */
     side: AutoMovieHumanSide;
 
@@ -49,7 +53,7 @@ export namespace IAutoMovieMotionHumanLeanInto {
     /**
      * The wrist's goal on a posture at a progress of the stroke in [0, 1], world metres.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, a posture and the stroke progress in [0, 1], and the wrist goal returned in world metres.
+     * @evidence contracts/development/common.md#meaningful-documentation States the original posture/stroke-progress inputs and returned world-metre wrist goal without replacing a caller's progress-to-time policy.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
@@ -101,17 +105,18 @@ export namespace IAutoMovieMotionHumanLeanInto {
    */
   export interface ILean {
     /**
-     * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not.
+     * The least pitch in degrees that reaches at a progress; throws the refusal when the limit does not. Optional same-person FK is borrowed only by this synchronous observation.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the arguments, a posture and the stroke progress, the returned pitch in degrees and that a limit that does not reach throws the refusal.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
+     * @evidence contracts/development/common.md#meaningful-documentation States the original posture/progress inputs, optional same-person FK borrowed only through this pitch call, returned degrees and original out-of-reach refusal.
+     * @evidence contracts/development/implementation.md#principled-implementation solve's implementation retains the original balanced five-degree first-reaching scan and hundredth-degree bisection, measuring each actual tipped shoulder against the unchanged wrist goal.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist observation and query-local FK getter feed every original beyond check, scan and bisection through the prepared raw root-demand owner.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original samples, strict reach comparisons, balance-shift interpolation, smallest-shortfall refusal and target coordinates remain; no pitch/root result is cached.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Each pitch query retains its original bounded scan/bisection but admits only the actual shoulder ancestry; one exact FK getter shares unchanged prerequisites across those actual poses. Speedup is unmeasured.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed body/limb name metadata belongs to the plan, while each synchronous call alone owns or borrows its exact reader; current posture and wrist remain actual and no result crosses calls.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local getter releases on return or throw; only the numeric pitch escapes, and no workspace, target, candidate or query history enters the retained lean.
      */
-    pitch: (posture: IAutoMovieMotionHumanPosture, progress: number) => number;
+    pitch: (posture: IAutoMovieMotionHumanPosture, progress: number,
+      resolution?: IAutoMoviePoseResolution.ISource) => number;
 
     /**
      * A posture tipped by a pitch in degrees, the hips shifted back to balance it.
