@@ -1,0 +1,40 @@
+import type {
+  AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanColliders, IAutoMovieMotionHumanKiss, IAutoMovieMotionHumanPerformerReader,
+  IAutoMovieMotionHumanPosture, IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieMotionHumanAuditTangleModel as Skin } from "../audit/AutoMovieMotionHumanAuditTangleModel";
+import { prepareAutoMovieMotionHumanAuditDepths } from "../audit/prepareAutoMovieMotionHumanAuditDepths";
+import { HumanTrunk } from "../everyday/HumanTrunk";
+import { HumanColliders } from "../posture/HumanColliders";
+
+/** Prepare the already presented hand and read its actual skin clearance against the moving head and neck. */
+export function kissHandClearance(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKiss.IParams>,
+  side: AutoMovieHumanSide,
+): (posture: IAutoMovieMotionHumanPosture) => number[] {
+  const other: IAutoMovieMotionHumanPerformerReader = context.performer(context.params.partner);
+  const hand: Skin.IPart[] = Skin.model(other.body).parts.filter((part: Skin.IPart): boolean =>
+    part.bone.startsWith(side) && /Hand|Thumb|Index|Middle|Ring|Little/.test(part.bone));
+  const demand: Set<AutoMovieHumanoidBone> = new Set(hand.map(part => part.bone));
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.preparePlaced(other.body, demand)(other.bones(context.start, demand));
+  const handProbes: Map<AutoMovieHumanoidBone, readonly IAutoMovieVector3[]> = new Map(hand.map(part => [part.bone, part.probes]));
+  const neck: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(["head", "neck"]);
+  const head: Map<AutoMovieHumanoidBone, readonly IAutoMovieVector3[]> = new Map(Skin.model(context.body).parts.filter(p => neck.has(p.bone)).map(p => [p.bone, p.probes]));
+  const resolve: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(context.body, neck);
+  const colliders: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(context.body, neck);
+  const intoHand: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths>[] = placed.map(shape => prepareAutoMovieMotionHumanAuditDepths(shape));
+  return (posture: IAutoMovieMotionHumanPosture): number[] => {
+    const depths: number[] = [];
+    for (const skull of colliders(resolve(posture))) {
+      const inside: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> = prepareAutoMovieMotionHumanAuditDepths(skull);
+      for (let i: number = 0; i < placed.length; ++i) {
+        const finger: IAutoMovieMotionHumanColliders.IPlaced = placed[i]!;
+        depths.push(Math.max(0, ...inside(handProbes.get(finger.bone)!, finger)));
+        depths.push(Math.max(0, ...intoHand[i]!(head.get(skull.bone)!, skull)));
+      }
+    }
+    return depths;
+  };
+}

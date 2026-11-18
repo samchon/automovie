@@ -1,5 +1,7 @@
 import { DEFAULT_HUMANOID_ROM, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -7,10 +9,14 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
   IAutoMovieMotionManner,
+  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingTiming,
   IAutoMovieMotionTarget,
+  IAutoMovieMotionHumanTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,13 +28,19 @@ import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoint
 import { AutoMovieMotionHumanRise } from "../compose/AutoMovieMotionHumanRise";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { kissCanLower } from "./kissCanLower";
 import { kissBody } from "./kissBody";
+import { kissHandClearance } from "./kissHandClearance";
+import { kissHandMeeting } from "./kissHandMeeting";
 import { kissPose } from "./kissPose";
+import { kissPresentedHand } from "./kissPresentedHand";
+import { kissProjection } from "./kissProjection";
 
 /**
  * A kiss while standing: the lips brought to a partner's region (a cheek, the
@@ -121,18 +133,25 @@ export namespace kiss {
     twist: number,
     at: IAutoMovieVector3,
     seated: boolean = false,
+    heldHand?: kissPresentedHand.IHand,
   ): IAutoMovieMotionHumanKiss.ISolved {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    const postureAt: ReturnType<typeof kissPose> = kissPose(body, entry, stance, twist, seated);
-    const mouth: ReturnType<typeof HumanTrunk.preparePoint> = HumanTrunk.preparePoint(body, "mouth");
+    const postureAt: ReturnType<typeof kissPose> = kissPose(
+      body,
+      entry,
+      stance,
+      twist,
+      seated,
+    );
+    const mouth: ReturnType<typeof HumanTrunk.preparePoint> =
+      HumanTrunk.preparePoint(body, "mouth");
     const miss = (s: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">): number =>
-      Vector3.distance(
-          mouth(postureAt(s), resolution),
-          at,
-        );
-    const least = (candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[]): IAutoMovieMotionHumanKiss.ISolved => {
+      Vector3.distance(mouth(postureAt(s), resolution), at);
+    const least = (
+      candidates: Omit<IAutoMovieMotionHumanKiss.ISolved, "miss">[],
+    ): IAutoMovieMotionHumanKiss.ISolved => {
       let best: IAutoMovieMotionHumanKiss.ISolved | null = null;
       for (const c of candidates) {
         const m: number = miss(c);
@@ -145,7 +164,9 @@ export namespace kiss {
       for (let v: number = from; v <= to; v += step) out.push(v);
       return out;
     };
-    const sagittal = (s: IAutoMovieMotionHumanKiss.ISolved): IAutoMovieMotionHumanKiss.ISolved => {
+    const sagittal = (
+      s: IAutoMovieMotionHumanKiss.ISolved,
+    ): IAutoMovieMotionHumanKiss.ISolved => {
       const coarse: IAutoMovieMotionHumanKiss.ISolved = least([
         s,
         ...span(-10, 45, 5).flatMap((pitch: number) =>
@@ -162,13 +183,62 @@ export namespace kiss {
         ),
       ]);
     };
-    let best: IAutoMovieMotionHumanKiss.ISolved = sagittal({
+    const neutral: IAutoMovieMotionHumanKiss.ISolved = {
       pitch: 0,
       roll: 0,
       flexion: 0,
       raise: 0,
       miss: Infinity,
-    });
+    };
+    const start: IAutoMovieVector3 = mouth(postureAt(neutral), resolution);
+    neutral.miss = Vector3.distance(start, at);
+    if (neutral.miss <= NEAR) return neutral;
+
+    // Try the rigid sagittal arc first, then check it on the actual stance.
+    const hip: IAutoMovieVector3 = HumanTrunk.resolve(
+      body,
+      entry,
+      entry.joints,
+      resolution,
+      new Set<AutoMovieHumanoidBone>(["hips"]),
+    ).get("hips")!.worldPosition;
+    const bowed: IAutoMovieMotionHumanKiss.ISolved = {
+      ...neutral,
+      pitch: Math.min(
+        45,
+        Math.max(-10, kissPose.pitch(hip, entry.yaw, start, at)),
+      ),
+    };
+    bowed.miss = miss(bowed);
+    if (heldHand !== undefined && !seated) {
+      const contact: IAutoMovieMotionHumanKiss.ISolved | undefined = kissPresentedHand(body, entry, stance, hip, at, bowed, heldHand, postureAt, mouth, resolution, NEAR, RAISE, ROLL);
+      if (contact !== undefined) return contact;
+    }
+    if (bowed.miss <= NEAR) return bowed;
+
+    // Two trunk angles place the mouth's horizontal projection. A standing
+    // body can then lower the hips over the same plants to meet a lower face.
+    const horizontal: IAutoMovieMotionHumanLean.IAngles | null = kissProjection(
+      entry, hip, start, at,
+    );
+    if (
+      horizontal !== null && horizontal.pitch >= -10 && horizontal.pitch <= 45 &&
+      Math.abs(horizontal.roll) <= ROLL
+    ) {
+      const projected: IAutoMovieMotionHumanKiss.ISolved = { ...neutral, ...horizontal };
+      const keyed: IAutoMovieMotionHumanPosture = postureAt(projected);
+      const landed: IAutoMovieVector3 = mouth(keyed, resolution);
+      projected.miss = Vector3.distance(landed, at);
+      if (projected.miss <= NEAR) return projected;
+      const sink: number = landed.y - at.y;
+      if (!seated && sink > 0 && Math.hypot(landed.x - at.x, landed.z - at.z) <= NEAR &&
+        kissCanLower(body, keyed, stance, sink, resolution)) {
+        const dropped: IAutoMovieMotionHumanKiss.ISolved = { ...projected, sink };
+        dropped.miss = miss(dropped);
+        if (dropped.miss <= NEAR) return dropped;
+      }
+    }
+    let best: IAutoMovieMotionHumanKiss.ISolved = sagittal(neutral);
     best = sagittal(
       least(span(-ROLL, ROLL, 1).map((roll: number) => ({ ...best, roll }))),
     );
@@ -180,10 +250,17 @@ export namespace kiss {
         return { ...c, miss: miss(c) };
       },
     );
-    const closest: number = Math.min(...raised.map((c: IAutoMovieMotionHumanKiss.ISolved) => c.miss));
-    return sagittal(
-      raised.find((c: IAutoMovieMotionHumanKiss.ISolved): boolean => c.miss <= closest + NEAR / 5)!,
+    const closest: number = Math.min(
+      ...raised.map((c: IAutoMovieMotionHumanKiss.ISolved) => c.miss),
     );
+    const lifted: IAutoMovieMotionHumanKiss.ISolved = sagittal(
+      raised.find(
+        (c: IAutoMovieMotionHumanKiss.ISolved): boolean =>
+          c.miss <= closest + NEAR / 5,
+      )!,
+    );
+    if (heldHand === undefined) return lifted;
+    return kissPresentedHand(body, entry, stance, hip, at, lifted, heldHand, postureAt, mouth, resolution, NEAR, RAISE, ROLL) ?? lifted;
   }
 
   /**
@@ -208,9 +285,43 @@ export namespace kiss {
     const body = context.body;
     const hold: number = p.hold ?? HOLD;
     HumanBound.least("hold", hold, 0, "s");
+    const hand: AutoMovieHumanSide | undefined =
+      p.region === "handBackLeft"
+        ? "left"
+        : p.region === "handBackRight"
+          ? "right"
+          : undefined;
+    if (p.handRole !== undefined && hand === undefined)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "region",
+        value: p.region,
+        feasible: {
+          kind: "alternatives",
+          values: ["handBackLeft", "handBackRight"],
+        },
+        reason: "a hand kiss role presents or kisses the named back of a hand",
+        fix: "name the hand the participants share",
+      });
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    const meeting: IAutoMovieMotionMeeting | undefined =
+      p.handRole === undefined || hand === undefined
+        ? undefined
+        : context.meeting(kissHandMeeting.kind(hand, hold), p.handRole, {
+            role: p.handRole === "kisser" ? "presenter" : "kisser",
+            subject: p.partner,
+          });
+    const shared: IAutoMovieMotionClock | undefined =
+      meeting === undefined ? undefined : phrase(meeting, context.start);
+    if (
+      p.handRole === "presenter" &&
+      hand !== undefined &&
+      meeting !== undefined &&
+      shared !== undefined
+    )
+      return kissHandMeeting.present(context, hand, meeting, shared);
     const target: IAutoMovieMotionTarget = {
       kind: "person",
       subject: p.partner,
@@ -221,8 +332,11 @@ export namespace kiss {
       p.region === "mouth" ||
       p.region.startsWith("cheek") ||
       p.region.startsWith("jaw");
+
+    const surface: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = meeting === undefined
+      ? context.aim(target, context.start) : AutoMovieMotionMeeting.place(meeting, "contact", entry);
+    const at: IAutoMovieVector3 = surface.point;
     const twist: number = turned ? (p.side === "left" ? TURN : -TURN) : 0;
-    const at: IAutoMovieVector3 = context.aim(target, context.start).point;
     const stance: IAutoMovieMotionHumanRise.Stance = {
       left: {
         ankle: context.entry.feet.left.ankle,
@@ -237,7 +351,8 @@ export namespace kiss {
     // it and the legs keep their place, so neither the heels rise nor the
     // root is lowered onto the feet.
     const seated: boolean = context.entry.supports.some(
-      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean => s.kind === "seat",
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        s.kind === "seat",
     );
     // The body at a share of the kiss: risen, leaned from the hips and,
     // standing, lowered onto the planted legs: the one model the solve
@@ -246,8 +361,18 @@ export namespace kiss {
       posture: IAutoMovieMotionHumanPosture,
       s: IAutoMovieMotionHumanKiss.ISolved,
       k: number,
-    ): IAutoMovieMotionHumanPosture => kissBody(body, posture, stance, s, k, seated);
-    const solved: IAutoMovieMotionHumanKiss.ISolved = solve(context, entry, stance, twist, at, seated);
+    ): IAutoMovieMotionHumanPosture =>
+      kissBody(body, posture, stance, s, k, seated);
+    const clock: IAutoMovieMotionClock = shared ?? solo();
+    const solved: IAutoMovieMotionHumanKiss.ISolved = solve(
+      context,
+      entry,
+      stance,
+      twist,
+      at,
+      seated,
+      hand !== undefined && meeting === undefined ? { clock, start: context.start, normal: surface.normal, clearance: () => kissHandClearance(context, hand) } : undefined,
+    );
     // A region the lean, the neck and the rise do not bring the mouth to is
     // out of reach: the kiss refuses with what they reach, rather than
     // driving the head on into the partner (laws/authoring.md, Out of reach).
@@ -260,29 +385,30 @@ export namespace kiss {
         reason: `the mouth stays ${(solved.miss * 1000).toFixed(0)} mm from the partner's ${p.region} at a lean of ${solved.pitch.toFixed(0)} degrees forward and ${solved.roll.toFixed(0)} to the side, the neck flexed ${solved.flexion.toFixed(0)} and the heels raised ${solved.raise.toFixed(0)}`,
         fix: "come nearer first, or kiss a region within the lean's reach",
       });
-    const travel: number = Vector3.distance(HumanTrunk.region(body, entry, "mouth").point, at);
-    const approach: number = AutoMovieMotionHumanTiming.transport(travel);
-    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
-        prepare: approach,
-        attack: 0,
-        hold,
-        retract: approach,
-      }),
-      modifiers,
-    );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: "contact", seconds: timed.at("ready") },
-        { name: "part", seconds: timed.at("relax") },
-      ],
-    );
+
+    /** The direct kiss keeps its own transport and manner. */
+    function solo(): IAutoMovieMotionClock {
+      const travel: number = Vector3.distance(
+        HumanTrunk.region(body, entry, "mouth").point,
+        at,
+      );
+      const approach: number = AutoMovieMotionHumanTiming.transport(travel);
+      return contactClock(
+        AutoMovieMotionManner.time(
+          AutoMovieMotionClock.phrase({
+            prepare: approach,
+            attack: 0,
+            hold,
+            retract: approach,
+          }),
+          modifiers,
+        ),
+      );
+    }
     const share = (seconds: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], seconds);
     const head = AutoMovieMotionHumanHead.share(0, solved.flexion);
-    const turn = AutoMovieMotionHumanHead.share(2, twist);
+    const turn = AutoMovieMotionHumanHead.share(2, solved.twist ?? twist);
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.under(context, clock.duration),
       clock,
@@ -291,7 +417,10 @@ export namespace kiss {
           channels: ["root", "trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture =>
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            seconds: number,
+          ): IAutoMovieMotionHumanPosture =>
             written(posture, solved, share(seconds)),
         },
         ...(solved.raise > 0
@@ -317,4 +446,32 @@ export namespace kiss {
       contact: "contact",
     });
   }
+}
+
+/** Both roles name the same local contact and depart instants from the meeting. */
+function phrase(
+  meeting: IAutoMovieMotionMeeting,
+  start: number,
+): IAutoMovieMotionClock {
+  const local: IAutoMovieMotionMeetingTiming = AutoMovieMotionMeeting.local(
+    meeting,
+    start,
+  );
+  return contactClock(
+    AutoMovieMotionClock.phrase({
+      prepare: local.ready,
+      attack: 0,
+      hold: local.relax - local.ready,
+      retract: local.ready,
+    }),
+  );
+}
+
+/** A phrase with the kiss's two contact events. */
+function contactClock(timed: IAutoMovieMotionClock): IAutoMovieMotionClock {
+  return AutoMovieMotionClock.of(timed.duration, [
+    ...timed.instants,
+    { name: "contact", seconds: timed.at("ready") },
+    { name: "part", seconds: timed.at("relax") },
+  ]);
 }
