@@ -23,16 +23,16 @@ jobs:
       fail-fast: false
       matrix:
         shard:
-          - name: motion
-            select: --include test_human_motion_ test_motion_dynamics_ --exclude test_human_motion_law_sweep_posture test_human_motion_lexicon test_human_motion_core_flight_sample
-          - name: sweep-posture
-            select: --include test_human_motion_law_sweep_posture test_motion_posture_
-          - name: lexicon
-            select: --include test_human_motion_lexicon test_motion_catalogue_
+          - name: dynamics
+            select: --include test_motion_dynamics_
+          - name: posture
+            select: --include test_motion_posture_
+          - name: catalogue
+            select: --include test_motion_catalogue_
           - name: contact
             select: --include test_motion_contact_ test_motion_root_
           - name: other
-            select: --exclude test_human_motion_ test_motion_dynamics_ test_motion_posture_ test_motion_catalogue_ test_motion_contact_ test_motion_root_
+            select: --exclude test_motion_dynamics_ test_motion_posture_ test_motion_catalogue_ test_motion_contact_ test_motion_root_
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -45,13 +45,6 @@ jobs:
           path: node_modules/.cache/ttsc
           key: ttsc-test-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm test ${{ matrix.shard.select }}
-        env:
-          NODE_OPTIONS: --max-old-space-size=8192
-      # The plugin-transformed program stalls inside this one scenario on
-      # CI while it passes untransformed; it runs without the ttsc plugins
-      # and without the second type check until that is resolved.
-      - if: matrix.shard.name == 'other'
-        run: pnpm --filter @automovie/test exec ttsx --no-plugins --noCheck src/index.ts --include test_human_motion_core_flight_sample
         env:
           NODE_OPTIONS: --max-old-space-size=8192
       - if: matrix.shard.name == 'other'
