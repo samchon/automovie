@@ -40,7 +40,7 @@ import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotio
  *
  * @evidence contracts/development/common.md#meaningful-documentation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation to: The floor point walked to, world metres. side: The loaded side for `oneHand` and `hip`; `right` when absent. load: The load's mass as a share of the body's, in [0, 0.25]; 0.1 when absent. Inclusive minimum: 0. Inclusive maximum: 0.25. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.place, return); carrying/carry.ts (carry.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.carry, params); carrying/carry.ts (carry.LEAN); carrying/carry.ts (carry.plan).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.place, return); carrying/carry.ts (carry.plan, context); chain/HumanChainTravel.ts (HumanChainTravel.carry, params); carrying/carry.ts (carry.tilt); carrying/carry.ts (carry.plan).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanSide, IAutoMovieMotionHumanWalkParams identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCarry {
@@ -81,7 +81,7 @@ export namespace IAutoMovieMotionHumanCarry {
    *
    * @evidence contracts/development/common.md#meaningful-documentation A hand's hold place in the performer's moving floor frame. How the load is held.
    * @evidence contracts/development/design.md#principled-representation Closed choices "oneHand", "twoHands", "hip", "push" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.LEAN); carrying/carry.ts (carry.plan).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: carrying/carry.ts (carry.place, how); carrying/carry.ts (carry.tilt); carrying/carry.ts (carry.plan).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in carry.place.
    */
   export type How = "oneHand" | "twoHands" | "hip" | "push";

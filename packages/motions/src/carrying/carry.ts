@@ -49,12 +49,21 @@ import { HumanHand } from "../posture/HumanHand";
  * - `hip`: the hand of the hip side lies palm up under the child's seat
  *   before that hip, and the trunk leans away to the other side.
  * - `push`: both hands grip a handle at the elbow's height a forearm
- *   before the shoulders, the upper arms hanging, a shoulder width apart, and the trunk leans forward
- *   (Hoozemans et al. 1998 on handle height in pushing).
+ *   before the shoulders, the upper arms hanging, a shoulder width apart,
+ *   and the trunk leans forward (Hoozemans et al. 1998 on handle height in
+ *   pushing).
  *
- * Each lean is `LEAN` degrees per unit of the load's mass share
- * (provisional: no located study gives the slope), shared between the chest
- * and the spine, and grows in over the first `RAMP` seconds. The load
+ * A held load's lean is the trunk's balance over the hips (`tilt`): the
+ * trunk leans until its own weight's moment about the hips matches the
+ * load's, the head, arms and trunk weighing 0.678 of the body with their
+ * centre 0.626 of the way from the hips to the shoulders (Winter 2009,
+ * Biomechanics and Motor Control of Human Movement, Table 4.1). It is an
+ * upper bound: the legs also tilt toward the free side (Zhang, Ye and Wang
+ * 2010). A pushed handle's forward lean is `PUSH` degrees per unit of the
+ * cart's mass share, with no located study of the slope (a push's force is
+ * the cart's rolling resistance, which the law does not know). The lean is
+ * shared between the chest and the spine and grows in over the first
+ * `RAMP` seconds. The load
  * itself is not a prop yet, so no grip window is declared. Events: the
  * walk's. An overlay may take the head and, under a one-hand or hip load,
  * the free arm and hand (the plan's `yields`), so a wave or a phone rides a
@@ -67,7 +76,7 @@ import { HumanHand } from "../posture/HumanHand";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the base, each way of carrying with its source, the lean law, the mass band, the events and what is missing, with provisional values marked.
  * @evidence contracts/development/design.md#principled-representation A law record composed over the walk's plan: arm rows and a trunk row on the walk's clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the lean table, the hanging arm, the hold places and the plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the balance lean with its segment data, the hanging arm, the hold places and the plan.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every place is a share of the body's measure in its moving floor frame.
  */
 export namespace carry {
@@ -102,14 +111,47 @@ export namespace carry {
     ],
   };
 
-  /** Trunk lean per unit of the load's mass share by way of carrying, degrees (provisional). */
-  export const LEAN: Readonly<Record<IAutoMovieMotionHumanCarry.How, number>> =
-    {
-      oneHand: 30,
-      twoHands: 25,
-      hip: 30,
-      push: 40,
-    };
+  /** The head, arms and trunk's share of the body's mass (Winter 2009, Table 4.1). */
+  export const HAT_MASS: number = 0.678;
+
+  /** Where the head, arms and trunk's centre of mass lies from the hips to the shoulders, as a share (Winter 2009, Table 4.1). */
+  export const HAT_CENTRE: number = 0.626;
+
+  /** A pushed handle's forward trunk lean per unit of the cart's mass share, degrees; no located study gives it. */
+  export const PUSH: number = 40;
+
+  /**
+   * The trunk's lean that balances a held load over the hips, degrees: the
+   * head, arms and trunk tip by `asin(s d / (HAT_MASS h))`, with `s` the
+   * load's mass share, `d` the load's offset from the hips' midline (the
+   * shoulder's half width for a hanging bag, the hip's for a child, the
+   * box's reach ahead) and `h` the height of the trunk's centre above the
+   * hips. A pushed handle leans by `PUSH`.
+   *
+   * @param body The body.
+   * @param how How the load is held.
+   * @param load The load's mass share.
+   * @returns Degrees of lean, away from a side load, back from a front one, forward over a pushed handle.
+   */
+  export function tilt(
+    body: IAutoMovieMotionHumanBody,
+    how: IAutoMovieMotionHumanCarry.How,
+    load: number,
+  ): number {
+    if (how === "push") return PUSH * load;
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const offset: number =
+      how === "oneHand"
+        ? m.shoulderHalfWidth
+        : how === "hip"
+          ? m.hipHalfWidth
+          : (m.upperArm + m.forearm) / 3;
+    const above: number = HAT_CENTRE * (m.shoulderHeight - m.hipHeight);
+    return (
+      (Math.asin(Math.min(1, (load * offset) / (HAT_MASS * above))) * 180) /
+      Math.PI
+    );
+  }
 
   /** Seconds over which the hold and the lean grow in (provisional). */
   export const RAMP: number = 0.4;
@@ -259,7 +301,7 @@ export namespace carry {
 
     // The trunk's lean: lateral away from a one-hand or hip load, back over a
     // front box, forward over a pushed handle; chest and spine share it.
-    const degrees: number = LEAN[how] * load;
+    const degrees: number = tilt(body, how, load);
     // A positive lateral bend of the trunk leans it to the body's right.
     const away: number = loaded === "left" ? 1 : -1;
     const lean: (share: number) => readonly [number, number, number] = (share: number): readonly [number, number, number] =>
