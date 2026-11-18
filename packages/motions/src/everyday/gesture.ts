@@ -459,6 +459,8 @@ export namespace gesture {
       ...(context.carrier === undefined
         ? {}
         : {
+            enteredChannels: HumanChannels.ORDER.filter((channel: AutoMovieMotionHumanChannel): boolean =>
+              sides.some((side: AutoMovieHumanSide): boolean => channel === `${side}Arm` || channel === `${side}Hand`)),
             channels: HumanChannels.ORDER.filter(
               (c: AutoMovieMotionHumanChannel): boolean => claimed.has(c),
             ),

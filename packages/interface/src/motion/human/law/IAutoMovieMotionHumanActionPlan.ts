@@ -69,6 +69,12 @@ export interface IAutoMovieMotionHumanActionPlan {
    */
   channels?: readonly AutoMovieMotionHumanChannelClaim[];
 
+  /** Claimed channels whose authored transport starts from the displayed entry pose.
+   * Their planned movement already includes acquisition from the carrier.
+   * Release of these channels still follows the overlay handback.
+   */
+  enteredChannels?: readonly AutoMovieMotionHumanChannel[];
+
   /**
    * What this instance lets an overlay take, where its parameters decide it apart from its law (`IAutoMovieMotionHumanActionLaw.yields`): a carry in one hand yields its free arm, one in both hands none. The law's when absent.
    */
