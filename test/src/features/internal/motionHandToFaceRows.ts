@@ -37,14 +37,18 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
  * @evidence contracts/development/implementation.md#principled-implementation Performs the real law on a real body and reads displayed joints through the signature readers.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the rows, each staged and read, then the calibration, gathered and asserted once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is read on the body; none is sampled away for time.
- * @evidence contracts/development/implementation.md#efficient-algorithms One film per row on one body, five or six rows a call.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One film per row on one body, five rows a call.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The films live as long as the call.
  */
 export namespace motionHandToFaceRows {
-  /** The rows at the mouth: the default task and the five that bring the hand to the lips. */
+  /**
+   * The rows at the mouth: the five tasks that bring the hand to the lips.
+   * The row that leaves the task is not read apart: the hand-to-face stage
+   * names the drink itself when the row leaves it (`MOTION_HUMAN_LAW_STAGES`),
+   * so its film would repeat `task=drink`'s.
+   */
   export const MOUTH: readonly string[] = [
-    "default",
     "task=drink",
     "task=sip",
     "task=eat",

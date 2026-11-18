@@ -2,7 +2,7 @@ import { motionComplaints } from "../internal/motionComplaints";
 import { motionKickSignature } from "../internal/motionKickSignature";
 
 /**
- * A kick looks like a martial-arts kick: the round kick, as the row leaves it and as the technique names it on the small woman, against
+ * A kick looks like a martial-arts kick: the round kick as the technique names it (the row that leaves the technique stages the same scene, the kick's stage naming the round kick itself) on the small woman, against
  * the average man's trunk from the striking captures' range, read between the
  * law's `launch`, `chamber` and `impact`.
  *
@@ -35,7 +35,7 @@ import { motionKickSignature } from "../internal/motionKickSignature";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real kick against a real partner and reads displayed joints and soles; a kick without a chamber, one that lands on a bent knee, a slow foot, a hopping support foot or a low foot fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The chamber and snap and the speed are cited; the other limits are marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases The round kick, as the row leaves it and as the technique names it (`motionKickSignature.ROUND`) on the small woman; the other rows and bodies are their own specs, split so each runs under a minute alone.
+ * @evidence contracts/development/testing.md#distinguishing-cases The round kick as the technique names it (`motionKickSignature.ROUND`), whose film is also the film of the row that leaves the technique, on the small woman; the other rows and bodies are their own specs, split so each runs under a minute alone.
  * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly, so the reading is split by body and rows (`motionKickSignature`); the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status, the split and the scenario.
  */

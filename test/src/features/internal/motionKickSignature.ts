@@ -119,11 +119,16 @@ export function motionKickSignature(
  * @evidence contracts/development/common.md#meaningful-documentation Each list states its rows.
  * @evidence contracts/development/design.md#principled-representation The rows of each split as data.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Three row lists.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The rows are the spec's own, none dropped.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The rows are the spec's own; only the row that leaves the technique is not listed, since its stage repeats `technique=round`'s scene.
  */
 export namespace motionKickSignature {
-  /** The round kick, as the row leaves it and as the technique names it. */
-  export const ROUND: readonly string[] = ["default", "technique=round"];
+  /**
+   * The round kick as the technique names it. The row that leaves the
+   * technique stages this same scene, because the kick's stage names the
+   * round kick itself when the row leaves it (`MOTION_HUMAN_LAW_STAGES`), so
+   * a film of that row would repeat this one.
+   */
+  export const ROUND: readonly string[] = ["technique=round"];
 
   /** The push kick. */
   export const PUSH: readonly string[] = ["technique=push"];

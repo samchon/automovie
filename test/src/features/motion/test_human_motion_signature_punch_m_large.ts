@@ -2,7 +2,7 @@ import { motionComplaints } from "../internal/motionComplaints";
 import { motionPunchSignature } from "../internal/motionPunchSignature";
 
 /**
- * A punch looks like a boxer's punch: the straight punch as the row leaves it and as the technique names it on the large man, against the
+ * A punch looks like a boxer's punch: the straight punch as the technique names it (the row that leaves the technique stages the same scene, the punch's stage naming the straight punch itself) on the large man, against the
  * average man's face from the striking captures' range, read between the
  * law's `launch` and `impact`.
  *
@@ -44,7 +44,7 @@ import { motionPunchSignature } from "../internal/motionPunchSignature";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real punch against a real partner and reads displayed joints of both; a straight punch on a bent arm, a hook on a straight one, a slow or instant fist, a hit that misses or a trunk leaning back fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The arm shapes are each technique's definition; the speed is cited; the other limits are marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases The straight punch as the row leaves it and as the technique names it (`motionPunchSignature.STRAIGHT`) on the large man; the other rows and bodies are their own specs, split so each runs under a minute alone.
+ * @evidence contracts/development/testing.md#distinguishing-cases The straight punch as the technique names it (`motionPunchSignature.STRAIGHT`), whose film is also the film of the row that leaves the technique, on the large man; the other rows and bodies are their own specs, split so each runs under a minute alone.
  * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly, so the reading is split to keep each spec under a minute; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status, the split and the 2 scenarios.
  */

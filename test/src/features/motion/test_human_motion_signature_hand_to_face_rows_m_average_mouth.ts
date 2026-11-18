@@ -2,7 +2,7 @@ import { motionHandToFaceRows } from "../internal/motionHandToFaceRows";
 
 /**
  * Bringing a hand to the face looks like the activity of daily living it
- * is, on the m-average body, for the default task and the five tasks at the mouth
+ * is, on the m-average body, for the five tasks at the mouth (the row that leaves the task stages `task=drink`'s scene)
  * (`motionHandToFaceRows` states the rows, the bounds and their sources).
  * One spec per extreme body and half of the rows, so every row is read on
  * every body and each runs alone in its time.

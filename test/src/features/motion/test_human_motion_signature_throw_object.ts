@@ -26,14 +26,14 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real throw to a real catcher and reads displayed joints and soles; a throw without a cocked elbow, a release on a bent arm, a trunk leaning back or both feet off the floor fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The phase shapes are Fleisig et al.'s; every limit is marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases The overarm style and both hands on four bodies; the underarm and the toss have other shapes and are not read here.
+ * @evidence contracts/development/testing.md#distinguishing-cases The overarm style and both hands on four bodies; the row that leaves the style is `style=overarm`'s own scene (the throw's stage names the overarm throw itself) and is not performed again; the underarm and the toss have other shapes and are not read here.
  * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_throw_object(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   for (const name of motionHumanBody.EXTREMES)
-    for (const row of ["default", "style=overarm", "hand=left", "hand=right"]) {
+    for (const row of ["style=overarm", "hand=left", "hand=right"]) {
       const cell: string = `throwObject ${row} ${name}`;
       const s: M.IStaged = M.stage("throwObject", row, name);
       const cocked: number = M.event(s, "cocked")!;

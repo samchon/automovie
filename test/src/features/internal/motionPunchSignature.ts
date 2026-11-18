@@ -128,8 +128,13 @@ export namespace motionPunchSignature {
    */
   export const TOLERANCE: number = 0.1;
 
-  /** The straight punch as the row leaves it and as the technique names it. */
-  export const STRAIGHT: readonly string[] = ["default", "technique=straight"];
+  /**
+   * The straight punch as the technique names it. The row that leaves the
+   * technique stages this same scene, because the punch's stage names the
+   * straight punch itself when the row leaves it (`MOTION_HUMAN_LAW_STAGES`),
+   * so a film of that row would repeat this one.
+   */
+  export const STRAIGHT: readonly string[] = ["technique=straight"];
 
   /** The straight punch of each hand named. */
   export const HANDS: readonly string[] = ["hand=lead", "hand=rear"];
