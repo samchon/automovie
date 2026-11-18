@@ -195,9 +195,14 @@ export namespace HumanDigitFit {
    * @param bones Finite posed joint frames of that same body.
    * @param placed Its collision shapes in the same frame, placed once when omitted.
    * @returns True if any phalanx penetrates a nearby collider from outside its own hand and forearm. Tangency has zero depth.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the posed space, strict penetration boundary, eligible shape ownership and placement input.
    * @evidence contracts/development/implementation.md#principled-implementation A maximum of finite signed depths exceeds zero exactly when at least one depth exceeds zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads each hand through the same signed-depth routine and skips the second hand after a positive witness.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the same posed shape eligibility and narrow-phase distance as the signed-depth measurement. Zero depth remains tangency.
    * @evidence contracts/development/implementation.md#efficient-algorithms Stops on the first positive signed distance difference. A clear pose checks every eligible pair.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the complete signed-distance and collider eligibility implementation with depth.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Keeps the bones and collider placement local to the call.
    */
   export function penetrates(
     body: IAutoMovieMotionHumanBody,
