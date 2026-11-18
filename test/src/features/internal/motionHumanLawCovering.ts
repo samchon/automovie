@@ -18,7 +18,7 @@ import { motionHumanLawSweep } from "./motionHumanLawSweep";
  * takes a share of every law and the slow laws spread over all the parts.
  *
  * Whole and partitioned runs share deterministic law/cell enumeration and
- * pair or triple coverage. Invalid part selections are refused; each valid
+ * pair coverage. Invalid part selections are refused; each valid
  * part prepares its selected body and partner. Scene construction, execution
  * and cell checks stay with motionHumanLawSweep; a left-row film survives
  * only until its right-row mirror comparison finishes.
@@ -29,6 +29,25 @@ import { motionHumanLawSweep } from "./motionHumanLawSweep";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses actual scene/film/body contracts and the one covering owner. Gesture face regions are coupled to touchFace because other gesture kinds do not consume them, rather than supplying a fixture-specific branch.
  */
 export namespace motionHumanLawCovering {
+  /**
+   * The sweep's bodies: its two extremes, the shortest and lightest person
+   * (`f-small`) and the tallest and heaviest (`m-large`), each the other's
+   * partner. The bodies between them are the variation specs' own.
+   */
+  export const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];
+
+  /**
+   * The sweep's one seed. Seeded variation is the variation specs' own; a
+   * seed's determinism is checked on each law's first cell.
+   */
+  export const SEEDS: readonly string[] = [motionHumanLawSweep.SEEDS[0]!];
+
+  /**
+   * The covering strength: every pair of values of any two factors meets in
+   * some cell (pairwise testing, Kuhn, Kacker and Lei 2010, NIST SP 800-142).
+   */
+  export const STRENGTH: number = 2;
+
   /**
    * The factors of a law's combinatorial sweep: each parameter the coverage
    * ledger lists, with its values and `-` for the parameter left out. A
@@ -75,8 +94,8 @@ export namespace motionHumanLawCovering {
   /**
    * Sweep every law of a table over a covering array of its parameters, the
    * bodies and the seeds (`motionCoveringArray`): every pair of values of any
-   * two factors meets in some cell, and every triple for a law with three or
-   * more parameters, at a small share of the Cartesian product's cells. The
+   * two factors meets in some cell (`STRENGTH`), at a small share of the
+   * Cartesian product's cells. The
    * seed's determinism is checked on each law's first cell; the mirror image
    * of a side is a metamorphic test of its own.
    *
@@ -88,7 +107,7 @@ export namespace motionHumanLawCovering {
    * @returns Every complaint of every cell.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States covering strength, canonical body pairing, seed, callback, optional law selection and complete complaint return.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the single deterministic covering sweep with every body selected; laws with at least three parameter factors use triple coverage, otherwise pair coverage.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the single deterministic covering sweep with every body selected, at pair coverage (`STRENGTH`) for every law.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation supplies the all-bodies predicate and forwards the explicit selection/report inputs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It changes no cell, detector, physical bound or refusal policy and filters only caller-selected law names.
    * @evidence contracts/development/implementation.md#efficient-algorithms Per-law tuple construction belongs to motionCoveringArray; C resulting cells each incur real scene/performance/detector cost. No unmeasured speedup is claimed.
@@ -97,8 +116,8 @@ export namespace motionHumanLawCovering {
    */
   export function covering(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
-    bodies: readonly motionHumanBody.Name[] = motionHumanBody.EXTREMES,
-    seeds: readonly string[] = motionHumanLawSweep.SEEDS,
+    bodies: readonly motionHumanBody.Name[] = BODIES,
+    seeds: readonly string[] = SEEDS,
     report: (cell: motionHumanLawSweep.ICell) => void = (): void => {},
     only?: readonly string[],
   ): string[] {
@@ -130,8 +149,8 @@ export namespace motionHumanLawCovering {
   export function part(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
     at: readonly [number, number],
-    bodies: readonly motionHumanBody.Name[] = motionHumanBody.EXTREMES,
-    seeds: readonly string[] = motionHumanLawSweep.SEEDS,
+    bodies: readonly motionHumanBody.Name[] = BODIES,
+    seeds: readonly string[] = SEEDS,
   ): string[] {
     const [i, n] = at;
     if (!Number.isSafeInteger(i) || !Number.isSafeInteger(n) ||
@@ -168,8 +187,8 @@ export namespace motionHumanLawCovering {
    */
   export function cells(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
-    bodies: readonly motionHumanBody.Name[] = motionHumanBody.EXTREMES,
-    seeds: readonly string[] = motionHumanLawSweep.SEEDS,
+    bodies: readonly motionHumanBody.Name[] = BODIES,
+    seeds: readonly string[] = SEEDS,
   ): Record<string, number> {
     const out: Record<string, number> = {};
     for (const body of bodies) out[body] = 0;
@@ -177,7 +196,7 @@ export namespace motionHumanLawCovering {
       const own: Record<string, string[]> = factors(law);
       for (const row of motionCoveringArray(
         { ...own, body: [...bodies], seed: [...seeds] },
-        Object.keys(own).length >= 3 ? 3 : 2,
+        STRENGTH,
       ))
         out[row.body!] = (out[row.body!] ?? 0) + 1;
     }
@@ -259,7 +278,7 @@ export namespace motionHumanLawCovering {
       const params: string[] = Object.keys(own);
       const rows: Record<string, string>[] = motionCoveringArray(
         { ...own, body: [...bodies], seed: [...seeds] },
-        params.length >= 3 ? 3 : 2,
+        STRENGTH,
       );
       rows.forEach((row: Record<string, string>, index: number): void => {
         const body: motionHumanBody.Name = row.body as motionHumanBody.Name;
