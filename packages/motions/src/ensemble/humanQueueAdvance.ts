@@ -20,6 +20,10 @@ const LINE_TOLERANCE: number = 1e-8;
  * mark vacated immediately ahead, starting after that walk ends and the
  * declared wait passes. Each rank is a fully performed person.
  *
+ * The release cue is an absolute film time even when these chains are
+ * included in a larger composition. Walk anchors are fixed per subject,
+ * so use this advance once per performer in the performance.
+ *
  * Ziemer, Seyfried and Schadschneider measured successive stopped and
  * moving pedestrians in single-file ring trials
  * (https://arxiv.org/abs/1602.03053). Bilintoh et al. found that the fitted

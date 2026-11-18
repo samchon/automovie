@@ -19,12 +19,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /**
  * Three people advance from uneven marks on one release, preserving order
  * and headway. A later cue shifts the full sequence while keeping delays.
- * A too-short exit refuses with the rank that cannot reach the service mark.
+ * A short exit, an off-axis mark and a reversed rank each refuse with the
+ * affected performer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the people, cue change, spacing and refusal measured in the test.
  * @evidence contracts/development/testing.md#behavioral-verification Checks scheduled onsets, roots at successive holds and arrivals, and headway over every 24 Hz sample.
  * @evidence contracts/development/testing.md#independent-expectations The cue, 0.25 s wait and the separate authored marks provide expectations without deriving them from the composition; the predecessor's fitted end is the timing reference for each follower. A 1 cm tolerance protects the root-to-mark endpoint assertion.
- * @evidence contracts/development/testing.md#distinguishing-cases Forward releases at two different cue times use the same three bodies, with unequal gaps that expose wrong-slot selection; a second same-seed run checks replay, and a 1 cm exit checks refusal.
+ * @evidence contracts/development/testing.md#distinguishing-cases Forward releases at two different cue times use the same three bodies, with unequal gaps that expose wrong-slot selection; a second same-seed run checks replay, and a 1 cm exit, an off-axis mark and an out-of-order rank check distinct invalid placements.
  * @evidence contracts/development/testing.md#execution-ownership A motions feature test, discovered by its exported name, that builds a real performance on the prepared polygon-man bodies with no host.
  */
 export function test_human_motion_service_queue(): void {
@@ -142,4 +143,33 @@ export function test_human_motion_service_queue(): void {
       refusal.axis === "queue" &&
       refusal.performer === ensemble.members[1]!.subject,
   );
+
+  const misplaced: readonly [string, IAutoMovieVector3][] = [
+    ["off the line", { x: 0.4, y: 0, z: -1.1 }],
+    ["ahead of the head", { x: 0, y: 0, z: 1 }],
+  ];
+  for (const [label, at] of misplaced) {
+    const second: IAutoMovieMotionHumanEnsemble.IMember = ensemble.members[1]!;
+    const invalid: IAutoMovieMotionHumanEnsemble.IEnsemble = {
+      ...ensemble,
+      members: [
+        ensemble.members[0]!,
+        { ...second, place: { ...second.place, at } },
+        ensemble.members[2]!,
+      ],
+    };
+    let placementRefusal: unknown;
+    try {
+      humanQueueAdvance(invalid, request);
+    } catch (error) {
+      placementRefusal = error;
+    }
+    TestValidator.predicate(
+      `a rank standing ${label} is identified in the refusal`,
+      placementRefusal instanceof HumanRefusal &&
+        placementRefusal.kind === "participant" &&
+        placementRefusal.axis === "queue" &&
+        placementRefusal.performer === second.subject,
+    );
+  }
 }

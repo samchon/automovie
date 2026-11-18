@@ -6,10 +6,12 @@ import { QuadrupedBodyProfile } from "./QuadrupedBodyProfile";
  *
  * Poradowski et al. 2024 (https://doi.org/10.3390/vetsci11110522), Tables 1–3,
  * provide withers height and proximal limb lengths. Madrigal-Valverde et al.
- * 2025 (https://doi.org/10.3390/ani15152191), Section 2.4 and Table 6, provide
- * thoracic tape girth, head and tail data, and bare mass from a separate
- * crossbred sample. The torso control is the nose-to-sacrum distance minus
- * measured head length and an authored neck allowance. Circular head width
+ * 2025 (https://doi.org/10.3390/ani15152191) report bare mass in Section 2.2
+ * and tape landmarks in Section 2.4 and Table 6 for a separate crossbred
+ * sample. Section 2.4 defines the snout-to-S3 measure as head plus body:
+ * its 55.77 cm and the Cd1–Cd15 tail's 27.38 cm sum to the reported 83.15 cm
+ * total. The torso control subtracts the snout-to-C1 head length and an
+ * authored neck allowance from snout-to-S3. Circular head width
  * comes from tape circumference and is a shape proxy. Distal bars, stance,
  * pinna plates, soft-tissue radii and the tail carriage are authored.
  *

@@ -8,6 +8,7 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { AnimalNeutralObservation } from "../internal/AnimalNeutralObservation";
 import { animalLocomotionFixture as fixture } from "../internal/animalLocomotionFixture";
 
 /**
@@ -15,14 +16,17 @@ import { animalLocomotionFixture as fixture } from "../internal/animalLocomotion
  * level walk whose actual paw contacts follow the authored clock.
  *
  * Scenarios:
- * 1. Both factory paths produce the measured-scale bare reference.
+ * 1. Both factory paths produce the measured-scale bare reference and four
+ *    sourced proximal control lengths. Two builds
+ *    with the same seed reproduce their actual geometry and draw.
  * 2. The automatic walk repeats its lateral contact sequence, keeps stance
- *    paw positions in the world and refuses a speed without a cited row.
+ *    soles grounded in stance, and lifts the actual soles in swing.
+ * 3. An unsupported speed and an unsupported explicit gait refuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the typed producer paths and the physical contact and admission properties.
- * @evidence contracts/development/testing.md#behavioral-verification Builds the cat through both public factories and reads ride instants and actual posed parts after automatic selection.
- * @evidence contracts/development/testing.md#independent-expectations Source references supply 0.2709 m, 0.3254 m, 4.5 kg, 0.8 s stride, 20.60 percent hind-to-fore offset and distinct fore/hind duties. A landing remains planted until the observed liftoff.
- * @evidence contracts/development/testing.md#distinguishing-cases Verifies exact measured mean-speed admission and an adjacent unsupported speed, three distinct nonzero phase offsets and immobility during each limb's contact window.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the cat through both public factories, repeats independent seeded construction, and reads actual posed sole geometry and ride instants after automatic selection.
+ * @evidence contracts/development/testing.md#independent-expectations Source references supply 0.2709 m, 0.3254 m, 4.5 kg, four proximal segment lengths in Poradowski Tables 2–3, 0.8 s stride, 20.60 percent hind-to-fore offset and distinct fore/hind duties. The level course puts the whole terminal solid on Y=0 during stance and above it during swing.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks the one admitted mean speed, an adjacent unsupported speed, explicit trot at the admitted speed, three distinct nonzero phase offsets, and grounded stationary stance versus whole-solid swing clearance.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous test owns fixed cat instances and a constant six-second course. No renderer, fixture record mutation or external process is used.
  */
 export function test_archetype_domestic_cat(): void {
@@ -41,7 +45,56 @@ export function test_archetype_domestic_cat(): void {
     for (const id of ["leftEar", "rightEar", "tail"])
       if (!animal.parts.some((part: IAutoMovieModelPart): boolean => part.id === id))
         findings.push(`missing physical part ${id}`);
+    for (const [suffix, length] of [
+      ["ForeHumerus", 0.1039],
+      ["ForeRadius", 0.1007],
+      ["HindFemur", 0.1127],
+      ["HindTibia", 0.1165],
+    ] as const)
+      for (const side of ["left", "right"]) {
+        const id: string = side + suffix;
+        const part: IAutoMovieModelPart | undefined = animal.parts.find(
+          (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
+        );
+        if (part === undefined) {
+          findings.push(`missing physical part ${id}`);
+          continue;
+        }
+        fixture.near(
+          findings,
+          `${id} measured axial length`,
+          Vector3.length(
+            Vector3.subtract(
+              AnimalNeutralObservation.endpoint(part, 1),
+              AnimalNeutralObservation.endpoint(part, -1),
+            ),
+          ),
+          length,
+          1e-9,
+        );
+      }
   }
+
+  const seed: string = "domestic-cat-walk";
+  const first: ReturnType<typeof createCat> = createCat({}, seed);
+  const repeated: ReturnType<typeof createCat> = createCat({}, seed);
+  if (
+    first.parts.length === 0 ||
+    repeated.parts.length === 0 ||
+    JSON.stringify({
+      parts: first.parts,
+      dimensions: first.dimensions,
+      provenance: first.provenance,
+      properties: first.properties,
+    }) !==
+      JSON.stringify({
+        parts: repeated.parts,
+        dimensions: repeated.dimensions,
+        provenance: repeated.provenance,
+        properties: repeated.properties,
+      })
+  )
+    findings.push("the same seed changed the actual cat or its draw");
 
   const ride: fixture.Ride = rideQuadruped(cat, fixture.course(0.63));
   const origin: number = 0.8;
@@ -65,11 +118,20 @@ export function test_archetype_domestic_cat(): void {
       )
         findings.push(`${limb} touchdown missing at ${seconds} s`);
 
-    const early: IAutoMovieVector3 = fixture.foot(ride, limb, onset + 0.04);
-    const late: IAutoMovieVector3 = fixture.foot(ride, limb, end - 0.015);
-    const swing: IAutoMovieVector3 = fixture.foot(ride, limb, end + 0.075);
-    if (swing.y <= late.y + 1e-5)
-      findings.push(`${limb} failed to lift after its stance duration`);
+    const earlyStance: number = onset + 0.04;
+    const lateStance: number = end - 0.015;
+    const early: IAutoMovieVector3 = fixture.foot(ride, limb, earlyStance);
+    const late: IAutoMovieVector3 = fixture.foot(ride, limb, lateStance);
+    for (const seconds of [earlyStance, lateStance])
+      fixture.near(
+        findings,
+        `${limb} whole sole on ground at ${seconds} s`,
+        fixture.sole(ride, limb, seconds),
+        0,
+        1e-8,
+      );
+    if (!(fixture.sole(ride, limb, end + 0.075) > 1e-5))
+      findings.push(`${limb} sole failed to clear the ground after stance`);
     fixture.near(
       findings,
       `${limb} stance translation`,
@@ -83,6 +145,11 @@ export function test_archetype_domestic_cat(): void {
     findings,
     "an uncited positive speed refuses",
     (): unknown => rideQuadruped(cat, fixture.course(0.68)),
+  );
+  fixture.refused(
+    findings,
+    "an explicit unsupported trot refuses even at the admitted walk speed",
+    (): unknown => rideQuadruped(cat, fixture.course(0.63), "trot"),
   );
   TestValidator.equals("domestic cat producer and level walk", findings, []);
 }

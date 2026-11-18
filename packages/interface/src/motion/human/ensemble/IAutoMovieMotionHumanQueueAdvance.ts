@@ -9,7 +9,7 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses world metres and the existing named-cue shape; the scheduler resolves the cue and walks.
  */
 export interface IAutoMovieMotionHumanQueueAdvance {
-  /** A cue track, one of its events, and optionally its zero-based occurrence. */
+  /** The track, event and optional zero-based occurrence of the absolute film cue that releases the head. */
   on: { of: string; event: string; index?: number };
 
   /** A floor mark ahead of the head at which that performer finishes walking, in world metres. */
