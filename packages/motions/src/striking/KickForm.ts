@@ -84,8 +84,6 @@ export namespace KickForm {
   /** The least horizontal distance along the line the kicking hip keeps from the planned point when the support foot steps up, as a share of the thigh (provisional: within a thigh's length the knee passes the target and the thigh, not the shin or the foot, meets it). */
   export const STEP_ROOM_SHARE: number = 1;
 
-  /** How many times a contact raises the support foot's step-up by what the fitted leg still lacks (provisional: each round removes the lack the last fit measured, so a second round only absorbs what the hip's range of motion changed). */
-  export const STEP_ROUNDS: number = 4;
 
   /** Share of the chamber phase by which the extension's unit overlaps the chamber's, so the ankle rounds the chamber point instead of resting on it (Flash and Hogan 1985 fit via-point movements by such overlapping units; the share is provisional). */
   export const VIA_OVERLAP: number = 0.4;

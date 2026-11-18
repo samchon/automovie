@@ -7,6 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { KickCarriage } from "./KickCarriage";
@@ -44,6 +46,9 @@ import { StrikingStance } from "./StrikingStance";
  * a jammed one.
  */
 export namespace KickContact {
+  /** The step's settling tolerance, metres: the limb solver's place tolerance (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). */
+  export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
+
   /** A carriage with the leg fitted under it. */
   export interface IContact {
     /** The carriage. */
@@ -65,11 +70,12 @@ export namespace KickContact {
    * @param step The support foot's step-up when it is already decided, metres; undefined lets a short leg step up.
    * @param prefer A lean tried before the others, degrees: the lean of the plan this one corrects, so a small correction keeps its carriage.
    * @returns The contact.
+   * @throws {HumanRefusal} A `reach` refusal when the support step's search travels the whole ground from a backward step to the forward room without settling within `TOLERANCE`.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States canonical carriage/chain inputs, optional fixed step and preferred lean, and the physically fitted winning contact.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps the original ordered lean search, solved step correction, repeated full physical leg fits, first valid contact and strict best residual selection.
+   * @evidence contracts/development/common.md#meaningful-documentation States canonical carriage/chain inputs, optional fixed step and preferred lean, the physically fitted winning contact and the unsettled step's refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the original ordered lean search and the solved step correction, iterated as a fixed point until the step settles within the limb solver's tolerance, with full physical leg fits, first valid contact and strict best residual selection.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The local candidate builder shares only its same-base hip and fixed rig metadata; the outer lean/step loops still own every numerical trial and stopping condition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original lean, step bound, fit round, plant, ROM clamp, arm/rival fallback and miss remains. The positive-zero initial trial reuses only its actually computed identical base/hip/solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original lean, step bound, plant, ROM clamp, arm/rival fallback and miss remains. The positive-zero initial trial reuses only its actually computed identical base/hip/solve.
    * @evidence contracts/development/implementation.md#efficient-algorithms The original bounded lean/step/refit search remains; one lazy prepared chain shares genuine ROM, endpoint demand, bend, extension bound and push rotation metadata across all actual trials, with no measured speedup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous search keeps one canonical body and rig unchanged. Only its issued ROM metadata and exact FK prerequisites are borrowed; changed carriage/goal candidates always run their full physical fits.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources FK workspaces, the lazy fixed-chain producer and its ROM projector end on this call's return or throw; that same scoped mapper serves each existing carriage-tilt/hip clamp, without changing raw lowering. The returned contact contains only its original carriage, posture and fitted numerical observations; no helper, projector or new history escapes.
@@ -199,10 +205,19 @@ export namespace KickContact {
             ),
           };
       }
-      for (let round: number = 0; round < KickForm.STEP_ROUNDS; round++) {
+      // The step is the fixed point of what the fitted weapon still lacks:
+      // each pass steps the support foot by that lack (and a jammed knee's
+      // shortfall), until the step moves by no more than the limb solver's
+      // place tolerance. A jammed fit keeps stepping, since its first move
+      // need not be its largest; the search is bounded by the ground the
+      // support foot can cover, from the backward step's length to the
+      // forward room, and a search that has travelled all of it unsettled is
+      // refused.
+      let travelled: number = 0;
+      for (let first: boolean = true; ; first = false) {
         const { contact: candidate, hip }: ITrial = under(
           carriage,
-          round === 0 && Object.is(carriage.step, 0) && carriage.drive === 0
+          first && Object.is(carriage.step, 0) && carriage.drive === 0
             ? source
             : undefined,
         );
@@ -275,7 +290,18 @@ export namespace KickContact {
             carriage.step + (lack - jam) / ahead,
           ),
         );
-        if (Math.abs(next - carriage.step) < 1e-6) break;
+        const change: number = Math.abs(next - carriage.step);
+        if (change <= TOLERANCE) break;
+        travelled += change;
+        if (travelled > back + forward)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "target",
+            value: `${(Vector3.distance(hip, chain.planned) * 1000).toFixed(0)} mm`,
+            feasible: { kind: "alternatives", values: ["a target the support foot's step settles on"] },
+            reason: `the kick's support step does not settle: it has moved ${(travelled * 1000).toFixed(0)} mm, the whole ground from a backward step to the forward room, and still moves ${(change * 1000).toFixed(1)} mm a pass`,
+            fix: "aim the kick at a target nearer the kicking leg's reach, or stand nearer or farther from it",
+          });
         carriage = { ...carriage, step: next };
       }
     }
