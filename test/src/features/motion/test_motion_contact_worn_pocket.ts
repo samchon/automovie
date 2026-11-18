@@ -84,7 +84,11 @@ export function test_motion_contact_worn_pocket(): void {
         parts: [
           HumanChain.subject("a").act(
             "throwObject",
-            { at: { kind: "point", at, frame: "world" }, style: "toss" },
+            {
+              at: { kind: "point", at, frame: "world" },
+              style: "toss",
+              prop: "ball",
+            },
             "throw",
           ).node,
           HumanChain.subject("b").catchObject({

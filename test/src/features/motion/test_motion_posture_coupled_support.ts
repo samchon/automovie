@@ -8,6 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  HumanCarried,
   HumanChain,
   HumanCoupled,
   HumanPerformance,
@@ -78,10 +79,7 @@ export function test_motion_posture_coupled_support(): void {
     };
     let film: IAutoMovieMotionHumanPerformance;
     try {
-      const stand: IHelperPlace = helperStand(
-        bodies.b,
-        bodies.a,
-      );
+      const stand: IHelperPlace = helperStand(bodies.b, bodies.a);
       film = new HumanPerformance({
         seed: "coupled-signature",
         performers: (["a", "b"] as const).map((subject) => ({
@@ -108,7 +106,8 @@ export function test_motion_posture_coupled_support(): void {
       );
       continue;
     }
-    const segments: readonly IAutoMovieMotionHumanSegment[] = film.segments("b");
+    const segments: readonly IAutoMovieMotionHumanSegment[] =
+      film.segments("b");
     const rise: IAutoMovieMotionHumanSegment = segments[segments.length - 1]!;
     const grips: IAutoMovieMotionHumanContactWindow[] =
       rise.plan.contacts.filter(
@@ -129,7 +128,10 @@ export function test_motion_posture_coupled_support(): void {
       feet.some(
         (foot: IAutoMovieMotionHumanContactWindow): boolean =>
           foot.to === 1 &&
-          grips.every((grip: IAutoMovieMotionHumanContactWindow): boolean => foot.from <= grip.to),
+          grips.every(
+            (grip: IAutoMovieMotionHumanContactWindow): boolean =>
+              foot.from <= grip.to,
+          ),
       ),
     );
     const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
@@ -146,7 +148,11 @@ export function test_motion_posture_coupled_support(): void {
     );
     for (const w of grips) {
       const shares: Set<number> = new Set([w.from, w.to]);
-      for (const t of HumanSignature.times(w.from * rise.plan.duration, w.to * rise.plan.duration, 20))
+      for (const t of HumanSignature.times(
+        w.from * rise.plan.duration,
+        w.to * rise.plan.duration,
+        20,
+      ))
         shares.add(t / rise.plan.duration);
       for (const event of rise.plan.events)
         if (w.from < event.share && event.share < w.to) shares.add(event.share);
@@ -174,6 +180,64 @@ export function test_motion_posture_coupled_support(): void {
     );
   }
 
+  const carried: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    seed: "passenger",
+    laws: [HumanCarried.borne],
+    performers: [
+      {
+        subject: "a",
+        body: motionHumanBody("m-average"),
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+      {
+        subject: "b",
+        body: motionHumanBody("f-small"),
+        at: { x: 0, y: 0, z: -0.45 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a")
+      .stand({ seconds: 3 })
+      .with(
+        HumanChain.subject("b").registered("borne", {
+          by: "a",
+          carry: "piggyback",
+          seconds: 3,
+          lift: 0.5,
+          setDown: 0.5,
+        }),
+      ).node,
+  });
+  const phase: IAutoMovieMotionHumanSegment = carried.segments("b")[0]!;
+  const step: number = 1 / 240;
+  for (const [start, finish] of [
+    [phase.start, phase.start + 0.5],
+    [phase.end - 0.5, phase.end],
+  ] as const) {
+    let before = carried.bones("b", start);
+    let maximum: number = 0;
+    for (let k = 1; k <= Math.round((finish - start) / step); k++) {
+      const after = carried.bones("b", start + k * step);
+      for (const [bone, joint] of after)
+        maximum = Math.max(
+          maximum,
+          Vector3.distance(
+            before.get(bone)!.worldPosition,
+            joint.worldPosition,
+          ) / step,
+        );
+      before = after;
+    }
+    all.check(
+      "the supported passenger remains continuous during the transition: " +
+        maximum +
+        " m/s",
+      maximum <= 30,
+    );
+  }
   all.assert("the helpers' compositions keep their bounds");
 }
 
