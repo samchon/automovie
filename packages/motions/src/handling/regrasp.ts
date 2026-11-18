@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -121,6 +121,10 @@ export namespace regrasp {
       point: hand.position,
       rotation: hand.rotation,
     };
+    // The hand is no longer choosing a pickup posture. Its new goal has a
+    // world-space axis; the preceding grasp's elbow selection and joint
+    // reference would compete with the rotation that keeps that line fixed.
+    const { reference: _reference, elbow: _elbow, on: _on, clearanceOn: _clearanceOn, ...twisting }: IAutoMovieHumanLimbGoal = still;
     const angle: number =
       kind === "twist" ? need(context.params.angle, "angle") : 90;
 
@@ -149,10 +153,7 @@ export namespace regrasp {
       minimumJerk.share(Math.min(1, Math.max(0, seconds / duration)));
 
     // A twist turns the hand rigidly about the object's axis line.
-    const axis: {
-      pivot: IAutoMovieVector3;
-      direction: IAutoMovieVector3;
-    } | null =
+    const axis: OptionalAxis =
       kind === "twist"
         ? line(read.prop, frame, need(context.params.axis, "axis"))
         : null;
@@ -177,7 +178,7 @@ export namespace regrasp {
           limbs: {
             ...hold.limbs,
             [limb]: {
-              ...still,
+              ...twisting,
 
               // The object turns about its axis, so that axis point is the
               // contact the fit must keep when the wrist gives up rotation.
@@ -353,25 +354,50 @@ const site: (prop: IAutoMovieMotionHumanProp, id: string) => IAutoMovieAffordanc
   return found;
 };
 
-/** An affordance's axis line in the world: its translation and its `+X`. */
+/** The pivot on the affordance's axis and that axis's world direction. */
+interface IAxis {
+  pivot: IAutoMovieVector3;
+  direction: IAutoMovieVector3;
+}
+
+/** A turn has an axis, while a regrip or roll has only an in-hand transform. */
+type OptionalAxis = IAxis | null;
+
+/**
+ * The affordance's +X line in the world. In exact rotation any point on
+ * this line defines the same transform. Pin the midpoint of the projected
+ * extent of the prop and its affordance so any orientation error has the
+ * shortest possible maximum lever arm to either end of that extent.
+ */
 const line: (
   prop: IAutoMovieMotionHumanProp,
   frame: IAutoMovieRigidTransform,
   id: string,
-) => { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } = (
+) => IAxis = (
   prop: IAutoMovieMotionHumanProp,
   frame: IAutoMovieRigidTransform,
   id: string,
-): { pivot: IAutoMovieVector3; direction: IAutoMovieVector3 } => {
+): IAxis => {
   const affordance: IAutoMovieAffordance = site(prop, id);
+  const oriented: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, affordance.frame.rotation);
+  const direction: IAutoMovieVector3 = Quaternion.rotateVector(oriented, { x: 1, y: 0, z: 0 });
+  let low: number = 0;
+  let high: number = 0;
+  if (prop.shapes !== undefined && prop.shapes.length !== 0) {
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(affordance.frame.rotation);
+    const relative: IAutoMovieRigidTransform = {
+      position: Quaternion.rotateVector(inverse, Vector3.scale(affordance.frame.translation, -1)),
+      rotation: inverse,
+    };
+    for (const shape of prop.shapes) {
+      const bounds: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(relative, shape);
+      low = Math.min(low, bounds.min.x);
+      high = Math.max(high, bounds.max.x);
+    }
+  }
   return {
-    pivot: Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, affordance.frame.translation),
-    ),
-    direction: Quaternion.rotateVector(
-      Quaternion.multiply(frame.rotation, affordance.frame.rotation),
-      { x: 1, y: 0, z: 0 },
-    ),
+    pivot: Vector3.add(Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, affordance.frame.translation)),
+      Vector3.scale(direction, (low + high) / 2)),
+    direction,
   };
 };
