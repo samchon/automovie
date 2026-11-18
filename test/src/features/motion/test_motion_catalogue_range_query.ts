@@ -1,29 +1,25 @@
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanPosture,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
-} from "@automovie/interface";
-import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanClearance,
   IAutoMovieMotionHumanDrinkingArm,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTargetGrid,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanBend,
+  AutoMovieMotionHumanClearance,
   AutoMovieMotionHumanDrinkingArm,
   AutoMovieMotionHumanDrinkingSwivel,
-  poseBones,
-  resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
-import {
-  AutoMovieMotionHumanClearance,
   AutoMovieMotionHumanGoal,
   AutoMovieMotionHumanTarget,
   AutoMovieMotionHumanTargetGrid,
+  poseBones,
+  resolveHumanPosture,
+  stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
