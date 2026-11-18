@@ -25,6 +25,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
+import type { HumanRideHands } from "./HumanRideHands";
 
 /**
  * What a seated rider's own body gives to stay on a mount's parts: the
@@ -150,6 +151,7 @@ export namespace HumanMountRider {
     posture: IAutoMovieMotionHumanPosture,
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
   ): IWrist {
+    const material: HumanRideHands.IMaterialGrip = grip;
     const across: IAutoMovieVector3 = grip.axis === undefined
       ? { x: 0, y: 0, z: 0 }
       : Vector3.cross(grip.axis, grip.normal);
@@ -161,7 +163,7 @@ export namespace HumanMountRider {
     }
     return {
       point: Vector3.add(grip.point, Vector3.add(
-        Vector3.scale(grip.normal, PALM * body.measure.hand + (grip.radius ?? 0)),
+        Vector3.scale(grip.normal, (material.palmDepth ?? PALM * body.measure.hand) + (grip.radius ?? 0)),
         Vector3.scale(fingers, -CENTRE * body.measure.hand),
       )),
       fingers,
@@ -173,7 +175,8 @@ export namespace HumanMountRider {
    * hand turns and how its fingers close, a share of the way from where
    * the posture's own joints hold the hand.
    *
-   * The wrist stays `PALM` of the hand's length plus the grip's radius
+   * An articulated round handle uses the measured depth of the gripping palm.
+   * On other supports the wrist stays `PALM` of the hand's length plus the grip's radius
    * (half the width the object states across it; none when it states none)
    * off the point along the point's outward normal and `CENTRE` behind it along the fingers, so
    * the grip lies across the middle of the palm, the palm faces the point, and the fingers lie
@@ -320,13 +323,14 @@ export namespace HumanMountRider {
       }
     }
     if (handle === undefined) return {};
+    const material: HumanRideHands.IMaterialGrip = grip;
     return HumanGrip.close(
       body,
       side,
       "power",
       { point: arm.point, rotation: arm.rotation! },
       [{ shape: handle, frame }],
-      HumanHand.shape(side, "relaxed"),
+      HumanHand.shape(side, material.palmDepth === undefined ? "relaxed" : "flat"),
     ).joints;
   }
 

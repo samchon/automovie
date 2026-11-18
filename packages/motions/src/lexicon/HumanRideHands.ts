@@ -1,7 +1,9 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { AutoMovieHumanoidSurfaceRays, Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieResolvedBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
@@ -34,14 +36,23 @@ import { HumanMountRider } from "./HumanMountRider";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every point, radius and axis is the support's own.
  */
 export namespace HumanRideHands {
-  /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, Â§4.1), degrees. */
+  /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, ¡×4.1), degrees. */
   const ROWING: readonly [number, number] = [-28, 49];
 
+  /** A moving round handle carries its measured skin distance from the wrist. */
+  export interface IMaterialGrip extends IAutoMovieMotionHumanMountRider.IHoldGrip {
+    /** Metres from the palm centreline to its skin at the authored holding station. */
+    palmDepth?: number;
+  }
+
   /** Each hand's current, complete support-relative hold. */
-  type Grips = Partial<Record<AutoMovieHumanSide, IAutoMovieMotionHumanMountRider.IHoldGrip>>;
+  type Grips = Partial<Record<AutoMovieHumanSide, IMaterialGrip>>;
 
   /** A holding hand's affordance and resting geometry, fixed for this ride. */
   interface IHandle {
+    /** The holding hand and its measured depth after a full articulated frame is observed. */
+    side: AutoMovieHumanSide;
+    palmDepth?: number;
     /** The named point within the support. */
     id: string;
 
@@ -129,6 +140,7 @@ export namespace HumanRideHands {
       if (id !== undefined)
         handles[side] = {
           id,
+          side,
           rest: support.prop.points[id]!,
           affordance: support.prop.affordances?.find(
             (a: IAutoMovieAffordance): boolean => a.id === id,
@@ -139,7 +151,7 @@ export namespace HumanRideHands {
     const base = context.entry.base;
     const fixedSeat: boolean = base.kind === "seated" && base.seat?.workingSeat === true;
     // In fixed-seat rowing most thorax inclination comes from the pelvic
-    // swing (Agius et al. 2023, Â§4.1), about the seat that stays planted.
+    // swing (Agius et al. 2023, ¡×4.1), about the seat that stays planted.
     let bearing: IAutoMovieVector3 | undefined;
     const bow = (degrees: number): IAutoMovieMotionHumanPosture => {
       if (degrees === 0) return seated;
@@ -174,15 +186,35 @@ export namespace HumanRideHands {
       : fixedSeatGripReach(context.body, seated, seat, origin);
 
     // What a hand holds, where the support has it at a film second: the point and its normal, and the axis a handle is wrapped about, its frame's +X, carried with the support.
+    let surfaces: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> | undefined;
     const gripAt = (
-      { id, rest, affordance }: IHandle,
+      held: IHandle,
       film: number,
       frame: IAutoMovieRigidTransform,
-    ): IAutoMovieMotionHumanMountRider.IHoldGrip => {
+    ): IMaterialGrip => {
+      const {id, rest, affordance} = held;
       const part: IAutoMovieMotionHumanProp.IPlacedPoint | undefined = support.prop.point?.(id, film);
       const handle: IAutoMovieQuaternion | undefined = part?.rotation ??
         (affordance === undefined ? undefined : Quaternion.multiply(frame.rotation, affordance.frame.rotation));
+      const material: boolean = fixedSeat && part?.rotation !== undefined &&
+        affordance?.kind === "handle" && affordance.rides !== undefined &&
+        affordance.symmetry === "round" && affordance.aperture !== undefined;
+      if (material && held.palmDepth === undefined) {
+        // Measure the same longitudinal station the holding law authors, at the
+        // skin of this hand. The shape stays in its rest frame throughout a ride.
+        surfaces ??= AutoMovieHumanoidSurfaceRays.tools(context.body.skeleton, context.body.profile);
+        const palm: IAutoMovieHumanoidSurfaces.IFrame =
+          context.body.surfaces.sockets[held.side === "left" ? "palmLeft" : "palmRight"];
+        const bone: IAutoMovieResolvedBone = surfaces.at(palm.bone);
+        const normal: IAutoMovieVector3 = Quaternion.rotateVector(bone.worldRotation, palm.normal);
+        const fingers: IAutoMovieVector3 = Quaternion.rotateVector(bone.worldRotation, palm.forward!);
+        const station: IAutoMovieVector3 = Vector3.add(bone.worldPosition,
+          Vector3.scale(fingers, HumanMountRider.CENTRE * context.body.measure.hand));
+        const skin: IAutoMovieVector3 = surfaces.exit(palm.bone, station, normal);
+        held.palmDepth = Vector3.dot(Vector3.subtract(skin, station), normal);
+      }
       return {
+        ...(material ? { palmDepth: held.palmDepth } : {}),
         point:
           part?.point ??
           Vector3.add(
@@ -324,12 +356,25 @@ export namespace HumanRideHands {
           reason: `${on} declares no colliders; a hand that holds closes its fingers on them`,
           fix: "give the support the shapes the fingers close on, or leave the hands free",
         });
-      const grip: IAutoMovieMotionHumanMountRider.IHoldGrip = begun[side]!;
+      const grip: IMaterialGrip = begun[side]!;
+      const handle: IAutoMovieAffordance | undefined = handles[side]!.affordance;
+      let closureGrip: IMaterialGrip = grip;
+      if (grip.palmDepth !== undefined && handle !== undefined) {
+        // Rest shapes and the moving hand describe one rigid grasp. Bring the
+        // grip back to those shapes before selecting and closing on its material.
+        const rotation: IAutoMovieQuaternion = Quaternion.multiply(origin.rotation, handle.frame.rotation);
+        closureGrip = {
+          ...grip,
+          point: Vector3.add(origin.position, Quaternion.rotateVector(origin.rotation, handle.frame.translation)),
+          normal: Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
+          axis: Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 }),
+        };
+      }
       closures[side] = HumanMountRider.closed(
         context.body,
         side,
         set,
-        grip,
+        closureGrip,
         support.prop.shapes!,
         origin,
       );
