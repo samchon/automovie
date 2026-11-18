@@ -40,7 +40,10 @@ import { stepOverPath } from "./stepOverPath";
  * Patla and Rietdyk (1993, Gait Posture 1:45) found that the lead toe
  * clears an obstacle by a roughly constant margin whatever its height, so
  * the lift grows with the obstacle and the margin does not; 0.1 m is the
- * margin used (provisional, of the order they report). The lead foot lifts
+ * margin used for the lead foot (provisional, of the order they report);
+ * the trail foot clears it by 146 mm, the trailing toe's mean clearance
+ * whatever the obstacle's height (Chou and Draganich 1997, J Biomech
+ * 30:331). The lead foot lifts
  * its toes by up to `TOE_UP` as they pass over the near side and is level
  * again once its heel does, so the toe clears the edge with the ankle and
  * the knee lower than a level foot would need; where the ankle cannot take
@@ -115,6 +118,9 @@ export namespace stepOver {
 
   /** Sole clearance over the obstacle's top, metres (provisional; Patla and Rietdyk 1993). */
   export const MARGIN: number = 0.1;
+
+  /** Sole clearance of the trail foot over the obstacle's top, metres: the trailing toe clears obstacles by 146 mm on average whatever their height (Chou and Draganich 1997, J Biomech 30:331). */
+  export const TRAIL: number = 0.146;
 
   /** The pelvis transfers over the feet: the first half from 12 % over 38 % of the action, the second from 70 % over 28 % (provisional; the 70 % is the namespace's). */
   const TRANSFER: readonly [number, number, number, number] = [0.12, 0.38, 0.7, 0.28];
@@ -338,7 +344,7 @@ export namespace stepOver {
           for (const side of lifted) {
             let short: number = -Infinity;
             for (const socket of HumanFoot.sockets(body, bones, side))
-              short = Math.max(short, needed(socket.point) - socket.point.y);
+              short = Math.max(short, needed(side, socket.point) - socket.point.y);
             if (short <= 0.002) continue;
             const limb: "leftLeg" | "rightLeg" =
               side === "left" ? "leftLeg" : "rightLeg";

@@ -97,7 +97,7 @@ export namespace stepOverPath {
     footAt: (side: "left" | "right", seconds: number) => { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean };
 
     /** Required sole height at an actual world point, metres. */
-    needed: (point: IAutoMovieVector3) => number;
+    needed: (side: "left" | "right", point: IAutoMovieVector3) => number;
   }
 
   /**
@@ -240,8 +240,9 @@ export namespace stepOverPath {
     // the near side; the lead foot lifts its toes by up to `TOE_UP` as its
     // toe passes over the near side and is level again once its heel does,
     // so the ankle need not rise as high as a level foot's.
-    const top: number =
-      obstacle.at.y - origin.y + obstacle.height + stepOver.MARGIN;
+    // The lead sole clears the top by `MARGIN`, the trail sole by `TRAIL`.
+    const top: (side: "left" | "right") => number = (side: "left" | "right"): number =>
+      obstacle.at.y - origin.y + obstacle.height + (side === lead ? stepOver.MARGIN : stepOver.TRAIL);
     const mtp: Record<"left" | "right", ReturnType<typeof HumanFoot.preparePoint>> = {
       left: HumanFoot.preparePoint(body, "left", "mtp"), right: HumanFoot.preparePoint(body, "right", "mtp"),
     };
@@ -257,7 +258,8 @@ export namespace stepOverPath {
       pitch === 0
         ? flat(side, ankle)
         : rocking[side](pitch, mtp[side](flat(side, ankle)));
-    const surface: (z: number) => number = (z: number): number => (z >= near && z <= far ? top : 0);
+    const surface: (side: "left" | "right", z: number) => number = (side: "left" | "right", z: number): number =>
+      z >= near && z <= far ? top(side) : 0;
     const sockets: Record<"left" | "right", ReturnType<typeof HumanFoot.preparePoint>[]> = {
       left: HumanFoot.SOCKETS.map((point: IAutoMovieMotionHumanFoot.Socket): ReturnType<typeof HumanFoot.preparePoint> => HumanFoot.preparePoint(body, "left", point)),
       right: HumanFoot.SOCKETS.map((point: IAutoMovieMotionHumanFoot.Socket): ReturnType<typeof HumanFoot.preparePoint> => HumanFoot.preparePoint(body, "right", point)),
@@ -309,7 +311,7 @@ export namespace stepOverPath {
         (z: number): number => {
           let height: number = -Infinity;
           for (const point of sole(side, pitch(z)))
-            height = Math.max(height, surface(z + point.z) - point.y);
+            height = Math.max(height, surface(side, z + point.z) - point.y);
           return height;
         },
       );
@@ -361,8 +363,8 @@ export namespace stepOverPath {
       return { placement: swings[side]((t - a) / (b - a)), planted: false };
     };
     // How far a sole socket at a frame-local place must stand above the floor.
-    const needed: IPlan["needed"] = (p: IAutoMovieVector3): number =>
-      origin.y + surface(framed.local(p).z);
+    const needed: IPlan["needed"] = (side: "left" | "right", p: IAutoMovieVector3): number =>
+      origin.y + surface(side, framed.local(p).z);
 
     return {
       body,
