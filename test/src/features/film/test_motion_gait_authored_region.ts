@@ -7,10 +7,7 @@ import {
   IAutoMovieActionCall,
   type IAutoMovieActorContext,
   IAutoMovieCameraAction,
-  IAutoMovieConstraintViolation,
   IAutoMovieGait,
-  IAutoMovieJointPose,
-  IAutoMovieKeyframe,
   IAutoMovieLocomoteAction,
   type IAutoMoviePerformedShot,
   IAutoMovieSceneNode,
@@ -27,7 +24,6 @@ import {
   makeStagingWrite,
 } from "../internal/filmFixtures";
 import { createSkeleton } from "../internal/fixtures";
-import { namedFacts } from "../internal/predicates";
 
 const frame: IAutoMovieCameraAction = {
   verb: "frame",
@@ -86,10 +82,10 @@ const LEG_ONLY_GAIT: IAutoMovieGait = {
  * @evidence contracts/development/testing.md#behavioral-verification Performs real shipped gait synthesis and checks compiled authored bone rows, all five gait successes, head layering, shared-arm refusal and custom legs-only or narrowed-region behavior.
  * @evidence contracts/development/testing.md#independent-expectations Shipped limb rows are the input content contract, so each named row must survive; the leg-only fixture removes the authored arm rows independently. These membership assertions cannot detect incorrect per-key joint angles.
  * @evidence contracts/development/testing.md#distinguishing-cases Preserves default walk, walk/run/sprint/sneak/march admission, lookAt/wave overlap neighbors, custom legs-only gait and explicit lowerBody drop; the absent ROM rig keeps this focused on masking/overlap.
- * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_film_perform_shot_shipped_gait unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous test_motion_gait_authored_region unit entry owns its assertions and delegated helpers through portable source functions; it opens no process, browser, GPU or installed consumer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Admit the shipped walk under its default region.).
  */
-export function test_film_perform_shot_shipped_gait(): void {
+export function test_motion_gait_authored_region(): void {
   const staged: IAutoMovieStagedSet = stageScene(
     makeScriptWrite(),
     makeStagingWrite(),
@@ -140,74 +136,20 @@ export function test_film_perform_shot_shipped_gait(): void {
       skeleton: (): null => null,
     });
 
-  // 1. the plain walk performs, with nothing to report
-  const plain: IAutoMoviePerformedShot = perform(
-    [walk(), frame],
-    HUMANOID_GAITS.walk,
-  );
-  TestValidator.equals(
-    "a shipped walk with no region performs",
-    plain.success,
-    true,
-  );
-
-  // 2. the walk carries every authored gait row, including both arms.
-  const gaitRows: string[] = gaitBones(HUMANOID_GAITS.walk);
-  const compiled: Set<string> = new Set<string>(
-    plain.success === true
-      ? plain.motions.knightA!.keyframes.flatMap(
-          (k: IAutoMovieKeyframe): string[] =>
-            k.pose.joints.map((j: IAutoMovieJointPose): string => j.bone),
-        )
-      : [],
-  );
-  TestValidator.equals(
-    "the compiled clip carries every gait row",
-    namedFacts([
-      ["refused", (): boolean => gaitRows.length > 0],
-      [
-        "violated",
-        (): boolean =>
-          gaitRows.length > 0 &&
-          gaitRows.every((bone: string): boolean => compiled.has(bone)),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-
-  // 3. every shipped gait, under the default region
-  TestValidator.equals(
-    "every shipped gait performs",
-    (["walk", "run", "sprint", "sneak", "march"] as const).filter(
-      (name: "walk" | "run" | "sprint" | "sneak" | "march"): boolean => {
-        const gait: IAutoMovieGait = HUMANOID_GAITS[name];
-        const performed: IAutoMoviePerformedShot = perform(
-          [{ ...walk(), gait: gait.name }, frame],
-          gait,
-        );
-        return (
-          performed.success !== true ||
-          performed.motions.knightA === undefined ||
-          performed.motions.knightA.keyframes.length === 0
-        );
-      },
-    ),
-    [],
-  );
-
-  // 4. Head-only content layers, arm content collides on the actual bone.
-  const lookAt: IAutoMovieActionCall = {
-    verb: "lookAt",
-    actor: "knightA",
-    start: 0,
-    duration: 1,
-    to: { kind: "node", node: "knightB" },
-  };
-  TestValidator.equals(
-    "a shipped walk layers with a head-only lookAt",
-    perform([walk(), lookAt, frame], HUMANOID_GAITS.walk).success,
-    true,
-  );
+  for (const gait of Object.values(HUMANOID_GAITS)) {
+    const result = perform([{ ...walk(), gait: gait.name }, frame], gait);
+    if (!result.success) throw new Error(gait.name + " failed to perform.");
+    const bones = new Set(
+      result.motions.knightA!.keyframes.flatMap((k) =>
+        k.pose.joints.map((j) => j.bone),
+      ),
+    );
+    TestValidator.equals(
+      "every authored gait row survives",
+      gaitBones(gait).filter((b) => !bones.has(b)),
+      [],
+    );
+  }
   const wave: IAutoMovieActionCall = {
     verb: "gesture",
     actor: "knightA",
@@ -215,56 +157,41 @@ export function test_film_perform_shot_shipped_gait(): void {
     duration: 1,
     kind: "wave",
   };
-  const walkAndWave: IAutoMoviePerformedShot = perform(
-    [walk(), wave, frame],
-    HUMANOID_GAITS.walk,
+  const gaze: IAutoMovieActionCall = {
+    verb: "lookAt",
+    actor: "knightA",
+    start: 0,
+    duration: 1,
+    to: { kind: "node", node: "knightB" },
+  };
+  TestValidator.predicate(
+    "gaze and unmasked gait do not intersect",
+    perform([walk(), gaze, frame], HUMANOID_GAITS.walk).success,
   );
-  TestValidator.equals(
-    "a shipped walk conflicts with a wave on their shared arm",
-    namedFacts([
-      ["refused", (): boolean => walkAndWave.success === false],
-      [
-        "violated",
-        (): boolean =>
-          walkAndWave.success === false &&
-          walkAndWave.violations.some(
-            (v: IAutoMovieConstraintViolation): boolean =>
-              v.path === "$input.draft[1].start" &&
-              v.expected.includes("rightUpperArm"),
-          ),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-
-  // 5. Content, not the fullBody label, decides the overlap.
-  TestValidator.equals(
-    "a custom legs-only gait layers with the same wave",
+  TestValidator.predicate(
+    "leg-only gait leaves wave free",
     perform([walk(), wave, frame], LEG_ONLY_GAIT).success,
-    true,
   );
-
-  // 6. An authored narrow override still cannot silently discard the arms.
-  const narrowed: IAutoMoviePerformedShot = perform(
-    [walk("lowerBody"), frame],
-    HUMANOID_GAITS.walk,
+  const overlap = perform([walk(), wave, frame], HUMANOID_GAITS.walk);
+  TestValidator.predicate(
+    "overlap reports the occupied arm",
+    !overlap.success &&
+      overlap.violations.some(
+        (v) =>
+          v.path === "$input.draft[1].start" &&
+          v.expected.includes("rightUpperArm"),
+      ),
   );
-  TestValidator.equals(
-    "an explicit lowerBody override reports the masked arm rows",
-    namedFacts([
-      ["refused", (): boolean => narrowed.success === false],
-      [
-        "violated",
-        (): boolean =>
-          narrowed.success === false &&
-          narrowed.violations.some(
-            (violation: IAutoMovieConstraintViolation): boolean =>
-              violation.path === "$input.draft[0].region" &&
-              violation.expected.includes("leftUpperArm") &&
-              violation.expected.includes("rightUpperArm"),
+  const narrow = perform([walk("lowerBody"), frame], HUMANOID_GAITS.walk);
+  TestValidator.predicate(
+    "explicit mask reports both discarded arms",
+    !narrow.success &&
+      narrow.violations.some(
+        (v) =>
+          v.path === "$input.draft[0].region" &&
+          ["leftUpperArm", "rightUpperArm"].every((b) =>
+            v.expected.includes(b),
           ),
-      ],
-    ]),
-    { refused: true, violated: true },
+      ),
   );
 }
