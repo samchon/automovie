@@ -12,6 +12,7 @@ import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
@@ -82,18 +83,7 @@ export function exerciseCases(
           }).node,
         });
       } catch (error) {
-        out.push({
-          name,
-          times: [{ seconds: 0, label: "refused" }],
-          performers: [],
-          verdicts: [
-            {
-              name: "planned",
-              passed: false,
-              detail: (error as Error).message,
-            },
-          ],
-        });
+        out.push(FamilyCaseKit.refused(name, error));
         continue;
       }
       const bottoms: number[] = [1, 2, 3].map((i: number): number =>
@@ -141,17 +131,19 @@ export function exerciseCases(
       switch (kind) {
         case "squat": {
           counted("hips go down", (t: number): number => at(t, "hips").y);
-          let worst: number = -Infinity;
+          // The thigh at the declared angle at the bottom, either way: a
+          // squat deeper than declared misses it as one too shallow does.
+          let worst: number = bottoms.length === 0 ? Infinity : 0;
           for (const t of bottoms)
             worst = Math.max(
               worst,
-              thigh(t, "left") - exercise.THIGH.parallel,
-              thigh(t, "right") - exercise.THIGH.parallel,
+              Math.abs(thigh(t, "left") - exercise.THIGH.parallel),
+              Math.abs(thigh(t, "right") - exercise.THIGH.parallel),
             );
           verdicts.push(
             everydayVerdicts.within(
-              "thigh above the declared angle at bottom",
-              Math.max(0, worst),
+              "thigh at the declared angle at bottom",
+              worst,
               5,
               "deg",
             ),
@@ -199,11 +191,13 @@ export function exerciseCases(
             (t: number): number =>
               -Math.max(at(t, "leftFoot").y, at(t, "rightFoot").y),
           );
-          let worst: number = 0;
+          // The raised thigh off the horizontal either way: a knee lifted
+          // above the hip is off it as one short of it is.
+          let worst: number = bottoms.length === 0 ? Infinity : 0;
           for (const t of bottoms)
             worst = Math.max(
               worst,
-              Math.min(thigh(t, "left"), thigh(t, "right")),
+              Math.abs(Math.min(thigh(t, "left"), thigh(t, "right"))),
             );
           verdicts.push(
             everydayVerdicts.within(

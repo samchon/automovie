@@ -150,7 +150,8 @@ function build(name: string, who: string): IMotionCaptureCase {
     const narrow: number = VariationSeries.dispersion(hands(expert));
     verdicts.push({
       name: `${kind} place dispersion ratio`,
-      passed: wide >= VariationSeries.RATIO * narrow,
+      // A novice whose places do not spread at all shows no variation, whatever the expert's.
+      passed: wide > 0 && wide >= VariationSeries.RATIO * narrow,
       detail: `${(1000 * wide).toFixed(1)} mm at proficiency 0, ${(1000 * narrow).toFixed(1)} mm at 1, ratio ${(wide / narrow).toFixed(2)}; bound ${VariationSeries.RATIO}`,
     });
     const starts = (run: { repeats: IRepeat[] }): number =>
@@ -159,7 +160,9 @@ function build(name: string, who: string): IMotionCaptureCase {
       );
     verdicts.push({
       name: `${kind} stroke start spread ratio`,
-      passed: starts(novice) >= VariationSeries.RATIO * starts(expert),
+      passed:
+        starts(novice) > 0 &&
+        starts(novice) >= VariationSeries.RATIO * starts(expert),
       detail: `${(1000 * starts(novice)).toFixed(1)} ms at proficiency 0, ${(1000 * starts(expert)).toFixed(1)} ms at 1, ratio ${(starts(novice) / starts(expert)).toFixed(2)}; bound ${VariationSeries.RATIO}`,
     });
     const changed: number = Math.max(

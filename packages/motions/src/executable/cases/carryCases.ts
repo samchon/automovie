@@ -163,9 +163,11 @@ export function carryCases(
         let low: number = Infinity;
         let high: number = -Infinity;
         let off: number = 0;
+        // Over the carry itself, from its own start past the lift's ramp to
+        // its end, in film seconds.
         for (
-          let t: number = carry.RAMP;
-          t <= performance.duration + 1e-9;
+          let t: number = segment.start + carry.RAMP;
+          t <= segment.end + 1e-9;
           t += 1 / 24
         ) {
           const d: number = Vector3.length(
