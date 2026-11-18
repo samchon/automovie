@@ -81,7 +81,7 @@ export const resolvePose: (
     | undefined,
   topology?: IAutoMovieSkeletonTopology,
   prepared?: ReturnType<typeof preparePoseResolution>,
-  requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  requested?: ReadonlySet<string>,
 ) => IAutoMovieResolvedBone[] = (
   pose: IAutoMoviePose,
   skeleton: IAutoMovieSkeleton,
@@ -89,7 +89,7 @@ export const resolvePose: (
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
   prepared?: ReturnType<typeof preparePoseResolution>,
-  requested?: ReadonlySet<AutoMovieHumanoidBone>,
+  requested?: ReadonlySet<string>,
 ): IAutoMovieResolvedBone[] => {
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
@@ -105,7 +105,7 @@ export const resolvePose: (
 
   const resolved: IAutoMovieResolvedBone[] = [];
   let missingArticulation: IAutoMovieQuaternion | undefined;
-  const required: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+  const required: ReadonlySet<string> | undefined =
     requested === undefined ? undefined : ancestorClosure(skeleton, requested);
 
   // The walk receives the bone object directly (the children map already holds
@@ -157,14 +157,14 @@ export const resolvePose: (
 /** Include each demanded bone's parents so ordinary FK can prune unrelated subtrees. */
 function ancestorClosure(
   skeleton: IAutoMovieSkeleton,
-  requested: ReadonlySet<AutoMovieHumanoidBone>,
-): ReadonlySet<AutoMovieHumanoidBone> {
-  const parents: Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null> =
+  requested: ReadonlySet<string>,
+): ReadonlySet<string> {
+  const parents: Map<string, AutoMovieHumanoidBone | null> =
     new Map();
   for (const bone of skeleton.bones) parents.set(bone.bone, bone.parent);
-  const required: Set<AutoMovieHumanoidBone> = new Set();
+  const required: Set<string> = new Set();
   for (const name of requested) {
-    let bone: AutoMovieHumanoidBone | null | undefined = name;
+    let bone: string | null | undefined = name;
     while (bone !== null && bone !== undefined && !required.has(bone)) {
       required.add(bone);
       bone = parents.get(bone);

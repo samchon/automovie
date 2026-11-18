@@ -28,15 +28,24 @@ const DEFAULT_ASPECT: number = 16 / 9;
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure projection per actor and instant; camera sampling, projection and the joint set are reused from their owners, and the render package's keypoint plan drives it per frame.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone or rig is special-cased; out-of-frame joints are reported with a flag instead of being clamped or dropped, and the default aspect is the documented assumption for a camera that states none.
  * @evidence contracts/development/common.md#meaningful-documentation States the pipeline from pose to frame, the coordinate frame and range, the out-of-frame rule and why nothing is clamped, the missing-joint rule, the order, and each option's default.
- * @evidence contracts/development/implementation.md#efficient-algorithms Delegates forward kinematics to resolvePose and track sampling to resolveCameraAt, then builds one bone-position map and node matrix and projects J requested joints. Total cost includes both delegated traversals rather than only the local O(B + J) indexing/projection work.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Delegates forward kinematics to resolvePose and track sampling to resolveCameraAt, evaluating world transforms only on requested ancestor paths, then builds one requested-position map and node matrix and projects J requested joints. Total cost includes both delegated traversals rather than only the local O(B + J) indexing/projection work.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Projects one actor at one instant per call; the keypoint plan calls it per performing actor per frame, and the inputs carry no identity to key a cache on.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The bone index and node matrix are released on return; the returned keypoints are fresh records owned by the caller.
  */
 export function resolvePoseKeypoints(
   props: IAutoMovieResolvePoseKeypoints.IProps,
 ): IAutoMoviePoseKeypoint[] {
+  const joints = props.joints ?? DEFAULT_KEYPOINT_BONES;
   const rigByBone: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map(
-    resolvePose(props.pose, props.skeleton).map(
+    resolvePose(
+      props.pose,
+      props.skeleton,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      new Set(joints),
+    ).map(
       (
         bone: IAutoMovieResolvedBone,
       ): [AutoMovieHumanoidBone, IAutoMovieVector3] => [
@@ -60,7 +69,7 @@ export function resolvePoseKeypoints(
   const aspect: number = props.aspect ?? DEFAULT_ASPECT;
 
   const keypoints: IAutoMoviePoseKeypoint[] = [];
-  for (const bone of props.joints ?? DEFAULT_KEYPOINT_BONES) {
+  for (const bone of joints) {
     const rig: IAutoMovieVector3 | undefined = rigByBone.get(bone);
     if (rig === undefined) continue;
     const projected: { ndcX: number; ndcY: number; depth: number } =
