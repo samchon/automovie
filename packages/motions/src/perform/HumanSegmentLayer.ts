@@ -91,7 +91,7 @@ export namespace HumanSegmentLayer {
           const projected: ReturnType<typeof borrowProjection> | undefined =
             projection === undefined ? undefined : borrowProjection(person.performer.body, projection);
           try {
-            const written: IAutoMovieMotionHumanPosture = layer.apply(current, seconds, {
+            const context: IAutoMovieMotionHumanLayer.IContext = {
               ...person.layer,
               action,
               ...(borrowed === undefined ? {} : { resolution: borrowed.read }),
@@ -99,8 +99,9 @@ export namespace HumanSegmentLayer {
               random: (channel: string): IAutoMovieRandom =>
                 HumanSkill.stream(person.skill, person.performer.subject,
                   `layer:${layer.name}`, 0, channel),
-            });
-            return mixHumanPosture(current, written, weight);
+            };
+            if (layer.blend !== undefined) return layer.blend(current, seconds, context, weight);
+            return mixHumanPosture(current, layer.apply(current, seconds, context), weight);
           } finally {
             borrowed?.release();
             projected?.release();

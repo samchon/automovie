@@ -200,6 +200,10 @@ export namespace jumpAirborne {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are the plan's own (`IHumanActionPlan.flight`, `airborne`).
    */
   export interface ITurning {
+    /** Action-local seconds obtained from the declared flight shares and duration. */
+    from: number;
+    to: number;
+
     /** The plan's flight members, none for a flight with no turns. */
     declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne">;
 
@@ -307,6 +311,10 @@ export namespace jumpAirborne {
               rotated = handed;
             },
           };
+    // Every reader reconstructs seconds from the public shares. Use those
+    // same representable boundaries for both phase selection and handback.
+    const from: number = declared.flight === undefined ? takeoff : declared.flight.from * duration;
+    const to: number = declared.flight === undefined ? touchdown : declared.flight.to * duration;
     // The touchdown offset: the handed-back turn there as an axis and an
     // angle, and its rate by the backward difference over the plan-time step.
     // None (a zero turn, which decays to nothing) until read, and where the
@@ -316,15 +324,15 @@ export namespace jumpAirborne {
     const touched = (): ITouchdown => {
       if (known || rotated === null) return offset;
       known = true;
-      const h: number = Math.min(integrateMotionTrajectory.STEP, touchdown - takeoff);
-      const at: IAutoMovieHumanPostureRotation = rotated(touchdown);
+      const h: number = Math.min(integrateMotionTrajectory.STEP, to - from);
+      const at: IAutoMovieHumanPostureRotation = rotated(to);
       const turn: IAutoMovieQuaternion = at.turn.w < 0
         ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w } : at.turn;
       const sine: number = Math.hypot(turn.x, turn.y, turn.z);
       if (!(sine > 0) || !(h > 0)) return offset;
       const axis: IAutoMovieVector3 = { x: turn.x / sine, y: turn.y / sine, z: turn.z / sine };
       const angle: number = (2 * Math.atan2(sine, turn.w) * 180) / Math.PI;
-      const step: IAutoMovieQuaternion = Quaternion.multiply(at.turn, Quaternion.inverse(rotated(touchdown - h).turn));
+      const step: IAutoMovieQuaternion = Quaternion.multiply(at.turn, Quaternion.inverse(rotated(to - h).turn));
       const signed: IAutoMovieQuaternion = step.w < 0 ? { x: -step.x, y: -step.y, z: -step.z, w: -step.w } : step;
       const swept: number = (2 * Math.atan2(Math.hypot(signed.x, signed.y, signed.z), signed.w) * 180) / Math.PI;
       const along: number = Math.hypot(signed.x, signed.y, signed.z) > 0
@@ -332,17 +340,17 @@ export namespace jumpAirborne {
       return (offset = { about: at.about, axis, angle, rate: (swept * along) / h });
     };
     return {
-      declared,
+      from, to, declared,
       turned: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture =>
         // At touchdown itself the flight's turn still holds, so the landing's
         // decaying offset starts from exactly the pose the flight ends on.
-        rotated === null || t <= takeoff || t > touchdown
+        rotated === null || t <= from || t > to
           ? posture
           : HumanPosturePreparation.turned(posture, rotated(t)),
       landed: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture => {
-        if (rotated === null || !(t > touchdown) || !(t < settled) || !(settled > touchdown)) return posture;
+        if (rotated === null || !(t > to) || !(t < settled) || !(settled > to)) return posture;
         const touch: ITouchdown = touched();
-        const decayed: number = inertializeOffset(touch.angle, touch.rate, settled - touchdown, t - touchdown).value;
+        const decayed: number = inertializeOffset(touch.angle, touch.rate, settled - to, t - to).value;
         return decayed === 0
           ? posture
           : { ...posture, rotation: { ...createHumanPostureRotation(touch.about, Quaternion.fromAxisAngle(touch.axis, decayed)), planted: true } };

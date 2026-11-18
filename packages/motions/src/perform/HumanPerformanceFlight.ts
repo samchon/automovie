@@ -267,6 +267,7 @@ export namespace HumanPerformanceFlight {
       }
       return pose;
     };
+
     const shape: (
       seconds: number,
     ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
@@ -286,13 +287,18 @@ export namespace HumanPerformanceFlight {
     // than the angle whose chord reads a part's orbital momentum short by
     // the flight's own momentum budget (`a^2 / 6` of it, so `a = sqrt(6 d)`
     // with `d` the budget `MOMENTUM_ACCURACY` states).
+    // The shape reduction already obtains each mass centre in the root frame.
+    // Playback needs its rigid placement at the uniform knots alone.
+    const centres: IAutoMovieVector3[] = [];
     const history: ReturnType<typeof integrateAirborneRotation.history> =
       integrateAirborneRotation.tabulated(prepared, shape, {
         from: t0,
         to: t1,
         step,
         turn: Math.sqrt(6 * MOMENTUM_ACCURACY.relative),
-      }, observation);
+      }, observation, (index: number, centre: IAutoMovieVector3): void => {
+        centres[index] = centre;
+      });
     const errorScope: symbol = Symbol("human flight");
     try {
       const q0: IAutoMovieQuaternion = root(at(t0));
@@ -384,13 +390,11 @@ export namespace HumanPerformanceFlight {
       const data: IPlayback = {
         step: spacing,
         times: knots,
-        table: knots.map((t: number): IPlayback["table"][number] => {
+        table: knots.map((t: number, index: number): IPlayback["table"][number] => {
           const pose: IAutoMoviePose = at(t);
+          const centre: IAutoMovieVector3 = centres[index]!;
           return {
-            about: prepareAutoMovieMassModel.place(
-              prepared,
-              readBones(pose, readResolution()),
-            ),
+            about: pose.root === null ? centre : Vector3.add(pose.root.translation, Quaternion.rotateVector(pose.root.rotation, centre)),
             root: root(pose),
           };
         }),

@@ -50,7 +50,7 @@ export function prepareJumpPosture(
 ): prepareJumpPosture.IConstruction {
   const flight: ReturnType<typeof prepareJumpFlight> = prepareJumpFlight(body, model, shape, phase.flightSeconds);
   const turning: jumpAirborne.ITurning = jumpAirborne.turning(rotation, phase.from, phase.to, phase.duration, phase.settled);
-  const fixed: prepareJumpPosture.IPhase = { from: phase.from, to: phase.to,
+  const fixed: prepareJumpPosture.IPhase = { from: turning.from, to: turning.to,
     duration: phase.duration, flightSeconds: phase.flightSeconds };
   const centre: IAutoMovieVector3 = { ...phase.centre };
   const launch: IAutoMovieVector3 = { ...phase.launch };
@@ -62,7 +62,7 @@ export function prepareJumpPosture(
     const t: number = Math.min(fixed.duration, Math.max(0, seconds));
     if (t <= fixed.from) return before(t, resolution);
     if (t <= fixed.to) {
-      const u: number = t - fixed.from;
+      const u: number = t === fixed.to ? fixed.flightSeconds : t - fixed.from;
       const at: IAutoMovieVector3 = {
         x: centre.x + launch.x * u,
         y: centre.y + launch.y * u - 0.5 * AutoMovieGravity.STANDARD * u * u,

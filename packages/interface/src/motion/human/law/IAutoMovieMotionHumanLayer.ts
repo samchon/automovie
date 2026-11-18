@@ -51,6 +51,9 @@ export interface IAutoMovieMotionHumanLayer {
    */
   channels?: readonly AutoMovieMotionHumanChannel[];
 
+  /** Evaluate the contribution at a window weight in [0,1] when its dependent targets must follow the shape produced by that weight. Ordinary layers use the shared posture mixer. */
+  blend?(posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext, weight: number): IAutoMovieMotionHumanPosture;
+
   /**
    * The posture with this layer's contribution added.
    *

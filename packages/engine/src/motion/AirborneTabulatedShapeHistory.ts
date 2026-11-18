@@ -9,7 +9,6 @@ import type {
 import type { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import type { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";
@@ -17,15 +16,22 @@ import { AirborneShapeReduction } from "./AirborneShapeReduction";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { integrateAirborneRotation } from "./integrateAirborneRotation";
 import { samplePoseVelocity } from "./samplePoseVelocity";
+import { tabulateAirborneShapeKnots } from "./tabulateAirborneShapeKnots";
 
 /** The numeric sufficient statistics a query returns. */
 type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
+
+/** The nonuniform first-derivative weights at one knot. */
+type IStencil = readonly (readonly [number, number])[];
 
 /** The public query signature. */
 type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
 
 /** Scalars tabulated a knot: six of the symmetric tensor, three of the relative momentum. */
 const WIDTH: number = 9;
+
+/** Maximum knot count within the portable 32-bit packed array length. */
+const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
 
 /** Only readers issued by this producer are recognised as native. */
 const HISTORIES: WeakSet<IHistory> = new WeakSet();
@@ -36,37 +42,21 @@ const HISTORIES: WeakSet<IHistory> = new WeakSet();
  * which depend on time alone and not on the flight's unknown momentum or
  * attitude, read from the shape at the knots only.
  *
- * The span is divided into the fewest equal intervals no longer than `step`,
- * so the knots lie inside the span and a span that is a whole number of
- * steps keeps the step. With four intervals or more and a `turn` bound, an
- * interval across which some mass part's principal frame turns by more than
- * `turn` radians is divided into the fewest equal parts that bring every
- * part's turn within it, so a shape that moves fast for a moment (a tuck laid
- * in over 50 ms) is read finely there and nowhere else. The shape is read
- * once at each knot. A knot's tensor
- * is that shape's composite inertia about its centre. With four intervals or
- * more, a knot's relative momentum is its point value to fourth order in the
- * knot spacing: each part's centre velocity and spin rate from the five-point
- * derivative over the knots about it, Fornberg's weights for knots at any
- * seconds (`derivative`, `pointMomentum`). With fewer,
- * the momentum of the motion between two neighbouring knots (a central
- * difference over the interval) is read at the interval's middle, and a
- * knot's is the mean of the two either side and the linear extrapolation
- * at an end, second order. Between knots the
- * nine scalars (six of the symmetric tensor, three of the momentum) follow
- * the cubic Hermite interpolant through the knots (the cubic matching value
- * and slope at both ends of an interval) with slopes from the knots' own
- * fourth-order differences, central inside and one-sided at the two knots
- * nearest each end (the weights of Fornberg 1988, Mathematics of
- * Computation 51:699-706, which the stencil history cites for its boundary;
- * second order with fewer than four intervals): continuous with a
- * continuous first derivative, so an adaptive integrator meets no kink at a
- * knot. A tuck laid in over 50 ms spans six knots at 1/120 s, and the
- * second-order interval readings left its relative momentum several percent
- * off during the fade (a part's chord across a turn of the angle `a` reads
- * its orbital momentum short by `a^2 / 6`), which the flight's displayed
- * momentum showed as a 7 % change. A query outside the span holds the
- * nearer end's values.
+ * The span first receives uniform knots at approximately the requested
+ * maximum step, allowing for floating-point rounding. With at least four
+ * uniform intervals and a finite turn bound, intervals whose sampled endpoint
+ * frames exceed that bound are subdivided until each adjacent sampled pair
+ * meets it. Rotation hidden between accepted samples is outside this bound.
+ * The shape is read once per knot. Inertia is computed about each shape's
+ * centre of mass. Relative momentum uses orbital and spin rates from the
+ * five-point Fornberg derivative on the final grid, with second-order
+ * two-pose differences and extrapolation for a short uniform grid.
+ *
+ * Hermite interpolation uses derivatives from the same grid. If either
+ * Bézier control attached to a knot is unsuitable for positive-definite
+ * interpolation, the tensor's slope at that knot becomes zero on both
+ * sides. This preserves a continuous first derivative. Relative momentum
+ * keeps its original slopes. Queries outside the span hold an endpoint.
  *
  * The table is built at the first query, not at construction, so a history
  * that is never read costs nothing and counts nothing. A shape whose own
@@ -82,24 +72,26 @@ const HISTORIES: WeakSet<IHistory> = new WeakSet();
  *
  * @param model The body's unchanged mass model for this history's lifetime, or a prepared token released by its caller after this history is cleared.
  * @param shape The posed bones at a second, in the root's own frame (the root at the origin, unturned). Pure; read at the knots only, all inside the span.
- * @param span The flight's take-off and touchdown, seconds, the greatest uniform knot spacing, seconds, and optionally the most any mass part may turn between neighbouring knots, radians (omitted, no interval is divided).
+ * @param span The flight's take-off and touchdown, seconds, the greatest uniform knot spacing, seconds, and optionally the sampled shortest-arc turn limit in radians for grids with at least four uniform intervals (omitted, no refinement).
+ * @param uniformCentre Optional consumer of each uniform knot index and a fresh copy of its reduced root-frame centre in metres. Refined knots do not supply playback centres.
  * @param observation Optional native work counter (`integrateAirborneRotation.observe`); omitted, nothing is counted.
  * @returns The history, with `clear` releasing the table and the issued instants; a later query builds the table again.
- * @throws {Error} For a span that is not finite and increasing, a step that is not positive and finite, a turn bound that is not positive, a released prepared model, or a knot whose tensor has no positive scale.
+ * @throws {Error} For a span that is not finite and increasing, a step that is not positive and finite, a turn bound that is not positive, a released prepared model, or a knot whose tensor has no positive scale, or a grid that exceeds timestamp precision or table capacity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is tabulated and why it may be, the knots, each knot's two readings with their order, the interpolant and its sources, the lazy build, the statistics' meaning, every input's frame and unit and every refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The flight's equation reads the shape only through its inertia and relative momentum, functions of time alone, so they are tabulated once for every right-hand side and shooting trial; a knot's relative momentum is the orbital-plus-spin sum the stencil history's two-pose reading forms, with each part's centre velocity and spin rate from Fornberg's five-point derivative over the knots (the rotation vectors of the part's frame relative to its knot frame have the angular velocity as their derivative there), and the cubic Hermite interpolant with fourth-order slopes keeps that order; fewer than four intervals keep the second-order interval readings. The premise is a shape smooth at the scale of the step; the tensor between knots is an interpolant, so its positive definiteness is not certified here and an instant that fails it keeps the principal-axes path, as any issued instant does.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy table build (uniform knot shapes, the divided intervals' shapes, tensors, knot momenta, slopes), one interpolation that finds its interval and part in constant time, one exact-second memo; the model's reductions are `AirborneShapeReduction`'s, the issued instant `AirborneShapeInertia`'s and the derivative weights Fornberg's recursion's.
+ * @evidence contracts/development/implementation.md#principled-implementation Fornberg derivatives estimate part centre velocity and spin from the sampled knots. A cubic Hermite tensor is a convex combination of four Bézier controls, so SPD endpoints and controls preserve SPD in exact arithmetic. One zero slope per unsuitable knot preserves continuity on both sides. Knots with a non-SPD tensor retain existing principal-axis admission.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy build samples the grid, reduces its poses and limits the tensor slopes. Query interpolation finds its interval by binary search, and the memo owns exact-second readings.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rounded query time, no nearest-knot answer and no changed physical bound: every query interpolates at its own second, and the knots' tensors pass the stencil history's own admission.
- * @evidence contracts/development/implementation.md#efficient-algorithms For K uniform knots, D added knots where parts turn fast and S mass parts the build reads K + D shapes and does O((K + D) S) reduction once, five-point stencils included; a query costs nine cubic evaluations and no shape read, where the stencil history reads up to three shapes for each new query second. Knots are added only in intervals where a part turns past the bound, and a shape that turns within it everywhere keeps one read a uniform knot. Runtime gain is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For K final knots and S mass parts the build reads K shapes and does O(K S) work, with fixed-width derivatives. A fresh query takes O(log K) search time and evaluates nine cubics with no shape read.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One table serves every stage, defect probe and shooting trial of the history's lifetime, since none of them changes the shape; an exact second's issued instant, with its tensor factor, is shared by the memo, and a defect's reading of a second with no instant keeps its numbers and factorisation for the instant a later query issues there, counted as the query and factorisation that instant would have made. No attitude, momentum or flight answer is kept.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns two arrays of nine scalars a knot, the knots' seconds, two integers a uniform interval and one issued instant or numeric reading (nine scalars and a factor) per distinct queried second, unbounded in the number of distinct seconds; posed shapes are dropped when the build ends. `clear` releases the arrays, both memos and each instant's factor; the caller releases a prepared model.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The history owns two arrays of nine scalars a knot, the knots' seconds and one issued instant or numeric reading (nine scalars and a factor) per distinct queried second, unbounded in the number of distinct seconds; posed shapes are dropped when the build ends. `clear` releases the arrays, both memos and each instant's factor; the caller releases a prepared model.
  */
 export function AirborneTabulatedShapeHistory(
   model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
   shape: (seconds: number) => AirborneShapeReduction.IBones,
   span: { from: number; to: number; step: number; turn?: number },
   observation?: AirborneShapeStatistics.IObserver,
+  uniformCentre?: (index: number, centre: IAutoMovieVector3) => void,
 ): integrateAirborneRotation.ICachedHistory {
   const { from, to, step }: { from: number; to: number; step: number } = span;
   if (!Number.isFinite(from) || !Number.isFinite(to) || !(to > from))
@@ -114,7 +106,8 @@ export function AirborneTabulatedShapeHistory(
   // keeps a span that is a whole number of steps, up to the rounding of the
   // division, at that number.
   const intervals: number = Math.max(1, Math.ceil((to - from) / step - 1e-9));
-  const spacing: number = (to - from) / intervals;
+  if (!Number.isSafeInteger(intervals) || intervals >= MAX_KNOTS)
+    throw new Error("A tabulated shape history step needs too many knots");
   const turn: number = span.turn ?? Infinity;
   if (!(turn > 0))
     throw new Error("A tabulated shape history needs a positive turn bound");
@@ -122,52 +115,16 @@ export function AirborneTabulatedShapeHistory(
   let table: ITable | undefined;
 
   const build = (): ITable => {
-    // The uniform knots, then each interval across which some part turns
-    // more than the bound divided into the fewest equal parts that keep
-    // every part's turn within it (one more shape read a part). A part's
-    // turn between two knots is the angle of its principal frame's change.
-    const read = (seconds: number): resolveAutoMovieMomentum.IPosed => {
-      if (statistics !== undefined) statistics.uniqueNumericNodes++;
-      return reduction.pose(shape(seconds));
-    };
-    const coarse: resolveAutoMovieMomentum.IPosed[] = [];
-    for (let k: number = 0; k <= intervals; ++k)
-      coarse.push(read(k === intervals ? to : from + k * spacing));
-    const parts: Int32Array = new Int32Array(intervals);
-    const first: Int32Array = new Int32Array(intervals + 1);
-    const times: number[] = [];
-    const knots: resolveAutoMovieMomentum.IPosed[] = [];
-    for (let k: number = 0; k < intervals; ++k) {
-      const a: resolveAutoMovieMomentum.IPosed = coarse[k]!;
-      const b: resolveAutoMovieMomentum.IPosed = coarse[k + 1]!;
-      // A span of fewer than four intervals keeps its uniform second-order
-      // table (a flight under 4 steps), so its knots stay equally spaced.
-      let largest: number = 0;
-      if (Number.isFinite(turn) && intervals >= 4)
-        for (let i: number = 0; i < a.parts.length; i++)
-          largest = Math.max(largest, Vector3.length(samplePoseVelocity.rotationVector(
-            Quaternion.multiply(b.parts[i]!.inertiaRotation, Quaternion.inverse(a.parts[i]!.inertiaRotation)),
-          )));
-      // A shortest-arc turn is at most a half turn, so an interval is divided
-      // into at most ceil(pi / turn) parts; a turn that is not a number (a
-      // shape that is not finite, which the tensor's admission then refuses)
-      // divides nothing.
-      const count: number = Number.isFinite(largest)
-        ? Math.max(1, Math.ceil(Math.min(largest, Math.PI) / turn))
-        : 1;
-      parts[k] = count;
-      first[k] = knots.length;
-      const start: number = from + k * spacing;
-      times.push(start);
-      knots.push(a);
-      for (let j: number = 1; j < count; ++j) {
-        times.push(start + (j * spacing) / count);
-        knots.push(read(start + (j * spacing) / count));
-      }
-    }
-    first[intervals] = knots.length;
-    times.push(to);
-    knots.push(coarse[intervals]!);
+    const { times, knots }: ReturnType<typeof tabulateAirborneShapeKnots> = tabulateAirborneShapeKnots(
+      { from, to, intervals, turn },
+      MAX_KNOTS,
+      (seconds: number, uniformIndex?: number): resolveAutoMovieMomentum.IPosed => {
+        if (statistics !== undefined) statistics.uniqueNumericNodes++;
+        const posed: resolveAutoMovieMomentum.IPosed = reduction.pose(shape(seconds));
+        if (uniformCentre !== undefined && uniformIndex !== undefined) uniformCentre(uniformIndex, { ...posed.centre });
+        return posed;
+      },
+    );
     const last: number = knots.length - 1;
 
     const values: Float64Array = new Float64Array(WIDTH * knots.length);
@@ -194,10 +151,11 @@ export function AirborneTabulatedShapeHistory(
     if (last < 4)
       for (let k: number = 1; k <= last; ++k)
         mids.push(reduction.between(knots[k - 1]!, knots[k]!, times[k]! - times[k - 1]!).angular);
+    const stencils: IStencil[] = last < 4 ? [] : times.map((_: number, k: number): IStencil => derivative(times, k));
     for (let k: number = 0; k <= last; ++k) {
       const momentum: IAutoMovieVector3 = last < 4
         ? meanMomentum(mids, k, last)
-        : pointMomentum(knots, times, k);
+        : pointMomentum(knots, stencils[k]!, k);
       const at: number = WIDTH * k + 6;
       values[at] = momentum.x;
       values[at + 1] = momentum.y;
@@ -211,11 +169,10 @@ export function AirborneTabulatedShapeHistory(
     // uniform knots, and the chord with a single interval.
     const slopes: Float64Array = new Float64Array(values.length);
     for (let k: number = 0; k <= last; ++k) {
-      const stencil: readonly (readonly [number, number])[] | null =
-        last < 4 ? null : derivative(times, k);
+      const stencil: IStencil | undefined = stencils[k];
       for (let i: number = 0; i < WIDTH; ++i) {
         const y = (knot: number): number => values[WIDTH * knot + i]!;
-        if (stencil !== null) {
+        if (stencil !== undefined) {
           let sum: number = 0;
           for (const [knot, weight] of stencil) sum += weight * y(knot);
           slopes[WIDTH * k + i] = sum;
@@ -232,23 +189,34 @@ export function AirborneTabulatedShapeHistory(
                 : (y(k + 1) - y(k - 1)) / (2 * h);
       }
     }
-    return { values, slopes, times, parts, first };
+    // Hermite's interior Bézier controls are the endpoint values displaced
+    // by one third of the interval times the signed endpoint derivative.
+    for (let k: number = 0; k <= last; ++k) {
+      const at: number = WIDTH * k;
+      const before: number = k === 0 ? 0 : (times[k - 1]! - times[k]!) / 3;
+      const after: number = k === last ? 0 : (times[k + 1]! - times[k]!) / 3;
+      const control = (width: number): number[][] =>
+        symmetricTensor((i: number): number => values[at + i]! + width * slopes[at + i]!);
+      if (
+        (k > 0 && physicalInertiaFactor(control(before)) === null) ||
+        (k < last && physicalInertiaFactor(control(after)) === null)
+      )
+        slopes.fill(0, at, at + 6);
+    }
+    return { values, slopes, times };
   };
 
   const numbers = (seconds: number): { matrix: number[][]; relative: IAutoMovieVector3 } => {
     const built: ITable = (table ??= build());
     const held: number = Math.min(to, Math.max(from, seconds));
 
-    // The uniform interval, then its equal part: constant work.
-    const coarse: number = Math.min(
-      intervals - 1,
-      Math.max(0, Math.floor((held - from) / spacing)),
-    );
-    const count: number = built.parts[coarse]!;
-    const index: number = built.first[coarse]! + Math.min(
-      count - 1,
-      Math.max(0, Math.floor(((held - (from + coarse * spacing)) / spacing) * count)),
-    );
+    let index: number = 0;
+    let upper: number = built.times.length - 1;
+    while (upper - index > 1) {
+      const middle: number = index + Math.floor((upper - index) / 2);
+      if (held < built.times[middle]!) upper = middle;
+      else index = middle;
+    }
     const left: number = built.times[index]!;
     const width: number = built.times[index + 1]! - left;
     const s: number = Math.min(1, Math.max(0, (held - left) / width));
@@ -266,11 +234,7 @@ export function AirborneTabulatedShapeHistory(
       h01 * built.values[b + i]! +
       h11 * width * built.slopes[b + i]!;
     return {
-      matrix: [
-        [y(0), y(3), y(4)],
-        [y(3), y(1), y(5)],
-        [y(4), y(5), y(2)],
-      ],
+      matrix: symmetricTensor(y),
       relative: { x: y(6), y: y(7), z: y(8) },
     };
   };
@@ -357,7 +321,7 @@ interface IReadable {
   [READING]?: (seconds: number) => INumeric | IInstant;
 }
 
-/** A built table: nine scalars and their slopes a knot, the knots' seconds and how each uniform interval is divided. */
+/** A built table: nine scalars and their slopes a knot, the knots' seconds in increasing order. */
 interface ITable {
   /** Six tensor and three momentum scalars a knot, in knot order. */
   values: Float64Array;
@@ -367,12 +331,14 @@ interface ITable {
 
   /** Each knot's second, increasing. */
   times: readonly number[];
+}
 
-  /** The equal parts each uniform interval is divided into. */
-  parts: Int32Array;
-
-  /** The index of each uniform interval's first knot, and the last knot's after them. */
-  first: Int32Array;
+/** Reconstruct a symmetric tensor from its packed diagonal and upper triangle. */
+function symmetricTensor(y: (i: number) => number): number[][] {
+  const xy: number = y(3);
+  const xz: number = y(4);
+  const yz: number = y(5);
+  return [[y(0), xy, xz], [xy, y(1), yz], [xz, yz, y(2)]];
 }
 
 /**
@@ -431,10 +397,9 @@ function derivative(times: readonly number[], k: number): readonly (readonly [nu
  */
 function pointMomentum(
   knots: readonly resolveAutoMovieMomentum.IPosed[],
-  times: readonly number[],
+  stencil: IStencil,
   k: number,
 ): IAutoMovieVector3 {
-  const stencil: readonly (readonly [number, number])[] = derivative(times, k);
   const at: resolveAutoMovieMomentum.IPosed = knots[k]!;
   let x: number = 0;
   let y: number = 0;
