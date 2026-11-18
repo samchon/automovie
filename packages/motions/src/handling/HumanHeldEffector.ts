@@ -24,6 +24,7 @@ import { HumanHand } from "../posture/HumanHand";
  * @param side The holding hand.
  * @param subject The held prop's subject id.
  * @param point The contact id; the row's own when absent.
+ * @param namedRim Start the rim at the named material point for a grasp taken to present that contact.
  * @returns The effector at a degree turn round an upright vessel's rim; a prop not upright gives the same effector at every turn.
  * @throws {HumanRefusal} When the hand does not hold the prop at the entry (`AutoMovieMotionHumanHeld.of`), no point is named, or the prop lacks the contact.
  *
@@ -41,6 +42,7 @@ export function HumanHeldEffector(
   side: AutoMovieHumanSide,
   subject: string,
   point?: string,
+  namedRim: boolean = false,
 ): (turn?: number) => IAutoMovieMotionHumanTouchEffector.IEffector {
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(context, side, subject);
   const name: string | undefined = point ?? row.point;
@@ -66,8 +68,12 @@ export function HumanHeldEffector(
     const origin: IAutoMovieVector3 = Vector3.add(socket, held.frame.position);
     const centre: IAutoMovieVector3 = Vector3.add(origin, Vector3.scale(normal,
       Vector3.dot(Vector3.subtract(at, origin), normal)));
-    const toward: IAutoMovieVector3 = across(side, normal, own(row.effector.facing, "palm"));
-    ring = { centre, radius: Vector3.length(Vector3.subtract(at, centre)),
+    const radial: IAutoMovieVector3 = Vector3.subtract(at, centre);
+    const radius: number = Vector3.length(radial);
+    const toward: IAutoMovieVector3 = namedRim && radius > 0
+      ? Vector3.scale(radial, 1 / radius)
+      : across(side, normal, own(row.effector.facing, "palm"));
+    ring = { centre, radius,
       toward, across: Vector3.cross(normal, toward) };
   }
   const offset: IAutoMovieVector3 = HumanHand.offset(context.body, side,
