@@ -1,6 +1,7 @@
-import { DEFAULT_HUMANOID_ROM } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannelClaim,
   IAutoMovieAngleRange,
@@ -21,13 +22,14 @@ import type {
 import { walk } from "../actions/walk";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanTrunk } from "../everyday/HumanTrunk";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanHandTarget } from "../posture/HumanHandTarget";
 
 /**
  * Walking to a floor point while carrying a load or pushing a wheeled one:
@@ -44,7 +46,8 @@ import { HumanHand } from "../posture/HumanHand";
  *   closed on the handle, and the trunk leans laterally away from the load
  *   (Zhang, Ye and Wang 2010, Comput Methods Biomech Biomed Engin 13:339).
  * - `twoHands`: both palms press the sides of a box as wide as 0.8 of the
- *   shoulders, held at waist height a third of the arm before the root, and
+ *   shoulders, held at waist height a third of the arm before the root or
+ *   beyond the abdomen by the forearm's radius, and
  *   the trunk leans back over it (Chaffin et al. 2006's front load).
  * - `hip`: the hand of the hip side lies palm up under the child's seat
  *   before that hip, and the trunk leans away to the other side.
@@ -201,14 +204,16 @@ export namespace carry {
    * @param how How the load is held.
    * @param side The hand.
    * @param loaded The loaded side.
+   * @param resolution The existing same-body FK reader when the handle rides the shoulders.
    * @returns The point and the outward normal of the place, world, or undefined for a free hand.
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
+    posture: CarryPosture,
     how: IAutoMovieMotionHumanCarry.How,
     side: AutoMovieHumanSide,
     loaded: AutoMovieHumanSide,
+    resolution?: FK,
   ): IAutoMovieMotionHumanCarry.IPlaceResult {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const arm: number = m.upperArm + m.forearm;
@@ -231,30 +236,38 @@ export namespace carry {
           point: HumanFrame.point(frame, {
             x: out * 0.8 * m.shoulderHalfWidth,
             y: m.waistHeight,
-            z: arm / 3,
+            z: Math.max(arm / 3, forwardAbdomen(body, posture, frame, resolution) + m.forearmRadius),
           }),
           normal: turn({ x: -out, y: 0, z: 0 }),
         };
-      case "push":
+      case "push": {
+        // The handle is carried from the shoulder line. A root-relative
+        // handle lets forward trunk inclination drive the arm through it.
+        const shoulder: IAutoMovieVector3 = measuredShoulder(body, posture, side, resolution);
         return {
-          point: HumanFrame.point(frame, {
-            x: out * m.shoulderHalfWidth,
-            y: m.shoulderHeight - m.upperArm,
+          point: Vector3.add(shoulder, turn({
+            x: out * m.forearmRadius,
+            y: -m.upperArm,
             z: m.forearm,
-          }),
+          })),
           normal: { x: 0, y: 1, z: 0 },
         };
-      case "hip":
-        return side !== loaded
-          ? undefined
-          : {
-              point: HumanFrame.point(frame, {
-                x: out * m.hipHalfWidth,
-                y: m.hipHeight - 0.05,
-                z: 0.2 * arm,
-              }),
-              normal: { x: 0, y: -1, z: 0 },
-            };
+      }
+      case "hip": {
+        if (side !== loaded) return undefined;
+        // The child's seat rides beside the hip joint. The palm lies one
+        // extended finger span outside the outer thigh, leaving room for the
+        // hand that slides inward beneath the seat.
+        const bone: AutoMovieHumanoidBone = `${side}UpperLeg`;
+        const hip: IAutoMovieVector3 = HumanTrunk.resolve(body, trunkOf(posture),
+          undefined, resolution, new Set([bone])).get(bone)!.worldPosition;
+        const palm: IAutoMovieVector3 = HumanHand.offset(body, side, "palm").point;
+        const finger: number = m.hand - Vector3.length(palm);
+        return {
+          point: Vector3.add(hip, turn({ x: out * (m.thighRadius + finger), y: 0, z: 0.2 * arm })),
+          normal: { x: 0, y: -1, z: 0 },
+        };
+      }
       case "oneHand":
         return undefined;
     }
@@ -296,8 +309,7 @@ export namespace carry {
         }),
       ),
     );
-    const ramp: (seconds: number) => number = (seconds: number): number =>
-      Math.min(1, Math.max(0, seconds / RAMP));
+    const ramp: (seconds: number) => number = (seconds: number): number => minimumJerk.share(seconds / RAMP);
 
     // The trunk's lean: lateral away from a one-hand or hip load, back over a
     // front box, forward over a pushed handle; chest and spine share it.
@@ -341,15 +353,38 @@ export namespace carry {
     // on the hold places otherwise.
     const arms: IAutoMovieMotionHumanPrimitive[] = [];
     for (const side of ["left", "right"] as const) {
+      if ((how === "oneHand" || how === "hip") && side !== loaded) {
+        // Keep the unloaded arm's swing while giving its forearm space
+        // for the torso's lateral compensation and its own girth.
+        const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+        const shift: number = (m.shoulderHeight - m.hipHeight) * Math.sin(degrees * Math.PI / 180);
+        const room: number = Math.atan2(shift + m.forearmRadius, m.upperArm) * 180 / Math.PI;
+        const upper: AutoMovieHumanoidBone = `${side}UpperArm`;
+        arms.push({
+          channels: [`${side}Arm`],
+          reads: [`${side}Arm`],
+          from: 0,
+          to: duration,
+          write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+            const joint: IAutoMovieMotionHumanArmAngles.IAngles["upper"] = posture.joints[upper] ?? [0, 0, 0];
+            return {
+              ...posture,
+              joints: { ...posture.joints, [upper]: [joint[0], joint[1] + room * ramp(seconds), joint[2]] },
+            };
+          },
+        });
+        continue;
+      }
       if (how === "oneHand") {
-        if (side !== loaded) continue;
-
         // The arm and the fingers move from the entry's own angles to the
         // hanging hold over the ramp, so the carry starts where the entry
         // left the arm and the hand closes on the handle continuously.
         const rest: IAutoMovieMotionHumanArmAngles.IAngles =
           AutoMovieMotionHumanArm.angles(context.entry.pose, side);
         const hung: ReturnType<typeof hang> = hang(body, side);
+        const upper: JointBlend = blendHumanJoint.between(body, `${side}UpperArm`, rest.upper, hung.upper);
+        const lower: JointBlend = blendHumanJoint.between(body, `${side}LowerArm`, rest.lower, hung.lower);
+        const wrist: JointBlend = blendHumanJoint.between(body, `${side}Hand`, rest.hand, [0, 0, 0]);
         const close: (weight: number) => IAutoMovieMotionHumanPosture["joints"] =
           prepareHumanShapeBlend(rest.fingers ?? {}, HumanHand.shape(side, "fist"));
         arms.push({
@@ -366,17 +401,19 @@ export namespace carry {
               joints: {
                 ...posture.joints,
                 ...close(s),
-                [`${side}UpperArm`]: blendHumanJoint(body, `${side}UpperArm`, rest.upper, hung.upper, s),
-                [`${side}LowerArm`]: blendHumanJoint(body, `${side}LowerArm`, rest.lower, hung.lower, s),
-                [`${side}Hand`]: blendHumanJoint(body, `${side}Hand`, rest.hand, [0, 0, 0], s),
+                [`${side}UpperArm`]: upper(s),
+                [`${side}LowerArm`]: lower(s),
+                [`${side}Hand`]: wrist(s),
               },
             };
           },
         });
         continue;
       }
-      if (place(body, context.entry.posture, how, side, loaded) === undefined)
-        continue;
+      const held: ReturnType<typeof HumanHandTarget.prepareGoal> = HumanHandTarget.prepareGoal(body, side, {
+        surface: how === "push" ? "grip" : "palm",
+        bend: how === "hip" ? "akimbo" : "front",
+      });
       arms.push(
         AutoMovieMotionHumanArm.carried({
           body,
@@ -387,17 +424,20 @@ export namespace carry {
           weight: ramp,
           goal: (
             posture: IAutoMovieMotionHumanPosture,
+            _seconds: number,
+            resolution?: FK,
           ): IAutoMovieHumanLimbGoal => {
-            const at: NonNullable<IAutoMovieMotionHumanCarry.IPlaceResult> = place(body, posture, how, side, loaded)!;
-            return AutoMovieMotionHumanArm.goal(
-              body,
-              side,
-              AutoMovieMotionHumanTarget.hand(body, posture, side, at, {
-                surface: how === "push" ? "grip" : "palm",
-                shape: "relaxed",
-                ...(how === "push" ? { curl: 40 } : {}),
-              }),
-            );
+            const at: NonNullable<IAutoMovieMotionHumanCarry.IPlaceResult> =
+              place(body, posture, how, side, loaded, resolution)!;
+            // The child's seat is supported from the outer side, with the fingers
+            // pointing inward. On a cart this same transverse direction is the
+            // grip socket's bar axis, so the fingers wrap a horizontal handle.
+            const forward: IAutoMovieVector3 | undefined = how === "twoHands"
+              ? undefined
+              : HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, {
+                  x: side === "left" ? -1 : 1, y: 0, z: 0,
+                });
+            return held(posture, at, forward);
           },
         }),
       );
@@ -425,4 +465,31 @@ export namespace carry {
       ],
     };
   }
+}
+
+/** Root and heading with the optional authored trunk channels that move a hand's support frame. */
+type CarryPosture = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
+  Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll" | "joints">>;
+
+/** A same-body FK loan scoped to the current posture evaluation. */
+type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
+
+/** One joint's immutable start-to-end interpolation. */
+type JointBlend = ReturnType<typeof blendHumanJoint.between>;
+
+/** The current abdomen's front in the walking floor frame. */
+function forwardAbdomen(body: IAutoMovieMotionHumanBody, posture: CarryPosture, frame: IAutoMovieMotionHumanFrame, resolution?: FK): number {
+  const abdomen: ReturnType<typeof HumanTrunk.region> = HumanTrunk.region(body, trunkOf(posture), "abdomen", resolution);
+  return HumanFrame.local(frame, abdomen.point).z;
+}
+
+/** The pushing arm's current shoulder, carried by the actual girdle. */
+function measuredShoulder(body: IAutoMovieMotionHumanBody, posture: CarryPosture, side: AutoMovieHumanSide, resolution?: FK): IAutoMovieVector3 {
+  const bone: AutoMovieHumanoidBone = `${side}UpperArm`;
+  return HumanTrunk.resolve(body, trunkOf(posture), undefined, resolution, new Set([bone])).get(bone)!.worldPosition;
+}
+
+/** A root-only caller uses the upright rest frame; a shown trunk keeps its articulation. */
+function trunkOf(posture: CarryPosture): IAutoMovieMotionHumanPosture {
+  return { ...posture, pitch: posture.pitch ?? 0, roll: posture.roll ?? 0, joints: posture.joints ?? {}, limbs: {} };
 }
