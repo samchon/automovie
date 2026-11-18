@@ -145,7 +145,9 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
         (g: { shown: IGalleryCatalogue.ISubject[] }): boolean =>
           g.shown.length === 0,
       ) ? (
-        <p className="am-status">No object matches this selection.</p>
+        <p className="am-status" role="status">
+          No object matches this selection.
+        </p>
       ) : null}
     </main>
   );
