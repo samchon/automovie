@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanKnockdown,
   IAutoMovieMotionHumanLean,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -22,7 +23,10 @@ import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
+import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
+import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingTarget } from "../striking/StrikingTarget";
@@ -137,9 +141,9 @@ export namespace knockdown {
    * @evidence contracts/development/implementation.md#principled-implementation Overlapping minimum-jerk sit and roll-back profiles over one pose function, the root height solved each posture by the floor rest and the root's travel by the pose's own ankles and hips, so the feet and then the seat stay in place on any body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fits the body and reads the blow's heading once, then evaluates each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative lying time throws; the knee and the lying arm are solved on the body's shapes instead of stated, and the recline and the hip's fold are named provisional values.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps the original independent root, trunk and joint primitives, their phase/fold reads and three 16-step fit bisections. Fixed named phase interval preparation and demanded floor geometry avoid repeated prerequisites without removing actual measures or claiming measured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The root writer lends only current composition FK/ROM metadata to its actual floor measure. A planning IIFE shares exact FK/projector prerequisites across standing then seated reads, with every joint still projected. Entry yaw is read at the original offset expression sites and every original phase call remains observable through the clock's guarded live callback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds fitted angles, one fold measure reader bound to its body, two numeric measures, fixed phase preparation and one heading cleared on settle. Fit/IIFE loans end before plan return. Runtime loans belong only to the current root-writer call and never enter its raw posture, measures or callbacks; no sampled-pose history is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Changing articulation retains its original fold and floor measurements. The prepared default lying hold reads a constant posture under the rig check, without measuring the colliders again.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The floor reader retains its actual current FK/ROM input on changing shapes. With the default source and both folds complete, the native display reuses the unchanged down-event posture. Public authoring and directed reactions keep their original evaluation.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fixed fit and measurement data, one heading cleared on settle, and one owned down-event source release with the plan. FK/ROM loans stay in their own calls.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
@@ -311,7 +315,47 @@ export namespace knockdown {
     });
     // The fold has reached its grounded endpoint at "down"; an authored
     // lying hold extends only the film clock after that event.
-    return { ...plan, physicalWindow: { from: 0, to: DOWN } };
+    const defaultSource: boolean = context.params.from === undefined;
+    const out: IAutoMovieMotionHumanActionPlan = {
+      ...plan,
+      ...(defaultSource && duration > DOWN
+        ? { still: [DOWN, duration] as const }
+        : {}),
+      physicalWindow: { from: 0, to: DOWN },
+    };
+    // The default source is fixed by the entry, and both fold progress
+    // functions are identically one throughout the authored lying hold.
+    // A directed fall still observes its source at the normal query.
+    if (defaultSource && duration > DOWN) {
+      let hold: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
+      let unchanged: (() => boolean) | undefined;
+      HumanPreparedPlayback.attach(out, body, {
+        mode: "posture",
+        prepare: (): void => {
+          unchanged = prepareHumanPostureRigCheck(body);
+          hold =
+            unchanged === undefined
+              ? undefined
+              : createHumanPostureCurve(plan.posture(DOWN));
+        },
+        phases: [
+          {
+            from: DOWN,
+            to: duration,
+            sample: (
+              seconds,
+              channels,
+            ): IAutoMovieMotionHumanPlayback.ISample | undefined =>
+              channels === undefined &&
+              unchanged?.() === true &&
+              hold !== undefined
+                ? { posture: hold(seconds) }
+                : undefined,
+          },
+        ],
+      });
+    }
+    return out;
   }
 
   /** When the trunk starts rolling back, as a share of the time to the seat. */

@@ -91,7 +91,7 @@ export namespace martialArt {
    * @evidence contracts/development/implementation.md#principled-implementation A stance entered by a step and a sink, then the technique's arm rows on named places.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, stance rows, then the technique's rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body measures and named places only; provisional values named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per arm per second.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each arm keeps its existing fitting. The karate pulse reads at most two candidate starts, independent of punch count.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the leg arc and the placed arm.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
@@ -257,23 +257,26 @@ export namespace martialArt {
     }
     if (p.kind === "chokuZuki") {
       // Punch i starts at `ready + 2 i PUNCH`, by the right hand first.
+      const ready: number = clock.at("ready");
+      const len: number = PUNCH * modifiers.tempo;
       const start: (i: number) => number = (i: number): number =>
-        clock.at("ready") + 2 * i * PUNCH * modifiers.tempo;
+        ready + 2 * i * PUNCH * modifiers.tempo;
+      const ease: (u: number) => number = (u: number): number =>
+        u * u * (3 - 2 * u);
       const extended: (side: "left" | "right", s: number) => number = (side: "left" | "right", s: number): number => {
-        let w: number = 0;
-        for (let i: number = 0; i < count; i++) {
-          if ((i % 2 === 0) !== (side === "right")) continue;
-          const a: number = start(i);
-          const len: number = PUNCH * modifiers.tempo;
-          const rise: number = Math.min(1, Math.max(0, (s - a) / len));
-          const fall: number = Math.min(
-            1,
-            Math.max(0, (s - a - 2 * len) / len),
-          );
-          const ease: (u: number) => number = (u: number): number => u * u * (3 - 2 * u);
-          w = Math.max(w, ease(rise) - ease(fall));
-        }
-        return w;
+        const first: number = side === "right" ? 0 : 1;
+        if (s < start(first)) return 0;
+
+        // Each arm's three-unit pulse fits inside its four-unit period.
+        // Check the next authored start to preserve the exact phase if
+        // floating-point division rounds the estimated cycle down.
+        let i: number = first + 2 * Math.floor((s - start(first)) / (4 * len));
+        if (s >= start(i + 2)) i += 2;
+        if (i >= count) return 0;
+        const a: number = start(i);
+        const rise: number = Math.min(1, Math.max(0, (s - a) / len));
+        const fall: number = Math.min(1, Math.max(0, (s - a - 2 * len) / len));
+        return Math.max(0, ease(rise) - ease(fall));
       };
       for (const side of ["left", "right"] as const)
         primitives.push(

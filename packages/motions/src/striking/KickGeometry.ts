@@ -8,7 +8,6 @@ import type {
   IAutoMovieMotionHumanKickGeometry,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingAim,
-  IAutoMovieSuperposeMinimumJerk,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -82,32 +81,41 @@ export namespace KickGeometry {
 
     // What follows the partner as shown: the aim's tracker, and a contact
     // for each correction of the aim on the launch's step, trying the lean
-    // it corrects first. A feint throws at nothing, so it follows nothing.
-    const tracker: IAutoMovieMotionHumanStrikingAim.ITracker = StrikingAim.track(
-      launch.aim,
-      {
-        launch: t0 - StrikingTarget.LOOK,
-        impact: t0 + timing.impact,
-        latency: StrikingSkill.CORRECTION_LATENCY,
-        step: StrikingAim.STEP,
-        shortest: StrikingAim.SHORTEST,
-      },
-      offset,
-    );
+    // it corrects first. A feint follows nothing. The shadow opponent is
+    // fixed in the entry's frame, so every prediction would equal launch.
+    const tracker: IAutoMovieMotionHumanStrikingAim.ITracker | undefined =
+      context.params.at.kind === "none"
+        ? undefined
+        : StrikingAim.track(
+            launch.aim,
+            {
+              launch: t0 - StrikingTarget.LOOK,
+              impact: t0 + timing.impact,
+              latency: StrikingSkill.CORRECTION_LATENCY,
+              step: StrikingAim.STEP,
+              shortest: StrikingAim.SHORTEST,
+            },
+            offset,
+          );
     const launched: KickLaunch.IPlanned = launch.launched;
     const carriage: IAutoMovieMotionHumanKickGeometry.ICarriage = launched.carriage;
     const fit: KickChain.IFit = launched.fit;
-    const plans: KickPlans.IPlans = KickPlans.create({
-      first: launched,
-      next: (
-        previous: KickPlans.IPlan,
-        goal: IAutoMovieVector3,
-      ): KickLaunch.IPlanned =>
-        launch.contact(goal, carriage.step, previous.carriage.lean, carriage.drive, launch.chamber),
-      units: (seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[] =>
-        feint ? [] : tracker.units(seconds),
-      t0,
-    });
+    const plans: KickPlans.IPlans =
+      feint || tracker === undefined
+        ? {
+            shown: (): IAutoMovieMotionHumanKickGeometry.ICarriage => carriage,
+            leg: launched.leg,
+          }
+        : KickPlans.create({
+            first: launched,
+            next: (
+              previous: KickPlans.IPlan,
+              goal: IAutoMovieVector3,
+            ): KickLaunch.IPlanned =>
+              launch.contact(goal, carriage.step, previous.carriage.lean, carriage.drive, launch.chamber),
+            units: tracker.units,
+            t0,
+          });
     return compose(body, timing, t0, {
       line,
       carriage,
@@ -126,7 +134,7 @@ export namespace KickGeometry {
       record: {
         limb: side === "left" ? "leftFoot" : "rightFoot",
         offset,
-        planned: tracker.planned,
+        planned: tracker?.planned ?? { ...launch.planned },
         reached: fit.reached,
         status: fit.status,
 
