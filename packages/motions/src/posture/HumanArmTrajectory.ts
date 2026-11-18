@@ -329,12 +329,6 @@ export namespace HumanArmTrajectory {
       // played trajectory's own reading. Where the knots are the grid
       // itself, the reading is theirs.
       //
-      // The solve has two levels and no loop. The knots first; and where
-      // their trajectory ends infeasible on the grid, the grid's own
-      // instants as knots, the whole problem a frame-grid trajectory always
-      // was, continued from the knots' result at its penalty. Nothing is
-      // chosen by where a reading failed, so a problem and its mirror take
-      // the same level.
       let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
         HumanArmOptimiser.optimise(context, seed, penalty, fine);
 
@@ -342,9 +336,7 @@ export namespace HumanArmTrajectory {
       // V): where the knots' converged path fails its frame-grid reading
       // between two knots, that interval and its neighbours are split and
       // the path solved again from itself at the penalty it reached, until
-      // the reading admits it. A failure at a knot instant is the knots'
-      // own, which no finer spacing between them answers; a speed or a sweep
-      // is read over the grid interval its instant starts.
+      // the reading admits it or the affected intervals are already frames.
       while (
         solved.evaluation.worst.value > M.TOLERANCE &&
         context.n < fine.n
@@ -449,7 +441,7 @@ export namespace HumanArmTrajectory {
           arms: p.arms.map(
             (arm: IArm, a: number): IArm => ({
               ...arm,
-              ...(from > 0 ? { rest: start[a]! } : {}),
+              ...(from > 0 ? { rest: start[a]!, back: arm.back ?? arm.rest } : {}),
               ...(to < grid.length - 1
                 ? {
                     back: end[a]!,
@@ -503,8 +495,11 @@ export namespace HumanArmTrajectory {
           own,
           solved.state.x,
         );
+        // Interior joins hold their last pose. An open end of the full
+        // action is a solved contact and must keep the repaired last frame.
+        const after: number = to === grid.length - 1 && fine.open ? to + 1 : to;
         played.forEach((arm: number[][], a: number): void => {
-          for (let g: number = from + 1; g < to; ++g) x[a]![g] = arm[g - from]!;
+          for (let g: number = from + 1; g < after; ++g) x[a]![g] = arm[g - from]!;
         });
         penalty = Math.max(penalty, solved.state.penalty);
       }
