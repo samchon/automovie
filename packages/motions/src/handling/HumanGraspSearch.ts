@@ -28,13 +28,14 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @param posture The posture the arm is fitted in (its other limbs and trunk).
  * @param side The arm.
  * @param bend The grasp's elbow hint, world metres.
+ * @param fixedPosture Whether the issuer supplies a fixed posture and material wrist frames, so a candidate may be fitted after its goal is built.
  * @returns A query over a wrist goal of a turn and a tilt (degrees), the tilts and turns tried, the stroke's keys, a required measure and the caller's admission; it returns the chosen reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed inputs, each query argument and the result; HumanGrasp.reachable documents the cost, the stroke, the required measure and the admission.
- * @evidence contracts/development/implementation.md#principled-implementation Every candidate's grasp is fitted and the candidates taken least grasp error first; the grasp error bounds a candidate's cost from below, since stroke keys only add to it, so the search stops at the first candidate no cheaper than the best that holds the required measure. A fit's rotation error is the solver's own optimum over legal swivels where it reports one, continuous in the key (Berge's maximum theorem).
+ * @evidence contracts/development/implementation.md#principled-implementation Candidates are taken in stable nondecreasing grasp-error-plus-preference order; the grasp error bounds a candidate's cost from below, since stroke keys only add to it, so the search stops at the first candidate no cheaper than the best that holds the required measure. A fit's rotation error is the solver's own optimum over legal swivels where it reports one, continuous in the key (Berge's maximum theorem).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One fit adapter, one candidate list, one ordered loop over each candidate's lazily built stroke keys.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate the caller admits is fitted at its grasp; pruning uses only the proven lower bound; with none admitted, every candidate is tried.
- * @evidence contracts/development/implementation.md#efficient-algorithms For C candidates, C grasp fits plus the stroke-key fits of the candidates the lower bound does not prune; an admitted goal is built once for its admission and once right before its fit, the schedule goal callbacks observe. All fits of all queries share one FK workspace.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts With no admitted candidate the search considers the full set. A fixed grasp can be pruned by its preference only after a complete admissible winner exists; the strict initial gap preserves stable ties.
+ * @evidence contracts/development/implementation.md#efficient-algorithms With a fixed posture and a unique low-cost winner, only that grasp, its stroke and its published full pose need fitting. Overlapping lower bounds retain the full stable sort. The ordinary public query retains all C grasp fits and its goal callback order.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The FK workspace shares only rig dependency data; each fit resolves its own posture.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate fits are local to a query. With a fixed posture, only the winning grasp needs its full published pose. Unknown judges always receive all solved bones.
  */
@@ -131,17 +132,14 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
     let held: boolean = required === undefined;
     let nearest: number = Infinity;
 
-    // Every candidate's grasp is fitted first. Its error there bounds its
-    // cost from below, since a stroke's keys only add to it, so the
-    // candidates are then taken least grasp error first: once one that
-    // holds what is required is found, the first candidate whose grasp
-    // alone is no cheaper ends the search, with every candidate after it.
-    // The choice is the one fitting every key of every candidate gives.
+    // Each stroke adds nonnegative errors to its grasp floor. Once its
+    // complete score holds the required measure, an already beaten floor
+    // cannot change the winner regardless of the remaining stroke keys.
     const fittedCandidates: ICandidate[] = [];
     const pending: IPlacement[] = [];
 
     // The candidates the caller can take, or every one when it can take none.
-    // Each fitted candidate's goal is built immediately before its fit, so a
+    // In the general query each goal is built immediately before its fit, so a
     // goal callback that changes the posture it is fitted on is seen by that
     // fit; admission therefore asks the goal separately.
     const pairs: [number, number][] = turns.flatMap(
