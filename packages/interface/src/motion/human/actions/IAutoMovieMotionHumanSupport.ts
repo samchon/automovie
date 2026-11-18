@@ -83,7 +83,7 @@ export namespace IAutoMovieMotionHumanSupport {
    * The paired support's role in an assisted rise.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The helper receives the other person's weight and the helped person moves from seated support to the feet.
-   * @evidence contracts/development/design.md#principled-representation Each role has distinct support keys and the roles use the same two hand-contact points.
+   * @evidence contracts/development/design.md#principled-representation Each role has distinct support keys and the roles use the same hand-contact course.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Support uses the role only when an action declares an assisted rise.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The role changes the authored stance, not the reach or refusal allowance.
    */

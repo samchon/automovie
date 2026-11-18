@@ -29,7 +29,7 @@ import { supportContact } from "./supportContact";
  * weight on the feet. The ordinary support planner owns the transitions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each clasp key's role in the paired floor rise.
- * @evidence contracts/development/design.md#principled-representation The common meeting stores its two contact points in one frame and both roles use those same points.
+ * @evidence contracts/development/design.md#principled-representation The common meeting stores its three contact points in one frame and both roles use those same points.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Provides a staged point reader for support and the supported role's pose preferences to HumanCoupled.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The authored getUp postures and actual two bodies determine the goals; neither reads an already changing partner hand.
  */
@@ -56,6 +56,15 @@ export namespace supportAssist {
     return getUp.SECONDS / (CONTACTS.length + 1);
   }
 
+  /** The authored phase has a shared grip only while the hand is holding. */
+  type GripPoint = IAutoMovieVector3 | undefined;
+
+  /** Find a partner's grip at a given phase index. */
+  type GripReader = (contact: IAutoMovieMotionHumanSupport.IContact, key: number) => GripPoint;
+
+  /** Ordinary support has no shared grip reader. */
+  type OptionalGripReader = GripReader | undefined;
+
   /** Lowered and rising keys of the holding hand. */
   type Phase = (typeof CONTACTS)[number];
 
@@ -66,15 +75,15 @@ export namespace supportAssist {
    * @returns The grip reader if assistance is authored.
    * @evidence contracts/development/common.md#meaningful-documentation Documents the optional contact reader and its key argument.
    * @evidence contracts/development/implementation.md#principled-implementation A standard mutual meeting stores two shoulder-reach intersections, placed on the world frame from each role's shared key.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the meeting once, then select its first or second point for matching hand contacts.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Find the meeting once, then select the named phase for a matching hand contact.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-matching contact keeps the ordinary support-place reader.
    * @evidence contracts/development/implementation.md#efficient-algorithms Computes the shared keys once and reads neither body after their meeting is built.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The two laws share the meeting through the existing context reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader holds the meeting's two contact points and the hand's name for this plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned reader holds the meeting's three contact points and the hand's name for this plan.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
-  ): ((contact: IAutoMovieMotionHumanSupport.IContact, key: number) => IAutoMovieVector3 | undefined) | undefined {
+  ): OptionalGripReader {
     const assist: IAutoMovieMotionHumanSupport.IAssist | undefined = context.params.assist;
     if (assist === undefined) return undefined;
     const meeting: IAutoMovieMotionMeeting = context.meeting(
@@ -85,7 +94,7 @@ export namespace supportAssist {
     const hand: IAutoMovieMotionHumanSupport.Part = `${assist.side}Hand`;
     const keys: readonly IAutoMovieVector3[] = CONTACTS.map((phase: Phase): IAutoMovieVector3 =>
       AutoMovieMotionMeeting.place(meeting, phase, context.entry.posture).point);
-    return (contact: IAutoMovieMotionHumanSupport.IContact, key: number): IAutoMovieVector3 | undefined =>
+    return (contact: IAutoMovieMotionHumanSupport.IContact, key: number): GripPoint =>
       contact.part === hand &&
       contact.kind === "grip" &&
       contact.target !== "on" &&
@@ -95,7 +104,7 @@ export namespace supportAssist {
         : undefined;
   }
 
-  /** Build a meeting whose two keys use the supported rise's real shoulder locations. */
+  /** Build a meeting from the lying palm and the two subsequent shoulder configurations. */
   function kind(side: AutoMovieHumanSide): IAutoMovieMotionMeetingKind {
     const seconds: number = step();
     return {
