@@ -172,6 +172,7 @@ export namespace AutoMovieMotionHumanTouch {
         },
         ...(props.together === undefined ? {} : { together: props.together }),
         ...(props.rests === undefined ? {} : { rests: props.rests }),
+        ...(props.skinDistance === undefined ? {} : { skinDistance: props.skinDistance }),
         ...(props.disc === undefined ? {} : { disc: props.disc }),
         ...(props.on === undefined ? {} : { on: props.on }),
         ...(props.lay !== "upright"

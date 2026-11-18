@@ -52,6 +52,8 @@ export namespace HumanArmTrajectoryModel {
     limits?: IAutoMovieHumanLimbGoal["limits"];
     /** The radius of the region's disc about the point the contact may land in, metres. */
     disc: number;
+    /** Maximum distance in metres between the hand skin and a held material site. */
+    skinDistance?: number;
     /**
      * The segment of another arm of the problem the site rides on, which that
      * arm moves as it is solved: the site's point, normal and rotation are

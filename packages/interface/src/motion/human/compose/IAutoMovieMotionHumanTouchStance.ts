@@ -45,6 +45,9 @@ export namespace IAutoMovieMotionHumanTouchStance {
     /** The posture the body stands in before it rises or leans. */
     standing: IAutoMovieMotionHumanPosture;
 
+    /** Additional shoulder-girdle motion during a coupled reach, at its clock share. */
+    girdles?: (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture;
+
     /** Both feet as they stand flat, when the body stands on them alone and may rise onto its toes; no rise when absent. */
     feet?: IAutoMovieMotionHumanRise.Stance;
 

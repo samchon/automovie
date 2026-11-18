@@ -150,6 +150,8 @@ export namespace IAutoMovieMotionHumanArmCarry {
 
     /** The radius about its site the hand's contact may land within on the hold, metres: the site's own, or the region's extent; the contact skin the audits read a hand on its region with (`AutoMovieMotionHumanAuditTangle.BUILT`) when absent. */
     disc?: number;
+    /** Maximum distance in metres between the hand skin and a held material site. */
+    skinDistance?: number;
 
     /** The arm's segments that lie on a bone of the same body over the hold (a self-hug's forearm on the other forearm); none when absent. */
     rests?: readonly {

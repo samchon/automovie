@@ -90,6 +90,7 @@ export namespace IAutoMovieMotionHumanArmPlanned {
     | "weight"
     | "rests"
     | "grasp"
+    | "skinDistance"
     | "disc"
     | "on"
   > {

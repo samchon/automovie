@@ -43,6 +43,8 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
+import { touchCrossedSupport } from "./touchCrossedSupport";
 import { touchEffectors } from "./touchEffectors";
 import { touchBalance } from "./touchBalance";
 import { touchHold } from "./touchHold";
@@ -128,7 +130,14 @@ export namespace touch {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const p: IAutoMovieMotionHumanTouch.IParams = context.params;
+    return touchCrossedSupport.plan(context, planned);
+  }
+
+  /** Build one reach using its actual girdle posture, material sites and transport clock. */
+  function planned(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
+    attempt?: touchCrossedSupport.IAttempt,
+  ): IAutoMovieMotionHumanActionPlan {    const p: IAutoMovieMotionHumanTouch.IParams = context.params;
     // A person naming the performer is the performer's own body, touched as
     // a `self` target is: its regions ride the posture being solved.
     const own = (t: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
@@ -255,6 +264,7 @@ export namespace touch {
         {
           body,
           standing: entry,
+          ...(attempt?.assist === true ? { girdles: touchCrossedSupport.girdles(body, first) } : {}),
           ...(grounded ? { feet: context.entry.feet } : {}),
           fixed: context.carrier === undefined,
           side: first,
@@ -307,6 +317,7 @@ export namespace touch {
     }
     // At least as long as the arms need to keep within the audit's travel bound.
     const reach: number = Math.max(
+      attempt?.reach ?? 0,
       AutoMovieMotionHumanTiming.transport(far),
       touchReach.duration(
         body,
@@ -450,6 +461,7 @@ export namespace touch {
           entry: risen,
           ...(together === undefined ? {} : { together }),
           ...(disc === undefined ? {} : { disc }),
+          ...(attempt === undefined ? {} : { skinDistance: AutoMovieMotionHumanAuditSkin.BUILT }),
           ...(target.kind === "self"
             ? { on: body.surfaces.regions[target.region].bone }
             : {}),

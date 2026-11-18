@@ -79,12 +79,15 @@ export namespace AutoMovieMotionHumanTouchStance {
       girdle: number,
       degrees: number,
       ankles?: IAutoMovieMotionHumanRise.Stance,
+      share?: number,
     ) => IAutoMovieMotionHumanPosture = (
       posture: IAutoMovieMotionHumanPosture,
       girdle: number,
       degrees: number,
       ankles: IAutoMovieMotionHumanRise.Stance | undefined = feet,
+      share: number = 1,
     ): IAutoMovieMotionHumanPosture => {
+      posture = props.girdles?.(posture, share) ?? posture;
       const was: readonly [number, number, number] = posture.joints[
         shoulder
       ] ?? [0, 0, 0];
@@ -176,9 +179,9 @@ export namespace AutoMovieMotionHumanTouchStance {
         clock: IAutoMovieMotionClock,
         correction?: IAutoMovieMotionHumanTouchStance.ICorrection,
       ): IAutoMovieMotionHumanPrimitive[] => {
-        if (girdle === 0 && raise === 0 && props.fixed !== true && correction === undefined)
+        if (props.girdles === undefined && girdle === 0 && raise === 0 && props.fixed !== true && correction === undefined)
           return leaning ? [lean.primitive(clock)] : [];
-        if (girdle === 0 && raise === 0 && !leaning) return correction === undefined
+        if (props.girdles === undefined && girdle === 0 && raise === 0 && !leaning) return correction === undefined
           ? [] : [{ channels: [correction.channel], from: 0, to: clock.duration, write: correction.write }];
         const share: (seconds: number) => number = (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds);
@@ -208,6 +211,7 @@ export namespace AutoMovieMotionHumanTouchStance {
                 girdle * k,
                 degrees,
                 ankles,
+                k,
               );
 
               // The lean is read at the full rise, so its angle does not

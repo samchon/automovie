@@ -245,6 +245,8 @@ export namespace IAutoMovieMotionHumanTouch {
 
     /** The radius about its site the hand may land within on the region, metres: the site's own, or the region's extent; the audit's contact skin when absent. */
     disc?: number;
+    /** Maximum distance in metres between the hand skin and a held material site. */
+    skinDistance?: number;
 
     /** The region and the colliders as a plan perceives them, for a touch of another person (`IAutoMovieMotionHumanArmCarry.ICarry.perceived`); the hand then follows the person on the hold. */
     perceived?: Pick<IAutoMovieMotionHumanTouch.ITouch, "region" | "others">;

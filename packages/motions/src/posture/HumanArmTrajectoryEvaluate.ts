@@ -243,7 +243,7 @@ export function HumanArmTrajectoryEvaluate(
             `the hand ${(-lift).toFixed(1)} mm inside its site at ${times[k]!.toFixed(3)} s`,
         );
         objective += T.LIFT * lift * lift;
-        for (const limit of L.of(site, at, placed[a]![k]!))
+        for (const limit of L.of(site, at, placed[a]![k]!, c.frames[a]![k]!))
           note(
             limit.distance - limit.allowance,
             "limit",

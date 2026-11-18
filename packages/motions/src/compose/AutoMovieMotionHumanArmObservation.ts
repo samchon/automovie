@@ -316,6 +316,7 @@ export namespace AutoMovieMotionHumanArmObservation {
             ),
       contact: world.contact ?? { x: 0, y: 0, z: 0 },
       ...(world.limits === undefined ? {} : { limits: world.limits }),
+      ...(carry.skinDistance === undefined ? {} : { skinDistance: carry.skinDistance }),
       disc: carry.disc ?? AutoMovieMotionHumanAuditTangle.BUILT,
       ...(world.rotation === undefined ? {} : { rotation: world.rotation }),
     };
