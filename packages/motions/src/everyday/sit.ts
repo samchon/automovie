@@ -420,7 +420,27 @@ export namespace sit {
     // The weight-over-the-feet course is the balance option's
     // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
     // back on its own minimum-jerk progress and no centre of mass is read.
-    const balancing: boolean = HumanPhysics.balanced(context.params);
+    const clock: ReturnType<typeof AutoMovieMotionClock.of> = AutoMovieMotionClock.of(duration, [
+      { name: "commit", seconds: contact },
+      { name: "seatContact", seconds: contact },
+      { name: "seated", seconds: descent },
+    ]);
+    const prefix: number = adjusted?.prefix.duration ?? 0;
+    const total: number = prefix + duration;
+    const timing: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events"> = {
+      duration: total,
+      events: clock.events().map((event) => ({
+        ...event, share: (prefix + duration * event.share) / total,
+      })),
+    };
+    const window: HumanPhysics.Window = HumanPhysics.prepare(context.params, {}, context.start, timing, context.instant);
+    if (window !== null && window.by !== "hips")
+      throw new HumanRefusal({
+        kind: "parameter", axis: "balance.by", value: window.by,
+        reason: "sitting adjusts the hips over the planted feet before seat contact",
+        fix: "give hips for balance.by",
+      });
+    const balancing: boolean = window !== null && window.from < prefix + contact && window.to > prefix && held > 0;
     const reaches: number[] = !balancing ? [] : ((): number[] => {
       const heading: IAutoMovieVector3 = {
         x: Math.sin((yaw0 * Math.PI) / 180),
@@ -467,30 +487,27 @@ export namespace sit {
     })();
     function travel(t: number): number {
       const free: number = minimumJerk.share(t / across);
-      if (!balancing || t >= contact || held <= 0) return free;
+      const weight: number = HumanPhysics.weightAt(window, prefix + t);
+      if (!balancing || weight === 0 || t >= contact) return free;
       const kept: (at: number) => number = (at: number): number => {
         const x: number = (Math.max(0, Math.min(held, at)) / held) * SHARES;
         const k: number = Math.min(SHARES - 1, Math.floor(x));
         return reaches[k]! + (reaches[k + 1]! - reaches[k]!) * (x - k);
       };
-      if (t <= held) return Math.min(free, kept(t));
+      if (t <= held) return free + weight * (Math.min(free, kept(t)) - free);
       const from: number = Math.min(
         minimumJerk.share(held / across),
         kept(held),
       );
-      return from + (free - from) * minimumJerk.share((t - held) / fall);
+      return free + weight * (from - free) * (1 - minimumJerk.share((t - held) / fall));
     }
     const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: lowering,
-      clock: AutoMovieMotionClock.of(duration, [
-        { name: "commit", seconds: contact },
-        { name: "seatContact", seconds: contact },
-        { name: "seated", seconds: descent },
-      ]),
+      clock,
       primitives: [arm("left"), arm("right")],
       contact: "seatContact",
     });
-    const planned: IAutoMovieMotionHumanActionPlan = { ...composed, base: lowering.base };
+    const planned: IAutoMovieMotionHumanActionPlan = { ...composed, base: lowering.base, balanceWindow: window };
     return adjusted === undefined ? planned : prepareSitWorkingFeet.prepend(adjusted.prefix, planned);
   }
 }

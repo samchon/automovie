@@ -29,6 +29,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
@@ -197,6 +198,15 @@ export namespace kneel {
       modifiers,
       { holds: ["settled"] },
     );
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      context.params, {}, context.start, { duration: display.duration, events: display.events() }, context.instant,
+    );
+    if (window !== null && window.by !== "hips")
+      throw new HumanRefusal({
+        kind: "parameter", axis: "balance.by", value: window.by,
+        reason: "kneeling moves the hips along the supporting legs",
+        fix: "give hips for balance.by",
+      });
     const settled: number = display.at("settled");
     const next: IPhase | undefined =
       phases[phases.findIndex((phase: IPhase): boolean => phase.name === "settled") + 1];
@@ -232,8 +242,12 @@ export namespace kneel {
     // and ride as high as the less extended leg reaches its foot, down to the
     // kneeling height as the knee comes to the floor. `along` asks the hips'
     // place for the course's solve.
-    const courses: ((seconds: number) => number)[] = [];
-    const heights: { landed?: number } = {};
+    type Course = (seconds: number) => number;
+    const courses: Course[] = [];
+    let landedKey: number | undefined;
+    let landedBalance: number | undefined;
+    const weightAt: (second: number) => number = (second: number): number =>
+      HumanPhysics.weightAt(window, second > settled ? second + stationary : second);
     const write: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -296,7 +310,8 @@ export namespace kneel {
         );
         // Once the foot has landed the hips never ride above the straight
         // way between the neighbouring states' heights.
-        const landed: number | undefined = heights.landed;
+        const landed: number | undefined = landedKey === undefined || landedBalance === undefined
+          ? landedKey : landedKey + weightAt(seconds) * (landedBalance - landedKey);
         const cap: number =
           landed === undefined || (pair === 1 && phase.from === 0)
             ? Infinity
@@ -368,7 +383,7 @@ export namespace kneel {
     const off: IPhase | undefined = phases.find(
       (p: IPhase): boolean => p.from === 2 && p.to === 1,
     );
-    if (!HumanPhysics.balanced(context.params)) {
+    {
       const stepped: number = Vector3.dot(
         Vector3.subtract(keys[1]!.root, standing.root),
         solved.forward,
@@ -379,10 +394,13 @@ export namespace kneel {
         const { phase, u }: ReturnType<typeof at> = at(seconds);
         return stepped * (phase.from === 0 && phase.to === 1 ? u : 1);
       };
-      heights.landed = write(standing, landing, keyed(landing)).root.y;
+      landedKey = write(standing, landing, keyed(landing)).root.y;
       courses[0] = keyed;
       if (off !== undefined) courses[1] = keyed;
-    } else {
+    }
+    const downEnd: number = display.at(phases[2]!.name);
+    const upStart: number = off === undefined ? Infinity : display.at(off.name);
+    if (window !== null && (window.from < downEnd || window.to > upStart)) {
       const centre: (posture: IAutoMovieMotionHumanPosture) => number = (
         posture: IAutoMovieMotionHumanPosture,
       ): number =>
@@ -429,14 +447,21 @@ export namespace kneel {
           to,
           start,
         });
-      heights.landed = write(
+      landedBalance = write(
         standing,
         landing,
         course(0, landing, 0)(landing),
       ).root.y;
-      courses[0] = course(0, clock.at(phases[2]!.name), 0);
-      if (off !== undefined)
-        courses[1] = course(clock.at(off.name), duration, kneeling);
+      const blend: (keyed: Course, balanced: Course) => Course = (keyed: Course, balanced: Course): Course =>
+        (second: number): number => {
+          const key: number = keyed(second);
+          const weight: number = weightAt(second);
+          return weight === 0 ? key : key + weight * (balanced(second) - key);
+        };
+      if (window.from < downEnd)
+        courses[0] = blend(courses[0]!, course(0, clock.at(phases[2]!.name), 0));
+      if (off !== undefined && window.to > upStart)
+        courses[1] = blend(courses[1]!, course(clock.at(off.name), duration, kneeling));
     }
     const kneelBody: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -518,6 +543,7 @@ export namespace kneel {
         : course.posture(movingSecond(seconds), channels, resolution, projection);
     return {
       ...course,
+      balanceWindow: window,
       duration: display.duration,
       events: display.events(),
       posture,
