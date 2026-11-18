@@ -46,10 +46,11 @@ import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
  * https://web.mit.edu/dimitrib/www/ProjectedNewton.pdf). The ceiling bounds
  * the search as well as the answer; a projected point outside the angular
  * tolerance remains a miss. The search's flights are integrated under the
- * embedded error estimate alone; the solution's momentum is then integrated
- * once more under the sampled dense momentum budget, and that judged flight
- * is the one returned, played back and whose residual decides the miss, so
- * the momentum control is paid once, by the flight that is shown.
+ * embedded error estimate alone; given a momentum budget, the solution's
+ * momentum is then integrated once more under it, with its sensitivity, and
+ * that judged flight is the one returned, played back and whose residual
+ * decides the miss, so the momentum control is paid once, by the flight that
+ * is shown; without one the search's own solution is that flight.
  *
  * @param props The shape's history, the flight, the take-off frame, the request and its bounds.
  * @returns The momentum, its residual and whether the request is met.
@@ -216,7 +217,11 @@ export function solveAirborneTakeoff(
     // The solution's flight judged once under the momentum budget: the
     // flight that is played back and whose residual is reported.
     const { local } = solved;
-    const judged: IPoint = operation.evaluate(local, request(1), false, undefined, undefined, true);
+    // Without a momentum budget the search's own control is the judged one,
+    // so its solution is the judged flight and is not integrated again.
+    const judged: IPoint = props.momentumTolerance === undefined
+      ? operation.retarget(solved, request(1))
+      : operation.evaluate(local, request(1), true, undefined, undefined, true);
     const { r } = judged;
     const momentum: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
       x: local[0]!,

@@ -34,9 +34,12 @@ import { vclose } from "../internal/vclose";
  *    ordinary lateral frame. Zero turns declare no flight or callback.
  * 2. Both twist signs survive without a somersault. Omitted, empty and
  *    explicit signed-zero requests declare no integration work.
- * 3. A result handed back to one plan applies only strictly inside its
- *    declared flight. Its callback receives the actual local query time;
- *    a different plan has no result and the unchanged prior posture stays
+ * 3. A result handed back to one plan applies inside its declared flight
+ *    and at touchdown itself, so the landing starts from the attitude the
+ *    flight ends on (the landing then carries it away, read only at a
+ *    landing instant); before take-off and after the landing settles there
+ *    is none. Its callback receives the actual local query time; a
+ *    different plan has no result and the unchanged prior posture stays
  *    without a rotation. The flight interval must be finite and positive.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States turn units, independent side-axis vectors, actual canonical entry provenance, plan-local seconds and the three request/ownership scenarios.
@@ -134,14 +137,17 @@ export function test_motion_jump_turning(): void {
       queries.push(seconds);
       return { about: { x: seconds, y: 5, z: -2 }, turn: { x: 0, y: 0, z: 0, w: 1 } };
     });
-    for (const seconds of [0, from, to, current.duration])
+    for (const seconds of [0, from, current.duration])
       check(`outside/at boundary ${seconds} has no result`, current.posture(seconds).rotation === undefined);
+    const touchdown: IAutoMovieMotionHumanPosture = current.posture(to);
+    check("touchdown keeps the flight's own turn",
+      touchdown.rotation !== undefined && vclose(touchdown.rotation.about, { x: to, y: 5, z: -2 }, 0));
     const shown: IAutoMovieMotionHumanPosture = current.posture(middle);
     check("interior result receives the actual local time",
       shown.rotation !== undefined && vclose(shown.rotation.about, { x: middle, y: 5, z: -2 }, 0),
     );
-    TestValidator.predicate("only the actual interior query reaches the result owner",
-      queries.length === 1 && nclose(queries[0]!, middle, 0),
+    TestValidator.predicate("only the actual touchdown and interior queries reach the result owner",
+      queries.length === 2 && nclose(queries[0]!, to, 0) && nclose(queries[1]!, middle, 0),
     );
     check("a different flight has no handed-back result", other.posture(middle).rotation === undefined);
     check("the prior posture remains without a rigid result", original.rotation === undefined);
