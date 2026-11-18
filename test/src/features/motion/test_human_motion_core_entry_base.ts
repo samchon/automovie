@@ -32,7 +32,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * seat and the seat's contact, as a mount onto a saddle does, without
  * moving the body.
  *
- * Scenarios, on the average man and the small woman:
+ * Scenarios, on the average man. One body bounds the claim: the performance
+ * hands each action the base and the holds the actions before it declared,
+ * bookkeeping that reads no body measure, and the seat it passes on is the
+ * one the test declared. The body enters only the sit's and the pick-up's
+ * own plans, whose bodies are `test_human_motion_base_supports`'s and the
+ * `test_human_motion_pick_up_*` specs':
  * 1. Entered first, an action is on a standing base with both hands empty.
  * 2. After sitting down on a chair, an action is on a seated base.
  * 3. After an action that declares a seated base with an astride seat, the
@@ -48,8 +53,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs each chain and reads the entry state a registered law was planned from; a base lost at an action that keeps it, a seat not passed on, a seat on a standing base or a hold not reported fails.
  * @evidence contracts/development/testing.md#independent-expectations Each expected base is what the chain's own actions say they do (sit, declare a seat, declare standing), and the seat compared is the one the test declared; none is read back from the performance.
- * @evidence contracts/development/testing.md#distinguishing-cases A first action, a shipped base transition, a declared base, a base kept through an action that declares none, a base replaced, and a hold taken and released; the supports of a seated act are `test_human_motion_base_supports`'s.
- * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men and builds short performances in memory; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases A first action, a shipped base transition, a declared base, a base kept through an action that declares none, a base replaced, and a hold taken and released, on one body since the bookkeeping reads no body measure; the supports of a seated act are `test_human_motion_base_supports`'s.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds three short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how it is read and the 6 scenarios.
  */
 export function test_human_motion_core_entry_base(): void {
@@ -103,7 +108,7 @@ export function test_human_motion_core_entry_base(): void {
     astride: true,
   };
 
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const seen: IAutoMovieMotionHumanEntryState[] = [];
 
