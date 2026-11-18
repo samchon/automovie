@@ -50,6 +50,9 @@ export namespace HumanCrowd {
   /** The least share of its gait's speed a member's draw may give: one half, about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the normal draw's far tail from a walker who barely moves). */
   export const SLOWEST: number = 0.5;
 
+  /** Seconds between two samples of a steered course, and between two checks of a manoeuvre's spacing: the 24 frames a second the motion's checks are read at (provisional: no film's own rate is known to the laws). */
+  export const STEP: number = 1 / 24;
+
   /**
    * A member's desired speed and delay as the pass draws them: its gait's
    * speed at its leg length scaled by its keyed normal draw (floored at
@@ -215,8 +218,8 @@ export namespace HumanCrowd {
       });
     }
 
-    // Each agent's course sampled at the film's rate, a member taking its agent's.
-    const step: number = 1 / 24;
+    // Each agent's course sampled every STEP, a member taking its agent's.
+    const step: number = STEP;
     const count: number = Math.ceil((request.until - request.start) / step);
     const frames: IAutoMovieMotionHumanFormation.ICourse[] = leaders.map(
       (

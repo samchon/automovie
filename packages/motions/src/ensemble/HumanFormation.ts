@@ -212,6 +212,25 @@ export namespace HumanFormation {
   }
 
   /**
+   * A block's rear rank: the greatest rank its slots stand in.
+   *
+   * @param formation The formation.
+   * @param block The block, from 0.
+   * @returns The rank, 0 for a block of one rank.
+   */
+  export function rear(
+    formation: IAutoMovieMotionHumanFormation,
+    block: number,
+  ): number {
+    let first: number = 0;
+    for (let b: number = 0; b < block; ++b) first += formation.blocks[b]!.count;
+    let last: number = 0;
+    for (let k: number = 0; k < formation.blocks[block]!.count; ++k)
+      last = Math.max(last, local(formation, first + k).rank);
+    return last;
+  }
+
+  /**
    * The formation's frame at a film second: its origin and heading.
    *
    * @param formation The formation.
@@ -457,8 +476,7 @@ function coursed(
         z: a.z + (b.z - a.z) * u,
       },
       heading:
-        a.heading +
-        (((((b.heading - a.heading) % 360) + 540) % 360) - 180) * u,
+        a.heading + (((((b.heading - a.heading) % 360) + 540) % 360) - 180) * u,
     };
   const heading = (k: number): number | null => {
     const p: IAutoMovieMotionHumanFormation.ISample = s[k]!;
