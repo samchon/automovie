@@ -116,10 +116,9 @@ export namespace HumanFoot {
    * points whose convex hull a margin of stability is measured to (Hof,
    * Gazendam and Sinke 2005).
    *
-   * Each foot's outline is its sole sockets and the corners of the outline
-   * of its colliders seen from below (`outline`), placed on the displayed
-   * bones; of these, the points within `BEARING` of the foot's lowest one
-   * bear, so a heel lifted off the floor leaves the base to the forefoot.
+   * Place the sole collider outline on the displayed bones. A foot without
+   * a collider outline uses its sole sockets. Points within `BEARING` of
+   * the lowest point bear, so lifting the heel shifts support to the forefoot.
    *
    * @param body The body.
    * @param bones The displayed bones.
