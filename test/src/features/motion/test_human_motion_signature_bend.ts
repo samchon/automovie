@@ -71,8 +71,8 @@ export function test_human_motion_signature_bend(): void {
     const squat: number | undefined = knees.squat;
     if (stoop !== undefined)
       complaints.check(
-        `${name} stoop: knees ${stoop.toFixed(9)}° and trunk ${trunk.stoop!.toFixed(1)}°, at most 30° and at least 45°`,
-        stoop <= 30 && trunk.stoop! >= 45,
+        `${name} stoop: knees ${stoop}° and trunk ${trunk.stoop!.toFixed(1)}°, at most ${STOOP_KNEE}° and at least 45°`,
+        stoop <= STOOP_KNEE + STOOP_ANGLE_ROUNDOFF && trunk.stoop! >= 45,
       );
     if (squat !== undefined)
       complaints.check(
@@ -107,3 +107,14 @@ const STRATEGIES: readonly Strategy[] = ["stoop", "semiSquat", "squat"];
 
 /** Bracket the supported body sizes while comparing postures within each body. */
 const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];
+
+/** Burgess-Limerick's maximum knee flexion classified as a stoop, degrees. */
+const STOOP_KNEE: number = 30;
+
+/** Roundoff when recovering the exact limiting angle from two measured joint vectors. */
+const STOOP_ANGLE_ROUNDOFF: number =
+  // Six subtractions, three products, two additions, two norms,
+  // their product and the quotient, rounded up to a binary operation bound.
+  (2 ** Math.ceil(Math.log2(6 + 3 + 2 + 2 + 1 + 1)) * Number.EPSILON * 180) /
+  // Convert the angular derivative of acos from radians to degrees.
+  (Math.PI * Math.sin((STOOP_KNEE * Math.PI) / 180));

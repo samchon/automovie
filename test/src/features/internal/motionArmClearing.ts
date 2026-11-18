@@ -23,8 +23,7 @@ import { motionHumanBody } from "./motionHumanBody";
 
 /**
  * A forearm's clearing (`HumanArmClearance.cleared`) on one real body in the
- * quiet stance, which the `test_human_motion_posture_arm_clearing_*` specs
- * read one body each.
+ * quiet stance, as read by `test_human_motion_posture_arm_clearing`.
  *
  * Scenarios, per arm of the body:
  * 1. An arm within its allowance is kept as it is.
@@ -45,7 +44,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidence contracts/development/implementation.md#principled-implementation Clears real arms of a real body and reads the room before and after through the public functions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the arms, then over the cells, one check per promise.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reachability is decided by a grid search the function does not do; the bounds are the function's documented promises, unchanged by the split.
- * @evidence contracts/development/implementation.md#efficient-algorithms A 17 by 17 grid per cell that lacks room.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The 17 by 17 grid is needed only when the result is still outside the allowance, and stops at the first feasible counterexample.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the reading is written once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
@@ -80,6 +79,10 @@ export function motionArmClearing(
     HumanColliders.placed(body, bones);
   for (const side of ["left", "right"] as const) {
     const cell: string = `${name} ${side}`;
+    const upperBone: AutoMovieHumanoidBone = `${side}UpperArm`;
+    const lowerBone: AutoMovieHumanoidBone = `${side}LowerArm`;
+    const upperConstraint: Constraint = constraint(body, upperBone);
+    const lowerConstraint: Constraint = constraint(body, lowerBone);
     const own: IAutoMovieMotionHumanArmClearance.IArm = {
       upper: triple(pose, `${side}UpperArm`),
       lower: triple(pose, `${side}LowerArm`),
@@ -156,11 +159,13 @@ export function motionArmClearing(
           JSON.stringify(after.hand) === JSON.stringify(arm.hand),
       );
       const range = (of: IAutoMovieMotionHumanArmClearance.IArm): number =>
-        outside(body, `${side}UpperArm`, of.upper) +
-        outside(body, `${side}LowerArm`, of.lower);
+        outside(upperBone, upperConstraint, of.upper) +
+        outside(lowerBone, lowerConstraint, of.lower);
+      const originalRange: number = range(arm);
+      const changedRange: number = range(after);
       complaints.check(
-        `${what}: range ${range(after).toFixed(3)} deg out, before ${range(arm).toFixed(3)}`,
-        range(after) <= range(arm) + 1e-9,
+        `${what}: range ${changedRange.toFixed(3)} deg out, before ${originalRange.toFixed(3)}`,
+        changedRange <= originalRange + 1e-9,
       );
       const left: number = HumanArmClearance.room(
         body,
@@ -173,15 +178,16 @@ export function motionArmClearing(
         `${what}: overshoot ${left.toFixed(3)} after clearing, ${before.toFixed(3)} before`,
         left <= before,
       );
+      if (left <= CLEARED) continue;
       let reachable: number = Infinity;
-      for (let a: number = -40; a <= 40; a += 5)
-        for (let f: number = -40; f <= 40; f += 5) {
+      for (let a: number = -40; a <= 40 && reachable > CLEARED; a += 5)
+        for (let f: number = -40; f <= 40 && reachable > CLEARED; f += 5) {
           const turned: IAutoMovieMotionHumanArmClearance.IArm = {
             upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
             lower: [arm.lower[0] + f, arm.lower[1], arm.lower[2]],
             hand: arm.hand,
           };
-          if (range(turned) > range(arm) + 1e-9) continue;
+          if (range(turned) > originalRange + 1e-9) continue;
           reachable = Math.min(
             reachable,
             HumanArmClearance.room(body, pose, side, turned, others),
@@ -189,11 +195,17 @@ export function motionArmClearing(
         }
       complaints.check(
         `${what}: overshoot ${left.toFixed(3)} after clearing where a turn within 40 deg reaches ${reachable.toFixed(3)}`,
-        reachable > 0.05 || left <= 0.05,
+        reachable > CLEARED,
       );
     }
   }
 }
+
+/** The existing clearance allowance for a reachable arm, degrees. */
+const CLEARED: number = 0.05;
+
+/** The effective range record, which may be absent for an unconstrained joint. */
+type Constraint = ReturnType<typeof getConstraint>;
 
 /** The bones of the trunk a forearm may not enter. */
 const TRUNK: readonly AutoMovieHumanoidBone[] = [
@@ -218,16 +230,20 @@ function triple(
 
 /** A joint's range of motion overshoot at a triple, degrees. */
 function outside(
-  body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
+  limit: Constraint,
   of: readonly [number, number, number],
 ): number {
   return jointRomOvershoot(
     { bone, flexion: of[0], abduction: of[1], twist: of[2] },
-    getConstraint(
-      bone,
-      body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)
-        ?.constraint ?? null,
-    ),
+    limit,
+  );
+}
+
+/** The subject's effective limit is shared by every read of this joint. */
+function constraint(body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): Constraint {
+  return getConstraint(
+    bone,
+    body.skeleton.bones.find((b: IAutoMovieBone): boolean => b.bone === bone)?.constraint ?? null,
   );
 }

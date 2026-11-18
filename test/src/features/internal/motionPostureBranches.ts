@@ -1,4 +1,5 @@
 import type { motionHumanBody } from "./motionHumanBody";
+import type { motionHumanLaw } from "./motionHumanLaw";
 import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "./MOTION_HUMAN_LAW_STAGES_POSTURE";
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
 
@@ -6,6 +7,10 @@ import { motionHumanLawSweep } from "./motionHumanLawSweep";
  * Collect the original audit findings for the distinct branches a posture test owns.
  * Each stage is solo. A default branch also repeats from an independently staged
  * input to check deterministic positions and orientations.
+ *
+ * @param branches The staged inputs selected by this test.
+ * @param observe Optional geometry checks against the same first film.
+ * @returns The sweep findings, including a failed stage or observation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is performed, what is compared, and which branch is independently repeated.
  * @evidence contracts/development/implementation.md#principled-implementation Each selected branch uses the existing solo fixture and real-film audit. Default rows also keep the independent display repeat.
@@ -17,18 +22,20 @@ import { motionHumanLawSweep } from "./motionHumanLawSweep";
  */
 export function motionPostureBranches(
   branches: readonly motionPostureBranches.Branch[],
+  observe?: motionPostureBranches.Observe,
 ): string[] {
-  return branches.flatMap(([law, row, body]: motionPostureBranches.Branch): string[] =>
-    motionHumanLawSweep.cell(
+  return branches.flatMap((branch: motionPostureBranches.Branch): string[] => {
+    const [law, row, body] = branch;
+    return motionHumanLawSweep.cell(
       law,
       row,
       MOTION_HUMAN_LAW_STAGES_POSTURE[law]!,
       [body, body],
       motionHumanLawSweep.SEEDS[0]!,
-      undefined,
+      observe === undefined ? undefined : (film: motionHumanLaw.IFilm): void => observe(film, branch),
       row === "default",
-    ).complaints,
-  );
+    ).complaints;
+  });
 }
 
 /**
@@ -42,4 +49,7 @@ export function motionPostureBranches(
 export namespace motionPostureBranches {
   /** Stage name, input row and solo performer body. */
   export type Branch = readonly [law: string, row: string, body: motionHumanBody.Name];
+
+  /** Read the tested branch's exact audited film. */
+  export type Observe = (film: motionHumanLaw.IFilm, branch: Branch) => void;
 }
