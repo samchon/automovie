@@ -36,13 +36,17 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate the caller admits is fitted at its grasp; pruning uses only the proven lower bound; with none admitted, every candidate is tried.
  * @evidence contracts/development/implementation.md#efficient-algorithms For C candidates, C grasp fits plus the stroke-key fits of the candidates the lower bound does not prune; an admitted goal is built once for its admission and once right before its fit, the schedule goal callbacks observe. All fits of all queries share one FK workspace.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The FK workspace shares only rig dependency data; each fit resolves its own posture.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate fits are local to a query; only the chosen pose, wrists, reference and scalar reports escape.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate fits are local to a query. With a fixed posture, only the winning grasp needs its full published pose. Unknown judges always receive all solved bones.
  */
 export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
-  side: AutoMovieHumanSide, bend: IAutoMovieVector3): IQuery {
+  side: AutoMovieHumanSide, bend: IAutoMovieVector3, fixedPosture: boolean = false): IQuery {
   const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
+  const chain: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`,
+  ]);
+  const readArm: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, chain);
 
   /** The hand's characteristic length a rotation's miss is carried over, millimetres. */
   const lever: number = 1000 * body.measure.hand;
@@ -59,14 +63,16 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
   // quantity read at the chosen swivel jumps wherever two swivels trade
   // places. The elbow's departure from `bend` is measured for the report and
   // costs nothing.
-  const fit: (key: IAutoMovieMotionHumanGrasp.IKey, reference: IAutoMovieHumanLimbReference | undefined) => IFitted = (
+  const fit: (key: IAutoMovieMotionHumanGrasp.IKey, reference: IAutoMovieHumanLimbReference | undefined, full?: boolean) => IFitted = (
     key: IAutoMovieMotionHumanGrasp.IKey,
     reference: IAutoMovieHumanLimbReference | undefined,
+    full: boolean = false,
   ): IFitted => {
     // A key another action asks is fitted as that action fits its pose:
     // its own goal, on its own arm solution, not the grasp's.
     const anchored: IAutoMovieHumanLimbReference | undefined =
       key.reference === false ? undefined : reference;
+    const partial: boolean = !full && key.judge === undefined;
     const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
       resolveHumanPosture.seeded(body, {
         ...key.posture,
@@ -82,10 +88,10 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
             ...(anchored === undefined ? {} : { reference: anchored }),
           },
         },
-      }, undefined, undefined, resolution);
+      }, undefined, undefined, resolution, partial ? chain : undefined);
     const pose: IAutoMoviePose = resolved.pose;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, pose, resolution());
+      partial ? readArm(pose, resolution()) : poseBones(body, pose, resolution());
     const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
 
     // The reports: the elbow's departure from the hint and the hand's
@@ -156,7 +162,7 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
           );
     for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
       const wrist: IAutoMovieMotionHumanHand.IWrist = goal(turn, tilt);
-      const grasp: IFitted = fit({ posture, wrist, bend }, undefined);
+      const grasp: IFitted = fit({ posture, wrist, bend }, undefined, !fixedPosture);
       const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
       candidates.push({
         turn,
@@ -226,6 +232,8 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
         };
       }
     }
+    if (fixedPosture && best !== undefined)
+      best.pose = fit({ posture, wrist: best.wrist, bend }, undefined, true).pose;
     return best!;
   };
 }

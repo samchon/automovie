@@ -13,6 +13,7 @@ import type {
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
+import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { pickUpPosture } from "./pickUpPosture";
@@ -185,15 +186,13 @@ export namespace pickUpSearch {
     // only while all its tilts were within reach fell back to every turn when
     // none kept all seven, and a glass across the body was refused a grip
     // 9 mm beyond the arm while others lay within it.
+    const reachable: ReturnType<typeof HumanGraspSearch> = HumanGraspSearch(body, held, side, bend, true);
+    const admits: ReturnType<typeof pickUpPosture.reaches> = pickUpPosture.reaches(context, side, held);
     const search: (tilts: readonly number[], turns: readonly number[]) => IAutoMovieMotionHumanGrasp.IReach = (
       tilts: readonly number[],
       turns: readonly number[],
     ): IAutoMovieMotionHumanGrasp.IReach =>
-      HumanGrasp.reachable(
-        body,
-        held,
-        side,
-        bend,
+      reachable(
         goal,
         tilts,
         stroke,
@@ -201,7 +200,7 @@ export namespace pickUpSearch {
         // A grasp that holds every judged key comes before any that does
         // not, whatever else each costs.
         required,
-        pickUpPosture.reaches(context, side, held),
+        admits,
       );
 
     // A use may need the far side of the handle, so it searches every turn
