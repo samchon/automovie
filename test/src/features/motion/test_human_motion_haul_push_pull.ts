@@ -29,7 +29,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * A heavy load moved by its two handles (`pushPull`, #3351): pushed ahead,
  * pulled walking backward, dragged behind, or pressed and not moved.
  *
- * Each load is a prop on the floor with two handles 0.5 m apart. A pushed
+ * Each load is a prop on the floor with two handles 0.5 m apart, each a
+ * round bar (`symmetry: "round"`, which the affordance contract requires
+ * every handle to declare: without it the law held each fist at the
+ * authored turn, and the average man's pull at the hips left the left fist,
+ * closed thumb outward on the bar's one sense, 16 mm off its handle). A pushed
  * or pulled load's handles stand 0.6 of the arm ahead of the performer (the
  * carry law's pushed handle, Hoozemans et al. 1998), at its hip height or
  * elbow height (the shoulder's height less the upper arm), the two heights
@@ -278,7 +282,7 @@ interface IRead {
   speed: number;
 }
 
-/** A load on the floor `ahead` metres along +Z with two handles 0.5 m apart at `height`. */
+/** A load on the floor `ahead` metres along +Z with two round bar handles 0.5 m apart at `height`. */
 function crate(ahead: number, height: number): IAutoMovieMotionHumanProp {
   return {
     subject: "crate",
@@ -296,6 +300,7 @@ function crate(ahead: number, height: number): IAutoMovieMotionHumanProp {
         scale: { x: 1, y: 1, z: 1 },
       },
       extent: null,
+      symmetry: "round" as const,
     })),
   };
 }
