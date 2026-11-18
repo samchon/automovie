@@ -146,6 +146,7 @@ export namespace highFive {
       roles: ["slapper", "slapper"],
       contacts: { meet: { height: 0.9, range: 0.8, facing: "performer" } },
       place: (roles) => highFiveContact.place(roles, kind, side, bare, height),
+      surfaces: bare ? (roles) => highFiveContact.surface(roles, kind, side, height) : undefined,
       timing: (role, contacts) => {
         const reach: number = touchReach.meeting(
           role.body,
@@ -196,8 +197,8 @@ export namespace highFive {
     const target: IAutoMovieMotionHumanTarget.IPlace =
       AutoMovieMotionMeeting.place(met, "meet", entry);
     const paired: IAutoMovieMotionHumanTarget.IPlace =
-      met.solid && p.prop === undefined
-        ? { ...target, normal: highFiveContact.normal(met, context.subject, kind) }
+      met.solid && p.prop === undefined && met.roles[0]!.subject !== context.subject
+        ? { ...target, normal: Vector3.scale(target.normal, -1) }
         : target;
 
     // A stated point is faced as the pair's own is: its normal looks back at

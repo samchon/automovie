@@ -10,7 +10,7 @@ import type {
   IAutoMovieMotionHumanTargetGrid,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMovieMotionHumanTouchForm,
-  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
   IAutoMovieMotionMeetingRole,
   IAutoMovieResolveMutualGoal,
   IAutoMovieVector3,
@@ -27,12 +27,12 @@ import { HumanColliders } from "../posture/HumanColliders";
 
 /**
  * The two opposed hand frames of a high five. Both hands approach one
- * contact plane with a common upright axis. For a fixed hand attitude the
+ * contact plane defined by their approach. For a fixed hand attitude the
  * wrist is a translation of the meeting point, so its reach sphere can be
  * written in meeting-point coordinates before the two spheres intersect.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the shared plane, the orientation and the change of coordinates.
- * @evidence contracts/development/design.md#principled-representation A single horizontal normal and the body's existing contact frame determine the virtual reach sphere for each hand.
+ * @evidence contracts/development/design.md#principled-representation One shared surface normal and the body's existing contact frame determine the virtual reach sphere for each hand.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only the hand form, the opposed normal and the translated reach serve the high-five law.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the real contact offset and limb lengths; no wider reach or contact allowance is introduced.
  */
@@ -45,12 +45,7 @@ export namespace highFiveContact {
     bare: boolean,
     height: IAutoMovieMotionHumanTargetGrid.Height,
   ): Record<string, IAutoMovieVector3> {
-    const delta: IAutoMovieVector3 = Vector3.subtract(
-      roles[1]!.posture.root,
-      roles[0]!.posture.root,
-    );
-    const horizontal: IAutoMovieVector3 = { ...delta, y: 0 };
-    const axis: IAutoMovieVector3 = Vector3.normalize(horizontal);
+    const axis: IAutoMovieVector3 = approachAxis(roles, side, bare && kind !== "fist");
     const shifts: IAutoMovieVector3[] = [];
     const hand: IAutoMovieMotionHumanTouchEffector.IEffector =
       highFiveContact.hand(kind);
@@ -143,17 +138,18 @@ export namespace highFiveContact {
       : { surface: "palm", shape: "flat" };
   }
 
-  /** The contact normal pointing toward the role, in world axes. */
-  export function normal(
-    meeting: IAutoMovieMotionMeeting,
-    subject: string,
+  /** Place the common material plane on the line between the shoulders carrying the two hands. */
+  export function surface(
+    roles: readonly IAutoMovieMotionMeetingRole[],
     kind: IAutoMovieMotionHumanHighFive.Kind,
-  ): IAutoMovieVector3 {
-    const yaw: number = (meeting.frame.yaw * Math.PI) / 180;
-    return opposed(kind, { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) }, meeting.roles[0]!.subject === subject);
+    side: AutoMovieHumanSide,
+    height: IAutoMovieMotionHumanTargetGrid.Height,
+  ): Record<string, IAutoMovieMotionMeetingKind.ISurface> {
+    const normal: IAutoMovieVector3 = opposed(kind, approachAxis(roles, side, kind !== "fist"), true);
+    return { meet: { point: place(roles, kind, side, true, height).meet!, normal } };
   }
 
-  /** Flat low fives meet palm down to palm up; higher meetings use the shared vertical plane. */
+  /** Flat low fives meet palm down to palm up; higher palms oppose along the line joining their acting shoulders. */
   export function opposed(
     kind: IAutoMovieMotionHumanHighFive.Kind,
     forward: IAutoMovieVector3,
@@ -218,4 +214,20 @@ function translated(
   return shift === undefined
     ? arm
     : { ...arm, shoulder: Vector3.add(arm.shoulder, shift) };
+}
+
+/** Approach direction between the two acting shoulders, with their body headings resolving coincident shoulders. */
+function approachAxis(
+  roles: readonly IAutoMovieMotionMeetingRole[],
+  side: AutoMovieHumanSide,
+  bare: boolean,
+): IAutoMovieVector3 {
+  const origin = (role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
+    bare ? role.bones.get(`${side}UpperArm`)!.worldPosition : role.posture.root;
+  const delta: IAutoMovieVector3 = Vector3.subtract(origin(roles[1]!), origin(roles[0]!));
+  if (bare && Vector3.length(delta) > 0) return Vector3.normalize(delta);
+  const span: number = Math.hypot(delta.x, delta.z);
+  if (span > 0) return { x: delta.x / span, y: 0, z: delta.z / span };
+  const yaw: number = roles[0]!.posture.yaw * Math.PI / 180;
+  return { x: Math.sin(yaw), y: 0, z: Math.cos(yaw) };
 }
