@@ -4,7 +4,6 @@ const helpers: string[] = [
   "src/features/internal/jointRotationOracle.ts",
   "src/features/internal/motionHumanFrame.ts",
   "src/features/internal/motionHumanFlightDiagnostic.ts",
-  "src/features/internal/motionHumanTakeoffDiagnostic.ts",
   "src/features/internal/motionHumanLaw.ts",
   "src/features/internal/motionHumanLawCovering.ts",
   "src/features/internal/motionHumanLawSweep.ts",
