@@ -34,7 +34,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is placed, what is read and who states the coupling.
  * @evidence contracts/development/design.md#principled-representation The borne body's place as its key frame carried by the bearer's anchor bone, a parent constraint, and the holds as points in the same frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bearer record, the anchor rule and its bone reader, the key, standing and stance postures with the stance's bones, the region reader, the borne posture and the holds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The anchor rule and its bone reader, the key and stance postures with the stance's bones, the region reader, the borne posture and the holds.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The bearer never reads the borne body's displayed bones, so the two cannot chase each other.
  */
 export namespace HumanCarriedCouplingPose {
@@ -81,17 +81,17 @@ export namespace HumanCarriedCouplingPose {
    * @param body The body.
    * @param posture The posture.
    * @param anchor The anchor bone.
-   * @param resolution Optional exact FK supplier borrowed only during this synchronous person's evaluation.
-   * @param requested Optional displayed outputs; omitted preserves the complete original bone map.
-   * @returns The resolved bones, restricted to requested outputs when supplied.
+   * @param resolution The forward-kinematics reader of the posture evaluation this call is part of, used for this call only; a fresh one when absent.
+   * @param requested The bones the caller reads; every bone when absent.
+   * @returns The resolved bones, only the requested ones and their ancestors when a set is given.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States which resolution is taken when.
+   * @evidence contracts/development/common.md#meaningful-documentation States which resolution is taken when, the borrowed reader and the requested set.
    * @evidence contracts/development/implementation.md#principled-implementation A trunk bone stands from the root and the joints alone; a limb's stands where its fit puts it, so only then are the limbs fitted.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One membership test, one resolution.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A limb anchor is never read off the trunk-only resolution, whose limb bones stand at clinical zero.
-   * @evidence contracts/development/implementation.md#efficient-algorithms All authored joints still reach admission. A requested set limits final FK to actual outputs and ancestry; a limb anchor retains the complete original posture/arm/rival fits, with one borrowed exact reader shared by its solve and read-back.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical trunk/posture/FK owners remain shared. An explicitly borrowed reader shares only equal scalar prerequisites within one synchronous person evaluation; changed current postures still execute and return fresh maps.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An optional exact supplier is borrowed only until synchronous return or throw. A local lazy getter and temporary fitted pose are not retained; the caller owns fresh output bone records without a reader, body or query history captured in them.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A trunk anchor costs one trunk resolution; a limb anchor one whole-posture fit; with a requested set, forward kinematics composes only those bones and their ancestors.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A limb anchor's fit and its read-back share one forward-kinematics reader, and a caller's reader is shared with them, so one posture evaluation composes each bone once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader is held only during the call; the returned map holds bone records alone.
    */
   export function bones(
     body: IAutoMovieMotionHumanBody,
@@ -219,8 +219,8 @@ export namespace HumanCarriedCouplingPose {
    * @evidence contracts/development/implementation.md#principled-implementation The hold is read off the same key relation the borne body rides by, in the same anchor frame, so the bearer reaches where the borne body lies without reading it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One key resolution and one frame change per holding hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bearer never reads the borne body's displayed bones, which read the bearer's, so the two cannot chase each other.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One original raw trunk resolution and ordered left/right contact observations remain per planning call. Each held region requests the consumed point/normal only, omitting unneeded forward rotation; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original coupling key/anchor transforms remain; the engine's shared pointNormal owner preserves actual point then normal reads/math without a world-frame or query-result memo.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution of the key pose per call, then one contact lookup and one point-and-normal placement per hand.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The key pose is `key`'s and the surface placement the engine's `pointNormal`; nothing is cached between calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function holds(
@@ -283,29 +283,6 @@ export namespace HumanCarriedCouplingPose {
     return {
       anchor: frame?.anchor ?? coupling.anchor,
       places: [at("palmLeft"), at("palmRight")],
-    };
-  }
-  /**
-   * The posture of a body standing still at the origin.
-   *
-   * @returns The posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the posture.
-   * @evidence contracts/development/implementation.md#principled-implementation The rest stance at the world origin facing +Z, the frame the coupling's key relation is stated in.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
-   */
-  export function still(): IAutoMovieMotionHumanPosture {
-    return {
-      root: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      pitch: 0,
-      roll: 0,
-      joints: {},
-      limbs: {},
     };
   }
 
@@ -411,11 +388,11 @@ export namespace HumanCarriedCouplingPose {
    * @throws {HumanRefusal} A `parameter` refusal on `carry` when the rig lacks the region's bone.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's shared rigid point placement of the region's bone-local point on its actual world bone frame; no unused normal or forward direction is requested.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
+   * @evidence contracts/development/implementation.md#principled-implementation The region's bone-local point carried by its bone's world frame (`resolveAutoMovieHumanoidSurfaces.point`).
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement; the carry laws' one region reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone is refused, never read as the origin.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical point owner is shared with full surface placement, retaining its exact original Vector3.add/Quaternion.rotateVector expression; every current bone/frame input is evaluated normally.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The engine's surface placement owns the point.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function region(

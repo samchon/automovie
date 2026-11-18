@@ -58,7 +58,7 @@ import { HumanCarriedDrag } from "./HumanCarriedDrag";
  *   the least-norm shares whose weighted centre lies under the borne centre
  *   of mass, the vertical reactions of a body at rest on point supports
  *   (static equilibrium of forces and of the moments about the vertical's
- *   two horizontal axes).
+ *   two horizontal axes), none of them a pull.
  * - **Borne body per instant.** The borne key pose rides the bone its
  *   resting region lies on (the anchor), a parent constraint at the key
  *   offset, as a held object keeps its offset in the hand: the resting
@@ -223,10 +223,10 @@ export namespace HumanCarriedCoupling {
    * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible borne mass, when no lean of the bearer balances it; a `reach` refusal on `carry` when no bearer's stance and borne legs within their ranges bring a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`); a `parameter` refusal on `mass` for a negative extra mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame of the result and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The key pose places the borne resting region on the bearer's at the bearer's fitted stance and turns it about that point to the row's hold places, a lone bearer's stance and the borne legs changed least so the arms reach (`HumanCarriedCouplingFit.fit`), and the record keeps both so the bearer takes that stance and the borne body those legs; each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre); the capacity is the moment-balance bound of `HumanLoad.lean`.
+   * @evidence contracts/development/implementation.md#principled-implementation The key pose places the borne resting region on the bearer's at the bearer's fitted stance and turns it about that point to the row's hold places, a lone bearer's stance and the borne legs changed least so the arms reach (`HumanCarriedCouplingFit.fit`), and the record keeps both so the bearer takes that stance and the borne body those legs; each contact is read on both key bodies; the bearing shares are the least-norm solution of the three equilibrium equations (the shares sum to one and their centre lies under the borne centre) with none a pull; the capacity is the moment-balance bound of `HumanLoad.lean`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Key pose, contacts, centre, shares, capacity, record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A share the least-norm solution makes negative would pull the borne body down, which a resting contact cannot, so it is set to none and the rest renormalized; collinear bearing contacts, whose equations are singular, share equally. Both are stated here rather than hidden.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk resolutions, one mass model and a three-by-three solve, once per meeting.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the least-norm solution would have pull the borne body down, which a resting contact cannot, bears nothing and the rest are solved again in balance; collinear bearing contacts share by the lever rule along their line (`HumanCarriedCouplingLoad.shares`).
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two trunk resolutions, one mass model and the shares' solve (HumanCarriedCouplingLoad.shares), once per meeting.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The region places are the engine's surface resolution, the centre the engine's mass model and the capacity `HumanLoad.lean`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; the record keeps no body or bone.
    */

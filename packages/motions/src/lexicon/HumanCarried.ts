@@ -53,21 +53,7 @@ export namespace HumanCarried {
       ): IAutoMovieMotionHumanActionPlan => {
         const { by, seconds } = context.params;
         const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
-        if (!(seconds > 0))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "seconds",
-            value: seconds,
-            feasible: {
-              kind: "range",
-              minimum: 0,
-              maximum: null,
-              unit: "s",
-              open: "minimum",
-            },
-            reason: "being carried lasts a positive time",
-            fix: "give the seconds carried",
-          });
+        HumanCarriedBorne.lasting(seconds);
         if (by === context.subject)
           throw new HumanRefusal({
             kind: "participant",

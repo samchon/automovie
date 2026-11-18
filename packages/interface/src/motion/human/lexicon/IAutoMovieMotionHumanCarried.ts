@@ -130,7 +130,7 @@ export namespace IAutoMovieMotionHumanCarried {
    *
    * @evidence contracts/development/common.md#meaningful-documentation region: The carrier's own region the place is measured from. offset: The wrist's offset from it, arm lengths.
    * @evidence contracts/development/design.md#principled-representation region: The carrier's own region the place is measured from. offset: The wrist's offset from it, arm lengths.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan); lexicon/HumanCarriedCouplingRigid.ts (HumanCarriedCouplingRigid.fit).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedBearing.ts (HumanCarriedBearing.plan); lexicon/HumanCarriedCouplingRigid.ts (HumanCarriedCouplingRigid.read).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidRegion, IAutoMovieMotionHumanCarried.IOffset identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IHold {

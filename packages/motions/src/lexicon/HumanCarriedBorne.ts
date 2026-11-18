@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -11,7 +11,6 @@ import type {
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -27,12 +26,11 @@ import { HumanCarriedLift } from "./HumanCarriedLift";
 /**
  * The plan of being carried in a named carry (`HumanCarried.borne`): the
  * borne body on the bearer by the carry's coupled meeting (#3437), with the
- * lift and the set-down, and the region and seconds readers both carry laws
- * share.
+ * lift and the set-down, and the seconds reader both carry laws share.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is planned and for which law.
  * @evidence contracts/development/design.md#principled-representation The law's plan as a function of its context, kept beside the law record `HumanCarried` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The plan and the two readers the carry laws share.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The plan and the seconds reader the carry laws share; regions are read by `HumanCarriedCouplingPose.region`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The record, the parameters and the rows stay `HumanCarried`'s.
  */
 export namespace HumanCarriedBorne {
@@ -47,9 +45,9 @@ export namespace HumanCarriedBorne {
    * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting; each second the key posture rides the first bearer's displayed anchor bone at the key offset (`HumanCarriedCouplingPose.posture`); without a solid meeting the resting region is placed on the carrier's.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The row, the coupling, the windows, then one posture function.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A second helper on a carry with no other side is refused; the posture is rigid in the carry and its angles provisional.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key construction and rigid frame composition remain per posture. Each actual bearer read requests only its coupling anchor and gripping-region bones with required ancestry; conservative pose dependencies still retain full arm/rival or unsupported fitting. Uncoupled fallback demands hips and every actually used region. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work This plan's unchanged carry row, coupling and bearer bodies prove the demanded bone metadata; only those sets are prepared once. Every film-second pose, partner contact, anchor frame and clinging target is evaluated from current displayed bones without a pose/time cache. An optional query FK source serves only the borne body's own raw region; independent carrier/helper observations never receive another person's workspace.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its existing carry/participant/coupling inputs plus at most three constant-size demanded bone sets. Each actual pose map ends with its synchronous posture evaluation, outputs retain only their physical goals, and plan release drops the metadata.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One key construction and one frame composition per posture; each bearer's displayed bones are read only for the anchor and the regions the coupling grips (with no coupling, the hips and the carry's regions), and with their ancestors.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone sets each bearer is read for follow from the carry and the coupling alone, so they are built once per plan; every posture reads the bearers' displayed bones at its own second, with no cache by time. The caller's forward-kinematics reader serves only the borne body's own trunk resolution.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its carry, participants, coupling and at most three bone sets of a few names; each posture's bone maps end with it.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
@@ -230,14 +228,22 @@ export namespace HumanCarriedBorne {
         const posture: IAutoMovieMotionHumanPosture = {
           ...turned,
           root: Vector3.subtract(
-            Vector3.add(placed(carrier.body, theirs, row.theirs, "carry"), {
-              x: 0,
-              y:
-                (row.rise ?? 0) *
-                (carrier.body.measure.upperArm + carrier.body.measure.forearm),
-              z: 0,
-            }),
-            placed(body, HumanTrunk.resolve(body, turned, undefined, source, ownBones), row.mine, "carry"),
+            Vector3.add(
+              HumanCarriedCouplingPose.region(carrier.body, theirs, row.theirs),
+              {
+                x: 0,
+                y:
+                  (row.rise ?? 0) *
+                  (carrier.body.measure.upperArm +
+                    carrier.body.measure.forearm),
+                z: 0,
+              },
+            ),
+            HumanCarriedCouplingPose.region(
+              body,
+              HumanTrunk.resolve(body, turned, undefined, source, ownBones),
+              row.mine,
+            ),
           ),
         };
         const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
@@ -247,7 +253,11 @@ export namespace HumanCarriedBorne {
               row.clings[index] ?? null;
             if (region !== null)
               limbs[`${side}Arm`] = {
-                point: placed(carrier.body, theirs, region, "carry"),
+                point: HumanCarriedCouplingPose.region(
+                  carrier.body,
+                  theirs,
+                  region,
+                ),
                 bend: AutoMovieMotionHumanBend.hang(body, posture, side),
               };
           },
@@ -255,44 +265,6 @@ export namespace HumanCarriedBorne {
         return { ...posture, limbs };
       },
     });
-  }
-
-  /**
-   * A region's point on resolved bones, refused on a rig without its bone.
-   *
-   * @param body The body.
-   * @param bones Its resolved bones.
-   * @param region The region.
-   * @param axis The parameter a refusal names.
-   * @returns World metres.
-   * @throws {HumanRefusal} A `parameter` refusal on `axis` when the rig lacks the region's bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the frame and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The engine's shared rigid point placement of the region's bone-local point on its actual world bone frame; no unused normal or forward direction is requested.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one placement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone is refused, never read as the origin.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical point owner is shared with full surface placement, retaining its exact original Vector3.add/Quaternion.rotateVector expression; every current bone/frame input is evaluated normally.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
-   */
-  export function placed(
-    body: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    region: AutoMovieHumanoidRegion,
-    axis: string,
-  ): IAutoMovieVector3 {
-    const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-      body.surfaces.regions[region];
-    const bone: IAutoMovieResolvedBone | undefined = bones.get(frame.bone);
-    if (bone === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis,
-        value: region,
-        reason: `the rig has no bone ${frame.bone} for the region ${region}`,
-        fix: "carry on a body of the canonical humanoid rig",
-      });
-    return resolveAutoMovieHumanoidSurfaces.point(frame, bone);
   }
 
   /**

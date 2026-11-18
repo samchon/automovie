@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarriedCouplingLoad,
   IAutoMovieMotionHumanLoad,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -18,7 +17,6 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanLoad } from "../perform/HumanLoad";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
@@ -48,8 +46,8 @@ export namespace HumanCarriedCouplingLoad {
    * @evidence contracts/development/implementation.md#principled-implementation The combined centre of the pair moves `m d / (M + m)` ahead of the bearer's own; the lean that balances it is #3431's moment balance, so this returns exactly its inputs.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One mass model, one centre, one difference.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The distance is the borne centre's in the bearer's own standing frame, not a constant of the carry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One actual full stance fit/FK supplies mass and feet; a limb anchor shares that identical read, while a raw trunk anchor retains its separate requested-frame read and complete admission. The unchanged body supplies its classic mass model once; numerical speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's fixed skeleton/profile prove its canonical classic mass model. One explicit standing operation shares its actual full fitted map only for a limb anchor and COM/feet consumers with identical body/posture/solver inputs; a raw trunk anchor remains separate and all changed dependencies still evaluate.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fitted stance resolution gives the anchor, the centre of mass and the feet; the mass model is the body's own.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance is `HumanCarriedCouplingPose.stood`, the resolution the coupling's frames were stated on, and the mass model `IHumanBody.massModel`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function load(
@@ -80,8 +78,8 @@ export namespace HumanCarriedCouplingLoad {
    * @evidence contracts/development/implementation.md#principled-implementation Static balance of a rigid inverted pendulum: the borne body rides the bearer's anchor bone, so the whole pair turns about the feet, and the combined centre `(M c + m s) / (M + m)` lies over the pivot once turned by `-atan2(z, y)` forward and `atan2(x, y)` toward the right, its offsets ahead and to the left over its height above the pivot.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing read, one combined centre, two angles.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the balance's, never bounded here; a mass no lean of the bearer holds is `bearable`'s refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One actual full stance fit/FK supplies mass and feet; a limb anchor shares that identical read, while a raw trunk anchor retains its separate requested-frame read and complete admission. The unchanged body supplies its classic mass model once; numerical speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared standing owner preserves raw-trunk versus fitted-limb semantics, borrows the body's canonical mass model, and shares only the same operation's actual full fitted stance and exact scalar FK prerequisites. Calls, roles and different stances retain independent evaluation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One fitted stance resolution gives the anchor, the centre of mass and the feet; the mass model is the body's own.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The standing read is the one `load` takes; nothing is shared between calls.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
    */
   export function lean(
@@ -150,28 +148,22 @@ export namespace HumanCarriedCouplingLoad {
           );
     const model: IAutoMovieResolveCenterOfMass.IModel =
       bearer.massModel;
+
     // The first bearer stands in the stance the key pose was placed on; a
-    // further one stands upright.
-    const posture: IAutoMovieMotionHumanPosture =
-      frame === undefined
-        ? HumanCarriedCouplingPose.stance(bearer, coupling.key.stance)
-        : HumanCarriedCouplingPose.stance(bearer, { incline: 0, depth: 0 });
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const name: AutoMovieHumanoidBone = frame?.anchor ?? coupling.anchor;
-    // A limb anchor and the mass/feet reader ask for the same full fitted
-    // stance. A trunk anchor intentionally keeps its original raw-trunk read.
-    const whole: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
-      HumanCarriedCouplingPose.TRUNK.includes(name) ? undefined
-        : HumanCarriedCouplingPose.bones(bearer, posture, name, resolution);
-    const anchor: IAutoMovieResolvedBone = whole === undefined
-      ? HumanCarriedCouplingPose.bones(bearer, posture, name, resolution,
-        new Set<AutoMovieHumanoidBone>([name])).get(name)!
-      : whole.get(name)!;
-    const feet: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = whole ??
-      HumanCarriedCouplingPose.bones(bearer, posture, "leftFoot", resolution);
+    // further one stands upright. Both are read on the same fitted stance
+    // `HumanCarriedCoupling.couple` stated the coupling's frames on, so the
+    // anchor, the centre and the feet are one posture's.
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanCarriedCouplingPose.stood(
+        bearer,
+        frame === undefined ? coupling.key.stance : { incline: 0, depth: 0 },
+      );
+    const anchor: IAutoMovieResolvedBone = bones.get(
+      frame?.anchor ?? coupling.anchor,
+    )!;
     return {
       mass: model.mass,
-      own: resolveAutoMovieCenterOfMass.place(model, feet),
+      own: resolveAutoMovieCenterOfMass.place(model, bones),
       load: coupling.mass * share,
       borne: Vector3.add(
         anchor.worldPosition,
@@ -179,8 +171,8 @@ export namespace HumanCarriedCouplingLoad {
       ),
       pivot: Vector3.scale(
         Vector3.add(
-          feet.get("leftFoot")!.worldPosition,
-          feet.get("rightFoot")!.worldPosition,
+          bones.get("leftFoot")!.worldPosition,
+          bones.get("rightFoot")!.worldPosition,
         ),
         0.5,
       ),
@@ -230,73 +222,101 @@ export namespace HumanCarriedCouplingLoad {
   }
 
   /**
-   * The least-norm load shares of points whose weighted centre lies under a
-   * centre: `w = A^T (A A^T)^-1 b` for the rows (1, x, z); equal shares when
-   * the points are collinear in plan; a negative share set to none and the
-   * rest renormalized.
+   * The load shares of point supports under a borne centre: the least-norm
+   * shares that sum to one with their weighted centre under the centre,
+   * `w = A^T (A A^T)^+ b` for the rows (1, x, z) in plan. Collinear supports
+   * share by the lever rule along their line, coincident ones equally. A
+   * support the solution would have pull is dropped and the rest solved
+   * again, so every share is a push.
    *
    * @param points The bearing points, world metres.
    * @param centre The borne centre of mass, world metres.
-   * @returns One share per point, summing to one.
+   * @returns One share per point, none negative, summing to one; none for no point.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the law, its degenerate cases and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The vertical reactions of a body at rest on point supports satisfy the force sum and the two horizontal moment balances; the least-norm solution spreads the weight evenly among redundant supports.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three rows, one three-by-three solve by Cramer's rule, then the non-negative cut.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative share, a pull a resting contact cannot give, is cut to none and the rest renormalized; singular rows share equally. Both are stated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Six ordered scalar dot products build the symmetric three-by-three Gram matrix instead of nine; original Cramer solve, singular bound and nonnegative renormalization remain. A scalar scale scan omits flattened/absolute arrays, with O(n) work/storage and no measured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each symmetric entry uses the same scalar products and original point accumulation order, so the matching off-diagonal value is shared only inside this current matrix. Every changed support point and centre is evaluated anew, without cross-query geometry or weight reuse.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Current rows/weights use O(n) temporary space plus the fixed three-by-three matrix; they end on return or throw. Only the fresh original weight array escapes, with no input-point history, query workspace or external handle retained.
+   * @evidence contracts/development/common.md#meaningful-documentation States the law, its degenerate cases, the sign rule and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The vertical reactions of a body at rest on point supports satisfy the force sum and the two horizontal moment balances; among redundant supports the least-norm solution spreads the weight evenly. About the supports' mean the force row is orthogonal to the moment rows, so each share is `1/n` plus the moment part, solved on the two-by-two moment matrix, or on the supports' principal line when that matrix is singular (the pseudo-inverse: a centre off a line of supports cannot be balanced across it, and only its place along the line is). A resting contact pushes only, so the most negative share's support is dropped and the rest solved again, a greedy active set.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The active set and its loop, over one least-norm solve.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No share is clamped and renormalised: a support that would pull bears nothing and the rest carry the weight in balance. With the centre outside every subset of the supports the loop ends on fewer supports, down to one that bears it all.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each round is linear in the supports and drops one, so at most n rounds and O(n^2) work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its points.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function; it holds O(n) numbers during the call.
    */
   export function shares(
     points: readonly IAutoMovieVector3[],
     centre: IAutoMovieVector3,
   ): number[] {
-    const n: number = points.length;
-    if (n === 1) return [1];
-    const equal: number[] = points.map((): number => 1 / n);
-    const rows: number[][] = [
-      points.map((): number => 1),
-      points.map((p: IAutoMovieVector3): number => p.x),
-      points.map((p: IAutoMovieVector3): number => p.z),
-    ];
-    const g: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
-    for (let row: number = 0; row < 3; row++)
-      for (let column: number = row; column < 3; column++) {
-        const a: number[] = rows[row]!;
-        const b: number[] = rows[column]!;
-        let sum: number = 0;
-        for (let i: number = 0; i < n; i++) sum = sum + a[i]! * b[i]!;
-        g[row]![column] = sum;
-        g[column]![row] = sum;
+    let active: number[] = points.map(
+      (_: IAutoMovieVector3, i: number): number => i,
+    );
+    for (;;) {
+      const w: number[] = leastNorm(
+        active.map((i: number): IAutoMovieVector3 => points[i]!),
+        centre,
+      );
+      let worst: number = -1;
+      for (let k: number = 0; k < w.length; k++)
+        if (w[k]! < 0 && (worst < 0 || w[k]! < w[worst]!)) worst = k;
+      if (worst < 0) {
+        const out: number[] = points.map((): number => 0);
+        active.forEach((i: number, k: number): void => {
+          out[i] = w[k]!;
+        });
+        return out;
       }
-    const det = (m: number[][]): number =>
-      m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) -
-      m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) +
-      m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
-    const d: number = det(g);
-
-    // Collinear points in plan: the three equations are singular.
-    let scale: number = 0;
-    for (const row of g)
-      for (const value of row) scale = Math.max(scale, Math.abs(value));
-    if (!(Math.abs(d) > Number.EPSILON * scale * scale * scale)) return equal;
-    const b: number[] = [1, centre.x, centre.z];
-    const lambda: number[] = [0, 1, 2].map(
-      (column: number): number =>
-        det(
-          g.map((r: number[], i: number): number[] =>
-            r.map((v: number, j: number): number => (j === column ? b[i]! : v)),
-          ),
-        ) / d,
-    );
-    const raw: number[] = points.map(
-      (_: IAutoMovieVector3, i: number): number =>
-        lambda[0]! * rows[0]![i]! +
-        lambda[1]! * rows[1]![i]! +
-        lambda[2]! * rows[2]![i]!,
-    );
-    const kept: number[] = raw.map((w: number): number => Math.max(0, w));
-    const sum: number = kept.reduce((s: number, w: number): number => s + w, 0);
-    return sum > 0 ? kept.map((w: number): number => w / sum) : equal;
+      active = active.filter((_: number, k: number): boolean => k !== worst);
+    }
   }
+
+  /** The least-norm shares of points, summing to one, whose weighted centre lies under a centre in plan (`shares` states the method); one point bears all. */
+  const leastNorm = (
+    points: readonly IAutoMovieVector3[],
+    centre: IAutoMovieVector3,
+  ): number[] => {
+    const n: number = points.length;
+    if (n <= 1) return points.map((): number => 1);
+
+    // About the points' mean, the force row is orthogonal to the moment
+    // rows, and the equations keep their precision far from the origin.
+    let mx: number = 0;
+    let mz: number = 0;
+    for (const p of points) {
+      mx += p.x / n;
+      mz += p.z / n;
+    }
+    let sxx: number = 0;
+    let sxz: number = 0;
+    let szz: number = 0;
+    for (const p of points) {
+      sxx += (p.x - mx) ** 2;
+      sxz += (p.x - mx) * (p.z - mz);
+      szz += (p.z - mz) ** 2;
+    }
+    const cx: number = centre.x - mx;
+    const cz: number = centre.z - mz;
+    const det: number = sxx * szz - sxz * sxz;
+    const trace: number = sxx + szz;
+
+    // Spread in plan: both moment balances.
+    if (det > Number.EPSILON * trace * trace) {
+      const lx: number = (szz * cx - sxz * cz) / det;
+      const lz: number = (sxx * cz - sxz * cx) / det;
+      return points.map(
+        (p: IAutoMovieVector3): number =>
+          1 / n + lx * (p.x - mx) + lz * (p.z - mz),
+      );
+    }
+
+    // Collinear: the lever rule along the principal line; coincident: equal.
+    if (!(trace > 0)) return points.map((): number => 1 / n);
+    const angle: number = Math.atan2(2 * sxz, sxx - szz) / 2;
+    const ux: number = Math.cos(angle);
+    const uz: number = Math.sin(angle);
+    const along = (x: number, z: number): number => x * ux + z * uz;
+    let sss: number = 0;
+    for (const p of points) sss += along(p.x - mx, p.z - mz) ** 2;
+    const ls: number = along(cx, cz) / sss;
+    return points.map(
+      (p: IAutoMovieVector3): number => 1 / n + ls * along(p.x - mx, p.z - mz),
+    );
+  };
 }

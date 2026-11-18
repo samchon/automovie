@@ -16,49 +16,32 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
- * A carried key pose registered about its resting contact. The stance fit
- * changes the two postures; this registration places each trial without
- * trading the resting contact for the hand targets.
+ * A carried key pose registered about its resting contact: the borne
+ * resting region put exactly on the bearer's and the turn about that point
+ * fitted to the row's hold places. The stance fit (`HumanCarriedCouplingFit`)
+ * changes the bearer's stance and the borne legs and registers each trial
+ * here.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States which part of a coupled placement is owned here and which operation changes its input postures.
+ * @evidence contracts/development/common.md#meaningful-documentation States what the registration fixes, what it fits and who calls it with which postures.
  * @evidence contracts/development/design.md#principled-representation A rigid registration with one fixed point, leaving only its rotation to fit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface fit preserves the placement entry; read additionally exposes that same registration's fresh borne source frames to its immediate gap reader, while the placement record stays with the stance fitter.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One function and its result record, read by the stance fit; the placement record is the interface's `IFit`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's rigid registration and the carry's posture and region owners.
  */
 export namespace HumanCarriedCouplingRigid {
   /**
-   * One actual registration and the fresh source frames it used.
+   * A registration and the borne key pose's bones it was read on.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the fitted placement and its same-query borne key-pose frames, borrowed read-only by the immediate wrist-gap calculation.
-   * @evidence contracts/development/design.md#principled-representation Both registration and surface gaps read one identical raw key posture, so its actual FK map belongs beside the derived rigid placement rather than another solve.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface read produces both members for CouplingFit.gaps; ordinary fit returns only the existing placement.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Contains actual freshly resolved frames, not a caller-supplied placement, cached pose or asserted resolution marker.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the placement and the key pose's resolved bones, which the stance fit reads the held regions on.
+   * @evidence contracts/development/design.md#principled-representation The registration and the held-region gaps read the same key pose, so its bones are returned beside the placement instead of being resolved a second time.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `HumanCarriedCouplingFit.fit`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The bones are the ones this registration resolved, never a caller's.
    */
   export interface IRead {
-    /** The actual rigid placement about the original fixed resting contact. */
+    /** The rigid placement about the resting contact. */
     fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit;
-    /** Fresh borne key-pose frames used by this exact registration. */
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  }
 
-  /**
-   * The original placement entry, using the same actual registration owner.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Preserves the existing bearer/borne/row/held/legs/stance inputs and rigid placement result.
-   * @evidence contracts/development/implementation.md#principled-implementation Returns the actual fixed-contact rigid registration computed by read without changing inputs or numerical policy.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One delegation and placement selection; read owns key FK, direction construction and the engine registration.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No fitted pose, source map or numerical answer is supplied by the caller or substituted from another query.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Keeps one key FK and registration, adding only constant result selection.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the original actual registration owner with the immediate-gap producer; each standalone call still computes its own current placement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Discards the temporary frame-map observation and returns only the existing placement closing over its two points and turn, with no global result or query history.
-   */
-  export function fit(
-    bearer: IAutoMovieMotionHumanBody, theirs: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    borne: IAutoMovieMotionHumanBody, row: IAutoMovieMotionHumanCarried.IRow,
-    held: readonly [AutoMovieHumanoidRegion | null, AutoMovieHumanoidRegion | null],
-    legs: readonly [number, number, number], stance: { incline: number; depth: number },
-  ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
-    return read(bearer, theirs, borne, row, held, legs, stance).fit;
+    /** The borne key pose's resolved bones, at the origin before the placement. */
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
   /**
@@ -72,15 +55,15 @@ export namespace HumanCarriedCouplingRigid {
    * @param held The borne region held by each hand, left then right.
    * @param legs The borne legs' three angles, degrees.
    * @param stance The bearer's inclination in degrees and fractional squat depth.
-   * @returns The placement and the actual fresh borne key frames used by it.
+   * @returns The placement and the borne key pose's bones it was read on.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed contact, the hand fit, each frame and the fitted parameters returned with the map.
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed contact, the hand fit, each frame and the bones returned with the placement.
    * @evidence contracts/development/implementation.md#principled-implementation Wahba's rotation about the fixed resting point, solved by Horn's absolute orientation on every hold direction and its opposite; the clouds' centroids are the resting points, so translation cannot trade their exact coincidence. With fewer than two holds, the key's two horizontal axes keep the heading its hold does not determine.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The resting points, the hold directions, the orientation and its point map.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The carry's existing provisional row supplies the preferred hold places; the registration introduces no fitted coefficient.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One key-pose FK and one rigid registration over at most three direction pairs. CouplingFit's immediate gap reader consumes these same actual frames instead of converting/admitting/resolving the identical key again; every current placement and gap still executes, without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same immutable body/row/leg parameters determine the raw key for registration and its immediate held-region gaps. One genuine freshly computed map serves both; no prior query or caller map proves reuse, and the original region and rigid-fit owners retain their math.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned frame map belongs to this query and is consumed read-only before release; the placement closes over its two points and turn. No FK reader, source pose, body result pool or candidate history is retained by this producer.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The carry's provisional row supplies the hold places; the registration introduces no fitted coefficient.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution of the key pose and one rigid registration over at most three directions and their mirrors.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The key pose's bones are returned so the stance fit reads its held regions on them, not on a second resolution of the same key pose.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned bones belong to the caller; the placement closes over two points and a turn.
    */
   export function read(
     bearer: IAutoMovieMotionHumanBody,
