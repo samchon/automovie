@@ -19,6 +19,7 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -73,19 +74,22 @@ export namespace legTouch {
   /** The farthest the root is shifted along the level line to put the knee a thigh from the hip, metres (provisional). */
   export const SHIFT: number = 0.25;
 
+  /** The place tolerance the balance shift and the knee's placement settle to, metres: the limb solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). */
+  export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
+
   /**
    * Plan a touch with the leg.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, or the knee cannot be put on the place by shifting the root within `SHIFT`.
+   * @throws {HumanRefusal} When the hold is negative, the centre of mass does not settle over the standing ankle, or the knee cannot be put on the place by shifting the root within `SHIFT` to the solver's place tolerance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the balance and the placement.
    * @evidence contracts/development/implementation.md#principled-implementation The root's shift over the standing ankle is the fixed point of the centre of mass under that shift; the knee's shift is the nearer root of the thigh's length along the level line to the place, taken again from the hip each shift displays, and the knee's goal asks no foot rotation, which would state the knee's plane against its bend point; the leg leaves and returns on one minimum-jerk envelope with a small lift.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The place, the balance, the leg's goal, the clock, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A knee out of the thigh's reach throws with the distance; nothing is clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms All four balance full fits/COM observations and four knee update rounds remain. Balance requests only actual profile mass bones and omits unused support-base geometry; its fixed names, genuine ROM metadata and exact FK prerequisites share this synchronous search. Each changed knee shift still fits the complete pose and reads its needed hip once for residual/update/final direction; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical goals/balance/timing to their owners. One unchanged-body/table synchronous search shares exact FK prerequisites and genuine ROM metadata across its four complete balance fits and knee fits, with fixed mass/hip-name preparation; an explicit current shift reuses its actually measured hip across its dependent arithmetic; a changed shift always solves anew, with no pose/time cache.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The balance shift and the knee shift each iterate a contracting update until it is within the solver's place tolerance, one full fit and centre (or hip) read per pass, and refuse when a pass stops contracting. Balance requests only actual profile mass bones and omits unused support-base geometry; its fixed names, genuine ROM metadata and exact FK prerequisites share this synchronous search. Each changed knee shift still fits the complete pose and reads its needed hip once for residual/update/final direction; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates physical goals/balance/timing to their owners. One unchanged-body/table synchronous search shares exact FK prerequisites and genuine ROM metadata across its complete balance fits and knee fits, with fixed mass/hip-name preparation; an explicit current shift reuses its actually measured hip across its dependent arithmetic; a changed shift always solves anew, with no pose/time cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The planning-only FK reader and initial/current hip vectors end with synchronous search or refusal. The plan retains its original base, solved goal and physical shift only, forwarding any runtime self query loan to the complete base evaluation; no reader, pose map or search history enters its evaluator.
    */
   export function plan(
@@ -130,17 +134,34 @@ export namespace legTouch {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     let projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
     const centre: ReturnType<typeof HumanBalance.prepareCentre> = HumanBalance.prepareCentre(body);
+
+    // The shift is the fixed point of the centre under it: each pass moves
+    // the root by what the centre still lacks over the ankle, until that
+    // lack is within the limb solver's place tolerance. The update must
+    // contract; a pass that does not shrink the lack cannot converge, and
+    // the body is refused rather than left off balance.
     let over: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    for (let i: number = 0; i < 4; i++)
-      over = Vector3.add(
-        over,
-        level(
-          Vector3.subtract(
-            ankle,
-            centre(moved(entry, over), resolution, projection ??= prepareHumanPostureProjection(body)),
-          ),
+    let lack: number = Infinity;
+    for (;;) {
+      const step: IAutoMovieVector3 = level(
+        Vector3.subtract(
+          ankle,
+          centre(moved(entry, over), resolution, projection ??= prepareHumanPostureProjection(body)),
         ),
       );
+      const size: number = Vector3.length(step);
+      if (size <= TOLERANCE) break;
+      if (!(size < lack))
+        throw new HumanRefusal({
+          kind: "base",
+          axis: "side",
+          value: side,
+          reason: `the centre of mass does not settle over the ${standing} ankle: shifting the root still leaves it ${(size * 1000).toFixed(1)} mm off`,
+          fix: "stand with the feet nearer under the body before touching with the leg",
+        });
+      lack = size;
+      over = Vector3.add(over, step);
+    }
 
     // The moving leg's goal on the place.
     const rest = (
@@ -171,11 +192,14 @@ export namespace legTouch {
       );
       // The shift that puts the displayed hip a thigh from the knee: the
       // nearer root of the thigh's length along the level line to the knee,
-      // taken again from the hip each shift displays, four times.
+      // taken again from the hip each shift displays, until the hip is a
+      // thigh from the knee within the solver's place tolerance; a pass that
+      // does not shrink the residual cannot converge and stops the search.
       const initial: IAutoMovieVector3 = hip(shift);
       let current: IAutoMovieVector3 = initial;
       let residual: number = Infinity;
-      for (let i: number = 0; i < 4; i++) {
+      for (;;) {
+        const before: number = residual;
         const from: IAutoMovieVector3 = Vector3.subtract(knee, current);
         const flat: IAutoMovieVector3 = level(from);
         const line: IAutoMovieVector3 =
@@ -198,10 +222,11 @@ export namespace legTouch {
           Vector3.distance(knee, current) - thigh,
         );
         if (!(Vector3.distance(shift, over) <= SHIFT)) break;
+        if (residual <= TOLERANCE || !(residual < before)) break;
       }
       if (
         !(Vector3.distance(shift, over) <= SHIFT) ||
-        !(residual <= 0.005)
+        !(residual <= TOLERANCE)
       )
         throw new HumanRefusal({
           kind: "reach",
