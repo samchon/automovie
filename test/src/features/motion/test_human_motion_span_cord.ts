@@ -9,15 +9,15 @@ import type {
   IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieRenderSoftPropFrame,
   IAutoMovieRigidTransform,
   IAutoMovieSoftBodyDomain,
-  IAutoMovieSoftBodySurface,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanObject, HumanPerformance } from "@automovie/motions";
 import {
-  type IAutoMovieSceneSoftProps,
-  buildSceneSoftProps,
+  type IAutoMovieDrawScene,
+  bindAutoMovieDrawSceneSoftProps,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -44,18 +44,18 @@ const START_TRAVEL: number = 1 / 16;
  *    below the anchors; particle masses sum to the authored mass.
  * 2. The native initial step rebuilds the rest legs for a nonzero slider
  *    starting travel. Later samples follow that slider and the moving owner.
- *    The final allowed sample reaches the CPU scene tube. A reverse seek
- *    restores the initial particles.
+ *    The draw host first seeks to the final allowed instant and then to a
+ *    fractional step. A reverse seek restores the initial particles.
  * 3. Overextended and nonfinite initial placements refuse on sampling. A
  *    missing span, one link and a film beyond the step budget also refuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model geometry, moving endpoints, independent dimensions and refused inputs.
- * @evidence contracts/development/testing.md#behavioral-verification Uses real Archetype span authoring, observes the public performance's native soft samples and projects the final allowed sample through the canonical surface into a CPU scene tube. The direct samples distinguish incorrect placement and playback from tube construction, which test_render_soft_cord checks.
- * @evidence contracts/development/testing.md#independent-expectations Pythagoras gives the 3/8 m altitude for half-chord 1/2 m and leg 5/8 m. A +90 degree Y rotation sends local +X to world -Z so the endpoints follow the owner's translation and slider displacement algebraically. The render check measures only longitudinal ring centres, within 1e-6 m for Float32 rounding. The reverse seek compares two observations of the same film instant.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses real Archetype span authoring, observes the public performance's native soft samples and projects final, fractional-step and backward seeks through the production draw binding into a CPU scene tube. The direct samples distinguish incorrect placement and playback from tube construction, which test_render_soft_cord checks.
+ * @evidence contracts/development/testing.md#independent-expectations Pythagoras gives the 3/8 m altitude for half-chord 1/2 m and leg 5/8 m. A +90 degree Y rotation sends local +X to world -Z so the endpoints follow the owner's translation and slider displacement algebraically. The render check measures only longitudinal ring centres, within 1e-6 m for Float32 rounding. The off-step endpoints come from the same affine placement law. The reverse seek compares two observations of the same film instant.
  * @evidence contracts/development/testing.md#distinguishing-cases An odd link count pins unequal subdivisions without changing overall dimensions. An owner subject with the grip prefix still supplies both anchors. Nonzero initial travel distinguishes declared geometry from the actual start placement. The budget permits its final step and refuses one additional step. Initial overextension, nonfinite placement, a missing span and one link exercise distinct refusals.
- * @evidence contracts/development/testing.md#execution-ownership test_human_motion_span_cord uses an in-memory model and four soft steps, without a performer pose, action plan or visual host, plus CPU-only geometry.
+ * @evidence contracts/development/testing.md#execution-ownership test_human_motion_span_cord uses an in-memory model and four soft steps, without a performer pose, action plan or visual host, plus the in-memory draw binding and CPU-only geometry.
  */
-export function test_human_motion_span_cord(): void {
+export async function test_human_motion_span_cord(): Promise<void> {
   const model: Archetype<"slide", never> = fixture();
   const placement = (
     seconds: number,
@@ -126,6 +126,7 @@ export function test_human_motion_span_cord(): void {
   );
 
   const performance: IAutoMovieMotionHumanPerformance = place(owner, cord, END);
+  await assertDrawSeeks(performance, cord.subject, domain);
   const first: number[] = [...performance.soft("cord", 0)];
   TestValidator.predicate(
     "the initial seed uses the actual slider pose",
@@ -174,59 +175,6 @@ export function test_human_motion_span_cord(): void {
       ),
   );
 
-  // A single moved sample crosses the producer-to-renderer boundary.
-  const surface: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
-    domain,
-    state: {
-      domain: domain.id,
-      state: null,
-      step: END / options.solver.fixedStepSeconds,
-      time: END,
-      positions: last,
-      velocities: [],
-      maxSpeed: 0,
-      maxStrain: 0,
-      contacts: 0,
-    },
-  });
-  const scene: THREE.Scene = new THREE.Scene();
-  const layer: IAutoMovieSceneSoftProps = buildSceneSoftProps(scene);
-  try {
-    layer.update([
-      {
-        subject: cord.subject,
-        status: "solved",
-        cordRadius: domain.contact!.thickness,
-        surface,
-      },
-    ]);
-    const mesh: THREE.Object3D | undefined = scene.getObjectByName("soft:cord");
-    TestValidator.predicate("the scene tube reaches the moved anchors", () => {
-      if (!(mesh instanceof THREE.Mesh) || !mesh.visible) return false;
-      const vertices: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
-        mesh.geometry.getAttribute("position");
-      const ringSize: number = vertices.count / 4;
-      const lastRing: number = vertices.count - ringSize;
-      const opposite: number = (ringSize - 1) / 2;
-      return (
-        mesh.userData.step === options.solver.maxSteps &&
-        Number.isInteger(opposite) &&
-        opposite > 0 &&
-        nclose(
-          (vertices.getZ(0) + vertices.getZ(opposite)) / 2,
-          1 + END,
-          1e-6,
-        ) &&
-        nclose(
-          (vertices.getZ(lastRing) + vertices.getZ(lastRing + opposite)) / 2,
-          END / 2 - START_TRAVEL,
-          1e-6,
-        )
-      );
-    });
-  } finally {
-    layer.dispose();
-  }
   const extended: IAutoMovieMotionHumanProp = {
     ...owner,
     tracks: [{ articulation: "slide", start: 0, travel: (): number => 3 / 8 }],
@@ -266,6 +214,111 @@ export function test_human_motion_span_cord(): void {
   TestValidator.error("slack cord needs two or more links", () =>
     HumanObject.cord(model, "line", { ...options, links: 1 }),
   );
+}
+
+/** Read the native soft solve through the same seek binding used by film subjects. */
+async function assertDrawSeeks(
+  performance: IAutoMovieMotionHumanPerformance,
+  subject: string,
+  domain: IAutoMovieSoftBodyDomain,
+): Promise<void> {
+  const scene: THREE.Scene = new THREE.Scene();
+  let placed: number = NaN;
+  const reads: number[] = [];
+  const draw: IAutoMovieDrawScene = bindAutoMovieDrawSceneSoftProps(
+    {
+      scene,
+      camera: new THREE.PerspectiveCamera(),
+      fps: 64,
+      durationSeconds: END,
+      width: 32,
+      height: 18,
+      seek: async (seconds: number): Promise<void> => {
+        await Promise.resolve();
+        placed = seconds;
+      },
+      dispose: (): void => scene.clear(),
+    },
+    (seconds: number): readonly IAutoMovieRenderSoftPropFrame[] => {
+      TestValidator.equals(
+        "the producer reads the placed film second",
+        seconds,
+        placed,
+      );
+      reads.push(seconds);
+      const step: number = Math.floor(seconds / domain.solver.fixedStepSeconds);
+      return [
+        {
+          subject,
+          status: "solved",
+          cordRadius: domain.contact!.thickness,
+          surface: softBodySurfaceGeometry({
+            domain,
+            state: {
+              domain: domain.id,
+              state: null,
+              step,
+              time: seconds,
+              positions: performance.soft(subject, seconds),
+              velocities: [],
+              maxSpeed: 0,
+              maxStrain: 0,
+              contacts: 0,
+            },
+          }),
+        },
+      ];
+    },
+  );
+  const seeks: readonly number[] = [END, END / 8, 0, END];
+  try {
+    let mounted: THREE.Object3D | undefined;
+    for (const seconds of seeks) {
+      await draw.seek(seconds);
+      const mesh: THREE.Object3D | undefined = scene.getObjectByName(
+        `soft:${subject}`,
+      );
+      mounted ??= mesh;
+      TestValidator.predicate(
+        `one tube reaches the anchors at ${seconds}`,
+        () => {
+          if (
+            !(mesh instanceof THREE.Mesh) ||
+            !mesh.visible ||
+            mesh !== mounted
+          )
+            return false;
+          const vertices:
+            | THREE.BufferAttribute
+            | THREE.InterleavedBufferAttribute =
+            mesh.geometry.getAttribute("position");
+          const ringSize: number = vertices.count / domain.lattice.rows;
+          const lastRing: number = vertices.count - ringSize;
+          const opposite: number = (ringSize - 1) / 2;
+          return (
+            (seconds !== END ||
+              mesh.userData.step === domain.solver.maxSteps) &&
+            Number.isInteger(opposite) &&
+            opposite > 0 &&
+            nclose(
+              (vertices.getZ(0) + vertices.getZ(opposite)) / 2,
+              1 + seconds,
+              1e-6,
+            ) &&
+            nclose(
+              (vertices.getZ(lastRing) + vertices.getZ(lastRing + opposite)) /
+                2,
+              seconds / 2 - START_TRAVEL,
+              1e-6,
+            )
+          );
+        },
+      );
+    }
+    TestValidator.equals("one producer read per exact seek", reads, seeks);
+  } finally {
+    draw.dispose();
+  }
 }
 
 /** The rig's cue gives the performance a horizon without an unrelated actor. */
