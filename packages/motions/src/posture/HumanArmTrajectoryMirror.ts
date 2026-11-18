@@ -1,5 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
+import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmMirror } from "./HumanArmMirror";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
@@ -12,7 +13,7 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is mirrored and what the mirror reading guarantees.
  * @evidence contracts/development/design.md#principled-representation The mirror across the world's x = 0 plane of every base, site, rest and side of the problem's own record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The test and the mirror, read by `HumanArmTrajectory.solve` and `admitted`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The test and the mirror, read by `HumanArmTrajectory.solve` and `admitted`, and the refusal told back in the author's names, read by `solve`.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts One rule for one arm and for two, in either order.
  */
 export namespace HumanArmTrajectoryMirror {
@@ -37,6 +38,41 @@ export namespace HumanArmTrajectoryMirror {
    */
   export function leftFirst(problem: HumanArmTrajectory.IProblem): boolean {
     return problem.arms[0]!.side === "left";
+  }
+
+  /**
+   * A refusal read in the mirror image, told in the author's world: every
+   * side it names, an arm's, a bone's or a region's, is the mirror image's,
+   * so each is the other side of the author's body.
+   *
+   * @param refusal The refusal the mirrored problem's solve gave.
+   * @returns The same refusal with every side its reason and its fix name taken to the other.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States why every side named is swapped.
+   * @evidence contracts/development/implementation.md#principled-implementation The mirror takes each side's name to the other's (`mirrored`), so the inverse of a mirrored reading's names is the same swap.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One swap over the reason and the fix.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every other member is kept; the value, the axis and the feasible set name no side.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the text.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function refusal(refusal: HumanRefusal): HumanRefusal {
+    const swap = (text: string): string =>
+      text.replace(
+        /left|right|Left|Right/g,
+        (side: string): string => SWAP[side]!,
+      );
+    return new HumanRefusal({
+      kind: refusal.kind,
+      ...(refusal.performer === "" ? {} : { performer: refusal.performer }),
+      ...(refusal.act === "" ? {} : { act: refusal.act }),
+      ...(refusal.instance === 0 ? {} : { instance: refusal.instance }),
+      axis: refusal.axis,
+      value: refusal.value,
+      feasible: refusal.feasible,
+      reason: swap(refusal.reason),
+      fix: swap(refusal.fix),
+    });
   }
 
   /**
@@ -144,3 +180,11 @@ const MIRRORED: WeakMap<G.IBase, G.IBase> = new WeakMap();
 
 /** Each site's mirror image, kept while the site is held. */
 const SITES: WeakMap<M.ISite, M.ISite> = new WeakMap();
+
+/** A side's name and its mirror's. */
+const SWAP: Readonly<Record<string, string>> = {
+  left: "right",
+  right: "left",
+  Left: "Right",
+  Right: "Left",
+};

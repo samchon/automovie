@@ -191,6 +191,27 @@ export namespace HumanArmTrajectory {
     warm?: IState,
     stretches: boolean = false,
   ): ISolved {
+    // A problem solved in its mirror image refuses in the mirror's names,
+    // told here in the author's (`HumanArmTrajectoryMirror.refusal`).
+    const told: { flip: boolean } = { flip: false };
+    try {
+      return planned(read, times, course, warm, stretches, told);
+    } catch (error) {
+      if (told.flip && error instanceof HumanRefusal)
+        throw Mirror.refusal(error);
+      throw error;
+    }
+  }
+
+  /** `solve`'s work, which records in `told` whether it reads the mirror image. */
+  function planned(
+    read: (times: readonly number[]) => IProblem,
+    times: readonly number[],
+    course: IAdmitted | undefined,
+    warm: IState | undefined,
+    stretches: boolean,
+    told: { flip: boolean },
+  ): ISolved {
     // The frame grid over the span, the instants the played trajectory is
     // admitted at: the course's own where one was read. The knots are
     // instants of that grid, the nearest to the caller's, so a stretch
@@ -228,6 +249,7 @@ export namespace HumanArmTrajectory {
       of.map((g: number): number => grid[g]!);
     const first: IProblem = read(seconds(knots));
     const flip: boolean = Mirror.leftFirst(first);
+    told.flip = flip;
     const reading: (times: readonly number[]) => IProblem = flip
       ? (t: readonly number[]): IProblem => Mirror.mirrored(read(t))
       : read;
