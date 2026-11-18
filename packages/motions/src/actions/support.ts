@@ -28,6 +28,7 @@ import { prepareSupportInterval } from "./prepareSupportInterval";
 import { supportAssist } from "./supportAssist";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
+import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
 import { supportWindows } from "./supportWindows";
 
 /** Offset decay time of a cut from a support sequence into standing, seconds (provisional: no study of the transition was located). */
@@ -400,6 +401,8 @@ export namespace support {
       });
     });
     const duration: number = seconds;
+    const contacts: IAutoMovieMotionHumanActionPlan["contacts"] = supportWindows.of(context, keys, duration);
+    const follow: ReturnType<typeof prepareSupportHelperGrip> = prepareSupportHelperGrip(context, contacts, duration);
     const intervals: ReturnType<typeof prepareSupportInterval>[] = keys
       .slice(0, Math.max(1, keys.length - 1))
       .map(
@@ -418,7 +421,7 @@ export namespace support {
         name: k.name,
         share: k.seconds / duration,
       })),
-      contacts: supportWindows.of(context, keys, duration),
+      contacts,
       settle: (): void => {
         for (const interval of intervals) interval.settle();
       },
@@ -448,7 +451,8 @@ export namespace support {
         // and foot is fitted to where the keys hold it. Floor contacts rest
         // on their colliders; raised contacts keep their world height,
         // bounded by floor nonpenetration.
-        return intervals[k]!.write(w, resolution, projection);
+        const posed: IAutoMovieMotionHumanPosture = intervals[k]!.write(w, resolution, projection);
+        return follow?.(posed, s, _channels) ?? posed;
       },
     };
   }
