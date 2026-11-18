@@ -137,14 +137,8 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
     // holds what is required is found, the first candidate whose grasp
     // alone is no cheaper ends the search, with every candidate after it.
     // The choice is the one fitting every key of every candidate gives.
-    const candidates: {
-      turn: number;
-      tilt: number;
-      wrist: IAutoMovieMotionHumanHand.IWrist;
-      grasp: ReturnType<typeof fit>;
-      preference: number;
-      floor: number;
-    }[] = [];
+    const fittedCandidates: ICandidate[] = [];
+    const pending: IPlacement[] = [];
 
     // The candidates the caller can take, or every one when it can take none.
     // Each fitted candidate's goal is built immediately before its fit, so a
@@ -162,21 +156,38 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
           );
     for (const [turn, tilt] of taken.length === 0 ? pairs : taken) {
       const wrist: IAutoMovieMotionHumanHand.IWrist = goal(turn, tilt);
-      const grasp: IFitted = fit({ posture, wrist, bend }, undefined, !fixedPosture);
-      const preference: number = 0.01 * (Math.abs(turn) + Math.abs(tilt));
-      candidates.push({
-        turn,
-        tilt,
-        wrist,
-        grasp,
-        preference,
-        floor: grasp.miss + preference,
-      });
+      const placement: IPlacement = {
+        turn, tilt, wrist, preference: 0.01 * (Math.abs(turn) + Math.abs(tilt)),
+      };
+      // The ordinary public query fits immediately after its goal callback.
+      if (fixedPosture) pending.push(placement);
+      else fittedCandidates.push(candidate(placement));
     }
-    candidates.sort(
-      (a: { floor: number }, b: { floor: number }): number => a.floor - b.floor,
-    );
-    for (const { turn, tilt, wrist, grasp, preference, floor } of candidates) {
+    function candidate(placement: IPlacement): ICandidate {
+      const grasp: IFitted = fit({ posture, wrist: placement.wrist, bend }, undefined, !fixedPosture);
+      return { ...placement, grasp, floor: grasp.miss + placement.preference };
+    }
+    function* ordered(): Generator<ICandidate> {
+      if (pending.length > 0) {
+        const first: IPlacement = pending.reduce((a: IPlacement, b: IPlacement): IPlacement =>
+          a.preference <= b.preference ? a : b);
+        const grasp: ICandidate = candidate(first);
+        // Wrist and stroke misses are nonnegative. A strict gap proves
+        // this is the first item of the original stable grasp-floor sort.
+        const leads: boolean = pending.every((other: IPlacement): boolean =>
+          other === first || grasp.floor < other.preference);
+        if (leads) yield grasp;
+        for (const other of pending) {
+          if (other === first) {
+            if (!leads) fittedCandidates.push(grasp);
+          } else if (!held || other.preference < least)
+            fittedCandidates.push(candidate(other));
+        }
+      }
+      fittedCandidates.sort((a: ICandidate, b: ICandidate): number => a.floor - b.floor);
+      yield* fittedCandidates;
+    }
+    for (const { turn, tilt, wrist, grasp, preference, floor } of ordered()) {
       if (held && floor >= least) break;
       const reference: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
         grasp.pose,
@@ -236,6 +247,20 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
       best.pose = fit({ posture, wrist: best.wrist, bend }, undefined, true).pose;
     return best!;
   };
+}
+
+/** The wrist frame and the nonnegative angle cost before any arm fit. */
+interface IPlacement {
+  turn: number;
+  tilt: number;
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  preference: number;
+}
+
+/** A fitted placement whose grasp error bounds every subsequent stroke. */
+interface ICandidate extends IPlacement {
+  grasp: IFitted;
+  floor: number;
 }
 
 /** A query's stroke keys, built lazily from the asked and the displayed grasp wrists. */
