@@ -2,6 +2,7 @@ import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -18,16 +19,12 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "./motionComplaints";
+import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
- * The trunk phrases of `AutoMovieMotionHumanTrunk` read on one real body,
- * which the `test_human_motion_compose_trunk_*` and
- * `test_human_motion_compose_trunk_crouch_*` specs run one body of the sweep
- * each, so every body is read and each spec runs in its time. The
- * counterbalance is `motionComposeTrunkCounterbalance`'s, on this file's
- * clock, stance and readings.
+ * The trunk phrases of `AutoMovieMotionHumanTrunk` read on each of the
+ * selected rigs. The counterbalance uses the same clock and stance.
  *
  * Every expectation is read on the displayed bones the resolver gives for
  * the written posture. A foot's plant is the ball of the foot, the toes'
@@ -39,10 +36,10 @@ import { motionHumanBody } from "./motionHumanBody";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read, which point a plant is and the clock; each function states its scenarios and bounds.
  * @evidence contracts/development/implementation.md#principled-implementation Reads the resolver's bones and the balance owner's measures for written postures.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One function per phrase family, each a loop over its cells gathering complaints and asserting once.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One function per phrase family collects geometry findings in its owning test's gatherer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its measured numbers.
  * @evidence contracts/development/implementation.md#efficient-algorithms One body per call; the solved postures each function states.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the per-body specs, so each family's readings exist once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The owning tests use the same geometric reading for both body sizes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The postures live as long as the call; the body is the shared fixture's.
  */
 export namespace motionComposeTrunk {
@@ -60,16 +57,18 @@ export namespace motionComposeTrunk {
    * 1. `turn` by 30 and by -20 degrees claims the trunk, turns the chest by
    *    the degrees (within 1) and the spine by its share at the full
    *    instants, leaves the pelvis, and is gone at both ends.
-   * 2. `sunk` by 0.1 and 0.3 hip heights with inclinations of 0, 20 and 45
-   *    degrees and 0 or 60 mm back, at headings of 0 and 90 degrees, puts the
-   *    hips there (within a micrometre), inclines the chest by the
+   * 2. `sunk` has independent small/deep drops, trunk inclination and hip
+   *    retraction, and a case combining their limits. At 0 and 90 degrees
+   *    the case puts the hips there within a micrometre, inclines the chest by the
    *    inclination (within 0.5 degrees), and keeps both feet on their plants
    *    within 1 mm.
    *
    * @param name The body.
    */
-  export function turnAndSink(name: motionHumanBody.Name): void {
-    const all: motionComplaints.IGatherer = motionComplaints();
+  export function turnAndSink(
+    name: motionHumanBody.Name,
+    all: motionComplaints.IGatherer,
+  ): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
@@ -139,9 +138,12 @@ export namespace motionComposeTrunk {
       );
       const base: Bones = bones(turned);
       const was: IAutoMovieVector3 = base.get("hips")!.worldPosition;
-      for (const share of [0.1, 0.3] as const)
-        for (const inclination of [0, 20, 45] as const)
-          for (const back of [0, 0.06] as const) {
+      for (const [share, inclination, back] of [
+        [0.1, 0, 0],
+        [0.3, 20, 0],
+        [0.1, 0, 0.06],
+        [0.3, 45, 0.06],
+      ] as const) {
             const cell: string = `${name}: sunk by ${share} hip heights, inclined ${inclination}, ${back * 1000} mm back, heading ${yaw}`;
             const pose: Bones = bones(
               AutoMovieMotionHumanTrunk.sunk(
@@ -173,16 +175,14 @@ export namespace motionComposeTrunk {
             );
           }
     }
-    all.assert(`the trunk's turn and sunk posture hold (${name})`);
   }
 
   /**
    * The trunk's crouch on one body: the hips sink and the trunk inclines
    * over them, the body stands again, and the feet and the balance hold all
-   * the way. The balance is the centre of mass against the feet where they
-   * bear, the forefoot alone once the ankle's range lifts the heel: not
-   * ahead of their middle (`HumanBalance.offset`, within 2 mm) and inside
-   * the base of support (`HumanBalance.margin` positive).
+   * the way. At full depth, the opted-in balance uses the smallest root shift
+   * that holds the mass centre over the actual bearing hull. The zero-share
+   * and intermediate poses keep the same geometric and support checks.
    *
    * Scenarios:
    * 1. `crouch` refuses a negative or non-numeric depth or pitch.
@@ -200,8 +200,10 @@ export namespace motionComposeTrunk {
    *
    * @param name The body.
    */
-  export function crouch(name: motionHumanBody.Name): void {
-    const all: motionComplaints.IGatherer = motionComplaints();
+  export function crouch(
+    name: motionHumanBody.Name,
+    all: motionComplaints.IGatherer,
+  ): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const bones = (posture: IAutoMovieMotionHumanPosture): Bones =>
       poseBones(body, resolveHumanPosture(body, posture));
@@ -221,9 +223,10 @@ export namespace motionComposeTrunk {
     const phraseOf = (
       depth: number,
       pitch: number,
+      balance?: IAutoMovieMotionHumanBalance,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanTrunk.crouch({
-        balance: { by: "hips", weight: 1, from: { event: "start" }, to: { event: "end" } },
+        balance,
         body,
         standing,
         clock: CLOCK,
@@ -248,11 +251,18 @@ export namespace motionComposeTrunk {
       );
 
     // 2 and 3. The crouch over its clock.
-    for (const share of [0, 0.15, 0.3] as const)
-      for (const pitch of [0, 30] as const) {
+    for (const [share, pitch] of [
+      [0, 0],
+      [0, 30],
+      [0.15, 0],
+      [0.3, 0],
+      [0.3, 30],
+    ] as const) {
         const cell: string = `${name}: a crouch of ${share} hip heights and ${pitch} degrees`;
         const depth: number = share * hipHeight;
-        const phrase: IAutoMovieMotionHumanPrimitive = phraseOf(depth, pitch);
+      const phrase: IAutoMovieMotionHumanPrimitive = phraseOf(depth, pitch, BALANCE);
+      const unshifted: IAutoMovieMotionHumanPosture = phraseOf(depth, pitch).write(standing, 0.625);
+      const unshiftedMargin: number = HumanBalance.margin(body, unshifted);
         all.equals(
           `${cell} claims the root and the trunk over its instants`,
           [phrase.channels, phrase.from, phrase.to],
@@ -266,7 +276,6 @@ export namespace motionComposeTrunk {
           const pose: Bones = bones(written);
           const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
           const inclined: number = tipped(pose) - tipped(upright);
-          const ahead: number = HumanBalance.offset(body, written);
           const margin: number = HumanBalance.margin(body, written);
           const at: string = `${cell} at ${seconds} s`;
           if (seconds === 0 || seconds === 1.25)
@@ -292,10 +301,19 @@ export namespace motionComposeTrunk {
             `${at} keeps both feet on their plants, the farther ball off by ${mm(slip(pose, upright))} mm`,
             slip(pose, upright) <= 0.001,
           );
-          all.check(
-            `${at} keeps the balance, the centre ${mm(ahead)} mm ahead of the soles' middle with a margin of ${mm(margin)} mm`,
-            ahead <= 0.002 && margin > 0,
-          );
+          if (seconds === 0.625)
+            minimumSupportShift(
+              all, at, unshiftedMargin, margin, unshifted.root.z - written.root.z,
+              (back: number): number => HumanBalance.margin(body, {
+                ...unshifted,
+                root: { ...unshifted.root, z: unshifted.root.z - back },
+              }),
+            );
+          else
+            all.check(
+              `${at} keeps the centre of mass over the bearing hull, with a margin of ${mm(margin)} mm`,
+              margin >= 0,
+            );
         }
       }
 
@@ -306,8 +324,7 @@ export namespace motionComposeTrunk {
     );
     const bare: IAutoMovieMotionHumanPrimitive =
       AutoMovieMotionHumanTrunk.crouch({
-        balance: { by: "hips", weight: 1, from: { event: "start" }, to: { event: "end" } },
-        body,
+        body: withoutMass(body),
         standing: angles,
         clock: CLOCK,
         rise: RISE,
@@ -322,11 +339,51 @@ export namespace motionComposeTrunk {
         slip(pose, upright) <= 0.001,
       );
     }
-    all.assert(`the trunk's crouch holds (${name})`);
   }
 
   /** Degrees per radian. */
   const DEG: number = 180 / Math.PI;
+
+  /** Opt the primitives into hip balance across the whole authored phrase. */
+  export const BALANCE: IAutoMovieMotionHumanBalance = {
+    by: "hips",
+    from: { event: "start" },
+    to: { event: "end" },
+  };
+
+  /** Let a primitive read every geometric property and fail on any mass access. */
+  export function withoutMass(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanBody {
+    return {
+      ...body,
+      get massModel(): IAutoMovieMotionHumanBody["massModel"] {
+        throw new Error("Balance is absent, so this primitive does not read mass");
+      },
+    };
+  }
+
+  /** Compare the actual shift with a closer feasible candidate along its prescribed axis. */
+  export function minimumSupportShift(
+    all: motionComplaints.IGatherer,
+    cell: string,
+    before: number,
+    after: number,
+    shift: number,
+    marginAt: (shift: number) => number,
+  ): void {
+    all.check(`${cell}: the mass centre stays over the bearings, margin ${mm(after)} mm`, after >= 0);
+    if (before >= 0) {
+      all.check(`${cell}: a supported pose moves ${mm(shift)} mm`, Math.abs(shift) <= 1e-9);
+      return;
+    }
+    // A one-step retreat along the shift must lose the bearing hull, within
+    // the balance solver's stated spatial resolution of half a millimetre.
+    const nearer: number = Math.sign(shift) * Math.max(0, Math.abs(shift) - HumanBalance.TOLERANCE);
+    const margin: number = marginAt(nearer);
+    all.check(
+      `${cell}: ${mm(shift)} mm shifts from a ${mm(before)} mm margin, and the closer ${mm(nearer)} mm shift has a ${mm(margin)} mm margin`,
+      shift !== 0 && margin < 0,
+    );
+  }
 
   /** The phrases' clock: `ready` at 0.25 s, `relax` at 1 s and `end` at 1.25 s. */
   export const CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({

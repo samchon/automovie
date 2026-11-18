@@ -30,8 +30,21 @@ export function test_human_motion_signature_bend(): void {
     const trunk: Partial<Record<Strategy, number>> = {};
     for (const strategy of STRATEGIES) {
       const label: string = `${name} ${strategy}`;
-      const bend: M.IStaged = M.stage("bend", `strategy=${strategy}`, name);
-      const t: number = M.event(bend, "deepest")!;
+      let bend: M.IStaged;
+      try {
+        bend = M.stage("bend", `strategy=${strategy}`, name);
+      } catch (error) {
+        complaints.check(
+          `${label}: refused, ${error instanceof Error ? error.message : String(error)}`,
+          false,
+        );
+        continue;
+      }
+      const t: number | undefined = M.event(bend, "deepest");
+      if (t === undefined) {
+        complaints.check(`${label}: the deepest event is absent`, false);
+        continue;
+      }
       knees[strategy] = (M.knee(bend, t, "left") + M.knee(bend, t, "right")) / 2;
       trunk[strategy] = M.trunk(bend, t);
       complaints.check(
@@ -53,21 +66,30 @@ export function test_human_motion_signature_bend(): void {
         );
       }
     }
-    const stoop: number = knees.stoop!;
-    const intermediate: number = knees.semiSquat!;
-    const squat: number = knees.squat!;
-    complaints.check(
-      `${name} stoop: knees ${stoop.toFixed(1)}° and trunk ${trunk.stoop!.toFixed(1)}°, at most 30° and at least 45°`,
-      stoop <= 30 && trunk.stoop! >= 45,
-    );
-    complaints.check(
-      `${name} squat: knees ${squat.toFixed(1)}° and trunk ${trunk.squat!.toFixed(1)}°, at least 90° and below the stoop's trunk angle`,
-      squat >= 90 && trunk.squat! < trunk.stoop!,
-    );
-    complaints.check(
-      `${name} semi-squat: knees ${intermediate.toFixed(1)}° between ${stoop.toFixed(1)}° and ${squat.toFixed(1)}°`,
-      stoop < intermediate && intermediate < squat,
-    );
+    const stoop: number | undefined = knees.stoop;
+    const intermediate: number | undefined = knees.semiSquat;
+    const squat: number | undefined = knees.squat;
+    if (stoop !== undefined)
+      complaints.check(
+        `${name} stoop: knees ${stoop.toFixed(9)}° and trunk ${trunk.stoop!.toFixed(1)}°, at most 30° and at least 45°`,
+        stoop <= 30 && trunk.stoop! >= 45,
+      );
+    if (squat !== undefined)
+      complaints.check(
+        `${name} squat: knees ${squat.toFixed(9)}° and trunk ${trunk.squat!.toFixed(1)}°, knees at least 90°`,
+        squat >= 90,
+      );
+    if (stoop !== undefined && squat !== undefined) {
+      complaints.check(
+        `${name} squat trunk inclines ${trunk.squat!.toFixed(1)}°, less than the stoop's ${trunk.stoop!.toFixed(1)}°`,
+        trunk.squat! < trunk.stoop!,
+      );
+      if (intermediate !== undefined)
+        complaints.check(
+          `${name} semi-squat: knees ${intermediate.toFixed(1)}° between ${stoop.toFixed(1)}° and ${squat.toFixed(1)}°`,
+          stoop < intermediate && intermediate < squat,
+        );
+    }
     const upright: number = M.trunk(M.stage("stand", "default", name), 1);
     complaints.check(
       `${name} quiet stance inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,

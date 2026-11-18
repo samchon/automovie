@@ -16,8 +16,6 @@ import {
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
-
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -63,9 +61,11 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
-export function motionPickUpLowered(name: motionHumanBody.Name): void {
+export function motionPickUpLowered(
+  name: motionHumanBody.Name,
+  complaints: string[],
+): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const complaints: string[] = [];
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
@@ -288,10 +288,4 @@ export function motionPickUpLowered(name: motionHumanBody.Name): void {
     complaints.push(
       `${name}: the far glass: expected a reach refusal naming a step closer, got ${refused instanceof Error ? refused.message : String(refused)}`,
     );
-
-  TestValidator.equals(
-    `a prop beyond the standing arm is picked up by lowering the body (${name})`,
-    complaints,
-    [],
-  );
 }

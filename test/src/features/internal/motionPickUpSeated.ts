@@ -23,8 +23,6 @@ import {
   HumanVerdicts,
   seated,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
-
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -52,28 +50,26 @@ import { motionHumanBody } from "./motionHumanBody";
  * 5. A glass two arm lengths beyond the seated shoulder, past any lean, is
  *    refused as a `reach` refusal on `prop` that names standing up and
  *    stepping closer.
- * And, read apart (`verdicts`, the `test_human_motion_pick_up_seated_tangle_*`
- * specs), for the glass of 1:
+ * The same displayed film supplies the complete verdicts for the glass of 1:
  * 6. Over the pick up, the whole shipped verdicts read clean: no tangle, no
  *    foot sliding, lifting or sinking, no joint past its range, no jump.
  *
  * @param name The body.
- * @param which Scenarios 1 to 5 (`pick`) or scenario 6 (`verdicts`).
+ * @param complaints The owning test gathers the geometry and verdicts on both bodies here.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stage, the case it comes from and the 6 scenarios with their bounds.
  * @evidence contracts/development/implementation.md#principled-implementation The chain's own sit and pick up of a real glass archetype, read on the displayed glass, chest and soles and the plan's declared contacts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One seated pick up and one refused, one reading per scenario, gathered as complaints and asserted once.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The seated pick-up film supplies both the planned contact observations and the whole verdict before the far refusal case.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pick up that does not plan is a complaint with the refusal's words.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three short performances, a few readings.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Three short performances per body. Both original audit grids read the same admitted pick-up, with one origin at film start and one at the pick-up.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The admitted performance supplies the geometry and full verdicts that previously staged it twice.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function motionPickUpSeated(
   name: motionHumanBody.Name,
-  which: "pick" | "verdicts",
+  complaints: string[],
 ): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const complaints: string[] = [];
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
@@ -160,82 +156,80 @@ export function motionPickUpSeated(
       (pick.plan.events.find((e): boolean => e.name === "gripClosed")?.share ??
         Number.NaN) *
         pick.plan.duration;
-    if (which === "verdicts") {
-      // 6. The whole shipped verdicts over the pick up.
-      const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
-        film,
-        24,
-        {
-          from: pick.start,
-          to: pick.end,
-        },
+    // 6. The whole shipped verdicts over the pick up.
+    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+      film,
+      24,
+      {
+        from: pick.start,
+        to: pick.end,
+      },
+    );
+    if (!report.clean)
+      complaints.push(
+        `${name}: the shipped verdicts over the pick up: ${HumanVerdicts.describe(report)}`,
       );
-      if (!report.clean)
-        complaints.push(
-          `${name}: the shipped verdicts over the pick up: ${HumanVerdicts.describe(report)}`,
-        );
-    } else {
-      const lifted: number = film.prop("glass", pick.end).position.y - at.y;
-      if (!(lifted >= 0.05))
-        complaints.push(
-          `${name}: the glass ends ${(lifted * 1000).toFixed(0)} mm above where it stood, at least 50 expected`,
-        );
-      const forward: number =
-        HumanSignature.joint(reader, grasp, "chest").z - chest.z;
-      if (!(forward >= 0.05))
-        complaints.push(
-          `${name}: at the grasp the chest has gone ${(forward * 1000).toFixed(0)} mm forward, at least 50 expected`,
-        );
-      const sitting: IAutoMovieVector3 = seated.point(body, chair);
-      let drift: number = 0;
-      for (let i: number = 0; i <= 4; i++) {
-        const t: number = (pick.plan.duration * i) / 4;
-        drift = Math.max(
-          drift,
-          Vector3.length(
-            Vector3.subtract(
-              seated.socket(body, pick.plan.posture(t)),
-              sitting,
-            ),
+
+    const lifted: number = film.prop("glass", pick.end).position.y - at.y;
+    if (!(lifted >= 0.05))
+      complaints.push(
+        `${name}: the glass ends ${(lifted * 1000).toFixed(0)} mm above where it stood, at least 50 expected`,
+      );
+    const forward: number =
+      HumanSignature.joint(reader, grasp, "chest").z - chest.z;
+    if (!(forward >= 0.05))
+      complaints.push(
+        `${name}: at the grasp the chest has gone ${(forward * 1000).toFixed(0)} mm forward, at least 50 expected`,
+      );
+    const sitting: IAutoMovieVector3 = seated.point(body, chair);
+    let drift: number = 0;
+    for (let i: number = 0; i <= 4; i++) {
+      const t: number = (pick.plan.duration * i) / 4;
+      drift = Math.max(
+        drift,
+        Vector3.length(
+          Vector3.subtract(
+            seated.socket(body, pick.plan.posture(t)),
+            sitting,
           ),
-        );
-      }
-      if (!(drift <= 0.005))
-        complaints.push(
-          `${name}: the seat socket leaves the seat by ${(drift * 1000).toFixed(1)} mm during the pick up, within 5 mm expected`,
-        );
-      // The shipped audit's floor, slip and lift on the feet, its other
-      // checks left unread (`AutoMovieMotionHumanAudit.run`'s null limits).
-      const motion: IAutoMovieMotionHumanAuditMotion = {
-        duration: film.duration,
-        segments: (
-          subject: string,
-        ): ReturnType<IAutoMovieMotionHumanAuditMotion["segments"]> =>
-          film.segments(subject),
-        bones: (
-          subject: string,
-          seconds: number,
-        ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
-          film.bones(subject, seconds),
-      };
-      for (const finding of AutoMovieMotionHumanAudit.run(motion, "a", body, {
-        limits: {
-          tangle: null,
-          jump: null,
-          reversal: null,
-          speed: null,
-          balance: null,
-        },
-      }).findings.filter(
-        (f: IAutoMovieMotionHumanAudit.IFinding): boolean =>
-          f.seconds >= pick.start - 1e-6 &&
-          f.seconds <= pick.end + 1e-6 &&
-          /Foot|Toes/.test(f.where),
-      ))
-        complaints.push(
-          `${name}: ${finding.check} ${(finding.value * 1000).toFixed(1)} mm at ${finding.seconds.toFixed(2)} s (${finding.where}), within ${(finding.limit * 1000).toFixed(0)} mm expected`,
-        );
+        ),
+      );
     }
+    if (!(drift <= 0.005))
+      complaints.push(
+        `${name}: the seat socket leaves the seat by ${(drift * 1000).toFixed(1)} mm during the pick up, within 5 mm expected`,
+      );
+    // The shipped audit's floor, slip and lift on the feet, its other
+    // checks left unread (`AutoMovieMotionHumanAudit.run`'s null limits).
+    const motion: IAutoMovieMotionHumanAuditMotion = {
+      duration: film.duration,
+      segments: (
+        subject: string,
+      ): ReturnType<IAutoMovieMotionHumanAuditMotion["segments"]> =>
+        film.segments(subject),
+      bones: (
+        subject: string,
+        seconds: number,
+      ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
+        film.bones(subject, seconds),
+    };
+    for (const finding of AutoMovieMotionHumanAudit.run(motion, "a", body, {
+      limits: {
+        tangle: null,
+        jump: null,
+        reversal: null,
+        speed: null,
+        balance: null,
+      },
+    }).findings.filter(
+      (f: IAutoMovieMotionHumanAudit.IFinding): boolean =>
+        f.seconds >= pick.start - 1e-6 &&
+        f.seconds <= pick.end + 1e-6 &&
+        /Foot|Toes/.test(f.where),
+    ))
+      complaints.push(
+        `${name}: ${finding.check} ${(finding.value * 1000).toFixed(1)} mm at ${finding.seconds.toFixed(2)} s (${finding.where}), within ${(finding.limit * 1000).toFixed(0)} mm expected`,
+      );
   } catch (error) {
     complaints.push(
       `${name}: a glass just beyond the seated arm: expected to plan, got ${said(error)}`,
@@ -243,29 +237,21 @@ export function motionPickUpSeated(
   }
 
   // 5. Past any lean.
-  if (which === "pick") {
-    let thrown: unknown = null;
-    try {
-      perform(placed(2 * arm));
-    } catch (error) {
-      thrown = error;
-    }
-    if (
-      !(
-        thrown instanceof HumanRefusal &&
-        thrown.kind === "reach" &&
-        thrown.axis === "prop" &&
-        /stand/.test(thrown.fix ?? "")
-      )
-    )
-      complaints.push(
-        `${name}: a glass two arm lengths ahead: expected a reach refusal on prop that names standing, got ${said(thrown)}`,
-      );
+  let thrown: unknown = null;
+  try {
+    perform(placed(2 * arm));
+  } catch (error) {
+    thrown = error;
   }
-
-  TestValidator.equals(
-    `a seated person leans to pick up (${name})`,
-    complaints,
-    [],
-  );
+  if (
+    !(
+      thrown instanceof HumanRefusal &&
+      thrown.kind === "reach" &&
+      thrown.axis === "prop" &&
+      /stand/.test(thrown.fix ?? "")
+    )
+  )
+    complaints.push(
+      `${name}: a glass two arm lengths ahead: expected a reach refusal on prop that names standing, got ${said(thrown)}`,
+    );
 }

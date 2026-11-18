@@ -3,9 +3,8 @@ import type { motionHumanBody } from "./motionHumanBody";
 import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
- * The sit-to-stand signature of one body (the specs
- * `test_human_motion_signature_rise_<body>`), from a seat at the body's own
- * popliteal height.
+ * The sit-to-stand signature of one of the bodies in
+ * `test_human_motion_signature_rise`, from a seat at its popliteal height.
  *
  * - Flexion momentum: the trunk flexes forward before the buttocks leave the
  *   seat, to carry the centre of mass over the feet, peaking at about 30 to

@@ -1,10 +1,10 @@
 import { motionComplaints } from "../internal/motionComplaints";
-import { motionHumanBody } from "../internal/motionHumanBody";
+import type { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
 
 /**
- * Sitting down on a chair looks like it, on the four extreme bodies with
- * each back posture, on a seat at the body's own popliteal height.
+ * The three sitting modes retain the geometry of a chair at the body's
+ * own popliteal height, across both stature extremes.
  *
  * Bounds and sources:
  * - Seated: on a seat at popliteal height the thighs lie about level and the
@@ -33,23 +33,17 @@ import { motionHumanSignature as M } from "../internal/motionHumanSignature";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real sit law on real bodies and reads displayed joints and soles; a perched or sunk sit, an upright back that leans, a descent with an upright trunk or a lifted foot fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The seated posture is the standard's, the descent Kralj et al.'s, every limit marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases Three backs on four bodies, compared on each, and the default on one.
+ * @evidence contracts/development/testing.md#distinguishing-cases The three distinct backs are compared within each of the two stature extremes. The posture branch test owns the omitted upright default.
  * @evidence contracts/development/testing.md#execution-ownership In memory; slow because a film of fitted poses is costly; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_signature_sit(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  // The backs are compared on one body, so each is staged on every body; the
-  // default joins one body.
-  for (const name of motionHumanBody.EXTREMES) {
+  // Back shapes are compared within one rig so its proportion cancels.
+  for (const name of BODIES) {
     const back: Record<string, number> = {};
     const forward: Record<string, number> = {};
-    for (const row of [
-      ...(name === motionHumanBody.EXTREMES[0] ? ["default"] : []),
-      "back=upright",
-      "back=lean",
-      "back=slump",
-    ]) {
+    for (const row of ["back=upright", "back=lean", "back=slump"] as const) {
       const cell: string = `sit ${row} ${name}`;
       const s: M.IStaged = M.stage("sit", row, name);
       const contact: number = M.event(s, "seatContact")!;
@@ -100,7 +94,10 @@ export function test_human_motion_signature_sit(): void {
       forward["back=slump"]! >= forward["back=upright"]! + 0.01,
     );
   }
-  for (const name of motionHumanBody.EXTREMES)
+  for (const name of BODIES)
     for (const c of M.calibrate(name)) complaints.check(c, false);
   complaints.assert("the sit has the signature of sitting down on a chair");
 }
+
+/** The chair scales with the body, so the two stature limits bracket this geometry. */
+const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];

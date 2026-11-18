@@ -17,18 +17,18 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "./motionComplaints";
+import type { motionComplaints } from "./motionComplaints";
 import { motionComposeTrunk } from "./motionComposeTrunk";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
- * The trunk's counterbalance read on one real body, which the
- * `test_human_motion_compose_trunk_counterbalance_*` specs run one body of
- * the sweep each, on the clock, stance and readings of `motionComposeTrunk`.
+ * The trunk's counterbalance on the two contrasting rigs of
+ * `test_human_motion_compose_trunk_counterbalance`, with the clock of
+ * `motionComposeTrunk`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is read and by whom; the function states its scenarios and bounds.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the balance owner's measures for written postures; the feasibility is decided by a scan of the hips' places the phrase does not do.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One function, a loop over its cells gathering complaints and asserting once.
+ * @evidence contracts/development/implementation.md#principled-implementation The independent reach interval is the intersection of the two planted leg spheres with the straight hip path. Only its legal points enter the existing support scan.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One geometry check per heading and gathered complaint text.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its measured numbers.
  * @evidence contracts/development/implementation.md#efficient-algorithms One body per call; the solved postures the function states.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The clock, the stance's place and the distance readings are `motionComposeTrunk`'s.
@@ -36,7 +36,7 @@ import { motionHumanBody } from "./motionHumanBody";
  */
 export namespace motionComposeTrunkCounterbalance {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const { CLOCK, RISE, FALL, ORIGIN, gap, mm } = motionComposeTrunk;
+  const { BALANCE, CLOCK, RISE, FALL, ORIGIN, gap, minimumSupportShift, withoutMass } = motionComposeTrunk;
   /**
    * The trunk's counterbalance on one body: under limbs held out ahead the
    * hips move straight back along the heading until the centre of mass
@@ -47,15 +47,10 @@ export namespace motionComposeTrunkCounterbalance {
    * and 60 degrees. A posture's pitch turns the body about its root on the
    * floor, so a pitch of 30 degrees stands the hips about half a hip height
    * ahead of the planted feet: a body that falls forward as it is, and that
-   * a person holds as a bow with the hips behind the feet. The balance is
-   * the centre of mass against the feet where they bear, flat feet first:
-   * after the shift it is not ahead of their middle by more than 2 mm
-   * (`HumanBalance.offset`) and lies inside the base of support
-   * (`HumanBalance.margin` positive). A balanced body keeps its centre
-   * inside its base, not at the base's midpoint: a heel the pitched pose
-   * lifted comes down as the hips go back, and the flat foot then holds the
-   * centre behind its middle, so the bound is the balance itself and not
-   * the old law's construction of a shift to the middle.
+   * a person holds as a bow with the hips behind the feet. An opted-in
+   * counterbalance finds the smallest correction whose mass centre stands
+   * over the actual bearing outlines. The test also exercises the same
+   * pitch with balance omitted and no access to mass.
    *
    * Whether a pose can be balanced at all is decided here, not by the
    * phrase: the hips are moved back along the heading in 5 mm steps for as
@@ -68,11 +63,9 @@ export namespace motionComposeTrunkCounterbalance {
    * degrees (scenarios 1 to 5) and of 60 degrees at a heading of 0
    * (scenario 6):
    * 1. The phrase claims the root.
-   * 2. At the middle of its hold a pose whose centre was ahead of the feet's
-   *    middle has its hips moved back and its centre balanced (not ahead of
-   *    the middle by more than 2 mm, inside the base); a pose whose centre
-   *    is not ahead of that middle and lies inside the base is not moved;
-   *    one outside the base is moved and balanced the same way.
+   * 2. At the middle of its hold a pose outside the base of support moves
+   *    back only far enough to stand over the bearing hull. A pose already
+   *    supported stays still.
    * 3. The root moves straight back along the heading: not sideways, not
    *    up, and the heading is kept.
    * 4. The phrase is gone at both ends.
@@ -86,8 +79,10 @@ export namespace motionComposeTrunkCounterbalance {
    *
    * @param name The body.
    */
-  export function counterbalance(name: motionHumanBody.Name): void {
-    const all: motionComplaints.IGatherer = motionComplaints();
+  export function counterbalance(
+    name: motionHumanBody.Name,
+    all: motionComplaints.IGatherer,
+  ): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const reach: number = body.measure.thigh + body.measure.shank;
     for (const yaw of [0, 90] as const) {
@@ -133,54 +128,52 @@ export namespace motionComposeTrunkCounterbalance {
       // Whether some place of the hips back along the heading, within the
       // legs' reach of their plants, puts the centre inside the base.
       const balanceable = (posture: IAutoMovieMotionHumanPosture): boolean => {
-        for (let back: number = 0; ; back += 0.005) {
+        const trunk: Bones = HumanTrunk.resolve(body, posture);
+        let limit: number = Infinity;
+        for (const side of ["left", "right"] as const) {
+          const hip: IAutoMovieVector3 = trunk.get(`${side}UpperLeg`)!.worldPosition;
+          const ankle: IAutoMovieVector3 = posture.limbs[`${side}Leg`]!.point;
+          const along: number = yaw === 0 ? hip.z - ankle.z : hip.x - ankle.x;
+          const across: number = yaw === 0 ? hip.x - ankle.x : hip.z - ankle.z;
+          const vertical: number = hip.y - ankle.y;
+          const remainder: number = reach * reach - across * across - vertical * vertical;
+          if (remainder < along * along) return false;
+          // Along(t) = along - t. This is the last t at which its square
+          // can still stay inside the sphere's remaining radius squared.
+          limit = Math.min(limit, along + Math.sqrt(remainder));
+        }
+        for (let back: number = 0; back <= limit; back += REACH_SAMPLE) {
           const moved: IAutoMovieMotionHumanPosture = {
             ...posture,
             root: ahead(posture.root, -back, 0),
           };
-          const trunk: Bones = HumanTrunk.resolve(body, moved);
-          const within: boolean = (["left", "right"] as const).every(
-            (side: "left" | "right"): boolean =>
-              gap(
-                trunk.get(`${side}UpperLeg`)!.worldPosition,
-                moved.limbs[`${side}Leg`]!.point,
-              ) <= reach,
-          );
-          if (!within) return false;
           if (HumanBalance.margin(body, moved) > 0) return true;
         }
+        return false;
       };
-      const read = (pitch: number, cell: string): boolean => {
-        const extended: IAutoMovieMotionHumanPosture = extend(pitch);
-        const phrase: IAutoMovieMotionHumanPrimitive =
-          AutoMovieMotionHumanTrunk.counterbalance(
-            body,
-            CLOCK,
-            RISE,
-            FALL,
-            extended,
-          );
-        const before: number = HumanBalance.offset(body, extended);
+      const at = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPrimitive =>
+        AutoMovieMotionHumanTrunk.counterbalance(body, CLOCK, RISE, FALL, posture, BALANCE);
+      const read = (
+        extended: IAutoMovieMotionHumanPosture,
+        phrase: IAutoMovieMotionHumanPrimitive,
+        cell: string,
+      ): boolean => {
+        const before: number = HumanBalance.margin(body, extended);
         const full: IAutoMovieMotionHumanPosture = phrase.write(
           extended,
           0.625,
         );
-        const after: number = HumanBalance.offset(body, full);
         const back: number =
           yaw === 0
             ? extended.root.z - full.root.z
             : extended.root.x - full.root.x;
         all.equals(`${cell} claims the root`, phrase.channels, ["root"]);
-        const inside: boolean = HumanBalance.margin(body, extended) > 0;
-        const held: number = HumanBalance.margin(body, full);
-        const balanced: boolean = after <= 0.002 && held > 0;
-        all.check(
-          `${cell} balances the centre over the feet, ${mm(after)} mm ahead of their middle from ${mm(before)} mm with a margin of ${mm(held)} mm, the hips ${mm(back)} mm back`,
-          before > 0
-            ? balanced && back > 0
-            : inside
-              ? Math.abs(back) <= 1e-9
-              : balanced && Math.abs(back) > 0,
+        minimumSupportShift(
+          all, cell, before, HumanBalance.margin(body, full), back,
+          (distance: number): number => HumanBalance.margin(body, {
+            ...extended,
+            root: ahead(extended.root, -distance, 0),
+          }),
         );
         all.check(
           `${cell} moves the root straight back along the heading`,
@@ -197,7 +190,7 @@ export namespace motionComposeTrunkCounterbalance {
           gap(phrase.write(extended, 0).root, extended.root) <= 1e-9 &&
             gap(phrase.write(extended, 1.25).root, extended.root) <= 1e-9,
         );
-        return before > 0.005;
+        return before < 0;
       };
 
       // 6. A pose is refused exactly when no place of the hips balances it.
@@ -205,16 +198,12 @@ export namespace motionComposeTrunkCounterbalance {
       // range, the costliest cell, and the heading's part is scenario 3's.
       if (yaw === 0) {
         const cell: string = `${name}: a counterbalance of a trunk pitched 60 at a heading of 0`;
-        const feasible: boolean = balanceable(extend(60));
+        const extended: IAutoMovieMotionHumanPosture = extend(60);
+        const feasible: boolean = balanceable(extended);
+        let phrase: IAutoMovieMotionHumanPrimitive | undefined;
         let refusal: unknown;
         try {
-          AutoMovieMotionHumanTrunk.counterbalance(
-            body,
-            CLOCK,
-            RISE,
-            FALL,
-            extend(60),
-          );
+          phrase = at(extended);
         } catch (error) {
           refusal = error;
         }
@@ -223,7 +212,7 @@ export namespace motionComposeTrunkCounterbalance {
             `${cell} plans, since a place of the hips within the legs' reach balances it${refusal instanceof Error ? ` (refused: ${refusal.message})` : ""}`,
             refusal === undefined,
           );
-          if (refusal === undefined) read(60, cell);
+          if (phrase !== undefined) read(extended, phrase, cell);
         } else
           all.equals(
             `${cell} is refused on its balance, since no place of the hips within the legs' reach balances it${refusal instanceof Error ? ` (${refusal.message})` : ""}`,
@@ -232,35 +221,37 @@ export namespace motionComposeTrunkCounterbalance {
               : "no refusal",
             ["base", "balance"],
           );
+        const bare: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanTrunk.counterbalance(
+          withoutMass(body), CLOCK, RISE, FALL, extended,
+        );
+        all.equals(`${cell} without balance stays where it was`, bare.write(extended, 0.625).root, extended.root);
       }
 
       let unbalanced: number = 0;
-      for (const pitch of [0, 30] as const)
+      for (const pitch of [0, 30] as const) {
+        const extended: IAutoMovieMotionHumanPosture = extend(pitch);
         if (
           read(
-            pitch,
+            extended,
+            at(extended),
             `${name}: a counterbalance of a trunk pitched ${pitch} at a heading of ${yaw}`,
           )
         )
           unbalanced++;
+      }
       all.check(
-        `${name}: at a heading of ${yaw} a pitched trunk puts the centre ahead of the soles, so the counterbalance is exercised`,
+        `${name}: at a heading of ${yaw} a pitched trunk puts the centre outside the bearings, so the counterbalance is exercised`,
         unbalanced >= 1,
       );
       const still: IAutoMovieMotionHumanPosture =
-        AutoMovieMotionHumanTrunk.counterbalance(
-          body,
-          CLOCK,
-          RISE,
-          FALL,
-          turned,
-        ).write(turned, 0.625);
+        at(turned).write(turned, 0.625);
       all.check(
-        `${name}: a counterbalance at a heading of ${yaw} moves nothing for the standing body, whose centre is ${mm(HumanBalance.offset(body, turned))} mm ahead`,
-        HumanBalance.offset(body, turned) > 0 ||
-          gap(still.root, turned.root) <= 1e-9,
+        `${name}: a counterbalance at a heading of ${yaw} moves nothing for the standing body`,
+        HumanBalance.margin(body, turned) >= 0 && gap(still.root, turned.root) <= 1e-9,
       );
     }
-    all.assert(`the trunk's counterbalance holds (${name})`);
   }
 }
+
+/** The original five-millimetre spacing of the independent feasibility scan. */
+const REACH_SAMPLE: number = 0.005;

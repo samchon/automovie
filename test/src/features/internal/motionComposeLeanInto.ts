@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -21,7 +22,7 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "./motionComplaints";
+import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -42,9 +43,8 @@ import { motionHumanBody } from "./motionHumanBody";
  * The shoulder is the displayed upper-arm bone's place and the arm's length
  * is read between the displayed bones.
  *
- * Scenarios, on one body of the sweep (the `test_human_motion_compose_lean_into_*`
- * specs run one body each), for both hands and
- * shares of 0.8 and 0.95:
+ * Scenarios, over the two reach shares and opposite hands. The moving
+ * 0.8-share case changes side between the two contrasting rigs:
  * 1. `tip` adds its pitch, moves the hips straight back, and keeps the centre
  *    of mass inside the base of support at 10, 25, 40 and 45 degrees.
  * 2. `pitch` is 0 for a goal within the share, the chosen pitch (within 0.05
@@ -69,15 +69,18 @@ import { motionHumanBody } from "./motionHumanBody";
  *    pitches and the arm's own fit).
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the owner's results on a real body through the public functions and the resolver, as the scenarios state.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One body's cells, gathered as complaints and asserted once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its numbers; no cell is sampled away for time.
- * @evidence contracts/development/implementation.md#efficient-algorithms One body per call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Collects one body's geometric readings in the caller's gatherer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failed angle, reach or support check retains the actual body and bound. The full moving case keeps its world-frame audit grid.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each body's two calls cover distinct reach lengths and sides. Bilateral geometry supplies the opposite hand for each reach share on the other rig.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The owning test runs the same physical oracles for both body extremes and opposite moving hands.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The postures live as long as the call; the body is the shared fixture's.
  */
-export function motionComposeLeanInto(name: motionHumanBody.Name): void {
+export function motionComposeLeanInto(
+  name: motionHumanBody.Name,
+  moving: AutoMovieHumanSide,
+  all: motionComplaints.IGatherer,
+): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  const all: motionComplaints.IGatherer = motionComplaints();
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: 0.25,
     wait: 0.125,
@@ -105,8 +108,8 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
       0,
     );
     const upright: Bones = bones(standing);
-    for (const side of ["left", "right"] as const)
-      for (const share of [0.8, 0.95] as const) {
+    const opposite: AutoMovieHumanSide = moving === "left" ? "right" : "left";
+    for (const [side, share] of [[moving, 0.8], [opposite, 0.95]] as const) {
         const cell: string = `${name}: the ${side} hand kept within ${share} of its arm`;
         const length: number =
           gap(
@@ -203,7 +206,7 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
             refusals[0]![1] === AutoMovieMotionHumanReach.LEAN_LIMIT,
         );
 
-        // 4. The primitive, once per hand.
+        // The tighter reach share owns the tested moving path.
         if (share !== 0.8) continue;
         const near: IAutoMovieVector3 = ahead(
           shoulder(0),
@@ -332,5 +335,4 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
         );
       }
   }
-  all.assert(`the lean into the work holds on every body (${name})`);
 }

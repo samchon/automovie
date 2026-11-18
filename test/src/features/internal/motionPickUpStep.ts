@@ -18,8 +18,6 @@ import {
   HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
-import { TestValidator } from "@nestia/e2e";
-
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -54,9 +52,11 @@ import { motionHumanBody } from "./motionHumanBody";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
-export function motionPickUpStep(name: motionHumanBody.Name): void {
+export function motionPickUpStep(
+  name: motionHumanBody.Name,
+  complaints: string[],
+): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-  const complaints: string[] = [];
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "glass",
@@ -200,10 +200,4 @@ export function motionPickUpStep(name: motionHumanBody.Name): void {
     complaints.push(
       `${name}: a glass a metre beyond the arm: expected a reach refusal on prop that names stepping closer, got ${said(thrown)}`,
     );
-
-  TestValidator.equals(
-    `a standing pick up takes one adjustment step (${name})`,
-    complaints,
-    [],
-  );
 }

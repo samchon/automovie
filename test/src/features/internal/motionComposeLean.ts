@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
@@ -15,7 +16,8 @@ import {
   stand,
 } from "@automovie/motions";
 
-import { motionComplaints } from "./motionComplaints";
+import type { motionComplaints } from "./motionComplaints";
+import { motionComposeTrunk } from "./motionComposeTrunk";
 import { motionHumanBody } from "./motionHumanBody";
 
 /**
@@ -31,8 +33,7 @@ import { motionHumanBody } from "./motionHumanBody";
  * scales with the pitch's sine, so half the peak moves the hips back by
  * `sin(peak / 2) / sin(peak)` of the peak's shift.
  *
- * Scenarios, on one body of the sweep (the `test_human_motion_compose_lean_*`
- * specs run one body each):
+ * Scenarios, on one of the contrasting rigs of `test_human_motion_compose_lean`:
  * 1. `pivot` adds its pitch and its roll, keeps the hips bone in place, moves
  *    the head forward for a pitch and to the right for a roll, and two pivots
  *    are one pivot of their sum; `tilt` claims the trunk, adds its angles at
@@ -46,22 +47,23 @@ import { motionHumanBody } from "./motionHumanBody";
  *    hips until both planted feet stay on their goals, and keeps the limbs.
  * 4. `bow` refuses a peak that is not positive; for peaks of 15, 40 and 70
  *    degrees: at weight 0 it changes nothing; at weight 1 the trunk is
- *    pitched by the peak and the centre of mass is not ahead of the middle of
- *    the feet where they bear (within 2 mm), where the same pitch without the shift leaves
- *    it more than 20 mm ahead at 40 and 70 degrees; a peak whose pitch alone
- *    stays behind the middle moves the hips nowhere, and a shifted one is not
- *    drawn behind the middle either; at half the weight the pitch is half and
- *    the hips' shift is the ratio of sines; a weight outside [0, 1] is the
- *    nearer end.
+ *    pitched by the peak. An opted-in correction preserves the bearing hull
+ *    and uses no more shift than it needs, and omission keeps the hips where
+ *    they stand without reading mass. At half the motion's weight the pitch
+ *    halves and the hips' shift follows the ratio of sines. A motion weight
+ *    outside [0, 1] clamps to the nearer end.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reads the owner's results on a real body through the public functions and the resolver, as the scenarios state.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One body's cells, gathered as complaints and asserted once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failing cell is named with its body, its parameters and its numbers; no cell is sampled away for time.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Supplies one body's geometry findings to the test's shared gatherer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every failed angle, drift or balance check retains its body, parameters and observed values.
  * @evidence contracts/development/implementation.md#efficient-algorithms One body per call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The owning test shares these geometric readings across its body extremes.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The postures live as long as the call; the body is the shared fixture's.
  */
-export function motionComposeLean(name: motionHumanBody.Name): void {
+export function motionComposeLean(
+  name: motionHumanBody.Name,
+  all: motionComplaints.IGatherer,
+): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const near = (
     a: IAutoMovieVector3,
@@ -72,7 +74,6 @@ export function motionComposeLean(name: motionHumanBody.Name): void {
     Math.abs(a.y - b.y) <= e &&
     Math.abs(a.z - b.z) <= e;
   const sine = (degrees: number): number => Math.sin((degrees * Math.PI) / 180);
-  const all: motionComplaints.IGatherer = motionComplaints();
 
   {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
@@ -254,58 +255,57 @@ export function motionComposeLean(name: motionHumanBody.Name): void {
     // 4. A bow.
     const bow = (
       peak: number,
-      weight: number,
+      balance?: IAutoMovieMotionHumanBalance,
+      rig: IAutoMovieMotionHumanBody = body,
     ): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanLean.bow({
-        body,
+        body: rig,
         standing,
         peak,
         from: 0.5,
         to: 2,
-        weight: (): number => weight,
+        weight: (weight: number): number => weight,
+        balance,
       });
     all.refuses(`${name}: a bow of no pitch is refused`, (): void => {
-      bow(0, 1);
+      bow(0);
     });
     all.refuses(`${name}: a backward bow is refused`, (): void => {
-      bow(-10, 1);
+      bow(-10);
     });
+    const bareBow: IAutoMovieMotionHumanPrimitive = bow(
+      40,
+      undefined,
+      motionComposeTrunk.withoutMass(body),
+    );
     all.equals(
       `${name}: a bow claims the root and the trunk over its span`,
-      [bow(40, 1).channels, bow(40, 1).from, bow(40, 1).to],
+      [bareBow.channels, bareBow.from, bareBow.to],
       [["root", "trunk"], 0.5, 2],
     );
     const back = (posture: IAutoMovieMotionHumanPosture): number =>
       hips.z - at(posture, "hips").z;
+    const barePitch: IAutoMovieMotionHumanPosture = bareBow.write(standing, 1);
+    all.check(
+      `${name}: an unbalanced bow pitches without shifting the hips`,
+      barePitch.pitch === 40 && near(at(barePitch, "hips"), hips, 1e-9),
+    );
     for (const peak of [15, 40, 70] as const) {
-      const full: IAutoMovieMotionHumanPosture = bow(peak, 1).write(
-        standing,
-        1,
+      const phrase: IAutoMovieMotionHumanPrimitive = bow(peak, motionComposeTrunk.BALANCE);
+      const full: IAutoMovieMotionHumanPosture = phrase.write(standing, 1);
+      const half: IAutoMovieMotionHumanPosture = phrase.write(standing, 0.5);
+      const none: IAutoMovieMotionHumanPosture = phrase.write(standing, 0);
+      const shifted: number = back(full);
+      const margin = (shift: number): number => HumanBalance.margin(
+        body, AutoMovieMotionHumanLean.tip(body, standing, peak, shift),
       );
-      const half: IAutoMovieMotionHumanPosture = bow(peak, 0.5).write(
-        standing,
-        1,
-      );
-      const none: IAutoMovieMotionHumanPosture = bow(peak, 0).write(
-        standing,
-        1,
-      );
-      const bare: number = HumanBalance.offset(
-        body,
-        AutoMovieMotionHumanLean.tip(body, standing, peak, 0),
-      );
-      const held: number = HumanBalance.offset(body, full);
       all.check(
         `${name}: a bow of ${peak} at weight 0 changes nothing`,
         none.pitch === 0 && near(at(none, "hips"), hips, 1e-9),
       );
-      all.check(
-        `${name}: a bow of ${peak} holds the centre of mass over the soles, ${(held * 1000).toFixed(1)} mm ahead against ${(bare * 1000).toFixed(1)} mm without its shift`,
-        full.pitch === peak &&
-          held <= 0.002 &&
-          held <= bare + 1e-9 &&
-          (bare <= 0 ? Math.abs(held - bare) <= 1e-9 : held >= -0.002) &&
-          (peak === 15 || bare > 0.02),
+      all.check(`${name}: bow of ${peak} reaches its peak`, full.pitch === peak);
+      motionComposeTrunk.minimumSupportShift(
+        all, `${name}: bow of ${peak}`, margin(0), HumanBalance.margin(body, full), shifted, margin,
       );
       all.check(
         `${name}: half a bow of ${peak} moves the hips back by the ratio of sines, ${(back(half) * 1000).toFixed(1)} mm of ${(back(full) * 1000).toFixed(1)} mm`,
@@ -316,12 +316,11 @@ export function motionComposeLean(name: motionHumanBody.Name): void {
       all.check(
         `${name}: a bow of ${peak}'s weight outside [0, 1] is the nearer end`,
         near(
-          at(bow(peak, 2).write(standing, 1), "hips"),
+          at(phrase.write(standing, 2), "hips"),
           at(full, "hips"),
           1e-9,
-        ) && near(at(bow(peak, -1).write(standing, 1), "hips"), hips, 1e-9),
+        ) && near(at(phrase.write(standing, -1), "hips"), hips, 1e-9),
       );
     }
   }
-  all.assert(`the leans hold on every body (${name})`);
 }
