@@ -88,7 +88,7 @@ export namespace HumanPerformanceSchedule {
             HumanPerformanceRead.person(self, entry.subject);
           if (overlay) HumanPerformanceOverlays.finish(person, entry);
           if (entry.cut !== undefined)
-            HumanPerformanceContacts.cutCaptures(
+            HumanPerformanceContacts.cutHolds(
               person,
               entry.index,
               entry.end,

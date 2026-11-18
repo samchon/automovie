@@ -534,7 +534,7 @@ export namespace HumanPerformancePlace {
     if (!over && previous !== undefined && start < previous.end - 1e-9) {
       previous.end = start;
       self.clipped.set(previous.entry, start);
-      HumanPerformanceContacts.cutCaptures(person, previous.entry, start);
+      HumanPerformanceContacts.cutHolds(person, previous.entry, start);
     }
 
     // A law may refuse only once a posture is asked of it (a goal that turns
