@@ -72,6 +72,12 @@ export function test_motion_dynamics_balance_push(): void {
     }).node,
   });
   const segment = film.segments("a")[0]!;
+  const exit = film.prop("sled", segment.end);
+  TestValidator.predicate(
+    "sled advances two metres without leaving its starting height",
+    exit.position.z - sled.frame.position.z >= 2 &&
+      Math.abs(exit.position.y - sled.frame.position.y) <= 0.01,
+  );
   const from =
     segment.start +
     segment.plan.events.find((e) => e.name === "gripped")!.share *
@@ -97,6 +103,36 @@ export function test_motion_dynamics_balance_push(): void {
       "hand reaches its own handle",
       Vector3.distance(actual, handle) <= 0.015,
     );
+    const local = (time: number) => {
+      const hand = film.bones("a", time).get(`${side}Hand`)!,
+        prop = film.prop("sled", time);
+      const point = Vector3.add(
+        prop.position,
+        Quaternion.rotateVector(
+          prop.rotation,
+          sled.affordances!.find((a) => a.id === side)!.frame.translation,
+        ),
+      );
+      return Quaternion.rotateVector(
+        Quaternion.inverse(hand.worldRotation),
+        Vector3.subtract(point, hand.worldPosition),
+      );
+    };
+    for (const at of [t, (t + segment.end) / 2, segment.end]) {
+      TestValidator.predicate(
+        "handle stays within one millimetre in the hand frame",
+        Vector3.distance(local(t), local(at)) <= 0.001,
+      );
+      const posed = film.bones("a", at),
+        trunk = Vector3.subtract(
+          posed.get("neck")!.worldPosition,
+          posed.get("hips")!.worldPosition,
+        );
+      TestValidator.predicate(
+        "push inclines the trunk at least fifteen degrees",
+        (Math.acos(trunk.y / Vector3.length(trunk)) * 180) / Math.PI >= 15,
+      );
+    }
   }
   const centre = (seconds: number) =>
     resolveAutoMovieCenterOfMass.place(

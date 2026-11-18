@@ -1,10 +1,22 @@
-import { createBarbell } from "@automovie/archetypes";
+import {
+  createBarbell,
+  createBench,
+  createDumbbell,
+  createKettlebell,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSegment,
+} from "@automovie/interface";
 import {
   HumanChain,
   HumanHand,
   HumanObject,
   HumanPerformance,
+  HumanSportGym,
+  HumanSportSwing,
+  HumanSportWorkout,
   WorkoutLoad,
   poseBones,
   resolveHumanPosture,
@@ -42,6 +54,136 @@ export function test_motion_posture_equipment_kinematics(): void {
     proficiency: { level: "trained" as const },
   };
   const stand = HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }).node;
+  const event = (part: IAutoMovieMotionHumanSegment, key: string): number =>
+    part.start +
+    part.plan.events.find((e) => e.name === key)!.share * part.plan.duration;
+  const bench = createBench({});
+  const rotation = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -Math.PI / 2);
+  const benchAt = { x: 0, y: 0, z: -0.6 };
+  const edge = Vector3.add(
+    benchAt,
+    Quaternion.rotateVector(
+      rotation,
+      bench.affordance("edge").frame.translation,
+    ),
+  );
+  const hip = new HumanPerformance({
+    seed: "hip-thrust",
+    performers: [performer],
+    laws: [HumanSportGym.hipThrust],
+    props: [HumanObject.prop("bench", bench, { position: benchAt, rotation })],
+    composition: HumanChain.subject("a")
+      .stand({ seconds: 0.3 })
+      .registered("hipThrust", {
+        reps: 1,
+        on: { prop: "bench", affordance: "edge" },
+      }).node,
+  });
+  const lift = hip.segments("a")[1]!,
+    bottom = event(lift, "down1"),
+    top = event(lift, "lockout1");
+  const stature = body.measure.stature;
+  for (const t of [bottom, top]) {
+    const bones = hip.bones("a", t),
+      chest = bones.get("chest")!.worldPosition;
+    TestValidator.predicate(
+      "bench supports the thorax at both extremes",
+      chest.y >= edge.y &&
+        chest.y - edge.y <= 0.2 * stature &&
+        Math.hypot(chest.x - edge.x, chest.z - edge.z) <= 0.15,
+    );
+    for (const side of ["left", "right"] as const) {
+      const ankle = bones.get(`${side}Foot`)!.worldPosition;
+      TestValidator.predicate(
+        "bench lift leaves each ankle grounded",
+        Math.abs(
+          ankle.y - hip.bones("a", 0.1).get(`${side}Foot`)!.worldPosition.y,
+        ) <= 0.01,
+      );
+      if (t === top) {
+        const shank = Vector3.subtract(
+          bones.get(`${side}LowerLeg`)!.worldPosition,
+          ankle,
+        );
+        TestValidator.predicate(
+          "shank within ten degrees of vertical",
+          (Math.acos(shank.y / Vector3.length(shank)) * 180) / Math.PI <= 10,
+        );
+      }
+    }
+  }
+  const midHip = (t: number) => {
+    const joints = hip.bones("a", t);
+    return (
+      (joints.get("leftUpperLeg")!.worldPosition.y +
+        joints.get("rightUpperLeg")!.worldPosition.y) /
+      2
+    );
+  };
+  TestValidator.predicate(
+    "bench hip travel exceeds eight percent of stature",
+    midHip(top) - midHip(bottom) > 0.08 * stature,
+  );
+  for (const [model, name, low, high, rise] of [
+    [createDumbbell({ mass: 8 }), "curl", "down1", "top1", 0.15],
+    [
+      createKettlebell({ mass: 16 }),
+      "kettlebellSwing",
+      "back1",
+      "float1",
+      0.25,
+    ],
+  ] as const) {
+    const mark = model.affordance("grip").frame.translation;
+    const run: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+      seed: "loaded",
+      performers: [performer],
+      laws: [HumanSportGym.curl, HumanSportWorkout.kettlebellSwing],
+      props: [
+        HumanObject.prop("bell", model, {
+          position: {
+            x: -0.12 * stature,
+            y: 0.56 * stature - mark.y,
+            z: 0.12 * stature,
+          },
+          rotation: Quaternion.identity(),
+        }),
+      ],
+      composition: HumanChain.subject("a")
+        .stand({ seconds: 0.3 })
+        .pickUp({ prop: "bell", handle: "grip" })
+        .registered(name, { reps: 1, load: { prop: "bell" } }).node,
+    });
+    const phase = run.segments("a").at(-1)!,
+      a = event(phase, low),
+      b = event(phase, high);
+    for (const t of [a, b]) {
+      const pose = run.prop("bell", t);
+      TestValidator.predicate(
+        "wrist tracks the declared grip",
+        Vector3.distance(
+          run.bones("a", t).get("rightHand")!.worldPosition,
+          Vector3.add(
+            pose.position,
+            Quaternion.rotateVector(pose.rotation, mark),
+          ),
+        ) <= 0.12,
+      );
+    }
+    TestValidator.predicate(
+      "weight rises by the authored exercise range",
+      run.prop("bell", b).position.y - run.prop("bell", a).position.y >
+        rise * stature,
+    );
+  }
+  const swings = Object.values(HumanSportSwing).filter(
+    (row) => typeof row === "object" && row !== null && "plan" in row,
+  );
+  TestValidator.predicate(
+    "sport swings have distinct registered laws",
+    swings.length > 0 &&
+      new Set(swings.map((r) => r.name)).size === swings.length,
+  );
   const standing = new HumanPerformance({
     seed: "loaded",
     performers: [performer],
