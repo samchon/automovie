@@ -66,7 +66,6 @@ export namespace SharedStage {
     const entry: IEntry = { view, visible: false, dirty: true };
     entries.set(view.canvas, entry);
     watch().observe(view.canvas);
-    loop();
     return {
       release: (): void => {
         observer?.unobserve(view.canvas);
@@ -137,10 +136,12 @@ export namespace SharedStage {
           );
           if (entry === undefined) continue;
           entry.visible = record.isIntersecting;
-          if (entry.visible) entry.dirty = true;
+          if (entry.visible) {
+            entry.dirty = true;
+            loop();
+          }
         }
       },
-      { rootMargin: "64px" },
     );
     return observer;
   }
@@ -161,16 +162,19 @@ export namespace SharedStage {
   function loop(): void {
     if (frame !== null) return;
     const step: (now: number) => void = (now: number): void => {
-      frame = requestAnimationFrame(step);
+      frame = null;
+      let visible: boolean = false;
       for (const entry of entries.values()) {
         // A view out of the window is neither posed nor drawn; its clock is
         // read again when it comes back.
         if (!entry.visible) continue;
+        visible = true;
         const changed: boolean = entry.view.tick(now);
         if (!(changed || entry.dirty)) continue;
         draw(entry.view);
         entry.dirty = false;
       }
+      if (visible) frame = requestAnimationFrame(step);
     };
     frame = requestAnimationFrame(step);
   }

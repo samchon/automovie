@@ -15,6 +15,7 @@ import { loadGalleryCard } from "../../gallery/loadGalleryCard";
 import type { IGalleryCard } from "../../gallery/structures/IGalleryCard";
 import type { IGalleryCatalogue } from "../../gallery/structures/IGalleryCatalogue";
 import { SharedStage } from "../../stage/SharedStage";
+import { REDUCED_MOTION } from "../scenes/prefersReducedMotion";
 
 /**
  * One archetype in the object gallery: the model drawn on the page's shared
@@ -38,6 +39,7 @@ export function ObjectCard(props: {
     useState<boolean>(false);
 
   useEffect((): (() => void) => {
+    const preference: MediaQueryList = window.matchMedia(REDUCED_MOTION);
     let alive: boolean = true;
     let release: (() => void) | null = null;
     setFailed(false);
@@ -67,7 +69,7 @@ export function ObjectCard(props: {
           tick: (now: number): boolean => {
             const delta: number = last === null ? 0 : now - last;
             last = now;
-            if (!hovered.current) return false;
+            if (!hovered.current || preference.matches) return false;
             heading += delta * 0.0012;
             card.turn(heading);
             return true;
