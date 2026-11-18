@@ -1,11 +1,10 @@
-import { Vector3, minimumJerk, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
-  IAutoMovieResolvedBone,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -25,7 +24,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { prepareBendGoal } from "./prepareBendGoal";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
@@ -34,6 +33,7 @@ import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanBalance } from "./HumanBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -42,10 +42,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 import { bendLower } from "./bendLower";
+import { prepareBendSquat } from "./prepareBendSquat";
+import { bendFloorHand } from "./bendFloorHand";
+import { bendReleasedFingers } from "./bendReleasedFingers";
 import { braceOnThigh } from "./braceOnThigh";
-
-/** Wrist placement on a surface carried by the lowered posture. */
-type AutoMovieBendGoal = (posture: IAutoMovieMotionHumanPosture, source?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieHumanLimbGoal;
 
 /** The offset-corrected wrist point for a strategy. */
 type AutoMovieBendWrist = bendLower.WristAt;
@@ -205,44 +205,14 @@ export namespace bend {
       : 0;
     const region: IAutoMovieHumanoidSurfaces.IFrame | undefined = context.params.toward.kind === "self"
       ? body.surfaces.regions[context.params.toward.region] : undefined;
-    const shoulder: AutoMovieHumanoidBone = `${side}UpperArm`;
-    const regionBones: ReadonlySet<AutoMovieHumanoidBone> =
-      new Set<AutoMovieHumanoidBone>(region === undefined ? [] : [region.bone, shoulder]);
-    const readRegion: ReturnType<typeof poseBones.prepare> | undefined =
-      region === undefined ? undefined : poseBones.prepare(body, regionBones);
-    const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, side, "palm", "flat");
-    const goal: AutoMovieBendGoal = (
-      posture: IAutoMovieMotionHumanPosture,
-      source?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): IAutoMovieHumanLimbGoal => {
-      let point: IAutoMovieVector3 = target;
-      let normal: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-      let forward: IAutoMovieVector3 = HumanFrame.forward(posture.yaw);
-      if (region !== undefined && readRegion !== undefined) {
-        const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
-        const resolved: ReturnType<typeof resolveHumanPosture.seeded> =
-          resolveHumanPosture.seeded(body, posture, undefined, {}, read, regionBones, projection);
-        const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = readRegion(resolved.pose, read());
-        const skin: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
-          resolveAutoMovieHumanoidSurfaces.place(region, bones.get(region.bone)!);
-        point = skin.point;
-        normal = Vector3.scale(skin.normal, -1);
-        // The palm meets a carried surface from the shoulder's side. Its
-        // in-plane finger direction follows the reach across that surface.
-        const approach: IAutoMovieVector3 = Vector3.subtract(point, bones.get(shoulder)!.worldPosition);
-        const tangent: IAutoMovieVector3 = Vector3.addScaled(approach, normal, -Vector3.dot(approach, normal));
-        if (Vector3.dot(tangent, tangent) > 0) forward = tangent;
-      }
-      const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, posture, side, REACH_OUT);
-      return AutoMovieMotionHumanArm.goal(body, side, {
-        surface: "palm", shape: "flat", offset: palm.point, point,
-        rotation: HumanHand.align(palm, { normal, forward }),
-        bend,
-      });
-    };
-    const wristAt: AutoMovieBendWrist | undefined = region === undefined ? undefined :
-      (lowered: IAutoMovieMotionHumanPosture, read: ReturnType<typeof prepareHumanPoseResolution>): IAutoMovieVector3 => goal(lowered, read).point;
+    const floorContact: boolean = region === undefined && probe.contacts.some(
+      ({ support }): boolean => support.kind === "ground" && target.y === (support.height ?? 0),
+    );
+    const goal: ReturnType<typeof prepareBendGoal> = prepareBendGoal(body, side, target, region, REACH_OUT);
+    const fixedWrist: IAutoMovieVector3 | undefined = region === undefined ? goal(upright).point : undefined;
+    const wristAt: AutoMovieBendWrist = fixedWrist === undefined
+      ? (lowered: IAutoMovieMotionHumanPosture, read: ReturnType<typeof prepareHumanPoseResolution>): IAutoMovieVector3 => goal(lowered, read).point
+      : () => fixedWrist;
     // The time of a movement that stops on a target, for the hand's travel
     // (`AutoMovieMotionHumanTiming.aimed`), scaled by skill.
     const hand: IAutoMovieVector3 = HumanHand.frame(
@@ -278,18 +248,23 @@ export namespace bend {
       { ...context, params: { seconds: 2 * down } },
       side,
     );
+    const atContact: IAutoMovieMotionHumanPosture = standing.posture(down);
     const { strategy, lean, pitch }: IAutoMovieMotionHumanBendLower.ISolved = bend.lowering(
       body,
-      standing.posture(down),
+      atContact,
       target,
       side,
       requested,
-      wristReach,
+      wristReach ?? bendLower.REACH * (body.measure.upperArm + body.measure.forearm),
       undefined,
       wristAt,
       lateralTilt,
     );
 
+    const squat = strategy === "stoop" || fixedWrist === undefined ? undefined : prepareBendSquat(
+      body, atContact, bendLower.lower(body, atContact, strategy, pitch, 1, lean * Math.sin(pitch * Math.PI / 180)),
+      strategy, side, fixedWrist,
+    );
     const base: IAutoMovieMotionHumanActionPlan = window === null ? standing : {
       ...standing,
       duration: moving,
@@ -328,12 +303,15 @@ export namespace bend {
         let lowered: IAutoMovieMotionHumanPosture = bendLower.lower(
           body, standing, strategy, angle, s, back, resolution, lateralTilt,
         );
+        if (squat !== undefined) lowered = squat(lowered, s, standing);
         const weight: number = HumanPhysics.weightAt(window, seconds);
         if (weight > 0) {
           const support: IAutoMovieMotionHumanBalance.ISupport = HumanBalance.support(body, lowered, resolution);
           const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(support, HumanFrame.forward(lowered.yaw));
           if (shift !== null && shift !== 0)
-            lowered = bendLower.lower(body, standing, strategy, angle, s, back - weight * shift, resolution, lateralTilt);
+            lowered = squat === undefined
+              ? bendLower.lower(body, standing, strategy, angle, s, back - weight * shift, resolution, lateralTilt)
+              : resolveHumanPosture.lower(body, { ...lowered, root: Vector3.addScaled(lowered.root, HumanFrame.forward(lowered.yaw), weight * shift) }, undefined, resolution);
         }
         return HumanGaze.aim(body, lowered, target, "head", { eyes: s, head: s, trunk: 0 });
       },
@@ -344,6 +322,9 @@ export namespace bend {
     const arms: IAutoMovieMotionHumanArmPlanned.ITogether = AutoMovieMotionHumanArm.together();
     const lateral: number = HumanFrame.local({ origin: upright.root, yaw: upright.yaw }, target).x;
     const apart: boolean = side === "left" ? lateral > 0 : lateral < 0;
+    const lowerLegs: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftLowerLeg", "rightLowerLeg"]);
+    const readShins: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, lowerLegs);
+    const placeShins: ReturnType<typeof HumanColliders.preparePlaced> = HumanColliders.preparePlaced(body, lowerLegs);
     const reach: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
       body,
       side,
@@ -357,26 +338,39 @@ export namespace bend {
       goal: (posture: IAutoMovieMotionHumanPosture, _seconds: number,
         source?: Parameters<typeof prepareHumanPoseResolution>[0],
         projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieHumanLimbGoal =>
-        goal(posture, source, projection),
+        {
+          const site: IAutoMovieHumanLimbGoal = goal(posture, source, projection);
+          if (strategy === "stoop") return site;
+          const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+          const frame: ReturnType<typeof resolveHumanPosture.seeded> =
+            resolveHumanPosture.seeded(body, posture, undefined, {}, read, lowerLegs, projection);
+          return { ...site, clear: placeShins(readShins(frame.pose, read())) };
+        },
     });
     const brace: IAutoMovieMotionHumanPrimitive = braceOnThigh(
       body, free, AutoMovieMotionHumanArm.angles(context.entry.pose, free),
-      moving, share, armSpan, arms, apart,
+      moving, share, armSpan, arms, apart, squat === undefined ? undefined : { x: 0, y: 1, z: 0 },
     );
     const fingers: (hand: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive =
       (hand: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
-        AutoMovieMotionHumanHand.shape({ side: hand, shape: "flat", from: 0, to: moving, weight: share });
+        hand !== side || !floorContact
+          ? AutoMovieMotionHumanHand.shape({side:hand, shape:"flat",from:0,to:moving,weight:share})
+          : bendFloorHand(body, upright, hand, moving, share);
     const travel: IAutoMovieMotionClock = AutoMovieMotionClock.of(moving, [
       { name: "contact", seconds: down },
       { name: "deepest", seconds: down },
       { name: "upright", seconds: moving },
     ]);
-    const course: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const armCourse: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base,
       clock: travel,
       contact: "contact",
       primitives: [sink, reach, brace, fingers(side), fingers(free)],
     });
+    const course: IAutoMovieMotionHumanActionPlan = floorContact ? composeAutoMovieMotionHumanAction({
+      base: armCourse, clock: travel, contact: "contact",
+      primitives: [bendReleasedFingers(body,side,moving,share,target.y,D)],
+    }) : armCourse;
     // A point-only wrist fit may turn its palm away when the wrist's
     // preferred rotation is beyond range. A thigh can bear this motion
     // only on the palm and between the ends of the femur.

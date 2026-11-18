@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -51,12 +52,13 @@ export function braceOnThigh(
   span?: IAutoMovieMotionHumanArmPlanned.ISpan,
   group?: IAutoMovieMotionHumanArmPlanned.ITogether,
   apart: boolean = true,
+  supporting?: IAutoMovieVector3,
 ): IAutoMovieMotionHumanPrimitive {
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
     `${side}UpperLeg`, `${side}LowerLeg`, `${side}UpperArm`,
   ]);
   const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
-  const site: ReturnType<typeof braceOnThighPoint> = braceOnThighPoint(body, side);
+  const site: ReturnType<typeof braceOnThighPoint> = braceOnThighPoint(body, side, supporting);
   const palm: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal> = AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, side, "palm", "flat");
   return AutoMovieMotionHumanArm.carried({
     body,

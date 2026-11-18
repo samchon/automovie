@@ -141,11 +141,19 @@ export namespace bendLower {
     if (share <= 0 && pitch === 0 && back === 0) return posture;
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const drop: number = (1 - hipShare(body, strategy)) * body.measure.hipHeight * share;
+    // The same two links that set the hip height also set its sagittal
+    // position over the planted ankle. Without the horizontal component
+    // a squat asks its shank to tip farther forward than its ankle allows.
+    const knee: number = KNEE[strategy];
+    const shank: number = Math.min(knee / 2, ANKLE + HEEL[strategy]) * Math.PI / 180;
+    const retreat: number = strategy === "stoop" ? 0 :
+      body.measure.thigh * Math.sin(knee * Math.PI / 180 - shank) -
+      body.measure.shank * Math.sin(shank);
     const frame: IAutoMovieMotionHumanFrame = { origin: posture.root, yaw: posture.yaw };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y - drop,
-      z: hips.z - back,
+      z: hips.z - back - share * retreat,
     });
     const level: IAutoMovieVector3 = Vector3.subtract(
       goal,

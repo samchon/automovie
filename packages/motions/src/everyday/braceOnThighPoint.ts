@@ -55,6 +55,7 @@ type IRead = (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>)
 export function braceOnThighPoint(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
+  supporting?: IAutoMovieVector3,
 ): IRead {
   const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["thighFrontLeft"] =
     body.surfaces.regions[side === "left" ? "thighFrontLeft" : "thighFrontRight"];
@@ -96,7 +97,10 @@ export function braceOnThighPoint(
     // The arm approaches on the shoulder's side of the front surface.
     // Project its lateral line onto the thigh cross-section so the
     // forearm can descend alongside the hip on an upright kneeling thigh.
-    const normal: IAutoMovieVector3 = Vector3.normalize(Vector3.addScaled(
+    const bearing = supporting === undefined ? undefined :
+      Vector3.addScaled(supporting, axis, -Vector3.dot(supporting, axis));
+    const normal: IAutoMovieVector3 = bearing !== undefined && Vector3.dot(bearing, bearing) > 0
+      ? Vector3.normalize(bearing) : Vector3.normalize(Vector3.addScaled(
       Vector3.scale(anterior, Math.abs(Vector3.dot(radial, anterior))),
       lateral, Vector3.dot(Vector3.subtract(shoulder, knee), lateral),
     ));
