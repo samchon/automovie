@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -201,6 +202,33 @@ export function test_human_motion_core_overlay_hold(): void {
               return `${(joint?.flexion ?? 0).toFixed(1)}/${(joint?.abduction ?? 0).toFixed(1)}/${(joint?.twist ?? 0).toFixed(1)}`;
             })
             .join(" ");
+        // The right upper arm as the action that owns it writes it before
+        // display: the overlay running at that second, or else the carrier,
+        // so a row says whether the step was written or made on display.
+        const writes = (
+          seconds: number,
+          of: IAutoMovieMotionHumanPerformance = film,
+        ): string => {
+          const over: IAutoMovieMotionHumanSegment.IOverlay | undefined = of
+            .overlays("a")
+            .find(
+              (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
+                o.start <= seconds && seconds <= o.end,
+            );
+          const written: IAutoMovieMotionHumanPosture =
+            over === undefined
+              ? of.posture("a", seconds)
+              : over.plan.posture(
+                  Math.min(over.plan.duration, seconds - over.start),
+                );
+          const upper: readonly number[] | undefined =
+            written.joints.rightUpperArm;
+          return `[${over === undefined ? "carrier" : "overlay"} ${
+            written.limbs.rightArm !== undefined
+              ? "a goal"
+              : `joints ${upper === undefined ? "none" : upper.map((v: number): string => v.toFixed(1)).join("/")}`
+          }]`;
+        };
         // The same reading on two films that each leave one thing out, so a
         // failing row says which part the step belongs to: the walk with
         // the held glass and no drink, and the drink over standing still.
@@ -225,16 +253,7 @@ export function test_human_motion_core_overlay_hold(): void {
             .join(" ")}, and as its action writes it before display ${[
             -1, 0, 1, 2,
           ]
-            .map((k: number): string => {
-              const written: IAutoMovieMotionHumanPosture = other.posture(
-                "a",
-                read.seconds + k / 120,
-              );
-              const upper = written.joints.rightUpperArm;
-              return written.limbs.rightArm !== undefined
-                ? "[a goal]"
-                : `[joints ${upper === undefined ? "none" : upper.map((v: number): string => v.toFixed(1)).join("/")}]`;
-            })
+            .map((k: number): string => writes(read.seconds + k / 120, other))
             .join(" ")}`;
         };
         const parts = (): string => {
@@ -268,6 +287,8 @@ export function test_human_motion_core_overlay_hold(): void {
             -2, -1, 0, 1, 2,
           ]
             .map((k: number): string => `[${arm(jump.seconds + k / 120)}]`)
+            .join(" ")}, as its owner writes it ${[-2, -1, 0, 1, 2]
+            .map((k: number): string => writes(jump.seconds + k / 120))
             .join(" ")}${parts()}`,
         );
       }

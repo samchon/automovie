@@ -74,8 +74,9 @@ export namespace HumanSegmentOverlay {
    *
    * A contact is resolved after fading, using its complete original goal
    * where present. A planned joint path supplies its displayed end frame
-   * and middle joint instead. Contacting fingers keep their planned shape
-   * until the window closes. The goals travel to the final transition
+   * and middle joint instead while its overlay fades; at full weight the
+   * path is displayed on its own joints and is not fitted again.
+   * Contacting fingers keep their planned shape until the window closes. The goals travel to the final transition
    * resolver too, so a later offset or clamp cannot move the contact.
    * Every branch reads one overlay's raw posture and fade weight at the
    * same local second, so each is evaluated once per call. Branches still
@@ -251,6 +252,7 @@ export namespace HumanSegmentOverlay {
           over.pose,
           seconds,
           person,
+          weight,
           resolution,
         ),
         ...over.contacts,
@@ -379,12 +381,16 @@ export namespace HumanSegmentOverlay {
 
   /**
    * The active limb contacts of one overlay, before fading moves them.
-   * A joint-only path contributes its complete displayed limb frame; an
-   * authored goal keeps every member, including its attached frame and
-   * contact pivot. The root turn is applied only to world goals.
+   * A joint-only path contributes its complete displayed limb frame while
+   * the overlay fades, the frame the fade's blend leaves; at full weight its
+   * limb is displayed on its plan's joints, already at that frame, so it
+   * contributes none: refitting a limb to its own frame can only move it,
+   * since the fit is free to settle on another swivel or chart. An authored
+   * goal keeps every member, including its attached frame and contact pivot.
+   * The root turn is applied only to world goals.
    *
-   * States both representations and the coordinate convention.
-   * Retains a contact constraint over its declared time window; without an explicit goal, its already planned rigid end frame and bend define the same limb constraint.
+   * States both representations, when a joint-only path's frame is a goal, and the coordinate convention.
+   * Retains a contact constraint over its declared time window; without an explicit goal, its already planned rigid end frame and bend define the same limb constraint while the overlay fades.
    * One scan of the contact windows and one fresh, lazily posed bone map; the enclosing evaluation may lend the same exact FK reader to leaf, carried-frame and contact fits.
    * Copies an authored goal intact rather than replacing its contact pivot or attachment with a wrist point. Without a whole-body rotation, the turn owner returns the same limbs unchanged, so no unused root heading is constructed here; a rotation still runs its complete plant refusal and turning policy.
    * Linear in the plan's contact windows; poses the bones only for a joint-only contact.
@@ -397,6 +403,7 @@ export namespace HumanSegmentOverlay {
     over: IAutoMoviePose,
     seconds: number,
     person: IAutoMovieMotionHumanSegment.IPerson,
+    weight: number,
     resolution?: () => ReturnType<typeof preparePoseResolution>,
   ): IAutoMovieMotionHumanPosture["limbs"] {
     const share: number = (seconds - overlay.start) / overlay.plan.duration;
@@ -412,6 +419,9 @@ export namespace HumanSegmentOverlay {
       const limb: AutoMovieHumanLimb | undefined = limbOf(window.part);
       if (limb === undefined || !overlay.channels.includes(limb)) continue;
       const goal: IAutoMovieHumanLimbGoal | undefined = turned[limb];
+
+      // A joint-only path at full weight is displayed on its own joints.
+      if (goal === undefined && weight >= 1) continue;
       (selected ??= new Map()).set(limb, goal);
       if (goal !== undefined) continue;
       const chain: ReturnType<typeof HumanLimbFit.chain> =
