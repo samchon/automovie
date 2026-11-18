@@ -84,7 +84,7 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the bar is centred across the body at the keyed shoulder-to-grip distance and its line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The refusals are the held owner's and the tool's own; nothing is grasped here.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Held-prop admission belongs to the held and tool owners. Only a grip separation exceeding the shoulder span and both full arm-to-grip chain lengths is refused here.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder/elbow/wrist from FK; mid-foot geometry exists only for midfoot rows. The other hand's one actual wrist placement serves both its original elbow solve and final goal, while both original elbow searches remain.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fist shape and holding-chain demand prepare once for unchanged body/side. Apply borrows one synchronous parent FK/ROM source, and prepareBoth shares only actual unchanged body-frame/TRUNK geometry between the original holding-side then other-side elbow searches. Every current target still solves normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
@@ -253,17 +253,32 @@ export namespace WorkoutLoad {
         const squaredReach: number = Vector3.dot(reach, reach);
         const remaining: number = squaredReach - aside * aside;
         if (remaining < 0) {
-          const span: number = Math.sqrt(squaredReach);
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "load",
-            value: Math.abs(aside),
-            feasible: { kind: "range", minimum: 0, maximum: span, unit: "m" },
-            reason: `centring the handles needs ${Math.abs(aside).toFixed(3)} m of lateral reach from the ${side} shoulder, beyond its keyed grip radius of ${span.toFixed(3)} m`,
-            fix: "use handles closer to shoulder width",
-          });
+          // A flexed key does not measure the performer's full reach. The
+          // triangle inequality does bound the distance between two grips.
+          const partner: IAutoMovieVector3 = StrikingBody.trunk(
+            body, posture, read, new Set<AutoMovieHumanoidBone>([`${other}UpperArm`]), projection,
+          ).get(`${other}UpperArm`)!.worldPosition;
+          let maximum: number = Vector3.distance(shoulder, partner);
+          for (const arm of [side, other]) {
+            const elbow: IAutoMovieVector3 = body.rest.get(`${arm}LowerArm`)!;
+            maximum += Vector3.distance(body.rest.get(`${arm}UpperArm`)!, elbow)
+              + Vector3.distance(elbow, body.rest.get(`${arm}Hand`)!)
+              + Vector3.length(HumanHand.offset(body, arm, "grip", arm === side ? "relaxed" : "fist").point);
+          }
+          const span: number = Vector3.length(tool.tip);
+          if (span > maximum)
+            throw new HumanRefusal({
+              kind: "reach",
+              axis: "load",
+              value: span,
+              feasible: { kind: "range", minimum: 0, maximum, unit: "m" },
+              reason: `the support handle is ${span.toFixed(3)} m from the holding grip, beyond the two arms' full span of ${maximum.toFixed(3)} m`,
+              fix: "use handles closer to shoulder width",
+            });
         }
-        const radius: number = Math.sqrt(remaining);
+        // Beyond the keyed circle the shortest extension to the centred
+        // handle is purely lateral. The native arm fit owns its articulation.
+        const radius: number = remaining > 0 ? Math.sqrt(remaining) : 0;
         const forth: number = Math.max(
           -radius,
           Math.min(
