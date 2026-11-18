@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, bracketedBisection } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
@@ -11,8 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
+import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
@@ -35,6 +38,12 @@ import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
  * (`AutoMovieMotionHumanLeanInto`), which refuses a region still out of
  * reach at its limit.
  *
+ * Risen, the body bears on its forefoot alone, so the hips carry the
+ * whole-body centre of mass over it, kept clear of a partner standing
+ * close, and that shift leads the heels by the least time that keeps the
+ * extrapolated centre of mass inside the base (`AutoMovieMotionHumanRise.poise`),
+ * as a person sways forward over the balls of the feet before rising.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the two movements, their order, why the rise comes first, what bounds each and who refuses.
  * @evidence contracts/development/design.md#principled-representation A girdle angle, a heel angle and a lean solved once from the wrist's place on the posture, the body's three ways of closing a reach without a step.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The two limits, the props, the solved stance and its solver; read by the touch law.
@@ -55,10 +64,10 @@ export namespace AutoMovieMotionHumanTouchStance {
    * @throws {HumanRefusal} When the wrist is beyond the kept share at the lean's limit, on the first read of the lean.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the refusal; the namespace states the movements.
-   * @evidence contracts/development/implementation.md#principled-implementation The wrist's distance beyond the kept share falls monotonically while the shoulder rises toward the wrist's height, so the least girdle angle, then the least heel angle, is its bisected root; each is taken only for a wrist above the shoulder that it brings nearer, and the lean is solved on the risen posture.
+   * @evidence contracts/development/implementation.md#principled-implementation The wrist's distance beyond the kept share falls monotonically while the shoulder rises toward the wrist's height, so the least girdle angle, then the least heel angle, is its bisected root; each is taken only for a wrist above the shoulder that it brings nearer, and the lean is solved on the risen posture. Risen, the hips' shift is the static balance on the raised feet's base (`HumanBalance.shift`), its centre moved back toward the forefoot's rear edge only as far as a partner's clearance needs (a bisection), and the shift and the heels are timed by the extrapolated centre's lead (`AutoMovieMotionHumanRise.poise`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The reach at a girdle and a heel angle, one rule for the least of either (`least`), the lean, the primitives.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A region the rise does not bring nearer keeps the heels down; nothing is clamped, the lean refuses what remains.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original girdle/heel endpoint, bisection and three-progress reach probe. One fixed shoulder demand serves them, and each three-progress operation shares exact FK prerequisites without full bone output. Runtime lean/lowering borrow current-person metadata; speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Retains every original girdle/heel endpoint, bisection and three-progress reach probe. One fixed shoulder demand serves them, and each three-progress operation shares exact FK prerequisites without full bone output. Runtime lean/lowering borrow current-person metadata; speedup is unmeasured. A rise adds one balance search and two timing readings a plan, and a partner too close for it one bisection of balance searches; no closed form places the whole body's centre over a changed base, and each is read once at plan time, never per frame.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Rise, LeanInto and raw lowering retain their original owners; Reach.prepareCheck binds only static body/limb names. Every original wrist callback/check still executes in order with its current posture, while dynamic workspaces stay local to that reach/write.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned stance owns props, fixed solved angles/feet and lean metadata until release. Every three-progress FK getter and runtime loan releases on synchronous return or throw; no sampled root, pose, wrist or query history enters plan state.
    */
@@ -130,7 +139,94 @@ export namespace AutoMovieMotionHumanTouchStance {
               reach(moved(standing, girdle, degrees)),
           );
 
-    const risen: IAutoMovieMotionHumanPosture = moved(standing, girdle, raise);
+    // On raised heels the body bears on the forefoot alone, so the hips
+    // carry the whole-body centre of mass over it (`HumanBalance.shift` on
+    // the base the raised feet bear on, the planted legs reaching their
+    // raised feet from each trial's root). The shift leads the heels: it is
+    // shown first, over `poise` seconds with the feet flat
+    // (`AutoMovieMotionHumanRise.poise`), the heels rising after it, and on
+    // the way back the heels come down before it returns. There is no
+    // closed form for the whole body's centre over a changed base, so the
+    // shift is the balance's one bracketed search, once a plan.
+    const legged = (
+      posture: IAutoMovieMotionHumanPosture,
+      degrees: number,
+    ): IAutoMovieMotionHumanPosture => {
+      if (feet === undefined) return posture;
+      const goal = (side: "left" | "right"): IAutoMovieHumanLimbGoal =>
+        AutoMovieMotionHumanLeg.goal(
+          body,
+          posture,
+          side,
+          AutoMovieMotionHumanRise.foot(body, side, feet[side], degrees),
+          true,
+        );
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+        ...posture.limbs,
+        leftLeg: goal("left"),
+        rightLeg: goal("right"),
+      };
+      return {
+        ...posture,
+        limbs,
+        root: resolveHumanPosture.lower(body, { ...posture, limbs }).root,
+      };
+    };
+    // The full rise with the hips shifted back by `back` metres.
+    const stood = (back: number): IAutoMovieMotionHumanPosture =>
+      legged(
+        AutoMovieMotionHumanLean.tip(body, moved(standing, girdle, raise), 0, back),
+        raise,
+      );
+    // The hips' shift that puts the centre `target` metres ahead of the
+    // middle of the base the raised feet bear on.
+    const balanced = (target: number): number =>
+      HumanBalance.shift(body, stood, HumanBalance.RANGE, target);
+    // The root is decided once from the balance and the people about it:
+    // the centre over the middle of the forefoot, the place of the widest
+    // margin, unless the hips would then pass into a partner standing close;
+    // then the centre stands as near that middle as the hips keep clear (a
+    // bisection over the centre's place back toward the forefoot's rear
+    // edge, each with its balanced shift), the planner's own allowance into
+    // a body being the clearance (half the skin the tangle audit allows).
+    const rises: boolean = feet !== undefined && raise > 0;
+    let forward: number = rises ? balanced(0) : 0;
+    const clear: ((posture: IAutoMovieMotionHumanPosture) => number) | undefined = props.clear;
+    if (rises && clear !== undefined && clear(stood(forward)) > CLEARANCE) {
+      const rear: number = -HumanBalance.margin(body, stood(forward));
+      const blocked = (target: number): boolean =>
+        clear(stood(balanced(target))) > CLEARANCE;
+      forward = balanced(
+        blocked(rear)
+          ? rear
+          : bracketedBisection(blocked, 0, rear, HumanBalance.TOLERANCE),
+      );
+    }
+    // The shift's seconds with the feet flat, both ways, and the heels'
+    // least seconds on from there to the full rise.
+    const shiftedFlat: IAutoMovieMotionHumanPosture = legged(
+      AutoMovieMotionHumanLean.tip(body, standing, 0, forward),
+      0,
+    );
+    const poise: number =
+      forward === 0
+        ? 0
+        : AutoMovieMotionHumanRise.poise(body, legged(standing, 0), shiftedFlat, true);
+    const rising: number =
+      feet === undefined || raise === 0
+        ? 0
+        : AutoMovieMotionHumanRise.poise(
+            body,
+            shiftedFlat,
+            stood(forward),
+            false,
+          );
+    const risen: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
+      body,
+      moved(standing, girdle, raise),
+      0,
+      forward,
+    );
     const lean: IAutoMovieMotionHumanLeanInto.ILean =
       AutoMovieMotionHumanLeanInto.solve({
         body,
@@ -151,6 +247,8 @@ export namespace AutoMovieMotionHumanTouchStance {
     return {
       girdle,
       raise,
+      poise,
+      rising,
       leaning,
       risen,
       reached,
@@ -161,6 +259,17 @@ export namespace AutoMovieMotionHumanTouchStance {
           return leaning ? [lean.primitive(clock)] : [];
         const share: (seconds: number) => number = (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds);
+        // With a shift, it leads the heels by `poise` (`poised`, `unpoised`).
+        const heels: (seconds: number) => number =
+          poise === 0
+            ? share
+            : (seconds: number): number =>
+                clock.envelope(["poised", "ready"], ["relax", "unpoised"], seconds);
+        const shifted: (seconds: number) => number =
+          poise === 0
+            ? share
+            : (seconds: number): number =>
+                clock.envelope(["start", "poised"], ["unpoised", "end"], seconds);
         return [
           {
             channels: raise > 0 || leaning ? ["root", "trunk"] : ["trunk"],
@@ -170,7 +279,13 @@ export namespace AutoMovieMotionHumanTouchStance {
               _before?: IAutoMovieMotionHumanPrimitive.Reader,
               resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture => {
               const k: number = share(seconds);
-              const up: IAutoMovieMotionHumanPosture = moved(posture, girdle * k, raise * k);
+              const lift: number = heels(seconds);
+              const up: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
+                body,
+                moved(posture, girdle * k, raise * lift),
+                0,
+                forward * shifted(seconds),
+              );
 
               // The lean is read at the full rise, so its angle does not
               // change with the share of the rise shown.
@@ -204,7 +319,7 @@ export namespace AutoMovieMotionHumanTouchStance {
                     body,
                     side,
                     feet[side],
-                    raise * k,
+                    raise * lift,
                   ),
                   true,
                 );
@@ -228,13 +343,16 @@ export namespace AutoMovieMotionHumanTouchStance {
                 stance: feet,
                 from: 0,
                 to: clock.duration,
-                degrees: (seconds: number): number => raise * share(seconds),
+                degrees: (seconds: number): number => raise * heels(seconds),
               })),
         ];
       },
     };
   }
 }
+
+/** How deep the body may pass into a person about it, metres: half the skin the tangle audit allows, the arm planner's own allowance (`HumanArmTrajectoryTerms.DEPTH`). */
+const CLEARANCE: number = AutoMovieMotionHumanAuditSkin.BUILT / 2;
 
 /** A wrist's place against the arm on a posture, metres: beyond the kept share of the arm's length, and above the shoulder joint. */
 interface IReach {

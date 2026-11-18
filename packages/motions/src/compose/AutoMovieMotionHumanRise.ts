@@ -1,5 +1,11 @@
-import { Vector3 } from "@automovie/engine";
+import {
+  Vector3,
+  bracketedBisection,
+  minimumJerk,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type {
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
@@ -8,8 +14,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBalance } from "../everyday/HumanBalance";
+import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
+
+/** The resolution a rise's shift is timed to, seconds: a millisecond, far below a film frame. */
+const POISE_RESOLUTION: number = 1e-3;
 
 /**
  * A rise onto the toes: both feet turn about their toes' joints, which stay
@@ -58,6 +69,88 @@ export namespace AutoMovieMotionHumanRise {
       HumanFoot.point(body, side, "mtp", flat),
       HumanFoot.heading(flat.rotation),
       -degrees,
+    );
+  }
+
+  /**
+   * The least seconds a move of the whole-body centre of mass between two
+   * postures takes so the body stays balanced through it: the sway over the
+   * balls of the feet before the heels rise, the anticipatory shift of
+   * rising onto the toes (Nardone and Schieppati 1988, Exp Brain Res 69;
+   * read through secondary summaries), and the heels' rise itself, which
+   * carries the body on over the toes.
+   *
+   * The centre moves from one posture's to the other's by a minimum-jerk
+   * course (Flash and Hogan 1985), the clock's own envelope. The shortest
+   * such course keeps the extrapolated centre of mass, the centre plus its
+   * velocity over the inverted pendulum's eigenfrequency (Hof, Gazendam and
+   * Sinke 2005, `l` 1.34 hip heights, the balance audit's condition), inside
+   * the base the move ends on, and with `back` also inside the base the
+   * reverse move starts on.
+   *
+   * @param body The body.
+   * @param start The posture the move starts from, its feet planted.
+   * @param end The posture the move ends on, its feet planted.
+   * @param back Whether the reverse move is timed by the same seconds: its lead is then kept within `start`'s base, behind `start`'s centre.
+   * @returns The move's duration, seconds; 0 when the centre does not move.
+   * @throws {HumanRefusal} When the ending centre lies outside its base, where no course can end balanced.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the movement, its course, the condition its duration meets and both directions.
+   * @evidence contracts/development/implementation.md#principled-implementation For a minimum-jerk course of length d over T the extrapolated centre's lead is d (s(u) + s'(u) / (w T)); its maximum over u is at the closed-form root of s' + s'' / (w T) = 0, and it falls toward d with T, so the least T whose lead stays within the base's room ahead of the start is bisected.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two support readings, one closed-form lead and one bisection.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A centre that ends outside its base has no course that ends balanced, and is refused rather than timed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two posture solves, then constant work per bisection step, about twenty steps to a millisecond.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanBalance.support` and `along`, the engine's pendulum, `minimumJerk` and `bracketedBisection`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
+   */
+  export function poise(
+    body: IAutoMovieMotionHumanBody,
+    start: IAutoMovieMotionHumanPosture,
+    end: IAutoMovieMotionHumanPosture,
+    back: boolean,
+  ): number {
+    const from: IAutoMovieMotionHumanBalance.ISupportResult = HumanBalance.support(body, start);
+    const to: IAutoMovieMotionHumanBalance.ISupportResult = HumanBalance.support(body, end);
+    const way: IAutoMovieVector3 = {
+      x: to.centre.x - from.centre.x,
+      y: 0,
+      z: to.centre.z - from.centre.z,
+    };
+    const length: number = Math.hypot(way.x, way.z);
+    if (!(length > 0)) return 0;
+    // The room the lead has: from the start to the edge ahead of the end,
+    // and, back, from the end to the edge behind the start.
+    const ahead: number = length + HumanBalance.along(to.centre, to.points, way);
+    const behind: number = back
+      ? length + HumanBalance.along(from.centre, from.points, Vector3.scale(way, -1))
+      : Infinity;
+    const room: number = Math.min(ahead, behind);
+    if (!(room > length))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "stance",
+        value: length,
+        feasible: null,
+        reason: `the rise asks the centre of mass ${(length * 1000).toFixed(0)} mm forward, and the feet's base leaves it ${(room * 1000).toFixed(0)} mm`,
+        fix: "come nearer first, or aim at a region within the arm's reach",
+      });
+    const omega: number = resolveAutoMovieCenterOfMass.frequency(
+      resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+    );
+    // The extrapolated centre's greatest lead over a course of T seconds.
+    const lead = (seconds: number): number => {
+      const a: number = omega * seconds;
+      const u: number = (a - 4 + Math.sqrt((a - 4) * (a - 4) + 8 * a)) / (2 * a);
+      const profile = minimumJerk(Math.min(1, Math.max(0, u)));
+      return length * (profile.s + profile.ds / a);
+    };
+    let long: number = 1 / omega;
+    while (!(lead(long) <= room)) long *= 2;
+    return bracketedBisection(
+      (seconds: number): boolean => lead(seconds) > room,
+      0,
+      long,
+      POISE_RESOLUTION,
     );
   }
 

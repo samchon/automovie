@@ -43,6 +43,7 @@ import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
 import { poseBones } from "../posture/poseBones";
+import { touchClear } from "./touchClear";
 import { touchEffectors } from "./touchEffectors";
 import { touchHold } from "./touchHold";
 import { touchLayouts } from "./touchLayouts";
@@ -248,6 +249,8 @@ export namespace touch {
         AutoMovieMotionHumanBend.hang(body, posture, first),
         "arm",
       );
+    // A rise keeps the body out of the people the hands touch.
+    const cleared: ReturnType<typeof touchClear> = touchClear(context, hands);
     const stance: IAutoMovieMotionHumanTouchStance.IStance =
       AutoMovieMotionHumanTouchStance.solve({
         body,
@@ -258,6 +261,7 @@ export namespace touch {
         wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
           laidOn(posture).point,
         arm: laidOn,
+        ...(cleared === undefined ? {} : { clear: cleared }),
         refuse: (beyond: number, limit: number): string =>
           `The touched region is ${(beyond * 1000).toFixed(0)} mm beyond the ${first} arm at a lean of ${limit} degrees`,
       });
@@ -314,15 +318,26 @@ export namespace touch {
         AutoMovieMotionHumanTouchForm.FORMS[kind].period,
       ),
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+    const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
-        prepare: reach,
+        prepare: Math.max(reach, stance.rising),
         attack: count * repetition,
         hold,
-        retract: reach,
+        retract: Math.max(reach, stance.rising),
       }),
       modifiers,
     );
+    // A rise's shift over the forefoot leads the stroke and trails it by
+    // its own physical time (`IStance.poise`), which no manner rescales.
+    const poise: number = stance.poise;
+    const clock: IAutoMovieMotionClock =
+      poise === 0
+        ? timed
+        : AutoMovieMotionClock.of(timed.duration + 2 * poise, [
+            { name: "poised", seconds: poise },
+            ...timed.instants.map((i) => ({ ...i, seconds: i.seconds + poise })),
+            { name: "unpoised", seconds: poise + timed.duration },
+          ]);
 
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     primitives.push(...stance.primitives(clock));
