@@ -10,7 +10,6 @@ import type {
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieMotionHumanWalkGait,
   IAutoMovieMotionHumanWalkParams,
-  IAutoMovieMotionHumanWalkSteps,
   IAutoMovieMotionManner,
   IAutoMovieVector3,
 } from "@automovie/interface";
