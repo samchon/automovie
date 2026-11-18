@@ -1323,13 +1323,6 @@
     },
     {
       "layer": "compose",
-      "symbol": "AutoMovieMotionHumanTouchLaid.settled",
-      "tests": [
-        "test_human_motion_signature_salute"
-      ]
-    },
-    {
-      "layer": "compose",
       "symbol": "AutoMovieMotionHumanTouchEffector.axis",
       "tests": [
         "test_human_motion_compose_touch_effector"
@@ -1821,13 +1814,6 @@
     },
     {
       "layer": "posture",
-      "symbol": "HumanArmClearance.broad",
-      "tests": [
-        "test_human_motion_core_arm_clearance_screen"
-      ]
-    },
-    {
-      "layer": "posture",
       "symbol": "HumanArmClearance.overshoot",
       "tests": [
         "test_human_motion_compose_arm_carry",
@@ -2206,7 +2192,86 @@
       "tests": [
         "test_motion_posture_resolve_helpers"
       ]
-    }
+    },
+    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepare", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepareEnvelope", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionClock.prepareWave", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanArm.prepareGoal", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.hanging", "tests": ["test_motion_compose_swivel"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepare", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepareBoth", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanBend.prepareKnee", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.claims", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.covers", "tests": ["test_human_motion_channel_trunk_turn"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.digit", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.prepareMerge", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanChannel.TURN", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingArm.prepareRead", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanDrinkingSwivel.ranged", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanHand.prepareFingers", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanHand.prepareFingerWriter", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLean.about", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLeg.prepareArc", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLeg.prepareGoal", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLeg.preparePlacement", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanLegPhrase.prepareBetween", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanPlaced.carryFrom", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanReach.prepareCheck", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSite.comfortable", "tests": ["test_human_motion_core_site"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSite.draw", "tests": ["test_human_motion_core_site"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSite.grasp", "tests": ["test_human_motion_core_site"] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanSwivelBound.admits", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.prepareHand", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTarget.TRUNK", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTrunk.prepareCrouch", "tests": [] },
+    { "layer": "compose", "symbol": "AutoMovieMotionHumanTrunk.preparePlanted", "tests": [] },
+    { "layer": "posture", "symbol": "blendHumanJoint.between", "tests": [] },
+    { "layer": "posture", "symbol": "blendHumanJoint.prepare", "tests": [] },
+    { "layer": "posture", "symbol": "HumanArmClearance.baseline", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.bones", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.nearest", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.prepareMinima", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.preparePlaced", "tests": [] },
+    { "layer": "posture", "symbol": "HumanColliders.reading", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.bones", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.headingPitch", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareAnkle", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareAt", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareHeight", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareOffset", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.preparePivot", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.preparePoint", "tests": ["test_motion_prepared_foot_pivot"] },
+    { "layer": "posture", "symbol": "HumanFoot.prepareSole", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.reading", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.roll", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.sole", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFoot.turned", "tests": [] },
+    { "layer": "posture", "symbol": "HumanFrame.prepare", "tests": ["test_motion_prepared_human_frame"] },
+    { "layer": "posture", "symbol": "HumanFrame.prepareLerp", "tests": ["test_motion_prepared_human_frame"] },
+    { "layer": "posture", "symbol": "HumanFrame.preparePoint", "tests": ["test_motion_prepared_human_frame"] },
+    { "layer": "posture", "symbol": "HumanHand.bone", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.DIGIT_SURFACES", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.digital", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.frameBones", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.prepareAlignment", "tests": [] },
+    { "layer": "posture", "symbol": "HumanHand.preparePoint", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.prepare", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.prepareRead", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.prepareTuples", "tests": [] },
+    { "layer": "posture", "symbol": "poseBones.read", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.assemble", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.derive", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.fit", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.KNEE", "tests": ["test_motion_lowering_soft_reach"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.limbSeeded", "tests": ["test_motion_limb_refit_ownership"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.prepare", "tests": ["test_motion_pose_resolution_native_loans", "test_motion_prepared_posture_translation"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.preparedBones", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.prepareShort", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.refit", "tests": ["test_motion_limb_refit_ownership"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.rigid", "tests": [] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.seeded", "tests": ["test_motion_prepared_leg_chain", "test_motion_selected_goal_fallback"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.translated", "tests": ["test_motion_pose_resolution_native_loans", "test_motion_prepared_posture_translation"] },
+    { "layer": "posture", "symbol": "resolveHumanPosture.tryRigid", "tests": [] }
   ],
   "laws": [
     {
