@@ -6,6 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
+import { appendPracticalSurfacesArtifact } from "./appendPracticalSurfacesArtifact";
 import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
 import { asArray } from "./asArray";
 import { isRecord } from "./isRecord";
@@ -20,9 +21,9 @@ import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
 /**
- * Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
+ * Admit shot/scene/camera references, performances, motion clips, practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Clip shape and metadata/light owners supply leaf checks while this entry owns scene cross references.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A null motion registry defers compiled-motion existence; performance/object-clip walks report absent slots rather than silently skipping them. Clearance rows remain metadata rather than recomputed sweeps.
  * @evidence contracts/development/common.md#meaningful-documentation Exact paths and registry-optional semantics explain the host/engine boundary.
@@ -188,6 +189,12 @@ export const validateShotArtifact: (
     violations,
   );
 
+  appendPracticalSurfacesArtifact(
+    shot.practicalSurfaces,
+    asArray(isRecord(scene) ? scene.nodes : undefined),
+    shot.duration,
+    violations,
+  );
   appendShotMetadataArtifact(
     shot,
     "$input",

@@ -1,3 +1,4 @@
+import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieScript } from "../harness/IAutoMovieScript";
 import type { IAutoMovieBlocking } from "./IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "./IAutoMoviePerformance";
@@ -33,6 +34,9 @@ export interface IAutoMovieShotProgram {
 
   /** Thin verb program compiled by the engine. */
   performance: IAutoMoviePerformance;
+
+  /** Shot-local material changes on staged prop parts, admitted by performShot. */
+  practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
 
   /**
    * One authoritative sample time for every event the contract declares, inside that event's window; undeclared or repeated ids are refused.

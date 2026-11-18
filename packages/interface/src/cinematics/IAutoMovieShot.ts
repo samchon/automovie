@@ -2,6 +2,7 @@ import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraClearanceReport";
 import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
 import type { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
+import type { IAutoMoviePracticalSurfaceTrack } from "./IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
 import type { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
 
@@ -70,6 +71,12 @@ export interface IAutoMovieShot {
    * empty array means constant light.
    */
   lightMotions?: IAutoMovieClip[];
+
+  /**
+   * Material tracks for named parts of placed props. At most one per node and
+   * part. Omission or an empty list leaves the staged appearance in force.
+   */
+  practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
 
   /**
    * Computed or scripted interactions on this shot's local clock, ordered by

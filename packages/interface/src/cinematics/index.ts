@@ -43,6 +43,7 @@ export type { IAutoMovieResolveCameraAt } from "./IAutoMovieResolveCameraAt";
 export type { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
 export type { IAutoMovieSequence } from "./IAutoMovieSequence";
 export type { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
+export type { IAutoMoviePracticalSurfaceTrack } from "./IAutoMoviePracticalSurfaceTrack";
 export type { IAutoMovieShot } from "./IAutoMovieShot";
 export type { IAutoMovieShotCoverage } from "./IAutoMovieShotCoverage";
 export type { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";

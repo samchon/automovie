@@ -19,6 +19,7 @@ import {
   type IAutoMoviePerformShotProps,
   IAutoMoviePerformance,
   type IAutoMoviePerformedShot,
+  type IAutoMoviePracticalSurfaceTrack,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
   IAutoMovieScript,
@@ -38,6 +39,7 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
+import { appendPracticalSurfacesArtifact } from "../validation/appendPracticalSurfacesArtifact";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
@@ -70,7 +72,7 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  *
  * The performing list is `revise.final` when the revise pass produced one and `draft` otherwise. The stages run in order, and the first stage group that reports a violation returns every violation of that group and stops:
  *
- * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights, a planned beat, a positive duration, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
+ * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged lights and its practical surface tracks against the staged nodes and registered models, a planned beat, a positive duration, every action by {@link gatePerformShotActions}, the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by {@link gatePerformShotBlocking}, and the cameras by {@link gatePerformShotCamera}.
  * 2. Launches: each flight is solved and its recoil scheduled by {@link compilePerformShotLaunches}.
  * 3. Performance: the stage list compiles, stance feet are planted by {@link plantPerformShotStanceFeet}, every channel a region mask would drop is reported at the author's `region` (or `onHit`) field, and every clip must pass `validateMotion` against its rig.
  * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by {@link coupleObjects}.
@@ -192,6 +194,29 @@ export function performShot(
       `shot duration must be a finite number > 0 seconds, but was ${describeInvalidValue(performance.duration)}`,
       performance.duration,
     );
+  appendPracticalSurfacesArtifact(
+    props.practicalSurfaces,
+    staged.scene.nodes,
+    performance.duration,
+    out.items,
+    props.models ?? [],
+  );
+  const practicalSurfaces: IAutoMovieShot["practicalSurfaces"] =
+    out.items.length === 0
+      ? props.practicalSurfaces?.map(
+          (track: IAutoMoviePracticalSurfaceTrack): IAutoMoviePracticalSurfaceTrack => ({
+            node: track.node,
+            part: track.part,
+            keys: track.keys.map(
+              ({ time, material }: IAutoMoviePracticalSurfaceTrack["keys"][number]):
+                IAutoMoviePracticalSurfaceTrack["keys"][number] => ({
+                time,
+                material,
+              }),
+            ),
+          }),
+        )
+      : undefined;
   const actions: IAutoMovieActionCall[] =
     performance.revise.final ?? performance.draft;
   const plan: IAutoMovieEnginePerformShotActionPlan = gatePerformShotActions(
@@ -347,6 +372,7 @@ export function performShot(
     ...(resolvedLightMotions === undefined
       ? {}
       : { lightMotions: resolvedLightMotions }),
+    ...(practicalSurfaces === undefined ? {} : { practicalSurfaces }),
     events: [...events].sort(
       (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
         a.time - b.time ||

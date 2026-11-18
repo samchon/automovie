@@ -32,6 +32,7 @@ export * from "./createPerformShotSubjectFramer";
 export * from "./createPropPassageBlocker";
 export * from "./createShotContractSubjectReader";
 export * from "./cutSequence";
+export * from "./samplePracticalSurfaceMaterial";
 export * from "./defineShot";
 export * from "./deliveryCropNdc";
 export * from "./equalProductionFrameRates";

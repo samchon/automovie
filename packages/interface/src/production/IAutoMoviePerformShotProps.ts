@@ -1,6 +1,7 @@
 import type { IAutoMovieBlocking } from "../authoring/IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
+import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
@@ -201,6 +202,13 @@ export interface IAutoMoviePerformShotProps {
    * to lightMotions. Omit when no practical source follows a prop.
    */
   practicalLights?: readonly IAutoMoviePracticalLightBinding[];
+
+  /**
+   * Shot-local material changes on placed prop parts. Nonempty input requires
+   * the corresponding generated rigid models in models. Omit for the staged
+   * appearance alone.
+   */
+  practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
 
   /**
    * Clips the source authored over non-performing scene nodes, such as a
