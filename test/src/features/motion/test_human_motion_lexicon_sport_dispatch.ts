@@ -46,23 +46,18 @@ export function test_human_motion_lexicon_sport_dispatch(): void {
     ["splitStep", "racket", "splitStep"],
     ["golfAddress", "racket", "golfAddress"],
   ];
+  const catalogue: readonly IAutoMovieMotionHumanActionLaw<never>[] =
+    HUMAN_LEXICON.sport!;
+  const byName: Map<string, IAutoMovieMotionHumanActionLaw<never>> = new Map();
+  for (const row of catalogue) byName.set(row.name, row);
+  TestValidator.equals("sport names are unique", byName.size, catalogue.length);
   for (const [name, family, kind] of techniques) {
-    const rows: readonly IAutoMovieMotionHumanActionLaw<never>[] =
-      HUMAN_LEXICON.sport!.filter(
-        (row: IAutoMovieMotionHumanActionLaw<never>): boolean =>
-          row.name === name,
-      );
-    TestValidator.equals(
-      name,
-      rows.map(
-        (row: IAutoMovieMotionHumanActionLaw<never>): string | undefined =>
-          row.family,
-      ),
-      [family],
-    );
+    const row: IAutoMovieMotionHumanActionLaw<never> | undefined =
+      byName.get(name);
+    TestValidator.equals(name, row?.family, family);
     TestValidator.equals(
       `${name} resolves the authored parameters`,
-      rows[0]?.resolve?.({ kind: "caller" }),
+      row?.resolve?.({ kind: "caller" }),
       { kind: kind ?? "caller" },
     );
   }
