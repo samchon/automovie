@@ -26,23 +26,21 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *   and its range from none to the fastest push the body catches that way,
  *   which lies between 0.5 and 1.5 m/s.
  *
- * The two speeds bracket people's threshold. A push of speed `v` sets the
+ * The two speeds bracket measured backward recovery. A push of speed `v` sets the
  * extrapolated centre of mass `v / omega0` ahead of the feet, as a release
  * from a lean `theta` sets it `l sin theta` (Hof's pendulum, `omega0 =
  * sqrt(g / l)`), so a lean reads as `v = sqrt(g l) sin theta`: about 3.2
- * m/s per unit sine on the small woman and 3.5 on the average man. Young
- * adults released from a backward lean recover by stepping from at most 9
- * degrees (Pitts et al. 2024, Appl Ergon 117:104236, 16 adults, maximum
- * recoverable lean) to 16.4 +- 3.1 degrees (Telonio, Cyr, Moglo and
- * Smeesters 2005, ISB XX abstract 430), and allowing more steps does not
- * raise the lean recovered from (Cyr and Smeesters 2007, J Biomech
- * 40:2857, 28 adults, one step, two and no limit). So 0.5 m/s, a lean of
- * 9 degrees on the small woman, is caught by every body; 1.5 m/s, a lean
- * of 28 and 26 degrees, lies past every measured backward threshold.
+ * m/s per unit sine on the small woman and 3.5 on the average man. Pitts
+ * et al. (2024, Applied Ergonomics 117:104236) report a mean maximum
+ * recoverable backward lean of 9 degrees for their 16 young adults in a
+ * lean-and-release protocol. The two test speeds correspond to about 8–9
+ * degrees and 26–28 degrees of backward lean on the fixture bodies. The
+ * controller's four-step admission boundary is checked between those
+ * inputs.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staging, the capture-point relation and the caught and refused speeds.
  * @evidence contracts/development/testing.md#behavioral-verification Plans each direction through the public chain and checks the displayed recovery's verdicts or the refusal's axis, value and feasible speed range.
- * @evidence contracts/development/testing.md#independent-expectations Hof's capture point converts the two speed limits into the comparison with the measured lean-and-release thresholds. The dynamics are audited on the display by the ordinary physical bounds.
+ * @evidence contracts/development/testing.md#independent-expectations Hof's capture-point formula relates the synthetic speeds to the lean-and-release magnitudes in Pitts et al. The dynamics are audited on the display by the ordinary physical bounds.
  * @evidence contracts/development/testing.md#distinguishing-cases Two measured statures, the four signs of the principal directions, and a backward push outside the capture region.
  * @evidence contracts/development/testing.md#execution-ownership One discovered in-memory spec stages two prepared polygon bodies, each with four short recoveries and one refused push.
  */

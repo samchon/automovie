@@ -1,10 +1,12 @@
 import { createBoat, rowBoat } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
@@ -21,6 +23,15 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+/** An oar contact's largest displayed wrist separation and when it occurred. */
+interface IHandleGap {
+  gap: number;
+  at: number;
+}
+
+/** One authored instant of the boat's ride. */
+type BoatInstant = ReturnType<typeof rowBoat>["instants"][number];
 
 /**
  * A rower's hands stay on the oar handles through the stroke, on still
@@ -42,13 +53,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    catch and the next, each wrist is within 0.7 of the hand's length of
  *    its handle there (the bound `test_human_motion_ride_grips` holds a
  *    grip to; the palm's middle lies about half a hand from the wrist).
- * 2. At the first catch the trunk leans forward of where it sits upright
- *    at the end of the 6 s: the neck lies further toward the bow than the
- *    hips by at least a tenth of the trunk's length (the direction is Agius
- *    et al.'s; the size is provisional).
+ * 2. From the displayed ride entry to the first named catch, the neck
+ *    moves ahead of the hips along the rower's seated forward axis by at
+ *    least a tenth of the trunk's length. Agius et al. establish the
+ *    direction. The size is provisional.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Rows a real archetype boat and reads the displayed wrists against the handles' own frames at the stroke's named instants; hands left behind at the catch, or a trunk that does not lean to the catch, fail.
- * @evidence contracts/development/testing.md#independent-expectations Where a handle is comes from the boat's own ride; the 0.7 hand is the grips spec's bound and the lean's direction Agius et al.'s.
+ * @evidence contracts/development/testing.md#independent-expectations The boat supplies both handle frames and the rower's local forward axis. The 0.7 hand is the grips spec's bound, and Agius et al. establish the flexion direction. The ride entry precedes the hand's take and supplies the comparison posture.
  * @evidence contracts/development/testing.md#distinguishing-cases Still water and a swell, two bodies of opposite build, every catch and every mid-stroke.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds four rides in memory; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the two scenarios and their bounds.
@@ -73,6 +84,10 @@ export function test_human_motion_ride_rowing(): void {
         ? b
         : a,
     ).id;
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    affordances.find((a: IAutoMovieAffordance): boolean => a.id === thwart)!.frame.rotation,
+    { x: 0, y: 0, z: 1 },
+  );
   for (const water of ["still", "swell"] as const) {
     const ride: ReturnType<typeof rowBoat> = rowBoat(
       boat,
@@ -159,22 +174,33 @@ export function test_human_motion_ride_rowing(): void {
 
       // 1. The wrists on the handles at each catch and halfway to the next.
       const catches: number[] = ride.instants
-        .filter((i: { label: string }): boolean => /^catch\d+$/.test(i.label))
-        .map((i: { seconds: number }): number => WAIT + i.seconds);
+        .filter((i: BoatInstant): boolean => /^catch\d+$/.test(i.label))
+        .map((i: BoatInstant): number => WAIT + i.seconds);
       if (catches.length === 0)
         complaints.push(`${label}: the ride names no catch`);
       const instants: number[] = catches.flatMap(
         (t: number, k: number): number[] =>
           k + 1 < catches.length ? [t, (t + catches[k + 1]!) / 2] : [t],
       );
-      for (const side of ["left", "right"] as const) {
-        let worst: { gap: number; at: number } = { gap: 0, at: 0 };
-        for (const t of instants) {
-          const wrist: IAutoMovieVector3 = HumanSignature.joint(
-            reader,
-            t,
-            `${side}Hand`,
-          );
+      const neckAhead = (frame: ReturnType<typeof HumanSignature.bones>, t: number): number => {
+        const neck: IAutoMovieVector3 = frame.get("neck")!.worldPosition;
+        const hips: IAutoMovieVector3 = frame.get("hips")!.worldPosition;
+        const local: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(placed(t).rotation),
+          Vector3.subtract(neck, hips),
+        );
+        return Vector3.dot(local, forward);
+      };
+      const worst: Record<AutoMovieHumanSide, IHandleGap> = {
+        left: { gap: 0, at: 0 },
+        right: { gap: 0, at: 0 },
+      };
+      let firstCatch: number | undefined;
+      for (const t of instants) {
+        const frame: ReturnType<typeof HumanSignature.bones> = HumanSignature.bones(reader, t);
+        if (t === catches[0]) firstCatch = neckAhead(frame, t);
+        for (const side of ["left", "right"] as const) {
+          const wrist: IAutoMovieVector3 = frame.get(`${side}Hand`)!.worldPosition;
           const handle: IAutoMovieVector3 = part(
             `${side}Handle`,
             t,
@@ -184,43 +210,36 @@ export function test_human_motion_ride_rowing(): void {
             wrist.y - handle.y,
             wrist.z - handle.z,
           );
-          if (gap > worst.gap) worst = { gap, at: t };
+          if (gap > worst[side].gap) worst[side] = { gap, at: t };
         }
-        if (!(worst.gap <= 0.7 * body.measure.hand))
+      }
+      for (const side of ["left", "right"] as const) {
+        const miss: IHandleGap = worst[side];
+        if (!(miss.gap <= 0.7 * body.measure.hand))
           complaints.push(
-            `${label}: the ${side} wrist is ${(worst.gap * 1000).toFixed(0)} mm from its handle at ${worst.at.toFixed(2)} s, within ${(700 * body.measure.hand).toFixed(0)} mm expected`,
+            `${label}: the ${side} wrist is ${(miss.gap * 1000).toFixed(0)} mm from its handle at ${miss.at.toFixed(2)} s, within ${(700 * body.measure.hand).toFixed(0)} mm expected`,
           );
       }
 
-      // 2. The trunk leans to the first catch.
-      if (catches.length > 0) {
-        const bow = (t: number): number => {
-          const neck: IAutoMovieVector3 = HumanSignature.joint(
-            reader,
-            t,
-            "neck",
-          );
-          const hips: IAutoMovieVector3 = HumanSignature.joint(
-            reader,
-            t,
-            "hips",
-          );
-          // Toward the bow: the rower faces the stern, so the bow lies behind the seat's heading.
-          const local: IAutoMovieVector3 = Quaternion.rotateVector(
-            Quaternion.inverse(placed(t).rotation),
-            { x: neck.x - hips.x, y: neck.y - hips.y, z: neck.z - hips.z },
-          );
-          return local.z;
-        };
+      // The boat's rest time can already show the handles in catch position.
+      // Only the displayed entry into this ride is still the seated pose.
+      if (firstCatch !== undefined) {
         const trunk: number =
           body.measure.shoulderHeight - body.measure.hipHeight;
-        const upright: number = bow(WAIT);
-        const leant: number = bow(catches[0]!);
-        const ahead: number = Math.sign(along("bow") - along("stern"));
-        const lean: number = ahead * (leant - upright);
+        const entry: IAutoMovieMotionHumanSegment | undefined =
+          performance.segments("a").find((span: IAutoMovieMotionHumanSegment): boolean => span.name === "ride");
+        if (entry === undefined) {
+          complaints.push(`${label}: the film contains no placed ride`);
+          continue;
+        }
+        const upright: number = neckAhead(
+          HumanSignature.bones(reader, entry.entryTime),
+          entry.entryTime,
+        );
+        const lean: number = firstCatch - upright;
         if (!(lean >= 0.1 * trunk))
           complaints.push(
-            `${label}: at the first catch the neck lies ${(lean * 1000).toFixed(0)} mm further toward the bow than upright, at least ${(100 * trunk).toFixed(0)} mm expected (Agius et al. 2023)`,
+            `${label}: at the first catch the neck lies ${(lean * 1000).toFixed(0)} mm further forward than the ride entry, at least ${(100 * trunk).toFixed(0)} mm expected (Agius et al. 2023)`,
           );
       }
     }

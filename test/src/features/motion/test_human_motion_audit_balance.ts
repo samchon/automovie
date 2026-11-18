@@ -128,7 +128,8 @@ export function test_human_motion_audit_balance(): void {
     );
     const zToe: number = Math.max(...sole);
     const zHeel: number = Math.min(...sole);
-    // Hof et al. use 1.34 times the measured trochanteric height.
+    // The audit uses Hof et al.'s frontal-plane estimate of 1.34 times the
+    // trochanteric height as its isotropic pendulum length.
     const length: number = 1.34 * body.measure.hipHeight;
     const lead: number = Math.sqrt(length / AutoMovieGravity.STANDARD);
 
