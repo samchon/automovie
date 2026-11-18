@@ -54,14 +54,15 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  * broken, then made: Escande et al.). Bounds: the contact miss
  * (`support.MISS`, the audits' skin) and a stepping limb's rise
  * (`crawl.LIFT`), both the planner's owners.
- * 4. The step's events come in order: `lift1`, `bear1`, `stance1`.
- * 5. The left foot bears in two windows, the first closing at `lift1` and
- *    the second opening at `bear1` and lasting to the end; the right foot
- *    bears in one window over the whole step.
+ * 4. The step's events come in order: `stance0`, `lift1`, `bear1`, `stance1`.
+ * 5. The left foot leaves the floor after `stance0`, before its apex at
+ *    `lift1`. Its first bearing window closes at `stance0`, and the next
+ *    runs from `bear1` to the end. The right foot bears throughout.
  * 6. At `lift1` the left toe joint stands `crawl.LIFT` above the floor over
  *    the middle of the step, within the miss on each axis.
  * 7. At `bear1` the left toe joint lies on its new place across the floor
- *    within the miss.
+ *    within the miss. The displayed sole bears at each end of the swing
+ *    and clears the floor at the apex.
  * 8. The right toe joint stays on its place across the floor within the
  *    miss at every thirtieth of a second of the step. Its heel and ball
  *    also keep their own world points, which rules out pivoting about the toe.
@@ -291,19 +292,22 @@ export function test_human_motion_support_sequence(): void {
         ? undefined
         : step.start + e.share * step.plan.duration;
     };
+    const release: ReturnType<typeof at> = at("stance0");
     const lift: number | undefined = at("lift1");
     const bear: number | undefined = at("bear1");
     const held: number | undefined = at("stance1");
     // 4. The step's keys come in order: lifted, set down, held.
     all.check(
-      `lift1 ${lift?.toFixed(3)} s, bear1 ${bear?.toFixed(3)} s and stance1 ${held?.toFixed(3)} s in order`,
-      lift !== undefined &&
+      `stance0 ${release?.toFixed(3)} s, lift1 ${lift?.toFixed(3)} s, bear1 ${bear?.toFixed(3)} s and stance1 ${held?.toFixed(3)} s in order`,
+      release !== undefined &&
+        lift !== undefined &&
         bear !== undefined &&
         held !== undefined &&
+        release < lift &&
         lift < bear &&
         bear < held,
     );
-    // 5. The left foot bears twice, its first window closing at the lift and
+    // 5. The left foot bears twice, its first window closing as swing starts and
     // its second opening as it is set down; the right bears throughout.
     const left = step.plan.contacts.filter(
       (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === "leftFoot",
@@ -315,9 +319,10 @@ export function test_human_motion_support_sequence(): void {
     const share = (t: number | undefined): number =>
       t === undefined ? NaN : (t - step.start) / step.plan.duration;
     all.check(
-      `the left foot lets go at the lift and bears again as it is set down, read ${left.map((w) => `${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
+      `the left foot lets go at stance0 and bears again as it is set down, read ${left.map((w: IAutoMovieMotionHumanContactWindow): string => `${w.from.toFixed(3)}-${w.to.toFixed(3)}`).join(", ")}`,
       left.length === 2 &&
-        Math.abs(left[0]!.to - share(lift)) < 1e-9 &&
+        left[0]!.from === 0 &&
+        Math.abs(left[0]!.to - share(release)) < 1e-9 &&
         Math.abs(left[1]!.from - share(bear)) < 1e-9 &&
         left[1]!.to === 1,
     );
@@ -327,9 +332,10 @@ export function test_human_motion_support_sequence(): void {
         rightWindows[0]!.from === 0 &&
         rightWindows[0]!.to === 1,
     );
-    const joint = (t: number, side: AutoMovieHumanSide): IAutoMovieVector3 =>
-      stepped!.bones("a", t).get(`${side}Toes`)!.worldPosition;
-    if (lift !== undefined && bear !== undefined) {
+    function joint(t: number, side: AutoMovieHumanSide): IAutoMovieVector3 {
+      return stepped!.bones("a", t).get(`${side}Toes`)!.worldPosition;
+    }
+    if (release !== undefined && lift !== undefined && bear !== undefined) {
       // 6. At the top of the swing the left toe joint is over the step's
       // middle, a stepping limb's rise above the floor, within the miss.
       const top = joint(lift, "left");
@@ -347,11 +353,44 @@ export function test_human_motion_support_sequence(): void {
         `set down ${(Math.hypot(down.x - toes("left").x, down.z - ahead) * 1000).toFixed(1)} mm from its place, within ${support.MISS} mm`,
         Math.hypot(down.x - toes("left").x, down.z - ahead) <= miss,
       );
-      // 8. The bearing right foot does not slide over the step.
+      function lowest(bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]>): number {
+        return Math.min(...HumanFoot.sockets(body, bones, "left").map(
+          (socket: ReturnType<typeof HumanFoot.sockets>[number]): number => socket.point.y,
+        ));
+      }
+      const clearance: number = lowest(stepped.bones("a", lift));
+      all.check(
+        `the left sole clears the floor at the apex, read ${(clearance * 1000).toFixed(1)} mm`,
+        clearance > HumanFoot.BEARING,
+      );
+
+      // 8. The bearing feet stay on their intended spots. Include the two
+      // actual phase boundaries even if the 30 Hz grid misses them.
       let slide: number = 0;
       let soleDrift: number = 0;
+      let movingFootDrift: number = 0;
+      let movingFootFloor: number = 0;
+      let floorAt: number = step.start;
       const plantedSole: ReturnType<typeof HumanFoot.sockets> =
         HumanFoot.sockets(body, stepped.bones("a", step.start), "right");
+      function observeLeft(
+        bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]>,
+        target: number,
+        seconds: number,
+      ): void {
+        const toe: IAutoMovieVector3 = bones.get("leftToes")!.worldPosition;
+        movingFootDrift = Math.max(
+          movingFootDrift,
+          Math.hypot(toe.x - toes("left").x, toe.z - target),
+        );
+        const floor: number = lowest(bones);
+        if (Math.abs(floor) > Math.abs(movingFootFloor)) {
+          movingFootFloor = floor;
+          floorAt = seconds;
+        }
+      }
+      observeLeft(stepped.bones("a", release), toes("left").z, release);
+      observeLeft(stepped.bones("a", bear), ahead, bear);
       for (
         let t: number = step.start;
         t <= step.start + step.plan.duration;
@@ -359,6 +398,8 @@ export function test_human_motion_support_sequence(): void {
       ) {
         const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
           stepped.bones("a", t);
+        if (t <= release) observeLeft(bones, toes("left").z, t);
+        if (t >= bear) observeLeft(bones, ahead, t);
         const r: IAutoMovieVector3 = bones.get("rightToes")!.worldPosition;
         slide = Math.max(
           slide,
@@ -382,6 +423,10 @@ export function test_human_motion_support_sequence(): void {
       all.check(
         `the independent sole points drift at most ${(soleDrift * 1000).toFixed(1)} mm, within ${support.MISS} mm expected`,
         soleDrift <= miss,
+      );
+      all.check(
+        `the left foot bears on the two assigned places, with ${(movingFootDrift * 1000).toFixed(1)} mm toe drift and sole height ${(movingFootFloor * 1000).toFixed(1)} mm at ${floorAt.toFixed(3)} s`,
+        movingFootDrift <= miss && Math.abs(movingFootFloor) <= HumanFoot.BEARING,
       );
     }
   }

@@ -151,13 +151,14 @@ export namespace motionComposeTrunkCounterbalance {
         }
         return false;
       };
-      const at = (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPrimitive =>
-        AutoMovieMotionHumanTrunk.counterbalance(body, CLOCK, RISE, FALL, posture, BALANCE);
-      const read = (
+      function at(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPrimitive {
+        return AutoMovieMotionHumanTrunk.counterbalance(body, CLOCK, RISE, FALL, posture, BALANCE);
+      }
+      function read(
         extended: IAutoMovieMotionHumanPosture,
         phrase: IAutoMovieMotionHumanPrimitive,
         cell: string,
-      ): boolean => {
+      ): boolean {
         const before: number = HumanBalance.margin(body, extended);
         const full: IAutoMovieMotionHumanPosture = phrase.write(
           extended,
@@ -191,7 +192,7 @@ export namespace motionComposeTrunkCounterbalance {
             gap(phrase.write(extended, 1.25).root, extended.root) <= 1e-9,
         );
         return before < 0;
-      };
+      }
 
       // 6. A pose is refused exactly when no place of the hips balances it.
       // Read at one heading: the scan and the refusal run their whole

@@ -296,9 +296,11 @@ export function motionComposeLean(
       const half: IAutoMovieMotionHumanPosture = phrase.write(standing, 0.5);
       const none: IAutoMovieMotionHumanPosture = phrase.write(standing, 0);
       const shifted: number = back(full);
-      const margin = (shift: number): number => HumanBalance.margin(
-        body, AutoMovieMotionHumanLean.tip(body, standing, peak, shift),
-      );
+      function margin(shift: number): number {
+        return HumanBalance.margin(
+          body, AutoMovieMotionHumanLean.tip(body, standing, peak, shift),
+        );
+      }
       all.check(
         `${name}: a bow of ${peak} at weight 0 changes nothing`,
         none.pitch === 0 && near(at(none, "hips"), hips, 1e-9),

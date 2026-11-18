@@ -1,5 +1,8 @@
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanRiseSignature } from "../internal/motionHumanRiseSignature";
 import { motionHumanSignature as M } from "../internal/motionHumanSignature";
 import { motionPostureBranches } from "../internal/motionPostureBranches";
 
@@ -28,6 +31,8 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  *   inclination before `seatContact` in [15, 60] degrees (provisional
  *   limits).
  * - Feet: both feet stay on the floor throughout.
+ * - Rise: the trunk flexes before seat-off and stands aligned on both
+ *   feet, as measured in motionHumanRiseSignature.
  *
  * The trunk is read as the line from the hip joints' midpoint to the
  * shoulder joints' midpoint, the trunk segment of the cited studies, and
@@ -37,7 +42,7 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real sit law on real bodies and reads displayed joints and soles; a perched or sunk sit, an upright back that leans, a descent with an upright trunk or a lifted foot fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The seated posture is the standard's, the descent Kralj et al.'s, every limit marked provisional.
  * @evidence contracts/development/testing.md#distinguishing-cases The three distinct backs are compared within each of the two stature extremes. Default seating, shift and rise have independent stage checks.
- * @evidence contracts/development/testing.md#execution-ownership Fitting the lean on the large body and the slump on the small body is shared between the full transition audits and the independent angle and support checks.
+ * @evidence contracts/development/testing.md#execution-ownership The lean on the large body, and the slump and rise on the small body, share their films between full audits and independent geometry checks.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_law_sweep_posture_seat(): void {
@@ -48,6 +53,8 @@ export function test_human_motion_law_sweep_posture_seat(): void {
   complaints.list.push(...motionPostureBranches(AUDITED, (film, [law, row, name]): void => {
     if (law === "sit" && row !== "default")
       audited.set(`${row} ${name}`, { film, body: motionHumanBody(name), yaw: 0 });
+    if (law === "rise")
+      motionHumanRiseSignature({ film, body: motionHumanBody(name), yaw: 0 }, name, complaints);
   }));
 
   // Back shapes are compared within one rig so its proportion cancels.
@@ -69,21 +76,22 @@ export function test_human_motion_law_sweep_posture_seat(): void {
       const seated: number = M.event(s, "seated")!;
       const ts: number[] = M.times(seated, s.film.duration, M.HELD);
       for (const side of ["left", "right"] as const) {
-        const hip: number = M.mean(ts, (t) => M.hip(s, t, side));
-        const knee: number = M.mean(ts, (t) => M.knee(s, t, side));
+        const hip: number = M.mean(ts, (t: number): number => M.hip(s, t, side));
+        const knee: number = M.mean(ts, (t: number): number => M.knee(s, t, side));
         complaints.check(
           `${cell}: seated ${side} hip ${hip.toFixed(1)} and knee ${knee.toFixed(1)} deg, [70, 110] expected (ANSI/HFES 100-2007; provisional)`,
           hip >= 70 && hip <= 110 && knee >= 70 && knee <= 110,
         );
       }
-      back[row] = M.mean(ts, (t) => M.trunk(s, t));
+      back[row] = M.mean(ts, (t: number): number => M.trunk(s, t));
       // How far the head's joint stands ahead of the shoulder joints.
-      forward[row] = M.mean(ts, (t) => {
-        const h = M.joint(s, t, "head");
-        const l = M.joint(s, t, "leftUpperArm");
-        const r = M.joint(s, t, "rightUpperArm");
-        const f = M.forward(s.yaw);
-        return (h.x - (l.x + r.x) / 2) * f.x + (h.z - (l.z + r.z) / 2) * f.z;
+      forward[row] = M.mean(ts, (t: number): number => {
+        const head: IAutoMovieVector3 = M.joint(s, t, "head");
+        const left: IAutoMovieVector3 = M.joint(s, t, "leftUpperArm");
+        const right: IAutoMovieVector3 = M.joint(s, t, "rightUpperArm");
+        const heading: IAutoMovieVector3 = M.forward(s.yaw);
+        return (head.x - (left.x + right.x) / 2) * heading.x +
+          (head.z - (left.z + right.z) / 2) * heading.z;
       });
       let peak: number = -Infinity;
       let lifted: number = 0;
@@ -123,7 +131,12 @@ export function test_human_motion_law_sweep_posture_seat(): void {
   }
   for (const name of BODIES)
     for (const c of M.calibrate(name)) complaints.check(c, false);
-  complaints.assert("the sit has the signature of sitting down on a chair");
+  try {
+    motionHumanRiseSignature(M.stage("rise", "default", "m-large"), "m-large", complaints);
+  } catch (error) {
+    complaints.check(`m-large rise: ${error instanceof Error ? error.message : String(error)}`, false);
+  }
+  complaints.assert("Sitting and rising keep their prescribed geometry and supports");
 }
 
 /** The first audited film. Null indicates that this branch was already refused. */
