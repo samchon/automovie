@@ -3,7 +3,6 @@ import * as path from "node:path";
 
 import { MOTION_HUMAN_LAW_STAGES } from "../features/internal/MOTION_HUMAN_LAW_STAGES";
 import { motionHumanLawCovering } from "../features/internal/motionHumanLawCovering";
-import { motionSportRows } from "../features/internal/motionSportRows";
 
 /**
  * Writes the part specs of the universal law sweep,
@@ -15,15 +14,9 @@ import { motionSportRows } from "../features/internal/motionSportRows";
  * another size leaves none behind.
  *
  * Run with `pnpm --filter @automovie/test sweep:parts [cells] [family...]`:
- * `cells` is the most cells a part takes of one body (4 when absent), and
- * the families are those of `MOTION_HUMAN_LAW_STAGES` (all when absent).
- *
- * With `sweep:parts sportRows [checks]` it writes instead the parts of the
- * sport net (`motionSportRows`) on the bodies and proficiencies a row must
- * plan on beyond the trained nets of `test_human_motion_sport_rows_f_small`
- * and `_m_average`: the smallest and the largest body (`f-small`, `m-large`)
- * at `novice` and at `elite`, each cut into parts of at most `checks` checks
- * (`SPORT_CHECKS` when absent), `test_human_motion_sport_rows_<body>_<level>_<nn>.ts`.
+ * `cells` is the most cells a part takes of one body (4 when absent). The
+ * generated families are handling, locomotion, sport and striking. Posture
+ * and touch have maintained property and boundary specs.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is written, where, how a part is sized and how to run it.
  * @evidence contracts/development/implementation.md#principled-implementation The part count is read off the covering array itself, the cells each body performs, so the parts together are exactly the whole array.
@@ -35,14 +28,13 @@ import { motionSportRows } from "../features/internal/motionSportRows";
  */
 const main = (): void => {
   const args: string[] = process.argv.slice(2);
-  if (args[0] === "sportRows") return sportRows(args[1]);
   const cells: number = args[0] === undefined ? 4 : Number(args[0]);
   if (!Number.isInteger(cells) || cells < 1)
     throw new Error(
       `the cells a part takes must be a positive integer, not ${args[0]}`,
     );
   const families: string[] =
-    args.length > 1 ? args.slice(1) : Object.keys(MOTION_HUMAN_LAW_STAGES);
+    args.length > 1 ? args.slice(1) : Object.keys(CLAIMS);
   // The script runs from the test package (`pnpm --filter`), bundled into bin.
   const folder: string = path.join(process.cwd(), "src", "features", "motion");
   for (const family of families) {
@@ -91,92 +83,16 @@ const main = (): void => {
   }
 };
 
-/**
- * The most checks a sport net part takes: a check (one short performance)
- * measured about 10 s on 2026-11-16 (725 s for 73 performances of the sport
- * rows spec), so five keep a part under a minute alone.
- */
-const SPORT_CHECKS: number = 5;
-
-/** The bodies the sport net's parts cover: the smallest and the largest. */
-const SPORT_BODIES: readonly ("f-small" | "m-large")[] = ["f-small", "m-large"];
-
-/** The proficiencies the sport net's parts cover: its two ends, beyond the trained nets of `f-small` and `m-average`. */
-const SPORT_LEVELS: readonly ("novice" | "elite")[] = ["novice", "elite"];
-
-/** Writes the sport net's parts, at most `size` checks each (`SPORT_CHECKS` when absent). */
-const sportRows = (size: string | undefined): void => {
-  const checks: number = size === undefined ? SPORT_CHECKS : Number(size);
-  if (!Number.isInteger(checks) || checks < 1)
-    throw new Error(
-      `the checks a part takes must be a positive integer, not ${size}`,
-    );
-  const folder: string = path.join(process.cwd(), "src", "features", "motion");
-  const n: number = Math.ceil(motionSportRows.count() / checks);
-  const digits: number = String(n).length < 2 ? 2 : String(n).length;
-  for (const body of SPORT_BODIES)
-    for (const level of SPORT_LEVELS) {
-      const stem: string = `test_human_motion_sport_rows_${body.replace("-", "_")}_${level}`;
-      for (const file of fs.readdirSync(folder))
-        if (new RegExp(`^${stem}_\\d+\\.ts$`).test(file))
-          fs.rmSync(path.join(folder, file));
-      for (let i: number = 0; i < n; i++) {
-        const name: string = `${stem}_${String(i + 1).padStart(digits, "0")}`;
-        fs.writeFileSync(
-          path.join(folder, `${name}.ts`),
-          sportSpec(name, body, level, i, n),
-        );
-      }
-      console.log(`sport rows ${body} ${level}: ${n} parts of at most ${checks} checks`);
-    }
-};
-
-/** One sport net part's spec. */
-const sportSpec = (
-  name: string,
-  body: string,
-  level: string,
-  i: number,
-  n: number,
-): string =>
-  [
-    `import { motionSportRows } from "../internal/motionSportRows";`,
-    ``,
-    `/**`,
-    ` * Every kind of the sport, exercise, stretch and dance actions, and every`,
-    ` * row of \`HumanSport\`, is something a body can do at every proficiency:`,
-    ` * on ${body} at ${level} it is accepted and planned out of quiet standing,`,
-    ` * by the action's own method and by the row that names it for a screenplay.`,
-    ` * \`motionSportRows\` states the 2 scenarios.`,
-    ` *`,
-    ` * This is part ${i + 1} of ${n} of the net on ${body} at ${level}: the checks whose position in the net leaves ${i} when divided by ${n}; the ${n} parts together are the whole net. Written by \`pnpm --filter @automovie/test sweep:parts sportRows\`.`,
-    ` *`,
-    ` * @evidence contracts/development/testing.md#behavioral-verification Builds a performance of every kind and row of the part through the public chain and input on a real body; a kind that is refused, plans no time, or a row placed under another name fails with the kind, the body, the proficiency and the refusal's message.`,
-    ` * @evidence contracts/development/testing.md#independent-expectations That each kind is humanly performable out of standing at any proficiency is what the vocabulary claims; nothing is compared with a value read from a law.`,
-    ` * @evidence contracts/development/testing.md#distinguishing-cases The smallest and the largest body at the two ends of proficiency, each a spec of parts; the trained nets are \`test_human_motion_sport_rows_f_small\` and \`_m_average\`.`,
-    ` * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds this part's short performances, under a minute alone; the test program discovers every \`test_\` function, so \`pnpm test\` and the CI test job run it.`,
-    ` * @evidence contracts/development/common.md#meaningful-documentation States what the net catches, the part's share of it and where the scenarios are stated.`,
-    ` */`,
-    `export function ${name}(): void {`,
-    `  motionSportRows.run("${body}", "${level}", [${i}, ${n}]);`,
-    `}`,
-    ``,
-  ].join("\n");
-
 /** What each family's sweep claims, naming its laws. */
 const CLAIMS: Record<string, string> = {
   handling:
     "picking up, putting down, handing over, receiving, the handshake, throwing, catching, operating a mechanism, kicking a ball, using a tool, wiping and dressing",
   locomotion:
     "standing, walking, running, jumping, approaching, stepping over, stairs, a ladder, crawling and carrying",
-  posture:
-    "looking, gesturing, resting the hands, bracing, bending, crouching, kneeling, lying down, moving across supports, getting up from the floor, sitting, shifting, rising and typing",
   sport:
     "exercise repetitions, stretches, dance steps, the sprint start, the gymnast's stand, martial forms, ball handling, baseball postures, racket postures and swimming",
   striking:
     "the guard, the fighting step, the punch, the kick, the knee, the defences, the reactions to a blow and the clinch",
-  touch:
-    "a touch on a partner, a hand brought to the face, a kiss, a high five and the actions done to oneself",
 };
 
 /** One part's spec. */

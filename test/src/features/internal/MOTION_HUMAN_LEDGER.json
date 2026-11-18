@@ -178,7 +178,7 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionClock.phrase",
       "tests": [
-        "test_human_motion_compose_gaze_m_average",
+        "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_into_m_average",
         "test_human_motion_compose_touch_laid",
         "test_human_motion_compose_trunk_turn_m_average",
@@ -546,14 +546,14 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanGaze.look",
       "tests": [
-        "test_human_motion_compose_gaze_m_average"
+        "test_human_motion_compose_gaze"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanGaze.glance",
       "tests": [
-        "test_human_motion_compose_gaze_m_average"
+        "test_human_motion_compose_gaze"
       ]
     },
     {
@@ -1006,21 +1006,21 @@
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanRise.foot",
       "tests": [
-        "test_human_motion_compose_rise_m_average"
+        "test_human_motion_compose_rise"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanRise.lift",
       "tests": [
-        "test_human_motion_compose_rise_m_average"
+        "test_human_motion_compose_rise"
       ]
     },
     {
       "layer": "compose",
       "symbol": "AutoMovieMotionHumanRise.legs",
       "tests": [
-        "test_human_motion_compose_rise_m_average"
+        "test_human_motion_compose_rise"
       ]
     },
     {
@@ -1948,7 +1948,7 @@
       "layer": "posture",
       "symbol": "HumanFoot.heading",
       "tests": [
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_motion_compose_moves",
         "test_motion_compose_placed"
       ]
@@ -1957,7 +1957,7 @@
       "layer": "posture",
       "symbol": "HumanFoot.pitch",
       "tests": [
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_motion_compose_placed"
       ]
     },
@@ -1986,7 +1986,7 @@
       "layer": "posture",
       "symbol": "HumanFoot.point",
       "tests": [
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_motion_compose_placed",
         "test_motion_posture_frames"
       ]
@@ -2109,11 +2109,11 @@
       "tests": [
         "test_human_motion_audit_tangle",
         "test_human_motion_compose_arm_carry",
-        "test_human_motion_compose_gaze_m_average",
+        "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_m_average",
         "test_human_motion_compose_lean_into_m_average",
         "test_human_motion_compose_reach_fit_m_average",
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_human_motion_compose_touch_laid",
         "test_human_motion_compose_trunk_turn_m_average",
         "test_human_motion_posture_arm_clearance",
@@ -2128,11 +2128,11 @@
       "symbol": "resolveHumanPosture",
       "tests": [
         "test_human_motion_compose_arm_carry",
-        "test_human_motion_compose_gaze_m_average",
+        "test_human_motion_compose_gaze",
         "test_human_motion_compose_lean_m_average",
         "test_human_motion_compose_lean_into_m_average",
         "test_human_motion_compose_reach_fit_m_average",
-        "test_human_motion_compose_rise_m_average",
+        "test_human_motion_compose_rise",
         "test_human_motion_compose_touch_laid",
         "test_human_motion_compose_trunk_turn_m_average",
         "test_human_motion_posture_arm_clearance",
@@ -2567,8 +2567,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2576,10 +2575,7 @@
           "row": "with=auto",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2587,10 +2583,7 @@
           "row": "with=eyes",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2598,11 +2591,7 @@
           "row": "with=head",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2610,10 +2599,7 @@
           "row": "with=trunk",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2621,11 +2607,7 @@
           "row": "cue=seen",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         },
@@ -2633,11 +2615,7 @@
           "row": "cue=signal",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_gaze"
           ],
           "sweep": "reduced"
         }
@@ -2677,8 +2655,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_78"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2686,10 +2663,7 @@
           "row": "kind=wave",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2697,10 +2671,7 @@
           "row": "kind=raiseHand",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2708,11 +2679,7 @@
           "row": "kind=cheer",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_77"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2720,10 +2687,7 @@
           "row": "kind=stopPalm",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_79"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2731,10 +2695,7 @@
           "row": "kind=point",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2742,10 +2703,7 @@
           "row": "kind=palmsUp",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_81"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2753,10 +2711,7 @@
           "row": "kind=beckon",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_82"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -2764,10 +2719,7 @@
           "row": "kind=clap",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2775,10 +2727,7 @@
           "row": "kind=rubHands",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_84"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2786,46 +2735,7 @@
           "row": "kind=touchFace",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_74",
-            "test_human_motion_law_sweep_posture_75",
-            "test_human_motion_law_sweep_posture_76",
-            "test_human_motion_law_sweep_posture_77",
-            "test_human_motion_law_sweep_posture_78",
-            "test_human_motion_law_sweep_posture_79",
-            "test_human_motion_law_sweep_posture_80",
-            "test_human_motion_law_sweep_posture_81",
-            "test_human_motion_law_sweep_posture_82",
-            "test_human_motion_law_sweep_posture_85"
+            "test_human_motion_law_sweep_posture_gesture_face_central"
           ],
           "sweep": "reduced"
         },
@@ -2833,10 +2743,7 @@
           "row": "kind=palmsTogether",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2844,10 +2751,7 @@
           "row": "kind=pushGlasses",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_87"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2855,10 +2759,7 @@
           "row": "kind=scratchHead",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_88"
+            "test_human_motion_law_sweep_posture_gesture_contact"
           ],
           "sweep": "reduced"
         },
@@ -2866,10 +2767,7 @@
           "row": "kind=shrug",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_89"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2877,10 +2775,7 @@
           "row": "kind=nod",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_90"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2888,10 +2783,7 @@
           "row": "kind=shakeHead",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_91"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2899,10 +2791,7 @@
           "row": "kind=bow",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_92"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2910,10 +2799,7 @@
           "row": "kind=chinLift",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2921,10 +2807,7 @@
           "row": "kind=squareShoulders",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2932,10 +2815,7 @@
           "row": "kind=slump",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_gesture_joints"
           ],
           "sweep": "reduced"
         },
@@ -2943,97 +2823,87 @@
           "row": "kind=thumbsDown",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
         {
           "row": "region=forehead",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=noseBridge",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=mouth",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=chin",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=templeLeft",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=templeRight",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=earLeft",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=earRight",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_lateral"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "region=nape",
           "tests": [],
-          "audit": [],
+          "audit": [
+            "test_human_motion_law_sweep_posture_gesture_face_central"
+          ],
           "sweep": "reduced"
         },
         {
           "row": "side=left",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         },
@@ -3041,32 +2911,7 @@
           "row": "side=right",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_gesture_direct"
           ],
           "sweep": "reduced"
         }
@@ -3102,10 +2947,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3113,10 +2955,7 @@
           "row": "place=side",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_84"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3124,10 +2963,7 @@
           "row": "place=pocket",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_85"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3135,10 +2971,7 @@
           "row": "place=hip",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3146,10 +2979,7 @@
           "row": "place=crossed",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_87"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3157,10 +2987,7 @@
           "row": "place=claspedFront",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_88"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3168,10 +2995,7 @@
           "row": "place=claspedBehind",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_89"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3179,10 +3003,7 @@
           "row": "place=behindHead",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_90"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3190,10 +3011,7 @@
           "row": "place=chinRest",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_91"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         },
@@ -3201,10 +3019,7 @@
           "row": "place=elbowSupport",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_92"
+            "test_human_motion_law_sweep_posture_rest"
           ],
           "sweep": "reduced"
         }
@@ -3828,10 +3643,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         },
@@ -3839,10 +3651,7 @@
           "row": "back=upright",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         },
@@ -3850,10 +3659,7 @@
           "row": "back=lean",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         },
@@ -3861,10 +3667,7 @@
           "row": "back=slump",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_77"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         }
@@ -3899,18 +3702,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_81",
-            "test_human_motion_law_sweep_posture_82",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         }
@@ -3944,18 +3736,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_78",
-            "test_human_motion_law_sweep_posture_79",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_seat"
           ],
           "sweep": "reduced"
         }
@@ -4329,8 +4110,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_77"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4338,10 +4118,7 @@
           "row": "strategy=stoop",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_29",
-            "test_human_motion_law_sweep_posture_55",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4349,10 +4126,7 @@
           "row": "strategy=semiSquat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_32",
-            "test_human_motion_law_sweep_posture_52",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4360,11 +4134,7 @@
           "row": "strategy=squat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_11",
-            "test_human_motion_law_sweep_posture_12",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_76"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4372,10 +4142,7 @@
           "row": "strategy=auto",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_78"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4383,11 +4150,7 @@
           "row": "side=left",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_31",
-            "test_human_motion_law_sweep_posture_53",
-            "test_human_motion_law_sweep_posture_75"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         },
@@ -4395,11 +4158,7 @@
           "row": "side=right",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_30",
-            "test_human_motion_law_sweep_posture_51",
-            "test_human_motion_law_sweep_posture_54",
-            "test_human_motion_law_sweep_posture_74"
+            "test_human_motion_law_sweep_posture_bend"
           ],
           "sweep": "reduced"
         }
@@ -4482,10 +4241,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_70"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         },
@@ -4493,10 +4249,7 @@
           "row": "kind=impact",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         },
@@ -4504,10 +4257,7 @@
           "row": "kind=push",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         },
@@ -4515,10 +4265,7 @@
           "row": "kind=catchBody",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_brace"
           ],
           "sweep": "reduced"
         }
@@ -4557,18 +4304,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_84",
-            "test_human_motion_law_sweep_posture_85",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_type_text"
           ],
           "sweep": "reduced"
         }
@@ -5008,10 +4744,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_13",
-            "test_human_motion_law_sweep_posture_16",
-            "test_human_motion_law_sweep_posture_17",
-            "test_human_motion_law_sweep_posture_81"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -5019,10 +4752,7 @@
           "row": "depth=partial",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_34",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_79"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -5030,10 +4760,7 @@
           "row": "depth=full",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_57",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -5041,10 +4768,7 @@
           "row": "heels=flat",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_14",
-            "test_human_motion_law_sweep_posture_33",
-            "test_human_motion_law_sweep_posture_58",
-            "test_human_motion_law_sweep_posture_80"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         },
@@ -5052,10 +4776,7 @@
           "row": "heels=up",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_15",
-            "test_human_motion_law_sweep_posture_35",
-            "test_human_motion_law_sweep_posture_56",
-            "test_human_motion_law_sweep_posture_79"
+            "test_human_motion_law_sweep_posture_crouch"
           ],
           "sweep": "reduced"
         }
@@ -5093,8 +4814,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_18",
-            "test_human_motion_law_sweep_posture_85"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -5102,10 +4822,7 @@
           "row": "kind=one",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_37",
-            "test_human_motion_law_sweep_posture_62",
-            "test_human_motion_law_sweep_posture_82"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -5113,10 +4830,7 @@
           "row": "kind=both",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_39",
-            "test_human_motion_law_sweep_posture_60",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -5124,11 +4838,7 @@
           "row": "kind=sitBack",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_21",
-            "test_human_motion_law_sweep_posture_22",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_84"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -5136,10 +4846,7 @@
           "row": "knee=left",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_19",
-            "test_human_motion_law_sweep_posture_36",
-            "test_human_motion_law_sweep_posture_61",
-            "test_human_motion_law_sweep_posture_83"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         },
@@ -5147,10 +4854,7 @@
           "row": "knee=right",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_20",
-            "test_human_motion_law_sweep_posture_38",
-            "test_human_motion_law_sweep_posture_59",
-            "test_human_motion_law_sweep_posture_82"
+            "test_human_motion_law_sweep_posture_kneel"
           ],
           "sweep": "reduced"
         }
@@ -5453,10 +5157,7 @@
           "row": "default",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_23",
-            "test_human_motion_law_sweep_posture_40",
-            "test_human_motion_law_sweep_posture_63",
-            "test_human_motion_law_sweep_posture_86"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -5464,10 +5165,7 @@
           "row": "position=supine",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_01",
-            "test_human_motion_law_sweep_posture_41",
-            "test_human_motion_law_sweep_posture_64",
-            "test_human_motion_law_sweep_posture_87"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -5475,10 +5173,7 @@
           "row": "position=prone",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_02",
-            "test_human_motion_law_sweep_posture_42",
-            "test_human_motion_law_sweep_posture_65",
-            "test_human_motion_law_sweep_posture_88"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -5486,10 +5181,7 @@
           "row": "position=lateralLeft",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_03",
-            "test_human_motion_law_sweep_posture_43",
-            "test_human_motion_law_sweep_posture_66",
-            "test_human_motion_law_sweep_posture_89"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         },
@@ -5497,10 +5189,7 @@
           "row": "position=lateralRight",
           "tests": [],
           "audit": [
-            "test_human_motion_law_sweep_posture_04",
-            "test_human_motion_law_sweep_posture_44",
-            "test_human_motion_law_sweep_posture_67",
-            "test_human_motion_law_sweep_posture_90"
+            "test_human_motion_law_sweep_posture_lie_down"
           ],
           "sweep": "reduced"
         }
@@ -5526,18 +5215,7 @@
             "test_human_motion_support_sequence"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_05",
-            "test_human_motion_law_sweep_posture_06",
-            "test_human_motion_law_sweep_posture_07",
-            "test_human_motion_law_sweep_posture_24",
-            "test_human_motion_law_sweep_posture_45",
-            "test_human_motion_law_sweep_posture_46",
-            "test_human_motion_law_sweep_posture_47",
-            "test_human_motion_law_sweep_posture_68",
-            "test_human_motion_law_sweep_posture_69",
-            "test_human_motion_law_sweep_posture_70",
-            "test_human_motion_law_sweep_posture_91",
-            "test_human_motion_law_sweep_posture_92"
+            "test_human_motion_law_sweep_posture_support"
           ],
           "sweep": "reduced"
         }
@@ -5576,11 +5254,7 @@
             "test_human_motion_floor_get_up"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_08",
-            "test_human_motion_law_sweep_posture_25",
-            "test_human_motion_law_sweep_posture_28",
-            "test_human_motion_law_sweep_posture_48",
-            "test_human_motion_law_sweep_posture_71"
+            "test_human_motion_law_sweep_posture_get_up"
           ],
           "sweep": "reduced"
         },
@@ -5590,10 +5264,7 @@
             "test_human_motion_floor_get_up"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_09",
-            "test_human_motion_law_sweep_posture_26",
-            "test_human_motion_law_sweep_posture_49",
-            "test_human_motion_law_sweep_posture_72"
+            "test_human_motion_law_sweep_posture_get_up"
           ],
           "sweep": "reduced"
         },
@@ -5603,10 +5274,7 @@
             "test_human_motion_floor_get_up"
           ],
           "audit": [
-            "test_human_motion_law_sweep_posture_10",
-            "test_human_motion_law_sweep_posture_27",
-            "test_human_motion_law_sweep_posture_50",
-            "test_human_motion_law_sweep_posture_73"
+            "test_human_motion_law_sweep_posture_get_up"
           ],
           "sweep": "reduced"
         }

@@ -27,8 +27,6 @@ jobs:
             select: --include test_human_motion_ --exclude law_sweep lexicon test_human_motion_core_flight_sample
           - name: sweep-posture
             select: --include law_sweep_posture
-          - name: sweep-touch
-            select: --include law_sweep_touch
           - name: lexicon
             select: --include test_human_motion_lexicon
           - name: other
