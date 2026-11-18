@@ -1,4 +1,7 @@
 import {
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
   createWheelchair,
   rideWheelchair,
   wheelchairHandrimFrame,
@@ -35,7 +38,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * roll away from the hands. Slowik et al. 2015, Table 1
  * (https://pmc.ncbi.nlm.nih.gov/articles/PMC4631660/#T1) measured level
  * strokes of 78.3 degrees and 37.6% contact at 0.890 Hz. This fixture
- * stages those means on a straight course and centers the arc at the top.
+ * stages those means on a straight course using a low seat and forward axle.
  *
  * Scenarios:
  *
@@ -47,8 +50,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    seated entry pose within 10 mm, measured in the chair frame.
  * 2. The seat moves at most 10 mm relative to its chair at each sampled time.
  *    The hands' ownership begins at catch and ends at release.
- * 3. Refuse absent rims, a center-only point, swapped sides, a different
- *    chair's seat, an unreachable lower arc, and zero push duration.
+ * 3. The stock chair fits a 30 degree arc on the average body. Refuse the
+ *    longer arc on that chair, absent rims, a center-only point, swapped
+ *    sides, a different chair's seat, a lower arc, and zero push duration.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged kinematics, bounds, body cases and refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed wrists and seat from a composed HumanPerformance and checks the planned windows against the authored stroke clock.
@@ -57,12 +61,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Builds archetypes and performers in memory and invokes the public registered-action entry.
  */
 export function test_human_motion_ride_handrim_stroke(): void {
-  const arc: number = 78.3;
+  const measuredArc: number = 78.3;
   const cycle: number = 1 / 0.89;
   const push: number = cycle * 0.376;
   const approach: number = 0.45;
   const recovery: number = cycle - push;
-  const catchAngle: number = -arc / 2;
   const radians: number = Math.PI / 180;
   const params: IAutoMovieMotionHumanHandrimStroke = {
     on: "chair",
@@ -73,21 +76,28 @@ export function test_human_motion_ride_handrim_stroke(): void {
   };
   const notes: string[] = [];
   const contactGap: number = 0.01;
-  for (const key of ["m-average", "f-small"] as const) {
+  for (const [key, stock] of [
+    ["m-average", false],
+    ["f-small", false],
+    ["m-average", true],
+  ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
-    const chair: ReturnType<typeof createWheelchair> = createWheelchair(
-      { kind: "selfPropelled" },
-      2,
-    );
+    const chair: ReturnType<typeof createWheelchair> = stock
+      ? createWheelchair({ kind: "selfPropelled" }, 2)
+      : fittedWheelchair(key === "f-small" ? 0.38 : 0.41);
     const wheelRadius: number = chair.dimensions.wheelDiameter! / 2;
+    const arc: number = stock ? 30 : measuredArc;
+    const catchAngle: number = -arc / 2;
     const cruise: number = (wheelRadius * arc * radians) / push;
-    const course: ReturnType<typeof rideWheelchair> = rideWheelchair(chair, {
-      start: { x: 2, z: -1, heading: 63 },
-      legs: [{ kind: "straight", length: 4 }],
-      cruise,
-      acceleration: cruise / 0.1,
-      deceleration: cruise / 0.2,
-    });
+    const route = (speed: number): ReturnType<typeof rideWheelchair> =>
+      rideWheelchair(chair, {
+        start: { x: 2, z: -1, heading: 63 },
+        legs: [{ kind: "straight", length: 4 }],
+        cruise: speed,
+        acceleration: speed / 0.1,
+        deceleration: speed / 0.2,
+      });
+    const course: ReturnType<typeof rideWheelchair> = route(cruise);
     const initial: IAutoMovieTransform = course.at(0).placement;
     const origin: IAutoMovieRigidTransform = {
       position: initial.translation,
@@ -136,8 +146,11 @@ export function test_human_motion_ride_handrim_stroke(): void {
     const courseAtCatch: number = 0.3;
     const begins: number = prepared.duration + approach - courseAtCatch;
     const clock = (film: number): number => Math.max(0, film - begins);
-    const placed = (film: number): IAutoMovieRigidTransform => {
-      const frame: IAutoMovieTransform = course.at(clock(film)).placement;
+    const placed = (
+      film: number,
+      ride: ReturnType<typeof rideWheelchair> = course,
+    ): IAutoMovieRigidTransform => {
+      const frame: IAutoMovieTransform = ride.at(clock(film)).placement;
       return { position: frame.translation, rotation: frame.rotation };
     };
     const bearing: ReturnType<typeof wheelchairHandrimFrame> =
@@ -145,12 +158,30 @@ export function test_human_motion_ride_handrim_stroke(): void {
     const lowBearing: ReturnType<typeof wheelchairHandrimFrame> =
       wheelchairHandrimFrame(course, courseAtCatch, 180);
     /** The source of the rim point and the seat arrangement under test. */
-    type Case = "stroke" | "hub" | "transport" | "wrongSeat" | "low";
+    type Case =
+      | "stroke"
+      | "hub"
+      | "transport"
+      | "wrongSeat"
+      | "low"
+      | "wideArc";
     const perform = (
       stroke: IAutoMovieMotionHumanHandrimStroke,
       kind: Case,
-    ): HumanPerformance =>
-      new HumanPerformance({
+    ): HumanPerformance => {
+      const ride: ReturnType<typeof rideWheelchair> =
+        kind === "wideArc"
+          ? route((wheelRadius * measuredArc * radians) / push)
+          : course;
+      const points: ReturnType<typeof wheelchairHandrimFrame> =
+        kind === "wideArc"
+          ? wheelchairHandrimFrame(ride, courseAtCatch, -measuredArc / 2)
+          : kind === "hub"
+            ? course.frame
+            : kind === "low"
+              ? lowBearing
+              : bearing;
+      return new HumanPerformance({
         seed: "handrim",
         performers: [performer(kind === "wrongSeat" ? otherSeat : seat)],
         laws: [HumanHandrimStroke],
@@ -161,13 +192,9 @@ export function test_human_motion_ride_handrim_stroke(): void {
               ? createWheelchair({ kind: "transport" }, 2)
               : chair,
             origin,
-            placed,
+            (film: number): IAutoMovieRigidTransform => placed(film, ride),
             (id: string, film: number): IAutoMovieTransform =>
-              (kind === "hub"
-                ? course.frame
-                : kind === "low"
-                  ? lowBearing
-                  : bearing)(id as createWheelchair.Affordance, clock(film)),
+              points(id as createWheelchair.Affordance, clock(film)),
           ),
           HumanObject.prop("other-chair", chair, other),
         ],
@@ -175,6 +202,7 @@ export function test_human_motion_ride_handrim_stroke(): void {
           kind === "wrongSeat" ? otherSeat : seat,
         ).registered("handrimStroke", stroke).node,
       });
+    };
 
     const performance: HumanPerformance = perform(params, "stroke");
     const segment: IAutoMovieMotionHumanSegment =
@@ -182,7 +210,7 @@ export function test_human_motion_ride_handrim_stroke(): void {
     const catchAt: number = segment.entryTime + approach;
     const releaseAt: number = catchAt + push;
     const diagnostic = (ok: boolean, message: string): void => {
-      if (!ok) notes.push(key + " " + message);
+      if (!ok) notes.push(`${key} ${stock ? "stock" : "fitted"} ${message}`);
     };
     const middle: number = releaseAt + recovery / 2;
     const terminal: number = segment.end;
@@ -322,7 +350,7 @@ export function test_human_motion_ride_handrim_stroke(): void {
       );
     }
 
-    if (key === "m-average") {
+    if (stock) {
       const refusal = (
         kind: Case,
         stroke: IAutoMovieMotionHumanHandrimStroke,
@@ -354,6 +382,7 @@ export function test_human_motion_ride_handrim_stroke(): void {
       );
       refusal("wrongSeat", params, "seat", "base");
       refusal("low", params, "rims.left", "reach");
+      refusal("wideArc", params, "rims.left", "reach");
       refusal("stroke", { ...params, push: 0 }, "push", "parameter");
     }
   }
@@ -362,4 +391,108 @@ export function test_human_motion_ride_handrim_stroke(): void {
     notes,
     [],
   );
+}
+
+/**
+ * Build an authored propulsion chair with the seat at 16 inches and the
+ * rear axle 4 inches ahead of the back posts, within TiLite Aero Z's seat
+ * height and centre-of-gravity adjustments (TiLite Z Order Form, June 2025,
+ * p. 2, https://www.spinlife.com/files/tilite-z-us-of_0725.pdf). The wheels, pushrim tubes,
+ * articulation pivots and contact frames use the same axle coordinates.
+ */
+function fittedWheelchair(depth: number): ReturnType<typeof createWheelchair> {
+  const draw: ArchetypeDrawSession<createWheelchair.Dimension> =
+    new ArchetypeDrawSession(
+      "fittedWheelchair",
+      createWheelchair.UNITS,
+      undefined,
+    );
+  const chair: ArchetypeBuilder<
+    createWheelchair.Affordance,
+    createWheelchair.Dimension
+  > = new ArchetypeBuilder({
+    material: "composite",
+    name: "fitted wheelchair",
+    draw,
+  });
+  const v: typeof Vector3.create = Vector3.create;
+  const seat: number = draw.derive("seatHeight", 16 * 0.0254);
+  const breadth: number = draw.derive("seatWidth", 0.4);
+  const wheel: number = draw.derive("wheelDiameter", 24 * 0.0254) / 2;
+  const axle: number = 4 * 0.0254;
+  const rimRadius: number = createWheelchair.RIM / 2;
+  const segments: number = 24;
+  draw.derive("seatDepth", depth);
+  chair.box("seat", v(breadth, 0.03, depth), v(0, seat - 0.015, depth / 2));
+  chair.box("back", v(breadth, 0.38, 0.03), v(0, seat + 0.19, 0));
+  chair.box("footboard", v(0.28, 0.025, 0.15), v(0, 0.12, depth + 0.13));
+  chair.affordance({
+    id: "seat",
+    kind: "seat",
+    frame: ArchetypeFrame.upright(v(0, seat, depth)),
+    extent: null,
+    width: breadth,
+    depth,
+  });
+  for (const [side, sign] of [
+    ["left", 1],
+    ["right", -1],
+  ] as const) {
+    const hub: IAutoMovieVector3 = v(sign * 0.27, wheel, axle);
+    const rim: IAutoMovieVector3 = v(sign * 0.29, wheel, axle);
+    const wheelPart: string = `${side}Wheel`;
+    const ringParts: string[] = [];
+    chair.rod(
+      wheelPart,
+      wheel,
+      v(hub.x - 0.012, wheel, axle),
+      v(hub.x + 0.012, wheel, axle),
+      { surface: "rubber" },
+    );
+    chair.rod(
+      `${side}Caster`,
+      0.06,
+      v(sign * 0.18 - 0.012, 0.06, depth),
+      v(sign * 0.18 + 0.012, 0.06, depth),
+      { surface: "rubber" },
+    );
+    chair.rod(
+      `${side}Frame`,
+      0.015,
+      v(sign * 0.18, 0.06, depth),
+      v(sign * 0.18, seat, 0),
+    );
+    /** A vertex of the pushrim's rendered tube centreline, in chair metres. */
+    const point = (index: number): IAutoMovieVector3 => {
+      const angle: number = (2 * Math.PI * index) / segments;
+      return v(
+        rim.x,
+        rim.y + rimRadius * Math.cos(angle),
+        rim.z + rimRadius * Math.sin(angle),
+      );
+    };
+    for (let i: number = 0; i < segments; ++i) {
+      const piece: string = `${side}Rim${i}`;
+      chair.rod(piece, 0.008, point(i), point(i + 1));
+      ringParts.push(piece);
+    }
+    chair.affordance({
+      id: `${side}Spin`,
+      kind: "knob",
+      frame: ArchetypeFrame.facing(hub, v(1, 0, 0), v(0, 1, 0)),
+      extent: null,
+      travel: 360,
+      parts: [wheelPart, ...ringParts],
+    });
+    chair.affordance({
+      id: `${side}Rim`,
+      kind: "wheel",
+      frame: ArchetypeFrame.facing(rim, v(-sign, 0, 0), v(0, 0, 1)),
+      extent: null,
+      grip: "power",
+      radius: rimRadius,
+      rides: `${side}Spin`,
+    });
+  }
+  return chair.build(13, { rests: "rubber" });
 }
