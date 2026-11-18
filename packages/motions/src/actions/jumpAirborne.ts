@@ -200,12 +200,13 @@ export namespace jumpAirborne {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The members are the plan's own (`IHumanActionPlan.flight`, `airborne`).
    */
   export interface ITurning {
-    /** Action-local seconds obtained from the declared flight shares and duration. */
+    /** Takeoff in action-local seconds, reconstructed from the authored flight share and duration. */
     from: number;
+    /** Touchdown in action-local seconds, reconstructed from the authored flight share and duration. */
     to: number;
 
     /** The plan's flight members, none for a flight with no turns. */
-    declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne">;
+    declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember>;
 
     /**
      * A posture in flight with the rotation handed back, unchanged before
@@ -284,7 +285,7 @@ export namespace jumpAirborne {
     const sideways: boolean =
       rotation?.way === "left" || rotation?.way === "right";
     let rotated: ((seconds: number) => IAutoMovieHumanPostureRotation) | null = null;
-    const declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne"> =
+    const declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember> =
       somersault === 0 && twist === 0
         ? {}
         : {
@@ -358,6 +359,9 @@ export namespace jumpAirborne {
     };
   }
 }
+
+/** Action-plan members supplied for an authored turning flight. */
+type FlightMember = "flight" | "airborne";
 
 /** A flight's turn at touchdown as the landing carries it away: about the touchdown centre, an axis, an angle (degrees) and its rate there (degrees a second). */
 interface ITouchdown {
