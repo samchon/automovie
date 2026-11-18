@@ -265,7 +265,7 @@ export namespace IAutoMovieMotionHumanLayer {
     /** When it ends; the film's end when absent. */
     to?: AutoMovieMotionHumanScheduledInstant;
 
-    /** Seconds over which it comes in after `from` and goes out before `to`; 0.3 when absent. */
+    /** Seconds over which it comes in after `from` and goes out before `to`; an overlay's fade (`HumanSegment.FADE`) when absent. */
     fade?: number;
 
     /**

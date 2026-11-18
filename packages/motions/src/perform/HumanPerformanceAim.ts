@@ -231,9 +231,13 @@ export namespace HumanPerformanceAim {
 
   /**
    * The aiming frame of a performer standing in a posture: its root and
-   * heading, and a `none` target's lines from the body's measures:
-   * hipHeight minus 0.3 thigh, chestHeight, and headHeight minus 0.5
-   * headRadius. Its range is `0.9 * (thigh + shank)`, all in metres.
+   * heading, and a `none` target's lines on a virtual opponent of the
+   * performer's own build: the thigh's middle, where a low kick lands; the
+   * chest joint; and the chin, whose mandible's lower border lies at about
+   * the third cervical vertebra (Gray's Anatomy), the middle of the cervical
+   * spine between the neck's base and the head joint. The opponent stands at
+   * the performer's arm's length, the measure a straight arm meets them at.
+   * All in metres.
    *
    * @param body The performer's body.
    * @param posture The posture they stand in.
@@ -244,7 +248,7 @@ export namespace HumanPerformanceAim {
    * @evidence contracts/development/common.md#meaningful-documentation States the posture root and heading, measure-derived line heights/range, lazy own-bone reader and optional subject used by self and carried-prop aims.
    * @evidence contracts/development/implementation.md#principled-implementation Copies the posture's world root reference and degree heading, derives fixed standing line heights and range from the body's own measures, and carries the supplied own-bone callback without invoking it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One record assembly keeps scalar frame construction separate from potentially expensive bone resolution.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the existing 0.3 thigh, 0.5 head-radius and 0.9 leg-length formulas; does not normalize, resolve or substitute the caller's body, posture or bone callback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every line and the range is a landmark of the body's own measures, stated with its source; does not normalize, resolve or substitute the caller's body, posture or bone callback.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant scalar arithmetic plus one frame and one heights record; construction performs no FK or limb fit.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This constructor stores no memo; callers such as Ahead own any unchanged-input evaluation scope and invalidation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the new frame/heights records; root, body and callback are borrowed. The returned frame retains those inputs until released, and a retained callback keeps its producer's existing lifetime and read semantics.
@@ -259,11 +263,11 @@ export namespace HumanPerformanceAim {
       root: posture.root,
       yaw: posture.yaw,
       heights: {
-        low: body.measure.hipHeight - 0.3 * body.measure.thigh,
+        low: body.measure.hipHeight - body.measure.thigh / 2,
         middle: body.measure.chestHeight,
-        high: body.measure.headHeight - 0.5 * body.measure.headRadius,
+        high: (body.measure.neckHeight + body.measure.headHeight) / 2,
       },
-      range: 0.9 * (body.measure.thigh + body.measure.shank),
+      range: body.measure.upperArm + body.measure.forearm + body.measure.hand,
       body,
       bones,
       ...(subject === undefined ? {} : { subject }),

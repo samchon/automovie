@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanSegment } from "./HumanSegment";
 
 /**
  * The instants of a performance and the windows of its layers: an instant
@@ -127,15 +128,16 @@ export namespace HumanPerformanceLayers {
   /**
    * A layer window's own named instants: it starts coming in at `onset`, is
    * fully in at `full`, starts going out at `offset` and is gone at `end`.
-   * The fade is the one the window is displayed with: the one asked, 0.3 s
-   * when none is, and never more than half the window.
+   * The fade is the one the window is displayed with: the one asked, an
+   * overlay's (`HumanSegment.FADE`) when none is, and never more than half
+   * the window.
    */
   export function instants(
     from: number,
     to: number,
     fade: number | undefined,
   ): IAutoMovieScheduleCue[] {
-    const ramp: number = Math.max(0, Math.min(fade ?? 0.3, (to - from) / 2));
+    const ramp: number = Math.max(0, Math.min(fade ?? HumanSegment.FADE, (to - from) / 2));
     return [
       { name: "onset", seconds: from },
       { name: "full", seconds: from + ramp },
@@ -174,7 +176,7 @@ export namespace HumanPerformanceLayers {
         reason: `the layer ${layer.name} would run from ${from.toFixed(2)} s to ${to.toFixed(2)} s`,
         fix: "end the layer after it starts",
       });
-    const fade: number = Math.min(scheduled.fade ?? 0.3, (to - from) / 2);
+    const fade: number = Math.min(scheduled.fade ?? HumanSegment.FADE, (to - from) / 2);
     for (const segment of person.segments) {
       const D: number = segment.plan.duration;
       for (const contact of segment.plan.contacts) {

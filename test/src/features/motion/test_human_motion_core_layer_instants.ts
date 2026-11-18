@@ -36,7 +36,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. A sigh of `b` windowed from `air`'s `offset`: before 3.5 s the film
  *    shows `b` where the film without the sigh does, to a micrometre, and
  *    within the 2 s after it some joint centre differs by more than 1 mm.
- * 4. A window of 0.4 s with the default fade of 0.3 s is fully in at its
+ * 4. A window of 0.4 s with the default fade, an overlay's, is fully in at its
  *    middle and goes out from there: a fade never takes more than half the
  *    window.
  * 5. A layer whose window waits for an action cannot be synced to by an
