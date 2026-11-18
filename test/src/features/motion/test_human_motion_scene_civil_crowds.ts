@@ -32,17 +32,26 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    floor, and their onsets spread (a crowd does not turn as one).
  * 2. Mob: 30 rabble and 30 civilians flee 30 m from the same places; no two
  *    members' courses come within their summed half breadths; every member
- *    arrives. The rabble's arrivals spread wider, read by Levene's test in
- *    its Brown-Forsythe form (absolute deviations from each group's median,
- *    robust to the skewed, long-tailed arrivals), one-sided at alpha 0.05
- *    (t > z_0.95). The sample is sized for that test: over `PILOT` seeds,
- *    the arrivals the presets' drawn desires alone imply (latency plus the
- *    course over the desired speed) give the expected difference delta of
- *    the two groups' mean absolute deviations and their pooled variance
- *    s^2, and the steered scenes are as many as the two-sample t-test on
- *    the deviations needs for power 0.8, n = 2 (z_0.95 + z_0.8)^2 s^2 /
- *    delta^2 arrivals per preset (sizing it for the variance ratio, as it
- *    was, left the median-deviation test underpowered: t 0.304 over 450).
+ *    arrives. The rabble's arrivals spread wider for its pace: the rabble
+ *    runs at its morale's 1.5 times the desired speed
+ *    (`HUMAN_ATTRIBUTE_EFFECTS.morale.speed`), which shortens every course
+ *    and the spread of the courses in seconds by that factor, so a ragged
+ *    run is a wider relative spread, read on the logarithms of the
+ *    arrivals, whose dispersion compares relative variabilities (Lewontin
+ *    1966, Syst Zool 15:141). In seconds the presets' desires alone do not
+ *    order the two: over the steered scenes' own draws they deviate 2.003 s
+ *    (rabble) and 2.051 s (civilians) from their medians. The spread is
+ *    read by Levene's test in its Brown-Forsythe form (absolute deviations
+ *    from each group's median, robust to skewed, long-tailed arrivals),
+ *    one-sided at alpha 0.05 (t > z_0.95). The sample is sized for that
+ *    test: over `PILOT` seeds, the arrivals the presets' drawn desires alone
+ *    imply (latency plus the course over the desired speed) give the
+ *    expected difference delta of the two groups' mean absolute deviations
+ *    and their pooled variance s^2, and the steered scenes are as many as
+ *    the two-sample t-test on the deviations needs for power 0.99, n = 2
+ *    (z_0.95 + z_0.99)^2 s^2 / delta^2 arrivals per preset: the seeded
+ *    scenes are one draw, which a power of 0.8 lets miss a true effect one
+ *    time in five.
  * 3. Street: 24 pedestrians, about two thirds in groups of two and three
  *    (Moussaid et al. 2010), each group steered as one agent: every grouped
  *    member shares its group's course, groups and singles keep apart, and
@@ -53,7 +62,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    courses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs and steers crowds and reads look onsets and courses: a look before the shot, a crowd turning as one, members passing through each other, a member left behind, a rabble as orderly as civilians, groups split apart, clones, or a scene that does not replay is caught.
- * @evidence contracts/development/testing.md#independent-expectations The floor is the false-start rule; rabble wider than civilians is the requirement's relation, read by Levene's test (Brown-Forsythe) at alpha 0.05 over a sample sized by that test's own power for the difference of median deviations the presets imply; group shares are Moussaid et al.'s; non-penetration and arrival are the scene's requirement; the clone floor is provisional and named.
+ * @evidence contracts/development/testing.md#independent-expectations The floor is the false-start rule; rabble wider than civilians for its pace is the requirement's relation, read on log arrivals (Lewontin 1966) by Levene's test (Brown-Forsythe) at alpha 0.05 over a sample sized by that test's own power of 0.99 for the difference of median deviations the presets imply; group shares are Moussaid et al.'s; non-penetration and arrival are the scene's requirement; the clone floor is provisional and named.
  * @evidence contracts/development/testing.md#distinguishing-cases A shot, a mob of two presets, a street with groups, an anti-clone pass and a replay with another seed; the carriage parting is `test_human_motion_crowd_parting`'s.
  * @evidence contracts/development/testing.md#execution-ownership A scene test of the motions package on prepared polygon-man bodies, discovered by its exported name; events and courses, no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
@@ -205,16 +214,17 @@ export function test_human_motion_scene_civil_crowds(): void {
     );
   };
 
-  // Levene's test in its Brown-Forsythe form (absolute deviations from each group's median, robust to skewed arrivals), one-sided: for two groups it is the pooled t-test on those deviations, read against z_0.95.
+  // Levene's test in its Brown-Forsythe form (absolute deviations from each group's median, robust to skewed arrivals), one-sided: for two groups it is the pooled t-test on those deviations, read against z_0.95. It reads the logarithms of the arrivals, whose dispersion is the relative spread (Lewontin 1966): the rabble's faster pace shortens its arrivals and their spread in seconds alike.
   const deviations = (a: readonly number[]): number[] => {
-    const sorted: number[] = [...a].sort(
+    const logs: number[] = a.map((x: number): number => Math.log(x));
+    const sorted: number[] = [...logs].sort(
       (p: number, q: number): number => p - q,
     );
     const median: number =
       sorted.length % 2 === 1
         ? sorted[(sorted.length - 1) / 2]!
         : (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2;
-    return a.map((x: number): number => Math.abs(x - median));
+    return logs.map((x: number): number => Math.abs(x - median));
   };
 
   // The presets' own claim, deterministic: the arrivals the drawn desires alone imply (delay plus the course over the desired speed), over `PILOT` seeds. The effect the test must resolve is read in the statistic it uses: the difference of the two groups' mean absolute deviations from their medians, over the deviations' pooled spread.
@@ -246,10 +256,10 @@ export function test_human_motion_scene_civil_crowds(): void {
   const effect: number = mean(ir) - mean(ic);
   if (!(effect > 0))
     findings.push(
-      `the presets imply the rabble's arrivals deviate ${effect.toFixed(3)} s less than the civilians' from their medians`,
+      `the presets imply the rabble's log arrivals deviate ${effect.toFixed(4)} less than the civilians' from their medians`,
     );
 
-  // The behaviour: the steered arrivals over enough seeds to resolve that effect. The one-sided two-sample t-test on the deviations at alpha 0.05 with power 0.8 needs n = 2 (z_0.95 + z_0.8)^2 s^2 / delta^2 arrivals per preset, delta the implied difference of mean deviations and s^2 their pooled variance; the seeds are that many scenes of 30.
+  // The behaviour: the steered arrivals over enough seeds to resolve that effect. The one-sided two-sample t-test on the deviations at alpha 0.05 with power 0.99 needs n = 2 (z_0.95 + z_0.99)^2 s^2 / delta^2 arrivals per preset, delta the implied difference of mean deviations and s^2 their pooled variance; the seeds are that many scenes of 30.
   const spread: number =
     ((ir.length - 1) * variance(ir) + (ic.length - 1) * variance(ic)) /
     (ir.length + ic.length - 2);
@@ -275,7 +285,7 @@ export function test_human_motion_scene_civil_crowds(): void {
     (mean(dr) - mean(dc)) / Math.sqrt(pooled * (1 / dr.length + 1 / dc.length));
   if (!(t > Z_ALPHA))
     findings.push(
-      `over ${rabbleArrivals.length} arrivals each, the rabble's spread is not resolved wider than the civilians' (Levene t ${t.toFixed(3)}, ${Z_ALPHA} needed)`,
+      `over ${rabbleArrivals.length} arrivals each, the rabble's relative spread is not resolved wider than the civilians' (mean log deviations ${mean(dr).toFixed(4)} and ${mean(dc).toFixed(4)}, Levene t ${t.toFixed(3)}, ${Z_ALPHA} needed)`,
     );
 
   // 3. A street with groups.
@@ -379,5 +389,5 @@ const PILOT: number = 20;
 /** The standard normal's 0.95 quantile: the one-sided test at alpha 0.05. */
 const Z_ALPHA: number = 1.6448536269514722;
 
-/** The standard normal's 0.8 quantile: power 0.8. */
-const Z_POWER: number = 0.8416212335729143;
+/** The standard normal's 0.99 quantile: power 0.99, since the seeded scenes are one draw. */
+const Z_POWER: number = 2.3263478740408408;
