@@ -46,6 +46,7 @@ import { poseBones } from "../posture/poseBones";
 import { handToFaceArm } from "./handToFaceArm";
 import { handToFaceRegion } from "./handToFaceRegion";
 import { handToFaceRows } from "./handToFaceRows";
+import { handToFaceSheet } from "./handToFaceSheet";
 import { handToFaceVessel } from "./handToFaceVessel";
 
 /**
@@ -65,12 +66,12 @@ import { handToFaceVessel } from "./handToFaceVessel";
  * its stroke at the face (rub kinds); eating brings the head forward to meet
  * the spoon (van der Kamp and Steenbergen 1999), drinking tips the head back
  * only once the vessel is at the lips, in the drinking phase that follows
- * the transport (Alt Murphy et al. 2011), reading flexes the head by
- * 35 degrees, inside the 33 to 45 degrees of Lee et al. 2015, and holds the
- * sheet 36.2 cm from the eyes (Bababekova et al. 2011, the mean for text),
- * on the line pitched down by the head's flexion and 15 degrees of the eyes
- * (provisional). Tool lengths, the head's shares and the sip's extension
- * are provisional.
+ * the transport (Alt Murphy et al. 2011), and reading holds the sheet 36.2 cm
+ * from the eyes (Bababekova et al. 2011, the mean for text) where the hanging
+ * arm's hand meets that distance, the head flexed by Lee et al. 2015's
+ * measured 35 degrees and the eyes taking the rest of the line of sight up
+ * to their range (`handToFaceSheet`). Tool lengths, the other head shares
+ * and the sip's extension have no located measurement.
  *
  * Events: the phrase instants, with `atMouth` (or `atEar`, `atFace`,
  * `atSheet`) at `ready` and `taskEnd` at `strokeEnd`. The back transport may
@@ -204,8 +205,14 @@ export namespace handToFace {
     // The head turns as the hand arrives, or, drinking from a vessel, once
     // the vessel is at the lips: the head tips back with the vessel in the
     // drinking phase, after the transport (Alt Murphy et al. 2006, 2011).
+    // A held sheet's reader flexes the head by the measured reading flexion,
+    // more where the line of sight to the sheet passes the eye's range.
+    const head: number =
+      row.region === null
+        ? handToFaceSheet.head(context, entry, first)
+        : row.head;
     const turn: IAutoMovieMotionHumanJoints.Angles =
-      AutoMovieMotionHumanHead.share(0, row.head * modifiers.extent);
+      AutoMovieMotionHumanHead.share(0, head * modifiers.extent);
     const rises: readonly [string, string] =
       row.upright === true ? ["ready", "strokeEnd"] : ["start", "ready"];
 
@@ -344,7 +351,7 @@ export namespace handToFace {
     );
 
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    if (row.head !== 0)
+    if (head !== 0)
       primitives.push(
         AutoMovieMotionHumanJoints.pulse(clock, rises, ["relax", "end"], turn),
       );

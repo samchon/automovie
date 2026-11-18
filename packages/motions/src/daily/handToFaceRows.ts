@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionHumanHandToFaceRows } from "@automovie/interface";
 
+import { handToFaceSheet } from "./handToFaceSheet";
+
 /**
  * The hand-to-face tasks as rows of the touch generator: each task's region
  * on the performer's own head, the implied tool's tip as the effector, the
@@ -15,7 +17,8 @@ export namespace handToFaceRows {
   /**
    * The tasks' rows. The drink's time at the mouth is the 1.71 s drinking
    * phase of Alt Murphy et al. 2006 (J NeuroEng Rehabil 3:18, Table 2,
-   * healthy controls) and the reading head flexion is Lee et al. 2015's;
+   * healthy controls) and the reading head flexion is Lee et al. 2015's
+   * (`handToFaceSheet.HEAD`);
    * the tool lengths, the other head angles, times at the face and stroke
    * counts have no located measurement.
    */
@@ -123,7 +126,7 @@ export namespace handToFaceRows {
       count: 1,
       hold: 3,
       tangent: "up",
-      head: 35,
+      head: handToFaceSheet.HEAD,
       at: "atSheet",
     },
     brushTeeth: {
