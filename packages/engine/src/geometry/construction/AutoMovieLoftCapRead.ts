@@ -11,7 +11,7 @@ import type {
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
@@ -81,22 +81,13 @@ export namespace AutoMovieLoftCapRead {
           (k: number): number => at.t[0] * frame.u[k]! + at.t[1] * frame.v[k]!,
         ) as [number, number, number];
       }
-      for (const relief of chain.reliefs ?? []) {
-        const h: [number, number, number] = AutoMovieLoftRelief.height(
-          relief,
-          station,
-          phi,
-        );
-        if (collapsed && h.some((x: number): boolean => x !== 0))
-          throw new AutoMovieLoftAdmissionError(
-            "A deformed pole has no retained collapsed cap value.",
-          );
-        const [e, e1] = AutoMovieLoftRelief.direction(relief, phi);
-        for (let k: number = 0; k < 3; k++) {
-          p[k]! += h[0] * e[k]!;
-          t[k]! += h[2] * e[k]! + h[0] * e1[k]!;
-        }
-      }
+      AutoMovieLoftReliefCompose.phase(
+        { p, t },
+        chain.reliefs ?? [],
+        station,
+        phi,
+        collapsed,
+      );
       if (![...p, ...t].every(Number.isFinite))
         throw new AutoMovieLoftAdmissionError(
           "The original cap world value/phase is nonfinite.",

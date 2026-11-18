@@ -4,6 +4,8 @@ import type {
   IAutoMovieSolidCycle,
 } from "@automovie/interface";
 
+import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
+
 /**
  * What a construction's walk builds besides the body (`realizeAutoMovieConstruction`), and its rollback: a snapshot of the body's faces, cycles, mesh and the walk's lists taken before a part is built, restored when the node attaching that part breaks a premise, so the part's whole subtree is left out and its host stands as it was.
  *
@@ -98,26 +100,8 @@ export namespace AutoMovieConstructionState {
     state.trims.length = s.trims;
   }
 
-  /** A deep copy of a cycle. */
+  /** A deep copy of a cycle, by the cycle's own copy, so a snapshot keeps its exact curve and boundary readers (`AutoMovieSolidCycle.copy`). */
   function copy(c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidCycle.ICycle {
-    return {
-      kind: c.kind,
-      vertices: c.vertices.slice(),
-      chart: c.chart.map((p: [number, number]): [number, number] => [
-        p[0],
-        p[1],
-      ]),
-      neighbours: c.neighbours.map(
-        (
-          n: IAutoMovieSolidCycle.INeighbour,
-        ): IAutoMovieSolidCycle.INeighbour => ({
-          face: n.face,
-          from: [n.from[0], n.from[1]],
-          to: [n.to[0], n.to[1]],
-        }),
-      ),
-      // The exact curve is a pure function of the chart, shared rather than copied.
-      ...(c.along === undefined ? {} : { along: c.along }),
-    };
+    return AutoMovieSolidCycle.copy(c);
   }
 }

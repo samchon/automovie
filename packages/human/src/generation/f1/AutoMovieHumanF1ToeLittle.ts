@@ -1,8 +1,7 @@
-import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
  * f1's toe.little tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -22,11 +21,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1ToeLittle: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.little",
-  centres: [
-    AutoMovieHumanF1Joints.littletoe1,
-    AutoMovieHumanF1Joints.littletoe2,
-    AutoMovieHumanF1Joints.littletoeEnd,
-  ],
+  centres: [AutoMovieHumanF1Joints.littletoe1, AutoMovieHumanF1Joints.littletoe2, AutoMovieHumanF1Joints.littletoeEnd],
   halves: [5],
   up: AutoMovieHumanF1Placement.direction("toe.little.up"),
   layout: AutoMovieHumanConicSection.limb(1),
@@ -75,5 +70,11 @@ export const AutoMovieHumanF1ToeLittle: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, { from: 30, tip: 33.63 }],
+  // The cap closes with one taper for the whole section, not each extreme's own (`own`): the top's own taper over the cap is 0.78 of its
+  // extent (3.82 to 1.78 mm over the last span, on a cap 3.4 mm long) against 0.12 to 0.22 for the other three, and a coordinate that
+  // tapers by nearly its whole extent closes as a cone, which drew this toe's end as a sharp point at its top (`toes.left` px 185, 600).
+  // The wall's last span is steeper there than the skin: the reference's top stands 2.30 mm over the course at 28.2 mm and 2.07 at
+  // 30.2 (`FamilyConicScan.ts tips`), 0.12 mm a millimetre against the wall's 0.41. What stays is the pole's place: the reference's
+  // loop closes 1.9 mm under the course (u -3.37 to -0.34 at 33.7 mm) and the cap closes on the course.
+  tips: [null, {from: 30, tip: 33.63}],
 };

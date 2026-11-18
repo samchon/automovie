@@ -11,6 +11,10 @@ A shape claim is accepted only from renders opened by the person making the clai
 
 The [shared instrument](screenshot.md) finds defects and accepts a candidate; the [tests](testing.md) confirm it.
 
+## Form before deviation
+
+A figure may stand away from its reference; it may not lose its form. An error may change how much and how far, never what is there: every region keeps whether it is convex or concave, every named feature (a navel, a cleft, a notch, the lids, the lips, the nostrils, the ear's folds, the knuckles, the malleoli) stays present with its sign, at least half its depth and at its landmark, every silhouette keeps its run of convex and concave stretches, and every muscle belly keeps its one maximum. A lump, a level band, a step, a crease or a dent the reference lacks fails the figure whatever its deviation, because a law learnt from it reproduces the break in every person. Deviation is reported with every round as a pointer to where to look.
+
 ## Curves against the reference
 
 A surface is only as right as its original 2D definitions, so inspect them before correcting a shape. A comparison the instrument cannot draw yet, because the reference is not handed to it, is [unavailable evidence](screenshot.md#reference-comparison), recorded as such and never passed.
@@ -52,7 +56,7 @@ Trace each [connection](construction.md#connections) into both production source
 
 For a port, overlay both sides' 2D lines at the joint in every view, then inspect the realized band and its neighbouring strips. A band that spans a gap or turns steeply fails here, at the lines.
 
-Before a connection or a family is realized, pre-check every premise the engine admits it on, not one of them: the sections' star-shape and their conic layout's admissibility at every station, the rings and loops the bands start and land on, every band column's direction, and the correspondence's own condition, such as a monotone angle. A premise left out of the pre-check surfaces as a refusal after the build, when a fit and a figure have already been spent on it.
+Before a connection or a family is realized, pre-check every premise the engine admits it on, not one of them: the sections' star-shape and their conic layout's admissibility at every station, the rings and loops the bands start and land on, every band column's direction, and the correspondence's own condition, such as a monotone angle. A premise left out of the pre-check surfaces as a refusal after the build, when a fit and a figure have already been spent on it. Take the list from the operator's admission and realization code, not from memory or a survey of the parts. A list written another way misses exactly the premises a change moves, such as a seam's knots in millimetres against a chord that the change shrinks.
 
 ## Inspection round
 

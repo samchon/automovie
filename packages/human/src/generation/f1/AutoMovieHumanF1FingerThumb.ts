@@ -1,8 +1,7 @@
-import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
  * f1's finger.thumb tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -22,13 +21,8 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1FingerThumb: IAutoMovieHumanConicLoft.IFamily = {
   name: "finger.thumb",
-  centres: [
-    AutoMovieHumanF1Joints.thumb1,
-    AutoMovieHumanF1Joints.thumb2,
-    AutoMovieHumanF1Joints.thumb3,
-    AutoMovieHumanF1Joints.thumbEnd,
-  ],
-  halves: [5, 5],
+  centres: [AutoMovieHumanF1Joints.thumb1, AutoMovieHumanF1Joints.thumb2, AutoMovieHumanF1Joints.thumb3, AutoMovieHumanF1Joints.thumbEnd],
+  halves: [5,5],
   up: AutoMovieHumanF1Placement.direction("finger.thumb.up"),
   layout: AutoMovieHumanConicSection.limb(0),
   knots: [43, 51, 62.5, 67.5, 85, 92],
@@ -60,5 +54,9 @@ export const AutoMovieHumanF1FingerThumb: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, { from: 92, tip: 95.63 }],
+  // Each extreme closes on its own outline's taper and bend (`own`, lofting.md: a closing law meets the wall's slope and bend where the two
+  // meet): with one taper for the whole section the cap left the wall on the nail's side falling 0.12 mm a millimetre toward the tip where
+  // the wall rises 0.02, and on the pad 0.27 against the wall's 0.41 (secants over the last span), a turn of 8 degrees on each. The tip's
+  // flat end in `hand.front` is not this: it stayed with `own`, where the course runs 2.97 mm under the nail's side and 6.86 mm over the pad.
+  tips: [null, {from: 92, tip: 95.63, own: true}],
 };

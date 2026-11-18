@@ -162,6 +162,21 @@ export namespace IAutoMovieSolidJoin {
     /** The curve already traced from this seed on these surfaces with this parameter, count and tolerance, when the caller traced it to read a width law from it; absent, the join traces it. */
     curve?: IAutoMovieSolidIntersection.ICurve;
 
+    /**
+     * The rails' sides at a curve point from a declared loop (`IAutoMovieSolidRail.IToward`), for a supplied curve that is tangential over
+     * part of its turn, where the normals cannot tell them; null where the loop cannot either, which leaves no rail there. Absent, the
+     * sides come from the two surfaces' normals and the kept side.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the reading, its null and the default.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `AutoMovieSolidSharedCurve.create` supplies its implementation.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
+     */
+    toward?: (point: IAutoMovieSolidIntersection.IPoint) => IAutoMovieSolidRail.IToward | null;
+
     /** Width laws in the curve's parameter: chords from the curve to each rail, mm, positive. */
     width: {
       /**

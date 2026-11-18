@@ -8,22 +8,17 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
-import { AutoMovieSolidBlend } from "./AutoMovieSolidBlend";
+import { AutoMovieSolidJoinCrossing } from "./AutoMovieSolidJoinCrossing";
+import { AutoMovieSolidJoinNormalCheck } from "./AutoMovieSolidJoinNormalCheck";
 import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidRail } from "./AutoMovieSolidRail";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
 /** Shared vector operations preserve the existing arithmetic and allocation owners. */
-const {
-  combine,
-  cross,
-  dot,
-  norm,
-  sub,
-}: Pick<
+const { combine, cross, norm, sub }: Pick<
   typeof AutoMovieSolidVector,
-  "combine" | "cross" | "dot" | "norm" | "sub"
+  "combine" | "cross" | "norm" | "sub"
 > = AutoMovieSolidVector;
 
 /**
@@ -37,8 +32,13 @@ const {
  * topology. A supplied curve skips tracing and its diagnostics; its provenance
  * and prior admission remain unresolved at the pretracing caller.
  *
+ * A supplied curve may be a declared loop both surfaces share (`AutoMovieSolidSharedCurve`),
+ * tangential over part of its turn. Its `toward` reader then names each rail's side at
+ * every point, which the normals cannot where they are parallel; the rails, the ribbons
+ * and every check here are otherwise the traced join's own.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States parameter units, boundary order, sampled acceptance and the supplied-curve diagnostic boundary.
- * @evidence contracts/development/design.md#principled-representation Represents Compose merge or diff from an intersection, kept-side rails and analytic ribbons: companion namespace of 8 members (`IJoin`, `IColumn`, `IInput`, `IResult`, `FOLD_SHARES`, `create`, ...); units and frames named in its text: radian, radians, local, second, world. It has no optional member, so no absent-value state combines with another.
+ * @evidence contracts/development/design.md#principled-representation Represents Compose merge or diff from an intersection, kept-side rails and analytic ribbons: companion namespace of 8 members (`IAutoMovieSolidJoin.IJoin`, `IAutoMovieSolidJoin.IColumn`, `IAutoMovieSolidJoin.IInput`, `IAutoMovieSolidJoin.IResult`, `FOLD_SHARES`, `create`, ...); units and frames named in its text: radian, radians, local, second, world. It has no optional member, so no absent-value state combines with another.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidJoin` in packages/engine/src/geometry/construction/AutoMovieSolidJoin.ts; its surface is the 8 members listed and the text shows 17 other files naming it, mostly packages/engine (10), test (7), so no member is declared for a presumed future need.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
@@ -56,9 +56,9 @@ export namespace AutoMovieSolidJoin {
    * @evidence contracts/development/implementation.md#principled-implementation Composes the trace or supplied curve, chord rails and analytic ribbons, then performs the original sampled domain/crossing/fold checks.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation owns admission order and returned closures while trace, rail, ribbon and blend owners retain their numerical methods.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A supplied curve suppresses its trace diagnostics; multi-face crossing and unsampled fold/domain behavior remain unchecked, with no width shrink or numerical repair.
-   * @evidence contracts/development/common.md#meaningful-documentation States borrowed callbacks, supplied-curve admission gap, observed failures, units and result lifetime.
-   * @evidence contracts/development/implementation.md#efficient-algorithms C sampled columns include cached/missed rail solves and fixed fold shares; the single-face strict crossing scan is O(C²).
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caches rails and nulls at Map-equivalent parameters; neighbouring fold columns and ribbons are deliberately rebuilt.
+   * @evidence contracts/development/common.md#meaningful-documentation States borrowed callbacks, supplied-curve admission gap, observed failures, units and result lifetime. Failed normal comparisons retain their signed dot, operands and actual rail addresses, distinguishing zero/nonfinite dot from reversal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms C sampled columns include cached/missed rail solves and fixed fold shares; the single-face strict crossing scan is O(C²). The normal observer adds only failed-path norms and fixed-size diagnostic serialization, with no extra geometry reads.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Caches rails and nulls at Map-equivalent parameters; neighbouring fold columns and ribbons are deliberately rebuilt. The normal observer reuses each compared first/along/normal and original dot for its failed context.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only successful returned readers retain the local Map/input/curve/atlas; keys are unbounded and no resource handle is acquired.
    */ export function create(
     input: IAutoMovieSolidJoin.IInput,
@@ -108,8 +108,11 @@ export namespace AutoMovieSolidJoin {
       const known: IAutoMovieSolidRail.IRail | null | undefined = rails.get(t);
       if (known !== undefined) return known;
       const p: IAutoMovieSolidIntersection.IPoint | null = curve.at(t);
+
+      // A declared loop's sides where it supplies them; a point at which it cannot name them has no rail.
+      const sides: IAutoMovieSolidRail.IToward | null | undefined = p === null ? null : input.toward?.(p);
       const solved: IAutoMovieSolidRail.IRail | null =
-        p === null
+        p === null || sides === null
           ? null
           : AutoMovieSolidRail.at(
               input.part,
@@ -121,6 +124,7 @@ export namespace AutoMovieSolidJoin {
                 : input.width.part,
               input.width.host(t),
               mode,
+              sides,
             );
       rails.set(t, solved);
       return solved;
@@ -143,6 +147,7 @@ export namespace AutoMovieSolidJoin {
               : input.width.part,
             input.width.host(t),
             mode,
+            input.toward?.(p) ?? undefined,
           );
     };
 
@@ -214,10 +219,8 @@ export namespace AutoMovieSolidJoin {
     );
     const crossing: string | null = !single
       ? null
-      : crossed(
-          columns.map(
-            (c: IAutoMovieSolidJoin.IColumn): [number, number] => c.rail.host,
-          ),
+      : AutoMovieSolidJoinCrossing(
+          columns.map((c: IAutoMovieSolidJoin.IColumn): [number, number] => c.rail.host),
           curve.winding === 0,
         );
     if (crossing !== null)
@@ -226,36 +229,19 @@ export namespace AutoMovieSolidJoin {
         `the host's rail crosses itself ${crossing}; a width passes the rail's radius of curvature`,
       );
 
-    // The blend's normal must not reverse along a column.
-    const step: number = period / (16 * curve.points.length);
-    for (const c of columns) {
-      const before: IAutoMovieSolidJoin.IColumn | null = column(
-        c.rail.curve.t - step,
+    // Preserve the sampled predicate while reporting its already read operands.
+    const normalCheck: ReturnType<typeof AutoMovieSolidJoinNormalCheck> =
+      AutoMovieSolidJoinNormalCheck(
+        columns,
+        column,
+        period,
+        curve,
+        FOLD_SHARES,
+        keep,
+        mode,
       );
-      const after: IAutoMovieSolidJoin.IColumn | null = column(
-        c.rail.curve.t + step,
-      );
-      if (before === null || after === null)
-        return fail("rails", `no rail beside t ${c.rail.curve.t}`);
-      let previous: AutoMovieVector3Tuple | null = null;
-      for (let k: number = 0; k <= FOLD_SHARES; k++) {
-        const w: number = k / FOLD_SHARES;
-        const along: AutoMovieVector3Tuple = sub(
-          AutoMovieSolidBlend.jet(after.start, after.end, w).point,
-          AutoMovieSolidBlend.jet(before.start, before.end, w).point,
-        );
-        const n: AutoMovieVector3Tuple = cross(
-          along,
-          AutoMovieSolidBlend.jet(c.start, c.end, w).first,
-        );
-        if (previous !== null && !(dot(previous, n) > 0))
-          return fail(
-            "unfolded blend",
-            `the blend's normal reverses at t ${c.rail.curve.t}, share ${w}`,
-          );
-        previous = n;
-      }
-    }
+    if (normalCheck !== null)
+      return fail(normalCheck.contract, normalCheck.detail);
 
     /** Read the original chord laws; a fixed-station part has no varying part chord. */
     const widths: IAutoMovieSolidJoin.IJoin["widths"] = (
@@ -325,44 +311,5 @@ export namespace AutoMovieSolidJoin {
         (x: number): number => x * host.orientation,
       ) as AutoMovieVector3Tuple,
     };
-  }
-
-  /**
-   * Scan ordered nonadjacent chart edges for strict proper crossings.
-   * points supplies the polygon; closed includes its closing edge, while a
-   * winding chart path omits it. Returns the first description or null;
-   * collinear overlap and touching edges do not count as crossings here.
-   */ function crossed(
-    points: readonly [number, number][],
-    closed: boolean,
-  ): string | null {
-    const n: number = points.length;
-    const edges: number = closed ? n : n - 1;
-
-    /** Oriented chart cross product used by the existing strict crossing test. */
-    const turn: (
-      a: readonly [number, number],
-      b: readonly [number, number],
-      c: readonly [number, number],
-    ) => number = (
-      a: readonly [number, number],
-      b: readonly [number, number],
-      c: readonly [number, number],
-    ): number => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
-    for (let i: number = 0; i < edges; i++) {
-      const a: [number, number] = points[i]!;
-      const b: [number, number] = points[(i + 1) % n]!;
-      for (let j: number = i + 2; j < edges; j++) {
-        if (closed && i === 0 && j === n - 1) continue;
-        const c: [number, number] = points[j]!;
-        const d: [number, number] = points[(j + 1) % n]!;
-        if (
-          turn(a, b, c) * turn(a, b, d) < 0 &&
-          turn(c, d, a) * turn(c, d, b) < 0
-        )
-          return `between edges ${i} and ${j}`;
-      }
-    }
-    return null;
   }
 }

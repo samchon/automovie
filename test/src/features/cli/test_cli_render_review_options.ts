@@ -42,6 +42,7 @@ export function test_cli_render_review_options(): void {
       props: null,
       out: null,
       backend: "software",
+      timeout: 120000,
       request: [],
     },
   );
@@ -53,12 +54,14 @@ export function test_cli_render_review_options(): void {
       ["props", "case.json"],
       ["out", "media/out"],
       ["backend", "gpu"],
+      ["timeout-ms", "600000"],
     ]),
     {
       module: "src/subjects.ts",
       props: "case.json",
       out: "media/out",
       backend: "gpu",
+      timeout: 600000,
       request: [["subject", "starter"]],
     },
   );
@@ -202,7 +205,9 @@ export function test_cli_render_review_options(): void {
               ? "gpu"
               : option === "module"
                 ? "m.ts"
-                : "value",
+                : option === "timeout-ms"
+                  ? "600000"
+                  : "value",
           ],
         ]),
       );

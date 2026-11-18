@@ -1,3 +1,4 @@
+import type { IAutoMovieBlendColumn } from "./IAutoMovieBlendColumn";
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieConstructionSplit } from "./IAutoMovieConstructionSplit";
 import type { IAutoMovieConstructionSplitSeam } from "./IAutoMovieConstructionSplitSeam";
@@ -139,6 +140,15 @@ export namespace IAutoMovieConstructionSplitBand {
       /** Zero-based construction-column ordinals failing either positive endpoint tangent/chord dot product; these columns remain in the strip without a monotonicity guarantee. */
       backward: number[];
     };
+
+    /** The factor each column's ribbons were scaled by: the common one, or each column's own (`ribbons: "column"`). A port's exact band joins them round the loop (`AutoMovieConstructionPortBand`). */
+    field: number[];
+
+    /** Each column's ribbon pair as scaled by `field`: the values the chain's two rail layers interpolate. */
+    columns: IAutoMovieBlendColumn[];
+
+    /** The start surface's outward normal at column 0, the anchor of the chain's orientation. */
+    outward: AutoMovieVector3Tuple;
   }
 
   /**

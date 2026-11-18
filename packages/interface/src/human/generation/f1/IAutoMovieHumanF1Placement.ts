@@ -1,3 +1,4 @@
+import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { AutoMovieMatrix3Tuple } from "../../../geometry/AutoMovieMatrix3Tuple";
 import type { IAutoMovieHumanSegmentFrame } from "../frame/IAutoMovieHumanSegmentFrame";
 
@@ -29,4 +30,14 @@ export namespace IAutoMovieHumanF1Placement {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanF1.assemble, AutoMovieHumanF1.construction, AutoMovieHumanF1Placement.NEUTRAL, AutoMovieHumanF1Placement.frames for a pose: a joint's rotation `A_parent^T A_child` by its segment's name, or undefined to keep its reference rotation.
    */
   export type IPose = (name: string) => AutoMovieMatrix3Tuple | undefined;
+
+  /**
+   * Resolve a registered datum's local coordinates for one person's segment lengths.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Resolve a registered datum's local coordinates for one person's segment lengths.
+   * @evidence contracts/development/design.md#principled-representation The datum name addresses a stored segment point. It returns that point's segment coordinates in millimetres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanF1Placement reads this callback before transporting each datum to its new pose.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback describes local placement. The frame owner supplies a fallback when the callback itself is absent.
+   */
+  export type ILocals = (name: string) => AutoMovieVector3Tuple;
 }

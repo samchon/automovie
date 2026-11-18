@@ -1,8 +1,7 @@
-import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
-
 import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
 /**
  * f1's toe.big tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
@@ -22,11 +21,7 @@ import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
  */
 export const AutoMovieHumanF1ToeBig: IAutoMovieHumanConicLoft.IFamily = {
   name: "toe.big",
-  centres: [
-    AutoMovieHumanF1Joints.bigtoe1,
-    AutoMovieHumanF1Joints.bigtoe2,
-    AutoMovieHumanF1Joints.bigtoeEnd,
-  ],
+  centres: [AutoMovieHumanF1Joints.bigtoe1, AutoMovieHumanF1Joints.bigtoe2, AutoMovieHumanF1Joints.bigtoeEnd],
   halves: [5],
   up: AutoMovieHumanF1Placement.direction("toe.big.up"),
   layout: AutoMovieHumanConicSection.limb(0),
@@ -59,5 +54,9 @@ export const AutoMovieHumanF1ToeBig: IAutoMovieHumanConicLoft.IFamily = {
   ],
 
   // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
-  tips: [null, { from: 53, tip: 56.13 }],
+  // Each extreme closes on its own outline's taper and bend (`own`, lofting.md: a closing law meets the wall's slope and bend where the two
+  // meet): with one taper for the whole section the cap left the wall on the nail's side falling 0.26 mm a millimetre toward the tip where
+  // the wall rises 0.12 (secants over the last span), a turn of 21 degrees that drew a ring across the top of the toe (`toes.left`,
+  // `toes.high-oblique`), and underneath 0.33 against 0.52. A side that still widens toward the tip leaves level (`TAPER.least`).
+  tips: [null, {from: 53, tip: 56.13, own: true}],
 };

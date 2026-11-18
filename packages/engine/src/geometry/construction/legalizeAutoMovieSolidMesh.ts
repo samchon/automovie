@@ -56,8 +56,10 @@ interface Side {
  * Every source constraint (trim, domain and retained-cell boundaries) is
  * fixed, so the rails, their vertices and the seam they share with another
  * face are unchanged. A flip is admitted only when both new triangles keep the
- * planner's own rules: positive chart orientation, a represented strict
- * interior, a sub-half-period phase span (strict when indexed), a new vertex
+ * planner's ear rules: positive chart orientation, a represented strict
+ * interior (so a flip never makes a sliver; one an exact insertion split
+ * made may stay, read by its region), a sub-half-period phase span (strict
+ * when indexed), a new vertex
  * pair absent from the face's edges, its constraints and the occupied global
  * pairs. Each quadrilateral is read in one canonical cover, its least vertex
  * ID's occurrence at lift zero, so a flip and its reverse read the same four
@@ -326,7 +328,7 @@ function flip(
   ];
 }
 
-/** The planner's rule: positive, a represented strict centroid and a sub-half-period span. */
+/** The planner's ear rule: positive, a represented strict centroid and a sub-half-period span. */
 function represented(
   points: Readonly<AutoMovieVector2Tuple>[],
   period: number | undefined,

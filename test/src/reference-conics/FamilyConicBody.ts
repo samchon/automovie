@@ -1,3 +1,16 @@
+import { FamilyConicClosure } from "./FamilyConicClosure";
+import { FamilyConicDivide } from "./FamilyConicDivide";
+import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
+import { FamilyConicFit as F } from "./FamilyConicFit";
+import { FamilyConicLoft as K } from "./FamilyConicLoft";
+import { FamilyConicLoop } from "./FamilyConicLoop";
+import { FamilyConicRelief as H } from "./FamilyConicRelief";
+import { FamilyConicSection as C } from "./FamilyConicSection";
+import { FamilyConicSource as R } from "./FamilyConicSource";
+import { FamilyConicValley } from "./FamilyConicValley";
+import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
+import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
+import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import {
   AutoMovieLoftChain,
   AutoMovieLoftRelief,
@@ -6,11 +19,13 @@ import {
   AutoMovieViewChain as Q,
 } from "@automovie/engine";
 import {
-  AutoMovieHumanF1,
   AutoMovieHumanConicSection as S,
+  AutoMovieHumanCourseRuns,
+  AutoMovieHumanF1,
 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicSection,
+  IAutoMovieHumanF1,
   IAutoMovieLoftRelief,
   IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
@@ -21,24 +36,13 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
-import { FamilyConicFit as F } from "./FamilyConicFit";
-import { FamilyConicLoft as K } from "./FamilyConicLoft";
-import { FamilyConicLoop } from "./FamilyConicLoop";
-import { FamilyConicRelief as H } from "./FamilyConicRelief";
-import { FamilyConicSection as C } from "./FamilyConicSection";
-import { FamilyConicSource as R } from "./FamilyConicSource";
-import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
-import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
-import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-
 /**
  * Whole-part conic families on the f1 reference: each part is cut along its
  * own jointed course, fitted on a sparse shared knot vector, stored as plain
  * numbers, regenerated from that stored text through the engine's view loft,
  * measured against the cuts and rendered beside the reference.
  */
-namespace FamilyConicBody {
+export namespace FamilyConicBody {
   /** Sampled position target of campaign 1, mm. */
   const TARGET_MM: number = 0.5;
 
@@ -63,6 +67,7 @@ namespace FamilyConicBody {
   const BILATERAL: { layout: C.ILayout; depth: number }[] = [
     { layout: C.bilateral(1), depth: 1 },
   ];
+
 
   /**
    * `--trunk-lines`: the trunk fitted to its skin with the median lines as feature lines (`FamilyConicSection.featured`): after the front
@@ -487,8 +492,6 @@ namespace FamilyConicBody {
   /** Half length of the shoulder's turn, mm. */
   const SHOULDER_HALF_MM: number = 65;
 
-  /** Radius about the upper arm's axis inside which skin past the armscye plane is the arm's, mm; the hips, as far to the side, lie outside it. */
-  const ARM_TUBE_MM: number = 75;
 
   /** How far proximal of the shoulder joint the arm's ISB course starts, mm, on the humerus's axis: past the armscye loop's most proximal point, 44 mm. */
   const ISB_PROXIMAL_MM: number = 60;
@@ -504,6 +507,14 @@ namespace FamilyConicBody {
 
   /** The least shoulder of a closure across an opening (`without`): the model's share bound (`AutoMovieHumanConicSection`'s `EDGE`). */
   const CLOSURE_LEAST: number = 0.03;
+
+  /**
+   * The least circumferential part of the skin's unit direction at which a kept skin's end still advances round its course
+   * (`without`): the premise of `FamilyConicClosure.continued`, which refuses a part of 1e-9 or less; a hundredth, about half a
+   * degree off the radius, keeps the continuation's rate of radius in phase under a hundred.
+   */
+  const ADVANCE_LEAST: number = 0.01;
+
 
   /**
    * The ear's box, mm: lateral of the sagittal plane the auricle leaves the skull at, and inside the auricle's extent fore and aft and in height,
@@ -1326,6 +1337,18 @@ namespace FamilyConicBody {
 
     /** Where the net is held at zero instead of cast: by station, mm, and phase, radians. */
     held?: (s: number, phi: number) => boolean;
+
+    /**
+     * The net rests on the wall where no ray lands: a point no ray lands from is observed at zero height, and the seen skin's edge hands
+     * over as a window's edge does (`fade`), each landing taking the share of its height that rises from none beside a missed point to
+     * all of it one control spacing away. A relief carries only skin its cast sees, and its target is built from C2 functions (lofting.md,
+     * Composition before lofting). Without it the fit's fairness alone, a penalty on second differences, carries the slope of the seen
+     * skin on across an unseen stretch: the shoulder's net, which sees a fifth of its window (1,033 of 5,225 rays, skin facing up within
+     * 37 degrees), stored controls of +4.47 and -2.56 mm side by side at 620 to 625 mm and 1.45 to 1.49 rad, where no ray lands and the
+     * heights seen round it run from -0.9 to 3.1 mm: the bump on the front of each shoulder (`shoulder.front`). Rested at zero with the
+     * seen heights whole up to their edge, 2.6 to 3.1 mm there, the net stood a step along that edge instead (+3.59 beside -2.13 mm).
+     */
+    rest?: boolean;
   }
 
   /** A relief window of a part. */
@@ -1367,7 +1390,7 @@ namespace FamilyConicBody {
   }
 
   /** One part to fit. */
-  interface IPart {
+  export interface IPart {
     /** Chain name. */
     name: string;
 
@@ -1419,12 +1442,7 @@ namespace FamilyConicBody {
      * Of an excursion, only its base plate (`FamilyConicExcursion.plate`): its cranial skin and a floor `thickness` to `deepest` mm inside
      * it, carried `into` mm into the host. A plane whose piece is a loop of its own has none.
      */
-    plate?: {
-      thickness: number;
-      into: number;
-      deepest: number | ((s: number) => number);
-      rim?: number;
-    };
+    plate?: { thickness: number; into: number; deepest: number | ((s: number) => number); rim?: number };
 
     /** Fitted station interval, mm of course arclength; `auto` takes the longest run of single loops round the course whose area stays near the part's own. */
     domain: [number, number] | "auto";
@@ -1544,14 +1562,7 @@ namespace FamilyConicBody {
      * its own normal from `inset[0]` mm at the floor to `inset[1]` mm at its top. The course must lie in each section's kernel; the section
      * is then star-shaped about it, and `skin: "inner"` reads it.
      */
-    air?: {
-      band: [number, number][];
-      floor: [number, number][];
-      reach: number;
-      inset: [number, number];
-      sag?: number;
-      side?: number;
-    };
+    air?: { band: [number, number][]; floor: [number, number][]; reach: number; inset: [number, number]; sag?: number; side?: number };
 
     /** For a cutter, a hollow's own loft that is cut from its host: how far before its first section it is carried straight back, mm. */
     lead?: number;
@@ -1564,102 +1575,47 @@ namespace FamilyConicBody {
      * leave, outside the wall as well as inside it, cast toward the course all the way round. Its two directions are the chart's at the middle
      * of the run, so the run should be one the course does not turn much along. With `window` it covers only those phases, still cast toward
      * the course at every phase, and fades over its edges (`FamilyConicRelief.IWindow.fade`, `fadePhase`). Without `window`, `fade` alone
-     * hands its first and last stations over, mm.
+     * hands its first and last stations over, mm. With `graze` a cast that meets the skin within that many degrees of running along it is
+     * left unobserved (`FamilyConicRelief.IWindow.graze`, lofting.md: a height along a ray that runs along the skin measures where an edge-on
+     * face begins, not how deep the skin lies).
      */
-    rounds?: {
-      name: string;
-      stations: [number, number];
-      rows: number;
-      columns: number;
-      reach: number;
-      hold?: (p: R.V) => number;
-      fade?: [number, number];
-      window?: {
-        phases: [number, number];
-        fade: [number, number];
-        fadePhase: [number, number];
-      };
-    }[];
+    rounds?: { name: string; stations: [number, number]; rows: number; columns: number; reach: number; hold?: (p: R.V) => number; fade?: [number, number]; graze?: number; window?: { phases: [number, number]; fade: [number, number]; fadePhase: [number, number] } }[];
   }
 
   /** Run every part and write the receipt and the renders. */
   export async function main(): Promise<void> {
     const started: number = performance.now();
+    // A run names what it does: one or more parts, a reading that takes none (`--divides`, `--emit-joints`), or `--all` for every part.
+    // With no argument the tool used to fit every part, an hour of work that a launcher which lost its arguments started twice.
+    if (!process.argv.slice(2).some((argument: string): boolean => !argument.startsWith("--") || ["--divides", "--emit-joints", "--all"].includes(argument)))
+      throw new Error("FamilyConicBody: name a part to fit (for instance `arm --to=376.55 --out=<directory>`), a reading (`--divides`, `--emit-joints`), or `--all` to fit every part; nothing was run");
     const root: string = path.resolve(process.cwd(), "..");
-    const out: string = path.join(
-      root,
-      "test/.shots/family-conic-body",
-      new Date().toISOString().replaceAll(":", "-"),
-    );
+    // `--out=<directory>`: the run's receipt, families and frames go to that directory (a named round under the Human package's shots)
+    // instead of a dated one under the test package's.
+    const out: string = process.argv.find((argument: string): boolean => argument.startsWith("--out="))?.slice("--out=".length) ?? path.join(root, "test/.shots/family-conic-body", new Date().toISOString().replaceAll(":", "-"));
     await fs.mkdir(out, { recursive: true });
-    const log = (event: string, detail: object): void =>
-      void process.stdout.write(
-        JSON.stringify({
-          event,
-          ...detail,
-          elapsedMs: Math.round(performance.now() - started),
-        }) + "\n",
-      );
+    const log = (event: string, detail: object): void => void process.stdout.write(JSON.stringify({ event, ...detail, elapsedMs: Math.round(performance.now() - started) }) + "\n");
     log0 = log;
     const source: R.ISource = await R.load(root);
     const joint = (name: string): R.V => source.joints.get(name)!;
     // The armscye's landmark loop on the skin (`FamilyConicLoop`), which divides the shoulder's skin between the trunk and the arm.
     const armscye: FamilyConicLoop.ILoop = FamilyConicLoop.build(source);
-    // The arm's opening in the trunk, either side: past the loop's swept surface and inside the arm's tube.
-    const armHole = (p: R.V): number =>
-      Math.max(
-        ...[1, -1].map((side: number): number => {
-          const a: R.V = joint("upperarm_r");
-          const b: R.V = joint("lowerarm_r");
-          const length: number = Math.hypot(
-            b[0] - a[0],
-            b[1] - a[1],
-            b[2] - a[2],
-          );
-          const d: R.V = [
-            (b[0] - a[0]) / length,
-            (b[1] - a[1]) / length,
-            (b[2] - a[2]) / length,
-          ];
-          const q: R.V = [p[0] - a[0], p[1] - a[1], side * p[2] - a[2]];
-          const along: number = q[0] * d[0] + q[1] * d[1] + q[2] * d[2];
-          return Math.min(
-            armscye.side([p[0], p[1], side * p[2]]),
-            ARM_TUBE_MM -
-              Math.hypot(
-                q[0] - along * d[0],
-                q[1] - along * d[1],
-                q[2] - along * d[2],
-              ),
-          );
-        }),
-      );
-    const only: string[] = process.argv
-      .slice(2)
-      .filter((argument: string): boolean => !argument.startsWith("--"));
+    // Every surface two neighbouring parts divide the skin by, declared once (`FamilyConicDivide`): a part's clip is its side of each,
+    // so no two parts fit the same skin. The trunk's foot stands at 808 mm, its course's floor (780) plus its first station (28).
+    const divides: FamilyConicDivide.ISurface[] = [];
+    const divided = (name: string): ((p: R.V) => number) => FamilyConicDivide.outside(divides, name);
+    // The trunk holds both sides: its side of each surface and of each surface's image in the median plane.
+    const trunkDivided = (p: R.V): number => Math.max(divided("trunk")(p), divided("trunk")([p[0], p[1], -p[2]]));
+    const only: string[] = process.argv.slice(2).filter((argument: string): boolean => !argument.startsWith("--"));
     if (process.argv.includes("--emit-joints")) {
-      const emitted: { text: string; world: Record<string, R.V> } =
-        joints(source);
-      await fs.writeFile(
-        path.join(
-          root,
-          "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts",
-        ),
-        emitted.text,
-      );
-      await fs.writeFile(
-        path.join(out, "joints.world.json"),
-        JSON.stringify({ points: emitted.world }),
-      );
+      const emitted: { text: string; world: Record<string, R.V> } = joints(source);
+      await fs.writeFile(path.join(root, "packages/human/src/generation/f1/AutoMovieHumanF1Joints.ts"), emitted.text);
+      await fs.writeFile(path.join(out, "joints.world.json"), JSON.stringify({ points: emitted.world }));
     }
     // A digit's course runs through its joints and on past the last one by the length of its distal segment.
     const beyond = (a: R.V, b: R.V, length: number): R.V => {
       const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-      return [
-        b[0] + ((b[0] - a[0]) * length) / d,
-        b[1] + ((b[1] - a[1]) * length) / d,
-        b[2] + ((b[2] - a[2]) * length) / d,
-      ];
+      return [b[0] + ((b[0] - a[0]) * length) / d, b[1] + ((b[1] - a[1]) * length) / d, b[2] + ((b[2] - a[2]) * length) / d];
     };
     const digit = (name: string, joints: string[], up: R.V): IPart => {
       const centres: R.V[] = joints.map(joint);
@@ -1668,27 +1624,9 @@ namespace FamilyConicBody {
       // left the pad through its side before the pad ended, and the tip stood 2 to 4 mm short.
       const far: R.V = pad(source.body, centres.at(-2)!, centres.at(-1)!);
       centres.push(beyond(centres.at(-1)!, far, PAD.past));
-      const keys: string[] = joints.map(
-        (j: string): string => "J." + j.replace("_0", "").replace("_r", ""),
-      );
+      const keys: string[] = joints.map((j: string): string => "J." + j.replace("_0", "").replace("_r", ""));
       log("family-body-pad", { part: name, pad: far });
-      return {
-        name,
-        centres,
-        course:
-          "[" +
-          [...keys, "J." + joints[0]!.replace("_01_r", "") + "End"].join(", ") +
-          "]",
-        halves: centres.slice(1, -1).map((): number => 5),
-        up,
-        domain: "auto",
-        step: 2,
-        gap: 6,
-        tip: true,
-        mirrored: true,
-        layouts: LIMB,
-        reliefs: [],
-      };
+      return { name, centres, course: "[" + [...keys, "J." + joints[0]!.replace("_01_r", "") + "End"].join(", ") + "]", halves: centres.slice(1, -1).map((): number => 5), up, domain: "auto", step: 2, gap: 6, tip: true, mirrored: true, layouts: LIMB, reliefs: [], clip: divided(name), opening: divided(name), around: 1 };
     };
     // A net over a digit's dome, cast back along the digit as the crown's is, did not mend the short tips: the dome is 3 to 4 mm long and
     // the casts of a toe land on its neighbours; the thumb's net came out at heights of -8 to 8 mm.
@@ -1699,30 +1637,17 @@ namespace FamilyConicBody {
     // Past the knuckles the course turns toward the fingers (`KNUCKLE`), so the hand's end faces them: the end is split into the fingers
     // (`IAutoMovieConstructionSplit.outer`), and a band that leaves an end facing along the hand's own line turned 24 degrees as it left and
     // folded there.
-    const fingers: [R.V, R.V][] = ["index", "middle", "ring", "pinky"].map(
-      (f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")],
-    );
+    const fingers: [R.V, R.V][] = ["index", "middle", "ring", "pinky"].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
     const toward = (from: R.V, segments: [R.V, R.V][], length: number): R.V => {
       const sum: number[] = [0, 0, 0];
       for (const [a, b] of segments) {
         const d: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-        for (let c: number = 0; c < 3; ++c)
-          sum[c] = sum[c]! + (b[c]! - a[c]!) / d;
+        for (let c: number = 0; c < 3; ++c) sum[c] = sum[c]! + (b[c]! - a[c]!) / d;
       }
       const l: number = Math.hypot(sum[0]!, sum[1]!, sum[2]!);
-      return [
-        from[0] + (sum[0]! * length) / l,
-        from[1] + (sum[1]! * length) / l,
-        from[2] + (sum[2]! * length) / l,
-      ];
+      return [from[0] + (sum[0]! * length) / l, from[1] + (sum[1]! * length) / l, from[2] + (sum[2]! * length) / l];
     };
-    const toes: [R.V, R.V][] = [
-      "bigtoe",
-      "indextoe",
-      "middletoe",
-      "ringtoe",
-      "littletoe",
-    ].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
+    const toes: [R.V, R.V][] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((f: string): [R.V, R.V] => [joint(f + "_01_r"), joint(f + "_02_r")]);
     // Within 15 mm of the thumb's course from 42 mm past its first joint: the face the thumb comes out of, where the hand's nets hold the
     // wall so the thumb's merge finds its meeting. Read on the reference (`FamilyConicScan.ts thumbweb`): toward the index finger the thumb's
     // skin first stands free at 42 mm along (11.8 mm from the line, then the web's air; before that the ray runs through the hand's flesh
@@ -1734,96 +1659,29 @@ namespace FamilyConicBody {
       const a: R.V = joint("thumb_01_r");
       const b: R.V = joint("thumb_03_r");
       const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-      const along: number =
-        ((p[0] - a[0]) * (b[0] - a[0]) +
-          (p[1] - a[1]) * (b[1] - a[1]) +
-          (p[2] - a[2]) * (b[2] - a[2])) /
-        length;
-      return Math.min(
-        along - 42,
-        15 -
-          Math.hypot(
-            p[0] - a[0] - (along * (b[0] - a[0])) / length,
-            p[1] - a[1] - (along * (b[1] - a[1])) / length,
-            p[2] - a[2] - (along * (b[2] - a[2])) / length,
-          ),
-      );
+      const along: number = ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1]) + (p[2] - a[2]) * (b[2] - a[2])) / length;
+      return Math.min(along - 42, 15 - Math.hypot(p[0] - a[0] - (along * (b[0] - a[0])) / length, p[1] - a[1] - (along * (b[1] - a[1])) / length, p[2] - a[2] - (along * (b[2] - a[2])) / length));
     };
-    const armCentres: R.V[] = [
-      ARM_ROOT,
-      ARM_TURN,
-      joint("lowerarm_r"),
-      joint("hand_r"),
-      joint("middle_01_r"),
-      toward(joint("middle_01_r"), fingers, KNUCKLE.reach),
-    ];
+    const armCentres: R.V[] = [ARM_ROOT, ARM_TURN, joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
     const armHalves: number[] = [SHOULDER_HALF_MM, 30, 10, KNUCKLE.half];
-    const arm: { shift: number; up: R.V; plane: number; turned: number } =
-      ((): { shift: number; up: R.V; plane: number; turned: number } => {
-        const formerCentres: R.V[] = [
-          joint("upperarm_r"),
-          ...armCentres.slice(2, 5),
-        ];
-        const former: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(
-          formerCentres,
-          [30, 10],
-        ) as IAutoMovieViewAxis.IRun[];
-        const next: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(
-          armCentres,
-          armHalves,
-        ) as IAutoMovieViewAxis.IRun[];
-        const shift: number = round(
-          next[2]!.start - next[2]!.from - (former[1]!.start - former[1]!.from),
-        );
-        const at: number = (former[1]!.start + former[1]!.end) / 2;
-        const old: IAutoMovieLoftSectionFrame = (
-          AutoMovieViewAxis.jointed(
-            formerCentres,
-            [30, 10],
-            [1, 0, 0],
-          ) as IAutoMovieViewAxis.IAxis
-        ).at(at);
-        const roll = (up: R.V): number => {
-          const now: IAutoMovieLoftSectionFrame = (
-            AutoMovieViewAxis.jointed(
-              armCentres,
-              armHalves,
-              up,
-            ) as IAutoMovieViewAxis.IAxis
-          ).at(at + shift);
-          return Math.atan2(
-            old.u[0] * now.v[0] + old.u[1] * now.v[1] + old.u[2] * now.v[2],
-            old.u[0] * now.u[0] + old.u[1] * now.u[1] + old.u[2] * now.u[2],
-          );
-        };
-        // The first segment runs along +Z, so turning `up` about it by an angle turns every later chart by the same angle about its tangent.
-        const first: number = roll([1, 0, 0]);
-        const candidates: R.V[] = [1, -1].map(
-          (sign: number): R.V => [
-            round4(Math.cos(first)),
-            round4(sign * Math.sin(first)),
-            0,
-          ],
-        );
-        const up: R.V =
-          Math.abs(roll(candidates[0]!)) < Math.abs(roll(candidates[1]!))
-            ? candidates[0]!
-            : candidates[1]!;
-        log("family-body-arm-course", {
-          shift,
-          up,
-          rollBefore: first,
-          rollAfter: roll(up),
-          runs: next,
-          formerRuns: former,
-        });
-        return {
-          shift,
-          up,
-          plane: ARMPIT_MM - ARM_ROOT[2],
-          turned: next[1]!.start,
-        };
-      })();
+    const arm: { shift: number; up: R.V; plane: number; turned: number } = ((): { shift: number; up: R.V; plane: number; turned: number } => {
+      const formerCentres: R.V[] = [joint("upperarm_r"), ...armCentres.slice(2, 5)];
+      const former: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(formerCentres, [30, 10]) as IAutoMovieViewAxis.IRun[];
+      const next: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(armCentres, armHalves) as IAutoMovieViewAxis.IRun[];
+      const shift: number = round(next[2]!.start - next[2]!.from - (former[1]!.start - former[1]!.from));
+      const at: number = (former[1]!.start + former[1]!.end) / 2;
+      const old: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(formerCentres, [30, 10], [1, 0, 0]) as IAutoMovieViewAxis.IAxis).at(at);
+      const roll = (up: R.V): number => {
+        const now: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(armCentres, armHalves, up) as IAutoMovieViewAxis.IAxis).at(at + shift);
+        return Math.atan2(old.u[0] * now.v[0] + old.u[1] * now.v[1] + old.u[2] * now.v[2], old.u[0] * now.u[0] + old.u[1] * now.u[1] + old.u[2] * now.u[2]);
+      };
+      // The first segment runs along +Z, so turning `up` about it by an angle turns every later chart by the same angle about its tangent.
+      const first: number = roll([1, 0, 0]);
+      const candidates: R.V[] = [1, -1].map((sign: number): R.V => [round4(Math.cos(first)), round4(sign * Math.sin(first)), 0]);
+      const up: R.V = Math.abs(roll(candidates[0]!)) < Math.abs(roll(candidates[1]!)) ? candidates[0]! : candidates[1]!;
+      log("family-body-arm-course", { shift, up, rollBefore: first, rollAfter: roll(up), runs: next, formerRuns: former });
+      return { shift, up, plane: ARMPIT_MM - ARM_ROOT[2], turned: next[1]!.start };
+    })();
     const handHalves: number[] = [SHOULDER_HALF_MM, 30, 10, HAND_KNUCKLE_HALF];
     // The arm on the ISB humerus course (Wu et al., ISB recommendation on definitions of joint coordinate systems, Part II: shoulder,
     // elbow, wrist and hand, J Biomech 38, 2005: the humerus's long axis from the glenohumeral rotation centre toward the elbow), its first
@@ -1831,78 +1689,27 @@ namespace FamilyConicBody {
     // spans 44 mm proximal to 76.5 mm distal of the joint along the axis. From the elbow on it is the arm's former course, so every
     // station there is the current course's plus `delta`. Its `up` keeps the forearm's chart where the current course has it, so the wrist's
     // band meets the hand's ring at the same phases.
-    const isbCentres: R.V[] = [
-      toward(
-        joint("upperarm_r"),
-        [[joint("lowerarm_r"), joint("upperarm_r")]],
-        ISB_PROXIMAL_MM,
-      ),
-      joint("lowerarm_r"),
-      joint("hand_r"),
-      joint("middle_01_r"),
-      toward(joint("middle_01_r"), fingers, KNUCKLE.reach),
-    ];
+    const isbCentres: R.V[] = [toward(joint("upperarm_r"), [[joint("lowerarm_r"), joint("upperarm_r")]], ISB_PROXIMAL_MM), joint("lowerarm_r"), joint("hand_r"), joint("middle_01_r"), toward(joint("middle_01_r"), fingers, KNUCKLE.reach)];
     const isbHalves: number[] = [30, 10, KNUCKLE.half];
     const isb: { delta: number; up: R.V } = ((): { delta: number; up: R.V } => {
-      const now: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(
-        armCentres,
-        armHalves,
-      ) as IAutoMovieViewAxis.IRun[];
-      const next: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(
-        isbCentres,
-        isbHalves,
-      ) as IAutoMovieViewAxis.IRun[];
-      const delta: number = round(
-        next[1]!.start - next[1]!.from - (now[2]!.start - now[2]!.from),
-      );
+      const now: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(armCentres, armHalves) as IAutoMovieViewAxis.IRun[];
+      const next: IAutoMovieViewAxis.IRun[] = AutoMovieViewAxis.runs(isbCentres, isbHalves) as IAutoMovieViewAxis.IRun[];
+      const delta: number = round(next[1]!.start - next[1]!.from - (now[2]!.start - now[2]!.from));
       const at: number = (now[2]!.start + now[2]!.end) / 2;
-      const old: IAutoMovieLoftSectionFrame = (
-        AutoMovieViewAxis.jointed(
-          armCentres,
-          armHalves,
-          arm.up,
-        ) as IAutoMovieViewAxis.IAxis
-      ).at(at);
-      const d: R.V = [
-        isbCentres[1]![0] - isbCentres[0]![0],
-        isbCentres[1]![1] - isbCentres[0]![1],
-        isbCentres[1]![2] - isbCentres[0]![2],
-      ];
+      const old: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(armCentres, armHalves, arm.up) as IAutoMovieViewAxis.IAxis).at(at);
+      const d: R.V = [isbCentres[1]![0] - isbCentres[0]![0], isbCentres[1]![1] - isbCentres[0]![1], isbCentres[1]![2] - isbCentres[0]![2]];
       const l: number = Math.hypot(d[0], d[1], d[2]);
       const t: R.V = [d[0] / l, d[1] / l, d[2] / l];
       // Two directions square to the first segment, and the up among them, by the angle, whose forearm chart turns least from the old one.
-      const e1: R.V = ((): R.V => {
-        const x: R.V = [1 - t[0] * t[0], -t[0] * t[1], -t[0] * t[2]];
-        const n: number = Math.hypot(x[0], x[1], x[2]);
-        return [x[0] / n, x[1] / n, x[2] / n];
-      })();
-      const e2: R.V = [
-        t[1] * e1[2] - t[2] * e1[1],
-        t[2] * e1[0] - t[0] * e1[2],
-        t[0] * e1[1] - t[1] * e1[0],
-      ];
+      const e1: R.V = ((): R.V => { const x: R.V = [1 - t[0] * t[0], -t[0] * t[1], -t[0] * t[2]]; const n: number = Math.hypot(x[0], x[1], x[2]); return [x[0] / n, x[1] / n, x[2] / n]; })();
+      const e2: R.V = [t[1] * e1[2] - t[2] * e1[1], t[2] * e1[0] - t[0] * e1[2], t[0] * e1[1] - t[1] * e1[0]];
       const roll = (theta: number): number => {
-        const up: R.V = [
-          Math.cos(theta) * e1[0] + Math.sin(theta) * e2[0],
-          Math.cos(theta) * e1[1] + Math.sin(theta) * e2[1],
-          Math.cos(theta) * e1[2] + Math.sin(theta) * e2[2],
-        ];
-        const frame: IAutoMovieLoftSectionFrame = (
-          AutoMovieViewAxis.jointed(
-            isbCentres,
-            isbHalves,
-            up,
-          ) as IAutoMovieViewAxis.IAxis
-        ).at(at + delta);
-        return Math.atan2(
-          old.u[0] * frame.v[0] + old.u[1] * frame.v[1] + old.u[2] * frame.v[2],
-          old.u[0] * frame.u[0] + old.u[1] * frame.u[1] + old.u[2] * frame.u[2],
-        );
+        const up: R.V = [Math.cos(theta) * e1[0] + Math.sin(theta) * e2[0], Math.cos(theta) * e1[1] + Math.sin(theta) * e2[1], Math.cos(theta) * e1[2] + Math.sin(theta) * e2[2]];
+        const frame: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(isbCentres, isbHalves, up) as IAutoMovieViewAxis.IAxis).at(at + delta);
+        return Math.atan2(old.u[0] * frame.v[0] + old.u[1] * frame.v[1] + old.u[2] * frame.v[2], old.u[0] * frame.u[0] + old.u[1] * frame.u[1] + old.u[2] * frame.u[2]);
       };
       let best: number = 0;
-      for (let k: number = 0; k < 720; ++k)
-        if (Math.abs(roll((2 * Math.PI * k) / 720)) < Math.abs(roll(best)))
-          best = (2 * Math.PI * k) / 720;
+      for (let k: number = 0; k < 720; ++k) if (Math.abs(roll((2 * Math.PI * k) / 720)) < Math.abs(roll(best))) best = (2 * Math.PI * k) / 720;
       let [lo, hi]: number[] = [best - Math.PI / 360, best + Math.PI / 360];
       for (let k: number = 0; k < 40; ++k) {
         const [a, b]: number[] = [lo! + (hi! - lo!) / 3, hi! - (hi! - lo!) / 3];
@@ -1910,190 +1717,58 @@ namespace FamilyConicBody {
         else lo = a;
       }
       const theta: number = (lo! + hi!) / 2;
-      const up: R.V = [0, 1, 2].map((c: number): number =>
-        round4(Math.cos(theta) * e1[c]! + Math.sin(theta) * e2[c]!),
-      ) as R.V;
+      const up: R.V = [0, 1, 2].map((c: number): number => round4(Math.cos(theta) * e1[c]! + Math.sin(theta) * e2[c]!)) as R.V;
       log("family-body-arm-isb", { delta, up, rollAfter: roll(theta) });
       return { delta, up };
     })();
-    // The arm's sections keep the skin on the arm's side of the armscye's landmark loop (`FamilyConicLoop`), the thumb past where it stands
-    // free of the palm left out as before; across the trunk's side each section closes by the shared opening closure (`without`).
-    const armOpening = (p: R.V): number => -armscye.side(p); // The arm's sections leave out the thumb past where it stands free of the palm, and the trunk's side medial of the armpit's plane.
-    // The thumb past where it stands free of the palm is not the hand's: inside 16 mm of its course from 40 mm past its first joint.
-    // Left in, the hand's wall and the thumb's lay within half a millimetre of each other for 10 mm, and a merge traces no such meeting.
-    const thumbOut = (p: R.V): number => {
-      const a: R.V = joint("thumb_01_r");
-      const b: R.V = joint("thumb_03_r");
-      const length: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-      const along: number =
-        ((p[0] - a[0]) * (b[0] - a[0]) +
-          (p[1] - a[1]) * (b[1] - a[1]) +
-          (p[2] - a[2]) * (b[2] - a[2])) /
-        length;
-      return Math.min(
-        along - 40,
-        16 -
-          Math.hypot(
-            p[0] - a[0] - (along * (b[0] - a[0])) / length,
-            p[1] - a[1] - (along * (b[1] - a[1])) / length,
-            p[2] - a[2] - (along * (b[2] - a[2])) / length,
-          ),
-      );
+    // The hand's and the leg's section planes at their courses' stations for the third metacarpal's head and the ball of the foot
+    // (`AutoMovieHumanCourseRuns.joints`: the middle of each turn), where the fingers and the toes part from them.
+    const sectionAt = (centres: R.V[], halves: number[], up: R.V, index: number): FamilyConicDivide.IEnd => {
+      const frame: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis).at(AutoMovieHumanCourseRuns.joints(centres, halves)[index]!);
+      return { point: [frame.origin[0], frame.origin[1], frame.origin[2]], normal: [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]] };
     };
-    // The hand owns the shoulder's cap as well, the skin lateral of the armpit's sagittal plane, and gives up what lies medial.
-    const armClip: (p: R.V) => number = (p: R.V): number =>
-      Math.max(thumbOut(p), ARMPIT_MM - p[2]);
+    const legCentres: R.V[] = [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)];
+    // The arm's section plane where its face ends before the wrist.
+    const planeAt = (centres: R.V[], halves: number[], up: R.V, station: number): FamilyConicDivide.IEnd => {
+      const frame: IAutoMovieLoftSectionFrame = (AutoMovieViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis).at(station);
+      return { point: [frame.origin[0], frame.origin[1], frame.origin[2]], normal: [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]] };
+    };
+    divides.push(...FamilyConicDivide.build(source, armscye, 808, { hand: sectionAt(armCentres, handHalves, arm.up, 4), foot: sectionAt(legCentres, [40, 62, TOE_TURN.half], [1, 0, 0], 3), wrist: planeAt(armCentres, [SHOULDER_HALF_MM, 30, 10, 16], arm.up, AutoMovieHumanF1.ARM_TO_MM) }));
     const parts: IPart[] = (
       [
-        ...["index", "middle", "ring", "pinky"].map(
-          (finger: string): IPart =>
-            digit(
-              "finger." + finger,
-              [finger + "_01_r", finger + "_02_r", finger + "_03_r"],
-              [1, 0, 0],
-            ),
-        ),
-        digit(
-          "finger.thumb",
-          ["thumb_01_r", "thumb_02_r", "thumb_03_r"],
-          [0, 1, 0],
-        ),
-        ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map(
-          (toe: string): IPart =>
-            digit(
-              "toe." + toe.replace("toe", ""),
-              [toe + "_01_r", toe + "_02_r"],
-              [0, 1, 0],
-            ),
-        ),
+        ...["index", "middle", "ring", "pinky"].map((finger: string): IPart => digit("finger." + finger, [finger + "_01_r", finger + "_02_r", finger + "_03_r"], [1, 0, 0])),
+        digit("finger.thumb", ["thumb_01_r", "thumb_02_r", "thumb_03_r"], [0, 1, 0]),
+        ...["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"].map((toe: string): IPart => digit("toe." + toe.replace("toe", ""), [toe + "_01_r", toe + "_02_r"], [0, 1, 0])),
         // The arm runs on through the wrist to the knuckles, so the wrist is no seam.
         // A course that leaves the wrist square to the row of knuckles, with the hand read on to the finger webs as the curve round all the
         // fingers (`surround`), was fitted to 588 numbers at a mean of 0.34 mm, but the engine refused it as a face: between its stations a
         // section's chain lost an arc. Until that is understood the hand keeps this course and closes at the webs.
         // It starts 2 mm past the armscye's plane and fans round the shoulder (`ARM_ROOT`); round that turn the cap's top sweeps about 2.5
         // times faster than the station, so its knots may stand 6 mm apart, as round the ankle.
-        {
-          name: "arm",
-          centres: isbCentres,
-          course:
-            "[J.toward(J.upperarm, [[J.lowerarm, J.upperarm]], " +
-            ISB_PROXIMAL_MM +
-            "), J.lowerarm, J.hand, J.middle1, J.handEnd]",
-          halves: isbHalves,
-          up: isb.up,
-          domain: [ARM_FIRST_MM, KNUCKLE.end + isb.delta],
-          gap: (s: number): number => (s < ISB_PROXIMAL_MM + 80 ? 6 : GAP_MM),
-          tip: KNUCKLE.end + 15 + isb.delta,
-          cap: 570.45 + isb.delta,
-          covered: true,
-          mirrored: true,
-          layouts:
-            ARM_FEATURES.length > 0
-              ? featureGrooves(ARM_FEATURES)
-              : ARM_GROOVES.length === 0
-                ? LIMB
-                : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }],
-          ...(process.argv.includes("--arm-skin")
-            ? { skin: "outer" as const }
-            : {}),
-          reliefs: "auto",
-          rounds: [
-            // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
-            // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
-            // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
-            // zero rows each at 425 to 440 mm they drew an oval ring with level bars round the forearm above the wrist and a ring across the
-            // wrist (`hand.high-oblique` px 360..415 x 150..215, `figure.left` px 455..470 x 615..640), gone with both nets off. The forearm's
-            // now hands over (`fade`) over its last 40 mm and the hand's starts at 400 mm and fades in over 30; faded over 15 mm each the
-            // oval stayed.
-            {
-              name: "fore",
-              stations: [300 + isb.delta, 440 + isb.delta],
-              rows: 19,
-              columns: 26,
-              reach: 10,
-              fade: [0, 40],
-            },
-            {
-              name: "hand",
-              stations: [400 + isb.delta, KNUCKLE.relief + isb.delta],
-              rows: 36,
-              columns: 38,
-              reach: 14,
-              hold: thumbHold,
-              fade: [30, 0],
-            },
-            // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
-            {
-              name: "palm",
-              stations: [
-                PALM.stations[0] + isb.delta,
-                PALM.stations[1] + isb.delta,
-              ],
-              rows: PALM.rows,
-              columns: PALM.columns,
-              reach: 14,
-              hold: thumbHold,
-              window: {
-                phases: PALM.phases,
-                fade: PALM.fade,
-                fadePhase: PALM.fadePhase,
-              },
-            },
-          ],
-          clip: (p: R.V): number => Math.max(thumbOut(p), armOpening(p)),
-          opening: armOpening,
-          around: 1,
-          reliefEnd: KNUCKLE.relief + isb.delta,
-        },
+        { name: "arm", centres: isbCentres, course: "[J.toward(J.upperarm, [[J.lowerarm, J.upperarm]], " + ISB_PROXIMAL_MM + "), J.lowerarm, J.hand, J.middle1, J.handEnd]", halves: isbHalves, up: isb.up, domain: [ARM_FIRST_MM, KNUCKLE.end + isb.delta], gap: (s: number): number => (s < ISB_PROXIMAL_MM + 80 ? 6 : GAP_MM), tip: KNUCKLE.end + 15 + isb.delta, cap: 570.45 + isb.delta, covered: true, mirrored: true, layouts: ARM_FEATURES.length > 0 ? featureGrooves(ARM_FEATURES) : ARM_GROOVES.length === 0 ? LIMB : [{ layout: C.inflected(1, ARM_GROOVES), depth: 1 }], ...(process.argv.includes("--arm-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
+          // The forearm and the hand: the wall of two conics a quarter left the ulna's head 2 to 4 mm inside the skin at the wrist, the web
+          // between the thumb and the hand up to 11 mm full and stripes of 1 to 4 mm along the forearm (`FamilyConicDeviation.ts`), which
+          // are not hollows under the tape but the wall's own misfit, on both sides of it. A net round each run takes them. Meeting in three
+          // zero rows each at 425 to 440 mm they drew an oval ring with level bars round the forearm above the wrist and a ring across the
+          // wrist (`hand.high-oblique` px 360..415 x 150..215, `figure.left` px 455..470 x 615..640), gone with both nets off. The forearm's
+          // now hands over (`fade`) over its last 40 mm and the hand's starts at 400 mm and fades in over 30; faded over 15 mm each the
+          // oval stayed.
+          { name: "fore", stations: [300 + isb.delta, 440 + isb.delta], rows: 19, columns: 26, reach: 10, fade: [0, 40] },
+          { name: "hand", stations: [400 + isb.delta, KNUCKLE.relief + isb.delta], rows: 36, columns: 38, reach: 14, hold: thumbHold, fade: [30, 0] },
+          // The palm on to the hand's end (`PALM`): past `KNUCKLE.relief` the wall alone is the tape across the palm's hollow.
+          { name: "palm", stations: [PALM.stations[0] + isb.delta, PALM.stations[1] + isb.delta], rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
+        ], clip: divided("arm"), opening: divided("arm"), around: 1, reliefEnd: KNUCKLE.relief + isb.delta },
         // The hand from the wrist on, its own family on the arm's course with a wider knuckle turn (`HAND_KNUCKLE_HALF`), continued from the
         // arm's open end by a band (`IAutoMovieConstructionContinuation.band`): on the arm's turn of 16 mm a side (radius 78 mm) the hand's
         // ulnar edge stands 69 mm inside the turn and its sections nearly cross there, a crease along the palm side of the little finger's root.
-        {
-          name: "hand",
-          centres: armCentres,
-          course:
-            "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.handEnd]",
-          halves: handHalves,
-          up: arm.up,
-          domain: [HAND_FROM, KNUCKLE.end],
-          gap: GAP_MM,
-          tip: KNUCKLE.end + 15,
-          cap: 570.45,
-          covered: true,
-          mirrored: true,
-          layouts:
-            HAND_FEATURES.length > 0 ? featureGrooves(HAND_FEATURES) : LIMB,
-          ...(process.argv.includes("--hand-skin")
-            ? { skin: "outer" as const }
-            : {}),
-          reliefs: "auto",
-          rounds: [
-            {
-              name: "hand",
-              stations: [HAND_FROM + 4, KNUCKLE.relief],
-              rows: 31,
-              columns: 38,
-              reach: 14,
-              hold: thumbHold,
-              fade: [15, 25],
-            },
-            {
-              name: "palm",
-              stations: PALM.stations,
-              rows: PALM.rows,
-              columns: PALM.columns,
-              reach: 14,
-              hold: thumbHold,
-              window: {
-                phases: PALM.phases,
-                fade: PALM.fade,
-                fadePhase: PALM.fadePhase,
-              },
-            },
-          ],
-          clip: armClip,
-          reliefEnd: KNUCKLE.relief,
-        },
+        { name: "hand", centres: armCentres, course: "[J.armRoot, J.armTurn, J.lowerarm, J.hand, J.middle1, J.handEnd]", halves: handHalves, up: arm.up, domain: [HAND_FROM, KNUCKLE.end], gap: GAP_MM, tip: KNUCKLE.end + 15, cap: 570.45, covered: true, mirrored: true, layouts: HAND_FEATURES.length > 0 ? featureGrooves(HAND_FEATURES) : LIMB, ...(process.argv.includes("--hand-skin") ? { skin: "outer" as const } : {}), reliefs: "auto", rounds: [
+          { name: "hand", stations: [HAND_FROM + 4, KNUCKLE.relief], rows: 31, columns: 38, reach: 14, hold: thumbHold, fade: [15, 25] },
+          // Casts that run along the skin are left unobserved (`graze`, 20 degrees as the chest's side): stored without it, the palm's net
+          // alternated row by row over its 5 mm rows (+5.8, -9.0, +6.9 mm at rows 4 to 6) and drew four ridges across the palm
+          // (`hand.low-oblique`, `hand.roots.low-oblique`).
+          { name: "palm", stations: PALM.stations, rows: PALM.rows, columns: PALM.columns, reach: 14, hold: thumbHold, graze: 20, window: { phases: PALM.phases, fade: PALM.fade, fadePhase: PALM.fadePhase } },
+        ], clip: divided("hand"), opening: divided("hand"), around: 1, reliefEnd: KNUCKLE.relief },
+
 
         // The leg turns at the ankle and runs on to the ball of the foot, its sections fanning round the instep, so the heel is lofted and the ankle
         // is no seam. The ankle's turn is long enough that its tightest radius, 2 h / (1.875 angle) = 46 mm, stays outside the instep. Round the
@@ -2107,511 +1782,70 @@ namespace FamilyConicBody {
         // refused all 762 readings (the start's margins under --seeds). A conic arc is admissible for any meeting strictly inside its
         // chord's ends; the margin guards the engine's spline between stations, and the armpit's vault was admitted on the native path at
         // 0.072. 0.04 holds the least measured meeting, 0.051, with the spread between stations.
-        {
-          name: "leg",
-          centres: [
-            joint("thigh_r"),
-            joint("calf_r"),
-            joint("foot_r"),
-            [133, 20, 157],
-            toward([133, 20, 157], toes, TOE_TURN.reach),
-          ],
-          course: "[J.thigh, J.calf, J.foot, J.footBall, J.footEnd]",
-          halves: [40, 62, TOE_TURN.half],
-          up: [1, 0, 0],
-          domain: [104, TOE_TURN.end],
-          gap: 12,
-          tip: TOE_TURN.end + 15,
-          covered: true,
-          mirrored: true,
-          layouts: LIMB,
-          reliefs: "auto",
-          reliefEnd: TOE_TURN.relief,
-          margin: 0.04,
-          casts: [
-            {
-              name: "sole",
-              stations: [930, TOE_TURN.relief],
-              axis: [0, 1, 0],
-              rows: 16,
-              columns: 35,
-              reach: 6,
-              facing: 0.8,
-              nearest: true,
-            },
-          ],
-        },
+        { name: "leg", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)], course: "[J.thigh, J.calf, J.foot, J.footBall, J.footEnd]", halves: [40, 62, TOE_TURN.half], up: [1, 0, 0], domain: [104, TOE_TURN.end], gap: 12, tip: TOE_TURN.end + 15, covered: true, mirrored: true, layouts: LIMB, reliefs: "auto", reliefEnd: TOE_TURN.relief, margin: 0.04, clip: divided("leg"), opening: divided("leg"), around: 1, casts: [{ name: "sole", stations: [930, TOE_TURN.relief], axis: [0, 1, 0], rows: 16, columns: 35, reach: 6, facing: 0.8, nearest: true }] },
 
         // A stretch of the leg as a family of its own on the leg's course, fitted to its skin with grooves carried by inflection lines
         // (`FamilyConicSection.inflected`): `--segment=<from>,<to>`, `--segment-grooves=<anchors>`, `--segment-up=<x,y,z>` (the chart's seed,
         // turned so a hollow falls after a `u` extreme), `--segment-gap=<mm>`. A trial for the foot's end before its split and the heel.
-        ...(SEGMENT === undefined
-          ? []
-          : [
-              {
-                name: "segment",
-                centres: [
-                  joint("thigh_r"),
-                  joint("calf_r"),
-                  joint("foot_r"),
-                  [133, 20, 157],
-                  toward([133, 20, 157], toes, TOE_TURN.reach),
-                ] as R.V[],
-                course: "[J.thigh, J.calf, J.foot, J.footBall, J.footEnd]",
-                halves: [40, 62, TOE_TURN.half],
-                up: SEGMENT.up,
-                domain: SEGMENT.domain,
-                gap: SEGMENT.gap,
-                mirrored: true,
-                layouts: [
-                  {
-                    layout:
-                      SEGMENT.features.length > 0
-                        ? C.featured(C.limb(1), SEGMENT.features)
-                        : SEGMENT.grooves.length === 0
-                          ? C.limb(1)
-                          : C.inflected(1, SEGMENT.grooves),
-                    depth: 1,
-                  },
-                ],
-                reliefs: [] as IWindow[],
-                skin: "inner" as const,
-              },
-            ]),
+        ...(SEGMENT === undefined ? [] : [{ name: "segment", centres: [joint("thigh_r"), joint("calf_r"), joint("foot_r"), [133, 20, 157], toward([133, 20, 157], toes, TOE_TURN.reach)] as R.V[], course: "[J.thigh, J.calf, J.foot, J.footBall, J.footEnd]", halves: [40, 62, TOE_TURN.half], up: SEGMENT.up, domain: SEGMENT.domain, gap: SEGMENT.gap, mirrored: true, layouts: [{ layout: SEGMENT.features.length > 0 ? C.featured(C.limb(1), SEGMENT.features) : SEGMENT.grooves.length === 0 ? C.limb(1) : C.inflected(1, SEGMENT.grooves), depth: 1 }], reliefs: [] as IWindow[], skin: "inner" as const }]),
         // The auricle as a conic family of its own skin: level sections straight up through the shell, each the excursion of the head's level
         // cut out of the head's line, closed across the root 4 mm inside the head (`FamilyConicExcursion.ts auricle`), read along rays from
         // the course and fitted to that skin, its grooves (`--pinna-grooves`, anchor indices of the limb layout) carried by inflection lines.
-        {
-          name: "pinna",
-          centres: PINNA,
-          course: "J.pinna",
-          halves: PINNA_HALVES,
-          up: [0, 0, 1],
-          domain: [PINNA_DOMAIN[0]!, PINNA_DOMAIN[1]!],
-          head: true,
-          step: 1,
-          gap: PINNA_GAP,
-          tip: true,
-          mirrored: true,
-          excursion: "auricle",
-          skin: process.argv.includes("--pinna-outer") ? "outer" : "inner",
-          layouts: [
-            {
-              layout:
-                PINNA_GROOVES.length === 0
-                  ? C.limb(PINNA_DEPTH)
-                  : C.inflected(PINNA_DEPTH, PINNA_GROOVES),
-              depth: PINNA_DEPTH,
-            },
-          ],
-          reliefs: [],
-          pitch: EAR_PITCH,
-        },
+        { name: "pinna", centres: PINNA, course: "J.pinna", halves: PINNA_HALVES, up: [0, 0, 1], domain: [PINNA_DOMAIN[0]!, PINNA_DOMAIN[1]!], head: true, step: 1, gap: PINNA_GAP, tip: true, mirrored: true, excursion: "auricle", skin: process.argv.includes("--pinna-outer") ? "outer" : "inner", layouts: [{ layout: PINNA_GROOVES.length === 0 ? C.limb(PINNA_DEPTH) : C.inflected(PINNA_DEPTH, PINNA_GROOVES), depth: PINNA_DEPTH }], reliefs: [], pitch: EAR_PITCH },
 
         // The auricle's base plate: the sheet it is folded from, its cranial skin and that skin moved inside by its thickness, read from the
         // same excursion as the pinna, on a course along the auricle's long axis through the plates' middles; the helix and the antihelix
         // are tubes merged on it and the hollows are the spaces between them.
-        {
-          name: "plate",
-          centres: PLATE,
-          course: "J.plate",
-          halves: PLATE_HALVES,
-          up: [0, 0, 1],
-          ...(PLATE_ROLL === undefined ? {} : { roll: PLATE_ROLL }),
-          domain: [PLATE_DOMAIN[0]!, PLATE_DOMAIN[1]!],
-          head: true,
-          step: 1,
-          gap: PINNA_GAP,
-          tip: true,
-          foot: 3,
-          mirrored: true,
-          excursion: "auricle",
-          plate: {
-            thickness: PLATE_THICKNESS,
-            into: 6,
-            deepest: plateDeepest,
-            rim: PLATE_RIM,
-          },
-          skin: "inner",
-          layouts: [
-            {
-              layout: PLATE_LENS ? C.lens(PLATE_DEPTH) : C.limb(PLATE_DEPTH),
-              depth: PLATE_DEPTH,
-            },
-          ],
-          reliefs: [],
-          pitch: EAR_PITCH,
-        },
+        { name: "plate", centres: PLATE, course: "J.plate", halves: PLATE_HALVES, up: [0, 0, 1], ...(PLATE_ROLL === undefined ? {} : { roll: PLATE_ROLL }), domain: [PLATE_DOMAIN[0]!, PLATE_DOMAIN[1]!], head: true, step: 1, gap: PINNA_GAP, tip: true, foot: 3, mirrored: true, excursion: "auricle", plate: { thickness: PLATE_THICKNESS, into: 6, deepest: plateDeepest, rim: PLATE_RIM }, skin: "inner", layouts: [{ layout: PLATE_LENS ? C.lens(PLATE_DEPTH) : C.limb(PLATE_DEPTH), depth: PLATE_DEPTH }], reliefs: [], pitch: EAR_PITCH },
 
         // The nose's free end as a short loft straight forward out of the face, closed at its tip.
         // Its course starts 5 mm behind the box's frontal plane, so its first section, half a millimetre into the box, lies on the wings.
         // `--nose-vertical`: the nose cut out of the face's level sections as an excursion (`FamilyConicExcursion.ts nose`), on a course down
         // the median plane 11 mm in front of x 100, which every level section but the nostrils' is star-shaped about (scratch kernel probe),
         // fitted to its skin as a half with the supra-alar crease as a groove after the tip's extreme, and closed under the columella.
-        ...(NOSE_VERTICAL
-          ? [
-              {
-                name: "nose",
-                centres: [
-                  [111, 1590, 0],
-                  [111, 1536, 0],
-                ] as R.V[],
-                course: "[J.noseTop, J.noseBottom]",
-                halves: [],
-                up: [1, 0, 0] as R.V,
-                domain: [8.5, 47.5] as [number, number],
-                head: true,
-                step: 1,
-                gap: 3,
-                tip: 50,
-                covered: true,
-                mirrored: false,
-                excursion: "nose",
-                skin: "outer" as const,
-                margin: NOSE_MARGIN,
-                layouts: [
-                  {
-                    layout: NOSE_WING_LINES
-                      ? NOSE_WING
-                      : NOSE_FEATURES
-                        ? C.featured(C.bilateral(NOSE_DEPTH), [
-                            {
-                              after: 0,
-                              anchors: [
-                                {
-                                  kind: "f",
-                                  feature: "inflection",
-                                  window: [0.15, 0.55],
-                                },
-                                {
-                                  kind: "f",
-                                  feature: "concave",
-                                  window: [0.3, 0.75],
-                                },
-                                {
-                                  kind: "f",
-                                  feature: "inflection",
-                                  window: [0.5, 0.9],
-                                },
-                              ],
-                            },
-                            ...(process.argv.includes("--nose-root-groove")
-                              ? [
-                                  {
-                                    after: 2,
-                                    anchors: [
-                                      {
-                                        kind: "f" as const,
-                                        feature: "inflection" as const,
-                                        window: [0.1, 0.45] as [number, number],
-                                      },
-                                      {
-                                        kind: "f" as const,
-                                        feature: "concave" as const,
-                                        window: [0.25, 0.65] as [
-                                          number,
-                                          number,
-                                        ],
-                                      },
-                                      {
-                                        kind: "f" as const,
-                                        feature: "inflection" as const,
-                                        window: [0.45, 0.85] as [
-                                          number,
-                                          number,
-                                        ],
-                                      },
-                                    ],
-                                  },
-                                ]
-                              : []),
-                          ])
-                        : C.inflected(
-                            NOSE_DEPTH,
-                            NOSE_GROOVES ?? [0],
-                            C.bilateral(NOSE_DEPTH),
-                          ),
-                    depth: NOSE_DEPTH,
-                  },
-                ],
-                reliefs: [] as IWindow[],
-              },
-            ]
-          : []),
-        {
-          name: "nose",
-          centres: [
-            [108, 1556, 0],
-            [140, 1556, 0],
-          ],
-          course: "[J.noseRoot, J.noseTip]",
-          halves: [],
-          up: [0, 1, 0],
-          domain: [5.5, 24],
-          head: true,
-          loose: true,
-          step: 1,
-          gap: 3,
-          tip: 28,
-          mirrored: false,
-          layouts:
-            NOSE_GROOVES === undefined
-              ? LIMB
-              : [
-                  {
-                    layout: C.inflected(
-                      NOSE_DEPTH,
-                      NOSE_GROOVES,
-                      process.argv.includes("--nose-half")
-                        ? C.bilateral(NOSE_DEPTH)
-                        : C.limb(NOSE_DEPTH),
-                    ),
-                    depth: NOSE_DEPTH,
-                  },
-                ],
-          ...(NOSE_GROOVES === undefined ? {} : { skin: "outer" as const }),
-          clip: (p: R.V): number =>
-            NOSE_GROOVES === undefined
-              ? -nose(p)
-              : Math.max(-nose(p), nostrilPit(p)),
-          reliefs: [],
-          casts:
-            NOSE_GROOVES !== undefined
-              ? []
-              : [
-                  // The floor behind the lobule. The sections close it along the box's floor, so between each wing's outer rim and the columella
-                  // the hull is one flat chord at 1,543 mm, 1 to 3 mm below the reference's wing round each nostril (rays going up from below, the
-                  // first downward-facing skin each meets). Cast straight up from the band's rail behind the nostrils (station 8.5) to the lobule,
-                  // whose own finer net starts inside this one's whole part. What each nostril's cut takes is left unobserved (`nostrilPit`), so the
-                  // net bridges it with the fairest surface and the cutter meets a smooth floor; a coarse net, since a fine one followed the pits'
-                  // rims into spikes. Skin below 1,542.5 mm is the lip's turn into the subnasale, which the band spans: observed, it drew the
-                  // floor's middle down into a beak where the band lands.
-                  {
-                    name: "floor",
-                    stations: [8.5, 25],
-                    phases: [Math.PI - 1.1, Math.PI + 1.1],
-                    axis: [0, 1, 0],
-                    skin: (p: R.V): number =>
-                      Math.max(
-                        -nose(p),
-                        nostrilPit(p),
-                        p[1] < 1542.5 ? 10 : -10,
-                      ),
-                    rows: FLOOR_NET[0],
-                    columns: FLOOR_NET[1],
-                    reach: 3,
-                    facing: 0.3,
-                    mirror: true,
-                    fade: [1.5, 2],
-                    fadePhase: [0.35, 0.35],
-                  },
-                  // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
-                  // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
-                  // 16 by 21: the survey of issue #3197 (stage B2) projected the stored 31 by 39 net onto this grid within 0.027 mm of its own
-                  // surface, under the 0.1 mm bound of a net that carries the nose (`FamilyConicCoarse.ts --plan`).
-                  {
-                    name: "under",
-                    stations: [22.5, 27],
-                    phases: [Math.PI - 1.1, Math.PI + 1.1],
-                    axis: [0, 1, 0],
-                    rows: 16,
-                    columns: 21,
-                    reach: 2.5,
-                    mirror: true,
-                    fade: [1, 1.5],
-                    fadePhase: [0.35, 0.35],
-                  },
-                  ...[
-                    {
-                      name: "side",
-                      stations: [SIDE_NET[2]!, SIDE_NET[3]!] as [
-                        number,
-                        number,
-                      ],
-                      phases: [-SIDE_NET[4]!, SIDE_NET[4]!] as [number, number],
-                      axis: [0, -1, 0] as R.V,
-                      turn: [0, 0, 1] as R.V,
-                      skin: (p: R.V): number =>
-                        Math.max(-nose(p), p[1] - SIDE_NET[8]!),
-                      rows: SIDE_NET[0]!,
-                      columns: SIDE_NET[1]!,
-                      reach: SIDE_NET[5]!,
-                      mirror: true,
-                      fade: [SIDE_NET[9] ?? 0, SIDE_NET[6]!] as [
-                        number,
-                        number,
-                      ],
-                      fadePhase: [SIDE_NET[7]!, SIDE_NET[7]!] as [
-                        number,
-                        number,
-                      ],
-                      observe: Math.max(5.5, SIDE_NET[2]!),
-                      ...(SIDE_NET[10] === undefined
-                        ? {}
-                        : {
-                            held: (s: number, phi: number): boolean =>
-                              s < 5.5 + NOSE_RAIL(phi) + SIDE_NET[10]!,
-                          }),
-                    },
-                  ],
-                ],
-        },
+        ...(NOSE_VERTICAL ? [{ name: "nose", centres: [[111, 1590, 0], [111, 1536, 0]] as R.V[], course: "[J.noseTop, J.noseBottom]", halves: [], up: [1, 0, 0] as R.V, domain: [8.5, 47.5] as [number, number], head: true, step: 1, gap: 3, tip: 50, covered: true, mirrored: false, excursion: "nose", skin: "outer" as const, margin: NOSE_MARGIN, layouts: [{ layout: NOSE_WING_LINES ? NOSE_WING : NOSE_FEATURES ? C.featured(C.bilateral(NOSE_DEPTH), [{ after: 0, anchors: [{ kind: "f", feature: "inflection", window: [0.15, 0.55] }, { kind: "f", feature: "concave", window: [0.3, 0.75] }, { kind: "f", feature: "inflection", window: [0.5, 0.9] }] }, ...(process.argv.includes("--nose-root-groove") ? [{ after: 2, anchors: [{ kind: "f" as const, feature: "inflection" as const, window: [0.1, 0.45] as [number, number] }, { kind: "f" as const, feature: "concave" as const, window: [0.25, 0.65] as [number, number] }, { kind: "f" as const, feature: "inflection" as const, window: [0.45, 0.85] as [number, number] }] }] : [])]) : C.inflected(NOSE_DEPTH, NOSE_GROOVES ?? [0], C.bilateral(NOSE_DEPTH)), depth: NOSE_DEPTH }], reliefs: [] as IWindow[] }] : []),
+        { name: "nose", centres: [[108, 1556, 0], [140, 1556, 0]], course: "[J.noseRoot, J.noseTip]", halves: [], up: [0, 1, 0], domain: [5.5, 24], head: true, loose: true, step: 1, gap: 3, tip: 28, mirrored: false, layouts: NOSE_GROOVES === undefined ? LIMB : [{ layout: C.inflected(NOSE_DEPTH, NOSE_GROOVES, process.argv.includes("--nose-half") ? C.bilateral(NOSE_DEPTH) : C.limb(NOSE_DEPTH)), depth: NOSE_DEPTH }], ...(NOSE_GROOVES === undefined ? {} : { skin: "outer" as const }), clip: (p: R.V): number => (NOSE_GROOVES === undefined ? -nose(p) : Math.max(-nose(p), nostrilPit(p))), reliefs: [], casts: NOSE_GROOVES !== undefined ? [] : [
+          // The floor behind the lobule. The sections close it along the box's floor, so between each wing's outer rim and the columella
+          // the hull is one flat chord at 1,543 mm, 1 to 3 mm below the reference's wing round each nostril (rays going up from below, the
+          // first downward-facing skin each meets). Cast straight up from the band's rail behind the nostrils (station 8.5) to the lobule,
+          // whose own finer net starts inside this one's whole part. What each nostril's cut takes is left unobserved (`nostrilPit`), so the
+          // net bridges it with the fairest surface and the cutter meets a smooth floor; a coarse net, since a fine one followed the pits'
+          // rims into spikes. Skin below 1,542.5 mm is the lip's turn into the subnasale, which the band spans: observed, it drew the
+          // floor's middle down into a beak where the band lands.
+          { name: "floor", stations: [8.5, 25], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], skin: (p: R.V): number => Math.max(-nose(p), nostrilPit(p), p[1] < 1542.5 ? 10 : -10), rows: FLOOR_NET[0], columns: FLOOR_NET[1], reach: 3, facing: 0.3, mirror: true, fade: [1.5, 2], fadePhase: [0.35, 0.35] },
+          // The lobule's underside. Its net asked for the whole height up to its edges stood 2.4 to 4.4 mm deep one column from its zero
+          // edge columns, and the cliff showed as upright slivers on either side of the tip in profile; it hands its edges over (`fade`).
+          // 16 by 21: the survey of issue #3197 (stage B2) projected the stored 31 by 39 net onto this grid within 0.027 mm of its own
+          // surface, under the 0.1 mm bound of a net that carries the nose (`FamilyConicCoarse.ts --plan`).
+          { name: "under", stations: [22.5, 27], phases: [Math.PI - 1.1, Math.PI + 1.1], axis: [0, 1, 0], rows: 16, columns: 21, reach: 2.5, mirror: true, fade: [1, 1.5], fadePhase: [0.35, 0.35] },
+          ...[{ name: "side", stations: [SIDE_NET[2]!, SIDE_NET[3]!] as [number, number], phases: [-SIDE_NET[4]!, SIDE_NET[4]!] as [number, number], axis: [0, -1, 0] as R.V, turn: [0, 0, 1] as R.V, skin: (p: R.V): number => Math.max(-nose(p), p[1] - SIDE_NET[8]!), rows: SIDE_NET[0]!, columns: SIDE_NET[1]!, reach: SIDE_NET[5]!, mirror: true, fade: [SIDE_NET[9] ?? 0, SIDE_NET[6]!] as [number, number], fadePhase: [SIDE_NET[7]!, SIDE_NET[7]!] as [number, number], observe: Math.max(5.5, SIDE_NET[2]!), ...(SIDE_NET[10] === undefined ? {} : { held: (s: number, phi: number): boolean => s < 5.5 + NOSE_RAIL(phi) + SIDE_NET[10]! }) }],
+        ] },
         // The breast as a loft of its own through its dome's top (`BREAST_ROOT`), attached at a port on the chest that the trunk's sections
         // leave out (`breasts`), so the fold under it is the band's short side. Its sections read the skin inside a cylinder about the course
         // (`BREAST_RADIUS_MM`). They start 19 mm behind the top: straight down the chest stands 24 to 26 mm behind it, down and inward 21 mm,
         // so the first plane cuts the breast's underside clear of the chest at every phase.
-        {
-          name: "breast",
-          centres: [BREAST_ROOT, BREAST_TIP],
-          course: "[J.breastRoot, J.breastTip]",
-          halves: [],
-          up: [0, 1, 0],
-          domain: [11, BREAST_TO],
-          loose: true,
-          step: 1,
-          gap: 3,
-          tip: true,
-          cap: BREAST_CAP,
-          mirrored: true,
-          layouts: LIMB,
-          clip: breast,
-          round: breast,
-          reliefs: [],
-        },
+        { name: "breast", centres: [BREAST_ROOT, BREAST_TIP], course: "[J.breastRoot, J.breastTip]", halves: [], up: [0, 1, 0], domain: [11, BREAST_TO], loose: true, step: 1, gap: 3, tip: true, cap: BREAST_CAP, mirrored: true, layouts: LIMB, clip: breast, round: breast, reliefs: [] },
         // The ear's hollow as a loft of its own. The auricle is a thin shell: a sagittal plane cuts it in one loop shaped like a C, and what
         // the C stands round, the concha and the scapha, is the pocket between that loop and its hull, open to the front
         // (`FamilyConicScan.ts concha`: 435 mm2 at 78 mm out, 33 at 94). The loft runs out through those pockets.
-        {
-          name: "concha",
-          centres: CONCHA_TRIAL ?? [
-            [-0.7, 1580, 99.5],
-            [15, 1580, 77.5],
-          ],
-          course:
-            CONCHA_TRIAL === undefined
-              ? "[J.conchaRoot, J.conchaTip]"
-              : JSON.stringify(CONCHA_TRIAL).replaceAll(",", ", "),
-          halves: [],
-          up: CONCHA_UP,
-          domain: CONCHA_DOMAIN,
-          head: !process.argv.includes("--concha-body"),
-          loose: true,
-          step: 0.5,
-          gap: 3,
-          tip: CONCHA_TIP,
-          lead: CONCHA_LEAD,
-          pocket: 5,
-          mirrored: true,
-          layouts: [LIMB[0]!],
-          clip: (p: R.V): number =>
-            -Math.min(
-              ear(p) + 77 - Math.min(77, CONCHA_FLOOR),
-              Math.abs(p[2]) - CONCHA_FLOOR,
-              p[0] - CONCHA_BOX[0],
-              CONCHA_BOX[1] - p[0],
-              p[1] - CONCHA_BOX[2],
-              CONCHA_BOX[3] - p[1],
-            ),
-          reliefs: [],
-        },
+        { name: "concha", centres: CONCHA_TRIAL ?? [[-0.7, 1580, 99.5], [15, 1580, 77.5]], course: CONCHA_TRIAL === undefined ? "[J.conchaRoot, J.conchaTip]" : JSON.stringify(CONCHA_TRIAL).replaceAll(",", ", "), halves: [], up: CONCHA_UP, domain: CONCHA_DOMAIN, head: !process.argv.includes("--concha-body"), loose: true, step: 0.5, gap: 3, tip: CONCHA_TIP, lead: CONCHA_LEAD, pocket: 5, mirrored: true, layouts: [LIMB[0]!], clip: (p: R.V): number => -Math.min(ear(p) + 77 - Math.min(77, CONCHA_FLOOR), Math.abs(p[2]) - CONCHA_FLOOR, p[0] - CONCHA_BOX[0], CONCHA_BOX[1] - p[0], p[1] - CONCHA_BOX[2], CONCHA_BOX[3] - p[1]), reliefs: [] },
         // A nostril as a hollow of its own: level planes cut one closed loop of it from 1,551 to 1,555 mm, 10 by 8 mm at its mouth
         // (`FamilyConicScan.ts nostril`). Its loft runs straight up through that loop, closes where the loop vanishes and is carried 8 mm
         // down out of the nose, to be cut from the head (`diff`).
-        {
-          name: "nostril",
-          centres: [
-            [127.1, 1540.4, 7.7],
-            [119.1, 1560.4, 7.7],
-          ],
-          course: "[J.nostrilRoot, J.nostrilTip]",
-          halves: [],
-          up: [1, 0, 0],
-          domain: [9, 13],
-          head: true,
-          loose: true,
-          step: 0.5,
-          gap: 1.5,
-          tip: 16,
-          lead: 9,
-          mirrored: true,
-          layouts: LIMB,
-          clip: (p: R.V): number =>
-            -Math.min(p[0] - 114, 130 - p[0], p[2] - 1, 13 - p[2]),
-          reliefs: [],
-        },
+        { name: "nostril", centres: [[127.1, 1540.4, 7.7], [119.1, 1560.4, 7.7]], course: "[J.nostrilRoot, J.nostrilTip]", halves: [], up: [1, 0, 0], domain: [9, 13], head: true, loose: true, step: 0.5, gap: 1.5, tip: 16, lead: 9, mirrored: true, layouts: LIMB, clip: (p: R.V): number => -Math.min(p[0] - 114, 130 - p[0], p[2] - 1, 13 - p[2]), reliefs: [] },
         // The armpit's slit as a cutter of its own (G11, G12). The slit between the trunk's side and the arm's inner side is not star-shaped
         // about the trunk's course (the conic audit: y 1,280 mm, 92 to 105 degrees, a gap of 6.6 mm), and the arm's band closes it 12 to 17 mm
         // under its apex. Each section is the air round a course laid low in the slit, in its kernel (`air`): capped under the generated band
         // (`AXILLA_FLOOR`) and drawn in from the walls (`AXILLA_INSET`); its arm-side reach is 12 mm, short of the band's ring end. Its
         // arm-side flank is concave under the apex: a groove after the apex (`inflected(1, [0])`; on the 8-conic layout a groove seeds only
         // after a `u` extreme). Both ends close inside the slit, as the stored cutter's (`AutoMovieHumanF1Axilla`): refitted on the same course and insets whenever the band it is capped under moves (`AXILLA_BAND`).
-        {
-          name: "axilla",
-          centres: AXILLA,
-          course: "J.axilla",
-          halves: [8, 5],
-          up: [0, 1, 0],
-          domain: AXILLA_DOMAIN,
-          step: 1,
-          gap: 4,
-          first: AXILLA_DOMAIN[0] - AXILLA_CAPS_MM[0],
-          tip: AXILLA_DOMAIN[1] + AXILLA_CAPS_MM[1],
-          mirrored: true,
-          skin: "inner",
-          margin: AXILLA_MARGIN,
-          construct: {
-            knots: [25, 34, 43, 52, 61, 70, 78],
-            corner: CONSTRUCT_CORNER_MM,
-            apex: CONSTRUCT_APEX_MM,
-          },
-          air: {
-            band: AXILLA_BAND,
-            floor: AXILLA_FLOOR,
-            reach: 12,
-            inset: AXILLA_INSET,
-            sag: 0,
-            side: AXILLA_ARM_SIDE_MM,
-          },
-          layouts:
-            AXILLA_LAYOUTS[
-              process.argv
-                .find((a: string): boolean => a.startsWith("--axilla-layout="))
-                ?.slice("--axilla-layout=".length) ?? "groove"
-            ]!,
-          reliefs: [],
-        },
+        { name: "axilla", centres: AXILLA, course: "J.axilla", halves: [8, 5], up: [0, 1, 0], domain: AXILLA_DOMAIN, step: 1, gap: 4, first: AXILLA_DOMAIN[0] - AXILLA_CAPS_MM[0], tip: AXILLA_DOMAIN[1] + AXILLA_CAPS_MM[1], mirrored: true, skin: "inner", margin: AXILLA_MARGIN, construct: { knots: [25, 34, 43, 52, 61, 70, 78], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: AXILLA_FLOOR, reach: 12, inset: AXILLA_INSET, sag: 0, side: AXILLA_ARM_SIDE_MM }, layouts: AXILLA_LAYOUTS[process.argv.find((a: string): boolean => a.startsWith("--axilla-layout="))?.slice("--axilla-layout=".length) ?? "groove"]!, reliefs: [] },
         // The vault in front of the armpit as a cutter of its own (G11): the arm's band crosses it flat, 12 to 16 mm under the reference's
         // vault, its columns running aslant to the vault's planes. Every section of the vault is convex, so the plain 8-conic limb carries it
         // (0.56 mm on the same sections, where the slit's groove stalled at 1.67 mm). Its sections are the vault's air, read as the slit's
         // are, with a reach of 20 mm, since the vault is up to 28 mm wide. Both ends close: its back tip at x about 0, clear of the slit
         // cutter's front tip at x -1.9.
-        {
-          name: "vault",
-          centres: VAULT,
-          course: "J.vault",
-          halves: [],
-          up: [0, 1, 0],
-          domain: [2, 18],
-          step: 1,
-          gap: 4,
-          first: -1,
-          tip: 20,
-          mirrored: true,
-          skin: "inner",
-          construct: {
-            knots: [2, 10, 18],
-            corner: CONSTRUCT_CORNER_MM,
-            apex: CONSTRUCT_APEX_MM,
-          },
-          air: {
-            band: AXILLA_BAND,
-            floor: [[0, VAULT_FLOOR_MM]],
-            reach: 20,
-            inset: VAULT_INSET,
-          },
-          layouts: [{ layout: C.limb(1), depth: 1 }],
-          reliefs: [],
-        },
+        { name: "vault", centres: VAULT, course: "J.vault", halves: [], up: [0, 1, 0], domain: [2, 18], step: 1, gap: 4, first: -1, tip: 20, mirrored: true, skin: "inner", construct: { knots: [2, 10, 18], corner: CONSTRUCT_CORNER_MM, apex: CONSTRUCT_APEX_MM }, air: { band: AXILLA_BAND, floor: [[0, VAULT_FLOOR_MM]], reach: 20, inset: VAULT_INSET }, layouts: [{ layout: C.limb(1), depth: 1 }], reliefs: [] },
         // The nostrils open downward, and a frontal section shows only the nose's outline round them. A net over the nose's underside, cast
         // straight up, reads the first skin a ray from below meets, and found them: 3 to 5 mm deep and more, from 124 to 128 mm forward
         // (`--casts`). That is where a band 2 mm in landed: with the dimples in it the rail's ring was no longer star-shaped and the port
@@ -2638,381 +1872,260 @@ namespace FamilyConicBody {
         // without the nose stored -0.20, 0.03 and 1.17 there, out of the model's bounds, and the curvature match then held both arcs either side
         // of the front median at 0.09 to 0.14, near-chords that turned within 0.26 mm and drew an upright slash down each cheek (`head.front`
         // px 288..300 x 440..525). Laid as the natural cubic through 740, 814 to 912, they stand at 0.48 to 0.49 and the turn's radius at 9 mm.
-        {
-          name: "trunk",
-          centres: [
-            [0, 780, 0],
-            [0, 1705, 0],
-          ],
-          course: "[J.axisFloor, J.axisCrown]",
-          halves: [],
-          up: [1, 0, 0],
-          domain: [28, 912],
-          whole: true,
-          step: 2,
-          gap: (s: number): number =>
-            s >= 692 && s <= 732
-              ? Number(
-                  process.argv
-                    .find((argument: string): boolean =>
-                      argument.startsWith("--jaw="),
-                    )
-                    ?.slice(6) ?? 3,
-                )
-              : s > 740
-                ? FACE_GAP_MM
-                : 12,
-          tip: true,
-          cap: 906,
-          centre: [16, 0],
-          own: true,
-          mirrored: false,
-          layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL,
-          ...(TRUNK_LINES
-            ? {
-                skin: "outer" as const,
-                folded: "hull" as const,
-                hullFrom: CHIN.y - 780,
-              }
-            : {}),
-          opening: armHole,
-          round: chin,
-          kept: breasts,
-          unseen: nose,
-          clip: (p: R.V): number =>
-            Math.max(ear(p), noseCut(p), chin(p), breasts(p), armHole(p)),
-          reliefs: [
-            // Every window's cast turns with the phase (`turn`), so it is square to the wall across its whole width. On fixed axes the windows
-            // had to stop at 1.0 to 1.2 rad: farther round a height slid a point along the wall instead of moving it in or out, which folded
-            // the skin at the sides of the head and the shoulders.
-            // Below the chest one net goes once round the trunk. As a window to the front and one to the back, 1.5 rad to either side, the two
-            // met in a seam down each hip, a line from the waist to the thigh.
-            {
-              name: "trunk.low",
-              stations: [-40, 520],
-              phases: [0, 2 * Math.PI],
-              axis: [1, 0, 0],
-              turn: [0, 0, 1],
-              rows: 59,
-              columns: 83,
-              mirror: false,
-              periodic: true,
-              reach: 70,
-              fade: [0, 60],
-            },
-            // The trunk's end, where the crotch's band leaves it for the thighs: the wall there is the tape across the thighs' fronts, up to
-            // 6 mm outside the skin, and the net round the trunk, 10 mm a row, brought it home but curled its last 3 mm (the normal's rise
-            // from 0.05 to 0.12 at [87..132, 806..810], a level line across each thigh's front on `hip.high-oblique`). A net 3 mm a row and
-            // 0.04 rad a column over each thigh's side, from below the end so no zero row lies on it, fitted after the round net, takes the
-            // rest. It stops 0.3 rad short of the median line and hands its edges over there: carried round the whole end it carved the notch
-            // between the thighs' fronts 20 mm deep, moved the front fork and shortened the crotch's chord from 71 to 51 mm.
-            {
-              name: "trunk.crotch",
-              stations: [-12, 88],
-              phases: [0.3, 2.0],
-              axis: [-0.4085, 0, -0.9128],
-              turn: [0.9128, 0, -0.4085],
-              rows: 36,
-              columns: 46,
-              mirror: false,
-              twin: true,
-              reach: 30,
-              fade: [0, 30],
-              fadePhase: [0.3, 0.3],
-            },
-            // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
-            // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
-            // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
-            {
-              name: "trunk.chest.back",
-              stations: [380, 680],
-              phases: [Math.PI - 1.2, Math.PI + 1.2],
-              axis: [1, 0, 0],
-              turn: [0, 0, 1],
-              rows: 63,
-              columns: 41,
-              mirror: true,
-              reach: 40,
-              fade: [30, 25],
-              fadePhase: [0.3, 0.3],
-            },
-            {
-              name: "trunk.chest.front",
-              stations: [380, 680],
-              phases: [-1.2, 1.2],
-              axis: [-1, 0, 0],
-              turn: [0, 0, -1],
-              rows: 63,
-              columns: 41,
-              mirror: true,
-              reach: 40,
-              fade: [30, 25],
-              fadePhase: [0.3, 0.3],
-            },
-            // The side, from the breast's edge round under the arm to the shoulder blade's: the front and back windows end 1.2 rad from the
-            // median line, and between them the wall stood as the tape left it, 7 to 10 mm outside the skin in the hollow over the collar
-            // bone and in the fold in front of the armpit (`FamilyConicDeviation.ts`). One window spans the whole side, so its edges lie on
-            // skin the front and back windows have already brought home and it has nothing to take there; across the arm's cut it reads the
-            // arm's own skin as far as its reach (`uncut`). Each side is fitted on its own skin: the trunk is fitted whole, not as a half and
-            // its image, and one side's net reflected onto the other left patches 2 to 4 mm full over one shoulder.
-            // Over the shoulder's top, from 610 mm up, the skin faces up and a height square to the side slides along it: there the window
-            // dug a notch beside the neck at [8..28, 1391..1413, 85..101] on `shoulder.high-oblique`, gone with this window taken off and only
-            // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
-            // Over the shoulder's up-facing slope the window's casts, square to the side in the section planes, met the skin 4 to 13 degrees
-            // from its plane, nearly along it, with heights of 8 to 23 mm, and drew the notch over each collar bone ([30, 1388, +-103], 14.1
-            // deg/mm against 1.6) and the crumple on the shoulder's top toward the neck ([2, 1411, +-97], 2.8 against 0.5). Casts within 20
-            // degrees of the skin's plane, judged on its 3D normal, are left to the shoulder's casts straight down (`graze`, lofting.md).
-            {
-              name: "trunk.chest.side",
-              stations: [400, 680],
-              phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82],
-              axis: [0, 0, -1],
-              turn: [1, 0, 0],
-              rows: 59,
-              columns: 53,
-              mirror: false,
-              twin: true,
-              uncut: true,
-              reach: 25,
-              fade: [30, 90],
-              graze: 20,
-            },
-            // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
-            // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
-            // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
-            // rows (its heights reach only 0.3 mm: the sections already fit there), and the layers inside it are cut as fine (`leaf`). The
-            // sections are 2 mm apart and every other one is withheld, so a net 2 mm a row, and one 0.016 or 0.024 rad a column, had rows the
-            // fit saw once and drew the reference's facets as a mottle; 3 mm and 0.035 rad, 5 mm at the breast, see each row twice. Cast
-            // square to the wall about its middle phase, 0.75 rad, as the chest's windows are, and fitted after them.
-            {
-              name: "trunk.fold",
-              stations: [400, 490],
-              phases: [0.05, 1.45],
-              axis: [-0.7317, 0, -0.6816],
-              turn: [0.6816, 0, -0.7317],
-              rows: 33,
-              columns: 43,
-              mirror: false,
-              twin: true,
-              reach: 25,
-              fade: [15, 15],
-              fadePhase: [0.15, 0.15],
-            },
-            // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
-            // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
-            // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
-            // and whose casts grazed the jaw's side; cast round, the cheek, the jaw's side, the temple and the ear's root are one smooth net
-            // of fewer heights. A cast that lands farther than `reach` is not observed: between the lips one slipped through to what lies
-            // behind, 78 mm on, and dug a pit in the mouth.
-            // Both head nets end where the crown's cap starts and hand over to it over their last 30 mm (over 12 they still bent the wall just
-            // below the cap, which continues the plain wall's slope: a flat crown with a corner at the back of it, [-25, 1687, 31]): carried on over the cap, which is
-            // meshed in rings round its pole, they drew concentric rings and a mottled ridge round the crown (folds of 13 degrees, none without
-            // them). Over the ear's footprint (`ear`) both are held on the wall: casts there land in the ear's cut and are not observed, and the
-            // nets carried the heights round it (up to 17 mm) under the ear, fitted for the old ear's band. With the hold the concha's cut on the
-            // new ear loses its kept side (`cut.concha` trim), to be fixed on the held skin with the ear's owner.
-            // The ear's hold is judged where a cast lands (`holdLanding`) and spans the net's control spacing at its edge (`holdWidth: "span"`): held
-            // where its wall point stood in the ear's box, the net left the head 4 to 7 mm proud of the skin round the bowl (s 796, x 4 to 24, the
-            // skin 72.5 to 75.5 mm out against the wall's 77 to 80), a shelf the helix's crus and the inferior crus sink into (E4). Its edges down
-            // the back hand over to `trunk.head.back` (`fadePhase`): whole up to them, it drew an upright pair 0.115 rad inside them, 10.09
-            // against 0.94 deg/mm at s 880 (lofting.md: "A relief's window must contain the whole region where its height is nonzero").
-            {
-              name: "trunk.head",
-              stations: [620, 906],
-              phases: [-Math.PI + 0.15, Math.PI - 0.15],
-              axis: [-1, 0, 0],
-              turn: [0, 0, -1],
-              rows: 59,
-              columns: 109,
-              mirror: true,
-              reach: 35,
-              fade: [30, 30],
-              fadePhase: [0.3, 0.3],
-              hold: earHeld,
-              holdLanding: true,
-              holdWidth: "span",
-            },
-            // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
-            // over the back takes what the first leaves there. Its edges round the head hand over (`fadePhase`): with hard edges at 2.14 rad
-            // they drew upright lines down the back of the head and behind each ear (`figure.back` px 400..500 x 160..230, `head.left` px 270..290).
-            {
-              name: "trunk.head.back",
-              stations: [620, 906],
-              phases: [Math.PI - 1.0, Math.PI + 1.0],
-              axis: [1, 0, 0],
-              turn: [0, 0, 1],
-              rows: 60,
-              columns: 39,
-              mirror: true,
-              reach: 20,
-              fade: [30, 30],
-              fadePhase: [0.3, 0.3],
-              hold: earHeld,
-              holdLanding: true,
-              holdWidth: "span",
-            },
-            // The crown's own net, over the cap to its pole, fitted after the head's two nets so their rows below stay as they were (the concha's
-            // rails stand on them). The head's nets end at the cap's base and leave the plain wall's misfit there, 2.3 mm inside the skull at
-            // x -34 (the hull wall on convex skin), from which the cap rose 1.4 mm proud by x -24, a corner at the crown's back. Its rows are
-            // 1 mm apart, the cap's own ring spacing near its base, and it vanishes with zero slope over the cap's last third (`fade`), where a
-            // height that varied with the phase would draw rings round the pole.
-            // At 36 rows, 1 mm apart, every other row lay between the fitting sections, 2 mm apart, and was seen by none: the net zigzagged
-            // row to row and drew rings round the crown on its row knots (887.0, 896.0, 898.0, 899.95, 902.0, 903.9, 905.9 mm; 4.4 to 5.3
-            // deg/mm against 0.65 to 1.2). At 12 rows, about 3 mm apart, each row is seen by two sections, as the fold's net is.
-            {
-              name: "trunk.crown",
-              stations: [886, 918.88],
-              phases: [0, 2 * Math.PI],
-              axis: [1, 0, 0],
-              turn: [0, 0, 1],
-              rows: 12,
-              columns: 83,
-              mirror: false,
-              periodic: true,
-              reach: 10,
-              fade: [12, 4.3],
-            },
-            // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
-            // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
-            // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,
-            // under the chin: that skin is level, a level section cannot sample it and a cast round the axis only grazes it.
-            {
-              name: "trunk.collar",
-              stations: [680, 734],
-              phases: [-Math.PI + 0.15, Math.PI - 0.15],
-              axis: [-1, 0, 0],
-              turn: [0, 0, -1],
-              rows: 39,
-              columns: 131,
-              mirror: true,
-              reach: 30,
-              fade: [8, 8],
-            },
-            // The face: a finer net, 2.6 mm apart, between the throat and the brow.
-            {
-              name: "trunk.face",
-              stations: [690, 890],
-              phases: [-1.2, 1.2],
-              axis: [-1, 0, 0],
-              turn: [0, 0, -1],
-              rows: 81,
-              columns: 69,
-              mirror: true,
-              reach: 30,
-              fade: [15, 15],
-            },
-            // The mouth: a net 1.5 mm apart over its band of the face, which the face's net left a block.
-            {
-              name: "trunk.mouth",
-              stations: [722, 758],
-              phases: [-0.5, 0.5],
-              axis: [-1, 0, 0],
-              turn: [0, 0, -1],
-              rows: MOUTH_NET[0],
-              columns: MOUTH_NET[1],
-              mirror: true,
-              reach: 12,
-              fade: [5, 5],
-            },
-            // The navel: the round net, 9.5 mm a row, left a soft dimple where the reference has a pit. A net 2 mm apart over it, cast as the
-            // belly's is and handing its edges over.
-            {
-              name: "trunk.navel",
-              stations: [258, 290],
-              phases: [-0.3, 0.3],
-              axis: [-1, 0, 0],
-              turn: [0, 0, -1],
-              rows: 19,
-              columns: 23,
-              mirror: true,
-              reach: 20,
-              fade: [8, 8],
-              fadePhase: [0.12, 0.12],
-            },
-          ],
-          casts: [
-            // The eyes: a net 1.5 mm apart over their band, cast in space onto the outermost skin. The reference's eyeball is a closed
-            // surface of its own behind the lids (`FamilyConicScan.ts eye`), which no section of the trunk holds: cast in the section
-            // planes, the eyes' net ran past the lids into the socket and drew a dark slit. Cast in space, between the lids it lands on the
-            // eyeball and over them on the lids.
-            // At 1.3 mm a row (26 by 105) the net turned within one row where its cast jumps from the lid to the eyeball and drew a hard
-            // crease along each upper lid; at 2 mm the lid rolls into the socket.
-            {
-              name: "eyes",
-              stations: [792, 826],
-              phases: [-0.8, 0.8],
-              axis: [-1, 0, 0],
-              turn: [0, 0, -1],
-              rows: 20,
-              columns: 73,
-              reach: 12,
-              mirror: true,
-            },
-            // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
-            // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall. 1.4 mm a
-            // row: at 0.95 (47 by 57) it drew the reference's facets over the chin as a checker.
-            {
-              name: "chin",
-              stations: [690, 734],
-              phases: [-0.8, 0.8],
-              axis: [-Math.SQRT1_2, Math.SQRT1_2, 0],
-              turn: [0, 0, -1],
-              skin: (p: R.V): number => Math.max(ear(p), noseCut(p)),
-              rows: 33,
-              columns: 41,
-              reach: 30,
-              mirror: true,
-              fade: [6, 6],
-              fadePhase: [0.15, 0.15],
-            },
-            // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
-            // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
-            // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
-            // outward and a height straight down slides the wall along itself. Landing anywhere, the -Z net left the slope streaked with
-            // folds of 44 degrees; landing on skin that faces up, 33.
-            // Its edges hand over (`fade`, 12 mm and 0.2 rad): the side window now leaves it the shoulder's top, and a net asked for the
-            // whole height right up to its zero edge falls off within two rows.
-            {
-              name: "shoulder",
-              stations: [596, 664],
-              phases: [0.95, 1.95],
-              axis: [0, -1, 0],
-              rows: 17,
-              columns: 27,
-              reach: 8,
-              facing: 0.8,
-              twin: true,
-              nearest: true,
-              fade: [12, 12],
-              fadePhase: [0.2, 0.2],
-            },
-            // No net over the crown. The conic cap stood 3 to 4 mm under the skull and a coarse net cast along the course lifted it; the cap
-            // that bends as the wall does is full enough, and meshed in rings the net drew rings round the pole.
-          ],
-        },
+        { name: "trunk", centres: [[0, 780, 0], [0, 1705, 0]], course: "[J.axisFloor, J.axisCrown]", halves: [], up: [1, 0, 0], domain: [28, 912], whole: true, step: 2, gap: (s: number): number => (s >= 692 && s <= 732 ? Number(process.argv.find((argument: string): boolean => argument.startsWith("--jaw="))?.slice(6) ?? 3) : s > 740 ? FACE_GAP_MM : 12), tip: true, cap: 906, centre: [16, 0], own: true, mirrored: false, layouts: TRUNK_LINES ? TRUNK_LINED : BILATERAL, ...(TRUNK_LINES ? { skin: "outer" as const, folded: "hull" as const, hullFrom: CHIN.y - 780 } : {}), opening: trunkDivided, round: chin, kept: breasts, unseen: nose, clip: (p: R.V): number => Math.max(ear(p), noseCut(p), chin(p), breasts(p), trunkDivided(p)), reliefs: [
+          // Every window's cast turns with the phase (`turn`), so it is square to the wall across its whole width. On fixed axes the windows
+          // had to stop at 1.0 to 1.2 rad: farther round a height slid a point along the wall instead of moving it in or out, which folded
+          // the skin at the sides of the head and the shoulders.
+          // Below the chest one net goes once round the trunk. As a window to the front and one to the back, 1.5 rad to either side, the two
+          // met in a seam down each hip, a line from the waist to the thigh.
+          { name: "trunk.low", stations: [-40, 520], phases: [0, 2 * Math.PI], axis: [1, 0, 0], turn: [0, 0, 1], rows: 59, columns: 83, mirror: false, periodic: true, reach: 70, fade: [0, 60] },
+          // The trunk's end, where the crotch's band leaves it for the thighs: the wall there is the tape across the thighs' fronts, up to
+          // 6 mm outside the skin, and the net round the trunk, 10 mm a row, brought it home but curled its last 3 mm (the normal's rise
+          // from 0.05 to 0.12 at [87..132, 806..810], a level line across each thigh's front on `hip.high-oblique`). A net 3 mm a row and
+          // 0.04 rad a column over each thigh's side, from below the end so no zero row lies on it, fitted after the round net, takes the
+          // rest. It stops 0.3 rad short of the median line and hands its edges over there: carried round the whole end it carved the notch
+          // between the thighs' fronts 20 mm deep, moved the front fork and shortened the crotch's chord from 71 to 51 mm.
+          { name: "trunk.crotch", stations: [-12, 88], phases: [0.3, 2.0], axis: [-0.4085, 0, -0.9128], turn: [0.9128, 0, -0.4085], rows: 36, columns: 46, mirror: false, twin: true, reach: 30, fade: [0, 30], fadePhase: [0.3, 0.3] },
+          // Over the chest and the shoulders the windows stop at 1.0 rad, short of the fold beside the armpit. While the trunk kept a stump of
+          // arm the tape bridged from the breast to it, with the skin deep inside that bridge from about 0.6 to 1.3 rad: a window ending there
+          // creased the whole chest and back along its edge, and one reaching 1.45 rad left a thin flap in the fold beside the armpit.
+          { name: "trunk.chest.back", stations: [380, 680], phases: [Math.PI - 1.2, Math.PI + 1.2], axis: [1, 0, 0], turn: [0, 0, 1], rows: 63, columns: 41, mirror: true, reach: 40, fade: [30, 25], fadePhase: [0.3, 0.3] },
+          { name: "trunk.chest.front", stations: [380, 680], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 63, columns: 41, mirror: true, reach: 40, fade: [30, 25], fadePhase: [0.3, 0.3] },
+          // The side, from the breast's edge round under the arm to the shoulder blade's: the front and back windows end 1.2 rad from the
+          // median line, and between them the wall stood as the tape left it, 7 to 10 mm outside the skin in the hollow over the collar
+          // bone and in the fold in front of the armpit (`FamilyConicDeviation.ts`). One window spans the whole side, so its edges lie on
+          // skin the front and back windows have already brought home and it has nothing to take there; across the arm's cut it reads the
+          // arm's own skin as far as its reach (`uncut`). Each side is fitted on its own skin: the trunk is fitted whole, not as a half and
+          // its image, and one side's net reflected onto the other left patches 2 to 4 mm full over one shoulder.
+          // Over the shoulder's top, from 610 mm up, the skin faces up and a height square to the side slides along it: there the window
+          // dug a notch beside the neck at [8..28, 1391..1413, 85..101] on `shoulder.high-oblique`, gone with this window taken off and only
+          // softened with the shoulder's casts taken off. It hands that skin over to the casts straight down (`shoulder`) over its last 90 mm; over its last 70 the notch was softened but still there.
+          // Over the shoulder's up-facing slope the window's casts, square to the side in the section planes, met the skin 4 to 13 degrees
+          // from its plane, nearly along it, with heights of 8 to 23 mm, and drew the notch over each collar bone ([30, 1388, +-103], 14.1
+          // deg/mm against 1.6) and the crumple on the shoulder's top toward the neck ([2, 1411, +-97], 2.8 against 0.5). Casts within 20
+          // degrees of the skin's plane, judged on its 3D normal, are left to the shoulder's casts straight down (`graze`, lofting.md).
+          // The side's net sees the trunk's own skin only (no `uncut`). While it read the arm's skin 25 mm past the cut, so that a port's band
+          // had two walls that agreed, the trunk's surface beside the armscye was the arm's skin fitted a second time: the two fits stood
+          // 0.1 to 1.0 mm apart over the shoulder's cap and wove through each other, and under the arm the trunk's own net held the fold's
+          // floor on a radius of 4.06 mm, which no fold of a larger radius can roll on (`packages/human/docs/techniques/joints-one-shot.md`,
+          // the armscye's premises). Each skin is fitted once: the trunk on its side of the armscye's surface (`armHole`), the arm on the
+          // other. Inside the arm's opening the trunk has no skin and its surface is its wall, so the net is held there (`hold`), rising
+          // from the opening's edge over one control spacing: left to its fairness alone, it carried the shoulder's slope on past the cut
+          // and stood a rounded stump out to the deltoid's side, a hood over the arm on the joint realized alone (`armscye.front`
+          // px 260..460 x 290..440).
+          { name: "trunk.chest.side", stations: [400, 680], phases: [Math.PI / 2 - 0.82, Math.PI / 2 + 0.82], axis: [0, 0, -1], turn: [1, 0, 0], rows: 59, columns: 53, mirror: false, twin: true, reach: 25, fade: [30, 90], graze: 20, hold: trunkDivided, holdWidth: "span" },
+          // The fold under each breast, from the sternum round to the side, where the reference's skin turns from the breast's underside
+          // to the chest within a few millimetres. The chest's nets are 5 mm a row, and a cubic net that coarse rounded the fold over 10 to
+          // 15 mm, a soft shelf drawn in level bands 4 mm tall. A net 3 mm a row over the fold's stations lets the crease turn within two
+          // rows (its heights reach only 0.3 mm: the sections already fit there), and the layers inside it are cut as fine (`leaf`). The
+          // sections are 2 mm apart and every other one is withheld, so a net 2 mm a row, and one 0.016 or 0.024 rad a column, had rows the
+          // fit saw once and drew the reference's facets as a mottle; 3 mm and 0.035 rad, 5 mm at the breast, see each row twice. Cast
+          // square to the wall about its middle phase, 0.75 rad, as the chest's windows are, and fitted after them.
+          { name: "trunk.fold", stations: [400, 490], phases: [0.05, 1.45], axis: [-0.7317, 0, -0.6816], turn: [0.6816, 0, -0.7317], rows: 33, columns: 43, mirror: false, twin: true, reach: 25, fade: [15, 15], fadePhase: [0.15, 0.15] },
+          // The neck and head: windows whose cast turns with the phase (`turn`), square to the wall all the way round. One net goes round the
+          // whole head with its seam down the back, and ends at the crown's tip, 918.88 mm, where a relief must vanish for the pole. With
+          // fixed axes the head took four windows, front, back and two sides, whose edges met in a seam down the cheek and over the skull
+          // and whose casts grazed the jaw's side; cast round, the cheek, the jaw's side, the temple and the ear's root are one smooth net
+          // of fewer heights. A cast that lands farther than `reach` is not observed: between the lips one slipped through to what lies
+          // behind, 78 mm on, and dug a pit in the mouth.
+          // Both head nets end where the crown's cap starts and hand over to it over their last 30 mm (over 12 they still bent the wall just
+          // below the cap, which continues the plain wall's slope: a flat crown with a corner at the back of it, [-25, 1687, 31]): carried on over the cap, which is
+          // meshed in rings round its pole, they drew concentric rings and a mottled ridge round the crown (folds of 13 degrees, none without
+          // them). Over the ear's footprint (`ear`) both are held on the wall: casts there land in the ear's cut and are not observed, and the
+          // nets carried the heights round it (up to 17 mm) under the ear, fitted for the old ear's band. With the hold the concha's cut on the
+          // new ear loses its kept side (`cut.concha` trim), to be fixed on the held skin with the ear's owner.
+          // The ear's hold is judged where a cast lands (`holdLanding`) and spans the net's control spacing at its edge (`holdWidth: "span"`): held
+          // where its wall point stood in the ear's box, the net left the head 4 to 7 mm proud of the skin round the bowl (s 796, x 4 to 24, the
+          // skin 72.5 to 75.5 mm out against the wall's 77 to 80), a shelf the helix's crus and the inferior crus sink into (E4). Its edges down
+          // the back hand over to `trunk.head.back` (`fadePhase`): whole up to them, it drew an upright pair 0.115 rad inside them, 10.09
+          // against 0.94 deg/mm at s 880 (lofting.md: "A relief's window must contain the whole region where its height is nonzero").
+          { name: "trunk.head", stations: [620, 906], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 59, columns: 109, mirror: true, reach: 35, fade: [30, 30], fadePhase: [0.3, 0.3], hold: earHeld, holdLanding: true, holdWidth: "span" },
+          // The head's net is zero along its seam down the back, where the skin still lies inside the tape and a ridge stood; this window
+          // over the back takes what the first leaves there. Its edges round the head hand over (`fadePhase`): with hard edges at 2.14 rad
+          // they drew upright lines down the back of the head and behind each ear (`figure.back` px 400..500 x 160..230, `head.left` px 270..290).
+          { name: "trunk.head.back", stations: [620, 906], phases: [Math.PI - 1.0, Math.PI + 1.0], axis: [1, 0, 0], turn: [0, 0, 1], rows: 60, columns: 39, mirror: true, reach: 20, fade: [30, 30], fadePhase: [0.3, 0.3], hold: earHeld, holdLanding: true, holdWidth: "span" },
+          // The crown's own net, over the cap to its pole, fitted after the head's two nets so their rows below stay as they were (the concha's
+          // rails stand on them). The head's nets end at the cap's base and leave the plain wall's misfit there, 2.3 mm inside the skull at
+          // x -34 (the hull wall on convex skin), from which the cap rose 1.4 mm proud by x -24, a corner at the crown's back. Its rows are
+          // 1 mm apart, the cap's own ring spacing near its base, and it vanishes with zero slope over the cap's last third (`fade`), where a
+          // height that varied with the phase would draw rings round the pole.
+          // At 36 rows, 1 mm apart, every other row lay between the fitting sections, 2 mm apart, and was seen by none: the net zigzagged
+          // row to row and drew rings round the crown on its row knots (887.0, 896.0, 898.0, 899.95, 902.0, 903.9, 905.9 mm; 4.4 to 5.3
+          // deg/mm against 0.65 to 1.2). At 12 rows, about 3 mm apart, each row is seen by two sections, as the fold's net is.
+          { name: "trunk.crown", stations: [886, 918.88], phases: [0, 2 * Math.PI], axis: [1, 0, 0], turn: [0, 0, 1], rows: 12, columns: 83, mirror: false, periodic: true, reach: 10, fade: [12, 4.3] },
+          // Under the jaw the wall's knots stand 3 mm apart for the chin's step, and every field rippled with them: a ring 1.5 mm high
+          // stood round the whole neck at that level, the nape included. A band 1.4 mm apart along the station, round the neck and again
+          // over its back for the seam, takes the ring and follows the jaw's line where it rises to the sides. What stays is in front,
+          // under the chin: that skin is level, a level section cannot sample it and a cast round the axis only grazes it.
+          { name: "trunk.collar", stations: [680, 734], phases: [-Math.PI + 0.15, Math.PI - 0.15], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 39, columns: 131, mirror: true, reach: 30, fade: [8, 8] },
+          // The face: a finer net, 2.6 mm apart, between the throat and the brow.
+          { name: "trunk.face", stations: [690, 890], phases: [-1.2, 1.2], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 81, columns: 69, mirror: true, reach: 30, fade: [15, 15] },
+          // The mouth: a net 1.5 mm apart over its band of the face, which the face's net left a block.
+          { name: "trunk.mouth", stations: [722, 758], phases: [-0.5, 0.5], axis: [-1, 0, 0], turn: [0, 0, -1], rows: MOUTH_NET[0], columns: MOUTH_NET[1], mirror: true, reach: 12, fade: [5, 5] },
+          // The navel: the round net, 9.5 mm a row, left a soft dimple where the reference has a pit. A net 2 mm apart over it, cast as the
+          // belly's is and handing its edges over.
+          { name: "trunk.navel", stations: [258, 290], phases: [-0.3, 0.3], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 19, columns: 23, mirror: true, reach: 20, fade: [8, 8], fadePhase: [0.12, 0.12] },
+        ], casts: [
+          // The eyes: a net 1.5 mm apart over their band, cast in space onto the outermost skin. The reference's eyeball is a closed
+          // surface of its own behind the lids (`FamilyConicScan.ts eye`), which no section of the trunk holds: cast in the section
+          // planes, the eyes' net ran past the lids into the socket and drew a dark slit. Cast in space, between the lids it lands on the
+          // eyeball and over them on the lids.
+          // At 1.3 mm a row (26 by 105) the net turned within one row where its cast jumps from the lid to the eyeball and drew a hard
+          // crease along each upper lid; at 2 mm the lid rolls into the socket.
+          { name: "eyes", stations: [792, 826], phases: [-0.8, 0.8], axis: [-1, 0, 0], turn: [0, 0, -1], rows: 20, columns: 73, reach: 12, mirror: true },
+          // The chin, which the sections leave out (`CHIN`): cast from the cone's wall forward and down at 45 degrees on the median line,
+          // so the chin's front and the level skin under it are both seen at 45 degrees and the chin is one height over the wall. 1.4 mm a
+          // row: at 0.95 (47 by 57) it drew the reference's facets over the chin as a checker.
+          { name: "chin", stations: [690, 734], phases: [-0.8, 0.8], axis: [-Math.SQRT1_2, Math.SQRT1_2, 0], turn: [0, 0, -1], skin: (p: R.V): number => Math.max(ear(p), noseCut(p)), rows: 33, columns: 41, reach: 30, mirror: true, fade: [6, 6], fadePhase: [0.15, 0.15] },
+          // The top of each shoulder, between the neck's muscle and the shoulder's point: the skin there faces up, a cast round the axis
+          // grazes it, and it stood 2 to 4 mm full on both sides (`FamilyConicDeviation.ts`). A coarse net cast straight down takes it.
+          // It lands only on skin that faces up within 37 degrees, as the sole's does: toward the window's sides the skin turns to face
+          // outward and a height straight down slides the wall along itself. Landing anywhere, the -Z net left the slope streaked with
+          // folds of 44 degrees; landing on skin that faces up, 33.
+          // Its edges hand over (`fade`, 12 mm and 0.2 rad): the side window now leaves it the shoulder's top, and a net asked for the
+          // whole height right up to its zero edge falls off within two rows.
+          // It rests on the wall where it sees no skin (`rest`): the skin that faces forward or outward on the shoulder's front is not this
+          // net's, and carried across it by fairness alone the net stood a bump there (`ICast.rest`).
+          { name: "shoulder", stations: [596, 664], phases: [0.95, 1.95], axis: [0, -1, 0], rows: 17, columns: 27, reach: 8, facing: 0.8, twin: true, nearest: true, fade: [12, 12], fadePhase: [0.2, 0.2], rest: true },
+          // No net over the crown. The conic cap stood 3 to 4 mm under the skull and a coarse net cast along the course lifted it; the cap
+          // that bends as the wall does is full enough, and meshed in rings the net drew rings round the pole.
+        ] },
       ] satisfies IPart[]
-    ).filter(
-      (part: IPart, i: number, all: IPart[]): boolean =>
-        (only.length === 0 || only.includes(part.name)) &&
-        all.findIndex((other: IPart): boolean => other.name === part.name) ===
-          i,
-    );
+    ).filter((part: IPart, i: number, all: IPart[]): boolean => (only.length === 0 || only.includes(part.name)) && all.findIndex((other: IPart): boolean => other.name === part.name) === i);
     // `--head=<heightMm>,<degrees>,<halfMm>`: a trial of the trunk's course turning backward at that height by that angle, to read (with
     // `--observe`) how its tilted planes cut the jaw and the skin under it. Turned at 1,430 mm by 30, 45 and 60 degrees, a plane takes
     // in the chin and the throat together and the tape bridges them: hollows of 46 to 81 mm against 4 mm on level planes, and no loop
     // round the course above the mouth. Level planes are the head's; only the 25 mm under the jaw change fast along them.
-    const head: string | undefined = process.argv
-      .find((argument: string): boolean => argument.startsWith("--head="))
-      ?.slice(7);
+    // `--frames-of=<directory>`: rendering only. For each named part whose fitted family stands in the directory (`<part>.family.json`),
+    // the part alone framed on its own box from six sides: its kept skin in clay and its free closure (where its face stands on a
+    // neighbour's side of a dividing surface, `IPart.clip` positive) in a darker shade, beside the reference's skin cut to the same box
+    // and a frame with both, the reference lighter. A digit's root, its closure and its splice cannot be judged on a whole-figure frame,
+    // where a finger is 60 px long.
+    const framesOf: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--frames-of="))?.slice("--frames-of=".length);
+    if (framesOf !== undefined) {
+      NodeCanvasRaster.initialize();
+      for (const part of parts) {
+        const file: string = path.join(framesOf, part.name + ".family.json");
+        const definition: K.IStored | null = await fs.readFile(file, "utf8").then((text: string): K.IStored | null => JSON.parse(text) as K.IStored).catch((): null => null);
+        if (definition === null) continue;
+        const [first, last]: [number, number] = [definition.knots[0]!, definition.knots.at(-1)!];
+        const stations: number[] = Array.from({ length: Math.ceil(last - first) + 1 }, (_: unknown, i: number): number => Math.min(last, first + i));
+        const loft: IAutoMovieViewLoft.IResult = K.create({ ...definition, tips: undefined }, stations);
+        if (loft.chain === null) {
+          log("family-body-frames", { part: part.name, refused: loft.diagnostics });
+          continue;
+        }
+        const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
+        const rings: R.V[][] = stations.map((s: number): R.V[] => Array.from({ length: 128 }, (_: unknown, j: number): R.V => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V));
+        const positions: number[] = rings.flatMap((ring: R.V[]): number[] => ring.flatMap((p: R.V): number[] => [p[0] / 1000, p[1] / 1000, p[2] / 1000]));
+        const [kept, closed]: number[][] = [[], []];
+        let [free, all]: [number, number] = [0, 0];
+        for (let i: number = 0; i + 1 < rings.length; ++i)
+          for (let j: number = 0; j < 128; ++j) {
+            const [a, b]: [number, number] = [i * 128 + j, i * 128 + ((j + 1) % 128)];
+            const middle: R.V = [0, 1, 2].map((k: number): number => (rings[i]![j]![k]! + rings[i + 1]![j]![k]! + rings[i]![(j + 1) % 128]![k]! + rings[i + 1]![(j + 1) % 128]![k]!) / 4) as R.V;
+            const invented: boolean = part.clip !== undefined && part.clip(middle) > 0;
+            (invented ? closed : kept)!.push(a, a + 128, b, b, a + 128, b + 128);
+            ++all;
+            if (invented) ++free;
+          }
+        // The part's box, 8 mm wider each way, and the reference's triangles with a corner inside it.
+        const low: number[] = [0, 1, 2].map((k: number): number => Math.min(...rings.flat().map((p: R.V): number => p[k]!)) - 8);
+        const high: number[] = [0, 1, 2].map((k: number): number => Math.max(...rings.flat().map((p: R.V): number => p[k]!)) + 8);
+        const inside = (v: number): boolean => [0, 1, 2].every((k: number): boolean => source.all.positions[3 * v + k]! >= low[k]! && source.all.positions[3 * v + k]! <= high[k]!);
+        const cut: number[] = [];
+        for (let i: number = 0; i + 2 < source.all.indices.length; i += 3) if (inside(source.all.indices[i]!) || inside(source.all.indices[i + 1]!) || inside(source.all.indices[i + 2]!)) cut.push(source.all.indices[i]!, source.all.indices[i + 1]!, source.all.indices[i + 2]!);
+        const reference: N.Mesh = { id: "reference", positions: Array.from(source.all.positions, (x: number): number => x / 1000), indices: cut, colour: [0.64, 0.65, 0.67] };
+        const fitted: N.Mesh[] = [
+          { id: part.name, positions, indices: kept!, colour: [0.64, 0.65, 0.67] },
+          { id: part.name + ".closure", positions, indices: closed!, colour: [0.3, 0.42, 0.62] },
+        ];
+        const bounds: N.Point[] = rings.flat().map((p: R.V): N.Point => [p[0] / 1000, p[1] / 1000, p[2] / 1000]);
+        for (const view of ["front", "back", "left", "right", "high-oblique", "low-oblique"]) {
+          const camera: N.Camera = NodeCanvasCamera.fit(view, bounds, 900, 900);
+          for (const [stage, shown] of [["reference", [reference]], ["family", fitted], ["both", [...fitted, { ...reference, id: "reference.light", colour: [0.86, 0.8, 0.62] }]]] as [string, N.Mesh[]][])
+            await fs.writeFile(path.join(framesOf, `${part.name}.own.${view}.${stage}.png`), NodeCanvasRaster.render(camera, shown, [], "depth", `f1 | ${part.name} alone, ${stage}; closure blue | ${view}`).png);
+        }
+        log("family-body-frames", { part: part.name, stations: [first, last], closureShare: Math.round((1000 * free) / all) / 1000, box: [low.map(Math.round), high.map(Math.round)] });
+      }
+      return;
+    }
+    // `--divides`: the complement check of every dividing surface, and nothing else. For each surface, over the reference's vertices
+    // within 30 mm of it, inside its region and within its reach of the joint it belongs to: how many no part of that joint keeps (skin
+    // left out) and how many more than one keeps (skin fitted twice), read on the parts' own declared clips. A mirrored part is the
+    // stored part read at the mirrored point. The joint's parts are complements when both counts are 0.
+    if (process.argv.includes("--divides")) {
+      const vertices: R.V[] = [];
+      for (let i: number = 0; i + 2 < source.all.positions.length; i += 3) vertices.push([source.all.positions[i]!, source.all.positions[i + 1]!, source.all.positions[i + 2]!]);
+      const clipOf = (name: string): ((p: R.V) => number) | null | undefined => {
+        const base: string = name.replace(/\.mirror$/, "");
+        const found: IPart | undefined = parts.find((part: IPart): boolean => part.name === base);
+        if (found === undefined) return undefined;
+        if (found.clip === undefined) return null;
+        return name.endsWith(".mirror") ? (p: R.V): number => found.clip!([p[0], p[1], -p[2]]) : found.clip;
+      };
+      const lines: string[] = ["surface | parts that meet at its joint | vertices read | kept by none | kept by more than one (which)"];
+      for (const surface of divides) {
+        // Every part of the surface's joint: the parts of every surface in its group.
+        const names: string[] = [...new Set(divides.filter((other: FamilyConicDivide.ISurface): boolean => other.group === surface.group).flatMap((other: FamilyConicDivide.ISurface): string[] => [...other.near, ...other.far]))];
+        const clips: { name: string; clip: (p: R.V) => number }[] = [];
+        const absent: string[] = [];
+        for (const name of names) {
+          const clip = clipOf(name);
+          if (clip === undefined || clip === null) absent.push(name + (clip === null ? " (no clip)" : " (not declared)"));
+          else clips.push({ name, clip });
+        }
+        if (absent.length > 0) {
+          lines.push(`${surface.name} | ${names.join(", ")} | refused: ${absent.join(", ")}`);
+          continue;
+        }
+        let [read, none]: [number, number] = [0, 0];
+        const shared: Map<string, number> = new Map();
+        for (const p of vertices) {
+          if (Math.abs(surface.side(p)) > 30 || (surface.within !== undefined && !surface.within(p)) || Math.hypot(p[0] - surface.anchor[0], p[1] - surface.anchor[1], p[2] - surface.anchor[2]) > surface.reach) continue;
+          ++read;
+          const keepers: string[] = clips.filter(({ clip }: { clip: (q: R.V) => number }): boolean => clip(p) <= 0).map(({ name }: { name: string }): string => name);
+          if (keepers.length === 0) ++none;
+          if (keepers.length > 1) shared.set(keepers.join(" + "), (shared.get(keepers.join(" + ")) ?? 0) + 1);
+        }
+        lines.push(`${surface.name} | ${names.join(", ")} | ${read} | ${none} | ${[...shared.values()].reduce((sum: number, x: number): number => sum + x, 0)}${shared.size === 0 ? "" : " (" + [...shared].map(([k, v]: [string, number]): string => `${k}: ${v}`).join("; ") + ")"}`);
+      }
+      // Where each row's parent ends against its children's valleys (`FamilyConicValley`): on the parent's section planes about the
+      // heads' plane, each pair of neighbouring digits as one chain with its valley's two depths, or apart with their gap. A composed
+      // end's host ring stands within a child's rail of the children's outline only where the valleys are within the rails (half the
+      // gap at which a pair first stands apart), so the heads' plane is read here against both.
+      const valleys = (label: string, centres: R.V[], halves: number[], up: R.V, index: number, digits: readonly string[]): void => {
+        const course: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.jointed(centres, halves, up) as IAutoMovieViewAxis.IAxis;
+        const station: number = AutoMovieHumanCourseRuns.joints(centres, halves)[index]!;
+        lines.push("", `${label}: the heads' plane stands at station ${station.toFixed(2)} mm of its parent's course; valleys left / right of each pair's line, mm`);
+        for (const d of [-8, -4, 0, 4, 8, 12, 16, 20]) {
+          const frame: IAutoMovieLoftSectionFrame = course.at(station + d);
+          const normal: R.V = [frame.v[1] * frame.u[2] - frame.v[2] * frame.u[1], frame.v[2] * frame.u[0] - frame.v[0] * frame.u[2], frame.v[0] * frame.u[1] - frame.v[1] * frame.u[0]];
+          const pierced: ([number, number] | null)[] = digits.map((name: string): [number, number] | null => {
+            const [first, second]: R.V[] = [joint(name + "_01_r"), joint(name + "_02_r")];
+            const along: R.V = [second![0] - first![0], second![1] - first![1], second![2] - first![2]];
+            const rate: number = along[0] * normal[0] + along[1] * normal[1] + along[2] * normal[2];
+            if (Math.abs(rate) < 1e-9) return null;
+            const t: number = ((frame.origin[0] - first![0]) * normal[0] + (frame.origin[1] - first![1]) * normal[1] + (frame.origin[2] - first![2]) * normal[2]) / rate;
+            const q: R.V = [first![0] + t * along[0] - frame.origin[0], first![1] + t * along[1] - frame.origin[1], first![2] + t * along[2] - frame.origin[2]];
+            return [q[0] * frame.u[0] + q[1] * frame.u[1] + q[2] * frame.u[2], q[0] * frame.v[0] + q[1] * frame.v[1] + q[2] * frame.v[2]];
+          });
+          const pairs: FamilyConicValley.IPair[] = FamilyConicValley.pairs(R.chains(source.all, frame) as { points: [number, number][]; closed: boolean }[], pierced);
+          lines.push(`${d >= 0 ? "+" : ""}${d} mm | ` + pairs.map((pair: FamilyConicValley.IPair, i: number): string => `${digits[i]}-${digits[i + 1]} ${pair.kind === "one" ? `${pair.depths![0].toFixed(2)} / ${pair.depths![1].toFixed(2)}` : pair.kind === "apart" ? `apart ${pair.gap!.toFixed(2)}` : "no closed chain"}`).join(" | "));
+        }
+      };
+      valleys("hand", armCentres, handHalves, arm.up, 4, FamilyConicDivide.FINGERS);
+      valleys("foot", legCentres, [40, 62, TOE_TURN.half], [1, 0, 0], 3, FamilyConicDivide.TOES);
+      process.stdout.write(lines.join("\n") + "\n");
+      return;
+    }
+    const head: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--head="))?.slice(7);
     if (head !== undefined)
       for (const part of parts)
         if (part.name === "trunk") {
           const [height, degrees, half]: number[] = head.split(",").map(Number);
           const angle: number = (degrees! * Math.PI) / 180;
-          part.centres = [
-            [0, 780, 0],
-            [0, height!, 0],
-            [-400 * Math.sin(angle), height! + 400 * Math.cos(angle), 0],
-          ];
+          part.centres = [[0, 780, 0], [0, height!, 0], [-400 * Math.sin(angle), height! + 400 * Math.cos(angle), 0]];
           part.halves = [half!];
           part.domain = [40, 1100];
           part.clip = undefined;
@@ -3021,16 +2134,9 @@ namespace FamilyConicBody {
     // family over the bridge's domain, its sections read on the skin and seeded at the region's own fairing cutoff, its layout one groove
     // run per converted line with each feature's window measured, so its lines appear and fade along the part (`FamilyConicSection.seedAll`)
     // and the region is split only where its topology is.
-    const bridgeFile: string | undefined = process.argv
-      .find((argument: string): boolean => argument.startsWith("--bridge="))
-      ?.slice("--bridge=".length);
+    const bridgeFile: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--bridge="))?.slice("--bridge=".length);
     if (bridgeFile !== undefined) {
-      const bridged: {
-        part: string;
-        domain: [number, number];
-        fairMm: number;
-        layout: C.ILayout;
-      } = JSON.parse(await fs.readFile(bridgeFile, "utf8"));
+      const bridged: { part: string; domain: [number, number]; fairMm: number; layout: C.ILayout } = JSON.parse(await fs.readFile(bridgeFile, "utf8"));
       for (const part of parts)
         if (part.name === bridged.part) {
           part.layouts = [{ layout: bridged.layout, depth: 1 }];
@@ -3056,70 +2162,26 @@ namespace FamilyConicBody {
       // Each section's own loop as it was cut, which for a loose part is not the hull its wall is measured against.
       const loops: C.P[][] = [];
       const step: number = part.step ?? STEP_MM;
-      const gap = (s: number): number =>
-        typeof part.gap === "function" ? part.gap(s) : (part.gap ?? GAP_MM);
-      const skin: R.ISource["body"] =
-        part.head === true
-          ? source.head
-          : part.whole === true
-            ? source.all
-            : source.body;
+      const gap = (s: number): number => (typeof part.gap === "function" ? part.gap(s) : (part.gap ?? GAP_MM));
+      const skin: R.ISource["body"] = part.head === true ? source.head : part.whole === true ? source.all : source.body;
       // `--air-skin=<directory>`: an air part's walls are the reference's skin and the generated trunk's together (a `zone` dump:
       // `mesh.positions.bin` in metres, `mesh.indices.bin`, `mesh.owners.json`, its faces owned by `trunk`), the nearest crossing along
       // each ray kept. A cutter must stay inside the walls it cuts: the stored slit cutter, read from the reference's walls alone, lost its
       // walk where the generated trunk's wall stands 10 mm inside the reference's air. The generated body alone has no slit to read (its
       // armpit, slit and vault included, is the arm band), and with the generated arm's faces as walls too the cutter hugged the arm's own
       // face 1.5 mm inside it and its walk was lost on that face at the cutter's front end.
-      const airFrom: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--air-skin="))
-        ?.slice(11);
-      const generated: {
-        positions: Float64Array;
-        indices: Uint32Array;
-      } | null =
-        part.air === undefined || airFrom === undefined
-          ? null
-          : await (async () => {
-              const pb: Buffer = await fs.readFile(
-                path.join(airFrom, "mesh.positions.bin"),
-              );
-              const ib: Buffer = await fs.readFile(
-                path.join(airFrom, "mesh.indices.bin"),
-              );
-              const owners: { owners: string[]; triangle: number[] } =
-                JSON.parse(
-                  await fs.readFile(
-                    path.join(airFrom, "mesh.owners.json"),
-                    "utf8",
-                  ),
-                );
-              const metres: Float64Array = new Float64Array(
-                pb.buffer,
-                pb.byteOffset,
-                pb.length / 8,
-              );
-              const all: Uint32Array = new Uint32Array(
-                ib.buffer,
-                ib.byteOffset,
-                ib.length / 4,
-              );
-              const offset: number = skin.positions.length / 3;
-              const kept: number[] = Array.from(skin.indices);
-              for (let t: number = 0; t < all.length / 3; ++t)
-                if (owners.owners[owners.triangle[t]!] === "trunk")
-                  kept.push(
-                    offset + all[3 * t]!,
-                    offset + all[3 * t + 1]!,
-                    offset + all[3 * t + 2]!,
-                  );
-              return {
-                positions: Float64Array.from([
-                  ...Array.from(skin.positions),
-                  ...Array.from(metres, (x: number): number => x * 1000),
-                ]),
-                indices: Uint32Array.from(kept),
-              };
-            })();
+      const airFrom: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--air-skin="))?.slice(11);
+      const generated: { positions: Float64Array; indices: Uint32Array } | null = part.air === undefined || airFrom === undefined ? null : await (async () => {
+        const pb: Buffer = await fs.readFile(path.join(airFrom, "mesh.positions.bin"));
+        const ib: Buffer = await fs.readFile(path.join(airFrom, "mesh.indices.bin"));
+        const owners: { owners: string[]; triangle: number[] } = JSON.parse(await fs.readFile(path.join(airFrom, "mesh.owners.json"), "utf8"));
+        const metres: Float64Array = new Float64Array(pb.buffer, pb.byteOffset, pb.length / 8);
+        const all: Uint32Array = new Uint32Array(ib.buffer, ib.byteOffset, ib.length / 4);
+        const offset: number = skin.positions.length / 3;
+        const kept: number[] = Array.from(skin.indices);
+        for (let t: number = 0; t < all.length / 3; ++t) if (owners.owners[owners.triangle[t]!] === "trunk") kept.push(offset + all[3 * t]!, offset + all[3 * t + 1]!, offset + all[3 * t + 2]!);
+        return { positions: Float64Array.from([...Array.from(skin.positions), ...Array.from(metres, (x: number): number => x * 1000)]), indices: Uint32Array.from(kept) };
+      })();
 
       // `--concha-depth=<half width>`: a hollow read from the depth of the skin along the course instead of from plane cuts. Over the square
       // of that half width round the course's first centre, in the plane square to the course, the first skin met along the course is
@@ -3127,15 +2189,7 @@ namespace FamilyConicBody {
       // where that skin lies past `s`, walked out ray by ray from the course. A dip whose sides open toward skin barely higher than its
       // floor, as the concha does toward the cheek and a valley between two fingers toward their backs, has no loop of its own in any
       // plane cut. The course must be straight.
-      let depthGrid: {
-        n: number;
-        w: Float64Array;
-        o: R.V;
-        u: R.V;
-        v: R.V;
-        t: R.V;
-        half: number;
-      } | null = null;
+      let depthGrid: { n: number; w: Float64Array; o: R.V; u: R.V; v: R.V; t: R.V; half: number } | null = null;
       const depthAt = (a: number, b: number): number => {
         if (depthGrid === null) {
           const half: number = CONCHA_DEPTH!;
@@ -3143,75 +2197,27 @@ namespace FamilyConicBody {
           const o: R.V = [f0.origin[0], f0.origin[1], f0.origin[2]];
           const u: R.V = [f0.u[0], f0.u[1], f0.u[2]];
           const v: R.V = [f0.v[0], f0.v[1], f0.v[2]];
-          const t: R.V = [
-            u[1] * v[2] - u[2] * v[1],
-            u[2] * v[0] - u[0] * v[2],
-            u[0] * v[1] - u[1] * v[0],
-          ];
+          const t: R.V = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
           const ahead: R.V = axis.at(1).origin as R.V;
-          if (
-            (ahead[0] - o[0]) * t[0] +
-              (ahead[1] - o[1]) * t[1] +
-              (ahead[2] - o[2]) * t[2] <
-            0
-          )
-            t.forEach((_: number, i: number): void => void (t[i] = -t[i]!));
+          if ((ahead[0] - o[0]) * t[0] + (ahead[1] - o[1]) * t[1] + (ahead[2] - o[2]) * t[2] < 0) t.forEach((_: number, i: number): void => void (t[i] = -t[i]!));
           const n: number = Math.round((2 * half) / 0.25) + 1;
           const w: Float64Array = new Float64Array(n * n).fill(Infinity);
           const local = (i: number): R.V => {
-            const d: R.V = [
-              skin.positions[i * 3]! - o[0],
-              skin.positions[i * 3 + 1]! - o[1],
-              skin.positions[i * 3 + 2]! - o[2],
-            ];
-            return [
-              d[0] * u[0] + d[1] * u[1] + d[2] * u[2],
-              d[0] * v[0] + d[1] * v[1] + d[2] * v[2],
-              d[0] * t[0] + d[1] * t[1] + d[2] * t[2],
-            ];
+            const d: R.V = [skin.positions[i * 3]! - o[0], skin.positions[i * 3 + 1]! - o[1], skin.positions[i * 3 + 2]! - o[2]];
+            return [d[0] * u[0] + d[1] * u[1] + d[2] * u[2], d[0] * v[0] + d[1] * v[1] + d[2] * v[2], d[0] * t[0] + d[1] * t[1] + d[2] * t[2]];
           };
           for (let k: number = 0; k + 2 < skin.indices.length; k += 3) {
-            const [p, q, r]: R.V[] = [
-              local(skin.indices[k]!),
-              local(skin.indices[k + 1]!),
-              local(skin.indices[k + 2]!),
-            ];
-            if (
-              Math.max(p[0], q[0], r[0]) < -half ||
-              Math.min(p[0], q[0], r[0]) > half ||
-              Math.max(p[1], q[1], r[1]) < -half ||
-              Math.min(p[1], q[1], r[1]) > half
-            )
-              continue;
-            const d: number =
-              (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+            const [p, q, r]: R.V[] = [local(skin.indices[k]!), local(skin.indices[k + 1]!), local(skin.indices[k + 2]!)];
+            if (Math.max(p[0], q[0], r[0]) < -half || Math.min(p[0], q[0], r[0]) > half || Math.max(p[1], q[1], r[1]) < -half || Math.min(p[1], q[1], r[1]) > half) continue;
+            const d: number = (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
             if (d === 0) continue;
-            for (
-              let i: number = Math.max(
-                0,
-                Math.ceil((Math.min(p[0], q[0], r[0]) + half) / 0.25),
-              );
-              i < n && -half + i * 0.25 <= Math.max(p[0], q[0], r[0]);
-              ++i
-            )
-              for (
-                let j: number = Math.max(
-                  0,
-                  Math.ceil((Math.min(p[1], q[1], r[1]) + half) / 0.25),
-                );
-                j < n && -half + j * 0.25 <= Math.max(p[1], q[1], r[1]);
-                ++j
-              ) {
+            for (let i: number = Math.max(0, Math.ceil((Math.min(p[0], q[0], r[0]) + half) / 0.25)); i < n && -half + i * 0.25 <= Math.max(p[0], q[0], r[0]); ++i)
+              for (let j: number = Math.max(0, Math.ceil((Math.min(p[1], q[1], r[1]) + half) / 0.25)); j < n && -half + j * 0.25 <= Math.max(p[1], q[1], r[1]); ++j) {
                 const [x, y]: number[] = [-half + i * 0.25, -half + j * 0.25];
-                const s: number =
-                  ((x - p[0]) * (r[1] - p[1]) - (y - p[1]) * (r[0] - p[0])) / d;
-                const g: number =
-                  ((q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0])) / d;
+                const s: number = ((x - p[0]) * (r[1] - p[1]) - (y - p[1]) * (r[0] - p[0])) / d;
+                const g: number = ((q[0] - p[0]) * (y - p[1]) - (q[1] - p[1]) * (x - p[0])) / d;
                 if (s < 0 || g < 0 || s + g > 1) continue;
-                w[i * n + j] = Math.min(
-                  w[i * n + j]!,
-                  p[2] + s * (q[2] - p[2]) + g * (r[2] - p[2]),
-                );
+                w[i * n + j] = Math.min(w[i * n + j]!, p[2] + s * (q[2] - p[2]) + g * (r[2] - p[2]));
               }
           }
           depthGrid = { n, w, o, u, v, t, half };
@@ -3219,9 +2225,7 @@ namespace FamilyConicBody {
         const g = depthGrid;
         const i: number = Math.round((a + g.half) / 0.25);
         const j: number = Math.round((b + g.half) / 0.25);
-        return i < 0 || j < 0 || i >= g.n || j >= g.n
-          ? -Infinity
-          : g.w[i * g.n + j]!;
+        return i < 0 || j < 0 || i >= g.n || j >= g.n ? -Infinity : g.w[i * g.n + j]!;
       };
       const depthLoop = (s: number): C.P[] | null => {
         // Every frame's chart axes are the first frame's on a straight course; a section's point (a, b) is the grid's (a, b).
@@ -3230,11 +2234,7 @@ namespace FamilyConicBody {
         for (let k: number = 0; k < 96; ++k) {
           const phi: number = (2 * Math.PI * k) / 96;
           let r: number = 0;
-          while (
-            r < 40 &&
-            depthAt((r + 0.1) * Math.cos(phi), (r + 0.1) * Math.sin(phi)) > s
-          )
-            r += 0.1;
+          while (r < 40 && depthAt((r + 0.1) * Math.cos(phi), (r + 0.1) * Math.sin(phi)) > s) r += 0.1;
           if (r >= 40) return null;
           loop.push([r * Math.cos(phi), r * Math.sin(phi)]);
         }
@@ -3247,82 +2247,39 @@ namespace FamilyConicBody {
       const inventedOf = (loop: C.P[]): boolean[] | null => {
         const flags: boolean[] | null = airInvented;
         if (flags === null) return null;
-        return loop.map(
-          (p: C.P): boolean =>
-            flags[
-              Math.round(
-                ((Math.atan2(p[1], p[0]) + 2 * Math.PI) / (2 * Math.PI)) *
-                  flags.length,
-              ) % flags.length
-            ]!,
-        );
+        return loop.map((p: C.P): boolean => flags[Math.round(((Math.atan2(p[1], p[0]) + 2 * Math.PI) / (2 * Math.PI)) * flags.length) % flags.length]!);
       };
 
       // The air round the course point in the frame's plane (`IPart.air`): the skin's crossings with the plane near the course, read along
       // 360 rays to the nearest, the floor and the reach, then drawn in along the polygon's normal. A plane's cut through the body mesh
       // alone is open where it meets the head mesh, so the rays read the crossing segments, not closed loops.
-      const air = (
-        frame: IAutoMovieLoftSectionFrame,
-        spec: NonNullable<IPart["air"]>,
-      ): C.P[] | null => {
+      const air = (frame: IAutoMovieLoftSectionFrame, spec: NonNullable<IPart["air"]>): C.P[] | null => {
         airInvented = null;
         const o: number[] = [...frame.origin];
-        const n: number[] = [
-          frame.u[1] * frame.v[2] - frame.u[2] * frame.v[1],
-          frame.u[2] * frame.v[0] - frame.u[0] * frame.v[2],
-          frame.u[0] * frame.v[1] - frame.u[1] * frame.v[0],
-        ];
+        const n: number[] = [frame.u[1] * frame.v[2] - frame.u[2] * frame.v[1], frame.u[2] * frame.v[0] - frame.u[0] * frame.v[2], frame.u[0] * frame.v[1] - frame.u[1] * frame.v[0]];
         const segments: [number, number, number, number][] = [];
-        const walls: {
-          positions: ArrayLike<number>;
-          indices: ArrayLike<number>;
-        } = generated ?? skin;
-        const at = (k: number): number[] =>
-          [0, 1, 2].map(
-            (a: number): number => walls.positions[3 * k + a]! - o[a]!,
-          );
+        const walls: { positions: ArrayLike<number>; indices: ArrayLike<number> } = generated ?? skin;
+        const at = (k: number): number[] => [0, 1, 2].map((a: number): number => walls.positions[3 * k + a]! - o[a]!);
         for (let t: number = 0; t + 2 < walls.indices.length; t += 3) {
-          const q: number[][] = [
-            at(walls.indices[t]!),
-            at(walls.indices[t + 1]!),
-            at(walls.indices[t + 2]!),
-          ];
-          if (
-            q.some(
-              (p: number[]): boolean =>
-                Math.hypot(p[0]!, p[1]!, p[2]!) > 2 * spec.reach,
-            )
-          )
-            continue;
-          const d: number[] = q.map(
-            (p: number[]): number =>
-              p[0]! * n[0]! + p[1]! * n[1]! + p[2]! * n[2]!,
-          );
+          const q: number[][] = [at(walls.indices[t]!), at(walls.indices[t + 1]!), at(walls.indices[t + 2]!)];
+          if (q.some((p: number[]): boolean => Math.hypot(p[0]!, p[1]!, p[2]!) > 2 * spec.reach)) continue;
+          const d: number[] = q.map((p: number[]): number => p[0]! * n[0]! + p[1]! * n[1]! + p[2]! * n[2]!);
           const ends: C.P[] = [];
           for (let e: number = 0; e < 3; ++e) {
             const [a, b]: [number, number] = [e, (e + 1) % 3];
             if (d[a]! > 0 === d[b]! > 0) continue;
             const f: number = d[a]! / (d[a]! - d[b]!);
-            const p: number[] = [0, 1, 2].map(
-              (k: number): number => q[a]![k]! + f * (q[b]![k]! - q[a]![k]!),
-            );
-            ends.push([
-              p[0]! * frame.u[0] + p[1]! * frame.u[1] + p[2]! * frame.u[2],
-              p[0]! * frame.v[0] + p[1]! * frame.v[1] + p[2]! * frame.v[2],
-            ]);
+            const p: number[] = [0, 1, 2].map((k: number): number => q[a]![k]! + f * (q[b]![k]! - q[a]![k]!));
+            ends.push([p[0]! * frame.u[0] + p[1]! * frame.u[1] + p[2]! * frame.u[2], p[0]! * frame.v[0] + p[1]! * frame.v[1] + p[2]! * frame.v[2]]);
           }
-          if (ends.length === 2)
-            segments.push([ends[0]![0], ends[0]![1], ends[1]![0], ends[1]![1]]);
+          if (ends.length === 2) segments.push([ends[0]![0], ends[0]![1], ends[1]![0], ends[1]![1]]);
         }
         const line = (knots: [number, number][], x: number): number => {
           for (let i: number = 0; i + 1 < knots.length; ++i) {
             const [a, b]: [number, number][] = [knots[i]!, knots[i + 1]!];
-            if ((x - a[0]) * (x - b[0]) <= 0)
-              return a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]);
+            if ((x - a[0]) * (x - b[0]) <= 0) return a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]);
           }
-          return Math.abs(x - knots[0]![0]) < Math.abs(x - knots.at(-1)![0])
-            ? knots[0]![1]
-            : knots.at(-1)![1];
+          return Math.abs(x - knots[0]![0]) < Math.abs(x - knots.at(-1)![0]) ? knots[0]![1] : knots.at(-1)![1];
         };
         const floor: number = line(spec.band, o[0]!) - line(spec.floor, o[0]!);
         const rays: number = 360;
@@ -3343,79 +2300,35 @@ namespace FamilyConicBody {
         // engine's spline through its stations read as a chain running back past a turn. The floor is bowed in the chart instead, its
         // lowest point under the course point: `u0 - AIR_SAG (1 - (v / W)^2)`, `W` the floor's half width read on the level line.
         const u0: number = (floor - o[1]!) / frame.u[1];
-        const directions: C.P[] = Array.from(
-          { length: rays },
-          (_: unknown, j: number): C.P => [
-            Math.cos((2 * Math.PI * j) / rays),
-            Math.sin((2 * Math.PI * j) / rays),
-          ],
-        );
-        const level: number[] = directions.map((dir: C.P): number =>
-          dir[0] < 0 ? Math.min(wall(dir), u0 / dir[0]) : wall(dir),
-        );
-        const width: number = Math.max(
-          1e-6,
-          ...directions.map((dir: C.P, j: number): number =>
-            dir[0] < 0 && Math.abs(level[j]! * dir[0] - u0) < 1e-6
-              ? Math.abs(level[j]! * dir[1])
-              : 0,
-          ),
-        );
-        const hits: { p: C.P; y: number; invented: boolean }[] = directions.map(
-          (dir: C.P): { p: C.P; y: number; invented: boolean } => {
-            const skinR: number = wall(dir);
-            let r: number = skinR;
-            if (dir[0] < 0) {
-              // The bowed floor along the ray, by a fixed point from the level line's crossing: the bow is shallow, so it converges at once.
-              let reach: number = u0 / dir[0];
-              for (let i: number = 0; i < 8; ++i)
-                reach =
-                  (u0 -
-                    (spec.sag ?? AIR_SAG_MM) *
-                      (1 - Math.min(1, ((reach * dir[1]) / width) ** 2))) /
-                  dir[0];
-              r = Math.min(r, reach);
-            }
-            const lift: number = dir[0] * frame.u[1] + dir[1] * frame.v[1];
-            // Invented where the floor or the reach stops the ray, not the skin (`--decompose`'s data weighting).
-            return {
-              p: [r * dir[0], r * dir[1]],
-              y: o[1]! + r * lift,
-              invented: r < skinR || skinR >= spec.reach,
-            };
-          },
-        );
+        const directions: C.P[] = Array.from({ length: rays }, (_: unknown, j: number): C.P => [Math.cos((2 * Math.PI * j) / rays), Math.sin((2 * Math.PI * j) / rays)]);
+        const level: number[] = directions.map((dir: C.P): number => (dir[0] < 0 ? Math.min(wall(dir), u0 / dir[0]) : wall(dir)));
+        const width: number = Math.max(1e-6, ...directions.map((dir: C.P, j: number): number => (dir[0] < 0 && Math.abs(level[j]! * dir[0] - u0) < 1e-6 ? Math.abs(level[j]! * dir[1]) : 0)));
+        const hits: { p: C.P; y: number; invented: boolean }[] = directions.map((dir: C.P): { p: C.P; y: number; invented: boolean } => {
+          const skinR: number = wall(dir);
+          let r: number = skinR;
+          if (dir[0] < 0) {
+            // The bowed floor along the ray, by a fixed point from the level line's crossing: the bow is shallow, so it converges at once.
+            let reach: number = u0 / dir[0];
+            for (let i: number = 0; i < 8; ++i) reach = (u0 - (spec.sag ?? AIR_SAG_MM) * (1 - Math.min(1, ((reach * dir[1]) / width) ** 2))) / dir[0];
+            r = Math.min(r, reach);
+          }
+          const lift: number = dir[0] * frame.u[1] + dir[1] * frame.v[1];
+          // Invented where the floor or the reach stops the ray, not the skin (`--decompose`'s data weighting).
+          return { p: [r * dir[0], r * dir[1]], y: o[1]! + r * lift, invented: r < skinR || skinR >= spec.reach };
+        });
         airInvented = hits.map((h): boolean => h.invented);
-        if (
-          !(
-            Math.min(...hits.map((h): number => Math.hypot(h.p[0], h.p[1]))) >
-            Math.max(spec.inset[0], spec.inset[1])
-          )
-        )
-          return null;
+        if (!(Math.min(...hits.map((h): number => Math.hypot(h.p[0], h.p[1]))) > Math.max(spec.inset[0], spec.inset[1]))) return null;
         const top: number = Math.max(...hits.map((h): number => h.y));
         // Drawn in along the normal, the polygon crosses itself at its corners; read along the same rays again, the innermost crossing kept.
         const drawn: C.P[] = hits.map((h, j: number): C.P => {
-          const [a, b]: C.P[] = [
-            hits[(j + rays - 2) % rays]!.p,
-            hits[(j + 2) % rays]!.p,
-          ];
+          const [a, b]: C.P[] = [hits[(j + rays - 2) % rays]!.p, hits[(j + 2) % rays]!.p];
           const l: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
-          const share: number = Math.max(
-            0,
-            Math.min(1, (h.y - floor) / Math.max(1e-6, top - floor)),
-          );
+          const share: number = Math.max(0, Math.min(1, (h.y - floor) / Math.max(1e-6, top - floor)));
           // `side`: drawn in further on the +v side, by the ray's `v` share of it and fading from the floor to the apex as the inset does,
           // so a cut crossing a band near where that band meets the wall on that side stands clear of the seam; at every height, it pinched
           // the slit's arm-side flank under its apex and the fit was refused.
-          const d: number =
-            spec.inset[0] +
-            (spec.inset[1] - spec.inset[0]) * share +
-            (spec.side ?? 0) * Math.max(0, directions[j]![1]) * (1 - share);
-          return [
-            h.p[0] - (d * (b[1] - a[1])) / l,
-            h.p[1] + (d * (b[0] - a[0])) / l,
-          ];
+          const d: number = spec.inset[0] + (spec.inset[1] - spec.inset[0]) * share + (spec.side ?? 0) * Math.max(0, directions[j]![1]) * (1 - share);
+          return [h.p[0] - (d * (b[1] - a[1])) / l, h.p[1] + (d * (b[0] - a[0])) / l];
         });
         return X.star(drawn, rays, "inner")?.points ?? null;
       };
@@ -3429,289 +2342,141 @@ namespace FamilyConicBody {
       let ends: [C.P, C.P] | null = null;
       // Each section's closure across its part's opening (`IPart.opening`), by station: one conic, an S of two, two round the course
       // (`IPart.around`), or the chord where none is admissible.
-      const closures: {
-        s: number;
-        kind: Closure;
-        detail?: string;
-        span?: [number, number];
-        rho?: { side: number; most: number; used: number };
-      }[] = [];
+      const closures: { s: number; kind: Closure; detail?: string; span?: [number, number]; rho?: { side: number; most: number; used: number } }[] = [];
       // Each side's closure shoulder smoothed along the stations (set before the sections are read): the largest contained at each station,
       // fitted by least squares on natural cubic splines with knots every `GAP_MM`, as the fields are projected onto their knots.
-      let closureCap:
-        | ((side: number, s: number) => number | undefined)
-        | undefined;
-      const cut = (
-        frame: IAutoMovieLoftSectionFrame,
-        s: number,
-      ): C.P[] | null => {
+      let closureCap: ((side: number, s: number) => number | undefined) | undefined;
+      // The part's whole sections by station, read in the first pass over its stations, and the tube a buried section continues: the
+      // radius about the course of the whole section nearest its station (`FamilyConicClosure.continued`). Before that pass there is
+      // none, and the pass's own closures, which only its count of whole sections is read from, fall to their chords.
+      const wholes: Map<number, C.P[]> = new Map();
+      let tubed: boolean = false;
+      const tubeAt = (s: number): ((phase: number) => number) | undefined => {
+        if (!tubed || wholes.size === 0) return undefined;
+        const nearest: number = [...wholes.keys()].reduce((best: number, k: number): number => (Math.abs(k - s) < Math.abs(best - s) ? k : best));
+        const loop: C.P[] = wholes.get(nearest)!;
+        return (phase: number): number => C.radius(loop, phase);
+      };
+      const cut = (frame: IAutoMovieLoftSectionFrame, s: number): C.P[] | null => {
         piece = null;
         if (part.air !== undefined) return air(frame, part.air);
         ends = null;
         if (part.excursion !== undefined) {
-          const entry: X.IPart | undefined = X.PARTS.find(
-            (p: X.IPart): boolean => p.name === part.excursion,
-          );
-          if (entry === undefined)
-            throw new Error("No excursion " + part.excursion);
+          const entry: X.IPart | undefined = X.PARTS.find((p: X.IPart): boolean => p.name === part.excursion);
+          if (entry === undefined) throw new Error("No excursion " + part.excursion);
           // The excursion is cut in the course's own chart, whose `u` stands out of the head as its box and its host line beside the box
           // assume, and only then turned into the part's rolled chart (`IPart.roll`): cut in the rolled chart the box lay along the wrong
           // axis and most sections came out as other pieces or none.
-          const plain: IAutoMovieViewAxis.IAxis =
-            part.roll === undefined
-              ? axis
-              : K.axis({
-                  centres: part.centres,
-                  halves: part.halves,
-                  up: part.up,
-                });
-          excursion ??= X.along(
-            source,
-            entry,
-            (t: number) => plain.at(t),
-            domain[0] - 6,
-            domain[1] + 6,
-            1.5,
-          );
+          const plain: IAutoMovieViewAxis.IAxis = part.roll === undefined ? axis : K.axis({ centres: part.centres, halves: part.halves, up: part.up });
+          excursion ??= X.along(source, entry, (t: number) => plain.at(t), domain[0] - 6, domain[1] + 6, 1.5);
           const section: X.ISection | null = excursion(s);
           ends = section?.ends ?? null;
           // The nostrils open into the levels from 1,546 to 1,551.5 mm: there the vertical nose bridges them by its hull, as the floor's
           // net bridged the pits, so the cutters keep them.
-          if (
-            section !== null &&
-            NOSE_VERTICAL &&
-            part.name === "nose" &&
-            frame.origin[1] > 1545.9 &&
-            frame.origin[1] < 1551.6
-          )
-            return R.hull(section.points).flatMap(
-              (p: C.P, k: number, hull: C.P[]): C.P[] => {
-                const q: C.P = hull[(k + 1) % hull.length]!;
-                const pieces: number = Math.max(
-                  1,
-                  Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])),
-                );
-                return Array.from(
-                  { length: pieces },
-                  (_: unknown, i: number): C.P => [
-                    p[0] + ((q[0] - p[0]) * i) / pieces,
-                    p[1] + ((q[1] - p[1]) * i) / pieces,
-                  ],
-                );
-              },
-            );
+          if (section !== null && NOSE_VERTICAL && part.name === "nose" && frame.origin[1] > 1545.9 && frame.origin[1] < 1551.6) return R.hull(section.points).flatMap((p: C.P, k: number, hull: C.P[]): C.P[] => {
+            const q: C.P = hull[(k + 1) % hull.length]!;
+            const pieces: number = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])));
+            return Array.from({ length: pieces }, (_: unknown, i: number): C.P => [p[0] + ((q[0] - p[0]) * i) / pieces, p[1] + ((q[1] - p[1]) * i) / pieces]);
+          });
           // A plate is read only off a piece closed across its root: a free loop (the lobule's free edge, the helix's top over the head) has
           // no cranial face, and the plate ends where the pieces do.
-          const read: C.P[] | null =
-            section === null
-              ? null
-              : part.plate === undefined
-                ? section.points
-                : section.kind === "excursion"
-                  ? X.plate(
-                      section.points,
-                      part.plate.thickness,
-                      part.plate.into,
-                      typeof part.plate.deepest === "number"
-                        ? part.plate.deepest
-                        : part.plate.deepest(s),
-                      part.plate.rim ?? 0,
-                    )
-                  : null;
+          const read: C.P[] | null = section === null ? null : part.plate === undefined ? section.points : section.kind === "excursion" ? X.plate(section.points, part.plate.thickness, part.plate.into, typeof part.plate.deepest === "number" ? part.plate.deepest : part.plate.deepest(s), part.plate.rim ?? 0) : null;
           if (read === null || part.roll === undefined) return read;
-          const angle: number = AutoMovieNaturalSpline.evaluate(
-            AutoMovieNaturalSpline.create(part.roll.knots, part.roll.values),
-            s,
-          );
+          const angle: number = AutoMovieNaturalSpline.evaluate(AutoMovieNaturalSpline.create(part.roll.knots, part.roll.values), s);
           const [c, n]: [number, number] = [Math.cos(angle), Math.sin(angle)];
-          return read.map(
-            (p: C.P): C.P => [c * p[0] + n * p[1], c * p[1] - n * p[0]],
-          );
+          return read.map((p: C.P): C.P => [c * p[0] + n * p[1], c * p[1] - n * p[0]]);
         }
-        if (part.name === "concha" && CONCHA_DEPTH !== undefined)
-          return depthLoop(s);
-        if (
-          part.loose !== true ||
-          (part.surround !== undefined && s < part.surround.from)
-        ) {
+        if (part.name === "concha" && CONCHA_DEPTH !== undefined) return depthLoop(s);
+        if (part.loose !== true || (part.surround !== undefined && s < part.surround.from)) {
           // A part closed round its course (`IPart.around`) reads its skin across the body's open seam at the neck, where the head's mesh
           // takes over: there the body's cut is one open chain whose ends stand 17 to 175 mm apart across the neck (f1's arm planes 16 to
           // 46 mm above the shoulder joint), and that chord lies on the parent's side, which the clip drops.
-          const whole: C.P[] | null = R.cut(
-            skin,
-            frame,
-            part.around === undefined ? 3 : NECK_BRIDGE_MM,
-          ).loop;
+          const whole: C.P[] | null = R.cut(skin, frame, part.around === undefined ? 3 : NECK_BRIDGE_MM).loop;
           if (whole === null) missed.set(s, "no loop round the course");
           if (whole === null || part.clip === undefined) return whole;
-          const clipped: C.P[] | null = without(
-            whole,
-            frame,
-            part.clip,
-            part.round,
-            part.opening,
-            (
-              kind: Closure,
-              detail?: string,
-              span?: [number, number],
-              rho?: { side: number; most: number; used: number },
-            ): void =>
-              void closures.push({
-                s,
-                kind,
-                ...(detail === undefined ? {} : { detail }),
-                ...(span === undefined ? {} : { span }),
-                ...(rho === undefined ? {} : { rho }),
-              }),
-            (side: number): number | undefined => closureCap?.(side, s),
-            part.around,
-          );
+          const recorded: number = closures.length;
+          const clipped: C.P[] | null = without(whole, frame, part.clip, part.round, part.opening, (kind: Closure, detail?: string, span?: [number, number], rho?: { side: number; most: number; used: number }): void => void closures.push({ s, kind, ...(detail === undefined ? {} : { detail }), ...(span === undefined ? {} : { span }), ...(rho === undefined ? {} : { rho }) }), (side: number): number | undefined => closureCap?.(side, s), part.around, tubeAt(s));
+          // A section no surface cuts is the part's whole section there: the tube its buried sections continue.
+          if (clipped !== null && closures.length === recorded && clipped.length === whole.length) wholes.set(s, whole);
           if (clipped === null) missed.set(s, "under three points kept");
           return clipped;
         }
-        const inside = (hull: readonly C.P[]): boolean =>
-          hull.every(
-            (p: C.P, i: number): boolean =>
-              p[0] * hull[(i + 1) % hull.length]![1] -
-                p[1] * hull[(i + 1) % hull.length]![0] >
-              0,
-          );
+        const inside = (hull: readonly C.P[]): boolean => hull.every((p: C.P, i: number): boolean => p[0] * hull[(i + 1) % hull.length]![1] - p[1] * hull[(i + 1) % hull.length]![0] > 0);
         const clipped: C.P[][] = R.loops(skin, frame)
-          .map((loop: C.P[]): C.P[] | null =>
-            part.clip === undefined ? loop : without(loop, frame, part.clip),
-          )
-          .filter(
-            (loop: C.P[] | null): loop is C.P[] =>
-              loop !== null && loop.length >= 3,
-          );
+          .map((loop: C.P[]): C.P[] | null => (part.clip === undefined ? loop : without(loop, frame, part.clip)))
+          .filter((loop: C.P[] | null): loop is C.P[] => loop !== null && loop.length >= 3);
 
         // A part that surrounds its branches reads the curve round every loop within its reach of the course: the hull of them all.
         if (part.surround !== undefined) {
-          const pieces: C.P[][] = clipped.filter((loop: C.P[]): boolean =>
-            loop.every(
-              (p: C.P): boolean =>
-                Math.hypot(p[0], p[1]) < part.surround!.reach,
-            ),
-          );
-          piece =
-            pieces.length === 0
-              ? null
-              : pieces.reduce((a: C.P[], b: C.P[]): C.P[] =>
-                  Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a,
-                );
+          const pieces: C.P[][] = clipped.filter((loop: C.P[]): boolean => loop.every((p: C.P): boolean => Math.hypot(p[0], p[1]) < part.surround!.reach));
+          piece = pieces.length === 0 ? null : pieces.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
           const near: C.P[] = pieces.flat();
           const around: C.P[] = near.length < 3 ? [] : R.hull(near);
           return around.length >= 3 && inside(around) ? around : null;
         }
-        const kept: C.P[][] = clipped.filter((loop: C.P[]): boolean =>
-          inside(R.hull(loop)),
-        );
-        const chosen: C.P[] | null =
-          kept.length === 0
-            ? null
-            : kept.reduce((a: C.P[], b: C.P[]): C.P[] =>
-                Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a,
-              );
+        const kept: C.P[][] = clipped.filter((loop: C.P[]): boolean => inside(R.hull(loop)));
+        const chosen: C.P[] | null = kept.length === 0 ? null : kept.reduce((a: C.P[], b: C.P[]): C.P[] => (Math.abs(R.area(b)) > Math.abs(R.area(a)) ? b : a));
         if (chosen === null || part.pocket === undefined) return chosen;
 
         // The pocket: the largest region between the loop and its hull, closed along one hull edge. That edge is pushed out by
         // `pocket` mm, so the cutter stands clear of the wall it is cut from along the pocket's mouth.
         const hull: C.P[] = R.hull(chosen);
-        const at = (p: C.P): number =>
-          chosen.findIndex((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
-        const onHull = (p: C.P): boolean =>
-          hull.some((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
+        const at = (p: C.P): number => chosen.findIndex((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
+        const onHull = (p: C.P): boolean => hull.some((q: C.P): boolean => q[0] === p[0] && q[1] === p[1]);
         let best: C.P[] = [];
         for (let h: number = 0; h < hull.length; ++h) {
-          const [i, j]: [number, number] = [
-            at(hull[h]!),
-            at(hull[(h + 1) % hull.length]!),
-          ];
+          const [i, j]: [number, number] = [at(hull[h]!), at(hull[(h + 1) % hull.length]!)];
           if (i < 0 || j < 0) continue;
           for (const step of [1, -1]) {
             const run: C.P[] = [];
-            for (
-              let k: number = i;
-              ;
-              k = (k + step + chosen.length) % chosen.length
-            ) {
+            for (let k: number = i; ; k = (k + step + chosen.length) % chosen.length) {
               run.push(chosen[k]!);
               if (k === j) break;
             }
-            if (
-              run.length >= 3 &&
-              !run.slice(1, -1).some(onHull) &&
-              (best.length < 3 ||
-                Math.abs(R.area(run)) > Math.abs(R.area(best)))
-            )
-              best = run;
+            if (run.length >= 3 && !run.slice(1, -1).some(onHull) && (best.length < 3 || Math.abs(R.area(run)) > Math.abs(R.area(best)))) best = run;
           }
         }
         if (best.length < 3) return null;
         // The pocket is drawn in toward its middle by `POCKET_INSET_MM` at its farthest point, so the rim round it keeps a thickness. At
         // its own size its two ends lie on the hull, where the cutter's wall and the host's would meet at no angle.
-        const middle: C.P = [
-          best.reduce((sum: number, p: C.P): number => sum + p[0], 0) /
-            best.length,
-          best.reduce((sum: number, p: C.P): number => sum + p[1], 0) /
-            best.length,
-        ];
-        const reach: number = Math.max(
-          ...best.map((p: C.P): number =>
-            Math.hypot(p[0] - middle[0], p[1] - middle[1]),
-          ),
-        );
+        const middle: C.P = [best.reduce((sum: number, p: C.P): number => sum + p[0], 0) / best.length, best.reduce((sum: number, p: C.P): number => sum + p[1], 0) / best.length];
+        const reach: number = Math.max(...best.map((p: C.P): number => Math.hypot(p[0] - middle[0], p[1] - middle[1])));
         // `--pocket-inset=<mm>`: a trial inset in place of `POCKET_INSET_MM`, for a pocket whose ends come near the rim.
-        const inset: number = Number(
-          process.argv
-            .find((argument: string): boolean =>
-              argument.startsWith("--pocket-inset="),
-            )
-            ?.slice("--pocket-inset=".length) ?? POCKET_INSET_MM,
-        );
-        best = best.map(
-          (p: C.P): C.P => [
-            middle[0] + (p[0] - middle[0]) * (1 - inset / reach),
-            middle[1] + (p[1] - middle[1]) * (1 - inset / reach),
-          ],
-        );
+        const inset: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--pocket-inset="))?.slice("--pocket-inset=".length) ?? POCKET_INSET_MM);
+        best = best.map((p: C.P): C.P => [middle[0] + (p[0] - middle[0]) * (1 - inset / reach), middle[1] + (p[1] - middle[1]) * (1 - inset / reach)]);
         const [a, b]: [C.P, C.P] = [best[0]!, best.at(-1)!];
         const length: number = Math.hypot(b[0] - a[0], b[1] - a[1]);
         let normal: C.P = [(b[1] - a[1]) / length, -(b[0] - a[0]) / length];
-        if ((middle[0] - a[0]) * normal[0] + (middle[1] - a[1]) * normal[1] > 0)
-          normal = [-normal[0], -normal[1]];
+        if ((middle[0] - a[0]) * normal[0] + (middle[1] - a[1]) * normal[1] > 0) normal = [-normal[0], -normal[1]];
         // Pushed out as a bow, deepest at the edge's middle: pushed out square, the pocket had two parallel sides, and an arc between
         // parallel tangents is the one a conic chain cannot close.
-        const bow: C.P[] = Array.from(
-          { length: 9 },
-          (_: unknown, k: number): C.P => {
-            const t: number = (k + 1) / 10;
-            const out: number = part.pocket! * 4 * t * (1 - t);
-            return [
-              b[0] + (a[0] - b[0]) * t + out * normal[0],
-              b[1] + (a[1] - b[1]) * t + out * normal[1],
-            ];
-          },
-        );
+        const bow: C.P[] = Array.from({ length: 9 }, (_: unknown, k: number): C.P => {
+          const t: number = (k + 1) / 10;
+          const out: number = part.pocket! * 4 * t * (1 - t);
+          return [b[0] + (a[0] - b[0]) * t + out * normal[0], b[1] + (a[1] - b[1]) * t + out * normal[1]];
+        });
         const pocket: C.P[] = [...best, ...bow];
         return inside(R.hull(pocket)) ? pocket : null;
       };
       // `--to=<station>`: fit only up to that station, for the head of a wall whose far end is spliced in from another fit. Fitted whole, a
       // wall's growth goes to its worst sections, and the arm's are in the hand, which left the shoulder with ten knots at a mean of 0.7 mm.
-      const to: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--to="))
-        ?.slice(5);
-      const whole: [number, number] =
-        part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
+      const to: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--to="))?.slice(5);
+      const whole: [number, number] = part.domain === "auto" ? span(skin, axis, part.centres) : part.domain;
 
       // `--from=<station>`: fit only from that station on, for the far end of a wall whose head is another fit's.
-      const from: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--from="))
-        ?.slice(7);
-      const domain: [number, number] = [
-        from === undefined ? whole[0] : Number(from),
-        to === undefined ? whole[1] : Number(to),
-      ];
+      const from: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--from="))?.slice(7);
+      // `--from=kept`: from the first station, one fitting step past it, at which the part's own course point lies on the part's side of
+      // every surface that divides it from a neighbour (`IPart.clip`): where a part that starts inside its neighbour first has skin of its
+      // own round its course.
+      const kept = (): number => {
+        if (part.clip === undefined) throw new Error("--from=kept: " + part.name + " declares no clip");
+        for (let s: number = 0; s <= whole[1]; s += 0.5) {
+          const o: readonly number[] = axis.at(s).origin;
+          if (part.clip([o[0]!, o[1]!, o[2]!]) <= 0) return s + (part.step ?? STEP_MM);
+        }
+        throw new Error("--from=kept: the course of " + part.name + " never reaches its own side");
+      };
+      const domain: [number, number] = [from === undefined ? whole[0] : from === "kept" ? kept() : Number(from), to === undefined ? whole[1] : Number(to)];
       log("family-body-domain", { part: part.name, domain });
 
       // The tip: the last station, searched a quarter millimetre at a time past the domain, whose plane still cuts a loop round the course, and half a step on.
@@ -3720,18 +2485,10 @@ namespace FamilyConicBody {
         if (typeof part.tip === "number") tip = part.tip;
         else {
           tip = domain[1];
-          while (
-            tip < domain[1] + 80 &&
-            cut(axis.at(tip + 0.25), tip + 0.25) !== null
-          )
-            tip += 0.25;
+          while (tip < domain[1] + 80 && cut(axis.at(tip + 0.25), tip + 0.25) !== null) tip += 0.25;
           tip = Math.round((tip + 0.125) * 100) / 100;
         }
-        log("family-body-tip", {
-          part: part.name,
-          tip,
-          pastDomainMm: tip - domain[1],
-        });
+        log("family-body-tip", { part: part.name, tip, pastDomainMm: tip - domain[1] });
         if (process.argv.includes("--tips")) continue;
       }
       // A family fitted to its skin (`IPart.skin`): every section must be star-shaped about the course point, since the fit reads one radius
@@ -3743,32 +2500,12 @@ namespace FamilyConicBody {
       // round its course every quarter degree, so a layout with feature lines refitted to the skin over a range keeps that wall elsewhere,
       // its features at no depth there. The trunk's median and off-axis lines live where its sections are star-shaped about the course,
       // 810 to 1,270 mm high (stations 30 to 490); above that, under the arms, the chin and the face, the sections fold.
-      const plain: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--plain="))
-        ?.slice(8);
-      const plainWall: K.IStored | null =
-        plain === undefined
-          ? null
-          : (JSON.parse(
-              await fs.readFile(
-                path.join(plain, part.name + ".family.json"),
-                "utf8",
-              ),
-            ) as K.IStored);
-      const plainRead: ((s: number) => number[]) | null =
-        plainWall === null ? null : K.reader(plainWall);
-      const skinRange: number[] = process.argv
-        .find((argument: string): boolean =>
-          argument.startsWith("--skin-range="),
-        )
-        ?.slice(13)
-        .split("-")
-        .map(Number) ?? [-Infinity, Infinity];
+      const plain: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--plain="))?.slice(8);
+      const plainWall: K.IStored | null = plain === undefined ? null : (JSON.parse(await fs.readFile(path.join(plain, part.name + ".family.json"), "utf8")) as K.IStored);
+      const plainRead: ((s: number) => number[]) | null = plainWall === null ? null : K.reader(plainWall);
+      const skinRange: number[] = process.argv.find((argument: string): boolean => argument.startsWith("--skin-range="))?.slice(13).split("-").map(Number) ?? [-Infinity, Infinity];
       const own = (s: number): C.P[] => {
-        const section: IAutoMovieViewChain.ISection = C.chain(
-          plainRead!(s),
-          plainWall!.layout,
-        );
+        const section: IAutoMovieViewChain.ISection = C.chain(plainRead!(s), plainWall!.layout);
         return Array.from({ length: 1440 }, (_: unknown, j: number): C.P => {
           const phi: number = (2 * Math.PI * j) / 1440;
           const r: number = Q.radius(section, phi);
@@ -3776,108 +2513,37 @@ namespace FamilyConicBody {
         });
       };
       if (part.opening !== undefined) {
-        for (let s: number = domain[0]; s <= domain[1] + 1e-9; s += step / 2)
-          cut(axis.at(s), s);
+        for (let s: number = domain[0]; s <= domain[1] + 1e-9; s += step / 2) cut(axis.at(s), s);
         const bySide: Map<number, { s: number; most: number }[]> = new Map();
-        for (const record of closures)
-          if (record.rho !== undefined)
-            bySide.set(record.rho.side, [
-              ...(bySide.get(record.rho.side) ?? []),
-              { s: record.s, most: record.rho.most },
-            ]);
+        for (const record of closures) if (record.rho !== undefined) bySide.set(record.rho.side, [...(bySide.get(record.rho.side) ?? []), { s: record.s, most: record.rho.most }]);
         closures.length = 0;
-        const smoothed: Map<
-          number,
-          { from: number; to: number; at: (s: number) => number }
-        > = new Map();
+        tubed = true;
+        log("family-body-tube", { part: part.name, wholeSections: wholes.size, from: wholes.size === 0 ? null : Math.min(...wholes.keys()), to: wholes.size === 0 ? null : Math.max(...wholes.keys()) });
+        const smoothed: Map<number, { from: number; to: number; at: (s: number) => number }> = new Map();
         for (const [side, raw] of bySide) {
-          // A closure round the course (`IPart.around`, side 0) is smoothed under its lower envelope over `GAP_MM` either side: smoothed as
+          // A closure round the course (`IPart.around`, side 0, or 2 and -2 where a section has two) is smoothed under its lower envelope over `GAP_MM` either side: smoothed as
           // read, a station whose fullest shoulder fell to 0.04 between neighbours at 0.5 kept its own (the smaller is used) and its closed
           // section's area dipped by 1,200 mm2 (f1's arm at 100 mm).
-          const points: { s: number; most: number }[] =
-            side !== 0
-              ? raw
-              : raw.map((p) => ({
-                  s: p.s,
-                  most: Math.min(
-                    ...raw
-                      .filter((q): boolean => Math.abs(q.s - p.s) <= GAP_MM)
-                      .map((q): number => q.most),
-                  ),
-                }));
-          const from: number = Math.min(...points.map((p) => p.s)),
-            to: number = Math.max(...points.map((p) => p.s));
-          const count: number = Math.max(
-            2,
-            Math.round((to - from) / GAP_MM) + 1,
-          );
-          const knots: number[] = Array.from(
-            { length: count },
-            (_: unknown, k: number): number =>
-              from + ((to - from) * k) / (count - 1),
-          );
-          const cardinals = knots.map((_: number, m: number) =>
-            AutoMovieNaturalSpline.create(
-              knots,
-              knots.map((__: number, k: number): number => (k === m ? 1 : 0)),
-            ),
-          );
-          const rows: number[][] = points.map((p) =>
-            cardinals.map((spline): number =>
-              AutoMovieNaturalSpline.evaluate(spline, p.s),
-            ),
-          );
-          const gram: number[][] = knots.map((_: number, m: number): number[] =>
-            knots.map((__: number, n: number): number =>
-              rows.reduce(
-                (sum: number, r: number[]): number => sum + r[m]! * r[n]!,
-                0,
-              ),
-            ),
-          );
-          const right: number[] = knots.map((_: number, m: number): number =>
-            rows.reduce(
-              (sum: number, r: number[], i: number): number =>
-                sum + r[m]! * points[i]!.most,
-              0,
-            ),
-          );
+          const points: { s: number; most: number }[] = Math.abs(side) === 1 ? raw : raw.map((p) => ({ s: p.s, most: Math.min(...raw.filter((q): boolean => Math.abs(q.s - p.s) <= GAP_MM).map((q): number => q.most)) }));
+          const from: number = Math.min(...points.map((p) => p.s)), to: number = Math.max(...points.map((p) => p.s));
+          const count: number = Math.max(2, Math.round((to - from) / GAP_MM) + 1);
+          const knots: number[] = Array.from({ length: count }, (_: unknown, k: number): number => from + ((to - from) * k) / (count - 1));
+          const cardinals = knots.map((_: number, m: number) => AutoMovieNaturalSpline.create(knots, knots.map((__: number, k: number): number => (k === m ? 1 : 0))));
+          const rows: number[][] = points.map((p) => cardinals.map((spline): number => AutoMovieNaturalSpline.evaluate(spline, p.s)));
+          const gram: number[][] = knots.map((_: number, m: number): number[] => knots.map((__: number, n: number): number => rows.reduce((sum: number, r: number[]): number => sum + r[m]! * r[n]!, 0)));
+          const right: number[] = knots.map((_: number, m: number): number => rows.reduce((sum: number, r: number[], i: number): number => sum + r[m]! * points[i]!.most, 0));
           const values: number[] | null = F.solve(gram, right);
           if (values === null) continue;
           const spline = AutoMovieNaturalSpline.create(knots, values);
-          smoothed.set(side, {
-            from,
-            to,
-            at: (s: number): number =>
-              AutoMovieNaturalSpline.evaluate(spline, s),
-          });
+          smoothed.set(side, { from, to, at: (s: number): number => AutoMovieNaturalSpline.evaluate(spline, s) });
         }
         closureCap = (side: number, s: number): number | undefined => {
           const fitted = smoothed.get(side);
-          return fitted === undefined || s < fitted.from || s > fitted.to
-            ? undefined
-            : fitted.at(s);
+          return fitted === undefined || s < fitted.from || s > fitted.to ? undefined : fitted.at(s);
         };
-      }
-      const targetDir: string | undefined = process.argv
-        .find((argument: string): boolean =>
-          argument.startsWith("--target-wall="),
-        )
-        ?.slice("--target-wall=".length);
-      const targetStored: K.IStored | null =
-        targetDir === undefined ? null : await storedWall(targetDir, part.name);
-      const targetWall: {
-        read: (s: number) => number[];
-        layout: C.ILayout;
-      } | null =
-        targetStored === null
-          ? null
-          : { read: K.reader(targetStored), layout: targetStored.layout };
-      for (
-        let s: number = domain[0], i: number = 0;
-        s <= domain[1] + 1e-9;
-        s += step / 2, ++i
-      ) {
+      }      const targetDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--target-wall="))?.slice("--target-wall=".length);
+      const targetStored: K.IStored | null = targetDir === undefined ? null : await storedWall(targetDir, part.name);
+      const targetWall: { read: (s: number) => number[]; layout: C.ILayout } | null = targetStored === null ? null : { read: K.reader(targetStored), layout: targetStored.layout };      for (let s: number = domain[0], i: number = 0; s <= domain[1] + 1e-9; s += step / 2, ++i) {
         const frame: IAutoMovieLoftSectionFrame = axis.at(s);
         if (plainRead !== null && (s < skinRange[0]! || s > skinRange[1]!)) {
           const points: C.P[] = own(s);
@@ -3888,25 +2554,14 @@ namespace FamilyConicBody {
           continue;
         }
         const cutLoop: C.P[] | null = cut(frame, s);
-        const starred: { points: C.P[]; folds: number } | null =
-          part.skin === undefined || cutLoop === null
-            ? null
-            : X.star(cutLoop, SKIN_RAYS, part.skin);
-        if (part.skin !== undefined && cutLoop !== null)
-          star.push({ s, folds: starred === null ? -1 : starred.folds });
+        const starred: { points: C.P[]; folds: number } | null = part.skin === undefined || cutLoop === null ? null : X.star(cutLoop, SKIN_RAYS, part.skin);
+        if (part.skin !== undefined && cutLoop !== null) star.push({ s, folds: starred === null ? -1 : starred.folds });
         // `--kernels`: each section's kernel point (the centre of its largest inscribed circle) in the world, and how many of 720 rays from
         // it and from the course point cross the section more than once, to lay a course through the kernels before fitting the skin.
         if (process.argv.includes("--kernels") && cutLoop !== null) {
           const core: { point: C.P; clearance: number } = X.kernel(cutLoop);
-          const world: number[] = [0, 1, 2].map(
-            (k: number): number =>
-              frame.origin[k]! +
-              core.point[0] * frame.u[k]! +
-              core.point[1] * frame.v[k]!,
-          );
-          const shifted: C.P[] = cutLoop.map(
-            (p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]],
-          );
+          const world: number[] = [0, 1, 2].map((k: number): number => frame.origin[k]! + core.point[0] * frame.u[k]! + core.point[1] * frame.v[k]!);
+          const shifted: C.P[] = cutLoop.map((p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]]);
           // And its area centroid, steadier than the kernel along a long thin section whose inscribed circles all touch both faces.
           let area: number = 0;
           const sum: C.P = [0, 0];
@@ -3918,15 +2573,8 @@ namespace FamilyConicBody {
             sum[1] += (p[1] + q[1]) * cross;
           });
           const centre: C.P = [sum[0] / (3 * area), sum[1] / (3 * area)];
-          const centroid: number[] = [0, 1, 2].map(
-            (k: number): number =>
-              frame.origin[k]! +
-              centre[0] * frame.u[k]! +
-              centre[1] * frame.v[k]!,
-          );
-          const around: C.P[] = cutLoop.map(
-            (p: C.P): C.P => [p[0] - centre[0], p[1] - centre[1]],
-          );
+          const centroid: number[] = [0, 1, 2].map((k: number): number => frame.origin[k]! + centre[0] * frame.u[k]! + centre[1] * frame.v[k]!);
+          const around: C.P[] = cutLoop.map((p: C.P): C.P => [p[0] - centre[0], p[1] - centre[1]]);
           // The angle of its long axis from the chart's `u` toward `v`, radians: the principal axis of its vertices' second moments about the
           // centroid, read on (-pi/2, pi/2]; a part's roll (`IPart.roll`) is laid through these.
           let [xx, yy, xy]: number[] = [0, 0, 0];
@@ -3936,93 +2584,33 @@ namespace FamilyConicBody {
             xy! += p[0] * p[1];
           }
           const principal: number = 0.5 * Math.atan2(2 * xy!, xx! - yy!);
-          log("family-body-kernel", {
-            part: part.name,
-            s,
-            kernel: world.map(round),
-            clearanceMm: round(core.clearance),
-            foldsFromKernel: X.star(shifted, SKIN_RAYS, "inner")?.folds ?? -1,
-            centroid: centroid.map(round),
-            centroidInChart: centre.map(round),
-            principal: round(principal),
-            foldsFromCentroid: X.star(around, SKIN_RAYS, "inner")?.folds ?? -1,
-            foldsFromCourse: X.star(cutLoop, SKIN_RAYS, "inner")?.folds ?? -1,
-          });
+          log("family-body-kernel", { part: part.name, s, kernel: world.map(round), clearanceMm: round(core.clearance), foldsFromKernel: X.star(shifted, SKIN_RAYS, "inner")?.folds ?? -1, centroid: centroid.map(round), centroidInChart: centre.map(round), principal: round(principal), foldsFromCentroid: X.star(around, SKIN_RAYS, "inner")?.folds ?? -1, foldsFromCourse: X.star(cutLoop, SKIN_RAYS, "inner")?.folds ?? -1 });
         }
         // `--dump-sections=<file>`: every station's section in its chart, as the fit would read it, to draw.
-        if (
-          process.argv.some((a: string): boolean =>
-            a.startsWith("--dump-sections="),
-          )
-        )
-          dumped.push({ s, loop: cutLoop });
+        if (process.argv.some((a: string): boolean => a.startsWith("--dump-sections="))) dumped.push({ s, loop: cutLoop });
         // A section whose rays fold (`IPart.folded` `hull`) is fitted as its hull, the tape, and its folds are left to the reliefs: on the trunk the
         // armpit, the shoulders' tops, under the chin, the lip's corners, the ear's root and the lids, 91 of 885 sections; skipped, the face had
         // no section from 750 to 830 mm.
-        const loop: C.P[] | null =
-          part.skin === undefined
-            ? cutLoop
-            : part.hullFrom !== undefined &&
-                s >= part.hullFrom &&
-                cutLoop !== null
-              ? R.hull(cutLoop)
-              : (starred?.points ??
-                (part.folded === "hull" && cutLoop !== null
-                  ? R.hull(cutLoop)
-                  : null));
+        const loop: C.P[] | null = part.skin === undefined ? cutLoop : part.hullFrom !== undefined && s >= part.hullFrom && cutLoop !== null ? R.hull(cutLoop) : (starred?.points ?? (part.folded === "hull" && cutLoop !== null ? R.hull(cutLoop) : null));
         // `--seeds` with `--seed-stations=<s>,<s>...`: at those stations, the outer-skin reading and the hull along the front and back
         // median rays (phases 0 and pi), how many rays fold, and which of the two the fitted section is.
-        const seedStations: number[] = (
-          process.argv
-            .find((a: string): boolean => a.startsWith("--seed-stations="))
-            ?.slice("--seed-stations=".length) ?? ""
-        )
-          .split(",")
-          .filter((x: string): boolean => x.length > 0)
-          .map(Number);
-        if (
-          process.argv.includes("--seeds") &&
-          cutLoop !== null &&
-          seedStations.some((x: number): boolean => Math.abs(x - s) < 0.26)
-        ) {
-          const outer: { points: C.P[]; folds: number } | null = X.star(
-            cutLoop,
-            SKIN_RAYS,
-            "outer",
-          );
+        const seedStations: number[] = (process.argv.find((a: string): boolean => a.startsWith("--seed-stations="))?.slice("--seed-stations=".length) ?? "").split(",").filter((x: string): boolean => x.length > 0).map(Number);
+        if (process.argv.includes("--seeds") && cutLoop !== null && seedStations.some((x: number): boolean => Math.abs(x - s) < 0.26)) {
+          const outer: { points: C.P[]; folds: number } | null = X.star(cutLoop, SKIN_RAYS, "outer");
           const hull: C.P[] = R.hull(cutLoop);
-          const along = (
-            points: readonly C.P[] | undefined,
-            phi: number,
-          ): string =>
-            points === undefined ? "-" : C.radius(points, phi).toFixed(1);
-          process.stderr.write(
-            `station ${s}: outer reading ${outer === null ? "none" : `folds ${outer.folds}`}; front median (phase 0) outer ${along(outer?.points, 0)} hull ${along(hull, 0)}; back median (phase pi) outer ${along(outer?.points, Math.PI)} hull ${along(hull, Math.PI)}; fitted as ${starred !== null ? "the outer reading" : loop === null ? "nothing" : "its hull"}\n`,
-          );
+          const along = (points: readonly C.P[] | undefined, phi: number): string => (points === undefined ? "-" : C.radius(points, phi).toFixed(1));
+          process.stderr.write(`station ${s}: outer reading ${outer === null ? "none" : `folds ${outer.folds}`}; front median (phase 0) outer ${along(outer?.points, 0)} hull ${along(hull, 0)}; back median (phase pi) outer ${along(outer?.points, Math.PI)} hull ${along(hull, Math.PI)}; fitted as ${starred !== null ? "the outer reading" : loop === null ? "nothing" : "its hull"}\n`);
         }
         if (loop === null) skipped.push(s);
         else if (part.skin !== undefined) {
           // Fitted to the skin itself: its concavities are the wall's own inward arcs, between inflection anchors (`inflected`). A guided
           // excursion's invented closure, every point behind both of the skin's ends, is not skin (`F.IRow.free`).
           const cutEnds: [C.P, C.P] | null = ends as [C.P, C.P] | null;
-          const behind: number | null =
-            cutEnds === null ? null : Math.min(cutEnds[0][0], cutEnds[1][0]);
+          const behind: number | null = cutEnds === null ? null : Math.min(cutEnds[0][0], cutEnds[1][0]);
           // A plate is a long thin lens, read square to its wall (`FamilyConicFit.IRow.normal`).
           // The phases a closure across the part's opening spans at this station (`without`): not skin, so no extreme is read there.
-          const opening: [number, number][] = closures
-            .filter((c): boolean => c.s === s && c.span !== undefined)
-            .map((c): [number, number] => c.span!);
-          rows.push({
-            s,
-            points: loop,
-            heldout: i % 2 === 1,
-            ...(behind === null
-              ? {}
-              : { free: (p: C.P): boolean => p[0] < behind - 0.01 }),
-            ...(part.plate === undefined ? {} : { normal: true }),
-            ...(opening.length === 0 ? {} : { opening }),
-            ...(part.fairMm === undefined ? {} : { fairMm: part.fairMm }),
-          });
+          const opening: [number, number][] = closures.filter((c): boolean => c.s === s && c.span !== undefined).map((c): [number, number] => c.span!);
+          rows.push({ s, points: loop, heldout: i % 2 === 1, ...(behind === null ? {} : { free: (p: C.P): boolean => p[0] < behind - 0.01 }), ...(part.plate === undefined ? {} : { normal: true }), ...(opening.length === 0 ? {} : { opening }), ...(part.fairMm === undefined ? {} : { fairMm: part.fairMm }) });
           invented.push(part.air === undefined ? null : inventedOf(loop));
           skins.push(loop);
           loops.push(loop);
@@ -4031,57 +2619,29 @@ namespace FamilyConicBody {
           // A loose part is measured against that hull as well: its loop need not be star-shaped about the course.
           // A loose part's section is closed by its clip's straight chords, and a hull edge carries no vertex between its ends, so a wall
           // fitted to the vertices alone bulged past a long chord unseen: the nose's, closed at the top of its box, stood 10 mm above it.
-          // Along a loose part's hull every edge carries a point at least every millimetre.
-          const wall: C.P[] =
-            part.loose === true
-              ? R.hull(loop).flatMap(
-                  (p: C.P, k: number, hull: C.P[]): C.P[] => {
-                    const q: C.P = hull[(k + 1) % hull.length]!;
-                    const pieces: number = Math.max(
-                      1,
-                      Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])),
-                    );
-                    return Array.from(
-                      { length: pieces },
-                      (_: unknown, t: number): C.P => [
-                        p[0] + ((q[0] - p[0]) * t) / pieces,
-                        p[1] + ((q[1] - p[1]) * t) / pieces,
-                      ],
-                    );
-                  },
-                )
-              : R.hull(loop);
+          // Along a loose part's hull every edge carries a point at least every millimetre. So does a part's closed across an opening
+          // (`IPart.around`): where its closed loop is hollow between two closures the hull bridges it by one edge, and the seed's arc
+          // across that edge had no point on it for 9.8 to 10.2 mm (f1's middle finger at 14.5 and 16.5 mm, meetings 0.082 to 0.095).
+          const wall: C.P[] = part.loose === true || part.around !== undefined ? R.hull(loop).flatMap((p: C.P, k: number, hull: C.P[]): C.P[] => {
+            const q: C.P = hull[(k + 1) % hull.length]!;
+            const pieces: number = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1])));
+            return Array.from({ length: pieces }, (_: unknown, t: number): C.P => [p[0] + ((q[0] - p[0]) * t) / pieces, p[1] + ((q[1] - p[1]) * t) / pieces]);
+          }) : R.hull(loop);
           // `--target-wall=<directory>`: the section fitted is the stored wall's own outside the part's opening at this station (its
           // closures' phase spans, `without`) and the cut section only inside it, so a window refit reproduces the stored wall on visible
           // skin and changes only the opening (construction.md, Repair: a region's fix stays within the region).
-          const spans: [number, number][] = closures
-            .filter((c): boolean => c.s === s && c.span !== undefined)
-            .map((c): [number, number] => c.span!);
-          const within = (phi: number): boolean =>
-            spans.some(([a, b]: [number, number]): boolean => {
-              const span: number =
-                (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-              const off: number =
-                (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-              return off > 1e-9 && off < span - 1e-9;
-            });
-          const targetSection: IAutoMovieViewChain.ISection | null =
-            targetWall === null
-              ? null
-              : C.chain(targetWall.read(s), targetWall.layout);
-          const fitted: C.P[] =
-            targetSection === null || targetSection.fault !== null
-              ? wall
-              : Array.from(
-                  { length: SKIN_RAYS },
-                  (_: unknown, k: number): C.P => {
-                    const phi: number = (2 * Math.PI * k) / SKIN_RAYS;
-                    const r: number = within(phi)
-                      ? C.radius(wall, phi)
-                      : Q.radius(targetSection, phi);
-                    return [r * Math.cos(phi), r * Math.sin(phi)];
-                  },
-                );
+          const spans: [number, number][] = closures.filter((c): boolean => c.s === s && c.span !== undefined).map((c): [number, number] => c.span!);
+          const within = (phi: number): boolean => spans.some(([a, b]: [number, number]): boolean => {
+            const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            const off: number = (((phi - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            return off > 1e-9 && off < span - 1e-9;
+          });
+          const targetSection: IAutoMovieViewChain.ISection | null = targetWall === null ? null : C.chain(targetWall.read(s), targetWall.layout);
+          const fitted: C.P[] = targetSection === null || targetSection.fault !== null ? wall : Array.from({ length: SKIN_RAYS }, (_: unknown, k: number): C.P => {
+            const phi: number = (2 * Math.PI * k) / SKIN_RAYS;
+            const r: number = within(phi) ? C.radius(wall, phi) : Q.radius(targetSection, phi);
+            return [r * Math.cos(phi), r * Math.sin(phi)];
+          });
           // A part closed round its course (`IPart.around`): its closure is invented, not skin, so its points are no observations; the wall
           // across them is held only to stay on the parent's side of the opening (`F.IRow.side`). Its extremes may still be read on the
           // closure for the start: with none read there (`F.IRow.opening`), the closure's 274 to 303 degrees left the first sections' seeds
@@ -4089,145 +2649,55 @@ namespace FamilyConicBody {
           // data, the closure filled 274 to 303 degrees of the arm's first sections, and the joint fit pinned a shoulder at the first
           // station to 5e-5 to follow it, every step that would move it refused (18 mm at 11 knots, against 6.2 mm on skin alone).
           const closing = (p: C.P): boolean => within(Math.atan2(p[1], p[0]));
-          rows.push({
-            s,
-            points: fitted,
-            heldout: i % 2 === 1,
-            ...(part.around === undefined || spans.length === 0
-              ? {}
-              : {
-                  free: closing,
-                  side: (p: C.P): number =>
-                    part.opening!(chartToWorld(frame, p)),
-                }),
-          });
+          rows.push({ s, points: fitted, heldout: i % 2 === 1, ...(part.around === undefined || spans.length === 0 ? {} : { free: closing, side: (p: C.P): number => part.opening!(chartToWorld(frame, p)) }) });
           invented.push(null);
           // A loose part's wall is its section's hull, and so was its skin, which left the hollow search nothing to find. Where hollow
           // windows are asked for (`reliefs: "auto"`), the skin is the clipped loop itself, or for a part that surrounds its pieces the
           // largest piece, and a hollow's depth is read in the section's plane along the tape's inward normal, the distance to the hull:
           // a C-shaped section's hollows open along the C, not toward its course.
-          const own: C.P[] =
-            part.loose === true && part.reliefs === "auto"
-              ? (piece ?? loop)
-              : loop;
-          skins.push(
-            part.loose === true &&
-              (part.surround === undefined || s >= part.surround.from) &&
-              part.reliefs !== "auto"
-              ? wall
-              : own,
-          );
+          const own: C.P[] = part.loose === true && part.reliefs === "auto" ? (piece ?? loop) : loop;
+          skins.push(part.loose === true && (part.surround === undefined || s >= part.surround.from) && part.reliefs !== "auto" ? wall : own);
           loops.push(loop);
           let deepest: number = 0;
           let where: number = 0;
           for (const p of own) {
             const phi: number = Math.atan2(p[1], p[0]);
-            const depth: number =
-              part.loose === true && part.reliefs === "auto"
-                ? inward(wall, p)
-                : C.radius(wall, phi) - Math.hypot(p[0], p[1]);
+            const depth: number = part.loose === true && part.reliefs === "auto" ? inward(wall, p) : C.radius(wall, phi) - Math.hypot(p[0], p[1]);
             if (depth > deepest) {
               deepest = depth;
               where = phi;
             }
           }
-          hollows.push(
-            s.toFixed(0) +
-              ":" +
-              deepest.toFixed(1) +
-              "@" +
-              ((where * 180) / Math.PI).toFixed(0),
-          );
+          hollows.push(s.toFixed(0) + ":" + deepest.toFixed(1) + "@" + ((where * 180) / Math.PI).toFixed(0));
         }
       }
       // A plate's lens is read off each section's landmarks, and where a plane also cuts a limb of the rim (the helix's front limb near its
       // top) the outermost point jumps to it and the lens is three times as long as its neighbours'. Such a section is no reading of the
       // plate: a row whose lens's area stands more than a third off the median of the rows within 4 mm either side is withheld.
       if (part.plate !== undefined) {
-        const area = (loop: readonly C.P[]): number =>
-          Math.abs(
-            loop.reduce(
-              (sum: number, p: C.P, k: number): number =>
-                sum +
-                p[0] * loop[(k + 1) % loop.length]![1] -
-                loop[(k + 1) % loop.length]![0] * p[1],
-              0,
-            ),
-          ) / 2;
-        const areas: number[] = rows.map((row: F.IRow): number =>
-          area(row.points),
-        );
+        const area = (loop: readonly C.P[]): number => Math.abs(loop.reduce((sum: number, p: C.P, k: number): number => sum + p[0] * loop[(k + 1) % loop.length]![1] - loop[(k + 1) % loop.length]![0] * p[1], 0)) / 2;
+        const areas: number[] = rows.map((row: F.IRow): number => area(row.points));
         const odd: Set<number> = new Set(
           rows
             .map((row: F.IRow, k: number): [number, number] => {
-              const near: number[] = rows
-                .map((other: F.IRow, j: number): number =>
-                  Math.abs(other.s - row.s) <= 4 ? areas[j]! : NaN,
-                )
-                .filter(Number.isFinite)
-                .sort((a: number, b: number): number => a - b);
-              return [
-                k,
-                Math.abs(areas[k]! / near[Math.floor(near.length / 2)]! - 1),
-              ];
+              const near: number[] = rows.map((other: F.IRow, j: number): number => (Math.abs(other.s - row.s) <= 4 ? areas[j]! : NaN)).filter(Number.isFinite).sort((a: number, b: number): number => a - b);
+              return [k, Math.abs(areas[k]! / near[Math.floor(near.length / 2)]! - 1)];
             })
             .filter(([, off]: [number, number]): boolean => off > 1 / 3)
             .map(([k]: [number, number]): number => k),
         );
-        if (odd.size > 0)
-          log("family-body-plate-odd", {
-            part: part.name,
-            withheld: [...odd].map((k: number): number => rows[k]!.s),
-          });
+        if (odd.size > 0) log("family-body-plate-odd", { part: part.name, withheld: [...odd].map((k: number): number => rows[k]!.s) });
         // The skin and loop lists run beside the rows, one entry each.
         for (const list of [rows, skins, loops] as unknown[][]) {
-          const kept: unknown[] = list.filter(
-            (_: unknown, k: number): boolean => !odd.has(k),
-          );
+          const kept: unknown[] = list.filter((_: unknown, k: number): boolean => !odd.has(k));
           list.length = 0;
           list.push(...kept);
         }
       }
-      const dump: string | undefined = process.argv
-        .find((a: string): boolean => a.startsWith("--dump-sections="))
-        ?.slice("--dump-sections=".length);
+      const dump: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--dump-sections="))?.slice("--dump-sections=".length);
       if (dump !== undefined) await fs.writeFile(dump, JSON.stringify(dumped));
-      if (part.skin !== undefined)
-        log("family-body-star", {
-          part: part.name,
-          sections: star.length,
-          refused: star
-            .filter((r): boolean => r.folds !== 0)
-            .map(
-              (r): string =>
-                r.s.toFixed(1) + (r.folds < 0 ? ":outside" : ":" + r.folds),
-            ),
-        });
-      if (part.opening !== undefined)
-        log("family-body-opening", {
-          part: part.name,
-          sections: new Set(closures.map((c): number => c.s)).size,
-          from: closures[0]?.s ?? null,
-          to: closures.at(-1)?.s ?? null,
-          conic: closures.filter((c): boolean => c.kind === "conic").length,
-          s: closures.filter((c): boolean => c.kind === "s").length,
-          around: closures.filter((c): boolean => c.kind === "around").length,
-          chord: closures
-            .filter((c): boolean => c.kind === "chord")
-            .map((c): number => c.s),
-          short: closures
-            .filter((c): boolean => c.kind === "short")
-            .map((c): number => c.s),
-          outside: closures
-            .filter((c): boolean => c.kind === "outside")
-            .map((c): string => `${c.s} ${c.detail ?? ""}`),
-          shoulders: closures
-            .filter((c): boolean => c.rho !== undefined)
-            .map(
-              (c): string =>
-                `${c.s}${c.rho!.side > 0 ? "+" : "-"}:${c.rho!.most.toFixed(2)}/${c.rho!.used.toFixed(2)}`,
-            ),
-        });
+      if (part.skin !== undefined) log("family-body-star", { part: part.name, sections: star.length, refused: star.filter((r): boolean => r.folds !== 0).map((r): string => r.s.toFixed(1) + (r.folds < 0 ? ":outside" : ":" + r.folds)) });
+      if (part.opening !== undefined) log("family-body-opening", { part: part.name, sections: new Set(closures.map((c): number => c.s)).size, from: closures[0]?.s ?? null, to: closures.at(-1)?.s ?? null, conic: closures.filter((c): boolean => c.kind === "conic").length, s: closures.filter((c): boolean => c.kind === "s").length, around: closures.filter((c): boolean => c.kind === "around").length, chord: closures.filter((c): boolean => c.kind === "chord").map((c): number => c.s), short: closures.filter((c): boolean => c.kind === "short").map((c): number => c.s), outside: closures.filter((c): boolean => c.kind === "outside").map((c): string => `${c.s} ${c.detail ?? ""}`), shoulders: closures.filter((c): boolean => c.rho !== undefined).map((c): string => `${c.s}${c.rho!.side > 0 ? "+" : "-"}:${c.rho!.most.toFixed(2)}/${c.rho!.used.toFixed(2)}`) });
       // A part closed round its course (`IPart.around`): every fitted section's closure, how far inside its hull the course point stands
       // (the tape wall reads radii round it), how many of its points step back in polar angle about it, and whether its own seed is a conic
       // chain the fit admits.
@@ -4235,64 +2705,80 @@ namespace FamilyConicBody {
         // The seeds are read as the fit reads them (`F.ownSeeds`, on these very rows with their openings, at every layout the part is
         // fitted with) and judged as the fit judges a start: a conic chain whose tangents meet at the fit's margin or more. Read alone and
         // without the rows' openings, they were reported admitted while the run's start was refused at every station from 24 to 103 mm.
-        const fitting: F.IRow[] = rows.filter(
-          (row: F.IRow): boolean => !row.heldout,
-        );
-        const judged: Map<number, string> = new Map(
-          fitting.map((row: F.IRow): [number, string] => [row.s, "yes"]),
-        );
+        const fitting: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout);
+        const judged: Map<number, string> = new Map(fitting.map((row: F.IRow): [number, string] => [row.s, "yes"]));
+        // Of each refused row, the first layout's seed that refused it: its anchors, their tangents and each arc's meeting, to be drawn and
+        // read by arc (`--draw-closed`), since "least meeting" alone does not say whether the arc lies on the closure, on the skin or on
+        // an edge of the hull between them.
+        const refusedSeeds: Map<number, { fields: number; points: number[][]; tangents: number[][]; meetings: number[] }> = new Map();
         for (const { layout } of part.layouts) {
           let own: number[][];
           try {
-            own = F.ownSeeds(
-              fitting,
-              layout,
-              part.margin ?? F.ADMISSIBLE_MARGIN,
-            );
+            own = F.ownSeeds(fitting, layout, part.margin ?? F.ADMISSIBLE_MARGIN);
           } catch (error: unknown) {
-            for (const row of fitting)
-              if (judged.get(row.s) === "yes")
-                judged.set(
-                  row.s,
-                  `${C.units(layout).length} fields: ${error instanceof Error ? error.message : String(error)}`.slice(
-                    0,
-                    100,
-                  ),
-                );
+            for (const row of fitting) if (judged.get(row.s) === "yes") judged.set(row.s, `${C.units(layout).length} fields: ${error instanceof Error ? error.message : String(error)}`.slice(0, 100));
             continue;
           }
           fitting.forEach((row: F.IRow, i: number): void => {
             const fault: string | null = C.chain(own[i]!, layout).fault;
-            const least: number =
-              fault === null
-                ? Math.min(...F.leastMeetings(own[i]!, layout))
-                : -Infinity;
-            if (
-              judged.get(row.s) === "yes" &&
-              (fault !== null ||
-                !(least >= (part.margin ?? F.ADMISSIBLE_MARGIN)))
-            )
-              judged.set(
-                row.s,
-                `${C.units(layout).length} fields: ${fault ?? "least meeting " + least.toFixed(4)}`.slice(
-                  0,
-                  100,
-                ),
-              );
+            const least: number = fault === null ? Math.min(...F.leastMeetings(own[i]!, layout)) : -Infinity;
+            if (judged.get(row.s) === "yes" && (fault !== null || !(least >= (part.margin ?? F.ADMISSIBLE_MARGIN)))) {
+              judged.set(row.s, `${C.units(layout).length} fields: ${fault ?? "least meeting " + least.toFixed(4)}`.slice(0, 100));
+              if (fault === null) {
+                const input = C.resolve([...own[i]!], layout).input;
+                refusedSeeds.set(row.s, { fields: C.units(layout).length, points: input.points as number[][], tangents: input.tangents as number[][], meetings: F.leastMeetings(own[i]!, layout) });
+              }
+            }
           });
+        }
+        // `--draw-closed=<directory>`: every refused fitting section drawn in its chart, one frame a station (`<part>.closed.<s>.png`):
+        // the closed loop as cut (grey), the points the fit reads (the tape wall's, black where they are skin and blue where they are the
+        // invented closure), the refused seed's anchors with their tangents (green ticks, 3 mm) and each arc under the margin as its
+        // chord (red); a 5 mm tick from the course point along the chart's +u (orange). And by arc under the margin: its ends' phases,
+        // its chord, its meeting, how many of the fit's points lie between its ends and how many of those are closure - so a refusal
+        // is read as the closure's, the skin's, or a hull edge's between them.
+        const drawClosed: string | undefined = process.argv.find((a: string): boolean => a.startsWith("--draw-closed="))?.slice("--draw-closed=".length);
+        if (drawClosed !== undefined) {
+          NodeCanvasRaster.initialize();
+          const degrees = (p: readonly number[]): number => Math.round((((Math.atan2(p[1]!, p[0]!) * 180) / Math.PI) % 360 + 360) % 360);
+          const metre = (p: readonly number[]): N.Point => [0, p[1]! / 1000, p[0]! / 1000];
+          for (const row of fitting) {
+            const seed = refusedSeeds.get(row.s);
+            if (seed === undefined) continue;
+            const margin: number = part.margin ?? F.ADMISSIBLE_MARGIN;
+            const under: number[] = seed.meetings.map((m: number, j: number): number => (m >= margin ? -1 : j)).filter((j: number): boolean => j >= 0);
+            const between = (j: number): { all: number; closure: number; longestGapMm: number } => {
+              const [a, b]: number[] = [Math.atan2(seed.points[j]![1]!, seed.points[j]![0]!), Math.atan2(seed.points[(j + 1) % seed.points.length]![1]!, seed.points[(j + 1) % seed.points.length]![0]!)];
+              const span: number = (((b - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+              const inside: C.P[] = row.points.filter((p: C.P): boolean => (((Math.atan2(p[1], p[0]) - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) < span).sort((p: C.P, q: C.P): number => ((((Math.atan2(p[1], p[0]) - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - ((((Math.atan2(q[1], q[0]) - a) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)));
+              const chain: number[][] = [seed.points[j]!, ...inside, seed.points[(j + 1) % seed.points.length]!];
+              return { all: inside.length, closure: inside.filter((p: C.P): boolean => row.free?.(p) === true).length, longestGapMm: round(Math.max(...chain.slice(1).map((p: number[], k: number): number => Math.hypot(p[0]! - chain[k]![0]!, p[1]! - chain[k]![1]!)))) };
+            };
+            log("family-body-refused-arcs", { part: part.name, s: row.s, fields: seed.fields, arcs: under.map((j: number): { arc: number; fromDeg: number; toDeg: number; chordMm: number; meeting: number; all: number; closure: number; longestGapMm: number } => ({ arc: j, fromDeg: degrees(seed.points[j]!), toDeg: degrees(seed.points[(j + 1) % seed.points.length]!), chordMm: round(Math.hypot(seed.points[(j + 1) % seed.points.length]![0]! - seed.points[j]![0]!, seed.points[(j + 1) % seed.points.length]![1]! - seed.points[j]![1]!)), meeting: Math.round(seed.meetings[j]! * 1e4) / 1e4, ...between(j) })) });
+            const whole: C.P[] = loops[rows.indexOf(row)]!;
+            const dots = (points: readonly C.P[], id: string, colour: string): N.Curve[] => points.map((p: C.P, k: number): N.Curve => ({ id: `${id}.${k}`, points: [metre([p[0] - 0.12, p[1]]), metre([p[0] + 0.12, p[1]]), metre([p[0], p[1] + 0.12]), metre([p[0], p[1] - 0.12])], closed: true, colour }));
+            const curves: N.Curve[] = [
+              { id: "loop", points: whole.map(metre), closed: true, colour: "9a9a9a" },
+              ...dots(row.points.filter((p: C.P): boolean => row.free?.(p) !== true), "skin", "202020"),
+              ...dots(row.points.filter((p: C.P): boolean => row.free?.(p) === true), "closure", "2f62c8"),
+              ...seed.points.map((p: number[], j: number): N.Curve => {
+                const n: number = Math.hypot(seed.tangents[j]![0]!, seed.tangents[j]![1]!) || 1;
+                return { id: `anchor.${j}`, points: [metre([p[0]! - (1.5 * seed.tangents[j]![0]!) / n, p[1]! - (1.5 * seed.tangents[j]![1]!) / n]), metre([p[0]! + (1.5 * seed.tangents[j]![0]!) / n, p[1]! + (1.5 * seed.tangents[j]![1]!) / n])], closed: false, colour: "1f9d3a" };
+              }),
+              ...under.map((j: number): N.Curve => ({ id: `under.${j}`, points: [metre(seed.points[j]!), metre(seed.points[(j + 1) % seed.points.length]!)], closed: false, colour: "d02020" })),
+              { id: "u", points: [metre([0, 0]), metre([5, 0])], closed: false, colour: "e08a1c" },
+            ];
+            const camera: N.Camera = NodeCanvasCamera.fit("front", [...whole, ...row.points].map(metre), 900, 900);
+            await fs.writeFile(path.join(drawClosed, `${part.name}.closed.${row.s}.png`), NodeCanvasRaster.render(camera, [], curves, "xray", `f1 | ${part.name} section at ${row.s} mm in its chart; skin black, closure blue, seed green, arcs under the margin red, +u orange`).png);
+          }
         }
         for (const row of rows) {
           if (row.heldout) continue;
           const hull: C.P[] = R.hull(row.points);
-          const clearance: number = Math.min(
-            ...hull.map((p: C.P, k: number): number => {
-              const q: C.P = hull[(k + 1) % hull.length]!;
-              return (
-                (p[0] * q[1] - p[1] * q[0]) /
-                (Math.hypot(q[0] - p[0], q[1] - p[1]) || 1)
-              );
-            }),
-          );
+          const clearance: number = Math.min(...hull.map((p: C.P, k: number): number => {
+            const q: C.P = hull[(k + 1) % hull.length]!;
+            return (p[0] * q[1] - p[1] * q[0]) / (Math.hypot(q[0] - p[0], q[1] - p[1]) || 1);
+          }));
           const index: number = rows.indexOf(row);
           const loop: C.P[] = loops[index]!;
           let against: number = 0;
@@ -4301,46 +2787,14 @@ namespace FamilyConicBody {
             if (p[0] * q[1] - p[1] * q[0] <= 0) ++against;
           });
           const admitted: string = judged.get(row.s) ?? "yes";
-          const closure = closures.find(
-            (c): boolean => c.s === row.s && c.kind !== "short",
-          );
+          const closure = closures.find((c): boolean => c.s === row.s && c.kind !== "short");
           // The closure's span in the chart, from the skin's exit to its entry, degrees counter-clockwise from +u.
-          const spanDeg: number[] | null =
-            closure?.span === undefined
-              ? null
-              : closure.span.map((a: number): number =>
-                  Math.round(((((a * 180) / Math.PI) % 360) + 360) % 360),
-                );
-          log("family-body-closed", {
-            part: part.name,
-            s: row.s,
-            closure:
-              closure === undefined ? "none" : (closure.detail ?? closure.kind),
-            spanDeg,
-            clearanceMm: round(clearance),
-            against,
-            admitted,
-          });
+          const spanDeg: number[] | null = closure?.span === undefined ? null : closure.span.map((a: number): number => Math.round((((a * 180) / Math.PI) % 360 + 360) % 360));
+          log("family-body-closed", { part: part.name, s: row.s, closure: closure === undefined ? "none" : (closure.detail ?? closure.kind), spanDeg, clearanceMm: round(clearance), against, admitted });
         }
       }
-      log("family-body-hollows", {
-        part: part.name,
-        deepestMmAtDegrees: hollows
-          .filter((_: string, i: number): boolean => i % 6 === 0)
-          .join(" "),
-      });
-      log("family-body-observed", {
-        part: part.name,
-        sections: rows.length,
-        skipped,
-        ...(missed.size === 0
-          ? {}
-          : {
-              missed: [...missed.entries()].map(
-                ([s, why]: [number, string]): string => `${s}: ${why}`,
-              ),
-            }),
-      });
+      log("family-body-hollows", { part: part.name, deepestMmAtDegrees: hollows.filter((_: string, i: number): boolean => i % 6 === 0).join(" ") });
+      log("family-body-observed", { part: part.name, sections: rows.length, skipped, ...(missed.size === 0 ? {} : { missed: [...missed.entries()].map(([s, why]: [number, string]): string => `${s}: ${why}`) }) });
       // `--precheck`: the sections and their tables alone, no fit.
       if (process.argv.includes("--precheck")) continue;
 
@@ -4349,144 +2803,31 @@ namespace FamilyConicBody {
       // - admissibility: how many sections' own seeds are no conic chain, and the first refusal;
       // - longitudinal capacity: the joint fit on the seed's knots (`--seed`), then on twice and four times as many (each interval halved);
       // - weighting: each fit's misfit by 50 mm band of stations, and training against withheld.
-      if (
-        process.argv.includes("--diagnose") ||
-        process.argv.includes("--diagnose-alone")
-      ) {
+      if (process.argv.includes("--diagnose") || process.argv.includes("--diagnose-alone")) {
         const layout: C.ILayout = part.layouts[0]!.layout;
-        const train: F.IRow[] = rows.filter(
-          (row: F.IRow): boolean => !row.heldout,
-        );
-        const alone = train
-          .filter((_: F.IRow, i: number): boolean => i % 10 === 0)
-          .map((row: F.IRow): string => {
-            const result: F.IResult = F.fit(
-              [row, { ...row, s: row.s + 1 }],
-              [row.s, row.s + 1],
-              layout,
-              4,
-            );
-            return (
-              row.s.toFixed(0) +
-              ":" +
-              (result.fault === null
-                ? result.training.maximumMm.toFixed(2) +
-                  "/" +
-                  result.training.meanMm.toFixed(2)
-                : "fault(" + String(result.fault).slice(0, 90) + ")")
-            );
-          });
-        log("family-body-diagnose-alone", {
-          part: part.name,
-          sections: alone.join(" "),
+        const train: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout);
+        const alone = train.filter((_: F.IRow, i: number): boolean => i % 10 === 0).map((row: F.IRow): string => {
+          const result: F.IResult = F.fit([row, { ...row, s: row.s + 1 }], [row.s, row.s + 1], layout, 4);
+          return row.s.toFixed(0) + ":" + (result.fault === null ? result.training.maximumMm.toFixed(2) + "/" + result.training.meanMm.toFixed(2) : "fault(" + String(result.fault).slice(0, 90) + ")");
         });
-        const refusals: string[] = train
-          .map(
-            (row: F.IRow): string | null =>
-              C.chain(C.seed(row.points, layout), layout).fault,
-          )
-          .filter((x: string | null): x is string => x !== null);
-        log("family-body-diagnose-seeds", {
-          part: part.name,
-          refused: refusals.length,
-          of: train.length,
-          first: refusals[0] ?? null,
-        });
-        const seedDir: string | undefined = process.argv
-          .find((argument: string): boolean => argument.startsWith("--seed="))
-          ?.slice(7);
-        const wall: K.IStored | null =
-          seedDir === undefined
-            ? null
-            : (JSON.parse(
-                await fs.readFile(
-                  path.join(seedDir, part.name + ".family.json"),
-                  "utf8",
-                ),
-              ) as K.IStored);
-        let knots: number[] =
-          wall === null
-            ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]]
-            : [
-                domain[0],
-                ...wall.knots.filter(
-                  (k: number): boolean =>
-                    k > domain[0] + 1 && k < domain[1] - 1,
-                ),
-                domain[1],
-              ];
-        for (const times of process.argv.includes("--diagnose-alone")
-          ? []
-          : [1, 2, 4]) {
+        log("family-body-diagnose-alone", { part: part.name, sections: alone.join(" ") });
+        const refusals: string[] = train.map((row: F.IRow): string | null => C.chain(C.seed(row.points, layout), layout).fault).filter((x: string | null): x is string => x !== null);
+        log("family-body-diagnose-seeds", { part: part.name, refused: refusals.length, of: train.length, first: refusals[0] ?? null });
+        const seedDir: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--seed="))?.slice(7);
+        const wall: K.IStored | null = seedDir === undefined ? null : (JSON.parse(await fs.readFile(path.join(seedDir, part.name + ".family.json"), "utf8")) as K.IStored);
+        let knots: number[] = wall === null ? [domain[0], (domain[0] + domain[1]) / 2, domain[1]] : [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + 1 && k < domain[1] - 1), domain[1]];
+        for (const times of process.argv.includes("--diagnose-alone") ? [] : [1, 2, 4]) {
           const result: F.IResult = F.fit(rows, knots, layout, 4);
           const bands: Map<number, number[]> = new Map();
-          for (const r of result.rows)
-            bands.set(Math.floor(r.s / 50) * 50, [
-              ...(bands.get(Math.floor(r.s / 50) * 50) ?? []),
-              r.maximumMm,
-            ]);
-          log("family-body-diagnose-knots", {
-            part: part.name,
-            times,
-            knots: knots.length,
-            fault: result.fault,
-            trainMaxMm: round(result.training.maximumMm),
-            trainMeanMm: round(result.training.meanMm),
-            heldMeanMm: round(result.heldout.meanMm),
-            byBand: [...bands]
-              .map(
-                ([s, m]: [number, number[]]): string =>
-                  s +
-                  ":" +
-                  (
-                    m.reduce((a: number, b: number): number => a + b, 0) /
-                    m.length
-                  ).toFixed(1),
-              )
-              .join(" "),
-            ms: Math.round(result.milliseconds),
-          });
-          knots = knots.flatMap((k: number, i: number): number[] =>
-            i === 0 ? [k] : [(knots[i - 1]! + k) / 2, k],
-          );
+          for (const r of result.rows) bands.set(Math.floor(r.s / 50) * 50, [...(bands.get(Math.floor(r.s / 50) * 50) ?? []), r.maximumMm]);
+          log("family-body-diagnose-knots", { part: part.name, times, knots: knots.length, fault: result.fault, trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMeanMm: round(result.heldout.meanMm), byBand: [...bands].map(([s, m]: [number, number[]]): string => s + ":" + (m.reduce((a: number, b: number): number => a + b, 0) / m.length).toFixed(1)).join(" "), ms: Math.round(result.milliseconds) });
+          knots = knots.flatMap((k: number, i: number): number[] => (i === 0 ? [k] : [(knots[i - 1]! + k) / 2, k]));
         }
         continue;
       }
       // `--observe`: the sections alone, every fourth one's extents in its chart and how near its hull comes to the course, and no fit.
       if (process.argv.includes("--observe")) {
-        log("family-body-sections", {
-          part: part.name,
-          rows: rows
-            .filter((_: F.IRow, i: number): boolean => i % 4 === 0)
-            .map(
-              (row: F.IRow): string =>
-                row.s.toFixed(0) +
-                " u " +
-                Math.min(...row.points.map((p: C.P): number => p[0])).toFixed(
-                  0,
-                ) +
-                ".." +
-                Math.max(...row.points.map((p: C.P): number => p[0])).toFixed(
-                  0,
-                ) +
-                " v " +
-                Math.min(...row.points.map((p: C.P): number => p[1])).toFixed(
-                  0,
-                ) +
-                ".." +
-                Math.max(...row.points.map((p: C.P): number => p[1])).toFixed(
-                  0,
-                ) +
-                " near " +
-                Math.min(
-                  ...Array.from(
-                    { length: 72 },
-                    (_: unknown, j: number): number =>
-                      C.radius(row.points, (Math.PI * j) / 36),
-                  ),
-                ).toFixed(0),
-            ),
-        });
+        log("family-body-sections", { part: part.name, rows: rows.filter((_: F.IRow, i: number): boolean => i % 4 === 0).map((row: F.IRow): string => row.s.toFixed(0) + " u " + Math.min(...row.points.map((p: C.P): number => p[0])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[0])).toFixed(0) + " v " + Math.min(...row.points.map((p: C.P): number => p[1])).toFixed(0) + ".." + Math.max(...row.points.map((p: C.P): number => p[1])).toFixed(0) + " near " + Math.min(...Array.from({ length: 72 }, (_: unknown, j: number): number => C.radius(row.points, (Math.PI * j) / 36))).toFixed(0)) });
         continue;
       }
 
@@ -4496,135 +2837,36 @@ namespace FamilyConicBody {
       // its miss at invented points against skin points, with the invented points' share of the weight.
       // `--dump=<file>`: the observed sections as JSON, each with its station, its frame (origin, `u`, `v`), its points in that chart and
       // which of them are invented, and no fit: the input a section is constructed from by rule.
-      const dumpTo: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--dump="))
-        ?.slice(7);
+      const dumpTo: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--dump="))?.slice(7);
       if (dumpTo !== undefined) {
-        await fs.writeFile(
-          dumpTo,
-          JSON.stringify({
-            part: part.name,
-            rows: rows.map((row: F.IRow, i: number) => {
-              const frame: IAutoMovieLoftSectionFrame = axis.at(row.s);
-              return {
-                s: row.s,
-                origin: [...frame.origin],
-                u: [...frame.u],
-                v: [...frame.v],
-                points: row.points,
-                invented: invented[i] ?? null,
-              };
-            }),
-          }),
-        );
-        log("family-body-dump", {
-          part: part.name,
-          sections: rows.length,
-          file: dumpTo,
-        });
+        await fs.writeFile(dumpTo, JSON.stringify({ part: part.name, rows: rows.map((row: F.IRow, i: number) => { const frame: IAutoMovieLoftSectionFrame = axis.at(row.s); return { s: row.s, origin: [...frame.origin], u: [...frame.u], v: [...frame.v], points: row.points, invented: invented[i] ?? null }; }) }));
+        log("family-body-dump", { part: part.name, sections: rows.length, file: dumpTo });
         continue;
       }
-      const decomposeFrom: string | undefined = process.argv
-        .find((argument: string): boolean =>
-          argument.startsWith("--decompose="),
-        )
-        ?.slice(12);
+      const decomposeFrom: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--decompose="))?.slice(12);
       if (decomposeFrom !== undefined) {
-        const wall: K.IStored = JSON.parse(
-          await fs.readFile(
-            path.join(decomposeFrom, part.name + ".family.json"),
-            "utf8",
-          ),
-        ) as K.IStored;
+        const wall: K.IStored = JSON.parse(await fs.readFile(path.join(decomposeFrom, part.name + ".family.json"), "utf8")) as K.IStored;
         const margin: number = part.margin ?? F.ADMISSIBLE_MARGIN;
-        const d: F.IDecomposition = F.decompose(
-          rows,
-          wall,
-          wall.layout,
-          margin,
-          invented,
-        );
+        const d: F.IDecomposition = F.decompose(rows, wall, wall.layout, margin, invented);
         const bands: Map<number, F.IDecomposition["rows"]> = new Map();
         for (const row of d.rows) {
-          const key: number =
-            Math.floor(row.s / DECOMPOSE_BAND_MM) * DECOMPOSE_BAND_MM;
+          const key: number = Math.floor(row.s / DECOMPOSE_BAND_MM) * DECOMPOSE_BAND_MM;
           bands.set(key, [...(bands.get(key) ?? []), row]);
         }
         const most = (values: number[]): number => round(Math.max(...values));
-        const mean = (values: number[]): number =>
-          round(
-            values.reduce((a: number, b: number): number => a + b, 0) /
-              Math.max(1, values.length),
-          );
+        const mean = (values: number[]): number => round(values.reduce((a: number, b: number): number => a + b, 0) / Math.max(1, values.length));
         for (const [from, band] of bands) {
-          const worst = band.reduce((a, b) =>
-            b.joint.maximumMm > a.joint.maximumMm ? b : a,
-          );
+          const worst = band.reduce((a, b) => (b.joint.maximumMm > a.joint.maximumMm ? b : a));
           const weighted = band.filter((r) => r.weighting !== null);
-          const binding = d.binding.filter(
-            (b) => b.s >= from && b.s < from + DECOMPOSE_BAND_MM,
-          );
+          const binding = d.binding.filter((b) => b.s >= from && b.s < from + DECOMPOSE_BAND_MM);
           log("family-body-decompose", {
             part: part.name,
             stations: [from, from + DECOMPOSE_BAND_MM],
-            joint: {
-              maxMm: most(band.map((r) => r.joint.maximumMm)),
-              meanMm: mean(band.map((r) => r.joint.meanMm)),
-              worstAtDegrees: Math.round((worst.joint.phase * 180) / Math.PI),
-            },
-            alone: {
-              maxMm: most(band.map((r) => r.alone?.maximumMm ?? Infinity)),
-              meanMm: mean(band.map((r) => r.alone?.meanMm ?? Infinity)),
-              refused: band.filter((r) => r.alone === null).length,
-              atMargin: band.filter(
-                (r) => r.alone !== null && r.alone.least < margin + 0.005,
-              ).length,
-            },
-            knots: [1, 2, 4].map((times: number, v: number) => ({
-              times,
-              maxMm: most(band.map((r) => r.longitudinal[v]!.maximumMm)),
-              meanMm: mean(band.map((r) => r.longitudinal[v]!.meanMm)),
-              inadmissible: band.filter((r) => !r.longitudinal[v]!.admissible)
-                .length,
-            })),
-            binding: {
-              meeting: [
-                ...new Set(
-                  binding
-                    .filter((b) => b.kind === "meeting")
-                    .map((b) => b.index),
-                ),
-              ].map(
-                (j: number) =>
-                  "arc " +
-                  j +
-                  " " +
-                  round(
-                    Math.min(
-                      ...binding
-                        .filter((b) => b.kind === "meeting" && b.index === j)
-                        .map((b) => b.value),
-                    ),
-                  ),
-              ),
-              share: [
-                ...new Set(
-                  binding.filter((b) => b.kind === "share").map((b) => b.index),
-                ),
-              ].map((f: number) => "field " + f),
-            },
-            weighting:
-              weighted.length === 0
-                ? null
-                : {
-                    inventedMm: mean(
-                      weighted.map((r) => r.weighting!.inventedMm),
-                    ),
-                    skinMm: mean(weighted.map((r) => r.weighting!.skinMm)),
-                    inventedShare: mean(
-                      weighted.map((r) => r.weighting!.share),
-                    ),
-                  },
+            joint: { maxMm: most(band.map((r) => r.joint.maximumMm)), meanMm: mean(band.map((r) => r.joint.meanMm)), worstAtDegrees: Math.round((worst.joint.phase * 180) / Math.PI) },
+            alone: { maxMm: most(band.map((r) => r.alone?.maximumMm ?? Infinity)), meanMm: mean(band.map((r) => r.alone?.meanMm ?? Infinity)), refused: band.filter((r) => r.alone === null).length, atMargin: band.filter((r) => r.alone !== null && r.alone.least < margin + 0.005).length },
+            knots: [1, 2, 4].map((times: number, v: number) => ({ times, maxMm: most(band.map((r) => r.longitudinal[v]!.maximumMm)), meanMm: mean(band.map((r) => r.longitudinal[v]!.meanMm)), inadmissible: band.filter((r) => !r.longitudinal[v]!.admissible).length })),
+            binding: { meeting: [...new Set(binding.filter((b) => b.kind === "meeting").map((b) => b.index))].map((j: number) => "arc " + j + " " + round(Math.min(...binding.filter((b) => b.kind === "meeting" && b.index === j).map((b) => b.value)))), share: [...new Set(binding.filter((b) => b.kind === "share").map((b) => b.index))].map((f: number) => "field " + f) },
+            weighting: weighted.length === 0 ? null : { inventedMm: mean(weighted.map((r) => r.weighting!.inventedMm)), skinMm: mean(weighted.map((r) => r.weighting!.skinMm)), inventedShare: mean(weighted.map((r) => r.weighting!.share)) },
           });
         }
         continue;
@@ -4634,167 +2876,65 @@ namespace FamilyConicBody {
       let best: F.IResult | null = null;
 
       // The other wall of a splice and its station, kept so its reliefs past that station come with its knots.
-      let spliced: {
-        tail: K.IStored;
-        at: number;
-        head: IAutoMovieLoftRelief[];
-        window?: [number, number];
-        tips?: K.IStored["tips"];
-      } | null = null;
+      let spliced: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[]; window?: [number, number]; tips?: K.IStored["tips"] } | null = null;
       // The stored wall's own reliefs and ends as read (`--wall`), for `--refit-reliefs`.
-      let carried: {
-        reliefs: IAutoMovieLoftRelief[];
-        tips: K.IStored["tips"];
-      } | null = null;
+      let carried: { reliefs: IAutoMovieLoftRelief[]; tips: K.IStored["tips"] } | null = null;
       const trail: unknown[] = [];
-      const attempt = (
-        knots: number[],
-        layout: C.ILayout,
-        initial: number[][] | undefined,
-        note: string,
-        power: number = 4,
-      ): F.IResult => {
-        const fitted: F.IResult = F.fit(
-          rows,
-          knots,
-          layout,
-          power,
-          initial,
-          part.margin,
-        );
+      const attempt = (knots: number[], layout: C.ILayout, initial: number[][] | undefined, note: string, power: number = 4): F.IResult => {
+        const fitted: F.IResult = F.fit(rows, knots, layout, power, initial, part.margin);
         // A candidate the construction's own path refuses is no candidate: the fit's admissibility reads the fields at each station, the
         // engine reads the derived numbers between stations by its own spline, and the slit cutter refitted on the corrected trunk, held
         // admissible every 0.25 mm, was refused there (arc 5's tangent lines meeting behind its end, b -0.227).
-        const native: string[] =
-          fitted.fault !== null
-            ? []
-            : K.refusals({
-                name: part.name,
-                centres: part.centres.map((c: R.V): number[] => c.map(round)),
-                halves: part.halves,
-                up: part.up,
-                ...(part.roll === undefined ? {} : { roll: part.roll }),
-                layout: fitted.layout,
-                knots: fitted.knots.map(round),
-                values: fitted.values.map(
-                  (field: number[], f: number): number[] =>
-                    field.map(
-                      C.units(fitted.layout)[f] === "mm" ? round : round4,
-                    ),
-                ),
-              } as unknown as K.IStored);
-        const result: F.IResult =
-          native.length === 0
-            ? fitted
-            : { ...fitted, fault: NATIVE_REFUSAL + native[0]!.slice(0, 200) };
-        const row = {
-          note,
-          fields:
-            result.layout.anchors.length === 0 ? 0 : C.units(layout).length,
-          knots: knots.length,
-          scalars: knots.length * (1 + C.units(layout).length),
-          trainMaxMm: round(result.training.maximumMm),
-          trainMeanMm: round(result.training.meanMm),
-          heldMaxMm: round(result.heldout.maximumMm),
-          heldMeanMm: round(result.heldout.meanMm),
-          fault: result.fault,
-          ms: Math.round(result.milliseconds),
-        };
+        const native: string[] = fitted.fault !== null ? [] : K.refusals({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, ...(part.roll === undefined ? {} : { roll: part.roll }), layout: fitted.layout, knots: fitted.knots.map(round), values: fitted.values.map((field: number[], f: number): number[] => field.map(C.units(fitted.layout)[f] === "mm" ? round : round4)) } as unknown as K.IStored);
+        const result: F.IResult = native.length === 0 ? fitted : { ...fitted, fault: NATIVE_REFUSAL + native[0]!.slice(0, 200) };
+        const row = { note, fields: result.layout.anchors.length === 0 ? 0 : C.units(layout).length, knots: knots.length, scalars: knots.length * (1 + C.units(layout).length), trainMaxMm: round(result.training.maximumMm), trainMeanMm: round(result.training.meanMm), heldMaxMm: round(result.heldout.maximumMm), heldMeanMm: round(result.heldout.meanMm), fault: result.fault, ms: Math.round(result.milliseconds) };
         trail.push(row);
         log("family-body-candidate", { part: part.name, ...row });
         return result;
       };
       // With `--wall=<directory>` the wall of an earlier run is taken as it was stored and only its reliefs are fitted again; a directory
       // `stored`, here and in `--splice`, is the family the Human package holds (`storedWall`).
-      const reuse: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--wall="))
-        ?.slice(7);
+      const reuse: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--wall="))?.slice(7);
       if (reuse !== undefined) {
         const wall: K.IStored = await storedWall(reuse, part.name);
-        carried = { reliefs: [...(wall.reliefs ?? [])], tips: wall.tips };
+        carried ={ reliefs: [...(wall.reliefs ?? [])], tips: wall.tips };
 
         // `--splice=<directory>@<station>`: from that station on, the knots and values of another stored wall of the same part, course and
         // layout replace this one's. A limb refitted for one end keeps the other end of the fit its neighbours were sewn on.
-        const splice: string | undefined = process.argv
-          .find((argument: string): boolean => argument.startsWith("--splice="))
-          ?.slice(9);
+        const splice: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--splice="))?.slice(9);
         if (splice !== undefined) {
           const [other, where]: string[] = splice.split("@");
           const [at, moved]: string[] = where!.split("+");
           const tail: K.IStored = await storedWall(other!, part.name);
-          if (tail.values.length !== wall.values.length)
-            throw new Error(
-              "splice: the two walls of " +
-                part.name +
-                " have different layouts",
-            );
+          if (tail.values.length !== wall.values.length) throw new Error("splice: the two walls of " + part.name + " have different layouts");
           // `--splice=<directory>@<from>..<to>`: a window refitted on its own (`--from`, `--to`, `--seed --held` on this wall's knots): the
           // other wall's knots strictly inside the window replace this one's, and this wall's values at the window's end knots and every knot
           // outside it are carried unchanged, held there in value and first and second derivative (below). Its reliefs: every stored one is
           // carried in its stored order, and only one wholly inside the window is fitted again (construction.md, Repair: a region's fix stays
           // within the region).
           if (at!.includes("..")) {
-            const [from, to]: number[] = at!.split("..").map(Number) as [
-              number,
-              number,
-            ];
-            const inside: number[] = tail.knots
-              .map((_: number, k: number): number => k)
-              .filter(
-                (k: number): boolean =>
-                  tail.knots[k]! > from + 1e-9 && tail.knots[k]! < to - 1e-9,
-              );
-            const kept: number[] = wall.knots
-              .map((_: number, k: number): number => k)
-              .filter(
-                (k: number): boolean =>
-                  wall.knots[k]! <= from + 1e-9 || wall.knots[k]! >= to - 1e-9,
-              );
-            const merged: { k: number; from: "wall" | "tail"; s: number }[] = [
-              ...kept.map((k: number) => ({
-                k,
-                from: "wall" as const,
-                s: wall.knots[k]!,
-              })),
-              ...inside.map((k: number) => ({
-                k,
-                from: "tail" as const,
-                s: tail.knots[k]!,
-              })),
-            ].sort((a, b): number => a.s - b.s);
+            const [from, to]: number[] = at!.split("..").map(Number) as [number, number];
+            const inside: number[] = tail.knots.map((_: number, k: number): number => k).filter((k: number): boolean => tail.knots[k]! > from + 1e-9 && tail.knots[k]! < to - 1e-9);
+            const kept: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => wall.knots[k]! <= from + 1e-9 || wall.knots[k]! >= to - 1e-9);
+            const merged: { k: number; from: "wall" | "tail"; s: number }[] = [...kept.map((k: number) => ({ k, from: "wall" as const, s: wall.knots[k]! })), ...inside.map((k: number) => ({ k, from: "tail" as const, s: tail.knots[k]! }))].sort((a, b): number => a.s - b.s);
             const storedKnots: number[] = [...wall.knots];
-            const storedValues: number[][] = wall.values.map(
-              (field: number[]): number[] => [...field],
-            );
-            wall.values = wall.values.map(
-              (field: number[], f: number): number[] =>
-                merged.map((m): number =>
-                  m.from === "wall" ? field[m.k]! : tail.values[f]![m.k]!,
-                ),
-            );
+            const storedValues: number[][] = wall.values.map((field: number[]): number[] => [...field]);
+            wall.values = wall.values.map((field: number[], f: number): number[] => merged.map((m): number => (m.from === "wall" ? field[m.k]! : tail.values[f]![m.k]!)));
             wall.knots = merged.map((m): number => m.s);
             // Held at both ends: a natural cubic's piece on each interval is fixed by the values and second derivatives (moments) at its two
             // knots, so with the stored values kept at and outside the window's end knots and the stored moments set there, every interval
             // outside the window is the stored wall's exactly, and the window meets it with equal value, first and second derivative. The
             // window's interior values take the least change (in their sum of squares) that sets the two moments: two linear conditions
             // per field. Spliced on values alone, the natural cubic carried the window's change 0.49 mm into the trunk at 200 mm.
-            const moments = (
-              x: readonly number[],
-              y: readonly number[],
-            ): number[] => {
+            const moments = (x: readonly number[], y: readonly number[]): number[] => {
               const n: number = x.length;
-              const a: number[] = new Array<number>(n).fill(0),
-                b: number[] = new Array<number>(n).fill(1),
-                cc: number[] = new Array<number>(n).fill(0),
-                r: number[] = new Array<number>(n).fill(0);
+              const a: number[] = new Array<number>(n).fill(0), b: number[] = new Array<number>(n).fill(1), cc: number[] = new Array<number>(n).fill(0), r: number[] = new Array<number>(n).fill(0);
               for (let i: number = 1; i + 1 < n; ++i) {
-                const h0: number = x[i]! - x[i - 1]!,
-                  h1: number = x[i + 1]! - x[i]!;
+                const h0: number = x[i]! - x[i - 1]!, h1: number = x[i + 1]! - x[i]!;
                 a[i] = h0;
                 b[i] = 2 * (h0 + h1);
                 cc[i] = h1;
-                r[i] =
-                  6 * ((y[i + 1]! - y[i]!) / h1 - (y[i]! - y[i - 1]!) / h0);
+                r[i] = 6 * ((y[i + 1]! - y[i]!) / h1 - (y[i]! - y[i - 1]!) / h0);
               }
               for (let i: number = 1; i < n; ++i) {
                 const w: number = a[i]! / b[i - 1]!;
@@ -4803,210 +2943,97 @@ namespace FamilyConicBody {
               }
               const m: number[] = new Array<number>(n).fill(0);
               m[n - 1] = r[n - 1]! / b[n - 1]!;
-              for (let i: number = n - 2; i >= 0; --i)
-                m[i] = (r[i]! - cc[i]! * m[i + 1]!) / b[i]!;
+              for (let i: number = n - 2; i >= 0; --i) m[i] = (r[i]! - cc[i]! * m[i + 1]!) / b[i]!;
               return m;
             };
-            const ends: [number, number] = [
-              wall.knots.findIndex(
-                (k: number): boolean => Math.abs(k - from!) < 1e-9,
-              ),
-              wall.knots.findIndex(
-                (k: number): boolean => Math.abs(k - to!) < 1e-9,
-              ),
-            ];
-            const free: number[] = merged
-              .map((m, k: number): number => (m.from === "tail" ? k : -1))
-              .filter((k: number): boolean => k >= 0);
+            const ends: [number, number] = [wall.knots.findIndex((k: number): boolean => Math.abs(k - from!) < 1e-9), wall.knots.findIndex((k: number): boolean => Math.abs(k - to!) < 1e-9)];
+            const free: number[] = merged.map((m, k: number): number => (m.from === "tail" ? k : -1)).filter((k: number): boolean => k >= 0);
             let worst: number = 0;
-            wall.values = wall.values.map(
-              (field: number[], f: number): number[] => {
-                const target: number[] = moments(storedKnots, storedValues[f]!);
-                const want: [number, number] = [
-                  target[
-                    storedKnots.findIndex(
-                      (k: number): boolean => Math.abs(k - from!) < 1e-9,
-                    )
-                  ]!,
-                  target[
-                    storedKnots.findIndex(
-                      (k: number): boolean => Math.abs(k - to!) < 1e-9,
-                    )
-                  ]!,
-                ];
-                const at = (y: number[]): [number, number] => {
-                  const m: number[] = moments(wall.knots, y);
-                  return [m[ends[0]]!, m[ends[1]]!];
-                };
-                const base: [number, number] = at(field);
-                const columns: [number, number][] = free.map(
-                  (k: number): [number, number] => {
-                    const y: number[] = [...field];
-                    y[k]! += 1;
-                    const g: [number, number] = at(y);
-                    return [g[0] - base[0], g[1] - base[1]];
-                  },
-                );
-                const [p, q, rr] = [
-                  columns.reduce((s: number, g) => s + g[0] * g[0], 0),
-                  columns.reduce((s: number, g) => s + g[0] * g[1], 0),
-                  columns.reduce((s: number, g) => s + g[1] * g[1], 0),
-                ];
-                const det: number = p * rr - q * q;
-                const need: [number, number] = [
-                  want[0] - base[0],
-                  want[1] - base[1],
-                ];
-                const lambda: [number, number] = [
-                  (rr * need[0] - q * need[1]) / det,
-                  (p * need[1] - q * need[0]) / det,
-                ];
-                const out: number[] = [...field];
-                free.forEach((k: number, j: number): void => {
-                  out[k]! +=
-                    columns[j]![0] * lambda[0] + columns[j]![1] * lambda[1];
-                });
-                const check: [number, number] = at(out);
-                worst = Math.max(
-                  worst,
-                  Math.abs(check[0] - want[0]),
-                  Math.abs(check[1] - want[1]),
-                );
-                return out;
-              },
-            );
-            log("family-body-window-held", {
-              part: part.name,
-              window: [from, to],
-              momentMiss: worst,
-            });
-            spliced = {
-              tail,
-              at: from!,
-              head: wall.reliefs ?? [],
-              window: [from!, to!],
-              ...(wall.tips === undefined ? {} : { tips: wall.tips }),
-            };
-            log("family-body-window-splice", {
-              part: part.name,
-              window: [from, to],
-              replaced: inside.map((k: number): number => tail.knots[k]!),
-              knots: wall.knots.length,
-            });
-          } else {
-            // `+<shift>`: the other wall was fitted on a course whose stations past the splice are this one's less the shift.
-            const shift: number = Number(moved ?? 0);
-            tail.knots = tail.knots.map((k: number): number =>
-              round(k + shift),
-            );
-            tail.reliefs = (tail.reliefs ?? []).map(
-              (relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({
-                ...relief,
-                stations: [
-                  round(relief.stations[0] + shift),
-                  round(relief.stations[1] + shift),
-                ],
-              }),
-            );
-            spliced = { tail, at: Number(at), head: wall.reliefs ?? [] };
-            const head: number[] = wall.knots
-              .map((_: number, k: number): number => k)
-              .filter((k: number): boolean => wall.knots[k]! < Number(at));
-            const rest: number[] = tail.knots
-              .map((_: number, k: number): number => k)
-              .filter((k: number): boolean => tail.knots[k]! >= Number(at));
-            wall.values = wall.values.map(
-              (field: number[], f: number): number[] => [
-                ...head.map((k: number): number => field[k]!),
-                ...rest.map((k: number): number => tail.values[f]![k]!),
-              ],
-            );
-            wall.knots = [
-              ...head.map((k: number): number => wall.knots[k]!),
-              ...rest.map((k: number): number => tail.knots[k]!),
-            ];
-            // Held at the splice: with the other wall's values at and past `at` kept and its second derivative (moment) set at `at`, the natural
-            // cubic past `at` is the other wall's exactly, since its moments there are fixed by the values and that one moment. The last head
-            // knots before `at` take the least change that sets it. Spliced on values alone, the arm's skin past the splice moved up to
-            // 0.13 mm (and the nets refitted over it, 2.4 mm at the hand).
-            const join: number = wall.knots.findIndex(
-              (k: number): boolean => Math.abs(k - Number(at)) < 1e-9,
-            );
-            const tailJoin: number = tail.knots.findIndex(
-              (k: number): boolean => Math.abs(k - Number(at)) < 1e-9,
-            );
-            if (join > 0 && tailJoin >= 0) {
-              const free: number[] = [join - 3, join - 2, join - 1].filter(
-                (k: number): boolean => k > 0,
-              );
-              let worst: number = 0;
-              wall.values = wall.values.map(
-                (field: number[], f: number): number[] => {
-                  const want: number = naturalMoments(
-                    tail.knots,
-                    tail.values[f]!,
-                  )[tailJoin]!;
-                  const base: number = naturalMoments(wall.knots, field)[join]!;
-                  const gradient: number[] = free.map((k: number): number => {
-                    const y: number[] = [...field];
-                    y[k]! += 1;
-                    return naturalMoments(wall.knots, y)[join]! - base;
-                  });
-                  const norm: number = gradient.reduce(
-                    (sum: number, g: number): number => sum + g * g,
-                    0,
-                  );
-                  const out: number[] = [...field];
-                  if (norm > 0)
-                    free.forEach(
-                      (k: number, j: number): void =>
-                        void (out[k]! += (gradient[j]! * (want - base)) / norm),
-                    );
-                  // The wall is stored rounded (mm to 0.01, shares and angles to 1e-4), and rounded alone the three values left a moment of up
-                  // to 2.5e-4 at the splice, which the 111 mm interval past it (the arm's 376.55 to 488) carried as 0.2 mm of skin. Of the
-                  // stored values within five steps of each, the three whose moment comes nearest the other wall's are kept.
-                  const unit: number =
-                    C.units(wall.layout)[f] === "mm" ? 0.01 : 1e-4;
-                  const lattice: number[] = free.map((k: number): number =>
-                    Math.round(out[k]! / unit),
-                  );
-                  let best: { miss: number; values: number[] } = {
-                    miss: Infinity,
-                    values: free.map((k: number): number => out[k]!),
-                  };
-                  for (let a: number = -5; a <= 5; ++a)
-                    for (let b: number = -5; b <= 5; ++b)
-                      for (let c: number = -5; c <= 5; ++c) {
-                        const values: number[] = [a, b, c]
-                          .slice(0, free.length)
-                          .map(
-                            (d: number, j: number): number =>
-                              Math.round((lattice[j]! + d) * unit * 1e6) / 1e6,
-                          );
-                        const y: number[] = [...out];
-                        free.forEach(
-                          (k: number, j: number): void =>
-                            void (y[k] = values[j]!),
-                        );
-                        const miss: number = Math.abs(
-                          naturalMoments(wall.knots, y)[join]! - want,
-                        );
-                        if (miss < best.miss) best = { miss, values };
-                      }
-                  free.forEach(
-                    (k: number, j: number): void =>
-                      void (out[k] = best.values[j]!),
-                  );
-                  worst = Math.max(worst, best.miss);
-                  return out;
-                },
-              );
-              log("family-body-splice-held", {
-                part: part.name,
-                at: Number(at),
-                momentMiss: worst,
+            wall.values = wall.values.map((field: number[], f: number): number[] => {
+              const target: number[] = moments(storedKnots, storedValues[f]!);
+              const want: [number, number] = [target[storedKnots.findIndex((k: number): boolean => Math.abs(k - from!) < 1e-9)]!, target[storedKnots.findIndex((k: number): boolean => Math.abs(k - to!) < 1e-9)]!];
+              const at = (y: number[]): [number, number] => {
+                const m: number[] = moments(wall.knots, y);
+                return [m[ends[0]]!, m[ends[1]]!];
+              };
+              const base: [number, number] = at(field);
+              const columns: [number, number][] = free.map((k: number): [number, number] => {
+                const y: number[] = [...field];
+                y[k]! += 1;
+                const g: [number, number] = at(y);
+                return [g[0] - base[0], g[1] - base[1]];
               });
-            }
+              const [p, q, rr] = [columns.reduce((s: number, g) => s + g[0] * g[0], 0), columns.reduce((s: number, g) => s + g[0] * g[1], 0), columns.reduce((s: number, g) => s + g[1] * g[1], 0)];
+              const det: number = p * rr - q * q;
+              const need: [number, number] = [want[0] - base[0], want[1] - base[1]];
+              const lambda: [number, number] = [(rr * need[0] - q * need[1]) / det, (p * need[1] - q * need[0]) / det];
+              const out: number[] = [...field];
+              free.forEach((k: number, j: number): void => {
+                out[k]! += columns[j]![0] * lambda[0] + columns[j]![1] * lambda[1];
+              });
+              const check: [number, number] = at(out);
+              worst = Math.max(worst, Math.abs(check[0] - want[0]), Math.abs(check[1] - want[1]));
+              return out;
+            });
+            log("family-body-window-held", { part: part.name, window: [from, to], momentMiss: worst });
+            spliced = { tail, at: from!, head: wall.reliefs ?? [], window: [from!, to!], ...(wall.tips === undefined ? {} : { tips: wall.tips }) };
+            log("family-body-window-splice", { part: part.name, window: [from, to], replaced: inside.map((k: number): number => tail.knots[k]!), knots: wall.knots.length });
+          } else {
+
+          // `+<shift>`: the other wall was fitted on a course whose stations past the splice are this one's less the shift.
+          const shift: number = Number(moved ?? 0);
+          tail.knots = tail.knots.map((k: number): number => round(k + shift));
+          tail.reliefs = (tail.reliefs ?? []).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({ ...relief, stations: [round(relief.stations[0] + shift), round(relief.stations[1] + shift)] }));
+          // The far end is the tail's, so its end record is the tail's as stored (its cap's start, its pole and whether the family owns
+          // it), moved along with its knots; the near end's stays this wall's. Emitted from the refitted stretch's own domain instead, a
+          // digit's root piece put its cap's start at its last root knot (the index finger's at 38 mm for a pole at 84.38) and lost `own`.
+          const far = tail.tips?.[1] ?? null;
+          spliced = { tail, at: Number(at), head: wall.reliefs ?? [], ...(far === null ? {} : { tips: [wall.tips?.[0] ?? null, { ...far, from: far.from + shift, tip: far.tip + shift }] as K.IStored["tips"] }) };
+          const head: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => wall.knots[k]! < Number(at));
+          const rest: number[] = tail.knots.map((_: number, k: number): number => k).filter((k: number): boolean => tail.knots[k]! >= Number(at));
+          wall.values = wall.values.map((field: number[], f: number): number[] => [...head.map((k: number): number => field[k]!), ...rest.map((k: number): number => tail.values[f]![k]!)]);
+          wall.knots = [...head.map((k: number): number => wall.knots[k]!), ...rest.map((k: number): number => tail.knots[k]!)];
+          // Held at the splice: with the other wall's values at and past `at` kept and its second derivative (moment) set at `at`, the natural
+          // cubic past `at` is the other wall's exactly, since its moments there are fixed by the values and that one moment. The last head
+          // knots before `at` take the least change that sets it. Spliced on values alone, the arm's skin past the splice moved up to
+          // 0.13 mm (and the nets refitted over it, 2.4 mm at the hand).
+          const join: number = wall.knots.findIndex((k: number): boolean => Math.abs(k - Number(at)) < 1e-9);
+          const tailJoin: number = tail.knots.findIndex((k: number): boolean => Math.abs(k - Number(at)) < 1e-9);
+          if (join > 0 && tailJoin >= 0) {
+            const free: number[] = [join - 3, join - 2, join - 1].filter((k: number): boolean => k > 0);
+            let worst: number = 0;
+            wall.values = wall.values.map((field: number[], f: number): number[] => {
+              const want: number = naturalMoments(tail.knots, tail.values[f]!)[tailJoin]!;
+              const base: number = naturalMoments(wall.knots, field)[join]!;
+              const gradient: number[] = free.map((k: number): number => {
+                const y: number[] = [...field];
+                y[k]! += 1;
+                return naturalMoments(wall.knots, y)[join]! - base;
+              });
+              const norm: number = gradient.reduce((sum: number, g: number): number => sum + g * g, 0);
+              const out: number[] = [...field];
+              if (norm > 0) free.forEach((k: number, j: number): void => void (out[k]! += (gradient[j]! * (want - base)) / norm));
+              // The wall is stored rounded (mm to 0.01, shares and angles to 1e-4), and rounded alone the three values left a moment of up
+              // to 2.5e-4 at the splice, which the 111 mm interval past it (the arm's 376.55 to 488) carried as 0.2 mm of skin. Of the
+              // stored values within five steps of each, the three whose moment comes nearest the other wall's are kept.
+              const unit: number = C.units(wall.layout)[f] === "mm" ? 0.01 : 1e-4;
+              const lattice: number[] = free.map((k: number): number => Math.round(out[k]! / unit));
+              let best: { miss: number; values: number[] } = { miss: Infinity, values: free.map((k: number): number => out[k]!) };
+              for (let a: number = -5; a <= 5; ++a)
+                for (let b: number = -5; b <= 5; ++b)
+                  for (let c: number = -5; c <= 5; ++c) {
+                    const values: number[] = [a, b, c].slice(0, free.length).map((d: number, j: number): number => Math.round((lattice[j]! + d) * unit * 1e6) / 1e6);
+                    const y: number[] = [...out];
+                    free.forEach((k: number, j: number): void => void (y[k] = values[j]!));
+                    const miss: number = Math.abs(naturalMoments(wall.knots, y)[join]! - want);
+                    if (miss < best.miss) best = { miss, values };
+                  }
+              free.forEach((k: number, j: number): void => void (out[k] = best.values[j]!));
+              worst = Math.max(worst, best.miss);
+              return out;
+            });
+            log("family-body-splice-held", { part: part.name, at: Number(at), momentMiss: worst });
+          }
           }
         }
 
@@ -5014,89 +3041,40 @@ namespace FamilyConicBody {
         // and layout replace this one's. The trunk's face was refitted without the nose on its own knots (`--seed --held`), and only the
         // section's front half is taken from it (on `bilateral(1)`, fields 0, 1, 6 and 7: the front extreme, the front median and the two
         // arcs between them): the whole refit moved the wall under the ears' roots and the engine refused the lobule's cuts.
-        const graft: string | undefined = process.argv
-          .find((argument: string): boolean => argument.startsWith("--graft="))
-          ?.slice(8);
+        const graft: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--graft="))?.slice(8);
         if (graft !== undefined) {
           const colon: number = graft.lastIndexOf(":");
-          const donor: K.IStored = JSON.parse(
-            await fs.readFile(
-              path.join(graft.slice(0, colon), part.name + ".family.json"),
-              "utf8",
-            ),
-          ) as K.IStored;
-          const fields: number[] = graft
-            .slice(colon + 1)
-            .split(",")
-            .map(Number);
-          wall.values = wall.values.map(
-            (field: number[], f: number): number[] =>
-              !fields.includes(f)
-                ? field
-                : field.map((x: number, k: number): number => {
-                    const j: number = donor.knots.indexOf(wall.knots[k]!);
-                    return j < 0 ? x : donor.values[f]![j]!;
-                  }),
+          const donor: K.IStored = JSON.parse(await fs.readFile(path.join(graft.slice(0, colon), part.name + ".family.json"), "utf8")) as K.IStored;
+          const fields: number[] = graft.slice(colon + 1).split(",").map(Number);
+          wall.values = wall.values.map((field: number[], f: number): number[] =>
+            !fields.includes(f) ? field : field.map((x: number, k: number): number => {
+              const j: number = donor.knots.indexOf(wall.knots[k]!);
+              return j < 0 ? x : donor.values[f]![j]!;
+            }),
           );
         }
         // `--relay=<knot>,<knot>...:<field>,<field>...[;...]`: the listed fields at the listed knots are laid again from their sound neighbours,
         // the natural cubic through the field's other knots evaluated there, where a stored value is broken and its neighbours are not.
-        const relay: string | undefined = process.argv
-          .find((argument: string): boolean => argument.startsWith("--relay="))
-          ?.slice(8);
+        const relay: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relay="))?.slice(8);
         for (const group of relay === undefined ? [] : relay.split(";")) {
           const [knotText, fieldText]: string[] = group.split(":");
           const broken: number[] = knotText!.split(",").map(Number);
           for (const f of fieldText!.split(",").map(Number)) {
-            const keep: number[] = wall.knots
-              .map((_: number, k: number): number => k)
-              .filter((k: number): boolean => !broken.includes(wall.knots[k]!));
-            const laid: number[] = F.resample(
-              [keep.map((k: number): number => wall.values[f]![k]!)],
-              keep.map((k: number): number => wall.knots[k]!),
-              wall.knots,
-            )[0]!;
-            wall.values[f] = wall.values[f]!.map(
-              (x: number, k: number): number =>
-                broken.includes(wall.knots[k]!) ? laid[k]! : x,
-            );
+            const keep: number[] = wall.knots.map((_: number, k: number): number => k).filter((k: number): boolean => !broken.includes(wall.knots[k]!));
+            const laid: number[] = F.resample([keep.map((k: number): number => wall.values[f]![k]!)], keep.map((k: number): number => wall.knots[k]!), wall.knots)[0]!;
+            wall.values[f] = wall.values[f]!.map((x: number, k: number): number => (broken.includes(wall.knots[k]!) ? laid[k]! : x));
           }
         }
-        best = {
-          layout: wall.layout,
-          knots: wall.knots,
-          values: wall.values,
-          rows: [],
-          training: { maximumMm: NaN, meanMm: NaN },
-          heldout: { maximumMm: NaN, meanMm: NaN },
-          fault: null,
-          milliseconds: 0,
-        } as unknown as F.IResult;
+        best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
       }
       // `--deepen=<directory>`: the stored wall of an earlier run is cut once more, every arc at its median, and fitted again on the same knots,
       // with no growth and no pruning: twice the conics round each section for the same stations.
-      const deepen: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--deepen="))
-        ?.slice(9);
+      const deepen: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--deepen="))?.slice(9);
       let deeper: number = 0;
       if (deepen !== undefined) {
-        const wall: K.IStored = JSON.parse(
-          await fs.readFile(
-            path.join(deepen, part.name + ".family.json"),
-            "utf8",
-          ),
-        ) as K.IStored;
+        const wall: K.IStored = JSON.parse(await fs.readFile(path.join(deepen, part.name + ".family.json"), "utf8")) as K.IStored;
         deeper = Math.round(Math.log2(wall.layout.anchors.length / 4)) + 1;
-        best = {
-          layout: wall.layout,
-          knots: wall.knots,
-          values: wall.values,
-          rows: [],
-          training: { maximumMm: NaN, meanMm: NaN },
-          heldout: { maximumMm: NaN, meanMm: NaN },
-          fault: null,
-          milliseconds: 0,
-        } as unknown as F.IResult;
+        best = { layout: wall.layout, knots: wall.knots, values: wall.values, rows: [], training: { maximumMm: NaN, meanMm: NaN }, heldout: { maximumMm: NaN, meanMm: NaN }, fault: null, milliseconds: 0 } as unknown as F.IResult;
       }
       // `--least=<shoulder>`: the wall is fitted with every arc's shoulder held at that or more (`ILayout.least`), and stored with its shoulder
       // values raised to it and the layout without it, so a wall spliced onto another fitted without the bound keeps one layout: the leg's
@@ -5105,64 +3083,24 @@ namespace FamilyConicBody {
       // it. f1's foot end was fitted under 0.3 for the two arcs at its top, whose corner drew a slot at the big toe's root; the same bound held
       // the sole's arc at 0.3 from 896 to 960 mm, where each section fitted alone without it came within 0.4 to 0.85 mm and the bounded wall
       // stood 1.0 to 1.7 mm under the sole.
-      const least: number | number[] | undefined = ((
-        value: string | undefined,
-      ): number | number[] | undefined =>
-        value === undefined
-          ? undefined
-          : value.includes(",")
-            ? value.split(",").map(Number)
-            : Number(value))(
-        process.argv
-          .find((argument: string): boolean => argument.startsWith("--least="))
-          ?.slice(8),
-      );
+      const least: number | number[] | undefined = ((value: string | undefined): number | number[] | undefined => (value === undefined ? undefined : value.includes(",") ? value.split(",").map(Number) : Number(value)))(process.argv.find((argument: string): boolean => argument.startsWith("--least="))?.slice(8));
       // A part is fitted at each depth of its layouts in turn (`LIMB`: 4 arcs, then 8), every arc of a depth halved by the next, so a list
       // given for one depth is read at another by its arcs: a coarser arc takes the largest least of the finer arcs it covers, a finer arc
       // its coarser arc's.
       const leastAt = (layout: C.ILayout): number | number[] | undefined => {
         if (least === undefined || typeof least === "number") return least;
-        const arcs: number = layout.mirror
-          ? layout.anchors.length - 1
-          : layout.anchors.length;
-        if (least.length % arcs === 0)
-          return Array.from(
-            { length: arcs },
-            (_: unknown, arc: number): number =>
-              Math.max(
-                ...least.slice(
-                  (arc * least.length) / arcs,
-                  ((arc + 1) * least.length) / arcs,
-                ),
-              ),
-          );
-        if (arcs % least.length === 0)
-          return Array.from(
-            { length: arcs },
-            (_: unknown, arc: number): number =>
-              least[Math.floor((arc * least.length) / arcs)]!,
-          );
-        throw new Error(
-          `--least: ${part.name}'s layout has ${arcs} arcs, which the list of ${least.length} does not divide`,
-        );
+        const arcs: number = layout.mirror ? layout.anchors.length - 1 : layout.anchors.length;
+        if (least.length % arcs === 0) return Array.from({ length: arcs }, (_: unknown, arc: number): number => Math.max(...least.slice((arc * least.length) / arcs, ((arc + 1) * least.length) / arcs)));
+        if (arcs % least.length === 0) return Array.from({ length: arcs }, (_: unknown, arc: number): number => least[Math.floor((arc * least.length) / arcs)]!);
+        throw new Error(`--least: ${part.name}'s layout has ${arcs} arcs, which the list of ${least.length} does not divide`);
       };
-      if (
-        least !== undefined &&
-        typeof least === "object" &&
-        least.some((x: number): boolean => !Number.isFinite(x))
-      )
-        throw new Error(
-          `--least: ${least.join(",")} is not a list of shoulders`,
-        );
+      if (least !== undefined && typeof least === "object" && least.some((x: number): boolean => !Number.isFinite(x))) throw new Error(`--least: ${least.join(",")} is not a list of shoulders`);
       // `--construct`: the part's sections read by rule and carried on its own knots, with no fit (`IPart.construct`). Each corner between
       // invented points and skin, the sharpest convex turn within `CONSTRUCT_SEARCH_MM` of where the two meet, is drawn round by its
       // `corner` radius, and the section's top, its skin point farthest along `u`, by its `apex` radius; the section is then read along its
       // rays again. A refused section or station is reported and nothing is stored.
       let constructed: boolean = false;
-      if (
-        process.argv.includes("--construct") &&
-        part.construct !== undefined
-      ) {
+      if (process.argv.includes("--construct") && part.construct !== undefined) {
         const spec: NonNullable<IPart["construct"]> = part.construct;
         const closings: { s: number; closed: number }[] = [];
         const rounded: F.IRow[] = rows.map((row: F.IRow, i: number): F.IRow => {
@@ -5170,14 +3108,8 @@ namespace FamilyConicBody {
           const n: number = row.points.length;
           const turn = (points: readonly C.P[], k: number): number => {
             const m: number = points.length;
-            const [a, p, b] = [
-              points[(k - 3 + m) % m]!,
-              points[k]!,
-              points[(k + 3) % m]!,
-            ];
-            const d: number =
-              Math.atan2(b[1] - p[1], b[0] - p[0]) -
-              Math.atan2(p[1] - a[1], p[0] - a[0]);
+            const [a, p, b] = [points[(k - 3 + m) % m]!, points[k]!, points[(k + 3) % m]!];
+            const d: number = Math.atan2(b[1] - p[1], b[0] - p[0]) - Math.atan2(p[1] - a[1], p[0] - a[0]);
             return Math.atan2(Math.sin(d), Math.cos(d));
           };
           const corners: C.P[] = [];
@@ -5188,78 +3120,24 @@ namespace FamilyConicBody {
               for (let j: number = 0; j < n; ++j) {
                 const q: number = (k + j) % n;
                 const back: number = (k - j + n) % n;
-                const near = (x: number): boolean =>
-                  Math.hypot(
-                    row.points[x]![0] - row.points[k]![0],
-                    row.points[x]![1] - row.points[k]![1],
-                  ) <= CONSTRUCT_SEARCH_MM;
+                const near = (x: number): boolean => Math.hypot(row.points[x]![0] - row.points[k]![0], row.points[x]![1] - row.points[k]![1]) <= CONSTRUCT_SEARCH_MM;
                 if (!near(q) && !near(back)) break;
-                for (const x of [q, back])
-                  if (near(x) && turn(row.points, x) > turn(row.points, best))
-                    best = x;
+                for (const x of [q, back]) if (near(x) && turn(row.points, x) > turn(row.points, best)) best = x;
               }
               corners.push(row.points[best]!);
             }
           let points: C.P[] = [...row.points];
-          const nearest = (q: C.P): number =>
-            points.reduce(
-              (b: number, p: C.P, k: number): number =>
-                Math.hypot(p[0] - q[0], p[1] - q[1]) <
-                Math.hypot(points[b]![0] - q[0], points[b]![1] - q[1])
-                  ? k
-                  : b,
-              0,
-            );
-          for (const corner of corners)
-            points = C.fillet(
-              points,
-              nearest(corner),
-              spec.corner,
-              CONSTRUCT_SPAN_MM,
-            ).points;
-          const top: number = row.points.reduce(
-            (b: number, p: C.P, k: number): number =>
-              (flags === null || !flags[k]) && p[0] > row.points[b]![0] ? k : b,
-            flags === null ? 0 : Math.max(0, flags.indexOf(false)),
-          );
-          const apex = C.fillet(
-            points,
-            nearest(row.points[top]!),
-            spec.apex,
-            CONSTRUCT_SPAN_MM,
-          );
+          const nearest = (q: C.P): number => points.reduce((b: number, p: C.P, k: number): number => (Math.hypot(p[0] - q[0], p[1] - q[1]) < Math.hypot(points[b]![0] - q[0], points[b]![1] - q[1]) ? k : b), 0);
+          for (const corner of corners) points = C.fillet(points, nearest(corner), spec.corner, CONSTRUCT_SPAN_MM).points;
+          const top: number = row.points.reduce((b: number, p: C.P, k: number): number => ((flags === null || !flags[k]) && p[0] > row.points[b]![0] ? k : b), flags === null ? 0 : Math.max(0, flags.indexOf(false)));
+          const apex = C.fillet(points, nearest(row.points[top]!), spec.apex, CONSTRUCT_SPAN_MM);
           closings.push({ s: row.s, closed: apex.closed });
-          return {
-            ...row,
-            points: X.star(apex.points, n, "inner")?.points ?? apex.points,
-          };
+          return { ...row, points: X.star(apex.points, n, "inner")?.points ?? apex.points };
         });
         const layout: C.ILayout = part.layouts[0]!.layout;
-        const built: F.IConstruction = F.construct(
-          rounded,
-          spec.knots,
-          layout,
-          part.margin ?? F.CONSTRUCT_MARGIN,
-        );
-        const closedMost: { s: number; closed: number } = closings.reduce(
-          (a, b) => (b.closed > a.closed ? b : a),
-          { s: NaN, closed: 0 },
-        );
-        log("family-body-construct", {
-          part: part.name,
-          knots: spec.knots,
-          sectionsRefused: built.sections.map(round),
-          stationsRefused: built.stations.length,
-          firstRefused: built.stations[0] ?? null,
-          fault: built.result.fault,
-          trainMaxMm: round(built.result.training.maximumMm),
-          trainMeanMm: round(built.result.training.meanMm),
-          heldMaxMm: round(built.result.heldout.maximumMm),
-          heldMeanMm: round(built.result.heldout.meanMm),
-          apexClosedMostMm: round(closedMost.closed),
-          apexClosedMostAt: closedMost.s,
-          reasons: built.reasons,
-        });
+        const built: F.IConstruction = F.construct(rounded, spec.knots, layout, part.margin ?? F.CONSTRUCT_MARGIN);
+        const closedMost: { s: number; closed: number } = closings.reduce((a, b) => (b.closed > a.closed ? b : a), { s: NaN, closed: 0 });
+        log("family-body-construct", { part: part.name, knots: spec.knots, sectionsRefused: built.sections.map(round), stationsRefused: built.stations.length, firstRefused: built.stations[0] ?? null, fault: built.result.fault, trainMaxMm: round(built.result.training.maximumMm), trainMeanMm: round(built.result.training.meanMm), heldMaxMm: round(built.result.heldout.maximumMm), heldMeanMm: round(built.result.heldout.meanMm), apexClosedMostMm: round(closedMost.closed), apexClosedMostAt: closedMost.s, reasons: built.reasons });
         if (built.result.fault !== null) {
           receipt.push({ part: part.name, trail, fault: built.result.fault });
           continue;
@@ -5270,128 +3148,59 @@ namespace FamilyConicBody {
       // `--seed=<directory>`: the first layout's fit starts from a stored wall of the same part and layout, its knots inside the domain and
       // its values resampled there, and grows and prunes as usual. Started from three knots, the trunk's head refitted alone (`--from=600`)
       // stayed at 58 mm with every growth round refused; a wall refitted over changed sections starts near the wall it replaces.
-      const seed: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--seed="))
-        ?.slice(7);
+      const seed: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--seed="))?.slice(7);
       // `--seed-tail=<directory>@<at>+<shift>`: the start is another stored wall from `at` on, its stations this one's less the shift (the
       // course past `at` is that wall's course moved along by the shift), and before `at` each fitting section's own seed at knots every
       // `GAP_MM` on the same layout, so the fit starts at that wall's layout. The arm on its ISB course is the stored arm's from the elbow
       // turn's end on: fitted from three knots, its window's free far end ran a shoulder to 5e-5 and every step that would move it was
       // refused (11.8 mm at 11 knots), where the stored wall is real, admitted field.
-      const seedTail: string | undefined = process.argv
-        .find((argument: string): boolean =>
-          argument.startsWith("--seed-tail="),
-        )
-        ?.slice("--seed-tail=".length);
-      const seeded: { knots: number[]; values: number[][] } | null =
-        await (async (): Promise<{
-          knots: number[];
-          values: number[][];
-        } | null> => {
-          if (seedTail !== undefined) {
-            const [other, where]: string[] = seedTail.split("@");
-            const [at, moved]: number[] = where!.split("+").map(Number) as [
-              number,
-              number,
-            ];
-            const tail: K.IStored = await storedWall(other!, part.name);
-            const shift: number = moved ?? 0;
-            const layout: C.ILayout | undefined = part.layouts.find(
-              (entry: { layout: C.ILayout }): boolean =>
-                C.units(entry.layout).length === tail.values.length,
-            )?.layout;
-            if (layout === undefined)
-              throw new Error(
-                "--seed-tail: no layout of " +
-                  part.name +
-                  " has the stored wall's fields",
-              );
-            const fitting: F.IRow[] = rows.filter(
-              (row: F.IRow): boolean => !row.heldout && row.s < at!,
-            );
-            const head: number[] = [];
-            for (let s: number = domain[0]; s < at! - GAP_MM / 2; s += GAP_MM)
-              head.push(s);
-            const near = (s: number): F.IRow =>
-              fitting.reduce(
-                (b: F.IRow, row: F.IRow): F.IRow =>
-                  Math.abs(row.s - s) < Math.abs(b.s - s) ? row : b,
-              );
-            const own: number[][] = head.map((s: number): number[] =>
-              C.seed(near(s).points, layout),
-            );
-            const tailKnots: number[] = tail.knots
-              .map((k: number): number => k + shift)
-              .filter((k: number): boolean => k >= at! && k <= domain[1]);
-            const knots: number[] = [
-              ...head.map((s: number): number => near(s).s),
-              ...tailKnots,
-              ...(tailKnots.at(-1)! < domain[1] - 1e-9 ? [domain[1]] : []),
-            ];
-            const tailAt = (s: number): number[] => K.reader(tail)(s - shift);
-            const values: number[][] = tail.values.map(
-              (_: number[], f: number): number[] => [
-                ...own.map((t: number[]): number => t[f]!),
-                ...knots
-                  .slice(head.length)
-                  .map((s: number): number => tailAt(s)[f]!),
-              ],
-            );
-            log("family-body-seed-tail", {
-              part: part.name,
-              at,
-              shift,
-              headKnots: head.length,
-              tailKnots: knots.length - head.length,
-            });
-            return { knots, values };
-          }
-          if (seed === undefined) return null;
-          const wall: K.IStored = await storedWall(seed, part.name);
-          const knots: number[] = [
-            domain[0],
-            ...wall.knots.filter(
-              (k: number): boolean =>
-                k > domain[0] + gap(domain[0]) &&
-                k < domain[1] - gap(domain[1]),
-            ),
-            domain[1],
-          ];
-          return { knots, values: F.resample(wall.values, wall.knots, knots) };
-        })();
+      const seedTail: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--seed-tail="))?.slice("--seed-tail=".length);
+      const seeded: { knots: number[]; values: number[][] } | null = await (async (): Promise<{ knots: number[]; values: number[][] } | null> => {
+        if (seedTail !== undefined) {
+          const [other, where]: string[] = seedTail.split("@");
+          const [at, moved]: number[] = where!.split("+").map(Number) as [number, number];
+          const tail: K.IStored = await storedWall(other!, part.name);
+          const shift: number = moved ?? 0;
+          const layout: C.ILayout | undefined = part.layouts.find((entry: { layout: C.ILayout }): boolean => C.units(entry.layout).length === tail.values.length)?.layout;
+          if (layout === undefined) throw new Error("--seed-tail: no layout of " + part.name + " has the stored wall's fields");
+          const fitting: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout && row.s < at!);
+          const head: number[] = [];
+          // The root stretch's knots: one at its start whenever it has a stretch of its own before the tail, then one a gap. Laid only
+          // where half a gap remained before the tail, a root 4.5 mm long got no knot (f1's little finger, whose first joint stands
+          // 11.5 mm proximal of the heads' plane: its "root fit" was the tail's own three knots from 16 mm, read as fitted).
+          for (let s: number = domain[0]; s < at! - (s === domain[0] ? 1e-9 : GAP_MM / 2); s += GAP_MM) head.push(s);
+          const near = (s: number): F.IRow => fitting.reduce((b: F.IRow, row: F.IRow): F.IRow => (Math.abs(row.s - s) < Math.abs(b.s - s) ? row : b));
+          const own: number[][] = head.map((s: number): number[] => C.seed(near(s).points, layout));
+          const tailKnots: number[] = tail.knots.map((k: number): number => k + shift).filter((k: number): boolean => k >= at! && k <= domain[1]);
+          const knots: number[] = [...head.map((s: number): number => near(s).s), ...tailKnots, ...(tailKnots.at(-1)! < domain[1] - 1e-9 ? [domain[1]] : [])];
+          const tailAt = (s: number): number[] => K.reader(tail)(s - shift);
+          const values: number[][] = tail.values.map((_: number[], f: number): number[] => [...own.map((t: number[]): number => t[f]!), ...knots.slice(head.length).map((s: number): number => tailAt(s)[f]!)]);
+          log("family-body-seed-tail", { part: part.name, at, shift, headKnots: head.length, tailKnots: knots.length - head.length });
+          return { knots, values };
+        }
+        if (seed === undefined) return null;
+        const wall: K.IStored = await storedWall(seed, part.name);
+        const knots: number[] = [domain[0], ...wall.knots.filter((k: number): boolean => k > domain[0] + gap(domain[0]) && k < domain[1] - gap(domain[1])), domain[1]];
+        return { knots, values: F.resample(wall.values, wall.knots, knots) };
+      })();
       // The seed starts the layout whose fields it has, and the shallower layouts are not fitted: a stored `limb(1)` wall is the start of
       // the `limb(1)` fit itself. Read only by the first layout, f1's foot end refitted from 880 to 975 mm on its stored `limb(1)` wall
       // started from scratch at `limb(0)` (3.55 mm at most), and that fit cut at its medians was no admissible chain on every section, so
       // the `limb(1)` fit was refused and the coarse wall kept.
-      const seedLayout: number =
-        seeded === null
-          ? -1
-          : part.layouts.findIndex(
-              (entry: { layout: C.ILayout }): boolean =>
-                C.units(entry.layout).length === seeded.values.length,
-            );
+      const seedLayout: number = seeded === null ? -1 : part.layouts.findIndex((entry: { layout: C.ILayout }): boolean => C.units(entry.layout).length === seeded.values.length);
       // `--held`: with `--seed`, the seed's knots are kept as they are, neither grown nor pruned, so a wall refitted over changed sections keeps
       // the knots its neighbours were sewn on.
-      const seedHeld: boolean =
-        seeded !== null && process.argv.includes("--held");
-      for (const { layout: plain, depth } of reuse !== undefined || constructed
-        ? []
-        : deepen !== undefined
-          ? [{ layout: C.limb(deeper), depth: deeper }]
-          : part.layouts.slice(Math.max(0, seedLayout))) {
-        const layout: C.ILayout =
-          least === undefined ? plain : { ...plain, least: leastAt(plain)! };
+      const seedHeld: boolean = seeded !== null && process.argv.includes("--held");
+      // With `--seed-tail` the fit stays on the tail's layout: the tail is the stored wall the head is spliced onto (`--splice`), and a
+      // splice joins two walls of one layout. Left to deepen, the toes' and the little finger's roots, seeded on stored `limb(0)` walls,
+      // came out as `limb(1)` (20 fields against the stored 12), and the big toe's deeper fit left the model's bounds (a shoulder of
+      // -0.0074).
+      for (const { layout: plain, depth } of reuse !== undefined || constructed ? [] : deepen !== undefined ? [{ layout: C.limb(deeper), depth: deeper }] : seedTail !== undefined ? [part.layouts[Math.max(0, seedLayout)]!] : part.layouts.slice(Math.max(0, seedLayout))) {
+        const layout: C.ILayout = least === undefined ? plain : { ...plain, least: leastAt(plain)! };
         // A deeper layout starts from the shallower one's final knots and values, cut exactly at every arc's median.
         // A layout with feature lines starts from knots every `FEATURE_KNOT_MM`, so its lines can follow where each feature appears and fades.
-        const lined: boolean =
-          FEATURE_KNOT_MM !== undefined &&
-          layout.anchors.some(
-            (anchor: C.IAnchor): boolean => anchor.kind === "f",
-          );
-        const spaced: number = Math.max(
-          2,
-          Math.round((domain[1] - domain[0]) / (FEATURE_KNOT_MM ?? 1)) + 1,
-        );
+        const lined: boolean = FEATURE_KNOT_MM !== undefined && layout.anchors.some((anchor: C.IAnchor): boolean => anchor.kind === "f");
+        const spaced: number = Math.max(2, Math.round((domain[1] - domain[0]) / (FEATURE_KNOT_MM ?? 1)) + 1);
         // `--feature-knots`: knots also where a feature appears or fades, the stations where a convex or concave feature's depth (its
         // distance from the chord of the feature anchors either side of it, read on each section's own seed) crosses `FEATURE_DEPTH_MM`, so a fading feature
         // ends on a knot as a shallow S and not between knots. Each section's seed reads its depth with a few tenths of a millimetre of
@@ -5404,112 +3213,44 @@ namespace FamilyConicBody {
           // Every convex or concave feature between two feature anchors, read against the chord of those two.
           const runs: number[][] = layout.anchors
             .map((_: C.IAnchor, k: number): number => k)
-            .filter(
-              (k: number): boolean =>
-                layout.anchors[k]!.kind === "f" &&
-                layout.anchors[k]!.feature !== "inflection" &&
-                layout.anchors[k - 1]?.kind === "f" &&
-                layout.anchors[k + 1]?.kind === "f",
-            )
+            .filter((k: number): boolean => layout.anchors[k]!.kind === "f" && layout.anchors[k]!.feature !== "inflection" && layout.anchors[k - 1]?.kind === "f" && layout.anchors[k + 1]?.kind === "f")
             .map((k: number): number[] => [k - 1, k, k + 1]);
-          const fitted: F.IRow[] = rows.filter(
-            (row: F.IRow): boolean => !row.heldout,
-          );
-          const seeds: number[][][] = fitted.map(
-            (row: F.IRow): number[][] =>
-              C.resolve(C.seed(row.points, layout), layout).input
-                .points as number[][],
-          );
+          const fitted: F.IRow[] = rows.filter((row: F.IRow): boolean => !row.heldout);
+          const seeds: number[][][] = fitted.map((row: F.IRow): number[][] => C.resolve(C.seed(row.points, layout), layout).input.points as number[][]);
           for (const run of runs) {
             const depthAt = (_: F.IRow, i: number): number => {
-              const [a, m, b] = [run[0]!, run[1]!, run[2]!].map(
-                (k: number): number[] => seeds[i]![k]!,
-              );
+              const [a, m, b] = [run[0]!, run[1]!, run[2]!].map((k: number): number[] => seeds[i]![k]!);
               const c: number[] = [b![0]! - a![0]!, b![1]! - a![1]!];
-              return (
-                Math.abs(
-                  c[0]! * (m![1]! - a![1]!) - c[1]! * (m![0]! - a![0]!),
-                ) / (Math.hypot(c[0]!, c[1]!) || 1)
-              );
+              return Math.abs(c[0]! * (m![1]! - a![1]!) - c[1]! * (m![0]! - a![0]!)) / (Math.hypot(c[0]!, c[1]!) || 1);
             };
             const raw: number[] = fitted.map(depthAt);
             const half: number = Math.floor(FEATURE_MEDIAN / 2);
             const depths: number[] = raw.map((_: number, i: number): number => {
-              const window: number[] = raw
-                .slice(Math.max(0, i - half), i + half + 1)
-                .sort((a: number, b: number): number => a - b);
+              const window: number[] = raw.slice(Math.max(0, i - half), i + half + 1).sort((a: number, b: number): number => a - b);
               return window[Math.floor(window.length / 2)]!;
             });
             let present: boolean = depths[0]! > FEATURE_DEPTH_MM;
             for (let i: number = 1; i < fitted.length; ++i) {
-              const now: boolean = present
-                ? depths[i]! > FEATURE_DEPTH_MM / 2
-                : depths[i]! > FEATURE_DEPTH_MM;
-              if (now !== present)
-                fading.push(round((fitted[i - 1]!.s + fitted[i]!.s) / 2));
+              const now: boolean = present ? depths[i]! > FEATURE_DEPTH_MM / 2 : depths[i]! > FEATURE_DEPTH_MM;
+              if (now !== present) fading.push(round((fitted[i - 1]!.s + fitted[i]!.s) / 2));
               present = now;
             }
           }
           fading.sort((a: number, b: number): number => a - b);
           log("family-body-fading", { part: part.name, stations: fading });
         }
-        const base: number[] = lined
-          ? Array.from(
-              { length: spaced },
-              (_: unknown, k: number): number =>
-                domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1),
-            )
-          : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
-        const knots0: number[] =
-          best === null ? (seeded?.knots ?? base) : [...best.knots];
-        let result: F.IResult = attempt(
-          knots0,
-          layout,
-          best === null
-            ? seeded !== null && seeded.values.length === C.units(layout).length
-              ? seeded.values.map((field: number[], f: number): number[] => {
-                  const first: number =
-                    C.units(layout).length -
-                    (layout.mirror
-                      ? layout.anchors.length - 1
-                      : layout.anchors.length);
-                  return least !== undefined && f >= first
-                    ? field.map((x: number): number =>
-                        Math.max(C.leastOf(layout, f - first) ?? 0, x),
-                      )
-                    : field;
-                })
-              : undefined
-            : F.refine(best.values, depth - 1),
-          "depth " + depth,
-        );
+        const base: number[] = lined ? Array.from({ length: spaced }, (_: unknown, k: number): number => domain[0] + ((domain[1] - domain[0]) * k) / (spaced - 1)) : [domain[0], (domain[0] + domain[1]) / 2, domain[1]];
+        const knots0: number[] = best === null ? (seeded?.knots ?? base) : [...best.knots];
+        let result: F.IResult = attempt(knots0, layout, best === null ? (seeded !== null && seeded.values.length === C.units(layout).length ? seeded.values.map((field: number[], f: number): number[] => {
+          const first: number = C.units(layout).length - (layout.mirror ? layout.anchors.length - 1 : layout.anchors.length);
+          return least !== undefined && f >= first ? field.map((x: number): number => Math.max(C.leastOf(layout, f - first) ?? 0, x)) : field;
+        }) : undefined) : F.refine(best.values, depth - 1), "depth " + depth);
         // The feature knots inserted into the first fit, one trial, kept as any growth round is.
-        const inserted: number[] = fading.filter(
-          (s: number, i: number): boolean =>
-            s > domain[0] &&
-            s < domain[1] &&
-            result.knots.every(
-              (k: number): boolean => Math.abs(k - s) >= gap(s),
-            ) &&
-            fading
-              .slice(0, i)
-              .every((t: number): boolean => Math.abs(t - s) >= gap(s)),
-        );
+        const inserted: number[] = fading.filter((s: number, i: number): boolean => s > domain[0] && s < domain[1] && result.knots.every((k: number): boolean => Math.abs(k - s) >= gap(s)) && fading.slice(0, i).every((t: number): boolean => Math.abs(t - s) >= gap(s)));
         if (result.fault === null && inserted.length > 0) {
-          const next: number[] = [...result.knots, ...inserted].sort(
-            (a: number, b: number): number => a - b,
-          );
-          const trial: F.IResult = attempt(
-            next,
-            layout,
-            F.resample(result.values, result.knots, next),
-            "feature knots",
-          );
-          if (
-            trial.fault === null &&
-            trial.training.meanMm < result.training.meanMm
-          )
-            result = trial;
+          const next: number[] = [...result.knots, ...inserted].sort((a: number, b: number): number => a - b);
+          const trial: F.IResult = attempt(next, layout, F.resample(result.values, result.knots, next), "feature knots");
+          if (trial.fault === null && trial.training.meanMm < result.training.meanMm) result = trial;
         }
 
         // Growth always starts from the family of least mean so far. A round that lowers that mean by 3 % is kept; one that does not is dropped
@@ -5519,49 +3260,15 @@ namespace FamilyConicBody {
         let idle: number = 0;
         // A candidate the construction's path refused still carries its fit, so growth goes on from it: the slit cutter's first candidate on
         // its corrected walls was refused there while finer ones had been admitted.
-        while (
-          deepen === undefined &&
-          !seedHeld &&
-          (result.fault === null || refusedNative(result)) &&
-          result.training.maximumMm > 0.9 * TARGET_MM &&
-          idle < 3
-        ) {
+        while (deepen === undefined && !seedHeld && (result.fault === null || refusedNative(result)) && result.training.maximumMm > 0.9 * TARGET_MM && idle < 3) {
           const held: F.IResult = result;
-          const open: F.IResult["rows"] = held.rows
-            .filter(
-              (r: F.IResult["rows"][number]): boolean =>
-                !r.heldout &&
-                !refused.has(r.s) &&
-                r.maximumMm > 0.9 * TARGET_MM &&
-                held.knots.every(
-                  (k: number): boolean => Math.abs(k - r.s) >= gap(r.s),
-                ),
-            )
-            .sort((a, b) => b.maximumMm - a.maximumMm);
+          const open: F.IResult["rows"] = held.rows.filter((r: F.IResult["rows"][number]): boolean => !r.heldout && !refused.has(r.s) && r.maximumMm > 0.9 * TARGET_MM && held.knots.every((k: number): boolean => Math.abs(k - r.s) >= gap(r.s))).sort((a, b) => b.maximumMm - a.maximumMm);
           const added: number[] = [];
-          for (const r of open)
-            if (
-              added.length < 4 &&
-              added.every(
-                (s: number): boolean => Math.abs(s - r.s) >= 2 * gap(r.s),
-              )
-            )
-              added.push(r.s);
+          for (const r of open) if (added.length < 4 && added.every((s: number): boolean => Math.abs(s - r.s) >= 2 * gap(r.s))) added.push(r.s);
           if (added.length === 0) break;
-          const next: number[] = [...held.knots, ...added].sort(
-            (a: number, b: number): number => a - b,
-          );
-          const trial: F.IResult = attempt(
-            next,
-            layout,
-            F.resample(held.values, held.knots, next),
-            "grow",
-          );
-          if (
-            trial.fault === null &&
-            (held.fault !== null ||
-              trial.training.meanMm < 0.97 * held.training.meanMm)
-          ) {
+          const next: number[] = [...held.knots, ...added].sort((a: number, b: number): number => a - b);
+          const trial: F.IResult = attempt(next, layout, F.resample(held.values, held.knots, next), "grow");
+          if (trial.fault === null && (held.fault !== null || trial.training.meanMm < 0.97 * held.training.meanMm)) {
             result = trial;
             idle = 0;
           } else {
@@ -5569,73 +3276,28 @@ namespace FamilyConicBody {
             ++idle;
           }
         }
-        if (
-          result.fault === null &&
-          (best === null ||
-            deepen !== undefined ||
-            result.training.maximumMm < 0.97 * best.training.maximumMm ||
-            result.training.meanMm < 0.9 * best.training.meanMm)
-        )
-          best = result;
+        if (result.fault === null && (best === null || deepen !== undefined || result.training.maximumMm < 0.97 * best.training.maximumMm || result.training.meanMm < 0.9 * best.training.meanMm)) best = result;
         if (best !== null && best.training.maximumMm <= 0.9 * TARGET_MM) break;
       }
 
       // Prune: drop every knot whose removal keeps the maximum and the mean within 3 % and 5 % of the grown family.
-      if (
-        best !== null &&
-        reuse === undefined &&
-        deepen === undefined &&
-        !constructed &&
-        !seedHeld
-      ) {
+      if (best !== null && reuse === undefined && deepen === undefined && !constructed && !seedHeld) {
         // The limits are read from the grown family under the same plain pass the trials run, so a trial is compared like for like. The grown
         // family itself stays: the thinned one replaces it only if, refitted with the reweighted passes, its mean is within 10 % of the grown one's.
-        const base: F.IResult = attempt(
-          best.knots,
-          best.layout,
-          best.values,
-          "prune base",
-          2,
-        );
+        const base: F.IResult = attempt(best.knots, best.layout, best.values, "prune base", 2);
         if (base.fault === null) {
           let thinned: F.IResult = base;
-          const limitMax: number = Math.max(
-            0.9 * TARGET_MM,
-            1.03 * base.training.maximumMm,
-          );
+          const limitMax: number = Math.max(0.9 * TARGET_MM, 1.03 * base.training.maximumMm);
           const limitMean: number = 1.05 * base.training.meanMm;
           for (let k: number = thinned.knots.length - 2; k >= 1; --k) {
-            const next: number[] = thinned.knots.filter(
-              (_: number, i: number): boolean => i !== k,
-            );
-            const trial: F.IResult = attempt(
-              next,
-              thinned.layout,
-              F.resample(thinned.values, thinned.knots, next),
-              "prune",
-              2,
-            );
-            if (
-              trial.fault === null &&
-              trial.training.maximumMm <= limitMax &&
-              trial.training.meanMm <= limitMean
-            )
-              thinned = trial;
+            const next: number[] = thinned.knots.filter((_: number, i: number): boolean => i !== k);
+            const trial: F.IResult = attempt(next, thinned.layout, F.resample(thinned.values, thinned.knots, next), "prune", 2);
+            if (trial.fault === null && trial.training.maximumMm <= limitMax && trial.training.meanMm <= limitMean) thinned = trial;
           }
           if (thinned.knots.length < best.knots.length) {
-            const polished: F.IResult = attempt(
-              thinned.knots,
-              thinned.layout,
-              thinned.values,
-              "polish",
-            );
-            if (
-              polished.fault === null &&
-              polished.training.meanMm <= 1.1 * best.training.meanMm
-            )
-              best = polished;
-            else if (thinned.training.meanMm <= 1.1 * best.training.meanMm)
-              best = thinned;
+            const polished: F.IResult = attempt(thinned.knots, thinned.layout, thinned.values, "polish");
+            if (polished.fault === null && polished.training.meanMm <= 1.1 * best.training.meanMm) best = polished;
+            else if (thinned.training.meanMm <= 1.1 * best.training.meanMm) best = thinned;
           }
         }
       }
@@ -5643,21 +3305,7 @@ namespace FamilyConicBody {
         receipt.push({ part: part.name, trail, fault: "no admissible family" });
         continue;
       }
-      log("family-body-rows", {
-        part: part.name,
-        worst: best.rows
-          .filter((r) => r.maximumMm > TARGET_MM)
-          .map(
-            (r) =>
-              r.s.toFixed(0) +
-              (r.heldout ? "h" : "t") +
-              ":" +
-              r.maximumMm.toFixed(2) +
-              "@" +
-              ((r.phase * 180) / Math.PI).toFixed(0),
-          )
-          .join(" "),
-      });
+      log("family-body-rows", { part: part.name, worst: best.rows.filter((r) => r.maximumMm > TARGET_MM).map((r) => r.s.toFixed(0) + (r.heldout ? "h" : "t") + ":" + r.maximumMm.toFixed(2) + "@" + ((r.phase * 180) / Math.PI).toFixed(0)).join(" ") });
 
       // Store as rounded text, then regenerate from that text alone through the engine.
       // A cutter is carried straight back from its first section by `lead`: three knots more with that section's values, so it comes out
@@ -5668,52 +3316,18 @@ namespace FamilyConicBody {
       // whose fit under the bound stalls. The leg's ankle, refitted under 0.3 from 640 or 740 to 900 or 880 mm, stopped at 7 and 10 knots
       // and 1.4 and 0.26 mm, since the heel sweeps faster than knots 12 mm apart follow; its arcs of 0.11 to 0.24 drew a crescent round the
       // lateral malleolus.
-      const raise: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--raise="))
-        ?.slice(8);
+      const raise: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--raise="))?.slice(8);
       // A least per arc is raised arc by arc, each shoulder field to its own arc's least.
       if (raise !== undefined) {
         const held: C.ILayout = best.layout;
-        const arcs: number = held.mirror
-          ? held.anchors.length - 1
-          : held.anchors.length;
-        best = {
-          ...best,
-          layout: {
-            ...held,
-            least:
-              held.least === undefined || typeof held.least === "number"
-                ? Math.max(held.least ?? 0, Number(raise))
-                : Array.from(
-                    { length: arcs },
-                    (_: unknown, arc: number): number =>
-                      Math.max(C.leastOf(held, arc) ?? 0, Number(raise)),
-                  ),
-          },
-        };
+        const arcs: number = held.mirror ? held.anchors.length - 1 : held.anchors.length;
+        best = { ...best, layout: { ...held, least: held.least === undefined || typeof held.least === "number" ? Math.max(held.least ?? 0, Number(raise)) : Array.from({ length: arcs }, (_: unknown, arc: number): number => Math.max(C.leastOf(held, arc) ?? 0, Number(raise))) } };
       }
       if (best.layout.least !== undefined) {
         const bounded: C.ILayout = best.layout;
-        const unbounded: C.ILayout = {
-          anchors: best.layout.anchors,
-          mirror: best.layout.mirror,
-        };
-        const first: number =
-          C.units(unbounded).length -
-          (unbounded.mirror
-            ? unbounded.anchors.length - 1
-            : unbounded.anchors.length);
-        best = {
-          ...best,
-          layout: unbounded,
-          values: best.values.map((field: number[], f: number): number[] =>
-            f >= first
-              ? field.map((x: number): number =>
-                  Math.max(C.leastOf(bounded, f - first) ?? 0, x),
-                )
-              : field,
-          ),
-        };
+        const unbounded: C.ILayout = { anchors: best.layout.anchors, mirror: best.layout.mirror };
+        const first: number = C.units(unbounded).length - (unbounded.mirror ? unbounded.anchors.length - 1 : unbounded.anchors.length);
+        best = { ...best, layout: unbounded, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => Math.max(C.leastOf(bounded, f - first) ?? 0, x)) : field)) };
       }
 
       // Every shoulder is stored as the model reads it (`AutoMovieHumanConicSection.shoulder`), so the stored wall is the one generated. The
@@ -5722,56 +3336,28 @@ namespace FamilyConicBody {
       // matched over the whole trunk, the wall under the armpit moved by up to 10 mm (1,250 to 1,300 mm high, 60 to 85 degrees), so the
       // reliefs are refitted on it and the armpit's slit cutter, fitted to the earlier wall, is refitted on it as well.
       {
-        const arcs: number = best.layout.mirror
-          ? best.layout.anchors.length - 1
-          : best.layout.anchors.length;
+        const arcs: number = best.layout.mirror ? best.layout.anchors.length - 1 : best.layout.anchors.length;
         const first: number = C.units(best.layout).length - arcs;
         const layout: C.ILayout = best.layout;
-        best = {
-          ...best,
-          values: best.values.map((field: number[], f: number): number[] =>
-            f >= first
-              ? field.map((x: number): number =>
-                  C.shoulder(x, layout, f - first),
-                )
-              : field,
-          ),
-        };
+        best = { ...best, values: best.values.map((field: number[], f: number): number[] => (f >= first ? field.map((x: number): number => C.shoulder(x, layout, f - first)) : field)) };
       }
       // `--g2=<anchor>@<from>-<to>`: at every knot from `from` to `to` mm the two arcs meeting at that anchor take the shoulders that make
       // the section's curvature continuous there (`AutoMovieHumanConicSection.continuous`), before the reliefs are fitted over the wall.
       // The trunk's first median over the hips met with curvatures of 1.2 and 308 per metre, an upright line down each hip.
       // Several anchors may be named, `--g2=1,2,3@28-912`, each made continuous in turn at every knot of the range.
-      const g2: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--g2="))
-        ?.slice(5);
+      const g2: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--g2="))?.slice(5);
       if (g2 !== undefined) {
         const [anchors, ranges]: string[] = g2.split("@");
         // Several ranges may be given, `28-740+800-912`.
-        const spans: number[][] = ranges!
-          .split("+")
-          .map((range: string): number[] => range.split("-").map(Number));
-        const fields: number[][] = best.values.map(
-          (field: number[]): number[] => [...field],
-        );
+        const spans: number[][] = ranges!.split("+").map((range: string): number[] => range.split("-").map(Number));
+        const fields: number[][] = best.values.map((field: number[]): number[] => [...field]);
         best.knots.forEach((s: number, j: number): void => {
-          if (
-            !spans.some(
-              ([from, to]: number[]): boolean => s >= from! && s <= to!,
-            )
-          )
-            return;
+          if (!spans.some(([from, to]: number[]): boolean => s >= from! && s <= to!)) return;
           // Neighbouring anchors share an arc, so the matches are repeated until each holds with the others (Gauss-Seidel sweeps).
           for (let sweep: number = 0; sweep < 8; ++sweep)
             for (const anchor of anchors!.split(",").map(Number)) {
-              const smooth: number[] = C.continuous(
-                fields.map((field: number[]): number => field[j]!),
-                best!.layout,
-                anchor,
-              );
-              smooth.forEach(
-                (x: number, f: number): void => void (fields[f]![j] = x),
-              );
+              const smooth: number[] = C.continuous(fields.map((field: number[]): number => field[j]!), best!.layout, anchor);
+              smooth.forEach((x: number, f: number): void => void (fields[f]![j] = x));
             }
         });
         best = { ...best, values: fields };
@@ -5779,63 +3365,22 @@ namespace FamilyConicBody {
       // `--relay-stored=<knot>,...:<field>,...[;...]`: as `--relay`, on the wall as stored, after the curvature match: where the match itself
       // drew a field's knot out of its neighbours' flow (the trunk's front arcs at 792 mm, both held to a shoulder of 0.14 by matching the
       // curvature of a section whose front stood on the nose's clip), the knot is laid from the field's other knots.
-      const relayStored: string | undefined = process.argv
-        .find((argument: string): boolean =>
-          argument.startsWith("--relay-stored="),
-        )
-        ?.slice(15);
+      const relayStored: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--relay-stored="))?.slice(15);
       if (relayStored !== undefined) {
-        const values: number[][] = best.values.map(
-          (field: number[]): number[] => [...field],
-        );
+        const values: number[][] = best.values.map((field: number[]): number[] => [...field]);
         for (const group of relayStored.split(";")) {
           const [knotText, fieldText]: string[] = group.split(":");
           const broken: number[] = knotText!.split(",").map(Number);
-          const keep: number[] = best.knots
-            .map((_: number, k: number): number => k)
-            .filter((k: number): boolean => !broken.includes(best!.knots[k]!));
+          const keep: number[] = best.knots.map((_: number, k: number): number => k).filter((k: number): boolean => !broken.includes(best!.knots[k]!));
           for (const f of fieldText!.split(",").map(Number)) {
-            const laid: number[] = F.resample(
-              [keep.map((k: number): number => values[f]![k]!)],
-              keep.map((k: number): number => best!.knots[k]!),
-              best.knots,
-            )[0]!;
-            values[f] = values[f]!.map((x: number, k: number): number =>
-              broken.includes(best!.knots[k]!) ? laid[k]! : x,
-            );
+            const laid: number[] = F.resample([keep.map((k: number): number => values[f]![k]!)], keep.map((k: number): number => best!.knots[k]!), best.knots)[0]!;
+            values[f] = values[f]!.map((x: number, k: number): number => (broken.includes(best!.knots[k]!) ? laid[k]! : x));
           }
         }
         best = { ...best, values };
       }
-      const led: { knots: number[]; values: number[][] } =
-        part.lead === undefined
-          ? { knots: best.knots, values: best.values }
-          : {
-              knots: [
-                ...[3, 2, 1].map(
-                  (k: number): number => best!.knots[0]! - (part.lead! * k) / 3,
-                ),
-                ...best.knots,
-              ],
-              values: best.values.map((field: number[]): number[] => [
-                field[0]!,
-                field[0]!,
-                field[0]!,
-                ...field,
-              ]),
-            };
-      const stored: string = JSON.stringify({
-        name: part.name,
-        centres: part.centres.map((c: R.V): number[] => c.map(round)),
-        halves: part.halves,
-        up: part.up,
-        ...(part.roll === undefined ? {} : { roll: part.roll }),
-        layout: best.layout,
-        knots: led.knots.map(round),
-        values: led.values.map((field: number[], f: number): number[] =>
-          field.map(C.units(best!.layout)[f] === "mm" ? round : round4),
-        ),
-      });
+      const led: { knots: number[]; values: number[][] } = part.lead === undefined ? { knots: best.knots, values: best.values } :{ knots: [...[3, 2, 1].map((k: number): number => best!.knots[0]! - (part.lead! * k) / 3), ...best.knots], values: best.values.map((field: number[]): number[] => [field[0]!, field[0]!, field[0]!, ...field]) };
+      const stored: string = JSON.stringify({ name: part.name, centres: part.centres.map((c: R.V): number[] => c.map(round)), halves: part.halves, up: part.up, ...(part.roll === undefined ? {} : { roll: part.roll }), layout: best.layout, knots: led.knots.map(round), values: led.values.map((field: number[], f: number): number[] => field.map(C.units(best!.layout)[f] === "mm" ? round : round4)) });
       await fs.writeFile(path.join(out, part.name + ".family.json"), stored);
       const definition: K.IStored = JSON.parse(stored) as K.IStored;
 
@@ -5847,349 +3392,106 @@ namespace FamilyConicBody {
         // It hands its edges over as an authored window may (`fade`): the search widens it by 30 mm and 0.45 rad past its hollow, and asked
         // for the whole height from its first free row it drew its outline on the ankle as level wrinkles.
         // `--coarse=<share>`: every authored window's rows and columns scaled by that share, at least 7, to read how fine a net must be.
-        const coarse: number = Number(
-          process.argv
-            .find((argument: string): boolean =>
-              argument.startsWith("--coarse="),
-            )
-            ?.slice(9) ?? 1,
-        );
-        const below: number = Number(
-          process.argv
-            .find((argument: string): boolean =>
-              argument.startsWith("--coarse-below="),
-            )
-            ?.slice(15) ?? Infinity,
-        );
-        const scaled = (window: IWindow): IWindow =>
-          coarse === 1 || window.stations[1] > below
-            ? window
-            : {
-                ...window,
-                rows: Math.max(7, Math.round(window.rows * coarse)),
-                columns: Math.max(7, Math.round(window.columns * coarse)),
-              };
+        const coarse: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--coarse="))?.slice(9) ?? 1);
+        const below: number = Number(process.argv.find((argument: string): boolean => argument.startsWith("--coarse-below="))?.slice(15) ?? Infinity);
+        const scaled = (window: IWindow): IWindow => (coarse === 1 || window.stations[1] > below ? window : { ...window, rows: Math.max(7, Math.round(window.rows * coarse)), columns: Math.max(7, Math.round(window.columns * coarse)) });
         // `--bare`: the wall alone, no relief of any kind, for a wall that is spliced and given its reliefs in a later run (`--wall`).
-        const windows: IWindow[] = BARE
-          ? []
-          : part.reliefs === "auto"
-            ? hollowWindows(
-                part.name,
-                rows,
-                skins,
-                course,
-                part.loose === true,
-              ).map(
-                (window: H.IWindow): IWindow => ({
-                  ...window,
-                  stations: [
-                    part.name === "auricle"
-                      ? Math.max(window.stations[0], domain[0])
-                      : window.stations[0],
-                    Math.min(
-                      window.stations[1],
-                      part.reliefEnd ?? tip ?? Infinity,
-                    ),
-                  ],
-                  fade: [50, 50],
-                  fadePhase: [0.6, 0.6],
-                }),
-              )
-            : part.reliefs.map(scaled);
+        const windows: IWindow[] = BARE ? [] : part.reliefs === "auto" ?hollowWindows(part.name, rows, skins, course, part.loose === true).map((window: H.IWindow): IWindow => ({ ...window, stations: [part.name === "auricle" ? Math.max(window.stations[0], domain[0]) : window.stations[0], Math.min(window.stations[1], part.reliefEnd ?? tip ?? Infinity)], fade: [50, 50], fadePhase: [0.6, 0.6] })) : part.reliefs.map(scaled);
 
         // Phases from 0 to a whole turn have their middle at pi, where the inward radial direction is +u, and a quarter turn on it is +v. A
         // net over a window of phases with middle `c` casts toward the course as well: `cos(t - c) A + sin(t - c) T` is the inward radial
         // direction `-(cos t u + sin t v)` at every phase `t` for `A = -(cos c u + sin c v)` and `T = sin c u - cos c v` (at `c = pi`, `u`
         // and `v`).
-        const rounds: IWindow[] = (BARE ? [] : (part.rounds ?? [])).map(
-          (net): IWindow => {
-            const frame: IAutoMovieLoftSectionFrame = course.at(
-              (net.stations[0] + net.stations[1]) / 2,
-            );
-            const phases: [number, number] = net.window?.phases ?? [
-              0,
-              2 * Math.PI,
-            ];
-            const c: number = (phases[0] + phases[1]) / 2;
-            const axis: R.V =
-              net.window === undefined
-                ? [frame.u[0], frame.u[1], frame.u[2]]
-                : ([0, 1, 2].map(
-                    (k: number): number =>
-                      -(Math.cos(c) * frame.u[k]! + Math.sin(c) * frame.v[k]!),
-                  ) as R.V);
-            const turn: R.V =
-              net.window === undefined
-                ? [frame.v[0], frame.v[1], frame.v[2]]
-                : ([0, 1, 2].map(
-                    (k: number): number =>
-                      Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!,
-                  ) as R.V);
-            return {
-              name: part.name + "." + net.name,
-              stations: net.stations,
-              phases,
-              axis,
-              turn,
-              rows: net.rows,
-              columns: net.columns,
-              mirror: false,
-              ...(net.window === undefined
-                ? {
-                    periodic: true,
-                    ...(net.fade === undefined ? {} : { fade: net.fade }),
-                  }
-                : { fade: net.window.fade, fadePhase: net.window.fadePhase }),
-              chord: true,
-              reach: net.reach,
-              ...(net.hold === undefined ? {} : { hold: net.hold }),
-            };
-          },
-        );
+        const rounds: IWindow[] = (BARE ? [] : part.rounds ?? []).map((net): IWindow => {
+          const frame: IAutoMovieLoftSectionFrame = course.at((net.stations[0] + net.stations[1]) / 2);
+          const phases: [number, number] = net.window?.phases ?? [0, 2 * Math.PI];
+          const c: number = (phases[0] + phases[1]) / 2;
+          const axis: R.V = net.window === undefined ? [frame.u[0], frame.u[1], frame.u[2]] : ([0, 1, 2].map((k: number): number => -(Math.cos(c) * frame.u[k]! + Math.sin(c) * frame.v[k]!)) as R.V);
+          const turn: R.V = net.window === undefined ? [frame.v[0], frame.v[1], frame.v[2]] : ([0, 1, 2].map((k: number): number => Math.sin(c) * frame.u[k]! - Math.cos(c) * frame.v[k]!) as R.V);
+          return { name: part.name + "." + net.name, stations: net.stations, phases, axis, turn, rows: net.rows, columns: net.columns, mirror: false, ...(net.window === undefined ? { periodic: true, ...(net.fade === undefined ? {} : { fade: net.fade }) } : { fade: net.window.fade, fadePhase: net.window.fadePhase }), chord: true, reach: net.reach, ...(net.hold === undefined ? {} : { hold: net.hold }), ...(net.graze === undefined ? {} : { graze: net.graze }) };
+        });
         // A window splice carries every stored relief in its stored order and fits again only those wholly inside its window: a relief that
         // straddles the window's edge, fitted again from scratch, moved the trunk's head and breasts up to 13 mm away from the window.
-        const touching = (
-          stations: readonly [number, number] | readonly number[],
-        ): boolean =>
-          spliced?.window === undefined ||
-          (stations[0]! >= spliced.window[0] &&
-            stations[1]! <= spliced.window[1]);
-        const refitted: string[] | null =
-          carried === null
-            ? null
-            : (process.argv
-                .find((argument: string): boolean =>
-                  argument.startsWith("--refit-reliefs="),
-                )
-                ?.slice("--refit-reliefs=".length)
-                .split(",") ?? null);
-        definition.reliefs =
-          spliced?.window === undefined
-            ? []
-            : spliced.head.filter(
-                (relief: IAutoMovieLoftRelief): boolean =>
-                  !touching(relief.stations),
-              );
+        const touching = (stations: readonly [number, number] | readonly number[]): boolean => spliced?.window === undefined || (stations[0]! >= spliced.window[0] && stations[1]! <= spliced.window[1]);
+        const refitted: string[] | null = carried === null ? null : (process.argv.find((argument: string): boolean => argument.startsWith("--refit-reliefs="))?.slice("--refit-reliefs=".length).split(",") ?? null);
+        definition.reliefs = spliced?.window === undefined ? [] : spliced.head.filter((relief: IAutoMovieLoftRelief): boolean => !touching(relief.stations));
         const fitAll = (list: readonly IWindow[], judged: boolean): void => {
-          for (const window of list) {
-            // Each window is fitted over the wall with every earlier relief already on it, as the engine composes them, so a later window takes only what the earlier ones left.
-            const earlier: IAutoMovieLoftRelief[] = [
-              ...(definition.reliefs ?? []),
-            ];
-            const fitted: H.IResult = H.fit(
-              window,
-              rows.map((row: F.IRow, i: number): H.IRow => {
-                const section: IAutoMovieViewChain.ISection = C.chain(
-                  read(row.s),
-                  definition.layout,
-                );
-                const frame: IAutoMovieLoftSectionFrame = course.at(row.s);
-                const inChart = (axis: readonly number[]): C.P => [
-                  axis[0]! * frame.u[0] +
-                    axis[1]! * frame.u[1] +
-                    axis[2]! * frame.u[2],
-                  axis[0]! * frame.v[0] +
-                    axis[1]! * frame.v[1] +
-                    axis[2]! * frame.v[2],
-                ];
-                // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
-                const left: ((p: R.V) => number) | undefined =
-                  window.uncut === true
-                    ? part.kept
-                    : window.chord === true
-                      ? undefined
-                      : part.clip;
-                // C4a: an observed region's edge, an unseen footprint (`IPart.unseen`) or a hold (`holdWidth: "span"`), spans at least the control
-                // spacing of the net that reads it: its row pitch along the station or its column pitch round the section at the landing's radius,
-                // the larger (lofting.md: an edge is resolved only when every sampling across it is at most a quarter of its roll). At 3 mm the nose
-                // box's unseen edge stood under `trunk.head`'s 6.2 mm column and drew a line round the section, 5.97 against 1.36 deg/mm at s 771.
-                const span = (p: C.P): number =>
-                  Math.max(
-                    (window.stations[1] - window.stations[0]) /
-                      (window.rows - 3),
-                    ((window.phases[1] - window.phases[0]) /
-                      (window.columns - 3)) *
-                      Math.hypot(p[0], p[1]),
-                  );
-                const quintic = (x: number): number =>
-                  x * x * x * (10 - 15 * x + 6 * x * x);
-                // Skin a neighbour owns (`IPart.unseen`) weighs less the nearer a landing is to it, from a span outside it to its edge, by the quintic
-                // smooth step (`H.IRow.open`). The nose box's floor fades into the face for the sections alone (`noseCut`): between 1,544 and
-                // 1,550 mm its receding front let the face's nets land on the nose's own base, and at 0.15 rad the face net's targets swung from
-                // 1.21 to -4.71 to 0.02 mm over s 764 to 770 and the head net's from 9.63 to 5.10 to 9.47, every landing inside the box.
-                const unseen: ((p: R.V) => number) | undefined =
-                  window.uncut === true || window.chord === true
-                    ? undefined
-                    : part.unseen;
-                const open =
-                  left === undefined
-                    ? undefined
-                    : (p: C.P): boolean | number => {
-                        const q: R.V = [
-                          frame.origin[0] +
-                            p[0] * frame.u[0] +
-                            p[1] * frame.v[0],
-                          frame.origin[1] +
-                            p[0] * frame.u[1] +
-                            p[1] * frame.v[1],
-                          frame.origin[2] +
-                            p[0] * frame.u[2] +
-                            p[1] * frame.v[2],
-                        ];
-                        if (left(q) > 0.05) return true;
-                        if (unseen === undefined) return false;
-                        const width: number = span(p);
-                        return quintic(
-                          Math.min(1, Math.max(0, (unseen(q) + width) / width)),
-                        );
-                      };
-                // With `holdWidth` the hold is a share that rises from none at the held region's edge to all of it that far inside, by the quintic
-                // smooth step, so the target is C2 across the edge (`H.IRow.hold`).
-                const hold =
-                  window.hold === undefined
-                    ? undefined
-                    : (p: C.P): boolean | number => {
-                        const inside: number = window.hold!([
-                          frame.origin[0] +
-                            p[0] * frame.u[0] +
-                            p[1] * frame.v[0],
-                          frame.origin[1] +
-                            p[0] * frame.u[1] +
-                            p[1] * frame.v[1],
-                          frame.origin[2] +
-                            p[0] * frame.u[2] +
-                            p[1] * frame.v[2],
-                        ]);
-                        if (window.holdWidth === undefined) return inside > 0;
-                        return quintic(
-                          Math.min(
-                            1,
-                            Math.max(
-                              0,
-                              inside /
-                                (window.holdWidth === "span"
-                                  ? span(p)
-                                  : window.holdWidth),
-                            ),
-                          ),
-                        );
-                      };
-                // A window that leaves grazing casts unobserved (`graze`) reads the skin's rise along the station from the uncut reference sections
-                // 1 mm either side, along the in-plane normal where the cast lands.
-                const slope =
-                  window.graze === undefined
-                    ? undefined
-                    : ((): ((p: C.P, normal: C.P) => number | null) => {
-                        const below: C.P[] | null = R.cut(
-                          skin,
-                          course.at(row.s - 1),
-                        ).loop;
-                        const above: C.P[] | null = R.cut(
-                          skin,
-                          course.at(row.s + 1),
-                        ).loop;
-                        return (p: C.P, normal: C.P): number | null => {
-                          const a: number | null =
-                            below === null ? null : H.cast(below, p, normal);
-                          const b: number | null =
-                            above === null ? null : H.cast(above, p, normal);
-                          return a === null || b === null ? null : (b - a) / 2;
-                        };
-                      })();
-                const own: C.P[] =
-                  window.chord === true ? loops[i]! : skins[i]!;
-                const uncut: C.P[] | null =
-                  window.uncut === true &&
-                  row.s > window.stations[0] &&
-                  row.s < window.stations[1]
-                    ? R.cut(skin, frame).loop
-                    : null;
-                const whole: C.P[] | null =
-                  uncut === null || part.kept === undefined
-                    ? uncut
-                    : without(uncut, frame, part.kept);
-                return {
-                  s: row.s,
-                  ...(hold === undefined ? {} : { hold }),
-                  ...(slope === undefined ? {} : { slope }),
-                  skin: whole ?? own,
-                  heldout: row.heldout,
-                  ...(open === undefined ? {} : { open }),
-                  wall: (phi: number): C.P => {
-                    const r: number = Q.radius(section, phi);
-                    const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
-                    for (const relief of earlier) {
-                      const height: number = AutoMovieLoftRelief.height(
-                        relief,
-                        row.s,
-                        phi,
-                      )[0];
-                      const along: C.P = inChart(
-                        AutoMovieLoftRelief.direction(relief, phi)[0],
-                      );
-                      p[0] += height * along[0];
-                      p[1] += height * along[1];
-                    }
-                    return p;
-                  },
-                  axis: inChart(window.axis),
-                  ...(window.turn === undefined
-                    ? {}
-                    : { turn: inChart(window.turn) }),
-                };
-              }),
-            );
-            // A window placed by the hollow search is kept only when its net takes away at least half of its deepest hollow on the withheld
-            // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.
-            // Nor is one kept whose deepest hollow is shallower than half the fit's target: the leg's window over the foot's end (924 to
-            // 960 mm) stored 473 heights for a hollow 0.11 mm deep, which is the wall's own misfit (the conic audit's leg rows).
-            const kept: boolean =
-              !judged ||
-              (fitted.heldMaxMm <= 0.5 * fitted.deepestMm &&
-                fitted.deepestMm >= 0.5 * TARGET_MM);
-            definition.reliefs ??= [];
-            if (kept) definition.reliefs.push(fitted.relief);
+         for (const window of list) {
+          // Each window is fitted over the wall with every earlier relief already on it, as the engine composes them, so a later window takes only what the earlier ones left.
+          const earlier: IAutoMovieLoftRelief[] = [...(definition.reliefs ?? [])];
+          const fitted: H.IResult = H.fit(window, rows.map((row: F.IRow, i: number): H.IRow => {
+            const section: IAutoMovieViewChain.ISection = C.chain(read(row.s), definition.layout);
+            const frame: IAutoMovieLoftSectionFrame = course.at(row.s);
+            const inChart = (axis: readonly number[]): C.P => [axis[0]! * frame.u[0] + axis[1]! * frame.u[1] + axis[2]! * frame.u[2], axis[0]! * frame.v[0] + axis[1]! * frame.v[1] + axis[2]! * frame.v[2]];
+            // A cast that lands on the chord closing a neighbour's cut (the ear's, the nose's, the arm's) has found no skin: inside the cut the clip is positive.
+            const left: ((p: R.V) => number) | undefined = window.uncut === true ? part.kept : window.chord === true ? undefined : part.clip;
+            // C4a: an observed region's edge, an unseen footprint (`IPart.unseen`) or a hold (`holdWidth: "span"`), spans at least the control
+            // spacing of the net that reads it: its row pitch along the station or its column pitch round the section at the landing's radius,
+            // the larger (lofting.md: an edge is resolved only when every sampling across it is at most a quarter of its roll). At 3 mm the nose
+            // box's unseen edge stood under `trunk.head`'s 6.2 mm column and drew a line round the section, 5.97 against 1.36 deg/mm at s 771.
+            const span = (p: C.P): number => Math.max((window.stations[1] - window.stations[0]) / (window.rows - 3), ((window.phases[1] - window.phases[0]) / (window.columns - 3)) * Math.hypot(p[0], p[1]));
+            const quintic = (x: number): number => x * x * x * (10 - 15 * x + 6 * x * x);
+            // Skin a neighbour owns (`IPart.unseen`) weighs less the nearer a landing is to it, from a span outside it to its edge, by the quintic
+            // smooth step (`H.IRow.open`). The nose box's floor fades into the face for the sections alone (`noseCut`): between 1,544 and
+            // 1,550 mm its receding front let the face's nets land on the nose's own base, and at 0.15 rad the face net's targets swung from
+            // 1.21 to -4.71 to 0.02 mm over s 764 to 770 and the head net's from 9.63 to 5.10 to 9.47, every landing inside the box.
+            const unseen: ((p: R.V) => number) | undefined = window.uncut === true || window.chord === true ? undefined : part.unseen;
+            const open = left === undefined ? undefined : (p: C.P): boolean | number => {
+              const q: R.V = [frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]];
+              if (left(q) > 0.05) return true;
+              if (unseen === undefined) return false;
+              const width: number = span(p);
+              return quintic(Math.min(1, Math.max(0, (unseen(q) + width) / width)));
+            };
+            // With `holdWidth` the hold is a share that rises from none at the held region's edge to all of it that far inside, by the quintic
+            // smooth step, so the target is C2 across the edge (`H.IRow.hold`).
+            const hold = window.hold === undefined ? undefined : (p: C.P): boolean | number => {
+              const inside: number = window.hold!([frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]]);
+              if (window.holdWidth === undefined) return inside > 0;
+              return quintic(Math.min(1, Math.max(0, inside / (window.holdWidth === "span" ? span(p) : window.holdWidth))));
+            };
+            // A window that leaves grazing casts unobserved (`graze`) reads the skin's rise along the station from the uncut reference sections
+            // 1 mm either side, along the in-plane normal where the cast lands.
+            const slope = window.graze === undefined ? undefined : ((): ((p: C.P, normal: C.P) => number | null) => {
+              const below: C.P[] | null = R.cut(skin, course.at(row.s - 1)).loop;
+              const above: C.P[] | null = R.cut(skin, course.at(row.s + 1)).loop;
+              return (p: C.P, normal: C.P): number | null => {
+                const a: number | null = below === null ? null : H.cast(below, p, normal);
+                const b: number | null = above === null ? null : H.cast(above, p, normal);
+                return a === null || b === null ? null : (b - a) / 2;
+              };
+            })();
+            const own: C.P[] = window.chord === true ? loops[i]! : skins[i]!;
+            const uncut: C.P[] | null = window.uncut === true && row.s > window.stations[0] && row.s < window.stations[1] ? R.cut(skin, frame).loop : null;
+            const whole: C.P[] | null = uncut === null || part.kept === undefined ? uncut : without(uncut, frame, part.kept);
+            return { s: row.s, ...(hold === undefined ? {} : { hold }), ...(slope === undefined ? {} : { slope }), skin: whole ?? own, heldout: row.heldout, ...(open === undefined ? {} : { open }), wall: (phi: number): C.P => {
+              const r: number = Q.radius(section, phi);
+              const p: C.P = [r * Math.cos(phi), r * Math.sin(phi)];
+              for (const relief of earlier) {
+                const height: number = AutoMovieLoftRelief.height(relief, row.s, phi)[0];
+                const along: C.P = inChart(AutoMovieLoftRelief.direction(relief, phi)[0]);
+                p[0] += height * along[0];
+                p[1] += height * along[1];
+              }
+              return p;
+            }, axis: inChart(window.axis), ...(window.turn === undefined ? {} : { turn: inChart(window.turn) }) };
+          }));
+          // A window placed by the hollow search is kept only when its net takes away at least half of its deepest hollow on the withheld
+          // sections. Round a turn a section's hollow lies across the cast's axis, and a net that cannot reach it leaves scratches instead.
+          // Nor is one kept whose deepest hollow is shallower than half the fit's target: the leg's window over the foot's end (924 to
+          // 960 mm) stored 473 heights for a hollow 0.11 mm deep, which is the wall's own misfit (the conic audit's leg rows).
+          const kept: boolean = !judged || (fitted.heldMaxMm <= 0.5 * fitted.deepestMm && fitted.deepestMm >= 0.5 * TARGET_MM);
+          definition.reliefs ??= [];
+          if (kept) definition.reliefs.push(fitted.relief);
 
-            // The twin: the same heights with their columns in the other order, over the reflected phases, cast along the reflected directions.
-            if (kept && window.twin === true) {
-              const { relief }: H.IResult = fitted;
-              const flip = (v: readonly number[]): [number, number, number] => [
-                v[0]!,
-                v[1]!,
-                -v[2]!,
-              ];
-              definition.reliefs.push({
-                ...relief,
-                name: relief.name + ".twin",
-                phases: [-relief.phases[1], -relief.phases[0]],
-                axis: flip(relief.axis),
-                ...(relief.turn === undefined
-                  ? {}
-                  : {
-                      turn: flip(relief.turn).map(
-                        (x: number): number => -x || 0,
-                      ) as [number, number, number],
-                    }),
-                heights: relief.heights.map(
-                  (_: number, i: number): number =>
-                    relief.heights[
-                      i -
-                        (i % relief.columns) +
-                        (relief.columns - 1 - (i % relief.columns))
-                    ]!,
-                ),
-              });
-            }
-            log("family-body-relief", {
-              part: part.name,
-              relief: window.name,
-              kept,
-              scalars: fitted.scalars,
-              deepestMm: round(fitted.deepestMm),
-              trainMaxMm: round(fitted.trainMaxMm),
-              heldMaxMm: round(fitted.heldMaxMm),
-            });
+          // The twin: the same heights with their columns in the other order, over the reflected phases, cast along the reflected directions.
+          if (kept && window.twin === true) {
+            const { relief }: H.IResult = fitted;
+            const flip = (v: readonly number[]): [number, number, number] => [v[0]!, v[1]!, -v[2]!];
+            definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: [-relief.phases[1], -relief.phases[0]], axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
           }
+          log("family-body-relief", { part: part.name, relief: window.name, kept, scalars: fitted.scalars, deepestMm: round(fitted.deepestMm), trainMaxMm: round(fitted.trainMaxMm), heldMaxMm: round(fitted.heldMaxMm) });
+         }
         };
         // `--refit-reliefs=<name>,...` with `--wall`: the stored wall and every stored relief and cast are carried in their stored order, and
         // only the named ones are fitted again, each over the carried reliefs stored before it, with its twin written by reflection. A region's
@@ -6199,244 +3501,90 @@ namespace FamilyConicBody {
           definition.reliefs = [];
           for (const relief of carried.reliefs) {
             if (!refitted.includes(relief.name)) {
-              if (
-                !refitted.some(
-                  (name: string): boolean => relief.name === name + ".twin",
-                )
-              )
-                definition.reliefs.push(relief);
+              if (!refitted.some((name: string): boolean => relief.name === name + ".twin")) definition.reliefs.push(relief);
               continue;
             }
-            const window: IWindow | undefined = windows.find(
-              (candidate: IWindow): boolean => candidate.name === relief.name,
-            );
+            const window: IWindow | undefined = windows.find((candidate: IWindow): boolean => candidate.name === relief.name);
             if (window !== undefined) fitAll([window], false);
           }
         }
         // `--keep-windows`: every window the hollow search places is kept whatever the keep rule says, to read what it does.
-        else
-          fitAll(
-            windows.filter((window: IWindow): boolean =>
-              touching(window.stations),
-            ),
-            part.reliefs === "auto" && !process.argv.includes("--keep-windows"),
-          );
+        else fitAll(windows.filter((window: IWindow): boolean => touching(window.stations)), part.reliefs === "auto" && !process.argv.includes("--keep-windows"));
 
         // A spliced wall takes the reliefs as it takes the knots: each wall's own stored ones on its side of the station, since those were
         // fitted on the very values the splice keeps there. Fitted again over the whole spliced wall, the hollow search placed other windows
         // and the keep rule dropped the one over the hollow in front of the shoulder, which left the skin 8 mm inside the wall there.
         // `--refit` keeps the reliefs fitted just above over the whole spliced wall instead: for a splice inside a window both walls share.
-        if (
-          spliced !== null &&
-          spliced.window === undefined &&
-          !process.argv.includes("--refit")
-        ) {
-          const {
-            tail,
-            at,
-            head,
-          }: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } =
-            spliced;
+        if (spliced !== null && spliced.window === undefined && !process.argv.includes("--refit")) {
+          const { tail, at, head }: { tail: K.IStored; at: number; head: IAutoMovieLoftRelief[] } = spliced;
           // A stored net that goes once round the part is left behind: those are fitted again below, over the spliced wall.
-          const window = (relief: IAutoMovieLoftRelief): boolean =>
-            relief.phases[1] - relief.phases[0] < 2 * Math.PI - 1e-9;
+          const window = (relief: IAutoMovieLoftRelief): boolean => relief.phases[1] - relief.phases[0] < 2 * Math.PI - 1e-9;
           // A net round the part's runs (`IPart.rounds`) is fitted again below even where it spans less than a turn (the palm's), so a stored
           // one is not carried as a hollow as well.
-          const round = (relief: IAutoMovieLoftRelief): boolean =>
-            rounds.some(
-              (window: IWindow): boolean => window.name === relief.name,
-            );
+          const round = (relief: IAutoMovieLoftRelief): boolean => rounds.some((window: IWindow): boolean => window.name === relief.name);
           // The other wall's nets round the part wholly past `at` (the arm's forearm, hand and palm nets) are carried as stored, on the very
           // wall the held splice keeps there: fitted again over it, the hand's net moved the skin up to 2.4 mm at 600 to 640 mm.
           let hollow: number = 0;
-          const hollowName = (
-            relief: IAutoMovieLoftRelief,
-          ): IAutoMovieLoftRelief => ({
-            ...relief,
-            name: part.name + ".hollow." + hollow++,
-          });
+          const hollowName = (relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => ({ ...relief, name: part.name + ".hollow." + hollow++ });
           // A wall's hollow goes with the wall it starts on: the arm's elbow hollow, fitted on the head, runs 10 mm past the splice into the
           // forearm net's first stations, as the stored arm's own elbow hollow did.
-          definition.reliefs = [
-            ...head
-              .filter(
-                (relief: IAutoMovieLoftRelief): boolean =>
-                  window(relief) && !round(relief) && relief.stations[0] < at,
-              )
-              .map(hollowName),
-            ...(tail.reliefs ?? [])
-              .filter(
-                (relief: IAutoMovieLoftRelief): boolean =>
-                  relief.stations[0] >= at && (round(relief) || window(relief)),
-              )
-              .map(
-                (relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief =>
-                  round(relief) ? relief : hollowName(relief),
-              ),
-          ];
-          log("family-body-spliced", {
-            part: part.name,
-            at,
-            reliefs: definition.reliefs.map(
-              (relief: IAutoMovieLoftRelief): string =>
-                relief.name + " " + relief.stations.join(".."),
-            ),
-          });
+          definition.reliefs = [...head.filter((relief: IAutoMovieLoftRelief): boolean => window(relief) && !round(relief) && relief.stations[0] < at).map(hollowName), ...(tail.reliefs ?? []).filter((relief: IAutoMovieLoftRelief): boolean => relief.stations[0] >= at && (round(relief) || window(relief))).map((relief: IAutoMovieLoftRelief): IAutoMovieLoftRelief => (round(relief) ? relief : hollowName(relief)))];
+          log("family-body-spliced", { part: part.name, at, reliefs: definition.reliefs.map((relief: IAutoMovieLoftRelief): string => relief.name + " " + relief.stations.join("..")) });
         }
 
         // The nets round the part come last, over whichever reliefs the wall has kept.
-        fitAll(
-          rounds.filter(
-            (window: IWindow): boolean =>
-              touching(window.stations) &&
-              (refitted === null || refitted.includes(window.name)) &&
-              !(
-                spliced !== null &&
-                spliced.window === undefined &&
-                !process.argv.includes("--refit") &&
-                (definition.reliefs ?? []).some(
-                  (relief: IAutoMovieLoftRelief): boolean =>
-                    relief.name === window.name,
-                )
-              ),
-          ),
-          false,
-        );
-        await fs.writeFile(
-          path.join(out, part.name + ".family.json"),
-          JSON.stringify(definition),
-        );
+        fitAll(rounds.filter((window: IWindow): boolean => touching(window.stations) && (refitted === null || refitted.includes(window.name)) && !(spliced !== null && spliced.window === undefined && !process.argv.includes("--refit") && (definition.reliefs ?? []).some((relief: IAutoMovieLoftRelief): boolean => relief.name === window.name))), false);
+        await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
       // `--against=<directory>[+<shift>]`: how far the part's skin, reliefs on and caps off, moved from another stored wall's (`stored` for
       // the Human package's), read at the same phases every 2 mm where both have fields, that wall's stations being this one's less the
       // shift; the largest move over every 20 mm stretch. A splice or a window refit shows here whether the skin outside it stayed put.
-      const against: string | undefined = process.argv
-        .find((argument: string): boolean => argument.startsWith("--against="))
-        ?.slice("--against=".length);
+      const against: string | undefined = process.argv.find((argument: string): boolean => argument.startsWith("--against="))?.slice("--against=".length);
       if (against !== undefined) {
         // `@<from>`: both lofted from that station on only, so a move that the engine carries along its stations from a change before it is
         // told from a change of the walls themselves.
-        const [otherDir, shiftText]: string[] = against
-          .split("@")[0]!
-          .split("+");
+        const [otherDir, shiftText]: string[] = against.split("@")[0]!.split("+");
         const lofted: number = Number(against.split("@")[1] ?? -Infinity);
         const other: K.IStored = await storedWall(otherDir!, part.name);
         const shift: number = Number(shiftText ?? 0);
-        const low: number = Math.max(
-          definition.knots[0]!,
-          other.knots[0]! + shift,
-          lofted,
-        );
-        const high: number = Math.min(
-          definition.knots.at(-1)!,
-          other.knots.at(-1)! + shift,
-        );
-        const at: number[] = Array.from(
-          { length: Math.floor((high - low) / 2) + 1 },
-          (_: unknown, i: number): number => low + 2 * i,
-        );
+        const low: number = Math.max(definition.knots[0]!, other.knots[0]! + shift, lofted);
+        const high: number = Math.min(definition.knots.at(-1)!, other.knots.at(-1)! + shift);
+        const at: number[] = Array.from({ length: Math.floor((high - low) / 2) + 1 }, (_: unknown, i: number): number => low + 2 * i);
         // Both lofted on 1,024 phases (`IFamily.phase`): each part's own count follows its girth and its finest net, and the arm spliced
         // onto a new head took another count than the stored arm, which alone read as 0.05 to 0.2 mm of skin moved past the splice.
         const fine: number = (2 * Math.PI) / 1024;
         // The skin with its reliefs, and the wall alone (no reliefs), so a move is placed on the wall or on a net.
         const moved = (bare: boolean): string[] => {
-          const strip = (family: K.IStored): K.IStored => ({
-            ...family,
-            tips: undefined,
-            phase: fine,
-            ...(bare ? { reliefs: undefined } : {}),
-          });
+          const strip = (family: K.IStored): K.IStored => ({ ...family, tips: undefined, phase: fine, ...(bare ? { reliefs: undefined } : {}) });
           const mine = K.create(strip(definition), at).chain;
-          const theirs = K.create(
-            strip(other),
-            at.map((s: number): number => s - shift),
-          ).chain;
-          if (mine === null || theirs === null)
-            throw new Error("--against: a wall does not loft");
+          const theirs = K.create(strip(other), at.map((s: number): number => s - shift)).chain;
+          if (mine === null || theirs === null) throw new Error("--against: a wall does not loft");
           const stretches: Map<number, number> = new Map();
           // Each of 128 points of this ring to the nearest of 2,048 points of the other's: the two walls' phases are spaced by each part's own
           // girth (`AutoMovieHumanConicLoft.part`), so a point at the same phase on each is not the same point of the skin.
           for (const s of at) {
             let most: number = 0;
-            const ring: number[][] = Array.from(
-              { length: 2048 },
-              (_: unknown, j: number): number[] =>
-                AutoMovieLoftChain.point(
-                  theirs,
-                  s - shift,
-                  (2 * Math.PI * j) / 2048,
-                ),
-            );
+            const ring: number[][] = Array.from({ length: 2048 }, (_: unknown, j: number): number[] => AutoMovieLoftChain.point(theirs, s - shift, (2 * Math.PI * j) / 2048));
             for (let j: number = 0; j < 128; ++j) {
-              const p: number[] = AutoMovieLoftChain.point(
-                mine,
-                s,
-                (2 * Math.PI * j) / 128,
-              );
-              most = Math.max(
-                most,
-                Math.min(
-                  ...ring.map((q: number[]): number =>
-                    Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!),
-                  ),
-                ),
-              );
+              const p: number[] = AutoMovieLoftChain.point(mine, s, (2 * Math.PI * j) / 128);
+              most = Math.max(most, Math.min(...ring.map((q: number[]): number => Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!))));
             }
             const key: number = Math.floor(s / 20) * 20;
             stretches.set(key, Math.max(stretches.get(key) ?? 0, most));
           }
-          return [...stretches.entries()].map(
-            ([from, most]: [number, number]): string =>
-              `${from}..${from + 20}: ${most.toFixed(3)}`,
-          );
+          return [...stretches.entries()].map(([from, most]: [number, number]): string => `${from}..${from + 20}: ${most.toFixed(3)}`);
         };
         // How far the two courses' points and charts stand apart at the shared stations: a shift that is not the courses' own leaves a
         // whole ring moved along the course, which reads above as skin moved wherever the part tapers.
-        const courses = at
-          .filter((_: number, i: number): boolean => i % 20 === 0)
-          .map((s: number): string => {
-            const [a, b] = [
-              K.axis(definition).at(s),
-              K.axis(other).at(s - shift),
-            ];
-            const gap: number = Math.hypot(
-              a.origin[0]! - b.origin[0]!,
-              a.origin[1]! - b.origin[1]!,
-              a.origin[2]! - b.origin[2]!,
-            );
-            const angle = (
-              p: readonly number[],
-              q: readonly number[],
-            ): number =>
-              (Math.acos(
-                Math.max(
-                  -1,
-                  Math.min(
-                    1,
-                    (p[0]! * q[0]! + p[1]! * q[1]! + p[2]! * q[2]!) /
-                      (Math.hypot(p[0]!, p[1]!, p[2]!) *
-                        Math.hypot(q[0]!, q[1]!, q[2]!)),
-                  ),
-                ),
-              ) *
-                180) /
-              Math.PI;
-            // The plane's normal, the course's tangent: u x v.
-            const normal = (f: IAutoMovieLoftSectionFrame): number[] => [
-              f.u[1]! * f.v[2]! - f.u[2]! * f.v[1]!,
-              f.u[2]! * f.v[0]! - f.u[0]! * f.v[2]!,
-              f.u[0]! * f.v[1]! - f.u[1]! * f.v[0]!,
-            ];
-            return `${s}: ${gap.toFixed(3)} mm, u ${angle(a.u, b.u).toFixed(3)} v ${angle(a.v, b.v).toFixed(3)} tangent ${angle(normal(a), normal(b)).toFixed(3)} deg`;
-          });
-        log("family-body-against", {
-          part: part.name,
-          against,
-          shift,
-          movedMmByStretch: moved(false),
-          wallMovedMmByStretch: moved(true),
-          courses,
+        const courses = at.filter((_: number, i: number): boolean => i % 20 === 0).map((s: number): string => {
+          const [a, b] = [K.axis(definition).at(s), K.axis(other).at(s - shift)];
+          const gap: number = Math.hypot(a.origin[0]! - b.origin[0]!, a.origin[1]! - b.origin[1]!, a.origin[2]! - b.origin[2]!);
+          const angle = (p: readonly number[], q: readonly number[]): number => (Math.acos(Math.max(-1, Math.min(1, (p[0]! * q[0]! + p[1]! * q[1]! + p[2]! * q[2]!) / (Math.hypot(p[0]!, p[1]!, p[2]!) * Math.hypot(q[0]!, q[1]!, q[2]!))))) * 180) / Math.PI;
+          // The plane's normal, the course's tangent: u x v.
+          const normal = (f: IAutoMovieLoftSectionFrame): number[] => [f.u[1]! * f.v[2]! - f.u[2]! * f.v[1]!, f.u[2]! * f.v[0]! - f.u[0]! * f.v[2]!, f.u[0]! * f.v[1]! - f.u[1]! * f.v[0]!];
+          return `${s}: ${gap.toFixed(3)} mm, u ${angle(a.u, b.u).toFixed(3)} v ${angle(a.v, b.v).toFixed(3)} tangent ${angle(normal(a), normal(b)).toFixed(3)} deg`;
         });
+        log("family-body-against", { part: part.name, against, shift, movedMmByStretch: moved(false), wallMovedMmByStretch: moved(true), courses });
       }
       const stations: number[] = rows.map((row: F.IRow): number => row.s);
       const lofted: number = performance.now();
@@ -6447,42 +3595,21 @@ namespace FamilyConicBody {
         log("family-body-engine", { part: part.name, fault: loft.diagnostics });
         continue;
       }
-      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> =
-        loft.chain;
+      const chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]> = loft.chain;
       const stage: IAutoMovieViewAxis.IAxis = K.axis(definition);
       let maximum: number = 0;
       let sum: number = 0;
       let n: number = 0;
       const worstRows: string[] = [];
-      const heldRows: {
-        s: number;
-        worstMm: number;
-        phaseDeg: number;
-        world: number[];
-        held: Record<string, number>;
-      }[] = [];
+      const heldRows: { s: number; worstMm: number; phaseDeg: number; world: number[]; held: Record<string, number> }[] = [];
       rows.forEach((row: F.IRow, i: number): void => {
         // The regenerated section as a dense chart polyline; every observed skin vertex is measured to it.
         const frame: IAutoMovieLoftSectionFrame = stage.at(row.s);
-        const ring: C.P[] = Array.from(
-          { length: 512 },
-          (_: unknown, j: number): C.P => {
-            const p: R.V = AutoMovieLoftChain.point(
-              chain,
-              row.s,
-              (2 * Math.PI * j) / 512,
-            ) as R.V;
-            const d: R.V = [
-              p[0] - frame.origin[0],
-              p[1] - frame.origin[1],
-              p[2] - frame.origin[2],
-            ];
-            return [
-              d[0] * frame.u[0] + d[1] * frame.u[1] + d[2] * frame.u[2],
-              d[0] * frame.v[0] + d[1] * frame.v[1] + d[2] * frame.v[2],
-            ];
-          },
-        );
+        const ring: C.P[] = Array.from({ length: 512 }, (_: unknown, j: number): C.P => {
+          const p: R.V = AutoMovieLoftChain.point(chain, row.s, (2 * Math.PI * j) / 512) as R.V;
+          const d: R.V = [p[0] - frame.origin[0], p[1] - frame.origin[1], p[2] - frame.origin[2]];
+          return [d[0] * frame.u[0] + d[1] * frame.u[1] + d[2] * frame.u[2], d[0] * frame.v[0] + d[1] * frame.v[1] + d[2] * frame.v[2]];
+        });
         let rowMaximum: number = 0;
         let rowPhase: number = 0;
         let rowVertex: C.P = [0, 0];
@@ -6499,83 +3626,26 @@ namespace FamilyConicBody {
           ++n;
         }
         maximum = Math.max(maximum, rowMaximum);
-        if (rowMaximum > TARGET_MM && i % 4 === 0)
-          worstRows.push(
-            row.s.toFixed(0) +
-              ":" +
-              rowMaximum.toFixed(1) +
-              "@" +
-              ((rowPhase * 180) / Math.PI).toFixed(0),
-          );
+        if (rowMaximum > TARGET_MM && i % 4 === 0) worstRows.push(row.s.toFixed(0) + ":" + rowMaximum.toFixed(1) + "@" + ((rowPhase * 180) / Math.PI).toFixed(0));
         // `--skin-held`: every section's worst skin vertex with how far inside each round's hold it lies, mm (positive: held), so a misfit
         // the part's nets leave can be told from one their hold keeps them off.
         if (SKIN_HELD) {
-          const world: R.V = [0, 1, 2].map(
-            (c: number): number =>
-              frame.origin[c]! +
-              rowVertex[0] * frame.u[c]! +
-              rowVertex[1] * frame.v[c]!,
-          ) as R.V;
-          heldRows.push({
-            s: row.s,
-            worstMm: round(rowMaximum),
-            phaseDeg: Math.round((rowPhase * 180) / Math.PI),
-            world: world.map(round),
-            held: Object.fromEntries(
-              (part.rounds ?? [])
-                .filter(
-                  (net): boolean =>
-                    net.hold !== undefined &&
-                    row.s > net.stations[0] &&
-                    row.s < net.stations[1],
-                )
-                .map((net): [string, number] => [
-                  net.name,
-                  round(net.hold!(world)),
-                ]),
-            ),
-          });
+          const world: R.V = [0, 1, 2].map((c: number): number => frame.origin[c]! + rowVertex[0] * frame.u[c]! + rowVertex[1] * frame.v[c]!) as R.V;
+          heldRows.push({ s: row.s, worstMm: round(rowMaximum), phaseDeg: Math.round((rowPhase * 180) / Math.PI), world: world.map(round), held: Object.fromEntries((part.rounds ?? []).filter((net): boolean => net.hold !== undefined && row.s > net.stations[0] && row.s < net.stations[1]).map((net): [string, number] => [net.name, round(net.hold!(world))])) });
         }
       });
       log("family-body-skin", { part: part.name, over: worstRows.join(" ") });
-      if (SKIN_HELD)
-        log("family-body-skin-held", { part: part.name, rows: heldRows });
-      const engine = {
-        storedBytes: Buffer.byteLength(stored),
-        fields: best.values.length,
-        knots: best.knots.length,
-        scalars: best.knots.length * (1 + best.values.length),
-        fitTrainMaxMm: round(best.training.maximumMm),
-        fitHeldMaxMm: round(best.heldout.maximumMm),
-        engineMaxMm: round(maximum),
-        engineMeanMm: round(sum / n),
-        loftMs: Math.round(loftMs),
-        diagnostics: loft.diagnostics,
-      };
+      if (SKIN_HELD) log("family-body-skin-held", { part: part.name, rows: heldRows });
+      const engine = { storedBytes: Buffer.byteLength(stored), fields: best.values.length, knots: best.knots.length, scalars: best.knots.length * (1 + best.values.length), fitTrainMaxMm: round(best.training.maximumMm), fitHeldMaxMm: round(best.heldout.maximumMm), engineMaxMm: round(maximum), engineMeanMm: round(sum / n), loftMs: Math.round(loftMs), diagnostics: loft.diagnostics };
       log("family-body-engine", { part: part.name, ...engine });
-      receipt.push({
-        part: part.name,
-        domainMm: domain,
-        sections: rows.length,
-        skipped,
-        trail,
-        engine,
-      });
+      receipt.push({ part: part.name, domainMm: domain, sections: rows.length, skipped, trail, engine });
 
       // Display grid: every observed station by 128 phases, mirrored when the part has a twin.
-      const rings: R.V[][] = stations.map((s: number): R.V[] =>
-        Array.from(
-          { length: 128 },
-          (_: unknown, j: number): R.V =>
-            AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V,
-        ),
-      );
+      const rings: R.V[][] = stations.map((s: number): R.V[] => Array.from({ length: 128 }, (_: unknown, j: number): R.V => AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 128) as R.V));
       for (const sign of part.mirrored ? [1, -1] : [1]) {
         const positions: number[] = [];
         const indices: number[] = [];
-        for (const ring of rings)
-          for (const p of ring)
-            positions.push(p[0] / 1000, p[1] / 1000, (sign * p[2]) / 1000);
+        for (const ring of rings) for (const p of ring) positions.push(p[0] / 1000, p[1] / 1000, (sign * p[2]) / 1000);
         for (let i: number = 0; i + 1 < rings.length; ++i)
           for (let j: number = 0; j < 128; ++j) {
             const a: number = i * 128 + j;
@@ -6583,257 +3653,79 @@ namespace FamilyConicBody {
             if (sign > 0) indices.push(a, a + 128, b, b, a + 128, b + 128);
             else indices.push(a, b, a + 128, b, b + 128, a + 128);
           }
-        meshes.push({
-          id: part.name + (sign > 0 ? "" : ".mirror"),
-          positions,
-          indices,
-          colour: [0.64, 0.65, 0.67],
-        });
-        for (const m of definition.knots.map((k: number): number =>
-          stations.reduce((a: number, b: number): number =>
-            Math.abs(b - k) < Math.abs(a - k) ? b : a,
-          ),
-        ))
-          curves.push({
-            id: part.name + ".knot." + m + "." + sign,
-            points: rings[stations.indexOf(m)]!.map(
-              (p: R.V): N.Point => [
-                p[0] / 1000,
-                p[1] / 1000,
-                (sign * p[2]) / 1000,
-              ],
-            ),
-            closed: true,
-            colour: "b84b29",
-          });
+        meshes.push({ id: part.name + (sign > 0 ? "" : ".mirror"), positions, indices, colour: [0.64, 0.65, 0.67] });
+        for (const m of definition.knots.map((k: number): number => stations.reduce((a: number, b: number): number => (Math.abs(b - k) < Math.abs(a - k) ? b : a))))
+          curves.push({ id: part.name + ".knot." + m + "." + sign, points: rings[stations.indexOf(m)]!.map((p: R.V): N.Point => [p[0] / 1000, p[1] / 1000, (sign * p[2]) / 1000]), closed: true, colour: "b84b29" });
       }
-      await fs.writeFile(
-        path.join(out, "receipt.json"),
-        JSON.stringify(
-          {
-            schema: "f1-family-conic-body-v1",
-            targetMm: TARGET_MM,
-            parts: receipt,
-            milliseconds: performance.now() - started,
-          },
-          null,
-          2,
-        ),
-      );
+      await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, milliseconds: performance.now() - started }, null, 2));
 
       // The authored module: the same definition as TypeScript, written beside the receipt and, with --emit, into the Human package.
       // A window splice keeps the stored wall's ends: recomputed from the cut, the trunk's crown cap moved up to 4 mm at 908 to 912 mm.
-      if (spliced?.window !== undefined && spliced.tips !== undefined)
-        definition.tips = spliced.tips;
-      else if (tip !== null)
-        definition.tips = [
-          part.first !== undefined
-            ? { from: domain[0], tip: part.first }
-            : part.foot !== undefined
-              ? { from: domain[0], tip: domain[0] - part.foot }
-              : null,
-          {
-            from: part.cap ?? domain[1],
-            tip,
-            ...(part.covered === true ? { covered: true } : {}),
-            ...(part.centre === undefined ? {} : { centre: part.centre }),
-            ...(part.own === true ? { own: true } : {}),
-          },
-        ];
+      if (spliced?.tips !== undefined) definition.tips = spliced.tips;
+      else if (tip !== null) definition.tips = [part.first !== undefined ? { from: domain[0], tip: part.first } : part.foot !== undefined ? { from: domain[0], tip: domain[0] - part.foot } : null, { from: part.cap ?? domain[1], tip, ...(part.covered === true ? { covered: true } : {}), ...(part.centre === undefined ? {} : { centre: part.centre }), ...(part.own === true ? { own: true } : {}) }];
 
       // Cast reliefs: skin that faces along the course, which no section sees. From points of the finished surface, by station and phase,
       // a ray runs along the relief's axis, and its distance to the reference triangle it meets is the height there. The ear's outer face
       // lies under its closed end and is cast back along the course on one net that closes on itself round the tip.
       // A window splice (`--splice=<directory>@<from>..<to>`) carries the stored casts whose stations miss the window, as its other reliefs.
       // `--refit-reliefs`: only the named casts are fitted again; the others are carried as stored.
-      const recast: string[] | null =
-        carried === null
-          ? null
-          : (process.argv
-              .find((argument: string): boolean =>
-                argument.startsWith("--refit-reliefs="),
-              )
-              ?.slice("--refit-reliefs=".length)
-              .split(",") ?? null);
+      const recast: string[] | null = carried === null ? null : (process.argv.find((argument: string): boolean => argument.startsWith("--refit-reliefs="))?.slice("--refit-reliefs=".length).split(",") ?? null);
       if (recast !== null && carried !== null) definition.tips = carried.tips;
-      for (const face of tip === null || BARE
-        ? []
-        : (part.casts ?? []).filter(
-            (cast: ICast): boolean =>
-              !(CHINLESS && cast.name === "chin") &&
-              (recast === null ||
-                recast.includes(part.name + "." + cast.name)) &&
-              (spliced?.window === undefined ||
-                (Number(cast.stations[0]) >= spliced.window[0] &&
-                  Number(cast.stations[1]) <= spliced.window[1])),
-          )) {
-        const capped: IAutoMovieViewLoft.IResult = K.create(
-          definition,
-          stations,
-        );
-        if (capped.chain === null)
-          throw new Error(part.name + ": the capped part does not loft");
+      for (const face of tip === null || BARE ? [] : (part.casts ?? []).filter((cast: ICast): boolean => !(CHINLESS && cast.name === "chin") && (recast === null || recast.includes(part.name + "." + cast.name)) && (spliced?.window === undefined || (Number(cast.stations[0]) >= spliced.window[0] && Number(cast.stations[1]) <= spliced.window[1])))) {
+        const capped: IAutoMovieViewLoft.IResult = K.create(definition, stations);
+        if (capped.chain === null) throw new Error(part.name + ": the capped part does not loft");
         const first: R.V = part.centres[0]!;
         const last: R.V = part.centres.at(-1)!;
-        const span: number = Math.hypot(
-          last[0] - first[0],
-          last[1] - first[1],
-          last[2] - first[2],
-        );
-        const axis: R.V =
-          face.axis === "course"
-            ? [
-                (first[0] - last[0]) / span,
-                (first[1] - last[1]) / span,
-                (first[2] - last[2]) / span,
-              ]
-            : face.axis;
-        const window: H.IWindow = {
-          name: part.name + "." + face.name,
-          stations:
-            face.stations === "cap"
-              ? [(part.cap ?? domain[1]) + 0.5, tip!]
-              : face.stations,
-          phases: face.phases ?? [0, 2 * Math.PI],
-          axis,
-          rows: face.rows,
-          columns: face.columns,
-          mirror: face.mirror === true,
-          ...(face.phases === undefined ? { periodic: true } : {}),
-          ...(face.turn === undefined ? {} : { turn: face.turn }),
-          ...(face.fade === undefined ? {} : { fade: face.fade }),
-          ...(face.fadePhase === undefined
-            ? {}
-            : { fadePhase: face.fadePhase }),
-        };
+        const span: number = Math.hypot(last[0] - first[0], last[1] - first[1], last[2] - first[2]);
+        const axis: R.V = face.axis === "course" ? [(first[0] - last[0]) / span, (first[1] - last[1]) / span, (first[2] - last[2]) / span] : face.axis;
+        const window: H.IWindow = { name: part.name + "." + face.name, stations: face.stations === "cap" ? [(part.cap ?? domain[1]) + 0.5, tip!] : face.stations, phases: face.phases ?? [0, 2 * Math.PI], axis, rows: face.rows, columns: face.columns, mirror: face.mirror === true, ...(face.phases === undefined ? { periodic: true } : {}), ...(face.turn === undefined ? {} : { turn: face.turn }), ...(face.fade === undefined ? {} : { fade: face.fade }), ...(face.fadePhase === undefined ? {} : { fadePhase: face.fadePhase }) };
         const middle: number = (window.phases[0] + window.phases[1]) / 2;
-        const toward = (phi: number): R.V =>
-          face.turn === undefined
-            ? axis
-            : ([0, 1, 2].map(
-                (c: number): number =>
-                  Math.cos(phi - middle) * axis[c]! +
-                  Math.sin(phi - middle) * face.turn![c]!,
-              ) as R.V);
-        const outside: ((p: R.V) => number) | undefined =
-          face.skin ?? part.clip;
+        const toward = (phi: number): R.V => (face.turn === undefined ? axis : [0, 1, 2].map((c: number): number => Math.cos(phi - middle) * axis[c]! + Math.sin(phi - middle) * face.turn![c]!) as R.V);
+        const outside: ((p: R.V) => number) | undefined = face.skin ?? part.clip;
         const along: number = 4 * (window.rows - 3);
         const about: number = 4 * (window.columns - 3);
-        const bases: { s: number; phi: number; p: R.V; heldout: boolean }[] =
-          [];
+        const bases: { s: number; phi: number; p: R.V; heldout: boolean }[] = [];
         for (let i: number = 1; i < along; ++i)
-          for (
-            let j: number = face.phases === undefined ? 0 : 1;
-            j < about;
-            ++j
-          ) {
-            const s: number =
-              window.stations[0] +
-              ((window.stations[1] - window.stations[0]) * i) / along;
-            const phi: number =
-              window.phases[0] +
-              ((window.phases[1] - window.phases[0]) * j) / about;
+          for (let j: number = face.phases === undefined ? 0 : 1; j < about; ++j) {
+            const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
+            const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
             if (face.observe !== undefined && s < face.observe) continue;
-            bases.push({
-              s,
-              phi,
-              p: AutoMovieLoftChain.point(capped.chain, s, phi) as R.V,
-              heldout: i % 2 === 1,
-            });
+            bases.push({ s, phi, p: AutoMovieLoftChain.point(capped.chain, s, phi) as R.V, heldout: i % 2 === 1 });
           }
 
         // The reference triangles a ray can meet: the part's own skin within the reach of the points' box.
-        const box: [R.V, R.V] = [
-          [0, 1, 2].map(
-            (c: number): number =>
-              Math.min(...bases.map((b): number => b.p[c]!)) - face.reach,
-          ) as R.V,
-          [0, 1, 2].map(
-            (c: number): number =>
-              Math.max(...bases.map((b): number => b.p[c]!)) + face.reach,
-          ) as R.V,
-        ];
+        const box: [R.V, R.V] = [[0, 1, 2].map((c: number): number => Math.min(...bases.map((b): number => b.p[c]!)) - face.reach) as R.V, [0, 1, 2].map((c: number): number => Math.max(...bases.map((b): number => b.p[c]!)) + face.reach) as R.V];
         const triangles: [R.V, R.V, R.V][] = [];
         const solid: Uint8Array = solids(skin);
         for (let t: number = 0; t + 2 < skin.indices.length; t += 3) {
           if (solid[t / 3] === 0) continue;
-          const corners: R.V[] = [0, 1, 2].map(
-            (k: number): R.V => [
-              skin.positions[skin.indices[t + k]! * 3]!,
-              skin.positions[skin.indices[t + k]! * 3 + 1]!,
-              skin.positions[skin.indices[t + k]! * 3 + 2]!,
-            ],
-          );
-          if (
-            corners.some((p: R.V): boolean =>
-              p.every(
-                (x: number, c: number): boolean =>
-                  x >= box[0][c]! && x <= box[1][c]!,
-              ),
-            ) &&
-            (outside === undefined ||
-              corners.some((p: R.V): boolean => outside(p) <= 3))
-          )
-            triangles.push(corners as [R.V, R.V, R.V]);
+          const corners: R.V[] = [0, 1, 2].map((k: number): R.V => [skin.positions[skin.indices[t + k]! * 3]!, skin.positions[skin.indices[t + k]! * 3 + 1]!, skin.positions[skin.indices[t + k]! * 3 + 2]!]);
+          if (corners.some((p: R.V): boolean => p.every((x: number, c: number): boolean => x >= box[0][c]! && x <= box[1][c]!)) && (outside === undefined || corners.some((p: R.V): boolean => outside(p) <= 3))) triangles.push(corners as [R.V, R.V, R.V]);
         }
-        const cross = (a: R.V, b: R.V): R.V => [
-          a[1] * b[2] - a[2] * b[1],
-          a[2] * b[0] - a[0] * b[2],
-          a[0] * b[1] - a[1] * b[0],
-        ];
-        const dot = (a: R.V, b: R.V): number =>
-          a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-        const sub = (a: R.V, b: R.V): R.V => [
-          a[0] - b[0],
-          a[1] - b[1],
-          a[2] - b[2],
-        ];
+        const cross = (a: R.V, b: R.V): R.V => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+        const dot = (a: R.V, b: R.V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        const sub = (a: R.V, b: R.V): R.V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 
         // The signed distance along the axis from a point to the triangles (Moeller and Trumbore), within the reach either way: the least,
         // which is the outermost skin seen against the axis, or the nearest. A triangle that does not face the axis is passed over.
         // Each triangle's centre and the radius of the ball about it that holds the triangle: a ray that passes the ball misses the triangle.
-        const balls: { centre: R.V; radius: number }[] = triangles.map(
-          ([a, b, c]: [R.V, R.V, R.V]): { centre: R.V; radius: number } => {
-            const centre: R.V = [
-              (a[0] + b[0] + c[0]) / 3,
-              (a[1] + b[1] + c[1]) / 3,
-              (a[2] + b[2] + c[2]) / 3,
-            ];
-            return {
-              centre,
-              radius: Math.max(
-                ...[a, b, c].map((p: R.V): number =>
-                  Math.hypot(
-                    p[0] - centre[0],
-                    p[1] - centre[1],
-                    p[2] - centre[2],
-                  ),
-                ),
-              ),
-            };
-          },
-        );
+        const balls: { centre: R.V; radius: number }[] = triangles.map(([a, b, c]: [R.V, R.V, R.V]): { centre: R.V; radius: number } => {
+          const centre: R.V = [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3];
+          return { centre, radius: Math.max(...[a, b, c].map((p: R.V): number => Math.hypot(p[0] - centre[0], p[1] - centre[1], p[2] - centre[2]))) };
+        });
         const cast = (p: R.V, axis: R.V): number | null => {
           let best: number | null = null;
           for (let k: number = 0; k < triangles.length; ++k) {
             const ball: { centre: R.V; radius: number } = balls[k]!;
             const w: R.V = sub(ball.centre, p);
             const ahead: number = dot(w, axis);
-            if (
-              Math.abs(ahead) > face.reach + ball.radius ||
-              dot(w, w) - ahead * ahead > ball.radius * ball.radius
-            )
-              continue;
+            if (Math.abs(ahead) > face.reach + ball.radius || dot(w, w) - ahead * ahead > ball.radius * ball.radius) continue;
             const [a, b, c]: [R.V, R.V, R.V] = triangles[k]!;
             const e1: R.V = sub(b, a);
             const e2: R.V = sub(c, a);
             if (face.facing !== undefined) {
               const n: R.V = cross(e1, e2);
-              if (
-                Math.abs(dot(n, axis)) <
-                face.facing * Math.hypot(n[0], n[1], n[2])
-              )
-                continue;
+              if (Math.abs(dot(n, axis)) < face.facing * Math.hypot(n[0], n[1], n[2])) continue;
             }
             const h: R.V = cross(axis, e2);
             const det: number = dot(e1, h);
@@ -6846,252 +3738,96 @@ namespace FamilyConicBody {
             if (v < 0 || u + v > 1) continue;
             const t: number = dot(e2, q) / det;
             if (Math.abs(t) > face.reach) continue;
-            if (
-              best === null ||
-              (face.nearest === true ? Math.abs(t) < Math.abs(best) : t < best)
-            )
-              best = t;
+            if (best === null || (face.nearest === true ? Math.abs(t) < Math.abs(best) : t < best)) best = t;
           }
           return best;
         };
         const observed: H.IObserved[] = [];
+        const missed: { s: number; phi: number; heldout: boolean }[] = [];
         for (const base of bases) {
-          const target: number | null =
-            face.held?.(base.s, base.phi) === true
-              ? 0
-              : cast(base.p, toward(base.phi));
-          if (target !== null)
-            observed.push({
-              s: base.s,
-              phi: base.phi,
-              target,
-              heldout: base.heldout,
-            });
+          const target: number | null = face.held?.(base.s, base.phi) === true ? 0 : cast(base.p, toward(base.phi));
+          if (target !== null) observed.push({ s: base.s, phi: base.phi, target, heldout: base.heldout });
+          else missed.push({ s: base.s, phi: base.phi, heldout: base.heldout });
+        }
+        // `ICast.rest`: every missed point rests on the wall, and a landing takes the share of its height that rises from none beside a
+        // missed point to all of it one control spacing away (the larger of its distances in row and in column spacings), by the quintic
+        // smooth step.
+        if (face.rest === true) {
+          const rowSpan: number = (window.stations[1] - window.stations[0]) / (window.rows - 3);
+          const columnSpan: number = (window.phases[1] - window.phases[0]) / (window.columns - 3);
+          const quintic = (x: number): number => x * x * x * (10 - 15 * x + 6 * x * x);
+          let whole: number = 0;
+          for (const seen of observed) {
+            const clear: number = missed.reduce((least: number, base: { s: number; phi: number }): number => Math.min(least, Math.max(Math.abs(seen.s - base.s) / rowSpan, Math.abs(seen.phi - base.phi) / columnSpan)), 1);
+            if (clear >= 1) ++whole;
+            seen.target *= quintic(clear);
+          }
+          const landed: number = observed.length;
+          for (const base of missed) observed.push({ s: base.s, phi: base.phi, target: 0, heldout: base.heldout });
+          log("family-body-rest", { part: part.name, relief: window.name, rays: bases.length, landed, whole, rested: missed.length });
         }
         // `--casts`: the cast heights as a table, one row per station step and eleven phases across, each with its point's forward and
         // upward position, and a dot where no ray landed.
         if (process.argv.includes("--casts")) {
           const cell = (i: number, j: number): string => {
-            const s: number =
-              window.stations[0] +
-              ((window.stations[1] - window.stations[0]) * i) / along;
-            const phi: number =
-              window.phases[0] +
-              ((window.phases[1] - window.phases[0]) * j) / about;
-            if (face.observe !== undefined && s < face.observe)
-              return "".padStart(15);
-            const hit: H.IObserved | undefined = observed.find(
-              (o: H.IObserved): boolean =>
-                Math.abs(o.s - s) < 1e-9 && Math.abs(o.phi - phi) < 1e-9,
-            );
-            const p: R.V = AutoMovieLoftChain.point(
-              capped.chain!,
-              s,
-              phi,
-            ) as R.V;
-            return (
-              (hit === undefined ? "." : hit.target.toFixed(1)).padStart(6) +
-              ("@" + p[0].toFixed(0) + "," + p[1].toFixed(0)).padStart(9)
-            );
+            const s: number = window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along;
+            const phi: number = window.phases[0] + ((window.phases[1] - window.phases[0]) * j) / about;
+            if (face.observe !== undefined && s < face.observe) return "".padStart(15);
+            const hit: H.IObserved | undefined = observed.find((o: H.IObserved): boolean => Math.abs(o.s - s) < 1e-9 && Math.abs(o.phi - phi) < 1e-9);
+            const p: R.V = AutoMovieLoftChain.point(capped.chain!, s, phi) as R.V;
+            return (hit === undefined ? "." : hit.target.toFixed(1)).padStart(6) + ("@" + p[0].toFixed(0) + "," + p[1].toFixed(0)).padStart(9);
           };
-          for (let i: number = 2; i < along; i += 4)
-            process.stdout.write(
-              (
-                window.stations[0] +
-                ((window.stations[1] - window.stations[0]) * i) / along
-              )
-                .toFixed(1)
-                .padStart(7) +
-                Array.from({ length: 11 }, (_: unknown, k: number): string =>
-                  cell(i, Math.round((about * (k + 0.5)) / 11)),
-                ).join("") +
-                "\n",
-            );
+          for (let i: number = 2; i < along; i += 4) process.stdout.write((window.stations[0] + ((window.stations[1] - window.stations[0]) * i) / along).toFixed(1).padStart(7) + Array.from({ length: 11 }, (_: unknown, k: number): string => cell(i, Math.round((about * (k + 0.5)) / 11))).join("") + "\n");
         }
         const faced: H.IResult = H.fit(window, [], observed);
         definition.reliefs = [...(definition.reliefs ?? []), faced.relief];
         // A cast's twin, as a window's (`IWindow.twin`): the same heights with their columns reversed, over the reflected phases and directions.
         if (face.twin === true) {
           const relief: IAutoMovieLoftRelief = faced.relief;
-          const flip = (v: readonly number[]): [number, number, number] => [
-            v[0]!,
-            v[1]!,
-            -v[2]!,
-          ];
-          definition.reliefs.push({
-            ...relief,
-            name: relief.name + ".twin",
-            phases: [-relief.phases[1], -relief.phases[0]],
-            axis: flip(relief.axis),
-            ...(relief.turn === undefined
-              ? {}
-              : {
-                  turn: flip(relief.turn).map(
-                    (x: number): number => -x || 0,
-                  ) as [number, number, number],
-                }),
-            heights: relief.heights.map(
-              (_: number, i: number): number =>
-                relief.heights[
-                  i -
-                    (i % relief.columns) +
-                    (relief.columns - 1 - (i % relief.columns))
-                ]!,
-            ),
-          });
+          const flip = (v: readonly number[]): [number, number, number] => [v[0]!, v[1]!, -v[2]!];
+          definition.reliefs.push({ ...relief, name: relief.name + ".twin", phases: [-relief.phases[1], -relief.phases[0]], axis: flip(relief.axis), ...(relief.turn === undefined ? {} : { turn: flip(relief.turn).map((x: number): number => -x || 0) as [number, number, number] }), heights: relief.heights.map((_: number, i: number): number => relief.heights[i - (i % relief.columns) + (relief.columns - 1 - (i % relief.columns))]!) });
         }
-        log("family-body-face", {
-          part: part.name,
-          relief: window.name,
-          triangles: triangles.length,
-          observed: observed.length,
-          scalars: faced.scalars,
-          deepestMm: round(faced.deepestMm),
-          trainMaxMm: round(faced.trainMaxMm),
-          heldMaxMm: round(faced.heldMaxMm),
-        });
-        await fs.writeFile(
-          path.join(out, part.name + ".family.json"),
-          JSON.stringify(definition),
-        );
+        log("family-body-face", { part: part.name, relief: window.name, triangles: triangles.length, observed: observed.length, scalars: faced.scalars, deepestMm: round(faced.deepestMm), trainMaxMm: round(faced.trainMaxMm), heldMaxMm: round(faced.heldMaxMm) });
+        await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
       // `--refit-reliefs`: the reliefs and casts in their stored order, so a refitted cast stands where it stood.
       if (recast !== null && carried !== null) {
-        const order: Map<string, number> = new Map(
-          carried.reliefs.map(
-            (relief: IAutoMovieLoftRelief, i: number): [string, number] => [
-              relief.name,
-              i,
-            ],
-          ),
-        );
-        definition.reliefs = [...(definition.reliefs ?? [])].sort(
-          (a: IAutoMovieLoftRelief, b: IAutoMovieLoftRelief): number =>
-            (order.get(a.name) ?? Infinity) - (order.get(b.name) ?? Infinity),
-        );
-        await fs.writeFile(
-          path.join(out, part.name + ".family.json"),
-          JSON.stringify(definition),
-        );
+        const order: Map<string, number> = new Map(carried.reliefs.map((relief: IAutoMovieLoftRelief, i: number): [string, number] => [relief.name, i]));
+        definition.reliefs = [...(definition.reliefs ?? [])].sort((a: IAutoMovieLoftRelief, b: IAutoMovieLoftRelief): number => (order.get(a.name) ?? Infinity) - (order.get(b.name) ?? Infinity));
+        await fs.writeFile(path.join(out, part.name + ".family.json"), JSON.stringify(definition));
       }
       // A limb layout has 4 times 2^depth anchors round the section, a bilateral one 2 times 2^depth arcs over its half.
       const anchors: number = definition.layout.anchors.length;
-      const moduleText: string = emit(
-        { ...part, domain },
-        definition,
-        Math.round(
-          Math.log2(definition.layout.mirror ? (anchors - 1) / 2 : anchors / 4),
-        ),
-        engine,
-        rows.length,
-      );
-      await fs.writeFile(
-        path.join(out, moduleName(part.name) + ".ts"),
-        moduleText,
-      );
-      await fs.writeFile(
-        path.join(out, moduleName(part.name) + ".placing.json"),
-        JSON.stringify(placing(definition)),
-      );
+      const moduleText: string = emit({ ...part, domain }, definition, Math.round(Math.log2(definition.layout.mirror ? (anchors - 1) / 2 : anchors / 4)), engine, rows.length);
+      await fs.writeFile(path.join(out, moduleName(part.name) + ".ts"), moduleText);
+      await fs.writeFile(path.join(out, moduleName(part.name) + ".placing.json"), JSON.stringify(placing(definition)));
 
       // The construction's own path must admit the family too; a refused one is written beside the receipt but not into the package.
       const refused: string[] = K.refusals(definition);
-      log("family-body-native", {
-        part: part.name,
-        admitted: refused.length === 0,
-        refusals: refused.map((text: string): string => text.slice(0, 300)),
-      });
-      if (process.argv.includes("--emit") && refused.length === 0)
-        await fs.writeFile(
-          path.join(
-            root,
-            "packages/human/src/generation/f1",
-            moduleName(part.name) + ".ts",
-          ),
-          moduleText,
-        );
+      log("family-body-native", { part: part.name, admitted: refused.length === 0, refusals: refused.map((text: string): string => text.slice(0, 300)) });
+      if (process.argv.includes("--emit") && refused.length === 0) await fs.writeFile(path.join(root, "packages/human/src/generation/f1", moduleName(part.name) + ".ts"), moduleText);
     }
 
     // Same cameras for the reference and the regenerated parts, framed on the reference.
-    const reference: N.Mesh = {
-      id: "reference.body",
-      positions: Array.from(
-        source.body.positions,
-        (x: number): number => x / 1000,
-      ),
-      indices: Array.from(source.body.indices),
-      colour: [0.64, 0.65, 0.67],
-    };
+    const reference: N.Mesh = { id: "reference.body", positions: Array.from(source.body.positions, (x: number): number => x / 1000), indices: Array.from(source.body.indices), colour: [0.64, 0.65, 0.67] };
     // `--frame=<from>,<to>`: the cameras framed on the reference's skin between those heights, mm (a close-up such as the face's), instead
     // of on the whole body; the frames are named for the band.
-    const band: number[] | undefined = process.argv
-      .find((a: string): boolean => a.startsWith("--frame="))
-      ?.slice("--frame=".length)
-      .split(",")
-      .map(Number);
+    const band: number[] | undefined = process.argv.find((a: string): boolean => a.startsWith("--frame="))?.slice("--frame=".length).split(",").map(Number);
     const bounds: N.Point[] = [];
     for (let i: number = 0; i < reference.positions.length; i += 3)
-      if (
-        band === undefined ||
-        (reference.positions[i + 1]! * 1000 >= band[0]! &&
-          reference.positions[i + 1]! * 1000 <= band[1]!)
-      )
-        bounds.push([
-          reference.positions[i]!,
-          reference.positions[i + 1]!,
-          reference.positions[i + 2]!,
-        ]);
+      if (band === undefined || (reference.positions[i + 1]! * 1000 >= band[0]! && reference.positions[i + 1]! * 1000 <= band[1]!)) bounds.push([reference.positions[i]!, reference.positions[i + 1]!, reference.positions[i + 2]!]);
     NodeCanvasRaster.initialize();
     const frames: { file: string; sha256: string }[] = [];
-    for (const view of [
-      "front",
-      "back",
-      "left",
-      "right",
-      "high-oblique",
-      "low-oblique",
-    ]) {
+    for (const view of ["front", "back", "left", "right", "high-oblique", "low-oblique"]) {
       const camera: N.Camera = NodeCanvasCamera.fit(view, bounds, 900, 1500);
-      for (const [stage, shown, lines] of [
-        ["reference", [reference], []],
-        ["family-clay", meshes, []],
-        ["family-knots", meshes, curves],
-      ] as [string, N.Mesh[], N.Curve[]][]) {
-        const file: string =
-          "body." +
-          (band === undefined ? "" : "band" + band.join("-") + ".") +
-          view +
-          "." +
-          stage +
-          ".png";
-        const png: Buffer = NodeCanvasRaster.render(
-          camera,
-          shown,
-          lines,
-          "depth",
-          "f1 | " + stage + " | " + view,
-        ).png;
+      for (const [stage, shown, lines] of [["reference", [reference], []], ["family-clay", meshes, []], ["family-knots", meshes, curves]] as [string, N.Mesh[], N.Curve[]][]) {
+        const file: string = "body." + (band === undefined ? "" : "band" + band.join("-") + ".") + view + "." + stage + ".png";
+        const png: Buffer = NodeCanvasRaster.render(camera, shown, lines, "depth", "f1 | " + stage + " | " + view).png;
         await fs.writeFile(path.join(out, file), png);
-        frames.push({
-          file,
-          sha256: createHash("sha256").update(png).digest("hex"),
-        });
+        frames.push({ file, sha256: createHash("sha256").update(png).digest("hex") });
       }
     }
-    await fs.writeFile(
-      path.join(out, "receipt.json"),
-      JSON.stringify(
-        {
-          schema: "f1-family-conic-body-v1",
-          targetMm: TARGET_MM,
-          parts: receipt,
-          frames,
-          milliseconds: performance.now() - started,
-        },
-        null,
-        2,
-      ),
-    );
+    await fs.writeFile(path.join(out, "receipt.json"), JSON.stringify({ schema: "f1-family-conic-body-v1", targetMm: TARGET_MM, parts: receipt, frames, milliseconds: performance.now() - started }, null, 2));
     log("family-body-complete", { out });
   }
 
@@ -8018,17 +4754,9 @@ namespace FamilyConicBody {
    * (`AutoMovieHumanF1.BODY`), so a wall emitted long ago can be spliced or refitted on without its run's directory. Read so by `--wall`,
    * `--splice`, `--seed`, `--seed-tail`, `--target-wall` and `--against`.
    */
-  async function storedWall(
-    directory: string,
-    name: string,
-  ): Promise<K.IStored> {
-    if (directory !== "stored")
-      return JSON.parse(
-        await fs.readFile(path.join(directory, name + ".family.json"), "utf8"),
-      ) as K.IStored;
-    const family: K.IStored | undefined = Object.values(
-      AutoMovieHumanF1.BODY,
-    ).find((candidate: K.IStored): boolean => candidate.name === name);
+  async function storedWall(directory: string, name: string): Promise<K.IStored> {
+    if (directory !== "stored") return JSON.parse(await fs.readFile(path.join(directory, name + ".family.json"), "utf8")) as K.IStored;
+    const family: K.IStored | undefined = AutoMovieHumanF1.FAMILIES.map((member: IAutoMovieHumanF1.IMember): K.IStored => member.family).find((candidate: K.IStored): boolean => candidate.name === name);
     if (family === undefined) throw new Error("no stored family " + name);
     return JSON.parse(JSON.stringify(family)) as K.IStored;
   }
@@ -8078,26 +4806,8 @@ namespace FamilyConicBody {
    * A section loop without the stretch a neighbouring part owns: the vertices where `outside` is positive are dropped and each crossing of zero,
    * found by bisection on its edge, becomes a vertex, so the loop closes by a straight chord from where it leaves to where it returns.
    */
-  function without(
-    loop: readonly C.P[],
-    frame: IAutoMovieLoftSectionFrame,
-    outside: (p: R.V) => number,
-    round?: (p: R.V) => number,
-    opening?: (p: R.V) => number,
-    report?: (
-      kind: Closure,
-      detail?: string,
-      span?: [number, number],
-      rho?: { side: number; most: number; used: number },
-    ) => void,
-    cap?: (side: number) => number | undefined,
-    around?: number,
-  ): C.P[] | null {
-    const world = (p: C.P): R.V => [
-      frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0],
-      frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1],
-      frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2],
-    ];
+  function without(loop: readonly C.P[], frame: IAutoMovieLoftSectionFrame, outside: (p: R.V) => number, round?: (p: R.V) => number, opening?: (p: R.V) => number, report?: (kind: Closure, detail?: string, span?: [number, number], rho?: { side: number; most: number; used: number }) => void, cap?: (side: number) => number | undefined, around?: number, tube?: (phase: number) => number): C.P[] | null {
+    const world = (p: C.P): R.V => [frame.origin[0] + p[0] * frame.u[0] + p[1] * frame.v[0], frame.origin[1] + p[0] * frame.u[1] + p[1] * frame.v[1], frame.origin[2] + p[0] * frame.u[2] + p[1] * frame.v[2]];
     const g = (p: C.P): number => outside(world(p));
     const values: number[] = loop.map(g);
     if (values.every((value: number): boolean => value <= 0)) return [...loop];
@@ -8116,19 +4826,13 @@ namespace FamilyConicBody {
       let inside: C.P = values[i]! <= 0 ? loop[i]! : loop[j]!;
       let beyond: C.P = values[i]! <= 0 ? loop[j]! : loop[i]!;
       for (let k: number = 0; k < 30; ++k) {
-        const middle: C.P = [
-          (inside[0] + beyond[0]) / 2,
-          (inside[1] + beyond[1]) / 2,
-        ];
+        const middle: C.P = [(inside[0] + beyond[0]) / 2, (inside[1] + beyond[1]) / 2];
         if (g(middle) <= 0) inside = middle;
         else beyond = middle;
       }
       out.push(inside);
       kinds.push(values[i]! <= 0 ? "exit" : "entry");
-      opened[out.length - 1] =
-        values[i]! <= 0 &&
-        opening !== undefined &&
-        opening(world(loop[j]!)) > 0;
+      opened[out.length - 1] = values[i]! <= 0 && opening !== undefined && opening(world(loop[j]!)) > 0;
     }
     if (out.length < 3) return null;
     if (round === undefined && opening === undefined) return out;
@@ -8139,8 +4843,7 @@ namespace FamilyConicBody {
     // where the ends' tangent lines meet ahead of both; otherwise two, through a point on the chord with one inflection between them, at
     // the share and turn nearest the chord's middle and direction that admit both (the pre-check's closure); the chord where neither does.
     const step = (k: number, by: 1 | -1): C.P => {
-      let run: number = 0,
-        m: number = k;
+      let run: number = 0, m: number = k;
       while (run < 2) {
         const n: number = (m + by + out.length) % out.length;
         if (n === k) break;
@@ -8153,37 +4856,22 @@ namespace FamilyConicBody {
       const l: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
       return [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
     };
-    const meet = (
-      p: C.P,
-      d: C.P,
-      q: C.P,
-      e: C.P,
-    ): { a: number; b: number; X: C.P } => {
+    const meet = (p: C.P, d: C.P, q: C.P, e: C.P): { a: number; b: number; X: C.P } => {
       const den: number = d[0] * e[1] - d[1] * e[0];
       const w: C.P = [q[0] - p[0], q[1] - p[1]];
       const a: number = (w[0] * e[1] - w[1] * e[0]) / den;
-      return {
-        a,
-        b: (w[0] * d[1] - w[1] * d[0]) / den,
-        X: [p[0] + a * d[0], p[1] + a * d[1]],
-      };
+      return { a, b: (w[0] * d[1] - w[1] * d[0]) / den, X: [p[0] + a * d[0], p[1] + a * d[1]] };
     };
     // A conic arc of shoulder `rho` from p0 to p2 under its corner (its middle weight rho / (1 - rho)), one point a millimetre of its chord,
     // ends excluded.
     const arc = (p0: C.P, corner: C.P, p2: C.P, rho: number): C.P[] => {
       const w: number = rho / (1 - rho);
-      const n: number = Math.max(
-        2,
-        Math.ceil(Math.hypot(p2[0] - p0[0], p2[1] - p0[1])),
-      );
+      const n: number = Math.max(2, Math.ceil(Math.hypot(p2[0] - p0[0], p2[1] - p0[1])));
       return Array.from({ length: n - 1 }, (_: unknown, i: number): C.P => {
         const t: number = (i + 1) / n;
         const [b0, b1, b2] = [(1 - t) ** 2, 2 * t * (1 - t) * w, t * t];
         const d: number = b0 + b1 + b2;
-        return [
-          (b0 * p0[0] + b1 * corner[0] + b2 * p2[0]) / d,
-          (b0 * p0[1] + b1 * corner[1] + b2 * p2[1]) / d,
-        ];
+        return [(b0 * p0[0] + b1 * corner[0] + b2 * p2[0]) / d, (b0 * p0[1] + b1 * corner[1] + b2 * p2[1]) / d];
       });
     };
     // The fullest closure the opening allows: its shoulder the largest, from one half (a parabola) down in hundredths, with which every
@@ -8191,21 +4879,14 @@ namespace FamilyConicBody {
     // skin there. Where none does, the shoulder goes on down to the model's lower share bound (`CLOSURE_LEAST`), a conic close to its chord,
     // never the chord itself: a closure that switched between a conic and its chord from one station to the next moved the side extreme
     // 30 to 47 mm (f1 at 1,330 mm). The shoulder used is the smoothed one along the stations (`cap`) where that is smaller.
-    const fullest = (
-      side: number,
-      build: (rho: number) => C.P[],
-      holds: (points: readonly C.P[]) => boolean = contained,
-    ): { points: C.P[]; most: number; used: number } => {
+    const fullest = (side: number, build: (rho: number) => C.P[], holds: (points: readonly C.P[]) => boolean = contained): { points: C.P[]; most: number; used: number } => {
       let most: number = CLOSURE_LEAST;
       for (let rho: number = 0.5; rho > CLOSURE_LEAST; rho -= 0.01)
         if (holds(build(rho))) {
           most = rho;
           break;
         }
-      const used: number = Math.max(
-        CLOSURE_LEAST,
-        Math.min(most, cap?.(side) ?? most),
-      );
+      const used: number = Math.max(CLOSURE_LEAST, Math.min(most, cap?.(side) ?? most));
       return { points: build(used), most, used };
     };
     // A closure stays within the part of the section the port removes: inside the reference's own cut and on the opening's side (`opening`
@@ -8214,182 +4895,104 @@ namespace FamilyConicBody {
     // both skins, crossing 103 of the section's rays more than once; its shoulder is lowered until it stays inside (`fullest`).
     const insideLoop = (p: C.P): boolean => {
       let inside: boolean = false;
-      for (
-        let i: number = 0, j: number = loop.length - 1;
-        i < loop.length;
-        j = i++
-      ) {
+      for (let i: number = 0, j: number = loop.length - 1; i < loop.length; j = i++) {
         const [a, b] = [loop[i]!, loop[j]!];
-        if (
-          a[1] > p[1] !== b[1] > p[1] &&
-          p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]
-        )
-          inside = !inside;
+        if (a[1] > p[1] !== b[1] > p[1] && p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]) inside = !inside;
       }
       return inside;
     };
-    const contained = (points: readonly C.P[]): boolean =>
-      points.every(
-        (p: C.P): boolean => insideLoop(p) && opening!(world(p)) >= -0.5,
-      );
-    const leaves = (points: readonly C.P[]): string =>
-      `${points.filter((p: C.P): boolean => !insideLoop(p)).length} of ${points.length} off the cut, opening down to ${Math.min(...points.map((p: C.P): number => opening!(world(p)))).toFixed(1)} mm`;
+    const contained = (points: readonly C.P[]): boolean => points.every((p: C.P): boolean => insideLoop(p) && opening!(world(p)) >= -0.5);
+    const leaves = (points: readonly C.P[]): string => `${points.filter((p: C.P): boolean => !insideLoop(p)).length} of ${points.length} off the cut, opening down to ${Math.min(...points.map((p: C.P): number => opening!(world(p)))).toFixed(1)} mm`;
+    let trimmed: [number, number] = [0, 0];
+    // The first kept point after the last closure's entry: a later closure takes its exit back no farther.
+    let low: number = 0;
     const closure = (k: number): C.P[] | null => {
-      const e1: C.P = out[k]!,
-        e2: C.P = out[(k + 1) % out.length]!;
+      const e1: C.P = out[k]!, e2: C.P = out[(k + 1) % out.length]!;
       const side: number = Math.sign(e1[1] + e2[1]) || 1;
 
-      const t1: C.P = unit(step(k, -1), e1),
-        t2: C.P = unit(e2, step((k + 1) % out.length, 1));
+      const t1: C.P = unit(step(k, -1), e1), t2: C.P = unit(e2, step((k + 1) % out.length, 1));
       // Round the course (`IPart.around`): two arcs through a far point M at the opening's middle direction from the course point, its
       // tangent square to the radius there, at a share of the kept skin's mean radius.
-      if (around !== undefined) {
-        const mean: number =
-          out.reduce(
-            (sum: number, p: C.P): number => sum + Math.hypot(p[0], p[1]),
-            0,
-          ) / out.length;
-        const a1: number = Math.atan2(e1[1], e1[0]);
-        const gap: number =
-          (((Math.atan2(e2[1], e2[0]) - a1) % (2 * Math.PI)) + 2 * Math.PI) %
-          (2 * Math.PI);
-        const middle: number = a1 + gap / 2;
-        const tM: C.P = [-Math.sin(middle), Math.cos(middle)];
-        for (
-          let share: number = around;
-          share <= around + 0.25 + 1e-9;
-          share += 0.05
-        ) {
-          const M: C.P = [
-            share * mean * Math.cos(middle),
-            share * mean * Math.sin(middle),
-          ];
-          const m1 = meet(e1, t1, M, [-tM[0], -tM[1]]),
-            m2 = meet(M, tM, e2, [-t2[0], -t2[1]]);
-          if (!(m1.a > 0 && m1.b > 0 && m2.a > 0 && m2.b > 0)) continue;
-          // One closure a section, so its shoulder is smoothed along the stations as one (side 0), whichever side its ends lie on. It needs
-          // only to stay on the parent's side of the opening, not inside the reference's cut: the port removes the child's field there,
-          // short of its rail (construction.md, Ports). Held inside the cut as well, its shoulders fell to the model's least, 0.03, and
-          // the closed section became three near-chords with corners at its ends and its far point; the tape wall across them had arcs
-          // whose tangents met at shares down to 0.028, under the fit's margin of 0.1, and the arm's limb(1) seed was refused at 710 of
-          // 3,010 readings, all of them within the closure's stations (24 to 120 mm) and its phases.
-          const trunkSide = (points: readonly C.P[]): boolean =>
-            points.every((p: C.P): boolean => opening!(world(p)) >= -0.5);
-          const wrapped = fullest(
-            0,
-            (rho: number): C.P[] => [
-              ...arc(e1, m1.X, M, rho),
-              M,
-              ...arc(M, m2.X, e2, rho),
-            ],
-            trunkSide,
-          );
-          const lowest: number = Math.min(
-            ...wrapped.points.map((p: C.P): number => opening!(world(p))),
-          );
-          report?.(
-            trunkSide(wrapped.points) ? "around" : "outside",
-            `around: share ${share.toFixed(2)}, gap ${((gap * 180) / Math.PI).toFixed(1)} deg, rho ${wrapped.used.toFixed(2)}, opening down to ${lowest.toFixed(1)} mm`,
-            [a1, Math.atan2(e2[1], e2[0])],
-            { side: 0, most: wrapped.most, used: wrapped.used },
-          );
-          return wrapped.points;
+      // Round the course (`IPart.around`): the buried arc is the part's own tube continued (`FamilyConicClosure.continued`), the
+      // radius of its nearest whole section at each phase of the opening, brought to the kept skin's radius and direction at both
+      // ends. A far point scaled to the kept skin's mean radius, which this replaces, knew neither the part's own section nor its
+      // neighbour: it turned corners at parting planes (f1's toes, its middle finger), swung out through the host's skin where the
+      // kept skin's ends diverge (the arm's root, a horn in front of the chest), and each rule added to it moved the refusal to
+      // another arc. Where the continuation's premises fail the opening is named in the report and closed across its chord below.
+      if (around !== undefined && tube !== undefined) {
+        // A ray's kept skin ends where it stops advancing round its course. At a web's floor, and where two digits are pressed on each
+        // other, the skin before the parting plane turns back toward the neighbour and runs into the groove between them: that
+        // stretch is the web's, which a composed end reads as the valley of the two walls' union and gives to its bands, and no
+        // child's round. So each end of the kept skin is taken back to its last point that still advances (the skin's direction
+        // there has a circumferential part in the loop's sense), within this opening's own neighbours in the loop, and the tube is
+        // continued from there. Left on, f1's pressed toes and its middle finger at the web's floor had no continuation at all.
+        const advancing = (at: C.P, along: C.P): boolean => (along[1] * at[0] - along[0] * at[1]) / (Math.hypot(at[0], at[1]) || 1) > ADVANCE_LEAST;
+        let [a, b]: [number, number] = [k, (k + 1) % out.length];
+        while (a > low && kinds[a - 1] === "vertex" && !advancing(out[a]!, unit(step(a, -1), out[a]!))) --a;
+        while (b + 1 < out.length && kinds[b + 1] === "vertex" && b !== 0 && !advancing(out[b]!, unit(out[b]!, step(b, 1)))) ++b;
+        const [x1, x2]: C.P[] = [out[a]!, out[b]!];
+        const span: [number, number] = [Math.atan2(x1![1], x1![0]), Math.atan2(x2![1], x2![0])];
+        const made: C.P[] | string = FamilyConicClosure.continued(x1!, unit(step(a, -1), x1!), x2!, unit(x2!, step(b, 1)), tube);
+        if (typeof made !== "string") {
+          trimmed = [k - a, b === 0 ? 0 : b - (k + 1)];
+          report?.("around", `continued${trimmed[0] + trimmed[1] > 0 ? ` (kept skin taken back ${trimmed[0]} and ${trimmed[1]} points)` : ""}: opening down to ${Math.min(...made.map((p: C.P): number => opening!(world(p)))).toFixed(1)} mm`, span);
+          return made;
         }
-        // Where the opening has narrowed so far that no far point admits both corners ahead (f1's arm past 125 mm, a gap under 40
-        // degrees), the closure across the chord below surrounds the course point as well.
+        report?.("outside", `continued: ${made}`, span);
       }
       const plain = meet(e1, t1, e2, [-t2[0], -t2[1]]);
       if (plain.a > 0 && plain.b > 0) {
-        const single = fullest(side, (rho: number): C.P[] =>
-          arc(e1, plain.X, e2, rho),
-        );
-        report?.(
-          contained(single.points) ? "conic" : "outside",
-          contained(single.points)
-            ? undefined
-            : `conic: ${leaves(single.points)}`,
-          [Math.atan2(e1[1], e1[0]), Math.atan2(e2[1], e2[0])],
-          { side, most: single.most, used: single.used },
-        );
+        const single = fullest(side, (rho: number): C.P[] => arc(e1, plain.X, e2, rho));
+        report?.(contained(single.points) ? "conic" : "outside", contained(single.points) ? undefined : `conic: ${leaves(single.points)}`, [Math.atan2(e1[1], e1[0]), Math.atan2(e2[1], e2[0])], { side, most: single.most, used: single.used });
         return single.points;
       }
       const chord: C.P = unit(e1, e2);
-      let best: { t: number; d: number; A1: C.P; A2: C.P; I: C.P } | null =
-        null;
+      let best: { t: number; d: number; A1: C.P; A2: C.P; I: C.P } | null = null;
       for (let t: number = 0.2; t <= 0.801; t += 0.05)
         for (let d: number = -85; d <= 85; ++d) {
-          const I: C.P = [
-            e1[0] + t * (e2[0] - e1[0]),
-            e1[1] + t * (e2[1] - e1[1]),
-          ];
+          const I: C.P = [e1[0] + t * (e2[0] - e1[0]), e1[1] + t * (e2[1] - e1[1])];
           const r: number = (d * Math.PI) / 180;
-          const tau: C.P = [
-            chord[0] * Math.cos(r) - chord[1] * Math.sin(r),
-            chord[0] * Math.sin(r) + chord[1] * Math.cos(r),
-          ];
+          const tau: C.P = [chord[0] * Math.cos(r) - chord[1] * Math.sin(r), chord[0] * Math.sin(r) + chord[1] * Math.cos(r)];
           const m1 = meet(e1, t1, I, [-tau[0], -tau[1]]);
           const m2 = meet(I, tau, e2, [-t2[0], -t2[1]]);
-          if (
-            m1.a > 0 &&
-            m1.b > 0 &&
-            m2.a > 0 &&
-            m2.b > 0 &&
-            (best === null ||
-              Math.abs(t - 0.5) + Math.abs(d) / 90 <
-                Math.abs(best.t - 0.5) + Math.abs(best.d) / 90)
-          )
-            best = { t, d, A1: m1.X, A2: m2.X, I };
+          if (m1.a > 0 && m1.b > 0 && m2.a > 0 && m2.b > 0 && (best === null || Math.abs(t - 0.5) + Math.abs(d) / 90 < Math.abs(best.t - 0.5) + Math.abs(best.d) / 90)) best = { t, d, A1: m1.X, A2: m2.X, I };
         }
       if (best === null) {
         report?.("chord");
         return null;
       }
       const pick = best;
-      const twin = fullest(side, (rho: number): C.P[] => [
-        ...arc(e1, pick.A1, pick.I, rho),
-        pick.I,
-        ...arc(pick.I, pick.A2, e2, rho),
-      ]);
-      report?.(
-        contained(twin.points) ? "s" : "outside",
-        contained(twin.points) ? undefined : `s: ${leaves(twin.points)}`,
-        [Math.atan2(e1[1], e1[0]), Math.atan2(e2[1], e2[0])],
-        { side, most: twin.most, used: twin.used },
-      );
+      const twin = fullest(side, (rho: number): C.P[] => [...arc(e1, pick.A1, pick.I, rho), pick.I, ...arc(pick.I, pick.A2, e2, rho)]);
+      report?.(contained(twin.points) ? "s" : "outside", contained(twin.points) ? undefined : `s: ${leaves(twin.points)}`, [Math.atan2(e1[1], e1[0]), Math.atan2(e2[1], e2[0])], { side, most: twin.most, used: twin.used });
       return twin.points;
     };
     // Where the stretch left out was cut away by `round`, a surface of revolution about the course, the loop closes along that surface's
     // circle instead of the chord: the circle is the wall there, and a chord across it leaves the hull a corner where the chord meets the
     // skin. One point every 2 degrees, its radius running from the exit's to the entry's.
     const closed: C.P[] = [];
+    // The kept points a continued closure replaces at its two ends (`trimmed`, set by `closure`): the last of them before the exit
+    // are taken off again, and the first after the entry are passed over.
+    let skip: number = 0;
     out.forEach((p: C.P, k: number): void => {
-      closed.push(p);
-      const next: C.P = out[(k + 1) % out.length]!;
-      if (
-        kinds[k] === "exit" &&
-        kinds[(k + 1) % out.length] === "entry" &&
-        opened[k] === true
-      ) {
-        closed.push(...(closure(k) ?? []));
+      if (skip > 0) {
+        --skip;
         return;
       }
-      if (
-        round === undefined ||
-        kinds[k] !== "exit" ||
-        kinds[(k + 1) % out.length] !== "entry" ||
-        Math.abs(round(world(p))) > 0.5 ||
-        Math.abs(round(world(next))) > 0.5
-      )
+      closed.push(p);
+      const next: C.P = out[(k + 1) % out.length]!;
+      if (kinds[k] === "exit" && kinds[(k + 1) % out.length] === "entry" && opened[k] === true) {
+        trimmed = [0, 0];
+        const made: C.P[] = closure(k) ?? [];
+        closed.splice(closed.length - trimmed[0], trimmed[0]);
+        closed.push(...made);
+        skip = trimmed[1];
+        low = k + 1 + trimmed[1];
         return;
-      const [a, b]: number[] = [
-        Math.atan2(p[1], p[0]),
-        Math.atan2(next[1], next[0]),
-      ];
+      }
+      if (round === undefined || kinds[k] !== "exit" || kinds[(k + 1) % out.length] !== "entry" || Math.abs(round(world(p))) > 0.5 || Math.abs(round(world(next))) > 0.5) return;
+      const [a, b]: number[] = [Math.atan2(p[1], p[0]), Math.atan2(next[1], next[0])];
       const sweep: number = Math.atan2(Math.sin(b - a), Math.cos(b - a));
-      const [ra, rb]: number[] = [
-        Math.hypot(p[0], p[1]),
-        Math.hypot(next[0], next[1]),
-      ];
+      const [ra, rb]: number[] = [Math.hypot(p[0], p[1]), Math.hypot(next[0], next[1])];
       const steps: number = Math.ceil(Math.abs(sweep) / ((2 * Math.PI) / 180));
       for (let i: number = 1; i < steps; ++i) {
         const t: number = i / steps;

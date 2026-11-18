@@ -1,3 +1,6 @@
+import type { IAutoMovieConstructionPortLoop } from "../../../construction/IAutoMovieConstructionPortLoop";
+import type { IAutoMovieConstructionSeed } from "../../../construction/IAutoMovieConstructionSeed";
+import type { IAutoMovieHumanF1NativeRoot } from "./IAutoMovieHumanF1NativeRoot";
 import type { IAutoMovieConstructionFill } from "../../../construction/IAutoMovieConstructionFill";
 import type { IAutoMovieConstructionNode } from "../../../construction/IAutoMovieConstructionNode";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
@@ -90,26 +93,53 @@ export namespace IAutoMovieHumanF1 {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `frames`, `body`, `digits`, `helix`, `antihelix`, `axilla`, `concha`, `nostril`, `families`, `station`, `point`, `direction`; callers supply the complete record.
    */
   export interface IAssembly {
+    /** Shared crotch seam knots and fairing controls in the chord plane. */
+    crotchProfile: ICrotchProfile;
+
+    /** Original radial port controls for the invocation, in their native parent charts. */
+    roots: IRootControls;
+
+    /** Invocation-owned port definitions, absent in an ordinary reference or posed assembly. */
+    nativePorts?: ReadonlyMap<string, IAutoMovieHumanF1NativeRoot.IRootSpec>;
+
+    /**
+     * Transport the scoped cutter seed into this assembly's original or changed source chart.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Accepts a logical family, its original search controls and the owning host face.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1NativeRoot owns the numerical method and admission.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for nativeSeed?. The producer owns its decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1NativeRoot owns the evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1NativeRoot owns reuse of the source preparation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1NativeRoot owns borrowed-data lifetime.
+     */
+    nativeSeed?: (
+      family: IAutoMovieHumanConicLoft.IFamily,
+      seed: IAutoMovieHumanF1NativeRoot.ISeed,
+      hostFace: string,
+    ) => IAutoMovieConstructionSeed;
+
+    /** Seed controls recorded by the native invocation, absent when no native owner is used. */
+    nativeSeedControls?: ReadonlyMap<string, IAutoMovieHumanF1NativeRoot.ISeedTransport>;
+
+    /**
+     * Original family before placement, by logical name, for looking up a material station.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Reads the pre-placement family whose station coordinate is used by the caller.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1 owns the numerical method and admission.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for reference. The producer owns its decomposition.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1 owns the evaluation cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1 owns reuse of the source preparation.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 owns borrowed-data lifetime.
+     */
+    reference: (name: string) => IAutoMovieHumanConicLoft.IFamily;
+
     /** Every segment's frame at the pose, in the figure's frame. */
     frames: IAutoMovieHumanF1Placement.IFrames;
 
     /** `BODY` at the pose. */
-    body: {
-      /** Original conic family for the trunk, in the registered reference frame and calibration millimetres. */
-      trunk: IAutoMovieHumanConicLoft.IFamily;
-      /** Original conic family for the arm, in the registered reference frame and calibration millimetres. */
-      arm: IAutoMovieHumanConicLoft.IFamily;
-      /** Original conic family for the hand, in the registered reference frame and calibration millimetres. */
-      hand: IAutoMovieHumanConicLoft.IFamily;
-      /** Original conic family for the leg, in the registered reference frame and calibration millimetres. */
-      leg: IAutoMovieHumanConicLoft.IFamily;
-      /** Original conic family for the ear, in the registered reference frame and calibration millimetres. */
-      ear: IAutoMovieHumanConicLoft.IFamily;
-      /** Original conic family for the nose, in the registered reference frame and calibration millimetres. */
-      nose: IAutoMovieHumanConicLoft.IFamily;
-      /** Original conic family for the breast, in the registered reference frame and calibration millimetres. */
-      breast: IAutoMovieHumanConicLoft.IFamily;
-    };
+    body: IBody;
 
     /** `DIGITS` at the pose. */
     digits: IDigit[];
@@ -178,7 +208,7 @@ export namespace IAutoMovieHumanF1 {
    *
    *
    * @evidence contracts/development/common.md#meaningful-documentation The sewn body's declaration: its construction tree and the view parts its source leaves name.
-   * @evidence contracts/development/design.md#principled-representation `root`: The tree: both arm ports over the crotch split over the trunk. `sources`: The view part of every source leaf, by its name. `fills`: The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres.
+   * @evidence contracts/development/design.md#principled-representation `root`: The tree: both arm ports over the crotch split over the trunk. `sources`: The complete source part of each named leaf, borrowed immutably for its readers' lifetime. `fills`: The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanF1.construction. Also types AutoMovieHumanF1.declared.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `root`, `sources`, `fills`; callers supply the complete record.
    */
@@ -187,7 +217,7 @@ export namespace IAutoMovieHumanF1 {
     root: IAutoMovieConstructionNode;
 
     /** The view part of every source leaf, by its name. */
-    sources: Map<string, IAutoMovieViewPart>;
+    sources: ReadonlyMap<string, IAutoMovieViewPart>;
 
     /** The skin's discs faired once it is drawn (`IAutoMovieConstruction.fills`), metres. */
     fills: IAutoMovieConstructionFill[];
@@ -315,4 +345,66 @@ export namespace IAutoMovieHumanF1 {
     /** Dimensionless direction in the containing record's registered source frame; geometric consumers apply the documented normalization rule. */
     up: number[];
   };
+
+  /**
+   * The crotch seam's shared chord-plane and fairing controls.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The crotch seam's shared chord-plane and fairing controls.
+   * @evidence contracts/development/design.md#principled-representation Each knot is a pair of chord distance and depth in metres. The corner is in radians, and each fairing share belongs to one side.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanF1 reads the same profile when deriving the posed seam.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The profile is authored in one chord plane. The construction operator admits its knot ordering and geometry.
+   */
+  export interface ICrotchProfile {
+    /** Chord distance and depth, in metres, at each knot. */
+    knots: [number, number][];
+
+    /** Corner angle, radians. */
+    corner: number;
+
+    /** Fairing share at each end of the chord. */
+    fair: [number, number];
+  }
+
+  /**
+   * The assembly's original parent-chart radial controls.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The assembly's original parent-chart radial controls.
+   * @evidence contracts/development/design.md#principled-representation Arms and breasts have a loop per side, and the nose has one loop. Each loop uses its host-chart metres and radians.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanF1 and native root preparation read these controls before constructing ports.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The two loops distinguish anatomical sides without assigning another clock to either.
+   */
+  export interface IRootControls {
+    /** Arm loops in left, then right order. */
+    arm: [IAutoMovieConstructionPortLoop, IAutoMovieConstructionPortLoop];
+
+    /** Breast loops in left, then right order. */
+    breast: [IAutoMovieConstructionPortLoop, IAutoMovieConstructionPortLoop];
+
+    /** Nose loop on the face. */
+    nose: IAutoMovieConstructionPortLoop;
+  }
+
+  /**
+   * A child conic family's skin cut on its parent's last section plane.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation A child conic family's skin cut on its parent's last section plane.
+   * @evidence contracts/development/design.md#principled-representation Plane vectors use figure coordinates with a millimetre origin. The child's centre and sampled closed contour use millimetres in the plane chart.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanF1.rootSection returns this section for fitter and join diagnostics.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts This records the sampled skin intersection and its plane. The operator owns admission of the continuous joint.
+   */
+  export interface IRootSection {
+    /** The plane: the parent's course frame at its last knot, mm, with its normal along the course. */
+    plane: {
+      origin: [number, number, number];
+      u: [number, number, number];
+      v: [number, number, number];
+      normal: [number, number, number];
+    };
+
+    /** Where the child's course pierces the plane, in the plane's `(u, v)` chart, mm. */
+    centre: [number, number];
+
+    /** The child's skin cut by the plane, one point per child phase from 0, in the plane's `(u, v)` chart, mm. */
+    loop: [number, number][];
+  }
 }

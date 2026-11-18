@@ -140,7 +140,14 @@ export function test_render_readme_keys(): void {
     const values: Map<string, string> = new Map(
       option === "file" ? [] : [["module", "subjects.ts"]],
     );
-    values.set(option, option === "backend" ? "gpu" : `${option}.value`);
+    values.set(
+      option,
+      option === "backend"
+        ? "gpu"
+        : option === "timeout-ms"
+          ? "600000"
+          : `${option}.value`,
+    );
     TestValidator.equals(
       `--${option} is the capture host's own`,
       [...readAutoMovieCaptureHostOptions(values).request.keys()],
