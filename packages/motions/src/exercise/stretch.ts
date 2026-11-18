@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanPlaced,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanRange,
@@ -36,6 +35,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { stretchCrossBody } from "./stretchCrossBody";
 import { stretchHoldClock } from "./stretchHoldClock";
+import { stretchOverheadPlace } from "./stretchOverheadPlace";
 import { stretchQuadriceps } from "./stretchQuadriceps";
 
 /**
@@ -112,8 +112,8 @@ export namespace stretch {
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each pose's parts rise to their places on its envelope.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Clock, then one branch per pose.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Range levels, named places and body measures only; provisional values are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each actual arm retains its owned placement/solve; fixed foot pairs prepare native vector/slerp prerequisites once. Native fixed phase envelopes prepare intervals once while retaining custom callbacks. One-leg balance rows request only preceding root, since offsets/envelope depend on fixed entry geometry/time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed foot endpoints consume LegPhrase.prepareBetween with the original unclipped ankle/clipped rotation policy. Overhead callbacks reread borrowed entry grid/facing and all three original source/current chest transforms in order; each current chest may borrow native FK only during that one raw carried call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each arm retains its placement/solve. Foot pairs prepare fixed vector/slerp prerequisites and the admitted overhead course computes its fixed source chest and grid points once. One-leg balance rows request only preceding root, since offsets/envelope depend on fixed entry geometry/time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed foot endpoints preserve the original unclipped ankle/clipped rotation policy. The admitted overhead reader shares a fixed source frame across both arms and all phases. An ordinary overhead callback observes the live borrowed entry and chest transforms in order.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the clock and the stance.
    */
   export function plan(
@@ -157,8 +157,9 @@ export namespace stretch {
     );
     const build = (
       local: IAutoMovieMotionClock,
+      prepared: boolean = false,
     ): IAutoMovieMotionHumanActionPlan =>
-      compose(context, p, modifiers, level, local);
+      compose(context, p, modifiers, level, local, prepared);
     return stretchHoldClock.plan(context, clock, build);
   }
 
@@ -169,6 +170,7 @@ export namespace stretch {
     modifiers: IAutoMovieMotionManner.IModifiers,
     level: IAutoMovieMotionHumanRange.Level,
     clock: IAutoMovieMotionClock,
+    prepared: boolean,
   ): IAutoMovieMotionHumanActionPlan {
     const body = context.body;
     const m = body.measure;
@@ -365,6 +367,8 @@ export namespace stretch {
             { spine: bend("spine"), chest: bend("chest") },
           ),
         );
+        const place: ReturnType<typeof stretchOverheadPlace> =
+          stretchOverheadPlace(body, entry, prepared);
         for (const s of ["left", "right"] as const)
           primitives.push(
             ...AutoMovieMotionHumanPlaced.arm({
@@ -374,42 +378,7 @@ export namespace stretch {
               to: clock.duration,
               rest: rest(s),
               weight,
-              place: (
-                posture: IAutoMovieMotionHumanPosture,
-                _seconds: number,
-                resolution?: Parameters<
-                  IAutoMovieMotionHumanActionPlan["posture"]
-                >[2],
-              ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
-                const ride: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
-                  point: IAutoMovieVector3,
-                ): IAutoMovieVector3 =>
-                  AutoMovieMotionHumanPlaced.carried(
-                    body,
-                    entry,
-                    posture,
-                    point,
-                    resolution,
-                  );
-                const point: IAutoMovieVector3 =
-                  AutoMovieMotionHumanPlaced.grid(body, entry, s, {
-                    height: "overhead",
-                    lateral: "inside",
-                    distance: "close",
-                  });
-                return {
-                  point: ride(point),
-                  facing: Vector3.subtract(
-                    ride(
-                      Vector3.add(
-                        point,
-                        facing(entry, { x: s === "left" ? -1 : 1, y: 0, z: 0 }),
-                      ),
-                    ),
-                    ride(point),
-                  ),
-                };
-              },
+              place: place(s),
               bend: "raised",
             }),
           );

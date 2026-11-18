@@ -13,16 +13,28 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { createHumanBody } from "../body/createHumanBody";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { hipJoints } from "../posture/hipJoints";
+import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
+
+/** The body proportions fixed by the selected lowering strategy. */
+interface IStrategyGeometry {
+  readonly drop: number;
+  readonly retreat: number;
+  readonly deepest: number;
+}
+
+/** A current-pose root adjustment with the caller's synchronous FK source. */
+type Lower = ReturnType<typeof lowerHumanPosture.prepare>;
 
 /**
  * A standing body lowered toward a low target by a strategy, and the trunk
@@ -138,22 +150,91 @@ export namespace bendLower {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     lateral: number = 0,
   ): IAutoMovieMotionHumanPosture {
+    return current(body, posture, strategy, pitch, share, back, resolution, lateral);
+  }
+
+  /**
+   * Bind a fixed body's strategy at selection. Each descent or return
+   * sample still reads its standing pose, actual heel contact and hip FK.
+   *
+   * @param body The unchanged body supporting the lowering.
+   * @param strategy The selected lowering strategy.
+   * @returns A reader taking current standing posture, trunk degrees, movement share, posterior metres and optional FK and lateral degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed body, per-evaluation posture and angle, proportion and displacement units.
+   * @evidence contracts/development/implementation.md#principled-implementation Keep the strategy's trigonometry and the planted legs' unchanged knee reach separate from current angles, foot pivots and hip positions.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Raw and prepared paths share the current-pose transform; only the canonical body's fixed measures are bound separately.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unknown bodies keep their live geometry. No frame, pose result, tolerance or changed contact enters preparation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Precompute fixed segment geometry once. Both phases use the original current-posture equations and the same actual ankle targets.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body factory owns measure lifetime. Every actual sample supplies current hip FK, support and heading.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One body and its strategy scalars live with the reader. Current angles, limbs and the synchronous FK source are never retained.
+   */
+  export function prepare(
+    body: IAutoMovieMotionHumanBody,
+    strategy: Strategy,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    pitch: number,
+    share: number,
+    back: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    lateral?: number,
+  ) => IAutoMovieMotionHumanPosture {
+    const native: boolean = createHumanBody.owns(body);
+    const geometry: IStrategyGeometry | undefined = native ? {
+      drop: hipDrop(body, strategy),
+      retreat: retreat(body, strategy),
+      deepest: strategy === "stoop" ? stoopReach(body) : 0,
+    } : undefined;
+    const lowerPlanted: Lower | undefined = native ? lowerHumanPosture.prepare(body) : undefined;
+    return (posture, pitch, share, back, resolution, lateral = 0) =>
+      current(body, posture, strategy, pitch, share, back, resolution, lateral, geometry, lowerPlanted);
+  }
+
+  /** Vertical movement at full depth, metres. */
+  function hipDrop(body: IAutoMovieMotionHumanBody, strategy: Strategy): number {
+    return (1 - hipShare(body, strategy)) * body.measure.hipHeight;
+  }
+
+  /** Sagittal movement at full depth with the strategy's shank tilt, metres. */
+  function retreat(body: IAutoMovieMotionHumanBody, strategy: Strategy): number {
+    const knee: number = KNEE[strategy];
+    const shank: number = Math.min(knee / 2, ANKLE + HEEL[strategy]) * Math.PI / 180;
+    return strategy === "stoop" ? 0 :
+      body.measure.thigh * Math.sin(knee * Math.PI / 180 - shank) - body.measure.shank * Math.sin(shank);
+  }
+
+  /** The squared hip-to-ankle distance of the deepest stoop, square metres. */
+  function stoopReach(body: IAutoMovieMotionHumanBody): number {
+    const { thigh, shank }: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    return thigh * thigh + shank * shank + 2 * thigh * shank * Math.cos((KNEE.stoop * Math.PI) / 180);
+  }
+
+  /** Evaluate the current pivots and trunk against that second's actual stance. */
+  function current(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    strategy: Strategy,
+    pitch: number,
+    share: number,
+    back: number,
+    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
+    lateral: number,
+    fixed?: IStrategyGeometry,
+    lowerPlanted?: Lower,
+  ): IAutoMovieMotionHumanPosture {
     if (share <= 0 && pitch === 0 && back === 0) return posture;
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const drop: number = (1 - hipShare(body, strategy)) * body.measure.hipHeight * share;
+    const drop: number = (fixed?.drop ?? hipDrop(body, strategy)) * share;
     // The same two links that set the hip height also set its sagittal
     // position over the planted ankle. Without the horizontal component
     // a squat asks its shank to tip farther forward than its ankle allows.
-    const knee: number = KNEE[strategy];
-    const shank: number = Math.min(knee / 2, ANKLE + HEEL[strategy]) * Math.PI / 180;
-    const retreat: number = strategy === "stoop" ? 0 :
-      body.measure.thigh * Math.sin(knee * Math.PI / 180 - shank) -
-      body.measure.shank * Math.sin(shank);
+    const backAtDepth: number = fixed?.retreat ?? retreat(body, strategy);
     const frame: IAutoMovieMotionHumanFrame = { origin: posture.root, yaw: posture.yaw };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y - drop,
-      z: hips.z - back - share * retreat,
+      z: hips.z - back - share * backAtDepth,
     });
     const level: IAutoMovieVector3 = Vector3.subtract(
       goal,
@@ -236,8 +317,7 @@ export namespace bendLower {
       const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
       const standing: ReturnType<typeof hipJoints> = hipJoints(body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, read());
       const lowered: ReturnType<typeof hipJoints> = hipJoints(body, placed.root, resolveHumanPosture.heading(placed), placed.joints.hips, read());
-      const { thigh, shank }: IAutoMovieMotionHumanBody["measure"] = body.measure;
-      const deepest: number = thigh * thigh + shank * shank + 2 * thigh * shank * Math.cos((KNEE.stoop * Math.PI) / 180);
+      const deepest: number = fixed?.deepest ?? stoopReach(body);
       const drop: number = Math.min(...(["left", "right"] as const).map((side: AutoMovieHumanSide): number => {
         const ankle: IAutoMovieVector3 = limbs[`${side}Leg`]!.point;
         const from: IAutoMovieVector3 = Vector3.subtract(standing[side], ankle);
@@ -248,7 +328,9 @@ export namespace bendLower {
       }));
       if (Number.isFinite(drop)) placed = { ...placed, root: { ...placed.root, y: placed.root.y - drop } };
     }
-    return resolveHumanPosture.lower(body, placed, undefined, resolution);
+    return lowerPlanted === undefined
+      ? resolveHumanPosture.lower(body, placed, undefined, resolution)
+      : lowerPlanted(placed, resolution);
   }
 
   /** Heel lift by strategy at full depth, degrees (provisional: only the squat outruns the ankle's dorsiflexion). */
@@ -301,12 +383,11 @@ export namespace bendLower {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
     const name: AutoMovieHumanoidBone = `${side}UpperArm`;
     const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(body, new Set([name]));
+    const lowerAt: ReturnType<typeof prepare> = prepare(body, strategy);
     let lowest: number = Infinity;
     const gap: (deg: number) => number = (deg: number): number => {
-      const lowered: IAutoMovieMotionHumanPosture = lower(
-        body,
+      const lowered: IAutoMovieMotionHumanPosture = lowerAt(
         posture,
-        strategy,
         deg,
         1,
         lean * Math.sin((deg * Math.PI) / 180),

@@ -292,6 +292,7 @@ export namespace bend {
     };
 
     const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const lowerAt: ReturnType<typeof bendLower.prepare> = bendLower.prepare(body, strategy);
     const armSpan: IAutoMovieMotionHumanArmPlanned.ISpan = {
       start: 0, ready: down, relax: rise, end: moving,
     };
@@ -309,8 +310,8 @@ export namespace bend {
         const s: number = share(seconds);
         const angle: number = pitch * s;
         const back: number = lean * Math.sin((angle * Math.PI) / 180);
-        let lowered: IAutoMovieMotionHumanPosture = bendLower.lower(
-          body, standing, strategy, angle, s, back, resolution, lateralTilt,
+        let lowered: IAutoMovieMotionHumanPosture = lowerAt(
+          standing, angle, s, back, resolution, lateralTilt,
         );
         if (squat !== undefined) lowered = squat(lowered, s, standing);
         const weight: number = HumanPhysics.weightAt(window, seconds);
@@ -319,7 +320,7 @@ export namespace bend {
           const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(support, HumanFrame.forward(lowered.yaw));
           if (shift !== null && shift !== 0)
             lowered = squat === undefined
-              ? bendLower.lower(body, standing, strategy, angle, s, back - weight * shift, resolution, lateralTilt)
+              ? lowerAt(standing, angle, s, back - weight * shift, resolution, lateralTilt)
               : resolveHumanPosture.lower(body, { ...lowered, root: Vector3.addScaled(lowered.root, HumanFrame.forward(lowered.yaw), weight * shift) }, undefined, resolution);
         }
         return HumanGaze.aim(body, lowered, target, "head", { eyes: s, head: s, trunk: 0 });
@@ -429,7 +430,14 @@ export namespace bend {
       seconds < down || seconds > down + hold
         ? course.posture(seconds < down ? seconds : seconds - hold, channels, resolution, projection)
         : (held ??= course.posture(down));
-    return { ...course, ...HumanPhysics.declared(context.params, window), duration, events: clock.events(), posture };
+    return {
+      ...course,
+      ...HumanPhysics.declared(context.params, window),
+      duration,
+      events: clock.events(),
+      still: [down, down + hold],
+      posture,
+    };
   }
   /**
    * The lowering that brings a hand within reach of a target: the strategy
