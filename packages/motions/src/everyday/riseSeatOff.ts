@@ -55,6 +55,9 @@ export function riseSeatOff(props: {
   legged: ReturnType<typeof stand.prepareLegs>;
   /** Actual candidate feet for one original shank angle. */
   drawAt: (angle: number) => Record<"left" | "right", IAutoMovieVector3>;
+  /** Seconds from the start of rising at which the trunk reaches its peak flexion. */
+  flexed: number;
+
   /** Original current trunk flexion at a second and peak, degrees. */
   pitchAt: (seconds: number, peak: number) => number;
 }): {
@@ -122,8 +125,8 @@ export function riseSeatOff(props: {
     ) {
       const candidate: Candidate = seatedAt(peak, drawn, limit);
       for (
-        let t: number = SEAT_OFF[0] * props.rising;
-        t <= SEAT_OFF[1] * props.rising + 1e-9;
+        let t: number = SEAT_OFF * props.rising;
+        t <= props.flexed + 1e-9;
         t += PROBE
       ) {
         resolution ??= prepareHumanPoseResolution();
@@ -153,8 +156,14 @@ export function riseSeatOff(props: {
 /** The raised trunk peaks tried for seat-off: up to `most` degrees in `step`s (provisional, as rise states). */
 const PEAK: Readonly<Record<"most" | "step", number>> = { most: 70, step: 5 };
 
-/** The window of the rise searched for seat-off, as shares of it (provisional, as rise states). */
-const SEAT_OFF: readonly [number, number] = [0.4, 0.45];
+/**
+ * The earliest seat-off, as a share of the rise: the end of the flexion phase
+ * at 36 % of sit-to-stand in healthy adults (McDonald, Villarejo Mayor and
+ * Lennon 2025, Front Bioeng Biotechnol 13:1605524). The search runs from
+ * there to the trunk's peak, since peak trunk flexion closely follows
+ * seat-off (Schenkman et al. 1990).
+ */
+const SEAT_OFF: number = 0.36;
 
 /**
  * Seconds between seat-off probes: one film frame at 24 frames per second.

@@ -45,8 +45,9 @@ import { seatedCourse } from "./seatedCourse";
  * minimum-jerk profile over the first half of the rise to a peak of at least
  * `35 + 50 (1 - r)` degrees, so it is still flexing fast when the seat is
  * left (peak trunk flexion closely follows seat-off, Schenkman et al.).
- * Seat-off comes at the first frame from 40 % of the rise (the flexion then
- * 94 % of its peak; provisional) to 45 %, at which the extrapolated centre
+ * Seat-off comes at the first frame from 36 % of the rise, where the flexion
+ * phase ends in healthy adults (McDonald, Villarejo Mayor and Lennon 2025,
+ * Front Bioeng Biotechnol 13:1605524), to the trunk's peak, at which the extrapolated centre
  * of mass of the engine's whole-body model (Hof, Gazendam and Sinke 2005)
  * enters the feet's base of support: the forward momentum of the flexing
  * trunk then carries the body over the feet. When no frame does, the peak
@@ -289,6 +290,7 @@ export namespace rise {
       relaxed,
       angles: SHANK,
       rising,
+      flexed: flex,
       ratio: r,
       legged,
       drawAt,
