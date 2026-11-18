@@ -4,10 +4,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A lower bound of a point's distance from a placed body shape: its distance
- * from the box of the shape's hull points in the shape's own frame, which
- * holds the hull; zero inside the box, and zero for a shape that is not a
- * hull, which bounds nothing tighter than its sphere does.
+ * The signed distance to the box enclosing the hull in its local frame.
+ * Inside the box, the bound is the negative distance to the nearest face.
+ * A non-hull yields negative infinity so the exact shape query stays eligible.
  *
  * The point is carried into the shape's frame through the segment's pose and
  * the shape's own transform, as the exact distance carries it
@@ -17,10 +16,10 @@ import type {
  *
  * @param shape The placed shape.
  * @param p The point, world metres.
- * @returns Metres, not more than the point's distance from the hull.
+ * @returns A lower bound on signed clearance in metres.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bound, the frame it is read in, the box and the cases that bound nothing.
- * @evidence contracts/development/implementation.md#principled-implementation A convex hull lies inside the box of its vertices: every hull point is a box point, so the least distance to the box is not more than the least distance to the hull. The result is lessened by `ROUNDING`, more than the rounding of the two rotations of a point a few metres out, so it stays a bound as computed.
+ * @evidence contracts/development/implementation.md#principled-implementation Outside the enclosing box its nearest point is at least as close as the hull. Inside the hull, leaving the box requires at least as much travel as leaving the hull, so the negative distance to the box boundary bounds signed clearance there as well. The result is lessened by `ROUNDING`, more than the rounding of the two rotations of a point a few metres out, so it stays a bound as computed.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The point into the segment's frame, into the shape's, then one clamp per axis.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a bound: its callers decide nothing from it that the exact distance could reverse (`HumanArmTrajectoryPairs.deepest`).
  * @evidence contracts/development/implementation.md#efficient-algorithms Two rotations of a point and six comparisons, against the exact query's support search over the hull's faces; the box is built once for a hull's points (O(V)).
@@ -32,7 +31,7 @@ export function HumanArmShapeBox(
   p: IAutoMovieVector3,
 ): number {
   const solid: IAutoMovieMotionHumanArmGeometry.IShape["shape"] = shape.shape;
-  if (solid.kind !== "hull") return 0;
+  if (solid.kind !== "hull") return -Infinity;
   let box: Float64Array | undefined = BOXES.get(solid.points);
   if (box === undefined) {
     box = new Float64Array([
@@ -68,10 +67,15 @@ export function HumanArmShapeBox(
     segment.y - t.position.y,
     segment.z - t.position.z,
   );
-  const dx: number = Math.max(0, box[0]! - local.x, local.x - box[3]!);
-  const dy: number = Math.max(0, box[1]! - local.y, local.y - box[4]!);
-  const dz: number = Math.max(0, box[2]! - local.z, local.z - box[5]!);
-  return Math.max(0, Math.sqrt(dx * dx + dy * dy + dz * dz) - ROUNDING);
+  const dx: number = Math.max(box[0]! - local.x, local.x - box[3]!);
+  const dy: number = Math.max(box[1]! - local.y, local.y - box[4]!);
+  const dz: number = Math.max(box[2]! - local.z, local.z - box[5]!);
+  const face: number = Math.max(dx, dy, dz);
+  if (face <= 0) return face - ROUNDING;
+  const x: number = Math.max(0, dx);
+  const y: number = Math.max(0, dy);
+  const z: number = Math.max(0, dz);
+  return Math.sqrt(x * x + y * y + z * z) - ROUNDING;
 }
 
 /** A vector turned by the inverse of a unit rotation: the rotation's conjugate applied. */
