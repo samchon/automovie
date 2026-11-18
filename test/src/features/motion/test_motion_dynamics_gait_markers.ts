@@ -1,7 +1,10 @@
+import type { IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanWalkSignature } from "../internal/motionHumanWalkSignature";
 
 /**
  * Public gait markers agree with the two independent contact-window edges.
@@ -17,20 +20,68 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_dynamics_gait_markers(): void {
   const body = motionHumanBody("m-average");
-  const film = new HumanPerformance({
-    seed: "recompose-travel",
-    performers: [
-      {
-        subject: "a",
-        body,
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
-    composition: HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 6 } })
-      .node,
-  });
+  const perform = (seed: string) =>
+    new HumanPerformance({
+      seed,
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").walk({ to: { x: 0, y: 0, z: 6 } })
+        .node,
+    });
+  const film = perform("recompose-travel");
+  const strikes = (walk: IAutoMovieMotionHumanPerformance) => {
+    const part = walk.segments("a")[0]!;
+    return part.plan.events
+      .filter((e) => /^(left|right)HeelStrike\d+$/.test(e.name))
+      .map((e) => ({
+        name: e.name,
+        time: part.start + e.share * part.plan.duration,
+      }))
+      .sort((a, b) => a.time - b.time);
+  };
+  const first = strikes(film),
+    other = perform("timing-2"),
+    second = strikes(other);
+  TestValidator.equals(
+    "same seed repeats each strike",
+    strikes(perform("recompose-travel")),
+    first,
+  );
+  TestValidator.predicate(
+    "changing only seed changes strike times",
+    first.length >= 4 &&
+      first.length === second.length &&
+      Math.max(...first.map((v, i) => Math.abs(v.time - second[i]!.time))) >
+        0.001,
+  );
+  for (const [i, one] of first.entries()) {
+    const side = one.name.startsWith("left") ? "leftFoot" : "rightFoot";
+    const a = film.bones("a", one.time + 1 / 24).get(side)!.worldPosition,
+      b = other.bones("a", second[i]!.time + 1 / 24).get(side)!.worldPosition;
+    TestValidator.predicate(
+      "strike placements agree to two millimetres",
+      Math.hypot(a.x - b.x, a.z - b.z) <= 0.002,
+    );
+  }
+  const stop = (walk: IAutoMovieMotionHumanPerformance): number => {
+    const limbs = walk.bones("a", walk.duration);
+    return (
+      (limbs.get("leftUpperLeg")!.worldPosition.z +
+        limbs.get("rightUpperLeg")!.worldPosition.z) /
+      2
+    );
+  };
+  TestValidator.predicate(
+    "seed leaves the destination within one millimetre",
+    Math.abs(stop(film) - stop(other)) <= 0.001,
+  );
   const segment = film.segments("a")[0]!;
   const event = (name: string): number => {
     const item = segment.plan.events.find((value) => value.name === name);
@@ -64,5 +115,10 @@ export function test_motion_dynamics_gait_markers(): void {
   TestValidator.predicate(
     "heel strike restores support",
     !supported(heel - h) && supported(heel + h),
+  );
+  const observations = motionComplaints();
+  motionHumanWalkSignature.read("f-small", observations);
+  observations.assert(
+    "explicit walking paces retain stance, gaze, cadence and trunk bounds",
   );
 }
