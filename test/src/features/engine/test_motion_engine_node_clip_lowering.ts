@@ -15,6 +15,19 @@ import { importedNodeMotionTestSkeleton as skeleton } from "../internal/imported
 import { nclose, throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
+type LoweringInput = Parameters<typeof importedNodeClipToAutoMovieMotion>[0];
+
+function lower(
+  change: Partial<LoweringInput>,
+): ReturnType<typeof importedNodeClipToAutoMovieMotion> {
+  return importedNodeClipToAutoMovieMotion({
+    clip: clip(),
+    sourceSkeleton: skeleton(),
+    mapping,
+    motionId: "native-clinical",
+    ...change,
+  });
+}
 const mapping: Parameters<
   typeof importedNodeClipToAutoMovieMotion
 >[0]["mapping"] = [
@@ -42,14 +55,10 @@ const mapping: Parameters<
  * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh clip/skeleton records through the extracted existing canonical fixtures, preserving array order and mapping identities. It opens no importer process, filesystem, renderer, browser or GPU and replaces no foreign method or production consumer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A mapped clip lowers the authored key-time union, root translation, joint).
  */
-export function test_engine_imported_node_motion(): void {
-  const motion: ReturnType<typeof importedNodeClipToAutoMovieMotion> =
-    importedNodeClipToAutoMovieMotion({
-      clip: clip(),
-      sourceSkeleton: skeleton(),
-      mapping,
-      motionId: "native-clinical",
-    });
+export function test_motion_engine_node_clip_lowering(): void {
+  const motion: ReturnType<typeof importedNodeClipToAutoMovieMotion> = lower(
+    {},
+  );
   TestValidator.predicate(
     "the authored key-time union becomes clinical source motion",
     test12ValuesClose(
@@ -82,13 +91,9 @@ export function test_engine_imported_node_motion(): void {
     ),
   );
 
-  const reordered: ReturnType<typeof importedNodeClipToAutoMovieMotion> =
-    importedNodeClipToAutoMovieMotion({
-      clip: clip(),
-      sourceSkeleton: skeleton(),
-      mapping: [...mapping].reverse(),
-      motionId: "native-clinical",
-    });
+  const reordered: ReturnType<typeof importedNodeClipToAutoMovieMotion> = lower(
+    { mapping: [...mapping].reverse() },
+  );
   TestValidator.predicate(
     "mapping input order does not change canonical joint output",
     test12ValuesClose(reordered, motion),
@@ -99,32 +104,21 @@ export function test_engine_imported_node_motion(): void {
     {
       missing: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
+          lower({
             clip: { ...clip(), tracks: clip().tracks.slice(0, 2) },
-            sourceSkeleton: skeleton(),
-            mapping,
-            motionId: "missing",
           }),
         "has no rotation channel",
       ),
       duplicate: throwsError((): void => {
         const source: IAutoMovieClip = clip();
         source.tracks.push({ ...source.tracks[1]! });
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "duplicate",
         });
       }, "repeats channel"),
       unmapped: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: skeleton(),
-            mapping: mapping.slice(1),
-            motionId: "unmapped",
-          }),
+          lower({ mapping: mapping.slice(1) }),
         "no explicit bone mapping",
       ),
     },
@@ -140,41 +134,29 @@ export function test_engine_imported_node_motion(): void {
           ...source.tracks[2]!,
           interpolation: "cubicspline",
         };
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "cubic",
         });
       }, "cubic-spline"),
       mixed: throwsError((): void => {
         const source: IAutoMovieClip = clip();
         source.tracks[0] = { ...source.tracks[0]!, interpolation: "step" };
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "mixed",
         });
       }, "different interpolation"),
       nonfinite: throwsError((): void => {
         const source: IAutoMovieClip = clip();
         source.tracks[2]!.values[0] = NaN;
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "nonfinite",
         });
       }, "finite"),
       nonunit: throwsError((): void => {
         const source: IAutoMovieClip = clip();
         source.tracks[2]!.values.splice(0, 4, 0, 0, 0, 2);
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "nonunit",
         });
       }, "unit length"),
     },
@@ -186,11 +168,8 @@ export function test_engine_imported_node_motion(): void {
     {
       repeatedBone: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: skeleton(),
+          lower({
             mapping: [...mapping, { node: "other-node", bone: "spine" }],
-            motionId: "ambiguous",
           }),
         "repeats bone",
       ),
@@ -206,16 +185,13 @@ export function test_engine_imported_node_motion(): void {
           values: [0, 0, 0, 0, 0, 0],
           interpolation: "linear",
         });
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "translated-spine",
         });
       }, "must map to hips"),
       oneTime: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
+          lower({
             clip: {
               ...clip(),
               tracks: [
@@ -223,9 +199,6 @@ export function test_engine_imported_node_motion(): void {
                 rotation("spine-node", [0], [0, 0, 0, 1]),
               ],
             },
-            sourceSkeleton: skeleton(),
-            mapping,
-            motionId: "one-time",
           }),
         "at least two distinct",
       ),
@@ -238,102 +211,54 @@ export function test_engine_imported_node_motion(): void {
     {
       blankMotion: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: skeleton(),
-            mapping,
-            motionId: " ",
-          }),
+          lower({ motionId: " " }),
         "id must not be blank",
       ),
       blankSkeleton: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: { ...skeleton(), id: " " },
-            mapping,
-            motionId: "blank-skeleton",
-          }),
+          lower({ sourceSkeleton: { ...skeleton(), id: " " } }),
         "skeleton id must not be blank",
       ),
       emptyMapping: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: skeleton(),
-            mapping: [],
-            motionId: "empty-map",
-          }),
+          lower({ mapping: [] }),
         "explicit node-to-bone mapping",
       ),
       duplicateSkeletonBone: throwsError((): void => {
         const sourceSkeleton: IAutoMovieSkeleton = skeleton();
         sourceSkeleton.bones.push({ ...sourceSkeleton.bones[0]! });
-        importedNodeClipToAutoMovieMotion({
-          clip: clip(),
-          sourceSkeleton,
-          mapping,
-          motionId: "duplicate-skeleton",
-        });
+        lower({ sourceSkeleton });
       }, "repeats bone"),
       nonfiniteRestTranslation: throwsError((): void => {
         const sourceSkeleton: IAutoMovieSkeleton = skeleton();
         sourceSkeleton.bones[0]!.rest.translation.y = NaN;
-        importedNodeClipToAutoMovieMotion({
-          clip: clip(),
-          sourceSkeleton,
-          mapping,
-          motionId: "bad-rest-translation",
-        });
+        lower({ sourceSkeleton });
       }, "rest translation.y must be finite"),
       nonfiniteRestRotation: throwsError((): void => {
         const sourceSkeleton: IAutoMovieSkeleton = skeleton();
         sourceSkeleton.bones[1]!.rest.rotation.x = NaN;
-        importedNodeClipToAutoMovieMotion({
-          clip: clip(),
-          sourceSkeleton,
-          mapping,
-          motionId: "bad-rest-rotation-finite",
-        });
+        lower({ sourceSkeleton });
       }, "must contain only finite components"),
       nonunitRestRotation: throwsError((): void => {
         const sourceSkeleton: IAutoMovieSkeleton = skeleton();
         sourceSkeleton.bones[1]!.rest.rotation.w = 2;
-        importedNodeClipToAutoMovieMotion({
-          clip: clip(),
-          sourceSkeleton,
-          mapping,
-          motionId: "bad-rest-rotation",
-        });
+        lower({ sourceSkeleton });
       }, "rest"),
       blankNode: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: skeleton(),
-            mapping: [{ node: " ", bone: "hips" }],
-            motionId: "blank-node",
-          }),
+          lower({ mapping: [{ node: " ", bone: "hips" }] }),
         "node must not be blank",
       ),
       repeatedNode: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: skeleton(),
+          lower({
             mapping: [...mapping, { node: "spine-node", bone: "head" }],
-            motionId: "duplicate-node",
           }),
         "repeats node",
       ),
       absentBone: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
-            clip: clip(),
-            sourceSkeleton: skeleton(),
-            mapping: [{ node: "head-node", bone: "head" }],
-            motionId: "absent-bone",
-          }),
+          lower({ mapping: [{ node: "head-node", bone: "head" }] }),
         "absent from source skeleton",
       ),
       nonNodeChannel: throwsError((): void => {
@@ -347,11 +272,8 @@ export function test_engine_imported_node_motion(): void {
             path: "rotation",
           } as unknown as IAutoMovieTrack["channel"],
         };
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "non-node",
         });
       }, "only node channels"),
       scale: throwsError((): void => {
@@ -362,11 +284,8 @@ export function test_engine_imported_node_motion(): void {
           values: [1, 1, 1, 1, 1, 1],
           interpolation: "linear",
         });
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "scale",
         });
       }, "cannot be represented"),
       weights: throwsError((): void => {
@@ -377,20 +296,14 @@ export function test_engine_imported_node_motion(): void {
           values: [0, 1],
           interpolation: "linear",
         });
-        importedNodeClipToAutoMovieMotion({
+        lower({
           clip: source,
-          sourceSkeleton: skeleton(),
-          mapping,
-          motionId: "weights",
         });
       }, "cannot be represented"),
       noChannels: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          importedNodeClipToAutoMovieMotion({
+          lower({
             clip: { ...clip(), tracks: [] },
-            sourceSkeleton: skeleton(),
-            mapping,
-            motionId: "no-channels",
           }),
         "no mapped channels",
       ),
@@ -422,23 +335,14 @@ export function test_engine_imported_node_motion(): void {
   TestValidator.equals(
     "root translation is optional and explicit source characterization is consumed",
     {
-      rotationOnlyRoot: importedNodeClipToAutoMovieMotion({
+      rotationOnlyRoot: lower({
         clip: rotationOnly,
-        sourceSkeleton: skeleton(),
-        mapping,
-        motionId: "rotation-only",
       }).keyframes[0]!.pose.root,
-      noHipsRoot: importedNodeClipToAutoMovieMotion({
+      noHipsRoot: lower({
         clip: noHipsClip,
-        sourceSkeleton: skeleton(),
         mapping: [mapping[0]!],
-        motionId: "spine-only",
       }).keyframes[0]!.pose.root,
-      characterized: importedNodeClipToAutoMovieMotion({
-        clip: clip(),
-        sourceSkeleton: skeleton(),
-        mapping,
-        motionId: "characterized",
+      characterized: lower({
         sourceJointAxes: {
           spine: {
             flexion: { x: 1, y: 0, z: 0 },

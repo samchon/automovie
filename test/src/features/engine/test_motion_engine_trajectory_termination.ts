@@ -1,5 +1,7 @@
 import {
+  MotionTrajectoryFailure,
   Quaternion,
+  integrateAirborneRotation,
   integrateMotionTrajectory,
   solveAirborneTakeoff,
 } from "@automovie/engine";
@@ -49,7 +51,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit test of public engine functions with owned callback counters, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the body, the bounds and the five scenarios.
  */
-export function test_engine_motion_degenerate_termination(): void {
+export function test_motion_engine_trajectory_termination(): void {
   // 1. A tolerance below the arithmetic's roundoff.
   const bits: Float64Array = new Float64Array(1);
   const words: Uint32Array = new Uint32Array(bits.buffer);
@@ -136,7 +138,59 @@ export function test_engine_motion_degenerate_termination(): void {
       throwsError((): unknown => shoot(change)),
     );
 
-  // 4. A share that underflows.
+  for (const scope of [undefined, Symbol("integrator")]) {
+    let foreign: unknown;
+    try {
+      integrateMotionTrajectory({
+        f: () => ({ dx: [1] }),
+        x0: [0],
+        t0: 1,
+        t1: 2,
+        h: Number.MIN_VALUE,
+        tolerance: { absolute: 1e-9, relative: 0 },
+        errorScope: scope,
+      });
+    } catch (error) {
+      foreign = error;
+    }
+    if (!(foreign instanceof MotionTrajectoryFailure))
+      throw new Error("expected the inner time-resolution failure");
+    const before = Object.getOwnPropertyDescriptors(foreign);
+    let reads = 0;
+    for (const outer of [undefined, Symbol("airborne")]) {
+      let result: unknown;
+      try {
+        integrateAirborneRotation({
+          history: () => {
+            ++reads;
+            throw foreign;
+          },
+          t0: 0,
+          t1: 1,
+          q0: identity,
+          momentum: { x: 1, y: 0, z: 0 },
+          tolerance: { absolute: 1e-6, relative: 0 },
+          errorScope: outer,
+        });
+      } catch (error) {
+        result = error;
+      }
+      TestValidator.predicate(
+        "a nested trajectory keeps its own failure",
+        result === foreign,
+      );
+    }
+    TestValidator.equals(
+      "foreign failure descriptors remain unchanged",
+      Object.getOwnPropertyDescriptors(foreign),
+      before,
+    );
+    TestValidator.equals(
+      "unmodified history fails on its first read",
+      reads,
+      2,
+    );
+  } // 4. A share that underflows.
   starts = 0;
   const unmet: IAutoMovieSolveAirborneTakeoff.ISolution = shoot({
     tolerance: Number.MIN_VALUE,

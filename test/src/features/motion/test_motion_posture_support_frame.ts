@@ -52,6 +52,9 @@ export function test_motion_posture_support_frame(): void {
     });
   const carry = HumanSupportCarry.of(frame, 0, 1);
   const localStep = { x: 0.2, y: 0.3, z: 2 };
+  const deckBody = motionHumanBody("m-average");
+  const kneePole = deckBody.rest.get("leftLowerLeg")!;
+  const elbowPole = deckBody.rest.get("rightLowerArm")!;
   const carried = HumanSupportCarry.posture(carry, {
     root: { x: 0, y: 0.3, z: 1 },
     yaw: 10,
@@ -59,10 +62,10 @@ export function test_motion_posture_support_frame(): void {
     roll: 0,
     joints: { head: [5, 0, 0] },
     limbs: {
-      leftLeg: { point: localStep, bend: { ...localStep, z: 2.5 } },
+      leftLeg: { point: localStep, bend: kneePole },
       rightArm: {
         point: { x: 0, y: 0.8, z: 2 },
-        bend: { x: 0.2, y: 0.8, z: 2 },
+        bend: elbowPole,
       },
     },
   });
@@ -85,7 +88,6 @@ export function test_motion_posture_support_frame(): void {
   );
   const findings: string[] = [];
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
-  const deckBody = motionHumanBody("m-average");
   const deck = (speed: number): IAutoMovieMotionHumanPerformance => {
     const placement = (t: number) => ({
       at: { x: 0, y: 0.3, z: speed * t },
