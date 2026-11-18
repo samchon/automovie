@@ -494,6 +494,30 @@ export namespace HumanArmTrajectory {
           own,
           solved.state.x,
         );
+        // A local solve stops at both ends. At an interior splice, restore
+        // the laid Hermite curve's physical velocity with the endpoint
+        // tangent basis on the adjacent solved interval.
+        for (const endpoint of [from, to]) {
+          if (endpoint === 0 || endpoint === grid.length - 1) continue;
+          const start: boolean = endpoint === from;
+          const times: readonly number[] = solved.state.times;
+          const edge: number = start ? times[1]! : times[times.length - 2]!;
+          const width: number = Math.abs(edge - grid[endpoint]!);
+          const dt: number = grid[endpoint + 1]! - grid[endpoint - 1]!;
+          for (let g: number = start ? from + 1 : to - 1;
+            start ? grid[g]! < edge : grid[g]! > edge;
+            g += start ? 1 : -1) {
+            const u: number = (grid[g]! - grid[endpoint]!) / width;
+            const basis: number = width * u * (1 - Math.abs(u)) ** 2;
+            played.forEach((arm: number[][], a: number): void => {
+              const source: number[][] = laid.read.x[a]!;
+              const row: number[] = arm[g - from]!;
+              for (let d: number = 0; d < row.length; ++d)
+                row[d]! += basis *
+                  (source[endpoint + 1]![d]! - source[endpoint - 1]![d]!) / dt;
+            });
+          }
+        }
         // Interior joins hold their last pose. An open end of the full
         // action is a solved contact and must keep the repaired last frame.
         const after: number = to === grid.length - 1 && fine.open ? to + 1 : to;
