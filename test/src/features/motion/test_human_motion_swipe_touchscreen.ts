@@ -29,7 +29,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. A diagonal glass axis yields a stroke across half the tablet's width on
  *    the glass over the measured single-finger swipe duration.
  * 2. Reversing the authored endpoints reverses the visible path.
- * 3. An endpoint outside the screen width is refused.
+ * 3. The law refuses an off-screen endpoint, an unrepresentable stroke,
+ *    an approach from behind the glass and a cut while contact is active.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the displayed pose, contact phases, bidirectional screen path and invalid endpoint case.
  * @evidence contracts/development/testing.md#behavioral-verification Checks displayed index bones through HumanHand, film events, the registered plan's unloaded contact window, and the public refusal.
@@ -63,13 +64,27 @@ export function test_human_motion_swipe_touchscreen(): void {
     y: (0.2486 * Math.cos(tilt)) / 2,
     z: -0.007 / 2,
   };
-  const tablet: IAutoMovieMotionHumanProp = HumanObject.prop(
-    "tablet",
-    createDevice({ kind: "tablet", model: "wifi" }),
-    { position: Vector3.subtract(center, centerOffset), rotation, fixed: true },
-  );
-  const perform = (from: number, to: number): HumanPerformance =>
-    new HumanPerformance({
+  const model: ReturnType<typeof createDevice> = createDevice({
+    kind: "tablet",
+    model: "wifi",
+  });
+  const tablet: IAutoMovieMotionHumanProp = HumanObject.prop("tablet", model, {
+    position: Vector3.subtract(center, centerOffset),
+    rotation,
+    fixed: true,
+  });
+  const perform = (
+    from: number,
+    to: number,
+    seconds?: number,
+    fixture: IAutoMovieMotionHumanProp = tablet,
+    cut?: "relax",
+  ): HumanPerformance => {
+    const intent = { prop: "tablet", screen: "screen", from, to, seconds };
+    const chain = Chain.subject("a")
+      .stand({ seconds: 0.6, sway: 0 })
+      .swipeTouchscreen(intent);
+    return new HumanPerformance({
       seed: "kiosk swipe",
       performers: [
         {
@@ -80,17 +95,14 @@ export function test_human_motion_swipe_touchscreen(): void {
           proficiency: { level: "trained" },
         },
       ],
-      props: [tablet],
+      props: [fixture],
       laws: [swipeTouchscreen],
-      composition: Chain.subject("a")
-        .stand({ seconds: 0.6, sway: 0 })
-        .swipeTouchscreen({
-          prop: "tablet",
-          screen: "screen",
-          from,
-          to,
-        }).node,
+      composition: (cut === undefined
+        ? chain
+        : chain.until({ event: cut }).swipeTouchscreen(intent)
+      ).node,
     });
+  };
 
   for (const sign of [1, -1]) {
     const performance: HumanPerformance = perform(-sign / 4, sign / 4);
@@ -156,16 +168,54 @@ export function test_human_motion_swipe_touchscreen(): void {
     );
   }
 
-  let rejected: unknown;
-  try {
-    perform(-0.6, 0.25);
-  } catch (error) {
-    rejected = error;
-  }
-  TestValidator.predicate(
-    "an endpoint outside the glass is refused",
-    rejected instanceof HumanRefusal &&
-      rejected.kind === "parameter" &&
-      rejected.axis === "from",
+  const halfTurn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 1, z: 0 },
+    180,
   );
+  const reversed: IAutoMovieMotionHumanProp = HumanObject.prop(
+    "tablet",
+    model,
+    {
+      position: Vector3.subtract(
+        center,
+        Quaternion.rotateVector(halfTurn, centerOffset),
+      ),
+      rotation: Quaternion.multiply(halfTurn, rotation),
+      fixed: true,
+    },
+  );
+  for (const [description, axis, attempt] of [
+    ["off-screen endpoint", "from", () => perform(-0.6, 0.25)],
+    [
+      "unrepresentable stroke",
+      "seconds",
+      () => perform(-0.25, 0.25, Number.EPSILON),
+    ],
+    [
+      "withdrawal lost to the film clock",
+      "seconds",
+      () => perform(-0.25, 0.25, 1e16),
+    ],
+    [
+      "approach from behind",
+      "screen",
+      () => perform(-0.25, 0.25, undefined, reversed),
+    ],
+    [
+      "cut at touch-out",
+      "cut",
+      () => perform(-0.25, 0.25, undefined, tablet, "relax"),
+    ],
+  ] as const) {
+    let rejected: unknown;
+    try {
+      attempt();
+    } catch (error: unknown) {
+      rejected = error;
+    }
+    TestValidator.predicate(
+      `the swipe refuses ${description}`,
+      rejected instanceof HumanRefusal && rejected.axis === axis,
+    );
+  }
 }

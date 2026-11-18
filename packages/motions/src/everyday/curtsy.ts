@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -111,6 +111,8 @@ function plan(
   const frontSole: IAutoMovieVector3[] = HumanFoot.sole(body, lead, front);
   const rearSole: IAutoMovieVector3[] = HumanFoot.sole(body, rear, rearEntry);
   const entryBones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
+  const entryLead: IAutoMovieVector3[] = solePoints(body, entryBones, lead);
+  const entryRear: IAutoMovieVector3[] = solePoints(body, entryBones, rear);
   const sockets: IAutoMovieMotionHumanFoot.ISocket[] = [
     ...HumanFoot.sockets(body, entryBones, lead),
     ...HumanFoot.sockets(body, entryBones, rear),
@@ -220,6 +222,32 @@ function plan(
     { name: "uncrossed", seconds: 0.82 * duration },
     { name: "returned", seconds: duration },
   ]);
+  const phases = [
+    "start",
+    "stepOff",
+    "crossed",
+    "dip",
+    "uncrossOff",
+    "uncrossed",
+    "returned",
+  ] as const;
+  if (
+    !phases.slice(1).every((to, index): boolean => {
+      const from = phases[index]!;
+      const a: number = context.start + clock.at(from);
+      const b: number = context.start + clock.at(to);
+      const middle: number = a + (b - a) / 2;
+      const progress: number = clock.progress(from, to, middle - context.start);
+      return a < middle && middle < b && 0 < progress && progress < 1;
+    })
+  )
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "seconds",
+      value: duration,
+      reason: "the crossing, dip and recovery need distinct clock phases",
+      fix: "give the curtsy a longer duration",
+    });
 
   // The return retraces the outward swing. A rearward bow keeps the path
   // farther behind the supporting foot during the lateral crossover.
@@ -339,8 +367,20 @@ function plan(
       }),
     );
     if (
-      fitsFoot(body, bones, lead, front, floor, false) &&
-      fitsFoot(body, bones, rear, rearAt(seconds), floor, traveling(seconds))
+      fitsFoot(
+        solePoints(body, bones, lead),
+        entryLead,
+        { x: 0, y: 0, z: 0 },
+        floor,
+        false,
+      ) &&
+      fitsFoot(
+        solePoints(body, bones, rear),
+        entryRear,
+        Vector3.subtract(rearAt(seconds).ankle, rearEntry.ankle),
+        floor,
+        traveling(seconds),
+      )
     )
       continue;
     throw new HumanRefusal({
@@ -354,22 +394,39 @@ function plan(
   return planned;
 }
 
-/** Check the displayed ankle against its target and the displayed sole against the floor. */
-function fitsFoot(
+/** Read the same named sole sockets and outline corners from a displayed foot. */
+function solePoints(
   body: IAutoMovieMotionHumanBody,
   bones: ReturnType<typeof poseBones>,
   side: AutoMovieHumanSide,
-  target: IAutoMovieMotionHumanFoot.IPlacement,
+): IAutoMovieVector3[] {
+  return [
+    ...HumanFoot.sockets(body, bones, side).map(
+      (socket): IAutoMovieVector3 => socket.point,
+    ),
+    ...HumanFoot.outline(body, side).map(
+      (frame): IAutoMovieVector3 =>
+        resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!)
+          .point,
+    ),
+  ];
+}
+
+/** Check corresponding footprint points for rotation and translation errors as well as clearance. */
+function fitsFoot(
+  points: readonly IAutoMovieVector3[],
+  entry: readonly IAutoMovieVector3[],
+  offset: IAutoMovieVector3,
   floor: number,
   swinging: boolean,
 ): boolean {
-  const ankle: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
-  return (
-    Vector3.length(Vector3.subtract(ankle, target.ankle)) <= FIT &&
-    HumanFoot.sockets(body, bones, side).every(
-      (socket: IAutoMovieMotionHumanFoot.ISocket): boolean =>
-        socket.point.y >= floor - FIT &&
-        (swinging || socket.point.y <= floor + FIT),
-    )
+  return points.every(
+    (point: IAutoMovieVector3, i: number): boolean =>
+      point.y >= floor - FIT &&
+      (swinging
+        ? point.y > floor
+        : i >= HumanFoot.SOCKETS.length || point.y <= floor + FIT) &&
+      Vector3.length(Vector3.subtract(point, Vector3.add(entry[i]!, offset))) <=
+        FIT,
   );
 }

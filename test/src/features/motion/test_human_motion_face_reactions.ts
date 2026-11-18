@@ -8,10 +8,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanTouchEffector,
+  HUMAN_EVERYDAY_LAWS,
   HumanChain,
   HumanPerformance,
-  coverFace,
-  wipeTears,
+  HumanRefusal,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,8 +23,9 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  *
  * Scenarios:
  *
- * 1. Each hand can wipe its own cheek with vertical travel while the idle hand stays down.
+ * 1. Each hand wipes above and below its own cheek while the idle hand stays down.
  * 2. Both palms stay near their own cheeks through the cover, then return to rest.
+ * 3. A reversed hold range is refused before any draw.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the cast and each observable distinction between the reactions.
  * @evidence contracts/development/testing.md#behavioral-verification Calls each typed registered action and measures the palms and cheek regions from displayed bones across its working phase.
@@ -33,7 +34,7 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * @evidence contracts/development/testing.md#execution-ownership This named, synchronous feature test builds registered performances in memory and owns both reactions' cases.
  */
 export function test_human_motion_face_reactions(): void {
-  const chain = HumanChain.extend({ wipeTears, coverFace });
+  const chain = HumanChain.extend(HUMAN_EVERYDAY_LAWS);
   const effector: IAutoMovieMotionHumanTouchEffector.IEffector = {
     surface: "palm",
     shape: "flat",
@@ -45,7 +46,7 @@ export function test_human_motion_face_reactions(): void {
       motionHumanLaw.film(
         new HumanPerformance({
           seed: "face-reactions",
-          laws: [wipeTears, coverFace],
+          laws: Object.values(HUMAN_EVERYDAY_LAWS),
           performers: [
             {
               subject: "a",
@@ -70,20 +71,22 @@ export function test_human_motion_face_reactions(): void {
         side,
         effector,
       );
-    /** The palm's distance from the cheek its side should cover. */
-    const cheekGap = (
+    /** The displayed palm's offset from the cheek it should cover. */
+    const cheekOffset = (
       take: motionHumanLaw.IFilm,
       side: AutoMovieHumanSide,
       at: number,
-    ): number => {
+    ): IAutoMovieVector3 => {
+      const bones = take.bones("a", at);
       const region =
         body.surfaces.regions[side === "right" ? "cheekRight" : "cheekLeft"];
       const cheek = resolveAutoMovieHumanoidSurfaces.place(
         region,
-        take.bones("a", at).get(region.bone)!,
+        bones.get(region.bone)!,
       );
-      return Vector3.length(
-        Vector3.subtract(palm(take, side, at), cheek.point),
+      return Vector3.subtract(
+        AutoMovieMotionHumanTouchEffector.point(body, bones, side, effector),
+        cheek.point,
       );
     };
 
@@ -96,11 +99,15 @@ export function test_human_motion_face_reactions(): void {
       const end: number = motionHumanLaw.event(wipe, "taskEnd");
       const early: number = arrival + (end - arrival) / 4;
       const late: number = end - (end - arrival) / 4;
+      const above: number = cheekOffset(wipe, side, early).y;
+      const below: number = cheekOffset(wipe, side, late).y;
       TestValidator.predicate(
         `${name} ${side} palm reaches its own cheek and travels vertically`,
-        cheekGap(wipe, side, arrival) <= body.measure.hand / 4 &&
-          palm(wipe, side, early).y - palm(wipe, side, late).y >=
-            body.measure.hand / 8,
+        Vector3.length(cheekOffset(wipe, side, arrival)) <=
+          body.measure.hand / 4 &&
+          above > 0 &&
+          below < 0 &&
+          above - below >= body.measure.hand / 8,
       );
       TestValidator.predicate(
         `${name} ${idle} palm stays at rest during the wipe`,
@@ -125,7 +132,8 @@ export function test_human_motion_face_reactions(): void {
         `${name} ${side} palm covers its own cheek throughout the hold`,
         [arrival, held, (held + leave) / 2, leave].every(
           (at: number): boolean =>
-            cheekGap(cover, side, at) <= body.measure.hand / 4,
+            Vector3.length(cheekOffset(cover, side, at)) <=
+            body.measure.hand / 4,
         ),
       );
       TestValidator.predicate(
@@ -136,6 +144,21 @@ export function test_human_motion_face_reactions(): void {
             palm(cover, side, 0),
           ),
         ) <= 0.01,
+      );
+    }
+    if (name === "m-average") {
+      let refused: unknown;
+      try {
+        film(
+          chain.subject("a").coverFace({ seconds: { between: [1, 0] } }).node,
+        );
+      } catch (error: unknown) {
+        refused = error;
+      }
+      TestValidator.predicate(
+        "a reversed cover hold range is refused on its upper bound",
+        refused instanceof HumanRefusal &&
+          refused.axis === "seconds.between[1]",
       );
     }
   }

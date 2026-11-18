@@ -29,7 +29,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    The planted ankles stay put across the dip, the displayed soles stay
  *    at floor height, and the pelvis lowers and rises.
  * 2. The swing foot lifts off the floor and recovers to its entry footprint.
- * 3. Zero depth is refused as a parameter error.
+ * 3. Zero depth and an interruption in the dip are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the registered gesture, its phases and parameter refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the registered law and checks displayed hips, ankles and sole sockets at action events and mid-swing.
@@ -44,8 +44,14 @@ export function test_human_motion_curtsy(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("f-average");
   for (const side of ["left", "right"] as const) {
     const yaw: number = side === "left" ? 0 : 35;
-    const perform = (depth?: number): IAutoMovieMotionHumanPerformance =>
-      new HumanPerformance({
+    const perform = (
+      depth?: number,
+      cut?: "dip",
+    ): IAutoMovieMotionHumanPerformance => {
+      const chain = Chain.subject("a")
+        .stand({ seconds: 0.6, sway: 0 })
+        .curtsy(depth === undefined ? { side } : { side, depth });
+      return new HumanPerformance({
         seed: "curtsy",
         performers: [
           {
@@ -57,10 +63,12 @@ export function test_human_motion_curtsy(): void {
           },
         ],
         laws: [curtsy],
-        composition: Chain.subject("a")
-          .stand({ seconds: 0.6, sway: 0 })
-          .curtsy(depth === undefined ? { side } : { side, depth }).node,
+        composition: (cut === undefined
+          ? chain
+          : chain.until({ event: cut }).stand()
+        ).node,
       });
+    };
     const performance: IAutoMovieMotionHumanPerformance = perform();
     const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const at = (name: string): number =>
@@ -104,6 +112,13 @@ export function test_human_motion_curtsy(): void {
           point.x * Math.sin(rad) + point.z * Math.cos(rad),
       );
     const floor: number = Math.min(...sole(lead, entry));
+    const knee = (second: number): number =>
+      Math.abs(
+        performance
+          .pose("a", second)
+          .joints.find((joint): boolean => joint.bone === `${lead}LowerLeg`)
+          ?.flexion ?? 0,
+      );
 
     TestValidator.predicate(
       `${side}: rear ankle crosses the lead ankle and the soles stay separated`,
@@ -112,16 +127,27 @@ export function test_human_motion_curtsy(): void {
     );
     TestValidator.predicate(
       `${side}: pelvis dips and rises between plants`,
-      hips(crossed) - hips(dip) > 0.02 && hips(raised) - hips(dip) > 0.02,
+      hips(crossed) - hips(dip) > 0.02 &&
+        hips(raised) - hips(dip) > 0.02 &&
+        knee(dip) > knee(crossed),
     );
     for (const foot of [lead, side]) {
       TestValidator.predicate(
-        `${foot}: ankle holds its stance through the dip`,
+        `${foot}: ankle and sole sockets hold their stance through the dip`,
         [dip, raised].every(
           (second: number): boolean =>
             Vector3.length(
               Vector3.subtract(ankle(foot, second), ankle(foot, crossed)),
-            ) < 0.01,
+            ) < 0.01 &&
+            sockets(foot, second).every(
+              (socket, index): boolean =>
+                Vector3.length(
+                  Vector3.subtract(
+                    socket.point,
+                    sockets(foot, crossed)[index]!.point,
+                  ),
+                ) < 0.01,
+            ),
         ),
       );
       TestValidator.predicate(
@@ -156,6 +182,16 @@ export function test_human_motion_curtsy(): void {
         refused instanceof HumanRefusal &&
           refused.kind === "parameter" &&
           refused.axis === "depth",
+      );
+      refused = undefined;
+      try {
+        perform(undefined, "dip");
+      } catch (error: unknown) {
+        refused = error;
+      }
+      TestValidator.predicate(
+        "the curtsy refuses an interruption in the dip",
+        refused instanceof HumanRefusal && refused.kind === "cut",
       );
     }
   }

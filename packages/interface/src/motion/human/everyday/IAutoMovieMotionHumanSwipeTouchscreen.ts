@@ -22,9 +22,9 @@ export interface IAutoMovieMotionHumanSwipeTouchscreen {
   /** The distinct touch-out position, in the same frame and range as `from`. */
   to: number;
 
-  /** The active hand, right when omitted. */
+  /** The free hand facing the screen, right when omitted. */
   hand?: AutoMovieHumanSide;
 
-  /** Positive nominal seconds of screen contact. Defaults to the measured mean swipe duration. */
+  /** Positive nominal seconds of contact with distinct clock endpoints. Defaults to the measured mean swipe duration. */
   seconds?: number;
 }

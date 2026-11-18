@@ -1,10 +1,16 @@
 import { createWearable } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  rotationBetween,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -28,13 +34,13 @@ import { vclose } from "../internal/vclose";
  * 1. Lift the initially worn hat above the crown, then return its brim and
  *    wear socket within 15 mm of their starting places. After a walk, the
  *    wear socket follows the head within 15 mm in the head's frame.
- * 2. A hat resting in the scene without a declared wearer is refused.
+ * 2. A loose hat, one attached off the crown and one seated upside down are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the two staged cases, points measured and tolerances.
  * @evidence contracts/development/testing.md#behavioral-verification Observes both prop points and the moving head through the public performed scene. A mimed greeting, a hat left in the hand and a hat stranded in world space each fail.
  * @evidence contracts/development/testing.md#independent-expectations Emily Post's 1922 greeting lifts and returns the hat. The 15 mm seating bound comes from the motion campaign, while 12 mm separates a visibly lifted crown from a pose within normal placement error.
- * @evidence contracts/development/testing.md#distinguishing-cases Uses the real wearable archetype first as a staged head attachment and then as an unattached prop.
- * @evidence contracts/development/testing.md#execution-ownership Two calls to the performance builder use one polygon body and one archetype in memory, with no visual host or fixtures.
+ * @evidence contracts/development/testing.md#distinguishing-cases Uses the real wearable on the crown, then tests a loose hat and a wrong head attachment.
+ * @evidence contracts/development/testing.md#execution-ownership One played sequence and three admission probes reuse the same polygon body and archetype.
  */
 export function test_human_motion_tip_hat(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -50,17 +56,28 @@ export function test_human_motion_tip_hat(): void {
   const crown: IAutoMovieVector3 = hat.affordances!.find(
     (a: IAutoMovieAffordance): boolean => a.id === "wear",
   )!.frame.translation;
-  const staged: IAutoMovieMotionHumanProp = {
+  const crownRegion = body.surfaces.regions.crown;
+  const attach = (
+    rotation: IAutoMovieQuaternion,
+  ): IAutoMovieMotionHumanProp => ({
     ...hat,
     worn: {
       subject: "a",
       bone: "head",
       offset: {
-        position: Vector3.subtract(body.surfaces.regions.crown.point, crown),
-        rotation: Quaternion.identity(),
+        position: Vector3.subtract(
+          crownRegion.point,
+          Quaternion.rotateVector(rotation, crown),
+        ),
+        rotation,
       },
     },
-  };
+  });
+  const upright: IAutoMovieQuaternion = rotationBetween(
+    { x: 0, y: 1, z: 0 },
+    crownRegion.normal,
+  );
+  const staged: IAutoMovieMotionHumanProp = attach(upright);
   const perform = (prop: IAutoMovieMotionHumanProp): HumanPerformance =>
     new HumanPerformance({
       seed: "hat greeting",
@@ -93,22 +110,23 @@ export function test_human_motion_tip_hat(): void {
       Quaternion.rotateVector(frame.rotation, local),
     );
   };
-  const crownOf = (time: number): IAutoMovieVector3 => {
+  const crownOf = (
+    time: number,
+  ): ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> => {
     const head: IAutoMovieResolvedBone = performance
       .bones("a", time)
       .get("head")!;
-    return Vector3.add(
-      head.worldPosition,
-      Quaternion.rotateVector(
-        head.worldRotation,
-        body.surfaces.regions.crown.point,
-      ),
-    );
+    return resolveAutoMovieHumanoidSurfaces.place(crownRegion, head);
   };
   const apex: number = at("stroke");
+  const crownAtApex = crownOf(apex);
   TestValidator.predicate(
     "hat rises above the head",
-    () => point(crown, apex).y - crownOf(apex).y >= 0.012,
+    () =>
+      Vector3.dot(
+        Vector3.subtract(point(crown, apex), crownAtApex.point),
+        crownAtApex.normal,
+      ) >= 0.012,
   );
   TestValidator.predicate("both sockets return to the seated frame", () =>
     [brim, crown].every((socket: IAutoMovieVector3): boolean =>
@@ -117,7 +135,34 @@ export function test_human_motion_tip_hat(): void {
   );
   const end: number = performance.duration;
   TestValidator.predicate("the reseated hat follows the walking head", () =>
-    vclose(point(crown, end), crownOf(end), 0.015),
+    vclose(point(crown, end), crownOf(end).point, 0.015),
   );
   throws((): HumanPerformance => perform(hat), /no seated hat frame/);
+  const worn: IAutoMovieMotionHumanProp.IWorn = staged.worn!;
+  throws(
+    (): HumanPerformance =>
+      perform({
+        ...staged,
+        worn: {
+          ...worn,
+          offset: {
+            ...worn.offset,
+            position: Vector3.add(worn.offset.position, {
+              x: body.measure.headRadius,
+              y: 0,
+              z: 0,
+            }),
+          },
+        },
+      }),
+    /no seated hat frame/,
+  );
+  const upsideDown: IAutoMovieQuaternion = Quaternion.multiply(
+    upright,
+    Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 180),
+  );
+  throws(
+    (): HumanPerformance => perform(attach(upsideDown)),
+    /no seated hat frame/,
+  );
 }

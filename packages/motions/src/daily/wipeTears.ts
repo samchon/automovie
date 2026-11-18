@@ -18,12 +18,13 @@ import { handToFace } from "./handToFace";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where each hand wipes, which points mark the gesture and which inputs remain open.
  * @evidence contracts/development/design.md#principled-representation A single-hand surface rub in the existing hand-to-face phase model.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Fixes the task and inherits the remaining hand-to-face parameters and cuts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Fixes the task and excludes a second hand while inheriting the timing, one-hand controls and cuts.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The cheek and timing are row data, and the planner handles mirroring, contact and return.
  */
 export const wipeTears: IAutoMovieMotionHumanActionLaw<
-  Omit<IAutoMovieMotionHumanHandToFace.IParams, "task">
+  Omit<IAutoMovieMotionHumanHandToFace.IParams, "task" | "other">
 > = HumanActionRow.of("wipeTears", handToFace, {
+  other: undefined,
   task: {
     region: "cheekRight",
     effector: { surface: "palm", shape: "flat" },

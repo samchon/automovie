@@ -1,4 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -42,8 +46,8 @@ const CONTACT: number = 0.015;
  * https://www.gutenberg.org/ebooks/14314). The lift is provisionally one
  * third of the head radius. `strokeStart` closes the grip, `stroke` marks
  * the lift's apex and `strokeEnd` reseats the hat. The action uses a still
- * base and supports hats declared worn at staging whose frame still
- * matches the declared head attachment at entry.
+ * base. Stage the hat on the performer's crown with its wear socket facing
+ * inward and keep it worn until the action starts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the source, movement, event order, provisional lift and supported starting state.
  */
@@ -87,22 +91,19 @@ function plan(
 
   const bones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
   const head: IAutoMovieResolvedBone = bones.get("head")!;
-  const reader: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
-  const seated: IAutoMovieRigidTransform = wornFrame(
-    context.subject,
-    reader,
+  const crown = resolveAutoMovieHumanoidSurfaces.place(
+    body.surfaces.regions.crown,
     head,
-    context.start,
   );
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
+  const seated = wornFrame(context.subject, reader, head, crown, context.start);
   const grasp: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.at(
     reader.prop,
     "hold",
-    seated,
+    seated.frame,
   );
-  const lift: IAutoMovieVector3 = Vector3.scale(
-    Quaternion.rotateVector(seated.rotation, { x: 0, y: 1, z: 0 }),
-    body.measure.headRadius / 3,
-  );
+  const rise: number = body.measure.headRadius / 3;
+  const lift: IAutoMovieVector3 = Vector3.scale(crown.normal, rise);
 
   const authored: IAutoMovieMotionHumanHand.IWrist = HumanGrasp.hand(
     body,
@@ -268,39 +269,36 @@ function plan(
     body,
     resolveHumanPosture(body, posture(clock.at("stroke"))),
   ).get(`${side}Hand`)!;
-  const wear: IAutoMovieAffordance = reader.prop.affordances!.find(
-    (a: IAutoMovieAffordance): boolean => a.id === "wear",
-  )!;
-  const wearPoint: IAutoMovieVector3 = Vector3.add(
-    seated.position,
-    Quaternion.rotateVector(seated.rotation, wear.frame.translation),
-  );
   const carry: IAutoMovieQuaternion = Quaternion.multiply(
     peak.worldRotation,
     Quaternion.inverse(ready.worldRotation),
   );
+  const lifted = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    Vector3.add(
+      peak.worldPosition,
+      Quaternion.rotateVector(
+        carry,
+        Vector3.subtract(point, ready.worldPosition),
+      ),
+    );
+  const wearPoint: IAutoMovieVector3 = seated.socket;
+  const liftedSocket: IAutoMovieVector3 = lifted(wearPoint);
   const miss: number = Math.max(
     pinch,
     gap(fit.wrist.point, ready.worldPosition),
-    ...[grasp.point, wearPoint].map((point: IAutoMovieVector3): number =>
-      gap(
-        Vector3.add(
-          peak.worldPosition,
-          Quaternion.rotateVector(
-            carry,
-            Vector3.subtract(point, ready.worldPosition),
-          ),
-        ),
-        Vector3.add(point, lift),
-      ),
-    ),
+    gap(liftedSocket, Vector3.add(wearPoint, lift)),
+    gap(lifted(grasp.point), Vector3.add(grasp.point, lift)),
   );
-  if (!(miss <= CONTACT))
+  const clearance: number = Vector3.dot(
+    Vector3.subtract(liftedSocket, crown.point),
+    crown.normal,
+  );
+  if (!(miss <= CONTACT && clearance >= rise / 2))
     throw new HumanRefusal({
       kind: "reach",
       axis: "hand",
       value: side,
-      reason: `The ${side} hand misses the hat's grip or lift by ${(miss * 1000).toFixed(1)} mm`,
+      reason: `The ${side} hand's largest fit error is ${(miss * 1000).toFixed(1)} mm with ${(clearance * 1000).toFixed(1)} mm crown clearance`,
       fix: "choose the other hand or stage the brim grip on the hand's side",
     });
 
@@ -323,13 +321,14 @@ function plan(
   };
 }
 
-/** Admit a staging-worn hat whose displayed transform still agrees with its head attachment. */
+/** Admit the staged attachment only when the displayed socket meets the crown. */
 function wornFrame(
   subject: string,
   reader: IAutoMovieMotionHumanPropReader,
   head: IAutoMovieResolvedBone,
+  crown: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place>,
   seconds: number,
-): IAutoMovieRigidTransform {
+): { frame: IAutoMovieRigidTransform; socket: IAutoMovieVector3 } {
   const { prop } = reader;
   const worn: typeof prop.worn = prop.worn;
   const wear: IAutoMovieAffordance | undefined = prop.affordances?.find(
@@ -372,8 +371,22 @@ function wornFrame(
         Quaternion.rotateVector(wear.frame.rotation, up),
         Quaternion.rotateVector(hold.frame.rotation, up),
       ) <= -0.9;
-    if (opposed && axesAgree && gap(shown.position, position) <= CONTACT)
-      return shown;
+    const socket: IAutoMovieVector3 = Vector3.add(
+      shown.position,
+      Quaternion.rotateVector(shown.rotation, wear.frame.translation),
+    );
+    const inward: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.multiply(shown.rotation, wear.frame.rotation),
+      up,
+    );
+    if (
+      opposed &&
+      axesAgree &&
+      gap(shown.position, position) <= CONTACT &&
+      gap(socket, crown.point) <= CONTACT &&
+      Vector3.dot(inward, crown.normal) <= -0.999
+    )
+      return { frame: shown, socket };
   }
 
   throw new HumanRefusal({

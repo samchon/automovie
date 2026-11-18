@@ -1,14 +1,12 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanColliders,
+  HumanHand,
   HumanPerformance,
   shoulderClasp,
 } from "@automovie/motions";
@@ -28,7 +26,7 @@ import { nclose } from "../internal/nclose";
  * 3. The hands are clear of those surfaces at entry and after release.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stage, requested hold and three observable scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Builds the public mutual action and observes both clocks and posed hand colliders, catching an absent role, an incorrect target or a missing return.
+ * @evidence contracts/development/testing.md#behavioral-verification Measures the displayed palm against the shoulder surface, including whether their normals face each other.
  * @evidence contracts/development/testing.md#independent-expectations The 0.8-second dwell is authored input, the shoulder point is placed on the partner's displayed bone, and 10 mm is the existing touch contact tolerance. A few samples bound the checked instants.
  * @evidence contracts/development/testing.md#distinguishing-cases Checks both directions of contact and the entry and release outside contact. The touch-law specifications cover unreachable targets and asymmetric body fits.
  * @evidence contracts/development/testing.md#execution-ownership The feature runner discovers this in-memory integration test. It builds one performance from an average polygon body.
@@ -76,19 +74,35 @@ export function test_human_motion_social_shoulder_clasp(): void {
     segment.plan.events.find((entry): boolean => entry.name === name)!.share *
       segment.plan.duration;
 
-  /** Absolute distance from the shoulder surface point to the right hand. */
-  const gap = (subject: string, other: string, time: number): number => {
+  /** The displayed right palm's gap and facing relative to its opposing shoulder. */
+  const contact = (
+    subject: string,
+    other: string,
+    time: number,
+  ): { gap: number; clearance: number; facing: boolean } => {
     const shoulder = body.surfaces.regions.shoulderLeft;
-    const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+    const target = resolveAutoMovieHumanoidSurfaces.place(
       shoulder,
       film.bones(other, time).get(shoulder.bone)!,
-    ).point;
-    const hand: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      [...film.bones(subject, time)].filter(([bone]): boolean =>
+    );
+    const bones = film.bones(subject, time);
+    const palm: ReturnType<typeof HumanHand.frame> = HumanHand.frame(
+      body,
+      bones,
+      "right",
+      "palm",
+      "flat",
+    );
+    const hand = new Map(
+      [...bones].filter(([bone]): boolean =>
         /^right(Hand|Thumb|Index|Middle|Ring|Little)/.test(bone),
       ),
     );
-    return Math.abs(HumanColliders.distance(body, hand, point).distance);
+    return {
+      gap: Vector3.length(Vector3.subtract(palm.point, target.point)),
+      clearance: HumanColliders.distance(body, hand, target.point).distance,
+      facing: Vector3.dot(palm.normal, target.normal) < 0,
+    };
   };
 
   const sharedFrom: number = Math.max(
@@ -117,19 +131,20 @@ export function test_human_motion_social_shoulder_clasp(): void {
     );
     for (const share of [0.25, 0.5, 0.75]) {
       const time: number = sharedFrom + share * (sharedTo - sharedFrom);
-      const miss: number = gap(subject, other, time);
+      const seen = contact(subject, other, time);
       TestValidator.predicate(
-        `${subject} contacts the shoulder at ${share} of the overlap (${miss} m)`,
-        nclose(miss, 0, 0.01),
+        `${subject}'s palm contacts the shoulder at ${share} of the overlap (${seen.gap} m)`,
+        nclose(seen.gap, 0, 0.01) && seen.clearance >= -0.01 && seen.facing,
       );
     }
     TestValidator.predicate(
       `${subject} has yet to touch at entry`,
-      gap(subject, other, start) > 0.01,
+      contact(subject, other, start).clearance > 0.01,
     );
     TestValidator.predicate(
       `${subject} has left the shoulder at the end`,
-      gap(subject, other, segment.start + segment.plan.duration) > 0.01,
+      contact(subject, other, segment.start + segment.plan.duration).clearance >
+        0.01,
     );
   }
 }

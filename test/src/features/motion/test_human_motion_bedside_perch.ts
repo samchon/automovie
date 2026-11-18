@@ -1,4 +1,5 @@
 import { createBed } from "@automovie/archetypes";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
@@ -7,6 +8,7 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanFrame,
   HumanPerformance,
   HumanSignature,
@@ -32,7 +34,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bed geometry, both performances, physical bounds and the unavailable seat case.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the public composition in a performance and reads the displayed seat and feet. A reversed edge, off-mattress seat, foot slip or missing rise fails.
- * @evidence contracts/development/testing.md#independent-expectations Uses the double bed's fixed 1.35 by 1.90 m dimensions and fixture height to define the planes, the campaign's 10 mm contact and 5 mm slip bounds, and a provisional 15 degree standing knee margin. Reads the seat region and soles rather than the complete collision hull.
+ * @evidence contracts/development/testing.md#independent-expectations Uses the double bed's fixed 1.35 by 1.90 m dimensions and fixture height to define the planes, the campaign's 10 mm contact and 5 mm slip bounds, and a provisional 15 degree standing knee margin. Checks corresponding displayed sole points and corners.
  * @evidence contracts/development/testing.md#distinguishing-cases Opposite edges of a placed bed and a model with no edge seat. Other seat tests own high mounts and differing statures.
  * @evidence contracts/development/testing.md#execution-ownership In-memory feature test builds two performances for one polygon man and checks an authoring refusal.
  */
@@ -99,13 +101,41 @@ export function test_human_motion_bedside_perch(): void {
     const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
       HumanFrame.local({ origin, yaw }, point);
     const feet: readonly ["left", "right"] = ["left", "right"];
-    const start: IAutoMovieVector3[] = feet.map(
-      (foot): IAutoMovieVector3 =>
-        local(HumanSignature.sole(reader, settled + 0.02, foot)),
+    const footprint = (
+      bones: ReturnType<HumanPerformance["bones"]>,
+      foot: (typeof feet)[number],
+    ): IAutoMovieVector3[] => [
+      ...HumanFoot.sockets(body, bones, foot).map(
+        (socket): IAutoMovieVector3 => local(socket.point),
+      ),
+      ...HumanFoot.outline(body, foot).map(
+        (frame): IAutoMovieVector3 =>
+          local(
+            resolveAutoMovieHumanoidSurfaces.place(
+              frame,
+              bones.get(frame.bone)!,
+            ).point,
+          ),
+      ),
+    ];
+    const footOnFloor = (sole: readonly IAutoMovieVector3[]): boolean =>
+      sole.every(
+        (point): boolean => sign * point.x > halfWidth && point.y >= -0.01,
+      ) && Math.abs(Math.min(...sole.map((point): number => point.y))) <= 0.01;
+    const from: number = settled + 0.02;
+    const to: number = sat.end - 0.02;
+    const first = performance.bones("actor", from);
+    const start: IAutoMovieVector3[][] = feet.map((foot) =>
+      footprint(first, foot),
     );
-    for (const t of HumanSignature.times(settled + 0.02, sat.end - 0.02, 12)) {
+    for (const t of new Set([...HumanSignature.times(from, to, 12), to])) {
+      const bones = t === from ? first : performance.bones("actor", t);
+      const contact = body.surfaces.regions.seat;
       const seat: IAutoMovieVector3 = local(
-        HumanSignature.region(reader, "seat", t),
+        resolveAutoMovieHumanoidSurfaces.place(
+          contact,
+          bones.get(contact.bone)!,
+        ).point,
       );
       TestValidator.predicate(
         `${side} seat on mattress at ${t}`,
@@ -116,29 +146,26 @@ export function test_human_motion_bedside_perch(): void {
           Math.abs(seat.z) < 0.95,
       );
       for (const [index, foot] of feet.entries()) {
-        const first: IAutoMovieVector3 = start[index]!;
-        const sole: IAutoMovieVector3 = local(
-          HumanSignature.sole(reader, t, foot),
-        );
+        const sole: IAutoMovieVector3[] = footprint(bones, foot);
         TestValidator.predicate(
           `${side} ${foot} foot outside bed at ${t}`,
           () =>
-            sign * sole.x > halfWidth &&
-            Math.abs(sole.y) <= 0.01 &&
-            Math.hypot(sole.x - first.x, sole.y - first.y, sole.z - first.z) <=
-              0.005,
+            footOnFloor(sole) &&
+            sole.every(
+              (point, corner): boolean =>
+                Vector3.length(
+                  Vector3.subtract(point, start[index]![corner]!),
+                ) <= 0.005,
+            ),
         );
       }
     }
+    const ending = performance.bones("actor", stood.end);
     for (const foot of feet) {
-      const sole: IAutoMovieVector3 = local(
-        HumanSignature.sole(reader, stood.end, foot),
-      );
       TestValidator.predicate(
         `${side} stands on ${foot} foot outside bed`,
         () =>
-          sign * sole.x > halfWidth &&
-          HumanSignature.bears(reader, stood.end, foot) &&
+          footOnFloor(footprint(ending, foot)) &&
           HumanSignature.knee(reader, stood.end, foot) <= 15,
       );
     }

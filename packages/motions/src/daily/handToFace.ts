@@ -166,16 +166,19 @@ export namespace handToFace {
       typeof p.task === "string" ? ROWS[p.task] : p.task;
     const body = context.body;
     const count: number = p.count ?? row.count;
-    const hold: number =
-      typeof p.seconds === "object"
-        ? p.seconds.between[0] +
-          (p.seconds.between[1] - p.seconds.between[0]) *
-            AutoMovieMotionHumanVariationDraw.uniforms(
-              context.series("seconds"),
-              1,
-            )[0]!
-        : (p.seconds ?? row.hold);
-    HumanBound.least("seconds", hold, 0, "s");
+    let hold: number;
+    if (typeof p.seconds === "object") {
+      const [lower, upper] = p.seconds.between;
+      HumanBound.least("seconds.between[0]", lower, 0, "s");
+      HumanBound.least("seconds.between[1]", upper, lower, "s");
+      hold =
+        lower +
+        (upper - lower) *
+          AutoMovieMotionHumanVariationDraw.uniforms(
+            context.series("seconds"),
+            1,
+          )[0]!;
+    } else hold = HumanBound.least("seconds", p.seconds ?? row.hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;

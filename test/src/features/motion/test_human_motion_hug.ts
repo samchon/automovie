@@ -1,14 +1,13 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanColliders,
+  HumanHand,
   HumanPerformance,
   hug,
 } from "@automovie/motions";
@@ -25,12 +24,12 @@ import { nclose } from "../internal/nclose";
  * Scenarios:
  * 1. The performances start together and share at least half the one-second
  *    dwell tested by Dueren et al.
- * 2. All four hands touch their partners' backs to within 10 mm at three
+ * 2. All four palms touch their partners' backs to within 10 mm at three
  *    instants in the shared dwell, with the forearm axes outside the partners.
  * 3. Each hand is clear of its contact point before and after the embrace.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staging, hold, four contacts, clearance and source of the arm placement.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the mutual recipe and checks both clocks and the rendered poses through posed colliders. A missing participant, a one-handed touch or a failure to release fails a scenario.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads posed palms, back surfaces and body colliders. Fingertip-only contact cannot satisfy the palm check.
  * @evidence contracts/development/testing.md#independent-expectations Dueren et al. (https://doi.org/10.1016/j.actpsy.2021.103441) supply the bilateral arm layout and one-second hold. The touch verification contract supplies the 10 mm tolerance. A forearm axis inside the partner means more than skin contact. The samples bound the selected instants.
  * @evidence contracts/development/testing.md#distinguishing-cases Checks both hands and both directions within contact and immediately outside the action. Touch-law tests own the refusal and body-fit sweeps.
  * @evidence contracts/development/testing.md#execution-ownership The feature runner discovers this in-memory integration test. It builds one performance from an average polygon body without a renderer.
@@ -106,23 +105,40 @@ export function test_human_motion_hug(): void {
         ["left", "lowerBack"],
       ] as const) {
         const surface = body.surfaces.regions[region];
-        const point: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+        const goal = resolveAutoMovieHumanoidSurfaces.place(
           surface,
           other.get(surface.bone)!,
-        ).point;
-        const hand: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          new Map(
-            [...arm].filter(
-              ([bone]): boolean =>
-                bone.startsWith(side) &&
-                /Hand|Thumb|Index|Middle|Ring|Little/.test(bone),
-            ),
-          );
-        const gap: number = HumanColliders.distance(body, hand, point).distance;
+        );
+        const palm: ReturnType<typeof HumanHand.frame> = HumanHand.frame(
+          body,
+          arm,
+          side,
+          "palm",
+          "flat",
+        );
+        const gap: number = Vector3.length(
+          Vector3.subtract(palm.point, goal.point),
+        );
+        const hand = new Map(
+          [...arm].filter(
+            ([bone]): boolean =>
+              bone.startsWith(side) &&
+              /Hand|Thumb|Index|Middle|Ring|Little/.test(bone),
+          ),
+        );
+        const clearance: number = HumanColliders.distance(
+          body,
+          hand,
+          goal.point,
+        ).distance;
         const embracing: boolean = time !== entry && time !== end;
         TestValidator.predicate(
           `${subject}'s ${side} hand at ${time} s (${gap} m)`,
-          embracing ? nclose(gap, 0, 0.01) : gap > 0.01,
+          embracing
+            ? nclose(gap, 0, 0.01) &&
+                clearance >= -0.01 &&
+                Vector3.dot(palm.normal, goal.normal) < 0
+            : clearance > 0.01,
         );
         if (embracing) {
           const elbow: IAutoMovieVector3 = arm.get(
@@ -131,15 +147,15 @@ export function test_human_motion_hug(): void {
           const wrist: IAutoMovieVector3 = arm.get(
             `${side}Hand`,
           )!.worldPosition;
-          const clearance: number = HumanColliders.distanceToSegment(
+          const forearmGap: number = HumanColliders.distanceToSegment(
             body,
             other,
             elbow,
             wrist,
           ).distance;
           TestValidator.predicate(
-            `${subject}'s ${side} forearm axis clears ${partner} at ${time} s (${clearance} m)`,
-            clearance >= 0,
+            `${subject}'s ${side} forearm axis clears ${partner} at ${time} s (${forearmGap} m)`,
+            forearmGap >= 0,
           );
         }
       }

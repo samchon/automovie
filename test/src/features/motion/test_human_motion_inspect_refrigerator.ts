@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanSegment,
+  IAutoMoviePhysicalShape,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -23,8 +24,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios:
  * 1. A standing performer pulls the door through 30 degrees. At stroke end,
- *    the right grip is within 10 mm of the handle, measured from its rest
- *    radius and the authored angle. The freezer remains shut.
+ *    the right grip is within 10 mm of the handle, measured from the
+ *    modeled bar's rest coordinates and the authored angle. The freezer remains shut.
  * 2. The look starts after the pull, with the door still 30 degrees open.
  *    Both eyes settle within 0.5 degrees of the third shelf's centre.
  * 3. The same request from another two metres back is refused on reach. A
@@ -37,13 +38,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the interaction, the sampled moments and the bounds.
  */
 export function test_human_motion_inspect_refrigerator(): void {
+  const pullHeight: number = 1.18;
   const fridge: ReturnType<typeof createAppliance> = createAppliance({
     kind: "refrigerator",
-    pullHeight: 1.18,
+    pullHeight,
   });
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const handle: IAutoMovieVector3 =
-    fridge.affordance("fridgeHandle").frame.translation;
   const hinge: IAutoMovieVector3 =
     fridge.affordance("fridgeDoor").frame.translation;
   const shelf: IAutoMovieVector3 =
@@ -61,7 +61,11 @@ export function test_human_motion_inspect_refrigerator(): void {
         {
           subject: "cook",
           body,
-          at: { x: handle.x - 0.15, y: 0, z: handle.z + 0.55 + back },
+          at: {
+            x: -fridge.dimensions.width! / 2 - 0.15,
+            y: 0,
+            z: hinge.z + 0.55 + back,
+          },
           yaw: 180,
           proficiency: { level: "trained" },
         },
@@ -90,12 +94,20 @@ export function test_human_motion_inspect_refrigerator(): void {
     pull.start +
     pull.plan.events.find((event) => event.name === "strokeEnd")!.share *
       pull.plan.duration;
-  const radius: number = hinge.x - handle.x;
+  const bar: IAutoMoviePhysicalShape = fridge
+    .shapes()
+    .find(
+      (shape: IAutoMoviePhysicalShape): boolean =>
+        shape.id === "fridgeHandle-bar",
+    )!;
+  const rest: IAutoMovieVector3 = bar.transform.position;
+  const dx: number = rest.x - hinge.x;
+  const dz: number = rest.z - hinge.z;
   const radians: number = (swing * Math.PI) / 180;
   const expected: IAutoMovieVector3 = {
-    x: hinge.x - radius * Math.cos(radians),
-    y: handle.y,
-    z: hinge.z + radius * Math.sin(radians),
+    x: hinge.x + dx * Math.cos(radians) + dz * Math.sin(radians),
+    y: pullHeight,
+    z: hinge.z - dx * Math.sin(radians) + dz * Math.cos(radians),
   };
   const grip: IAutoMovieVector3 = HumanHand.frame(
     body,

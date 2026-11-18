@@ -31,6 +31,8 @@ import { poseBones } from "../posture/poseBones";
 
 /** The mean touch-in to touch-out time in seconds for a single-finger swipe (Jeong, Table 2.6). */
 const SWIPE_SECONDS: number = 0.2851;
+/** The normalized endpoint tolerance used by HumanSegmentEntry and HumanSegmentCut. */
+const CONTACT_SHARE_TOLERANCE: number = 1e-9;
 
 /**
  * One fingertip reaches a named touchscreen, swipes in its local X direction
@@ -40,8 +42,9 @@ const SWIPE_SECONDS: number = 0.2851;
  * and Liu (2017, doi:10.1080/00140139.2017.1313457). Jeong reports the
  * measured mean in Table 2.6 of his dissertation. The shared transport rule
  * times the reach and withdrawal. The contact carries no weight. The screen
- * belongs to a stationary fixture and the body keeps its entry stance. Place
- * the fixture and actor so the entire wrist path is in geometric reach.
+ * belongs to a stationary fixture and the body keeps its entry stance.
+ * Stage a free hand in front of the glass and within reach of the entire
+ * stroke. The next action can cut in once the hand has withdrawn.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the target frame, contact, events, timing source, and reach refusal.
  * @evidence contracts/development/design.md#principled-representation A registrable arm-stroke law whose endpoints are shares of the declared screen width.
@@ -52,7 +55,7 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
   {
     name: "swipeTouchscreen",
     interrupts: {
-      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+      any: [{ window: ["end", 1], kind: "inertialize", entry: 0 }],
     },
     /**
      * Resolve the screen and compose an index fingertip stroke over the held entry stance.
@@ -84,13 +87,21 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
           fix: "choose left or right",
         });
       const held: string | undefined = entry.holds[side];
-      if (held !== undefined)
+      if (
+        held !== undefined ||
+        entry.supports.some(
+          (support): boolean => support.part === `${side}Hand`,
+        )
+      )
         throw new HumanRefusal({
           kind: "affordance",
           axis: "hand",
           value: side,
-          reason: `The ${side} hand already holds ${held}`,
-          fix: "free the hand or choose the other hand",
+          reason:
+            held === undefined
+              ? `The ${side} hand is supporting the entry stance`
+              : `The ${side} hand already holds ${held}`,
+          fix: "release the hand contact before the swipe or choose the other hand",
         });
       const from: number = HumanBound.within("from", params.from, -0.5, 0.5);
       const to: number = HumanBound.within("to", params.to, -0.5, 0.5);
@@ -157,6 +168,26 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         { x: 0, y: 0, z: 1 },
       );
       const bones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
+      const tip: IAutoMovieVector3 = HumanHand.frame(
+        body,
+        bones,
+        side,
+        "indexTip",
+      ).point;
+      const entryWrist: IAutoMovieVector3 = bones.get(
+        `${side}Hand`,
+      )!.worldPosition;
+      if (
+        Vector3.dot(Vector3.subtract(tip, center), normal) <= 0 ||
+        Vector3.dot(Vector3.subtract(entryWrist, center), normal) <= 0
+      )
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "screen",
+          value: `${params.prop}.${params.screen}`,
+          reason: "the hand must start on the outward side of the screen",
+          fix: "stage the performer in front of the display",
+        });
       const handOrigin: IAutoMovieMotionHumanArmTarget.IOrigin =
         AutoMovieMotionHumanArm.origin(
           body,
@@ -194,6 +225,31 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         follow: (tempo * seconds) / 2,
         retract: travel(last),
       });
+      const touchIn: number = clock.at("strokeStart");
+      const touchOut: number = clock.at("strokeEnd");
+      const moves = (from: string, to: string): boolean => {
+        const a: number = start + clock.at(from);
+        const b: number = start + clock.at(to);
+        const middle: number = a + (b - a) / 2;
+        const progress: number = clock.progress(from, to, middle - start);
+        return a < middle && middle < b && 0 < progress && progress < 1;
+      };
+      if (
+        !(
+          moves("start", "ready") &&
+          moves("strokeStart", "strokeEnd") &&
+          moves("relax", "end") &&
+          touchOut / clock.duration < 1 - CONTACT_SHARE_TOLERANCE
+        )
+      )
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "seconds",
+          value: seconds,
+          reason:
+            "the clock must distinguish reach, screen contact and complete withdrawal",
+          fix: "choose a contact duration that preserves the reach and withdrawal on the film clock",
+        });
       const base: IAutoMovieMotionHumanActionPlan =
         AutoMovieMotionHumanBase.under(context, clock.duration);
       const target: IAutoMovieMotionHumanArmTarget.ITarget =
@@ -322,8 +378,8 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
             region: side === "left" ? "indexTipLeft" : "indexTipRight",
             load: 0,
             support: { kind: "prop", subject: params.prop },
-            from: clock.at("strokeStart") / clock.duration,
-            to: clock.at("strokeEnd") / clock.duration,
+            from: touchIn / clock.duration,
+            to: touchOut / clock.duration,
           },
         ],
       };
