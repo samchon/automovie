@@ -385,7 +385,7 @@ export namespace jump {
     };
     const prepared: prepareJumpPosture.IConstruction = prepareJumpPosture(
       body, model, shape,
-      { from: P, to: touchdown, duration, flightSeconds: T, centre: comT, launch },
+      { from: P, to: touchdown, duration, flightSeconds: T, centre: comT, launch, settled },
       context.params.rotation, pushedAt, landedAt,
     );
     return { duration, events, contacts, ...prepared.declared, posture: prepared.posture };

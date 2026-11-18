@@ -43,13 +43,13 @@ export function prepareJumpPosture(
   body: IAutoMovieMotionHumanBody,
   model: IAutoMovieResolveCenterOfMass.IModel,
   shape: jumpAirborne.IShape,
-  phase: prepareJumpPosture.IPhase & { centre: IAutoMovieVector3; launch: IAutoMovieVector3 },
+  phase: prepareJumpPosture.IPhase & { centre: IAutoMovieVector3; launch: IAutoMovieVector3; settled: number },
   rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
   before: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
   after: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture,
 ): prepareJumpPosture.IConstruction {
   const flight: ReturnType<typeof prepareJumpFlight> = prepareJumpFlight(body, model, shape, phase.flightSeconds);
-  const turning: jumpAirborne.ITurning = jumpAirborne.turning(rotation, phase.from, phase.to, phase.duration);
+  const turning: jumpAirborne.ITurning = jumpAirborne.turning(rotation, phase.from, phase.to, phase.duration, phase.settled);
   const fixed: prepareJumpPosture.IPhase = { from: phase.from, to: phase.to,
     duration: phase.duration, flightSeconds: phase.flightSeconds };
   const centre: IAutoMovieVector3 = { ...phase.centre };
@@ -70,7 +70,7 @@ export function prepareJumpPosture(
       };
       return turning.turned(flight(u / fixed.flightSeconds, at, resolution, projection), t);
     }
-    return after(t, resolution);
+    return turning.landed(after(t, resolution), t);
   };
   return { posture, declared: turning.declared };
 }

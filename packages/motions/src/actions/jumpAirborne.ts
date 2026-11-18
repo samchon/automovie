@@ -1,4 +1,4 @@
-import { Quaternion, minimumJerk } from "@automovie/engine";
+import { Quaternion, inertializeOffset, integrateMotionTrajectory, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanPostureRotation,
@@ -7,11 +7,13 @@ import type {
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanJumpAirborne,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
+import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 import type { jumpState } from "./jumpState";
 
 /** How far each free foot lifts above its straight path at mid-flight, hip heights (provisional). */
@@ -203,14 +205,15 @@ export namespace jumpAirborne {
 
     /**
      * A posture in flight with the rotation handed back, unchanged before
-     * it arrives and outside the flight.
+     * it arrives and outside the flight; at touchdown itself the turn still
+     * holds, so the landing's offset (`landed`) starts from it.
      *
      * @param posture The posture.
      * @param seconds Seconds of the jump.
      * @returns The posture, turned.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the local jump clock and that the received whole-body turn is absent before handback and outside the flight.
-     * @evidence contracts/development/implementation.md#principled-implementation The actual turning producer returns the posture with the flight pass's rigid rotation about COM strictly inside its declared span.
+     * @evidence contracts/development/implementation.md#principled-implementation The actual turning producer returns the posture with the flight pass's rigid rotation about COM after take-off through touchdown.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure One handed-back-reader/span check, otherwise one fresh posture record with rotation.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not script a turn, alter momentum or mark a free limb as a world plant.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed-size optional record update.
@@ -218,6 +221,30 @@ export namespace jumpAirborne {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its existing handed-back reader; each call preserves unchanged posture identity or returns one new record with no added global state.
      */
     turned(posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
+
+    /**
+     * A landing posture carrying the flight's touchdown attitude away: the
+     * laws' own rule at a change of motion (Bollo 2018, inertialization).
+     * The turn the flight hands back at touchdown, its residual from the
+     * landing's unturned attitude, and that turn's rate there decay on
+     * Bollo's quintic (`inertializeOffset`) over the landing's absorption,
+     * from touchdown to settled, as a rigid turn about the touchdown centre.
+     * A posture rotation turns the root and the free goals only, so the
+     * planted feet keep their places and the legs are re-solved onto them.
+     *
+     * @param posture The landing posture.
+     * @param seconds Seconds of the jump.
+     * @returns The posture, turned by the decaying offset, or unchanged outside the absorption or without a handed-back turn.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the rule, its source, the offset, its window and what the turn reaches.
+     * @evidence contracts/development/implementation.md#principled-implementation The offset is the flight's own handed-back turn at touchdown and its rate by the plan-time step's backward difference, decayed by the engine's inertialization quintic.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset read once, one quintic a call.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn reaches the root and free goals only; planted goals stay in the world, never moved by the offset.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work a call.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The touchdown offset is read once from the handed-back reader and kept with it.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the one offset beside the handed-back reader, for as long as the plan.
+     */
+    landed(posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -229,6 +256,7 @@ export namespace jumpAirborne {
    * @param takeoff Seconds of the jump at take-off.
    * @param touchdown Seconds of the jump at touchdown.
    * @param duration The jump's duration, seconds.
+   * @param settled Seconds of the jump where the landing's absorption ends.
    * @returns The turning.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the signs, the side salto's frame and when the rotation applies.
@@ -244,6 +272,7 @@ export namespace jumpAirborne {
     takeoff: number,
     touchdown: number,
     duration: number,
+    settled: number,
   ): ITurning {
     const somersault: number =
       (rotation?.somersault ?? 0) * (rotation?.way === "backward" ? -1 : 1);
@@ -278,12 +307,43 @@ export namespace jumpAirborne {
               rotated = handed;
             },
           };
+    // The touchdown offset: the handed-back turn there as an axis and an
+    // angle, and its rate by the backward difference over the plan-time step.
+    let offset: { about: IAutoMovieVector3; axis: IAutoMovieVector3; angle: number; rate: number } | null | undefined;
+    const touched = (): typeof offset => {
+      if (offset !== undefined || rotated === null) return offset;
+      const h: number = Math.min(integrateMotionTrajectory.STEP, touchdown - takeoff);
+      const at: IAutoMovieHumanPostureRotation = rotated(touchdown);
+      const turn: IAutoMovieQuaternion = at.turn.w < 0
+        ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w } : at.turn;
+      const sine: number = Math.hypot(turn.x, turn.y, turn.z);
+      if (!(sine > 0) || !(h > 0)) return (offset = null);
+      const axis: IAutoMovieVector3 = { x: turn.x / sine, y: turn.y / sine, z: turn.z / sine };
+      const angle: number = (2 * Math.atan2(sine, turn.w) * 180) / Math.PI;
+      const step: IAutoMovieQuaternion = Quaternion.multiply(at.turn, Quaternion.inverse(rotated(touchdown - h).turn));
+      const signed: IAutoMovieQuaternion = step.w < 0 ? { x: -step.x, y: -step.y, z: -step.z, w: -step.w } : step;
+      const swept: number = (2 * Math.atan2(Math.hypot(signed.x, signed.y, signed.z), signed.w) * 180) / Math.PI;
+      const along: number = Math.hypot(signed.x, signed.y, signed.z) > 0
+        ? (signed.x * axis.x + signed.y * axis.y + signed.z * axis.z) / Math.hypot(signed.x, signed.y, signed.z) : 0;
+      return (offset = { about: at.about, axis, angle, rate: (swept * along) / h });
+    };
     return {
       declared,
       turned: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture =>
-        rotated === null || t <= takeoff || t >= touchdown
+        // At touchdown itself the flight's turn still holds, so the landing's
+        // decaying offset starts from exactly the pose the flight ends on.
+        rotated === null || t <= takeoff || t > touchdown
           ? posture
           : HumanPosturePreparation.turned(posture, rotated(t)),
+      landed: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture => {
+        if (rotated === null || !(t > touchdown) || !(t < settled) || !(settled > touchdown)) return posture;
+        const touch: typeof offset = touched();
+        if (touch === null || touch === undefined) return posture;
+        const decayed: number = inertializeOffset(touch.angle, touch.rate, settled - touchdown, t - touchdown).value;
+        return decayed === 0
+          ? posture
+          : { ...posture, rotation: { ...createHumanPostureRotation(touch.about, Quaternion.fromAxisAngle(touch.axis, decayed)), planted: "kept" } };
+      },
     };
   }
 }
