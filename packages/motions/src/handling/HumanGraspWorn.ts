@@ -134,6 +134,8 @@ export namespace HumanGraspWorn {
       const hand: IAutoMovieResolvedBone = poseBones(
         context.body,
         resolveHumanPosture(context.body, { ...posture, limbs }),
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]),
       ).get(`${props.side}Hand`)!;
       const kept: number =
         props.clear === undefined ? 0 : Math.min(0, props.clear(wrist));

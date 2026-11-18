@@ -54,7 +54,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  *
  * @evidence contracts/development/common.md#meaningful-documentation States which digits close per grip kind, the frame the curl runs in, where phalanx radius and tip come from, and the refusal.
  * @evidence contracts/development/design.md#principled-representation Canonical digit identities, body-declared capsule geometry, clinical tuples and world hand/collider frames describe the existing grip without another rig or pose representation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five operations and one digit-order table serve actual grasp closure, finger extraction and aperture readers; poseBones owns canonical FK and curlChainUntilContact owns numerical contact search.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Five operations and one digit-order table serve grasp closure, finger extraction and aperture readers; poseBones owns canonical FK and curlChainUntilContact owns numerical contact search.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing capsules still throw. The existing minimum-radius uniform chain approximates wider phalanges, so exact drawn-surface contact is not certified; no new radius guess, target proxy or numerical repair is added.
  */
 export namespace HumanGrip {
@@ -111,8 +111,8 @@ export namespace HumanGrip {
    * @evidence contracts/development/implementation.md#principled-implementation The capsule's declared rigid transform places its far core endpoint; the existing minimum of all three radii supplies the engine's uniform chain radius.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One first-capsule lookup rule serves the distal tip and the three ordered radius reads.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing capsules throw at the same distal-first stage, and no phalanx width is guessed; wider phalanges retain the documented uniform-radius limitation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three O(P+S) first-profile/capsule searches replace four for P segments and at most S shapes per selected segment, reusing the distal record after the same tip calculation. Direct three-radius Math.min avoids its map array; runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only the same synchronous query's selected distal capsule; later calls read current profile data and neither geometry nor chain results are globally cached.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Three O(P+S) profile and capsule searches for P segments and at most S shapes per segment; the distal capsule serves both the tip and its radius.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The distal capsule is read once per call; no chain is cached across calls.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh chain/name array/tip with a scalar radius, borrowing no mutable transform output and retaining no body, profile index or handle.
    */
   export function chain(
@@ -173,11 +173,11 @@ export namespace HumanGrip {
    * @returns The closed finger angles of that hand and each closing digit's final gap, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States start angles, hand/object world frames, digit ordering and returned clinical tuples/metre gaps.
-   * @evidence contracts/development/implementation.md#principled-implementation The same rigid transform carries world colliders into the zero-hand frame before the engine's ordered first-contact curl; its actual FK, clamps and collision queries remain unchanged.
+   * @evidence contracts/development/implementation.md#principled-implementation One rigid transform carries the world colliders into the rest hand's frame, then the engine's ordered first-contact curl (GraspIt!'s auto-grasp) closes each chain within its range of motion.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Canonical poseBones owns the rest-hand FK, chain owns capsule metadata, and curlChainUntilContact alone owns numerical closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves CLOSING order, starting angles and missing-capsule refusals; uniform digit radii keep their stated approximation and no physical success is invented.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The rest query demands only the actual hand ancestry; C collider transforms and D chain preparations precede the unchanged curl probes. The body-owned immutable rig lets those probes demand actual digit chains and share unchanged FK math, without a measured speedup claim.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing body snapshot supplies exactly this skeleton/canonical axes/rest topology to curl; one rest-hand transform places its fixed colliders, while every angle, ROM cap and actual contact query remains independently evaluated.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The rest hand is resolved on its own ancestry; C collider transforms and D chain readings precede the engine's curl probes, which share the body's FK data.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's skeleton, canonical axes and topology feed the curl; the rest hand is placed once for every collider.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary FK/collider/search records end with return or throw; the caller owns fresh joint tuples/gaps and no plan, body cache, workspace or handle is retained here.
    */
   export function close(
@@ -301,9 +301,9 @@ export namespace HumanGrip {
    * @evidence contracts/development/common.md#meaningful-documentation States thumb-index tip distance and its metre unit on the supplied clinical hand shape.
    * @evidence contracts/development/implementation.md#principled-implementation Canonical FK places the requested joints; each distal capsule core tip is rigidly placed and their Euclidean separation is the existing aperture measure.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One poseBones map serves both digit-tip placements, using the same chain geometry owner as closure.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual distal core tips and their existing capsule geometry, without a fitted opening, radius compensation or target substitution.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The cold facade prepares one aperture reader and performs actual FK for the two distal ancestor closures after all J authored records are admitted; capsule metadata and scalar distance remain exact.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both actual tips share the same supplied clinical shape's requested FK; repeated shape searches use prepareAperture explicitly, with no global or cross-body result cache.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the distal capsules' core tips, without a fitted opening or radius compensation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One aperture reader, then FK of the two distal ancestries over the J authored joints.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both tips share one FK of the shape; a search over many shapes prepares the reader once with prepareAperture.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a scalar and releases its temporary pose/map/chains, retaining no input, workspace or handle.
    */
   export function aperture(
@@ -317,16 +317,16 @@ export namespace HumanGrip {
   /**
    * Prepare the thumb and index geometry for one synchronous aperture search.
    *
-   * @param body The unchanged body and its digit capsules.
+   * @param body The body and its digit capsules, unchanged through the search.
    * @param side The hand whose shapes are searched.
-   * @returns A reader of the actual thumb-index tip distance, metres, for each supplied clinical shape.
+   * @returns A reader of the thumb-index tip distance, metres, of a clinical hand shape.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed geometry, per-reading clinical shape, metre distance and synchronous ownership.
-   * @evidence contracts/development/implementation.md#principled-implementation Each reading admits every supplied joint through canonical FK, then uses the original rigid distal-tip placement and Euclidean distance; invariant capsule chains are acquired lazily at their original first tip use and reused for later shapes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One genuine tuple/name producer stages the current shape before its original null-root FK; a shared tip reader admits the two capsule chains at their original first actual use.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every supplied angle is admitted in source order and every actual shape is evaluated; no interpolated aperture, reduced search or guessed tip is used.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Capsule searches, thumb/index name binding and tip callback prepare once for T shapes. Each shape retains O(J) entry/tuple staging and complete admission, with one packed 3J array replacing J joint records before the two actual distal ancestor closures. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body/side/profile/skeleton establish geometry equivalence. Every shape preserves skeleton-id access before Object.entries/F/A/T staging and all staging before the actual lazy operation demand; exact changed dependencies still recompute their own FK/distance without a shape result cache.
+   * @evidence contracts/development/implementation.md#principled-implementation Each reading resolves the supplied joints by canonical FK, places both distal capsule tips rigidly and returns their Euclidean distance; the two chains are read on first use and kept for later shapes.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One tuple reader resolves each shape at a null root; one tip reader places both tips.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every shape is resolved by FK; no interpolated aperture or guessed tip.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Capsule searches and name binding happen once for T shapes; each shape costs O(J) staging and FK of the two distal ancestries.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chains depend only on the fixed body and side; each shape computes its own FK and distance.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller releases two chains and one lazy FK reader with its synchronous aperture search; the builder must not be stored in a returned plan or frame history and no global cache is added.
    */
   export function prepareAperture(

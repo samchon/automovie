@@ -89,13 +89,13 @@ export namespace HumanHandover {
    * @returns The plan.
    * @throws {Error} When the partners stand beyond reach of each other or the prop lacks the receiving grip.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines both bodies, displayed starting bones, held prop and exchange timing; this method returns their common chosen receiver grip and original transfer schedule.
-   * @evidence contracts/development/implementation.md#principled-implementation The same mutual exchange point translates the held prop, and the original full grasp search ranks each receiver turn against both the offered grip and its actual upright carry key.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Incoming frame, mutual goal and offered frame precede one receiver grip search and the original timing policy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All candidate turns, actual coupled fits, original required keys, strict comparisons, mass-dependent transfer and refusal paths remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed receiver carry wrist/hanging elbow are read once rather than once per reached candidate key. Incoming handle translation reads only its actual point without unused axes/width; the offered target still reads exact width and wraps required colliders. Every actual candidate fit remains; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One unchanged prop/handle/frame family and receiver standing body establish fixed geometry; each candidate retains its actual wrist rotation, keys and scores without a result cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Local grasp preparation and carry geometry live through this synchronous search; the result retains existing frame, target, wrist, reference and scalar timing records, with no search workspace, FK reader, candidate history or handle.
+   * @evidence contracts/development/common.md#meaningful-documentation The namespace defines both bodies, displayed starting bones, held prop and exchange timing; this method returns their common receiver grip and transfer schedule.
+   * @evidence contracts/development/implementation.md#principled-implementation The mutual exchange point translates the held prop; the grasp search ranks each receiver turn by the fit at the offered grip and at the upright carry key; the times are the cited reach, carry and mass-interpolated transfer times.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The offered frame, one receiver grip search, then the timing.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The release follows the receiver's grip by the transfer time; partners beyond reach are refused by the mutual goal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The carry wrist and the hanging elbow are read once for every candidate key; one turn grid of thirteen grasp fits plus the keys the lower bound does not prune.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The turn grid shares one alignment per turn (`HumanGraspHand.turns`); each candidate is fitted on its own.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search's geometry ends with the call; the plan holds frames, the target, wrists, the arm reference and scalar times.
    */
   export function plan(input: IAutoMovieMotionHumanHandover.IInput): IAutoMovieMotionHumanHandover.IPlan {
     const outcome: IAutoMovieMotionHumanHandover.Outcome = input.outcome ?? "transfer";
@@ -262,7 +262,7 @@ export namespace HumanHandover {
    * @evidence contracts/development/implementation.md#principled-implementation An upright vessel's rotation is fixed up to a turn about the vertical, so that turn is the arm's to choose; the tip is read as the asked rotation's error applied to the world's up, the only error that spills what the hand holds.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A fixed number of instants, a fixed set of turns, one linear interpolation.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The turn is chosen at plan time and is a function of time alone, never of a previous frame.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Nine posture resolves per instant, one instant per STEP of the path, at plan time; each later read finds the original inclusive enclosing interval in O(log K) comparisons and uses the unchanged linear interpolation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Nine posture resolves per instant, one instant per STEP of the path, at plan time; each later read finds its interval in O(log K) comparisons and interpolates linearly.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the giver's offer and the receiver's take-away, the two upright carries of a handover.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains K times and K scalar turns until its action is released; actual sample postures and solver workspaces are not captured or retained.
    */
@@ -311,7 +311,7 @@ export namespace HumanHandover {
   }
 }
 
-/** Original carry place, kept numerically identical for cold and fixed-source readers. */
+/** The carried wrist: a forearm, raised by `pitch` degrees, ahead of the elbow hanging an upper arm under the shoulder, along the heading. */
 function carriedAt(shoulder: IAutoMovieVector3, yaw: number, upper: number,
   forearm: number, pitch: number): IAutoMovieVector3 {
   const raised: number = (pitch * Math.PI) / 180;

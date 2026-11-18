@@ -10,51 +10,66 @@ import type {
 import { HumanHandover } from "./HumanHandover";
 
 /**
- * The original upright-carry yaw choice and current raw request assembly.
+ * The turn about the world's up an upright carry takes along a path
+ * (`HumanHandover.upright`): the turn chosen at instants no more than
+ * `HumanHandover.STEP` apart by the tip each posture leaves, the request
+ * each instant's yaw is fitted on, and the tip measure itself.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the original full-posture callback chooser, current handover frame assembly, actual degree tilt metric and scalar time-course lookup, without certifying borrowed posture graphs immutable.
- * @evidence contracts/development/design.md#principled-representation World-metre posture/goals and world quaternion attitudes retain canonical types; the existing degree yaw grid and second-based sample/interpolation policy remain HumanHandover's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ordinary serves the public callback and both actual giver/receiver yaw courses; posed assembles each current raw request, and angle owns their shared original tip metric.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No callback or borrowed posture is inferred yaw-invariant or plain. Each original yaw still invokes its full callback/fit, with no fixed base, skipped source observation, changed sample/tolerance or stored pose.
+ * @evidence contracts/development/common.md#meaningful-documentation States the chooser, the request assembly and the tip measure, and who owns the grid and the step.
+ * @evidence contracts/development/design.md#principled-representation World-metre postures and goals, world quaternion attitudes, degree yaws and second-based instants; the yaw grid and step are HumanHandover's.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface ordinary serves `HumanHandover.upright`, which the giver's and the receiver's carries read; posed assembles the request at a yaw for both the choice and the display; angle is the tip both read.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Every yaw of every instant is fitted on its own posture; no solved pose is stored.
  */
 export namespace HumanHandoverUpright {
   /**
-   * One current raw body, complete other goals and actual hand task.
+   * One instant of a carry: the posture with every goal but the acting
+   * hand's rotation, and that rotation at a yaw.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation posture carries the current raw root/joints/digits/other limbs; goal retains actual world-metre fields and rotation evaluates the requested degree yaw for this one request.
-   * @evidence contracts/development/design.md#principled-representation Removing rotation from the goal prevents duplicate attitude owners; each actual raw frame supplies canonical posture/task values while rotation remains a typed quaternion query.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface handOver and receive produce all three members anew for each original yaw callback; posed emits the same complete request for actual fitting and display.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Frames contain no solved pose, source-immutability certificate or successful-contact assertion; ordinary selection constructs and fits one actual frame for every original yaw callback.
+   * @evidence contracts/development/common.md#meaningful-documentation The posture carries root, joints, digits and the other limbs; the goal carries the acting hand's world-metre target; the rotation is read at a degree yaw.
+   * @evidence contracts/development/design.md#principled-representation The rotation is left out of the goal so the yaw-dependent attitude has one owner.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `handOver` and `receive` build it per instant; `posed` turns it into the posture fitted and displayed.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No solved pose or contact verdict is carried.
    */
   export interface IFrame {
-    /** The fixed current body/digits and complete other limb goals. */
+    /** The posture at the instant, every goal but the acting hand's. */
     posture: IAutoMovieMotionHumanPosture;
-    /** The acting hand's original task except its varying attitude. */
+
+    /** The acting hand's goal without its rotation. */
     goal: Omit<IAutoMovieHumanLimbGoal, "rotation">;
+
     /**
-     * The original hand attitude at a candidate's degree yaw.
+     * The acting hand's world rotation at a turn about the world's up.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Input is a degree turn about world up; output is the original world hand rotation for this fixed second.
-     * @evidence contracts/development/implementation.md#principled-implementation The actual producer retains its original world-up quaternion product during the upright carry and its unchanged attitude outside that window.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One attitude-only callback exposes the actual varying goal while body/path/digits stay with the frame.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle, quaternion normalization, active window or multiplication grouping changes.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant quaternion work per actual yaw; ordinary selection separately retains each original transport/digit/body callback and full fit.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Each actual callback owns one current frame request; its attitude is evaluated without retaining or reusing a result across yaw candidates.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous frame retains its fixed attitude/window data until its sample is released; returned quaternions retain the original ownership, with no time history or handle.
+     * @evidence contracts/development/common.md#meaningful-documentation Input is degrees about world up; output is the world hand rotation at this instant.
+     * @evidence contracts/development/implementation.md#principled-implementation The builder turns the upright hand about world up during the carry and keeps its rotation outside it.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One callback holds the only yaw-dependent part of the request.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant quaternion work.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Evaluated once per yaw tried.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains its instant's data only.
      */
     rotation: (yaw: number) => IAutoMovieQuaternion;
   }
 
   /**
-   * Keep the original arbitrary-posture callback behavior.
+   * The turn of an upright carry along a path, as `HumanHandover.upright`
+   * documents it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Body/side and full callback are evaluated at the existing from/to seconds and endpoint degree turns; output is the original scalar yaw course.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates every actual callback posture to HumanHandover.tipped, preserving full constrained solves before the common yaw chooser.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One score adapter retains one chooser and the existing complete posture owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No invariant is inferred about arbitrary callbacks and no callback, sample, fit or candidate is skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preserves nine full solves per selected sample; only scalar course lookup uses the original equivalent binary interval search.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All actual giver/receiver and public callback courses share the same candidate order, cost/tie policy and scalar interpolation, without sharing fitted answers or source frames.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Callback/body/fit work is local to planning; the detached returned interpolator retains only K scalar times and turns until its action is released.
+   * @param body The body.
+   * @param side The hand.
+   * @param at The posture at a second with the hand turned by a yaw, degrees.
+   * @param from The path's first second.
+   * @param to The path's last second.
+   * @param ends The turns at the two ends, degrees; a missing last end is chosen as the instants between are.
+   * @returns The turn at a second, degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the course returned.
+   * @evidence contracts/development/implementation.md#principled-implementation Each yaw's posture is fitted and its tip read (`HumanHandover.tipped`); each instant takes the least tip plus `HOLD` per degree of change from the instant before.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One tip adapter feeds one chooser.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every yaw of every chosen instant is fitted; ties keep the earlier, nearer yaw.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Nine fits per instant, one instant per STEP of the path; a read finds its interval by binary search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The giver's and the receiver's carries share this chooser.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned course holds K instants and K turns until its action is released.
    */
   export function ordinary(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
     at: (seconds: number, yaw: number) => IAutoMovieMotionHumanPosture,
@@ -65,15 +80,21 @@ export namespace HumanHandoverUpright {
   }
 
   /**
-   * Emit the original complete raw posture for one actual yaw and frame.
+   * The posture of an instant at a yaw: the acting arm's goal with its
+   * rotation there, every other goal as the frame holds it.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Consumes fixed-time body/task frame, acting side and degree yaw; output retains all other limbs/digits and the actual hand attitude.
-   * @evidence contracts/development/implementation.md#principled-implementation Replaces only the acting arm with the frame's original complete task and evaluated rotation, retaining every other authored field.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared request assembler serves both candidate fitting and displayed raw posture construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal field, reference, planting, task point, rotation product or other channel is changed.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant goal/map assembly without a solve; the performance retains its normal complete solver.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same actual frame/goal assembler supplies rank and display, avoiding a separate pose equation or prepared fit result.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh posture/limb/goal wrappers borrowing original immutable frame geometry; no builder, FK reader, queried time or history is retained.
+   * @param frame The instant.
+   * @param side The acting hand.
+   * @param yaw Degrees about world up.
+   * @returns The posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the posture returned.
+   * @evidence contracts/development/implementation.md#principled-implementation Only the acting arm's goal is replaced.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One assembler serves the choice and the display, so both fit the same request.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No other goal or channel changes.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant assembly, no solve.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same assembler for ranking and display.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh posture and retains nothing.
    */
   export function posed(frame: IFrame, side: AutoMovieHumanSide, yaw: number): IAutoMovieMotionHumanPosture {
     return { ...frame.posture,
@@ -81,15 +102,21 @@ export namespace HumanHandoverUpright {
   }
 
   /**
-   * The original upright tip metric of asked and actually reached attitudes.
+   * How far a reached hand rotation tips what an asked upright rotation
+   * holds: the angle the reached rotation's error from the asked one turns
+   * the world's up through.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs are world hand quaternions; absent either returns Infinity, otherwise output is the original degree tilt of world up.
-   * @evidence contracts/development/implementation.md#principled-implementation Applies normalized reached times inverse normalized asked to world up, clips its Y to [-1,1] and reads acos in degrees.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative rotation and one clipped angle serve ordinary and prepared actual fits.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original missing-attitude Infinity, quaternion operation order and scalar clipping without new tolerance or normalization policy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant quaternion/vector/scalar arithmetic without traversal or allocation proportional to a scene.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both paths use this exact scalar owner; no pose/rotation/angle answer is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains no inputs, result history, collection or handle.
+   * @param asked The asked world hand rotation; absent when the goal asks none.
+   * @param reached The reached world hand rotation.
+   * @returns Degrees; infinite when either is absent.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the degree result and the absent case.
+   * @evidence contracts/development/implementation.md#principled-implementation The error reached * asked^-1 of the normalized rotations applied to world up; its angle from up, clipped to acos's domain, is the tip and nothing else.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative rotation and one angle.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal with no rotation is not upright by anything, so it reads as infinitely tipped.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one tip measure of the handover.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number and retains nothing.
    */
   export function angle(asked: IAutoMovieQuaternion | undefined, reached: IAutoMovieQuaternion | undefined): number {
     if (asked === undefined || reached === undefined) return Infinity;
@@ -98,16 +125,29 @@ export namespace HumanHandoverUpright {
   }
 }
 
-/** Preserve the acting goal's original field order for both ranking and display. */
+/** The acting arm's goal with its rotation at a yaw. */
 function goalOf(frame: HumanHandoverUpright.IFrame, yaw: number): IAutoMovieHumanLimbGoal {
   const { point, ...rest }: typeof frame.goal = frame.goal;
   return { point, rotation: frame.rotation(yaw), ...rest };
 }
 
-/** Original ordered yaw selection and carried previous-turn preference. */
+/**
+ * Degrees of tip a turn costs per degree it changes from the instant
+ * before (provisional: a tenth, so a change of one 15-degree step is worth
+ * 1.5 degrees of tip, holding the turn steady where the tips are close).
+ */
+const HOLD: number = 0.1;
+
+/** Cost differences below this are ties, kept by the earlier, nearer turn: degrees, far below a fit's resolution. */
+const TIE: number = 1e-9;
+
+/** The turn at each instant no more than `STEP` apart, least tip plus `HOLD` per degree of change first, interpolated between. */
 function chosen(rankAt: (seconds: number) => (yaw: number) => number,
   from: number, to: number, ends: readonly [number, number | undefined],
 ): (seconds: number) => number {
+  // The fewest instants that keep every interval within STEP; the 1e-9
+  // keeps a path an exact multiple of STEP from gaining an instant to
+  // floating-point rounding of the quotient.
   const count: number = Math.max(1, Math.ceil((to - from) / HumanHandover.STEP - 1e-9));
   const times: number[] = [from];
   const turns: number[] = [ends[0]];
@@ -120,15 +160,15 @@ function chosen(rankAt: (seconds: number) => (yaw: number) => number,
     let best: number = before;
     let least: number = Infinity;
     for (const yaw of HumanHandover.YAWS) {
-      const cost: number = rank(yaw) + 0.1 * Math.abs(yaw - before);
-      if (cost < least - 1e-9) { least = cost; best = yaw; }
+      const cost: number = rank(yaw) + HOLD * Math.abs(yaw - before);
+      if (cost < least - TIE) { least = cost; best = yaw; }
     }
     turns.push(best);
   }
   return interpolate(from, times, turns);
 }
 
-/** Retain only the scalar course after all frame and numerical work is released. */
+/** The turn at a second: the first end's before the path, the last instant's after it, linear between instants. */
 function interpolate(from: number, times: readonly number[], turns: readonly number[]): (seconds: number) => number {
   return (seconds: number): number => {
     if (!(seconds > from)) return turns[0]!;

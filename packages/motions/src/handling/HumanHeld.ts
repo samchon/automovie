@@ -60,10 +60,10 @@ export namespace HumanHeld {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when the prop is read, each input and the three refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The held prop's owner gives the contact's point from the grip socket and its direction in the hand bone's axes, the offset a grip keeps fixed; the socket's own offset from the wrist is added, and the tool's shares are that point's components along the hand's three orthonormal axes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates held/contact admission and the actual turn to HumanHeldEffector's shared fixed-geometry owner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the held contact and the turn to HumanHeldEffector.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Whether the hand holds the prop is the entry state's fact, read by the owner, which refuses otherwise; a direction too near the normal to be laid across it falls back to the hand axis least along it.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Cold effectors and steadiest's explicit fixed-prop search share HumanHeldEffector's same geometry and output arithmetic, without another point/axis formula.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One demanded entry FK/contact reading and constant vector work per cold call; the shared owner permits repeated fixed-prop turns to reuse only geometry.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work effector, sides and steadiest share HumanHeldEffector's geometry, with no second point or axis formula.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK and contact read and constant vector work per call.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function effector(
@@ -161,8 +161,8 @@ export namespace HumanHeld {
    * @evidence contracts/development/implementation.md#principled-implementation A pick-up takes the grip its reach allows, so which side of the rim then faces a region is not the act's to assume; each side is solved by the upright search and its reached tilt compared.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of effector, search and compare.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No side is preferred for any prop or hand beyond the tie; the tilt is the resolver's reached one, and a vessel no side holds level is refused, never brought tilted, unless the act leans it, whose own search then admits the lean or refuses it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One held-entry FK/contact/hand-geometry and hanging hint serve at most eight actual rim sides. All at-most-thirteen arm solves per side remain; the original nonnegative-tip early exit is unchanged and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous unchanged body/entry/held prop/row fixes only local geometry and hanging hint; each actual side still runs its own Upright solve and displayed Laid-bend tilt fit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One held-entry FK/contact/hand-geometry and hanging hint serve at most eight rim sides. Each side runs its upright solve and tilt fit; the search stops once a tilt is within the joints' tolerance of zero.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held geometry and the hanging hint are read once for every side; each side runs its own upright solve and tilt fit.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The local geometry producer/hint are released on return or throw; only the best fresh effector weights escape, without body/prop readers, fits, time history or handles.
    */
   export function steadiest(

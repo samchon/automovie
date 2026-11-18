@@ -8,6 +8,7 @@ import type {
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -20,63 +21,78 @@ import { poseBones } from "../posture/poseBones";
 import { HumanGraspUse } from "./HumanGraspUse";
 
 /**
- * Original per-call tool-use geometry, in its public callback admission order.
+ * The geometry a presented use key is built from (`HumanGraspUse.presented`):
+ * the tool's contacts, the line it lies on and the line asked, the region or
+ * the place ahead it goes to, and the candidate hand turned onto the asked
+ * line.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the original one-call contact/line/entry setup, its world-metre points and rotations, and the foreign frame/entry reads that remain live in their original sequence.
- * @evidence contracts/development/design.md#principled-representation Canonical context, affordance, point and quaternion types carry actual admitted geometry; the result contains no fixed direct posture, fitted answer or source-immutability claim.
- * @evidence contracts/development/design.md#minimal-and-owned-surface of supplies exactly the original setup consumed once by HumanGraspUse.presented; the helper keeps that source below the file bound without another geometry or numerical owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No frame callback, eager face transform, full entry FK, refusal, source read or unused-but-original admission is merged or omitted; borrowed inputs are not certified plain or immutable.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the setup, its world-metre points and rotations, and its refusals.
+ * @evidence contracts/development/design.md#principled-representation Canonical context, affordance, point and quaternion types; no solved pose is carried.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface `of` supplies exactly what `HumanGraspUse.presented` reads, kept apart so that file stays under the size bound.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named; every point comes from the prop's affordances and the body's regions.
  */
 export namespace HumanGraspUsePreparation {
   /**
-   * The actual public per-call request, including its displayed candidate wrist.
+   * The request: `HumanGraspUse.presented`'s props.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Reuses presented's current body/entry/prop/start, handle/hand/use, wrist and optional clearance request with their original units and callback contract.
-   * @evidence contracts/development/design.md#principled-representation Parameters derives the existing request directly, including all current nested source values rather than a frozen or copied posture graph.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The original caller passes the complete request to one setup operation; no alternate context or grasp representation is introduced.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No raw input is widened, cloned, probed for descriptors or treated as an immutable capability.
+   * @evidence contracts/development/common.md#meaningful-documentation The context, prop, handle, hand, use, candidate wrist and optional clearance, in the units `IAutoMovieMotionHumanGraspUse` states.
+   * @evidence contracts/development/design.md#principled-representation The interface's own props type, named here for the setup's signature.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface An alias of the owned type, no copy.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing widened or cast.
    */
-  export type IInput = Parameters<typeof HumanGraspUse.presented>[0];
+  export type IInput = IAutoMovieMotionHumanGraspUse.IPresentedProps;
 
   /**
-   * The original setup locals consumed by the remainder of this one call.
+   * The setup a presented key is built from.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Members carry the original context/held prop/tip/region, optional world site, already laid candidate rotation, ahead grip point and wrist-local socket; the roll reader owns only the private computed asked axis.
-   * @evidence contracts/development/design.md#principled-representation World points/rotations and the wrist-local socket retain canonical types; optional at/site keep the original ahead-versus-region meaning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member feeds the original worn branch or non-worn key builder, with no fixed body pose, sampled frame or unused whole-body output exposed.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The private asked axis is arithmetic output of this call; sharing its numerical length never certifies borrowed context, callback or posture state as immutable.
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
+   * @evidence contracts/development/design.md#principled-representation World points and rotations and the wrist-local socket in canonical types; optional `at` and `site` separate a region use from one ahead of the body.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member feeds the worn branch or the key builder of `presented`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No fixed pose or sampled frame.
    */
   export interface IPrepared {
-    /** Original request context, still live across subsequent callbacks. */
+    /** The request's context. */
     context: IInput["context"];
-    /** Original prop reader, whose later frame calls remain actual. */
+
+    /** The held prop's reader. */
     held: IAutoMovieMotionHumanPropReader;
-    /** Admitted working-point affordance. */
+
+    /** The working-point affordance. */
     tip: IAutoMovieAffordance;
-    /** Original own-body region, or ahead when absent. */
+
+    /** The region of the performer's own body the use is at; ahead of the body when absent. */
     at: AutoMovieHumanoidRegion | undefined;
-    /** Original world-metre placed region point, when present. */
+
+    /** The region's point on the entry body, world metres; absent ahead of the body. */
     site: IAutoMovieVector3 | undefined;
-    /** Original shortest-line turn times the actual candidate wrist attitude. */
+
+    /** The candidate wrist's rotation turned by the shortest turn onto the asked line. */
     laid: IAutoMovieQuaternion;
-    /** Original ahead grip-socket point, world metres. */
+
+    /** The grip socket's place ahead of the body (`HumanGraspUse.place`), world metres. */
     ahead: IAutoMovieVector3;
-    /** Original body-local grip socket offset, metres. */
+
+    /** The grip socket's offset from the wrist in hand axes, metres. */
     socket: IAutoMovieVector3;
-    /** Actual degree rotations on the private computed asked axis. */
+
+    /** Rotations by degrees about the asked line, or the surface's normal for an `along` use. */
     roll: ReturnType<typeof Quaternion.prepareAxisAngle>;
   }
 
   /**
-   * Admit the original contacts, line, body region and laid wrist in order.
+   * Read the use's contacts, lines, region and laid hand.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Preserves handle then tip lookup, lying frame read, yaw/line/region selection, full entry FK, placed-region refusal, eager second face frame read, shortest turn and ahead/socket setup.
-   * @evidence contracts/development/implementation.md#principled-implementation The same original vector/quaternion expressions form the actual line and requested direction; the shortest turn is applied to the candidate wrist before ahead and socket reads.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One chronological setup owner returns its original locals to the remaining key/roll search; it does not accept or return a solved pose.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original foreign frame invocation, full entry admission, eager face computation, nested source lookup, opposite-direction threshold, arithmetic grouping and refusal remains, including work before the worn branch.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Original one-call contact scans and full entry FK remain. A lazy axis-angle reader shares only the private arithmetic asked axis's length across actual rolls; each angle/trigonometric output remains fresh. Runtime improvement is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The asked axis is a newly constructed private vector that no external callback receives; its length alone is invariant. Context, prop frames and entry source are never frozen or reused as prepared direct assembly.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One call owns its setup locals and private axis reader until its original key search completes. No direct base, pose/FK workspace, evaluated roll answer, time history or external handle is retained.
+   * @param props The request.
+   * @returns The setup.
+   * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop lacks the handle or the working point; a `parameter` refusal on `use` for an `along` or `worn` line with no region of the performer's own.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the request, the setup and both refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation The tool's line runs from the handle to the working point in the prop's frame at the start; the asked line is forward of the body risen by the use's angle, across toward the other hand, or into the region's surface; the shortest turn between them about their cross product, or about the body's left when they oppose, lays the candidate hand.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Contacts, lines, region, turn and the two socket places, in that order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing contact or region is refused, never substituted; the 1e-9 cross-product length is the floating-point floor below which the lines are parallel.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance scans and one entry FK of the arm and the region's bone.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The asked axis is prepared once for every roll of the search.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The setup lives for one `presented` call.
    */
   export function of(props: IInput): IPrepared {
     const context: (typeof props)["context"] = props.context;
@@ -133,12 +149,19 @@ export namespace HumanGraspUsePreparation {
     // At the mouth or a region, the tool's working point goes there and
     // the wrist follows from the hand's rotation: the point is rigid in the
     // hand, at the offset it has in the candidate grasp.
+    // The entry places only what is read: the arm for the presenting place
+    // (`HumanGraspUse.place`) and the region's bone.
+    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] | undefined =
+      at === undefined ? undefined : context.body.surfaces.regions[at];
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([
+        `${props.side}UpperArm`, `${props.side}LowerArm`, `${props.side}Hand`,
+        ...(region === undefined ? [] : [region.bone]),
+      ]),
     );
-    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] | undefined =
-      at === undefined ? undefined : context.body.surfaces.regions[at];
     const bearer: IAutoMovieResolvedBone | undefined =
       region === undefined ? undefined : bones.get(region.bone);
     const placed:

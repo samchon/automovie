@@ -15,23 +15,25 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * Prepare one held prop's fixed hand-local contact and actual rim turns.
+ * Prepare the effector of a held prop's point (`HumanHeld.effector`): the
+ * point and its directions in the hand's frame, read once at the entry, and
+ * for an upright vessel the ring of its rim, turned per call.
  *
- * @param context Unchanged body, entry holding state/pose, and prop reader for one synchronous effector search.
- * @param row The fixed hand surface/shape, contact directions and upright policy.
+ * @param context The body, the entry that holds the prop and the prop reader, unchanged through the search.
+ * @param row The act's use: hand surface and shape, the act's directions and whether the vessel stands upright.
  * @param side The holding hand.
- * @param subject The actually held prop's subject id.
+ * @param subject The held prop's subject id.
  * @param point The contact id; the row's own when absent.
- * @returns Fresh original effectors for each degree turn about an upright rim; non-upright contacts retain their original turn-independent geometry.
- * @throws {HumanRefusal} The original held-prop, hand, missing-contact and invalid-direction refusals, in their original admission order.
+ * @returns The effector at a degree turn round an upright vessel's rim; a prop not upright gives the same effector at every turn.
+ * @throws {HumanRefusal} When the hand does not hold the prop at the entry (`AutoMovieMotionHumanHeld.of`), no point is named, or the prop lacks the contact.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States fixed body/entry/prop/contact/row lifetime, turn degrees, fresh hand-axis weights and preserved admission/refusal behavior.
- * @evidence contracts/development/implementation.md#principled-implementation The existing held owner supplies the actual named contact. Grip/surface offsets, projected directions and ring centre/radius retain the original formulas; each actual turn computes the same facing and surface-relative tool weights.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Contact admission and fixed local geometry precede a detached turn reader. across owns original projection/fallback, weights owns anatomical-axis dot products, and the cold facade and steadiest search consume this same producer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact, normal, ring radius, direction refusal, first-tie fallback or quaternion/solver policy is changed. Even an upright row still admits its original along direction before replacing it with the vessel axis.
- * @evidence contracts/development/implementation.md#efficient-algorithms One actual held-entry FK/contact/hand-offset preparation serves C rim candidates instead of C repeated preparations; each requested turn retains sine/cosine and actual point/axis-weight calculations. Every upright arm solve remains with the caller; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged body, entry pose/holding fact, prop frame/affordances and row establish local-geometry equivalence. Changing them requires a new producer; no candidate pose, fit, angle or judgement is reused.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The detached reader retains constant local vector/scalar geometry and surface/shape values until its synchronous owner releases it. Each output owns fresh tool/facing/along weight records, without body/context/prop readers, FK workspaces, query/time history or handles.
+ * @evidence contracts/development/common.md#meaningful-documentation States what is fixed, the turn in degrees, the hand-axis weights returned and the refusals.
+ * @evidence contracts/development/implementation.md#principled-implementation A held prop is rigid in the hand, so the contact's point and normal from the grip socket are fixed; an upright vessel's rim is the ring about its axis (the normal) through the point, centred on the axis through the prop's origin, and a turn moves the point round it with the facing outward; the weights are the point's components along the hand's orthonormal anatomical axes in hand lengths.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and fixed geometry, then a turn reader; `across` lays a direction across the normal and `weights` takes axis components.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A direction too near the normal is replaced by the hand axis least along it, at the named provisional `ACROSS` share.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK and contact read serve every turn; a turn costs constant vector work.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed geometry depends only on the body, the entry's holding, the prop and the row, which the search holds fixed.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds constant-size hand-local geometry until released; each effector is fresh.
  */
 export function HumanHeldEffector(
   context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
@@ -78,35 +80,52 @@ export function HumanHeldEffector(
       thumb: AutoMovieMotionHumanTouchEffector.axis(side, "thumb") } });
 }
 
-/** Fixed local data only; no held/body/context ownership crosses into the turn reader. */
+/** A held contact's hand-local geometry. */
 interface IGeometry {
-  /** The original skin surface and hand form. */
+  /** The hand surface the effector is measured from. */
   surface: IAutoMovieMotionHumanHand.Surface;
-  /** The original hand form. */
+
+  /** The hand form. */
   shape: IAutoMovieMotionHumanHand.Shape;
-  /** Wrist-relative contact point, metres, before any upright rim turn. */
+
+  /** The contact point from the wrist in hand axes, metres, before any rim turn. */
   at: IAutoMovieVector3;
-  /** Actual contact's outward unit direction in hand axes. */
+
+  /** The contact's outward unit direction in hand axes. */
   normal: IAutoMovieVector3;
-  /** The actual projected direction or upright vessel axis. */
+
+  /** The act's along direction laid across the normal, or the vessel's axis when upright. */
   along: IAutoMovieVector3;
-  /** Wrist-relative hand surface point, metres. */
+
+  /** The hand surface's point from the wrist in hand axes, metres. */
   offset: IAutoMovieVector3;
-  /** Reciprocal body hand length for original dimensionless tool shares. */
+
+  /** One over the body's hand length, for tool weights in hand lengths. */
   scale: number;
-  /** The original three orthonormal anatomical axes. */
+
+  /** The hand's three orthonormal anatomical axes. */
   axes: Record<"fingers" | "palm" | "thumb", IAutoMovieVector3>;
-  /** Upright contacts alone have a fixed ring; point contacts have none. */
+
+  /** An upright vessel's rim: centre, radius and the two in-plane directions; absent for other props. */
   ring: { centre: IAutoMovieVector3; radius: number; toward: IAutoMovieVector3; across: IAutoMovieVector3 } | undefined;
 }
 
-/** Preserve original projection, 0.3 threshold and stable least-aligned fallback. */
+/**
+ * The least share of a unit direction left after projecting out the
+ * contact's normal for the direction to be laid across it, the sine of the
+ * angle between them (provisional: about 17.5 degrees; nearer the normal the
+ * projection's heading swings with small changes of either, so the hand
+ * axis least along the normal is taken instead).
+ */
+const ACROSS: number = 0.3;
+
+/** A direction laid across the normal: its projection, or the hand axis least along the normal when too little is left. */
 function across(side: AutoMovieHumanSide, normal: IAutoMovieVector3,
   direction: IAutoMovieVector3): IAutoMovieVector3 {
   const flat: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (vector: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.subtract(vector, Vector3.scale(normal, Vector3.dot(vector, normal)));
   const projected: IAutoMovieVector3 = flat(direction);
-  if (Vector3.length(projected) > 0.3) return Vector3.normalize(projected);
+  if (Vector3.length(projected) > ACROSS) return Vector3.normalize(projected);
   const spare: IAutoMovieVector3 = (["fingers", "palm", "thumb"] as const)
     .map((axis: "fingers" | "palm" | "thumb"): IAutoMovieVector3 => AutoMovieMotionHumanTouchEffector.axis(side, axis))
     .sort((a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
@@ -114,7 +133,7 @@ function across(side: AutoMovieHumanSide, normal: IAutoMovieVector3,
   return Vector3.normalize(flat(spare));
 }
 
-/** Actual turn arithmetic stays independent of admission/body/prop readers. */
+/** The effector at a turn round the rim: the point and facing turned, then weighed on the hand's axes. */
 function turning(fixed: IGeometry): (turn?: number) => IAutoMovieMotionHumanTouchEffector.IEffector {
   return (turn: number = 0): IAutoMovieMotionHumanTouchEffector.IEffector => {
     let at: IAutoMovieVector3 = fixed.at;
@@ -132,7 +151,7 @@ function turning(fixed: IGeometry): (turn?: number) => IAutoMovieMotionHumanTouc
   };
 }
 
-/** Original anatomical-axis dot products, with fresh public weight records. */
+/** A vector's components along the hand's anatomical axes. */
 function weights(vector: IAutoMovieVector3, axes: IGeometry["axes"]): Record<"fingers" | "palm" | "thumb", number> {
   return { fingers: Vector3.dot(vector, axes.fingers),
     palm: Vector3.dot(vector, axes.palm), thumb: Vector3.dot(vector, axes.thumb) };

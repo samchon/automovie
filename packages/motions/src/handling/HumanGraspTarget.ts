@@ -18,27 +18,32 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanGrasp } from "./HumanGrasp";
 
 /**
- * Prepare one prop/handle for actual points, hand frames or complete grasp targets.
+ * Prepare one prop's handle as a grasp target at changing world frames of
+ * the prop: its grip point alone, its hand frame (point, inward approach,
+ * wrapped axis and width), or the complete target with the prop's colliders
+ * and grip kind.
  *
- * @param prop The unchanged prop and its fixed affordances/collider geometry.
+ * @param prop The prop, unchanged through the plan.
  * @param id The handle affordance.
- * @returns Point-only, hand-frame and complete target readers of actual world prop frames.
- * @throws {HumanRefusal} For the same absent handle or collider list as HumanGrasp.at.
+ * @returns Point, frame and complete target readers of a world prop frame.
+ * @throws {HumanRefusal} An `affordance` refusal when the prop declares no such handle, listing its affordances, or no colliders.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States immutable prop/handle scope, actual world-frame inputs, point/frame/complete outputs and original handle/empty-shape refusals.
- * @evidence contracts/development/implementation.md#principled-implementation The original prop/affordance rigid composition places the grip point, inward approach and wrapped axis. An authored aperture needs no collider extent; otherwise the original nearest-centre rule and exact one-shape projected span determine width at each actual frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission/lookup precedes a shared point transform; frames add actual axes/width and the complete reader alone wraps the current world colliders required by digit closure.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing handle/shapes keep their original refusals, nearest-centre strict ties and span arithmetic remain, and frame-only readers never fabricate a collider list or contact verdict.
- * @evidence contracts/development/implementation.md#efficient-algorithms Handle admission occurs once; point-only reads omit unused axes/width, authored-aperture frame reads are O(1) without collider scans, and inferred width retains exact S-1 comparisons while sharing its current winner's centre distance. Complete targets retain O(S) required collider wrappers. Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes the same prop, handle, affordances and shapes for its plan; every changed world frame computes its own actual target, with no target-result or time cache.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder borrows one unchanged affordance and shape list until its plan is released; each complete call returns fresh collider wrappers and no FK reader, prior frame or query result is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation States the prop and handle scope, the world-frame input, the three outputs and the refusals.
+ * @evidence contracts/development/implementation.md#principled-implementation The affordance frame composed with the prop's places the grip point, the approach along its -Y and the wrapped axis along its +X (`AutoMovieAffordanceKind`); the width is the authored aperture or else the span along the approach of the collider whose centre lies nearest the grip point (`physicalShapeSpan`).
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One handle lookup, one point transform, the frame on it and the complete target on the frame.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing handle or collider list is refused; the frame reader never fabricates a collider list.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The handle is found once; a frame read is O(1) with an authored aperture, else S - 1 centre comparisons and one span; a complete target wraps S colliders.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The handle and shapes are read once for the plan; each frame computes its own target.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The readers hold the affordance and the shape list until the plan is released.
  */
 export function HumanGraspTarget(prop: IAutoMovieMotionHumanProp, id: string): {
-  /** The current world handle point alone, without unused axes or width. */
+  /** The handle's world grip point. */
   point: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3;
-  /** The original current point, axes and exact grasp width. */
+
+  /** The handle's grip point, approach, wrapped axis and width. */
   frame: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame;
-  /** The original current frame with actual closure colliders and grip kind. */
+
+  /** The hand frame with the prop's colliders and the handle's grip kind (`power` when it names none). */
   at: (frame: IAutoMovieRigidTransform) => IAutoMovieMotionHumanGrasp.ITarget;
 } {
   const subject: string = prop.subject;
