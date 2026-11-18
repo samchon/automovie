@@ -6,18 +6,21 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { handReach } from "./handReach";
 
 /**
  * Seated hand placements on the thighs and armrests. A placement invocation
@@ -324,20 +327,66 @@ export namespace seatedHands {
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       );
+      const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
+        fingers: along,
+        palm: Vector3.scale(normal, -1),
+      });
       limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
         surface: "palm",
         shape: "flat",
-        point,
-        rotation: HumanHand.rotation(side, {
-          fingers: along,
-          palm: Vector3.scale(normal, -1),
-        }),
+        point: laid(body, posture, side, rotation, frame.bone, thigh, point, normal),
+        rotation,
         bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
       });
     }
     return limbs;
   }
 
+  /**
+   * The palm's place on a thigh: the thigh's own collider met along the
+   * surface's normal, by a ray from outside the thigh's bounding ball, then
+   * the flat hand's colliders kept clear of it by how far they reach past
+   * the palm toward the thigh (`handReach`), so the resting hand touches the
+   * thigh without entering it. The surface region's point stands in where
+   * the ray finds no collider.
+   */
+  function laid(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    rotation: IAutoMovieQuaternion,
+    bone: AutoMovieHumanoidBone,
+    thigh: IAutoMovieResolvedBone,
+    point: IAutoMovieVector3,
+    normal: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const only: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      new Map([[bone, thigh]]);
+    let ball: number = 0;
+    for (const segment of HumanColliders.placed(body, only))
+      for (const shape of segment.shapes)
+        ball = Math.max(ball, HumanColliders.bound(shape).radius);
+    const inward: IAutoMovieVector3 = Vector3.scale(normal, -1);
+    const skin: IAutoMovieVector3 =
+      ball === 0
+        ? point
+        : (HumanColliders.cast(
+            body,
+            only,
+            Vector3.addScaled(point, normal, 2 * ball),
+            inward,
+            4 * ball,
+          )?.point ?? point);
+    // Only the hand's own joints shape its reach, so the arm's goals are
+    // left out of the one resolution it reads.
+    return Vector3.addScaled(
+      skin,
+      normal,
+      handReach(body, { ...posture, limbs: {} }, side, rotation, "palm", "flat")(
+        inward,
+      ),
+    );
+  }
   /** Resolve this call's observed frames under the canonical demand guards. */
   function resolved(
     body: IAutoMovieMotionHumanBody,

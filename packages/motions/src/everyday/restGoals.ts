@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -22,6 +22,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
+import { handReach } from "./handReach";
 import { restClasped } from "./restClasped";
 import { restCrossedArms } from "./restCrossedArms";
 import { restElbowSupport } from "./restElbowSupport";
@@ -210,7 +211,7 @@ export function restGoals(
         const palm: IAutoMovieVector3 = dir(-sign, 0, 0);
         const back: IAutoMovieVector3 = dir(0, 0, -1);
         const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, { fingers, palm });
-        const reach: (direction: IAutoMovieVector3) => number = fistReach(body, posture, side, rotation);
+        const reach: (direction: IAutoMovieVector3) => number = handReach(body, posture, side, rotation, "fist", "fist");
         const rear: number = reach(back);
         const throat: IAutoMovieMotionHumanColliders.IHit | undefined = rear > 0
           ? HumanColliders.cast(body, (neck ??= necked(body, posture)), chin.point, back, rear)
@@ -261,51 +262,6 @@ function necked(
     new Set<AutoMovieHumanoidBone>(["neck"]),
   );
   return new Map([["neck", bones.get("neck")!]]);
-}
-
-/**
- * How far a fist laid at a world rotation reaches past its own fist surface
- * along a world direction: the highest point of the hand's and the fingers'
- * colliders along it, the hand closed in the fist, less the fist surface's
- * own. The fist is closed on the posture's own hand once, and each direction
- * is read in that hand's frame, which the laid hand turns to the rotation.
- */
-function fistReach(
-  body: IAutoMovieMotionHumanBody,
-  posture: IAutoMovieMotionHumanPosture,
-  side: AutoMovieHumanSide,
-  rotation: IAutoMovieQuaternion,
-): (direction: IAutoMovieVector3) => number {
-  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
-    [...HumanColliders.bones(body)].filter(
-      (bone: AutoMovieHumanoidBone): boolean =>
-        bone === `${side}Hand` ||
-        (bone.startsWith(side) && /(Thumb|Index|Middle|Ring|Little)/.test(bone)),
-    ),
-  );
-  const bones: ReturnType<typeof poseBones> = poseBones(
-    body,
-    resolveHumanPosture(body, {
-      ...posture,
-      joints: { ...posture.joints, ...HumanHand.shape(side, "fist") },
-    }),
-    undefined,
-    new Set([...requested, ...HumanHand.frameBones(body, side, "fist")]),
-  );
-  const placed: ReturnType<typeof HumanColliders.placed> = HumanColliders.placed(body, bones);
-  const surface: IAutoMovieVector3 = HumanHand.frame(body, bones, side, "fist", "fist").point;
-  return (direction: IAutoMovieVector3): number => {
-    const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-      bones.get(`${side}Hand`)!.worldRotation,
-      Quaternion.rotateVector(Quaternion.inverse(rotation), direction),
-    );
-    let high: number = -Infinity;
-    for (const segment of placed)
-      if (requested.has(segment.bone))
-        for (const shape of segment.shapes)
-          high = Math.max(high, physicalShapeSpan(segment.pose, shape, axis)[1]);
-    return high - Vector3.dot(surface, axis);
-  };
 }
 
 /** A pocketed hand's fingers in the performer's frame: down along the thigh, tipped forward with it (provisional). */
