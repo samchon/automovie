@@ -75,7 +75,7 @@ export namespace HumanCarriedCouplingLoad {
    * @returns Degrees forward (`pitch`) and toward the bearer's right (`roll`), as `HumanCarriedLean.tipped` takes them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the balance, who rides and the angles' senses.
-   * @evidence contracts/development/implementation.md#principled-implementation Static balance of a rigid inverted pendulum: the borne body rides the bearer's anchor bone, so the whole pair turns about the feet, and the combined centre `(M c + m s) / (M + m)` lies over the pivot once turned by `-atan2(z, y)` forward and `atan2(x, y)` toward the right, its offsets ahead and to the left over its height above the pivot.
+   * @evidence contracts/development/implementation.md#principled-implementation Static balance of a rigid inverted pendulum: the borne body rides the bearer's anchor bone, so the whole pair turns about the feet, and the combined centre `(M c + m s) / (M + m)`, `s` the share-weighted point the bearer's contacts press it at, lies over the pivot once turned by `-atan2(z, y)` forward and `atan2(x, y)` toward the right, its offsets ahead and to the left over its height above the pivot.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One standing read, one combined centre, two angles.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are the balance's, never bounded here; a mass no lean of the bearer holds is `bearable`'s refusal.
    * @evidence contracts/development/implementation.md#efficient-algorithms One fitted stance resolution gives the anchor, the centre of mass and the feet; the mass model is the body's own.
@@ -104,7 +104,7 @@ export namespace HumanCarriedCouplingLoad {
     };
   }
 
-  /** A bearer at the origin facing +Z in the coupling's stance, upright for a further bearer: its mass and centre, its share of the borne mass with the borne centre, and its feet's midpoint. */
+  /** A bearer at the origin facing +Z in the coupling's stance, upright for a further bearer: its mass and centre, its share of the borne mass with the point its contacts press it at (the share-weighted contact points, the borne centre for a coupling without them), and its feet's midpoint. */
   interface IStanding {
     mass: number;
     own: IAutoMovieVector3;
@@ -119,18 +119,34 @@ export namespace HumanCarriedCouplingLoad {
     coupling: IAutoMovieMotionCoupling,
     role: string,
   ): IStanding => {
-    // This bearer's share of the borne weight, and the borne centre in its
-    // own anchor frame.
-    const share: number = coupling.contacts
-      .filter(
+    // This bearer's share of the borne weight, and where it presses: each
+    // contact's share at the contact (the reactions the bearer bears), which
+    // is the borne centre only where the contacts' line passes under it.
+    const own: IAutoMovieMotionCoupling.IContact[] = coupling.contacts.filter(
+      (c: IAutoMovieMotionCoupling.IContact): boolean => c.on.role === role,
+    );
+    const share: number = own.reduce(
+      (s: number, c: IAutoMovieMotionCoupling.IContact): number => s + c.load,
+      0,
+    );
+    const pressed: IAutoMovieVector3 =
+      share > 0 &&
+      own.every(
         (c: IAutoMovieMotionCoupling.IContact): boolean =>
-          c.on.role === role,
+          c.load === 0 || c.at !== undefined,
       )
-      .reduce(
-        (s: number, c: IAutoMovieMotionCoupling.IContact): number =>
-          s + c.load,
-        0,
-      );
+        ? Vector3.scale(
+            own.reduce(
+              (
+                s: IAutoMovieVector3,
+                c: IAutoMovieMotionCoupling.IContact,
+              ): IAutoMovieVector3 =>
+                c.load === 0 ? s : Vector3.add(s, Vector3.scale(c.at!, c.load)),
+              { x: 0, y: 0, z: 0 },
+            ),
+            1 / share,
+          )
+        : coupling.centre;
     const frame:
       | {
           position: IAutoMovieVector3;
@@ -141,10 +157,10 @@ export namespace HumanCarriedCouplingLoad {
       role === coupling.bearer ? undefined : coupling.bearers?.[role];
     const centre: IAutoMovieVector3 =
       frame === undefined
-        ? coupling.centre
+        ? pressed
         : Quaternion.rotateVector(
             Quaternion.inverse(frame.rotation),
-            Vector3.subtract(coupling.centre, frame.position),
+            Vector3.subtract(pressed, frame.position),
           );
     const model: IAutoMovieResolveCenterOfMass.IModel =
       bearer.massModel;

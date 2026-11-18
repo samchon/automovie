@@ -36,7 +36,7 @@ import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is fitted, what is placed, how and for whom.
  * @evidence contracts/development/design.md#principled-representation The stance and the legs as five angles a least-change program fits, and a rigid placement as a turn and a point map, Wahba's problem's answer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The placement record and its one builder.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The placement record, its one builder and the reach gap it fits against.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The resting contact is never traded for the holds.
  */
 export namespace HumanCarriedCouplingFit {
@@ -57,6 +57,7 @@ export namespace HumanCarriedCouplingFit {
    * @param row The carry's row.
    * @param held The borne region each bearer hand holds, left then right.
    * @param bends Whether the bearer may leave upright: not when a second helper shares the body, whose contacts a bend of the first would carry away.
+   * @param grips The borne region each hand grips where the bearer takes a nearer grip than the row describes (`HumanCarriedCoupling.NEARER`), left then right: the arms must reach these, while the turn stays fitted to the described holds, so a grip never turns the borne body; the described holds when absent.
    * @returns The placement.
    * @throws {HumanRefusal} A `reach` refusal on `carry` when no stance and legs within their ranges bring every held region within its arm.
    *
@@ -77,6 +78,10 @@ export namespace HumanCarriedCouplingFit {
       AutoMovieHumanoidRegion | null,
     ],
     bends: boolean,
+    grips: readonly [
+      AutoMovieHumanoidRegion | null,
+      AutoMovieHumanoidRegion | null,
+    ] = held,
   ): IAutoMovieMotionHumanCarriedCouplingFit.IFit {
     // The five angles: the borne hip flexion, knee flexion and hip
     // abduction, the bearer's trunk inclination and lowering; each one's
@@ -116,8 +121,8 @@ export namespace HumanCarriedCouplingFit {
     );
     const n: number = start.length;
 
-    // The bearer's arm from the shoulder joint to the wrist, which every
-    // hold's wrist goal must lie within.
+    // The bearer's arm from the shoulder joint to the wrist, the scale of
+    // the gaps' accuracy.
     const arm: number = bearer.measure.upperArm + bearer.measure.forearm;
     const curvatures: readonly Float64Array[][] = [false, true].map(
       (objective: boolean): Float64Array[] => weight.map((w: number): Float64Array => {
@@ -132,7 +137,7 @@ export namespace HumanCarriedCouplingFit {
     );
     const sides: ("left" | "right")[] = (["left", "right"] as const).filter(
       (_: "left" | "right", k: number): boolean =>
-        row.holds[k] !== null && held[k] !== null,
+        row.holds[k] !== null && grips[k] !== null,
     );
 
     // The bearer's bones by stance, so a change of the legs alone reads
@@ -180,38 +185,16 @@ export namespace HumanCarriedCouplingFit {
       return sides.map((side: "left" | "right"): number => {
         const k: number = side === "left" ? 0 : 1;
         const surface: IAutoMovieMotionHumanBody["surfaces"]["regions"][AutoMovieHumanoidRegion] =
-          borne.surfaces.regions[held[k]!];
+          borne.surfaces.regions[grips[k]!];
         const local: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
           resolveAutoMovieHumanoidSurfaces.place(
             surface,
             mine.get(surface.bone)!,
           );
-
-        // A palm's farthest possible reach assumes it continues the forearm.
-        // The bearing instead faces the carried surface: judge that very
-        // wrist target, since the surface normal fixes the palm's offset.
-        const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArmTarget.goal(
-          bearer,
-          side,
-          AutoMovieMotionHumanTarget.hand(
-            bearer,
-            { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
-            side,
-            {
-              point: placed.place(local.point),
-              normal: Quaternion.rotateVector(placed.turn, local.normal),
-            },
-            { surface: "palm", shape: "relaxed", bend: "hang" },
-          ),
-        );
-        return (
-          Vector3.length(
-            Vector3.subtract(
-              goal.point,
-              theirs.get(`${side}UpperArm`)!.worldPosition,
-            ),
-          ) - arm
-        );
+        return gap(bearer, theirs, side, {
+          point: placed.place(local.point),
+          normal: Quaternion.rotateVector(placed.turn, local.normal),
+        });
       });
     };
     const accuracy: number = arm * Number.EPSILON ** 0.5;
@@ -406,6 +389,51 @@ export namespace HumanCarriedCouplingFit {
         depth: x[4]!,
       },
     ).fit;
+  }
+
+  /**
+   * How far a held place lies beyond the arm that holds it: the distance
+   * from the shoulder joint to the wrist goal of a palm laid on the place,
+   * facing it, less the arm from the shoulder joint to the wrist; none or
+   * negative within reach.
+   *
+   * @param bearer The bearer's body.
+   * @param bones The bearer's bones, standing at the origin facing +Z.
+   * @param side The holding hand's side.
+   * @param place The held surface point and its outward normal, in the bones' frame.
+   * @returns Metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the measured distance, its two ends and its sign.
+   * @evidence contracts/development/implementation.md#principled-implementation A palm's farthest reach would assume it continues the forearm; the bearing palm instead faces the carried surface, so the surface normal fixes the palm's offset and the very wrist goal the hand takes is judged against the arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist goal and one distance.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the arm target's own (`AutoMovieMotionHumanArmTarget.goal`), not a stand-in offset.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The stance fit's gaps and a second helper's grip choice read this one measure.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function.
+   */
+  export function gap(
+    bearer: IAutoMovieMotionHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    side: "left" | "right",
+    place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+  ): number {
+    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArmTarget.goal(
+      bearer,
+      side,
+      AutoMovieMotionHumanTarget.hand(
+        bearer,
+        { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
+        side,
+        place,
+        { surface: "palm", shape: "relaxed", bend: "hang" },
+      ),
+    );
+    return (
+      Vector3.length(
+        Vector3.subtract(goal.point, bones.get(`${side}UpperArm`)!.worldPosition),
+      ) -
+      (bearer.measure.upperArm + bearer.measure.forearm)
+    );
   }
 
   /** The trunk's forward inclination at full forward bending, degrees: about 70 of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71, the measure `HumanTrunk.RHYTHM` shares). */
