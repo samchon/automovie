@@ -1,8 +1,7 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   AutoMovieMotionHumanChannel,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
@@ -36,6 +35,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanLadder } from "./HumanLadder";
 import { climbLadderHands } from "./climbLadderHands";
 
+/** How far below the shoulder the hands' first rung is sought, upper-arm lengths (provisional: a grip with the elbow part bent rather than a straight overhead reach). */
+const GRIP_DROP: number = 0.5;
+
+/** How far a swinging foot moves back off the rungs at mid-swing, in `CLEARANCE`s (provisional). */
+const BACK_OFF: number = 2;
+
+/** How far a moving hand draws back off the rungs at mid-move, metres (provisional). */
+const HAND_BACK: number = 0.08;
+
 /**
  * Climbing a vertical fixed ladder from the floor before it, in the
  * four-beat ipsilateral pattern: right hand, right foot, left hand, left
@@ -52,7 +60,10 @@ import { climbLadderHands } from "./climbLadderHands";
  * leans, has too few rungs above the hands, or one the climber stands away
  * from, is refused. Each foot stands with its ball on a rung's top,
  * and each hand grips a rung (Jensen and Holland found rungs used in 59 of
- * 80 tasks) at the rung nearest the shoulder's height above the feet. First
+ * 80 tasks) at the rung nearest half an upper arm below the shoulder's
+ * height above the feet (`GRIP_DROP`, provisional). Each foot's rungs take
+ * the settled stance's heading, while the feet leave the floor from where
+ * the entry put them. First
  * both hands reach their rungs, then every beat moves one limb up one rung:
  * a foot on a minimum-jerk arc that clears the rung below by `CLEARANCE`, a
  * hand on a minimum-jerk path. The pelvis stays `BACK` leg lengths behind
@@ -133,26 +144,17 @@ export namespace climbLadder {
     const yaw: number = frame.yaw;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
-      .posture(0);
-    const flatOf: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
-      const goal: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
-      return {
-        ankle: goal.point,
-        rotation: goal.rotation ?? HumanFrame.turn(standing.yaw),
-      };
-    };
-    const flats: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
-      left: flatOf("left"), right: flatOf("right"),
-    };
+    // The feet leave the floor from the entry; the rungs take the settled
+    // stance's foot headings (`stand.footprints`).
+    const stood: stand.IFootprints = stand.footprints(context);
+    const standing: IAutoMovieMotionHumanPosture = stood.standing;
+    const flats: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = stood.entered;
+    const quiet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = stood.settled;
     const flat: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => flats[side];
 
     // The climber stands before the ladder, facing it, the toes near the
     // rungs and the feet between the rails.
-    const turned: number = Math.abs(
-      ((((standing.yaw - yaw) % 360) + 540) % 360) - 180,
-    );
+    const turned: number = Math.abs(wrapDegrees(standing.yaw - yaw));
     HumanBound.within("facing", turned, 0, FACING, "degrees");
     const toe: number = Math.max(
       ...(["left", "right"] as const).map(
@@ -177,15 +179,15 @@ export namespace climbLadder {
       "m",
     );
     const reach: number = Math.round(
-      (m.shoulderHeight - 0.5 * m.upperArm) / spacing,
+      (m.shoulderHeight - GRIP_DROP * m.upperArm) / spacing,
     );
     HumanBound.within("rungs", reach + count, 1, ladder.count, "");
     const atRung: ReturnType<typeof HumanLadder.prepareRung> = HumanLadder.prepareRung(ladder);
 
     // A foot's placement on a rung: the ball on the rung's top.
     const onRung: Record<"left" | "right", ReturnType<typeof HumanFoot.prepareAt>> = {
-      left: HumanFoot.prepareAt(body, "left", "ball", HumanFoot.heading(flats.left.rotation), 0),
-      right: HumanFoot.prepareAt(body, "right", "ball", HumanFoot.heading(flats.right.rotation), 0),
+      left: HumanFoot.prepareAt(body, "left", "ball", HumanFoot.heading(quiet.left.rotation), 0),
+      right: HumanFoot.prepareAt(body, "right", "ball", HumanFoot.heading(quiet.right.rotation), 0),
     };
     const footOn: (side: "left" | "right", index: number) => IAutoMovieMotionHumanFoot.IPlacement = (
       side: "left" | "right",
@@ -330,7 +332,7 @@ export namespace climbLadder {
                       {
                         x: 0,
                         y: 0,
-                        z: -2 * CLEARANCE * Math.sin(Math.PI * at.u),
+                        z: -BACK_OFF * CLEARANCE * Math.sin(Math.PI * at.u),
                       },
                     ),
                   ),
@@ -368,15 +370,22 @@ export namespace climbLadder {
             ? Vector3.add(
                 grip,
                 directional.point(
-                  { x: 0, y: 0, z: -0.08 * Math.sin(Math.PI * at.u) },
+                  { x: 0, y: 0, z: -HAND_BACK * Math.sin(Math.PI * at.u) },
                 ),
               )
             : grip;
           const support: readonly [number, number] | undefined = at.moving && !footLevels.left.moving && !footLevels.right.moving
             ? [footLevels.left.index, footLevels.right.index] : undefined;
-          if (support === undefined && paired === undefined)
-            paired = AutoMovieMotionHumanBend.prepareBoth({ body, posture: lowered }, resolution);
-          limbs[`${side}Arm`] = handGoal(side, lowered, lifted, support, support === undefined ? paired : undefined);
+          if (support === undefined)
+            paired ??= AutoMovieMotionHumanBend.prepareBoth({ body, posture: lowered }, resolution);
+          limbs[`${side}Arm`] = handGoal(
+            side,
+            lowered,
+            lifted,
+            support === undefined
+              ? { kind: "paired", paired: paired! }
+              : { kind: "support", support },
+          );
         }
         const gripped: IAutoMovieMotionHumanPosture = {
           ...lowered,
@@ -407,6 +416,13 @@ export namespace climbLadder {
       let from: number = hand ? beat : 0;
       for (let i: number = 0; i <= own.length; i++) {
         const to: number = i < own.length ? own[i]!.from : duration;
+
+        // The first hand to move leaves its rung the instant both hands are
+        // on: it holds nothing in between, so it declares no window.
+        if (to <= from) {
+          if (i < own.length) from = own[i]!.to;
+          continue;
+        }
         contacts.push({
           part: limb,
           kind: hand ? "grip" : "plant",

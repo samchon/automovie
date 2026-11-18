@@ -119,6 +119,14 @@ export namespace HumanLadder {
    * @param index The rung, 1 the lowest; 0 is the floor under the rungs.
    * @param x The lateral place in the ladder's frame, metres, `x` left.
    * @returns World metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the indexing, the frame and the units.
+   * @evidence contracts/development/implementation.md#principled-implementation The index times the spacing up the ladder's frame, at its rung line and the lateral place.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame point.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every rung is the ladder's own spacing above its foot.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work prepareRung reads the same grid for a plan's many rungs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point and retains nothing.
    */
   export function rung(
     ladder: IAutoMovieMotionHumanLadder.ILadder,
