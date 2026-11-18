@@ -45,6 +45,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 5. A pat on the own chest taken seated declares the seat as well: the
  *    rule is the base's, not one action's.
  *
+ * The seated drink and the pat share one film, sit, drink, pat, so the sit
+ * is performed once for both. The pat is then entered from the seated drink
+ * rather than straight from the sit; both entries are the seated base, which
+ * a drink keeps by scenario 2, so the pat still reads what an act taken
+ * seated declares, and it also shows the seat passed on through an act that
+ * keeps it.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the chains on real bodies and reads the placed plans' declared contacts, displayed joints and the balance audit's own reading of which instants stand; an act that drops the seat, slides on it or is judged as standing fails.
  * @evidence contracts/development/testing.md#independent-expectations What a seated person rests on is the seat and the feet, by what sitting is; the 10 mm and 5 mm are the campaign's support and slip bounds, not readings of the law.
  * @evidence contracts/development/testing.md#distinguishing-cases The same act on two bases, a second act on the seated base, two bodies.
@@ -88,8 +95,6 @@ export function test_human_motion_base_supports(): void {
         ],
         composition: chain.node,
       });
-    const sitting = (): IAutoMovieMotionHumanChain =>
-      HumanChain.subject("a").sit({ seat: chair, seconds: 0.5 });
 
     // 1. Standing: the feet, no seat.
     const stood: readonly IAutoMovieMotionHumanContactWindow[] = perform(
@@ -106,23 +111,24 @@ export function test_human_motion_base_supports(): void {
         `${name}: a standing drink declares ${stood.map((c) => c.part).join(", ")}, both feet and no seat expected`,
       );
 
-    // 2 and 5. Seated: the feet and the seat, for a drink and for a pat.
+    // 2 and 5. Seated: the feet and the seat, for a drink and for a pat, one
+    // film after one sit.
     const drinking: IAutoMovieMotionHumanPerformance = perform(
-      sitting().handToFace({ task: "drink", seconds: 0.3 }),
+      HumanChain.subject("a")
+        .sit({ seat: chair, seconds: 0.5 })
+        .handToFace({ task: "drink", seconds: 0.3 })
+        .touch({
+          target: { kind: "self", region: "sternum" },
+          kind: "pat",
+          count: 1,
+        }),
     );
-    const patting: IAutoMovieMotionHumanPerformance = perform(
-      sitting().touch({
-        target: { kind: "self", region: "sternum" },
-        kind: "pat",
-        count: 1,
-      }),
-    );
-    for (const [label, performance] of [
-      ["drink", drinking],
-      ["pat", patting],
+    for (const [label, index] of [
+      ["drink", 1],
+      ["pat", 2],
     ] as const) {
       const contacts: readonly IAutoMovieMotionHumanContactWindow[] =
-        performance.segments("a")[1]!.plan.contacts;
+        drinking.segments("a")[index]!.plan.contacts;
       if (
         !whole(contacts, "leftFoot") ||
         !whole(contacts, "rightFoot") ||
