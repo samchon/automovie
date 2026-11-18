@@ -45,13 +45,22 @@ export function prepareHumanPostureRigCheck(body: IAutoMovieMotionHumanBody): ((
     });
     const rig: IAutoMovieMotionHumanBody["poseResolution"] = body.poseResolution;
     const topology: IAutoMovieMotionHumanBody["topology"] = body.topology;
+    // structuredClone preserved the shared bone records between the skeleton
+    // and its child lists. A child still pointing at the corresponding live
+    // skeleton record has already passed the complete bone comparison.
+    const rows: Map<IAutoMovieBone, number> = new Map();
+    for (const [index, value] of saved.skeleton.bones.entries()) rows.set(value, index);
+    const child: typeof bone = (actual: IAutoMovieBone, baseline: IAutoMovieBone): boolean => {
+      const index: number | undefined = rows.get(baseline);
+      return (index !== undefined && actual === body.skeleton.bones[index]) || bone(actual, baseline);
+    };
     const check: () => boolean = (): boolean => {
       try {
         const same: boolean = body.poseResolution === rig && body.topology === topology &&
           body.skeleton.id === saved.skeleton.id &&
           sequence(body.skeleton.bones, saved.skeleton.bones, bone) &&
           sequence<IChildren>(body.topology.childrenByParent, saved.children,
-            (a: IChildren, b: IChildren): boolean => a[0] === b[0] && sequence(a[1], b[1], bone)) &&
+            (a: IChildren, b: IChildren): boolean => a[0] === b[0] && sequence(a[1], b[1], child)) &&
           sequence(body.topology.reachableBones, saved.reachable,
             (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): boolean => a === b) &&
           entries(Object.entries(DEFAULT_HUMANOID_ROM), saved.defaults, constraint) &&

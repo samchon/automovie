@@ -187,6 +187,28 @@ export namespace HumanDigitFit {
   }
 
   /**
+   * Whether either hand's finite posed phalanges penetrate a body collider.
+   * Uses the same signed depth as depth(), with a strict zero boundary.
+   * A positive witness decides the caller's predicate immediately.
+   *
+   * @param body The rig that owns both digit chains and their radii.
+   * @param bones Finite posed joint frames of that same body.
+   * @param placed Its collision shapes in the same frame, placed once when omitted.
+   * @returns True if any phalanx penetrates a nearby collider from outside its own hand and forearm. Tangency has zero depth.
+   * @evidence contracts/development/implementation.md#principled-implementation A maximum of finite signed depths exceeds zero exactly when at least one depth exceeds zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Stops on the first positive signed distance difference. A clear pose checks every eligible pair.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the complete signed-distance and collider eligibility implementation with depth.
+   */
+  export function penetrates(
+    body: IAutoMovieMotionHumanBody,
+    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    placed: readonly IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones),
+  ): boolean {
+    return depthAt(body, bones, placed, "left", 0) > 0 ||
+      depthAt(body, bones, placed, "right", 0) > 0;
+  }
+
+  /**
    * The joints of a digit, proximal to distal.
    *
    * @param side The hand.
@@ -242,17 +264,19 @@ const OWN: RegExp = /^(Hand|Thumb|Index|Middle|Ring|Little)/;
 const NO_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set();
 
 /** One hand's unchanged phalanx-depth reduction over a caller-owned body placement. */
-function depthAt(body: IAutoMovieMotionHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, placed: readonly IAutoMovieMotionHumanColliders.IPlaced[], side: "left" | "right"): number {
+function depthAt(body: IAutoMovieMotionHumanBody, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, placed: readonly IAutoMovieMotionHumanColliders.IPlaced[], side: "left" | "right", threshold: number = Infinity): number {
   const near: IAutoMovieCurlChainUntilContact.ICollider[] = nearBody(body, bones, placed, side);
   let deepest: number = -Infinity;
   for (const digit of DIGIT_NAMES) {
     const chain: IAutoMovieCurlChainUntilContact.IChain = HumanGrip.chain(body, side, digit);
     const points: IAutoMovieVector3[] = phalanges(bones, chain);
     for (const collider of near)
-      for (let i: number = 1; i < points.length; i++)
+      for (let i: number = 1; i < points.length; i++) {
         deepest = Math.max(deepest, chain.radius - physicalShapeSegmentDistance(
           collider.frame, collider.shape, points[i - 1]!, points[i]!,
         ));
+        if (deepest > threshold) return deepest;
+      }
   }
   return deepest;
 }

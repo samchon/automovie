@@ -391,6 +391,8 @@ export namespace jump {
       { from: P, to: touchdown, duration, flightSeconds: T, centre: comT, launch, settled },
       context.params.rotation, pushedAt, landedAt,
     );
-    return { duration, events, contacts, ...prepared.declared, posture: prepared.posture };
+    // The takeoff impulse and landing absorption end at settled. The remaining
+    // ascent follows the authored return curve from zero velocity.
+    return { duration, events, contacts, physicalWindow: { from: 0, to: settled }, ...prepared.declared, posture: prepared.posture };
   }
 }

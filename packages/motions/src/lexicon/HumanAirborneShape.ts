@@ -142,12 +142,14 @@ export namespace HumanAirborneShape {
         if (posture.limbs[limb] !== undefined) held.push(limb);
         delete limbs[limb];
       }
+      const reader: ReturnType<NonNullable<IAutoMovieMotionHumanLayer.IContext["resolution"]>> | undefined = held.length === 0 ? undefined : context.resolution?.();
+      const projection: ReturnType<NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>> | undefined = held.length === 0 ? undefined : context.projection?.();
       const local: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints, ...joints };
       // Fade in the body's clinical joint coordinates. A held endpoint follows
       // the joint arc below, including when the original foot came from IK.
       if (weight < 1) {
         const base: IAutoMoviePose | undefined = held.length === 0 ? undefined :
-          resolveHumanPosture.seeded(context.body, posture, undefined, undefined, context.resolution, requested, context.projection?.()).pose;
+          resolveHumanPosture.seeded(context.body, posture, undefined, undefined, reader, requested, projection).pose;
         for (const limb of claimed) {
           for (const bone of CHAIN[limb]) {
             const to: readonly [number, number, number] | undefined = joints[bone];
@@ -176,10 +178,10 @@ export namespace HumanAirborneShape {
       const still: IAutoMovieMotionHumanPosture = { ...shaped };
       delete still.rotation;
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(context.resolution);
+        prepareHumanPoseResolution(reader);
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
         context.body, still, undefined, undefined, resolution, observed,
-        context.projection?.(),
+        projection,
       ).pose;
       const bones: ReadonlyMap<
         AutoMovieHumanoidBone,

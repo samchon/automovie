@@ -30,7 +30,7 @@ export function test_engine_airborne_tabulated_grid(): void {
   const model: IAutoMovieResolveCenterOfMass.IModel = {
     mass: 2,
     segments: (["hips", "head"] as const).map(
-      (bone: "hips" | "head"): IAutoMovieResolveCenterOfMass.ISegment => ({
+      (bone: AutoMovieHumanoidBone): IAutoMovieResolveCenterOfMass.ISegment => ({
         bone,
         mass: 1,
         point: { x: 0, y: 0, z: 0 },
@@ -39,7 +39,7 @@ export function test_engine_airborne_tabulated_grid(): void {
       }),
     ),
   };
-  const pose = (
+  const pose: IPose = (
     radius: number,
     radians: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
@@ -77,7 +77,7 @@ export function test_engine_airborne_tabulated_grid(): void {
   );
 
   const seen: number[] = [];
-  const rotating = (t: number): ReturnType<typeof pose> => {
+  const rotating: (t: number) => ReturnType<IPose> = (t: number): ReturnType<typeof pose> => {
     seen.push(t);
     return pose(0, t * t);
   };
@@ -113,3 +113,6 @@ export function test_engine_airborne_tabulated_grid(): void {
     integrateAirborneRotation.tabulated(model, rotating, { ...grid, turn: Number.MIN_VALUE })(0.5);
   });
 }
+
+/** The owned two-part pose at the prescribed radius in metres and angle in radians. */
+type IPose = (radius: number, radians: number) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

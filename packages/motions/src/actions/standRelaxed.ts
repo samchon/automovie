@@ -117,9 +117,6 @@ export function standRelaxed(
   const sinks: (abduction: number) => boolean = (
     abduction: number,
   ): boolean => {
-    const joints: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = hanging(abduction);
     standing ??= stand.stance(body, { x: 0, y: 0, z: 0 }, 0, {});
     if (first !== undefined && carried !== undefined && placeCarried !== undefined) {
       const turned: IAutoMoviePose = {
@@ -132,14 +129,17 @@ export function standRelaxed(
         ),
       };
       const moved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, shape(turned, joints), prepared(), carried);
+        poseBones(body, turned, prepared(), carried);
       return (
-        HumanDigitFit.depth(body, moved, undefined, [
+        HumanDigitFit.penetrates(body, moved, [
           ...first.still,
           ...placeCarried(moved),
-        ]) > 0
+        ])
       );
     }
+    const joints: Partial<
+      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+    > = hanging(abduction);
     const posture: IAutoMovieMotionHumanPosture = {
       ...standing,
       joints: { ...joints, ...standing.joints },
@@ -153,8 +153,9 @@ export function standRelaxed(
       undefined,
       projection,
     ).pose;
+    const shaped: IAutoMoviePose = shape(resolved, joints);
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, shape(resolved, joints), prepared());
+      poseBones(body, shaped, prepared());
 
     // Only a stance that leaves the arms to their direct angles is one pose
     // with two records varying; any other keeps the whole resolve a candidate.
@@ -172,11 +173,12 @@ export function standRelaxed(
         if (!carried.has(bone)) fixed.add(bone);
       placeCarried = HumanColliders.preparePlaced(body, carried);
       first = {
-        pose: resolved,
+        pose: shaped,
         still: HumanColliders.preparePlaced(body, fixed)(bones),
       };
+      return HumanDigitFit.penetrates(body, bones, [...first.still, ...placeCarried(bones)]);
     }
-    return HumanDigitFit.depth(body, bones) > 0;
+    return HumanDigitFit.penetrates(body, bones);
   };
   const range: IAutoMovieAngleRange | null | undefined = getConstraint(
     "leftUpperArm",

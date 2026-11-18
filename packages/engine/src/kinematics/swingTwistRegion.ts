@@ -174,7 +174,7 @@ function reach(
     const direction: (swing: number) => IAutoMovieVector3 =
       swingTwistBasis.prepareRay(basis, azimuth);
     const inside: (swing: number) => boolean = (swing: number): boolean =>
-      reached(constraint, joint, basis, direction(swing), across, flexed);
+      reached(constraint, joint, basis, direction(swing), across, flexed, free);
     const angle: number = azimuth / swingTwistBasis.DEG;
     const farthest: number =
       bound === null ? 180 : bound(Math.cos(angle), Math.sin(angle), span);
@@ -395,6 +395,7 @@ function reached(
   direction: IAutoMovieVector3,
   across: number,
   flexed: (degrees: number) => IAutoMovieQuaternion,
+  free: boolean,
 ): boolean {
   const flexion: IAutoMovieAngleRange = constraint.flexion!;
   const abduction: IAutoMovieAngleRange = constraint.abduction!;
@@ -404,6 +405,9 @@ function reached(
     ) * swingTwistBasis.DEG;
   let projected: IAutoMovieVector3 | undefined;
   for (const f of [first, 180 - first]) {
+    // A branch outside the flexion interval is unreachable for every abduction.
+    const clinical: number = nearestAngleAlias(toClinicalAngle(f, joint.frame?.flexion)!, flexion);
+    if (!(clinical >= flexion.min && clinical <= flexion.max)) continue;
     const swung: IAutoMovieVector3 = Quaternion.rotateVector(flexed(f), basis.u);
     const from: IAutoMovieVector3 = flat(swung, basis.a);
     const to: IAutoMovieVector3 = (projected ??= flat(direction, basis.a));
@@ -418,9 +422,9 @@ function reached(
           admits(
             constraint,
             joint,
-            flexion,
+            free,
             abduction,
-            f,
+            clinical,
             toRigAngle(a, joint.frame?.abduction)!,
           )
         )
@@ -432,7 +436,7 @@ function reached(
         Vector3.dot(basis.a, Vector3.cross(from, to)),
         Vector3.dot(from, to),
       ) * swingTwistBasis.DEG;
-    if (admits(constraint, joint, flexion, abduction, f, a)) return true;
+    if (admits(constraint, joint, free, abduction, clinical, a)) return true;
   }
   return false;
 }
@@ -441,25 +445,19 @@ function reached(
 function admits(
   constraint: IAutoMovieJointConstraint,
   joint: IAutoMovieJointRotationFrame,
-  flexion: IAutoMovieAngleRange,
+  free: boolean,
   abduction: IAutoMovieAngleRange,
-  rigFlexion: number,
+  f: number,
   rigAbduction: number,
 ): boolean {
-  const f: number = nearestAngleAlias(
-    toClinicalAngle(rigFlexion, joint.frame?.flexion)!,
-    flexion,
-  );
   const a: number = nearestAngleAlias(
     toClinicalAngle(rigAbduction, joint.frame?.abduction)!,
     abduction,
   );
   return (
-    f >= flexion.min &&
-    f <= flexion.max &&
     a >= abduction.min &&
     a <= abduction.max &&
-    (typeof constraint.swingDeg !== "number" ||
+    (free || typeof constraint.swingDeg !== "number" ||
       swingConeAngle(f, a) <= constraint.swingDeg)
   );
 }
