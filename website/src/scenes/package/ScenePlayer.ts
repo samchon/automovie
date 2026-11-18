@@ -72,6 +72,16 @@ export namespace ScenePlayer {
   /** Build the scene of a computed take. */
   function build(record: IScene, take: ITake): IScenePlayer {
     const track: SceneTrack.ITrack = take.track;
+    if (
+      !Number.isFinite(take.duration) ||
+      take.duration < 0 ||
+      !Number.isFinite(track.fps) ||
+      track.fps <= 0 ||
+      !Number.isInteger(track.frames) ||
+      track.frames < 1 ||
+      !track.orders.some((order: string[]): boolean => order.length > 0)
+    )
+      throw new Error(`The scene ${record.id} has no trackable take.`);
     const scene: THREE.Scene = new THREE.Scene();
     const style: CSSStyleDeclaration = getComputedStyle(
       document.documentElement,

@@ -42,6 +42,17 @@ const config: NextConfig = {
   },
   transpilePackages: WORKSPACE_PACKAGES,
   webpack: (webpack) => {
+    // Workspace source imports are often extensionless. Prefer their TypeScript
+    // over JavaScript emitted beside it by another workspace command.
+    webpack.resolve.extensions = [
+      ".ts",
+      ".tsx",
+      ...webpack.resolve.extensions.filter(
+        (extension: string): boolean =>
+          extension !== ".ts" && extension !== ".tsx",
+      ),
+    ];
+
     // `render` and `viewer` write NodeNext specifiers (`./file.js`) for their
     // TypeScript sources.
     webpack.resolve.extensionAlias = {

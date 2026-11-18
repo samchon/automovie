@@ -9,11 +9,10 @@ import type { ReactElement } from "react";
 export function ObjectsHead(): ReactElement {
   return (
     <header className="am-app-head">
-      <h1>Objects</h1>
+      <h1>Archetypes</h1>
       <p className="am-lede">
-        The things people hold, use, sit on, ride and fight with: every
-        archetype of <code>@automovie/archetypes</code>, built in your browser.
-        Each declares the contacts an action attaches to.
+        Explore the objects that make up a scene. Choose a model to inspect its
+        variants, dimensions and contact points.
       </p>
     </header>
   );

@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { type ReactElement, Suspense } from "react";
 
 import { ObjectsHead } from "../../../components/objects/ObjectsHead";
+import { GalleryCatalogue } from "../../../gallery/package/GalleryCatalogue";
 import ObjectsMovie from "../../../movies/ObjectsMovie";
 import type { IPlaygroundComposition } from "../../../playground/structures/IPlaygroundComposition";
 import { SCENES } from "../../../scenes/SCENES";
 
 export const metadata: Metadata = {
-  title: "Objects",
+  title: "Archetypes",
   description:
     "Every archetype of @automovie/archetypes: the things people hold, use, sit on, ride and fight with, with their dimensions and affordances.",
 };
@@ -44,7 +45,7 @@ export default function ObjectsPage(): ReactElement {
         </main>
       }
     >
-      <ObjectsMovie uses={uses} />
+      <ObjectsMovie catalogue={GalleryCatalogue.catalogue()} uses={uses} />
     </Suspense>
   );
 }

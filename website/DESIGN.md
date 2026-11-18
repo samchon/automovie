@@ -49,13 +49,13 @@ Rejected:
 
 ## The frame
 
-Nextra draws the navigation bar: the logo, Scenes, Motions, Objects, Human, Playground and Docs, the search, the repository link and the theme switch. Every page but the docs is listed in `src/content/_meta.ts` with `layout: "full"` and the documentation chrome switched off, so each has the window below the bar to itself; the docs keep Nextra's sidebar and reading column.
+Nextra draws the navigation bar: the logo, Scenes, Motions, Archetypes, Human, Playground and Docs, the search, the repository link and the theme switch. Every page but the docs is listed in `src/content/_meta.ts` with `layout: "full"` and the documentation chrome switched off, so each has the window below the bar to itself; the docs keep Nextra's sidebar and reading column.
 
 Each page starts with a heading row: its name and one sentence saying what it shows.
 
 ## Landing
 
-The first screen is two columns: on the left the headline, one sentence and three links (Browse scenes, Get started, GitHub); on the right a stage playing the featured scenes one after another, captioned "Now playing n / N" with the scene's title and counts, arrows to step, a Play or Pause button that names what it will do, and a link to the scene's page. Only a featured scene the packages play in every take is on the stage. The stage moves on when a scene has played once, unless the pointer or focus is on it, and a scene the stage or the arrows move to plays from its start unless the visitor asked for reduced motion. Below 1024 px the stage goes under the text and its controls wrap. Further down: one scene in its takes, the counts of the pieces, how a film is made in four steps, the commands to start, and the scenes coming next.
+The first screen is two columns: on the left the headline, one sentence and three links (Browse motions, Browse archetypes, See scenes); on the right a stage playing the featured scenes one after another, captioned "Scene n / N" with the scene's title and counts, arrows to step, a Play or Pause button that names what it will do, and a link to the scene's page. Only a featured scene the packages play in every take is on the stage. The stage moves on when a scene has played once, unless the pointer or focus is on it, and a scene the stage or the arrows move to plays from its start unless the visitor asked for reduced motion. Below 1024 px the stage goes under the text and its controls wrap. Further down: one scene in its takes, the counts of the pieces, how a film is made in four steps, the commands to start, and the scenes coming next.
 
 ## Scenes
 
@@ -103,7 +103,7 @@ A refusal is shown twice on purpose. The result region carries the full message 
 
 Verdicts are read on request, because reading them samples the whole film. Their states are idle with an explanation, reading, a failure with its message, clean, and a table of the bounds that do not hold.
 
-## Objects
+## Archetypes
 
 The gallery is a grid of cards grouped by family, one per producer, each drawing its first kind at the middle of every band and turning while hovered or focused. A card builds its model when it first comes near the window, and says so in its view when the model does not build. Chips filter by family and a field searches names and kinds; a selection that keeps no object says so.
 
@@ -117,7 +117,7 @@ The site's bodies stand side by side on one floor, computed in the page like any
 
 ## Motions
 
-A column lists the overview, the actions and each family with its count, and stays in view while the page scrolls. A family's page, and the actions' page, has one panel per name: its parameters from its schema with their types and meanings, the scenes that use it, and a link that tries it. It is tried alone, with the parameters of its first use, only when that use is one person's action holding every required parameter and naming no one and nothing else; otherwise in the first scene that plays, since a mutual action needs its partners; and there is no link when no such scene plays. Below 768 px the column goes above the content, and a table wider than the screen scrolls inside its own box.
+The overview searches the installed vocabulary by family and movement name. Each family opens to links to its entries. Featured scenes play in a horizontally scrolling strip. The grammar opens on request. A column lists the overview, the actions and each family with its count, and stays in view while the page scrolls. A family's page, and the actions' page, has one panel per name: the scenes that use it, a link that tries it, and a disclosure with parameter types and meanings. It is tried alone, with the parameters of its first use, only when that use is one person's action holding every required parameter and naming no one and nothing else; otherwise in the first scene that plays, since a mutual action needs its partners; and there is no link when no such scene plays. Below 768 px the family navigation scrolls horizontally above the content, and a table wider than the screen scrolls inside its own box.
 
 ## Visual system
 
