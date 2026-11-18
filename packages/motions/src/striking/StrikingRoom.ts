@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, bracketedBisection } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -123,14 +123,12 @@ export namespace StrikingRoom {
           const radius: number = StrikingWeapon.girth(radii[segment]!, share);
           if (gap(point, radius, room) > 0) continue;
           if (gap(point, radius, 0) <= 0) return 0;
-          let lo: number = 0;
-          let hi: number = room;
-          for (let i: number = 0; i < HALVINGS; i++) {
-            const mid: number = (lo + hi) / 2;
-            if (gap(point, radius, mid) <= 0) hi = mid;
-            else lo = mid;
-          }
-          room = lo;
+          room = bracketedBisection(
+            (distance: number): boolean => gap(point, radius, distance) <= 0,
+            room,
+            0,
+            room / 2 ** HALVINGS,
+          );
         }
     return room;
   }

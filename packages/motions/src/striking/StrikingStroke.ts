@@ -1,4 +1,9 @@
-import { Vector3, minimumJerk, superposeMinimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  bracketedBisection,
+  minimumJerk,
+  superposeMinimumJerk,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingStroke,
   IAutoMovieSuperposeMinimumJerk,
@@ -238,14 +243,12 @@ export namespace StrikingStroke {
           // stays in contact once it touches.
           if (next > until + 1e-12) {
             if (gap(free(until), until) > 0) return undefined;
-            let lo: number = clear;
-            let hi: number = next;
-            for (let i: number = 0; i < 24; i++) {
-              const mid: number = (lo + hi) / 2;
-              if (mid >= until || gap(free(mid), mid) <= 0) hi = mid;
-              else lo = mid;
-            }
-            found = hi;
+            found = bracketedBisection(
+              (mid: number): boolean => mid < until && gap(free(mid), mid) > 0,
+              clear,
+              next,
+              (next - clear) / 2 ** 24,
+            );
             return found <= seconds ? found : undefined;
           }
           const g: number = gap(free(next), next);

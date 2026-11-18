@@ -447,14 +447,9 @@ export namespace pickUpAdjust {
   /** The least angle from the facing at which a target is stepped toward with the foot on its side, degrees: every free step to the first lateral direction of a center-out array, 30 degrees off straight ahead, was taken with the ipsilateral leg, while steps straight ahead were taken with either (Charalambous et al. 2024, bioRxiv 10.1101/2024.04.10.588947, Experiment 1, 12 adults: Fig. 1a, regions CA at 12 and RA at 1 and 2 o'clock; Fig. 2a). Nearer the midline no measured band decides, so the foot is chosen by the step itself (`stepped`). */
   export const LATERAL: number = 30;
 
-  /** The time share at which a minimum-jerk progress has gone a share of its way, by bisection. */
+  /** The time share at which a minimum-jerk progress has gone a share of its way (`minimumJerk.time`). */
   const timed: (share: number) => number = (share: number): number =>
-    bracketedBisection(
-      (time: number): boolean => minimumJerk.share(time) < share,
-      0,
-      1,
-      2 ** -40,
-    );
+    minimumJerk.time(share);
 
   /** Actual holding shoulder through its same-body fixed-name reader, world metres. */
   const shoulder: (side: AutoMovieHumanSide, posture: IAutoMovieMotionHumanPosture,

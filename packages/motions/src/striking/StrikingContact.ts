@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeNearest } from "@automovie/engine";
+import { Vector3, bracketedBisection, physicalShapeNearest } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingContact,
   IAutoMovieVector3,
@@ -126,7 +126,7 @@ export namespace StrikingContact {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the scan, the bisection count, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation A fixed-step scan for the first non-positive gap and 24 bisections of the bracketing step; a crossing shorter than one step is the scan's stated blind spot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan loop and one bisection loop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan loop and the engine's bracketed bisection of the bracketing step.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive step throws.
    * @evidence contracts/development/implementation.md#efficient-algorithms The span over the step plus 24 gap evaluations.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; callers memoise.
@@ -143,16 +143,13 @@ export namespace StrikingContact {
     let previous: number = from;
     for (let k: number = 1; ; k++) {
       const t: number = Math.min(to, from + k * step);
-      if (gap(t) <= 0) {
-        let lo: number = previous;
-        let hi: number = t;
-        for (let i: number = 0; i < 24; i++) {
-          const mid: number = (lo + hi) / 2;
-          if (gap(mid) <= 0) hi = mid;
-          else lo = mid;
-        }
-        return hi;
-      }
+      if (gap(t) <= 0)
+        return bracketedBisection(
+          (seconds: number): boolean => gap(seconds) > 0,
+          previous,
+          t,
+          (t - previous) / 2 ** 24,
+        );
       if (t >= to) return undefined;
       previous = t;
     }

@@ -415,18 +415,9 @@ export namespace KickSwing {
 
   /**
    * The share of a minimum-jerk unit's duration at which it has covered a
-   * share of its travel: the profile is monotonic, so 48 bisections give the
-   * share to rounding.
+   * share of its travel (`minimumJerk.time`).
    */
   function unit(travel: number): number {
-    if (travel >= 1) return 1;
-    let lo: number = 0;
-    let hi: number = 1;
-    for (let i: number = 0; i < 48; i++) {
-      const mid: number = (lo + hi) / 2;
-      if (minimumJerk.share(mid) < travel) lo = mid;
-      else hi = mid;
-    }
-    return hi;
+    return minimumJerk.time(travel);
   }
 }

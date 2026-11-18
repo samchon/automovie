@@ -1,5 +1,7 @@
 import type { IAutoMovieMinimumJerk } from "@automovie/interface";
 
+import { bracketedBisection } from "../math/bracketedBisection";
+
 /**
  * The minimum-jerk normalized profile and its first two derivatives: the
  * share of a point-to-point movement completed at normalized time `u`.
@@ -64,7 +66,7 @@ function evaluate(u: number, demand: IDemand): IReading {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit.
  * @evidence contracts/development/design.md#principled-representation A share and its derivatives in normalized time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Physical readers retain the three-value profile; shape/clock consumers request share and arrest-speed consumers request rate without manufacturing unused fields. No vector form or generic demand construction kit is exposed.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Physical readers retain the three-value profile; shape/clock consumers request share, arrest-speed consumers request rate, and consumers that need the instant a share is reached (a swing's unit, a step's plant window) request time, without manufacturing unused fields. No vector form or generic demand construction kit is exposed.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Callers still scale displacement or duration themselves; both scalar entries inherit the same admitted time and endpoint/polynomial rule rather than a second approximation or cached profile.
  */
 export namespace minimumJerk {
@@ -84,5 +86,25 @@ export namespace minimumJerk {
    */
   export function rate(u: number): number {
     return evaluate(u, "rate") as number;
+  }
+
+  /**
+   * The normalized time at which the profile has covered a share of its
+   * travel, the inverse of `share`: 0 for a share of none or less, 1 for the
+   * whole travel or more, and otherwise the time `share` reaches it at, by
+   * bisection to 2^-48 of the unit, since the quintic is strictly increasing
+   * on [0, 1] and has no closed-form inverse. A nonfinite share is refused.
+   */
+  export function time(travel: number): number {
+    if (!Number.isFinite(travel))
+      throw new Error("A minimum-jerk share must be finite");
+    if (travel <= 0) return 0;
+    if (travel >= 1) return 1;
+    return bracketedBisection(
+      (u: number): boolean => share(u) < travel,
+      0,
+      1,
+      2 ** -48,
+    );
   }
 }
