@@ -96,7 +96,10 @@ export namespace touch {
 
   /** Each part's effector (`touchEffectors`). */
   export const EFFECTORS: Readonly<
-    Record<IAutoMovieMotionHumanTouchEffectors.With, IAutoMovieMotionHumanTouchEffector.IEffector>
+    Record<
+      IAutoMovieMotionHumanTouchEffectors.With,
+      IAutoMovieMotionHumanTouchEffector.IEffector
+    >
   > = touchEffectors.TABLE;
 
   /** The share of the arm's length (upper arm and forearm) the wrist is kept within before the trunk leans in, so the elbow never locks straight on a region (provisional, as `operate.REACH`). */
@@ -121,6 +124,24 @@ export namespace touch {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanTouch.IParams = context.params;
+    // A person naming the performer is the performer's own body, touched as
+    // a `self` target is: its regions ride the posture being solved.
+    const own = (t: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
+      t.kind === "person" && t.subject === context.subject
+        ? { kind: "self", region: t.region }
+        : t;
+    if (
+      own(p.target) !== p.target ||
+      (p.other !== undefined && own(p.other) !== p.other)
+    )
+      return touch.plan({
+        ...context,
+        params: {
+          ...p,
+          target: own(p.target),
+          ...(p.other === undefined ? {} : { other: own(p.other) }),
+        },
+      });
     const body = context.body;
     const kind: IAutoMovieMotionHumanTouchForm.Kind = p.kind ?? "pat";
     const still: boolean =
@@ -195,7 +216,10 @@ export namespace touch {
       p.site,
     );
 
-    const laid: touchHold.Lay = touchLayouts(hands, touchHold.lay(context, bones, effector, placed));
+    const laid: touchHold.Lay = touchLayouts(
+      hands,
+      touchHold.lay(context, bones, effector, placed),
+    );
     const leading: touchHold.ILaid = laid(first, p.target);
 
     // The rise and the lean for a region beyond the standing arm, measured to
@@ -204,12 +228,15 @@ export namespace touch {
       context.carrier === undefined &&
       context.entry.feet.left.planted &&
       context.entry.feet.right.planted &&
-      context.entry.supports.every((s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-        /Foot$/.test(s.part),
+      context.entry.supports.every(
+        (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          /Foot$/.test(s.part),
       );
     // The first arm laid on its region at the stroke's start: its wrist is
     // what the stance reaches for, and the whole arm what the lean weighs.
-    const laidOn = (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
+    const laidOn = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieHumanLimbGoal =>
       AutoMovieMotionHumanTouchLaid.rest(
         body,
         posture,
@@ -299,7 +326,9 @@ export namespace touch {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     primitives.push(...stance.primitives(clock));
     if (shown !== null)
-      primitives.push(touchPresented.carry(body, context.entry.pose, shown, clock));
+      primitives.push(
+        touchPresented.carry(body, context.entry.pose, shown, clock),
+      );
     // Two hands are planned as one trajectory; one hand is a group of one,
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
       AutoMovieMotionHumanArmPlanned.together(context.handover);
@@ -321,8 +350,9 @@ export namespace touch {
             : undefined;
       const { lay, tangent } = laid(side, target);
       let destination: IAutoMovieMotionHumanTouchSite.IFrame | undefined;
-      const arrival: () => IAutoMovieMotionHumanTouchSite.IFrame = (): IAutoMovieMotionHumanTouchSite.IFrame =>
-        (destination ??= region(target)(reached, 0));
+      const arrival: () => IAutoMovieMotionHumanTouchSite.IFrame =
+        (): IAutoMovieMotionHumanTouchSite.IFrame =>
+          (destination ??= region(target)(reached, 0));
 
       // A hand that meets its place end on runs from its elbow, so the
       // elbow's place is settled with the hand and serves as the hint too.
@@ -338,7 +368,8 @@ export namespace touch {
               p.elbow,
             )
           : undefined;
-      const own: IAutoMovieMotionHumanGrasp.IKey | null = side === first ? kept : null;
+      const own: IAutoMovieMotionHumanGrasp.IKey | null =
+        side === first ? kept : null;
       const bend: IAutoMovieVector3 =
         from ??
         own?.bend ??
@@ -422,12 +453,13 @@ export namespace touch {
         }),
       );
     }
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
-      clock,
-      primitives,
-      contact: "ready",
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.under(context, clock.duration),
+        clock,
+        primitives,
+        contact: "ready",
+      });
     return p.prop === undefined
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);
