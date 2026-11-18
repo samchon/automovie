@@ -74,15 +74,29 @@ import { qunit } from "../internal/qunit";
  * 2. The momentum read back from the displayed bones (#3422) holds within
  *    1 % of its take-off value at every twentieth of the flight
  *    (#3416's acceptance), for a layout and a tuck.
- * 3. Seek: the pose at the original 30 flight instants plus six instants
- *    immediately around phase1/4,1/2,3/4, read in a shuffled order on
- *    a fresh performance, equals the pose read after evaluating the whole
- *    film in order, bit for bit. The extra phase offsets are +/-1e-6,
- *    interleaved across dyadic bins so equal-level predecessor candidates
- *    recur after another bin. Actual internal anchor visits/evictions are
- *    not exposed and are not inferred from a passing pose comparison.
- * 4. A flight asked for more turns than its take-off can give (twenty
- *    somersaults) is refused with a `HumanRefusal` on the axis `turns`.
+ * 3. Seek, on the average man: the pose at the original 30 flight instants
+ *    plus six instants immediately around phase1/4,1/2,3/4, read in a
+ *    shuffled order on a fresh performance, equals the pose read after
+ *    evaluating the whole film in order, bit for bit. The extra phase
+ *    offsets are +/-1e-6, interleaved across dyadic bins so equal-level
+ *    predecessor candidates recur after another bin. Actual internal anchor
+ *    visits/evictions are not exposed and are not inferred from a passing
+ *    pose comparison.
+ * 4. On the average man, a flight asked for more turns than its take-off can
+ *    give (twenty somersaults) is refused with a `HumanRefusal` on the axis
+ *    `turns`.
+ *
+ * Scenarios 3 and 4 run on one body because neither decision has a body
+ * branch. A seek's result depends on the order in which the performance
+ * evaluates the flight's instants, and those instants and their dyadic bins
+ * are shares of the flight span, which no body measure enters; the body only
+ * changes the values both reads must agree on bit for bit. Twenty
+ * somersaults lie twenty times past the one turn each body lands within its
+ * take-off ceiling in scenario 1, so both bodies fall in the same partition,
+ * far outside the feasible turns, and the second adds no branch of the
+ * refusal. Each of those two reads also performs the longest work of the
+ * specification: a cold film besides the ordered one, and a take-off search
+ * that runs to its refusal.
  * 5. No bone retains a snap above 5 degrees after the spin audit's adaptive
  *    interval refinement (`AutoMovieMotionHumanAuditSpin.turn`).
  * 6. The centre of mass read from the displayed poses stays within 5 mm of
@@ -91,7 +105,7 @@ import { qunit } from "../internal/qunit";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs jumps with turns through the public performance and reads displayed bones; a landing off its request, a momentum over the take-off's ceiling, a rotation not about the centre, a momentum that drifts, a pass that reads the frame grid, an impossible request accepted or a landing snap fails.
  * @evidence contracts/development/testing.md#independent-expectations The solver's tolerance and the take-off's ceiling as contracts read from the displayed bones, conservation of angular momentum in flight, the composed tensor of #3422, the spin audit's 5-degree residual snap bound, and the campaign's 1 % and 5 mm bounds. Sampled take-off-frame long-axis winding distinguishes a one-turn request from an unchanged root without claiming a continuous winding certificate.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies, a tuck and a layout, ordered and cold reads at all original thirty instants plus both sides of three dyadic boundaries, a feasible and an infeasible request, with and without turns. Additional seeks reuse the existing ordered/fresh performances and unchanged exact root/joint comparison; actual internal anchor eviction is not independently observed. The shapes' own rows belong to the airborne rows' tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies for every per-body bound (landing, ceiling, winding, conservation, snap, centre), a tuck and a layout, ordered and cold reads at all original thirty instants plus both sides of three dyadic boundaries, a feasible and an infeasible request, with and without turns. The seek and the refusal run on the average man alone, since neither decision has a body branch (the partition argument above). Additional seeks reuse the existing ordered/fresh performances and unchanged exact root/joint comparison; actual internal anchor eviction is not independently observed. The shapes' own rows belong to the airborne rows' tests.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two canonical polygon bodies and short performances in memory, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and their bounds.
  */
@@ -305,109 +319,112 @@ export function test_human_motion_core_flight(): void {
       }
     }
 
-    // 3. Seek invariance.
-    const instants: number[] = Array.from(
-      { length: 30 },
-      (_: unknown, k: number): number => t0 + ((t1 - t0) * ((k * 7) % 30)) / 29,
-    );
-    instants.push(...[
-      0.5 + 1e-6, 0.25 - 1e-6, 0.75 + 1e-6,
-      0.5 - 1e-6, 0.75 - 1e-6, 0.25 + 1e-6,
-    ].map((share: number): number => t0 + (t1 - t0) * share));
-    const rootValues: (pose: IAutoMoviePose) => readonly number[] = (
-      pose: IAutoMoviePose,
-    ): readonly number[] =>
-      pose.root === null
-        ? []
-        : [
-            pose.root.translation.x,
-            pose.root.translation.y,
-            pose.root.translation.z,
-            pose.root.rotation.x,
-            pose.root.rotation.y,
-            pose.root.rotation.z,
-            pose.root.rotation.w,
-            pose.root.scale.x,
-            pose.root.scale.y,
-            pose.root.scale.z,
-          ];
-    const ordered: Map<number, IAutoMoviePose> = new Map();
-    const chronological: Set<number> = new Set(instants);
-    for (let t: number = 0; t <= layout.duration; t += 1 / 60)
-      chronological.add(t);
-    for (const t of [...chronological].sort(
-      (a: number, b: number): number => a - b,
-    )) {
-      motionHumanFrame(layout.bones("a", t), `${name} ordered at ${t} s`);
-      const pose: IAutoMoviePose = layout.pose("a", t);
-      ordered.set(t, {
-        ...pose,
-        joints: pose.joints.map(
-          (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
-        ),
-        root:
-          pose.root === null
-            ? null
-            : {
-                ...pose.root,
-                translation: { ...pose.root.translation },
-                rotation: { ...pose.root.rotation },
-                scale: { ...pose.root.scale },
-              },
-      });
-    }
-    const cold: IAutoMovieMotionHumanPerformance = perform(
-      { ...body },
-      { somersault: 1 },
-      false,
-    );
-    for (const t of instants) {
-      motionHumanFrame(cold.bones("a", t), `${name} cold at ${t} s`);
-      const actual: IAutoMoviePose = cold.pose("a", t);
-      const expected: IAutoMoviePose = ordered.get(t)!;
-      const actualRoot: readonly number[] = rootValues(actual);
-      const expectedRoot: readonly number[] = rootValues(expected);
-      if (
-        actual.skeleton !== expected.skeleton ||
-        actualRoot.length !== expectedRoot.length ||
-        actualRoot.some(
-          (value: number, k: number): boolean =>
-            !nclose(value, expectedRoot[k]!, 0),
-        ) ||
-        actual.joints.length !== expected.joints.length ||
-        actual.joints.some((joint: IAutoMovieJointPose, k: number): boolean => {
-          const other: IAutoMoviePose["joints"][number] = expected.joints[k]!;
-          return (
-            joint.bone !== other.bone ||
-            (["flexion", "abduction", "twist"] as const).some(
-              (axis: "flexion" | "abduction" | "twist"): boolean => {
-                const observed: number | null = joint[axis];
-                const reference: number | null = other[axis];
-                return observed === null || reference === null
-                  ? observed !== reference
-                  : !nclose(observed, reference, 0);
-              },
-            )
-          );
-        })
-      ) {
-        findings.push(
-          `${name}: a cold read at ${t.toFixed(3)} s differs from the ordered film`,
-        );
-        break;
+    // 3 and 4 have no body branch, so they are read on the average man alone.
+    if (name === "m-average") {
+      // 3. Seek invariance.
+      const instants: number[] = Array.from(
+        { length: 30 },
+        (_: unknown, k: number): number => t0 + ((t1 - t0) * ((k * 7) % 30)) / 29,
+      );
+      instants.push(...[
+        0.5 + 1e-6, 0.25 - 1e-6, 0.75 + 1e-6,
+        0.5 - 1e-6, 0.75 - 1e-6, 0.25 + 1e-6,
+      ].map((share: number): number => t0 + (t1 - t0) * share));
+      const rootValues: (pose: IAutoMoviePose) => readonly number[] = (
+        pose: IAutoMoviePose,
+      ): readonly number[] =>
+        pose.root === null
+          ? []
+          : [
+              pose.root.translation.x,
+              pose.root.translation.y,
+              pose.root.translation.z,
+              pose.root.rotation.x,
+              pose.root.rotation.y,
+              pose.root.rotation.z,
+              pose.root.rotation.w,
+              pose.root.scale.x,
+              pose.root.scale.y,
+              pose.root.scale.z,
+            ];
+      const ordered: Map<number, IAutoMoviePose> = new Map();
+      const chronological: Set<number> = new Set(instants);
+      for (let t: number = 0; t <= layout.duration; t += 1 / 60)
+        chronological.add(t);
+      for (const t of [...chronological].sort(
+        (a: number, b: number): number => a - b,
+      )) {
+        motionHumanFrame(layout.bones("a", t), `${name} ordered at ${t} s`);
+        const pose: IAutoMoviePose = layout.pose("a", t);
+        ordered.set(t, {
+          ...pose,
+          joints: pose.joints.map(
+            (joint: IAutoMovieJointPose): IAutoMovieJointPose => ({ ...joint }),
+          ),
+          root:
+            pose.root === null
+              ? null
+              : {
+                  ...pose.root,
+                  translation: { ...pose.root.translation },
+                  rotation: { ...pose.root.rotation },
+                  scale: { ...pose.root.scale },
+                },
+        });
       }
-    }
+      const cold: IAutoMovieMotionHumanPerformance = perform(
+        { ...body },
+        { somersault: 1 },
+        false,
+      );
+      for (const t of instants) {
+        motionHumanFrame(cold.bones("a", t), `${name} cold at ${t} s`);
+        const actual: IAutoMoviePose = cold.pose("a", t);
+        const expected: IAutoMoviePose = ordered.get(t)!;
+        const actualRoot: readonly number[] = rootValues(actual);
+        const expectedRoot: readonly number[] = rootValues(expected);
+        if (
+          actual.skeleton !== expected.skeleton ||
+          actualRoot.length !== expectedRoot.length ||
+          actualRoot.some(
+            (value: number, k: number): boolean =>
+              !nclose(value, expectedRoot[k]!, 0),
+          ) ||
+          actual.joints.length !== expected.joints.length ||
+          actual.joints.some((joint: IAutoMovieJointPose, k: number): boolean => {
+            const other: IAutoMoviePose["joints"][number] = expected.joints[k]!;
+            return (
+              joint.bone !== other.bone ||
+              (["flexion", "abduction", "twist"] as const).some(
+                (axis: "flexion" | "abduction" | "twist"): boolean => {
+                  const observed: number | null = joint[axis];
+                  const reference: number | null = other[axis];
+                  return observed === null || reference === null
+                    ? observed !== reference
+                    : !nclose(observed, reference, 0);
+                },
+              )
+            );
+          })
+        ) {
+          findings.push(
+            `${name}: a cold read at ${t.toFixed(3)} s differs from the ordered film`,
+          );
+          break;
+        }
+      }
 
-    // 4. An impossible request is refused.
-    TestValidator.predicate(
-      `${name}: twenty somersaults are refused`,
-      motionHumanRefusal(
-        (): void => {
-          perform(body, { somersault: 20 }, false);
-        },
-        { kind: "parameter", axis: "turns", act: "jump" },
-      ),
-    );
+      // 4. An impossible request is refused.
+      TestValidator.predicate(
+        `${name}: twenty somersaults are refused`,
+        motionHumanRefusal(
+          (): void => {
+            perform(body, { somersault: 20 }, false);
+          },
+          { kind: "parameter", axis: "turns", act: "jump" },
+        ),
+      );
+    }
 
     // 5. No snap at the landing.
     const spin: IAutoMovieMotionHumanAuditSpin.IResult =
