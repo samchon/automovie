@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanVerdicts,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -14,6 +15,7 @@ import {
   AutoMovieMotionManner,
   HumanChain,
   HumanObject,
+  HumanVerdicts,
 } from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
@@ -49,13 +51,10 @@ export function test_motion_contact_hold_on_step(): void {
     actor.carry(params),
   );
   const all: motionComplaints.IGatherer = motionComplaints();
-  for (const problem of motionHumanLaw.audit(
-    plain,
-    "original loaded gait",
-    "a",
-    body,
-  ))
-    all.check(problem, false);
+  const verdict: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+    plain.performance,
+  );
+  all.check(HumanVerdicts.describe(verdict), verdict.clean);
   const mug: IAutoMovieMotionHumanProp = HumanObject.prop(
     "mug",
     createDrinkware({ kind: "mug" }),
@@ -79,14 +78,13 @@ export function test_motion_contact_hold_on_step(): void {
     );
     const span: IAutoMovieMotionHumanSegment =
       held.performance.segments("a")[1]!;
-    const plant: OptionalContact =
-      span.plan.contacts.find(
-        (w) =>
-          w.support.kind === "ground" &&
-          w.kind === "plant" &&
-          w.from > 0 &&
-          w.from < 1,
-      );
+    const plant: OptionalContact = span.plan.contacts.find(
+      (w) =>
+        w.support.kind === "ground" &&
+        w.kind === "plant" &&
+        w.from > 0 &&
+        w.from < 1,
+    );
     if (plant === undefined)
       throw new Error("the carry declared no support exchange");
     const time: number = span.start + plant.from * span.plan.duration;
