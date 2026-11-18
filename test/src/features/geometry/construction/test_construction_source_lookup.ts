@@ -228,7 +228,4 @@ function lookupWork(failures: string[]): void {
     failures.push(
       `lookup work ${valueReads}/${derivativeReads}/${work.reads} exceeds ${limit}`,
     );
-  console.log(
-    `source lookup work: value ${valueReads}, derivative ${derivativeReads}, combined ${work.reads}, allowance ${limit}`,
-  );
 }

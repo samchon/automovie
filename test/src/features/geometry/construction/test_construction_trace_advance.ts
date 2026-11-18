@@ -231,10 +231,6 @@ export function test_construction_trace_advance(): void {
     },
     failures,
   );
-  console.log({
-    traceAdvanceWork: readings,
-    scope: "owned callback counts; no person or timing claim",
-  });
   TestValidator.predicate(
     failures.join("\n"),
     (): boolean => failures.length === 0,

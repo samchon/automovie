@@ -27,7 +27,6 @@ import {
   resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
-import { performance } from "node:perf_hooks";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanFrame } from "../internal/motionHumanFrame";
@@ -63,23 +62,16 @@ import { qunit } from "../internal/qunit";
  *    physical identity. Invalid modes refuse even beside a cached staged
  *    state, including an invalid cyclic object before serialization; a
  *    stateful getter is observed once and its first mode governs.
- * 5. Diagnostic timers bracket only the existing body acquisition, turned
- *    construction and each existing pose/bone observation. First and new-time
- *    nearest-rank percentiles remain separate from independent verification,
- *    contact audits and mode checks. Timing never changes acceptance and is
- *    not compared as equivalent work to the physical representative.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the actual body, noncardinal placement, signed counts, independent quaternion/winding formulas, sampled ROM/contact/COM bounds, all eight physical counters, effective mode property/getter admission and diagnostic timing scopes across five scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the actual body, noncardinal placement, signed counts, independent quaternion/winding formulas, sampled ROM/contact/COM bounds, all eight physical counters, effective mode property/getter admission across four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Constructs one real default turned performance with a native observer, reads actual roots/joints/FK and the same law's unturned raw articulation, then checks geometric contacts and public mode memo identity. Ignored counts, wrong rotation order/frame/time, nonfinite data, anatomical faults, moved COM, slipping/lifted plants, unexpected physical work or a staged/physical key collision fail.
- * @evidence contracts/development/testing.md#independent-expectations Quaternion multiplication gives the written Rx*Ry components; the long axis is independent of the rightmost Y twist and winds twice. A rigid rotation about a mass-weighted centre leaves that centre fixed. The existing ROM table/scan and5mm campaign bounds govern anatomy/contacts/COM. Zero physical-work events follow the explicit staged product policy. The first effective mode observation must govern key and state together; invalid literals require a parameter/flight refusal independently of cached states. Timings are observations with nearest-rank summaries and supply no acceptance bound.
+ * @evidence contracts/development/testing.md#independent-expectations Quaternion multiplication gives the written Rx*Ry components; the long axis is independent of the rightmost Y twist and winds twice. A rigid rotation about a mass-weighted centre leaves that centre fixed. The existing ROM table/scan and5mm campaign bounds govern anatomy/contacts/COM. Zero physical-work events follow the explicit staged product policy. The first effective mode observation must govern key and state together; invalid literals require a parameter/flight refusal independently of cached states.
  * @evidence contracts/development/testing.md#distinguishing-cases One nonzero heading, two full somersaults plus one twist, the whole flight including both boundaries, independent timewise attitude and unwrapped winding, zero-safe finite geometric bounds and all eight counters. Mode checks distinguish omitted/undefined/staged/physical, three property storage forms, null/unknown/cyclic invalid values and cold stateful getters. This does not certify unsampled motion or physical conservation; unchanged physical flight specifications explicitly opt into that separate mode.
  * @evidence contracts/development/testing.md#execution-ownership One portable named unit borrows one existing canonical body, owns one observed turned performance plus five tiny stand-only resolutions for mode identity and cold getter admission, and edits only its own input descriptors/prototypes and unturned posture copy. Invalid modes create no successful resolution. Public APIs provide every observation; no internal import, test-only law/export, renderer, compiler, process or foreign replacement is used.
  */
 export function test_human_motion_staged_flight(): void {
   const findings: string[] = [];
-  const bodyStarted: number = performance.now();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const bodyMs: number = performance.now() - bodyStarted;
   const observation: ReturnType<typeof integrateAirborneRotation.observe> = integrateAirborneRotation.observe();
   const yaw: number = 37;
   const heading: number = yaw * Math.PI / 180;
@@ -94,17 +86,7 @@ export function test_human_motion_staged_flight(): void {
   let flightReads: number = 0;
   Object.defineProperty(input, "flight", { enumerable: true,
     get: (): IAutoMovieMotionHumanPerformance.IInput["flight"] => ++flightReads === 1 ? undefined : "physical" });
-  const planningStarted: number = performance.now();
-  let film: IAutoMovieMotionHumanPerformance;
-  try {
-    film = new HumanPerformance(input, observation);
-  } catch (error) {
-    console.log(JSON.stringify({ sample: "staged-human-flight", phase: "planning-failed", bodyMs,
-      planningMs: performance.now() - planningStarted, physicalWork: observation.read(),
-      error: error instanceof Error ? error.message : String(error) }));
-    throw error;
-  }
-  const planningMs: number = performance.now() - planningStarted;
+  const film: IAutoMovieMotionHumanPerformance = new HumanPerformance(input, observation);
   if (flightReads !== 1) findings.push(`the observed staged constructor read its effective mode ${flightReads} times, expected once`);
   const segment: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
   const event: (name: string) => number = (name: string): number => {
@@ -122,19 +104,11 @@ export function test_human_motion_staged_flight(): void {
   let previous: number = 0;
   let winding: number = 0;
   let observable: boolean = true;
-  const poseMs: number[] = [];
-  const bonesMs: number[] = [];
-  let independentChecksMs: number = 0;
   for (let index: number = 0; index <= count; index++) {
     const seconds: number = index === count ? to : from + (to - from) * index / count;
     const u: number = (seconds - from) / (to - from);
-    const poseStarted: number = performance.now();
     const pose: IAutoMoviePose = film.pose("a", seconds);
-    poseMs.push(performance.now() - poseStarted);
-    const bonesStarted: number = performance.now();
     const bones: ReturnType<typeof film.bones> = film.bones("a", seconds);
-    bonesMs.push(performance.now() - bonesStarted);
-    const checksStarted: number = performance.now();
     try {
       motionHumanFrame(bones, `staged flight at${seconds}`);
     } catch (error) {
@@ -156,7 +130,6 @@ export function test_human_motion_staged_flight(): void {
     if (pose.root === null || unturned.root === null || !qunit(pose.root.rotation) || !qunit(unturned.root.rotation)) {
       findings.push(`staged flight at${seconds} lacks finite unit roots`);
       observable = false;
-      independentChecksMs += performance.now() - checksStarted;
       continue;
     }
     const relative: IAutoMovieQuaternion = Quaternion.normalize(
@@ -184,19 +157,14 @@ export function test_human_motion_staged_flight(): void {
     const unturnedCentre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(body.massModel, poseBones(body, unturned));
     if (!(Vector3.distance(actualCentre, unturnedCentre) <= 0.005))
       findings.push(`staged flight at${seconds} moves its composed centre by more than5mm`);
-    independentChecksMs += performance.now() - checksStarted;
   }
   if (!observable || !(Math.abs(winding - 4 * Math.PI) <= 1e-6))
     findings.push(`staged flight winds${winding / (2 * Math.PI)} turns, expected2`);
-  const contactStarted: number = performance.now();
   const slip: number = AutoMovieMotionHumanAuditGround.slip(film, "a", body).value;
   const lift: number = AutoMovieMotionHumanAuditGround.lift(film, "a", body).value;
-  const contactAuditsMs: number = performance.now() - contactStarted;
   if (!(Number.isFinite(slip) && slip <= 0.005 && Number.isFinite(lift) && lift <= 0.005))
     findings.push(`staged jump plant slip/lift is${slip}/${lift}m, at most5mm each`);
-  const modeStarted: number = performance.now();
   findings.push(...modeIdentity(body));
-  const modeChecksMs: number = performance.now() - modeStarted;
   const physicalWork: ReturnType<typeof observation.read> = observation.read();
   const zeroWork: typeof physicalWork = {
     queries: 0, memoHits: 0, uniqueNumericNodes: 0, factorizations: 0, publicJacobi: 0,
@@ -206,9 +174,6 @@ export function test_human_motion_staged_flight(): void {
     findings.push("staged physical-work observation does not expose the eight declared counters");
   for (const key of Object.keys(zeroWork) as (keyof typeof zeroWork)[])
     if (physicalWork[key] !== 0) findings.push(`staged authoring performed ${key}: ${physicalWork[key]}, expected zero`);
-  console.log(JSON.stringify({ sample: "staged-human-flight", phase: "complete", bodyMs, planningMs,
-    playback: { pose: timing(poseMs), bonesAfterPose: timing(bonesMs) },
-    independentChecksMs, contactAuditsMs, modeChecksMs, physicalWork, findings: findings.length }));
   TestValidator.equals("default staged flight keeps authored geometry and winding", findings, []);
 }
 
@@ -270,12 +235,4 @@ function policy(input: IAutoMovieMotionHumanPerformance.IInput, value: unknown,
   if (storage === "inherited") Object.setPrototypeOf(supplied, { flight: value });
   else Object.defineProperty(supplied, "flight", { value, enumerable: storage === "enumerable" });
   return supplied;
-}
-
-/** Summarize only existing observations; nearest ranks never interpolate a measurement. */
-function timing(values: readonly number[]): { queries: number; firstMs: number; newTimeP50Ms: number; newTimeP95Ms: number; newTimeMaxMs: number } {
-  const ordered: number[] = values.slice(1).sort((a: number, b: number): number => a - b);
-  return { queries: values.length, firstMs: values[0]!,
-    newTimeP50Ms: ordered[Math.ceil(ordered.length * 0.5) - 1]!,
-    newTimeP95Ms: ordered[Math.ceil(ordered.length * 0.95) - 1]!, newTimeMaxMs: ordered[ordered.length - 1]! };
 }

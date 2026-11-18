@@ -1,25 +1,20 @@
 import {
   AutoMovieLoftChain,
-  AutoMovieLoftFrame,
   AutoMovieLoftJet,
   AutoMovieLoftPhaseSource,
-  AutoMovieSplineCurve,
   AutoMovieViewAxis,
   AutoMovieViewCurves,
   AutoMovieViewLoft,
   AutoMovieViewSection,
 } from "@automovie/engine";
 import type {
-  IAutoMovieLoftChain,
   IAutoMovieLoftPhaseSource,
   IAutoMovieLoftSurfaceJet,
-  IAutoMovieViewConic,
   IAutoMovieViewCurves,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
   IAutoMovieViewSection,
 } from "@automovie/interface";
-import { performance } from "node:perf_hooks";
 
 /** Independent original-source and actual-consumer observations for the phase question. */
 export namespace ConstructionPhaseSourceComparison {
@@ -155,123 +150,6 @@ export namespace ConstructionPhaseSourceComparison {
       failures.push(
         `actual final loses original quadratic views between layers: maximum point error ${actualError} mm, budget 1e-7 mm`,
       );
-    console.log({
-      phaseOriginalSourceComparison: {
-        source: "a(s)=1+s^2,b(s)=2",
-        middleOriginalA: 1.25,
-        middlePrincipalA: AutoMovieLoftPhaseSource.point(
-          AutoMovieLoftPhaseSource.station(principal, 0.5),
-          0,
-        )[0],
-        directError,
-        originalJetError,
-        directPhaseJetError,
-        principalError,
-        actualError,
-        nativeStationMixedJet:
-          "not provided; scalar jets and native phase jets only",
-      },
-    });
-  }
-
-  /**
-   * Bounded synthetic cost against real sampler, cached point and Jet.
-   * Native planar readers omit frame/lift work, so this is a component
-   * comparison rather than full-surface speed equivalence or an f1 budget.
-   */
-  export function costs(failures: string[]): void {
-    const native: IAutoMovieViewConic.ICurve = ellipse(1, 8).conics;
-    const old: number[] = AutoMovieSplineCurve.interpolate(
-      Array.from({ length: 32 }, (_: unknown, i: number): [number, number] =>
-        ellipsePoint(1, 8, (2 * Math.PI * i) / 32),
-      ),
-    );
-    const observations: Record<string, number>[] = [];
-    let checksum: number = 0;
-    for (const layers of [2, 8, 32, 128]) {
-      const before: number = performance.now();
-      const made: IAutoMovieLoftPhaseSource.ISource | string =
-        AutoMovieLoftPhaseSource.prepare(
-          Array.from({ length: layers }, (_: unknown, i: number): number => i),
-          new Array<IAutoMovieViewConic.ICurve>(layers).fill(native),
-        );
-      const prepared: number = performance.now();
-      if (typeof made === "string") {
-        failures.push(made);
-        continue;
-      }
-      const s: number = 0.37 * (layers - 1);
-      const at: IAutoMovieLoftPhaseSource.IStation =
-        AutoMovieLoftPhaseSource.station(made, s);
-      const station: number = performance.now();
-      const legacy: IAutoMovieLoftChain = chain(old, layers);
-      const samplerStart: number = performance.now();
-      const sample: (phi: number) => [number, number, number] =
-        AutoMovieLoftChain.sampler(legacy, s);
-      const samplerPrepared: number = performance.now();
-      checksum += AutoMovieLoftChain.point(legacy, s, 0.123)[0];
-      const pointPrepared: number = performance.now();
-      checksum += AutoMovieLoftJet.at(legacy, s, 0.123).p[0];
-      const jetPrepared: number = performance.now();
-      for (let i: number = 0; i < 1024; i++)
-        checksum += AutoMovieLoftPhaseSource.point(at, i * 0.071)[0];
-      const point: number = performance.now();
-      for (let i: number = 0; i < 1024; i++)
-        checksum += AutoMovieLoftPhaseSource.jet(at, i * 0.071)[0]![0]!;
-      const jet: number = performance.now();
-      for (let i: number = 0; i < 1024; i++) checksum += sample(i * 0.071)[0];
-      const cubicSampler: number = performance.now();
-      for (let i: number = 0; i < 1024; i++)
-        checksum += AutoMovieLoftChain.point(legacy, s, i * 0.071)[0];
-      const cubicPoint: number = performance.now();
-      for (let i: number = 0; i < 1024; i++)
-        checksum += AutoMovieLoftJet.at(legacy, s, i * 0.071).p[0];
-      const cubicJet: number = performance.now();
-      observations.push({
-        layers,
-        nativePrepareMs: prepared - before,
-        nativeStationMs: station - prepared,
-        legacyChainDataMs: samplerStart - station,
-        legacySamplerPrepareMs: samplerPrepared - samplerStart,
-        legacyColdPointMs: pointPrepared - samplerPrepared,
-        legacyColdJetMs: jetPrepared - pointPrepared,
-        nativePointMs: point - jetPrepared,
-        nativeJetMs: jet - point,
-        legacySamplerMs: cubicSampler - jet,
-        legacyPointMs: cubicPoint - cubicSampler,
-        legacyJetMs: cubicJet - cubicPoint,
-      });
-    }
-    const input: IAutoMovieViewPart = original();
-    const start: number = performance.now();
-    const source: IAutoMovieViewCurves.IResult =
-      AutoMovieViewCurves.create(input);
-    const ready: number = performance.now();
-    for (let i: number = 0; i < 128; i++)
-      checksum += section(source, input, (i + 0.37) / 128).guides[0].value;
-    const directStations: number = performance.now();
-    const nativeDirect: IAutoMovieViewSection.ISection = section(
-      source,
-      input,
-      0.37,
-    );
-    const directPhaseStart: number = performance.now();
-    for (let i: number = 0; i < 1024; i++)
-      checksum += AutoMovieViewSection.radius(nativeDirect, i * 0.071)[0];
-    const directPhaseEnd: number = performance.now();
-    if (!Number.isFinite(checksum))
-      failures.push("phase cost observation produced a nonfinite checksum");
-    console.log({
-      phaseCandidateCosts: observations,
-      phaseDirectCosts: {
-        originalScalarPrepareMs: ready - start,
-        source2JetAndNative128StationsMs: directStations - ready,
-        nativePhase1024Ms: directPhaseEnd - directPhaseStart,
-        nativeStationMixedJet: "not provided",
-        noCache: true,
-      },
-      checksum,
-    });
   }
 }
 
@@ -347,11 +225,6 @@ function ellipseBox(
   ]);
 }
 
-/** One constant symmetric ellipse source for the component cost observation. */
-function ellipse(a: number, b: number): IAutoMovieViewSection.ISection {
-  return ellipseBox([a, b, a, b]);
-}
-
 /** Independent implicit ellipse ray intersection, without candidate interpolation. */
 function ellipsePoint(a: number, b: number, phi: number): [number, number] {
   const radius: number = 1 / Math.hypot(Math.cos(phi) / a, Math.sin(phi) / b);
@@ -376,30 +249,4 @@ function ellipseJet(a: number, b: number, phi: number): number[] {
     (second - r) * c - 2 * first * s,
     (second - r) * s + 2 * first * c,
   ];
-}
-
-/** Legacy coefficient/frame data read through real public consumers in the cost observation. */
-function chain(
-  coefficients: readonly number[],
-  count: number,
-): IAutoMovieLoftChain {
-  return {
-    name: "phase.cost",
-    basis: "spline",
-    order: 32,
-    rule: "polar",
-    samples: 32,
-    layers: Array.from(
-      { length: count },
-      (_: unknown, i: number): IAutoMovieLoftChain.ILayer => ({
-        y: i,
-        coefficients: [...coefficients],
-        slopes: new Array<number>(64).fill(0),
-        curvatures: new Array<number>(64).fill(0),
-        frame: AutoMovieLoftFrame.horizontal(i),
-        frameSlopes: { origin: [0, 1, 0], u: [0, 0, 0], v: [0, 0, 0] },
-        frameCurvatures: { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] },
-      }),
-    ),
-  };
 }

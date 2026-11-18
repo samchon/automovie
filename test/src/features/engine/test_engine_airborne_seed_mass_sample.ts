@@ -336,19 +336,6 @@ export function test_engine_airborne_seed_mass_sample(): void {
     findings.push(
       `reported ${solution.residual.somersault} rev differs from actual full-request miss ${fullMiss}`,
     );
-  console.log(
-    JSON.stringify({
-      sample: "ring-seed-mass",
-      endpointReads,
-      interiorReads,
-      shootingReads,
-      directReads,
-      seedReads,
-      momentum: solution.momentum,
-      windingTurns: winding / (2 * Math.PI),
-      maximumTangentError,
-    }),
-  );
   TestValidator.equals(
     "posed mass reuse and adaptive physical seed",
     findings,

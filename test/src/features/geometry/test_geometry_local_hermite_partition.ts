@@ -480,12 +480,6 @@ export function test_geometry_local_hermite_partition(): void {
           }
           observations.push(record);
         }
-  console.log(
-    JSON.stringify({
-      schema: "generic-local-hermite-translated-face-regression-v1",
-      observations,
-    }),
-  );
   for (const record of observations) {
     TestValidator.predicate(
       "translated Hermite intervals retain complete immutable append-only geometry",

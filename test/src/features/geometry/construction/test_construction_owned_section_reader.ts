@@ -50,11 +50,6 @@ export async function test_construction_owned_section_reader(): Promise<void> {
   ask("original errors", originals, failures);
   try {
     const readings: { phases: number; validations: number }[] = await work();
-    console.log({
-      ownedSectionValidationWork: readings,
-      ceiling: 2,
-      scope: "one public control plus private station; no f1 time/heap claim",
-    });
     if (
       readings.some(
         (reading: { phases: number; validations: number }): boolean =>

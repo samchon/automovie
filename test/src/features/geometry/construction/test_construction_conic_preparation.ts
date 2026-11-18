@@ -51,11 +51,6 @@ export async function test_construction_conic_preparation(): Promise<void> {
   ask("input admission", admission, failures);
   try {
     const counts: number[] = await work();
-    console.log({
-      conicPreparationWork: counts,
-      ceiling: 8,
-      scope: "endpoint calls per field preparation; no wall/heap claim",
-    });
     if (counts.some((count: number): boolean => count > 8))
       failures.push(
         `Endpoint work ${counts.join("/")} exceeds eight own endpoints`,

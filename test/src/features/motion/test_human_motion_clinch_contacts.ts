@@ -89,9 +89,6 @@ export function test_human_motion_clinch_contacts(): void {
             { subject: "a", body: bodies.a },
             { subject: "b", body: bodies.b },
           );
-        console.info(
-          `[clinch tangle] ${cell}: ${(report.worst.value * 1000).toFixed(3)} mm, ${report.worst.where}, ${report.worst.seconds.toFixed(4)} s`,
-        );
         all.check(
           `${cell}: ${report.worst.where} penetrates ${(report.worst.value * 1000).toFixed(2)} mm at ${report.worst.seconds.toFixed(4)} s, at most ${HumanVerdicts.SKIN * 1000} mm expected`,
           report.worst.value <= HumanVerdicts.SKIN,
@@ -116,11 +113,8 @@ export function test_human_motion_clinch_contacts(): void {
             { subject: "a", body: bodies.a },
             { subject: "b", body: bodies.b },
           );
-        console.info(
-          `[clinch declared hold] ${cell}: ${(held.worst.value * 1000).toFixed(3)} mm, ${held.worst.where}, ${(from + held.worst.seconds).toFixed(4)} s; window ${from.toFixed(4)}-${to.toFixed(4)} s`,
-        );
         all.check(
-          `${cell}, declared hold: ${held.worst.where} penetrates ${(held.worst.value * 1000).toFixed(2)} mm at ${(from + held.worst.seconds).toFixed(4)} s, at most ${HumanVerdicts.SKIN * 1000} mm expected`,
+          `${cell}, declared hold (window ${from.toFixed(4)}-${to.toFixed(4)} s): ${held.worst.where} penetrates ${(held.worst.value * 1000).toFixed(2)} mm at ${(from + held.worst.seconds).toFixed(4)} s, at most ${HumanVerdicts.SKIN * 1000} mm expected`,
           held.worst.value <= HumanVerdicts.SKIN,
         );
       } catch (error) {

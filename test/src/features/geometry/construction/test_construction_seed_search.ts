@@ -313,10 +313,6 @@ export function test_construction_seed_search(): void {
     )
       failures.push(`invalid line count accepted: ${phases}`);
   }
-  console.log("seed search authored callback observations", {
-    separated: separatedReads,
-    cold: coldReads,
-  });
   TestValidator.predicate(
     `${failures.length} independent seed-search findings:\n${failures.join("\n")}`,
     (): boolean => failures.length === 0,

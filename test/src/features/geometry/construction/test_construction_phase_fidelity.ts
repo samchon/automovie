@@ -29,7 +29,7 @@ import { nclose } from "../../internal/nclose";
  * 1. Aspects 1,2,4,8,16,32,64, reciprocal orientations and three length scales retain the source/box budgets through candidate native points/jets at and between identical layers; actual ViewLoft point/Jet/surface must satisfy the same convexity/support expectations.
  * 2. The old direct periodic Cartesian cubic remains a negative mathematical witness, not a convexity promise of SplineCurve's interpolation API.
  * 3. A three-layer homothetic ellipse agrees with an independent closed-form natural spline and its station/phase/mixed derivatives; numeric copies preserve the source and invalid inputs fail explicitly.
- * 4. A four-layer circle counterexample demonstrates that native principal preservation does not guarantee positive intermediate radii. Prepared-query cost is reported for L=2,8,32,128 against the existing phase basis without a speed assertion.
+ * 4. A four-layer circle counterexample demonstrates that native principal preservation does not guarantee positive intermediate radii.
  * 5. The actual authored source a(s)=1+s squared,b(s)=2 retains its scalar 2-jet and direct native phase jet, while a second principal interpolation loses0.25 mm at the midpoint. The same original source remains the expectation for final point/Jet/surface consumers.
  * 6. Actual original total2, four native continuation end signs, a tiny mixed complementary weight, cap support derivatives, scalar bridge laws, finite Point0 without physical2, cold copies and held samplers distinguish production ownership and capability boundaries.
  *
@@ -178,7 +178,6 @@ export function test_construction_phase_fidelity(): void {
     failures.push(
       "the old Cartesian cubic mathematical counterexample was not observed",
     );
-  console.log({ phaseLegacyCounterexamples: witness });
   for (const [name, observe] of [
     ["interpolation", (): void => interpolation(failures)],
     [
@@ -198,7 +197,6 @@ export function test_construction_phase_fidelity(): void {
       "source-aware adapters",
       (): void => ConstructionLoftSectionAdapters.observe(failures, part(1, 2)),
     ],
-    ["costs", (): void => ConstructionPhaseSourceComparison.costs(failures)],
   ] as const) {
     try {
       observe();
@@ -418,13 +416,6 @@ function interpolation(failures: string[]): void {
     );
     if (!nclose(point[0], -0.35, 1e-12))
       failures.push(`off-layer natural counterexample lost: ${point[0]}`);
-    console.log({
-      phaseOffLayerCounterexample: {
-        coordinate: 0.5,
-        originalRadii: [1, 1, 10, 1],
-        radius: point[0],
-      },
-    });
   }
 }
 
