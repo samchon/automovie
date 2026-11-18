@@ -98,13 +98,10 @@ export function test_human_motion_prop_dynamics(): void {
       ...crate(80, (): number => net + 0.4 * 80 * g),
       friction: 0.4,
     });
-  if (
-    Math.abs(heavy.at(1).x[1]! - light.at(1).x[1]! / 2) >
-    0.01 * light.at(1).x[1]!
-  )
-    findings.push(
-      `twice the mass reaches ${heavy.at(1).x[1]} for ${light.at(1).x[1]}`,
-    );
+  const lightSpeed: number = light.at(1).x[1]!;
+  const heavySpeed: number = heavy.at(1).x[1]!;
+  if (Math.abs(heavySpeed - lightSpeed / 2) > 0.01 * lightSpeed)
+    findings.push(`twice the mass reaches ${heavySpeed} for ${lightSpeed}`);
   const ramp: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     HumanPropDynamics.slide(crate(40, (t: number): number => 300 * t));
   const crossing: number = threshold / 300;
@@ -120,22 +117,26 @@ export function test_human_motion_prop_dynamics(): void {
     HumanPropDynamics.slide(crate(40, (t: number): number => (t < 1 ? F : 0)));
   const release: number = a * 1;
   const rest: number = a / 2 + (release * release) / (2 * 0.4 * g);
-  if (Math.abs(released.at(2).x[0]! - rest) > 0.01 * rest)
-    findings.push(
-      `a released crate rests at ${released.at(2).x[0]} m, Coulomb ${rest}`,
-    );
-  if (Math.abs(released.at(2).x[1]!) > 1e-3 * release)
-    findings.push(`a stopped crate still moves at ${released.at(2).x[1]}`);
+  const braking: number = 0.4 * g;
   let gone: number = 0;
   for (let k: number = 1; k <= 120; ++k) {
-    const x: number = released.at(k / 60).x[0]!;
-    if (x < gone - 1e-12) {
-      findings.push(`friction drives the crate back at ${k / 60} s`);
-      break;
-    }
-    gone = x;
-  }
+    const t: number = k / 60;
+    const [x, speed]: readonly number[] = released.at(t).x;
+    if (x! < gone - 1e-12)
+      findings.push(`friction drives the crate back at ${t} s`);
+    gone = x!;
 
+    // Constant deceleration after release lasts only until the speed vanishes.
+    if (t > 1) {
+      const elapsed: number = Math.min(t - 1, release / braking);
+      const expected: number = a / 2 + release * elapsed - braking * elapsed ** 2 / 2;
+      if (Math.abs(x! - expected) > 0.01 * expected)
+        findings.push(`coasting at ${t} s gives ${x} m, Coulomb ${expected} m`);
+    }
+    if (k === 120 &&
+        (Math.abs(x! - rest) > 0.01 * rest || Math.abs(speed!) > 1e-3 * release))
+      findings.push(`final crate position ${x} m and speed ${speed} m/s, expected rest at ${rest} m`);
+  }
   // 5. A door.
   const door: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
     HumanPropDynamics.hinge(6, (): number => 3, 0, 2);
