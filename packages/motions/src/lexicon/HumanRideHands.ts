@@ -16,6 +16,7 @@ import type {
 import { seated as seatSocket } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { fixedSeatGripReach } from "./fixedSeatGripReach";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
 
@@ -67,6 +68,7 @@ export namespace HumanRideHands {
     lean: (
       grips: Grips,
       frame: IAutoMovieRigidTransform,
+      heldAt?: number,
     ) => number;
 
     /** What each holding hand holds, where the support has it at a film second in its frame then. */
@@ -109,6 +111,7 @@ export namespace HumanRideHands {
     support: IAutoMovieMotionHumanPropReader,
     seated: IAutoMovieMotionHumanPosture,
     origin: IAutoMovieRigidTransform,
+    take: number,
   ): IHands {
     const handles: Partial<Record<AutoMovieHumanSide, IHandle>> = {};
     for (const side of ["left", "right"] as const) {
@@ -165,6 +168,13 @@ export namespace HumanRideHands {
       points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
     ) => number = HumanMountReach.reach(context.body, seated, holding, bow, fixedSeat ? ROWING : undefined);
 
+    const seat: IAutoMovieAffordance | undefined = fixedSeat && holding.length === 2
+      ? support.prop.affordances?.find((a: IAutoMovieAffordance): boolean => a.id === context.params.seat)
+      : undefined;
+    const check: ReturnType<typeof fixedSeatGripReach> = seat === undefined
+      ? undefined
+      : fixedSeatGripReach(context.body, seated, seat, origin);
+
     // What a hand holds, where the support has it at a film second: the point and its normal, and the axis a handle is wrapped about, its frame's +X, carried with the support.
     const gripAt = (
       { id, rest, affordance }: IHandle,
@@ -200,11 +210,8 @@ export namespace HumanRideHands {
     };
 
     // The lean for what the hands hold at a second: carried back into the frame the rider sat down in, where the circles of `reach` were read.
-    const lean = (
-      grips: Grips,
-      frame: IAutoMovieRigidTransform,
-    ): number => {
-      if (holding.length === 0) return 0;
+    type WristPoints = Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
+    const wristPoints = (grips: Grips, frame: IAutoMovieRigidTransform, heldAt?: number): WristPoints => {
       const back: IAutoMovieQuaternion = Quaternion.multiply(
         origin.rotation,
         Quaternion.inverse(frame.rotation),
@@ -224,8 +231,20 @@ export namespace HumanRideHands {
             }).point
           : point;
       }
-      return reach(points);
+      if (heldAt !== undefined && check !== undefined && seat !== undefined && points.left !== undefined && points.right !== undefined)
+        check(points.left, points.right, support.prop.point === undefined ? undefined : (): IAutoMovieRigidTransform | undefined => {
+          const current: IAutoMovieMotionHumanProp.IPlacedPoint | undefined = support.prop.point!(seat.id, heldAt);
+          if (current?.rotation === undefined) return undefined;
+          return {
+            position: Vector3.add(origin.position, Quaternion.rotateVector(back, Vector3.subtract(current.point, frame.position))),
+            rotation: Quaternion.multiply(back, current.rotation),
+          };
+        });
+      return points;
     };
+
+    const lean = (grips: Grips, frame: IAutoMovieRigidTransform, heldAt?: number): number =>
+      holding.length === 0 ? 0 : reach(wristPoints(grips, frame, heldAt));
 
     // Each grip keeps the side the fingers closed over when taken. A
     // world-forward sign test at every stroke could flip the hand on an oar.
@@ -260,6 +279,11 @@ export namespace HumanRideHands {
         across[side] = handed;
         begun[side] = { ...grip, across: handed };
       }
+    }
+    if (check !== undefined && context.params.seconds >= take) {
+      const heldAt: number = context.start + take;
+      const heldFrame: IAutoMovieRigidTransform = support.frame(heldAt);
+      wristPoints(gripsAt(heldAt, heldFrame), heldFrame, heldAt);
     }
     const set: IAutoMovieMotionHumanPosture = bow(lean(begun, origin));
     for (const side of holding) {
