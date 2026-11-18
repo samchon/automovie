@@ -68,7 +68,7 @@ export namespace staggerStep {
    * @evidence contracts/development/implementation.md#principled-implementation Capture-point stepping (Koolen et al. 2012; Hof 2008): the foot lands its landing point on the extrapolated centre of mass at touch-down, held inside the measured region and, crossing, a sole's length clear of the stance foot; caught once the extrapolated centre of mass is inside the two feet's base.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The shift, the swing, the aim, the region, the crossing, the landing.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The region and the times are the measured bounds; a landing is never moved by the legs' admission, which refuses it instead.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form: a weight shift of `TRANSFER / STEP` held-pressure spans, one swing span, a zero-length touch-down span on both feet, two region clamps and two support hulls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form: one weight-shift span (`staggerTransfer`), one swing span, a zero-length touch-down span on both feet, two region clamps and two support hulls; admitted, at most 3 + log2(1 / `ADAPTED`) landing admissions.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Ball, heel and sole positions are read once from the departing placement and shared by its toe direction, aim and landing point.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends the step and its spans to the pendulum the search owns.
    */

@@ -116,11 +116,6 @@ export namespace handspring {
   const STEP: number = 5;
 
   /**
-
-
-  
-
-  /**
    * Plan a front handspring on the floor.
    *
    * @param context The action's context.
