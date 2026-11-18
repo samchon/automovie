@@ -251,6 +251,16 @@ export function test_human_motion_perturb(): void {
         }
 
         if (size === "fall") {
+          // The physical fall stops at the named down event. The subsequent
+          // lying hold still belongs to the plan but needs no fall judgement.
+          const down: IAutoMovieMotionEvent | undefined = segment.plan.events.find(
+            (event: IAutoMovieMotionEvent): boolean => event.name === "down",
+          );
+          const phase: typeof segment.plan.physicalWindow = segment.plan.physicalWindow;
+          if (down === undefined || phase === undefined ||
+              phase.from !== 0 || Math.abs(phase.to - down.share * segment.plan.duration) > 1e-12 ||
+              !(phase.to < segment.plan.duration))
+            findings.push(`${label}: the fall's judged phase must end at down before the lying hold`);
           // 4. No faster than free fall.
           const seat: IAutoMovieMotionHumanContactWindow | undefined =
             segment.plan.contacts.find(
