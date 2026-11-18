@@ -46,8 +46,9 @@ const OBSERVATIONS: readonly (readonly Observation[])[] = [
  *
  * Give each member's walking action its slot in the returned formation.
  * Plan the supplied frame from the group's centroid and check that the
- * group's full extent clears obstacles along the course, including while
- * turning. The result describes relative slots only.
+ * placed slots clear obstacles along the course, including while turning.
+ * A summed-shoulder-breadth disc can miss an outer slot. The result
+ * describes relative slots only.
  *
  * @param frame The group centre and facing over film time.
  * @param halfBreadths Positive shoulder half breadths in metres, in left-to-right member order.

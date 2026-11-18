@@ -14,13 +14,14 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  * 1. Field geometry changes with group size and density.
  * 2. Wide shoulders preserve the bend while increasing lateral clearance.
- * 3. A translated quarter-turn carries the same ordered slot layout.
+ * 3. A translated quarter-turn carries the same ordered slot layout through off-grid and backward reads.
  * 4. Malformed density, breadth and member counts are refused.
+ * 5. A placed outer slot can reach a footprint beyond the centroid proxy.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the density, membership, shoulder clearance and moving-frame cases covered by the scenario.
  * @evidence contracts/development/testing.md#behavioral-verification Samples public formation slots to catch a lost group member, shared slot, reversed bend, incorrect spacing, shoulder overlap, or a shape fixed in world space.
  * @evidence contracts/development/testing.md#independent-expectations Moussaïd et al. (2010), Table 1 and Fig. 4, supply the field distances and order along travel. Shoulder clearance follows from the sum of widths, and rigid course transport from Euclidean geometry. The midpoint uses the documented interpolation of measured distance and bearing. The test measures slot geometry and leaves locomotion and obstacle clearance to their own specs.
- * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes pairs, trios and groups of four, sparse and moderate densities, the intermediate fit, the upper clamp, large shoulder breadths, a translated quarter-turn, and malformed requests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes pairs, trios and groups of four, sparse and moderate densities, the intermediate fit, the upper clamp, large shoulder breadths, off-grid seeks through a translated quarter-turn, an obstacle outside the summed-shoulder-breadth proxy, and malformed requests.
  * @evidence contracts/development/testing.md#execution-ownership The exported feature test composes a two-sample course in memory and reads only slot points. It builds zero pose or limb plans and needs no host.
  */
 export function test_human_motion_crowd_group_shape(): void {
@@ -158,10 +159,25 @@ export function test_human_motion_crowd_group_shape(): void {
     );
   }
 
-  const four: IAutoMovieVector3[] = points(
-    humanCrowdGroupFormation(frame, narrow, 0.25),
+  const quartet: IAutoMovieMotionHumanFormation = humanCrowdGroupFormation(
+    frame,
+    narrow,
+    0.25,
   );
+  const four: IAutoMovieVector3[] = points(quartet);
   TestValidator.equals("four members remain present", four.length, 4);
+  for (const [i, [spacing, angle]] of [
+    [0.67, 102.3],
+    [0.66, 86],
+    [0.64, 76.6],
+  ].entries()) {
+    near(
+      "quartet measured spacing",
+      distance(four[i]!, four[i + 1]!),
+      spacing!,
+    );
+    near("quartet measured bearing", bearing(four[i]!, four[i + 1]!), angle!);
+  }
   TestValidator.predicate(
     "both inner members trail the outside members",
     Math.max(four[1]!.z, four[2]!.z) < Math.min(four[0]!.z, four[3]!.z),
@@ -192,6 +208,40 @@ export function test_human_motion_crowd_group_shape(): void {
     near("translation and quarter-turn z", moved[i]!.z, 2 - moderate[i]!.x);
     near("course height", moved[i]!.y, 1);
   }
+
+  // Off the frame grid, place all four slots from the known linear centre
+  // and heading. Read the tail first to exercise a seek back into the turn.
+  for (const seconds of [1, 0.531, 0, 0.531]) {
+    const angle: number = (seconds * Math.PI) / 2;
+    const positions: IAutoMovieVector3[] = points(quartet, seconds);
+    for (const [i, local] of four.entries()) {
+      near(
+        "off-grid follower x",
+        positions[i]!.x,
+        4 * seconds + local.x * Math.cos(angle) + local.z * Math.sin(angle),
+      );
+      near(
+        "off-grid follower z",
+        positions[i]!.z,
+        2 * seconds - local.x * Math.sin(angle) + local.z * Math.cos(angle),
+      );
+      near("off-grid follower height", positions[i]!.y, seconds);
+    }
+  }
+
+  // A 10 cm square carriage footprint is beyond the group's 1 m
+  // summed-half-breadth proxy, but within one placed outer shoulder disc.
+  const outer: IAutoMovieVector3 = points(quartet, 1)[0]!;
+  const carriage: IAutoMovieVector3 = { x: outer.x, y: 1, z: outer.z - 0.2 };
+  const gap = (at: IAutoMovieVector3): number =>
+    Math.hypot(
+      Math.max(0, Math.abs(at.x - carriage.x) - 0.05),
+      Math.max(0, Math.abs(at.z - carriage.z) - 0.05),
+    );
+  TestValidator.predicate(
+    "the placed outer shoulder reaches a carriage beyond the group proxy",
+    gap({ x: 4, y: 1, z: 2 }) > 1 && gap(outer) < narrow[0]!,
+  );
 
   TestValidator.error("a singleton cannot form a walking group", (): void => {
     humanCrowdGroupFormation(frame, [0.25], 0.03);
