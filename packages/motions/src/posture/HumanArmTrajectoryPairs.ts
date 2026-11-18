@@ -432,7 +432,7 @@ export namespace HumanArmTrajectoryPairs {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh point, retaining no contact or placement.
    */
   export function pad(
-    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+    placed: ReturnType<typeof G.chain>,
     contact: IAutoMovieVector3,
   ): IAutoMovieVector3 {
     return Vector3.add(

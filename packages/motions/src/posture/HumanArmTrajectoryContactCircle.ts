@@ -10,6 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryDistal } from "./HumanArmTrajectoryDistal";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -55,7 +56,7 @@ export function HumanArmTrajectoryContactCircle(
   const prior: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined = from === undefined ? undefined : G.placed(setup, c.frames[a]![from]!, reference);
   const interval: number = from === undefined ? k : Math.min(from, k);
   const before: ReturnType<typeof G.chain> = G.chain(setup, frame, reference);
-  const contact: IAutoMovieVector3 = Vector3.add(before.wrist, Quaternion.rotateVector(before.hand, site.contact));
+  const contact: IAutoMovieVector3 = P.pad(before, site.contact);
   const hinge: IAutoMovieVector3 = setup.basis(setup.bones.lower, "contact swivel").flexion;
   const flexion: IAutoMovieAxisFrame | undefined = HUMANOID_REST_FRAME[setup.bones.lower]?.flexion;
   const above: IAutoMovieQuaternion = Quaternion.multiply(before.upper, setup.rest.lower.rotation);
@@ -100,8 +101,10 @@ export function HumanArmTrajectoryContactCircle(
     const q: number[] = M.ranged(c, a, G.encode(setup, { ...arm, lower: [branch.angle, arm.lower[1], arm.lower[2]] }));
     if (branch.hand !== undefined)
       HumanArmTrajectoryDistal(setup, G.chain(setup, frame, q).upper, branch.hand, q);
-    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = G.placed(setup, frame, q);
-    if (Vector3.distance(P.pad(placed, site.contact), site.point) > site.disc) return undefined;
+    const chain: ReturnType<typeof G.chain> = G.chain(setup, frame, q);
+    const palm: IAutoMovieVector3 = P.pad(chain, site.contact);
+    if (Vector3.distance(palm, site.point) > site.disc) return undefined;
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = placeHumanArmGeometry(setup, frame, chain, true);
     for (const pair of P.deepest(c, a, k, placed, P.CUT).values())
       if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
     for (const pair of P.embedded(c, a, k, placed, P.CUT).values())
