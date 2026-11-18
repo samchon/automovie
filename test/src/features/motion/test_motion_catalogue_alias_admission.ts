@@ -132,41 +132,39 @@ type Binding = readonly [string, string, string, object];
 
 /** Check both helpers and the supported actor before a performance binds their bodies. */
 function checkSupportRoles(): void {
-  const cast: Parameters<typeof HumanCoupled.supportWalk.act>[2] = {
-    helper: "first",
-    second: "other",
+  const law = HumanCoupled.supportWalk;
+  const cast = {
+    helper: "left escort",
+    second: "right escort",
     helped: "walker",
   };
-  const duration: number = 3;
-  for (const role of ["helper", "second"] as const)
-    TestValidator.equals(
-      role + " supports the walker",
-      HumanCoupled.supportWalk.act(role, { seconds: duration }, cast),
-      {
-        name: "bearing",
-        params: {
-          seconds: duration,
-          carry: role === "helper" ? "supported" : "supportedLeft",
-          of: "walker",
-          beside: role === "helper" ? "other" : "first",
-        },
-      },
-    );
-  TestValidator.equals(
-    "walker follows both helpers",
-    HumanCoupled.supportWalk.act("helped", { seconds: duration }, cast),
+  const expected = [
+    {
+      name: "bearing",
+      params: { carry: "supported", of: cast.helped, beside: cast.second },
+    },
+    {
+      name: "bearing",
+      params: { carry: "supportedLeft", of: cast.helped, beside: cast.helper },
+    },
     {
       name: "borne",
-      params: {
-        seconds: duration,
-        carry: "supported",
-        by: "first",
-        with: "other",
-      },
+      params: { carry: "supported", by: cast.helper, with: cast.second },
     },
+  ];
+  const ordered = ["helper", "second", "helped"] as const;
+  TestValidator.equals(
+    "omitted duration leaves timing to each selected law",
+    ordered.map((role) => law.act(role, {}, cast)),
+    expected,
+  );
+  const seconds = 2;
+  TestValidator.equals(
+    "authored duration reaches all three role-specific bindings",
+    ordered.map((role) => law.act(role, { seconds }, cast)),
+    expected.map((act) => ({ ...act, params: { ...act.params, seconds } })),
   );
 }
-
 /** Check fixed workout kinds against their defining joint and direction on both body sizes. */
 function checkWorkoutRoutes(): void {
   const movements: readonly Movement[] = [
