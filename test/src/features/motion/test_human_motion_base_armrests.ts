@@ -40,13 +40,17 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    leaves (a person rising from a chair with arms pushes on them; the
  *    window's end is the seat-off the rise declares, and no measured hand
  *    timing was read, so the claim is provisional).
- * 4. On the same chair without armrests neither the sit nor the rise
- *    declares a hand window.
+ * 4. On the average man's chair without armrests neither the sit nor the
+ *    rise declares a hand window. One body bounds this negative case: the sit
+ *    and the rise declare a hand's window only when the seat has that hand's
+ *    armrest, a branch on the seat alone that reads no body measure, so the
+ *    small woman's bare chair would take the same branch. Her armrests,
+ *    which her breadth places, stay in scenarios 1 to 3.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the sit and the rise through the public chain and reads the declared windows and the displayed wrists; hands left on the thighs, hovering beside the armrests, let go before the seat leaves, or a bare chair that claims hand supports fails.
  * @evidence contracts/development/testing.md#independent-expectations Where an armrest is comes from the test's own chair, the 15 mm is the campaign's bound and a flat hand's wrist height is anatomy, not the sit's placement constant. Limitation: the palm's own contact is not read, only the wrist over it.
- * @evidence contracts/development/testing.md#distinguishing-cases A chair with armrests against the same chair without, sitting down and getting up, on two bodies of opposite build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds two short performances each in memory, reading two instants: both builds, since the armrests are set by each body's breadth.
+ * @evidence contracts/development/testing.md#distinguishing-cases A chair with armrests against the same chair without, sitting down and getting up; the armrests on two bodies of opposite build, the bare chair on one, since its branch reads only the seat.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds three short performances in memory, reading two instants: the armrests on both builds, since they are set by each body's breadth.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds and sources.
  */
 export function test_human_motion_base_armrests(): void {
@@ -106,18 +110,21 @@ export function test_human_motion_base_armrests(): void {
         (e: { name: string }): boolean => e.name === named,
       )?.share ?? 1;
     try {
-      // 4. No armrest, no hand support.
-      const plain: readonly IAutoMovieMotionHumanSegment[] =
-        perform(bare).segments("a");
-      for (const [what, segment] of [
-        ["sitting down", plain[0]!],
-        ["getting up", plain[1]!],
-      ] as const) {
-        const any: string[] = hands(segment, 1, 0);
-        if (any.length !== 0)
-          complaints.push(
-            `${name} ${what} on a chair without armrests declares ${any.join(", ")} bearing, none expected`,
-          );
+      // 4. No armrest, no hand support: a branch on the seat alone, read on
+      // one body.
+      if (name === "m-average") {
+        const plain: readonly IAutoMovieMotionHumanSegment[] =
+          perform(bare).segments("a");
+        for (const [what, segment] of [
+          ["sitting down", plain[0]!],
+          ["getting up", plain[1]!],
+        ] as const) {
+          const any: string[] = hands(segment, 1, 0);
+          if (any.length !== 0)
+            complaints.push(
+              `${name} ${what} on a chair without armrests declares ${any.join(", ")} bearing, none expected`,
+            );
+        }
       }
 
       // 1 to 3. A hand on each armrest sitting down and pushing on it getting up.
