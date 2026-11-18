@@ -27,14 +27,9 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * allow: a full squat with flat heels leaves the thigh past the hip's range
  * at the crouching ankle, so it asks for `heels: "up"`.
  *
- * The trunk's forward inclination is found by bisection at every eighth of
- * the descent, and by a secant search from those between them, so that the
- * whole-body centre of mass keeps a straight course over the soles, with no
- * speed to carry it off them: it stays where it stands with the heels flat,
- * or as near to that as the lumbar range brings it at the lowest pose, and
- * reaches the middle of the forefoot the body will stand on
- * (`HumanBalance.offset`, the base of support `HumanFoot.base`) by the time
- * the heels rise.
+ * The trunk inclines on the authored path from measured squat postures.
+ * An optional balance correction rotates only the specified trunk subtree
+ * to the nearest boundary of the actual supporting sole area.
  * The inclination is shared by
  * the lumbopelvic rhythm: the pelvis tilts about the hips as far as the
  * folded thighs leave the hip room and the spine flexes for the rest, the

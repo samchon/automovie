@@ -1,16 +1,19 @@
+import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -26,6 +29,9 @@ import { braceOnThighPoint } from "./braceOnThighPoint";
  * @param rest The arm's angles at weight 0.
  * @param duration The action's duration, seconds; the arm is written over all of it.
  * @param weight How far the palm is on the thigh at a second, in [0, 1].
+ * @param span The reach, hold and return instants, when the caller has them.
+ * @param group The other arm on the same body.
+ * @param apart Whether the grouped arms remain on their own sides.
  * @returns The primitive, on the arm's channel.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the place and its owner, the frame it rides and the weight.
@@ -38,15 +44,20 @@ import { braceOnThighPoint } from "./braceOnThighPoint";
  */
 export function braceOnThigh(
   body: IAutoMovieMotionHumanBody,
-  side: "left" | "right",
+  side: AutoMovieHumanSide,
   rest: IAutoMovieMotionHumanArmAngles.IAngles,
   duration: number,
   weight: (seconds: number) => number,
+  span?: IAutoMovieMotionHumanArmPlanned.ISpan,
+  group?: IAutoMovieMotionHumanArmPlanned.ITogether,
+  apart: boolean = true,
 ): IAutoMovieMotionHumanPrimitive {
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
     `${side}UpperLeg`, `${side}LowerLeg`, `${side}UpperArm`,
   ]);
   const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
+  const site: ReturnType<typeof braceOnThighPoint> = braceOnThighPoint(body, side);
+  const palm = AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, side, "palm", "flat");
   return AutoMovieMotionHumanArm.carried({
     body,
     side,
@@ -54,6 +65,8 @@ export function braceOnThigh(
     to: duration,
     rest,
     weight,
+    ...(span === undefined ? {} : { span, on: `${side}UpperLeg` }),
+    ...(group === undefined ? {} : apart ? { beside: group } : { together: group }),
     goal: (
       posture: IAutoMovieMotionHumanPosture,
       _seconds: number,
@@ -64,25 +77,16 @@ export function braceOnThigh(
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
         body, posture, undefined, {}, resolution, requested, projection,
       ).pose;
-      const brace: { point: IAutoMovieVector3; normal: IAutoMovieVector3; forward: IAutoMovieVector3 } =
-        braceOnThighPoint(body, side, readLeg(pose, resolution()));
-      return AutoMovieMotionHumanArm.goal(
-        body,
-        side,
-        AutoMovieMotionHumanTarget.hand(
-          body,
-          posture,
-          side,
-          { point: brace.point, normal: brace.normal },
-          {
-            // An open hand: the palm and the straight fingers and thumb lie on
-            // the thigh, where the relaxed cascade curled them into it.
-            surface: "palm",
-            shape: "flat",
-            forward: brace.forward,
-          },
+      const brace: ReturnType<typeof site> = site(readLeg(pose, resolution()));
+      return palm({
+        point: brace.point,
+        rotation: brace.rotation,
+        bend: Vector3.addScaled(
+          AutoMovieMotionHumanBend.hang(body, posture, side),
+          brace.normal,
+          body.measure.forearmRadius,
         ),
-      );
+      });
     },
   });
 }

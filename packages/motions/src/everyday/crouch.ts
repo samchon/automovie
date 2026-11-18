@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCrouch,
   IAutoMovieMotionHumanFoot,
@@ -37,12 +40,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
 import { braceOnThigh } from "./braceOnThigh";
-import { prepareCrouchInclination } from "./prepareCrouchInclination";
+import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
 /**
  * A crouch or a squat held in place: the hips sink over the planted feet to
- * a knee flexion the depth names, the trunk inclines until the centre of
- * mass is back over the feet, the hands come to rest on the thighs above the
+ * a knee flexion the depth names, the trunk inclines over the feet, the
+ * hands come to rest on the thighs above the
  * knees, the body holds, then stands again.
  *
  * The depth is a knee flexion, not a height, so one depth fits every body:
@@ -65,16 +68,11 @@ import { prepareCrouchInclination } from "./prepareCrouchInclination";
  * allow: a full squat with flat heels leaves the thigh past the hip's range
  * at the crouching ankle, so it asks for `heels: "up"`.
  *
- * With the balance option (`IAutoMovieMotionHumanBalance`; off by
- * default, when the trunk keeps the inclination it stands with and no centre
- * of mass is read) the trunk's forward inclination is found by bisection at every eighth of
- * the descent, and by a secant search from those between them, so that the
- * whole-body centre of mass keeps a straight course over the soles, with no
- * speed to carry it off them: it stays where it stands with the heels flat,
- * or as near to that as the lumbar range brings it at the lowest pose, and
- * reaches the middle of the forefoot the body will stand on
- * (`HumanBalance.offset`, the base of support `HumanFoot.base`) by the time
- * the heels rise.
+ * The trunk inclines to the squat's measured key (`INCLINE`) by the same
+ * share as the legs. When the caller opts into balance, the lumbar joint
+ * turns the trunk by the nearest angle that brings the centre of mass over
+ * the measured soles. One rigid rotation describes the changed mass points.
+ * See Hof, Gazendam and Sinke (2005) for the static support criterion.
  * The inclination is shared by
  * the lumbopelvic rhythm: the pelvis tilts about the hips as far as the
  * folded thighs leave the hip room and the spine flexes for the rest, the
@@ -134,14 +132,31 @@ export namespace crouch {
     full: 150,
   };
 
+  /**
+   * Forward inclination at the lowest pose, degrees from standing. The
+   * parallel squat takes the measured 34.7° mean at 107.2° knee flexion
+   * (Kasahara et al. 2024, doi:10.5114/jhk/183066). The deep squat takes the
+   * 33.2° and 32.6° bilateral means of the C7–L5 segment (Endo, Miura and
+   * Sakamoto 2020, Table 1, doi:10.1589/jpts.32.391), used as a key for the
+   * rig's deeper heels-up squat.
+   */
+  const INCLINE: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
+    partial: 34.7,
+    full: (33.2 + 32.6) / 2,
+  };
+
   /** The ankle's dorsiflexion in a crouch, degrees: `bendLower.ANKLE`, the most measured while crouching (Hyodo et al. 2017). */
   export const ANKLE: number = bendLower.ANKLE;
 
   /** The heel lift of `heels: "up"`, degrees about the toes' joint: the bend law's squat lift (`bendLower.HEEL.squat`, no source found). */
   export const HEEL: number = bendLower.HEEL.squat;
 
-  /** Shares of the descent at which the balancing inclination is solved. A numerical setting: eighths, so the solved course has a node about every 19 degrees of a full squat's knee, between which the secant search fills in. */
-  export const SHARES: number = 8;
+  /** Kasahara et al. (2024) observed the trunk's inclination peaking near the deepest posture. Use the trunk alone while the low pose is held. */
+  export const balance: IAutoMovieMotionHumanBalance = {
+    by: "trunk",
+    from: { event: "lowest" },
+    to: { event: "ascend" },
+  };
 
   /**
    * Descent seconds by depth for a `REFERENCE_HIP` hip height: a partial
@@ -168,12 +183,12 @@ export namespace crouch {
    * @throws {HumanRefusal} When the hold is negative, or the depth leaves the hip's flexion range no room with the heels asked for.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the plan and both refusals; the namespace gives the law.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip's place follows from the knee flexion and the shank's tilt by the leg's two lengths, the pitch from a bisection on the centre of mass over the soles.
+   * @evidence contracts/development/implementation.md#principled-implementation The hip's place follows from the knee flexion and the shank's tilt by the leg's two lengths. The pitch comes from the depth's measured key unless balance is requested.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock, a standing base, one body row and two arm rows.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An infeasible depth throws with the feasible knee flexion instead of being clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The inclination takes 12 bisection steps at each of `SHARES` shares at plan time; each posture costs at most six secant lowerings and one arm solve per side. The descent and rise envelope is prepared once from the clock.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The mass-name demand and the solved shares are prepared once per plan. Each share's foot placements, moved root and pelvis cap are fixed once for that share, and every inclination tried on it tips the trunk and solves the legs afresh. Planning and each posture read keep their own FK and ROM workspaces.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the solved inclinations, the body and the base until it is released; planning and per-posture workspaces end with their own call.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The default path reads a scalar inclination and the laid arm trajectories. Active balance places the current segment masses once and solves their lumbar arc without repeated pose trials.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named window, clock, arm trajectories and bone demand are prepared once where they apply. A posture's leg geometry and exact FK workspace belong to that query.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources There is no per-second pose history. The plan retains the balance window and required body metadata until release.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrouch.IParams>,
@@ -228,6 +243,17 @@ export namespace crouch {
       { holds: ["lowest"] },
     );
     const duration: number = clock.duration;
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      context.params, crouch, context.start, { duration, events: clock.events() }, context.instant,
+    );
+    if (window !== null && window.by !== "trunk")
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "balance.by",
+        value: window.by,
+        reason: "a crouch corrects its centre through the lumbar joint above its planted legs",
+        fix: "give trunk for balance.by",
+      });
     const base: IAutoMovieMotionHumanActionPlan = stand.plan({
       ...context,
       params: { seconds: duration },
@@ -391,19 +417,12 @@ export namespace crouch {
           inclined.pitch,
           0,
         );
+        const toes: readonly [number, number, number] = [heel === 0 ? 0 : lift(s), 0, 0];
         return resolveHumanPosture.lower(
           body,
           {
             ...tipped,
-            joints: {
-              ...tipped.joints,
-              ...(heel === 0
-                ? {}
-                : {
-                    leftToes: [lift(s), 0, 0] as const,
-                    rightToes: [lift(s), 0, 0] as const,
-                  }),
-            },
+            joints: heel === 0 ? tipped.joints : { ...tipped.joints, leftToes: toes, rightToes: [...toes] },
             limbs: feet(tipped, placed),
           },
           undefined,
@@ -412,37 +431,15 @@ export namespace crouch {
       };
     }
 
-    // The inclination that keeps the centre of mass over the soles, solved
-    // at each of `SHARES` shares of the descent and read linearly between
-    // them, so the body is balanced on the way down and not only at the
-    // bottom. The most is what the lumbar spine's range allows when the
-    // pelvis takes none.
+    // The measured key applies as far as the lumbar spine can incline
+    // when the pelvis has no room for another turn.
     const most: number =
       ((AutoMovieMotionHumanRange.limit("spine", "flexion") ?? 0) *
         (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)) /
       HumanTrunk.RHYTHM.lumbar;
-    // The centre keeps a straight course along the heading, read in the
-    // world so the course does not turn where the base does, and has no
-    // speed to carry it off the soles: with the heels flat it stays where it
-    // stands, or as near to that as the most inclination brings it at the
-    // lowest pose; with the heels rising it reaches the middle of the
-    // forefoot (`HumanBalance.offset`) by the share the heels leave the
-    // floor at, and stays over it. That course is the balance option's
-    // (`IAutoMovieMotionHumanBalance`); without it no centre of mass
-    // is read and the trunk keeps the upright inclination it stands with.
-    const inclination: ReturnType<typeof prepareCrouchInclination> =
-      !HumanPhysics.balanced(context.params)
-        ? (): number => 0
-        : prepareCrouchInclination({
-        body,
-        forward,
-        most,
-        flat: heel === 0,
-        rises: heel === 0 ? 1 : dorsiflexion / shankTilt,
-        shares: SHARES,
-        posture: (s: number): ReturnType<typeof atShare> =>
-          atShare(standing, s),
-      });
+    const key: number = Math.min(most, INCLINE[depth]);
+    type Correction = ReturnType<typeof prepareHumanTrunkBalance> | undefined;
+    let correct: Correction;
 
     const sink: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -459,27 +456,35 @@ export namespace crouch {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         const s: number = share(seconds);
-        const q: number = inclination(s, read, projection);
-        return atShare(posture, s)(q, read);
+        const placed: IAutoMovieMotionHumanPosture = atShare(posture, s)(key * s, read);
+        const weight: number = HumanPhysics.weightAt(window, seconds);
+        return weight === 0 ? placed : (correct ??= prepareHumanTrunkBalance(body))(placed, weight, read, projection);
       },
     };
-    const rest: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+    const armSpan: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: clock.at("descend"),
+      ready: clock.at("lowest"),
+      relax: clock.at("ascend"),
+      end: duration,
+    };
+    const arms: IAutoMovieMotionHumanArmPlanned.ITogether = AutoMovieMotionHumanArm.together();
+    const rest = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,
         side,
         AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         duration,
         share,
+        armSpan,
+        arms,
       );
 
     // The hands open onto the thighs as the palms come to them: an open
     // hand lies on the thigh where the standing hand's curled thumb and
     // fingers went into it.
-    const open: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive =>
+    const open = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
       AutoMovieMotionHumanHand.shape({ side, shape: "flat", from: 0, to: duration, weight: share });
 
-    // The crouch rises again at its end, so it leaves the body standing
-    // (#3363: a base transition declares the base it ends in).
     return {
       ...composeAutoMovieMotionHumanAction({
         base,
@@ -487,6 +492,7 @@ export namespace crouch {
         contact: "lowest",
         primitives: [sink, rest("left"), rest("right"), open("left"), open("right")],
       }),
+      balanceWindow: window,
       base: { kind: "standing" },
     };
   }
