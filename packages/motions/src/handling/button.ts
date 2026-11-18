@@ -222,7 +222,7 @@ function plan(
     clock.duration,
   );
   const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
-    AutoMovieMotionHumanArm.together();
+    AutoMovieMotionHumanArm.together(context.handover, true, tempo);
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base,
@@ -273,7 +273,7 @@ function part(
   return result;
 }
 
-/** Use the shared arm planner to put the unflexed fingertip at the site; the digit corrects the remaining millimetres over the stroke. */
+/** The arm seeds a flexed fingertip; the independent digit fit closes the remaining contact error. */
 function fingers(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanButton>,
   clock: IAutoMovieMotionClock,
@@ -293,7 +293,7 @@ function fingers(
     body,
     side,
     `${digit}Tip`,
-    "flat",
+    "relaxed",
   ).point;
   const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, offset);
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -306,8 +306,13 @@ function fingers(
   const relax: number = clock.at("strokeEnd");
   const key: AutoMovieHumanDigit = `${side}${digit === "thumb" ? "Thumb" : "Index"}`;
   const shape: ReturnType<typeof manipulateShape> = manipulateShape(
+    body,
     side,
     digit,
+    Vector3.subtract(first.point, lever),
+    rotation,
+    first.point,
+    first.normal,
   );
   const weight = (seconds: number): number =>
     clock.envelope(["start", "ready"], ["relax", "end"], seconds);
@@ -320,7 +325,9 @@ function fingers(
       to: clock.duration,
       span: { start: 0, ready, relax, end: clock.duration },
       rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-      disc: 0,
+      // The finger solves the exact site after wrist placement. Allow the
+      // wrist proxy the keyed-contact tolerance while the arm stays clear.
+      disc: 0.002,
       weight,
       goal: (
         _posture: IAutoMovieMotionHumanPosture,
@@ -344,12 +351,12 @@ function fingers(
           ...posture.joints,
         };
         const share: number = weight(seconds);
-        for (const bone of Object.keys(shape) as AutoMovieHumanoidBone[])
+        for (const bone of Object.keys(shape.joints) as AutoMovieHumanoidBone[])
           joints[bone] = blendHumanJoint(
             body,
             bone,
             joints[bone] ?? [0, 0, 0],
-            shape[bone]!,
+            shape.joints[bone]!,
             share,
           );
         if (seconds < ready || seconds > relax) return { ...posture, joints };
@@ -359,7 +366,13 @@ function fingers(
           joints,
           digits: {
             ...posture.digits,
-            [key]: { point: now.point, normal: now.normal, surface: "tip" },
+            ...shape.avoid,
+            [key]: {
+              point: now.point,
+              normal: now.normal,
+              surface: "tip",
+              contact: true,
+            },
           },
         };
       },
