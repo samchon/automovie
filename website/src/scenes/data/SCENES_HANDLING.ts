@@ -3,7 +3,13 @@ import { SceneBuild } from "./SceneBuild";
 
 const { act, counter, object, person, scene }: typeof SceneBuild = SceneBuild;
 
-/** Public lexicon rows applied to their actual supports and props: a low-table scramble, keyed typing and an already held mug moved from its handle grip to its body grip. */
+/** The lower end of the call button's travel band, in metres. */
+const BUTTON_TRAVEL: number = 0.001;
+
+/** Mount the wall controls at the lower end of the switch mounting band. */
+const CONTROL_HEIGHT: number = 1.065;
+
+/** Everyday handling with reachable supports, controls, grips and receptacles. */
 export const SCENES_HANDLING: readonly IScene[] = [
   scene(
     {
@@ -14,7 +20,6 @@ export const SCENES_HANDLING: readonly IScene[] = [
       setting: "gym",
       roles: { ath: "athlete" },
       needs: [],
-      refusedUntil: 3573,
       view: "side",
     },
     "low-table-scramble",
@@ -85,5 +90,98 @@ export const SCENES_HANDLING: readonly IScene[] = [
       ]),
     ],
     counter("counter", "mug", "createDrinkware", "mug", 0, 0),
+  ),
+  scene(
+    {
+      id: "entry-gate",
+      title: "At the entry gate",
+      summary: "An attendant presses the entry control beside a turnstile.",
+      setting: "everyday",
+      roles: { attendant: "attendant" },
+      needs: [],
+    },
+    "entry-gate",
+    [
+      person("attendant", "f1", 0, 0, 0, [
+        act("openGate", {
+          mechanism: {
+            kind: "button",
+            at: { kind: "prop", subject: "control", point: "press" },
+            travel: BUTTON_TRAVEL,
+          },
+        }),
+      ]),
+    ],
+    [
+      object("control", "createSwitch", "button", 0, 0.35, 180, 0, {
+        height: CONTROL_HEIGHT,
+      }),
+      object("turnstile", "createGate", "turnstile", 1, 0.35),
+    ],
+  ),
+  scene(
+    {
+      id: "drop-test",
+      title: "Photographing a drop test",
+      summary:
+        "One student presses the camera release while a partner picks up a remote control and lets it fall back onto the counter.",
+      setting: "everyday",
+      roles: { photographer: "photographer", partner: "partner" },
+      needs: [],
+    },
+    "drop-test",
+    [
+      person("photographer", "m1", 0, 0, 0, [
+        act("pressRelease", {
+          mechanism: {
+            kind: "button",
+            at: { kind: "prop", subject: "shutter", point: "press" },
+            travel: BUTTON_TRAVEL,
+          },
+        }),
+      ]),
+      person("partner", "f1", 0, 2, 0, [
+        act("seize", { prop: "sample" }),
+        act(
+          "stand",
+          {},
+          {
+            over: [act("loose", { prop: "sample", hand: "right" })],
+          },
+        ),
+      ]),
+    ],
+    [
+      ...counter("camera-counter", "camera", "createDevice", "camera", 0, 0),
+      object("shutter", "createSwitch", "button", 0, 0.35, 180, 0, {
+        height: CONTROL_HEIGHT,
+      }),
+      ...counter("sample-counter", "sample", "createDevice", "remote", 0, 2),
+    ],
+  ),
+  scene(
+    {
+      id: "sorting-recycling",
+      title: "Sorting recycling",
+      summary:
+        "A volunteer picks up an empty water bottle from the sorting counter and tosses it into the collection basket.",
+      setting: "everyday",
+      roles: { volunteer: "volunteer" },
+      needs: [],
+    },
+    "sorting-recycling",
+    [
+      person("volunteer", "f1", 0, 0, 0, [
+        act("pickUp", { prop: "bottle", handle: "body" }),
+        act("hurlBottle", {
+          prop: "bottle",
+          at: { kind: "prop", subject: "basket", point: "inside" },
+        }),
+      ]),
+    ],
+    [
+      ...counter("counter", "bottle", "createDrinkware", "waterBottle", 0, 0),
+      object("basket", "createTray", "basket", 0, 1),
+    ],
   ),
 ];

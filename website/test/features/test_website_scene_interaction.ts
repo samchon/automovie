@@ -1,5 +1,7 @@
+import { createTable } from "@automovie/archetypes/furniture";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import type { IPlaygroundRefusal } from "../../src/playground/structures/IPlaygroundRefusal";
 import { SCENE_FPS } from "../../src/scenes/SCENE_FPS";
 import { SceneFacts } from "../../src/scenes/SceneFacts";
@@ -18,12 +20,9 @@ import type { ITake } from "../../src/takes/structures/ITake";
  *
  * Scenarios:
  * 1. Each scene has its installed action or registered row, composition and
- *    standard takes. All eleven original inputs run through TakeCompute at
- *    the website's actual scene rate; ten return tracks.
- * 2. The low-table scramble remains marked refused until #3573 and returns
- *    the actual reach refusal on stances: the left hand misses at lift1 by
- *    more than the unchanged 10 mm contact bound. A returned track fails so
- *    a fixed SDK requires removal of the stale refusal metadata.
+ *    standard takes. Each original input must yield a track at the website rate.
+ * 2. Both ankles move from below the coffee tabletop to just above it.
+ *    Raising the table by the figure's stature must produce a stance refusal.
  * 3. Every successful timeline includes the scene's named actions or rows;
  *    release remains an overlay after the mug is picked up. Each successful
  *    take changes a displayed placement, and the stuck sled's frame stays
@@ -32,11 +31,11 @@ import type { ITake } from "../../src/takes/structures/ITake";
  * This is an admission and wiring check, not a continuous no-slip or force
  * accuracy certificate. The motions package owns those physical bounds.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three scenarios, the original-take scope, the tracked SDK refusal and the track's quantization limit.
- * @evidence contracts/development/testing.md#behavioral-verification Runs all eleven inputs through the real take worker at the scene consumer's SCENE_FPS. Ten must return their actual timelines and displayed placements; the unchanged low-table input must return its specific public reach refusal, and an arbitrary error or stale refusal mark fails.
- * @evidence contracts/development/testing.md#independent-expectations The required public actions and rows, authored fixed sled point, 1 mm track unit and unchanged 10 mm contact bound are expectations. The narrow refusal contract is the observed SDK boundary tracked by #3573, not a proof that the movement is physically impossible; no producer snapshot supplies expected placements.
+ * @evidence contracts/development/common.md#meaningful-documentation States the original-take scope, contact and quantization limits.
+ * @evidence contracts/development/testing.md#behavioral-verification Computes the original inputs, reads their timelines and placements, then raises the scramble support beyond reach and checks the public refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The tabletop affordance height, 10 mm stance bound, registered actions and fixed sled position supply independent expectations.
  * @evidence contracts/development/testing.md#distinguishing-cases A support sequence, a stationary two-handle press, a held-prop release overlay, a nonzero impulse reaction, a raised-support row, keyed typing, an already held mug's grip change, and upper-body pointing, gesture, rest, touch, face, dress and tool rows exercise distinct input requirements.
- * @evidence contracts/development/testing.md#execution-ownership Runs eleven original inputs in memory through the website's discovered test entry, requiring ten tracks and one precise current SDK refusal; it launches no worker, viewer or browser.
+ * @evidence contracts/development/testing.md#execution-ownership Runs the take computation in memory through the website's test entry.
  */
 export function test_website_scene_interaction(): void {
   const required: Readonly<Record<string, readonly string[]>> = {
@@ -47,6 +46,9 @@ export function test_website_scene_interaction(): void {
     "low-table-scramble": ["scramble"],
     "typing-at-the-counter": ["type"],
     "changing-a-mug-grip": ["regrip"],
+    "entry-gate": ["openGate"],
+    "drop-test": ["pressRelease", "seize", "loose"],
+    "sorting-recycling": ["pickUp", "hurlBottle"],
     "upper-explanation": ["pointAt", "gestureNod", "restSide"],
     "upper-bench-break": ["touchTap", "faceWipeMouth"],
     "upper-hat": ["dressHat"],
@@ -68,13 +70,10 @@ export function test_website_scene_interaction(): void {
   for (const scene of scenes) {
     const actions: readonly string[] | undefined = required[scene.id];
     const status: SceneStatus.Status = SceneStatus.of(scene);
-    const knownRefusal: boolean = scene.id === "low-table-scramble";
     if (
       actions === undefined ||
       scene.composition === null ||
-      (knownRefusal
-        ? status.kind !== "refused" || status.until !== 3573
-        : status.kind !== "plays") ||
+      status.kind !== "plays" ||
       !actions.every((action: string): boolean =>
         SceneFacts.actions(scene).includes(action),
       ) ||
@@ -111,33 +110,12 @@ export function test_website_scene_interaction(): void {
         elapsedMs: performance.now() - started,
       }),
     );
-    if (knownRefusal) {
-      if ("track" in made)
-        findings.push(
-          `${scene.id}: the SDK now computes the take; remove the stale #3573 refusal mark`,
-        );
-      else if (
-        made.kind !== "reach" ||
-        made.performer !== "ath" ||
-        made.act !== "scramble" ||
-        made.instance !== 1 ||
-        made.axis !== "stances" ||
-        typeof made.value !== "number" ||
-        !Number.isFinite(made.value) ||
-        made.value <= 10 ||
-        !made.message.includes("leftHand") ||
-        !made.message.includes("lift1") ||
-        !made.message.includes("10 mm")
-      )
-        findings.push(
-          `${scene.id}: the refusal differs from the SDK contact failure tracked by #3573: ${made.message}`,
-        );
-      continue;
-    }
     if (!("track" in made)) {
       findings.push(`${scene.id}: ${made.kind} refusal: ${made.message}`);
       continue;
     }
+    if (scene.id === "low-table-scramble")
+      checkScramble(scene.composition, made, findings);
 
     const spans: ITake["timeline"]["tracks"][number]["spans"] =
       made.timeline.tracks.flatMap(
@@ -149,7 +127,8 @@ export function test_website_scene_interaction(): void {
       if (
         !spans.some(
           (span: (typeof spans)[number]): boolean =>
-            span.name === action && span.overlay === (action === "release"),
+            span.name === action &&
+            span.overlay === (action === "release" || action === "loose"),
         )
       )
         findings.push(
@@ -192,8 +171,75 @@ export function test_website_scene_interaction(): void {
   }
 
   TestValidator.equals(
-    "the scenes compute their actions or surface their tracked SDK refusal",
+    "the scenes play their actions and reject unreachable supports",
     findings,
     [],
   );
+}
+
+function checkScramble(
+  composition: IPlaygroundComposition,
+  take: ITake,
+  findings: string[],
+): void {
+  const first: SceneTrack.IPlacement[] = SceneTrack.sample(take.track, 0)[0]!;
+  const last: SceneTrack.IPlacement[] = SceneTrack.sample(
+    take.track,
+    take.duration,
+  )[0]!;
+  const tabletop: number = createTable({ kind: "coffee" }).affordance("top")
+    .frame.translation.y;
+  const contactMillimetres: number = 10;
+  function height(p: SceneTrack.IPlacement): number {
+    const m: number[] = take.reflection;
+    return (
+      p.position[0] * m[1]! +
+      p.position[1] * m[5]! +
+      p.position[2] * m[9]! +
+      m[13]!
+    );
+  }
+  for (const foot of ["leftFoot", "rightFoot"]) {
+    const index: number = first.findIndex(
+      (p: SceneTrack.IPlacement): boolean => p.bone === foot,
+    );
+    if (index < 0) {
+      findings.push(`low-table-scramble: missing ${foot}`);
+      continue;
+    }
+    // These are ankle joints. Their heights over the sole vary with foot pitch.
+    const floorClearance: number = height(first[index]!);
+    const tableClearance: number = height(last[index]!) - tabletop;
+    if (
+      floorClearance >= tabletop ||
+      tableClearance < 0 ||
+      tableClearance > floorClearance + contactMillimetres / 1000
+    )
+      findings.push(`low-table-scramble: ${foot} did not reach the tabletop`);
+  }
+  const raised: IPlaygroundComposition = structuredClone(composition);
+  const support: IPlaygroundComposition.IObject | undefined =
+    raised.objects?.find(
+      (o: IPlaygroundComposition.IObject): boolean => o.subject === "table",
+    );
+  if (support === undefined) throw new Error("The scramble needs its table.");
+  const heights: number[] = first.map(height);
+  support.y = Math.max(...heights) - Math.min(...heights);
+  const refusal: ITake | IPlaygroundRefusal = TakeCompute.take(
+    raised,
+    SCENE_FPS,
+  );
+  if (
+    "track" in refusal ||
+    refusal.kind !== "reach" ||
+    refusal.act !== "scramble" ||
+    refusal.performer !== "ath" ||
+    refusal.axis !== "stances" ||
+    typeof refusal.value !== "number" ||
+    !Number.isFinite(refusal.value) ||
+    refusal.value <= contactMillimetres
+  )
+    findings.push(
+      "A table above the athlete's reach must report the missed stance contact.",
+    );
 }
