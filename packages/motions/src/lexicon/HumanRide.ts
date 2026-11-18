@@ -198,7 +198,7 @@ export namespace HumanRide {
         }
 
         // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
-        const { lean, gripsAt, closures, bow }: HumanRideHands.IHands =
+        const { posture, gripsAt, closures }: HumanRideHands.IHands =
           HumanRideHands.of(context, on, support, seated, origin, TAKE);
         const saddle: string | undefined = context.params.seat;
         if (saddle !== undefined && support.prop.points[saddle] === undefined)
@@ -257,7 +257,7 @@ export namespace HumanRide {
             const now: IAutoMovieRigidTransform = support.frame(film);
             const taken: number = minimumJerk(Math.min(1, at / TAKE)).s;
             const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(film, now);
-            const leant: IAutoMovieMotionHumanPosture = bow(lean(grips, now, taken === 1 ? film : undefined) * taken);
+            const leant: IAutoMovieMotionHumanPosture = posture(grips, now, taken, taken === 1 ? film : undefined);
             const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(
               leant,
               origin,

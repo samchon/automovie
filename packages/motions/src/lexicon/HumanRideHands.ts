@@ -16,6 +16,7 @@ import type {
 import { seated as seatSocket } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
 import { fixedSeatGripReach } from "./fixedSeatGripReach";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
@@ -65,11 +66,7 @@ export namespace HumanRideHands {
      * frame then, degrees: the grips are followed as they move, as a rower
      * leans to the catch the oar's handle comes to (`HumanMountReach.reach`).
      */
-    lean: (
-      grips: Grips,
-      frame: IAutoMovieRigidTransform,
-      heldAt?: number,
-    ) => number;
+    posture(grips: Grips, frame: IAutoMovieRigidTransform, taken: number, heldAt?: number): IAutoMovieMotionHumanPosture;
 
     /** What each holding hand holds, where the support has it at a film second in its frame then. */
     gripsAt: (
@@ -82,8 +79,6 @@ export namespace HumanRideHands {
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
     >;
 
-    /** Turn the original posture about its seat socket by this many degrees. */
-    bow: (degrees: number) => IAutoMovieMotionHumanPosture;
   }
 
   /**
@@ -280,10 +275,25 @@ export namespace HumanRideHands {
         begun[side] = { ...grip, across: handed };
       }
     }
-    if (check !== undefined && context.params.seconds >= take) {
+    let working: ReturnType<typeof fixedSeatGripPosture>;
+    if (check !== undefined && seat !== undefined && context.params.seconds >= take) {
       const heldAt: number = context.start + take;
       const heldFrame: IAutoMovieRigidTransform = support.frame(heldAt);
-      wristPoints(gripsAt(heldAt, heldFrame), heldFrame, heldAt);
+      const points: WristPoints = wristPoints(gripsAt(heldAt, heldFrame), heldFrame, heldAt);
+      const seatFrame: IAutoMovieRigidTransform = {
+        position: Vector3.add(origin.position, Quaternion.rotateVector(origin.rotation, seat.frame.translation)),
+        rotation: Quaternion.multiply(origin.rotation, seat.frame.rotation),
+      };
+      working = fixedSeatGripPosture(context.body, seated, bearing ??= seatSocket.socket(context.body, seated), seatFrame, reach(points), points);
+    }
+    function posture(grips: Grips, frame: IAutoMovieRigidTransform, taken: number, heldAt?: number): IAutoMovieMotionHumanPosture {
+      if (working === undefined) return bow(lean(grips,frame,heldAt)*taken);
+      const points: WristPoints = wristPoints(grips,frame,heldAt);
+      if (points.left === undefined || points.right === undefined) return bow(reach(points)*taken);
+      const shift: IAutoMovieVector3 = Vector3.scale(working.shift,taken);
+      const degrees: number = reach({left:Vector3.subtract(points.left,shift),right:Vector3.subtract(points.right,shift)})*taken;
+      const at: IAutoMovieMotionHumanPosture = bow(degrees);
+      return {...at,root:Vector3.add(at.root,shift),joints:{...at.joints,...working.joints(degrees,taken,points)}};
     }
     const set: IAutoMovieMotionHumanPosture = bow(lean(begun, origin));
     for (const side of holding) {
@@ -307,6 +317,6 @@ export namespace HumanRideHands {
         origin,
       );
     }
-    return { lean, gripsAt, closures, bow };
+    return { posture, gripsAt, closures };
   }
 }
