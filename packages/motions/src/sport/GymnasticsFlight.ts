@@ -443,10 +443,10 @@ export namespace GymnasticsFlight {
    * @param until A later second at which it is at or below it.
    * @param lowest The lowest point's height at a second.
    * @param height The height, metres.
-   * @returns The second, within a tenth of a millisecond.
+   * @returns The second, within a tenth of a millisecond, or within adjacent seconds where they lie further apart than that.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the premise on the two seconds and the precision.
-   * @evidence contracts/development/implementation.md#principled-implementation Bisection on the sign of lowest(t) - height, which the premise brackets; a body that falls keeps the sign change single in the bracket the callers give (apex to the centre's own arrival).
+   * @evidence contracts/development/common.md#meaningful-documentation States the premise on the two seconds and the precision, and the coarser precision of seconds late enough to be spaced wider.
+   * @evidence contracts/development/implementation.md#principled-implementation Bisection on the sign of lowest(t) - height, which the premise brackets; a body that falls keeps the sign change single in the bracket the callers give (apex to the centre's own arrival). It also stops where the midpoint rounds onto an end, so a bracket past 2^39 s, whose adjacent seconds lie more than 1e-4 s apart, ends at their spacing instead of halving without end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One bisection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms About fifteen evaluations for a bracket of a second.
@@ -461,6 +461,7 @@ export namespace GymnasticsFlight {
   ): number {
     let low: number = from;
     let high: number = until;
+      if (middle === low || middle === high) break;
     while (high - low > 1e-4) {
       const middle: number = (low + high) / 2;
       if (lowest(middle) > height) low = middle;
