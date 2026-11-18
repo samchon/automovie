@@ -1,9 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBalance,
-  IAutoMovieMotionHumanBend,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -18,6 +18,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
@@ -35,6 +36,12 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No body or case is special-cased.
  */
 export namespace bendLower {
+  /** Wrist placement on the actual lowered bones from this trial. */
+  export type WristAt = (posture: IAutoMovieMotionHumanPosture, read: ReturnType<typeof prepareHumanPoseResolution>) => IAutoMovieVector3;
+
+  /** A named bend strategy after resolving the automatic choice. */
+  type Strategy = IAutoMovieMotionHumanBendLower.ISolved["strategy"];
+
   /**
    * The knee flexion each strategy lifts at, degrees: a semi-squat's 90 and a
    * squat's 135, the knee angles that tell the lifting postures apart
@@ -43,7 +50,7 @@ export namespace bendLower {
    * degrees (the class is bounded, not measured at a value: 30 is provisional
    * within it).
    */
-  export const KNEE: Readonly<Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>> =
+  export const KNEE: Readonly<Record<Strategy, number>> =
     {
       stoop: 30,
       semiSquat: 90,
@@ -52,6 +59,17 @@ export namespace bendLower {
 
   /** The ankle's dorsiflexion in a crouch, degrees: the most measured while crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa, Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of 26 adults), within the range table's loaded maximum (`ANKLE_DORSIFLEXION.loaded`). */
   export const ANKLE: number = 28;
+
+  /**
+   * Stoop's posterior hip key as a share of stature. Kim and Yoo (2018,
+   * doi:10.1589/jpts.30.534) measured 7.6 cm at the greater trochanter in
+   * adults of 1.57 m mean stature and 17.4° mean thoracolumbar flexion.
+   * The rig's lumbopelvic rhythm converts that local flexion to trunk
+   * inclination. The ratio below scales the key on the existing sine course.
+   */
+  const STOOP_BACK: number =
+    (0.076 / 1.57) /
+    Math.sin((17.4 * Math.PI) / (180 * (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)));
 
   /**
    * The share of the standing hip height a strategy keeps, from the body's
@@ -76,7 +94,7 @@ export namespace bendLower {
    */
   export function hipShare(
     body: IAutoMovieMotionHumanBody,
-    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
+    strategy: Strategy,
   ): number {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const knee: number = KNEE[strategy];
@@ -90,7 +108,7 @@ export namespace bendLower {
 
   /**
    * A standing posture lowered by a strategy: the hips dropped by a share of
-   * the strategy's drop and moved back for balance, the trunk pitched, the
+   * the strategy's drop and moved back along its key, the trunk pitched, the
    * planted legs re-solved by their unchanged goals.
    *
    * @param body The body.
@@ -98,7 +116,7 @@ export namespace bendLower {
    * @param strategy The strategy.
    * @param pitch Trunk inclination, degrees, shared by the lumbopelvic rhythm.
    * @param share How far down, 0 to 1.
-   * @param back How far the hips move back for balance, metres.
+   * @param back How far the hips move back, metres.
    * @param resolution Optional exact FK source borrowed only by this call's actual raw-pelvis hip observation; this lowering operation performs no ROM projection.
    * @returns The lowered posture.
    *
@@ -113,12 +131,14 @@ export namespace bendLower {
   export function lower(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
-    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
+    strategy: Strategy,
     pitch: number,
     share: number,
     back: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    lateral: number = 0,
   ): IAutoMovieMotionHumanPosture {
+    if (share <= 0 && pitch === 0 && back === 0) return posture;
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const drop: number = (1 - hipShare(body, strategy)) * body.measure.hipHeight * share;
     const frame: IAutoMovieMotionHumanFrame = { origin: posture.root, yaw: posture.yaw };
@@ -179,29 +199,52 @@ export namespace bendLower {
       ...posture,
       pitch: posture.pitch + tilt.pitch,
     };
-    const joints: IAutoMovieMotionHumanPosture["joints"] = tilt.joints;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = lateral === 0 ? tilt.joints : { ...tilt.joints };
+    if (lateral !== 0) {
+      // The lumbar and thoracic sections share the frontal inclination as
+      // in a unilateral carry. Preserve each section's flexion and twist.
+      for (const bone of ["spine", "chest"] as const) {
+        const angles: NonNullable<typeof joints.spine> = joints[bone] ?? [0, 0, 0];
+        joints[bone] = [angles[0], angles[1] + lateral * share / 2, angles[2]];
+      }
+    }
 
     // With the heels up the toes bend at their joints and stay flat on the floor.
     const toes: IAutoMovieMotionHumanPosture["joints"] =
       heel > 0 ? { leftToes: [heel, 0, 0], rightToes: [heel, 0, 0] } : {};
-    return resolveHumanPosture.lower(
-      body,
-      {
-        ...tipped,
-        joints: { ...joints, ...toes },
-        limbs,
-        root: Vector3.subtract(
-          goal,
-          Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
-        ),
-      },
-      undefined,
-      resolution,
-    );
+    let placed: IAutoMovieMotionHumanPosture = {
+      ...tipped,
+      joints: { ...joints, ...toes },
+      limbs,
+      root: Vector3.subtract(
+        goal,
+        Quaternion.rotateVector(resolveHumanPosture.heading(tipped), hips),
+      ),
+    };
+    if (strategy === "stoop" && share > 0) {
+      // The horizontal retreat also changes hip-to-ankle length. Recover
+      // the key's knee height from the actual planted ankle. The length
+      // between these keys starts at the standing leg's displayed length.
+      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      const standing: ReturnType<typeof hipJoints> = hipJoints(body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, read());
+      const lowered: ReturnType<typeof hipJoints> = hipJoints(body, placed.root, resolveHumanPosture.heading(placed), placed.joints.hips, read());
+      const { thigh, shank }: IAutoMovieMotionHumanBody["measure"] = body.measure;
+      const deepest: number = thigh * thigh + shank * shank + 2 * thigh * shank * Math.cos((KNEE.stoop * Math.PI) / 180);
+      const drop: number = Math.min(...(["left", "right"] as const).map((side: AutoMovieHumanSide): number => {
+        const ankle: IAutoMovieVector3 = limbs[`${side}Leg`]!.point;
+        const from: IAutoMovieVector3 = Vector3.subtract(standing[side], ankle);
+        const current: IAutoMovieVector3 = Vector3.subtract(lowered[side], ankle);
+        const initial: number = Vector3.dot(from, from);
+        const height: number = initial + (deepest - initial) * share - current.x * current.x - current.z * current.z;
+        return height < 0 ? -Infinity : current.y - Math.sqrt(height);
+      }));
+      if (Number.isFinite(drop)) placed = { ...placed, root: { ...placed.root, y: placed.root.y - drop } };
+    }
+    return resolveHumanPosture.lower(body, placed, undefined, resolution);
   }
 
   /** Heel lift by strategy at full depth, degrees (provisional: only the squat outruns the ankle's dorsiflexion). */
-  export const HEEL: Readonly<Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>> =
+  export const HEEL: Readonly<Record<Strategy, number>> =
     {
       stoop: 0,
       semiSquat: 0,
@@ -237,14 +280,19 @@ export namespace bendLower {
     posture: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
     side: AutoMovieHumanSide,
-    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
+    strategy: Strategy,
     lean: number,
     reach: number = REACH * (body.measure.upperArm + body.measure.forearm) +
       Vector3.length(HumanHand.offset(body, side, "palm").point),
+    wristAt?: WristAt,
+    lateral: number = 0,
   ): number {
     // The lowest height the hand reaches above the target's floor point over
     // the inclinations tried: below a shoulder within reach across the floor,
     // the reach's depth under it.
+    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const name: AutoMovieHumanoidBone = `${side}UpperArm`;
+    const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(body, new Set([name]));
     let lowest: number = Infinity;
     const gap: (deg: number) => number = (deg: number): number => {
       const lowered: IAutoMovieMotionHumanPosture = lower(
@@ -254,14 +302,15 @@ export namespace bendLower {
         deg,
         1,
         lean * Math.sin((deg * Math.PI) / 180),
+        read,
+        lateral,
       );
-      const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(body, lowered).get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      const across: number = Math.hypot(target.x - shoulder.x, target.z - shoulder.z);
+      const shoulder: IAutoMovieVector3 = shoulderAt(lowered, read).get(name)!.worldPosition;
+      const point: IAutoMovieVector3 = wristAt === undefined ? target : wristAt(lowered, read);
+      const across: number = Math.hypot(point.x - shoulder.x, point.z - shoulder.z);
       if (across <= reach)
         lowest = Math.min(lowest, shoulder.y - Math.sqrt(reach * reach - across * across));
-      return Vector3.length(Vector3.subtract(target, shoulder)) - reach;
+      return Vector3.distance(point, shoulder) - reach;
     };
     if (gap(0) <= 0) return 0;
     let hi: number = SCAN;
@@ -322,12 +371,12 @@ export namespace bendLower {
    * @param side The hand.
    * @param strategy The strategy.
    * @param reach How near the shoulder must come to the target, metres; `pitch`'s palm reach when absent.
-   * @param balance The balancing shift asked (`IAutoMovieMotionHumanBalance`); absent, the hips are not shifted and one pitch solve is made.
+   * @param balance The caller's balancing shift. Absent, the stoop takes its measured hip key and the other strategies use their leg geometry.
    * @returns The solved lowering.
    * @throws {HumanRefusal} As `pitch`, when the strategy cannot reach the target.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two passes, the inputs and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Without the balance option the inclination is the least that reaches with the hips where the strategy places them; with it the hips move back to keep the centre of mass over the feet (`HumanBalance.shift`), the inclination is the least that reaches with that shift, and the shift is solved again at the needed inclination, since it grows with the trunk's lean.
+   * @evidence contracts/development/implementation.md#principled-implementation The inclination is the least that reaches with the hips where the strategy's keys place them (Kim and Yoo 2018 for the stoop). When balance is requested, `HumanBalance.shift` derives the additional hips-back course from the centre of mass.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two balance solves and two pitch solves, in order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `NOMINAL` and `SHALLOW` are named provisional constants; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms One pitch solve without the balance option; with it two balance scans and two pitch solves.
@@ -339,25 +388,29 @@ export namespace bendLower {
     upright: IAutoMovieMotionHumanPosture,
     target: IAutoMovieVector3,
     side: AutoMovieHumanSide,
-    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
+    strategy: Strategy,
     reach?: number,
     balance?: IAutoMovieMotionHumanBalance,
+    wristAt?: WristAt,
+    lateral: number = 0,
   ): IAutoMovieMotionHumanBendLower.ISolved {
-    // Without the balance option the hips stay over the feet as the
-    // strategy places them: no centre of mass is read, the lean is nought.
-    if (!HumanPhysics.balanced({ balance }))
-      return { strategy, lean: 0, pitch: pitch(body, upright, target, side, strategy, 0, reach) };
+    // The measured stoop key supplies the horizontal motion of the hips.
+    // The other strategies lower their hips by the geometry of the legs.
+    if (!HumanPhysics.balanced({ balance })) {
+      const lean: number = strategy === "stoop" ? STOOP_BACK * body.measure.stature : 0;
+      return { strategy, lean, pitch: pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral) };
+    }
     const shift: (deg: number) => number = (deg: number): number =>
       HumanBalance.shift(
         body,
         (back: number): IAutoMovieMotionHumanPosture =>
-          lower(body, upright, strategy, deg, 1, back),
+          lower(body, upright, strategy, deg, 1, back, undefined, lateral),
       ) / Math.sin((deg * Math.PI) / 180);
     let lean: number = shift(NOMINAL);
-    let deg: number = pitch(body, upright, target, side, strategy, lean, reach);
+    let deg: number = pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral);
     if (deg > SHALLOW) {
       lean = shift(deg);
-      deg = pitch(body, upright, target, side, strategy, lean, reach);
+      deg = pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral);
     }
     return { strategy, lean, pitch: deg };
   }

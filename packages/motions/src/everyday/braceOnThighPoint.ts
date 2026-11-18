@@ -82,10 +82,17 @@ export function braceOnThighPoint(
 
     const along: IAutoMovieVector3 = Vector3.subtract(knee, thigh.worldPosition);
     const axis: IAutoMovieVector3 = Vector3.normalize(along);
-    const anterior: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, region.normal);
+    // A thigh surface can taper toward the knee. Its skin normal then
+    // has an axial component; the contact section itself is perpendicular
+    // to the line of the femur so a ray through it keeps its height.
+    const skinNormal: IAutoMovieVector3 = Quaternion.rotateVector(thigh.worldRotation, region.normal);
+    const anterior: IAutoMovieVector3 = Vector3.normalize(Vector3.addScaled(
+      skinNormal, axis, -Vector3.dot(skinNormal, axis),
+    ));
     const lateral: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(axis, anterior));
     const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
-    const radial: IAutoMovieVector3 = Vector3.subtract(onThigh, Vector3.lerp(thigh.worldPosition, knee, 0.5));
+    const fromKnee: IAutoMovieVector3 = Vector3.subtract(onThigh, knee);
+    const radial: IAutoMovieVector3 = Vector3.addScaled(fromKnee, axis, -Vector3.dot(fromKnee, axis));
     // The arm approaches on the shoulder's side of the front surface.
     // Project its lateral line onto the thigh cross-section so the
     // forearm can descend alongside the hip on an upright kneeling thigh.
@@ -124,12 +131,18 @@ export function braceOnThighPoint(
     };
     const missed: (brace: IBrace) => boolean = (brace: IBrace): boolean =>
       Vector3.distance(Vector3.subtract(brace.point, Quaternion.rotateVector(brace.rotation, palm.point)), shoulder) > reach;
-    const nearest: IBrace = padded(up);
+    // Clearance along a tapered skin normal can lower the palm relative
+    // to its ray. Place the padded palm, not the unpadded skin, above the
+    // knee by its half hand length.
+    const first: IBrace = padded(up);
+    const height: number = Vector3.dot(Vector3.subtract(knee, first.point), axis);
+    const station: number = up + Math.max(0, m.hand / 2 - height);
+    const nearest: IBrace = station === up ? first : padded(station);
     // Curvature changes both the surface point and its tangent plane.
-    const top: number = Math.max(up, Vector3.length(along) - m.hand / 2);
-    if (top > up && missed(nearest) && !missed(padded(top)))
+    const top: number = Math.max(station, Vector3.length(along) - m.hand / 2);
+    if (top > station && missed(nearest) && !missed(padded(top)))
       return padded(bracketedBisection(
-        (height: number): boolean => missed(padded(height)), up, top, SITE_RESOLUTION,
+        (height: number): boolean => missed(padded(height)), station, top, SITE_RESOLUTION,
       ));
     return nearest;
   };
