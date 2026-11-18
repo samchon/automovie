@@ -17,6 +17,7 @@ import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -131,6 +132,7 @@ export namespace HumanGraspUse {
    * the plane the body faces.
    *
    * @param props The action's context, the prop and its handle, the hand, the hand the arm shows for the candidate grasp, the use, and how far the closed hand at a wrist keeps out of the body's other parts, metres, negative inside (every roll alike when absent).
+   * @param closure The prop's world frame at grasp closure, or the entry frame when omitted.
    * @returns The key pose.
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts; a `parameter` refusal on `use` for an `along` line ahead of the body, listing the other lines.
    *
@@ -144,9 +146,12 @@ export namespace HumanGraspUse {
    */
   export function presented(
     props: IAutoMovieMotionHumanGraspUse.IPresentedProps,
+    closure?: IAutoMovieRigidTransform,
   ): IAutoMovieMotionHumanGrasp.IKey {
     const context: (typeof props)["context"] = props.context;
     const held: IAutoMovieMotionHumanPropReader = context.prop(props.prop);
+    const world: IAutoMovieRigidTransform =
+      closure ?? held.frame(context.start);
     const contact = (id: string): IAutoMovieAffordance | undefined =>
       (held.prop.affordances ?? []).find(
         (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
@@ -172,7 +177,7 @@ export namespace HumanGraspUse {
     // body, risen by the use's angle.
     const lying: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(
-        held.frame(context.start).rotation,
+        world.rotation,
         Vector3.subtract(tip.frame.translation, handle.frame.translation),
       ),
     );
@@ -240,7 +245,7 @@ export namespace HumanGraspUse {
     // hand, its right from the left.
     const face: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(
-        held.frame(context.start).rotation,
+        world.rotation,
         Quaternion.rotateVector(tip.frame.rotation, { x: 0, y: 1, z: 0 }),
       ),
     );
@@ -294,6 +299,7 @@ export namespace HumanGraspUse {
       return HumanGraspWorn.key({
         context,
         held,
+        world,
         tip,
         at: at!,
         site: site!,
@@ -306,11 +312,8 @@ export namespace HumanGraspUse {
       Quaternion.inverse(props.wrist.rotation),
       Vector3.subtract(
         Vector3.add(
-          held.frame(context.start).position,
-          Quaternion.rotateVector(
-            held.frame(context.start).rotation,
-            tip.frame.translation,
-          ),
+          world.position,
+          Quaternion.rotateVector(world.rotation, tip.frame.translation),
         ),
         props.wrist.point,
       ),
@@ -323,7 +326,7 @@ export namespace HumanGraspUse {
               context.body,
               props.side,
               props.prop,
-              held.frame(context.start),
+              world,
               held.prop.affordances ?? [],
               props.wrist,
             ),

@@ -132,9 +132,7 @@ export namespace putDown {
       });
       return (Math.atan2(f.x, f.z) * 180) / Math.PI;
     };
-    // A prop is put down as it rested: its declared rest rotation turned
-    // about the vertical to the heading, never the tilt the carrying hand
-    // happens to give it now.
+    // Turn the prop's declared rest attitude to the requested heading.
     const authored: IAutoMovieQuaternion = context.prop(context.params.prop)
       .prop.frame.rotation;
     const holding = (yaw: number): IAutoMovieMotionHumanHand.IWrist => {
@@ -218,7 +216,6 @@ export namespace putDown {
             ).wrist
           : holding(context.params.yaw);
 
-    // The arm keeps the configuration it carried the prop in.
     const reference: IAutoMovieHumanLimbReference =
       resolveHumanPosture.reference(
         context.entry.pose,
@@ -282,10 +279,7 @@ export namespace putDown {
     const duration: number = down + OPEN + back;
     const displacement: ((seconds: number) => IAutoMovieVector3) | undefined =
       putDownTarget.translation(context, duration, aperture);
-    const contactShift: IAutoMovieVector3 | undefined = displacement?.(down);
-    const contactWrist: IAutoMovieVector3 =
-      contactShift === undefined ? place : Vector3.add(place, contactShift);
-    if (tool !== undefined && contactShift === undefined)
+    if (tool !== undefined && displacement === undefined)
       StrikingRoll.reachable(
         context,
         tool,
@@ -294,7 +288,13 @@ export namespace putDown {
         held,
         "take the prop by a grasp that places its socket on the receiver",
       );
-    pickUp.reachable(context, side, contactWrist);
+    pickUp.reachable(
+      context,
+      side,
+      displacement === undefined
+        ? place
+        : Vector3.add(place, displacement(down)),
+    );
     if (displacement !== undefined)
       pickUp.reachable(
         context,
@@ -399,8 +399,7 @@ export namespace putDown {
             r / back,
           );
         }
-        // Blend the receiver's displacement in and out with zero slope at
-        // the ends of each blend, preserving its velocity through opening.
+        // Ease the receiver's displacement in and out while matching its velocity through opening.
         if (displacement !== undefined) {
           const follow: number =
             t <= down
@@ -420,34 +419,37 @@ export namespace putDown {
               rotation: turned,
               bend,
               reference,
-              ...(constraint === undefined || t > down
+              ...(constraint === undefined ||
+              (displacement === undefined && t > down)
                 ? {}
                 : {
                     contact: constraint.contact,
                     limits: constraint.limits,
                   }),
-              ...(t <= down ? { planted: true } : {}),
+              ...(t <= down + (displacement === undefined ? 0 : OPEN)
+                ? { planted: true }
+                : {}),
             },
           },
         };
       },
     };
-    if (tool !== undefined && contactShift !== undefined)
-      putDownTarget.checkContact(body, plan.posture(down), tool, {
-        ...frame,
-        point: Vector3.add(frame.point, contactShift),
-      });
+    if (displacement !== undefined)
+      putDownTarget.checkContact(
+        context,
+        plan.posture(down),
+        side,
+        offset,
+        down,
+      );
     return plan;
   }
 
   /**
-   * A socket placement's demands on an earlier grasp: the source socket
-   * on the receiving socket, with the same held-tool goal and bound that
-   * the placement itself judges. A free placement chooses its own heading
-   * and asks nothing of the earlier grasp.
+   * A fixed socket placement asks the earlier grasp to align both sockets.
    *
    * @param ahead The destination, the predicted stance and the candidate grip.
-   * @returns The socket pose, or no demand without a named source socket.
+   * @returns The fixed socket pose when a named source socket is supplied.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which placements constrain a prior grasp and whose pose and tolerance are used.
    * @evidence contracts/development/implementation.md#principled-implementation The destination prop frame P and prop-in-grip offset O require the grip frame P O^-1; the same source-socket contact and held-tool bound as the placing plan judge it.
@@ -467,7 +469,7 @@ export namespace putDown {
       ahead.grip.side !== (ahead.params.hand ?? "right")
     )
       return [];
-    // A tracked contact is fitted once the placement clock is known.
+    // Look-ahead has the pickup's clock. Fit tracked contacts when their placement starts.
     if (putDownTarget.track(ahead, ahead.params.onto!.prop) !== undefined)
       return [];
     const destination: IAutoMovieRigidTransform = putDownTarget.of(

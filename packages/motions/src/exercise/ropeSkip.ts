@@ -45,7 +45,7 @@ export const ropeSkip = {
    * ground stance. Both ankle goals and the root translate together in flight.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the entry stance, phases and airborne translation.
-   * @evidence contracts/development/implementation.md#principled-implementation A gravity parabola determines both-foot flight. A pair of mirrored Hermite ground paths matches vertical launch and landing speeds with fixed foot goals.
+   * @evidence contracts/development/implementation.md#principled-implementation A gravity parabola determines both-foot flight. A pair of mirrored Hermite ground paths matches vertical launch and landing speeds with fixed foot goals. Admission keeps the phase boundaries, quarter-flight samples and compression extrema distinct in the local, event and film clocks.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the entry and times, prepare one stance and grip, then evaluate the phase and two foot goals.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the engine gravity and the stand planner's placements and emits separate support windows; phase markers do not claim a simulated cord.
    * @evidence contracts/development/implementation.md#efficient-algorithms One stand evaluation at plan time and constant work per sample.
@@ -101,6 +101,52 @@ export const ropeSkip = {
     const takeoff: number = (duration - flight) / 2;
     const under: number = takeoff + flight / 2;
     const landed: number = takeoff + flight;
+
+    // A slow cadence adds still support time. The cubic reaches maximum
+    // compression one third of this interval from takeoff or landing.
+    const compressionSeconds: number = Math.min(takeoff, 0.18);
+    const times: readonly number[] = [
+      0,
+      takeoff - compressionSeconds / 3,
+      takeoff,
+      under - flight / 4,
+      under,
+      under + flight / 4,
+      landed,
+      landed + compressionSeconds / 3,
+      duration,
+    ];
+    const takeoffShare: number = takeoff / duration;
+    const underShare: number = under / duration;
+    const landedShare: number = landed / duration;
+    const shares: readonly number[] = times.map(
+      (time: number): number => time / duration,
+    );
+    const filmTimes: readonly number[] = shares.map(
+      (share: number): number => context.start + share * duration,
+    );
+
+    // The event reader reconstructs film time from the share. The pose
+    // reader then subtracts the start to recover time within the action.
+    if (
+      !ordered(times) ||
+      !ordered(shares) ||
+      !ordered(filmTimes) ||
+      !ordered(filmTimes.map((time: number): number => time - context.start))
+    )
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "periodSeconds",
+        value: {
+          periodSeconds: duration,
+          flightSeconds: flight,
+          start: context.start,
+        },
+        reason:
+          "the skip phases need distinct times on the action and film clocks",
+        fix: "use a period closer to the default or place the skip earlier",
+      });
+
     const stance: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: takeoff, sway: 0 } })
       .posture(takeoff);
@@ -113,15 +159,13 @@ export const ropeSkip = {
 
     const gravity: number = AutoMovieGravity.STANDARD;
     const launchSpeed: number = (gravity * flight) / 2;
-    // Limit the duration of the crouch so a slow cadence adds still support time.
-    const compressionSeconds: number = Math.min(takeoff, 0.18);
     return {
       duration,
       events: [
         { name: "ropeOverhead", share: 0 },
-        { name: "takeoff", share: takeoff / duration },
-        { name: "ropeUnder", share: under / duration },
-        { name: "landed", share: landed / duration },
+        { name: "takeoff", share: takeoffShare },
+        { name: "ropeUnder", share: underShare },
+        { name: "landed", share: landedShare },
       ],
       contact: under,
       contacts: SIDES.flatMap(
@@ -133,13 +177,13 @@ export const ropeSkip = {
             kind: "plant",
             support: { kind: "ground" },
             from: 0,
-            to: takeoff / duration,
+            to: takeoffShare,
           },
           {
             part: `${side}Foot`,
             kind: "plant",
             support: { kind: "ground" },
-            from: landed / duration,
+            from: landedShare,
             to: 1,
           },
         ],
@@ -184,3 +228,11 @@ export const ropeSkip = {
     };
   },
 } satisfies IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRopeSkip.IParams>;
+
+/** Check that every phase sample occupies a distinct finite clock instant. */
+function ordered(times: readonly number[]): boolean {
+  return times.every(
+    (time: number, i: number): boolean =>
+      Number.isFinite(time) && (i === 0 || times[i - 1]! < time),
+  );
+}

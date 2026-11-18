@@ -16,7 +16,8 @@ export interface IAutoMovieMotionHumanSupportTransfer {
   /**
    * Defaults to stationary docking through trailing touchdown. Set co-moving
    * for scenic gangways sharing an upright rigid motion during that interval.
-   * The planner checks relative alignment on the film clock.
+   * The planner samples the relative deck frame and all four deck corners on
+   * the film clock, allowing 1 mm of drift and 0.1 degrees of relative turn.
    */
   docking?: "stationary" | "co-moving";
 

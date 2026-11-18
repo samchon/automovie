@@ -16,7 +16,11 @@ export namespace IAutoMovieMotionHumanRopeSkip {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The action law owns finite timing admission and phase derivation.
    */
   export interface IParams {
-    /** One period in seconds, strictly greater than the flight. Defaults to 1 / 1.7. */
+    /**
+     * One period in seconds, strictly greater than the flight. Defaults to
+     * 1 / 1.7. The ropeSkip planner requires distinct phase boundaries and
+     * interior motion samples on both the action clock and the film clock.
+     */
     periodSeconds?: number;
 
     /** Both feet airborne for this many seconds in [0.12, 0.36]. Defaults to 0.26. */

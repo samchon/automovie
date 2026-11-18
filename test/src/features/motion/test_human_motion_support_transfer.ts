@@ -13,7 +13,6 @@ import type {
 } from "@automovie/interface";
 import {
   HumanFoot,
-  HumanRefusal,
   poseBones,
   resolveHumanPosture,
   stand,
@@ -23,6 +22,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { qclose } from "../internal/qclose";
+import { supportTransferFixture } from "../internal/supportTransferFixture";
 import { vclose } from "../internal/vclose";
 
 /**
@@ -36,13 +36,14 @@ import { vclose } from "../internal/vclose";
  * 2. The deck translates and yaws after boarding. Both soles stay within 10 mm
  *    of their deck-local landed positions.
  * 3. The missing surface, moving deck, wide gap and off-deck station each identify their failed axis.
- * 4. Through shared translation and yaw, split soles stay within 10 mm of their local stations and the pelvis within 1 mm of its moved position. Both soles ride the departing deck.
- * 5. The default refuses shared motion. Co-moving docking refuses independent drift, including yaw about a distant prop origin.
+ * 4. With shared travel and yaw, the pelvis follows the prop frame within 1 mm and each sole stays within 10 mm of its authored station. Both soles ride the departing deck.
+ * 5. Pelvis velocity stays continuous at touchdown with bounded relative motion.
+ * 6. Docking refuses invalid modes and frames, and relative drift including yaw with a fixed deck centre.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the differing bodies, independently authored prop tracks and measurable acceptance bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the planned contacts and resolves the displayed limb pose, checking actual sole positions against scene frames.
- * @evidence contracts/development/testing.md#independent-expectations The fixtures independently prescribe frame motion. Stationary docking supplies the reference pose for translating the same crossing by the known frame motion.
- * @evidence contracts/development/testing.md#distinguishing-cases Both bodies and lead sides pass through split and moving support. One body checks invalid surface, gap, landing, and the distinction between absolute and relative docking.
+ * @evidence contracts/development/testing.md#independent-expectations The fixture prescribes tracks and landed sole centres from the authored station and entry ankle spacing. The stationary result serves as a covariance reference for the pelvis and sole shapes under those tracks.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both bodies and lead sides pass through split and moving support. The average body exercises velocity continuity and docking refusals.
  * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory unit using public planning and pose resolution with authored prop readers.
  */
 export function test_human_motion_support_transfer(): void {
@@ -123,18 +124,15 @@ export function test_human_motion_support_transfer(): void {
       ) +
       0.024;
 
-    const platform: IAutoMovieMotionHumanPropReader = surface(
-      "platform",
-      oldEdge - 0.5,
-      0,
-      () => 0,
-    );
-    const deck: IAutoMovieMotionHumanPropReader = surface(
-      "car",
-      newEdge + 0.5,
-      0,
-      (t: number): number => 9 * Math.max(0, t - (start + 1.7)) ** 2,
-    );
+    const platform: IAutoMovieMotionHumanPropReader =
+      supportTransferFixture.surface("platform", oldEdge - 0.5, 0, () => 0);
+    const deck: IAutoMovieMotionHumanPropReader =
+      supportTransferFixture.surface(
+        "car",
+        newEdge + 0.5,
+        0,
+        (t: number): number => 9 * Math.max(0, t - (start + 1.7)) ** 2,
+      );
     const context: Parameters<typeof supportTransfer>[0] = {
       body,
       entry,
@@ -261,239 +259,196 @@ export function test_human_motion_support_transfer(): void {
       );
     }
 
-    if (name !== "m-average") continue;
-
-    /** Check the failed admission axis using the admitted dock fixture. */
-    const reject = (
-      changes: Partial<Parameters<typeof supportTransfer>[0]>,
-      axis: string,
-      scenario: string = axis,
-    ): void => {
-      try {
-        supportTransfer({ ...context, ...changes });
-      } catch (error) {
-        TestValidator.predicate(
-          `${name} refuses ${scenario} on ${axis}`,
-          error instanceof HumanRefusal && error.axis === axis,
-        );
-        return;
-      }
-      TestValidator.predicate(`${name} refuses ${scenario} on ${axis}`, false);
-    };
-    reject(
-      {
-        params: {
-          ...context.params,
-          from: { prop: "platform", surface: "missing" },
-        },
-      },
-      "from",
-    );
-    reject(
-      { params: { ...context.params, landing: { x: 2, z: 0 } } },
-      "landing",
-    );
-    reject(
-      {
-        prop: (id: string): IAutoMovieMotionHumanPropReader =>
-          id === "platform"
-            ? platform
-            : surface("car", newEdge + 0.7, 0, () => 0),
-      },
-      "to",
-    );
-
-    /** Shared X travel in metres at 0.4 m/s from the start of the crossing. */
+    /** Shared travel in metres and the deck's independent post-transfer departure. */
     const translate = (t: number): number => 0.4 * (t - start);
-    /** An independent departure that begins after both soles are aboard. */
     const depart = (t: number): number => Math.max(0, t - (start + 1.7));
-    const gangway: IAutoMovieMotionHumanPropReader = surface(
-      "platform",
-      oldEdge - 0.5,
-      0,
-      translate,
-      () => 0,
-    );
-    const movingDeck: IAutoMovieMotionHumanPropReader = surface(
-      "car",
-      newEdge + 0.5,
-      0,
-      (t: number): number => translate(t) + depart(t),
-      depart,
-    );
+    const gangway: IAutoMovieMotionHumanPropReader =
+      supportTransferFixture.surface(
+        "platform",
+        oldEdge - 0.5,
+        0,
+        translate,
+        () => 0,
+      );
+    const movingDeck: IAutoMovieMotionHumanPropReader =
+      supportTransferFixture.surface(
+        "car",
+        newEdge + 0.5,
+        0,
+        (t: number): number => translate(t) + depart(t),
+        depart,
+      );
     const movingProps = (id: string): IAutoMovieMotionHumanPropReader =>
       id === "platform" ? gangway : movingDeck;
-    reject({ prop: movingProps }, "from", "shared motion in stationary mode");
-
     const movingParams: Parameters<typeof supportTransfer>[0]["params"] = {
       ...context.params,
       docking: "co-moving",
     };
-    const crossing: ReturnType<typeof supportTransfer> = supportTransfer({
-      ...context,
-      prop: movingProps,
-      params: movingParams,
-    });
-    const movingSplitBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, resolveHumanPosture(body, crossing.posture(1)));
-    TestValidator.predicate(
-      "The moving split declares each foot on its own support",
-      support(lead, 0.5, crossing.contacts) === "car" &&
-        support(trail, 0.5, crossing.contacts) === "platform",
+    const stanceCenter: IAutoMovieVector3 = Vector3.lerp(
+      entry.feet.left.ankle,
+      entry.feet.right.ankle,
+      0.5,
     );
-    TestValidator.predicate(
-      "The pelvis follows the shared 0.4 m translation during split support",
-      vclose(
-        movingSplitBones.get("hips")!.worldPosition,
-        Vector3.add(split.get("hips")!.worldPosition, { x: 0.4, y: 0, z: 0 }),
-        0.001,
-      ),
-    );
-    /** Read both moving support plants in their own frames. */
-    const checkSole = (
-      side: "left" | "right",
-      bearing: IAutoMovieMotionHumanPropReader,
-      time: number,
-      actual: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-      reference: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ): void => {
-      const expected: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(
-        body,
-        reference,
-        side,
-      );
+    for (const yawRate of [0, 15]) {
+      const prop = (id: string): IAutoMovieMotionHumanPropReader => {
+        const reader: IAutoMovieMotionHumanPropReader = movingProps(id);
+        return {
+          ...reader,
+          frame: (t: number): IAutoMovieRigidTransform => {
+            const at: IAutoMovieRigidTransform = reader.frame(t);
+            const turn: IAutoMovieRigidTransform["rotation"] =
+              Quaternion.fromAxisAngle(
+                { x: 0, y: 1, z: 0 },
+                yawRate * (t - start),
+              );
+            return {
+              position: Quaternion.rotateVector(turn, at.position),
+              rotation: Quaternion.multiply(turn, at.rotation),
+            };
+          },
+        };
+      };
+      const crossing: ReturnType<typeof supportTransfer> = supportTransfer({
+        ...context,
+        prop,
+        params: movingParams,
+      });
       TestValidator.predicate(
-        `${side} sole rides ${bearing.prop.subject} at ${time} seconds`,
-        HumanFoot.sockets(body, actual, side).every(
-          (socket: IAutoMovieMotionHumanFoot.ISocket, index: number): boolean =>
+        name + " moving split declares one bearing foot on each support",
+        support(lead, 0.5, crossing.contacts) === "car" &&
+          support(trail, 0.5, crossing.contacts) === "platform",
+      );
+      for (const time of [1, 1.69, 1.98]) {
+        const actual: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          poseBones(body, resolveHumanPosture(body, crossing.posture(time)));
+        const reference: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          time === 1 ? split : landed;
+        const frame: IAutoMovieRigidTransform = prop("car").frame(start + time);
+        const baseFrame: IAutoMovieRigidTransform = deck.frame(start);
+        TestValidator.predicate(
+          name +
+            " pelvis follows deck-relative position and yaw at " +
+            time +
+            " s",
+          vclose(
+            local(actual.get("hips")!.worldPosition, frame),
+            local(reference.get("hips")!.worldPosition, baseFrame),
+            0.001,
+          ) &&
+            qclose(
+              Quaternion.multiply(
+                Quaternion.inverse(frame.rotation),
+                actual.get("hips")!.worldRotation,
+              ),
+              reference.get("hips")!.worldRotation,
+            ),
+        );
+        for (const side of [lead, trail]) {
+          if (side === trail && time === 1) {
+            TestValidator.predicate(
+              name + " rear sole keeps its platform-local entry position",
+              HumanFoot.sockets(body, actual, side).every(
+                (socket, index): boolean =>
+                  vclose(
+                    local(socket.point, prop("platform").frame(start + time)),
+                    local(
+                      HumanFoot.sockets(body, bones, side)[index]!.point,
+                      platform.frame(start),
+                    ),
+                    0.01,
+                  ),
+              ),
+            );
+            continue;
+          }
+          const footBone: IAutoMovieResolvedBone = actual.get(
+            (side + "Foot") as AutoMovieHumanoidBone,
+          )!;
+          const sole: IAutoMovieVector3 = Vector3.add(
+            footBone.worldPosition,
+            Quaternion.rotateVector(
+              footBone.worldRotation,
+              HumanFoot.offset(body, side, "sole", 0),
+            ),
+          );
+          const ankle: IAutoMovieVector3 = entry.feet[side].ankle;
+          TestValidator.predicate(
+            name +
+              " " +
+              side +
+              " sole lands at the authored deck station at " +
+              time +
+              " s",
             vclose(
-              local(socket.point, bearing.frame(start + time)),
-              local(expected[index]!.point, bearing.frame(start)),
+              local(sole, frame),
+              {
+                x: ankle.x - stanceCenter.x,
+                y: 0,
+                z: station - baseFrame.position.z + ankle.z - stanceCenter.z,
+              },
               0.01,
             ),
-        ),
-      );
-    };
-    const movingLandedBones: Map<
-      AutoMovieHumanoidBone,
-      IAutoMovieResolvedBone
-    > = poseBones(body, resolveHumanPosture(body, crossing.posture(1.98)));
-    checkSole(lead, movingDeck, 1, movingSplitBones, split);
-    checkSole(trail, gangway, 1, movingSplitBones, split);
-    checkSole(lead, movingDeck, 1.98, movingLandedBones, landed);
-    checkSole(trail, movingDeck, 1.98, movingLandedBones, landed);
+          );
+          const referenceSockets: IAutoMovieMotionHumanFoot.ISocket[] =
+            HumanFoot.sockets(body, reference, side);
+          TestValidator.predicate(
+            `${name} ${side} foot keeps its deck-local sole shape at ${time} s`,
+            HumanFoot.sockets(body, actual, side).every(
+              (socket, index): boolean =>
+                vclose(
+                  local(socket.point, frame),
+                  local(referenceSockets[index]!.point, baseFrame),
+                  0.01,
+                ),
+            ),
+          );
+        }
+      }
+    }
 
-    /** Rotate the moving props together by 15 degrees per second. */
-    const turningProp = (id: string): IAutoMovieMotionHumanPropReader => {
-      const reader: IAutoMovieMotionHumanPropReader = movingProps(id);
-      return {
-        ...reader,
-        frame: (t: number): IAutoMovieRigidTransform => {
-          const at: IAutoMovieRigidTransform = reader.frame(t);
-          const turn: IAutoMovieRigidTransform["rotation"] =
-            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 15 * (t - start));
-          return {
-            position: Quaternion.rotateVector(turn, at.position),
-            rotation: Quaternion.multiply(turn, at.rotation),
-          };
-        },
-      };
-    };
-    const turning: ReturnType<typeof supportTransfer> = supportTransfer({
+    if (name !== "m-average") continue;
+    supportTransferFixture.checkRefusals(context, movingProps, newEdge);
+
+    // This smooth relative shift stays inside the 1 mm docking tolerance.
+    const almostDocked: ReturnType<typeof supportTransfer> = supportTransfer({
       ...context,
       params: movingParams,
-      prop: turningProp,
+      prop: (id: string): IAutoMovieMotionHumanPropReader =>
+        id === "platform"
+          ? gangway
+          : {
+              ...movingDeck,
+              frame: (t: number): IAutoMovieRigidTransform => {
+                const frame: IAutoMovieRigidTransform = movingDeck.frame(t);
+                return {
+                  ...frame,
+                  position: {
+                    ...frame.position,
+                    x:
+                      frame.position.x +
+                      0.0009 * Math.sin(80 * Math.PI * (t - start)),
+                  },
+                };
+              },
+            },
     });
-    const turningSplit: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(body, resolveHumanPosture(body, turning.posture(1)));
+    const touchdown: number =
+      seconds *
+      almostDocked.events.find((event) => event.name === "trailContact")!.share;
+    const step: number = 0.00001;
+    const pelvisX = (t: number): number =>
+      poseBones(body, resolveHumanPosture(body, almostDocked.posture(t))).get(
+        "hips",
+      )!.worldPosition.x;
     TestValidator.predicate(
-      "The displayed pelvis follows the shared 15 degree yaw",
-      qclose(
-        turningSplit.get("hips")!.worldRotation,
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 15),
-          split.get("hips")!.worldRotation,
-        ),
-      ),
+      "Pelvis forward differences agree within 0.02 m/s across touchdown",
+      Math.abs(
+        pelvisX(touchdown + step) -
+          2 * pelvisX(touchdown) +
+          pelvisX(touchdown - step),
+      ) /
+        step <=
+        0.02,
     );
-    checkSole(lead, turningProp("car"), 1, turningSplit, split);
-    checkSole(trail, turningProp("platform"), 1, turningSplit, split);
-    reject(
-      {
-        params: movingParams,
-        prop: (id: string): IAutoMovieMotionHumanPropReader =>
-          id === "platform"
-            ? gangway
-            : surface(
-                "car",
-                newEdge + 0.5,
-                0,
-                (t: number): number => 1.1 * translate(t),
-                () => 0,
-              ),
-      },
-      "to",
-      "independent deck drift in co-moving mode",
-    );
-    // The prop origin stays fixed and the yaw stays below 0.1 degrees,
-    // but the 100 m offset moves the rectangle by centimetres.
-    reject(
-      {
-        params: movingParams,
-        prop: (id: string): IAutoMovieMotionHumanPropReader =>
-          id === "platform"
-            ? platform
-            : surface(
-                "car",
-                newEdge + 0.5,
-                0,
-                () => -100,
-                (t: number): number => (0.05 * (t - start)) / seconds,
-                100,
-              ),
-      },
-      "to",
-      "deck yaw about a distant prop origin",
-    );
-    const movingDeckOnly = (id: string): IAutoMovieMotionHumanPropReader =>
-      id === "platform" ? platform : movingDeck;
-    reject({ prop: movingDeckOnly }, "to");
   }
-}
-
-/** Create a horizontal metre-deep fixture with X travel and offset in metres and yaw in degrees. */
-function surface(
-  subject: string,
-  z: number,
-  y: number,
-  travel: (time: number) => number,
-  yaw: (time: number) => number = (time: number): number => 10 * travel(time),
-  offsetX: number = 0,
-): IAutoMovieMotionHumanPropReader {
-  const frame = (time: number): IAutoMovieRigidTransform => ({
-    position: { x: travel(time), y, z },
-    rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw(time)),
-  });
-  return {
-    frame,
-    prop: {
-      subject,
-      frame: frame(0),
-      points: {},
-      affordances: [
-        {
-          id: "floor",
-          kind: "surface",
-          width: 2,
-          depth: 1,
-          extent: null,
-          frame: {
-            translation: { x: offsetX, y: 0, z: 0 },
-            rotation: Quaternion.identity(),
-            scale: { x: 1, y: 1, z: 1 },
-          },
-        },
-      ],
-    },
-  };
 }

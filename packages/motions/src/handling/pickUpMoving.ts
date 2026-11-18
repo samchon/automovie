@@ -14,6 +14,8 @@ import { pickUpIntercept } from "./pickUpIntercept";
  * The hand matches incoming velocity at closure, brakes over the load phase,
  * and lifts with the ordinary pickup's stance, grip and cancellation rules.
  * Register this law in the performance's `laws` and the typed authoring chain.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States registration, the interception and the inherited pickup phases.
  */
 export const pickUpMoving: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPickUpMoving> =
   {

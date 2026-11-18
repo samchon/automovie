@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, ViolationCollector } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -27,8 +27,16 @@ const samplesPerSecond: number = 120;
  *
  * @param context The pickup's action context and displayed prop reader.
  * @param closeAt Seconds from the action's start to closure.
- * @returns The world-space target and its incoming velocity.
+ * @returns The world-space closure frame, grasp target and incoming velocity.
  * @throws {HumanRefusal} When the closure, initial mount or sampled conveyor path is unsupported.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the clock, outputs and refusal conditions.
+ * @evidence contracts/development/implementation.md#principled-implementation Checks rigid mount alignment and uniform horizontal travel on the film clock before resolving the closure grasp.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the mount, derives the endpoint velocity, and checks each sampled frame.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Validates the raw sampled rotations before comparing them, without normalizing malformed inputs.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most 241 samples with constant frame work per sample and no pose solves in the law.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the endpoint frames for sampling and passes the closure frame to grasp fitting.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The loop retains the endpoints and only the current sample.
  */
 export function pickUpIntercept(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUpMoving>,
@@ -36,6 +44,8 @@ export function pickUpIntercept(
 ): {
   /** The grasp, including colliders, at closure. */
   target: IAutoMovieMotionHumanGrasp.ITarget;
+  /** The prop's displayed world frame at closure. */
+  frame: IAutoMovieRigidTransform;
   /** Seconds from action time zero to closure. */
   seconds: number;
   /** The support's horizontal velocity in world metres per second. */
@@ -88,6 +98,26 @@ export function pickUpIntercept(
       "interception requires a rigid socket on a directly driven support",
     );
 
+  const frames: ViolationCollector = new ViolationCollector();
+  frames.finiteVector(
+    "socket.position",
+    socket.frame.translation,
+    "socket position",
+  );
+  frames.unitQuaternion(
+    "socket.rotation",
+    socket.frame.rotation,
+    "socket rotation",
+  );
+  frames.finiteVector("mount.position", mount.offset.position, "mount offset");
+  frames.unitQuaternion(
+    "mount.rotation",
+    mount.offset.rotation,
+    "mount rotation",
+  );
+  if (frames.items.length !== 0)
+    refuse(`the mount frame is invalid: ${frames.items[0]!.expected}`);
+
   // Keep the mount's local transform once. A detached object can still carry
   // an initial mount declaration, but its displayed frame no longer follows it.
   const localPosition: IAutoMovieVector3 = Vector3.add(
@@ -125,6 +155,23 @@ export function pickUpIntercept(
     const sample: IAutoMovieRigidTransform =
       i === 0 ? from : i === intervals ? to : prop.frame(seconds);
     const carrier: IAutoMovieRigidTransform = support.frame(seconds);
+    frames.finiteVector(
+      "support.position",
+      carrier.position,
+      "support position",
+    );
+    frames.unitQuaternion(
+      "support.rotation",
+      carrier.rotation,
+      "support rotation",
+    );
+    frames.finiteVector("prop.position", sample.position, "prop position");
+    frames.unitQuaternion("prop.rotation", sample.rotation, "prop rotation");
+    if (frames.items.length !== 0)
+      refuse(
+        `the conveyor frame at ${seconds} s is invalid: ${frames.items[0]!.expected}`,
+      );
+
     if (
       !(
         Quaternion.angle(
@@ -162,6 +209,7 @@ export function pickUpIntercept(
   }
   return {
     target: HumanGrasp.at(prop.prop, context.params.handle, to),
+    frame: to,
     seconds: closeAt,
     velocity: { ...velocity, y: 0 },
   };

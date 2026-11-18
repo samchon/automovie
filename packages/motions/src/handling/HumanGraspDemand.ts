@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -49,6 +50,7 @@ export namespace HumanGraspDemand {
    * @param side The hand.
    * @param shown The hand the arm shows for the candidate grasp.
    * @param posture The posture the grasping action leaves the body in with that grasp.
+   * @param closure The prop's world frame at closure, or the entry frame when omitted.
    * @returns The grip.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the grip and how it is read.
@@ -68,6 +70,7 @@ export namespace HumanGraspDemand {
     side: AutoMovieHumanSide,
     shown: IAutoMovieMotionHumanHand.IWrist,
     posture: IAutoMovieMotionHumanPosture,
+    closure?: IAutoMovieRigidTransform,
   ): IAutoMovieMotionHumanActionLaw.IGrip {
     const held: IAutoMovieMotionHumanPropReader = context.prop(prop);
     const grasped: IAutoMovieMotionHumanHeld.IHeld =
@@ -75,7 +78,7 @@ export namespace HumanGraspDemand {
         context.body,
         side,
         prop,
-        held.frame(context.start),
+        closure ?? held.frame(context.start),
         held.prop.affordances ?? [],
         shown,
       );

@@ -57,11 +57,6 @@ export namespace HumanSupportCarry {
     const turn: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(now.rotation, Quaternion.inverse(first.rotation)),
     );
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
-      x: 0,
-      y: 0,
-      z: 1,
-    });
     return {
       point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
         Vector3.add(
@@ -69,8 +64,66 @@ export namespace HumanSupportCarry {
           Quaternion.rotateVector(turn, Vector3.subtract(p, first.position)),
         ),
       turn,
-      yaw: (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI,
+      yaw: yawOf(turn),
     };
+  }
+
+  /**
+   * Blend the rigid carries that share a staging frame at entry.
+   * End weights preserve the exact source or destination carry. Intermediate
+   * weights interpolate the carried anchor and take the shortest turn.
+   *
+   * @param from The current support's carry from entry.
+   * @param to The next support's carry from the same entry.
+   * @param anchor An entry-world point near the goals being carried, metres.
+   * @param weight The destination weight from zero to one.
+   * @returns A rigid carry of points, turns and headings.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies the shared entry frame, destination weight and exact endpoints.
+   * @evidence contracts/development/implementation.md#principled-implementation Represents each rigid carry by a carried anchor and rotation. The engine interpolates the anchor linearly and the rotation on its shorter arc.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes one blended carry for every world-space posture channel. The caller owns the load-transfer schedule and each plant's carrier.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves unit rotation at intermediate weights and returns the exact input carry at either endpoint.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Blends two anchors and two rotations in constant space and time with one rotation per point.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares engine interpolation and the support heading calculation used for a single carry.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources An intermediate carry keeps only the entry anchor, blended anchor and turn for as long as its caller holds it.
+   */
+  export function blend(
+    from: IAutoMovieMotionHumanSupportCarry.ICarry,
+    to: IAutoMovieMotionHumanSupportCarry.ICarry,
+    anchor: IAutoMovieVector3,
+    weight: number,
+  ): IAutoMovieMotionHumanSupportCarry.ICarry {
+    if (weight === 0) return from;
+    if (weight === 1) return to;
+    const carriedAnchor: IAutoMovieVector3 = Vector3.lerp(
+      from.point(anchor),
+      to.point(anchor),
+      weight,
+    );
+    const turn: IAutoMovieQuaternion = Quaternion.slerp(
+      from.turn,
+      to.turn,
+      weight,
+    );
+    return {
+      point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(
+          carriedAnchor,
+          Quaternion.rotateVector(turn, Vector3.subtract(p, anchor)),
+        ),
+      turn,
+      yaw: yawOf(turn),
+    };
+  }
+
+  /** Read the turn's heading in degrees around world up. */
+  function yawOf(turn: IAutoMovieQuaternion): number {
+    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
   }
 
   /**

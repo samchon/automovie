@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPickUp,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -63,6 +64,7 @@ export namespace pickUpSearch {
    * @param authored The grip as the prop declares it.
    * @param stance The body the arm reaches from.
    * @param carried World displacement accumulated before lifting a moving prop, metres.
+   * @param closure The prop's world frame at moving grasp closure, or omitted for ordinary pickup.
    * @returns The chosen grasp, the elbow hint and the stance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input and the result.
@@ -80,6 +82,7 @@ export namespace pickUpSearch {
     authored: IAutoMovieMotionHumanGrasp.ITarget,
     stance: pickUpPosture.IStance,
     carried?: IAutoMovieVector3,
+    closure?: IAutoMovieRigidTransform,
   ): ISearched {
     const body: IAutoMovieMotionHumanBody = context.body;
     const held: IAutoMovieMotionHumanPosture = stance.posture;
@@ -166,17 +169,18 @@ export namespace pickUpSearch {
           bend,
         };
       if (context.params.use !== undefined)
-        yield HumanGraspUse.presented({
-          context,
-          prop: context.params.prop,
-          handle: context.params.handle,
-          side,
-          // The tool is rigid in the hand the arm shows at the grasp, which
-          // may differ from the hand asked: the fingers close on it where it
-          // is shown.
-          wrist: shown,
-          use: context.params.use,
-        });
+        yield HumanGraspUse.presented(
+          {
+            context,
+            prop: context.params.prop,
+            handle: context.params.handle,
+            side,
+            // The tool is rigid in the hand the arm shows at the grasp.
+            wrist: shown,
+            use: context.params.use,
+          },
+          closure,
+        );
       if (demands !== undefined)
         for (const demand of demands(
           HumanGraspDemand.grip(
@@ -185,6 +189,7 @@ export namespace pickUpSearch {
             side,
             shown,
             after,
+            closure,
           ),
         ))
           yield HumanGraspDemand.key(body, demand);

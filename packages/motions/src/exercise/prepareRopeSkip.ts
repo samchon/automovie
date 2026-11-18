@@ -8,6 +8,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanRopeSkipPresentation,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
@@ -23,6 +24,12 @@ import { HumanHand } from "../posture/HumanHand";
 /** Match the displayed-action seam precision in HumanSegmentPose. */
 const SEAM_SECONDS: number = 1e-12;
 
+/** The 50 mm reference grip in resolveAutoMovieHumanoidSurfaces, in metres. */
+const REFERENCE_GRIP_RADIUS: number = 0.025;
+
+/** The measured 7/8-inch barrel used by the standard rope archetype, in metres. */
+const DEFAULT_HANDLE_DIAMETER: number = (7 / 8) * 0.0254;
+
 /**
  * Drive a visible rope on the clock of a placed two-foot skip.
  *
@@ -31,8 +38,8 @@ const SEAM_SECONDS: number = 1e-12;
  * cable of the specified length. Its orbit starts overhead and reaches
  * the bottom at the action's airborne underpass. If needed, the rope waits
  * at the overhead position so its entire passage fits within the flight.
- * Each handle swivels around the displayed grasp with its local +Z tip
- * pointing down the outgoing cord.
+ * Each handle follows the displayed grasp's wrapped axis, with its local
+ * +Z end on the thumb side. The cable can flex where it joins that end.
  * A film host poses its two barrels and supplies the unindexed cord to the
  * existing soft-prop draw binding. This is a derived staging curve.
  *
@@ -40,7 +47,7 @@ const SEAM_SECONDS: number = 1e-12;
  * @throws {HumanRefusal} For invalid dimensions, an incompatible action, or a rope that cannot span the sampled pose above the floor.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the active clock, handle axes, cord length, staging status and host ownership.
- * @evidence contracts/development/implementation.md#principled-implementation The circle's sagitta bounds the cable's rise over the sole footprint and the flight parabola bounds its angular passage. Projection onto the grasp chord's bisector gives two equal side legs. Squaring the length equation gives the central width and the handle tips shorten the side legs by their half lengths.
+ * @evidence contracts/development/implementation.md#principled-implementation The sagitta and flight parabola bound the turn. The cable begins at the two drawn handle tips and its center lies on their chord's bisector. Squaring the length equation gives the transverse span in closed form.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the opening stance and action clock once. Each draw reads one displayed bone map to place both handles, fits the cable once and checks the underpass against both actual feet.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An inadmissible cable or obstructed underpass is refused. The actor's grasp, cord length and action clock are preserved.
  * @evidence contracts/development/implementation.md#efficient-algorithms Preparation scans the performer's segments and the action's events. Sampling uses one displayed pose, four cable vertices and each foot's fixed sole outline.
@@ -60,9 +67,10 @@ export function prepareRopeSkip(
     length,
     radius,
     handleLength,
+    handleDiameter = DEFAULT_HANDLE_DIAMETER,
   } = input;
   if (
-    ![length, radius, handleLength].every(
+    ![length, radius, handleLength, handleDiameter].every(
       (metres: number): boolean => Number.isFinite(metres) && metres > 0,
     ) ||
     typeof subject !== "string" ||
@@ -71,7 +79,7 @@ export function prepareRopeSkip(
     throw new HumanRefusal({
       kind: "parameter",
       axis: "rope",
-      value: { subject, length, radius, handleLength },
+      value: { subject, length, radius, handleLength, handleDiameter },
       reason:
         "a skipping rope needs an identity and positive finite dimensions",
       fix: "supply the measured cord and handle dimensions in metres",
@@ -138,10 +146,12 @@ export function prepareRopeSkip(
   const orbit: number = body.measure.stature / 2;
   const under: number = segment.start + pass * segment.plan.duration;
   const finish: number = segment.start + segment.plan.duration;
-  const next: IAutoMovieMotionHumanSegment | undefined = segments.find(
-    (part: IAutoMovieMotionHumanSegment): boolean =>
-      part.entry > segment.entry &&
-      Math.abs(part.entryTime - segment.end) <= SEAM_SECONDS,
+  const handoff: number = segments.reduce(
+    (next: number, part: IAutoMovieMotionHumanSegment): number =>
+      part.entry > segment.entry && part.entryTime >= segment.entryTime
+        ? Math.min(next, part.entryTime)
+        : next,
+    Infinity,
   );
 
   // Bound when the circular span overlaps the sole in the sagittal plane.
@@ -166,50 +176,69 @@ export function prepareRopeSkip(
   const frontHalf: number = Math.min(under - segment.start, maximumHalfTurn);
   const rearHalf: number = Math.min(finish - under, maximumHalfTurn);
   const halfHandle: number = handleLength / 2;
-  const combinedLength: number = length + handleLength;
+  const gripOffset: number = handleDiameter / 2 - REFERENCE_GRIP_RADIUS;
+  const frontWaits: boolean = frontHalf < under - segment.start;
+  const rearWaits: boolean = rearHalf < finish - under;
 
-  return (
+  const sample = (
     seconds: number,
   ): IAutoMovieMotionHumanRopeSkipPresentation.IFrame | undefined => {
     if (
       !Number.isFinite(seconds) ||
       seconds + SEAM_SECONDS < segment.entryTime ||
       seconds > segment.end ||
-      (next !== undefined && next.entryTime <= seconds + SEAM_SECONDS)
+      handoff <= seconds + SEAM_SECONDS
     )
       return undefined;
     const bones: ReturnType<typeof performance.bones> = performance.bones(
       performer,
       seconds,
     );
-    const l: IAutoMovieVector3 = HumanHand.frame(
+    const leftGrip: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
       body,
       bones,
       "left",
       "grip",
-    ).point;
-    const r: IAutoMovieVector3 = HumanHand.frame(
+    );
+    const rightGrip: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(
       body,
       bones,
       "right",
       "grip",
-    ).point;
+    );
+    const leftHandle: IAutoMovieVector3 = Vector3.add(
+      leftGrip.point,
+      Vector3.scale(leftGrip.normal, gripOffset),
+    );
+    const rightHandle: IAutoMovieVector3 = Vector3.add(
+      rightGrip.point,
+      Vector3.scale(rightGrip.normal, gripOffset),
+    );
+    const l: IAutoMovieVector3 = Vector3.add(
+      leftHandle,
+      Vector3.scale(leftGrip.forward, halfHandle),
+    );
+    const r: IAutoMovieVector3 = Vector3.add(
+      rightHandle,
+      Vector3.scale(rightGrip.forward, halfHandle),
+    );
     const chord: IAutoMovieVector3 = Vector3.subtract(l, r);
     const span: number = Vector3.length(chord);
-    if (!(span > 0 && combinedLength > span && Vector3.dot(chord, left) > 0))
-      refuse(subject, seconds, "the cable cannot span the two grasps");
+    if (!(span > 0 && length > span && Vector3.dot(chord, left) > 0))
+      refuse(subject, seconds, "the cable cannot span the two handle tips");
     const axis: IAutoMovieVector3 = Vector3.scale(chord, 1 / span);
     const mid: IAutoMovieVector3 = Vector3.lerp(l, r, 0.5);
-    const angle: number =
-      Math.PI *
-      (1 +
-        Math.max(
-          -1,
-          Math.min(
-            1,
-            (seconds - under) / (seconds <= under ? frontHalf : rearHalf),
-          ),
-        ));
+    const before: boolean = seconds <= under;
+    const u: number = Math.max(
+      0,
+      1 - Math.abs(seconds - under) / (before ? frontHalf : rearHalf),
+    );
+    // For a held overhead phase, match zero speed at u=0 and the linear
+    // speed at u=1. The cubic u²(2-u) delays passage toward the soles.
+    const progress: number = (before ? frontWaits : rearWaits)
+      ? u * u * (2 - u)
+      : u;
+    const angle: number = Math.PI * (before ? progress : 2 - progress);
     const center: IAutoMovieVector3 = Vector3.add(
       { ...footStation, y: floor + 2 * radius + orbit * (1 + Math.cos(angle)) },
       Vector3.scale(forward, orbit * Math.sin(angle)),
@@ -221,44 +250,21 @@ export function prepareRopeSkip(
     );
     const crossbar: IAutoMovieVector3 = Vector3.add(mid, offset);
 
-    // L = w + sqrt((w - d)^2 + 4 r^2), where d is the grasp chord and r
-    // the perpendicular offset. Including the two handle halves lets the
-    // cable leave each tip along its barrel while preserving the cable length.
+    // L = w + sqrt((w - d)^2 + 4 r^2), where d joins the handle tips
+    // and r is the perpendicular offset. The cable can bend at a tip.
     const width: number =
-      (combinedLength + span) / 2 -
-      (2 * Vector3.dot(offset, offset)) / (combinedLength - span);
-    if (!(Number.isFinite(width) && width >= span))
+      (length + span) / 2 - (2 * Vector3.dot(offset, offset)) / (length - span);
+    if (!(Number.isFinite(width) && width > 0))
       refuse(subject, seconds, "the cable is too short for the visible orbit");
     const half: IAutoMovieVector3 = Vector3.scale(axis, width / 2);
     const a: IAutoMovieVector3 = Vector3.add(crossbar, half);
     const b: IAutoMovieVector3 = Vector3.subtract(crossbar, half);
-    const leg: number = (combinedLength - width) / 2;
-    if (!(leg > halfHandle))
-      refuse(
-        subject,
-        seconds,
-        "the side legs do not extend beyond the barrels",
-      );
-    const leftExit: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(a, l),
-    );
-    const rightExit: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(b, r),
-    );
-    const leftTip: IAutoMovieVector3 = Vector3.add(
-      l,
-      Vector3.scale(leftExit, halfHandle),
-    );
-    const rightTip: IAutoMovieVector3 = Vector3.add(
-      r,
-      Vector3.scale(rightExit, halfHandle),
-    );
-    if (Math.min(leftTip.y, a.y, b.y, rightTip.y) < floor + radius)
+    if (Math.min(l.y, a.y, b.y, r.y) < floor + radius)
       refuse(subject, seconds, "the cord would penetrate the floor");
 
     // A projected sole box conservatively bounds every outline corner. Check
     // the height only on each cord segment's overlap with that footprint.
-    const path: readonly IAutoMovieVector3[] = [leftTip, a, b, rightTip];
+    const path: readonly IAutoMovieVector3[] = [l, a, b, r];
     if (Math.cos(angle) < 0) {
       const aX: number = Vector3.dot(a, left);
       const bX: number = Vector3.dot(b, left);
@@ -275,7 +281,26 @@ export function prepareRopeSkip(
         const maxZ: number = Math.max(...along) + radius;
         const minX: number = Math.min(...across) - radius;
         const maxX: number = Math.max(...across) + radius;
-        if (clip(aZ, bZ, minZ, maxZ) !== null && (bX > minX || aX < maxX))
+        const crossing: readonly [number, number] | null = clip(
+          bZ,
+          aZ,
+          minZ + radius,
+          maxZ - radius,
+        );
+        const spanning: boolean = bX <= minX && aX >= maxX;
+        if (
+          Math.abs(seconds - under) <= SEAM_SECONDS &&
+          (crossing === null ||
+            !spanning ||
+            bX + (aX - bX) * crossing[0] > maxX ||
+            bX + (aX - bX) * crossing[1] < minX)
+        )
+          refuse(
+            subject,
+            seconds,
+            `the central cord misses the ${side} underpass`,
+          );
+        if (clip(aZ, bZ, minZ, maxZ) !== null && !spanning)
           refuse(
             subject,
             seconds,
@@ -319,8 +344,8 @@ export function prepareRopeSkip(
 
     return {
       handles: {
-        left: handle(l, leftExit),
-        right: handle(r, rightExit),
+        left: handle(leftHandle, leftGrip.forward),
+        right: handle(rightHandle, rightGrip.forward),
       },
       cord: {
         subject,
@@ -341,6 +366,11 @@ export function prepareRopeSkip(
       },
     };
   };
+
+  // Validate the decisive sample even when the host's frame grid skips it.
+  // A trimmed turn that never enters the underpass has no such obligation.
+  sample(under);
+  return sample;
 }
 
 /** Project the sole's cited perimeter frames with the actual foot and toe bones. */
@@ -370,7 +400,7 @@ function clip(
   return from <= to ? [from, to] : null;
 }
 
-/** Aim the circular barrel's +Z axis along its outgoing cord segment. */
+/** Aim the circular barrel's +Z axis along the displayed grasp's wrapped axis. */
 function handle(
   position: IAutoMovieVector3,
   exit: IAutoMovieVector3,

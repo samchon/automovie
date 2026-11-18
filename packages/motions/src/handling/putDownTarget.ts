@@ -1,12 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDown,
-  IAutoMovieMotionHumanStrikingHeld,
   IAutoMoviePose,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -14,10 +13,8 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
-import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
 /**
@@ -34,38 +31,53 @@ export namespace putDownTarget {
   /**
    * Check the source socket's displayed fit at the moving transfer.
    *
-   * @param body The performer whose grip carries the source.
+   * @param context The receiving socket and film clock.
    * @param posture The placement plan's contact posture.
-   * @param tool The source in its kept grip frame.
-   * @param target The grip frame that aligns the sockets at contact.
-   * @throws {HumanRefusal} If the fitted source exceeds the shared held-tool bound.
+   * @param side The hand carrying the source.
+   * @param offset The source prop frame kept in the wrist bone.
+   * @param seconds Seconds from placement entry to transfer.
+   * @throws {HumanRefusal} If the fitted source exceeds the position or attitude bound.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the displayed source and planned target, and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Resolves the same posture presented at transfer and compares the fitted grip against the contact target.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve once, read the grip and apply the held-tool bound.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Compares the resolved hand, including its joint limits, rather than the requested wrist.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One displayed solve at prepare time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the held-tool error measure and limit.
+   * @evidence contracts/development/implementation.md#principled-implementation Composes the resolved wrist, kept prop offset and optional source socket at contact. Measures translation and full quaternion angle against the receiving socket.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve once, compose the source frame and compare both errors.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses resolved joint limits and both authored frames, with no dependence on a tool's working-line length.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve at prepare time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared rigid-frame operations and held-tool positional bound.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Does not retain the solved bones.
    */
   export function checkContact(
-    body: IAutoMovieMotionHumanBody,
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
     posture: IAutoMovieMotionHumanPosture,
-    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
-    target: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    side: AutoMovieHumanSide,
+    offset: IAutoMovieRigidTransform,
+    seconds: number,
   ): void {
-    const bones: ReturnType<typeof poseBones> = poseBones(
-      body,
-      resolveHumanPosture(body, posture),
+    const { body } = context;
+    const onto: NonNullable<typeof context.params.onto> = context.params.onto!;
+    const time: number = context.start + seconds;
+    requireRigid(offset, context.params.prop, context.start);
+    const wrist: IAutoMovieRigidTransform = HumanPropFrame.bone(
+      poseBones(body, resolveHumanPosture(body, posture)).get(`${side}Hand`)!,
     );
-    const missed: number = StrikingHeld.strayed(
-      tool,
-      {
-        point: HumanHand.frame(body, bones, tool.side, "grip").point,
-        rotation: bones.get(`${tool.side}Hand`)!.worldRotation,
-      },
-      target,
-      0,
+    const prop: IAutoMovieRigidTransform = HumanPropFrame.compose(
+      wrist,
+      offset,
+    );
+    const source: IAutoMovieRigidTransform =
+      onto.via === undefined
+        ? prop
+        : HumanPropFrame.compose(
+            prop,
+            socketFrame(context.prop(context.params.prop), onto.via, time),
+          );
+    const target: IAutoMovieRigidTransform = worldSocket(
+      context.prop(onto.prop),
+      onto.point,
+      time,
+    );
+    const missed: number = Vector3.length(
+      Vector3.subtract(source.position, target.position),
     );
     if (!(missed <= StrikingRoll.MISS))
       throw new HumanRefusal({
@@ -82,13 +94,27 @@ export namespace putDownTarget {
           "the fitted hand cannot align the held socket at the moving transfer",
         fix: "take a grasp that aligns both sockets, or bring the carrier closer",
       });
+
+    // Use the 15-degree alignment bound of the static aperture placement specification.
+    const angle: number =
+      (Quaternion.angle(source.rotation, target.rotation) * 180) / Math.PI;
+    if (!(angle <= 15))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "onto",
+        value: angle,
+        feasible: { kind: "range", minimum: 0, maximum: 15, unit: "deg" },
+        reason:
+          "the fitted source and receiving socket attitudes differ at the moving transfer",
+        fix: "take a grasp that aligns the socket attitudes, or turn the carrier",
+      });
   }
 
   /**
    * Admit horizontal translation of a directly placed rigid receiver.
    * The displayed socket is checked at intervals of at most 1/120 s, including
-   * when it rides another prop's authored track. Fixed sockets keep their
-   * original placement path.
+   * when it rides an authored track through initial prop mounts. Fixed
+   * sockets keep their original placement path.
    *
    * @param context The placement and its film-clock prop readers.
    * @param duration Full placement duration, in seconds.
@@ -99,8 +125,8 @@ export namespace putDownTarget {
    * @evidence contracts/development/common.md#meaningful-documentation Specifies the admitted track, interval, clock and refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Fits the velocity from the two endpoint transforms and compares interior samples against that straight line.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the displayed socket, checks its path against its declared carrier, and returns one displacement function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Checks film-clock transforms within one micrometre and one microradian. Only direct rigid placements may follow a moving carrier.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bounded scan during preparation and constant displacement arithmetic per seek.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Checks film-clock transforms within one micrometre and one microradian at each sample. Only direct rigid placements may follow a moving carrier.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One preparation scan, reading the socket and each authored mount per sample, and constant displacement arithmetic per seek.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same frame reader as the entry target.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sampler retains only the velocity vector.
    */
@@ -113,10 +139,7 @@ export namespace putDownTarget {
       context.params.onto;
     if (onto === undefined) return undefined;
     const receiver: IAutoMovieMotionHumanPropReader = context.prop(onto.prop);
-    const carrier: IAutoMovieMotionHumanPropReader | undefined = track(
-      context,
-      onto.prop,
-    );
+    const carrier: ITrack | undefined = track(context, onto.prop);
     const at = (seconds: number): IAutoMovieRigidTransform =>
       worldSocket(receiver, onto.point, context.start + seconds);
     const entry: IAutoMovieRigidTransform = at(0);
@@ -130,9 +153,8 @@ export namespace putDownTarget {
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
     ): boolean => Vector3.length(Vector3.subtract(a, b)) <= 1e-6;
-    const carrierEntry: IAutoMovieRigidTransform | undefined = carrier?.frame(
-      context.start,
-    );
+    const carrierEntry: IAutoMovieRigidTransform | undefined =
+      carrier?.reader.frame(context.start);
     let moving: boolean = false;
     let followsCarrier: boolean = true;
     for (let index: number = 0; index <= samples; ++index) {
@@ -160,17 +182,13 @@ export namespace putDownTarget {
 
       // Compare the displayed socket with its declared carrier's translation.
       // A hand or articulation taking over the socket cannot borrow that track.
-      if (
-        followsCarrier &&
-        carrier !== undefined &&
-        carrierEntry !== undefined
-      ) {
-        const carried: IAutoMovieRigidTransform = carrier.frame(
-          context.start + time,
-        );
-        followsCarrier =
-          finite(carried) &&
-          finite(carrierEntry) &&
+      if (carrier !== undefined && carrierEntry !== undefined) {
+        const seconds: number = context.start + time;
+        const carried: IAutoMovieRigidTransform = carrier.reader.frame(seconds);
+        requireRigid(carried, carrier.reader.prop.subject, seconds);
+        for (const { parent, point } of carrier.mounts)
+          socketFrame(parent, point, seconds);
+        followsCarrier &&=
           samePosition(
             Vector3.subtract(carried.position, carrierEntry.position),
             Vector3.subtract(frame.position, entry.position),
@@ -206,7 +224,7 @@ export namespace putDownTarget {
    *
    * @param context Prop lookup on the performance.
    * @param subject The receiving prop.
-   * @returns The authored carrier, if any.
+   * @returns The authored carrier and declared sockets to it, if any.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the declared mount lookup and its result.
    * @evidence contracts/development/implementation.md#principled-implementation Follows one parent per mount, with a cycle guard.
@@ -214,21 +232,36 @@ export namespace putDownTarget {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not infer a motion track from the rest pose.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the number of declared mount links.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares lookup between placement and earlier grasp demands.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The visited set is local to the lookup.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the reader and mount path are returned. The visited set is local to the lookup.
    */
   export function track(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
     subject: string,
-  ): IAutoMovieMotionHumanPropReader | undefined {
+  ): ITrack | undefined {
     const visited: Set<string> = new Set();
-    let name: string | undefined = subject;
-    while (name !== undefined && !visited.has(name)) {
-      visited.add(name);
-      const reader: IAutoMovieMotionHumanPropReader = context.prop(name);
-      if (reader.prop.motion !== undefined) return reader;
-      name = reader.prop.mounted?.prop;
+    const mounts: { parent: IAutoMovieMotionHumanPropReader; point: string }[] =
+      [];
+    let reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
+    while (!visited.has(reader.prop.subject)) {
+      visited.add(reader.prop.subject);
+      if (reader.prop.motion !== undefined) return { reader, mounts };
+      const mount: typeof reader.prop.mounted = reader.prop.mounted;
+      if (mount === undefined) break;
+      reader = context.prop(mount.prop);
+      mounts.push({ parent: reader, point: mount.point });
     }
     return undefined;
+  }
+
+  /** The authored track and raw ancestor sockets used to reach it. */
+  interface ITrack {
+    /** The prop that owns the world track. */
+    reader: IAutoMovieMotionHumanPropReader;
+    /** Links in order from the receiver toward the track. */
+    mounts: readonly {
+      parent: IAutoMovieMotionHumanPropReader;
+      point: string;
+    }[];
   }
 
   /**
@@ -272,7 +305,7 @@ export namespace putDownTarget {
     );
     if (onto.via === undefined) return destination;
 
-    const source: IAutoMovieAffordance = socket(
+    const source: IAutoMovieRigidTransform = socketFrame(
       context.prop(context.params.prop),
       onto.via,
       context.start,
@@ -280,24 +313,24 @@ export namespace putDownTarget {
     const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.normalize(
       Quaternion.multiply(
         destination.rotation,
-        Quaternion.inverse(source.frame.rotation),
+        Quaternion.inverse(source.rotation),
       ),
     );
     return {
       position: Vector3.subtract(
         destination.position,
-        Quaternion.rotateVector(rotation, source.frame.translation),
+        Quaternion.rotateVector(rotation, source.position),
       ),
       rotation,
     };
   }
 
-  /** The authored socket at the receiver's displayed articulation state. */
-  function socket(
+  /** The raw rigid socket frame at the prop's displayed articulation state. */
+  function socketFrame(
     reader: IAutoMovieMotionHumanPropReader,
     id: string,
     seconds: number,
-  ): IAutoMovieAffordance {
+  ): IAutoMovieRigidTransform {
     const prop: string = reader.prop.subject;
     const contacts: readonly IAutoMovieAffordance[] =
       reader.prop.articulate === undefined
@@ -318,7 +351,12 @@ export namespace putDownTarget {
         reason: `${prop} has no socket named ${id}`,
         fix: "name a socket the prop declares",
       });
-    return found;
+    const frame: IAutoMovieRigidTransform = {
+      position: found.frame.translation,
+      rotation: found.frame.rotation,
+    };
+    requireRigid(frame, `${prop}.${id}`, seconds);
+    return frame;
   }
 
   /** Read the socket in world metres at a film second. */
@@ -327,27 +365,34 @@ export namespace putDownTarget {
     id: string,
     seconds: number,
   ): IAutoMovieRigidTransform {
-    const local: IAutoMovieAffordance = socket(reader, id, seconds);
     const world: IAutoMovieRigidTransform = reader.frame(seconds);
-    const relative: IAutoMovieRigidTransform = {
-      position: local.frame.translation,
-      rotation: local.frame.rotation,
-    };
-    if (!(finite(world) && finite(relative)))
+    requireRigid(world, reader.prop.subject, seconds);
+    return HumanPropFrame.compose(world, socketFrame(reader, id, seconds));
+  }
+
+  /** Refuse malformed frames before rigid composition can normalize them. */
+  function requireRigid(
+    frame: IAutoMovieRigidTransform,
+    name: string,
+    seconds: number,
+  ): void {
+    if (!rigid(frame))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "onto",
-        value: `${reader.prop.subject}.${id}`,
-        reason: `the receiving socket has a non-finite frame at ${seconds} s`,
-        fix: "give the receiver a finite frame throughout the placement",
+        value: name,
+        reason: `${name} has a non-rigid frame at ${seconds} s`,
+        fix: "give the prop or socket a finite position and a unit rotation",
       });
-    return HumanPropFrame.compose(world, relative);
   }
 
-  /** Whether the position and quaternion components are finite. */
-  function finite(frame: IAutoMovieRigidTransform): boolean {
+  /** Whether the position is finite and the rotation already unit length. */
+  function rigid(frame: IAutoMovieRigidTransform): boolean {
     const { x, y, z } = frame.position;
     const q: IAutoMovieRigidTransform["rotation"] = frame.rotation;
-    return [x, y, z, q.x, q.y, q.z, q.w].every(Number.isFinite);
+    return (
+      [x, y, z].every(Number.isFinite) &&
+      Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6
+    );
   }
 }

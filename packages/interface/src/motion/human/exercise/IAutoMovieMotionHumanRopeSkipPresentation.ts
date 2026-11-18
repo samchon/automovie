@@ -32,6 +32,9 @@ export interface IAutoMovieMotionHumanRopeSkipPresentation {
 
   /** Length of either rigid handle, in metres. Its barrel is centered at the origin on local Z. */
   handleLength: number;
+
+  /** Rigid handle diameter in metres, used to place the barrel beside the palm. Defaults to the measured 7/8-inch handle. */
+  handleDiameter?: number;
 }
 
 /**
@@ -55,7 +58,7 @@ export namespace IAutoMovieMotionHumanRopeSkipPresentation {
     /** Derived unindexed cord surface, ready for the host's soft-prop draw binding. */
     cord: IAutoMovieRenderSoftPropFrame;
 
-    /** Rigid barrels centered in each grasp, with the cord attached on local +Z. */
+    /** Rigid barrels fitted to each grasp, with the cord attached on local +Z. */
     handles: Readonly<Record<AutoMovieHumanSide, IAutoMovieRigidTransform>>;
   }
 }

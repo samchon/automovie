@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanPickUp,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -59,6 +60,7 @@ export namespace pickUpStance {
    * @param lift The asked lift, metres.
    * @param authored The grip as the archetype declares it.
    * @param carried World displacement accumulated before lifting a moving prop, metres.
+   * @param closure The prop's world frame at moving grasp closure, or omitted for ordinary pickup.
    * @returns The grasp, the stance and the raise.
    * @throws {HumanRefusal} When the entry neither stands nor sits and the grip is beyond the arm, or the lowering refuses a body that does not stand.
    *
@@ -76,6 +78,7 @@ export namespace pickUpStance {
     lift: number,
     authored: IAutoMovieMotionHumanGrasp.ITarget,
     carried?: IAutoMovieVector3,
+    closure?: IAutoMovieRigidTransform,
   ): IChosen {
     const missed = (found: pickUpSearch.ISearched): boolean =>
       !pickUpPosture.reaches(
@@ -99,6 +102,7 @@ export namespace pickUpStance {
         ): IAutoMovieMotionHumanPosture => posture,
       },
       carried,
+      closure,
     );
     // A standing body no stoop or squat brings to the grip may still turn
     // or step toward it, below; anything else the lowering refuses stands.
@@ -111,7 +115,15 @@ export namespace pickUpStance {
         if (!(standing && error instanceof HumanRefusal)) throw error;
       }
     if (lowered !== null)
-      found = pickUpSearch.of(context, side, lift, authored, lowered, carried);
+      found = pickUpSearch.of(
+        context,
+        side,
+        lift,
+        authored,
+        lowered,
+        carried,
+        closure,
+      );
 
     // Still out of reach, the trunk turns toward the grip first.
     if (missed(found)) {
@@ -121,7 +133,15 @@ export namespace pickUpStance {
         found.chosen.wrist.point,
         found.stance,
       );
-      found = pickUpSearch.of(context, side, lift, authored, lowered, carried);
+      found = pickUpSearch.of(
+        context,
+        side,
+        lift,
+        authored,
+        lowered,
+        carried,
+        closure,
+      );
     }
 
     // Still out of reach, one foot takes one adjustment step toward it; and
@@ -149,6 +169,7 @@ export namespace pickUpStance {
               authored,
               stepped,
               carried,
+              closure,
             ),
           };
     };

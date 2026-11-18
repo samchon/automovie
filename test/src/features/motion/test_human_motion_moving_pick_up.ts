@@ -31,11 +31,12 @@ import { nclose, qclose, vclose } from "../internal/predicates";
  *    the glass there, with the glass attached through lift and the next action.
  * 2. A pre-closure cut to stand leaves the glass moving on the support.
  * 3. A glass outside reach at closure refuses the pick up.
+ * 4. A conveyor callback with a zero quaternion refuses the interception.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the support motion, displayed grasp, continued custody, cut and refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the placed events, displayed palm and prop frames from the public performance.
  * @evidence contracts/development/testing.md#independent-expectations A linear support travels 0.20 m/s, so the glass travels 0.10 m before closure and 0.20 m if left on it for one second. A 0.15 s uniform brake from 0.20 m/s carries it 0.015 m horizontally. The lifted glass rises by the authored 0.10 m and its hand-local offset stays constant.
- * @evidence contracts/development/testing.md#distinguishing-cases An entry-frame reach misses the displaced glass. A continuing mount cannot lift and a premature handover cannot continue translating after the cut.
+ * @evidence contracts/development/testing.md#distinguishing-cases An entry-frame reach misses the displaced glass. A continuing mount cannot lift and a premature handover cannot continue translating after the cut. A zero quaternion has no rigid rotation even when the computed mount looks valid.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous specification owns its performances and pure frame readers.
  */
 export function test_human_motion_moving_pick_up(): void {
@@ -89,12 +90,13 @@ export function test_human_motion_moving_pick_up(): void {
   const perform = (
     composition: IAutoMovieMotionHumanChain,
     position: IAutoMovieVector3 = start,
+    carrier: IAutoMovieMotionHumanProp = support,
   ): HumanPerformance =>
     new HumanPerformance({
       seed: "moving-pick-up",
       laws: [pickUpMoving],
       props: [
-        support,
+        carrier,
         {
           ...glass,
           mounted: {
@@ -218,5 +220,24 @@ export function test_human_motion_moving_pick_up(): void {
   TestValidator.predicate(
     "the out-of-reach interception refuses the authored grip",
     refusal instanceof HumanRefusal && refusal.kind === "reach",
+  );
+
+  let invalidTrack: unknown;
+  try {
+    perform(chain, start, {
+      ...support,
+      motion: (seconds: number): IAutoMovieRigidTransform => ({
+        position: { ...zero, x: 0.2 * seconds },
+        rotation: seconds === 0.25 ? { ...identity, w: 0 } : identity,
+      }),
+    });
+  } catch (error) {
+    invalidTrack = error;
+  }
+  TestValidator.predicate(
+    "a zero quaternion within an otherwise linear track refuses closure",
+    invalidTrack instanceof HumanRefusal &&
+      invalidTrack.kind === "parameter" &&
+      invalidTrack.axis === "closeAt",
   );
 }

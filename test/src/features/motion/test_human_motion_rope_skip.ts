@@ -1,4 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanPerformer,
@@ -11,6 +15,7 @@ import {
   HumanFoot,
   HumanHand,
   HumanPerformance,
+  HumanRefusal,
   prepareRopeSkip,
   ropeSkip,
 } from "@automovie/motions";
@@ -31,18 +36,20 @@ import { vclose } from "../internal/vclose";
  *    instants, and where the cord reaches the sole edges.
  * 2. Read before the skip and seek backward to the crossing after reading
  *    landing. The cue has no rope frame and the crossing frame is repeatable.
+ * 3. A slow turn holds overhead and passes in flight. Periods too large to
+ *    represent the phase boundaries or quarter-flight samples are refused.
  *
  * Silva and Pellegrini (2009, Intervalo Temporal) measured 0.13 ± 0.02 s
- * from two-foot takeoff to the cord passing underfoot at cadences of 1.5,
- * 1.7 and 1.9 Hz. Wu et al. (2021, §2.2.2) describe one pass during flight.
+ * from two-foot takeoff to the cord passing underfoot at the tested cadences.
+ * Tian (2021, §2.2.2) describes one pass during flight.
  * https://periodicos.ufsc.br/index.php/rbcdh/article/download/1980-0037.2009v11n4p379/10901
  * https://www.techscience.com/mcb/v18n1/41384/html
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the action, study timing and displayed quantities that distinguish a skip.
- * @evidence contracts/development/testing.md#behavioral-verification Composes the registered law through the public chain and measures the rendered cord against the displayed soles and handles against the displayed hand grip sockets.
+ * @evidence contracts/development/testing.md#behavioral-verification Composes the registered law through the public chain and measures the produced cord against the displayed sole outlines and the handles against displayed grip positions and axes.
  * @evidence contracts/development/testing.md#independent-expectations Uses the measured takeoff-to-pass interval and the physical cable radius and length. The sagittal circle bounds the low part of the staged turn against the observed sole envelope. The bound applies to the circular central span in this fixture.
- * @evidence contracts/development/testing.md#distinguishing-cases The front and rear passes identify the direction, the overhead and under passes distinguish the two sides of the turn, and a standing cue and a backward seek exercise the sampler boundary.
- * @evidence contracts/development/testing.md#execution-ownership Builds one portable in-memory performance and samples its public rope producer without a renderer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the direction, overhead and under passes, the action seam, backwards seeks, a slow turn and two unrepresentable timing cases.
+ * @evidence contracts/development/testing.md#execution-ownership Builds one portable performance for the measured turns and uses two refusals that stop before the hop plans.
  */
 export function test_human_motion_rope_skip(): void {
   const performer: IAutoMovieMotionHumanPerformer = {
@@ -55,6 +62,25 @@ export function test_human_motion_rope_skip(): void {
   const chain: ReturnType<
     typeof HumanChain.extend<{ ropeSkip: typeof ropeSkip }>
   > = HumanChain.extend({ ropeSkip });
+  for (const periodSeconds of [2 ** 54, 2 ** 50]) {
+    let refusal: unknown;
+    try {
+      new HumanPerformance({
+        seed: "unrepresentable skip",
+        performers: [performer],
+        laws: [ropeSkip],
+        composition: chain
+          .subject(performer.subject)
+          .ropeSkip({ periodSeconds }).node,
+      });
+    } catch (error: unknown) {
+      refusal = error;
+    }
+    TestValidator.predicate(
+      `period ${periodSeconds} must retain ordered phase samples`,
+      refusal instanceof HumanRefusal && refusal.axis === "periodSeconds",
+    );
+  }
   const performance: HumanPerformance = new HumanPerformance({
     seed: "single-under",
     performers: [performer],
@@ -75,6 +101,7 @@ export function test_human_motion_rope_skip(): void {
   const length: number = 3.048;
   const radius: number = 0.001190625;
   const handleLength: number = 0.13335;
+  const handleDiameter: number = 0.022225;
   const epsilon: number = 1e-6;
   const sides: readonly AutoMovieHumanSide[] = ["left", "right"];
   const setup: Parameters<typeof prepareRopeSkip>[0] = {
@@ -85,11 +112,14 @@ export function test_human_motion_rope_skip(): void {
     length,
     radius,
     handleLength,
+    handleDiameter,
   };
   const sample: ReturnType<typeof prepareRopeSkip> = prepareRopeSkip(setup);
   TestValidator.predicate(
     "the cord owns only its visible action interval",
-    sample(0.15) === undefined && sample(action.end) === undefined,
+    sample(0.15) === undefined &&
+      sample(action.end - 5e-13) === undefined &&
+      sample(action.end) === undefined,
   );
   TestValidator.predicate(
     "one cycle after the cue at 1.7 Hz",
@@ -119,6 +149,7 @@ export function test_human_motion_rope_skip(): void {
   ): {
     points: IAutoMovieVector3[];
     sole: IAutoMovieVector3[];
+    outline: IAutoMovieVector3[];
     mid: IAutoMovieVector3;
   } => {
     const frame: ReturnType<typeof sample> = sample(seconds);
@@ -161,28 +192,31 @@ export function test_human_motion_rope_skip(): void {
     const ends: IAutoMovieVector3[] = [];
     for (const side of sides) {
       const handle: IAutoMovieRigidTransform = frame.handles[side];
-      const grip: IAutoMovieVector3 = HumanHand.frame(
+      const grip: ReturnType<typeof HumanHand.frame> = HumanHand.frame(
         performer.body,
         bones,
         side,
         "grip",
-      ).point;
+      );
+      // The observed grip socket stands 25 mm from the hand's defining ray.
       TestValidator.predicate(
-        `${side} grip keeps its handle at ${seconds} s`,
-        vclose(grip, handle.position),
+        `${side} grip keeps the barrel tangent to its reference surface at ${seconds} s`,
+        vclose(
+          Vector3.subtract(
+            handle.position,
+            Vector3.scale(grip.normal, handleDiameter / 2),
+          ),
+          Vector3.subtract(grip.point, Vector3.scale(grip.normal, 0.025)),
+        ),
       );
       const exit: IAutoMovieVector3 = Quaternion.rotateVector(handle.rotation, {
         x: 0,
         y: 0,
         z: 1,
       });
-      const firstLeg: IAutoMovieVector3 =
-        side === "left"
-          ? Vector3.subtract(points[1]!, points[0]!)
-          : Vector3.subtract(points[2]!, points[3]!);
       TestValidator.predicate(
-        `${side} cable leaves its barrel along its axis`,
-        vclose(exit, Vector3.normalize(firstLeg)),
+        `${side} barrel stays on the displayed grasp's wrapped axis`,
+        vclose(exit, grip.forward),
       );
       ends.push(
         Vector3.add(handle.position, Vector3.scale(exit, handleLength / 2)),
@@ -199,11 +233,21 @@ export function test_human_motion_rope_skip(): void {
           (socket): IAutoMovieVector3 => socket.point,
         ),
     );
+    const outline: IAutoMovieVector3[] = sides.flatMap(
+      (side: AutoMovieHumanSide): IAutoMovieVector3[] =>
+        HumanFoot.outline(performer.body, side).map(
+          (frame): IAutoMovieVector3 =>
+            resolveAutoMovieHumanoidSurfaces.place(
+              frame,
+              bones.get(frame.bone)!,
+            ).point,
+        ),
+    );
     const mid: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(points[1]!, points[2]!),
       0.5,
     );
-    return { points, sole, mid };
+    return { points, sole, outline, mid };
   };
   const top: ReturnType<typeof read> = read(overhead);
   const front: ReturnType<typeof read> = read(under - period / 4);
@@ -218,10 +262,10 @@ export function test_human_motion_rope_skip(): void {
   );
   const [left, right] = [pass.points[1]!, pass.points[2]!];
   const heel: number = Math.min(
-    ...pass.sole.map((point: IAutoMovieVector3): number => point.z),
+    ...pass.outline.map((point: IAutoMovieVector3): number => point.z),
   );
   const toe: number = Math.max(
-    ...pass.sole.map((point: IAutoMovieVector3): number => point.z),
+    ...pass.outline.map((point: IAutoMovieVector3): number => point.z),
   );
   TestValidator.predicate(
     "cord crosses above the head",
@@ -235,7 +279,7 @@ export function test_human_motion_rope_skip(): void {
   );
   TestValidator.predicate(
     "the low cord spans the feet side to side below both soles",
-    pass.sole.every(
+    pass.outline.every(
       (foot: IAutoMovieVector3): boolean =>
         foot.x > Math.min(left.x, right.x) &&
         foot.x < Math.max(left.x, right.x) &&
@@ -276,7 +320,14 @@ export function test_human_motion_rope_skip(): void {
     const cordTop: number = Math.max(left.y, right.y) + rise + radius;
     TestValidator.predicate(
       "both feet clear the cable across the sole envelope",
-      edge.sole.every((foot: IAutoMovieVector3): boolean => foot.y > cordTop) &&
+      edge.outline.every(
+        (foot: IAutoMovieVector3): boolean => foot.y > cordTop,
+      ) &&
+        edge.outline.every(
+          (foot: IAutoMovieVector3): boolean =>
+            foot.x + radius < Math.min(edge.points[0]!.x, edge.points[1]!.x) &&
+            foot.x - radius > Math.max(edge.points[2]!.x, edge.points[3]!.x),
+        ) &&
         nclose(edge.mid.y, pass.mid.y + rise),
     );
   }

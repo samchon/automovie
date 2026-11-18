@@ -40,7 +40,7 @@ export namespace HumanGraspWorn {
   /**
    * The key pose of a grasp taken to wear a thing.
    *
-   * @param props The action's context, the held thing and its `wear` contact, the region and its point on the entry's body, the hand, the candidate grasp's hand, whether the thing is round about the region, and how far the closed hand at a wrist keeps out of the body's other parts (none when absent).
+   * @param props The action's context, the held thing and its world frame at closure and `wear` contact, the region and its point on the entry's body, the hand, the candidate grasp's hand, whether the thing is round about the region, and how far the closed hand at a wrist keeps out of the body's other parts (none when absent).
    * @returns The key, with its judge: the fitted hand's wear socket off the region, metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -57,6 +57,7 @@ export namespace HumanGraspWorn {
       "body" | "entry" | "start"
     >;
     held: IAutoMovieMotionHumanPropReader;
+    world: IAutoMovieRigidTransform;
     tip: IAutoMovieAffordance;
     at: AutoMovieHumanoidRegion;
     site: IAutoMovieVector3;
@@ -66,8 +67,7 @@ export namespace HumanGraspWorn {
     round?: boolean;
     clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
   }): IAutoMovieMotionHumanGrasp.IKey {
-    const { context, held, tip, at, site } = props;
-    const world: IAutoMovieRigidTransform = held.frame(context.start);
+    const { context, held, world, tip, at, site } = props;
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       props.wrist.rotation,
     );

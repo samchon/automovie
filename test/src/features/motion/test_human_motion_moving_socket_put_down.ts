@@ -31,13 +31,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    offset socket within 15 mm of the socket on a mounted receiver and
  *    preserves that placement. The displayed wrist moves with the receiver
  *    while the fingers open.
- * 2. A receiver that turns during the same placement is refused on `onto`.
+ * 2. Without a source socket, the kept offset puts the parcel origin on the seat.
+ * 3. A turning track and a track with a zero quaternion are refused on `onto`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the clock, placement, opening and refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public putDown chain and reads the displayed parcel and wrist before and after mounting.
- * @evidence contracts/development/testing.md#independent-expectations Computes the receiving socket from its authored position and horizontal speed. The aperture placement specification supplies the 15 mm contact bound. The 3 mm travel tolerance distinguishes tracking the 18.6 mm displacement from keeping the wrist fixed.
- * @evidence contracts/development/testing.md#distinguishing-cases Changes only rotation in the invalid case. Samples separate correct placement, opened hand follow and mounted translation.
- * @evidence contracts/development/testing.md#execution-ownership Builds one polygon body and two in-memory performances with identical local fixtures.
+ * @evidence contracts/development/testing.md#independent-expectations Computes the receiving socket from its authored position, attitude and horizontal speed. The aperture placement specification supplies 15 mm and 15 degrees for socket alignment and 1 mm for mounting continuity. The 3 mm travel tolerance distinguishes tracking the 18.6 mm displacement from keeping the wrist fixed.
+ * @evidence contracts/development/testing.md#distinguishing-cases Omits the source socket in the origin case and changes only track rotation in the invalid cases. Samples distinguish placement, opening continuity and mounted travel.
+ * @evidence contracts/development/testing.md#execution-ownership Builds one polygon body and in-memory performances with the same carrier path and seat geometry.
  */
 export function test_human_motion_moving_socket_put_down(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
@@ -80,7 +81,10 @@ export function test_human_motion_moving_socket_put_down(): void {
       },
     ],
   };
-  const stage = (turns: boolean): HumanPerformance => {
+  const stage = (
+    track: "translate" | "turn" | "malformed",
+    viaSocket: boolean = true,
+  ): HumanPerformance => {
     const carrier: IAutoMovieMotionHumanProp = {
       subject: "carrier",
       frame: { position: origin, rotation: Quaternion.identity() },
@@ -95,9 +99,12 @@ export function test_human_motion_moving_socket_put_down(): void {
       ],
       motion: (seconds: number): IAutoMovieRigidTransform => ({
         position: { ...origin, z: speed * seconds },
-        rotation: turns
-          ? Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 20 * seconds)
-          : Quaternion.identity(),
+        rotation:
+          track === "turn"
+            ? Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 20 * seconds)
+            : track === "malformed"
+              ? { x: 0, y: 0, z: 0, w: 0 }
+              : Quaternion.identity(),
       }),
     };
     const receiver: IAutoMovieMotionHumanProp = {
@@ -113,7 +120,10 @@ export function test_human_motion_moving_socket_put_down(): void {
         {
           id: "seat",
           kind: "socket",
-          frame: Transform.of(Vector3.add(seat, worldVia), hand.worldRotation),
+          frame: Transform.of(
+            viaSocket ? Vector3.add(seat, worldVia) : seat,
+            hand.worldRotation,
+          ),
           extent: null,
         },
       ],
@@ -129,18 +139,34 @@ export function test_human_motion_moving_socket_put_down(): void {
           proficiency: { level: "trained" },
         },
       ],
-      props: [carrier, receiver, parcel],
+      props: [
+        carrier,
+        receiver,
+        viaSocket
+          ? parcel
+          : {
+              ...parcel,
+              frame: {
+                ...parcel.frame,
+                position: Vector3.add(parcel.frame.position, worldVia),
+              },
+            },
+      ],
       laws: [hold],
       composition: HumanChain.subject("actor")
         .registered("holdParcel")
         .putDown({
           prop: "parcel",
-          onto: { prop: "receiver", point: "seat", via: "base" },
+          onto: {
+            prop: "receiver",
+            point: "seat",
+            ...(viaSocket ? { via: "base" } : {}),
+          },
         })
         .stand({ seconds: 1 }).node,
     });
   };
-  const film: HumanPerformance = stage(false);
+  const film: HumanPerformance = stage("translate");
   const segment: IAutoMovieMotionHumanSegment = film.segments("actor")[1]!;
   const placed: number = segment.start + segment.plan.contact!;
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
@@ -170,6 +196,11 @@ export function test_human_motion_moving_socket_put_down(): void {
         Vector3.add(expected(t), worldVia),
       ) <= 0.015,
     );
+    TestValidator.predicate(
+      `the socket attitudes align at ${t} s`,
+      Quaternion.angle(parcelFrame.rotation, hand.worldRotation) <=
+        Math.PI / 12,
+    );
   }
   TestValidator.predicate(
     "mounting preserves the displayed frame across the contact",
@@ -194,6 +225,14 @@ export function test_human_motion_moving_socket_put_down(): void {
   const openingB: number = placed + 0.18;
   const wrist = (t: number): IAutoMovieVector3 =>
     film.bones("actor", t).get("rightHand")!.worldPosition;
+  TestValidator.predicate(
+    "the displayed wrist crosses into opening within 1 mm of the carrier's travel",
+    distance(Vector3.subtract(wrist(placed + 0.001), wrist(placed - 0.001)), {
+      x: 0,
+      y: 0,
+      z: speed * 0.002,
+    }) <= 0.001,
+  );
   for (const t of [openingA, openingB])
     TestValidator.predicate(
       `the opening wrist follows the socket at ${t} s`,
@@ -208,14 +247,29 @@ export function test_human_motion_moving_socket_put_down(): void {
     }) <= 0.003,
   );
 
-  let refusal: unknown;
-  try {
-    stage(true).segments("actor");
-  } catch (error) {
-    refusal = error;
-  }
+  const originPlacement: HumanPerformance = stage("translate", false);
+  const originSegment: IAutoMovieMotionHumanSegment =
+    originPlacement.segments("actor")[1]!;
+  const originContact: number =
+    originSegment.start + originSegment.plan.contact!;
   TestValidator.predicate(
-    "a turning socket is outside the direct placement track",
-    refusal instanceof HumanRefusal && refusal.axis === "onto",
+    "without a source socket the offset parcel origin meets the seat",
+    distance(
+      originPlacement.prop("parcel", originContact).position,
+      expected(originContact),
+    ) <= 0.01,
   );
+
+  for (const track of ["turn", "malformed"] as const) {
+    let refusal: unknown;
+    try {
+      stage(track).segments("actor");
+    } catch (error) {
+      refusal = error;
+    }
+    TestValidator.predicate(
+      `the ${track} socket is outside the rigid direct placement track`,
+      refusal instanceof HumanRefusal && refusal.axis === "onto",
+    );
+  }
 }

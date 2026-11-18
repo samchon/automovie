@@ -32,7 +32,8 @@ import { checkSupportTransferDock } from "./checkSupportTransferDock";
  * gangway whose platforms share upright rigid motion through trailing touchdown.
  * Both soles and the root ride the deck after that touchdown. The dock check
  * samples at intervals of at most 1/120 s, with 1 mm and 0.1 degree tolerances
- * on stationary prop frames or, in co-moving mode, relative surface alignment.
+ * on stationary prop frames or, in co-moving mode, relative deck alignment
+ * at its centre and corners.
  *
  * The lead sole lands while the trail sole bears on the platform. The deck
  * and platform must be level within 2 mm. Provisional staging limits are a
@@ -79,6 +80,17 @@ export function supportTransfer(
       "Boarding needs one bounded two-step interval",
       "Use a duration from 1.2 to 3 seconds",
     );
+  if (
+    params.docking !== undefined &&
+    params.docking !== "stationary" &&
+    params.docking !== "co-moving"
+  )
+    refuse(
+      "docking",
+      params.docking,
+      "Unknown docking mode",
+      "Use stationary or co-moving docking",
+    );
   if (params.from.prop === params.to.prop)
     refuse(
       "to",
@@ -98,6 +110,9 @@ export function supportTransfer(
     "to",
     start,
   );
+  const dockEnd: number = trailOn * duration;
+  const coMoving: boolean = params.docking === "co-moving";
+  checkSupportTransferDock(from, to, start, dockEnd, coMoving);
   if (Math.abs(from.origin.y - to.origin.y) > 0.002)
     refuse(
       "to",
@@ -115,9 +130,6 @@ export function supportTransfer(
       "The facing direction does not cross a clear short gap between the named surfaces",
       "Face the deck across a gap from 0 to 0.13 metres",
     );
-  const dockEnd: number = trailOn * duration;
-  const coMoving: boolean = params.docking === "co-moving";
-  checkSupportTransferDock(from, to, start, dockEnd, coMoving);
   const at: IAutoMovieVector3 = point(to, {
     x: params.landing?.x ?? 0,
     y: 0,
@@ -245,12 +257,22 @@ export function supportTransfer(
       HumanSupportCarry.of(from.frame, start, time);
     const deckCarry: IAutoMovieMotionHumanSupportCarry.ICarry =
       HumanSupportCarry.of(to.frame, start, time);
+    const staged: IAutoMovieMotionHumanPosture = {
+      ...entry.posture,
+      root: stagedRoot,
+    };
     const base: IAutoMovieMotionHumanPosture = coMoving
-      ? HumanSupportCarry.posture(sourceCarry, entry.posture)
-      : entry.posture;
-    const root: IAutoMovieVector3 = coMoving
-      ? sourceCarry.point(stagedRoot)
-      : stagedRoot;
+      ? HumanSupportCarry.posture(
+          HumanSupportCarry.blend(
+            sourceCarry,
+            deckCarry,
+            stagedRoot,
+            progress(share, trailOff, trailOn),
+          ),
+          staged,
+        )
+      : staged;
+    const root: IAutoMovieVector3 = base.root;
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
       ...base.limbs,
     };
@@ -398,18 +420,6 @@ function surface(
     propFrame.rotation,
     found.frame.rotation,
   );
-  const up: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
-  if (up.y < 0.999999)
-    refuse(
-      axis,
-      target,
-      "The named surface is tilted",
-      "Use a horizontal platform and deck",
-    );
   return {
     axis,
     frame: (seconds: number): IAutoMovieRigidTransform => reader.frame(seconds),

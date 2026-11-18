@@ -133,21 +133,27 @@ export namespace pickUp {
   /** The load phase between contact and lift-off, seconds; provisional. */
   export const LOAD: number = 0.15;
 
-  /**
-   * Plan a pick up.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When no lowering brings the grip within reach, no grasp serves the use, the hand cannot rise as far as the lift asks, or a second hand asks to lift independently of the hand already carrying the prop.
-   * @throws {Error} When the lift is negative, or the prop has no such affordance or no colliders.
-   */
+  /** Plan a pickup using the prop's entry frame, with the grasp, lift and refusals of `planGrasp`. */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     return planGrasp(context);
   }
 
-  /** Plan the grasp and lift once, with the optional closure frame and incoming velocity of an interception. */
+  /**
+   * Plan the reach, grasp and lift using the action context and an optional resolved interception.
+   * @returns The posture, contact, event and hold plan.
+   * @throws {HumanRefusal} When the grasp, lift or requested use cannot be reached, or a steadying hand tries to lift independently.
+   * @throws {Error} For a negative lift or a missing grip or collider.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, plan and refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation Selects a stance and grasp, uses the closure frame for moving grasp fits, and carries the pickup through a load phase that brakes the incoming motion before lift.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates stance, grip and lift fit to their owners, then assembles the pickup phases.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses unreachable goals and uses the grasp's declared affordances.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Searches grasps at plan time and samples the transport and load displacement in closed form.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the pickup search and phase plan between ordinary and moving pickup.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the selected grasp and timed phase data in the plan, with no sampled posture history.
+   */
   export function planGrasp(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
     interception?: ReturnType<typeof pickUpIntercept>,
@@ -194,6 +200,7 @@ export namespace pickUp {
       lift,
       authored,
       carried,
+      interception?.frame,
     );
     const { chosen, bend, stance }: pickUpSearch.ISearched = found;
     const held: IAutoMovieMotionHumanPosture = stance.posture;
