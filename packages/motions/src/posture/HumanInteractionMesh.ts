@@ -28,7 +28,10 @@ import { HumanInteractionMeshStep as Step } from "./HumanInteractionMeshStep";
  *   does not oppose the bone lengths being changed (Ho et al. 2010,
  *   equation 3 and section 5.1; `HumanInteractionMeshLaplacian`).
  * - **Solve.** A connected set of fixed offsets determines the whole shape
- *   up to translation. Other cases minimize the deformation of the
+ *   up to translation. Without a supplied start, target-length bones in
+ *   their reference directions give a candidate alongside those offsets.
+ *   The continuous side test bounds its advance, and every residual and
+ *   orientation is checked. Other cases minimize the deformation of the
  *   Laplacian coordinates with a progressively tightened equality penalty
  *   (Nocedal and Wright 2006, §17.1). Each sparse Gauss–Newton model holds
  *   the Cartesian terms exactly and linearizes the length of a bone along
@@ -223,11 +226,18 @@ export namespace HumanInteractionMesh {
         current = observed;
       }
     }
-    if (props.bones.length === 0) {
-      const direct: Float64Array | undefined = fixedContacts(props.contacts, reference);
-      if (direct !== undefined && feasible(evaluate(direct, baseStiffness, baseStiffness))) {
+    if (props.bones.length === 0 || props.start === undefined) {
+      const direct: Float64Array | undefined = alignedShape(props.bones, props.contacts, reference);
+      if (direct !== undefined) {
         const displacement: Float64Array = direct.map((coordinate: number, i: number): number => coordinate - x[i]!);
-        if (Side.limit(x, displacement, sides) === 1) return { points: points(direct, n), mesh };
+        const safe: number = Side.limit(x, displacement, sides);
+        const candidate: Float64Array = safe === 1 ? direct : x.map((v: number, i: number): number => v + safe * displacement[i]!);
+        const observed: IEvaluation = evaluate(candidate, baseStiffness, baseStiffness);
+        if (feasible(observed)) return { points: points(candidate, n), mesh };
+        if (props.start === undefined && observed.flipped === 0 && observed.worst < current.worst) {
+          x = candidate;
+          current = observed;
+        }
       }
     }
     const lowerBarrier: number = stiffnessFloor(baseStiffness, extent, accuracy);
@@ -294,17 +304,26 @@ export namespace HumanInteractionMesh {
     by: readonly number[];
   }
 
-  /** Propagate fixed offsets from a point and pin the remaining translation to the reference centroid. */
-  function fixedContacts(
+  /** Propagate contact offsets and target-length bones along their reference directions, preserving the reference centroid. */
+  function alignedShape(
+    bones: readonly IAutoMovieMotionHumanInteractionMesh.IBone[],
     contacts: readonly IAutoMovieMotionHumanInteractionMesh.IContact[],
     reference: Float64Array,
   ): Float64Array | undefined {
     const n: number = reference.length / 3;
+    if (bones.length + contacts.length < n - 1) return undefined;
     const edges: IOffsetEdge[][] = Array.from({ length: n }, (): IOffsetEdge[] => []);
-    for (const contact of contacts) {
-      const by: readonly number[] = offset(contact);
-      edges[contact.b]!.push({ index: contact.a, by });
-      edges[contact.a]!.push({ index: contact.b, by: by.map((v: number): number => -v) });
+    function connect(from: number, to: number, by: readonly number[]): void {
+      edges[from]!.push({ index: to, by });
+      edges[to]!.push({ index: from, by: by.map((v: number): number => -v) });
+    }
+    for (const contact of contacts) connect(contact.b, contact.a, offset(contact));
+    for (const bone of bones) {
+      const direction: number[] = AXES.map((axis: number): number =>
+        reference[3 * bone.to + axis]! - reference[3 * bone.from + axis]!);
+      const length: number = Math.hypot(...direction);
+      if (length === 0) return undefined;
+      connect(bone.from, bone.to, direction.map((v: number): number => v * bone.length / length));
     }
     const found: Uint8Array = new Uint8Array(n);
     const result: Float64Array = new Float64Array(reference.length);
