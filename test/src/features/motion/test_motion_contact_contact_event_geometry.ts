@@ -175,7 +175,7 @@ function checkEventFields(): void {
     };
     TestValidator.predicate(
       "finite " + field,
-      errors(invalid).some((path) => path.endsWith("." + field)),
+      errors(invalid).some((path) => path.split(".").includes(field)),
     );
   }
   TestValidator.predicate(
