@@ -21,6 +21,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { rangeSteppingFoot } from "../actions/rangeSteppingFoot";
+import { walkLeg } from "../actions/walkLeg";
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
@@ -310,7 +312,17 @@ export namespace brace {
         resolveHumanPosture.KNEE,
         resolution,
       );
-      const posture: IAutoMovieMotionHumanPosture = adjust(raw, t, undefined, resolution);
+      let posture: IAutoMovieMotionHumanPosture = adjust(raw, t, undefined, resolution);
+      // The rear foot unloads over the preparatory shift and accepts weight
+      // over the same transfer time on landing. Its forefoot keeps the
+      // planned trajectory while its heel gives to the actual shank.
+      const transfer: number = swing[0];
+      if (t > 0 && t < swing[1] + transfer) {
+        const load: number = t < swing[0]
+          ? 1 - minimumJerk.share(t / transfer)
+          : minimumJerk.share(Math.max(0, t - swing[1]) / transfer);
+        posture = rangeSteppingFoot(body, posture, back, prepareHumanPoseResolution(resolution), walkLeg.dorsal(load));
+      }
       // The hands open on the set's own share: written flat at once from
       // the first instant past zero, the fingers jumped from the entry's.
       return s <= 0

@@ -1,17 +1,11 @@
 import type {
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
-import { HumanFoot } from "../posture/HumanFoot";
-import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { walkLeg } from "./walkLeg";
+import { rangeSteppingFoot } from "./rangeSteppingFoot";
 
 /**
  * Fit the reaching foot during push-off and clear the arms against the bent legs.
@@ -36,27 +30,6 @@ export function jumpGroundPosture(
   phase: "left" | "right" | "landing",
   read: ReturnType<typeof prepareHumanPoseResolution>,
 ): IAutoMovieMotionHumanPosture {
-  const lowered: IAutoMovieMotionHumanPosture = phase === "landing" ? posture : reachingFoot(body, posture, phase, read);
+  const lowered: IAutoMovieMotionHumanPosture = phase === "landing" ? posture : rangeSteppingFoot(body, posture, phase, read);
   return HumanArmClearance.swung(body, lowered, ["left", "right"], read);
-}
-
-/** Keep the withdrawing forefoot on its planned path while its heel rises with the unloaded shank. */
-function reachingFoot(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
-  phase: "left" | "right", read: ReturnType<typeof prepareHumanPoseResolution>): IAutoMovieMotionHumanPosture {
-  const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${phase}Leg`]!;
-  const placement: IAutoMovieMotionHumanFoot.IPlacement = { ankle: goal.point, rotation: goal.rotation! };
-  const hip: IAutoMovieVector3 = hipJoints(body, posture.root, resolveHumanPosture.heading(posture),
-    posture.joints.hips, read())[phase];
-  const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(placement.rotation);
-  const forefoot: IAutoMovieVector3 = HumanFoot.point(body, phase, "mtp", placement);
-  const pitch: number = walkLeg.heelRise(body, phase, hip, forefoot, direction.heading, direction.pitch, walkLeg.ROCKER);
-  if (pitch === direction.pitch) return posture;
-  const foot: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(body, phase, "mtp", forefoot,
-    direction.heading, pitch, 0, HumanFoot.roll(placement.rotation));
-  const toes: readonly [number, number, number] = posture.joints[`${phase}Toes`] ?? [0, 0, 0];
-  return {
-    ...posture,
-    joints: { ...posture.joints, [`${phase}Toes`]: [toes[0] + direction.pitch - pitch, toes[1], toes[2]] },
-    limbs: { ...posture.limbs, [`${phase}Leg`]: { ...goal, point: foot.ankle, rotation: foot.rotation } },
-  };
 }
