@@ -1,5 +1,6 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
+import type { IAutoMovieMotionHumanPhysics } from "../law/IAutoMovieMotionHumanPhysics";
 
 /**
  * Moving the body's weight across a sequence of supports: each stance's
@@ -58,6 +59,13 @@ export namespace IAutoMovieMotionHumanSupport {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
+    /**
+     * The physical terms this action computes (`IAutoMovieMotionHumanPhysics`):
+     * absent, none, so the posture is the law's own kinematic one with no
+     * balance shift or centre-of-mass reading.
+     */
+    physics?: IAutoMovieMotionHumanPhysics;
+
     /** The stances, in order; the body enters the first from where it stands. */
     stances: readonly IAutoMovieMotionHumanSupport.IStance[];
 
