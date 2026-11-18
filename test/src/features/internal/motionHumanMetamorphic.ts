@@ -140,24 +140,6 @@ export namespace motionHumanMetamorphic {
         ];
   }
 
-  /**
-   * The dynamic similarity of one gait's pace across the four extreme bodies.
-   *
-   * @param law `walk` or `run`.
-   * @param row The pace, `pace=value`.
-   * @returns The findings.
-   */
-  export function similarity(law: string, row: string): string[] {
-    const read: Record<string, ISimilarityReading> = {};
-    for (const name of motionHumanBody.EXTREMES) {
-      const staged: M.IStaged = M.stage(law, row, name);
-      const from: number = 0.25 * staged.film.duration;
-      const to: number = 0.75 * staged.film.duration;
-      read[name] = similarityReading(staged, from, to, M.gait(staged, from, to));
-    }
-    return compareSimilarity(law, row, read);
-  }
-
   /** Alexander's reduced step frequency, duty factor and stride per hip height. */
   export interface ISimilarityReading {
     /** Steps per characteristic pendulum time. */
