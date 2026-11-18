@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -76,6 +77,9 @@ import { prepareKneelPhases } from "./prepareKneelPhases";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No world coordinate is typed; every place is read from the body's measure.
  */
 export namespace kneel {
+  /** The pelvis travels over the supporting legs during the requested interval. */
+  export const balance: IAutoMovieMotionHumanBalance = { by: "hips" };
+
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "kneel";
 
@@ -197,7 +201,7 @@ export namespace kneel {
       { holds: ["settled"] },
     );
     const window: HumanPhysics.Window = HumanPhysics.prepare(
-      context.params, {}, context.start, { duration: display.duration, events: display.events() }, context.instant,
+      context.params, kneel, context.start, { duration: display.duration, events: display.events() }, context.instant,
     );
     if (window !== null && window.by !== "hips")
       throw new HumanRefusal({

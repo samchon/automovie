@@ -277,7 +277,9 @@ export namespace exercise {
       }),
     });
 
-    const window: HumanPhysics.Window = HumanPhysics.fromClock(p, {}, context.start, clock, context.instant);
+    const window: HumanPhysics.Window = HumanPhysics.fromClock(
+      p, p.kind === "squat" ? { balance: { by: "hips" } } : {}, context.start, clock, context.instant,
+    );
     if (window !== null && p.kind !== "squat")
       HumanPhysics.unsupported(window.by, "only the squat exercise has a planted hip counterbalance");
     switch (p.kind) {

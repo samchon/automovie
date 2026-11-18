@@ -76,7 +76,9 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
       ...event, share: (prefix + duration * event.share) / total,
     })),
   };
-  const window: HumanPhysics.Window = HumanPhysics.prepare(context.params, {}, context.start, timing, context.instant);
+  const window: HumanPhysics.Window = HumanPhysics.prepare(
+    context.params, { balance: { by: "hips" } }, context.start, timing, context.instant,
+  );
   if (window !== null && window.by !== "hips")
     throw new HumanRefusal({
       kind: "parameter", axis: "balance.by", value: window.by,

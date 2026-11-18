@@ -340,7 +340,9 @@ export namespace gesture {
       { name: "strokeEnd", share: strokeEnd / duration },
       { name: "retract", share: retractAt / duration },
     ];
-    const window: HumanPhysics.Window = HumanPhysics.prepare(p, {}, context.start, { duration, events }, context.instant);
+    const window: HumanPhysics.Window = HumanPhysics.prepare(
+      p, p.kind === "bow" ? { balance: { by: "hips" } } : {}, context.start, { duration, events }, context.instant,
+    );
     if (window !== null && p.kind !== "bow")
       HumanPhysics.unsupported(window.by, "only the bow gesture moves the hips under an inclined trunk");
     const base: IAutoMovieMotionHumanActionPlan = under(duration);
