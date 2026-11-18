@@ -32,12 +32,16 @@ export function test_human_motion_lexicon_rows_posture(): void {
       (row: IAutoMovieMotionHumanActionLaw<never>): boolean =>
         row.family === "rest",
     );
+  const byName: (left: string, right: string) => number = (
+    left: string,
+    right: string,
+  ): number => left.localeCompare(right);
   TestValidator.equals(
     "registered rest stances",
     registered
       .map((row: IAutoMovieMotionHumanActionLaw<never>): string => row.name)
-      .sort(),
-    [...sites.keys()].sort(),
+      .sort(byName),
+    [...sites.keys()].sort(byName),
   );
   for (const row of registered) {
     const [left, right]: Hands = sites.get(row.name)!;
