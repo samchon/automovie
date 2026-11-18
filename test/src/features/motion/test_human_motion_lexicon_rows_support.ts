@@ -19,8 +19,8 @@ export function test_human_motion_lexicon_rows_support(): void {
   for (const name of ["scramble", "slideOff"] as const) {
     const params = HumanSupportRows[name].resolve!(
       {},
-    ) as IAutoMovieMotionHumanSupport;
-    const stances = params.stances!;
+    ) as IAutoMovieMotionHumanSupport.IParams;
+    const stances = params.stances;
     const bearing = (stance: IAutoMovieMotionHumanSupport.IStance): string[] =>
       stance.contacts
         .filter((contact) => contact.kind === "bear")

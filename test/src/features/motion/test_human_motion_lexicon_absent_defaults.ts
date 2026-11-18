@@ -1,24 +1,35 @@
+import { HumanPerformanceParams, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { LexiconAbsentNet } from "../internal/LexiconAbsentNet";
-
 /**
- * Missing lexicon input reaches the schema for each row.
+ * The parameter gate admits an empty quiet stand and identifies a missing walking destination.
  *
  * Scenarios:
- * 1. Input rejected at the schema entry produces a diagnostic naming the parameter.
- * 2. A law that receives the input can plan or give a named refusal.
+ * 1. Standing with no arguments and walking to a floor coordinate both pass admission.
+ * 2. Omitting the destination from the base walk or a strolling alias reports the missing member.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States which invalid input the test owns and where it is handled.
- * @evidence contracts/development/testing.md#behavioral-verification Invokes the real parameter gate and plans any remaining request that reaches the law. A raw exception, empty axis or literal undefined in the explanation fails.
- * @evidence contracts/development/testing.md#independent-expectations A required parameter either produces a named HumanRefusal before planning or the plan can safely handle its omission, as required by the public grammar.
- * @evidence contracts/development/testing.md#distinguishing-cases Positive placement tests and sport alias dispatch tests own admitted defaults for rows with no special fixture.
- * @evidence contracts/development/testing.md#execution-ownership Runs the in-memory public gate and, for law-specific outcomes, the normal registered chain on prepared fixtures.
+ * @evidence contracts/development/common.md#meaningful-documentation States which requests admit defaults and where the destination is required.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the gate used by placement and inspects its refusal.
+ * @evidence contracts/development/testing.md#independent-expectations Standing needs no destination. Both walks require a floor point.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers an optional argument and a required argument on both base and registered names.
+ * @evidence contracts/development/testing.md#execution-ownership Reads only the parameter schema.
  */
 export function test_human_motion_lexicon_absent_defaults(): void {
-  TestValidator.equals(
-    "the grammar handles defaults with a result or a named refusal",
-    LexiconAbsentNet.bare(),
-    [],
-  );
+  HumanPerformanceParams.check("stand", {});
+  for (const row of ["walk", "stroll"]) {
+    HumanPerformanceParams.check(row, { to: { x: 0, y: 0, z: 1 } });
+    let refusal: unknown;
+    try {
+      HumanPerformanceParams.check(row, {});
+    } catch (error) {
+      refusal = error;
+    }
+    TestValidator.predicate(
+      row + " requires the destination",
+      refusal instanceof HumanRefusal &&
+        refusal.kind === "parameter" &&
+        refusal.axis === "to" &&
+        refusal.value === undefined,
+    );
+  }
 }
