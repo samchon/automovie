@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -57,6 +58,7 @@ export namespace pickUpStance {
    * @param side The reaching arm.
    * @param lift The asked lift, metres.
    * @param authored The grip as the archetype declares it.
+   * @param carried World displacement accumulated before lifting a moving prop, metres.
    * @returns The grasp, the stance and the raise.
    * @throws {HumanRefusal} When the entry neither stands nor sits and the grip is beyond the arm, or the lowering refuses a body that does not stand.
    *
@@ -73,6 +75,7 @@ export namespace pickUpStance {
     side: AutoMovieHumanSide,
     lift: number,
     authored: IAutoMovieMotionHumanGrasp.ITarget,
+    carried?: IAutoMovieVector3,
   ): IChosen {
     const missed = (found: pickUpSearch.ISearched): boolean =>
       !pickUpPosture.reaches(
@@ -95,6 +98,7 @@ export namespace pickUpStance {
           posture: IAutoMovieMotionHumanPosture,
         ): IAutoMovieMotionHumanPosture => posture,
       },
+      carried,
     );
     // A standing body no stoop or squat brings to the grip may still turn
     // or step toward it, below; anything else the lowering refuses stands.
@@ -107,7 +111,7 @@ export namespace pickUpStance {
         if (!(standing && error instanceof HumanRefusal)) throw error;
       }
     if (lowered !== null)
-      found = pickUpSearch.of(context, side, lift, authored, lowered);
+      found = pickUpSearch.of(context, side, lift, authored, lowered, carried);
 
     // Still out of reach, the trunk turns toward the grip first.
     if (missed(found)) {
@@ -117,7 +121,7 @@ export namespace pickUpStance {
         found.chosen.wrist.point,
         found.stance,
       );
-      found = pickUpSearch.of(context, side, lift, authored, lowered);
+      found = pickUpSearch.of(context, side, lift, authored, lowered, carried);
     }
 
     // Still out of reach, one foot takes one adjustment step toward it; and
@@ -138,7 +142,14 @@ export namespace pickUpStance {
         ? null
         : {
             lowered: stepped,
-            found: pickUpSearch.of(context, side, lift, authored, stepped),
+            found: pickUpSearch.of(
+              context,
+              side,
+              lift,
+              authored,
+              stepped,
+              carried,
+            ),
           };
     };
     if (standing && missed(found)) {
@@ -146,10 +157,12 @@ export namespace pickUpStance {
       if (taken !== null) ({ found, lowered } = taken);
     }
     if (lift <= 0) return { found, lowered, raise: pickUpLift.ARM };
-    const place = (searched: pickUpSearch.ISearched): IAutoMovieVector3 => ({
-      ...searched.chosen.wrist.point,
-      y: searched.chosen.wrist.point.y + lift,
-    });
+    /** The lifted wrist goal after the load phase's travel. */
+    const place = (searched: pickUpSearch.ISearched): IAutoMovieVector3 => {
+      const { point } = searched.chosen.wrist;
+      const raised: IAutoMovieVector3 = { ...point, y: point.y + lift };
+      return carried === undefined ? raised : Vector3.add(raised, carried);
+    };
     const raise: pickUpLift.IRaise | null = pickUpLift.raise(
       context,
       side,

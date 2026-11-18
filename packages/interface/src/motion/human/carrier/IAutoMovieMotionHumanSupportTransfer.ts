@@ -1,17 +1,24 @@
 /**
- * The named, level prop surfaces of a stood-at-rest boarding transfer.
+ * A short two-step transfer between named level prop surfaces.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names both load-bearing surfaces, the deck-local landing station, the first foot and the film interval.
  * @evidence contracts/development/design.md#principled-representation Each endpoint pairs a prop subject with a model-local surface id. The deck station is in that surface's XZ plane.
- * @evidence contracts/development/design.md#minimal-and-owned-surface supportTransfer consumes the two endpoint identities, one landing station, an order and a duration.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface supportTransfer consumes the endpoints, docking mode, landing station, order and duration.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses existing surface affordances and keeps docking, reach and foot placement admission in the transfer planner.
  */
 export interface IAutoMovieMotionHumanSupportTransfer {
-  /** The unarticulated, stationary surface the entry stance already rests on. */
+  /** The unarticulated surface the entry stance already rests on. */
   from: IAutoMovieMotionHumanSupportTransfer.ISurface;
 
-  /** The unarticulated deck surface, at rest until both soles are aboard. */
+  /** The unarticulated deck surface that bears both soles after the crossing. */
   to: IAutoMovieMotionHumanSupportTransfer.ISurface;
+
+  /**
+   * Defaults to stationary docking through trailing touchdown. Set co-moving
+   * for scenic gangways sharing an upright rigid motion during that interval.
+   * The planner checks relative alignment on the film clock.
+   */
+  docking?: "stationary" | "co-moving";
 
   /** The center of the final stance, in metres from the deck surface's XZ origin. Defaults to that origin. */
   landing?: {

@@ -11,7 +11,6 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupportCarry,
   IAutoMovieMotionHumanSupportTransfer,
-  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -24,13 +23,16 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
+import { checkSupportTransferDock } from "./checkSupportTransferDock";
 
 /**
  * Plan one staged, level boarding transfer. LA Metro asks passengers to wait
  * for a complete stop before boarding (https://www.metro.net/riding/how-to-ride-metro-rail/).
- * This draft stages a docked interval through the trailing touchdown and then
- * carries both soles and the root when the deck departs. The dock check samples
- * rigid frames at intervals of at most 1/120 s, within 1 mm or 0.1 degrees.
+ * Stationary docking is the default. The co-moving mode stages a scenic
+ * gangway whose platforms share upright rigid motion through trailing touchdown.
+ * Both soles and the root ride the deck after that touchdown. The dock check
+ * samples at intervals of at most 1/120 s, with 1 mm and 0.1 degree tolerances
+ * on stationary prop frames or, in co-moving mode, relative surface alignment.
  *
  * The lead sole lands while the trail sole bears on the platform. The deck
  * and platform must be level within 2 mm. Provisional staging limits are a
@@ -114,29 +116,8 @@ export function supportTransfer(
       "Face the deck across a gap from 0 to 0.13 metres",
     );
   const dockEnd: number = trailOn * duration;
-  const samples: number = Math.ceil(dockEnd * 120);
-  for (let index: number = 1; index <= samples; ++index) {
-    const t: number = start + (index / samples) * dockEnd;
-    for (const endpoint of [from, to]) {
-      const at: IAutoMovieRigidTransform = endpoint.frame(t);
-      const delta: IAutoMovieQuaternion = Quaternion.multiply(
-        Quaternion.inverse(endpoint.propFrame.rotation),
-        at.rotation,
-      );
-      if (
-        Vector3.length(
-          Vector3.subtract(at.position, endpoint.propFrame.position),
-        ) > 0.001 ||
-        Math.hypot(delta.x, delta.y, delta.z) > Math.sin(Math.PI / 3600)
-      )
-        refuse(
-          endpoint.axis,
-          t,
-          "A support moves before the trailing foot lands",
-          "Keep both props stationary through 82 percent of the transfer",
-        );
-    }
-  }
+  const coMoving: boolean = params.docking === "co-moving";
+  checkSupportTransferDock(from, to, start, dockEnd, coMoving);
   const at: IAutoMovieVector3 = point(to, {
     x: params.landing?.x ?? 0,
     y: 0,
@@ -255,7 +236,7 @@ export function supportTransfer(
       progress(share, 0, leadOff) -
       2 * progress(share, leadOff, trailOff) +
       progress(share, trailOff, trailOn);
-    const root: IAutoMovieVector3 = Vector3.add(
+    const stagedRoot: IAutoMovieVector3 = Vector3.add(
       Vector3.add(entry.posture.root, Vector3.scale(displacement, moved)),
       Vector3.scale(stanceShift, lateral),
     );
@@ -264,8 +245,14 @@ export function supportTransfer(
       HumanSupportCarry.of(from.frame, start, time);
     const deckCarry: IAutoMovieMotionHumanSupportCarry.ICarry =
       HumanSupportCarry.of(to.frame, start, time);
+    const base: IAutoMovieMotionHumanPosture = coMoving
+      ? HumanSupportCarry.posture(sourceCarry, entry.posture)
+      : entry.posture;
+    const root: IAutoMovieVector3 = coMoving
+      ? sourceCarry.point(stagedRoot)
+      : stagedRoot;
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-      ...entry.posture.limbs,
+      ...base.limbs,
     };
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...entry.posture.joints,
@@ -286,7 +273,7 @@ export function supportTransfer(
       const goal: IAutoMovieHumanLimbGoal = {
         point: ankle,
         bend: HumanFrame.point(
-          { origin: root, yaw },
+          { origin: root, yaw: base.yaw },
           {
             ...body.rest.get(`${side}LowerLeg`)!,
             z: body.rest.get(`${side}LowerLeg`)!.z + 1,
@@ -317,7 +304,7 @@ export function supportTransfer(
     const lowered: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
       body,
       {
-        ...entry.posture,
+        ...base,
         root,
         joints,
         limbs: {

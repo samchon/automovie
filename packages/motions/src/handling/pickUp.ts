@@ -30,6 +30,7 @@ import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { pickUpAdjust } from "./pickUpAdjust";
+import type { pickUpIntercept } from "./pickUpIntercept";
 import { pickUpLift } from "./pickUpLift";
 import { pickUpPosture } from "./pickUpPosture";
 import type { pickUpSearch } from "./pickUpSearch";
@@ -71,7 +72,7 @@ import { pickUpStance } from "./pickUpStance";
  *    hand comes in the last stretch along the approach axis from a setback
  *    equal to the peak aperture, so the open hand clears the object, and the
  *    aperture peaks inside Jeannerod's 60 to 70 % band.
- * 2. Load: the hand holds still for 0.15 s with the fingers closed, the
+ * 2. Load: the hand holds for 0.15 s with the fingers closed, the
  *    preload and load phases that precede lift-off in a precision lift
  *    (Johansson and Westling 1984, Exp. Brain Res. 56:550); the duration is
  *    provisional, as the phase durations themselves were not reached.
@@ -143,6 +144,14 @@ export namespace pickUp {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
+    return planGrasp(context);
+  }
+
+  /** Plan the grasp and lift once, with the optional closure frame and incoming velocity of an interception. */
+  export function planGrasp(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
+    interception?: ReturnType<typeof pickUpIntercept>,
+  ): IAutoMovieMotionHumanActionPlan {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const steadied: boolean =
       context.entry.holds[side === "left" ? "right" : "left"] ===
@@ -163,12 +172,18 @@ export namespace pickUp {
     // The grasp: where the hand goes, how it opens and how it closes.
     // The grip is taken from the side of its axis the arm can reach with the
     // hand turned as asked (a cylinder grips alike from any azimuth).
-    const authored: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.target(
-      context,
-      context.params.prop,
-      context.params.handle,
-      context.start,
-    );
+    const authored: IAutoMovieMotionHumanGrasp.ITarget =
+      interception?.target ??
+      HumanGrasp.target(
+        context,
+        context.params.prop,
+        context.params.handle,
+        context.start,
+      );
+    const carried: IAutoMovieVector3 | undefined =
+      interception === undefined
+        ? undefined
+        : Vector3.scale(interception.velocity, LOAD / 2);
 
     // The body the grip is taken and the lift made from: the entry's, or the
     // entry lowered, turned or stepped, and how it carries the lift
@@ -178,6 +193,7 @@ export namespace pickUp {
       side,
       lift,
       authored,
+      carried,
     );
     const { chosen, bend, stance }: pickUpSearch.ISearched = found;
     const held: IAutoMovieMotionHumanPosture = stance.posture;
@@ -240,12 +256,21 @@ export namespace pickUp {
     ).get(`${side}Hand`)!;
 
     // Timing: reach, load, lift.
-    const reach: number = HumanPrehension.duration(
-      context.skill,
-      context.random("reach"),
-      Vector3.length(Vector3.subtract(grasp.point, entry.worldPosition)),
-      target.width,
-    );
+    const reach: number =
+      interception?.seconds ??
+      HumanPrehension.duration(
+        context.skill,
+        context.random("reach"),
+        Vector3.length(Vector3.subtract(grasp.point, entry.worldPosition)),
+        target.width,
+      );
+    if (carried !== undefined)
+      pickUpPosture.reachable(
+        context,
+        side,
+        Vector3.add(grasp.point, carried),
+        held,
+      );
     const rise: number = lift > 0 ? HumanPrehension.nominal(lift, 0) : 0;
     // A body lowered for the grip, or inclined for the lift, straightens
     // over as long as the reach after the lift, as a bend descends and
@@ -263,6 +288,20 @@ export namespace pickUp {
         reach,
       );
     const peak: number = HumanPrehension.peak(context.random("peak"));
+    /** Add the support's remaining displacement as the fingers close, then brake. */
+    const interceptionOffset = (
+      velocity: IAutoMovieVector3,
+      at: number,
+    ): IAutoMovieVector3 => {
+      const elapsed: number = at - reach;
+      const load: number = Math.min(LOAD, elapsed);
+      return Vector3.scale(
+        velocity,
+        elapsed < 0
+          ? elapsed * minimumJerk((at / reach - peak) / (1 - peak)).s
+          : load * (1 - load / (2 * LOAD)),
+      );
+    };
     const shapes = {
       entry: HumanGrip.fingers(context.entry.pose, side),
       open,
@@ -362,6 +401,25 @@ export namespace pickUp {
             ? Vector3.subtract(shoulder(base), bottom!)
             : { x: 0, y: 0, z: 0 };
 
+        /** The wrist's transport, lift and optional conveyor displacement. */
+        const point = (at: number): IAutoMovieVector3 => {
+          const wrist: IAutoMovieVector3 =
+            at < reach
+              ? transport.wrist(at)
+              : Vector3.add(raised, {
+                  ...grasp.point,
+                  y:
+                    grasp.point.y +
+                    (rise > 0
+                      ? lift *
+                        minimumJerk(Math.min(1, (at - reach - LOAD) / rise)).s
+                      : 0),
+                });
+          return interception === undefined
+            ? wrist
+            : Vector3.add(wrist, interceptionOffset(interception.velocity, at));
+        };
+
         // The posture whose arm goal is the transport's at a second of the
         // action, with the fingers shaped as they are at `shaped`.
         const goaled = (
@@ -376,19 +434,7 @@ export namespace pickUp {
           limbs: {
             ...base.limbs,
             [limb]: {
-              point:
-                at < reach
-                  ? transport.wrist(at)
-                  : Vector3.add(raised, {
-                      ...grasp.point,
-                      y:
-                        grasp.point.y +
-                        (rise > 0
-                          ? lift *
-                            minimumJerk(Math.min(1, (at - reach - LOAD) / rise))
-                              .s
-                          : 0),
-                    }),
+              point: point(at),
               rotation: at < reach ? transport.turn(at) : chosen.shown.rotation,
               bend,
 

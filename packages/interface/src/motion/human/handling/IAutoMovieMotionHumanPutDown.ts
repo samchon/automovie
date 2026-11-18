@@ -32,10 +32,9 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  * return to where the arm hangs, rising the same 0.05 m first, over another
  * movement time.
  *
- * Events: `placed` when the prop reaches its frame, `release` when the grip
- * ends. The hand grips the prop until `release` (until `placed` when it is
- * put on a bone, which wears it from there). A placing frame beyond the
- * arm's reach is refused, as is a put down that names neither `at` nor `on`.
+ * Events: `placed` transfers the prop from the grip to its resting frame.
+ * `release` marks the end of finger opening. A placing frame beyond the
+ * arm's reach is refused, as is a placement without a destination.
  *
  * @evidence contracts/development/common.md#meaningful-documentation at: Where the prop's origin goes, world metres; required unless `on` or `onto` is given. on: The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. offset: The prop's frame in the bone's posed frame, metres.
  * @evidence contracts/development/design.md#principled-representation at: Where the prop's origin goes, world metres; required unless `on` or `onto` is given. on: The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. offset: The prop's frame in the bone's posed frame, metres.
@@ -75,6 +74,10 @@ export namespace IAutoMovieMotionHumanPutDown {
      * a bow's string, drawn back with it, `IAutoMovieMotionHumanActionPlan.mounts`): the
      * prop's own socket `via` laid on the other's `point`, the prop's origin
      * when `via` is absent.
+     * During direct placement on a moving rigid receiver, the socket must
+     * follow an authored track at constant horizontal velocity with fixed
+     * attitude. The hand tracks that socket through finger opening. The
+     * motion law checks the displayed socket throughout the placement.
      */
     onto?: {
       /** Scene subject id of the receiving support prop. */

@@ -15,6 +15,7 @@ export type { IAutoMovieMotionHumanPianoScore } from "./IAutoMovieMotionHumanPia
 export type { IAutoMovieMotionHumanPianoPedal } from "./IAutoMovieMotionHumanPianoPedal";
 export type { IAutoMovieMotionHumanPianoPerformance } from "./IAutoMovieMotionHumanPianoPerformance";
 export type { IAutoMovieMotionHumanPickUp } from "./IAutoMovieMotionHumanPickUp";
+export type { IAutoMovieMotionHumanPickUpMoving } from "./IAutoMovieMotionHumanPickUpMoving";
 export type { IAutoMovieMotionHumanPrehension } from "./IAutoMovieMotionHumanPrehension";
 export type { IAutoMovieMotionHumanPreshape } from "./IAutoMovieMotionHumanPreshape";
 export type { IAutoMovieMotionHumanPushPull } from "./IAutoMovieMotionHumanPushPull";

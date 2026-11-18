@@ -1,6 +1,8 @@
 export type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
 export type { IAutoMovieMotionHumanExercise } from "./IAutoMovieMotionHumanExercise";
 export type { IAutoMovieMotionHumanExerciseKey } from "./IAutoMovieMotionHumanExerciseKey";
+export type { IAutoMovieMotionHumanRopeSkip } from "./IAutoMovieMotionHumanRopeSkip";
+export type { IAutoMovieMotionHumanRopeSkipPresentation } from "./IAutoMovieMotionHumanRopeSkipPresentation";
 export type { IAutoMovieMotionHumanStretch } from "./IAutoMovieMotionHumanStretch";
 export type { IAutoMovieMotionHumanWorkout } from "./IAutoMovieMotionHumanWorkout";
 export type { IAutoMovieMotionHumanWorkoutBodyweight } from "./IAutoMovieMotionHumanWorkoutBodyweight";
