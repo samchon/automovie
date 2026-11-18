@@ -16,6 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
@@ -29,21 +30,11 @@ import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
  * How far the hips move back so the whole-body centre of mass stands over
  * the feet, found on the solved posture itself.
  *
- * A law that pitches the trunk forward over planted feet (a bow, a stoop)
- * builds its posture as a function of the hips' backward shift; this finds
- * the shift at which the engine's whole-body centre of mass
- * (`resolveAutoMovieCenterOfMass.place`, the segmental method of Winter,
- * Biomechanics and Motor Control of Human Movement, ch. 4) lies over the
- * middle of the base of support along the heading, the feet where they bear
- * (`HumanFoot.base`), the static balance condition. The posture is solved
- * (legs on their planted goals, arms on theirs) and the centre placed from the solved bones at each trial of a
- * scan and bisection over the shift. A bow solves it once per plan at its
- * deepest pitch and scales the shift with the sine of the pitch in between,
- * which is exact for a rigid upper body and leaves only the legs'
- * reconfiguration unmodelled at intermediate pitches; a lean into work,
- * whose reaching arm is no rigid part of the trunk, solves it at steps of
- * the pitch (`AutoMovieMotionHumanLeanInto`). Their captures check
- * the margin of stability (Hof et al. 2005) on every frame they draw.
+ * A law supplies the posture as a function of backward hip travel. The
+ * engine places its segmental centre (Winter, ch. 4) over the bearing foot
+ * outlines. Static balance needs only to reach the support boundary (Hof
+ * et al. 2005). A closed directional correction is checked on the planted
+ * legs, which may move independently of the trunk when they refit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the engine owner, the iteration and how laws use the result.
  * @evidence contracts/development/design.md#principled-representation Pure balance functions and explicit fixed-body centre/dynamic readers return world-metre shifts/margins/offsets and points. The unchanged body owns its engine mass model, while operation-scoped genuine FK/ROM producers share only static or exact checked dependencies.
@@ -71,32 +62,21 @@ export namespace HumanBalance {
    * (`HumanFoot.base`): over its middle (`offset`), or a stated distance
    * ahead of it (`target`), as a lean holds the centre where the body stood.
    *
-   * The feet stand flat where they can, the larger base: a heel the planted
-   * leg lifted with its ankle at its range is brought down by moving the
-   * hips back, and on flat feet a centre ahead of the target is brought back
-   * to it while one behind it is left where it is inside the base. Where no
-   * shift within the range stands the body on flat feet with its centre
-   * inside, it stands on the forefoot, and the hips and trunk bring the
-   * centre over the middle of the forefoot, back when it is ahead and
-   * forward when it is outside behind, as a deep squat with its heels up
-   * does. Each search's bracket is its start and the end of the range,
-   * `range` hip heights the needed way; the crossing in it is refined to
-   * `TOLERANCE` by the engine's bracketed root for the centre's place (the
-   * Illinois false position, `bracketedRoot`), whose bracket keeps it safe
-   * where the centre stops following the hips
-   * once the planted legs reach the limit of their range, and by the engine's
-   * bisection (`bracketedBisection`) for whether the heels are down. When no shift in the range balances the
-   * body, the end that comes nearer is returned, and the law's
-   * margin-of-stability verdict reports the remainder.
+   * Where refitting the planted legs defeats a closed correction, the
+   * original search first brings the heels down if possible and solves the
+   * centre against that support. It uses the forefoot if the heels cannot
+   * bear. The bracket covers `range` hip heights and resolves the crossing
+   * to `TOLERANCE`. A missing crossing returns the nearer bracket endpoint
+   * for the law's balance verdict to assess.
    *
    * @param body The body.
    * @param build The posture for a backward shift of the hips, metres; a negative shift moves them forward.
    * @param range How far the search looks either way, hip heights; `RANGE` when absent, and `REACH` for a posture whose hips do not start over the feet.
-   * @param target How far ahead of the base's middle the centre is put, metres; 0, the middle itself, when absent.
+   * @param target How far ahead of the base's middle the centre is put, metres. Without a target, first keep a supported posture or try the nearest boundary.
    * @returns The shift, metres, negative forward; 0 when the centre lies inside the base no farther ahead than the target without one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the balance condition, the flat feet sought before the forefoot, the cases on each, the search range in hip heights, the tolerance, the bracket and its refinement, and the nearer end when none balances.
-   * @evidence contracts/development/implementation.md#principled-implementation Static balance (centre of mass inside the base that bears after the leg fit, over its middle along the heading) found on one bracket per search, by the engine's bracketed root (`bracketedRoot`, the Illinois false position) for the centre's continuous place and bisection for the heels' yes-or-no; both need only a bracket, so they hold where the solved legs saturate their range and where the base changes under a lifting heel. A flat foot is the larger base, so it is sought before the forefoot.
+   * @evidence contracts/development/implementation.md#principled-implementation Without a requested target, an already supported mass needs no shift. The closest directional hull point first gives the rigid translation. A planted-leg refit verifies the candidate's support and heel state. The original bracketed centre and heel searches apply where this closed candidate does not hold or the caller requests a target.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading per trial (`read`), each shift read once per call, and one bracketed search per case; the balance measures live in one place.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ranges (`RANGE`, and `REACH` for a posture whose hips start away from the feet) and the tolerance (0.5 mm) are named search parameters, not tuned to a case; a body that cannot balance gets its nearest shift and the laws' stability verdicts report the remainder.
    * @evidence contracts/development/implementation.md#efficient-algorithms Each search reads its bracket's two ends, then the bracketed root converges superlinearly where the centre's place is smooth, and bisection takes log2(range / tolerance), near 10, posture solves; each solve is one forward-kinematics pass with limb fits, read once for both measures and once per shift in the call.
@@ -107,7 +87,7 @@ export namespace HumanBalance {
     body: IAutoMovieMotionHumanBody,
     build: (back: number) => IAutoMovieMotionHumanPosture,
     range: number = RANGE,
-    target: number = 0,
+    target?: number,
   ): number {
     // Each shift is read once within a call: the searches below revisit
     // their brackets' ends.
@@ -123,7 +103,7 @@ export namespace HumanBalance {
     const at: (back: number) => IReading = (back: number): IReading => {
       let r: IReading | undefined = read0.get(back);
       if (r === undefined) {
-        r = read(body, build(back), resolution, projection, frames, mass);
+        r = read(body, build(back), resolution, projection, frames, mass, back === 0 && target === undefined);
         if (frames === undefined)
           frames = poseBones.prepare(body, new Set([...HumanColliders.bones(body), ...HumanFoot.bones(body)]));
         read0.set(back, r);
@@ -133,6 +113,11 @@ export namespace HumanBalance {
     try {
       const start: IReading = at(0);
       const span: number = range * body.measure.hipHeight;
+      if (target === undefined && start.margin >= 0) return 0;
+      if (start.candidate !== undefined && Math.abs(start.candidate) <= span) {
+        const landed: IReading = at(start.candidate);
+        if (landed.margin >= 0 && landed.flat === start.flat) return start.candidate;
+      }
       // The shift from `from` the given way, within the range, at which
       // `error` is no longer positive: the bracket is the range's two ends,
       // and the crossing in it is refined to the tolerance, by the engine's
@@ -175,7 +160,7 @@ export namespace HumanBalance {
               ),
         };
       };
-      const ahead: (r: IReading) => number = (r: IReading): number => r.offset - target;
+      const ahead: (r: IReading) => number = (r: IReading): number => r.offset - (target ?? 0);
       // Flat feet first: a heel the planted leg lifted is brought down by
       // moving the hips back; on flat feet a centre ahead of the target is
       // brought back to it, and one behind it is left while it lies inside.
@@ -416,6 +401,9 @@ interface IReading {
 
   /** Whether both heels bear. */
   flat: boolean;
+
+  /** Rigid backward translation to the closest reachable boundary, when requested. */
+  candidate?: number;
 }
 
 /** A posture's balance, read on one solve of it. */
@@ -426,11 +414,17 @@ function read(
   projection: ReturnType<typeof prepareHumanPostureProjection>,
   frames?: ReturnType<typeof poseBones.prepare>,
   mass?: () => prepareAutoMovieMassModel.IPrepared,
+  propose: boolean = false,
 ): IReading {
   const placed: IPlaced = placement(body, posture, resolution, projection, frames, mass);
+  const margin: number = resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
+  const candidate: HumanPhysics.SupportOffset = propose && margin < 0
+    ? HumanPhysics.supportOffset({ centre: placed.centre, points: placed.base }, heading(posture.yaw))
+    : null;
   return {
     offset: projected(placed, posture.yaw),
-    margin: resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base),
+    margin,
+    ...(candidate === null ? {} : { candidate: -candidate }),
 
     // A heel bears within the bearing height of the lowest sole socket.
     flat: (["left", "right"] as const).every(
@@ -480,10 +474,7 @@ function placement(
 
 /** Project the same mass centre and base on the heading without a hull or heel query. */
 function projected(placed: IPlaced, yaw: number): number {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-    { x: 0, y: 0, z: 1 },
-  );
+  const forward: IAutoMovieVector3 = heading(yaw);
   let rear: number = Infinity;
   let front: number = -Infinity;
   for (const p of placed.base) {
@@ -492,5 +483,13 @@ function projected(placed: IPlaced, yaw: number): number {
     front = Math.max(front, along);
   }
   return Vector3.dot(placed.centre, forward) - (rear + front) / 2;
+}
+
+/** World heading of a yaw, used by the support's directional reads. */
+function heading(yaw: number): IAutoMovieVector3 {
+  return Quaternion.rotateVector(
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
+    { x: 0, y: 0, z: 1 },
+  );
 }
 

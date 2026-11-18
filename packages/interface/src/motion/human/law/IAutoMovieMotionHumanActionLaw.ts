@@ -109,12 +109,11 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
   physical?: boolean;
 
   /**
-   * The law's recommended balancing shift (`IAutoMovieMotionHumanBalance`),
-   * every field set: the fields an action's `balance` leaves absent take
-   * these, and none is computed unless the action gives a `balance`. A law
-   * sets it only where a cited study measures a shift its key poses cannot
-   * carry, and states the study where it sets it; absent, an action's
-   * `balance` must give every field.
+   * The law's recommended balancing shift (`IAutoMovieMotionHumanBalance`).
+   * An explicit parameter takes precedence. The cited study identifies the
+   * affected part and when it contributes. The recommendation applies only
+   * when the caller requests balance, and the correction moves that part by
+   * the minimum amount its support needs, scaled by the requested weight.
    */
   balance?: IAutoMovieMotionHumanBalance;
 

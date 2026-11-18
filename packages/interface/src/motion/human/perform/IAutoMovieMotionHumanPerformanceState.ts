@@ -5,6 +5,7 @@ import type { IAutoMovieIntent } from "../../composition/IAutoMovieIntent";
 import type { IAutoMovieSchedule } from "../../composition/IAutoMovieSchedule";
 import type { IAutoMovieScheduleCue } from "../../composition/IAutoMovieScheduleCue";
 import type { IAutoMovieMotionMeeting } from "../compose/IAutoMovieMotionMeeting";
+import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionWeaponPath } from "../law/IAutoMovieMotionWeaponPath";
@@ -119,6 +120,9 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /** The plan the last alignment trial made, kept until the next placement reads or drops it; none otherwise. */
   trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
+
+  /** Incumbent arm solutions lent between plans of one intent while resolving the schedule. */
+  readonly handovers: Map<IAutoMovieIntent, IAutoMovieMotionHumanActionContext.IHandover["last"]>;
 
   /** Each performer's solved soft parts, by subject, kept once the performance is placed (`HumanPerformanceSoft.of`). */
   readonly soft: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved>;

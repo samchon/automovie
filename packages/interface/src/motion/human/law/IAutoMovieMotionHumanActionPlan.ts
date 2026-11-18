@@ -7,6 +7,7 @@ import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotio
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
+import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanFlight } from "./IAutoMovieMotionHumanFlight";
 import type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
@@ -37,6 +38,9 @@ export interface IAutoMovieMotionHumanActionPlan {
 
   /** Contact windows, shares of the duration. */
   contacts: IAutoMovieMotionHumanContactWindow[];
+
+  /** The balance window this plan actually uses, or null when its balance is off. */
+  balanceWindow?: IAutoMovieMotionHumanBalance.Window;
 
   /**
    * Seconds since the action's start, from and to, over which `posture`

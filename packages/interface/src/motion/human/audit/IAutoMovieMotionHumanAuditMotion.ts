@@ -1,5 +1,6 @@
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
+import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotionHumanContactWindow";
 
 /**
@@ -92,13 +93,21 @@ export namespace IAutoMovieMotionHumanAuditMotion {
     physical?: boolean;
 
     /** The part of the plan the audit reads. */
-    plan: {
-      /** The action's own length, seconds; contact shares are of this. */
-      duration: number;
+    plan: ISpanPlan;
+  }
 
-      /** The declared contact windows. */
-      contacts: readonly IAutoMovieMotionHumanContactWindow[];
-    };
+  /**
+   * The action-local timing, contacts and optional balance the audit reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the audited declarations and their action clock.
+   * @evidence contracts/development/design.md#principled-representation Uses the action plan's canonical time and balance fields and borrows its contact windows as read-only.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Audit-only view used by ISpan.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not copy or recompute any contact or balance terms.
+   */
+  export interface ISpanPlan
+    extends Pick<IAutoMovieMotionHumanActionPlan, "duration" | "balanceWindow"> {
+    /** The contact windows the plan declares. */
+    contacts: readonly IAutoMovieMotionHumanContactWindow[];
   }
 
   /**

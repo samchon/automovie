@@ -1,11 +1,9 @@
 import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
   IAutoMovieResolveCenterOfMass,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -75,29 +73,44 @@ export namespace AutoMovieMotionHumanAuditBalance {
     body: IAutoMovieMotionHumanBody,
     rate: number = 24,
   ): IAutoMovieMotionHumanAuditMeasure {
-    const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      HumanAuditMotion.windows(motion, subject);
-    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     let worst: IAutoMovieMotionHumanAuditMeasure = {
       value: 0,
       seconds: 0,
       where: "none",
     };
+    // Select the plans that can ask for a balance judgement before reading
+    // any support geometry or mass data.
+    const spans: IAutoMovieMotionHumanAuditMotion.ISpan[] = motion
+      .segments(subject)
+      .filter((span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
+        HumanPhysics.judged(span),
+      );
+    if (spans.length === 0) return worst;
+    const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
+      HumanAuditMotion.windows(motion, subject);
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const hold: number =
       1 /
       resolveAutoMovieCenterOfMass.frequency(
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       );
     const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
-    // Balance is judged only where it is the content: an action that stages
-    // a physical outcome or whose caller asked for its physics
-    // (`HumanPhysics.judged`); a posed action on planted feet computes none
-    // and is not judged by it.
-    const spans: readonly IAutoMovieMotionHumanAuditMotion.ISpan[] = motion.segments(subject);
+    const centres: Map<number, IAutoMovieVector3> = new Map();
+    const centreAt: CentreAt = (seconds: number, bones?: Bones): IAutoMovieVector3 => {
+      const known: ReturnType<typeof centres.get> = centres.get(seconds);
+      if (known !== undefined) return known;
+      const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+        model,
+        bones ?? motion.bones(subject, seconds),
+      );
+      centres.set(seconds, centre);
+      return centre;
+    };
     const judged = (t: number): boolean =>
       spans.some(
         (s: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
-          s.entryTime <= t && t <= s.end && HumanPhysics.judged(s),
+          s.entryTime <= t && t <= s.end &&
+          (s.plan.balanceWindow === undefined || HumanPhysics.judged(s, t)),
       );
     for (let i: number = 0; i < times.length; i++) {
       const t: number = times[i]!;
@@ -105,14 +118,20 @@ export namespace AutoMovieMotionHumanAuditBalance {
       // A foot that lifts within the pendulum's own time is a step being
       // taken: the body is walking there, not standing.
       if (!standing(windows, t, Math.min(motion.duration, t + hold))) continue;
-      const value: number = -margin(
-        motion,
-        subject,
+      const before: number = times[Math.max(0, i - 1)]!;
+      const after: number = times[Math.min(times.length - 1, i + 1)]!;
+
+      // The three-point stencil advances monotonically. A mass centre can
+      // serve later stencils only while its time remains in this span.
+      for (const known of centres.keys()) if (known < before) centres.delete(known);
+      const value: number = -marginAt(
         body,
-        model,
+        windows,
+        motion.bones(subject, t),
+        centreAt,
         t,
-        times[Math.max(0, i - 1)]!,
-        times[Math.min(times.length - 1, i + 1)]!,
+        before,
+        after,
       );
       if (value > worst.value)
         worst = { value, seconds: t, where: "both feet" };
@@ -141,16 +160,34 @@ export namespace AutoMovieMotionHumanAuditBalance {
     before: number = Math.max(0, seconds - STEP),
     after: number = Math.min(motion.duration, seconds + STEP),
   ): number {
-    const com = (t: number): IAutoMovieVector3 =>
-      resolveAutoMovieCenterOfMass.place(model, motion.bones(subject, t));
+    return marginAt(
+      body,
+      HumanAuditMotion.windows(motion, subject),
+      motion.bones(subject, seconds),
+      (at: number, bones?: Bones): IAutoMovieVector3 =>
+        resolveAutoMovieCenterOfMass.place(model, bones ?? motion.bones(subject, at)),
+      seconds,
+      before,
+      after,
+    );
+  }
 
+  /** Read the support and three-point Hof margin on the current bone frames. */
+  function marginAt(
+    body: IAutoMovieMotionHumanBody,
+    windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
+    bones: Bones,
+    centre: CentreAt,
+    seconds: number,
+    before: number,
+    after: number,
+  ): number {
     // The base of support: the planted feet's outlines and the contact point
     // of every other part bearing on the ground, whether its window is a
     // `bear` (a knee, a shin) or a `plant` (a palm laid on the floor), or
     // both feet when no window says otherwise. The instants `standing` reads
     // admit both kinds, so the base takes both.
-    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      HumanAuditMotion.windows(motion, subject).filter(
+    const open: IAutoMovieMotionHumanAuditMotion.IWindow[] = windows.filter(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
           seconds >= w.from &&
           seconds <= w.to &&
@@ -163,8 +200,6 @@ export namespace AutoMovieMotionHumanAuditBalance {
           w.contact.part !== "leftFoot" &&
           w.contact.part !== "rightFoot"),
     );
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      motion.bones(subject, seconds);
     const feet: ("left" | "right")[] =
       borne.length === 0
         ? ["left", "right"]
@@ -183,8 +218,10 @@ export namespace AutoMovieMotionHumanAuditBalance {
           AutoMovieMotionHumanAuditStatics.point(body, bones, w.contact),
       ),
     ];
-    const a: IAutoMovieVector3 = com(before);
-    const b: IAutoMovieVector3 = com(after);
+    const a: IAutoMovieVector3 = centre(before, before === seconds ? bones : undefined);
+    const b: IAutoMovieVector3 = after === before
+      ? a
+      : centre(after, after === seconds ? bones : undefined);
     const span: number = after - before;
     const velocity: IAutoMovieVector3 =
       span > 0
@@ -196,7 +233,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
         : { x: 0, y: 0, z: 0 };
     return resolveAutoMovieCenterOfMass.margin(
       resolveAutoMovieCenterOfMass.extrapolate(
-        com(seconds),
+        seconds === before ? a : seconds === after ? b : centre(seconds, bones),
         velocity,
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       ),
@@ -290,3 +327,9 @@ export namespace AutoMovieMotionHumanAuditBalance {
     return left && right;
   }
 }
+
+/** The displayed bones as owned by the audit's motion. */
+type Bones = ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>;
+
+/** The mass centre at an actual film second, reusing displayed frames when supplied. */
+type CentreAt = (seconds: number, bones?: Bones) => IAutoMovieVector3;

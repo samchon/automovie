@@ -9,6 +9,7 @@ import type {
   IAutoMovieComposition,
   IAutoMovieIntent,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBlast,
   IAutoMovieMotionHumanForce,
@@ -140,6 +141,10 @@ export class HumanPerformanceState {
 
   /** The plan the last alignment trial made (`HumanPerformancePlace.place` with `trial`), kept until the next placement reads or drops it; none otherwise. */
   public trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
+
+  /** The arm seeds continued by later trials of the same intent in this schedule. */
+  public readonly handovers: IAutoMovieMotionHumanPerformanceState["handovers"] =
+    new Map<IAutoMovieIntent, IAutoMovieMotionHumanActionContext.IHandover["last"]>();
 
   /** Each performer's solved soft parts, by subject, kept once the performance is placed (`HumanPerformanceSoft.of`). */
   public readonly soft: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved> = new Map();
@@ -377,6 +382,7 @@ export class HumanPerformanceState {
     // so the poses read while preparing it are forgotten.
     HumanPerformanceFlight.flights(this, this.people.values(), observation);
     for (const person of this.people.values()) HumanSegment.settle(person);
+    this.handovers.clear();
     this.resolving = false;
     for (const entry of this.schedule.entries) {
       const person: IAutoMovieMotionHumanSegment.IPerson = HumanPerformanceRead.person(

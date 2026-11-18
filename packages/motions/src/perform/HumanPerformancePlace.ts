@@ -2,6 +2,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   AutoMovieMotionHumanChannel,
+  AutoMovieMotionHumanScheduledInstant,
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
   IAutoMovieMotionEvent,
@@ -27,7 +28,6 @@ import type {
 } from "@automovie/interface";
 
 import { prepareJumpPosture } from "../actions/prepareJumpPosture";
-import type { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -36,6 +36,7 @@ import { HumanForce } from "./HumanForce";
 import { HumanPerformanceAhead } from "./HumanPerformanceAhead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
@@ -208,21 +209,16 @@ export namespace HumanPerformancePlace {
     // The arm solutions this action's plans hand each other in this
     // performance: an alignment trial's, its placement's and a tempo
     // replan's read what the plan before them wrote, under one map.
-    let handed: Map<string, AutoMovieMotionHumanArmPlanned.IWarm> | undefined =
-      HANDOVERS.get(self)?.get(intent);
+    let handed: IAutoMovieMotionHumanActionContext.IHandover["last"] | undefined =
+      self.handovers.get(intent);
     if (handed === undefined) {
       handed = new Map();
-      let mine: WeakMap<IAutoMovieIntent, Map<string, AutoMovieMotionHumanArmPlanned.IWarm>> | undefined =
-        HANDOVERS.get(self);
-      if (mine === undefined) {
-        mine = new WeakMap();
-        HANDOVERS.set(self, mine);
-      }
-      mine.set(intent, handed);
+      self.handovers.set(intent, handed);
     }
     const drafted: IAutoMovieMotionHumanActionContext<never> = {
       subject: intent.subject,
-      handover: { warm: handed, last: handed },      body,
+      handover: { warm: handed, last: handed },
+      body,
       params: params as never,
       skill: person.skill,
       ...(person.performer.attributes === undefined
@@ -230,6 +226,8 @@ export namespace HumanPerformancePlace {
         : { attributes: person.performer.attributes }),
       entry,
       start,
+      instant: (at: AutoMovieMotionHumanScheduledInstant): number =>
+        HumanPerformanceLayers.instant(self, at, entries),
       ...(over && previous !== undefined
         ? {
             carrier: {
@@ -525,6 +523,3 @@ export namespace HumanPerformancePlace {
     return timing;
   }
 }
-
-/** Each performance's per-action handover of arm solutions between the plans of one action (`IHumanActionContext.handover`), released with the performance and its intents. */
-const HANDOVERS: WeakMap<object, WeakMap<IAutoMovieIntent, Map<string, AutoMovieMotionHumanArmPlanned.IWarm>>> = new WeakMap();

@@ -3,8 +3,9 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 /**
  * A balancing shift an action computes only when given; absent on the
  * params, none is computed. Each field absent takes the law's
- * recommendation (`IAutoMovieMotionHumanActionLaw.balance`), and a field
- * neither gives is refused, naming it.
+ * recommendation (`IAutoMovieMotionHumanActionLaw.balance`). Without a
+ * recommendation, the weight is 1 and the bounds are applied immediately.
+ * A missing part or bound is refused by field name.
  *
  * Absent, nothing physical is computed: no balance shift, no centre-of-mass
  * loop, no balance solve and no integration, and the posture is the law's
@@ -21,15 +22,15 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * body), resolved as the scheduled instants are.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States when it is computed, how each field defaults, what absent computes, how a shift applies and why its bounds are events.
- * @evidence contracts/development/design.md#principled-representation One record: the part moved, its weight and its two event-named instants, each a named type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The four terms a closed-form shift reads; nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent is none; a field is the caller's or the law's, else refused; no share of a duration names an instant.
+ * @evidence contracts/development/design.md#principled-representation One record names the part moved, its weight, its two event-named instants and easing durations in seconds.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface These are the author inputs read by HumanPhysics for the closed-form shift and its active weight.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Balance is opt-in. The caller or law must supply the part and both event bounds, and the weight and ramp have explicit defaults.
  */
 export interface IAutoMovieMotionHumanBalance {
   /** The part moved to keep the centre of mass over the support. */
   by?: IAutoMovieMotionHumanBalance.Part;
 
-  /** The share of the full shift applied, 0 to 1. */
+  /** The share of the needed shift applied, from 0 to 1. Defaults to 1 after the law's recommendation. */
   weight?: number;
 
   /** The instant it starts. */
@@ -37,6 +38,9 @@ export interface IAutoMovieMotionHumanBalance {
 
   /** The instant it ends. */
   to?: IAutoMovieMotionHumanBalance.IBound;
+
+  /** The blend durations inside the bounds. By default the weight takes effect at the bounds. */
+  ramp?: IAutoMovieMotionHumanBalance.IRamp;
 }
 
 /**
@@ -44,6 +48,59 @@ export interface IAutoMovieMotionHumanBalance {
  *
  */
 export namespace IAutoMovieMotionHumanBalance {
+  /**
+   * A placed action's prepared balance, shared by its posture and audit.
+   * The numeric bounds use seconds since that action's own time zero.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the two readers.
+   * @evidence contracts/development/design.md#principled-representation One part, admitted weight and ramp, and numeric bounds on one action clock.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The posture and audit borrow the same prepared window from HumanPhysics.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record fixes timing without retaining poses or evaluated phase samples.
+   */
+  export interface IWindow {
+    /** The body part that performs the shift. */
+    by: Part;
+
+    /** The opening bound in action seconds. */
+    from: number;
+
+    /** The closing bound in action seconds. */
+    to: number;
+
+    /** The full share of the needed shift before easing, from 0 to 1. */
+    weight: number;
+
+    /** Durations of the opening and closing blends in seconds. */
+    ramp: IRamp;
+  }
+
+  /**
+   * A placed balance window or null where the action applies none.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a plan has no active window.
+   * @evidence contracts/development/design.md#principled-representation A numeric action-local window or no correction.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by IAutoMovieMotionHumanActionPlan and the balance audit.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts An off request carries no dummy window.
+   */
+  export type Window = IWindow | null;
+
+  /**
+   * Minimum-jerk blends at the two ends of a balance window, measured in seconds.
+   * When their sum exceeds the window, both are shortened by the same factor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the unit, where each duration is applied and how overlapping blends fit into the window.
+   * @evidence contracts/development/design.md#principled-representation Two nonnegative finite durations; HumanPhysics validates finiteness and range at runtime.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPhysics uses each duration at its own endpoint.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Blends use actual bounds and seconds, with the requested relative blend duration preserved when they meet.
+   */
+  export interface IRamp {
+    /** Seconds from the opening bound to full weight, nonnegative. */
+    in: number;
+
+    /** Seconds from full weight down to zero at the closing bound, nonnegative. */
+    out: number;
+  }
+
   /**
    * A posture's whole-body centre of mass and the support points of its
    * feet (the bearing outline of each, `HumanFoot.base`), world metres: what

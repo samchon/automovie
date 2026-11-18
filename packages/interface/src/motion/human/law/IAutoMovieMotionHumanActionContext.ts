@@ -14,6 +14,7 @@ import type { IAutoMovieMotionHumanForce } from "../perform/IAutoMovieMotionHuma
 import type { IAutoMovieMotionHumanObstacle } from "../perform/IAutoMovieMotionHumanObstacle";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
+import type { AutoMovieMotionHumanScheduledInstant } from "./AutoMovieMotionHumanScheduledInstant";
 import type { IAutoMovieMotionHumanActionLaw } from "./IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanActionPlan } from "./IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
@@ -56,6 +57,9 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
 
   /** Film second of the action's time zero. */
   start: number;
+
+  /** The film second of an earlier anchor or cue, when planning in a performance. */
+  instant?: IAutoMovieMotionHumanActionContext.Instant;
 
   /** A factor on every span of the action that physics does not fix, over its manner's own tempo (`AutoMovieMotionManner.of`): 1 when absent, and more where the action is replanned to take the time its planned motion needs within the speed bound (Hollerbach 1984's time scaling, applied where the action is placed). */
   tempo?: number;
@@ -282,6 +286,16 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
 
 /** Contracts used by jump.plan, run.plan, stand.plan, support.plan. */
 export namespace IAutoMovieMotionHumanActionContext {
+  /**
+   * Resolve an event of an earlier action or a cue track into film seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the admitted sources and output timebase.
+   * @evidence contracts/development/design.md#principled-representation Reuses the scheduled instant representation, with numeric film time as the result.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Balance calls the existing performance resolver through the action context.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No duration share substitutes for the foreign named event.
+   */
+  export type Instant = (at: AutoMovieMotionHumanScheduledInstant) => number;
+
   /**
    * The action an overlay is performed over.
    *

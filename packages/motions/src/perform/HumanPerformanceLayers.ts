@@ -28,12 +28,14 @@ export namespace HumanPerformanceLayers {
    * an anchored action or of a cue track.
    *
    * @param at The instant.
+   * @param entries Earlier schedule entries available while placing an action.
    * @returns The film second.
    * @throws {HumanRefusal} When nothing is anchored or tracked under the name, or it has no such event.
    */
   export function instant(
     self: IAutoMovieMotionHumanPerformanceState,
     at: AutoMovieMotionHumanScheduledInstant,
+    entries?: readonly IAutoMovieScheduleEntry[],
   ): number {
     if (typeof at === "number") return at;
     const placed = self.anchors.get(at.of);
@@ -80,7 +82,7 @@ export namespace HumanPerformanceLayers {
     const entry: IAutoMovieScheduleEntry | undefined =
       placed === undefined
         ? undefined
-        : self.schedule.entries.find(
+        : (entries ?? self.schedule?.entries)?.find(
             (e: IAutoMovieScheduleEntry): boolean => e.index === placed.entry,
           );
     if (placed !== undefined && at.event === undefined)
