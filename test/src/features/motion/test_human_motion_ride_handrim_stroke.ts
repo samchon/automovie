@@ -10,7 +10,7 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanHandrimStroke, HumanObject, HumanPerformance, HumanRefusal, HumanSignature } from "@automovie/motions";
+import { HumanChain, HumanHandrimStroke, HumanObject, HumanPerformance, HumanRefusal, HumanRide, HumanSignature } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -26,19 +26,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Scenarios:
  *
  * 1. On two body builds, a translated, yawed chair keeps the wrists
- *    within 0.7 hand lengths of the expected material points at catch,
- *    mid-push and release. The 0.7 hand bound is the ride grips spec's
- *    anatomical wrist offset. Each hand moves at least half a hand length
- *    away from the continuing rim point in recovery.
+ *    within 10 mm of the expected wrist targets at catch, mid-push and
+ *    release. Targets add the assumed palm thickness and the inward grip
+ *    span to the independently calculated material points. In recovery
+ *    the hands move relative to the chair and return to the ordinary
+ *    carried seated pose within 10 mm.
  * 2. The seat moves at most 10 mm relative to its chair throughout. The
  *    hands' ownership begins at catch and ends at release.
- * 3. Refuse rims on a transport chair, a center-only callback, and zero
- *    push duration.
+ * 3. Refuse absent rims, a center-only point, swapped sides, a different
+ *    chair's seat, an unreachable lower arc, and zero push duration.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged kinematics, bounds, body cases and refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed wrists and seat from a composed HumanPerformance and checks the planned windows against the authored stroke clock.
  * @evidence contracts/development/testing.md#independent-expectations The expected circular points come from rolling distance divided by the rear wheel radius and the declared rim dimensions. The calculation never calls the specialized contact reader.
- * @evidence contracts/development/testing.md#distinguishing-cases Two body builds, off-origin placement and yaw, three phases and three invalid inputs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two body builds, off-origin placement and yaw, three phases, a carrier-only control, and invalid inputs.
  * @evidence contracts/development/testing.md#execution-ownership Builds archetypes and performers in memory and invokes the public registered-action entry.
  */
 export function test_human_motion_ride_handrim_stroke(): void {
@@ -54,6 +55,7 @@ export function test_human_motion_ride_handrim_stroke(): void {
     approach, push, recovery,
   };
   const notes: string[] = [];
+  const contactGap: number = 0.01;
   for (const key of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
     const chair: ReturnType<typeof createWheelchair> = createWheelchair({ kind: "selfPropelled" }, 2);
@@ -72,14 +74,23 @@ export function test_human_motion_ride_handrim_stroke(): void {
     };
     const seat: ReturnType<typeof HumanObject.seat> = HumanObject.seat(chair, origin, "seat");
     const ahead: IAutoMovieVector3 = Quaternion.rotateVector(origin.rotation, { x: 0, y: 0, z: 0.20 });
-    const performer: ConstructorParameters<typeof HumanPerformance>[0]["performers"][number] = {
-      subject: "actor", body,
-      at: { x: seat.at.x + ahead.x, y: 0, z: seat.at.z + ahead.z },
-      yaw: seat.yaw, proficiency: { level: "trained" },
+    const other: IAutoMovieRigidTransform = {
+      ...origin, position: { ...origin.position, x: origin.position.x + 1.2 },
     };
-    const prepare = (): ReturnType<typeof HumanChain.subject> => HumanChain.subject("actor").sit({ seat });
+    const otherSeat: ReturnType<typeof HumanObject.seat> =
+      HumanObject.seat(chair, other, "seat");
+    const performer = (
+      sitting: ReturnType<typeof HumanObject.seat>,
+    ): ConstructorParameters<typeof HumanPerformance>[0]["performers"][number] => ({
+      subject: "actor", body,
+      at: { x: sitting.at.x + ahead.x, y: 0, z: sitting.at.z + ahead.z },
+      yaw: sitting.yaw, proficiency: { level: "trained" },
+    });
+    const prepare = (
+      sitting: ReturnType<typeof HumanObject.seat> = seat,
+    ): ReturnType<typeof HumanChain.subject> => HumanChain.subject("actor").sit({ seat: sitting });
     const prepared: HumanPerformance = new HumanPerformance({
-      seed: "handrim", performers: [performer], composition: prepare().node,
+      seed: "handrim", performers: [performer(seat)], composition: prepare().node,
     });
     // The chair starts moving during approach and cruises during the push.
     const courseAtCatch: number = 0.30;
@@ -91,13 +102,17 @@ export function test_human_motion_ride_handrim_stroke(): void {
     };
     const bearing: ReturnType<typeof wheelchairHandrimFrame> =
       wheelchairHandrimFrame(course, courseAtCatch, catchAngle);
+    const lowBearing: ReturnType<typeof wheelchairHandrimFrame> =
+      wheelchairHandrimFrame(course, courseAtCatch, 180);
+    /** The source of the rim point and the seat arrangement under test. */
+    type Case = "stroke" | "hub" | "transport" | "wrongSeat" | "low" | "control";
     const perform = (
       stroke: IAutoMovieMotionHumanHandrimStroke,
-      kind: "stroke" | "hub" | "transport",
+      kind: Case,
     ): HumanPerformance => new HumanPerformance({
       seed: "handrim",
-      performers: [performer],
-      laws: [HumanHandrimStroke],
+      performers: [performer(kind === "wrongSeat" ? otherSeat : seat)],
+      laws: [HumanHandrimStroke, HumanRide.ride],
       props: [
         HumanObject.prop(
           "chair",
@@ -105,17 +120,24 @@ export function test_human_motion_ride_handrim_stroke(): void {
           origin,
           placed,
           (id: string, film: number): IAutoMovieTransform =>
-            (kind === "stroke" ? bearing : course.frame)(
+            (kind === "hub" ? course.frame : kind === "low" ? lowBearing : bearing)(
               id as createWheelchair.Affordance, clock(film),
             ),
         ),
+        HumanObject.prop("other-chair", chair, other),
       ],
-      composition: prepare().registered("handrimStroke", stroke).node,
+      composition: (kind === "control"
+        ? prepare().registered("ride", { on: "chair", seconds: approach + push + recovery })
+        : prepare(kind === "wrongSeat" ? otherSeat : seat).registered("handrimStroke", stroke)
+      ).node,
     });
 
     const performance: HumanPerformance = perform(params, "stroke");
     const segment: IAutoMovieMotionHumanSegment = performance.segments("actor")[1]!;
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(performance, "actor", body, 0);
+    const reader: IAutoMovieMotionHumanSignature.IReader =
+      HumanSignature.of(performance, "actor", body, 0);
+    const control: IAutoMovieMotionHumanSignature.IReader =
+      HumanSignature.of(perform(params, "control"), "actor", body, 0);
     const catchAt: number = segment.entryTime + approach;
     const releaseAt: number = catchAt + push;
     const diagnostic = (ok: boolean, message: string): void => {
@@ -123,25 +145,40 @@ export function test_human_motion_ride_handrim_stroke(): void {
     };
     for (const side of ["left", "right"] as const) {
       const rim: ReturnType<typeof chair.affordance> = chair.affordance(params.rims[side] as createWheelchair.Affordance);
-      const distance = (film: number): number => {
-        // During the cruise, forward distance is speed times elapsed time.
-        const angle: number = catchAngle * radians + cruise * (film - catchAt) / wheelRadius;
-        const local: IAutoMovieVector3 = Vector3.add(rim.frame.translation, {
-          x: 0, y: rim.radius! * Math.cos(angle), z: rim.radius! * Math.sin(angle),
-        });
+      const wrist = (
+        source: IAutoMovieMotionHumanSignature.IReader, film: number,
+      ): IAutoMovieVector3 => {
         const world: IAutoMovieRigidTransform = placed(film);
-        const target: IAutoMovieVector3 = Vector3.add(
-          world.position, Quaternion.rotateVector(world.rotation, local),
+        return Quaternion.rotateVector(
+          Quaternion.inverse(world.rotation),
+          Vector3.subtract(HumanSignature.joint(source, film, `${side}Hand`), world.position),
         );
-        const wrist: IAutoMovieVector3 = HumanSignature.joint(reader, film, `${side}Hand`);
-        return Vector3.length(Vector3.subtract(wrist, target));
+      };
+      const wristTarget = (film: number): IAutoMovieVector3 => {
+        // The wheel rolls through distance divided by radius. The wrist sits
+        // beyond the palm's centre on the outboard side of the rim circle.
+        const angle: number = catchAngle * radians + cruise * (film - catchAt) / wheelRadius;
+        const fromAxle: number = rim.radius! + 0.075 * body.measure.hand;
+        return Vector3.add(rim.frame.translation, {
+          x: (side === "left" ? 1 : -1) * 0.35 * body.measure.hand,
+          y: fromAxle * Math.cos(angle),
+          z: fromAxle * Math.sin(angle),
+        });
       };
       for (const film of [catchAt, catchAt + push / 2, releaseAt]) {
-        const gap: number = distance(film);
-        diagnostic(gap <= 0.7 * body.measure.hand, `${side} wrist is ${gap} m off the rim at ${film}`);
+        const gap: number = Vector3.length(Vector3.subtract(wrist(reader, film), wristTarget(film)));
+        diagnostic(gap <= contactGap, `${side} displayed wrist misses its rim grip by ${gap} m at ${film}`);
       }
-      const away: number = distance(releaseAt + recovery / 2);
-      diagnostic(away >= 0.5 * body.measure.hand, `${side} wrist follows the rotating rim after release, gap ${away} m`);
+      const middle: number = releaseAt + recovery / 2;
+      const expectedRelease: IAutoMovieVector3 = wristTarget(releaseAt);
+      const recovered: IAutoMovieVector3 = wrist(reader, middle);
+      const outside: number = Vector3.length(Vector3.subtract(recovered, wristTarget(middle)));
+      const moved: number = Vector3.length(Vector3.subtract(recovered, expectedRelease));
+      diagnostic(outside >= 0.5 * body.measure.hand, `${side} wrist did not release the rotating rim`);
+      diagnostic(moved >= 0.15 * body.measure.hand, `${side} recovery wrist stayed at the release point`);
+      const terminal: number = segment.end;
+      const restGap: number = Vector3.length(Vector3.subtract(wrist(reader, terminal), wrist(control, terminal)));
+      diagnostic(restGap <= contactGap, `${side} recovery misses the seated rest wrist by ${restGap} m`);
       const grips: IAutoMovieMotionHumanContactWindow[] = segment.plan.contacts.filter(
         (window: IAutoMovieMotionHumanContactWindow): boolean =>
           window.kind === "grip" && window.part === `${side}Hand`,
@@ -169,23 +206,27 @@ export function test_human_motion_ride_handrim_stroke(): void {
 
     if (key === "m-average") {
       const refusal = (
-        kind: "stroke" | "hub" | "transport",
+        kind: Case,
         stroke: IAutoMovieMotionHumanHandrimStroke,
         axis: string,
+        reason: HumanRefusal["kind"],
       ): void => {
         try {
           perform(stroke, kind);
           diagnostic(false, `accepted the invalid ${kind} stroke targeting ${axis}`);
         } catch (error) {
           diagnostic(
-            error instanceof HumanRefusal && error.axis === axis,
+            error instanceof HumanRefusal && error.axis === axis && error.kind === reason,
             `expected a structured ${axis} refusal for ${kind}, got ${String(error)}`,
           );
         }
       };
-      refusal("transport", params, "rims.left");
-      refusal("hub", params, "rims.left");
-      refusal("stroke", { ...params, push: 0 }, "push");
+      refusal("transport", params, "rims.left", "affordance");
+      refusal("hub", params, "rims.left", "affordance");
+      refusal("stroke", { ...params, rims: { left: "rightRim", right: "leftRim" } }, "rims.left", "affordance");
+      refusal("wrongSeat", params, "seat", "base");
+      refusal("low", params, "rims.left", "reach");
+      refusal("stroke", { ...params, push: 0 }, "push", "parameter");
     }
   }
   TestValidator.equals("seat continuity and bilateral handrim contact", notes, []);

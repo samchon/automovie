@@ -25,11 +25,12 @@ import {
  * 2. Cues for fully trimmed events contribute no placement. Fixed cues and
  *    semantic events retain their legacy values when event cues are supplied.
  * 3. Missing shot, event, or asset references, fractional offsets, duplicate ids, and invalid source or film spans refuse.
+ * 4. Gain and fades follow the audio cue bounds even when the event is trimmed.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes three scenarios for placement, compatibility and authored cue refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes placement, compatibility, cue reference and span refusal, and gain and fade bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public sound planner with real shot contracts, compiled event samples, timeline cuts and normalized asset trims.
  * @evidence contracts/development/testing.md#independent-expectations The authored 0.2 second contact at 20 fps is source frame 4. The three cuts exclude it at source-out 4, keep it at film frame 4, and map it to film frame 16. Literal cue starts 2 and 14 verify two frames of lead without reusing planner output as the timing oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates cut-away events from missing declarations or samples, exclusive out from inclusive in, repeated occurrences from fixed placements, present from missing asset identities even after trim, and valid trim/offsets from fractional or overflowing placements.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates cut-away events from missing declarations or samples, exclusive out from inclusive in, repeated occurrences from fixed placements, present from missing asset identities even after trim, and valid trim/offsets from fractional or overflowing placements. It accepts fades that exactly fill the cue and rejects invalid gain or fades on retained and trimmed cues.
  * @evidence contracts/development/testing.md#execution-ownership The feature entry owns in-memory compiler assertions through deriveProductionSoundPlan and acquires no renderer, filesystem, decoder, process or completed-result cache.
  */
 export function test_film_production_sound_event_foley(): void {
@@ -69,7 +70,7 @@ export function test_film_production_sound_event_foley(): void {
     sourceDurationFrames: 8,
     gain: 0.5,
     fadeInFrames: 1,
-    fadeOutFrames: 1,
+    fadeOutFrames: 3,
     bus: "effects",
   };
   const fixed: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan(input);
@@ -105,7 +106,7 @@ export function test_film_production_sound_event_foley(): void {
           placement.durationFrames === 4 &&
           placement.gain === 0.5 &&
           placement.fadeInFrames === 1 &&
-          placement.fadeOutFrames === 1 &&
+          placement.fadeOutFrames === 3 &&
           placement.bus === "effects",
       ),
   );
@@ -189,4 +190,55 @@ export function test_film_production_sound_event_foley(): void {
         ['"recorded-contact"', "must fit inside the film"],
       ),
   );
+
+  const invalidLevels: Array<{
+    name: string;
+    cue: IAutoMovieDeriveProductionSoundPlan.IEventCue;
+    diagnostic: string;
+  }> = [
+    {
+      name: "non-finite gain on a retained cue",
+      cue: { ...cue, gain: Number.NaN },
+      diagnostic: "finite gain",
+    },
+    {
+      name: "negative gain on a trimmed cue",
+      cue: { ...cue, event: "trimmed", gain: -1 },
+      diagnostic: "finite gain",
+    },
+    {
+      name: "gain above the authored ceiling",
+      cue: { ...cue, gain: 4.01 },
+      diagnostic: "finite gain",
+    },
+    {
+      name: "negative fade-in",
+      cue: { ...cue, fadeInFrames: -1 },
+      diagnostic: "whole-frame fades",
+    },
+    {
+      name: "fractional fade-in",
+      cue: { ...cue, fadeInFrames: 0.5 },
+      diagnostic: "whole-frame fades",
+    },
+    {
+      name: "non-finite fade-out",
+      cue: { ...cue, fadeOutFrames: Number.POSITIVE_INFINITY },
+      diagnostic: "whole-frame fades",
+    },
+    {
+      name: "combined fades longer than the span on a trimmed cue",
+      cue: { ...cue, event: "trimmed", fadeInFrames: 2 },
+      diagnostic: "sum fits the cue span",
+    },
+  ];
+  for (const invalid of invalidLevels)
+    TestValidator.predicate(
+      invalid.name,
+      throwsError(
+        (): IAutoMovieProductionSoundPlan =>
+          deriveProductionSoundPlan({ ...input, eventCues: [invalid.cue] }),
+        ['"recorded-contact"', invalid.diagnostic],
+      ),
+    );
 }

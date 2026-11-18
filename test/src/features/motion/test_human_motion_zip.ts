@@ -26,6 +26,7 @@ const STROKE: number = 0.18;
  * Scenarios:
  * 1. A supported pouch opens progressively only behind its tab, retains its
  *    clearance after the fingers release, then closes on the reverse stroke.
+ *    Both lips clear the seam at either side of an interior opening threshold.
  * 2. The working thumb and index follow opposite faces of the actual tab
  *    geometry while the other index remains on the stationary casing.
  * 3. Missing or moving braces, mismatched tab sites and travel through either
@@ -81,6 +82,30 @@ export function test_human_motion_zip(): void {
     const initial: number = part(sample(begin).parts, "tab").transform!.translation.x;
     const final: number = part(sample(end).parts, "tab").transform!.translation.x;
     TestValidator.predicate("the physical tab travels between the two stops", Math.abs(final - initial - direction * STROKE) < 1e-9);
+    // Locate an interior threshold from the closed lip and moving stem boxes.
+    // The two targets are 50 µm to either side, where a wrong pivot exposes
+    // the overlap from lip thickness before the gap visibly widens.
+    const lipNames: readonly [string, string] = ["lip-1--1", "lip-1-1"];
+    const seamEdge: number = bound(part(sample(openStart).parts, lipNames[0]), "x", 1);
+    for (const offset of [-0.00005, 0.00005]) {
+      let early: number = begin;
+      let late: number = end;
+      for (let iteration: number = 0; iteration < 30; ++iteration) {
+        const middle: number = (early + late) / 2;
+        const stem: IAutoMovieModelPart = part(sample(middle).parts, "slider-stem");
+        if (direction * (bound(stem, "x", -1) - seamEdge - offset) < 0)
+          early = middle;
+        else late = middle;
+      }
+      const boxes: readonly IAutoMovieModelPart[] = sample((early + late) / 2).parts;
+      const left: number = bound(part(boxes, lipNames[0]), "z", 1);
+      const right: number = bound(part(boxes, lipNames[1]), "z", -1);
+      TestValidator.predicate(
+        `neither lip crosses the seam near offset ${offset}, direction ${direction}`,
+        offset > 0 ? left < -1e-9 && right > 1e-9 : Math.abs(left) < 1e-9 && Math.abs(right) < 1e-9,
+      );
+    }
+
     let prior: number = initial;
     const gaps: number[] = direction === 1 ? [0, 0, 0, 0] : [Infinity, Infinity, Infinity, Infinity];
     for (const share of [0.12, 0.25, 0.5, 0.75, 0.9]) {

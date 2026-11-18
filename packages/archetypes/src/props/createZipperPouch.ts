@@ -106,8 +106,9 @@ export function createZipperPouch(id?: string): Archetype<string, never> {
         id: `hinge-${lip}`, kind: "hinge", extent: null, travel: openAngle,
         parts: [lip],
         frame: {
-          ...ArchetypeFrame.upright(v(edge - section / 2, height, side * depth / 2)),
-          rotation: Quaternion.fromAxisAngle(v(0, 0, 1), -side * 90),
+          // Raise each lip about its underside so its thickness sweeps away from the seam.
+          ...ArchetypeFrame.upright(v(edge - section / 2, height - skin, side * depth / 2)),
+          rotation: Quaternion.fromAxisAngle(v(0, 0, 1), side * 90),
         },
         follows: {
           id: "zipper",
