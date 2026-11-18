@@ -131,13 +131,13 @@ export namespace supportKey {
         if (corrected.violation < Math.min(stated.violation, previous.violation))
           start = aligned;
       }
-      seed?: IAutoMovieMotionHumanPosture,
     }
     const fitted: (
-      seed: IAutoMovieMotionHumanPosture = start,
       on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
+      seed?: IAutoMovieMotionHumanPosture,
     ) => IAutoMovieMotionHumanBodyFitTypes.IResult = (
       on: IAutoMovieMotionHumanBodyFitTypes.ITarget[],
+      seed: IAutoMovieMotionHumanPosture = start,
     ): IAutoMovieMotionHumanBodyFitTypes.IResult =>
       HumanBodyFit.fit({
         body,
@@ -160,6 +160,10 @@ export namespace supportKey {
     // bears: where its top cannot be reached with every contact kept (a
     // large body's leg brought forward from the hands and knees), the key
     // is the supports' posture without it, and a contact that misses there
+    // is refused.
+    let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
+    if (swings.length > 0 && misses(result))
+      result = fitted(holding);
     // A three-support predecessor may be closer in aggregate while its
     // fourth limb is on the wrong side of a joint limit. A fully bilateral
     // support has a second physical branch from the already placed side.
@@ -172,10 +176,6 @@ export namespace supportKey {
         if (!misses(paired)) result = paired;
       }
     }
-    // is refused.
-    let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
-    if (swings.length > 0 && misses(result))
-      result = fitted(holding);
     result.residuals.forEach(
       (r: Residual, k: number): void => {
         if (k < contacts.length && points[k] !== null && r.point > miss)
@@ -194,11 +194,11 @@ export namespace supportKey {
   /** Keep the horizontal heel datum of a foot already on an unnamed floor placement. */
   function heels(
     body: IAutoMovieMotionHumanBody,
-    miss: number,
     from: IAutoMovieMotionHumanPosture,
     preferred: IAutoMovieMotionHumanPosture,
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
     points: readonly ContactPoint[],
+    miss: number,
   ): IAutoMovieMotionHumanBodyFitTypes.ITarget[] {
     const feet: IHeel[] = [];
     for (const [k, contact] of contacts.entries()) {
