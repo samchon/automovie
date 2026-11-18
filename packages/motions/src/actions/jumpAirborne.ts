@@ -14,6 +14,9 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import type { jumpState } from "./jumpState";
 
+/** How far each free foot lifts above its straight path at mid-flight, hip heights (provisional). */
+const ARCH: number = 0.1;
+
 /**
  * A jump's time in the air: the shape it holds between take-off and
  * touchdown, the knee hint its legs bend toward, and the turns it asks the
@@ -120,7 +123,7 @@ export namespace jumpAirborne {
       start: { root: shape.start.root, joints: shape.start.joints, legs: shape.start.legs },
       end: { joints: shape.end.joints, legs: shape.end.legs },
     });
-    const archHeight: number = 0.1 * body.measure.hipHeight;
+    const archHeight: number = ARCH * body.measure.hipHeight;
     const tracks: IJointTrack[] = [];
     for (const bone of [
       "leftUpperArm", "rightUpperArm", "leftLowerArm", "rightLowerArm",

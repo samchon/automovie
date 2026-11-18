@@ -4,6 +4,12 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The default apex's part independent of the jump's length, hip heights (provisional). */
+const APEX_BASE: number = 0.06;
+
+/** The default apex's rise per metre of the jump's horizontal length, metres per metre (provisional). */
+const APEX_PER_LENGTH: number = 0.1;
+
 /**
  * A jump's ballistic flight of the centre of mass, the one point gravity
  * alone moves while airborne: from the apex height above take-off (0.06 hip
@@ -74,7 +80,7 @@ export namespace jumpFlight {
     const length: number = Math.hypot(comL.x - comT.x, comL.z - comT.z);
     // A flight that lands higher must rise past the landing height first: the default apex clears it by the floor jump's own, and a given apex that does not reach it is refused.
     const climb: number = Math.max(0, comL.y - comT.y);
-    const apex: number = asked ?? 0.06 * l + 0.1 * length + climb;
+    const apex: number = asked ?? APEX_BASE * l + APEX_PER_LENGTH * length + climb;
     HumanBound.above("apex", apex, 0, "m");
     if (apex <= climb)
       throw new HumanRefusal({

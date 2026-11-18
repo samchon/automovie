@@ -42,6 +42,21 @@ import { jumpTakeoff } from "./jumpTakeoff";
 import { prepareJumpPosture } from "./prepareJumpPosture";
 import { standUpright } from "./standUpright";
 
+/** Offset decay time of a cut out of the settled jump, seconds (provisional: no study of the transition was located). */
+const BLEND: number = 0.3;
+
+/** How far the take-off root rises above the entry root, hip heights (provisional). */
+const TAKEOFF_RISE: number = 0.03;
+
+/** How far the take-off root lies ahead of the pushing ball, hip heights (provisional). */
+const TAKEOFF_AHEAD: number = 0.25;
+
+/** The withdrawn free ankle's height above the rig origin, hip heights (provisional). */
+const TUCK_HEIGHT: number = 0.3;
+
+/** The withdrawn free ankle's distance ahead of the rig origin, hip heights (provisional). */
+const TUCK_AHEAD: number = 0.1;
+
 /**
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight
  * and a two-footed landing that absorbs and rises to standing.
@@ -86,7 +101,8 @@ import { standUpright } from "./standUpright";
  * separation, turned out by the stance angle; the root lands 0.03 hip
  * heights low with the flight's velocity, absorbs to 0.12 hip heights low on
  * a quintic path that brings that velocity to rest over `ABSORB` seconds,
- * then rises to the upright stand ({@link standUpright}) over `RISE` seconds.
+ * then rises to the upright stand ({@link standUpright}) over `RISE` seconds,
+ * both scaled by the manner's tempo as the push is.
  * Planted legs are kept reachable by the shared `lowerHumanPosture` rule. The
  * push-off is drawn by `jumpPush`, the landing's places by `jumpLanding`
  * and the paths by `jumpPath`.
@@ -103,12 +119,13 @@ export namespace jump {
   /** Cancel table: once landed and settled, a jump gives way to standing or walking. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: BLEND },
     ],
     walk: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: BLEND },
     ],
   };
+
   /** Push-off duration, seconds (provisional; take-off contact of a one-foot jump from walking). */
   export const PUSH: number = 0.3;
 
@@ -196,8 +213,8 @@ export namespace jump {
     // Take-off and touchdown roots.
     const rootT: IAutoMovieVector3 = HumanFrame.point(frame(ball), {
       x: 0,
-      y: root0.y + 0.03 * l,
-      z: 0.25 * l,
+      y: root0.y + TAKEOFF_RISE * l,
+      z: TAKEOFF_AHEAD * l,
     });
     const landed: jumpLanding.ILanding = jumpLanding.of(
       body,
@@ -224,8 +241,8 @@ export namespace jump {
       x:
         (reaching === "left" ? 1 : -1) *
         Math.abs(body.rest.get(`${reaching}Foot`)!.x),
-      y: 0.3 * l,
-      z: 0.1 * l,
+      y: TUCK_HEIGHT * l,
+      z: TUCK_AHEAD * l,
     };
     const knee: jumpPush.IProps["knee"] = jumpAirborne.knee(body, heading, [
       heading, supportHeading, landingYaw.left, landingYaw.right,
@@ -273,9 +290,11 @@ export namespace jump {
       context.params.manner,
     ).tempo;
     const P: number = PUSH * tempo;
+    const absorb: number = ABSORB * tempo;
+    const rising: number = RISE * tempo;
     const touchdown: number = P + T;
-    const settled: number = touchdown + ABSORB * tempo;
-    const duration: number = settled + RISE * tempo;
+    const settled: number = touchdown + absorb;
+    const duration: number = settled + rising;
     const bearing: IAutoMovieMotionHumanContactWindow["support"] =
       context.params.on === undefined
         ? { kind: "ground" }
@@ -313,9 +332,9 @@ export namespace jump {
     const pushRoot: ReturnType<typeof jumpPath.prepare> =
       jumpPath.prepare(root0, v0, rootT, launch, P, entry.acceleration);
     const absorbRoot: ReturnType<typeof jumpPath.prepare> =
-      jumpPath.prepare(rootL, land, rootA, { x: 0, y: 0, z: 0 }, ABSORB);
+      jumpPath.prepare(rootL, land, rootA, { x: 0, y: 0, z: 0 }, absorb);
     const riseRoot: ReturnType<typeof jumpPath.prepare> =
-      jumpPath.prepare(rootA, { x: 0, y: 0, z: 0 }, rootS, { x: 0, y: 0, z: 0 }, RISE);
+      jumpPath.prepare(rootA, { x: 0, y: 0, z: 0 }, rootS, { x: 0, y: 0, z: 0 }, rising);
     const rootAt: (t: number) => IAutoMovieVector3 = (t: number): IAutoMovieVector3 =>
       t <= settled ? absorbRoot(t - touchdown) : riseRoot(t - settled);
 
@@ -350,7 +369,7 @@ export namespace jump {
       t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IAutoMovieMotionHumanPosture => {
       const root: IAutoMovieVector3 = rootAt(t);
-      const arms: number = 30 * (1 - minimumJerk.share((t - touchdown) / (ABSORB + RISE)));
+      const arms: number = jumpJoints.LANDING * (1 - minimumJerk.share((t - touchdown) / (absorb + rising)));
       const joints: IAutoMovieMotionHumanPosture["joints"] = writers.joints(arms, arms);
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       for (const side of ["left", "right"] as const)

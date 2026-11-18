@@ -9,7 +9,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { jumpPush } from "./jumpPush";
+import { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
 
 /**
@@ -23,7 +23,7 @@ import { walkLeg } from "./walkLeg";
  * @returns The terminal pelvis/toes and leg goals; the caller still owns lowering and physical resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the raw root and goals from subsequent lowering and canonical resolution, and states why carried entry terms are absent.
- * @evidence contracts/development/implementation.md#principled-implementation Evaluates jumpPush's exact terminal conditions: upright pelvis and heading, the existing heelRise at min(entry pitch,0,-40), the same metatarsal pivot and knee pole, and the reaching ankle at its body-frame tuck with a flat foot.
+ * @evidence contracts/development/implementation.md#principled-implementation Evaluates jumpPush's terminal conditions: upright pelvis and heading, walkLeg.heelRise asked min(entry pitch, 0, -jumpPush.HEEL), the same metatarsal pivot and knee pole, and the reaching ankle at its body-frame tuck with a flat foot.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the terminal hip and heel rule, construct the actual support placement, then return the same two goals used by the push writer.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the actual ruled pitch, toes, support heading and plant/contact. No fake trajectory, epsilon, fixed flight angle or alternate range replaces the body rule.
  * @evidence contracts/development/implementation.md#efficient-algorithms One ordinary heel-rule evaluation plus fixed-size frame operations per terminal read; the timed push retains its existing entry-rate calculations.
@@ -61,7 +61,7 @@ export function jumpPushEnd(
     hip,
     props.ball,
     props.supportHeading,
-    Math.min(props.supportPitch, 0, -40),
+    Math.min(props.supportPitch, 0, -jumpPush.HEEL),
     walkLeg.ROCKER,
   );
   const foot: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(

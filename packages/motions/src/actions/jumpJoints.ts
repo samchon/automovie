@@ -44,6 +44,15 @@ export function jumpJoints(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No pose, fit, time key or resolved flag is represented; explicit unchanged inputs govern fixed-prefix reuse and the cold function remains available.
  */
 export namespace jumpJoints {
+  /** The shoulders' flexion at take-off, degrees: the arm swing that adds to take-off velocity (Ashby and Heegaard 2002, J. Biomech. 35). */
+  export const TAKEOFF: number = 60;
+
+  /** The shoulders' flexion at touchdown, degrees, lowering to the stand through the landing (provisional). */
+  export const LANDING: number = 30;
+
+  /** Degrees of shoulder flexion per degree of elbow flexion the swinging arm adds to the relaxed elbow (provisional). */
+  export const SHOULDER_PER_ELBOW: number = 3;
+
   /**
    * Bind the jump's unchanged relaxed/upright joint prefix for arm samples.
    * The caller keeps this body's relaxed posture and upright table unchanged
@@ -79,7 +88,7 @@ export namespace jumpJoints {
 function write(joints: IAutoMovieMotionHumanPosture["joints"], abduction: number, left: number, right: number): IAutoMovieMotionHumanPosture["joints"] {
   joints.leftUpperArm = [left, abduction, 0];
   joints.rightUpperArm = [right, abduction, 0];
-  joints.leftLowerArm = [12 + left / 3, 0, 0];
-  joints.rightLowerArm = [12 + right / 3, 0, 0];
+  joints.leftLowerArm = [stand.ELBOW + left / jumpJoints.SHOULDER_PER_ELBOW, 0, 0];
+  joints.rightLowerArm = [stand.ELBOW + right / jumpJoints.SHOULDER_PER_ELBOW, 0, 0];
   return joints;
 }

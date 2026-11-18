@@ -21,7 +21,7 @@ import { jumpAirborne } from "./jumpAirborne";
  * @param body The plan's unchanged body.
  * @param model Its physical mass model.
  * @param shape The same achieved endpoints and authored free-goal interpolation used throughout flight.
- * @param duration Physical flight duration in seconds for the existing velocity-continuation angular resolution law; one second when omitted.
+ * @param duration Physical flight duration in seconds for the velocity-continuation angular resolution law.
  * @returns A reader of flight share in [0,1] and demanded world COM in metres, optionally borrowing its synchronous parent's exact FK source and genuine same-body ROM projector.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the per-query solve lifetime, original demand provenance, input frames and resolver-owned admission boundary.
@@ -36,7 +36,7 @@ export function prepareJumpFlight(
   body: IAutoMovieMotionHumanBody,
   model: IAutoMovieResolveCenterOfMass.IModel,
   shape: jumpAirborne.IShape,
-  duration: number = 1,
+  duration: number,
 ): (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieMotionHumanPosture {
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   for (const segment of model.segments) requested.add(segment.bone);

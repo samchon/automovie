@@ -20,9 +20,19 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { jumpJoints } from "./jumpJoints";
 import { jumpPath } from "./jumpPath";
 import { jumpPushEnd } from "./jumpPushEnd";
 import { walkLeg } from "./walkLeg";
+
+/** The slowest descent of a reaching-foot sole point that counts as falling, metres per second: slower, the foot is turning about that point (provisional). */
+const PIVOTING: number = 0.01;
+
+/** The shortest carry, seconds, whose carried-rate term is evaluated: a microsecond carry adds nothing a frame shows, and the term divides by its duration. */
+const CARRY: number = 1e-6;
+
+/** The finite-difference step of the heel rule's slope, seconds. */
+const STEP: number = 1e-3;
 
 /**
  * A jump's push-off, from the entry exactly: the pelvis and the heading
@@ -39,6 +49,9 @@ import { walkLeg } from "./walkLeg";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every path starts at the entry's own value and rate.
  */
 export namespace jumpPush {
+  /** The heel rise the push asks of the take-off foot about its ball, degrees (provisional); the ankle's reach rule may steepen it. */
+  export const HEEL: number = 40;
+
   /**
    * What the push-off is built from.
    *
@@ -253,6 +266,7 @@ export namespace jumpPush {
     const stride: IAutoMovieVector3 = entry.feet[reaching].velocity;
     const spin: IAutoMovieVector3 = entry.feet[reaching].spin;
     const spinRate: number = Math.hypot(spin.x, spin.y, spin.z);
+    // A spin below a nanoradian per second has no axis to normalize.
     const spinAxis: IAutoMovieVector3 | undefined = spinRate < 1e-9 ? undefined : {
       x: spin.x / spinRate, y: spin.y / spinRate, z: spin.z / spinRate,
     };
@@ -273,7 +287,7 @@ export namespace jumpPush {
         HumanFoot.offset(body, reaching, point),
       );
       const falling: number = -(stride.y + spin.z * arm.x - spin.x * arm.z);
-      if (falling > 0.01)
+      if (falling > PIVOTING)
         reachingCarry = Math.min(
           reachingCarry,
           Math.max(0, entry.feet[reaching].ankle.y + arm.y) /
@@ -284,7 +298,7 @@ export namespace jumpPush {
     // the leg continues what the root's carried acceleration asks of it.
     const surge: IAutoMovieVector3 = entry.feet[reaching].acceleration;
     const reachBend: (t: number) => number = (t: number): number =>
-      reachingCarry > 1e-6 ? carriedAcceleration(reachingCarry, t) : 0;
+      reachingCarry > CARRY ? carriedAcceleration(reachingCarry, t) : 0;
     // The take-off foot's pitch rate about its lateral axis, degrees per
     // second, positive lifting the toes.
     const lateral: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -328,7 +342,7 @@ export namespace jumpPush {
     };
     const prepareArm: (side: "left" | "right") => IArmTrack = (side: "left" | "right"): IArmTrack => {
       const from: number = entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
-      return { from, delta: 60 - from, rate: entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0 };
+      return { from, delta: jumpJoints.TAKEOFF - from, rate: entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0 };
     };
     const arms: Record<"left" | "right", IArmTrack> = {
       left: prepareArm("left"), right: prepareArm("right"),
@@ -350,7 +364,7 @@ export namespace jumpPush {
     const lowered: number =
       supportPitch > 0
         ? Math.min(
-            (P * supportPitch) / (supportPitch + 40),
+            (P * supportPitch) / (supportPitch + HEEL),
             rolling < 0 ? (2.5 * supportPitch) / -rolling : P,
           )
         : 0;
@@ -372,18 +386,21 @@ export namespace jumpPush {
       heelRise(
         hipJoints(body, phase.root,
           resolveHumanPosture.heading({ yaw: phase.yaw, pitch: 0, roll: 0 }), phase.pelvis, resolution?.())[takeoff],
-        Math.min(start, -40) * minimumJerk.share((phase.seconds - lowered) / span),
+        Math.min(start, -HEEL) * minimumJerk.share((phase.seconds - lowered) / span),
       );
     // What the entry's pitch and pitch rate differ from the rule's by is
     // eased out over the rise. A heel coming down about the ball is carried
     // no longer than lays the foot flat, where the pivot would pass to the
-    // heel.
+    // heel. The rule's slope at the rise's start is its second-order
+    // one-sided difference over two steps of `STEP` seconds, whose O(STEP^2)
+    // error is far below a degree per second for a rule that changes over
+    // the push's tenths of a second.
     const edge: { met: number; excess: number } = ((): { met: number; excess: number } => {
       const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
       const met: number = ruled(sample(lowered), read);
       const excess: number =
         (supportPitch > 0 ? 0 : rolling) -
-        (-3 * met + 4 * ruled(sample(lowered + 1e-3), read) - ruled(sample(lowered + 2e-3), read)) / 2e-3;
+        (-3 * met + 4 * ruled(sample(lowered + STEP), read) - ruled(sample(lowered + 2 * STEP), read)) / (2 * STEP);
       return { met, excess };
     })();
     const gap: number = start - edge.met;
@@ -398,7 +415,7 @@ export namespace jumpPush {
             rolling * carriedRate(lowered, t)
           : ruled(phase, resolution) +
             gap * (1 - minimumJerk.share((t - lowered) / span)) +
-            (carried > 1e-6 ? excess * carriedRate(carried, t - lowered) : 0)
+            (carried > CARRY ? excess * carriedRate(carried, t - lowered) : 0)
       );
     };
 
@@ -439,7 +456,7 @@ export namespace jumpPush {
         // The reaching foot leaves at once on a minimum-jerk path, carrying
         // the velocity and the spin it was entered with.
         const s: number = phase.progress;
-        const k: number = reachingCarry > 1e-6
+        const k: number = reachingCarry > CARRY
           ? reachingCarry === P ? phase.carry : carriedRate(reachingCarry, t) : 0;
         const b: number = reachBend(t);
         const from: IAutoMovieVector3 = entry.feet[reaching].ankle;
