@@ -7,10 +7,12 @@ export type { IAutoMovieMotionHumanBrace } from "./IAutoMovieMotionHumanBrace";
 export type { IAutoMovieMotionHumanBreath } from "./IAutoMovieMotionHumanBreath";
 export type { IAutoMovieMotionHumanConversation } from "./IAutoMovieMotionHumanConversation";
 export type { IAutoMovieMotionHumanCrouch } from "./IAutoMovieMotionHumanCrouch";
+export type { IAutoMovieMotionHumanCurtsy } from "./IAutoMovieMotionHumanCurtsy";
 export type { IAutoMovieMotionHumanEffort } from "./IAutoMovieMotionHumanEffort";
 export type { IAutoMovieMotionHumanGaze } from "./IAutoMovieMotionHumanGaze";
 export type { IAutoMovieMotionHumanGesture } from "./IAutoMovieMotionHumanGesture";
 export type { IAutoMovieMotionHumanGestureStroke } from "./IAutoMovieMotionHumanGestureStroke";
+export type { IAutoMovieMotionHumanHeadTilt } from "./IAutoMovieMotionHumanHeadTilt";
 export type { IAutoMovieMotionHumanKneel } from "./IAutoMovieMotionHumanKneel";
 export type { IAutoMovieMotionHumanLook } from "./IAutoMovieMotionHumanLook";
 export type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProxemics";
@@ -23,4 +25,5 @@ export type { IAutoMovieMotionHumanCrossAnkleOverKnee } from "./IAutoMovieMotion
 export type { IAutoMovieMotionHumanSeatedHeelBounce } from "./IAutoMovieMotionHumanSeatedHeelBounce";
 export type { IAutoMovieMotionHumanSit } from "./IAutoMovieMotionHumanSit";
 export type { IAutoMovieMotionHumanStepOver } from "./IAutoMovieMotionHumanStepOver";
+export type { IAutoMovieMotionHumanSwipeTouchscreen } from "./IAutoMovieMotionHumanSwipeTouchscreen";
 export type { IAutoMovieMotionHumanTypeText } from "./IAutoMovieMotionHumanTypeText";
