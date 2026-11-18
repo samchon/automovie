@@ -110,7 +110,7 @@ export function test_motion_grid_advancement(): void {
     0,
     2000,
     1,
-    (a: number, b: number): number => {
+    (_from: number, b: number): number => {
       ++asked;
       return b <= 1000 ? 0 : 2;
     },
