@@ -16,10 +16,9 @@ import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
  * requested somersault and twist and lands it with no tilt (#3426), for a
  * given shape history and flight.
  *
- * The flight's attitude is read as somersault, tilt and twist angles, the
- * convention #3416 names after Yeadon 1993 ("The biomechanics of twisting
- * somersaults", J Sports Sci 11, not yet read at the source; the order here
- * is this module's own): the body's attitude seen in the frame's axes `F`
+ * The flight uses Yeadon's somersault, tilt and twist terminology
+ * (https://www.lboro.ac.uk/microsites/ssehs/biomechanics/papers/nutation.pdf).
+ * In this module's coordinate convention the body's attitude in the frame's axes `F`
  * relative to its take-off, `(q0 F)⁻¹ q(t) F`, the identity at take-off
  * whatever the frame, is `Rx(φ) Rz(θ) Ry(ψ)`, a somersault `φ` about the frame's
  * lateral axis X, then a tilt `θ` about its forward axis Z, then a twist `ψ`
@@ -263,11 +262,12 @@ export namespace solveAirborneTakeoff {
   export const HALVINGS: number = 10;
 
   /**
-   * The default tolerance on the residual's norm, radians: a hundredth of a
-   * revolution, a quarter of the 0.04 revolution of somersault by which
-   * #3416 reports Yeadon, Atha and Hales (1990) found their simulation model
-   * to differ from recorded performances (the paper not yet read at the
-   * source), so the solver's miss stays below the model's own error.
+   * The default angular residual norm is 0.01 revolution, expressed in radians.
+   * Yeadon, Atha and Hales compared their model with nine filmed somersaults.
+   * Their largest differences were 0.04 revolution in somersault, 7 degrees
+   * in tilt and 0.12 revolution in twist. This solver uses one quarter of
+   * their somersault discrepancy as its numerical target.
+   * https://doi.org/10.1016/0021-9290(90)90372-A
    */
   export const TOLERANCE: number = 2 * Math.PI * 0.01;
   /**
