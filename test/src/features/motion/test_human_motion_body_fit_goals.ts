@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointPose,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
@@ -30,6 +31,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * Geometric angle and physical centre goals share the whole-body fit with
  * contact constraints, without changing joint ranges or treating one bone
  * as the centre of mass.
+ *
+ * Each body starts from a lifted standing posture with its legs' goals
+ * resolved into joints, the posture the fit reads.
  *
  * Scenarios:
  * 1. On three different bodies, a centre goal projected onto a diagonal
@@ -108,11 +112,29 @@ export function test_human_motion_body_fit_goals(): void {
   for (const name of ["f-small", "m-average", "m-short-armed"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const yaw: number = name === "m-short-armed" ? 90 : 0;
-    const entry: IAutoMovieMotionHumanPosture = stand.posture(
+    // The fit reads a posture by its joints, its limb goals already resolved
+    // into them (`IAutoMovieMotionHumanBodyFitTypes.IProps.posture`), so the
+    // standing legs' goals are resolved first and the fit starts from the
+    // body the centre below is read on.
+    const stood: IAutoMovieMotionHumanPosture = stand.posture(
       body,
       { x: 0.7, y: body.measure.stature, z: -0.4 },
       yaw,
     );
+    const entry: IAutoMovieMotionHumanPosture = {
+      ...stood,
+      joints: Object.fromEntries(
+        resolveHumanPosture(body, stood).joints.map(
+          (
+            joint: IAutoMovieJointPose,
+          ): [AutoMovieHumanoidBone, readonly [number, number, number]] => [
+            joint.bone,
+            [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0],
+          ],
+        ),
+      ),
+      limbs: {},
+    };
     const before: IAutoMovieVector3 = centre(body, bonesOf(body, entry));
 
     // 1. Projection onto (1, 0, 1)/sqrt(2): its minimum-norm translation
@@ -138,13 +160,13 @@ export function test_human_motion_body_fit_goals(): void {
       `${name} projected centre converged (${moved.reason})`,
       moved.converged,
     );
-    for (const axis of ["x", "z"] as const)
+    for (const axis of ["x", "z"] as const) {
+      const translated: number = moved.posture.root[axis] - entry.root[axis];
       all.check(
-        `${name} root ${axis} translates by the analytical projection`,
-        Math.abs(
-          moved.posture.root[axis] - entry.root[axis] - travel / Math.SQRT2,
-        ) <= metre,
+        `${name} root ${axis} translates by the analytical projection: ${(translated * 1000).toFixed(2)} mm, ${((travel / Math.SQRT2) * 1000).toFixed(2)} mm expected`,
+        Math.abs(translated - travel / Math.SQRT2) <= metre,
       );
+    }
 
     // 2. All three landmarks ride one rigid head; averaging +/-z points
     // gives its exact origin, so every heading preserves a right triangle.
