@@ -13,22 +13,23 @@ import { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
 import { integrateAirborneRotation } from "./integrateAirborneRotation";
 
 /**
- * Evaluate shooting points with optional momentum sensitivities. Rejected
- * line-search trials need only the actual physical residual; an improving
- * point is promoted to the full tangent solve before acceptance or return.
- * The caller judges the promoted residual again, so a different adaptive
- * mesh cannot turn an unverified improvement into an accepted Newton point.
+ * Evaluate shooting points with optional momentum sensitivities. A search
+ * point is integrated under the embedded error estimate alone (the
+ * integration tolerance); the sampled dense momentum control, which
+ * certifies the momentum a displayed flight carries, is paid only by the
+ * judged evaluation of the solution (`judged`), the one flight that is
+ * played back and refused or accepted.
  *
  * @param props One unchanged physical history, flight and numerical budgets.
  * @param axes Requested turning axes in the takeoff root frame.
  * @param frame Their world orientation at takeoff.
  * @returns Call-local trial, retarget and mesh-release operations.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States residual-only trials, sensitivity promotion, exact-point reuse, frames and lifetime.
- * @evidence contracts/development/implementation.md#principled-implementation Each residual comes from its actual torque-free physical flight under unchanged budgets. Tangent promotion recomputes that flight with the original sensitivity partition; it is never a guessed Jacobian or a derivative of another mesh. Angle unwrapping retains the original default-step branch convention.
+ * @evidence contracts/development/common.md#meaningful-documentation States search points under the embedded estimate, the judged evaluation under the momentum control, exact-point reuse, frames and lifetime.
+ * @evidence contracts/development/implementation.md#principled-implementation Each residual comes from its actual torque-free flight under the integration tolerance; the judged one also under the momentum budget. A Jacobian is the integrated sensitivity of that same flight, never a guessed one or a derivative of another mesh. Angle unwrapping retains the original default-step branch convention.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One evaluator selects an exact existing point or integrates the requested physical/tangent system, then retargets the unchanged endpoint.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither residual acceptance nor physical error is reused at a nearby momentum. Generic histories retain their original independent meshes and callback errors.
- * @evidence contracts/development/implementation.md#efficient-algorithms Non-improving backtracking trials carry zero tangent states rather than nine. Every improving trial additionally needs one full tangent solve, preserving the returned flight's three sensitivity columns; actual break-even and mesh-retention costs remain unmeasured. Owned-history integrations share exact error-checked time partitions.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither residual acceptance nor physical error is reused at a nearby momentum, and a judged evaluation never reuses a search point. Generic histories retain their original independent meshes and callback errors.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Search points skip the dense momentum probes (four right-hand sides and the probe roots a step); only the judged solution pays them, once. Owned-history integrations share exact error-checked time partitions.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only Object.is-equal momentum components reuse endpoint/flight data from the caller's current and last rejected points; a required Jacobian must actually be present. Factory history provenance permits a call-local time mesh, not shared states or verdicts.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns at most its current and last rejected evaluations and releases the operation mesh in finally. No point map or cross-call cache exists; completed flight playback retains only numeric trajectory data.
  */
@@ -59,11 +60,11 @@ export function AirborneTakeoffTrial(
     clear: (): void => partition?.clear(),
     evaluate: (
       local: readonly number[], target: readonly number[], sensitive: boolean,
-      current?: AirborneTakeoffTrial.IPoint, rejected?: AirborneTakeoffTrial.IPoint,
+      current?: AirborneTakeoffTrial.IPoint, rejected?: AirborneTakeoffTrial.IPoint, judged?: boolean,
     ): AirborneTakeoffTrial.IPoint => {
       const known: AirborneTakeoffTrial.IPoint | undefined = [current, rejected].find(
         (point: AirborneTakeoffTrial.IPoint | undefined): boolean =>
-          point !== undefined && (!sensitive || point.jacobian !== undefined)
+          judged !== true && point !== undefined && (!sensitive || point.jacobian !== undefined)
           && point.local.length === local.length
           && local.every((v: number, i: number): boolean => Object.is(v, point.local[i])),
       );
@@ -71,7 +72,8 @@ export function AirborneTakeoffTrial(
       const flight: IAutoMovieIntegrateAirborneRotation.IFlight = integrateAirborneRotation({
         history: props.history, t0: props.t0, t1: props.t1, q0: props.q0,
         momentum: Quaternion.rotateVector(frame, { x: local[0]!, y: local[1]!, z: local[2]! }),
-        h: props.h, tolerance: props.integration, momentumTolerance: props.momentumTolerance,
+        h: props.h, tolerance: props.integration,
+        momentumTolerance: judged === true ? props.momentumTolerance : undefined,
         errorScope: props.errorScope, variations: sensitive ? directions : undefined, partition,
       });
       const end: IAutoMovieSolveAirborneTakeoff.IAngles = AirborneTakeoffAngles.unwrapped({
@@ -126,9 +128,9 @@ export namespace AirborneTakeoffTrial {
    * Candidate reuse requires current exact numeric momentum and actual derivative availability, without a public trusted-cache flag.
    */
   export interface IOperation {
-    /** Integrate only the requested physical/tangent system, or reuse an exactly equal point having the required data. */
+    /** Integrate only the requested physical/tangent system, under the momentum control only when judged, or reuse an exactly equal search point having the required data. */
     evaluate(local: readonly number[], target: readonly number[], sensitive: boolean,
-      current?: IPoint, rejected?: IPoint): IPoint;
+      current?: IPoint, rejected?: IPoint, judged?: boolean): IPoint;
     /** Change only the target subtracted from an unchanged physical endpoint. */
     retarget(point: IPoint, target: readonly number[]): IPoint;
     /** Release any operation-owned temporal partition on success or failure. */

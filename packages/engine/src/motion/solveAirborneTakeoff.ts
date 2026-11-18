@@ -45,9 +45,11 @@ import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
  * accepted only if it lowers the residual (projected search, Bertsekas 1982,
  * https://web.mit.edu/dimitrib/www/ProjectedNewton.pdf). The ceiling bounds
  * the search as well as the answer; a projected point outside the angular
- * tolerance remains a miss. The returned flight
- * is the one whose residual was judged, so playback never reintegrates the
- * answer on a different adaptive mesh.
+ * tolerance remains a miss. The search's flights are integrated under the
+ * embedded error estimate alone; the solution's momentum is then integrated
+ * once more under the sampled dense momentum budget, and that judged flight
+ * is the one returned, played back and whose residual decides the miss, so
+ * the momentum control is paid once, by the flight that is shown.
  *
  * @param props The shape's history, the flight, the take-off frame, the request and its bounds.
  * @returns The momentum, its residual and whether the request is met.
@@ -57,7 +59,7 @@ import { AirborneTakeoffTrial } from "./AirborneTakeoffTrial";
  * @evidence contracts/development/implementation.md#principled-implementation Newton's method with integrated sensitivity and analytic Euler-angle derivatives, actual-residual step-halving and continuation. The three momentum directions are an orthogonal unit basis with one physical unit. Sensitivity has a local matrix-error estimate, not a global Jacobian certificate; chart singularity, inaccurate derivatives or the finite iteration budget can still miss a feasible request.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A residual over one integration, a linearized start, then a fixed loop of Jacobian, solve and backtrack.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A request the flight cannot meet is reported as a miss with its residual; the caller refuses it.
- * @evidence contracts/development/implementation.md#efficient-algorithms The adaptive linear seed starts with five history samples and refines only its estimated angular error; fixed mode retains the integration grid. Initial Newton points integrate nine sensitivity states. Backtracking first integrates only orientation, promotes every improving candidate to the tangent solve, and rechecks its actual residual decrease. The returned flight therefore retains its original three sensitivity columns. This avoids tangents on rejected trials but adds one integration for an accepted candidate; end-to-end gain is unmeasured. Factory histories share error-checked exact time partitions across trials; their finest retained mesh can increase later stage counts.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The adaptive linear seed starts with five history samples and refines only its estimated angular error; fixed mode retains the integration grid. Every Newton point and backtracking trial is one integration with its nine sensitivity states, so an accepted trial, the usual full step, is never integrated twice; search flights skip the dense momentum probes, which only the one judged flight of the solution pays. Factory histories share error-checked exact time partitions across trials; their finest retained mesh can increase later stage counts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed flight and history make endpoint angles and Jacobian independent of the turn target. Reuses the current or last rejected evaluation only when every projected momentum component is Object.is equal, subtracting the new target from the original unwrapped endpoint rather than reconstructing it from an old residual. Different points still integrate independently. Each Newton point's unchanged residual norm serves all of its backtracking comparisons. Each unwrapping pass shares its unchanged reference-frame inverse through the same angle owner as the public single-angle reader.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Reuse checks only the call-local current or starting point and one last rejected trial; continuation also owns its accepted and last solved stage until replacement. A factory history additionally gives this solve one numeric time partition, cleared in finally on success or failure. There is no point map or cross-call cache. Playback retains the actual accepted numeric flight, never the partition or history. The caller separately clears the history after solving and preparing playback.
  */
@@ -133,14 +135,11 @@ export function solveAirborneTakeoff(
         const trial: number[] = projected(
           local.map((v: number, i: number): number => v - scale * delta[i]!),
         );
-        let tr: IPoint = operation.evaluate(trial, target, false, evaluated, rejected);
-        let trialError: number = norm(tr.r);
-        if (trialError < error && tr.jacobian === undefined) {
-          // A promising physical trial earns its Jacobian. Its actual promoted
-          // flight must still improve, because tangent control can refine its mesh.
-          tr = operation.evaluate(trial, target, true, tr, evaluated);
-          trialError = norm(tr.r);
-        }
+        // One integration a trial, with its sensitivity: an accepted trial is
+        // the next Newton point and needs its Jacobian, and a full step is
+        // the usual outcome, so a trial is not integrated twice.
+        const tr: IPoint = operation.evaluate(trial, target, true, evaluated, rejected);
+        const trialError: number = norm(tr.r);
         if (trialError < error) {
           next = trial;
           after = tr;
@@ -214,8 +213,11 @@ export function solveAirborneTakeoff(
         accepted ?? solved,
       );
     }
+    // The solution's flight judged once under the momentum budget: the
+    // flight that is played back and whose residual is reported.
     const { local } = solved;
-    const { r } = operation.retarget(solved, request(1));
+    const judged: IPoint = operation.evaluate(local, request(1), false, undefined, undefined, true);
+    const { r } = judged;
     const momentum: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
       x: local[0]!,
       y: local[1]!,
@@ -232,7 +234,7 @@ export function solveAirborneTakeoff(
       met:
         norm(r) <= tolerance &&
         magnitude <= (props.maximum ?? Number.POSITIVE_INFINITY),
-      flight: solved.flight,
+      flight: judged.flight,
     };
     } finally {
     operation.clear();
