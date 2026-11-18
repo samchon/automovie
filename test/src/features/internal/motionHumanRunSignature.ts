@@ -1,10 +1,11 @@
 import type { motionComplaints } from "./motionComplaints";
+import { motionHumanMetamorphic } from "./motionHumanMetamorphic";
 import type { motionHumanBody } from "./motionHumanBody";
 import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
  * The running signature of one body (the specs
- * `test_human_motion_signature_run_<body>`), read at each pace over the
+ * `test_human_motion_signature_run`), read at each pace over the
  * steady middle half of a 6 m run.
  *
  * Bounds and sources:
@@ -55,7 +56,8 @@ export namespace motionHumanRunSignature {
   export function read(
     name: motionHumanBody.Name,
     complaints: motionComplaints.IGatherer,
-  ): void {
+  ): Record<string, motionHumanMetamorphic.ISimilarityReading> {
+    const similarity: Record<string, motionHumanMetamorphic.ISimilarityReading> = {};
     const lean: Record<string, number> = {};
     for (const row of ["pace=jog", "pace=run", "pace=sprint", "default"]) {
       const cell: string = `run ${row} ${name}`;
@@ -71,7 +73,7 @@ export namespace motionHumanRunSignature {
         lean[row]! >= 2 && lean[row]! <= 20,
       );
       let bearing: number = 0;
-      const strikes: number[] = [];
+      const strikes: M.IGait["strikes"] = [];
       const lastStrike: Partial<Record<"left" | "right", number>> = {};
       let flight: number = 0;
       let both: number = 0;
@@ -101,7 +103,7 @@ export namespace motionHumanRunSignature {
             // Suppress a heel-to-ball handoff within the same footfall.
             const previous: number | undefined = lastStrike[side];
             if (t > from && (previous === undefined || t - previous >= M.STRIDE)) {
-              strikes.push(t);
+              strikes.push({ seconds: t, side });
               lastStrike[side] = t;
             }
           }
@@ -114,7 +116,13 @@ export namespace motionHumanRunSignature {
       const duty: number = bearing / (2 * instants.length);
       const cadence: number = strikes.length < 2
         ? 0
-        : (60 * (strikes.length - 1)) / (strikes[strikes.length - 1]! - strikes[0]!);
+        : (60 * (strikes.length - 1)) / (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds);
+      if (row !== "default")
+        similarity[row] = motionHumanMetamorphic.similarityReading(s, from, to, {
+          cadence,
+          duty,
+          strikes,
+        });
       complaints.check(
         `${cell}: duty factor ${duty.toFixed(3)} not below ${sprint ? 0.35 : 0.45} (Alexander 1984; Novacheck 1998)`,
         duty < (sprint ? 0.35 : 0.45),
@@ -157,5 +165,6 @@ export namespace motionHumanRunSignature {
         lean["pace=run"]! <= lean["pace=sprint"]! + 0.5,
     );
     for (const c of M.calibrate(name)) complaints.check(c, false);
+    return similarity;
   }
 }
