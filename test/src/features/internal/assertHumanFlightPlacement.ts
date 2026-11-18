@@ -15,11 +15,12 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanFrame } from "../internal/motionHumanFrame";
-import { nclose } from "../internal/nclose";
-import { qclose } from "../internal/qclose";
-import { qunit } from "../internal/qunit";
+
+
+import { motionHumanFrame } from "./motionHumanFrame";
+import { nclose } from "./nclose";
+import { qclose } from "./qclose";
+import { qunit } from "./qunit";
 
 /**
  * A turned actual Human flight is equivariant under a ground-preserving
@@ -46,20 +47,20 @@ import { qunit } from "../internal/qunit";
  * Its quarter-turn point and quaternion formulas are written explicitly;
  * neither performance supplies a stored expected trajectory. Each film has
  * an independent body identity so performance memoization cannot omit it.
- * This deferred regression is separate from the two representative samples.
+ * The core flight spec supplies its existing origin performance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the unchanged actual fixture, transformed target, ground-preserving symmetry, winding observation and original positional/time bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Builds two actual public turned performances, compares all displayed bone positions/rotations and checks each actual takeoff-relative winding; a world-root contribution to shape dynamics, lost articulation or ignored turn fails.
  * @evidence contracts/development/testing.md#independent-expectations Gravity is invariant under horizontal translation and yaw. The explicit quarter-turn gives expected points and left-multiplied quaternions, while one requested cycle gives 2 pi winding independently of shooting residuals.
  * @evidence contracts/development/testing.md#distinguishing-cases A nonzero yaw and translation, transformed world target, real adaptive shooting and resolved polygon-body joints, exact boundaries and both adjacent phases distinguish root-space equivalence from the default unturned placement case. Event timing is checked separately from the phase comparison.
- * @evidence contracts/development/testing.md#execution-ownership A deferred CPU entry owns two real canonical performances with fresh body identities; no fake body, test-only law, foreign method replacement, renderer or process is introduced.
+ * @evidence contracts/development/testing.md#execution-ownership The core flight spec shares its canonical layout and constructs one separately placed performance with a fresh body identity; no fake body, test-only law, foreign method replacement, renderer or process is introduced.
  */
-export function test_human_motion_core_flight_placement(): void {
-  const findings: string[] = [];
-  const canonical: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const perform: (moved: boolean) => IAutoMovieMotionHumanPerformance = (
-    moved: boolean,
-  ): IAutoMovieMotionHumanPerformance =>
+export function assertHumanFlightPlacement(
+  here: IAutoMovieMotionHumanPerformance,
+  canonical: IAutoMovieMotionHumanBody,
+  findings: string[],
+): void {
+  const there: IAutoMovieMotionHumanPerformance =
     new HumanPerformance({
       seed: "flight",
       flight: "physical",
@@ -67,8 +68,8 @@ export function test_human_motion_core_flight_placement(): void {
         {
           subject: "a",
           body: { ...canonical },
-          at: moved ? { x: 3, y: 0, z: -2 } : { x: 0, y: 0, z: 0 },
-          yaw: moved ? 90 : 0,
+          at: { x: 3, y: 0, z: -2 },
+          yaw: 90,
           proficiency: { level: "trained" },
         },
       ],
@@ -76,15 +77,13 @@ export function test_human_motion_core_flight_placement(): void {
         .stand({ seconds: 0.3 })
         .jump(
           {
-            to: moved ? { x: 4, y: 0, z: -2 } : { x: 0, y: 0, z: 1 },
+            to: { x: 4, y: 0, z: -2 },
             apex: 0.5,
             rotation: { somersault: 1 },
           },
           "leap",
         ).node,
     });
-  const here: IAutoMovieMotionHumanPerformance = perform(false);
-  const there: IAutoMovieMotionHumanPerformance = perform(true);
   const span: (film: IAutoMovieMotionHumanPerformance) => readonly [number, number] = (
     film: IAutoMovieMotionHumanPerformance,
   ): readonly [number, number] => {
@@ -245,9 +244,4 @@ export function test_human_motion_core_flight_placement(): void {
     Math.min(there.duration, placed[1] + boundary),
   );
   compare(here.duration, there.duration);
-  TestValidator.equals(
-    "an actual turned Human flight follows world placement symmetry",
-    findings,
-    [],
-  );
 }

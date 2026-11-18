@@ -30,6 +30,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertHumanFlightPlacement } from "../internal/assertHumanFlightPlacement";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanFrame } from "../internal/motionHumanFrame";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
@@ -171,6 +172,7 @@ export function test_human_motion_core_flight(): void {
     let tucked: IAutoMovieMotionHumanPerformance;
     try {
       layout = perform(body, { somersault: 1 }, false);
+      if (name === "m-average") assertHumanFlightPlacement(layout, body, findings);
       tucked = perform(body, { somersault: 1 }, true);
     } catch (error) {
       findings.push(
