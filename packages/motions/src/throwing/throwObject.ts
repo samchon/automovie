@@ -280,14 +280,17 @@ export namespace throwObject {
       { holds: ["followThrough"], fixed: ["cocked", "release"] },
     );
     const duration: number = clock.duration;
+    const cockedAt: number = clock.at("cocked");
+    const releasedAt: number = clock.at("release");
+    const followedAt: number = clock.at("followThrough");
     const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
       context,
       duration,
     );
 
     const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const accelerating: number = clock.at("release") - throwObjectForm.CARRY - clock.at("cocked");
-    const following: number = clock.at("followThrough") - clock.at("release") - throwObjectForm.CARRY;
+    const accelerating: number = releasedAt - throwObjectForm.CARRY - cockedAt;
+    const following: number = followedAt - releasedAt - throwObjectForm.CARRY;
     const accelerateCurve: ReturnType<typeof throwObjectCurve> =
       throwObjectCurve(chamber, still, before, velocity, accelerating);
     const followCurve: ReturnType<typeof throwObjectCurve> =
@@ -320,9 +323,6 @@ export namespace throwObject {
       point: AutoMovieMotionHumanArm.point(posture, origin),
       rotation: Quaternion.multiply(HumanFrame.turn(posture.yaw), origin.rotation),
     });
-    const cockedAt: number = clock.at("cocked");
-    const releasedAt: number = clock.at("release");
-    const followedAt: number = clock.at("followThrough");
     const grip: (posture: IAutoMovieMotionHumanPosture, seconds: number) => GripFrame = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -395,7 +395,7 @@ export namespace throwObject {
       // in it throughout.
       contacts:
         implement === undefined
-          ? throwObjectLaunch.held(prop, side, clock.at("release") / duration)
+          ? throwObjectLaunch.held(prop, side, releasedAt / duration)
           : throwObjectLaunch.held(implement.prop, side, 1),
 
       // The elbow is solved once over the span, when the action is planned,
@@ -464,10 +464,11 @@ export namespace throwObject {
     });
     return {
       ...composed,
+      physicalWindow: { from: cockedAt, to: releasedAt + throwObjectForm.CARRY },
       launch: {
         point: lever.point,
         velocity: lever.velocity,
-        seconds: clock.at("release"),
+        seconds: releasedAt,
         target,
       },
       // The prop leaves the lever's end with the support's velocity added
@@ -476,10 +477,10 @@ export namespace throwObject {
         point: lever.point,
         velocity: Vector3.add(
           lever.velocity,
-          HumanSupportFrame.at(context, context.start + clock.at("release"))
+          HumanSupportFrame.at(context, context.start + releasedAt)
             .velocity,
         ),
-        seconds: clock.at("release"),
+        seconds: releasedAt,
         target,
       }),
     };
