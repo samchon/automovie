@@ -12,6 +12,16 @@ export interface IAutoMovieMotionPlayback<
   TSample,
   TArguments extends readonly [seconds: number, ...context: unknown[]] = [seconds: number],
 > {
-  /** Evaluate the requested local second using the producer's prepared motion. */
+  /**
+   * Evaluate the requested local second using the producer's prepared motion.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The evaluator works on the producer's local clock and returns its declared sample, including any ordinary fallback its domain defines.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature declares the clock input and sample type. The producer supplies the evaluation law.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The provider owns decomposition. Human phase selection uses HumanPreparedPlayback.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer establishes its numerical premises and admits the requested time.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer chooses the sample evaluation and owns its cost.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The evaluator's producer decides which prepared inputs its calls can share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The provider owns its preparation and sample lifetime.
+   */
   readonly sample: (...args: TArguments) => TSample;
 }

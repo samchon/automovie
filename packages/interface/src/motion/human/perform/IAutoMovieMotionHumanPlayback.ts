@@ -24,20 +24,30 @@ export interface IAutoMovieMotionHumanPlayback {
   /** Closed intervals in the declared order. The first covering phase owns a shared second. */
   readonly phases: readonly IAutoMovieMotionHumanPlayback.IPhase[];
 
-  /** Optional owned setup after placement, contacts and flight are final. */
+  /**
+   * Optional owned setup after placement, contacts and flight are final.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Setup consumes the native data available at finalized placement. The display waits for setup before borrowing those phases.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation HumanPreparedPlayback owns lifecycle admission. The native law establishes its actual preparation.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature defines the setup boundary. The attached law decomposes its work.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The native provider proves its input ownership and keeps arbitrary callback observation on its ordinary path.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Each enrolled producer owns the amount of setup it runs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Placement invalidates the provider through HumanPreparedPlayback before new admission.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The creating law owns the data held by the optional hook.
+   */
   readonly prepare?: () => void;
 }
 
-/**
- * The native human phase and the result the same leaf can consume.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the action-local windows and the single-use fit handoff.
- * @evidence contracts/development/design.md#principled-representation The generic time callable carries actual human posture arguments and result. Epoch and endpoint choice remain with the native action's phase schedule.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The consumer observes ordinary posture and takes the same evaluation's fit only when eligible.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No phase claims fitness of altered goal records. Missing admission leaves the normal path available.
- */
+/** Phase ranges and samples consumed by a human display leaf. */
 export namespace IAutoMovieMotionHumanPlayback {
-  /** One closed event interval on the human action's own clock. */
+  /**
+   * One closed event interval on the human action's own clock.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines both bounds in action-local seconds and uses the host phase order at shared bounds.
+   * @evidence contracts/development/design.md#principled-representation The generic callable uses the action's existing posture arguments for actual evaluation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The law supplies time bounds and its evaluator. HumanPreparedPlayback selects the interval once.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared bounds grant no contact or hull bound. The law owns its actual evaluation.
+   */
   export interface IPhase extends IAutoMovieMotionPlayback<
     ISample | undefined,
     Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
@@ -49,12 +59,29 @@ export namespace IAutoMovieMotionHumanPlayback {
     readonly to: number;
   }
 
-  /** Current authored channels and goals and an optional single-use fit. */
+  /**
+   * Current authored channels and goals and an optional single-use fit.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the ordinary posture and the scope of the optional fitted handoff.
+   * @evidence contracts/development/design.md#principled-representation The same native evaluator supplies actual authored and fitted records.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanSegmentOverlay uses ordinary posture for composition and can take its exact eligible fit once.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Posture identity and the bare full observation govern transfer. Any later changed goals reach their ordinary fitter.
+   */
   export interface ISample {
     /** Authored posture consumed by the ordinary composition and contact stages. */
     readonly posture: IAutoMovieMotionHumanPosture;
 
-    /** Transfer the genuine fit to the same unchanged, complete bare leaf at most once. */
+    /**
+     * Transfer the genuine fit to the same unchanged, complete bare leaf at most once.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation A consumed or unavailable fit yields undefined. A successful transfer owns the leaf's actual fit and seeds.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The native law produces the fit and owns transfer semantics. The callback declares its result.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure HumanSegmentOverlay owns scope and posture checks. The producer provides the callback.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The consumer decides admissibility against the current ordinary posture and observation.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer owns its single-use implementation and cost.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer governs whether this exact leaf fit is still available.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The sample provider owns its fit until transfer or release of the sample.
+     */
     readonly takeFit?: () => IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined;
   }
 }
