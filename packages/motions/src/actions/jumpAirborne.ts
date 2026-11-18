@@ -217,6 +217,9 @@ export namespace jumpAirborne {
     /** The plan's flight members, none for a flight with no turns. */
     declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember>;
 
+    /** Read the handed-back touchdown offset once after the native flight pass. */
+    prepareLanding(): void;
+
     /**
      * A posture in flight with the rotation handed back, unchanged before
      * it arrives and outside the flight; at touchdown itself the turn still
@@ -294,6 +297,8 @@ export namespace jumpAirborne {
     const sideways: boolean =
       rotation?.way === "left" || rotation?.way === "right";
     let rotated: ((seconds: number) => IAutoMovieHumanPostureRotation) | null = null;
+    let known: boolean = false;
+    let offset: ITouchdown = STILL;
     const declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember> =
       somersault === 0 && twist === 0
         ? {}
@@ -319,6 +324,8 @@ export namespace jumpAirborne {
               handed: (seconds: number) => IAutoMovieHumanPostureRotation,
             ): void => {
               rotated = handed;
+              known = false;
+              offset = STILL;
             },
           };
     // Every reader reconstructs seconds from the public shares. Use those
@@ -329,8 +336,6 @@ export namespace jumpAirborne {
     // angle, and its rate by the backward difference over the plan-time step.
     // None (a zero turn, which decays to nothing) until read, and where the
     // turn has no axis.
-    let known: boolean = false;
-    let offset: ITouchdown = STILL;
     const touched = (): ITouchdown => {
       if (known || rotated === null) return offset;
       known = true;
@@ -351,6 +356,9 @@ export namespace jumpAirborne {
     };
     return {
       from, to, declared,
+      prepareLanding: (): void => {
+        if (settled > to) touched();
+      },
       turned: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture =>
         // At touchdown itself the flight's turn still holds, so the landing's
         // decaying offset starts from exactly the pose the flight ends on.

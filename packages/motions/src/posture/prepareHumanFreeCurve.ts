@@ -39,7 +39,7 @@ import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
  * @param body The curve's actual canonical body; changed live rig prerequisites permanently return this curve to ordinary cold fitting.
  * @param at Pure constructor-owned authoring at a phase in [0,1], with fresh records and closed direct-joint/free-world-leg goals only.
  * @param duration The physical duration in seconds, used by the existing velocity-continuation angular-resolution law.
- * @returns A current-phase preparation reader borrowing only a genuine native synchronous FK/projector source; foreign sources keep ordinary cold behavior.
+ * @returns A current-phase preparation reader with optional placement-time setup of its canonical starting anchor, borrowing only a genuine native synchronous FK/projector source; foreign sources keep ordinary cold behavior.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines curve ownership, normalized phase/second units, canonical directed dyadic interval construction, exact current solves, supported free-goal domain, full physical gates and cold fallback. An accepted interval endpoint is not a global smoothness certificate.
  * @evidence contracts/development/implementation.md#principled-implementation Predictor-corrector continuation uses the existing near-basin hinged solver. A directed interval's actual endpoint correction either meets the original branch/swivel and one-degree postclamp rotation gates or requires deterministic left-before-right subdivision. Every actual query is independently corrected and checked for ankle position, requested orientation, pole side and ROM with those same gates. Query-local failure can descend without changing the parent's canonical classification. A unique smooth local basin remains a premise; sampled endpoints do not certify global C1 or analytic root selection.
@@ -53,7 +53,7 @@ export function prepareHumanFreeCurve(
   body: IAutoMovieMotionHumanBody,
   at: (share: number) => IAutoMovieMotionHumanPosture,
   duration: number,
-): (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => HumanPosturePreparation.IPrepared {
+): prepareHumanFreeCurve.IReader {
   const unchanged: (() => boolean) | undefined = prepareHumanPostureRigCheck(body);
   const tolerance: number = Number.isFinite(duration) && duration > 0
     ? samplePoseVelocity.tolerance(1e-3, duration) : NaN;
@@ -292,30 +292,77 @@ export function prepareHumanFreeCurve(
     return { prepared: cold(share, resolution, projection) };
   }
 
-  return (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>): HumanPosturePreparation.IPrepared => {
-    if (!supported || !(share > 0 && share < 1) || !prepareHumanPoseResolution.isNativeSource(resolution)) return cold(share, resolution, projection);
+  /** A placement can prepare its native cold anchor once after physical setup. */
+  function prepare(
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): boolean {
+    if (!supported || !prepareHumanPoseResolution.isNativeSource(resolution))
+      return false;
     if (!unchanged!()) {
       supported = false; origin = undefined; anchors.clear(); intervals.clear(); checked.clear();
-      return cold(share, resolution, projection);
+      return false;
     }
     if (!originRead) {
       originRead = true;
       const initial: IAutoMovieMotionHumanPosture = at(0);
       if (initial.rotation !== undefined || !HumanPostureRaw.eligible(initial) || Object.keys(initial.limbs).length === 0) {
-        supported = false; return cold(share, resolution, projection);
+        supported = false;
+        return false;
       }
-      const prepared: HumanPosturePreparation.IPrepared = cold(0, resolution, projection, initial);
+      const prepared: HumanPosturePreparation.IPrepared = cold(
+        0,
+        resolution,
+        projection,
+        initial,
+      );
       origin = observe(prepared, initial, resolution);
       if (origin === undefined) {
         const raw: IAutoMovieMotionHumanPosture = at(0.5);
-        const middle: HumanPosturePreparation.IPrepared = cold(0.5, resolution, projection, raw);
+        const middle: HumanPosturePreparation.IPrepared = cold(
+          0.5,
+          resolution,
+          projection,
+          raw,
+        );
         const interior: IAnchor | undefined = observe(middle, raw, resolution);
         if (interior !== undefined) { pivot = 0.5; origin = interior; }
       }
     }
-    return solve(share, resolution, projection).prepared;
-  };
+    return true;
+  }
+
+  return Object.assign(
+    (
+      share: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): HumanPosturePreparation.IPrepared =>
+      share > 0 && share < 1 && prepare(resolution, projection)
+        ? solve(share, resolution, projection).prepared
+        : cold(share, resolution, projection),
+    {
+      prepare: (): void => {
+        prepare(prepareHumanPoseResolution());
+      },
+    },
+  );
+}
+
+/** The deterministic native curve and its placement-time anchor construction. */
+export namespace prepareHumanFreeCurve {
+  /** Same-time fit of authored goals and optional setup of the immutable curve's canonical start. */
+  export interface IReader {
+    /** Resolve the actual requested normalized phase with optional same-read FK and joint projection. */
+    (
+      share: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): HumanPosturePreparation.IPrepared;
+
+    /** Prepare only the canonical starting anchor, using the existing live-rig admission. */
+    prepare(): void;
+  }
 }
 
 /**

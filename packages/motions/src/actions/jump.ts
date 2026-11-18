@@ -24,6 +24,7 @@ import type {
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
@@ -108,6 +109,11 @@ const TUCK_AHEAD: number = 0.1;
  * Planted legs are kept reachable by the shared `lowerHumanPosture` rule. The
  * push-off is drawn by `jumpPush`, the landing's places by `jumpLanding`
  * and the paths by `jumpPath`.
+ * The phase boundaries separate ground propulsion, airborne shape and
+ * impact. [Bobbert and van Ingen Schenau (1988)](https://pubmed.ncbi.nlm.nih.gov/3379084/)
+ * describe push-off in terms of the energy transferred to the centre of mass.
+ * The [MIT Cheetah jump planner](https://dspace.mit.edu/entities/publication/8cfc87cf-d85a-466e-9471-66ca6923035d)
+ * likewise prepares distinct approach and push-off phases.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States entry continuation, the actual heel rule, ballistic COM, landing phases, units and provisional quantities; achieved endpoint preparation is delegated to its owner.
  * @evidence contracts/development/design.md#principled-representation One action law separates authored landing/apex/turn requests from body-dependent physical endpoints and the engine's flight rotation.
@@ -151,7 +157,7 @@ export namespace jump {
    * @evidence contracts/development/implementation.md#principled-implementation The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read entry/support, prepare achieved endpoint values, solve COM flight, prepare the original timed push, then evaluate the three phases through their owners.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves original floor/prop targets, entry velocity/acceleration, ROM, contact windows and momentum acceptance. No nominal root is replaced by its lowered value inside the heel rule; no flight plant, radius projection or epsilon hides the phase seam. World COM and whole-body angular C1 at takeoff remain unproved.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two endpoint preparations add bounded canonical solves/FK per plan. Push/landing share one fixed joint prefix and lazily prepared cosine-law reach; samples still copy all prefix members, write four arm tuples and evaluate every actual plant/hip/lowering. Each free query prepares its raw shape once, reads mass-bearing FK and lends that canonical result through exact resolver admission. Proven unchanged free legs may independently survive explicit rebasing; changed dependencies/turns fit normally. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two endpoint preparations add bounded canonical solves/FK per plan. Push/landing share one fixed joint prefix and lazily prepared cosine-law reach. At an unaltered bare ground read, one leg fit can serve both clearance and display after dependency checks. Each free query prepares its actual authored shape, reads mass-bearing FK and lends that canonical result through exact resolver admission.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw endpoints and achieved COM boundaries share; their two actual COM readings borrow one local exact FK source, while timed entry-rate curves remain independent. The unchanged body's joint prefix, arm separation and minimum-knee reach prepare once; new dimensions/knee require new preparation and every current root/plant/hip remains observed. Free-query COM/display share one checked canonical source without a time key. Parent FK/projector loans share only exact prerequisites/static ROM metadata through current solves.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains body/phase geometry, two endpoints, one bounded joint prefix/reach producer, prepared push/flight closures and fixed mass demand. The local paired-endpoint FK source ends with its preparation, leaving two COM vectors. Each free posture carries only its own checked preparation; optional FK/projector loans stay synchronous and never enter the plan, token/output evidence or previous-frame history. The lowering producer retains only fixed body/knee/scalar prerequisites.
    */
@@ -367,17 +373,27 @@ export namespace jump {
       joints: jumpJoints.prepare(body, upright.joints),
       lower: lowerHumanPosture.prepare(body),
     };
-    const pushedAt: (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture = (seconds: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture => {
-      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-      return jumpGroundPosture(body, jumpPushPosture(pushProps, push, seconds, read, writers), reaching, read);
+    const shape: jumpAirborne.IShape = {
+      body,
+      takeoff,
+      heading,
+      start: startState,
+      end: endState,
     };
-    const shape: jumpAirborne.IShape = { body, takeoff, heading, start: startState, end: endState };
-    const landedAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture = (
-      t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    /** The actual current landing demands before swing clearance. */
+    const landingAt: (
+      t: number,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+    ) => IAutoMovieMotionHumanPosture = (
+      t: number,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
     ): IAutoMovieMotionHumanPosture => {
       const root: IAutoMovieVector3 = rootAt(t);
       const arms: number = jumpJoints.LANDING * (1 - minimumJerk.share((t - touchdown) / (absorb + rising)));
-      const joints: IAutoMovieMotionHumanPosture["joints"] = writers.joints(arms, arms);
+      const joints: IAutoMovieMotionHumanPosture["joints"] = writers.joints(
+        arms,
+        arms,
+      );
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
       for (const side of ["left", "right"] as const)
         limbs[`${side}Leg`] = {
@@ -387,17 +403,80 @@ export namespace jump {
           planted: true,
           contact: { ...landingContact[side] },
         };
-      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-      return jumpGroundPosture(body,
-        writers.lower({ root, yaw: heading, pitch: 0, roll: 0, joints, limbs }, read), "landing", read);
+      return writers.lower(
+        { root, yaw: heading, pitch: 0, roll: 0, joints, limbs },
+        read,
+      );
+    };
+    const ground: prepareJumpPosture.IGround = {
+      before: (seconds, _channels, resolution) => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        return jumpGroundPosture(
+          body,
+          jumpPushPosture(pushProps, push, seconds, read, writers),
+          reaching,
+          read,
+        );
+      },
+      after: (seconds, _channels, resolution) => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        return jumpGroundPosture(
+          body,
+          landingAt(seconds, read),
+          "landing",
+          read,
+        );
+      },
+      sampleBefore: (seconds, _channels, resolution, projection) => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        return jumpGroundPosture.sample(
+          body,
+          jumpPushPosture(pushProps, push, seconds, read, writers),
+          reaching,
+          read,
+          projection,
+        );
+      },
+      sampleAfter: (seconds, _channels, resolution, projection) => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(resolution);
+        return jumpGroundPosture.sample(
+          body,
+          landingAt(seconds, read),
+          "landing",
+          read,
+          projection,
+        );
+      },
     };
     const prepared: prepareJumpPosture.IConstruction = prepareJumpPosture(
       body, model, shape,
-      { from: P, to: touchdown, duration, flightSeconds: T, centre: comT, launch, settled },
-      context.params.rotation, pushedAt, landedAt,
+      {
+        from: P,
+        to: touchdown,
+        duration,
+        flightSeconds: T,
+        centre: comT,
+        launch,
+        settled,
+      },
+      context.params.rotation,
+      ground,
     );
     // The takeoff impulse and landing absorption end at settled. The remaining
     // ascent follows the authored return curve from zero velocity.
-    return { duration, events, contacts, physicalWindow: { from: 0, to: settled }, ...prepared.declared, posture: prepared.posture };
+    const result: IAutoMovieMotionHumanActionPlan = {
+      duration,
+      events,
+      contacts,
+      physicalWindow: { from: 0, to: settled },
+      ...prepared.declared,
+      posture: prepared.posture,
+    };
+    HumanPreparedPlayback.attach(result, body, prepared.playback);
+    return result;
   }
 }

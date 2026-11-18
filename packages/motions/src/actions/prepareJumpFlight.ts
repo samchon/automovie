@@ -37,7 +37,7 @@ export function prepareJumpFlight(
   model: IAutoMovieResolveCenterOfMass.IModel,
   shape: jumpAirborne.IShape,
   duration: number,
-): (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]) => IAutoMovieMotionHumanPosture {
+): prepareJumpFlight.IReader {
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   for (const segment of model.segments) requested.add(segment.bone);
   const shapeAt: ReturnType<typeof jumpAirborne.prepare> = jumpAirborne.prepare(shape);
@@ -46,9 +46,44 @@ export function prepareJumpFlight(
     body, (share: number): IAutoMovieMotionHumanPosture => shapeAt(root, share), duration,
   );
 
-  return (share: number, centre: IAutoMovieVector3, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<typeof resolveHumanPosture.seeded>[6]): IAutoMovieMotionHumanPosture => {
+  return Object.assign(
+    (
+      share: number,
+      centre: IAutoMovieVector3,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    ): IAutoMovieMotionHumanPosture => {
     const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-    const prepared: HumanPosturePreparation.IPrepared = curve(share, read, projection);
-    return HumanPosturePreparation.placed(prepared, model, requested, centre, read);
-  };
+      const prepared: HumanPosturePreparation.IPrepared = curve(
+        share,
+        read,
+        projection,
+      );
+      return HumanPosturePreparation.placed(
+        prepared,
+        model,
+        requested,
+        centre,
+        read,
+      );
+    },
+    { prepare: curve.prepare },
+  );
+}
+
+/** Native jump flight shape and its owned preparation seam. */
+export namespace prepareJumpFlight {
+  /** Read the achieved shape at the requested ballistic centre. */
+  export interface IReader {
+    /** Normalized flight share, world COM, and an optional current native FK/projector loan. */
+    (
+      share: number,
+      centre: IAutoMovieVector3,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+    ): IAutoMovieMotionHumanPosture;
+
+    /** Prepare the free shape's canonical continuation anchor after placement. */
+    prepare(): void;
+  }
 }
