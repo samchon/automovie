@@ -107,7 +107,10 @@ export function motionHumanLawTouch(
     row: IAutoMovieMotionHumanTouch.IParams,
     still: boolean,
   ): motionHumanLaw.IFilm => {
-    const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act("touch", row);
+    const a: IAutoMovieMotionHumanChain = HumanChain.subject("a").act(
+      "touch",
+      row,
+    );
     return partner === undefined
       ? motionHumanLaw.perform(label, [{ subject: "a", body }], a)
       : motionHumanLaw.perform(
@@ -292,11 +295,13 @@ function expectations(
       : [["left", params.other] as ["left", IAutoMovieMotionTarget]]),
   ];
   for (const [side, target] of hands) {
-    for (const [event, t] of [
-      ["ready", ready],
-      ["relax", relax],
+    const gaps: number[] = held.map((t: number): number =>
+      gap(side, target, t),
+    );
+    for (const [event, far] of [
+      ["ready", gaps[0]!],
+      ["relax", gaps[gaps.length - 1]!],
     ] as const) {
-      const far: number = gap(side, target, t);
       out.push(
         ...motionHumanLaw.expect(
           (): string =>
@@ -305,15 +310,6 @@ function expectations(
         ),
       );
     }
-    const gaps: number[] = held.map((t: number): number =>
-      gap(side, target, t),
-    );
-    const arrived: IAutoMovieVector3 = offset(side, target, ready);
-    const moved: number = Math.max(
-      ...held.map((t: number): number =>
-        length(minus(offset(side, target, t), arrived)),
-      ),
-    );
     if (form.lift > 0) {
       let downs: number = 0;
       let apart: boolean = false;
@@ -339,6 +335,12 @@ function expectations(
         ),
       );
     } else {
+      const arrived: IAutoMovieVector3 = offset(side, target, ready);
+      const moved: number = Math.max(
+        ...held.map((t: number): number =>
+          length(minus(offset(side, target, t), arrived)),
+        ),
+      );
       const reach: number = form.travel * hand;
       const worst: number = Math.max(...gaps);
       out.push(

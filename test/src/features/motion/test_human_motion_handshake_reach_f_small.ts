@@ -34,7 +34,7 @@ import { motionHandshakeReach } from "../internal/motionHandshakeReach";
 export function test_human_motion_handshake_reach_f_small(): void {
   TestValidator.equals(
     "a handshake plans inside its band and names the bound it misses",
-    motionHandshakeReach("f-small", "m-large"),
+    motionHandshakeReach("f-small", "m-large", true),
     [],
   );
 }

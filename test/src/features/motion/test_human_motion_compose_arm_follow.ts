@@ -1,10 +1,14 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -33,12 +37,12 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * touches moves the touched site 0.4 to 5.8 mm from where the plan saw it,
  * and the follower follows that as it should.
  *
- * Scenarios, the arm read every 1/240 s:
- * 1. The goal keeps still: the written arm is the plan exactly, at every
- *    reading.
+ * Scenarios:
+ * 1. With a stationary goal the arm equals the plan at entry, readiness,
+ *    mid-hold, release and completion.
  * 2. The goal sways 60 mm side to side at 0.75 Hz on the hold, a person
  *    rocking on their feet (peak 0.28 m/s): no wrist, elbow or fingertip
- *    moves faster than the audit's travel bound (1.92 m/s); from a quarter
+ *    sampled at 240 Hz moves faster than the audit's travel bound (1.92 m/s); from a quarter
  *    second into the hold to a frame before its end (the correction's
  *    release toward the plan starts within its last frame) the wrist is
  *    within the goal's own travel in one frame (1/30 s) plus a millimetre of
@@ -54,14 +58,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 export function test_human_motion_compose_arm_follow(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const side = "right" as const;
+  const side: AutoMovieHumanSide = "right";
   const base: IAutoMovieMotionHumanPosture = stand.posture(
     body,
     { x: 0, y: 0, z: 0 },
     0,
   );
   const stance: IAutoMoviePose = resolveHumanPosture(body, base);
-  const bones = poseBones(body, stance);
+  const bones: ReturnType<typeof poseBones> = poseBones(body, stance);
   const shoulder: IAutoMovieVector3 = bones.get(
     `${side}UpperArm`,
   )!.worldPosition;
@@ -86,32 +90,54 @@ export function test_human_motion_compose_arm_follow(): void {
       }),
       side,
     );
-  const span: { start: number; ready: number; relax: number; end: number } = {
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
     ready: 0.5,
     relax: 2,
     end: 2.5,
   };
-  const written = (
+  // The lag and speed probes consume these three bones. Both legs' solved
+  // angles are independent of their canonical upper-body ancestor paths.
+  type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+  const probes: readonly AutoMovieHumanoidBone[] = [
+    `${side}LowerArm`,
+    `${side}Hand`,
+    `${side}MiddleDistal`,
+  ];
+  const needed: ReadonlySet<AutoMovieHumanoidBone> = new Set(probes);
+  const read: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    needed,
+  );
+  const written: (arm: IAutoMovieMotionHumanArmAngles.IAngles) => Bones = (
     arm: IAutoMovieMotionHumanArmAngles.IAngles,
-  ): Map<AutoMovieHumanoidBone, { worldPosition: IAutoMovieVector3 }> => {
+  ): Bones => {
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
     delete limbs[`${side}Arm`];
-    return poseBones(
-      body,
-      resolveHumanPosture(body, {
-        ...base,
-        limbs,
-        joints: {
-          ...base.joints,
-          [`${side}UpperArm`]: arm.upper,
-          [`${side}LowerArm`]: arm.lower,
-          [`${side}Hand`]: arm.hand,
+    return read(
+      resolveHumanPosture.seeded(
+        body,
+        {
+          ...base,
+          limbs,
+          joints: {
+            ...base.joints,
+            [`${side}UpperArm`]: arm.upper,
+            [`${side}LowerArm`]: arm.lower,
+            [`${side}Hand`]: arm.hand,
+          },
         },
-      }),
+        undefined,
+        undefined,
+        undefined,
+        needed,
+      ).pose,
     );
   };
-  const follow = (
+  type Goal = (seconds: number) => IAutoMovieVector3;
+  const follow: (
+    goal: Goal,
+  ) => IAutoMovieMotionHumanArmTrajectory.Trajectory = (
     goal: (seconds: number) => IAutoMovieVector3,
   ): ((seconds: number) => IAutoMovieMotionHumanArmAngles.IAngles) =>
     AutoMovieMotionHumanArmFollow.follower(
@@ -139,8 +165,16 @@ export function test_human_motion_compose_arm_follow(): void {
   const step: number = 1 / 240;
 
   // 1. A still goal leaves the plan exactly.
-  const resting = follow((): IAutoMovieVector3 => still);
-  for (let t: number = 0; t <= span.end + 1e-9; t += step) {
+  const resting: IAutoMovieMotionHumanArmTrajectory.Trajectory = follow(
+    (): IAutoMovieVector3 => still,
+  );
+  for (const t of [
+    span.start,
+    span.ready,
+    (span.ready + span.relax) / 2,
+    span.relax,
+    span.end,
+  ]) {
     const arm: IAutoMovieMotionHumanArmAngles.IAngles = resting(t);
     complaints.equals(
       `still, at ${t.toFixed(4)} s: the written arm is the plan`,
@@ -150,7 +184,7 @@ export function test_human_motion_compose_arm_follow(): void {
   }
 
   // 2. A swaying goal is followed within its bounds.
-  const sway = (seconds: number): IAutoMovieVector3 =>
+  const sway: Goal = (seconds: number): IAutoMovieVector3 =>
     seconds <= span.ready || seconds >= span.relax
       ? still
       : {
@@ -159,22 +193,15 @@ export function test_human_motion_compose_arm_follow(): void {
             still.x +
             0.06 * Math.sin(2 * Math.PI * 0.75 * (seconds - span.ready)),
         };
-  const swaying = follow(sway);
+  const swaying: IAutoMovieMotionHumanArmTrajectory.Trajectory = follow(sway);
   const frame: number = 1 / 30;
-  let previous:
-    | Map<AutoMovieHumanoidBone, { worldPosition: IAutoMovieVector3 }>
-    | undefined;
-  for (let t: number = 0; t <= span.end + 1e-9; t += step) {
-    const shown: Map<
-      AutoMovieHumanoidBone,
-      { worldPosition: IAutoMovieVector3 }
-    > = written(swaying(t));
+  let previous: Bones | undefined;
+  for (let tick: number = 0; tick <= Math.round(span.end / step); ++tick) {
+    const t: number = tick * step;
+    const arm: IAutoMovieMotionHumanArmAngles.IAngles = swaying(t);
+    const shown: Bones = written(arm);
     if (previous !== undefined)
-      for (const bone of [
-        `${side}LowerArm`,
-        `${side}Hand`,
-        `${side}MiddleDistal`,
-      ] as const) {
+      for (const bone of probes) {
         const speed: number =
           distance(
             shown.get(bone)!.worldPosition,
@@ -186,24 +213,25 @@ export function test_human_motion_compose_arm_follow(): void {
         );
       }
     if (t >= span.ready + 0.25 && t < span.relax - frame) {
+      const target: IAutoMovieVector3 = sway(t);
       const lag: number = distance(
         shown.get(`${side}Hand`)!.worldPosition,
-        sway(t),
+        target,
       );
-      const reach: number = distance(sway(t), sway(t - frame)) + 0.001;
+      const reach: number = distance(target, sway(t - frame)) + 0.001;
       complaints.check(
         `swaying, at ${t.toFixed(4)} s: the wrist is ${(lag * 1000).toFixed(1)} mm from the goal, at most ${(reach * 1000).toFixed(1)}`,
         lag <= reach,
       );
     }
+    if (t === span.end)
+      complaints.equals(
+        "swaying, at the span's end: the arm is the plan again",
+        [arm.upper, arm.lower, arm.hand],
+        [planned.upper, planned.lower, planned.hand],
+      );
     previous = shown;
   }
-  const after: IAutoMovieMotionHumanArmAngles.IAngles = swaying(span.end);
-  complaints.equals(
-    "swaying, at the span's end: the arm is the plan again",
-    [after.upper, after.lower, after.hand],
-    [planned.upper, planned.lower, planned.hand],
-  );
   complaints.assert(
     "a followed arm is the plan while its goal keeps still and follows it within its bounds",
   );

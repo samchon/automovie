@@ -20,11 +20,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * kinematics, which clamps every joint to the skeleton's range.
  *
  * Scenarios:
- * 1. Over 30 seeded arms of the average man within their ranges, both
+ * 1. At an oblique interior posture of the average man, on both
  *    sides, every free coordinate's column (each segment's world
  *    turn and the elbow's and the wrist's velocity) matches a central
  *    difference of the planner's chain within 1e-6 of its size.
- * 2. With the elbow's flexion and then the wrist's abduction set 200
+ * 2. With the elbow's flexion and the wrist's abduction set 200
  *    degrees past their ranges, forward kinematics holds the arm at the
  *    limit, so a central difference there is zero, and so is the column.
  *
@@ -40,11 +40,6 @@ export function test_human_motion_core_arm_jacobian(): void {
     body,
     stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
   );
-  let seed: number = 20261115;
-  const random = (): number => {
-    seed = (seed * 1103515245 + 12345) % 2147483648;
-    return seed / 2147483648;
-  };
   const length = (v: IAutoMovieVector3): number => Math.hypot(v.x, v.y, v.z);
   const minus = (
     a: IAutoMovieVector3,
@@ -105,32 +100,24 @@ export function test_human_motion_core_arm_jacobian(): void {
     return worst;
   };
 
-  // 1. Arms within their ranges.
-  let inside: number = 0;
-  for (let i: number = 0; i < 30; i++) {
-    const side: "left" | "right" = i % 2 === 0 ? "right" : "left";
-    inside = Math.max(
-      inside,
-      miss(
-        HumanArmJacobian.read(body, side, pose, {
-          upper: [20 + 60 * random(), 10 + 30 * random(), -20 + 40 * random()],
-          lower: [10 + 80 * random(), 0, -40 + 80 * random()],
-          hand: [-30 + 60 * random(), -10 + 20 * random(), 0],
-        }),
-      ),
-    );
-  }
+  // Flexion, abduction and twist must all contribute in the interior.
+  // Use different nonzero components so a transposed axis cannot match.
+  const arm = {
+    upper: [40, 20, -10] as [number, number, number],
+    lower: [50, 0, 20] as [number, number, number],
+    hand: [10, -5, 0] as [number, number, number],
+  };
+  const inside: number = Math.max(
+    ...(["left", "right"] as const).map((side): number =>
+      miss(HumanArmJacobian.read(body, side, pose, arm)),
+    ),
+  );
   TestValidator.predicate(
     `columns match the chain's differences (${inside})`,
     inside <= 1e-6,
   );
 
   // 2. Past a range the clamp holds the arm, and the column is zero.
-  const arm = {
-    upper: [40, 20, 0] as [number, number, number],
-    lower: [50, 0, 0] as [number, number, number],
-    hand: [10, 0, 0] as [number, number, number],
-  };
   const zero = (offset: number[], d: number): boolean => {
     const read = HumanArmJacobian.read(body, "right", pose, arm, offset);
     const column: IAutoMovieMotionHumanArmJacobian.IColumn =

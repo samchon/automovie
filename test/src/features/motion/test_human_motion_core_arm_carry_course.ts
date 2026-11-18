@@ -1,21 +1,16 @@
 import { createDrinkware } from "@automovie/archetypes";
 import type {
   IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
-  HumanArmClearance,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  blendHumanJoint,
   poseBones,
   resolveHumanPosture,
 } from "@automovie/motions";
@@ -44,8 +39,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 3. The last carried share, 199/200, has the wrist within five mean steps
  *    of the goal's own pose, so the carry joins the goal without a step.
  *
- * A failing row names the share, the step, the mean, the upper and lower
- * arm's joint angles on both sides of the step, and those of the two ends.
+ * A failing row reports the interval, measured displacement and mean step.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public carry over a posture the public performance gives and reads the resolved wrist; a clearance that changes direction between two shares, or a carry that ends away from its goal, fails.
  * @evidence contracts/development/testing.md#independent-expectations The mean step is the measured course's own length over its 200 steps, and the bound is a multiple of it stated from what a joint blend is; nothing is read from the carry's clearance.
@@ -104,92 +98,38 @@ export function test_human_motion_core_arm_carry_course(): void {
     .bones("a", 0)
     .get("rightHand")!.worldPosition;
 
-  interface IReading {
-    wrist: IAutoMovieVector3;
-    joints: string;
-  }
-  const read = (share: number): IReading => {
+  const read = (share: number): IAutoMovieVector3 => {
     const posture: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanArm.carry(
       body,
       goal,
       { right: held },
       share,
     );
-    return {
-      wrist: poseBones(body, resolveHumanPosture(body, posture)).get(
-        "rightHand",
-      )!.worldPosition,
-      joints: `upper ${triple(posture.joints.rightUpperArm)} lower ${triple(posture.joints.rightLowerArm)}`,
-    };
+    return poseBones(body, resolveHumanPosture(body, posture)).get("rightHand")!
+      .worldPosition;
   };
-  const solved: IAutoMovieMotionHumanArmAngles.IAngles =
-    AutoMovieMotionHumanArm.angles(resolveHumanPosture(body, goal), "right");
-  const triple = (
-    angles: readonly [number, number, number] | undefined,
-  ): string =>
-    angles === undefined
-      ? "goal"
-      : angles.map((a: number): string => a.toFixed(1)).join("/");
   const gap = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const SHARES: number = 200;
-  const readings: IReading[] = [];
+  const readings: IAutoMovieVector3[] = [];
   for (let k: number = 0; k <= SHARES; k++) readings.push(read(k / SHARES));
 
   // 1. The carry starts where the arm hangs.
-  if (gap(readings[0]!.wrist, hanging) > 0.001)
+  if (gap(readings[0]!, hanging) > 0.001)
     complaints.push(
-      `at share 0 the wrist is ${mm(gap(readings[0]!.wrist, hanging))} mm from where the arm hangs, within 1 mm expected`,
+      `at share 0 the wrist is ${mm(gap(readings[0]!, hanging))} mm from where the arm hangs, within 1 mm expected`,
     );
 
   // 2 and 3. No step stands out of the course, the last one included.
   let length: number = 0;
   for (let k: number = 1; k <= SHARES; k++)
-    length += gap(readings[k]!.wrist, readings[k - 1]!.wrist);
+    length += gap(readings[k]!, readings[k - 1]!);
   const mean: number = length / SHARES;
-  // The room the plain blend of the two ends lacks at a share, with the
-  // upper arm let out by 0 to 15 degrees, against the share's allowance: what
-  // the carry's clearing reads, so a failing row shows what it answered.
-  const pose: IAutoMoviePose = resolveHumanPosture(body, goal);
-  const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
-    goal.limbs.rightArm?.clear ?? [];
-  const lacking = (share: number): string => {
-    const upper: readonly [number, number, number] = blendHumanJoint(
-      body,
-      "rightUpperArm",
-      held.upper,
-      solved.upper,
-      share,
-    );
-    const arm = (out: number): IAutoMovieMotionHumanArmClearance.IArm => ({
-      upper: [upper[0], upper[1] + out, upper[2]],
-      lower: blendHumanJoint(
-        body,
-        "rightLowerArm",
-        held.lower,
-        solved.lower,
-        share,
-      ),
-      hand: blendHumanJoint(body, "rightHand", held.hand, solved.hand, share),
-    });
-    const allowed: number =
-      HumanArmClearance.room(body, pose, "right", held, others) * (1 - share) +
-      HumanArmClearance.room(body, pose, "right", solved, others) * share;
-    return `allowance ${allowed.toFixed(3)}, room lacked at 0 to 15 degrees out: ${[
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-    ]
-      .map((out: number): string =>
-        HumanArmClearance.room(body, pose, "right", arm(out), others).toFixed(
-          3,
-        ),
-      )
-      .join(" ")}`;
-  };
   for (let k: number = 1; k <= SHARES; k++) {
-    const step: number = gap(readings[k]!.wrist, readings[k - 1]!.wrist);
+    const step: number = gap(readings[k]!, readings[k - 1]!);
     if (step > 5 * mean)
       complaints.push(
-        `from share ${(k - 1) / SHARES} to ${k / SHARES} the wrist moves ${mm(step)} mm, the mean step being ${mm(mean)} mm and five of it the bound; before: ${readings[k - 1]!.joints} (${lacking((k - 1) / SHARES)}); after: ${readings[k]!.joints} (${lacking(k / SHARES)}); the held arm: upper ${triple(held.upper)} lower ${triple(held.lower)}; the goal's: upper ${triple(solved.upper)} lower ${triple(solved.lower)}`,
+        `from share ${(k - 1) / SHARES} to ${k / SHARES} the wrist moves ${mm(step)} mm, the mean step being ${mm(mean)} mm and five of it the bound`,
       );
   }
   TestValidator.equals("a carried arm keeps one course", complaints, []);

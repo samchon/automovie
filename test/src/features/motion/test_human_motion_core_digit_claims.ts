@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPosture,
+  IAutoMoviePose,
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -44,8 +45,8 @@ const bend = (
  *
  * Scenarios:
  *
- * 1. An overlay claiming the right thumb alone bends the thumb and leaves the
- *    forefinger as the stand has it, mid-overlay.
+ * 1. Two disjoint digit overlays leave the unclaimed middle finger at its
+ *    entry flexion despite both attempting to write it.
  * 2. Two overlays of one span claiming the thumb and the forefinger of the
  *    same hand compose: both plan, and each bends only its digit.
  * 3. An overlay claiming the whole right hand clashes with one claiming its
@@ -56,7 +57,7 @@ const bend = (
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers overlay laws that claim digits, performs them over a stand and reads the displayed joints or the refusal.
  * @evidence contracts/development/testing.md#independent-expectations The hand-digit partition: a hand covers its digits, a digit only itself, two digits of one hand are disjoint.
- * @evidence contracts/development/testing.md#distinguishing-cases A lone digit, two disjoint digits, a hand against its digit, the same digit twice, and the other hand.
+ * @evidence contracts/development/testing.md#distinguishing-cases A rejected write to a neighbour, two disjoint digits, a hand against its digit, the same digit twice, and the other hand.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the five scenarios.
  */
@@ -67,10 +68,12 @@ export function test_human_motion_core_digit_claims(): void {
     bend("thumbBend", ["rightThumb"], {
       rightThumbProximal: [40, 0, 0],
       rightThumbDistal: [40, 0, 0],
+      rightMiddleProximal: [40, 0, 0],
     }),
     bend("indexBend", ["rightIndex"], {
       rightIndexProximal: [60, 0, 0],
       rightIndexIntermediate: [60, 0, 0],
+      rightMiddleProximal: [60, 0, 0],
     }),
     bend("handBend", ["rightHand"], { rightMiddleProximal: [60, 0, 0] }),
     bend("leftThumbBend", ["leftThumb"], { leftThumbProximal: [40, 0, 0] }),
@@ -96,38 +99,30 @@ export function test_human_motion_core_digit_claims(): void {
         HumanChain.subject("a").stand({ seconds: 3 }),
       ).node,
     });
-  const flexion = (
-    p: IAutoMovieMotionHumanPerformance,
-    bone: string,
-    seconds: number,
-  ): number =>
-    p.pose("a", seconds).joints.find((j) => j.bone === bone)?.flexion ?? 0;
+  const flexion = (pose: IAutoMoviePose, bone: string): number =>
+    pose.joints.find((joint) => joint.bone === bone)?.flexion ?? 0;
 
-  // 1, 2. A lone digit, then two disjoint digits.
-  for (const over of [["thumbBend"], ["thumbBend", "indexBend"]] as const)
-    try {
-      const p: IAutoMovieMotionHumanPerformance = perform(over);
-      const mid: number = p.overlays("a")[0]!.start + 0.5;
-      if (!(Math.abs(flexion(p, "rightThumbProximal", mid) - 40) <= 1e-6))
-        complaints.push(
-          `${over.join(" + ")}: the thumb is not bent to 40 degrees mid-overlay`,
-        );
-      const index: number = flexion(p, "rightIndexProximal", mid);
-      if (
-        over.length === 1 &&
-        Math.abs(index - flexion(p, "rightIndexProximal", 0)) > 1e-6
-      )
-        complaints.push("a thumb claim moved the forefinger");
-      if (over.length === 2 && !(Math.abs(index - 60) <= 1e-6))
-        complaints.push(
-          "the forefinger overlay did not bend the forefinger beside the thumb's",
-        );
-    } catch (error) {
-      complaints.push(
-        `${over.join(" + ")}: expected to plan, got ${(error as Error).message}`,
-      );
-    }
-
+  // Two concurrent disjoint writes and an untouched neighbour are visible
+  // on one midpoint. Each fixture also tries to write the unclaimed middle
+  // finger, so preserving it proves the channel actually filters writes.
+  const pair: IAutoMovieMotionHumanPerformance = perform([
+    "thumbBend",
+    "indexBend",
+  ]);
+  const entry: IAutoMoviePose = pair.pose("a", 0);
+  const mid: IAutoMoviePose = pair.pose(
+    "a",
+    pair.overlays("a")[0]!.start + 0.5,
+  );
+  for (const [bone, expected] of [
+    ["rightThumbProximal", 40],
+    ["rightIndexProximal", 60],
+    ["rightMiddleProximal", flexion(entry, "rightMiddleProximal")],
+  ] as const) {
+    const actual: number = flexion(mid, bone);
+    if (!(Math.abs(actual - expected) <= 1e-6))
+      complaints.push(`${bone} bends ${actual} degrees, expected ${expected}`);
+  }
   // 3, 4. Clashes.
   for (const [over, digit] of [
     [["handBend", "thumbBend"], "rightThumb"],

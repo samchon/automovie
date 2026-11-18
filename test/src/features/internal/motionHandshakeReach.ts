@@ -22,19 +22,21 @@ import { motionHumanBody } from "./motionHumanBody";
  *
  * @param one The first partner's body.
  * @param other The second's.
+ * @param measureRefusal Check the public reach interval on the unequal-height pair.
  * @returns What went wrong; empty when both scenes read as stated.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staging, both scenes and what each must show.
  * @evidence contracts/development/implementation.md#principled-implementation Places the pair by the shoulders the bodies stand with, read off a standing film, and reads the handshake's own plan and refusal through the public chain.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One staging, two scenes.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A refusal is read as a `HumanRefusal` with its axis, value and range; any other error is a complaint with its message.
- * @evidence contracts/development/implementation.md#efficient-algorithms A standing film and two handshakes.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Both casts check the public near handshake. Only the unequal-shoulder cast also plans a refusal and examines its feasible range.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the handshake reach specs, one per pair.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function motionHandshakeReach(
   one: motionHumanBody.Name,
   other: motionHumanBody.Name,
+  measureRefusal: boolean,
 ): string[] {
   const a: IAutoMovieMotionHumanBody = motionHumanBody(one);
   const b: IAutoMovieMotionHumanBody = motionHumanBody(other);
@@ -107,15 +109,18 @@ export function motionHandshakeReach(
   // 1. The pair the website found refused plans.
   try {
     const film: IAutoMovieMotionHumanPerformance = shake(0.729);
-    if (!(Math.abs(apart(film) - 0.729) <= 0.001))
+    const gap: number = apart(film);
+    if (!(Math.abs(gap - 0.729) <= 0.001))
       out.push(
-        `${label}: the shoulders stand ${apart(film).toFixed(4)} m apart at the handshake's start, 0.729 m within 1 mm expected`,
+        `${label}: the shoulders stand ${gap.toFixed(4)} m apart at the handshake's start, 0.729 m within 1 mm expected`,
       );
   } catch (error) {
     out.push(
       `${label} 0.729 m apart: threw ${error instanceof Error ? `${error.name}: ${error.message}` : String(error)}, a plan expected`,
     );
   }
+
+  if (!measureRefusal) return out;
 
   // 2. A pair beyond any arm is refused on the bound that failed.
   try {

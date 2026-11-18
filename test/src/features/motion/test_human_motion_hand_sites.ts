@@ -1,4 +1,4 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
@@ -30,11 +30,11 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * surface faces him, so `up` is the world's up and `out` is his own right.
  *
  * Scenarios, read at the middle of the hold:
- * 1. With no site the palm lies within 15 mm of the sternum's point (the
+ * 1. With no site the palm lies within 5 mm of the sternum's point (the
  *    campaign's contact bound).
  * 2. A site 40 mm up and 40 mm out puts the palm 40 mm higher and 40 mm to
  *    the performer's right of where it lay without a site, each within
- *    15 mm.
+ *    15 mm. The palm is within 5 mm of the actual displayed surface offset.
  * 3. A site drawn within 50 mm lies within 50 mm of the region's point plus
  *    the contact bound, and two seeds draw places at least 1 mm apart.
  * 4. The reach rule within 50 mm puts the palm at least 20 mm nearer the
@@ -64,7 +64,7 @@ export function test_human_motion_hand_sites(): void {
     shoulder: IAutoMovieVector3;
     /** How far the right wrist stands from the wrist its arm goal asks, metres; 0 when the posture holds no goal. */
     miss: () => number;
-    region: (name: Region) => IAutoMovieVector3;
+    surface: (name: Region) => IAutoMovieMotionHumanTouchSite.IFrame;
   }
   const perform = (
     label: string,
@@ -123,6 +123,14 @@ export function test_human_motion_hand_sites(): void {
           side,
           touch.EFFECTORS.palm,
         );
+      const surface = (name: Region): IAutoMovieMotionHumanTouchSite.IFrame => {
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
+          body.surfaces.regions[name];
+        return resolveAutoMovieHumanoidSurfaces.place(
+          frame,
+          theirs.get(frame.bone)!,
+        );
+      };
       return {
         right: palm("right"),
         left: palm("left"),
@@ -136,14 +144,7 @@ export function test_human_motion_hand_sites(): void {
             ? 0
             : gap(mine.get("rightHand")!.worldPosition, asked);
         },
-        region: (name: Region): IAutoMovieVector3 => {
-          const frame: IAutoMovieHumanoidSurfaces.IFrame =
-            body.surfaces.regions[name];
-          return resolveAutoMovieHumanoidSurfaces.place(
-            frame,
-            theirs.get(frame.bone)!,
-          ).point;
-        },
+        surface,
       };
     } catch (error) {
       complaints.push(
@@ -160,10 +161,10 @@ export function test_human_motion_hand_sites(): void {
   // 1. No site: on the region's point.
   const plain: IRead | null = perform("no site", "site", sternum());
   if (plain !== null) {
-    const off: number = gap(plain.right, plain.region("sternum"));
-    if (!(off <= 0.015))
+    const off: number = gap(plain.right, plain.surface("sternum").point);
+    if (!(off <= 0.005))
       complaints.push(
-        `no site: the palm lies ${mm(off)} mm from the sternum, within 15 mm expected`,
+        `no site: the palm lies ${mm(off)} mm from the sternum, within 5 mm expected`,
       );
 
     // 2. A stated site.
@@ -173,6 +174,28 @@ export function test_human_motion_hand_sites(): void {
       sternum({ up: 0.04, out: 0.04 }),
     );
     if (stated !== null) {
+      const sternumFrame = stated.surface("sternum");
+      const vertical: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+      const tangent = Vector3.normalize(
+        Vector3.subtract(
+          vertical,
+          Vector3.scale(
+            sternumFrame.normal,
+            Vector3.dot(vertical, sternumFrame.normal),
+          ),
+        ),
+      );
+      const outward = Vector3.cross(tangent, sternumFrame.normal);
+      const expected = Vector3.addScaled(
+        Vector3.addScaled(sternumFrame.point, tangent, 0.04),
+        outward,
+        0.04,
+      );
+      const skinGap: number = gap(stated.right, expected);
+      if (!(skinGap <= 0.005))
+        complaints.push(
+          `stated site: palm misses the displayed surface point by ${mm(skinGap)} mm, limit 5 mm`,
+        );
       const up: number = stated.right.y - plain.right.y;
       const out: number = plain.right.x - stated.right.x;
       if (!(Math.abs(up - 0.04) <= 0.015))
@@ -195,10 +218,10 @@ export function test_human_motion_hand_sites(): void {
       );
       if (read === null) continue;
       drawn.push(read.right);
-      const off: number = gap(read.right, read.region("sternum"));
+      const off: number = gap(read.right, read.surface("sternum").point);
       if (!(off <= 0.05 + 0.015))
         complaints.push(
-          `drawn site, seed ${seed}: the palm lies ${mm(off)} mm from the sternum's point, within 65 mm expected (${mm(gap(read.right, plain.right))} mm from the palm without a site, which lay ${mm(gap(plain.right, plain.region("sternum")))} mm from the point; the wrist ${mm(read.miss())} mm off its arm goal, ${mm(plain.miss())} mm without a site; site up ${mm(read.right.y - plain.right.y)} mm, toward the performer's right ${mm(plain.right.x - read.right.x)} mm)`,
+          `drawn site, seed ${seed}: the palm lies ${mm(off)} mm from the sternum's point, within 65 mm expected (${mm(gap(read.right, plain.right))} mm from the palm without a site, which lay ${mm(gap(plain.right, plain.surface("sternum").point))} mm from the point; the wrist ${mm(read.miss())} mm off its arm goal, ${mm(plain.miss())} mm without a site; site up ${mm(read.right.y - plain.right.y)} mm, toward the performer's right ${mm(plain.right.x - read.right.x)} mm)`,
         );
     }
     if (drawn.length === 2 && !(gap(drawn[0]!, drawn[1]!) >= 0.001))
@@ -232,7 +255,7 @@ export function test_human_motion_hand_sites(): void {
       ["right", "shoulderLeft"],
       ["left", "shoulderRight"],
     ] as const) {
-      const off: number = gap(both[side], both.region(region));
+      const off: number = gap(both[side], both.surface(region).point);
       if (!(off <= 0.015))
         complaints.push(
           `two contacts: the ${side} palm lies ${mm(off)} mm from the ${region}, within 15 mm expected`,
