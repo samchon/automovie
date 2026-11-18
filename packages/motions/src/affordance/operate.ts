@@ -7,12 +7,14 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPhrase,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLeanInto,
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanStrikingHeld,
@@ -21,8 +23,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
@@ -33,6 +37,7 @@ import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -375,7 +380,36 @@ export namespace operate {
         },
       });
     }
-    const composed: IAutoMovieMotionHumanActionPlan =
+    const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & {
+      contact: NonNullable<
+        IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]
+      >;
+    } = {
+      body,
+      clock,
+      side,
+      origin,
+      contact: {
+        kind: "grip",
+        support:
+          mechanism.kind === "insert"
+            ? { kind: "prop", subject: mechanism.prop }
+            : at.kind === "prop"
+              ? { kind: "prop", subject: at.subject, carries: false }
+              : { kind: "ground" },
+      },
+      // The part read at the write's own second: a moving part is
+      // intercepted where it is, from the ready pose on.
+      path: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        progress: number,
+      ): IAutoMovieMotionHumanArmTarget.ITarget =>
+        target(posture, progress, seconds),
+    };
+    const compose = (
+      arm: IAutoMovieMotionHumanPrimitive,
+    ): IAutoMovieMotionHumanActionPlan =>
       composeAutoMovieMotionHumanAction({
         base,
         clock,
@@ -384,37 +418,43 @@ export namespace operate {
           ...(window === null && reachLean !== undefined
             ? [reachLean]
             : corrections),
-          AutoMovieMotionHumanArm.stroke({
-            body,
-            clock,
-            side,
-            origin,
-            contact: {
-              kind: "grip",
-              support:
-                mechanism.kind === "insert"
-                  ? { kind: "prop", subject: mechanism.prop }
-                  : at.kind === "prop"
-                    ? { kind: "prop", subject: at.subject, carries: false }
-                    : { kind: "ground" },
-            },
-            // The part read at the write's own second: a moving part is
-            // intercepted where it is, from the ready pose on.
-            path: (
-              posture: IAutoMovieMotionHumanPosture,
-              seconds: number,
-              progress: number,
-            ): IAutoMovieMotionHumanArmTarget.ITarget =>
-              target(posture, progress, seconds),
-          }),
+          arm,
         ],
       });
-    return {
-      ...composed,
+    const plan: IAutoMovieMotionHumanActionPlan = {
+      ...compose(AutoMovieMotionHumanArm.stroke(stroke)),
       ...HumanPhysics.declared(context.params, window),
       ...(part === undefined
         ? {}
         : { drives: [operateDrive.drive(part, clock)] }),
     };
+    if (grounded && part === undefined && createHumanBody.owns(body)) {
+      // An insertion still validates the starting roll at the current trunk.
+      // Its onset elbow is unused. An articulated part can observe both
+      // reads at the film second, so it remains on the general stroke.
+      const prepared: IAutoMovieMotionHumanActionPlan = compose(
+        AutoMovieMotionHumanArmPhrase.preparedStroke(
+          stroke,
+          mechanism.kind === "insert"
+            ? (posture, seconds): void => {
+                hand.wrist(posture, 0, seconds);
+              }
+            : undefined,
+        ),
+      );
+      const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (...args) =>
+        createHumanBody.owns(body)
+          ? { posture: prepared.posture(...args) }
+          : undefined;
+      HumanPreparedPlayback.attach(plan, body, {
+        mode: "posture",
+        phases: [
+          { from: clock.at("strokeStart"), to: clock.at("strokeEnd"), sample },
+          { from: clock.at("strokeEnd"), to: clock.at("relax"), sample },
+          { from: clock.at("relax"), to: duration, sample },
+        ],
+      });
+    }
+    return plan;
   }
 }

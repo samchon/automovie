@@ -7,9 +7,11 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPhrase,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLeanInto,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanWipe,
   IAutoMovieMotionManner,
@@ -17,8 +19,10 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
@@ -29,6 +33,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { prepareGroundedBalance } from "../everyday/prepareGroundedBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
@@ -228,39 +233,91 @@ export namespace wipe {
       }),
       modifiers,
     );
-    const window: HumanPhysics.Window = HumanPhysics.fromClock(context.params, {}, context.start, clock, context.instant);
-    const adjust: ReturnType<typeof prepareGroundedBalance> = prepareGroundedBalance(body, window);
-    const reachLean: ReturnType<typeof lean.primitive> = lean.primitive(clock);
-    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
+    const window: HumanPhysics.Window = HumanPhysics.fromClock(
+      context.params,
+      {},
+      context.start,
       clock,
-      contact: "stroke",
-      primitives: [
-        window === null ? reachLean : {
-          ...reachLean,
-          write: (posture, seconds, before, resolution, projection) => adjust(
-            reachLean.write(posture, seconds, before, resolution, projection),
-            seconds, before, resolution, projection,
-          ),
-        },
-        AutoMovieMotionHumanArm.stroke({
-          body,
-          clock,
-          side,
-          origin,
-          contact: {
-            kind: "plant",
-            support:
-              context.params.on.kind === "prop"
-                ? { kind: "prop", subject: context.params.on.subject }
-                : { kind: "ground" },
-          },
-          path: (posture: IAutoMovieMotionHumanPosture, _: number, progress: number): IAutoMovieMotionHumanArmTarget.ITarget =>
-            palm(posture, progress),
-        }),
-      ],
-    });
-    return { ...plan, ...HumanPhysics.declared(context.params, window) };
+      context.instant,
+    );
+    const adjust: ReturnType<typeof prepareGroundedBalance> =
+      prepareGroundedBalance(body, window);
+    const reachLean: ReturnType<typeof lean.primitive> = lean.primitive(clock);
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, clock.duration);
+    const balance: typeof reachLean =
+      window === null
+        ? reachLean
+        : {
+            ...reachLean,
+            write: (posture, seconds, before, resolution, projection) =>
+              adjust(
+                reachLean.write(
+                  posture,
+                  seconds,
+                  before,
+                  resolution,
+                  projection,
+                ),
+                seconds,
+                before,
+                resolution,
+                projection,
+              ),
+          };
+    const stroke: IAutoMovieMotionHumanArmPhrase.IStrokeProps & {
+      contact: NonNullable<
+        IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]
+      >;
+    } = {
+      body,
+      clock,
+      side,
+      origin,
+      contact: {
+        kind: "plant",
+        support:
+          context.params.on.kind === "prop"
+            ? { kind: "prop", subject: context.params.on.subject }
+            : { kind: "ground" },
+      },
+      path: (
+        posture: IAutoMovieMotionHumanPosture,
+        _: number,
+        progress: number,
+      ): IAutoMovieMotionHumanArmTarget.ITarget => palm(posture, progress),
+    };
+    const compose = (arm: typeof reachLean): IAutoMovieMotionHumanActionPlan =>
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "stroke",
+        primitives: [balance, arm],
+      });
+    const plan: IAutoMovieMotionHumanActionPlan = {
+      ...compose(AutoMovieMotionHumanArm.stroke(stroke)),
+      ...HumanPhysics.declared(context.params, window),
+    };
+    if (context.carrier === undefined && createHumanBody.owns(body)) {
+      // The palm is planted. Its fixed circular onset cannot scale the
+      // current target, whose bend, lean and balance still use this instant.
+      const prepared: IAutoMovieMotionHumanActionPlan = compose(
+        AutoMovieMotionHumanArmPhrase.preparedStroke(stroke),
+      );
+      const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (...args) =>
+        createHumanBody.owns(body)
+          ? { posture: prepared.posture(...args) }
+          : undefined;
+      HumanPreparedPlayback.attach(plan, body, {
+        mode: "posture",
+        phases: [
+          { from: clock.at("strokeStart"), to: clock.at("strokeEnd"), sample },
+          { from: clock.at("strokeEnd"), to: clock.at("relax"), sample },
+          { from: clock.at("relax"), to: clock.duration, sample },
+        ],
+      });
+    }
+    return plan;
   }
 }
 

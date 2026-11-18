@@ -146,6 +146,43 @@ export namespace AutoMovieMotionHumanArmPhrase {
   export function stroke(
     props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
   ): IAutoMovieMotionHumanPrimitive {
+    return strokePrimitive(props, undefined, false);
+  }
+
+  /**
+   * A native contact stroke whose owner has checked the onset's dependencies.
+   * Contact strokes never apply free-space extent. A native path can omit
+   * the unused onset target or keep its own onset validation without solving
+   * a second elbow. General stroke paths retain both callback observations.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the native contact and optional onset-validation boundary.
+   * @evidence contracts/development/implementation.md#principled-implementation A bearing target's extent is fixed by the contact, so the onset target cannot change its position.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares the regular stroke primitive with an optional onset validator.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Callers must preserve any original dynamic onset refusal and external callback observation before using this route.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Evaluates one complete target per sample plus any required onset validation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original clock, arm move and bearing window consume the unchanged current target.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the stroke and optional validator for the life of the primitive.
+   */
+  export function preparedStroke(
+    props: IAutoMovieMotionHumanArmPhrase.IStrokeProps & {
+      contact: NonNullable<
+        IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]
+      >;
+    },
+    validateOnset?: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => void,
+  ): IAutoMovieMotionHumanPrimitive {
+    return strokePrimitive(props, validateOnset, true);
+  }
+
+  /** Keep one hand transport and clock for both native and general paths. */
+  function strokePrimitive(
+    props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
+    validateOnset: Parameters<typeof preparedStroke>[1],
+    prepared: boolean,
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       ...AutoMovieMotionHumanArmMove.move({
         body: props.body,
@@ -171,9 +208,16 @@ export namespace AutoMovieMotionHumanArmPhrase {
             resolution,
             projection,
           );
-          return progress <= 0
-            ? at
-            : extended(props, props.path(posture, seconds, 0, resolution, projection).point, at);
+          if (progress <= 0) return at;
+          if (prepared) {
+            validateOnset?.(posture, seconds);
+            return at;
+          }
+          return extended(
+            props,
+            props.path(posture, seconds, 0, resolution, projection).point,
+            at,
+          );
         },
         weight: (seconds: number): number =>
           props.clock.envelope(["start", "ready"], ["relax", "end"], seconds),

@@ -40,6 +40,7 @@ import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { HumanToolTurn } from "./HumanToolTurn";
 import { HumanToolWork } from "./HumanToolWork";
+import { prepareToolPlayback } from "./prepareToolPlayback";
 
 /**
  * Working with a one-handed tool held in the hand, in cycles over a work
@@ -405,81 +406,112 @@ export namespace useTool {
       }
     };
     const edge: ReturnType<typeof cycle> = cycle(0.5);
-    const hand: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanArmTarget.ITarget = (
+    /** The complete grip goal on the target-side frame. */
+    const target = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
+      prepared?: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
     ): IAutoMovieMotionHumanArmTarget.ITarget => {
-      // Half a cycle from a contact at the ready instant and at the
-      // recovery, so the reach and the return meet the cycle where it is.
-      const phase: number =
+      const at: ReturnType<typeof cycle> =
         seconds <= ready || seconds >= recover
-          ? 0.5
-          : ((seconds - ready) / strokePeriod + 0.5) % 1;
-      const at: ReturnType<typeof cycle> = seconds <= ready || seconds >= recover
-        ? edge : cycle(phase);
+          ? edge
+          : cycle(((seconds - ready) / strokePeriod + 0.5) % 1);
+      const wrist: IAutoMovieMotionHumanBend.ISolve = {
+        body,
+        posture,
+        side,
+        point: placeHumanHandSurface(gripOffset, at.grip, at.rotation).point,
+        rotation: at.rotation,
+        fallback: "hang",
+      };
       return {
         surface: "grip",
         shape: "relaxed",
         point: at.grip,
         rotation: at.rotation,
-        bend: AutoMovieMotionHumanBend.solve({
-          body,
-          posture,
-          side,
-          point: placeHumanHandSurface(gripOffset, at.grip, at.rotation).point,
-          rotation: at.rotation,
-          fallback: "hang",
-        }),
+        bend:
+          prepared === undefined
+            ? AutoMovieMotionHumanBend.solve(wrist)
+            : prepared.solve(wrist),
       };
     };
+    const hand: IAutoMovieMotionHumanArmTarget.Frame = (posture, seconds) =>
+      target(posture, seconds);
 
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-      context,
-      duration,
-    );
-    const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "contact1",
-      primitives: [
-        AutoMovieMotionHumanArm.move({
-          body,
-          side,
-          from: 0,
-          to: duration,
-          origin,
-          target: hand,
-          weight: (seconds: number): number =>
-            clock.progress("reaching", "ready", seconds) -
-            clock.progress("recover", "end", seconds),
-        }),
-      ],
-    });
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
+    /** Compose the unchanged transport around a current or prepared target reader. */
+    const compose = (
+      frame: IAutoMovieMotionHumanArmTarget.Frame,
+    ): IAutoMovieMotionHumanActionPlan =>
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "contact1",
+        primitives: [
+          AutoMovieMotionHumanArm.move({
+            body,
+            side,
+            from: 0,
+            to: duration,
+            origin,
+            target: frame,
+            weight: (seconds: number): number =>
+              clock.progress("reaching", "ready", seconds) -
+              clock.progress("recover", "end", seconds),
+          }),
+        ],
+      });
+    const composed: IAutoMovieMotionHumanActionPlan = compose(hand);
     // The fingers stay closed on the tool as the grip left them.
     const fingers: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.fingers(
       context.entry.pose,
       side,
     );
-    return {
+    const limb: AutoMovieHumanLimb = `${side}Arm`;
+    /** Keep the acquired fingers and the rigid contact on the transported hand. */
+    const finish = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => ({
+      ...posture,
+      joints: { ...posture.joints, ...fingers },
+      limbs: {
+        ...posture.limbs,
+        [limb]: { ...posture.limbs[limb]!, contact: { ...contact } },
+      },
+    });
+    const plan: IAutoMovieMotionHumanUseTool.IPlan = {
       ...composed,
       contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
       holds: [AutoMovieMotionHumanHeld.hold(context, held)],
       wields: { prop: subject, side, tip: "face" },
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-        const posture: IAutoMovieMotionHumanPosture = composed.posture(seconds, undefined, resolution, projection);
-        const limb: AutoMovieHumanLimb = `${side}Arm`;
-
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         // The task acts at the held face. Re-aim that existing rigid contact
         // when the wrist cannot attain the asked tool attitude.
-        return {
-          ...posture,
-          joints: { ...posture.joints, ...fingers },
-          limbs: { ...posture.limbs, [limb]: { ...posture.limbs[limb]!, contact: { ...contact } } },
-        };
+        return finish(
+          composed.posture(seconds, undefined, resolution, projection),
+        );
       },
       tool: { offset: face.point, on, kind },
     };
+
+    if (context.carrier === undefined)
+      prepareToolPlayback({
+        plan,
+        body,
+        side,
+        entry: context.entry.posture,
+        ready,
+        recover,
+        target,
+        compose,
+        finish,
+      });
+    return plan;
   }
 }
