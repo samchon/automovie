@@ -12,11 +12,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
+import { seatedCourse } from "./seatedCourse";
 
 /**
- * Select the original rising foot draw, trunk peak and first stable seat-off
- * frame. All candidate angles, peak increments and 24 Hz probes retain their
- * original order; only fixed observation prerequisites share this scope.
+ * Select a rise's foot draw, trunk peak and first stable seat-off frame:
+ * for each shank angle in order, the peak is raised from `seatedCourse.flexion` in
+ * `PEAK.step`s, and each frame of the seat-off window at 24 Hz is probed until
+ * the extrapolated centre of mass enters the feet's base.
  *
  * @param props Fixed body/seat/standing geometry, original candidate shank angles,
  *   rising seconds, seated height ratio and native pitch/foot-course builders.
@@ -27,7 +29,7 @@ import { seated } from "./seated";
  * @evidence contracts/development/common.md#meaningful-documentation States fixed input geometry, candidate order, angle/time/world units, selected numeric outputs and the unchanged refusal.
  * @evidence contracts/development/implementation.md#principled-implementation Retains the original fixed-angle foot draw, same pelvis limit per draw, native inclined socket/root/raw hip lowering and extrapolated whole-body mass margin. Every margin still observes the original three actual posture times and feet's support hull.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous search owns candidate construction and the same nested angle/peak/frame loops; its native prepared observation and FK/ROM metadata are acquired only at the first actual margin probe, and only selection data return.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original first draw call, peak initialization/increment/decrement, all angle/frame bounds and tolerances, 1/24-second sampling, full current fits and refusal text. Raw hip lowering borrows FK only and retains its original use of raw authored angles.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The peak starts at `seatedCourse.flexion` and rises by the named steps; every angle, peak and frame in the window is tried in order with a full fit, a draw is computed once per angle, and no candidate is skipped or relaxed. Raw hip lowering borrows FK only and reads the raw authored angles.
  * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-body native extrapolated observer prepares name/support metadata once across Q candidate probes. One synchronous exact FK source and genuine ROM index share checked prerequisites across all original three-pose observations; every changing posture, complete fit, finite difference, mass placement and hull margin remains evaluated, with unmeasured speedup.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Only unchanged body/rig/profile, seated socket, candidate schedule and genuine static ROM metadata share; every current candidate's inclination, goal geometry and stability verdict remain independent. No sampled pose or previous margin substitutes for a query.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This call owns at most one native observer, exact FK getter and ROM projector until return or throw. Only the original selected ankle vectors and two scalar values return; no callback, posture fit, reader, projector or candidate history escapes into the rise plan.
@@ -102,9 +104,7 @@ export function riseSeatOff(props: {
       );
     };
   }
-  let drawn: Record<"left" | "right", IAutoMovieVector3> = props.drawAt(
-    props.angles[0]!,
-  );
+  let drawn: Record<"left" | "right", IAutoMovieVector3> | undefined;
   let peak: number = 0;
   let off: number | undefined;
   for (const angle of props.angles) {
@@ -116,15 +116,15 @@ export function riseSeatOff(props: {
       drawn,
     );
     for (
-      peak = 35 + 50 * (1 - props.ratio);
-      peak <= 70 + 1e-9 && off === undefined;
-      peak += 5
+      peak = seatedCourse.flexion(props.ratio);
+      peak <= PEAK.most + 1e-9 && off === undefined;
+      peak += PEAK.step
     ) {
       const candidate: Candidate = seatedAt(peak, drawn, limit);
       for (
-        let t: number = 0.4 * props.rising;
-        t <= 0.45 * props.rising + 1e-9;
-        t += 1 / 24
+        let t: number = SEAT_OFF[0] * props.rising;
+        t <= SEAT_OFF[1] * props.rising + 1e-9;
+        t += PROBE
       ) {
         resolution ??= prepareHumanPoseResolution();
         projection ??= prepareHumanPostureProjection(props.body);
@@ -137,7 +137,7 @@ export function riseSeatOff(props: {
     }
     if (off !== undefined) break;
   }
-  if (off === undefined)
+  if (off === undefined || drawn === undefined)
     throw new HumanRefusal({
       kind: "base",
       axis: "base",
@@ -146,6 +146,19 @@ export function riseSeatOff(props: {
         "the feet stand too far ahead to rise over them; place the ankles nearer the seat",
       fix: "place the ankles nearer the seat before rising",
     });
-  peak -= 5;
+  peak -= PEAK.step;
   return { drawn, peak, off };
 }
+
+/** The raised trunk peaks tried for seat-off: up to `most` degrees in `step`s (provisional, as rise states). */
+const PEAK: Readonly<Record<"most" | "step", number>> = { most: 70, step: 5 };
+
+/** The window of the rise searched for seat-off, as shares of it (provisional, as rise states). */
+const SEAT_OFF: readonly [number, number] = [0.4, 0.45];
+
+/**
+ * Seconds between seat-off probes: one film frame at 24 frames per second.
+ * The 1e-9 s added to each loop bound only admits a bound that accumulated
+ * round-off leaves a hair short.
+ */
+const PROBE: number = 1 / 24;

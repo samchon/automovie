@@ -27,7 +27,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the target surfaces and the lifetime of shared resolved bones; members give world-metre and degree inputs.
  * @evidence contracts/development/design.md#principled-representation Existing posture goals, body surfaces and resolved bones describe both resting targets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The seated facade delegates its five hand operations here; no new public action or parameter is introduced.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The seated facade delegates its four hand operations here: thigh goals, thigh rests, mixed rests and the armrest goal.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the canonical arm goal and posture resolver without a parallel fit or stored target pose.
  */
 export namespace seatedHands {
@@ -170,12 +170,12 @@ export namespace seatedHands {
    * @evidence contracts/development/common.md#meaningful-documentation States the origins, target frame, hand orientation and contact threshold. Positive shares retain complete legs-only canonical admission and a fresh posture/limb shell even when no armrest is supplied; nonpositive shares preserve input identity.
    * @evidence contracts/development/implementation.md#principled-implementation Reads hanging origins with leg goals alone, then linearly interpolates points and slerps the original palm-down armrest goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose solve and a two-side pass retain goals on missing sides.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the provisional hand-thickness and elbow shares and leaves out-of-reach reporting to the existing contact audit. Public positive-share calls resolve before inspecting rests, preserving full joint/leg-goal refusal and original posture-spread/leg-getter order; an empty target set does not skip validation or alias the returned limb map.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Every positive public share costs one complete legs-only canonical resolution and FK plus constant work per supplied armrest. Only nonpositive share skips this work; the separately owned rested path can still share its actual resolved map and metadata.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the provisional hand-thickness and elbow shares and leaves out-of-reach reporting to the existing contact audit. Positive-share calls resolve before inspecting rests, preserving full joint/leg-goal refusal and original posture-spread/leg-getter order; an empty target set does not skip validation or alias the returned limb map.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every positive share costs one complete legs-only canonical resolution and FK plus constant work per supplied armrest. Only nonpositive share skips this work; the separately owned rested path can still share its actual resolved map and metadata.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Both supplied armrests use the same completed map, with no cross-posture cache.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Resolved bones and temporary goals end with the call; the returned posture owns its new limb map.
    */
-  export function onArmrests(
+  function onArmrests(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     rests: Partial<Record<"left" | "right", IAutoMovieVector3>>,

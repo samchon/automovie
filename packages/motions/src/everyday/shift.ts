@@ -49,6 +49,9 @@ export namespace shift {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "shift";
 
+  /** The share of the slide over which the buttocks unweight at its start, and bear fully again before its end (provisional). */
+  const UNWEIGHT: number = 0.15;
+
   /** Cancel table: after setting down a shift may continue sitting. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [
@@ -91,15 +94,7 @@ export namespace shift {
     const under: number = seated.floor(body, context.entry);
 
     // The shift pushes off the feet planted on the floor, which a high seat takes off it.
-    if (
-      (start.y - under) / seated.popliteal(body) > seated.RATIO[1] &&
-      (["left", "right"] as const).some(
-        (side: "left" | "right"): boolean =>
-          !context.entry.feet[side].planted ||
-          context.entry.feet[side].ankle.y >
-            under + body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
-      )
-    )
+    if (seated.perched(body, context.entry, start, under))
       throw new HumanRefusal({
         kind: "base",
         axis: "base",
@@ -123,8 +118,8 @@ export namespace shift {
       body,
       entry.yaw,
     );
-    const lift: number = 0.15 * slide;
-    const set: number = 0.85 * slide;
+    const lift: number = UNWEIGHT * slide;
+    const set: number = (1 - UNWEIGHT) * slide;
     return {
       duration,
       // A shift slides along the seat it was entered on and stays seated on

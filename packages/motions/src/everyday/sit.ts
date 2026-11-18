@@ -36,6 +36,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { HumanBalance } from "./HumanBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
 import { seated } from "./seated";
+import { seatedCourse } from "./seatedCourse";
 import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
@@ -106,6 +107,31 @@ export namespace sit {
     shift: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
   };
 
+  /** Largest heading difference from the seat's at which a sit starts, degrees (provisional: a small turn the descent absorbs). */
+  const FACING: number = 20;
+
+  /** Shares of the descent: the seat takes the body at `CONTACT`, the socket travels back over `ACROSS`, comes down from `DOWN` and the trunk peaks by `FLEXED` (provisional, as the namespace states). */
+  const CONTACT: number = 0.75;
+
+  /** See `CONTACT`. */
+  const ACROSS: number = 0.7;
+
+  /** See `CONTACT`. */
+  const DOWN: number = 0.1;
+
+  /** See `CONTACT`. */
+  const FLEXED: number = 0.45;
+
+  /** The share of the descent at which a hand leaves for its armrest (provisional). */
+  const REACHING: number = 0.2;
+
+  /** Where the crossed left foot sets down, by shares of the feet's rest spacing: `ahead` of the right ankle, `over` across it, and the `lift` of its swing (provisional). */
+  const CROSSED: Readonly<Record<"ahead" | "over" | "lift", number>> = {
+    ahead: 0.6,
+    over: 0.4,
+    lift: 0.3,
+  };
+
   /** Seconds the left foot takes to cross over the right ankle once seated (provisional). */
   export const CROSS: number = 0.6;
 
@@ -147,14 +173,14 @@ export namespace sit {
         fix: "give the seat a back, or sit upright",
       });
     const turn: number = sitPlace.turn(seat.yaw - context.entry.posture.yaw);
-    if (Math.abs(turn) > 20)
+    if (Math.abs(turn) > FACING)
       throw new HumanRefusal({
         kind: "base",
         axis: "seat",
         value: turn,
-        feasible: { kind: "range", minimum: -20, maximum: 20, unit: "degrees" },
-        reason: `stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within 20 degrees of facing away from the seat first`,
-        fix: "turn to within 20 degrees of facing away from the seat first, or turn the seat",
+        feasible: { kind: "range", minimum: -FACING, maximum: FACING, unit: "degrees" },
+        reason: `stands ${turn.toFixed(1)} degrees off the seat's heading; turn to within ${FACING} degrees of facing away from the seat first`,
+        fix: `turn to within ${FACING} degrees of facing away from the seat first, or turn the seat`,
       });
     if (seated.high(body, seat, under) || seat.astride === true)
       return HumanMountOn.plan(context, seat, sitPlace.BACKS[back], turn);
@@ -169,11 +195,11 @@ export namespace sit {
 
     const r: number = seated.ratio(body, seat, under);
     const descent: number =
-      2 *
-      (1 + 0.6 * (1 - r)) *
+      seatedCourse.descent(r) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
-    const peak: number = 35 + 50 * (1 - r);
-    const contact: number = 0.75 * descent;
+    const peak: number = seatedCourse.flexion(r);
+    const contact: number = CONTACT * descent;
+    const across: number = ACROSS * descent;
     const hold: number = context.params.seconds ?? 1;
     HumanBound.least("seconds", hold, 0, "s");
     const duration: number = descent + hold;
@@ -194,15 +220,19 @@ export namespace sit {
     const crossing: IAutoMovieVector3 = {
       x:
         feet.right.x +
-        0.6 * apart * Math.sin((seat.yaw * Math.PI) / 180) -
-        0.4 * apart * Math.cos((seat.yaw * Math.PI) / 180),
+        CROSSED.ahead * apart * Math.sin((seat.yaw * Math.PI) / 180) -
+        CROSSED.over * apart * Math.cos((seat.yaw * Math.PI) / 180),
       y: feet.left.y,
       z:
         feet.right.z +
-        0.6 * apart * Math.cos((seat.yaw * Math.PI) / 180) +
-        0.4 * apart * Math.sin((seat.yaw * Math.PI) / 180),
+        CROSSED.ahead * apart * Math.cos((seat.yaw * Math.PI) / 180) +
+        CROSSED.over * apart * Math.sin((seat.yaw * Math.PI) / 180),
     };
-    const legsAt = (
+    const legsAt: (
+      root: IAutoMovieVector3,
+      yaw: number,
+      t: number,
+    ) => IAutoMovieMotionHumanPosture["limbs"] = (
       root: IAutoMovieVector3,
       yaw: number,
       t: number,
@@ -213,7 +243,7 @@ export namespace sit {
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(body, root, yaw, {
         left: {
           x: feet.left.x + (crossing.x - feet.left.x) * share,
-          y: feet.left.y + 0.3 * apart * Math.sin(Math.PI * share),
+          y: feet.left.y + CROSSED.lift * apart * Math.sin(Math.PI * share),
           z: feet.left.z + (crossing.z - feet.left.z) * share,
         },
         right: feet.right,
@@ -228,6 +258,9 @@ export namespace sit {
       turn,
       descent,
       contact,
+      across,
+      down: DOWN * descent,
+      flexed: FLEXED * descent,
       peak,
       start,
       goal,
@@ -313,7 +346,9 @@ export namespace sit {
     // is laid on its thigh from contact to seated.
     const together: IAutoMovieMotionHumanArmPlanned.ITogether =
       AutoMovieMotionHumanArmPlanned.together(context.handover);
-    const arm = (side: "left" | "right"): IAutoMovieMotionHumanPrimitive => {
+    const arm: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanPrimitive => {
       const rest: IAutoMovieVector3 | undefined = seat.armrests?.[side];
       return AutoMovieMotionHumanArm.carried({
         body,
@@ -338,14 +373,14 @@ export namespace sit {
       });
     };
 
-    /** When a hand leaves its hanging rest and when it rests: on its armrest from 20 % of the descent to contact, on its thigh from contact to seated; it stays there. */
+    /** When a hand leaves its hanging rest and when it rests: on its armrest from `REACHING` of the descent to contact, on its thigh from contact to seated; it stays there. */
     function span(
       side: "left" | "right",
     ): IAutoMovieMotionHumanArmPlanned.ISpan {
       return seat.armrests?.[side] === undefined
         ? { start: contact, ready: descent, relax: duration, end: duration }
         : {
-            start: 0.2 * descent,
+            start: REACHING * descent,
             ready: contact,
             relax: duration,
             end: duration,
@@ -398,18 +433,18 @@ export namespace sit {
       // only this synchronous table construction borrows the shared readers.
       const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
       const balanced: (t: number) => number = (t: number): number => {
-        const across: number = minimumJerk.share(t / (0.7 * descent));
+        const free: number = minimumJerk.share(t / across);
         const behind: (back: number) => number = (back: number): number =>
           ahead(t, back) - stood;
-        const far: number = behind(across);
-        if (far >= 0) return across;
+        const far: number = behind(free);
+        if (far >= 0) return free;
         const near: number = behind(0);
         if (near <= 0 || way <= 0) return 0;
         return bracketedRoot(
-          (back: number): number =>
-            back === 0 ? near : back === across ? far : behind(back),
+          (trial: number): number =>
+            trial === 0 ? near : trial === free ? far : behind(trial),
           0,
-          across,
+          free,
           HumanBalance.TOLERANCE / way,
         );
       };
@@ -420,19 +455,19 @@ export namespace sit {
       );
     })();
     function travel(t: number): number {
-      const across: number = minimumJerk.share(t / (0.7 * descent));
-      if (t >= contact || held <= 0) return across;
-      const kept = (at: number): number => {
+      const free: number = minimumJerk.share(t / across);
+      if (t >= contact || held <= 0) return free;
+      const kept: (at: number) => number = (at: number): number => {
         const x: number = (Math.max(0, Math.min(held, at)) / held) * SHARES;
         const k: number = Math.min(SHARES - 1, Math.floor(x));
         return reaches[k]! + (reaches[k + 1]! - reaches[k]!) * (x - k);
       };
-      if (t <= held) return Math.min(across, kept(t));
+      if (t <= held) return Math.min(free, kept(t));
       const from: number = Math.min(
-        minimumJerk.share(held / (0.7 * descent)),
+        minimumJerk.share(held / across),
         kept(held),
       );
-      return from + (across - from) * minimumJerk.share((t - held) / fall);
+      return from + (free - from) * minimumJerk.share((t - held) / fall);
     }
     const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: lowering,

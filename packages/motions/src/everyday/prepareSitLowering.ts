@@ -22,11 +22,20 @@ interface IProps {
   /** The sitting law's admitted heading change, degrees. */
   turn: number;
 
-  /** Original descent and seat-contact times, seconds. */
+  /** Seconds the descent takes, when the back has settled. */
   descent: number;
 
-  /** Time when the seat starts bearing, seconds. */
+  /** Time when the seat starts bearing, seconds; the back settles from it to `descent`. */
   contact: number;
+
+  /** Seconds over which the socket travels back and the heading turns. */
+  across: number;
+
+  /** Time when the socket starts down, seconds; it reaches the seat at `contact`. */
+  down: number;
+
+  /** Time when the trunk reaches its peak flexion, seconds. */
+  flexed: number;
 
   /** Peak trunk inclination, degrees. */
   peak: number;
@@ -55,21 +64,24 @@ interface IProps {
 }
 
 /**
- * Prepare the sitting law's fixed descent intervals and ordered back-joint
- * additions. Each query retains the original socket course, lumbopelvic
- * rhythm and planted-leg root lowering; its FK source is borrowed only for
- * that query's actual raw-pelvis hip observation.
+ * Prepare a sit's descent: the seat socket travels back on the caller's
+ * balanced share and down from `down` to `contact`, the heading turns over
+ * `across`, and the trunk flexes to its peak by `flexed` and holds it until
+ * the seat takes the weight at `contact`, then settles with the seated back's
+ * joint additions by `descent` (Kralj, Jaeger and Munih 1990). The root
+ * follows from the socket and the trunk's pitch, and the planted legs lower
+ * it where they cannot reach their feet.
  *
- * @param props Unchanged body, entry/target geometry and authored timing.
- * @returns A current seconds/back-share posture reader, optionally borrowing synchronous FK metadata; no ROM projection is added to raw root lowering.
+ * @param props The body, the socket's start and goal, the timing in seconds and the leg writer.
+ * @returns A posture reader at a second and a back share, optionally borrowing one synchronous FK source for the hip reading of its lowering.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines world-metre sockets/feet, clinical degrees, action seconds, immutable geometry and the optional nonescaping raw-hip FK source.
- * @evidence contracts/development/implementation.md#principled-implementation Keeps the sitting law's original minimum-jerk socket travel and trunk-pitch windows, ordered additive back-joint arithmetic, HumanTrunk inclination/pelvis limit and seated socket-to-root transform before canonical planted-leg lowering.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed durations, socket deltas and joint entries are prepared once. The reader constructs the same current socket/joints, derives the current trunk/root, then delegates actual leg goals and root lowering to their owners.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every original timing coefficient, endpoint branch, joint addition, pelvis cap and crossed-foot callback remains; no trajectory, goal, contact tolerance, ROM policy or solved posture is substituted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Prepares O(J) final joint entries and constant fixed intervals once. Each read copies its actual baseline joints and applies J additions, followed by the original constant two-leg geometry and actual hip FK when a world plant needs lowering.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, timings, endpoints, foot datums and joint values remain unchanged for this plan. Only those prerequisites are shared; every current time/back share and actual leg callback is evaluated, with optional FK loans limited to this synchronous read.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns O(J) fixed entries, borrowed immutable geometry and its leg callback until release. Current socket/joints and the optional FK source end with each read or throw; no pose, solved goal, borrowed workspace or time history is retained.
+ * @evidence contracts/development/common.md#meaningful-documentation States the socket course, the trunk's windows, the frames and units, and the borrowed FK source.
+ * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk socket and pitch windows, additive back joints on the settle share, `HumanTrunk.incline` under the pelvis limit over the planted feet, and the seated socket-to-root transform before planted-leg lowering.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The windows, socket delta and back-joint entries are prepared once; each reading builds the socket and joints, inclines the trunk, places the root and lowers it over the legs.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The timing is the sit law's named shares; the back settles only once the seat bears, so the weight stays over the feet until then.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Prepares O(J) back-joint entries once; each reading applies J additions, two seated root transforms, one pelvis limit and one lowering.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Body, timing, endpoints, feet and joint values are fixed for the plan and shared by every reading; each reading's time, back share and leg goals are evaluated afresh.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the O(J) entries, the geometry and its leg writer until release; a borrowed FK source ends with its reading.
  */
 export function prepareSitLowering(
   props: IProps,
@@ -78,7 +90,7 @@ export function prepareSitLowering(
   back: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ) => IAutoMovieMotionHumanPosture {
-  const { body, descent, contact, peak, start, goal, final, feet }: IProps =
+  const { body, descent, contact, across, down, flexed, peak, start, goal, final, feet }: IProps =
     props;
   const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
     Object.entries(final.joints) as [
@@ -90,30 +102,29 @@ export function prepareSitLowering(
     y: goal.y - start.y,
     z: goal.z - start.z,
   };
-  const acrossDuration: number = 0.7 * descent;
-  const downFrom: number = 0.1 * descent;
-  const downDuration: number = contact - downFrom;
-  const settleFrom: number = 0.6 * descent;
-  const settleDuration: number = 0.4 * descent;
-  const peakDuration: number = 0.45 * descent;
+  const downDuration: number = contact - down;
+  const settleDuration: number = descent - contact;
   return (
     t: number,
     back: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture => {
-    const across: number = minimumJerk.share(t / acrossDuration);
-    const down: number = minimumJerk.share((t - downFrom) / downDuration);
+    const turned: number = minimumJerk.share(t / across);
+    const lowered: number = minimumJerk.share((t - down) / downDuration);
     const socket: IAutoMovieVector3 = {
       x: start.x + delta.x * back,
-      y: start.y + delta.y * down,
+      y: start.y + delta.y * lowered,
       z: start.z + delta.z * back,
     };
-    const settle: number = minimumJerk.share((t - settleFrom) / settleDuration);
+
+    // The trunk flexes to its peak and holds it until the seat takes the
+    // weight, then settles into the seated back (Kralj, Jaeger and Munih 1990).
+    const settle: number = minimumJerk.share((t - contact) / settleDuration);
     const pitch: number =
-      t < settleFrom
-        ? peak * minimumJerk.share(t / peakDuration)
+      t < contact
+        ? peak * minimumJerk.share(t / flexed)
         : peak + (final.pitch - peak) * settle;
-    const yaw: number = props.yaw + props.turn * across;
+    const yaw: number = props.yaw + props.turn * turned;
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...props.joints };
     for (const [bone, a] of finish) {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];

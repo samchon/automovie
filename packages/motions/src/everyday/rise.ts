@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieMotionHumanActionContext,
@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
   IAutoMovieMotionHumanSeated,
@@ -20,11 +21,15 @@ import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArm
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
+import { hipJoints } from "../posture/hipJoints";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { prepareRiseFeet } from "./prepareRiseFeet";
+import { prepareSeatedRoot } from "./prepareSeatedRoot";
 import { riseRested } from "./riseRested";
 import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
+import { seatedCourse } from "./seatedCourse";
 
 /**
  * Standing up from a seat, in the four phases of sit-to-stand (Schenkman,
@@ -108,8 +113,23 @@ export namespace rise {
   /** How high a drawn foot lifts, metres (provisional). */
   export const LIFT: number = 0.03;
 
-  /** Shank angles forward of vertical the feet are drawn back to, tried in order, degrees (12 provisional, Shepherd and Koh 1996; 20 the ankle's dorsiflexion range). */
-  export const SHANK: readonly number[] = [12, 14, 16, 18, 20];
+  /** Shank angles forward of vertical the feet are drawn back to, tried in order, degrees: from 12 (provisional, Shepherd and Koh 1996) by 2 up to the dorsiflexion of a foot that bears no weight (`ANKLE_DORSIFLEXION.unloaded`), as the seated foot being drawn does not. */
+  export const SHANK: readonly number[] = Array.from(
+    { length: Math.floor((ANKLE_DORSIFLEXION.unloaded - 12) / 2) + 1 },
+    (_: unknown, i: number): number => 12 + 2 * i,
+  );
+
+  /** The least edging, metres, worth a move: below a millimetre's scale a body does not shift on its seat (provisional). */
+  const EDGE: number = 0.005;
+
+  /** The least horizontal correction of a foot, metres, that draws it back or across (provisional, the namespace's 1 cm). */
+  const NUDGE: number = 0.01;
+
+  /** The share of the rise at which the socket stands over the feet (provisional, the namespace's 85 %). */
+  const STOOD: number = 0.85;
+
+  /** The delay of the socket's rise behind its forward travel after seat-off, as a share of the rise (provisional). */
+  const LAG: number = 0.03;
 
   /**
    * Plan a rise.
@@ -135,19 +155,10 @@ export namespace rise {
     const r: number = (start.y - under) / seated.popliteal(body);
 
     // A seat above the band with a foot off the floor is got off, not risen from over the feet.
-    if (
-      r > seated.RATIO[1] &&
-      (["left", "right"] as const).some(
-        (side: "left" | "right"): boolean =>
-          !context.entry.feet[side].planted ||
-          context.entry.feet[side].ankle.y >
-            under + body.measure.ankleHeight + 0.5 * body.measure.thighRadius,
-      )
-    )
+    if (seated.perched(body, context.entry, start, under))
       return HumanMountOff.plan(context, start, r);
     const rising: number =
-      2 *
-      (1 + 0.6 * (1 - r)) *
+      seatedCourse.descent(r) *
       AutoMovieMotionManner.of(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
     const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
@@ -159,13 +170,14 @@ export namespace rise {
         ? context.entry.base.seat?.armrests
         : undefined;
     const pitch0: number = context.entry.posture.pitch;
-    const entryRoot: ReturnType<typeof seated.prepareRoot> = seated.prepareRoot(
+    const entryHeading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+      yaw,
+      pitch: pitch0,
+      roll: 0,
+    };
+    const entryRoot: ReturnType<typeof prepareSeatedRoot> = prepareSeatedRoot(
       body,
-      {
-        yaw,
-        pitch: pitch0,
-        roll: 0,
-      },
+      entryHeading,
     );
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
@@ -185,17 +197,27 @@ export namespace rise {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const along = (p: IAutoMovieVector3): number =>
+    const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
       p.x * forwardDir.x + p.z * forwardDir.z;
-    const hipJointAt = (socket: IAutoMovieVector3): number =>
-      along(entryRoot(socket)) + body.rest.get("leftUpperLeg")!.z;
+
+    // The hip joints' middle along the heading, under the entry's pitch.
+    const hipJointAt: (socket: IAutoMovieVector3) => number = (
+      socket: IAutoMovieVector3,
+    ): number => {
+      const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
+        body,
+        entryRoot(socket),
+        resolveHumanPosture.heading(entryHeading),
+      );
+      return (along(hips.left) + along(hips.right)) / 2;
+    };
     const ankles: number = (along(feet.left) + along(feet.right)) / 2;
     let scoot: number = Math.max(
       0,
       ankles - hipJointAt(start) - body.measure.thigh,
     );
-    const from = context.entry.from;
-    const sat =
+    const from: IAutoMovieMotionHumanEntryState["from"] = context.entry.from;
+    const sat: IAutoMovieMotionHumanSeated.ISeat | undefined =
       from !== undefined && from.family === "sit"
         ? (from.params as { seat?: IAutoMovieMotionHumanSeated.ISeat }).seat
         : undefined;
@@ -204,7 +226,7 @@ export namespace rise {
         scoot,
         Math.max(0, along(sat.at) - 0.6 * body.measure.thigh - along(start)),
       );
-    const edging: number = scoot > 0.005 ? 0.4 + 1.5 * scoot : 0;
+    const edging: number = scoot > EDGE ? 0.4 + 1.5 * scoot : 0;
     const begin: IAutoMovieVector3 = Vector3.add(
       start,
       Vector3.scale(forwardDir, scoot),
@@ -219,12 +241,12 @@ export namespace rise {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 1, y: 0, z: 0 },
     );
-    const across = (p: IAutoMovieVector3): number =>
+    const across: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
       p.x * leftDir.x + p.z * leftDir.z;
     const aside: number =
       across(begin) - (across(feet.left) + across(feet.right)) / 2;
     const hipBegin: number = hipJointAt(begin);
-    const drawAt = (
+    const drawAt: (angle: number) => Record<"left" | "right", IAutoMovieVector3> = (
       angle: number,
     ): Record<"left" | "right", IAutoMovieVector3> => {
       const behind: number =
@@ -237,12 +259,12 @@ export namespace rise {
       };
       for (const side of ["left", "right"] as const) {
         const back: number = along(feet[side]) - behind;
-        if (back > 0.01)
+        if (back > NUDGE)
           out[side] = Vector3.subtract(
             out[side],
             Vector3.scale(forwardDir, back),
           );
-        if (Math.abs(aside) > 0.01)
+        if (Math.abs(aside) > NUDGE)
           out[side] = Vector3.add(out[side], Vector3.scale(leftDir, aside));
       }
       return out;
@@ -252,7 +274,7 @@ export namespace rise {
     // the feet, raising the peak flexion until one is, then drawing the feet
     // further back.
     const flex: number = 0.5 * rising;
-    const pitchAt = (t: number, peak: number): number =>
+    const pitchAt: (t: number, peak: number) => number = (t: number, peak: number): number =>
       pitch0 + (peak - pitch0) * minimumJerk.share(t / flex);
     const level: IAutoMovieVector3 = seated.root(body, begin, {
       yaw,
@@ -306,7 +328,7 @@ export namespace rise {
     const away: number = off;
     const seatOff: number = prepared + away;
     const duration: number = prepared + rising;
-    const share = (t: number): number => t / duration;
+    const share: (t: number) => number = (t: number): number => t / duration;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "seat",
@@ -376,10 +398,10 @@ export namespace rise {
           }
           const u: number = t - prepared;
           const forward: number = minimumJerk.share(
-            (u - away) / (0.85 * rising - away),
+            (u - away) / (STOOD * rising - away),
           );
           const up: number = minimumJerk.share(
-            (u - away - 0.03 * rising) / (0.82 * rising - away),
+            (u - away - LAG * rising) / ((STOOD - LAG) * rising - away),
           );
           const socket: IAutoMovieVector3 = {
             x: begin.x + (goal.x - begin.x) * forward,
@@ -390,7 +412,7 @@ export namespace rise {
             u < flex
               ? pitchAt(u, peak)
               : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
-          const tilt = HumanTrunk.incline(
+          const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
             joints,
             pitch,
             HumanTrunk.pelvisLimit(
@@ -427,7 +449,7 @@ export namespace rise {
       duration,
       events: [
         { name: "seatOff", share: share(seatOff) },
-        { name: "standing", share: share(prepared + 0.85 * rising) },
+        { name: "standing", share: share(prepared + STOOD * rising) },
       ],
       contacts,
       base: { kind: "standing" },
