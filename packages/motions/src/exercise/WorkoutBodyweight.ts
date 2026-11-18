@@ -144,9 +144,15 @@ export namespace WorkoutBodyweight {
       base: "kneeling",
       anchor: "hips",
       pin: ["leftLowerLeg", "rightLowerLeg"],
+      // On all fours each hand and knee bears; reached level, the raised
+      // arm's hand and the reached leg's knee leave the floor, the right
+      // arm and the left leg first and the other pair on alternate
+      // repetitions.
       supports: [
         { part: "leftHand", kind: "plant" },
-        { part: "rightHand", kind: "plant" },
+        { part: "rightHand", kind: "plant", at: ["kneeling"] },
+        { part: "rightLowerLeg", kind: "bear" },
+        { part: "leftLowerLeg", kind: "bear", at: ["kneeling"] },
       ],
       alternate: true,
       enter: 2.4,

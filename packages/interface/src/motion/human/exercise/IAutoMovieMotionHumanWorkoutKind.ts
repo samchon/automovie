@@ -135,8 +135,8 @@ export namespace IAutoMovieMotionHumanWorkoutKind {
   /**
    * A part that bears and how.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation part: The part. kind: How it bears. prop: Whether it bears on the workout's prop rather than the ground.
-   * @evidence contracts/development/design.md#principled-representation part: The part. kind: How it bears. prop: Whether it bears on the workout's prop rather than the ground.
+   * @evidence contracts/development/common.md#meaningful-documentation part: The part. kind: How it bears. prop: Whether it bears on the workout's prop rather than the ground. at: The postures it bears in, every one when absent.
+   * @evidence contracts/development/design.md#principled-representation part: The part. kind: How it bears. prop: Whether it bears on the workout's prop rather than the ground. at: The postures it bears in, every one when absent.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/workout.ts (workout.plan.contacts, support); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.floor, supports); exercise/WorkoutFeet.ts (WorkoutFeet.keep.bearing, how); exercise/WorkoutFeet.ts (WorkoutFeet.keep.bearing, support); exercise/WorkoutStance.ts (WorkoutStance.of, supports); exercise/WorkoutBodyweight.ts (WorkoutBodyweight.BACK).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -149,6 +149,9 @@ export namespace IAutoMovieMotionHumanWorkoutKind {
 
     /** Whether it bears on the prop the exercise is done on (the workout's `on`): a hand on a bar or a bench, a foot on a box. On the ground when absent, or when the author names no prop. */
     prop?: boolean;
+
+    /** The postures of the repetition it bears in, by their steps' `event` names, and the way between two of them; every posture when absent. On a repetition done on the other side (`alternate`), its other side's part bears instead. */
+    at?: readonly string[];
   }
 
   /**
