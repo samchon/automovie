@@ -63,10 +63,10 @@ export function prepareHumanPostureRigCheck(body: IAutoMovieMotionHumanBody): ((
             (a: IChildren, b: IChildren): boolean => a[0] === b[0] && sequence(a[1], b[1], child)) &&
           sequence(body.topology.reachableBones, saved.reachable,
             (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): boolean => a === b) &&
-          entries(Object.entries(DEFAULT_HUMANOID_ROM), saved.defaults, constraint) &&
-          entries(Object.entries(HUMANOID_JOINT_AXES), saved.axes, axes) &&
+          entries(DEFAULT_HUMANOID_ROM, saved.defaults, constraint) &&
+          entries(HUMANOID_JOINT_AXES, saved.axes, axes) &&
           axes(DEFAULT_JOINT_AXES, saved.fallback) &&
-          entries(Object.entries(HUMANOID_REST_FRAME), saved.frames, frame);
+          entries(HUMANOID_REST_FRAME, saved.frames, frame);
         return same;
       } catch {
         return false;
@@ -107,9 +107,15 @@ function sequence<T>(actual: Iterable<T>, saved: readonly T[], equal: (a: T, b: 
 }
 
 /** Table property order and every typed value remain part of source equivalence. */
-function entries<T>(actual: readonly (readonly [string, T])[], saved: readonly (readonly [string, T])[], equal: (a: T, b: T) => boolean): boolean {
-  return sequence(actual, saved,
-    (a: readonly [string, T], b: readonly [string, T]): boolean => a[0] === b[0] && equal(a[1], b[1]));
+function entries<T>(actual: Readonly<Record<string, T>>, saved: readonly (readonly [string, T])[], equal: (a: T, b: T) => boolean): boolean {
+  const keys: string[] = Object.keys(actual);
+  if (keys.length !== saved.length) return false;
+  for (let index: number = 0; index < keys.length; ++index) {
+    const key: string = keys[index]!;
+    const baseline: readonly [string, T] = saved[index]!;
+    if (key !== baseline[0] || !equal(actual[key]!, baseline[1])) return false;
+  }
+  return true;
 }
 
 /** Exact numeric components retain signed zero and nonfinite distinctions. */
