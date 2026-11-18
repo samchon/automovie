@@ -1,8 +1,5 @@
 import {
-  Vector3,
-  bracketedRoot,
   minimumJerk,
-  resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -24,19 +21,15 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountOn } from "../lexicon/HumanMountOn";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { HumanBalance } from "./HumanBalance";
+import { prepareSitBalance } from "./prepareSitBalance";
 import { prepareSitLowering } from "./prepareSitLowering";
 import { prepareSitWorkingFeet } from "./prepareSitWorkingFeet";
 import { seated } from "./seated";
@@ -400,107 +393,10 @@ export namespace sit {
       return minimumJerk.share((t - s.start) / (s.ready - s.start));
     }
 
-    // The weight stays over the feet until the seat takes it (Kralj, Jaeger
-    // and Munih 1990): until a pendulum's time constant before contact
-    // (Hof, Gazendam and Sinke 2005, the time the body needs to fall onto
-    // the seat), the seat socket goes back only as far as keeps the centre
-    // of mass where it stands over the feet, read in the world along the
-    // heading so a change of the base under it does not move the mark,
-    // solved by bisection at shares of that time and read linearly between
-    // them; over the last of it the socket comes back onto the seat, which
-    // it reaches at contact.
-    const fall: number = Math.min(
-      contact,
-      1 /
-        resolveAutoMovieCenterOfMass.frequency(
-          resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
-        ),
-    );
-    const held: number = contact - fall;
-    // The weight-over-the-feet course is the balance option's
-    // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
-    // back on its own minimum-jerk progress and no centre of mass is read.
-    const clock: ReturnType<typeof AutoMovieMotionClock.of> = AutoMovieMotionClock.of(duration, [
-      { name: "commit", seconds: contact },
-      { name: "seatContact", seconds: contact },
-      { name: "seated", seconds: descent },
-    ]);
-    const prefix: number = adjusted?.prefix.duration ?? 0;
-    const total: number = prefix + duration;
-    const timing: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "events"> = {
-      duration: total,
-      events: clock.events().map((event) => ({
-        ...event, share: (prefix + duration * event.share) / total,
-      })),
-    };
-    const window: HumanPhysics.Window = HumanPhysics.prepare(context.params, {}, context.start, timing, context.instant);
-    if (window !== null && window.by !== "hips")
-      throw new HumanRefusal({
-        kind: "parameter", axis: "balance.by", value: window.by,
-        reason: "sitting adjusts the hips over the planted feet before seat contact",
-        fix: "give hips for balance.by",
-      });
-    const balancing: boolean = window !== null && window.from < prefix + contact && window.to > prefix && held > 0;
-    const reaches: number[] = !balancing ? [] : ((): number[] => {
-      const heading: IAutoMovieVector3 = {
-        x: Math.sin((yaw0 * Math.PI) / 180),
-        y: 0,
-        z: Math.cos((yaw0 * Math.PI) / 180),
-      };
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution();
-      const project: ReturnType<typeof prepareHumanPostureProjection> =
-        prepareHumanPostureProjection(body);
-      const centre: ReturnType<typeof HumanBalance.prepareCentre> =
-        HumanBalance.prepareCentre(body);
-      const ahead: (t: number, back: number) => number = (
-        t: number,
-        back: number,
-      ): number =>
-        Vector3.dot(centre(lowered(t, back, read), read, project), heading);
-      const stood: number = ahead(0, 0);
-
-      // Keep every bracket trial and the original physical travel tolerance;
-      // only this synchronous table construction borrows the shared readers.
-      const way: number = Math.hypot(goal.x - start.x, goal.z - start.z);
-      const balanced: (t: number) => number = (t: number): number => {
-        const free: number = minimumJerk.share(t / across);
-        const behind: (back: number) => number = (back: number): number =>
-          ahead(t, back) - stood;
-        const far: number = behind(free);
-        if (far >= 0) return free;
-        const near: number = behind(0);
-        if (near <= 0 || way <= 0) return 0;
-        return bracketedRoot(
-          (trial: number): number =>
-            trial === 0 ? near : trial === free ? far : behind(trial),
-          0,
-          free,
-          HumanBalance.TOLERANCE / way,
-        );
-      };
-      return Array.from(
-        { length: SHARES + 1 },
-        (_: unknown, k: number): number =>
-          k === 0 ? 0 : balanced((held * k) / SHARES),
-      );
-    })();
-    function travel(t: number): number {
-      const free: number = minimumJerk.share(t / across);
-      const weight: number = HumanPhysics.weightAt(window, prefix + t);
-      if (!balancing || weight === 0 || t >= contact) return free;
-      const kept: (at: number) => number = (at: number): number => {
-        const x: number = (Math.max(0, Math.min(held, at)) / held) * SHARES;
-        const k: number = Math.min(SHARES - 1, Math.floor(x));
-        return reaches[k]! + (reaches[k + 1]! - reaches[k]!) * (x - k);
-      };
-      if (t <= held) return free + weight * (Math.min(free, kept(t)) - free);
-      const from: number = Math.min(
-        minimumJerk.share(held / across),
-        kept(held),
-      );
-      return free + weight * (from - free) * (1 - minimumJerk.share((t - held) / fall));
-    }
+    const { clock, window, travel }: ReturnType<typeof prepareSitBalance> = prepareSitBalance({
+      context, start, goal, yaw0, across, contact, descent, duration,
+      prefix: adjusted?.prefix.duration ?? 0, shares: SHARES, lowered,
+    });
     const composed: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: lowering,
       clock,
