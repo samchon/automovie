@@ -81,7 +81,7 @@ export namespace crawlFeet {
    * the second pivot is measured on first crossing of the toe range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed inputs, independent progress and lazy second-pivot acquisition; rolled documents units and the two contact phases.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses rolled's same rigid metatarsophalangeal pivot and then its fixed toe-tip pivot, retaining all rotation and socket calculations and the original range comparison.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses rolled's rigid metatarsophalangeal pivot and then its fixed toe-tip pivot; the foot's heading turns toward the tucked heading along the shortest arc, as angle blends must, whatever turn of the circle the yaw is written in.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed geometry precedes the same two-pivot evaluator, with one lazy toe-tip point.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not change the toe-extension range, heading interpolation, contact offset or endpoint progress.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed heading/range reads and the MTP output socket prepare once; each actually used pivot lazily prepares its native rest/socket offset reader once, retaining every current toe articulation and rigid transform. The range-boundary tip is measured once instead of at every later share.
@@ -110,7 +110,14 @@ export namespace crawlFeet {
     const offsets: Partial<
       Record<"mtp" | "toe", ReturnType<typeof HumanFoot.prepareOffset>>
     > = {};
-    const turned = (q: number): number => from + ((heading - from) * q) / lift;
+
+    // The standing heading is read off the foot in (-180, 180] while the
+    // tucked heading is the body's yaw as written, so the turn is taken the
+    // short way round: a body facing 270 degrees would otherwise spin its
+    // foot almost a whole turn as it rolls.
+    const turn: number = ((((heading - from) % 360) + 540) % 360) - 180;
+    const turned: (q: number) => number = (q: number): number =>
+      from + (turn * q) / lift;
     const about = (
       contact: "mtp" | "toe",
       at: IAutoMovieVector3,

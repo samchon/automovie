@@ -310,8 +310,9 @@ export namespace perturb {
     );
     const speed: number = Vector3.dot(outcome.velocity, push);
 
-    // Settled to within e^-4 (under 2 %) of the peak's own scale by 6 / ω0.
-    const duration: number = 6 / w0;
+    // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
+    // τ e^(1 - τ) at τ = ω0 t, which falls to e^-4 where τ - ln τ = 5.
+    const duration: number = SETTLED / w0;
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       duration,
       [{ name: "peak", seconds: 1 / w0 }],
@@ -371,4 +372,18 @@ export namespace perturb {
     });
     return { ...composed, contacts: [plant("leftFoot"), plant("rightFoot")] };
   }
+
+  /**
+   * The absorb's settling time in pendulum time constants: the root of
+   * τ - ln τ = 5 past the peak at τ = 1, where the critically damped
+   * travel τ e^(1 - τ) of the peak has fallen to e^-4. Newton's method on
+   * the convex g(τ) = τ - ln τ - 5 from τ = 7, right of the root, decreases
+   * monotonically onto it; eight steps reach the double's precision.
+   */
+  const SETTLED: number = ((): number => {
+    let tau: number = 7;
+    for (let i: number = 0; i < 8; i++)
+      tau -= (tau - Math.log(tau) - 5) / (1 - 1 / tau);
+    return tau;
+  })();
 }

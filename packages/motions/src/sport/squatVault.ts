@@ -63,9 +63,11 @@ export namespace squatVault {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "squatVault";
 
-  /** Cancel table: a vault in the air cannot be cut; standing again once it has landed. */
+  /** Cancel table: a vault in the air cannot be cut; standing again once it has landed, from its `touchdown` on. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0.9, 1], kind: "inertialize", entry: 0, blend: 0.3 }],
+    stand: [
+      { window: ["touchdown", 1], kind: "inertialize", entry: 0, blend: 0.3 },
+    ],
   };
 
   /**

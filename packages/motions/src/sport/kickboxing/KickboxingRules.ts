@@ -83,7 +83,7 @@ export namespace KickboxingRules {
       capability !== "knee"
     )
       return null;
-    const p = params as { at?: IAutoMovieMotionTarget; technique?: string };
+    const p: { at?: IAutoMovieMotionTarget; technique?: string } = params as { at?: IAutoMovieMotionTarget; technique?: string };
     if (p.at?.kind !== "person") return null;
     if (FOUL_REGIONS.has(p.at.region))
       return `a strike at the ${p.at.region} is a foul`;
@@ -145,7 +145,7 @@ export namespace KickboxingRules {
           entry.intent.capability !== "knee"
         )
           return null;
-        const at = (params(entry) as { at?: IAutoMovieMotionTarget }).at;
+        const at: IAutoMovieMotionTarget | undefined = (params(entry) as { at?: IAutoMovieMotionTarget }).at;
         if (at?.kind !== "person") return null;
         const down: IAutoMovieScheduleEntry | undefined = schedule.entries.find(
           (other: IAutoMovieScheduleEntry): boolean => {
@@ -155,14 +155,17 @@ export namespace KickboxingRules {
               other.start > entry.start
             )
               return false;
-            const next: IAutoMovieScheduleEntry | undefined =
-              schedule.entries.find(
-                (later: IAutoMovieScheduleEntry): boolean =>
-                  later.subject === at.subject &&
-                  later.start > other.start &&
-                  later.index !== other.index,
-              );
-            return next === undefined || entry.start < next.start;
+            // The fallen fighter's next action, the earliest of theirs after
+            // the knockdown whatever order the schedule lists them in.
+            let next: number = Infinity;
+            for (const later of schedule.entries)
+              if (
+                later.subject === at.subject &&
+                later.start > other.start &&
+                later.index !== other.index
+              )
+                next = Math.min(next, later.start);
+            return entry.start < next;
           },
         );
         return down === undefined

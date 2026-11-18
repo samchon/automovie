@@ -67,10 +67,10 @@ export namespace crawlInchworm {
   /** One limb's step, seconds, at a 0.93 m hip height (provisional). */
   export const STEP: number = 0.5;
 
-  /** Seconds to fold from standing to the palms on the floor (provisional). */
+  /** Seconds to fold from standing to the palms on the floor, at a 0.93 m hip height (provisional). */
   export const DOWN: number = 1.5;
 
-  /** Seconds to rise from the last fold to standing (provisional). */
+  /** Seconds to rise from the last fold to standing, at a 0.93 m hip height (provisional). */
   export const RISE: number = 1.5;
 
   /** The limbs that bear, in the order their contacts are listed. */
@@ -143,7 +143,11 @@ export namespace crawlInchworm {
       1,
       Math.ceil(travel / (FOOT * (m.thigh + m.shank))),
     );
-    const step: number = STEP * Math.sqrt(m.hipHeight / 0.93) * modifiers.tempo;
+    // Every span is scaled alike, by the square root of the hip height (equal
+    // Froude number, Alexander 1984) and the manner's tempo: the fold, each
+    // step and the rise.
+    const scale: number = Math.sqrt(m.hipHeight / 0.93) * modifiers.tempo;
+    const step: number = STEP * scale;
 
     const {
       stances,
@@ -215,7 +219,7 @@ export namespace crawlInchworm {
       const stances: IAutoMovieMotionHumanSupport.IStance[] = [
         {
           contacts: contacts(),
-          seconds: DOWN,
+          seconds: DOWN * scale,
           event: "down",
           prefer: prefer(),
         },
@@ -257,7 +261,7 @@ export namespace crawlInchworm {
       }
       stances.push({
         contacts: contacts(["leftFoot", "rightFoot"]),
-        seconds: RISE,
+        seconds: RISE * scale,
         event: "standing",
         prefer: getUp.quiet(body),
       });

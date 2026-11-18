@@ -118,8 +118,8 @@ export namespace dance {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDance.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanDance.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.beats ?? 8;
     HumanBound.above("bpm", bpm, 0, "beats per minute");
@@ -152,14 +152,15 @@ export namespace dance {
         reason: `the track ${p.lock!.of} has ${locked.length} ${p.lock!.event ?? "beat"} instants after the step starts, fewer than the ${Math.min(2, beats)} a tempo needs`,
         fix: "lock to a track with beats after the step's start, or give bpm instead",
       });
+    // A single locked beat has no interval of its own, so it keeps the
+    // tempo's: its offset from the start is a lead, not a period, and is
+    // zero when the beat falls on the start.
     const period: number =
-      locked === null
+      locked === null || locked.length < 2
         ? 60 / bpm
-        : locked.length < 2
-          ? locked[0]!
-          : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
+        : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
     const lead: number = locked === null ? period : locked[0]!;
-    const beatAt = (k: number): number => lead + (k - 1) * period;
+    const beatAt: (k: number) => number = (k: number): number => lead + (k - 1) * period;
     const instants: IAutoMovieMotionClockInstant[] = [];
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
@@ -187,7 +188,9 @@ export namespace dance {
         rotation: context.entry.feet.right.rotation,
       },
     };
-    const root = (
+    const root: (
+      offset: (seconds: number) => IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       offset: (seconds: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
@@ -241,10 +244,12 @@ export namespace dance {
           m.hipHeight +
           entry.root.y -
           (stance.left.ankle.y + stance.right.ankle.y) / 2;
-        const ease = (u: number): number => u * u * (3 - 2 * u);
-        const side = (s: number): number =>
+        const ease: (u: number) => number = (u: number): number => u * u * (3 - 2 * u);
+        const side: (s: number) => number = (s: number): number =>
           s <= lead
-            ? ease(s / lead)
+            ? lead > 0
+              ? ease(s / lead)
+              : 1
             : s >= beatAt(beats)
               ? Math.cos(Math.PI * (beats - 1)) *
                 (1 - ease(Math.min(1, (s - beatAt(beats)) / period)))
@@ -347,11 +352,14 @@ export namespace dance {
             0.04 * m.stature,
           ),
         };
-        const placed = (
+        const placed: (
+          foot: "left" | "right",
+          s: number,
+        ) => IAutoMovieMotionHumanFoot.IPlacement = (
           foot: "left" | "right",
           s: number,
         ): IAutoMovieMotionHumanFoot.IPlacement => courses[foot].placed(s);
-        const planted = (foot: "left" | "right", s: number): boolean =>
+        const planted: (foot: "left" | "right", s: number) => boolean = (foot: "left" | "right", s: number): boolean =>
           courses[foot].planted(s);
         // The hips follow the feet's mean and sink until each leg reaches
         // its foot, the travelling one too: feet a shoulder width further
@@ -406,7 +414,28 @@ export namespace dance {
               planted: (s: number): boolean => planted(foot, s),
             }),
           );
+
+        // Each foot bears between its travels, the half beat before each of
+        // its footfalls (`prepareDanceFootCourse`).
         contacts = [];
+        for (const foot of ["left", "right"] as const) {
+          let from: number = 0;
+          for (const fall of [
+            ...paths[foot],
+            { beat: duration + period / 2 },
+          ]) {
+            const lifts: number = Math.max(from, fall.beat - period / 2);
+            if (lifts > from)
+              contacts.push({
+                part: `${foot}Foot`,
+                kind: "plant",
+                from: from / duration,
+                to: Math.min(duration, lifts) / duration,
+                support: { kind: "ground" },
+              });
+            from = fall.beat;
+          }
+        }
         break;
       }
     }

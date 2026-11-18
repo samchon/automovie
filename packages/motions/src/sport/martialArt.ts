@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanMartialArt,
   IAutoMovieMotionHumanPosture,
@@ -97,8 +98,8 @@ export namespace martialArt {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanMartialArt.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
     const count: number = p.count ?? 4;
     const hold: number = p.seconds ?? 1;
     HumanBound.whole("count", count);
@@ -106,7 +107,7 @@ export namespace martialArt {
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const axes = { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw };
+    const axes: IAutoMovieMotionHumanFrame = { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw };
     const forward: IAutoMovieVector3 = HumanFrame.point(axes, {
       x: 0,
       y: 0,
@@ -143,7 +144,7 @@ export namespace martialArt {
       }),
       modifiers,
     );
-    const into = (s: number): number =>
+    const into: (s: number) => number = (s: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], s);
     // The span the arms are planned over: the reach to the place, the hold and the return.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
@@ -152,7 +153,9 @@ export namespace martialArt {
       relax: clock.at("relax"),
       end: clock.at("end"),
     };
-    const root = (
+    const root: (
+      offset: (s: number) => IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       offset: (s: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
@@ -166,7 +169,11 @@ export namespace martialArt {
         root: Vector3.add(posture.root, offset(s)),
       }),
     });
-    const lead = (
+    const lead: (
+      side: "left" | "right",
+      by: IAutoMovieVector3,
+      s: number,
+    ) => IAutoMovieMotionHumanFoot.IPlacement = (
       side: "left" | "right",
       by: IAutoMovieVector3,
       s: number,
@@ -180,8 +187,11 @@ export namespace martialArt {
         0.03 * m.stature,
         into(s),
       );
-    const bearing = (s: number): boolean => into(s) <= 0 || into(s) >= 1;
-    const stepped = (
+    const bearing: (s: number) => boolean = (s: number): boolean => into(s) <= 0 || into(s) >= 1;
+    const stepped: (
+      side: "left" | "right",
+      by: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
       by: IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive =>
@@ -196,17 +206,28 @@ export namespace martialArt {
         ): IAutoMovieMotionHumanFoot.IPlacement => lead(side, by, s),
         planted: bearing,
       });
-    const rest = (
+    const rest: (
+      side: "left" | "right",
+    ) => IAutoMovieMotionHumanArmAngles.IAngles = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    // The right foot stands throughout; the left steps out over the way into
+    // the stance and back over the way out of it, and bears between.
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         part: "rightFoot",
         kind: "plant",
         from: 0,
         to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: clock.at("ready") / clock.duration,
+        to: clock.at("relax") / clock.duration,
         support: { kind: "ground" },
       },
     ];
@@ -235,9 +256,9 @@ export namespace martialArt {
     }
     if (p.kind === "chokuZuki") {
       // Punch i starts at `ready + 2 i PUNCH`, by the right hand first.
-      const start = (i: number): number =>
+      const start: (i: number) => number = (i: number): number =>
         clock.at("ready") + 2 * i * PUNCH * modifiers.tempo;
-      const extended = (side: "left" | "right", s: number): number => {
+      const extended: (side: "left" | "right", s: number) => number = (side: "left" | "right", s: number): number => {
         let w: number = 0;
         for (let i: number = 0; i < count; i++) {
           if ((i % 2 === 0) !== (side === "right")) continue;
@@ -248,7 +269,7 @@ export namespace martialArt {
             1,
             Math.max(0, (s - a - 2 * len) / len),
           );
-          const ease = (u: number): number => u * u * (3 - 2 * u);
+          const ease: (u: number) => number = (u: number): number => u * u * (3 - 2 * u);
           w = Math.max(w, ease(rise) - ease(fall));
         }
         return w;
@@ -299,7 +320,7 @@ export namespace martialArt {
     }
     if (p.kind === "taiChiPush") {
       const stride: number = 0.35 * m.stature * modifiers.extent;
-      const shift = (s: number): number =>
+      const shift: (s: number) => number = (s: number): number =>
         clock.envelope(["strokeStart", "stroke"], ["stroke", "strokeEnd"], s);
       // The hips travel between the feet and sink until each bearing leg
       // reaches its foot: the bow stance's depth follows from the stride.

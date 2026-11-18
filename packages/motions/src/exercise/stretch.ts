@@ -143,6 +143,17 @@ export namespace stretch {
         { name: "enter", seconds: 0 },
         { name: "reachEnd", seconds: timed.at("ready") },
         { name: "release", seconds: timed.at("relax") },
+
+        // A one-leg pose takes its weight onto the standing foot before the
+        // other foot leaves the floor, and sets that foot down before it
+        // takes the weight back (a support is released only after the next
+        // one bears): the hips shift over the first half of the entry and
+        // the foot lifts over the second, and the release runs the other way.
+        { name: "shifted", seconds: timed.at("ready") / 2 },
+        {
+          name: "lowered",
+          seconds: (timed.at("relax") + timed.duration) / 2,
+        },
       ],
     );
     const weight: (seconds: number) => number =
@@ -208,8 +219,8 @@ export namespace stretch {
       const envelope: (seconds: number) => number =
         AutoMovieMotionClock.prepareEnvelope(
           clock,
-          ["start", "reachEnd"],
-          ["release", "end"],
+          ["start", "shifted"],
+          ["lowered", "end"],
         );
       return {
         channels: ["root"],
@@ -225,7 +236,15 @@ export namespace stretch {
         }),
       };
     };
-    const lifted = (
+    const raising: (seconds: number) => number =
+      AutoMovieMotionClock.prepareEnvelope(
+        clock,
+        ["shifted", "reachEnd"],
+        ["release", "lowered"],
+      );
+    const lifted: (
+      placement: IAutoMovieMotionHumanFoot.IPlacement,
+    ) => IAutoMovieMotionHumanPrimitive = (
       placement: IAutoMovieMotionHumanFoot.IPlacement,
     ): IAutoMovieMotionHumanPrimitive => {
       const lift: ReturnType<
@@ -237,15 +256,34 @@ export namespace stretch {
         from: 0,
         to: clock.duration,
         placement: (_: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanFoot.IPlacement =>
-          lift(weight(seconds)),
-        planted: (seconds: number): boolean => weight(seconds) <= 0,
+          lift(raising(seconds)),
+        planted: (seconds: number): boolean => raising(seconds) <= 0,
       });
     };
-    const standingOn = (standing: "left" | "right"): IAutoMovieMotionHumanContactWindow[] => [
+
+    // The standing foot bears throughout; the lifted one until it leaves the
+    // floor and again once it is set down.
+    const standingOn: (standing: "left" | "right") => IAutoMovieMotionHumanContactWindow[] = (
+      standing: "left" | "right",
+    ): IAutoMovieMotionHumanContactWindow[] => [
       {
         part: `${standing}Foot`,
         kind: "plant",
         from: 0,
+        to: 1,
+        support: { kind: "ground" },
+      },
+      {
+        part: `${side}Foot`,
+        kind: "plant",
+        from: 0,
+        to: clock.at("shifted") / clock.duration,
+        support: { kind: "ground" },
+      },
+      {
+        part: `${side}Foot`,
+        kind: "plant",
+        from: clock.at("lowered") / clock.duration,
         to: 1,
         support: { kind: "ground" },
       },

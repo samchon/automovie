@@ -149,8 +149,8 @@ export namespace exercise {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanExercise.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanExercise.IParams = context.params;
-    const body = context.body;
-    const m = body.measure;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
     const reps: number = p.reps ?? 3;
     HumanBound.whole("reps", reps);
     const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
@@ -214,23 +214,56 @@ export namespace exercise {
           [`concentricStart${index + 1}`, `top${index + 1}`],
         ),
     );
-    const into = (i: number, seconds: number): number =>
+    const into: (i: number, seconds: number) => number = (i: number, seconds: number): number =>
       envelopes[i - 1]!(seconds);
-    const any = (seconds: number): number => {
+    const any: (seconds: number) => number = (seconds: number): number => {
       let w: number = 0;
       for (let i: number = 1; i <= reps; i++) w = Math.max(w, into(i, seconds));
       return w;
     };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    const shifted = (
+
+    // A foot's plant windows between the spans it travels in, as shares of
+    // the duration: it bears from the start, between its moves and to the
+    // end, a window of no length left out.
+    const share: (instant: string) => number = (instant: string): number =>
+      clock.at(instant) / clock.duration;
+    const plant: (
+      part: "leftFoot" | "rightFoot",
+      moves: readonly (readonly [number, number])[],
+    ) => IAutoMovieMotionHumanContactWindow[] = (
+      part: "leftFoot" | "rightFoot",
+      moves: readonly (readonly [number, number])[],
+    ): IAutoMovieMotionHumanContactWindow[] => {
+      const windows: IAutoMovieMotionHumanContactWindow[] = [];
+      let from: number = 0;
+      for (const [start, end] of [...moves, [1, 1] as const]) {
+        if (start > from)
+          windows.push({
+            part,
+            kind: "plant",
+            from,
+            to: start,
+            support: { kind: "ground" },
+          });
+        from = Math.max(from, end);
+      }
+      return windows;
+    };
+    const shifted: (
+      placement: IAutoMovieMotionHumanFoot.IPlacement,
+      by: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanFoot.IPlacement = (
       placement: IAutoMovieMotionHumanFoot.IPlacement,
       by: IAutoMovieVector3,
     ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: Vector3.add(placement.ankle, by),
       rotation: placement.rotation,
     });
-    const root = (
+    const root: (
+      offset: (seconds: number) => IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanPrimitive = (
       offset: (seconds: number) => IAutoMovieVector3,
     ): IAutoMovieMotionHumanPrimitive => ({
       channels: ["root"],
@@ -279,7 +312,7 @@ export namespace exercise {
         break;
       }
       case "highKnees": {
-        const raised = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
+        const raised: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
           const hip: IAutoMovieVector3 = HumanFrame.point(
             { origin: entry.root, yaw: entry.yaw },
             body.rest.get(`${side}UpperLeg`)!,
@@ -292,9 +325,9 @@ export namespace exercise {
             rotation: stance[side].rotation,
           };
         };
-        const sideOf = (i: number): "left" | "right" =>
+        const sideOf: (i: number) => "left" | "right" = (i: number): "left" | "right" =>
           i % 2 === 1 ? lead : trail;
-        const lifted = (side: "left" | "right", s: number): number => {
+        const lifted: (side: "left" | "right", s: number) => number = (side: "left" | "right", s: number): number => {
           let w: number = 0;
           for (let i: number = 1; i <= reps; i++)
             if (sideOf(i) === side) w = Math.max(w, into(i, s));
@@ -329,15 +362,29 @@ export namespace exercise {
               planted: (s: number): boolean => lifted(side, s) <= 0,
             }),
           );
+
+        // Each foot bears except over its own repetitions, from their
+        // lowering's start to their top.
+        for (const side of ["left", "right"] as const) {
+          const moves: [number, number][] = [];
+          for (let i: number = 1; i <= reps; i++)
+            if (sideOf(i) === side)
+              moves.push([share(`eccentricStart${i}`), share(`top${i}`)]);
+          contacts.push(...plant(`${side}Foot`, moves));
+        }
         break;
       }
       case "jumpingJack": {
         const width: number = 1.5 * m.shoulderHalfWidth * modifiers.extent;
+
+        // The hop lifts the root and both travelling feet alike, so the
+        // legs keep their length while the feet are off the floor.
+        const hop: (s: number) => number = (s: number): number => {
+          const w: number = any(s);
+          return 0.04 * 4 * w * (1 - w);
+        };
         primitives.push(
-          root((s: number): IAutoMovieVector3 => {
-            const w: number = any(s);
-            return { x: 0, y: 0.04 * 4 * w * (1 - w), z: 0 };
-          }),
+          root((s: number): IAutoMovieVector3 => ({ x: 0, y: hop(s), z: 0 })),
         );
         for (const side of ["left", "right"] as const) {
           const out: IAutoMovieMotionHumanFoot.IPlacement = shifted(
@@ -366,8 +413,13 @@ export namespace exercise {
               side,
               from: 0,
               to: clock.duration,
-              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
-                open(any(s)),
+              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement => {
+                const placed: IAutoMovieMotionHumanFoot.IPlacement = open(any(s));
+                return {
+                  ...placed,
+                  ankle: { ...placed.ankle, y: placed.ankle.y + hop(s) },
+                };
+              },
               planted: (s: number): boolean => any(s) <= 0 || any(s) >= 1,
             }),
             ...AutoMovieMotionHumanPlaced.arm({
@@ -392,6 +444,16 @@ export namespace exercise {
             }),
           );
         }
+
+        // Both feet bear while closed and while open, and travel in the
+        // jumps out and in.
+        const moves: [number, number][] = [];
+        for (let i: number = 1; i <= reps; i++)
+          moves.push(
+            [share(`eccentricStart${i}`), share(`bottom${i}`)],
+            [share(`concentricStart${i}`), share(`top${i}`)],
+          );
+        contacts.push(...plant("leftFoot", moves), ...plant("rightFoot", moves));
         break;
       }
     }

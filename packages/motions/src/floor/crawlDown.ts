@@ -103,13 +103,16 @@ export namespace crawlDown {
    * The way down built.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The posture at a second, the instant the hands land, which the crawl's plant windows start at, and the way down's length, which its clock starts the crawl at.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all read by the crawl.
+   * @evidence contracts/development/design.md#principled-representation The posture at a second, the instants the knees and the hands land, which the crawl's knee and hand windows start at, and the way down's length, which its clock starts the crawl at.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members, all read by the crawl.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing is solved with the posture, so the two agree.
    */
   export interface IDown {
     /** The posture over a base at a second before the way down ends. */
     write(base: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
+
+    /** The second the knees land, or come to where a bear crawl holds them over the floor. */
+    knees: number;
 
     /** The second the hands land. */
     hands: number;
@@ -464,6 +467,7 @@ export namespace crawlDown {
     };
     return {
       write,
+      knees: s.ends[1]!,
       hands: s.ends[s.ends.length - 2]!,
       seconds: s.ends[s.ends.length - 1]!,
     };

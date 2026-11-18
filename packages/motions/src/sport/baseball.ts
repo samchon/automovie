@@ -378,12 +378,21 @@ export namespace baseball {
               "folded",
             ),
           );
+        // The right foot stands throughout; the left bears between its step
+        // out and its step back.
         contacts = [
           {
             part: "rightFoot",
             kind: "plant",
             from: 0,
             to: 1,
+            support: { kind: "ground" },
+          },
+          {
+            part: "leftFoot",
+            kind: "plant",
+            from: clock.at("ready") / clock.duration,
+            to: clock.at("relax") / clock.duration,
             support: { kind: "ground" },
           },
         ];

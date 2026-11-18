@@ -58,7 +58,7 @@ export namespace KickboxingRing {
     prop: Pick<IAutoMovieMotionHumanProp, "subject" | "frame" | "affordances">,
   ): IAutoMovieMotionHumanKickboxingRing.IRing {
     const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
-    const refuse = (reason: string): IAutoMovieMotionHumanRefusal =>
+    const refuse: (reason: string) => IAutoMovieMotionHumanRefusal = (reason: string): IAutoMovieMotionHumanRefusal =>
       new HumanRefusal({
         kind: "affordance",
         axis: "ring",
@@ -70,7 +70,7 @@ export namespace KickboxingRing {
         reason,
         fix: "name a ring whose canvas, top ropes and corner posts its contacts declare, as createRing does",
       });
-    const at = (id: string): IAutoMovieVector3 => {
+    const at: (id: string) => IAutoMovieVector3 = (id: string): IAutoMovieVector3 => {
       const found: IAutoMovieAffordance | undefined = affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === id,
       );
@@ -82,7 +82,7 @@ export namespace KickboxingRing {
       );
     };
     const canvas: IAutoMovieVector3 = at("canvas");
-    const across = (a: string, b: string): number => {
+    const across: (a: string, b: string) => number = (a: string, b: string): number => {
       const d: IAutoMovieVector3 = Vector3.subtract(at(a), at(b));
       return Math.hypot(d.x, d.z);
     };
