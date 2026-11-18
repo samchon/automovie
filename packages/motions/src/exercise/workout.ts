@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanPlaced,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanWorkout,
@@ -25,11 +26,13 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -351,31 +354,24 @@ export namespace workout {
       p.load === undefined
         ? null
         : WorkoutLoad.of(context, p.load, kind.midfoot === true);
+
+    /** The time-only keyed contribution, including any load owned by the exercise. */
+    const write: IAutoMovieMotionHumanPrimitive["write"] = (
+      _: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      _before?: IAutoMovieMotionHumanPrimitive.Reader,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        projection ?? prepareHumanPostureProjection(body);
+      const placed: IAutoMovieMotionHumanPosture = posture(seconds, read, project);
+      return load === null ? placed : load.apply(placed, read, project);
+    };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
-      {
-        channels,
-        reads: [],
-        from: 0,
-        to: duration,
-        write: (
-          _: IAutoMovieMotionHumanPosture,
-          seconds: number,
-          _before?: IAutoMovieMotionHumanPrimitive.Reader,
-          resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-          projection?: ReturnType<typeof prepareHumanPostureProjection>,
-        ): IAutoMovieMotionHumanPosture => {
-          const read: ReturnType<typeof prepareHumanPoseResolution> =
-            prepareHumanPoseResolution(resolution);
-          const project: ReturnType<typeof prepareHumanPostureProjection> =
-            projection ?? prepareHumanPostureProjection(body);
-          const placed: IAutoMovieMotionHumanPosture = posture(
-            seconds,
-            read,
-            project,
-          );
-          return load === null ? placed : load.apply(placed, read, project);
-        },
-      },
+      { channels, reads: [], from: 0, to: duration, write },
     ];
     if (kind.hands === true) {
       // The palms are laid under where the first posture has the hands.
@@ -526,13 +522,42 @@ export namespace workout {
             holds: load.holds,
             hands: load.hands,
           };
-    return stay
+    const result: IAutoMovieMotionHumanActionPlan = stay
       ? {
           ...composed,
           base:
             kind.base === "seated" ? { kind: "seated" } : { kind: kind.base },
         }
       : composed;
+
+    // Keep repetition selection in the indexed clock, including zero-length
+    // keys. Laid hands still read the earlier channels through composition.
+    const merge: ReturnType<typeof HumanChannels.prepareMerge> =
+      HumanChannels.prepareMerge(channels);
+    HumanPreparedPlayback.attach(result, body, {
+      mode: "posture",
+      phases: [
+        {
+          from: 0,
+          to: duration,
+          sample: (
+            ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+          ): IAutoMovieMotionHumanPlayback.ISample => {
+            const [seconds, demand, resolution, projection] = args;
+            return {
+              posture:
+                kind.hands === true || demand !== undefined
+                  ? posed.posture(...args)
+                  : merge(
+                      standing,
+                      write(standing, seconds, undefined, resolution, projection),
+                    ),
+            };
+          },
+        },
+      ],
+    });
+    return result;
   }
 
   /** The colliders of an arm, from the shoulder out. */

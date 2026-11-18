@@ -5,12 +5,14 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSwimStroke,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { ExerciseKey } from "../exercise/ExerciseKey";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
@@ -229,42 +231,67 @@ export namespace SwimStroke {
       ),
       { name: "relax", share: 1 },
     ];
-    return {
+    /** The actual time determines both the cyclic shape and the moving pin. */
+    const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
+      seconds: number,
+      _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      let within: number = t - Math.floor(t / period) * period;
+      if (t >= duration) within = 0;
+
+      // The key being reached and how far: key 0 is reached last.
+      let index: number = 1 % stroke.keys.length;
+      for (let k: number = 1; k <= stroke.keys.length; k++) {
+        index = k % stroke.keys.length;
+        const span: number = spans[index]!;
+        if (within <= span || k === stroke.keys.length) {
+          within = span > 0 ? Math.min(1, within / span) : 1;
+          break;
+        }
+        within -= span;
+      }
+      const u: number = minimumJerk.share(within);
+      return ExerciseKey.pinned(
+        props.body,
+        blends[index]!(u),
+        props.entry.yaw,
+        HIPS,
+        {
+          x: props.entry.root.x + along.x * speed * t,
+          y: props.water - depth,
+          z: props.entry.root.z + along.z * speed * t,
+        },
+        HIP_BONES,
+        resolution,
+        projection,
+      );
+    };
+    const result: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts: [],
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        let within: number = t - Math.floor(t / period) * period;
-        if (t >= duration) within = 0;
-
-        // The key being reached and how far: key 0 is reached last.
-        let index: number = 1 % stroke.keys.length;
-        for (let k: number = 1; k <= stroke.keys.length; k++) {
-          index = k % stroke.keys.length;
-          const span: number = spans[index]!;
-          if (within <= span || k === stroke.keys.length) {
-            within = span > 0 ? Math.min(1, within / span) : 1;
-            break;
-          }
-          within -= span;
-        }
-        const u: number = minimumJerk.share(within);
-        return ExerciseKey.pinned(
-          props.body,
-          blends[index]!(u),
-          props.entry.yaw,
-          HIPS,
-          {
-            x: props.entry.root.x + along.x * speed * t,
-            y: props.water - depth,
-            z: props.entry.root.z + along.z * speed * t,
-          },
-          HIP_BONES,
-          resolution,
-          projection,
-        );
-      },
+      posture,
     };
+
+    // Cycle selection uses the exact local second, including the final return
+    // to the first key. Playback retains the one period already owned here.
+    HumanPreparedPlayback.attach(result, props.body, {
+      mode: "posture",
+      phases: [
+        {
+          from: 0,
+          to: duration,
+          sample: (
+            ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+          ): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: posture(...args),
+          }),
+        },
+      ],
+    });
+    return result;
   }
 }

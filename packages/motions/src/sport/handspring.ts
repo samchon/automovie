@@ -11,6 +11,7 @@ import type {
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanGymnasticsWheel,
   IAutoMovieMotionHumanHandspring,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
@@ -23,6 +24,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -429,7 +431,7 @@ export namespace handspring {
       { name: "settled", share: settled / duration },
       { name: "relax", share: 1 },
     ];
-    return {
+    const result: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
@@ -441,5 +443,38 @@ export namespace handspring {
         return after(t - touchdown, resolution);
       },
     };
+
+    // Later branches own their opening second, as in the public reader.
+    HumanPreparedPlayback.attach(result, body, {
+      mode: "posture",
+      phases: [
+        {
+          from: touchdown,
+          to: duration,
+          sample: (
+            seconds: number,
+            _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+            resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+          ): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: after(seconds - touchdown, resolution),
+          }),
+        },
+        {
+          from: support,
+          to: touchdown,
+          sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: flying(seconds - support),
+          }),
+        },
+        {
+          from: 0,
+          to: support,
+          sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: placedAt(angleAt(seconds)),
+          }),
+        },
+      ],
+    });
+    return result;
   }
 }

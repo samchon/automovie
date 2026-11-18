@@ -11,6 +11,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
@@ -19,6 +20,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 
@@ -192,17 +194,41 @@ export namespace cartwheel {
       },
       { name: "relax", share: 1 },
     ];
-    return {
+    /** Read the current wheel angle and its interpolated support root. */
+    const turning = (seconds: number): IAutoMovieMotionHumanPosture => {
+      const angle: number = 360 * ease(seconds / duration);
+      return { ...shaped(angle), root: rolling.root(angle) };
+    };
+    /** The landing shape restarts at zero angle on the final support row. */
+    const landed = (): IAutoMovieMotionHumanPosture => ({
+      ...shaped(0),
+      root: rolling.rows.at(-1)!.root,
+    });
+    const result: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
       contact: inverted,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        if (seconds >= duration)
-          return { ...shaped(0), root: rolling.rows.at(-1)!.root };
-        const angle: number = 360 * ease(seconds / duration);
-        return { ...shaped(angle), root: rolling.root(angle) };
-      },
+      posture: (seconds: number): IAutoMovieMotionHumanPosture =>
+        seconds >= duration ? landed() : turning(seconds),
     };
+    HumanPreparedPlayback.attach(result, body, {
+      mode: "posture",
+      phases: [
+        {
+          from: duration,
+          to: duration,
+          sample: (): IAutoMovieMotionHumanPlayback.ISample => ({ posture: landed() }),
+        },
+        {
+          from: 0,
+          to: duration,
+          sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
+            posture: turning(seconds),
+          }),
+        },
+      ],
+    });
+    return result;
   }
 }

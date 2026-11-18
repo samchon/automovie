@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
   IAutoMovieMotionHumanGymnasticsWheel,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRoundOff,
   IAutoMovieResolvedBone,
@@ -19,6 +20,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 import { cartwheel } from "./cartwheel";
@@ -204,20 +206,33 @@ export namespace roundOff {
       { name: "feetDown", share: feetDown },
       { name: "relax", share: 1 },
     ];
-    return {
+    /** Read the current wheel angle and straighten the trunk at the exit. */
+    const turning = (seconds: number): IAutoMovieMotionHumanPosture => {
+      const angle: number =
+        360 * ease(Math.min(duration, Math.max(0, seconds)) / duration);
+      return {
+        ...shaped(angle),
+        ...(seconds >= duration ? { roll: 0 } : {}),
+        root: wheel.root(angle),
+      };
+    };
+    const result: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
       contacts,
       contact: feetDown * duration,
-      posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-        const angle: number =
-          360 * ease(Math.min(duration, Math.max(0, seconds)) / duration);
-        return {
-          ...shaped(angle),
-          ...(seconds >= duration ? { roll: 0 } : {}),
-          root: wheel.root(angle),
-        };
-      },
+      posture: turning,
     };
+    HumanPreparedPlayback.attach(result, body, {
+      mode: "posture",
+      phases: [{
+        from: 0,
+        to: duration,
+        sample: (seconds: number): IAutoMovieMotionHumanPlayback.ISample => ({
+          posture: turning(seconds),
+        }),
+      }],
+    });
+    return result;
   }
 }
