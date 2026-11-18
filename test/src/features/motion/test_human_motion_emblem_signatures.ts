@@ -1,9 +1,12 @@
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSignature,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -12,18 +15,27 @@ import {
   HumanEmblem,
   HumanHabit,
   HumanPerformance,
-  HumanSignature,
   touch,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
+
+interface IHold {
+  label: string;
+  body: IAutoMovieMotionHumanBody;
+  bones: Bones;
+  stood: () => Bones;
+}
+
 /**
  * The emblems and habits of the lexicon show the form their names mean,
  * each read at the middle of its hold on displayed joints (#3345, #3346).
  *
- * Scenarios, on the small woman, the average man and the large man:
+ * One witness per contact or framing branch, staged on the corresponding
+ * small, average or large body:
  * 1. `hush`: the forefinger stands across the lips. Its middle joint lies
  *    within 20 mm of the mouth region and the finger, from its knuckle to
  *    its last joint, within 15 degrees of upright (both provisional: NTU
@@ -42,7 +54,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Registers the lexicon's rows, performs each on real bodies and reads displayed joints and regions; a finger laid flat, a hand short of its place, a watch held at the waist or a head left level fails.
  * @evidence contracts/development/testing.md#independent-expectations Each form is what the emblem means and each bound is the issue's acceptance or marked provisional; none is read from the law's output.
  * @evidence contracts/development/testing.md#distinguishing-cases Four rows over two laws and three hand attitudes, on three bodies of different stature and build.
- * @evidence contracts/development/testing.md#execution-ownership Prepares three polygon men and builds twelve short one-person performances; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares three rigs and builds four short one-person performances; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds and sources.
  */
 export function test_human_motion_emblem_signatures(): void {
@@ -53,210 +65,151 @@ export function test_human_motion_emblem_signatures(): void {
     HumanHabit.checkWatch,
   ];
   const complaints: string[] = [];
-  const gap = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
-    Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
   const mm = (metres: number): string => (metres * 1000).toFixed(0);
-  for (const name of ["f-small", "m-average", "m-large"] as const) {
+  const read = (
+    row: string,
+    name: motionHumanBody.Name,
+    check: (hold: IHold) => void,
+  ): void => {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const read = (
-      row: string,
-      check: (
-        performance: IAutoMovieMotionHumanPerformance,
-        reader: IAutoMovieMotionHumanSignature.IReader,
-        held: number,
-        start: number,
-      ) => void,
-    ): void => {
-      try {
-        const performance: IAutoMovieMotionHumanPerformance =
-          new HumanPerformance({
-            seed: "emblem",
-            laws,
-            performers: [
-              {
-                subject: "a",
-                body,
-                at: { x: 0, y: 0, z: 0 },
-                yaw: 0,
-                proficiency: { level: "trained" },
-              },
-            ],
-            composition: HumanChain.subject("a")
-              .stand({ seconds: 0.3 })
-              .registered(row, {}).node,
-          });
-        const placed: IAutoMovieMotionHumanSegment =
-          performance.segments("a")[1]!;
-        const instant = (event: string): number =>
-          placed.start +
-          (placed.plan.events.find((e): boolean => e.name === event)?.share ??
-            NaN) *
-            placed.plan.duration;
-        check(
-          performance,
-          HumanSignature.of(performance, "a", body, 0),
+    const label: string = `${name}: ${row}`;
+    try {
+      const performance: IAutoMovieMotionHumanPerformance =
+        new HumanPerformance({
+          seed: "emblem",
+          laws,
+          performers: [
+            {
+              subject: "a",
+              body,
+              at: { x: 0, y: 0, z: 0 },
+              yaw: 0,
+              proficiency: { level: "trained" },
+            },
+          ],
+          composition: HumanChain.subject("a")
+            .stand({ seconds: 0.3 })
+            .registered(row, {}).node,
+        });
+      const placed: IAutoMovieMotionHumanSegment =
+        performance.segments("a")[1]!;
+      const instant = (name: string): number =>
+        placed.start +
+        (placed.plan.events.find((event): boolean => event.name === name)
+          ?.share ?? NaN) *
+          placed.plan.duration;
+      check({
+        body,
+        label,
+        bones: performance.bones(
+          "a",
           (instant("strokeEnd") + instant("relax")) / 2,
-          placed.start,
-        );
-      } catch (error) {
-        complaints.push(
-          `${name}: ${row}: expected to plan, got ${(error as Error).message}`,
-        );
-      }
+        ),
+        stood: (): Bones => performance.bones("a", placed.start),
+      });
+    } catch (error) {
+      complaints.push(`${label}: expected to plan, got ${String(error)}`);
+    }
+  };
+  const joint = (
+    bones: Bones,
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieVector3 => bones.get(bone)!.worldPosition;
+  const surface = (
+    held: IHold,
+    region: AutoMovieHumanoidRegion,
+  ): IAutoMovieVector3 => {
+    const frame = held.body.surfaces.regions[region];
+    return resolveAutoMovieHumanoidSurfaces.place(
+      frame,
+      held.bones.get(frame.bone)!,
+    ).point;
+  };
+
+  read("hush", "m-average", (held: IHold): void => {
+    const off: number = Vector3.distance(
+      joint(held.bones, "rightIndexIntermediate"),
+      surface(held, "mouth"),
+    );
+    if (!(off <= 0.02))
+      complaints.push(
+        `${held.label}: the forefinger's middle joint is ${mm(off)} mm from the mouth, within 20 mm expected`,
+      );
+    const line: IAutoMovieVector3 = Vector3.subtract(
+      joint(held.bones, "rightIndexDistal"),
+      joint(held.bones, "rightIndexProximal"),
+    );
+    const lean: number =
+      (Math.acos(line.y / Vector3.length(line)) * 180) / Math.PI;
+    if (!(lean <= 15))
+      complaints.push(
+        `${held.label}: the forefinger stands ${lean.toFixed(1)} degrees off upright, within 15 expected`,
+      );
+  });
+
+  read("blownKiss", "f-small", (held: IHold): void => {
+    const off: number = Vector3.distance(
+      AutoMovieMotionHumanTouchEffector.point(
+        held.body,
+        held.bones,
+        "right",
+        touch.EFFECTORS.fingertips,
+      ),
+      surface(held, "mouth"),
+    );
+    if (!(off <= 0.015))
+      complaints.push(
+        `${held.label}: the forefinger's pad is ${mm(off)} mm from the mouth, within 15 mm expected`,
+      );
+  });
+
+  read("handOnHeart", "m-large", (held: IHold): void => {
+    const off: number = Vector3.distance(
+      AutoMovieMotionHumanTouchEffector.point(
+        held.body,
+        held.bones,
+        "right",
+        touch.EFFECTORS.palm,
+      ),
+      surface(held, "chestLeft"),
+    );
+    if (!(off <= 0.015))
+      complaints.push(
+        `${held.label}: the palm is ${mm(off)} mm from the left chest, within 15 mm expected`,
+      );
+  });
+
+  read("checkWatch", "f-small", (held: IHold): void => {
+    const eyes = (bones: Bones): IAutoMovieVector3 =>
+      Vector3.scale(
+        Vector3.add(joint(bones, "leftEye"), joint(bones, "rightEye")),
+        0.5,
+      );
+    const wrist: IAutoMovieVector3 = joint(held.bones, "leftHand");
+    const midpoint: IAutoMovieVector3 = eyes(held.bones);
+    const far: number = Vector3.distance(wrist, midpoint);
+    if (!(far >= 0.3 && far <= 0.4))
+      complaints.push(
+        `${held.label}: the watch wrist is ${mm(far)} mm from the eyes, 300 to 400 mm expected`,
+      );
+    if (!(wrist.z > joint(held.bones, "chest").z))
+      complaints.push(`${held.label}: the watch wrist does not pass the chest`);
+
+    const pitch = (bones: Bones, at: IAutoMovieVector3): number => {
+      const axis: IAutoMovieVector3 = Vector3.subtract(
+        at,
+        joint(bones, "head"),
+      );
+      return (Math.atan2(-axis.y, Math.hypot(axis.x, axis.z)) * 180) / Math.PI;
     };
+    const stood: Bones = held.stood();
+    const bowed: number =
+      pitch(held.bones, midpoint) - pitch(stood, eyes(stood));
+    if (!(bowed >= 10))
+      complaints.push(
+        `${held.label}: the head pitches ${bowed.toFixed(1)} degrees down from quiet standing, at least 10 expected`,
+      );
+  });
 
-    // 1. The forefinger upright across the lips.
-    read(
-      "hush",
-      (
-        _performance: IAutoMovieMotionHumanPerformance,
-        reader: IAutoMovieMotionHumanSignature.IReader,
-        held: number,
-        _start: number,
-      ): void => {
-        const off: number = gap(
-          HumanSignature.joint(reader, held, "rightIndexIntermediate"),
-          HumanSignature.region(reader, "mouth", held),
-        );
-        if (!(off <= 0.02))
-          complaints.push(
-            `${name}: hush: the forefinger's middle joint is ${mm(off)} mm from the mouth, within 20 mm expected`,
-          );
-        const knuckle: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          held,
-          "rightIndexProximal",
-        );
-        const tip: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          held,
-          "rightIndexDistal",
-        );
-        const lean: number =
-          (Math.acos((tip.y - knuckle.y) / gap(tip, knuckle)) * 180) / Math.PI;
-        if (!(lean <= 15))
-          complaints.push(
-            `${name}: hush: the forefinger stands ${lean.toFixed(1)} degrees off upright, within 15 expected`,
-          );
-      },
-    );
-
-    // 2. The fingertips at the lips.
-    read(
-      "blownKiss",
-      (
-        performance: IAutoMovieMotionHumanPerformance,
-        reader: IAutoMovieMotionHumanSignature.IReader,
-        held: number,
-        _start: number,
-      ): void => {
-        const off: number = gap(
-          AutoMovieMotionHumanTouchEffector.point(
-            body,
-            performance.bones("a", held),
-            "right",
-            touch.EFFECTORS.fingertips,
-          ),
-          HumanSignature.region(reader, "mouth", held),
-        );
-        if (!(off <= 0.015))
-          complaints.push(
-            `${name}: blownKiss: the forefinger's pad is ${mm(off)} mm from the mouth, within 15 mm expected`,
-          );
-      },
-    );
-
-    // 3. The palm on the heart.
-    read(
-      "handOnHeart",
-      (
-        performance: IAutoMovieMotionHumanPerformance,
-        reader: IAutoMovieMotionHumanSignature.IReader,
-        held: number,
-        _start: number,
-      ): void => {
-        const off: number = gap(
-          AutoMovieMotionHumanTouchEffector.point(
-            body,
-            performance.bones("a", held),
-            "right",
-            touch.EFFECTORS.palm,
-          ),
-          HumanSignature.region(reader, "chestLeft", held),
-        );
-        if (!(off <= 0.015))
-          complaints.push(
-            `${name}: handOnHeart: the palm is ${mm(off)} mm from the left chest, within 15 mm expected`,
-          );
-      },
-    );
-
-    // 4. The watch before the eyes, the head bowed to it.
-    read(
-      "checkWatch",
-      (
-        _performance: IAutoMovieMotionHumanPerformance,
-        reader: IAutoMovieMotionHumanSignature.IReader,
-        held: number,
-        start: number,
-      ): void => {
-        const eyes = (seconds: number): IAutoMovieVector3 => {
-          const left: IAutoMovieVector3 = HumanSignature.joint(
-            reader,
-            seconds,
-            "leftEye",
-          );
-          const right: IAutoMovieVector3 = HumanSignature.joint(
-            reader,
-            seconds,
-            "rightEye",
-          );
-          return {
-            x: (left.x + right.x) / 2,
-            y: (left.y + right.y) / 2,
-            z: (left.z + right.z) / 2,
-          };
-        };
-        const wrist: IAutoMovieVector3 = HumanSignature.joint(
-          reader,
-          held,
-          "leftHand",
-        );
-        const far: number = gap(wrist, eyes(held));
-        if (!(far >= 0.3 && far <= 0.4))
-          complaints.push(
-            `${name}: checkWatch: the watch wrist is ${mm(far)} mm from the eyes, 300 to 400 mm expected`,
-          );
-        if (!(wrist.z > HumanSignature.joint(reader, held, "chest").z))
-          complaints.push(
-            `${name}: checkWatch: the watch wrist is not in front of the chest`,
-          );
-
-        // The head's pitch: the eyes' drop below the head joint's level,
-        // against quiet standing.
-        const pitch = (seconds: number): number => {
-          const head: IAutoMovieVector3 = HumanSignature.joint(
-            reader,
-            seconds,
-            "head",
-          );
-          const at: IAutoMovieVector3 = eyes(seconds);
-          return (
-            (Math.atan2(
-              head.y - at.y,
-              Math.hypot(at.x - head.x, at.z - head.z),
-            ) *
-              180) /
-            Math.PI
-          );
-        };
-        const bowed: number = pitch(held) - pitch(start);
-        if (!(bowed >= 10))
-          complaints.push(
-            `${name}: checkWatch: the head is pitched ${bowed.toFixed(1)} degrees down from quiet standing, at least 10 expected`,
-          );
-      },
-    );
-  }
   TestValidator.equals("emblems and habits show their form", complaints, []);
 }

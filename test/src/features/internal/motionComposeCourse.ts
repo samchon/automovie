@@ -216,8 +216,7 @@ export function motionComposeCourse(): void {
   all.check(
     "equal dimensionless time gives an equal dimensionless displacement",
     Math.abs(smallFraction - tallFraction) <=
-      metreTolerance / low.measure.hipHeight +
-        metreTolerance / tall.measure.hipHeight,
+      metreTolerance / Math.max(low.measure.hipHeight, tall.measure.hipHeight),
   );
   all.assert(
     "the course follows the same closed forms across stature and heading",
