@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, bracketedBisection, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -129,14 +129,15 @@ export namespace pickUpLift {
         before = share;
       }
       if (reached === null) continue;
-      let low: number = reached;
-      let high: number = before;
-      for (let i: number = 0; i < 30; i++) {
-        const middle: number = (low + high) / 2;
-        if (far(stance.at(middle)) <= reach) low = middle;
-        else high = middle;
-      }
-      return { trunk: null, share: low };
+      return {
+        trunk: null,
+        share: bracketedBisection(
+          (share: number): boolean => far(stance.at(share)) > reach,
+          before,
+          reached,
+          Math.abs(before - reached) / 2 ** 30,
+        ),
+      };
     }
     return null;
   }

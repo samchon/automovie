@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, bracketedBisection } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -310,15 +310,16 @@ export namespace pickUpPosture {
         reason: `${context.subject}: the grip lies ${farthestLean.toFixed(3)} m from the ${side} shoulder even with the trunk leaned ${SEATED_LEAN} degrees forward from the seat, beyond the arm's ${limit.toFixed(3)} m; stand and step closer first`,
         fix: "stand and step closer first, or bring the prop within the seated reach",
       });
-    // The least lean that reaches, by bisection.
-    let low: number = 0;
-    let high: number = SEATED_LEAN;
-    for (let i: number = 0; i < 30 && high - low > 0.01; i++) {
-      const middle: number = (low + high) / 2;
-      if (far(middle) <= limit) high = middle;
-      else low = middle;
-    }
-    const pitch: number = far(0) <= limit ? 0 : high;
+    // The least lean that reaches, by bisection to a hundredth of a degree.
+    const pitch: number =
+      far(0) <= limit
+        ? 0
+        : bracketedBisection(
+            (lean: number): boolean => far(lean) > limit,
+            0,
+            SEATED_LEAN,
+            0.01,
+          );
     const at: IStance["at"] = (share: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
       lower(entry, pitch * share, resolution, projection);
     return {

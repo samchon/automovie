@@ -1,4 +1,9 @@
-import { DEFAULT_HUMANOID_ROM, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  Vector3,
+  bracketedBisection,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -123,13 +128,17 @@ export namespace pickUpAdjust {
       );
     const limit: number =
       context.body.measure.upperArm + context.body.measure.forearm;
+    // Out from no turn a degree at a time, either way: the first turn that
+    // brings the shoulder within the arm is the least, and a turn past it
+    // is never read.
     let best: number = 0;
     let nearest: number = far(0);
-    for (let step: number = 1; step <= Math.max(most, -least); step++)
+    for (let step: number = 1; nearest > limit && step <= Math.max(most, -least); step++)
       for (const degrees of [step, -step]) {
+        if (nearest <= limit) break;
         if (degrees > most || degrees < least) continue;
         const d: number = far(degrees);
-        if (nearest > limit ? d < nearest : false) {
+        if (d < nearest) {
           nearest = d;
           best = degrees;
         }
@@ -334,14 +343,14 @@ export namespace pickUpAdjust {
             gap(candidate, longest) <= 0,
         );
       if (places === undefined) return null;
-      let low: number = 0;
-      let high: number = longest;
-      for (let i: number = 0; i < 30 && high - low > 1e-4; i++) {
-        const middle: number = (low + high) / 2;
-        if (gap(places, middle) <= 0) high = middle;
-        else low = middle;
-      }
-      const length: number = high;
+
+      // The least step that reaches, to a tenth of a millimetre.
+      const length: number = bracketedBisection(
+        (tried: number): boolean => gap(places, tried) > 0,
+        0,
+        longest,
+        1e-4,
+      );
       return {
         length,
         stance: {
@@ -439,16 +448,13 @@ export namespace pickUpAdjust {
   export const LATERAL: number = 30;
 
   /** The time share at which a minimum-jerk progress has gone a share of its way, by bisection. */
-  const timed: (share: number) => number = (share: number): number => {
-    let low: number = 0;
-    let high: number = 1;
-    for (let i: number = 0; i < 40; i++) {
-      const middle: number = (low + high) / 2;
-      if (minimumJerk.share(middle) < share) low = middle;
-      else high = middle;
-    }
-    return (low + high) / 2;
-  };
+  const timed: (share: number) => number = (share: number): number =>
+    bracketedBisection(
+      (time: number): boolean => minimumJerk.share(time) < share,
+      0,
+      1,
+      2 ** -40,
+    );
 
   /** Actual holding shoulder through its same-body fixed-name reader, world metres. */
   const shoulder: (side: AutoMovieHumanSide, posture: IAutoMovieMotionHumanPosture,
