@@ -1,10 +1,12 @@
 import type {
   IAutoMovieMotionHumanAffect,
+  IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
-import { HumanAffect } from "@automovie/motions";
+import { HumanAffect, HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHumanBody } from "../internal/motionHumanBody";
 import { throwsError } from "../internal/throwsError";
 
 /**
@@ -27,7 +29,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
  */
-export function test_motion_everyday_affect(): void {
+export function test_motion_posture_affect_signal(): void {
   const kinds: IAutoMovieMotionHumanAffect.Kind[] = [
     "laugh",
     "sigh",
@@ -76,17 +78,17 @@ export function test_motion_everyday_affect(): void {
   }
 
   const peaks: number[] = [];
-  let last: number = 0;
-  let rising: boolean = false;
-  for (let t: number = 0.3; t < 1.0; t += 0.0005) {
-    const v: number = HumanAffect.angles("laugh", t, 1.5).chest![0];
-    if (v < last && rising) peaks.push(t);
-    rising = v > last;
-    last = v;
+  // Locate maxima within the minimum number of complete note periods. Scan
+  // actual amplitudes rather than trusting the timing of an internal event.
+  const sample = (t: number): number =>
+    HumanAffect.angles("laugh", t, 1.5).chest![0];
+  const step = 0.0005;
+  for (let t = 0.3 + step; t < 1.0; t += step) {
+    const value = sample(t);
+    if (value > sample(t - step) && value >= sample(t + step)) peaks.push(t);
   }
-
   // The scan starts inside a note, so its first local maximum may be the window's edge; gaps are read from the second peak on.
-  const full: number[] = peaks.slice(1);
+  const full: number[] = peaks;
   const gaps: number[] = full
     .slice(1)
     .map((p: number, i: number): number => p - full[i]!);
@@ -112,9 +114,31 @@ export function test_motion_everyday_affect(): void {
       },
     },
   };
+  const stage = new HumanPerformance({
+    seed: "affect",
+    performers: [
+      {
+        subject: "a",
+        body: motionHumanBody("m-average"),
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").stand({ seconds: 1 }).node,
+  });
+  const segment = stage.segments("a")[0]!;
+  const context: IAutoMovieMotionHumanLayer.IContext = {
+    subject: segment.context.subject,
+    body: segment.context.body,
+    skill: segment.context.skill,
+    aim: (target, seconds) => segment.context.aim(target, seconds),
+    random: (channel) => segment.context.random(channel),
+    action: () => undefined,
+  };
   const layered: IAutoMovieMotionHumanPosture = HumanAffect.layer([
     { kind: "cough", at: 0 },
-  ]).apply(posture, 0.22, undefined as never);
+  ]).apply(posture, 0.22, context);
   const cough: number = HumanAffect.angles(
     "cough",
     0.22,
@@ -136,7 +160,7 @@ export function test_motion_everyday_affect(): void {
   const both: IAutoMovieMotionHumanPosture = HumanAffect.layer([
     { kind: "cough", at: 0 },
     { kind: "laugh", at: 0 },
-  ]).apply(posture, 0.22, undefined as never);
+  ]).apply(posture, 0.22, context);
   const laugh: number = HumanAffect.angles(
     "laugh",
     0.22,
