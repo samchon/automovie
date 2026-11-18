@@ -4,7 +4,9 @@ Canon references are a subject's frozen images, the source of its look for every
 
 ## Views
 
-For a generated film, choose the [video model](../video/SKILL.md) first; its guide determines reference views and limits. Budget the request's inputs across its subjects, making only the views the shots need.
+Model-neutral casting photographs can precede video model selection. Embed each candidate view in its [subject record](../story/document-layout.md#canon-records) and mark it pending until the user accepts it.
+
+When preparing references for a specific video model, follow the [chosen model's](../video/SKILL.md) input limits and required views. Budget its inputs across the subjects each shot needs.
 
 Where the guide sets none, give each character these views, one person in each, sharp, with the face unobstructed, on a plain background with flat light and the canonical wardrobe:
 
@@ -25,3 +27,11 @@ A canon reference or plate needs no render beside its prompt, except where [cont
 ## States
 
 A wardrobe, makeup or wound state of a story day is its own reference set. Generate it from the base canon references, then freeze it as that state's canon references.
+
+## Accepted and derived images
+
+Keep each accepted original and its content credentials. Record it under [media records](../production/media-records.md) and reuse it.
+
+Create the initial canon references from the subject record. Start derivative views, shot frames and variants from the frozen canon references.
+
+Judge each image from stills and compare it with its record and applicable canon references. Check identity and wardrobe, hands, scale against a door or a figure, light direction, lettering, and the blur or oversharpened edges that repeated edits leave.

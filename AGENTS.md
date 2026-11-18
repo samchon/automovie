@@ -40,13 +40,13 @@ Open a skill when the work reaches the task its trigger names. Open only the pag
 | Skill | Use when |
 | --- | --- |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Changing geometry, rigs, assets, materials or lighting |
+| [benchmark-campaign](.agents/skills/benchmark-campaign/SKILL.md) | Measuring AutoMovie on real productions |
 | [contracts](.agents/skills/contracts/SKILL.md) | Writing or reviewing maintained source or tests, or changing Evidence selection |
 | [development](.agents/skills/development/SKILL.md) | Changing code, tests or workflows |
 | [documentation](.agents/skills/documentation/SKILL.md) | Writing any document or doc comment |
 | [human](.agents/skills/human/SKILL.md) | Working on `packages/human`, a human figure or the Human viewer, or supervising that work |
 | [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Running a broad audit or repeated issue-to-pull-request work |
 | [motion](.agents/skills/motion/SKILL.md) | Authoring or verifying body motion, the motion vocabulary or its grammar, an action law, a motion primitive or retargeting |
-| [production-campaign](.agents/skills/production-campaign/SKILL.md) | Running authoring campaigns with writers and reviewers as CLI processes, or observing or comparing productions |
 | [project](.agents/skills/project/SKILL.md) | Judging product scope, or choosing a package owner or a command |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
 | [pull-request](.agents/skills/pull-request/SKILL.md) | Pushing, opening, updating or merging a pull request, when asked or under a delivery mandate |

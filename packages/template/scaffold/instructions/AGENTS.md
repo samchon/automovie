@@ -6,7 +6,13 @@ The motion hint can guide video diffusion or be rendered with commissioned [deta
 
 ## Starting work
 
-Read the production's `PROJECT.md` for its [scope and choices](.agents/skills/production/project-context.md).
+The main agent is the [director](.agents/skills/production/director.md) for every commission. A worker follows its assigned role and reports to the director.
+
+At [project intake](.agents/skills/production/project-context.md#intake), confirm the deliverables and which decisions the user wants to make or delegate. For a screenplay, ask which [writing route](.agents/skills/story/workflow/routes.md#who-writes-the-screenplay) they want unless they have already chosen one. Record their answer in `PROJECT.md` before assigning the writer.
+
+Assign narrative drafting and revision to a writer subagent, including direct writing. When the route calls for Evidence and independent review, assign each to a separate subagent at its stage.
+
+Inspect each handoff against the commission and the stage's skill. If it falls short, show the responsible worker what needs repair and check the revision before advancing.
 
 Resolve project paths from the directory containing `PROJECT.md`. Run commands from the directory whose README documents them.
 
@@ -43,20 +49,20 @@ Work with the user.
 
 ## Skills
 
-Open a skill when the work reaches its task, in the order the [production workflow](.agents/skills/production/workflow.md) gives. Open only the pages its router names for that task, and read no page ahead of its stage.
+Use the [production workflow](.agents/skills/production/workflow.md#commissioned-outputs) to choose or finish a commissioned route. For work already scoped, start at its skill below. Follow links when the current decision needs their rules or prerequisites.
 
 | Skill | Use when |
 | --- | --- |
 | [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Preparing a subject's form, attachment or commissioned detail |
 | [audio](.agents/skills/audio/SKILL.md) | Making commissioned sound, a voice preview or a generated film's sound |
 | [automovie](.agents/skills/automovie/SKILL.md) | Choosing or reading an installed package |
-| [contracts](.agents/skills/contracts/SKILL.md) | Selecting, answering or citing a contract item |
+| [contracts](.agents/skills/contracts/SKILL.md) | Finding what an item asks and which work answers it |
 | [development](.agents/skills/development/SKILL.md) | Writing code, integrations, dependencies, commands or tests |
 | [documentation](.agents/skills/documentation/SKILL.md) | Writing a document, README, evidence answer or doc comment |
-| [evidence](.agents/skills/evidence/SKILL.md) | Adding requirements, configuring checks, writing or auditing evidence |
+| [evidence](.agents/skills/evidence/SKILL.md) | Adopting a requirement, configuring checks or recording answers |
 | [image](.agents/skills/image/SKILL.md) | Making appearance references, shot frames or views for generation |
 | [motion](.agents/skills/motion/SKILL.md) | Composing, extending or verifying motion, staging, camera and channels |
-| [production](.agents/skills/production/SKILL.md) | Managing scope, workflow, caches, assembly or handoff |
+| [production](.agents/skills/production/SKILL.md) | Choosing a commissioned route or managing scope, caches, assembly or handoff |
 | [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
 | [review](.agents/skills/review/SKILL.md) | Reviewing work, accepting deliveries or estimating requested quality |
 | [story](.agents/skills/story/SKILL.md) | Researching, planning, writing or repairing narrative |

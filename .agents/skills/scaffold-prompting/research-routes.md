@@ -4,6 +4,8 @@ Read the primary source behind a proposed rule. Verify its effect on the product
 
 ## Story and editing
 
+[Directors UK](https://directors.uk.com/what-a-director-does) describes the director's responsibility for the performance and the film as a whole. [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/development-film-and-tv-drama-job-profiles/director-film-and-tv-drama) describes reading a script for what can be filmed and working with a writer on changes. AutoMovie's user delegation and workflow determine who can approve a revision.
+
 [AFTRS: Screenwriting](https://medialab.aftrs.edu.au/wp-content/uploads/2021/07/AFTRS16_Screenwriting.pdf) supports resource-aware short films, characters, dialogue, rewriting and the handoff to production. Its duration and cast suggestions are not limits.
 
 [Bordwell on Hitchcock's bomb](https://www.davidbordwell.net/blog/2013/11/29/hitchcock-lessing-and-the-bomb-under-the-table/) and [McKee: do your scenes turn](https://mckeestory.com/do-your-scenes-turn/) support what the audience knows before, with or after a character, and a scene's change of value. They are craft teaching, and a twist or an observational scene may do otherwise.

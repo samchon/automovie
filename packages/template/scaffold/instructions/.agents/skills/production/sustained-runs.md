@@ -8,9 +8,9 @@ Before dispatch, read current instructions, bodies, source, outputs and run reco
 
 ## Execution
 
-Route each task to its skill. Assign one writer per changing body and one owner for a film's screenplay, composition and camera. Send entity, motion and sound defects to their module owners.
+Follow the director's [assignments](director.md#assignments). Assign one writer per changing body and one owner for a film's screenplay, composition and camera. Send entity, motion and sound defects to their module owners.
 
-Use additional agents only when authorized, with disjoint write scopes, and reviewers only as [review](../review/SKILL.md) counts them independent.
+Give additional authorized workers disjoint write scopes. Use reviewers who meet the production's [independence criteria](../review/independent-reading.md).
 
 Check processes, artifacts and errors before declaring a stall. Resume from the last valid output and [caches](stage-caches.md). Keep the failure on record. Start a new result when inputs change. Verify restarted work afresh.
 

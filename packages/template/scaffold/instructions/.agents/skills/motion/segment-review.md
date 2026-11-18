@@ -14,4 +14,4 @@ Judge the segment's staging, camera and timing and how its accepted cases join, 
 
 Review segments in film order. Inspect all stills, fix findings at their owners and recapture the affected interval and its seam to the next segment. Close the segment before proceeding.
 
-Accepted segments do not establish the whole film; [delivery review](../review/delivery-review.md) reviews the assembled one.
+Accepted segments do not establish the whole film; [video review](../review/delivery-review.md#video) reviews the assembled one.

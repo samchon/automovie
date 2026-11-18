@@ -1,4 +1,4 @@
-# Routes and completion
+# Story routes
 
 ## Recorded choices
 
@@ -12,16 +12,22 @@ Asset-only work has no narrative: choose its form and scale through [direction](
 
 ### Who writes the screenplay
 
-The user chooses, whatever the route, and the choice is recorded with the route; ask when they supply a screenplay without saying which.
+At intake, use the user's explicit choice or ask which approach they want. Record their answer in `PROJECT.md`. Follow the chosen route in order. Changing or skipping a required stage needs the user's explicit direction. Creative delegation covers only the choices delegated.
 
 | Choice | Narrative passes | Screenplay |
 | --- | --- | --- |
-| This workflow, the default | The route's | The agent writes it through them |
-| Without this workflow | None | The agent writes it directly from the instructions |
+| This workflow, recommended | The route's | The writer develops the screenplay through them |
+| Without this workflow | None | The writer [writes it directly](#direct-writing) |
 | The user's, refined | The route's | Material, through [intake](../document-layout.md#intake-of-existing-work) |
-| The user's, fixed | None | Used exactly as given |
+| The user's, fixed | None | [Used exactly as given](#fixed-screenplay) |
 
-Use a fixed screenplay verbatim and skip narrative review. Ask the user to supply any missing exchange, outcome or reaction, or rewrite an unperformable beat.
+### Direct writing
+
+Settle [undelegated creative choices](../planning/requirements.md#asking-the-user) and record the [instructions](../planning/requirements.md#requirements). Write the screenplay directly from them.
+
+### Fixed screenplay
+
+[Take in the supplied revision](../document-layout.md#intake-of-existing-work) verbatim. Ask the user to supply a missing exchange, outcome or reaction, or rewrite an unperformable beat. Put [implementation-only decisions](../correction/repair.md#concretization) in the instructions.
 
 ## One chain
 
@@ -37,6 +43,4 @@ Start an authorized fresh context with the author's model. Pass the job and inpu
 
 ## Completion
 
-Finish the route's passes and reviews. Run compiler, source checks, required tests and the README's Evidence command. Read the unfiltered report. Complete delivery review for commissioned media.
-
-Completion requires closed review, resolved defects, present parents and verified media. A reviewed manuscript may be handed off with its revision and open diagnostics. Follow [closed passes](../correction/repair.md#closed-passes) for completed layers.
+For a route with narrative passes, finish the required layer reviews and repairs. Verify parent coverage and read the unfiltered Evidence report while the required stages are active. Follow [closed passes](../correction/repair.md#closed-passes) for completed layers. Keep the manuscript revision and any open diagnostics with the handoff.

@@ -53,7 +53,7 @@ The scene file:
 
 What each beat decides:
 
-3. The beat names who and what acts by their settings facts; on a short, by brief decisions, or by the standing state for a person or object only this scene shows.
+3. The beat identifies its people and objects from settings or, on a short, from the [brief](../../../../../story/layers/brief.md#what-it-holds). The standing state identifies incidental people and objects introduced in the scene.
 4. Each participant has an intent, and the beat states its outcome and each body's reaction or consequence.
 5. Space, camera and sound entries appear only where they change from the standing state as earlier beats left it. Exception: stillness the scene decides is stated where it matters.
 6. The beats cover the whole running time, including the continuous responses of everyone present.

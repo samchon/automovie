@@ -44,6 +44,4 @@ The 3D modeling skill makes, rigs and verifies a detailed form, and the video sk
 
 ## Inspection and handoff
 
-Accept the entity alone first, in its [catalog cases](../motion/catalog-cases.md), against its settings or brief record at every view and state the scenes use. Then inspect it in its commissioned use, with its scene cameras, neighbors and motion, under [segment review](../motion/segment-review.md).
-
-The entity names the settings or brief facts it realizes under the [entities contract](../contracts/development/entities.md); settings never link code.
+Inspect the entity in its [catalog cases](../motion/catalog-cases.md) against the facts it realizes under the [entity contract](../contracts/development/entities.md#settings-realization). For a standalone asset, test the views and controls in its commission under [asset review](../review/delivery-review.md#assets). For a scene, inspect its states with the actual cameras, neighboring subjects and motion under [segment review](../motion/segment-review.md).

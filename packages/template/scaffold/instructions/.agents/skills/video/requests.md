@@ -8,7 +8,7 @@ End requests at screenplay cuts unless the model handles several shots. Disable 
 
 Split a long shot at a beat boundary or held pose only when the model's length requires it. Avoid splits during contact or dialogue. Time beats from the rendered hint frames.
 
-Keep requests below maximum length where possible to reduce end drift. Add and record handles at least as long as planned transitions under [project context](../production/project-context.md). Fit speech to the request under [generated sound](../audio/generated-sound.md).
+Keep requests below maximum length where possible to reduce end drift. Add and record handles at least as long as planned transitions under [project context](../production/project-context.md). Fit commissioned speech to the request under [generated sound](../audio/generated-sound.md).
 
 ## Adherence
 
@@ -37,7 +37,7 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 - the canon references, for identity and appearance;
 - a [shot frame](../image/diffusion/conditioning.md#shot-frames), for appearance at the hint's pose;
 - the accepted previous take, for continuing its motion under [continuity](diffusion/continuity.md#chaining-requests);
-- accepted dialogue audio or a voice reference, for speech, where the model takes one.
+- accepted dialogue audio or a voice reference, for commissioned speech where the model takes one.
 
 [Hints](diffusion/hints.md) sets how each input reaches the model. Render the request's hint and channels under [control channels](../motion/control-channels.md) at the model's frame rate, frame grid and size.
 

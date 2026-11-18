@@ -22,4 +22,4 @@ Record reference digest, conditioning mode and transcript when used under [media
 
 When the words and delivery already work but the voice drifts, convert the existing speech to the accepted voice. [Separate](../film-sound.md#separation) dialogue from the mix first so music and effects are not converted with it.
 
-Compare duration and word boundaries with the source, and have the user [listen](../acquisition.md#listening) for retained expression, voice identity and artifacts. Replace the dialogue stem, recheck synchronization under [partial repair](../../video/finishing.md#partial-repair), and finish the affected [mix](../film-sound.md).
+Compare duration and word boundaries with the source, and have the user [listen](../listening.md#user-listening) for retained expression, voice identity and artifacts. Replace the dialogue stem, recheck synchronization under [partial repair](../../video/finishing.md#partial-repair), and finish the affected [mix](../film-sound.md).

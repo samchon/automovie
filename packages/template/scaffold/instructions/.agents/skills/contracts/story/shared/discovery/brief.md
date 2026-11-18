@@ -6,4 +6,4 @@ Statements: [statements/discovery/brief.md](../statements/discovery/brief.md).
 
 ## Instructions and backcast
 
-Before bulk writing, did discovery assign each consequential instruction to an owner? Did it identify the people, places and props the planned scenes must share?
+Before bulk writing, did discovery assign each consequential instruction to an owner and identify the cast and other subjects that need brief records?

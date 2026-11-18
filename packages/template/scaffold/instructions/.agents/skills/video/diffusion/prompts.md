@@ -34,9 +34,9 @@ State action or camera details the hint does not carry. Where supported, time pr
 
 ### Sound
 
-Use the model's documented dialogue notation and the audio skill's generated sound decisions. Name the speaker as in the shared description. Separate dialogue, effects and ambience.
+Write sound directions only for commissioned sound the model can produce. Use the documented dialogue notation, name speakers as in the shared description and separate dialogue, effects and ambience.
 
-Leave the scene's score out, because [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene) lays it as one track; music played on screen stays as the screenplay decides it. When the model makes no sound, leave sound out.
+Leave the scene's score for [film sound](../../audio/film-sound.md#one-bed-and-one-score-per-scene). Keep music played on screen as the screenplay decides it when sound is commissioned.
 
 ## Wording
 

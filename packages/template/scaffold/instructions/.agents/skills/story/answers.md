@@ -6,17 +6,17 @@ The evidence answerer writes the answers a narrative body gives its story contra
 
 The answerer changes no body. A question it cannot answer truthfully goes back to the author as a gap, with the passage and the statement it fails.
 
-Read the full respondent and required parents. Find each question in the [story contracts](../contracts/story/SKILL.md) and check its [statements](../contracts/SKILL.md#items-and-statements). Answer overview questions first.
+Read the full respondent and required parents. Use the questions selected in the production's Evidence configuration, including work and language contracts. Check each question's [statements](../contracts/items.md#items-and-statements). Answer overview questions first. Record waived stages as waived.
 
 Answer only what the item asks from the current body and parents. Check exact quotations and owner addresses. Verify claimed counts, order, causes, places and states across the scope. Cite a shared cause once.
 
-Update affected answers after repairs while the stage is enabled. Follow [closed passes](correction/repair.md#closed-passes) otherwise. Send the current body and answers to the next step. [Narrative rounds](../review/narrative-rounds.md) owns review records and fingerprints.
+Update affected answers after repairs while the stage is enabled. Follow [closed passes](correction/repair.md#closed-passes) otherwise. Return the body and answers to the director. The director sends the reviewer the annotation-free body in [independent reading order](../review/independent-reading.md). [Narrative rounds](../review/narrative-rounds.md) owns review records and fingerprints.
 
 ## Answer placement
 
 Keep construction answers separate under [document layout](document-layout.md#documents). The H1 names the exact file or file and anchor. Follow it with Evidence headings and support using the installed package's syntax.
 
-Record an exclusion in the respondent's own HTML comment, directly below its H2 or above a file's first heading. Use the designated discovery carrier for a discovery negative. Follow the relationship's allowed form. State scope and reason. Exclude a population only when all of it is inapplicable.
+The answerer sends the writer any supported exclusion that needs a body edit. The writer records its scope and reason in the respondent's HTML comment, below its H2 or above the file's first heading. Use the designated discovery carrier for a discovery negative and the relationship's allowed form. Exclude a population only when all of it is inapplicable.
 
 A work- or language-specific question is adopted through [adoption](../evidence/adoption.md), which also chooses its respondent.
 

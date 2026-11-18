@@ -1,5 +1,7 @@
 # Modules
 
+Read the existing source and relevant installed APIs before implementing a capability. Give each module explicit inputs, outputs and state ownership. Test what the module owns and verify the composition through its consumer.
+
 ## How the parts work together
 
 Build each entity from its settings or brief facts. Compose fragments into capabilities that name what it does and to whom.
@@ -23,3 +25,7 @@ Use one definition per subject or action. Vary it through parameters or a seed. 
 Move modules shared by workspace productions to `packages/<name>` and import them from there. A standalone production keeps its modules in `src`.
 
 Pass facts that vary by production as constructor inputs or parameters. Keep unit tests with the shared module. Each consumer cites and supplies its own settings or brief facts.
+
+## Documenting source
+
+Each changed declaration answers its development contracts in its doc comment. Document invariants and the material the module realizes. Give one short composition example under [Meaningful documentation](../contracts/development/common.md#meaningful-documentation).

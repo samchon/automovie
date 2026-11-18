@@ -28,4 +28,4 @@ Route an installed action defect through [refusals](compose/refusals.md#when-no-
 
 ## Record
 
-Record every accepted case, with its revision, in the catalog's [acceptance record](../review/delivery-review.md#acceptance-record).
+The author records each accepted case's revision and views in `docs/acceptance/catalog.md`. Compose only accepted cases. Reapprove a case after its module changes.

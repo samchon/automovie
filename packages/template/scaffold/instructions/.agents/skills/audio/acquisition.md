@@ -28,20 +28,8 @@ Ask the user to play it alongside the motion hint and listen. A preview is never
 
 ### Take adoption
 
-Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert the take to a format the installed packages admit, at the film's sample rate, keeping the original.
+Keep accepted bytes and their record under [media records](../production/media-records.md#records); a regeneration is a new take until the user has heard it. Convert the take to a format the installed packages admit, at the sample rate the output requires, keeping the original.
 
 Measure durations and trims from the accepted bytes, and place dialogue, captions, cuts and cues against them. When a line does not fit, edit the take, script or shot deliberately and have the user listen to the result.
 
 Keep each accepted music take's tempo map with it for screenplay events and scene timing. Make the cue sheet from the locked cut under [assembly](../production/assembly.md#repair-and-delivery).
-
-### Listening
-
-Measure duration, silence, clipping and loudness from decoded audio as applicable. Have the user listen to each adopted take for words, pronunciation, performance and noise.
-
-Check the current model's input modalities and audio tools before claiming to hear a file. Decoding bytes, invoking playback or transcribing voice input gives a coding model no hearing.
-
-Automatic speech recognition can compare recognized words with the script; report the recognizer and its uncertainty. A matching transcript does not establish pronunciation, acting, timbre, speaker similarity or a clean mix.
-
-Keep measured properties, tool-derived judgments and user listening reports distinct, and never describe an unlistened take as having passed a listening check.
-
-Have the user listen to adopted takes, mixes with picture and delivery. Check intelligibility, missing cues, transitions and the ending. Record heard material and outstanding listening.

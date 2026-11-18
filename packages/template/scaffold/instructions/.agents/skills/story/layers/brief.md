@@ -1,16 +1,12 @@
 # Brief
 
-A short's canon: the few decisions its screenplay cites, under the brief questions in the [story contracts](../../contracts/story/SKILL.md). Write it after discovery, studying what [when to study](../planning/research.md#when-to-study) assigns it.
+A short's brief holds the decisions its screenplays and commissioned references share. Write it after discovery, using the [research required for this layer](../planning/research.md#when-to-study).
 
 ## What it holds
 
-Use the [needed-decisions question](../../contracts/story/shared/principles/brief.md#needed-decisions) for shared people, places and props. Decide scene-only subjects, camera and sound in the screenplay.
+Shorts can share one brief with many subject files. Give each individually cast character a record, even for a single scene. Describe the features and wardrobe that identify them. A crowd can remain a group.
 
-## Records
-
-Under [document layout](../document-layout.md#documents), give each cast, set or recurring prop subject one file. Use H1 for the subject, H2 for facets and H3 with explicit anchors for decisions. Cite path and anchor and preserve them under [identities](notation.md#identities).
-
-User-fixed interpretations and canon references follow [settings records](settings.md#records).
+Include shared places, recurring props and subjects with commissioned appearance references. Use the [canon record layout](../document-layout.md#canon-records) and the [needed-decisions question](../../contracts/story/shared/principles/brief.md#needed-decisions) for each subject. The screenplay owns local action, camera and sound.
 
 ## Growth
 

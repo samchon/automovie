@@ -24,7 +24,7 @@ pnpm automovie add shorts/<name>
 pnpm install
 ```
 
-`pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` creates the production from the installed AutoMovie scaffold, naming its package after `<name>`, lowercased and npm-safe, unless `--name <package>` is given. The second `pnpm install` links it. Then follow that production's README.
+`pnpm automovie add shorts/<name>` or `pnpm automovie add series/<name>` creates the production from the installed scaffold and fills any missing dependency catalog entries. Existing pins and overrides keep their values. The package name is the lowercased, npm-safe form of `<name>`, unless you supply `--name <package>`. Run `pnpm install` again to link the production, then follow its README.
 
 ## Packages
 

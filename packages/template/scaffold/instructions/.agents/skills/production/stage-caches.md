@@ -24,7 +24,3 @@ Use the caches the installed packages provide rather than writing one in the pro
 An unchanged rerun recomputes nothing. Before delivery, bypass the cache for a sample and compare digests. Fix missing key inputs or nondeterminism and delete affected entries.
 
 Keep caches untracked and reproducible. Leave collection of unreferenced package cache entries to their owners. Rebuild a cache when its validity is uncertain.
-
-## One whole-film render
-
-Iterate on stills of the affected interval under [segment review](../motion/segment-review.md). Make the whole-film render exactly once per delivery, after every review segment is clean.
