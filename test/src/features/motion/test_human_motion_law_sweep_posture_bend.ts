@@ -24,37 +24,37 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  * @evidence contracts/development/testing.md#behavioral-verification Performs each strategy and reads displayed knees, hips, trunk and foot support. Tipping the stoop forward at the hips or giving all strategies the same knee angle fails.
  * @evidence contracts/development/testing.md#independent-expectations The provisional angle gates follow Burgess-Limerick's lifting-posture classification (2003, doi:10.1016/S0169-8141(02)00190-7). Posterior hip translation follows Kim and Yoo's independent observation (2018, doi:10.1589/jpts.30.534); the paper supports the direction without claiming an exact displacement for a different body or task.
  * @evidence contracts/development/testing.md#distinguishing-cases Compares all three postures on the small and large bodies. The default selector and both acting sides have whole-path checks. The mirror spec has the separate symmetry relation.
- * @evidence contracts/development/testing.md#execution-ownership The same m-large stoop and squat films serve the full audits and decisive angle comparisons. Independently staged cases and quiet stances retain their original bodies.
+ * @evidence contracts/development/testing.md#execution-ownership Four audited films and two matched-body comparison films supply all six strategy measurements. The upright references come from the same stoops at entry.
  */
 export function test_human_motion_law_sweep_posture_bend(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const audited: Map<Strategy, M.IStaged> = new Map();
+  const audited: Map<string, M.IStaged> = new Map();
   complaints.list.push(...motionPostureBranches(AUDITED, (film, [, row, name]): void => {
-    if (row === "strategy=squat" || row === "strategy=stoop,side=right")
-      audited.set(row === "strategy=squat" ? "squat" : "stoop", {
-        film, body: motionHumanBody(name), yaw: 0,
-      });
+    // The default target is above mid-shank, so auto must produce a stoop;
+    // the observations below check that independently on the displayed body.
+    const strategy: string = row === "default" ? "stoop" : row.split(",")[0]!.slice("strategy=".length);
+    audited.set(`${name} ${strategy}`, { film, body: motionHumanBody(name), yaw: 0 });
   }));
   for (const name of BODIES) {
     const knees: Partial<Record<Strategy, number>> = {};
     const trunk: Partial<Record<Strategy, number>> = {};
     for (const strategy of STRATEGIES) {
       const label: string = `${name} ${strategy}`;
-      let bend: M.IStaged;
-      if (name === "m-large" && strategy !== "semiSquat") {
-        const shared: M.IStaged | undefined = audited.get(strategy);
-        if (shared === undefined) continue;
-        bend = shared;
-      } else
+      const missing: boolean = (name === "m-large" && strategy === "semiSquat") ||
+        (name === "f-small" && strategy === "squat");
+      let bend: M.IStaged | undefined = audited.get(label);
+      if (missing)
         try {
           bend = M.stage("bend", `strategy=${strategy}`, name);
         } catch (error) {
-          complaints.check(
-            `${label}: refused, ${error instanceof Error ? error.message : String(error)}`,
-            false,
-          );
-          continue;
+          complaints.check(`${label}: refused, ${error instanceof Error ? error.message : String(error)}`, false);
         }
+      if (bend === undefined) continue;
+      if (strategy === "stoop") {
+        const upright: number = M.trunk(bend, 0);
+        complaints.check(`${name} quiet entry inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
+          Math.abs(upright) <= M.STANCE);
+      }
       const t: number | undefined = M.event(bend, "deepest");
       if (t === undefined) {
         complaints.check(`${label}: the deepest event is absent`, false);
@@ -105,11 +105,6 @@ export function test_human_motion_law_sweep_posture_bend(): void {
           stoop < intermediate && intermediate < squat,
         );
     }
-    const upright: number = M.trunk(M.stage("stand", "default", name), 1);
-    complaints.check(
-      `${name} quiet stance inclines ${upright.toFixed(2)}°, within ${M.STANCE}° expected`,
-      Math.abs(upright) <= M.STANCE,
-    );
   }
   complaints.assert("the bend distinguishes the stoop, semi-squat and squat");
 }

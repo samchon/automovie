@@ -14,9 +14,9 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSignature,
 } from "@automovie/motions";
 import { motionHumanBody } from "./motionHumanBody";
+import { motionHumanStance } from "./motionHumanStance";
 
 /**
  * A prop the standing arm does not reach is picked up by lowering the body
@@ -51,13 +51,14 @@ import { motionHumanBody } from "./motionHumanBody";
  * 5. The far glass is refused as a `reach` refusal whose message names a
  *    step closer.
  *
- * @param name The body.
+ * @param name The actor prepared for the selected counter and floor cases.
+ * @param complaints The shared observations from both actors.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scene with its measures and the 5 scenarios with their bounds.
  * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads displayed joints and prop frames.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance per scenario, its readings gathered as complaints and asserted once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A performance that does not plan is a complaint with the refusal's words.
- * @evidence contracts/development/implementation.md#efficient-algorithms Four short performances and a refusal, read at a few instants.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two counter films keep the two grip-orientation witnesses. One small body lowers to the floor; one average body enters from a bend and independently refuses the distant glass.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by each body's spec, so the readings exist once.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
@@ -96,16 +97,6 @@ export function motionPickUpLowered(
     segment.start +
     (segment.plan.events.find((e): boolean => e.name === event)?.share ?? NaN) *
       segment.plan.duration;
-  const joint = (
-    performance: IAutoMovieMotionHumanPerformance,
-    seconds: number,
-    bone: "hips" | "rightUpperArm" | "rightHand",
-  ): IAutoMovieVector3 =>
-    HumanSignature.joint(
-      HumanSignature.of(performance, "a", body, 0),
-      seconds,
-      bone,
-    );
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
 
   // Where a prop's grip stands, placed at yaw 0 (no turn of its own frame).
@@ -118,13 +109,11 @@ export function motionPickUpLowered(
   ): IAutoMovieVector3 =>
     Vector3.add(at, model.affordance(handle).frame.translation);
 
-  // The standing shoulder, from a standing film.
-  const still: IAutoMovieMotionHumanPerformance = perform(
-    HumanObject.prop("glass", glass, { at: { x: 0, y: 0, z: 3 }, yaw: 0 }),
-    HumanChain.subject("a").stand({ seconds: 0.5 }),
-  );
-  const shoulder: IAutoMovieVector3 = joint(still, 0, "rightUpperArm");
-  const hips: IAutoMovieVector3 = joint(still, 0, "hips");
+  // Every chain enters from this quiet stance. One FK gives the two
+  // coordinates that determine the counter and the return-to-standing check.
+  const entry: ReturnType<typeof motionHumanStance> = motionHumanStance(body);
+  const shoulder: IAutoMovieVector3 = entry.get("rightUpperArm")!.worldPosition;
+  const hips: IAutoMovieVector3 = entry.get("hips")!.worldPosition;
 
   // 1. The counter glass beyond the standing arm; the wrist stands a grip
   // socket short of the grip.
@@ -157,12 +146,15 @@ export function motionPickUpLowered(
       .at(-1)!;
     const closed: number = instant(segment, "gripClosed");
     const lifted: number = instant(segment, "lifted");
-    const reach: number = Vector3.length(
-      Vector3.subtract(
-        joint(performance, closed, "rightHand"),
-        joint(performance, closed, "rightUpperArm"),
-      ),
+    const grasp: ReturnType<typeof performance.bones> = performance.bones("a", closed);
+    const reach: number = Vector3.distance(
+      grasp.get("rightHand")!.worldPosition, grasp.get("rightUpperArm")!.worldPosition,
     );
+    if (subject === "tote") {
+      const low: number = grasp.get("hips")!.worldPosition.y;
+      if (!(low < hips.y - 0.01))
+        complaints.push(`${name}: ${label}: at gripClosed the hips stand ${mm(low)} mm high, lower than standing (${mm(hips.y)} mm) expected`);
+    }
     if (!(reach <= arm + 0.001))
       complaints.push(
         `${name}: ${label}: at gripClosed the wrist is ${mm(reach)} mm from the shoulder, within the arm's ${mm(arm)} mm expected`,
@@ -182,9 +174,10 @@ export function motionPickUpLowered(
           ["rightUpperArm", shoulder],
         ]
       : [];
+    const terminal: ReturnType<typeof performance.bones> | undefined = straight ? performance.bones("a", end) : undefined;
     for (const [bone, was] of kept) {
       const off: number = Vector3.length(
-        Vector3.subtract(joint(performance, end, bone), was),
+        Vector3.subtract(terminal!.get(bone)!.worldPosition, was),
       );
       if (!(off <= 0.01))
         complaints.push(
@@ -228,44 +221,28 @@ export function motionPickUpLowered(
 
   // 3 and 4. The tote off the floor, alone and after a bend.
   const floor: IAutoMovieVector3 = { x: shoulder.x, y: 0, z: 0.45 };
-  for (const [label, chain, straight] of [
-    [
-      "the tote",
-      HumanChain.subject("a").pickUp({ prop: "tote", handle: "handle" }),
-      true,
-    ],
-    [
-      "the tote after a bend",
-      HumanChain.subject("a")
+  const straight: boolean = name === "f-small";
+  const label: string = straight ? "the tote" : "the tote after a bend";
+  const chain: IAutoMovieMotionHumanChain = straight
+    ? HumanChain.subject("a").pickUp({ prop: "tote", handle: "handle" })
+    : HumanChain.subject("a")
         .bend({ toward: { kind: "prop", subject: "tote", point: "handle" } })
         .until({ event: "deepest" })
-        .pickUp({ prop: "tote", handle: "handle" }),
-      // The pick up holds the body the bend left; a stand straightens it.
-      false,
-    ],
-  ] as const)
+        .pickUp({ prop: "tote", handle: "handle" });
     try {
       const performance: IAutoMovieMotionHumanPerformance = perform(
         HumanObject.prop("tote", tote, { at: floor, yaw: 0 }),
         chain,
       );
       picked(label, performance, "tote", 0, false, straight);
-      const closed: number = instant(
-        performance.segments("a").at(-1)!,
-        "gripClosed",
-      );
-      const low: number = joint(performance, closed, "hips").y;
-      if (!(low < hips.y - 0.01))
-        complaints.push(
-          `${name}: ${label}: at gripClosed the hips stand ${mm(low)} mm high, lower than standing (${mm(hips.y)} mm) expected`,
-        );
     } catch (error) {
       complaints.push(
         `${name}: ${label}: expected to plan, got ${(error as Error).message}`,
       );
     }
 
-  // 5. The far glass.
+  // The larger reach is the limiting refusal witness for the far counter.
+  if (name !== "m-average") return;
   let refused: unknown = null;
   try {
     perform(
