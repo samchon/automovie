@@ -43,9 +43,9 @@ export namespace HumanSegmentEntry {
    * @evidence contracts/development/common.md#meaningful-documentation Defines film-second entry, optional decay duration, displayed pose/rates and the feet/support/base/hold state returned to the next action.
    * @evidence contracts/development/implementation.md#principled-implementation Preserves the existing complete shown or cold-plus-continued one-sided pose/rate samples at STEP seconds. World foot velocity, acceleration and spin consume only the two foot frames and retain their original difference formulas; four demanded FK reads share exact scalar prerequisites under the same unchanged skeleton topology.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One same-body evaluation preparation reaches every actual source pose, raw posture, layer and four foot FK reads; then derive the two feet and one support list read by both the entry and its base classification.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the cold pose distinct from a continued instant, every source-pose evaluation, all four FK admissions and their fresh outputs. No rate sample, contact comparison, difference interval, normalization or fitted pose is replaced by a cached answer.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Existing complete pose/rate evaluations retain every solve/sample; four FK calls admit J authored joints and compute only foot ancestors/output. Repeated source poses share rig clamp metadata and exact FK prerequisites. Direct reads of the fixed three-sample tuple avoid temporary map/vector arrays. One O(C) support scan serves entry/base; hold scans retain their policy and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The source pose and four FK inputs may differ in time and cold/near history; only rig metadata and exactly equal scalar dependencies share the explicit preparation. Shown's existing exact-time pose reads and continued's separate cold/refined instant remain unchanged. Base classification borrows the same current support list without mutating or retaining it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the cold pose distinct from a continued instant and evaluates every distinct source pose and FK input. The sample times, rate arithmetic, contacts, and admissions stay the same.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Before a first action, the same static initial pose serves all three rate samples and the two foot frames are read once. A moving entry computes only the foot ancestors and does not repeat FK when the displayed and sampled poses are the same object. One O(C) support scan serves entry and base.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unresolved initial posture has no time input, so its rate samples read one unchanged result. Distinct moving and continued samples keep their own frames. Base classification borrows the current support list without mutating or retaining it.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One entry-owned preparation holds rig metadata and last successful joint/world scalar snapshots per visited bone name, O(K) for K identities, until return or throw. The four fresh demanded maps are local; returned foot vectors/quaternions retain their original value ownership, while complete pose/posture/from-plan/support references remain as before. No reader or supplier enters the returned entry or a retained plan.
    */
   export function entry(
@@ -114,24 +114,11 @@ export namespace HumanSegmentEntry {
 
     // The same three samples the pose velocity was read from, so a foot's
     // rate is the one-sided difference of the motion that ends here.
-    const instant: ReturnType<typeof poseBones> = poseBones(
-      body,
-      read.samples[0],
-      prepared.resolution(),
-      FEET,
-    );
-    const near: ReturnType<typeof poseBones> = poseBones(
-      body,
-      read.samples[1],
-      prepared.resolution(),
-      FEET,
-    );
-    const far: ReturnType<typeof poseBones> = poseBones(
-      body,
-      read.samples[2],
-      prepared.resolution(),
-      FEET,
-    );
+    const frames = (pose: IAutoMoviePose): ReturnType<typeof poseBones> =>
+      pose === state.pose ? bones : poseBones(body, pose, prepared.resolution(), FEET);
+    const instant: ReturnType<typeof poseBones> = frames(read.samples[0]);
+    const near: ReturnType<typeof poseBones> = frames(read.samples[1]);
+    const far: ReturnType<typeof poseBones> = frames(read.samples[2]);
     const foot: (side: "left" | "right") => IAutoMovieMotionHumanEntryState.IFoot = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanEntryState.IFoot => {
@@ -342,14 +329,19 @@ export namespace HumanSegmentEntry {
     step: number,
     prepared: prepareHumanSegmentPose.IPrepared,
   ): HumanSegmentPose.IContinued {
+    const rig: ReturnType<typeof humanRig> = humanRig(person.performer.body);
+    if (previous === undefined) {
+      const pose: IAutoMoviePose = HumanSegmentPose.initial(person, undefined, prepared);
+      return {
+        state: samplePoseVelocity((): IAutoMoviePose => pose, seconds, step, "before", rig),
+        samples: [pose, pose, pose],
+      };
+    }
     const poses: Map<number, IAutoMoviePose> = new Map();
     const read: (t: number) => IAutoMoviePose = (t: number): IAutoMoviePose => {
       let pose: IAutoMoviePose | undefined = poses.get(t);
       if (pose === undefined) {
-        pose =
-          previous === undefined
-            ? HumanSegmentPose.initial(person, undefined, prepared)
-            : HumanSegmentPose.of(person, previous, t, prepared);
+        pose = HumanSegmentPose.of(person, previous, t, prepared);
         poses.set(t, pose);
       }
       return pose;
@@ -359,7 +351,7 @@ export namespace HumanSegmentEntry {
       seconds,
       step,
       "before",
-      humanRig(person.performer.body),
+      rig,
     );
     return {
       state,
