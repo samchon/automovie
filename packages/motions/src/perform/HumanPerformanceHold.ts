@@ -44,7 +44,7 @@ export namespace HumanPerformanceHold {
    * @returns Its frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Points to the reader's documentation and states the in-hand composition.
-   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset.
+   * @evidence contracts/development/implementation.md#principled-implementation The parent constraint's offset stored at closure (inverse(hand) times prop), the latest grip carrying, two hands closing together holding one rigid body, and a grip's in-hand displacement composed before the offset. An authored worn or mounted span reads its parent from its first instant, including supplied poses propagated through socket chains.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Choose the carrying grip, seat its offset once, compose any in-hand motion, place by the hand.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stored offset is never re-derived while held; an in-hand motion is the window's own pure function.
    * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the prop's grips selects the holding windows and the last closure that can supersede a launch. The seated offset belongs to its grip record.
@@ -73,9 +73,14 @@ export namespace HumanPerformanceHold {
     let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
     let since: number = -Infinity;
     for (const g of grips) {
-      // A grip carries from after it closes; at its closing the prop is where it was.
+      // Hand closure preserves the previous frame at its instant. An authored
+      // attachment starts on its parent at that instant.
       const from: number = g.from;
-      if (from >= seconds) continue;
+      if (
+        from > seconds ||
+        (from === seconds && g.bone === undefined && g.mount === undefined)
+      )
+        continue;
       if (from < seconds) since = Math.max(since, from);
       if (seconds <= g.to) {
         // A performer's other hand on a prop that performer already holds
