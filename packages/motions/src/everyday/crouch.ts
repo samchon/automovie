@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
@@ -143,8 +144,8 @@ export namespace crouch {
     full: 1.3,
   };
 
-  /** The hip height `DESCENT` is stated for, metres, from which other bodies' descents scale by its square root (provisional, the walk law's reference body). */
-  export const REFERENCE_HIP: number = 0.93;
+  /** The hip height `DESCENT` is stated for, metres, from which other bodies' descents scale by its square root: the walk law's reference hip (`walkRoot.REFERENCE_HIP`), the one every dynamically similar timing is stated at. */
+  export const REFERENCE_HIP: number = walkRoot.REFERENCE_HIP;
 
   /**
    * Plan a crouch.
