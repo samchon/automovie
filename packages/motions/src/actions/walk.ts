@@ -32,6 +32,7 @@ import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkHorizontalRoot } from "./walkHorizontalRoot";
+import { walkPlayback } from "./walkPlayback";
 import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
@@ -205,7 +206,10 @@ export namespace walk {
           context.body.measure.hipHeight,
       ),
     );
-    return HumanSupportCarry.on(context, planned, on.prop);
+    return walkPlayback(
+      HumanSupportCarry.on(context, planned, on.prop),
+      context.body,
+    );
   }
 
   /**
@@ -490,6 +494,6 @@ export namespace walk {
     };
 
     // The steps' timing: uneven, entrained to a beat, or kept on a station (`walkClock`).
-    return walkClock(context, planned, gait);
+    return walkPlayback(walkClock(context, planned, gait), body);
   }
 }
