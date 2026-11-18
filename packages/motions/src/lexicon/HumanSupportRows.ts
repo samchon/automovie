@@ -46,6 +46,9 @@ const SEATED: IAutoMovieMotionHumanSupport.IStance["prefer"] = {
   },
 };
 
+/** Lead with the left foot while the right knee carries the body onto the ledge. */
+const HALF_KNEEL: IAutoMovieMotionHumanSupport.IStance["prefer"] = getUp.halfKneeling("left");
+
 /**
  * Movements over a surface as rows of the support planner (`support`): each
  * a list of stances, the composition giving the surface (`on`), so a
@@ -86,6 +89,7 @@ export namespace HumanSupportRows {
           on("rightHand", 0.5),
           on("rightKnee"),
         ],
+        prefer: HALF_KNEEL,
       },
       {
         contacts: [
@@ -94,6 +98,7 @@ export namespace HumanSupportRows {
           on("rightKnee"),
           on("leftFoot", 0.5),
         ],
+        prefer: HALF_KNEEL,
       },
       {
         contacts: [on("leftFoot", 0.5), on("rightFoot", 0.5)],
