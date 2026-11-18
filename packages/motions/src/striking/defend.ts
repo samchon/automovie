@@ -66,7 +66,7 @@ import { defendGeometry } from "./defendGeometry";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States when the defence starts, where it goes, each kind with its coaching source, and that contact is left to the strike.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed union of kinds, and a pure plan of postures in world metres and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan, and the telegraph and decision queries the outcome law's audits and tests read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the name, the cancel table, the parameters, the plan, and the telegraph the outcome law reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the posture, plan, placed-action and outcome types; the strike is named by its anchor, not by a production's scene.
  */
 export namespace defend {
@@ -113,30 +113,6 @@ export namespace defend {
     return 0.8;
   }
 
-  /** Every planned defence's decision, for audits. */
-  const DECISIONS: WeakMap<IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanDefenceOutcome.IDecision> =
-    new WeakMap();
-
-  /**
-   * The outcome decision of a planned defence.
-   *
-   * @param plan A defence's plan.
-   * @returns Its decision, or undefined for another action's plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result and the meaning of undefined.
-   * @evidence contracts/development/implementation.md#principled-implementation A lookup in the weak map the plan registered its decision in.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads a stored decision.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Decisions are keyed weakly by their plans, so each is released with its plan.
-   */
-  export function decision(
-    plan: IAutoMovieMotionHumanActionPlan,
-  ): IAutoMovieMotionHumanDefenceOutcome.IDecision | undefined {
-    return DECISIONS.get(plan);
-  }
-
   /**
    * Plan a defence.
    *
@@ -150,7 +126,7 @@ export namespace defend {
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A strike that cannot be defended throws; nothing about contact is decided here, so no outcome is faked geometrically.
    * @evidence contracts/development/implementation.md#efficient-algorithms The original reaction decision, attacker reads and all current native posture fitting remain. Waiting and built-defence branches prepare fixed foot geometry and demanded rig names once, evaluate the movement envelope once per query and borrow genuine current FK/ROM inputs; speedup is unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The decision is made once and built geometry is dropped on settle when the strike may change. The native context fixes entry feet and body, so waiting shares only their authored geometry/name preparation; every posture remains fresh, and query-supplied exact FK/ROM loans are forwarded without retaining them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one built geometry cleared by settle, one lazy fixed-entry waiting reader and one decision keyed weakly by the plan. Plan release drops fixed metadata, and current maps, pose fits and borrowed query sources end with each synchronous return or failure.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one built geometry cleared by settle and one lazy fixed-entry waiting reader. Plan release drops fixed metadata, and current maps, pose fits and borrowed query sources end with each synchronous return or failure.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -283,7 +259,6 @@ export namespace defend {
         built = undefined;
       },
     };
-    DECISIONS.set(out, decided);
     return out;
   }
 

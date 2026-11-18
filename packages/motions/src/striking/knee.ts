@@ -34,7 +34,6 @@ import { KneeForm } from "./KneeForm";
 import { KneeGeometry } from "./KneeGeometry";
 import { KneeReach } from "./KneeReach";
 import { StrikingBody } from "./StrikingBody";
-import { StrikingRecord } from "./StrikingRecord";
 import { StrikingRide } from "./StrikingRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
@@ -101,7 +100,7 @@ export namespace knee {
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnee.IParams>,
-  ): IAutoMovieMotionHumanActionPlan {
+  ): IAutoMovieMotionHumanStrikingRecord.IPlan {
     const p: IAutoMovieMotionHumanKnee.IParams = context.params;
     const body = context.body;
     const m = body.measure;
@@ -340,11 +339,36 @@ export namespace knee {
       });
       return ride.carry(posture, leg, t0 + seconds);
     };
-    const out: IAutoMovieMotionHumanActionPlan = {
+    // What the knee decided, built on demand (`StrikingRecord`): its front
+    // where the leg's free course puts it at the planned impact, with the
+    // solve's own status; the performer's own displayed bones read the
+    // entry's (`StrikingWeapon`).
+    const record: () => IAutoMovieMotionHumanStrikingRecord.IRecord = (): IAutoMovieMotionHumanStrikingRecord.IRecord => {
+      const g: KneeGeometry.IGeometry = geometry();
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+      const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, side === "left" ? "kneeLeft" : "kneeRight");
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        resolveHumanPosture.seeded(body, free(impact, t0 + impact, true, resolution, projection), undefined, undefined, resolution, undefined, projection).pose,
+        resolution(), new Set<AutoMovieHumanoidBone>([frame.bone]),
+      );
+      const reached: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
+      return {
+        limb: side === "left" ? "leftFoot" : "rightFoot",
+        offset: { x: 0, y: 0, z: 0 },
+        planned: g.target,
+        reached,
+        status: g.status,
+        stop,
+      };
+    };
+    return {
       duration,
       events,
       contacts,
       contact: impact,
+      record,
       settle: (): void => {
         settled = false;
         shown = {};
@@ -382,30 +406,6 @@ export namespace knee {
         return carried(free(s * (1 - w), at, true, source, projection), t);
       },
     };
-    StrikingRecord.register(out, (): IAutoMovieMotionHumanStrikingRecord.IRecord => {
-      // The knee's front where the leg's free course puts it at the planned
-      // impact, with the solve's own status; the performer's own displayed
-      // bones read the entry's (`StrikingWeapon`).
-      const g: KneeGeometry.IGeometry = geometry();
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, side === "left" ? "kneeLeft" : "kneeRight");
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body,
-        resolveHumanPosture.seeded(body, free(impact, t0 + impact, true, resolution, projection), undefined, undefined, resolution, undefined, projection).pose,
-        resolution(), new Set<AutoMovieHumanoidBone>([frame.bone]),
-      );
-      const reached: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
-      return {
-        limb: side === "left" ? "leftFoot" : "rightFoot",
-        offset: { x: 0, y: 0, z: 0 },
-        planned: g.target,
-        reached,
-        status: g.status,
-        stop,
-      };
-    });
-    return out;
   }
 }
 

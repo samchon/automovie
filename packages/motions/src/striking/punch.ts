@@ -21,7 +21,6 @@ import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVa
 import { HumanSkill } from "../skill/HumanSkill";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
-import { StrikingRecord } from "./StrikingRecord";
 import { StrikingRide } from "./StrikingRide";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
@@ -306,12 +305,13 @@ export namespace punch {
       }
       return built;
     };
-    const out: IAutoMovieMotionHumanActionPlan = {
+    const out: IAutoMovieMotionHumanStrikingRecord.IPlan = {
       duration,
       events,
       get contacts(): IAutoMovieMotionHumanContactWindow[] {
         return geometry().contacts;
       },
+      record: (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
       ...(p.feint === undefined
         ? { contact: delivery }
         : { feigned: delivery }),
@@ -342,10 +342,6 @@ export namespace punch {
     // is planned.
     if (source !== undefined)
       Object.defineProperty(out, "aimed", { enumerable: true, get: aimed });
-    StrikingRecord.register(
-      out,
-      (): IAutoMovieMotionHumanStrikingRecord.IRecord => geometry().record,
-    );
     return out;
   }
 }

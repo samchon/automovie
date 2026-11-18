@@ -9,12 +9,12 @@ import type { IAutoMovieMotionHumanStrikingReach } from "./IAutoMovieMotionHuman
  * weapon met a surface. Audits compare a strike against this plan, so a
  * clumsy strike still passes when it lands where it meant to.
  *
- * Records are keyed by the plan object and built on demand from the plan's
- * geometry, so reading one evaluates the strike's postures.
+ * Each strike's plan carries its record (IPlan.record), built on demand
+ * from the plan's geometry, so reading one evaluates the strike's postures.
  *
  * @evidence contracts/development/common.md#meaningful-documentation offset: The intended landing offset from the aim point, world metres. planned: The contact goal predicted at the launch, offset included, world metres. reached: Where the weapon's surface reaches at the planned contact, world metres: the planned point, or the limb's highest or farthest reachable point when the target lies beyond it.
  * @evidence contracts/development/design.md#principled-representation offset: The intended landing offset from the aim point, world metres. planned: The contact goal predicted at the launch, offset included, world metres. reached: Where the weapon's surface reaches at the planned contact, world metres: the planned point, or the limb's highest or farthest reachable point when the target lies beyond it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/kick.ts (kick.plan, return); striking/knee.ts (knee.plan, return); striking/punch.ts (punch.plan, return); striking/StrikingRecord.ts (StrikingRecord.register, record); striking/StrikingRecord.ts (StrikingRecord.of, return); striking/StrikingRecord.ts (StrikingRecord.carries, return).
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/kick.ts (kick.plan, return); striking/knee.ts (knee.plan, return); striking/punch.ts (punch.plan, return); striking/StrikingRecord.ts (StrikingRecord.of, return); striking/StrikingRecord.ts (StrikingRecord.carries, return).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanStrikingReach.ISolution identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanStrikingRecord {
