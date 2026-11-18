@@ -23,7 +23,7 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  *
  * Scenarios:
  * 1. Every row of every family of `HUMAN_LEXICON` has a schema under its
- *    own name.
+ *    own name. Every advertised row schema has a publicly dispatchable row.
  * 2. Every row's schema, its reference followed, is an object schema (or,
  *    for a row whose parameters take one of several forms, each form is)
  *    that accepts no member beyond its properties, so a call with a misspelt
@@ -47,6 +47,7 @@ import { LexiconRowNet } from "../internal/LexiconRowNet";
  */
 export function test_human_motion_lexicon_schemas(): void {
   const complaints: string[] = [];
+  const advertised: Set<string> = new Set(Object.keys(HUMAN_LEXICON_SCHEMAS.rows));
   type ISchema = IAutoMovieMotionHumanLexiconSchemas.ISchema;
   const resolved = (schema: ISchema | undefined): ISchema | undefined =>
     schema?.$ref === undefined
@@ -57,6 +58,7 @@ export function test_human_motion_lexicon_schemas(): void {
   for (const [family, laws] of Object.entries(HUMAN_LEXICON))
     for (const law of laws) {
       // 1. Coverage.
+      advertised.delete(law.name);
       const schema: ISchema | undefined = resolved(
         HUMAN_LEXICON_SCHEMAS.rows[law.name],
       );
@@ -135,6 +137,8 @@ export function test_human_motion_lexicon_schemas(): void {
       }
     }
 
+  for (const name of advertised)
+    complaints.push(name + " has a parameter schema but no registered law");
   // 4. Every bounded number states its unit, so its refusal names it.
   const visit = (node: unknown, where: string): void => {
     if (Array.isArray(node)) {
