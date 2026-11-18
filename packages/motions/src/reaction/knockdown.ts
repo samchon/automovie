@@ -216,7 +216,7 @@ export namespace knockdown {
         { origin: { x: 0, y: 0, z: 0 }, yaw },
         { x: 0, y: 0, z: forward },
       );
-    return composeAutoMovieMotionHumanAction({
+    const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
       base: {
         ...AutoMovieMotionHumanBase.still(
           duration,
@@ -309,6 +309,9 @@ export namespace knockdown {
         }),
       ],
     });
+    // The fold has reached its grounded endpoint at "down"; an authored
+    // lying hold extends only the film clock after that event.
+    return { ...plan, physicalWindow: { from: 0, to: DOWN } };
   }
 
   /** When the trunk starts rolling back, as a share of the time to the seat. */

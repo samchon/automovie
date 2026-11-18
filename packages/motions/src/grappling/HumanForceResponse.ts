@@ -134,6 +134,10 @@ export namespace HumanForceResponse {
     return {
       ...answer,
       duration,
+      physicalWindow: {
+        from: onset + (answer.physicalWindow?.from ?? 0),
+        to: onset + (answer.physicalWindow?.to ?? answer.duration),
+      },
       events: answer.events.map((e: IAutoMovieMotionEvent): IAutoMovieMotionEvent => ({ ...e, share: later(e.share) })),
       contacts: answer.contacts.map(
         (w: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
