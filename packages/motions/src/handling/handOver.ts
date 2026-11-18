@@ -195,11 +195,9 @@ export namespace handOver {
       shared.offer,
     );
     const pullback: number =
-      shared.outcome === "transfer"
-        ? shared.release
-        : shared.outcome === "withdraw"
-          ? Math.max(shared.offer, shared.gripClosed - 0.5 * shared.reach)
-          : shared.release;
+      shared.outcome === "withdraw"
+        ? Math.max(shared.offer, shared.gripClosed - 0.5 * shared.reach)
+        : shared.release;
     const back: number = shared.offer;
     const home: IAutoMovieMotionHumanPrehension.ITransport = HumanPrehension.transport(
       shared.giverAt.point,

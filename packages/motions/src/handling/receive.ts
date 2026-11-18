@@ -60,6 +60,11 @@ import { handshake } from "./handshake";
  *
  * Events: `gripClosed` when the fingers close on the prop, `taken` at the
  * end. The hand grips the prop from `gripClosed` and holds it afterwards.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the transport and grip, the carrying place, the seated lean, the outcomes and the events.
+ * @evidence contracts/development/design.md#principled-representation The receiver's half of one shared handover plan, read from the partners' one meeting record.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the carrying forearm's pitches and the plan.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip is the prop's own affordance where the shared plan puts the offer; no prop or partner is named.
  */
 export namespace receive {
   /** The action's name. */

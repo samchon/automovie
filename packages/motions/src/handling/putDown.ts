@@ -68,7 +68,13 @@ import { putDownTarget } from "./putDownTarget";
  * Events: `placed` when the prop reaches its frame, `release` when the grip
  * ends. The hand grips the prop until `release` (until `placed` when it is
  * put on a bone, which wears it from there). A placing frame beyond the
- * arm's reach is refused, as is a put down that names neither `at` nor `on`.
+ * arm's reach is refused, as is a put down that names none of `at`, `on`
+ * and `onto`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the goal, the three destinations, the resting rotation, the phases with their provisional values, the events and the refusals.
+ * @evidence contracts/development/design.md#principled-representation The prop's resting frame as the goal, the hand placed through the rigid offset the grip stored at closure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, two provisional constants, the plan and the demands a socket placement makes of an earlier grasp.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The destination is the author's point, bone or socket; no prop is named.
  */
 export namespace putDown {
   /** The action's name. */
@@ -95,7 +101,15 @@ export namespace putDown {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {Error} When the placing frame lies beyond the arm's reach.
+   * @throws {HumanRefusal} When no destination is named, the placing wrist lies beyond the arm's reach, or a socket placement's grasp cannot lay its socket on the receiver.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The offset, the resting frame, the wrist, the reach check, the timing, the posture.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist beyond the arm is refused, never clamped; the tilt the carry gives the prop is discarded for its rest rotation.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two demanded hand readings, at most one heading search and one posture solve for the hanging hand at plan time; constant work per frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable`, `putDownTarget`, the held-tool goal, `HumanPrehension` and the pick up's reach.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the transports, the shapes, the reference and the wrist.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
