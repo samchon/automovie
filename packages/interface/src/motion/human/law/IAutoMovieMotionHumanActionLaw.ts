@@ -98,6 +98,16 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
   overlay?: boolean;
 
   /**
+   * Whether the action's content is a staged physical outcome (a stagger, a
+   * fall, a shove's or a force's response, a throw and a release, a flight):
+   * it computes its physics on its own interval and bodies whatever its
+   * params' `physics` option says (`IAutoMovieMotionHumanPhysics`), and the
+   * audit judges its balance. Absent, the action is kinematic unless its
+   * params turn the option on.
+   */
+  physical?: true;
+
+  /**
    * Plan one instance of the action.
    *
    * @param context Body, parameters, skill, entry state and targets.

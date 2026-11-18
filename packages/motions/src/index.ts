@@ -147,6 +147,7 @@ export * from "./everyday/stepOver";
 export * from "./everyday/typeText";
 export * from "./law/HumanBase";
 export * from "./law/HumanBound";
+export * from "./law/HumanPhysics";
 export * from "./law/HumanUnit";
 export * from "./actions/HumanMutual";
 export * from "./law/IHumanMutual";

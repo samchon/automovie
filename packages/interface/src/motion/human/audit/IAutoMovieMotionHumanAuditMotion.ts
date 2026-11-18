@@ -83,6 +83,14 @@ export namespace IAutoMovieMotionHumanAuditMotion {
     /** Where it ends, film seconds. */
     end: number;
 
+    /**
+     * Whether the audit judges the body's balance over this action: its law
+     * stages a physical outcome or its params ask for balance (the motions
+     * package's `HumanPhysics.judged`). Absent or false, the action is a
+     * posed, planted one and needs no gravity check.
+     */
+    physical?: boolean;
+
     /** The part of the plan the audit reads. */
     plan: {
       /** The action's own length, seconds; contact shares are of this. */
