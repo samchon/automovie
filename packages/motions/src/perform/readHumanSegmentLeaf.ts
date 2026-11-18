@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
@@ -33,7 +34,7 @@ export function readHumanSegmentLeaf(
     person.overlays.length === 0 &&
     person.holds.length === 0 &&
     person.stops.size === 0;
-  const sample: HumanPreparedPlayback.ISample | undefined =
+  const sample: IAutoMovieMotionHumanPlayback.ISample | undefined =
     HumanPreparedPlayback.read(
       segment.plan,
       person.performer.body,
@@ -95,7 +96,7 @@ export function readHumanSegmentLeaf(
     prepared,
     segment,
     direct,
-    sample,
+    bare && fits === undefined && observed === undefined ? sample : undefined,
   );
   return {
     posture: {

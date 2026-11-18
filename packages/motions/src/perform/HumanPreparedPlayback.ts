@@ -1,7 +1,7 @@
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanResolveHumanPosture,
 } from "@automovie/interface";
@@ -17,7 +17,7 @@ type Where = IAutoMovieMotionHumanRefusal.IWhere;
 
 interface IBinding {
   readonly body: IAutoMovieMotionHumanBody;
-  readonly source: HumanPreparedPlayback.ISource;
+  readonly source: IAutoMovieMotionHumanPlayback;
   readonly original: Reader;
   located?: Reader;
   where?: Where;
@@ -40,42 +40,14 @@ const bindings: WeakMap<Plan, IBinding> = new WeakMap();
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Foreign plans and replaced readers have no admitted binding. No claim is inferred from pose equality, no solver threshold changes and no sampled answer enters the registry.
  */
 export namespace HumanPreparedPlayback {
-  /** Authored posture and an optional fit from this exact leaf evaluation. */
-  export interface ISample {
-    /** Current authored channels and goals, used by the ordinary contact stages. */
-    readonly posture: IAutoMovieMotionHumanPosture;
+  /** The native source follows the common interface contract. */
+  export type ISource = IAutoMovieMotionHumanPlayback;
 
-    /** Transfer the genuine fit to this sample's unchanged bare leaf at most once. */
-    readonly takeFit?: () => Seeded | undefined;
-  }
+  /** The human specialization of a time-local motion evaluator. */
+  export type IPhase = IAutoMovieMotionHumanPlayback.IPhase;
 
-  /** One closed interval of the action clock, in seconds. The earlier entry owns a shared endpoint. */
-  export interface IPhase {
-    /** Opening event, in action-local seconds. */
-    readonly from: number;
-
-    /** Closing event, in action-local seconds. */
-    readonly to: number;
-
-    /** Evaluate the actual instant. Yield to ordinary authoring when its premises fail. */
-    readonly sample: (...args: Parameters<Reader>) => ISample | undefined;
-  }
-
-  /** Ordered native phases and the scope in which their results are equivalent. */
-  export interface ISource {
-    /**
-     * Posture phases feed ordinary composition. Bare posture phases need
-     * isolation. Fitted phases additionally require a complete native read
-     * without a nearby continuation; prior segment incumbents stay in scope.
-     */
-    readonly mode: "posture" | "bare-posture" | "fitted";
-
-    /** Owned event order, including each phase that has an evaluator. */
-    readonly phases: readonly IPhase[];
-
-    /** Optional native setup after placement, contacts and flight are final. */
-    readonly prepare?: () => void;
-  }
+  /** Human posture data returned from the same leaf evaluation. */
+  export type ISample = IAutoMovieMotionHumanPlayback.ISample;
 
   /** Own copies of the phase records in the lifetime of their original native plan. */
   export function attach(

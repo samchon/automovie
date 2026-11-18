@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieMotionHumanSegment,
@@ -26,7 +27,6 @@ import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
 import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
-import type { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
@@ -118,7 +118,7 @@ export namespace HumanSegmentOverlay {
     prepared?: prepareHumanSegmentPose.IPrepared,
     carrier?: IAutoMovieMotionHumanSegment,
     direct?: resolveHumanPostureSource.IAssembled,
-    sample?: HumanPreparedPlayback.ISample,
+    sample?: IAutoMovieMotionHumanPlayback.ISample,
   ): IOverlaid {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     const projection: Parameters<typeof resolveHumanPosture.seeded>[6] = prepared?.clamp;
