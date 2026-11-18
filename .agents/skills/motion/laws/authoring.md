@@ -1,8 +1,6 @@
 # Effector goals
 
-Almost every action is a set of goals, each putting an end effector on its target for a window.
-
-Write movement as goals and let inverse kinematics find the joint angles, because a goal survives another body or a moved prop and a fitted joint angle does not.
+Define each action as time-bounded effector goals. Solve joint angles by inverse kinematics.
 
 ## Writing a goal
 
@@ -14,7 +12,7 @@ Write movement as goals and let inverse kinematics find the joint angles, becaus
 | Window | When the goal holds, such as from grip to release |
 | Tracking | Whether the target is frozen at the window's start or tracked through it |
 
-Take every distance from the measured body and target, and mark any other value provisional with its source. Take the key poses, timing and windows from the action's study, its primary sources, and a key pose's joint values only where no goal decides the pose.
+Measure distances from the body and target. Cite provisional values. Take key poses, timing and windows from primary studies. Specify joint angles only where goals leave them open.
 
 A goal on a body attaches to the bone under its target, so a layered sway carries it along. Read a tracked target one reaction time late, with the delay from the study, or the limb cannot be dodged, feinted or made to miss.
 
@@ -22,26 +20,26 @@ A goal on a body attaches to the bone under its target, so a layered sway carrie
 
 Move an effector on the bell-shaped speed profile of minimum jerk (Flash and Hogan 1985). A throw, strike or kick moves its segments from the trunk outward (Putnam 1993) and arrives still fast.
 
-When the root travels during the stroke, give the path relative to the moving shoulder or hip. A path fixed in the world lets the body overtake its hand, folding the arm and making a held tool's tip jump.
+When the root travels during a stroke, express the effector path in the moving shoulder or hip frame.
 
 ## Out of reach
 
-Before posing, compare the root-to-target distance with the limb's reachable band. Outside it, the action refuses with the reachable range or takes a declared alternative that still reaches, such as a step. An alternative that changes the outcome needs the caller's choice, because the [outcome is an input](declaration.md#outcome-as-input).
+Check root-to-target distance before posing. Outside the limb's reach, report its reachable range or use a declared alternative that reaches. Let the caller approve any change to the [outcome](declaration.md#outcome-as-input).
 
-Document the rule and make the code follow it exactly, because a silent clamp moves the contact and hides the miss.
+Document and implement the reach rule. Reject a goal that would require moving the contact by clamping.
 
 ## The root
 
-Place the root once, from the contacts and the reaches together, then fit every limb from it, because separate corrections per limb disagree. Compute balance only where the scene stages a physical outcome or the caller asks for it; a planted posture takes its studied compensation, such as the hips drawn back in a stoop, from its key poses. If a contact still cannot be reached, lower, lean or step the root and refit every limb, leaving the contact in place.
+Place the root once from contacts and reaches. Compute balance only for a staged physical outcome or at the caller's request. Take a planted posture's compensation from its studied key poses. If needed, lower, lean or step and refit every limb while keeping contacts fixed.
 
-Rest a body that bears on the floor with each bearing joint at its bearing height, such as a wrist at a laid palm's height. Resting it on its lowest collision shape lifts it, and the real supports float.
+Place bearing joints at their contact heights.
 
 ## Fit order
 
-Fit supports, hands on a held bar included, before reaching limbs, and recheck the earlier contacts after each fit, because a later fit can pull them away.
+Fit supports, including hands on a held bar, before reaching limbs. Recheck previous contacts after each fit.
 
 Check that each elbow and knee bends to the side its hint asks, since the solver's range-of-motion cost may prefer the other. Without a hint, keep the side the pose already bends to.
 
-Fit limbs that rest on each other, as in crossed arms, one after the other, because fitting each against the other in turn never settles.
+Fit limbs resting on one another in dependency order.
 
 A fit that searches measures each trial after the joint limits apply, or it settles on a pose the body cannot take.

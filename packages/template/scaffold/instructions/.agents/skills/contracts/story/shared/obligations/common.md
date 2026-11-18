@@ -6,4 +6,4 @@ Statements: [statements/obligations/common.md](../statements/obligations/common.
 
 ## Scope and ownership
 
-Does every required part of the complete scope have one useful owner at the layer that owns that decision, with each work-wide choice owned once? An omission, a duplicate owner, a file whose removal changes nothing or a downstream invention leaves the next author guessing which version holds.
+Is each required decision findable and usable at its owning layer, so downstream authors can rely on one source?

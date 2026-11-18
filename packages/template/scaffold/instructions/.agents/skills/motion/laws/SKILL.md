@@ -5,7 +5,7 @@ description: Extends the motion vocabulary with a registered row or law.
 
 # Motion laws
 
-A law is the code that plans an action: given a body and its inputs, it produces the same motion every time. Start from [vocabulary extension](extension.md), which decides whether a beat needs a law at all and states what an extension owes. Every law then follows [effector goals](authoring.md), and the other pages where it needs them.
+A law deterministically plans an action from a body and inputs. Check [extension](extension.md) first. For new laws, start with [effector goals](authoring.md).
 
 | Read | To |
 | --- | --- |

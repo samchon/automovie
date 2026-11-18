@@ -1,6 +1,6 @@
 # Short route
 
-A short drafts its brief and screenplay together, and its programmed film when commissioned, before one narrative evidence and independent review pass. Answers and narrative reviews written earlier would describe text the draft still changes.
+Draft the brief, screenplay and any commissioned programmed film before the single narrative Evidence and independent review pass.
 
 A short has no settings, treatments, scripts or outline. Wherever a skill or contract cites settings or brief facts, a short cites its brief, or its screenplay for what the [brief leaves to it](../layers/brief.md#what-it-holds).
 
@@ -20,7 +20,7 @@ Write the [brief](../layers/brief.md).
 
 ### 3. Screenplay
 
-Write the whole [screenplay](../layers/screenplay.md) in detail. When writing exposes a missing or wrong brief decision, repair the brief at once, because both are still drafts.
+Write the complete [screenplay](../layers/screenplay.md). Repair brief decisions that the screenplay draft exposes as missing or wrong.
 
 ### 4. Programmed film draft
 
@@ -32,7 +32,7 @@ Judge the film on captured stills, and repair each cause where it lies, in the s
 
 ### 5. Evidence
 
-Read the brief and screenplay once, whole, against the contracts the evidence stages will select, and repair what fails by cause, in the code and film too. No independent classification runs, because the review that follows reads afresh.
+Read the full brief and screenplay against the selected contracts. Repair their defects and dependent code and film by cause. Skip independent classification on this route.
 
 Then enable the brief and screenplay construction stages, and the development stages the code needs, through [evidence configuration](../../evidence/configuration.md). The [evidence answerer](../answers.md) writes the answers, and the author fills the gaps it returns.
 

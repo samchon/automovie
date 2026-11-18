@@ -21,7 +21,7 @@ Entry, middle and ending:
 ## Material and handoff
 
 1. A script author can understand the essential events, motives, choices, relationship turns, information releases, costs, results and inherited state.
-2. Necessary canonical facts are passed in usable context, and no prescription consumes script execution choices such as full dialogue, precise blocking and release partition.
+2. Pass on required canonical facts in context. Leave dialogue, blocking and release partition to scripts.
 3. Ordered event and process material maps to the declared delivery scale, with substantial turns that can close major units.
 4. The answer reports unsupported promised intervals, repetition posed as development and core progression left for the next author. Exception: a concise treatment can establish extensive action.
 5. Event material is repaired at its earliest treatment owner, or an unsupported promise returned to its authorized settings owner. Downstream inflation supplies no missing decision.

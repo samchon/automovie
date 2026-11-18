@@ -16,8 +16,8 @@ Image work supplies the appearance of people, places and props, shot frames for 
 
 ## Every image
 
-Freeze each accepted image: keep the file as generated, with its content credentials, and its record under [media records](../production/media-records.md#records), and reuse it rather than generate it again.
+Keep each accepted original and its content credentials. Record it under [media records](../production/media-records.md) and reuse it.
 
-Generate every view, shot frame and variant from the frozen canon references, never from an earlier derived image alone, because each edit of an edit loses detail and drifts from the subject.
+Start each view, shot frame and variant from the frozen canon references.
 
 Judge each image under the visual debugging skill, against its record and its frozen canon references: identity and wardrobe, hands, scale against a door or a figure, light direction, lettering, and the blur or oversharpened edges that repeated edits leave.

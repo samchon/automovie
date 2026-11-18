@@ -1,7 +1,5 @@
 # Production workflow
 
-The order of a production's tasks, and what each hands to the next.
-
 ## Handoffs
 
 For a finished film, the tasks connect like this:
@@ -25,17 +23,15 @@ flowchart LR
 | [Video](../video/SKILL.md) | The screenplay, the reviewed hint, images and audio | The final picture |
 | [Assembly](assembly.md) | Programmed scenes or finished takes, sound and captions | The complete video |
 
-The screenplay states what the audience sees and hears: events, lines, cuts and sound. The motion hint is the performed action, staging, camera and timing, on [simple 3D subjects](../development/entities.md#coarse-first).
+The screenplay decides the events, dialogue, cuts and sound. The motion hint performs the action, staging, camera and timing on [simple 3D subjects](../development/entities.md#coarse-first).
 
-Accept the performance on polygon people and coarse objects. Video then finishes the picture, by direct rendering that selects commissioned [entity detail options](../development/entities.md#detail) or by generation that uses images and prompts to give the hint its look. The final picture is directly rendered scenes or accepted generated clips, called takes.
+Accept the coarse performance before finishing the picture. Direct rendering uses commissioned [detail options](../development/entities.md#detail). Generation uses the hint, images and prompts and produces takes.
 
 Image can develop alongside motion, but a shot frame needs its motion-hint frame first.
 
 Commissioned sound comes from [audio](../audio/SKILL.md).
 
 ## Order by output
-
-The commissioned output selects the steps and where they end.
 
 ### Screenplay
 
@@ -63,8 +59,8 @@ The whole motion hint's steps, with the film finished under [direct rendering](.
 
 Run the whole motion hint's steps through step 3, then the [generated film](../video/generated-film.md) steps once its [prerequisites](../video/generated-film.md#prerequisites) are met. Assembly and delivery review follow on the finished takes.
 
-Choose the video model with the user under [video diffusion](../video/diffusion/SKILL.md) before preparing any image or rendering any input for it, because the inputs it accepts determine what to make.
+Choose the model with the user under [video diffusion](../video/diffusion/SKILL.md) before preparing its inputs.
 
 ### Standalone asset
 
-An asset has no story or film. It runs its own task and ends at [asset review](../review/delivery-review.md#assets).
+A standalone asset ends at [asset review](../review/delivery-review.md#assets).

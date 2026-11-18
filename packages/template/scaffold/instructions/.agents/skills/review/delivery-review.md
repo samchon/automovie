@@ -1,8 +1,8 @@
 # Delivery review
 
-Delivery review runs in a [separate context](../story/workflow/routes.md#separate-contexts) from the author's, so an author never accepts its own commissioned output. The author's acceptances while building, such as a catalog case or a segment, are not delivery review.
+Accept commissioned output in a [separate context](../story/workflow/routes.md#separate-contexts) from the author.
 
-Identify the commissioned output from [project context](../production/project-context.md), inspect that complete output directly with the unfiltered validation reports, never through the author's account of it, and disclose what was not produced.
+Read the commission in [project context](../production/project-context.md). Inspect the complete output and unfiltered validation reports. Report missing outputs.
 
 ## Output reviews
 
@@ -10,7 +10,7 @@ Identify the commissioned output from [project context](../production/project-co
 
 Review narrative only when the [screenplay choice](../story/workflow/routes.md#who-writes-the-screenplay) calls for narrative passes. Check the required [passes and handoff](../story/workflow/routes.md#completion), and lock your first response as a recipient before reading plans or evidence.
 
-Then read every current body and contract and the answers of every enabled stage, and compare the beginning with its consequences and ending, part boundaries, promises and duration. A pilot establishes only its slice, and closed work keeps its boundary under [closed passes](../story/correction/repair.md#closed-passes).
+Read the current bodies, contracts and answers of enabled stages. Compare setups, consequences, ending, boundaries, promises and duration. Limit pilots to the inspected slice. Apply [closed passes](../story/correction/repair.md#closed-passes).
 
 ### Video
 
@@ -21,11 +21,11 @@ Judge a film on stills, in two passes:
 | Source | The film's source | Pose, contact, staging, camera and timing |
 | Artifact | The delivered or generated file | Every scene, raster, transitions, encode and, if generated, the picture |
 
-Draw the source pass with the README's capture command, and extract the artifact pass at matched seconds with the README's capture of an encoded file. Make both for every delivery claim, because an accepted source pass does not show that the file holds it.
+Use the README's capture commands to draw the source and extract the delivered file at matching times. Verify both before claiming delivery.
 
-Review first as an audience that has not read the plans, covering the opening, the ending, the middle and every join, and lock that response before opening the screenplay or code. Then inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Find every screenplay beat in the picture; a function name or a citation proves neither invocation nor visibility.
+Lock an audience response before reading the screenplay or code. Cover the entire film and all joins. Then check every beat, contact, support, facing, reaction, occlusion and continuity in the picture.
 
-Judge each output by what it promises. A whole motion hint carries staging, identity, camera, action and timing at its adopted representation, which polygon men and coarse forms do, and its control channels are checked at matched frames under [control channels](../motion/control-channels.md).
+Verify staging, identity, camera, action and timing on the adopted representation. Compare a hint's [control channels](../motion/control-channels.md) at matched frames.
 
 A selected generator is judged on its accepted inputs and takes under [generation](../video/generation.md).
 
@@ -35,25 +35,25 @@ Ask the user for what only playback shows, and record each report against its fi
 
 ### Measurement and comparison
 
-Before any delivery claim, cut the film into review segments, each one capture of a stretch of the film, and inspect every segment on its contact sheets at the capture's default spacing, with the consecutive frames [capture](../visual-debugging/capture.md#times) requires around every contact, cut and join. The README owns the window, the spacing and the options that select exact frames.
+Inspect all review segments on contact sheets. Use consecutive frames around contacts, cuts and joins under [capture](../visual-debugging/capture.md#times). The README defines the capture options.
 
 With motion already accepted in its catalog cases, this pass judges staging, camera and timing under [motion judgment](../motion/judgment.md). Repeat it on every segment a fix touches.
 
-Study what [when to study](../story/planning/research.md#when-to-study) assigns to delivery review. Measure a study's visible targets on the displayed bodies and camera in those stills, because the resolved schedule only plans them, and its audible targets on the decoded audio, confirmed by the user's listening.
+Use [when to study](../story/planning/research.md#when-to-study) to assign research. Measure visible targets on output stills and audible targets on decoded audio. Confirm sound with the user's listening.
 
-Measure the delivered file against the [delivery profile](../production/project-context.md#the-delivery-profile) by reading the file itself: every property the profile records, as the file is tagged, with its frame count and loudness by the profile's measurement method. An untagged file is played with a guessed color matrix, so stills extracted from it can match the source while the audience sees shifted color.
+Measure the delivered file against the [delivery profile](../production/project-context.md#the-delivery-profile). Read its tags and measure frame count and loudness by the recorded method.
 
-An encoder's exit or a matching nominal duration is not a measurement, and runtime comes from performed and measured timing, never from page or word count.
+Derive runtime from performed and measured timing.
 
-Keep an accepted delivery's sheets and measures where [media records](../production/media-records.md#files) puts them. Every later delivery claim sets each segment's sheets and measures beside the previous delivery's at matched times under [comparison](../visual-debugging/comparison.md). A regression holds delivery until it is repaired or the owner accepts it.
+Keep accepted sheets and measures under [media records](../production/media-records.md#files). Compare each segment at matched times with the previous delivery under [comparison](../visual-debugging/comparison.md). Repair regressions or obtain the owner's acceptance.
 
 ### Assets
 
-Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [form inspection](../3d-modeling/inspection.md) at the uses [entity work](../development/entities.md#inspection-and-handoff) sets. Have the user listen to standalone audio as delivered.
+Test promised views and controls in the asset's consumer. Apply [form inspection](../3d-modeling/inspection.md) to shape, contact, deformation and movement at the [commissioned uses](../development/entities.md#inspection-and-handoff). Have the user listen to standalone audio.
 
 ## Acceptance record
 
-Every acceptance records the revision, the media and output identities, the checks completed, the observations and the unverified limits. A film's record is `docs/acceptance/<film>.md`, one tracked file per film across its revisions, and it also holds:
+Record revision, output and media identities, completed checks, observations and remaining limits. Keep one `docs/acceptance/<film>.md` per film across revisions. Include:
 
 - technical file completion;
 - the separate verdict on the depicted practice;
@@ -63,9 +63,9 @@ Every acceptance records the revision, the media and output identities, the chec
 - the views and passes reviewed;
 - what the user watched or heard, and what nobody did.
 
-The catalog film has its record too, `docs/acceptance/catalog.md`, with one row per case giving the revision and views at which it was accepted. A film composes only cases that record lists, and a module changed after its row was written is accepted again before a film relies on it.
+In `docs/acceptance/catalog.md`, record each case's accepted revision and views. Compose only accepted cases. Reapprove a case after its module changes.
 
-The record holds review's observations and answers no contract item, because [the graph](../contracts/SKILL.md#outside-the-graph) cannot establish what a picture shows.
+Record review observations here, outside [the graph](../contracts/SKILL.md#outside-the-graph).
 
 ## Repairs
 

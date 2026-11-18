@@ -4,7 +4,7 @@
 
 Promise and scope:
 
-1. The answering file declares the audience, the central experience, the questions or formal effects it develops, its recurring rewards and the title's promise. User-fixed title wording is not a taste question.
+1. State audience, intended experience, questions or formal effects, recurring rewards and title promise. Take user-fixed title wording as given.
 2. The answering file establishes where delivery begins and ends, its inclusions and exclusions, its relation to a larger work, and its release units with their number and duration ranges.
 3. Where the user delegated these, a provisional plan is derived from the promise, material and production limits, names its grounds and uncertainty, and is revised when those grounds change.
 4. A series establishes what recurs, what closes per release and what develops across releases. Scripts choose the release boundaries.
@@ -38,6 +38,6 @@ Records:
 19. Each record gives its definition, settled content, conditions and open matters in a consistent order for its kind.
 20. Each independently used subject has one file with its inseparable attributes together, one term per concept and one owner per fact, and a shared fact links to its owner.
 21. Records state facts in prose for readers and never describe code. Rendering and generation controls belong to the production's source.
-22. Records establish world facts, baseline states and change conditions, and leave chosen events, causal progression, choices, results, setups, payoffs and reveal order to treatments. Where a fixed historical result or time-specific status constrains treatments, no record prewrites how the film reaches or reveals it.
-23. A lasting state a later layer established, such as a wound or a revealed relationship, is recorded in settings and cites the unit that established it.
+22. Establish world facts, baseline states and change conditions. Leave events, causes, choices, results, setups, payoffs and reveals to treatments. Record fixed historical results or time-specific states without prescribing how the film reaches or reveals them.
+23. Add lasting states that later layers establish to settings and cite the establishing unit.
 24. The cinematography domain owns the film's look. Editing and audience access belong to production instructions or work contracts.

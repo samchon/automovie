@@ -1,23 +1,23 @@
 # Inspection
 
-On the long route, the author's inspection, the author's repair of evidence gaps and the independent review of each pass use this method. The selected contracts own the failure conditions and exceptions; the classification table only records their application.
+Use this method on the long route for construction inspection, Evidence gap repairs and independent review. Take failure conditions and exceptions from the selected contracts.
 
 ## Independent classification
 
 Give the classifier, a [separate context](../workflow/routes.md#separate-contexts), the current body and needed neighbors, the selected contracts and the actual parents, and nothing of the author's explanations, evidence or earlier verdicts.
 
-Classify every sentence of scripts against every named failure of their selected contracts, and every sentence of the screenplay against the named failures of the production's own `docs/contracts/language` or `docs/contracts/work` contracts, where those name any. An ambiguous candidate is decided in context by the recipient loss; ambiguity alone is not yes.
+Classify every script sentence against selected named failures. For a screenplay, use named failures from the production's `docs/contracts/language` and `docs/contracts/work`. Decide borderline cases by their effect on the recipient.
 
-For narrative construction, also pair each paragraph with its parent passages to test [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation), and compare inherited names, address, quantities, dates, places, states and certainty with the parents. A parent's agreement with its own sources was [checked when it was written](../planning/research.md#sources) and is not reopened here.
+Pair each paragraph with its parent under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation). Compare inherited names, address, quantities, dates, places, states and certainty. Keep source checks with the [parent](../planning/research.md#sources).
 
-Record the revision and covered ranges, list the tested failures once, and give one row per sentence with its locator and the names of the failures found, or `-`, noting any other loss the recipient would suffer there. Keep the raw table in ignored `.cache/` and its supported findings in the accountable record.
+Record revision, coverage and tested failures once. Give each sentence a locator and failure names or `-`. Note other recipient losses. Keep the table in ignored `.cache/` and supported findings in their record.
 
-Lock the whole initial table before author defenses. The author repairs or raises a factual objection, and the classifier resolves it without substituting intent for the recipient's judgment. Record every member of each recurring cause, and send uncovered recurring losses to discovery.
+Lock the initial table before reading the author's response. The author repairs or objects on factual grounds. The classifier decides objections by recipient loss. Record all members of recurring causes and send uncovered classes to discovery.
 
 ## Changed work
 
 The body's author makes every repair until the cycle closes. Classify each changed sentence, its neighbors and every statement whose meaning depends on it; changed parents or requirements reopen their comparisons.
 
-Reverse an unchanged classification only for new body, parent, source or contract evidence, never for a preferred reading, and give a repaired passage another yes only for a clear applicable failure. Then reread the changed passages together under [cause rounds](repair.md#cause-rounds).
+Change an earlier classification only on new body, parent, source or contract evidence. Flag clear applicable failures in the repair and reread changed passages under [cause rounds](repair.md#cause-rounds).
 
-The cycle is complete when coverage is complete and no unprotected yes remains after the affected rows are rechecked. A clean table is neither independent approval nor whole-work completion; independent review closes the pass.
+Finish classification when coverage is complete and no applicable failure remains after rechecking affected rows. Independent review closes the pass.

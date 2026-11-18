@@ -5,7 +5,7 @@ description: Holds the checklists Evidence asks of source and story.
 
 # Contracts
 
-This tree holds the questions Evidence asks. A respondent is whoever answers one: a declaration, a document or a record. The calling task selects the family and contracts; this file is not an evidence target.
+A respondent is the declaration, document or record that answers a contract. The calling task selects the family below.
 
 | Family | Respondents |
 | --- | --- |
@@ -18,9 +18,9 @@ The story units and populations are those of the research studies, settings or b
 
 ## Items and statements
 
-Each H2 is one item, established by a separate answer. An item is one broad question with its reason: what to achieve, and what its recipient loses when it is missed.
+Each H2 asks one question about an achievement and the loss if it is missed. Give it one answer.
 
-An item's detail lives one level down, in a `statements` document beside its contract, under the item's anchor. Each statement is one assertion, with its exceptions, that one reading of the work finds met or failed. Statement documents are not evidence targets: no selector reaches them, and a citation names the item, never a statement.
+Details live under the same anchor in a `statements` document. Each statement asserts one checkable condition and its exceptions. Cite only the item.
 
 A respondent uses the statements to question its own compliance:
 
@@ -29,12 +29,12 @@ A respondent uses the statements to question its own compliance:
 3. Write an answer true against all of them, without reciting the list.
 4. Name in it each statement that does not apply, with its reason.
 
-A source reviewer audits the answer against the same list; a story answer's truth belongs to its evidence answerer. Unless an item says its statements are its whole boundary, another proven loss on the item's question is still a finding.
+Source reviewers verify source answers. The evidence answerer verifies story answers. Report any proven loss under the item's question unless the statements define its whole scope.
 
-An enumeration in an item or a statement defines what to compare, not ingredients to add to the respondent. Items and statements cite no research or reference source, though a statement may link the skill document or sibling statement that owns a rule it applies.
+Treat enumerations as comparison criteria. Keep research citations out of items and statements. Link rule owners where needed.
 
 ## Outside the graph
 
-An item asks only what its authored respondent can establish from its own content and the references it cites. What a rendered or generated picture shows, and what a sound is, can only be observed, so generation requests, prompts, control channels and delivered media have no contract family.
+Check only what a respondent can establish from its content and references. Review generation requests, prompts, control channels and delivered media outside the contract graph.
 
-[Review](../review/SKILL.md) judges them on stills and through the user's ears, and records the observations in the delivery review's acceptance record. An answer that records such an observation in place of the work it describes adds paperwork, not evidence.
+[Review](../review/SKILL.md) records visual observations from stills and listening observations from the user in the delivery acceptance record.

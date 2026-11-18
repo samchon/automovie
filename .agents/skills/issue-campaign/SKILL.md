@@ -5,11 +5,11 @@ description: Runs discovery rounds and lands their issues in one pull request pe
 
 # Issue campaign
 
-A cycle audits the target branch until a discovery round finds nothing new, then lands every accepted issue in one pull request whose merge starts the next cycle.
+Audit the target branch to a clean discovery round. When authorized, resolve the accepted issues in one pull request per cycle.
 
 Stay within the phases the user authorized; an audit-only request publishes and pushes nothing. Discover and fix only within the campaign's named topic, and say so at once if the work must reach beyond it.
 
-The campaign is complete when a round on the latest baseline finds nothing, no accepted issue is open, and no campaign branch, pull request or temporary asset remains.
+Finish when the latest baseline has no findings, all accepted issues are closed and the campaign's branches, pull requests and temporary assets are cleared.
 
 ## Discovery
 
@@ -27,8 +27,8 @@ With publication authority, write each accepted issue so a fresh agent can start
 
 - the problem;
 - its reproduction and root cause;
-- the consequence surface and case matrix;
-- the invariant to restore;
+- affected behavior and cases;
+- required behavior;
 - acceptance cases with commands;
 - dependencies.
 
@@ -46,7 +46,7 @@ Implement every issue in dependency order with its tests. Drop an issue only as 
 
 ### 3. Closing lines
 
-End each resolving commit with `Close #n: <title>` per issue. A revert must drop that line, because a squash still carries the reverted commit's line.
+End each resolving commit with `Close #n: <title>` per issue. Remove the line when reverting so squash cannot close the issue.
 
 ### 4. Individual self-review
 
@@ -66,10 +66,10 @@ After merge, `git pull --ff-only` on `master`, delete the topic branch, remove o
 
 ## Handoff
 
-When the user ends a campaign before it is complete, record the unfinished work as unfinished and leave its checks as they are.
+Keep unfinished work and its checks in their current state when the user ends a campaign.
 
 1. Stop every worker, keeping only changes that build, and commit them.
-2. Publish one handoff issue that a fresh session can follow as an instruction sheet.
+2. Publish one handoff issue containing the context a fresh session needs.
 3. Comment the progress on each open issue, pointing to the handoff, and close only the issues whose acceptance is met.
 4. Update the pull request body to say what is met and what is not, then merge as the user directs.
 
@@ -80,4 +80,4 @@ The handoff issue holds:
 - the baseline results;
 - each open item, in order.
 
-Give each open item its verified cause, the hypotheses ruled out with the measurement behind each, the files and functions involved, and the next step. Copy every finding the next session needs into the issue, because local scratch files do not travel.
+For each open item, include the verified cause, measurements that ruled out other causes, relevant code and next action. Include the findings the successor needs to proceed without local scratch files.

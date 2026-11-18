@@ -12,7 +12,7 @@ Where the guide sets none, give each character these views, one person in each, 
 - a face close-up with a neutral expression;
 - three-quarter, profile or back views as the shots need.
 
-Give each prop a plain-background view, and each place one canon plate without people for each light state its scenes use, such as day and night. Keep every view a separate image, because a collage of references reads at lower quality than the same views apart.
+Give each prop a plain-background image and each scene lighting state an empty location plate. Save each view separately.
 
 Where the chosen model's terms reject references with real human faces or minors, ask the user how to give it identity, and record the answer in [project context](../production/project-context.md).
 

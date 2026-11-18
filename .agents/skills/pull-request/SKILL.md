@@ -9,8 +9,6 @@ Pushing, opening and merging each need the user's request or a mandate that name
 
 ## Branch and commit
 
-Each pull request follows these rules for its branch and commits:
-
 - Branch `<type>/<scope>` from `master` in the current checkout.
 - Never commit to `master` or use another clone or worktree.
 - Stage only your own paths, as a [shared checkout](../development/SKILL.md#several-agents-in-one-checkout) requires.
@@ -22,12 +20,14 @@ Write the body once: intent, scope, deferred items, local verification and skipp
 
 Record later fixes and each [self-review](../review/SKILL.md) pass or round as a `COMMENT` review, with line findings inline, never as ordinary comments, `APPROVE` or `REQUEST_CHANGES`.
 
-Write an issue, pull request or comment body to a UTF-8 file, pass it with `--body-file` from a shell that keeps its bytes, then read the published body back. Windows PowerShell 5.1 reads UTF-8 without a BOM as ANSI and turns every non-ASCII character into `?`.
+Write issue, pull request and comment bodies to UTF-8 files. Submit them with `--body-file` and read back the published text. Avoid PowerShell 5.1's default ANSI decoding of UTF-8 without a BOM.
 
 ## Push and merge
 
-Push a correction only after every check of the current head has settled, because a push cancels the running checks.
+Skip CI monitoring for documentation and skill edits that leave product behavior unchanged. For other changes, wait for checks on the current head before pushing a correction.
 
-Squash-merge once required checks are green on the exact head. An issue campaign also needs a completed [overall self-review](../review/SKILL.md#overall-self-review) on that head.
+Before an authorized squash merge, verify required checks on the exact head for changes that require CI monitoring. An issue campaign also needs a completed [overall self-review](../review/SKILL.md#overall-self-review) on that head.
 
 Under a delivery mandate, merge without asking. Report a branch-protection block instead of bypassing it.
+
+After a user-requested merge, run `git checkout master` and then `git pull`.

@@ -4,21 +4,21 @@ The run record is the one shared file where every worker, the observer and the c
 
 ## Appending
 
-Add to the run record by appending whole lines, such as with `>>`, never by rewriting the file. A rewrite drops the lines others wrote meanwhile, including those the coordinator's monitor waits on.
+Append complete lines to preserve concurrent entries.
 
 ## What each run records
 
 Record each run's input, output, working path, role, requested model, confirmed model, runtime, effort, session or process identifier, start, end and exit status. Link the logs and results rather than copying them.
 
-Take the role from the brief, not from a report heading, and the session identifier and model from the CLI's own records. Claude's `system/init` event carries both. A Codex run's `thread.started` event names the `thread_id` whose session file under `~/.codex/sessions/` records the model. A model those records do not show stays unconfirmed and is left out of model comparisons.
+Take roles from the brief. Confirm session and model from Claude's `system/init` or the Codex session file for `thread.started`'s `thread_id` under `~/.codex/sessions/`. Exclude unconfirmed models from comparisons.
 
 ## Resuming
 
-Resume a CLI run by its session identifier, keep the earlier output and write the result to a new file. A resume brief supplies only unread or changed material and the tool results the current task needs, because that session already holds what it read.
+Resume by session ID. Keep the earlier output and use a new output file. Give the session only new or changed material and the tool results it needs.
 
 ## Handoff
 
-Update the run record at each launch, submission, verdict, failure, repair and handoff with paths, editions, current acceptance, remaining work and the next action, so a successor finds the first action without the private session.
+At launch, submission, verdict, failure, repair and handoff, record the paths, versions, acceptance, remaining work and next action.
 
 Link each submission to its original verdict and the author's decision per finding, and each run failure to its resumption. When correcting a record, keep the original text and the grounds for the change.
 

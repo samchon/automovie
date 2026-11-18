@@ -6,4 +6,4 @@ Statements: [statements/principles/brief.md](../statements/principles/brief.md).
 
 ## Needed decisions
 
-Does it name its subject and settle a value, its scope and the conditions, limits or exceptions that affect use, specifically enough that a screenplay author or reviewer can hold the films to it? A decision left open is invented by each screenplay that needs it, and the films stop agreeing.
+Does the record name its subject, decision, scope and applicable limits so each screenplay can use it consistently?

@@ -1,6 +1,6 @@
 # Narrative population obligations
 
-Each completed treatment, script and final screenplay population answers each question once, across all units and boundaries. A treatment, which has no partition, is read in major spans, each ending at a turn that changes the story's direction; scripts and the screenplay use their partition.
+Answer once per completed treatment, script or screenplay population, across all units and boundaries. Read treatments in spans ending at changes of direction. Read scripts and screenplays by partition.
 
 Statements: [statements/obligations/narratives.md](../statements/obligations/narratives.md).
 
@@ -10,4 +10,4 @@ Followed across every unit and boundary, do events, states and pursuits continue
 
 ## Promises and distribution
 
-Does the whole keep its promises, and does its handling of time, speech and recurrence follow each span's pressure? Uniform speed, mechanical alternation, habitual aphorisms, uniform voices and functionless recurrence can fail despite local passes.
+Does the whole work keep its promises and vary timing, speech and recurrence with each span's pressure? Check for patterns that local passes miss.

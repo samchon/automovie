@@ -6,4 +6,4 @@ Statements: [statements/naturalness/scripts.md](../statements/naturalness/script
 
 ## Execution rhythm
 
-Do block length, speaker changes, directions, interruptions, silence and simultaneous action make the action and reaction easy to perform at the required pressure and pace? A uniform pattern flattens the scene, and stripping executable vocabulary because it sounds technical destroys this layer's work.
+Do blocks, speech, directions, silence, interruptions and simultaneous actions make the scene playable at its required pace and pressure? Preserve necessary execution language.

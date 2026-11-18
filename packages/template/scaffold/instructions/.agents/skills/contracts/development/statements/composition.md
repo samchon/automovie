@@ -2,7 +2,7 @@
 
 ## Screenplay realization
 
-1. The scene composes its scene file's standing state and each cited beat's participants, intents, outcome, reactions and consequences, and every change of position, camera and sound, omitting, altering and adding none. Exception: a commissioned generated film's prompt carries the reactions the representation cannot show, such as a facial expression.
+1. Realize the standing state and each cited beat as written, including every change in position, camera and sound. For commissioned generation, carry reactions the representation cannot show in the prompt.
 2. Each state continues across cuts until a beat changes it.
 3. A film plays every scene file of its folder in the order of their numbers, with the screenplay's transitions, titles and subtitles, and fills its running time.
 4. A film takes its raster, frame rate and running time from the delivery profile in [project context](../../../production/project-context.md), and its grade and control channels from the screenplay and that record.
@@ -24,7 +24,7 @@
 
 ## Living scene
 
-1. Every entity on screen, officials, crowds, cameras and lights included, performs its role behavior for its whole presence and reacts to the scene's state, never freezing or dropping it. A hold that breathes, looks and keeps its stance's own sway is performing. Exception: stillness the screenplay decided.
+1. Every entity performs its role and responds throughout its presence. A hold may retain breathing, gaze and stance sway. Preserve any stillness the screenplay requires.
 2. The scene never falls back to isolated single actions or one axis of movement.
 3. Each beat's spatial change moves its participants between the set's zones and landmarks.
 4. The camera reframes, follows and moves with motivated action. Exception: a fixed view the screenplay decided.

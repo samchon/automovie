@@ -1,26 +1,26 @@
 # Connecting review
 
-The production's [review](../../../packages/template/scaffold/instructions/.agents/skills/review/SKILL.md) owns verdicts, repair and current acceptance, and its [independent reading](../../../packages/template/scaffold/instructions/.agents/skills/review/independent-reading.md) sets the reviewer's model and reading order. The campaign connects a fixed submission to an independent reviewer and keeps the verdict verbatim.
+Production [review](../../../packages/template/scaffold/instructions/.agents/skills/review/SKILL.md) owns verdicts, repair and acceptance. Follow its [independent reading](../../../packages/template/scaffold/instructions/.agents/skills/review/independent-reading.md) for model choice and reading order. Preserve the verdict verbatim.
 
 ## Submit
 
-Fix the submission in its request: production, layer or film or module, pass, base commit, the submitted files with their content hash, and the test and capture results. Motion and film work add the captured frames and encoded film with their digests.
+Record production, target, pass, base commit, submitted file hashes and test results. For motion and film include captures and any encoded output with their digests.
 
-Check that the tree the reviewer reads matches the submitted bytes. Other changes in the same checkout or a moved HEAD do not block a review whose target bytes are unchanged; when the bytes differ, correct that review's input rather than forcing the checkout.
+Verify submitted bytes before review. If they differ, correct the review input. Other checkout changes do not block it.
 
 ## Launch the reviewer
 
 Start the review as a new CLI process with a new session, launched as [launching workers](launching-workers.md#launch-workers-as-processes) describes, on the independent reading's model unless the user names another.
 
-Have it read the whole submission, and for motion and film work the frames themselves, with the film as dense consecutive frames. It receives parents, contracts, author records and earlier verdicts only in the independent reading's order, so they cannot steer its judgment.
+Have the reviewer inspect the whole submission and, for films, dense consecutive frames. Pass parents, contracts, records and earlier verdicts in independent-reading order.
 
 ## Relay and re-review
 
-Relay the reviewer's verdict verbatim to the writer and ask for its decision on each finding rather than telling it to repair them all, because repairing every finding wholesale kept a short's screenplay open for seven rounds. Link each finding to that decision, its repair and any later round its route sets.
+Send the verbatim verdict to the writer for a decision on each finding. Link each finding to the decision, repair and any later review the route requires.
 
-For a finding the writer declines, resume that round's reviewer session for its rebuttal or withdrawal and pass that back to the writer's session for a final decision. A narrative pass then runs the rounds its route sets, the [short](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/short.md#steps) or [long](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/long.md#each-layers-pass) route, and each later round goes to a fresh reviewer process.
+Resume the round's reviewer to rebut or withdraw a declined finding, then return it to the writer for final decision. Run later [short](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/short.md#steps) or [long](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/long.md#each-layers-pass) rounds in fresh processes.
 
-Before a narrative pass goes to review, start its evidence answerer as its own process. It writes the answers and hands the writer the gaps it cannot answer truthfully, and brings the answers up to date after the repairs only where the route says so. Never ask a reviewer to audit answers.
+Start the Evidence answerer before narrative review. It writes answers, reports gaps to the writer and updates answers after repairs where the route requires. Keep answers out of review.
 
 Check the submission, scope, frames read and required records. A partial review or another edition's verdict is not current acceptance, and a repeated handled finding or a missing reply is not a new verdict.
 

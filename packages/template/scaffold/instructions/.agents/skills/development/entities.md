@@ -6,39 +6,39 @@ Prepare scene subjects under the production principles. Read [project context](.
 
 ## Coarse first
 
-Keep geometry coarse so motion, staging, timing and camera stay readable. Choose solid colors freely for people, groups and objects to distinguish them or express their character.
+Keep forms simple enough to read motion, staging, timing and camera. Use solid colors to distinguish or characterize subjects.
 
 ### People
 
-Prepare the canonical body from the cast record's body facts and pass that same prepared body to drawing and motion. A crowd takes its bodies from the crowd record and performs through the vocabulary's group capability. [AutoMovie packages](../automovie/SKILL.md#packages) names the owners, and their READMEs give the calls.
+Prepare cast bodies from their records and share the same body between drawing and motion. Compose crowd bodies through the group capability. See [package owners](../automovie/SKILL.md#packages).
 
 A person has no modeled surface of its own: clothing, a face and a build beyond the body facts stay out.
 
-Equipment a person wears or holds, such as a glove, is an object attached to the body.
+Attach worn and held equipment as objects.
 
 ### Objects
 
-Instantiate the relevant archetype with the record's facts and seed. Keep its model, dimensions and connection frames together through drawing, equipment and interaction, so a hand does not act on a different object from the one shown.
+Instantiate the archetype from the subject's facts and seed. Use its model, dimensions and connection frames for drawing and interaction.
 
-An archetype declares its affordances, the places where a person meets it, such as a grip or a hinge. The installed motion vocabulary attaches an action to an affordance, so one action fits every size the object takes.
+An affordance defines where and how an action meets an object. Pass it to the installed motion vocabulary.
 
-An object no archetype offers is built in the production as a coarse form. It declares its affordances and, where it moves or is struck, its mass and articulations as the installed packages type them, because without them it can be drawn but not sat on, gripped or opened.
+If no archetype exists, build a coarse form with the required affordances, mass and articulations.
 
 ### Everything else
 
-Every other subject is the simplest form that identifies it, such as a trunk and a crown for a tree, chosen, sized and checked under 3D modeling's [coarse forms](../3d-modeling/coarse-forms.md).
+Identify other subjects with the simplest [coarse form](../3d-modeling/coarse-forms.md).
 
 ### What stays out
 
-A fact the coarse form cannot show, such as a face or a fabric, is not modeled on it. It reaches a generated film through the record's canon references and the generation prompt, under [image](../image/SKILL.md) and [video](../video/SKILL.md), and a direct 3D film through a detail option that shows it. A 2D image can be an appearance reference or a conditioning input, never a substitute for coded motion.
+Send unsupported appearance facts through [canon references](../image/SKILL.md) and [generation prompts](../video/SKILL.md), or a direct 3D detail option. Use images for reference or conditioning. Author motion in code.
 
 ## Detail
 
-A commission may need more than identification, such as a direct 3D film. Detail is then an option of the entity, built from the same definition as the coarse form, which stays the default. Identity, dimensions, pivots, attachments, contacts and controls belong to that definition rather than to the surface, so nothing a scene relies on moves when the option changes.
+Build commissioned detail as an option on the same entity definition. Keep identity, dimensions, pivots, attachments, contacts and controls independent of surface detail.
 
-Author motion, accept catalog cases and review segments on the coarse form. It shows joints and contacts plainly and captures quickly, and a defect repaired only on a detailed model stays in the coarse one.
+Author motion, accept catalog cases and review segments on coarse forms.
 
-Select the detailed form only for the delivery that commissions it, and record the choice in [project context](../production/project-context.md). Then capture the same segments at both settings and compare their proportions, pivots, contact, deformation, visibility, timing and silhouette.
+Enable detail only for commissioned delivery and record it in [project context](../production/project-context.md). Compare both settings on the same segments for proportion, pivots, contacts, deformation, visibility, timing and silhouette.
 
 The 3D modeling skill makes, rigs and verifies a detailed form, and the video skill's direct film page sets what a direct 3D film's detail adds.
 

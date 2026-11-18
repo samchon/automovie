@@ -4,17 +4,17 @@ Every request is a separate generation, so identity, light, color and motion can
 
 ## Chaining requests
 
-A request that continues an accepted take takes the take's ending as a second video where the model takes several videos with separate roles; that ending counts against the request's total input length. Otherwise it takes a chain frame as its first frame.
+Where the model takes multiple videos with roles, pass the accepted take's ending as a continuation input and count it toward the input limit. Otherwise start from a chain frame.
 
-Choose the chain frame before the take slows toward its drifting end, not its literal last frame, record it in the request, and state the pose and state at the seam in the new prompt. Pass the take on in the lossless or high-bit-depth format the model offers, because each lossy round shifts color and brightness.
+Choose a chain frame before end-of-take drift. Record it and state the pose and state at the seam. Use the model's lossless or high-bit-depth format when available.
 
-An extend mode often takes no hint and keeps only the last frame or seconds as context; [placement in time](../generation.md#placement-in-time) places its result. Where the model cannot take a continuation beside the hint, end the request at a cut, and tell the user that a continuous shot longer than one request needs another model.
+If extension takes only prior frames, place it under [placement in time](../generation.md#placement-in-time). If continuation cannot use the hint, end at a cut. Report overlong continuous shots to the user for model choice.
 
 ## Across the film
 
-Give every request the same canon references and the [shared description](prompts.md#shared-description), because each request knows nothing of the last. Rely on the references for identity, never on a seed, which [media records](../../production/media-records.md#records) explains does not reproduce a file.
+Use the identical canon references and [shared description](prompts.md#shared-description) in every request. See [media records](../../production/media-records.md) for seed limits.
 
-Where the model offers an element or subject, bind a character's references into it; some models accept only photoreal people there. For a character that recurs across many requests, a [custom checkpoint](models.md#layout-and-structural-control) can also take a [character LoRA](../../image/diffusion/consistency.md#character-lora), with frames of accepted takes among its training images. A character's generated voice is kept under [generated sound](../../audio/generated-sound.md).
+Bind recurring character references as elements where supported. Check photorealism restrictions. A compatible [checkpoint](models.md#layout-and-structural-control) may use a [LoRA](../../image/diffusion/consistency.md#character-lora) trained on accepted frames. Preserve voice under [generated sound](../../audio/generated-sound.md).
 
 ## Seams
 

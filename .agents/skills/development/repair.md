@@ -1,13 +1,11 @@
 # Repair
 
-Repair keeps established contracts by fixing the responsible cause.
-
 ## Before editing
 
-Read the implementation, its callers, contracts and tests until you know why the code is structured as it is and which invariants it owns. Then group every known symptom by cause, and trace each cause and your change through callers and consumers, error and recovery paths, caches and determinism, and Windows and POSIX.
+Read the implementation, callers, contracts and tests to identify the invariants it owns. Group findings by cause. Trace each cause and fix through consumers, failure and recovery paths, caches, determinism and supported platforms.
 
 ## The fix
 
 Fix each cause at its owner and delete the compensations the fix makes unnecessary. Put non-obvious invariants in nearby comments.
 
-Verify every case the trace reached, both the corrected behavior and the behavior that must remain, with the checks the development skill names.
+Use the development checks to verify the corrected and preserved behavior for every affected case.
