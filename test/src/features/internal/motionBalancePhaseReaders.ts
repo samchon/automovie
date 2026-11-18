@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanLean, AutoMovieMotionHumanTrunk, HumanBalance, HumanChain, HumanPerformance, HumanPhysics, HumanRefusal, stand, support } from "@automovie/motions";
+import { AutoMovieMotionHumanLean, AutoMovieMotionHumanTrunk, HumanBalance, HumanChain, HumanPerformance, HumanPhysics, HumanRefusal, crouch, stand, support } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionComposeTrunk } from "./motionComposeTrunk";
@@ -115,7 +115,8 @@ function registered(body: IAutoMovieMotionHumanBody): void {
   const perform = (balance: IAutoMovieMotionHumanBalance): void => {
     new HumanPerformance({
       seed: "registered-balance",
-      laws: [{ ...stand, name: "standingBalanceWitness" }],
+      laws: [{ ...stand, name: "standingBalanceWitness", plan: (context) =>
+        crouch.plan({ ...context, params: {} }) }],
       performers: [{ subject: "a", body, at: motionComposeTrunk.ORIGIN, yaw: 0, proficiency: { level: "trained" } }],
       composition: HumanChain.subject("a").registered("standingBalanceWitness", { seconds: 1, balance }).node,
     });

@@ -1,6 +1,7 @@
 import {
   minimumJerk,
 } from "@automovie/engine";
+import { HumanPhysics } from "../law/HumanPhysics";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -403,7 +404,7 @@ export namespace sit {
       primitives: [arm("left"), arm("right")],
       contact: "seatContact",
     });
-    const planned: IAutoMovieMotionHumanActionPlan = { ...composed, base: lowering.base, balanceWindow: window };
+    const planned: IAutoMovieMotionHumanActionPlan = { ...composed, base: lowering.base, ...HumanPhysics.declared(context.params, window) };
     return adjusted === undefined ? planned : prepareSitWorkingFeet.prepend(adjusted.prefix, planned);
   }
 }

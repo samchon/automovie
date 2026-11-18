@@ -466,6 +466,6 @@ export namespace exercise {
       clock,
       primitives,
     });
-    return { ...plan, balanceWindow: window };
+    return { ...plan, ...HumanPhysics.declared(context.params, window) };
   }
 }

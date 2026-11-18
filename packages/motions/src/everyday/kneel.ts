@@ -480,7 +480,7 @@ export namespace kneel {
         : course.posture(movingSecond(seconds), channels, resolution, projection);
     return {
       ...course,
-      balanceWindow: window,
+      ...HumanPhysics.declared(context.params, window),
       duration: display.duration,
       events: display.events(),
       posture,

@@ -260,7 +260,7 @@ export namespace wipe {
         }),
       ],
     });
-    return { ...plan, balanceWindow: window };
+    return { ...plan, ...HumanPhysics.declared(context.params, window) };
   }
 }
 

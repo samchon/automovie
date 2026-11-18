@@ -453,7 +453,7 @@ export namespace brace {
     return {
       duration,
       events,
-      balanceWindow: window,
+      ...HumanPhysics.declared(context.params, window),
       contacts,
       posture: (
         seconds: number,

@@ -492,7 +492,7 @@ export namespace crouch {
         contact: "lowest",
         primitives: [sink, rest("left"), rest("right"), open("left"), open("right")],
       }),
-      balanceWindow: window,
+      ...HumanPhysics.declared(context.params, window),
       base: { kind: "standing" },
     };
   }

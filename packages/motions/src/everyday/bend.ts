@@ -399,7 +399,7 @@ export namespace bend {
           fix: "choose a lowering that leaves room for the bracing wrist",
         });
     }
-    if (hold === 0 || window !== null) return { ...course, balanceWindow: window };
+    if (hold === 0 || window !== null) return { ...course, ...HumanPhysics.declared(context.params, window) };
 
     // Nothing changes while holding a bend. Measure one actual lowest
     // body with both hands placed. The reaching and returning courses
@@ -408,7 +408,7 @@ export namespace bend {
       seconds < down || seconds > down + hold
         ? course.posture(seconds < down ? seconds : seconds - hold, channels, resolution, projection)
         : (held ??= course.posture(down));
-    return { ...course, balanceWindow: window, duration, events: clock.events(), posture };
+    return { ...course, ...HumanPhysics.declared(context.params, window), duration, events: clock.events(), posture };
   }
   /**
    * The lowering that brings a hand within reach of a target: the strategy

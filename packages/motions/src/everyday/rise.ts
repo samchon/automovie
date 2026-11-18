@@ -356,10 +356,9 @@ export namespace rise {
     // The hands' goals at each second, on the thighs or the armrests and
     // leaving them, are fitted along the rise's course, each second
     // continuing the swivel the course chose before it.
-    const rose: (seconds: number) => IAutoMovieMotionHumanPosture =
-      AutoMovieMotionHumanArmChain.continued(
-        body,
-        duration,
+    const releasing: number = 0.3 * rising;
+    const released: number = prepared + away + releasing;
+    const risingPosture: (seconds: number) => IAutoMovieMotionHumanPosture =
         (seconds: number): IAutoMovieMotionHumanPosture => {
           const t: number = Math.min(duration, Math.max(0, seconds));
           const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
@@ -428,10 +427,13 @@ export namespace rise {
             posture,
             rests,
             yaw,
-            1 - minimumJerk.share((u - away) / (0.3 * rising)),
+            1 - minimumJerk.share((u - away) / releasing),
           );
-        },
-      );
+        };
+    const bearing: ReturnType<typeof AutoMovieMotionHumanArmChain.continued> =
+      AutoMovieMotionHumanArmChain.continued(body, released, risingPosture);
+    const rose: (seconds: number) => IAutoMovieMotionHumanPosture = (seconds: number): IAutoMovieMotionHumanPosture =>
+      seconds < released ? bearing(seconds) : risingPosture(seconds);
 
     const events: IAutoMovieMotionHumanActionPlan["events"] = [
         { name: "seatOff", share: share(seatOff) },
@@ -443,7 +445,7 @@ export namespace rise {
       ? prepareBearingTrunkBalance(body, window, duration, contacts)
       : prepareGroundedBalance(body, window);
     return {
-      duration, events, balanceWindow: window,
+      duration, events, ...HumanPhysics.declared(context.params, window),
       contacts,
       base: { kind: "standing" },
       posture: (seconds, _channels, resolution, projection): IAutoMovieMotionHumanPosture =>

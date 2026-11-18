@@ -514,7 +514,7 @@ export namespace crawl {
             whole.write(posture, seconds, before, resolution, projection), seconds, before, resolution, projection),
         }],
       }),
-      balanceWindow: window,
+      ...HumanPhysics.declared(context.params, window),
       base: { kind: bear ? "crouched" : "kneeling" },
     };
   }

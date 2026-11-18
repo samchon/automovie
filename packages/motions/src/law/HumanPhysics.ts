@@ -116,6 +116,11 @@ export namespace HumanPhysics {
       fixed(params as IBalanced, "this action did not prepare a correction for its own body and support phase", law);
   }
 
+  /** Only a planner which received the option declares its result, including an explicitly inactive window. */
+  export function declared(params: IBalanced, window: Window): Pick<IAutoMovieMotionHumanActionPlan, "balanceWindow"> {
+    return params.balance === undefined ? {} : { balanceWindow: window };
+  }
+
   /** A candidate interval of a placed span, in film seconds. */
   export interface IJudgedInterval {
     /** First candidate second. */

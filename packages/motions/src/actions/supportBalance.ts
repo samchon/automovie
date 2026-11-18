@@ -14,7 +14,7 @@ export function supportBalance<P extends HumanPhysics.IBalanced>(
   plan: IAutoMovieMotionHumanActionPlan,
 ): IAutoMovieMotionHumanActionPlan {
   const window: HumanPhysics.Window = HumanPhysics.prepare(context.params, {}, context.start, plan, context.instant);
-  if (window === null) return { ...plan, balanceWindow: null };
+  if (window === null) return { ...plan, ...HumanPhysics.declared(context.params, null) };
   // Lumbar rotation preserves lower-body contacts directly. A pinned arm or
   // pelvis instead requires the constrained fit on that sample's actual anchors.
   const pinned: boolean = plan.contacts.some((contact) =>
@@ -24,7 +24,7 @@ export function supportBalance<P extends HumanPhysics.IBalanced>(
     : prepareSupportCorrection(context.body, window, plan);
   return {
     ...plan,
-    balanceWindow: window,
+    ...HumanPhysics.declared(context.params, window),
     posture: (seconds, channels, resolution, projection) => adjust(
       plan.posture(seconds, channels, resolution, projection), seconds, undefined, resolution, projection),
   };

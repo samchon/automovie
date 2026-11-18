@@ -411,7 +411,7 @@ export namespace operate {
       });
     return {
       ...composed,
-      balanceWindow: window,
+      ...HumanPhysics.declared(context.params, window),
       ...(part === undefined
         ? {}
         : { drives: [operateDrive.drive(part, clock)] }),
