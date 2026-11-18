@@ -123,7 +123,7 @@ interface IHeldFrames {
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact is moved off its achieved place to keep the root's path; no whole-body solve or sampled pose replaces the per-limb fit. Knee and trunk contacts are not limb-pinned, which the documentation states.
  * @evidence contracts/development/implementation.md#efficient-algorithms The C-by-D common-contact search and the held limbs' key FK (two solves of fixed keys) run once per interval; each write adds at most four analytic limb fits to the resolve the caller makes, with the pin's point solve and floor reading, and one reading of the held legs' chains alone (more only while they sink, at most `LIFTS`), each continuing the legs' fits from their swivels at the interval's two ends carried by the share (`IAutoMovieSwivelNear`), a refinement in place of a sweep; the ends are swept once per interval.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Keys/body/contact order are fixed for the plan, so the held key frames serve every write, as the held legs' swivels at the interval's two ends serve every read between them. Schedule-dependent target/source observations and those end swivels clear on settle; every changing pose resolves normally.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The interval owns one blend, the common contact, at most four held-limb frame records, one collider reader and one held-leg chain reader until release, plus one schedule-dependent target/source record until settle or release. Query FK/ROM loans end with write; no share, interpolated pose, point, floor result or workspace is retained.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The interval owns one blend, the common contact, at most four held-limb frame records, one collider reader and one held-leg chain reader until release, plus one schedule-dependent target/source record until settle or release. A stationary interval retains its first requested planted posture until settle or release. Moving shares release their interpolated pose and query FK/ROM workspaces after each write.
  */
 export function prepareSupportInterval(
   body: IAutoMovieMotionHumanBody,
@@ -261,13 +261,8 @@ export function prepareSupportInterval(
   let ends: readonly [IAutoMovieMotionHumanResolveHumanPosture.INear, IAutoMovieMotionHumanResolveHumanPosture.INear] | undefined;
   let settled: IAutoMovieMotionHumanPosture | undefined;
   return {
-    write: a.posture !== b.posture ? write : (
-      _share: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
-      // The certified key and every material anchor are identical at both
-      // ends. Preserve the planted limb goals for compositing this hold.
+    // A stationary key keeps the same planted goals through compositing.
+    write: a.posture !== b.posture ? write : (...[_share, resolution, projection]: Parameters<IInterval["write"]>): IAutoMovieMotionHumanPosture => {
       settled ??= write(0, resolution, projection);
       return settled;
     },
