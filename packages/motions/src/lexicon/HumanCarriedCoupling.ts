@@ -120,8 +120,11 @@ export namespace HumanCarriedCoupling {
    * carries' common descriptions: piggyback, under the thighs; cradle, under
    * the back and the knees; over the shoulder, the back of the thighs;
    * supported, the far hip; a waist lift face to face, the facing hips; an overhead lift, the hips from below; the armpit drag, under the arms; the collar
-   * drag, the collar; the ankle drag, the ankles. Null where the carry's own
-   * row has no hold on that side.
+   * drag, the collar; the ankle drag, the ankles. A carry whose row turns
+   * the borne body to face the bearer (the waist lift, the ankle drag) puts
+   * the borne body's right on the bearer's left, so each hand holds the
+   * borne region of the other side. Null where the carry's own row has no
+   * hold on that side.
    */
   export const HOLDS: Readonly<
     Record<
@@ -138,7 +141,7 @@ export namespace HumanCarriedCoupling {
     overheadLift: ["hipLeft", "hipRight"],
     armpitDrag: ["ribsLeft", "ribsRight"],
     collarDrag: ["nape", "nape"],
-    ankleDrag: ["calfLeft", "calfRight"],
+    ankleDrag: ["calfRight", "calfLeft"],
   };
 
   /**
