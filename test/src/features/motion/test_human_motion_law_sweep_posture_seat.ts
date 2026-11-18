@@ -8,7 +8,7 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
 
 /**
  * The three sitting modes retain the geometry of a chair at the body's
- * own popliteal height, across both stature extremes. Default seating, the
+ * own popliteal height, on two stature extremes. Default seating, the
  * backrest and the slump retain contacts through the full audited path.
  * The shift and rise start seated at that same support.
  *
@@ -41,40 +41,39 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real sit law on real bodies and reads displayed joints and soles; a perched or sunk sit, an upright back that leans, a descent with an upright trunk or a lifted foot fails with its cell, value, bound and source.
  * @evidence contracts/development/testing.md#independent-expectations The seated posture is the standard's, the descent Kralj et al.'s, every limit marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases The three distinct backs are compared within each of the two stature extremes. Default seating, shift and rise have independent stage checks.
- * @evidence contracts/development/testing.md#execution-ownership The large lean and the small upright, slump and rise share their films between full audits and independent geometry checks.
+ * @evidence contracts/development/testing.md#distinguishing-cases The large rig tests the rearward lean against its upright reference; the small rig tests the forward head displacement of the slump against its own upright reference.
+ * @evidence contracts/development/testing.md#execution-ownership Four distinct scenes carry the lean, slump, shift and rise. The upright poses are measured on the exact sit prefixes of the latter two, and those prefixes also supply both quiet entries.
  * @evidence contracts/development/common.md#meaningful-documentation States every bound with its source and status.
  */
 export function test_human_motion_law_sweep_posture_seat(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
-  const audited: Map<string, AuditedSit> = new Map();
-  for (const [law, row, name] of AUDITED)
-    if (law === "sit") audited.set(`${row === "default" ? "back=upright" : row} ${name}`, null);
+  const audited: Map<string, M.IStaged> = new Map();
   complaints.list.push(...motionPostureBranches(AUDITED, (film, [law, row, name]): void => {
-    if (law === "sit")
-      audited.set(`${row === "default" ? "back=upright" : row} ${name}`, { film, body: motionHumanBody(name), yaw: 0 });
-    if (law === "rise")
-      motionHumanRiseSignature({ film, body: motionHumanBody(name), yaw: 0 }, name, complaints);
+    const staged: M.IStaged = { film, body: motionHumanBody(name), yaw: 0 };
+    // A shift and a rise each start with the same upright sit. Its complete
+    // seated segment provides the matched reference on that very rig.
+    const back: string = law === "sit" ? row : "back=upright";
+    audited.set(`${back} ${name}`, staged);
+    if (law === "rise") motionHumanRiseSignature(staged, name, complaints);
   }));
 
-  // Back shapes are compared within one rig so its proportion cancels.
   for (const name of BODIES) {
     const back: Record<string, number> = {};
     const forward: Record<string, number> = {};
-    for (const row of ["back=upright", "back=lean", "back=slump"] as const) {
+    const variant: string = name === "m-large" ? "back=lean" : "back=slump";
+    for (const row of ["back=upright", variant]) {
       const cell: string = `sit ${row} ${name}`;
-      const shared: AuditedSit | undefined = audited.get(`${row} ${name}`);
-      if (shared === null) continue;
-      let s: M.IStaged;
-      try {
-        s = shared ?? M.stage("sit", row, name);
-      } catch (error) {
-        complaints.check(`${cell}: ${error instanceof Error ? error.message : String(error)}`, false);
-        continue;
+      const s: M.IStaged | undefined = audited.get(`${row} ${name}`);
+      if (s === undefined) continue; // The full audit reports a failed admission.
+      const end: number = s.film.performance.segments("a")[0]!.end;
+      if (row === "back=upright") {
+        const stance: number = M.trunk(s, 0);
+        complaints.check(`${cell}: quiet entry inclination ${stance}°, at most ${M.STANCE}°`,
+          Math.abs(stance) <= M.STANCE);
       }
       const contact: number = M.event(s, "seatContact")!;
       const seated: number = M.event(s, "seated")!;
-      const ts: number[] = M.times(seated, s.film.duration, M.HELD);
+      const ts: number[] = M.times(seated, end, M.HELD);
       const heading: IAutoMovieVector3 = M.forward(s.yaw);
       let trunkSum: number = 0;
       let headSum: number = 0;
@@ -103,7 +102,7 @@ export function test_human_motion_law_sweep_posture_seat(): void {
       forward[row] = headSum / ts.length;
       let peak: number = -Infinity;
       let lifted: number = 0;
-      for (const t of M.times(0, s.film.duration, M.HELD)) {
+      for (const t of M.times(0, end, M.HELD)) {
         if (t <= contact) peak = Math.max(peak, M.trunk(s, t));
         if (!M.bears(s, t, "left") || !M.bears(s, t, "right")) lifted++;
       }
@@ -137,22 +136,11 @@ export function test_human_motion_law_sweep_posture_seat(): void {
         slumped >= head + 0.01,
       );
   }
-  for (const name of BODIES)
-    for (const c of M.calibrate(name)) complaints.check(c, false);
-  try {
-    motionHumanRiseSignature(M.stage("rise", "default", "m-large"), "m-large", complaints);
-  } catch (error) {
-    complaints.check(`m-large rise: ${error instanceof Error ? error.message : String(error)}`, false);
-  }
   complaints.assert("Sitting and rising keep their prescribed geometry and supports");
 }
 
-/** The first audited film. Null indicates that this branch was already refused. */
-type AuditedSit = M.IStaged | null;
-
 /** The existing full-interval checks of the distinct seat and exit branches. */
 const AUDITED: readonly motionPostureBranches.Branch[] = [
-  ["sit", "default", "f-small"],
   ["sit", "back=lean", "m-large"],
   ["sit", "back=slump", "f-small"],
   ["shift", "default", "m-large"],

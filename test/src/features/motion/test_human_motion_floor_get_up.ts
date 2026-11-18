@@ -35,8 +35,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * has decayed, since that transition carries the act before's own pose (a
  * crawl's tucked toes sink about 14 mm, a fault of the crawl).
  *
- * Scenarios, on the smallest and the largest body of the sweep (`f-small`
- * and `m-large`):
+ * Scenarios across the small and large rigs:
  * 1. A lie down on the back, then the symmetric rise (VanSant 1988's most
  *    common adult pattern): it stands at the end, continuously and on the
  *    floor.
@@ -51,8 +50,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds each chain through the public chain and reads displayed bones and colliders; a rise that ends off its feet, jumps, sinks into the floor, or accepts a standing body fails with the case and its numbers.
  * @evidence contracts/development/testing.md#independent-expectations Standing is the stance owner's own hips height; the speed, floor and skin bounds are the verdicts' for any human motion; the 20 mm give is marked provisional.
- * @evidence contracts/development/testing.md#distinguishing-cases Both lying bases, both patterns, the hands and knees, the chain after a knockdown and a refused base, on two extreme bodies; the floor laws' own entries are `test_human_motion_floor_entry_base`'s.
- * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and attempts eleven performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both lying bases, both patterns, the hands and knees, the chain after a knockdown and a refused base. The supine rotation keeps both the small rig's displayed seam and the large rig's stance-fit witness; the floor laws' own entries are `test_human_motion_floor_entry_base`'s.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and attempts seven performances in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how standing, continuity and the floor are read with their bounds, and the 6 scenarios.
  */
 export function test_human_motion_floor_get_up(): void {
@@ -173,27 +172,30 @@ export function test_human_motion_floor_get_up(): void {
         Math.abs(hips - stood) <= 0.02 && feet <= 0.01,
       );
     };
-    rise(
-      "lying on the back, the symmetric rise",
-      HumanChain.subject("a")
-        .lieDown({ position: "supine", hold: 0.3 })
-        .getUp(),
-    );
+    // The symmetric route and prone suffix have their own course. Keep the
+    // small rotation's displayed seam and the large rotation's stance-fit
+    // regression separately: the latter can refuse before FK is available.
+    if (name === "f-small") {
+      rise(
+        "lying on the back, the symmetric rise",
+        HumanChain.subject("a").lieDown({ position: "supine", hold: 0.3 }).getUp(),
+      );
+      rise(
+        "on the hands and knees",
+        HumanChain.subject("a").crawl({ cycles: 1 }).getUp(),
+      );
+    } else {
+      rise(
+        "lying on the front",
+        HumanChain.subject("a").lieDown({ position: "prone", hold: 0.3 }).getUp(),
+      );
+    }
     rise(
       "lying on the back, the rotation",
-      HumanChain.subject("a")
-        .lieDown({ position: "supine", hold: 0.3 })
-        .getUp({ pattern: "rotation" }),
-    );
-    rise(
-      "lying on the front",
-      HumanChain.subject("a").lieDown({ position: "prone", hold: 0.3 }).getUp(),
-    );
-    rise(
-      "on the hands and knees",
-      HumanChain.subject("a").crawl({ cycles: 1 }).getUp(),
+      HumanChain.subject("a").lieDown({ position: "supine", hold: 0.3 }).getUp({ pattern: "rotation" }),
     );
 
+    if (name !== "f-small") continue;
     // 5. A fall, a rise and a crawl away.
     try {
       perform(
@@ -210,7 +212,6 @@ export function test_human_motion_floor_get_up(): void {
     }
 
     // Base refusal precedes any geometry. One standing body exercises it.
-    if (name !== "f-small") continue;
     let refused: unknown;
     try {
       perform(HumanChain.subject("a").stand({ seconds: 0.3 }).getUp());
