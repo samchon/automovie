@@ -19,6 +19,7 @@ import {
   AutoMovieMotionHumanTiming,
   HumanChain,
   HumanPerformance,
+  HumanPhysics,
   HumanRefusal,
   stagger,
 } from "@automovie/motions";
@@ -343,6 +344,37 @@ export function test_human_motion_perturb(): void {
     }
   }
 
+  // A quarter-second quiet lead-in precedes a one-second sustained load.
+  // The following fall has no lying tail, so down is its final instant.
+  const onset: number = START + 0.25;
+  const release: number = onset + 1;
+  const delayed: HumanPerformance = new HumanPerformance({
+    seed: "delayed-balance",
+    performers: [{
+      subject: "a", body: motionHumanBody("m-average"),
+      at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" },
+    }],
+    forces: [{
+      kind: "sustained", subject: "a", at: "sternum",
+      from: onset, to: release, force: { x: 0, y: 0, z: 1 },
+    }],
+    composition: HumanChain.subject("a").stand({ seconds: START })
+      .perturb({ outcome: "resist" }).knockdown({ seconds: 0 }).node,
+  });
+  const spans: readonly IAutoMovieMotionHumanSegment[] = delayed.segments("a");
+  const resisted: IAutoMovieMotionHumanSegment = spans[1]!;
+  const fallen: IAutoMovieMotionHumanSegment = spans[2]!;
+  if (HumanPhysics.judged(resisted, (resisted.start + onset) / 2) ||
+      !HumanPhysics.judged(resisted, onset) || !HumanPhysics.judged(resisted, release) ||
+      resisted.plan.physicalWindow?.from !== onset - resisted.start ||
+      resisted.plan.physicalWindow.to !== release - resisted.start)
+    findings.push("a delayed response judges outside the authored force interval or misses its endpoints");
+  const down: IAutoMovieMotionEvent | undefined = fallen.plan.events.find(
+    (event: IAutoMovieMotionEvent): boolean => event.name === "down",
+  );
+  if (down?.share !== 1 || fallen.plan.physicalWindow?.from !== 0 ||
+      fallen.plan.physicalWindow.to !== fallen.plan.duration)
+    findings.push("a fall without a lying hold must judge through its terminal down event");
   TestValidator.predicate(
     `perturb: ${findings.join("; ") || "all hold"}`,
     findings.length === 0,
