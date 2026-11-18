@@ -203,9 +203,29 @@ export namespace ArchetypeArticulation {
   export interface IProjection {
     /** Admitted travel of every articulation, including followers. */
     travels: ReadonlyMap<string, number>;
-    /** Model-space motion taking the rest contact to its posed frame. */
+    /**
+     * Model-space motion taking the supplied rest contact to its posed frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The input belongs to this rest graph; the result carries it through its own absolute travel and its carriers.
+     * @evidence contracts/development/implementation.md#principled-implementation Compose its own motion under the actual rides chain, including the level-pedal rule.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The projection exposes the same total motion used to move rigid parts in a complete pose.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the already-admitted travel for each articulation in the chain.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Visits each required carrier once per projection.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Contacts that ride the same carrier share its compounded motion within this travel state.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only this projection retains the selected carrier motions.
+     */
     motion: (contact: IAutoMovieAffordance) => ArchetypeFrame.IMotion;
-    /** Model-space frame at the admitted travels, absent for an unknown id. */
+    /**
+     * Model-space frame at the admitted travels, absent for an unknown id.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation The id identifies a rest contact; the fresh result has its posed translation, rotation and scale.
+     * @evidence contracts/development/implementation.md#principled-implementation Find the original rest record and apply its total rigid motion through ArchetypeFrame.move.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One index lookup and one frame application when found.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent contact has no fabricated frame; the calling model owns its refusal.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Evaluates only this contact and the spatial ancestor motions it needs.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same total motion and frame application as a complete posed archetype.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh transform without retaining it in the projection.
+     */
     frame: (id: string) => IAutoMovieTransform | undefined;
   }
 
