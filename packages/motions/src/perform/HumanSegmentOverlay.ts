@@ -4,6 +4,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieJointPose,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -312,6 +313,11 @@ export namespace HumanSegmentOverlay {
       };
       for (const joint of without.joints)
         if (!owned.has(joint.bone)) pose.joints.push(joint);
+      // A channel acquired by the action from the actual displayed carrier already
+      // owns its entry curve. It still releases to the carrier at the overlay end.
+      const entered: IAutoMovieMotionHumanActionPlan["enteredChannels"] = overlay.plan.enteredChannels;
+      const release: number = entered === undefined ? weight :
+        minimumJerk.share(Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)));
       for (const bone of owned) {
         const pair: [
           IAutoMovieJointPose | undefined,
@@ -319,12 +325,13 @@ export namespace HumanSegmentOverlay {
         ] = joints.get(bone)!;
         const from: readonly [number, number, number] = angles(pair[0]);
         const to: readonly [number, number, number] = angles(pair[1]);
+        const channel: ReturnType<typeof AutoMovieMotionHumanChannel.of> = AutoMovieMotionHumanChannel.of(bone);
         const share: number =
           ((bone.startsWith("left") && contacts.leftArm !== undefined) ||
             (bone.startsWith("right") && contacts.rightArm !== undefined)) &&
-          AutoMovieMotionHumanChannel.of(bone).endsWith("Hand")
+          channel.endsWith("Hand")
             ? 1
-            : weight;
+            : entered?.includes(channel) ? release : weight;
         if (
           blender === undefined &&
           owned.size > 1 &&
