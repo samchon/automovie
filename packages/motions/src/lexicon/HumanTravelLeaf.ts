@@ -301,9 +301,22 @@ export namespace HumanTravelLeaf {
           resolution,
           projection,
         );
-        return lowered === null
-          ? walking
-          : lowered.lower(walking, minimumJerk.share(Math.min(1, t / TAKE)), resolution, projection);
+        if (lowered === null) return walking;
+
+        // The lean the low handle asks moves the pelvis down and back from
+        // the walk's own, and the walk's swinging foot was planned for the
+        // walk's pelvis: the pelvis is lowered further, as the walk's own
+        // ground solve lowers it for a swinging leg's claim, until each leg,
+        // planted or swinging, reaches its foot with the knee's least bend
+        // (`resolveHumanPosture.lower` over both legs' goals).
+        const leant: IAutoMovieMotionHumanPosture = lowered.lower(walking, minimumJerk.share(Math.min(1, t / TAKE)), resolution, projection);
+        const legs: IAutoMovieMotionHumanPosture["limbs"] = { ...leant.limbs };
+        for (const leg of ["leftLeg", "rightLeg"] as const) {
+          const goal: IAutoMovieMotionHumanPosture["limbs"][typeof leg] = leant.limbs[leg];
+          if (goal !== undefined && goal.planted !== true) legs[leg] = { ...goal, planted: true };
+        }
+        const reaching: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, { ...leant, limbs: legs }, undefined, resolution);
+        return { ...leant, root: reaching.root };
       };
 
       // A swing the walk cannot follow is refused with the largest followed;
