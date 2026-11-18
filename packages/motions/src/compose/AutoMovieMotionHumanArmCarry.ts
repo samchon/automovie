@@ -1,6 +1,6 @@
 import type {
-  AutoMovieHumanoidBone,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmCarry,
@@ -8,21 +8,17 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMoviePose,
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-import { HumanArmClearance } from "../posture/HumanArmClearance";
-import { HumanArmClearing } from "../posture/HumanArmClearing";
 import { HumanHandAttitude } from "../posture/HumanHandAttitude";
-import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
+import { AutoMovieMotionHumanArmCarryCourse } from "./AutoMovieMotionHumanArmCarryCourse";
 import { AutoMovieMotionHumanArmChain } from "./AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanArmFollow } from "./AutoMovieMotionHumanArmFollow";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
@@ -96,25 +92,33 @@ export namespace AutoMovieMotionHumanArmCarry {
       (side: AutoMovieHumanSide): boolean => from[side] !== undefined,
     );
     if (s >= 1 || sides.length === 0) return posture;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    if (s <= 0) {
+      for (const side of sides) {
+        const held: IAutoMovieMotionHumanArmAngles.IAngles = from[side]!;
+        joints[`${side}UpperArm`] = held.upper;
+        joints[`${side}LowerArm`] = held.lower;
+        joints[`${side}Hand`] = held.hand;
+        delete limbs[`${side}Arm`];
+      }
+      return { ...posture, joints, limbs };
+    }
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(source);
-    const solved: IAutoMoviePose | null =
-      s <= 0
-        ? null
-        : resolveHumanPosture.seeded(
-            body,
-            posture,
-            undefined,
-            undefined,
-            resolution,
-            undefined,
-            projection,
-          ).pose;
-    // The pose the clearing course is planned in: the arrival's, when the
-    // caller names it, so the course is a plan constant and not re-solved
-    // against the goal of each second.
-    const planning: IAutoMoviePose | null =
-      solved === null || planned === undefined
+    const solved: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      undefined,
+      resolution,
+      undefined,
+      projection,
+    ).pose;
+    const planning: IAutoMoviePose =
+      planned === undefined
         ? solved
         : resolveHumanPosture.seeded(
             body,
@@ -125,144 +129,16 @@ export namespace AutoMovieMotionHumanArmCarry {
             undefined,
             projection,
           ).pose;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    // Each carried arm at a share of the carry: the plain blend of its two
-    // ends, and its course, the blend kept clear. An arm's course at a share
-    // is solved in the pose every other carried arm has at that same share
-    // (an earlier arm on its course, a later one on its plain blend), so two
-    // arms that travel together keep clear of each other as they are shown,
-    // and a course does not depend on the instant it is read at.
-    type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
-    const plains: Partial<Record<AutoMovieHumanSide, Arm>> = {};
-    const courses: Partial<Record<AutoMovieHumanSide, Arm>> = {};
-    for (const side of sides) {
-      const held: IAutoMovieMotionHumanArmAngles.IAngles = from[side]!;
-      const goal: IAutoMovieMotionHumanArmAngles.IAngles =
-        solved === null
-          ? held
-          : AutoMovieMotionHumanArmAngles.angles(solved, side);
-      const blended: (to: IAutoMovieMotionHumanArmAngles.IAngles) => Arm = (
-        to: IAutoMovieMotionHumanArmAngles.IAngles,
-      ): Arm => {
-        const upper: ReturnType<typeof blendHumanJoint.between> =
-          blendHumanJoint.between(
-            body,
-            `${side}UpperArm`,
-            held.upper,
-            to.upper,
-          );
-        const lower: ReturnType<typeof blendHumanJoint.between> =
-          blendHumanJoint.between(
-            body,
-            `${side}LowerArm`,
-            held.lower,
-            to.lower,
-          );
-        const hand: ReturnType<typeof blendHumanJoint.between> =
-          blendHumanJoint.between(body, `${side}Hand`, held.hand, to.hand);
-        return (share: number): IAutoMovieMotionHumanArmClearance.IArm => ({
-          upper: upper(share),
-          lower: lower(share),
-          hand: hand(share),
-        });
-      };
-      const plain: Arm = blended(goal);
-      plains[side] = plain;
-      const aimed: IAutoMovieMotionHumanArmAngles.IAngles =
-        planning === solved
-          ? goal
-          : planning === null
-            ? held
-            : AutoMovieMotionHumanArmAngles.angles(planning, side);
-      const plan: Arm = planning === solved ? plain : blended(aimed);
-      if (solved === null || planning === null) {
-        courses[side] = plain;
-        continue;
-      }
-      const others: readonly IAutoMovieMotionHumanColliders.IPlaced[] =
-        posture.limbs[`${side}Arm`]?.clear ?? [];
-      const posed: Map<number, IAutoMoviePose> = new Map();
-      const pose = (share: number): IAutoMoviePose => {
-        let at: IAutoMoviePose | undefined = posed.get(share);
-        if (at === undefined) {
-          at = planning;
-          // Read after every arm's blend and course exist; an earlier arm
-          // is on its course, a later one on its plain blend, so no two
-          // courses wait on each other.
-          for (const other of sides)
-            if (other !== side)
-              at = HumanArmClearance.posed(
-                at,
-                other,
-                (sides.indexOf(other) < sides.indexOf(side)
-                  ? courses[other]!
-                  : plains[other]!)(share),
-              );
-          posed.set(share, at);
-        }
-        return at;
-      };
-      // Each of the room's two readings keeps the share's blend of its own
-      // two ends: the depth an end's upper arm lies in the chest is not
-      // room for the forearm on the way.
-      const reading = (
-        of: IAutoMovieMotionHumanArmClearance.IArm,
-        share: number,
-        fingers?: IAutoMovieMotionHumanArmAngles.IAngles["fingers"],
-      ): IAutoMovieMotionHumanArmClearance.IBaseline =>
-        HumanArmClearance.baseline(
-          body,
-          fingers === undefined
-            ? pose(share)
-            : HumanArmClearance.fingered(pose(share), side, fingers),
-          side,
-          of,
-          others,
-          resolution(),
-        );
-      let ends:
-        | readonly [IAutoMovieMotionHumanArmClearance.IBaseline, IAutoMovieMotionHumanArmClearance.IBaseline]
-        | undefined;
-      const known: Map<number, IAutoMovieMotionHumanArmClearance.IArm> = new Map();
-      // Between two arms that clear the body the blended one may not, so its
-      // elbow is let out by as much as the forearm lacks; each end keeps the
-      // room it holds, so the carry leaves and joins them without a step.
-      // The turn is one course over the carry (`HumanArmClearing.course`),
-      // so two neighbouring instants read neighbouring arms.
-      courses[side] = (share: number): IAutoMovieMotionHumanArmClearance.IArm => {
-        let arm: IAutoMovieMotionHumanArmClearance.IArm | undefined = known.get(share);
-        if (arm === undefined) {
-          arm = HumanArmClearing.course({
-            plain,
-            planned: plan,
-            share,
-            clear: (
-              of: IAutoMovieMotionHumanArmClearance.IArm,
-              key: number,
-            ): IAutoMovieMotionHumanArmClearance.IArm => {
-              ends ??= [reading(held, 0, held.fingers), reading(aimed, 1)];
-              return HumanArmClearance.cleared(
-                body,
-                pose(key),
-                side,
-                of,
-                0,
-                others,
-                {
-                  forearm: ends[0].forearm * (1 - key) + ends[1].forearm * key,
-                  segments:
-                    ends[0].segments * (1 - key) + ends[1].segments * key,
-                },
-                resolution,
-              );
-            },
-          });
-          known.set(share, arm);
-        }
-        return arm;
-      };
-    }
+    const courses: ReturnType<typeof AutoMovieMotionHumanArmCarryCourse.arms> =
+      AutoMovieMotionHumanArmCarryCourse.arms(
+        body,
+        sides,
+        from,
+        solved,
+        planning,
+        posture.limbs,
+        resolution,
+      );
     for (const side of sides) {
       const arm: IAutoMovieMotionHumanArmClearance.IArm = courses[side]!(s);
       joints[`${side}UpperArm`] = arm.upper;

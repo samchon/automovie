@@ -1,7 +1,12 @@
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMoviePose,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
   HumanVerdicts,
+  resolveHumanPosture,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,19 +14,21 @@ import { MOTION_HUMAN_LAW_STAGES_POSTURE } from "../internal/MOTION_HUMAN_LAW_ST
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 import { motionHumanLawSweep } from "../internal/motionHumanLawSweep";
+import { nclose } from "../internal/nclose";
 
 /**
  * The resting arms and digits clear the torso and opposite hand while reaching their named support.
  *
  * Scenarios:
  * 1. Pose the original actor through the public action with its original seed and placement.
- * 2. Compare the specified collision pair at its observed entry time against the 10 mm skin allowance.
+ * 2. Compare displayed arm and finger angles with the original authoring law at the start, interior and arrival.
+ * 3. Compare the specified collision pair at its observed entry time against the 10 mm skin allowance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The table identifies the actor, action input, time and anatomical pair responsible for each observation.
  * @evidence contracts/development/testing.md#behavioral-verification Measures actual forward-kinematic shapes at the recorded instant. Unreachable paths must fail the test.
- * @evidence contracts/development/testing.md#independent-expectations The bound is the public skin allowance, independent of the limb planner's selected goal.
+ * @evidence contracts/development/testing.md#independent-expectations The public skin allowance bounds physical collision. The authoring callback gives the reference angles independently of prepared display.
  * @evidence contracts/development/testing.md#distinguishing-cases Samples the original adverse geometry and the adjacent display frames to cover the rounded failure time.
- * @evidence contracts/development/testing.md#execution-ownership Each distinct action input is planned once and assessed at three local instants.
+ * @evidence contracts/development/testing.md#execution-ownership Each action is planned once, with four display parity checks and three displayed collision probes.
  */
 export function test_motion_posture_arm_rest_entry(): void {
   const findings: string[] = [];
@@ -44,6 +51,35 @@ export function test_motion_posture_arm_rest_entry(): void {
         "sweep-1",
         stage,
       );
+      const plan: IAutoMovieMotionHumanActionPlan =
+        film.performance.segments("a")[0]!.plan;
+      const arrival: number = motionHumanLaw.event(film, "placed");
+      for (const t of [0, 0.137 * arrival, 0.583 * arrival, arrival]) {
+        const native: IAutoMoviePose = resolveHumanPosture(
+          body,
+          plan.posture(t),
+        );
+        const displayed: IAutoMoviePose = film.performance.pose("a", t);
+        for (const [i, joint] of native.joints.entries()) {
+          if (
+            !/^(left|right)(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(
+              joint.bone,
+            )
+          )
+            continue;
+          const actual: IAutoMoviePose["joints"][number] | undefined =
+            displayed.joints[i];
+          if (
+            actual?.bone !== joint.bone ||
+            !nclose(actual.flexion ?? 0, joint.flexion ?? 0, 1e-9) ||
+            !nclose(actual.abduction ?? 0, joint.abduction ?? 0, 1e-9) ||
+            !nclose(actual.twist ?? 0, joint.twist ?? 0, 1e-9)
+          )
+            findings.push(
+              value + ": changed " + joint.bone + " at " + t + " s",
+            );
+        }
+      }
       for (const t of [seconds - 1 / 24, seconds, seconds + 1 / 24]) {
         const contacts = AutoMovieMotionHumanAuditTangle.pose(
           body,

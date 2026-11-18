@@ -203,27 +203,71 @@ export namespace HumanArmClearing {
       share: number,
     ) => IAutoMovieMotionHumanArmClearance.IArm;
   }): IAutoMovieMotionHumanArmClearance.IArm {
-    const turn = (key: number): readonly [number, number] => {
-      if (key <= 0 || key >= SHARES.length - 1) return [0, 0];
-      const arm: IAutoMovieMotionHumanArmClearance.IArm = (
-        props.planned ?? props.plain
-      )(SHARES[key]!);
-      const clear: IAutoMovieMotionHumanArmClearance.IArm = props.clear(
-        arm,
-        SHARES[key]!,
-      );
-      return [clear.upper[1] - arm.upper[1], clear.lower[0] - arm.lower[0]];
-    };
-    const share: number = Math.min(1, Math.max(0, props.share));
+    return sample(
+      (): IAutoMovieMotionHumanArmClearance.IArm => props.plain(props.share),
+      (key: number): Turn =>
+        turn(key, props.planned ?? props.plain, (arm, share) =>
+          props.clear(arm, share),
+        ),
+      props.share,
+    );
+  }
+
+  /**
+   * Prepare the clearance coefficients for fixed endpoint blends and fixed
+   * clearance geometry. The returned reader evaluates the original arm
+   * blend and the original piecewise-linear correction at the requested share.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, effect and sampling domain shared with course.
+   * @evidence contracts/development/implementation.md#principled-implementation At fixed geometry each correction is a function of its original authored share alone. Between these shares the correction is the course's original linear function.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares the correction and interval evaluation with the live course.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Evaluates the same clearance at the existing authored shares. No frame, intermediate pose or alternate clearance is retained.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One original clearance solve per interior knot, then constant-size interval selection and three current joint blends per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed geometry and endpoint blends establish the invariant key inputs. A moving clearance input requires the live course.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only two scalars per authored knot and the fixed blend. The clearance and planning callbacks end at preparation.
+   */
+  export function prepareCourse(
+    props: Omit<Parameters<typeof course>[0], "share">,
+  ): (share: number) => IAutoMovieMotionHumanArmClearance.IArm {
+    const turns: Turn[] = SHARES.map(
+      (_: number, key: number): Turn =>
+        turn(key, props.planned ?? props.plain, props.clear),
+    );
+    const plain: typeof props.plain = props.plain;
+    return (share: number): IAutoMovieMotionHumanArmClearance.IArm =>
+      sample(plain, (key: number): Turn => turns[key]!, share);
+  }
+
+  /** Shoulder abduction and elbow flexion corrections, in clinical degrees. */
+  type Turn = readonly [number, number];
+
+  /** Read one original key's clearance correction. The fixed ends retain their angles. */
+  function turn(
+    key: number,
+    planned: Parameters<typeof course>[0]["plain"],
+    clear: Parameters<typeof course>[0]["clear"],
+  ): Turn {
+    if (key <= 0 || key >= SHARES.length - 1) return [0, 0];
+    const share: number = SHARES[key]!;
+    const arm: IAutoMovieMotionHumanArmClearance.IArm = planned(share);
+    const cleared: IAutoMovieMotionHumanArmClearance.IArm = clear(arm, share);
+    return [cleared.upper[1] - arm.upper[1], cleared.lower[0] - arm.lower[0]];
+  }
+
+  /** Sample a blended arm plus the course's original correction on the containing interval. */
+  function sample(
+    plain: Parameters<typeof course>[0]["plain"],
+    turnAt: (key: number) => Turn,
+    at: number,
+  ): IAutoMovieMotionHumanArmClearance.IArm {
+    const share: number = Math.min(1, Math.max(0, at));
     let before: number = 0;
     while (before < SHARES.length - 2 && SHARES[before + 1]! <= share) before++;
     const weight: number =
       (share - SHARES[before]!) / (SHARES[before + 1]! - SHARES[before]!);
-    const a: readonly [number, number] = turn(before);
-    const b: readonly [number, number] = weight === 0 ? a : turn(before + 1);
-    const arm: IAutoMovieMotionHumanArmClearance.IArm = props.plain(
-      props.share,
-    );
+    const a: Turn = turnAt(before);
+    const b: Turn = weight === 0 ? a : turnAt(before + 1);
+    const arm: IAutoMovieMotionHumanArmClearance.IArm = plain(at);
     return {
       upper: [
         arm.upper[0],
