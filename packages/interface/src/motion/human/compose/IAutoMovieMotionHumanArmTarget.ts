@@ -38,7 +38,7 @@ export namespace IAutoMovieMotionHumanArmTarget {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the record is and its frame; each member gives its unit and its meaning when absent.
    * @evidence contracts/development/design.md#principled-representation The surface, its point and the hand's rotation fix the wrist; the bend hint fixes the elbow's one remaining freedom; the shape and the curl fix the fingers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, each read by `goal` or `move`; `curl` is optional because most shapes need none.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Seven members, each read by `goal` or `move`; `curl` is optional because most shapes need none, `offset` because only an issuer that fixes the surface and shape reads it once.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses `IAutoMovieMotionHumanHand.Surface` and `IAutoMovieMotionHumanHand.Shape` and the interface's vector and quaternion types.
    */
   export interface ITarget {
@@ -59,6 +59,9 @@ export namespace IAutoMovieMotionHumanArmTarget {
 
     /** Extra flexion of every finger joint over the shape, degrees; 0 when absent. */
     curl?: number;
+
+    /** The surface's offset from the wrist under the shape, hand-local metres, when the row's issuer read it once for every row of one body, side, surface and shape (`AutoMovieMotionHumanArmTarget.prepareTarget`); read from the hand when absent. A row that changes its surface or shape drops it. */
+    offset?: IAutoMovieVector3;
   }
 
   /**

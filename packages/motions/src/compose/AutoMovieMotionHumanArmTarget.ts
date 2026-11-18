@@ -109,7 +109,7 @@ export namespace AutoMovieMotionHumanArmTarget {
    * @evidence contracts/development/implementation.md#principled-implementation The wrist follows rigidly from the surface's point and the hand's rotation; the surface's offset from the wrist is the contact the resolver holds when the rotation is out of range.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrist placement and one offset lookup.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A surface at the wrist itself declares no contact, since a zero offset gives the resolver no lever to re-aim by.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ordinary targets retain both current hand-geometry reads. An issued prepareTarget row may lend only its explicitly fixed same-body/side/surface/shape offset to a transported copy; every current world point/rotation/bend remains actual and unissued or changed domains fall back cold.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A row carrying its issuer's offset (prepareTarget) places the wrist from it, as prepareSurfaceGoal does; any other row reads both hand geometries. Every world point, rotation and bend remains the row's own.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two actual surface lookups remain in cold goal, including shaped-hand FK for digit surfaces, followed by constant rigid placement/contact assembly. Fixed consumers use prepareGoal or prepareSurfaceGoal to share only their unchanged geometry; no measured speedup is claimed.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
@@ -117,11 +117,13 @@ export namespace AutoMovieMotionHumanArmTarget {
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
     target: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "curl">,
-    preparedFrom?: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "curl">,
   ): IAutoMovieHumanLimbGoal {
-    const prepared: IPreparedSurface | undefined = TARGETS.get(preparedFrom ?? target);
-    if (prepared !== undefined && prepared.body === body && prepared.side === side &&
-      prepared.surface === target.surface && prepared.shape === target.shape) return prepared.read(target);
+    if (target.offset !== undefined)
+      return fromWrist(
+        placeHumanHandSurface(target.offset, target.point, target.rotation),
+        target.bend,
+        { ...target.offset },
+      );
     const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
       body,
       side,
@@ -218,68 +220,45 @@ export namespace AutoMovieMotionHumanArmTarget {
   }
 
   /**
-   * Emit current target rows with privately issued fixed local-surface geometry.
+   * Emit target rows of one body, side, surface and shape, each carrying the
+   * surface's hand-local offset read once for all of them.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Binds unchanged body/side/surface/shape and returns fresh raw target rows from current world point/rotation/bend/curl; goal may consume the issued geometry through an actual transported copy.
-   * @evidence contracts/development/implementation.md#principled-implementation Explicit fixed geometry owns one actual prepared offset; world placement remains varying data and original target callbacks still run. A private weak row association supplies provenance without an authorable marker or extra target field.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure prepareSurfaceGoal owns numerical geometry, this producer owns raw-row issuance and goal checks the complete fixed domain before consuming it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Generic callbacks retain cold mutable-input reads unless they return an actually issued row. Copies lose issuance unless the owning transport explicitly passes its original row; no point, rotation, curl, bend or solver result is frozen.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed local-surface computation serves Q emitted targets; each row still allocates fresh data and each current wrist runs its actual quaternion-vector placement. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit fixed-body producer and exact body/side/surface/shape checks establish only local geometry equivalence. Changed domains or arbitrary target rows use ordinary goal, with no sampled pose/time cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer owns one geometry reader until release. Weak row entries retain only that shared static metadata while their raw rows live; returned goals retain no source row, body, reader or query history.
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/side/surface/shape and returns fresh target rows from each world point/rotation/bend/curl, with the shared offset `goal` places the wrist from.
+   * @evidence contracts/development/implementation.md#principled-implementation The offset depends on the body, side, surface and shape alone, so it is a value of the rows that share them; the row carries it as data and `goal` reads it in place of the hand.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset read, then one row assembly per call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No point, rotation, curl, bend or solver result is frozen; a row that changes its surface or shape drops the offset by the record's rule.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One local-surface computation serves Q emitted rows; each current wrist runs its own quaternion-vector placement. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed body/side/surface/shape is the domain of the one offset; each row's world placement is its own.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer owns one frozen offset until release; each row shares it and retains no body, reader or query history.
    */
   export function prepareTarget(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape):
     (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">) => IAutoMovieMotionHumanArmTarget.ITarget {
-    const prepared: IPreparedSurface = surfacePreparation(body, side, surface, shape);
-    return (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">): IAutoMovieMotionHumanArmTarget.ITarget => {
-      const target: IAutoMovieMotionHumanArmTarget.ITarget = { surface, shape, ...placement };
-      TARGETS.set(target, prepared);
-      return target;
-    };
+    const offset: IAutoMovieVector3 = Object.freeze({ ...HumanHand.offset(body, side, surface, shape).point });
+    return (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">): IAutoMovieMotionHumanArmTarget.ITarget =>
+      ({ surface, shape, ...placement, offset });
   }
 
   /**
-   * Emit sided requests from one explicitly fixed hand geometry.
+   * Emit sided target rows of one body, side, surface and shape, each
+   * carrying the surface's hand-local offset read once for all of them.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/side/surface/shape and emits fresh ISided rows in side/surface/shape then placement insertion order, preserving current world payloads and additional spread entries.
-   * @evidence contracts/development/implementation.md#principled-implementation The gesture's fixed hand geometry uses the same actual prepareSurfaceGoal offset as unsided targets; the side is request data while point/rotation/bend/curl remain current inputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Both row producers share one private surface preparation and TARGETS issuance map; this constructor adds only the side field required by the existing gesture request consumer.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No marker, extra target field, generic callback cache, prior sample or solved pose is added. goal still checks body/side/surface/shape and falls back cold for unissued or changed domains.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One actual local-offset preparation serves Q fresh requests; each request needs one object and one weak registration, with no intermediate unsided row or copied world payload. Current wrist placement and fits remain actual; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the explicit unchanged body/side/surface/shape domain shares metadata. The actual gesture hand producer replaces its emitter when fixed surface/shape changes and passes each current world placement to the same goal consumer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The hand factory owns one shared surface reader until release. Weak row entries follow raw request lifetime and retain only that metadata; returned requests borrow current numeric payloads and retain no prior, pose, time result or query workspace.
+   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/side/surface/shape and emits fresh ISided rows in side/surface/shape then placement order, with the shared offset.
+   * @evidence contracts/development/implementation.md#principled-implementation As `prepareTarget`; the side is request data the gesture consumer reads.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One offset read, then one row assembly per call.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No generic callback cache, prior sample or solved pose is added.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One local-offset computation serves Q fresh requests, one object each. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the fixed body/side/surface/shape domain shares the offset; the gesture hand producer makes another emitter when its surface or shape changes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The producer owns one frozen offset until release; returned requests borrow their world payloads and retain no prior, pose or workspace.
    */
   export function prepareSidedTarget(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
     surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape):
     (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">) => IAutoMovieMotionHumanArmTarget.ISided {
-    const prepared: IPreparedSurface = surfacePreparation(body, side, surface, shape);
-    return (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">): IAutoMovieMotionHumanArmTarget.ISided => {
-      const target: IAutoMovieMotionHumanArmTarget.ISided = { side, surface, shape, ...placement };
-      TARGETS.set(target, prepared);
-      return target;
-    };
+    const offset: IAutoMovieVector3 = Object.freeze({ ...HumanHand.offset(body, side, surface, shape).point });
+    return (placement: Omit<IAutoMovieMotionHumanArmTarget.ITarget, "surface" | "shape">): IAutoMovieMotionHumanArmTarget.ISided =>
+      ({ side, surface, shape, ...placement, offset });
   }
 }
-
-/** Sided and unsided issuance share the same fixed local-geometry owner. */
-function surfacePreparation(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
-  surface: IAutoMovieMotionHumanHand.Surface, shape: IAutoMovieMotionHumanHand.Shape): IPreparedSurface {
-  return { body, side, surface, shape,
-    read: AutoMovieMotionHumanArmTarget.prepareSurfaceGoal(body, side, surface, shape) };
-}
-
-/** Genuine fixed local geometry, independent of any emitted row's world placement. */
-interface IPreparedSurface {
-  body: IAutoMovieMotionHumanBody;
-  side: AutoMovieHumanSide;
-  surface: IAutoMovieMotionHumanHand.Surface;
-  shape: IAutoMovieMotionHumanHand.Shape;
-  read: ReturnType<typeof AutoMovieMotionHumanArmTarget.prepareSurfaceGoal>;
-}
-
-/** Row lifetime controls issuance retention; no target row or query result is a value. */
-const TARGETS: WeakMap<IAutoMovieMotionHumanArmTarget.ITarget, IPreparedSurface> = new WeakMap();
 
 /** The one goal field assembly; preparation may share the fixed contact decision. */
 function assembled(wrist: IAutoMovieMotionHumanHand.IWrist, bend: IAutoMovieVector3,

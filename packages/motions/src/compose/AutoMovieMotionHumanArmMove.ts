@@ -37,22 +37,24 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A path of the surface that is straight, or bows out to the arm's own side by the movement's `curvature` (a manner's share of the path's length, EMOTE's indirect Space; none when absent), and a spherical interpolation of the hand, both by one weight, with the fingers shaped by the same weight (Jeannerod 1984).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One target evaluation, one blend and one posture update.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weight is clamped to [0, 1] so an overshooting time course cannot extrapolate the hand past its target; at weight 1 the target is used as it is, with no blend error.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Every target, weight, path, rotation and wrist placement remains actual. Only an issued fixed-geometry target can share its prepared local offset; arbitrary targets retain cold surface reads. Fifteen fresh finger triples write directly into one copied joint map, without an intermediate map/spread.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hand owner shares named finger scalars under a last exact side/shape guard. ArmTarget consumes only issued matching fixed geometry, while generic targets keep live reads. The actual target invocation borrows host FK/ROM metadata synchronously; every current callback, bowed point, rotation, curl and weight remains actual.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Every target, weight, path, rotation and wrist placement remains actual. A target row carrying its issuer's offset places the wrist from it; other rows read the hand. Fifteen fresh finger triples write directly into one copied joint map, without an intermediate map/spread.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The hand owner shares named finger scalars for the last shape the target named, the move's side being fixed. ArmTarget places from a row's carried offset, and other rows read the hand. The actual target invocation borrows host FK/ROM metadata synchronously; every current callback, bowed point, rotation, curl and weight remains actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props and at most one fifteen-entry finger writer. Its current source target is an invocation local; no posture, world target/rotation, time, curl, weight or completed goal/finger result is retained.
    */
   export function move(
     props: IAutoMovieMotionHumanArmTarget.IMove,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
-    let shaped: { side: AutoMovieHumanSide; shape: IAutoMovieMotionHumanHand.Shape;
+    // The side is the move's; the shape is the target's at each second, so
+    // the writer is rebuilt only when the target names another shape.
+    let shaped: { shape: IAutoMovieMotionHumanHand.Shape;
       write: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingerWriter> } | undefined;
-    const fingers: (joints: IAutoMovieMotionHumanPosture["joints"], side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape, curl: number,
+    const fingers: (joints: IAutoMovieMotionHumanPosture["joints"], shape: IAutoMovieMotionHumanHand.Shape, curl: number,
       weight: number) => void =
-      (joints: IAutoMovieMotionHumanPosture["joints"], side: AutoMovieHumanSide, shape: IAutoMovieMotionHumanHand.Shape, curl: number,
+      (joints: IAutoMovieMotionHumanPosture["joints"], shape: IAutoMovieMotionHumanHand.Shape, curl: number,
         weight: number): void => {
-        if (shaped === undefined || shaped.side !== side || shaped.shape !== shape)
-          shaped = { side, shape, write: AutoMovieMotionHumanHand.prepareFingerWriter(side, shape) };
+        if (shaped === undefined || shaped.shape !== shape)
+          shaped = { shape, write: AutoMovieMotionHumanHand.prepareFingerWriter(props.side, shape) };
         shaped.write(joints, curl, weight);
       };
     return {
@@ -93,13 +95,13 @@ export namespace AutoMovieMotionHumanArmMove {
                 ),
               };
         const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
-        fingers(joints, props.side, target.shape, target.curl ?? 0, s);
+        fingers(joints, target.shape, target.curl ?? 0, s);
         return {
           ...posture,
           joints,
           limbs: {
             ...posture.limbs,
-            [limb]: AutoMovieMotionHumanArmTarget.goal(props.body, props.side, placed, target),
+            [limb]: AutoMovieMotionHumanArmTarget.goal(props.body, props.side, placed),
           },
         };
       },
@@ -161,8 +163,8 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A point-to-point hand movement follows the minimum-jerk profile (Flash and Hogan 1985), which the clock's progress is.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with the clock's progress as the weight.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The window is two named instants of the clock, so no time is written twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to move and lazily prepares current window names at first progress demand or a changed name; native numeric endpoints share metadata while live window edits and custom/current progress callbacks retain actual receiver-bound reads.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Native intervals avoid repeated name-map queries across written seconds; every target/path/finger/goal evaluation and original scalar progress remains actual. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to move; the window's two instants, constants of the clock, are resolved once for every written second.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two name lookups once instead of at every written second; every target, path, finger and goal evaluation remains. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments and at most one constant-size fixed-window reader until release, with no progress/time/result history.
    */
   export function reach(
@@ -238,8 +240,8 @@ export namespace AutoMovieMotionHumanArmMove {
    * @evidence contracts/development/implementation.md#principled-implementation A reach run backwards: the same minimum-jerk profile with the weight going from 1 to 0.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `move` with one minus the clock's progress.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The target stays a frame, so a hand leaving a moving thing starts from where the thing is.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to move and lazily prepares current window names, rebuilding for a changed name; native endpoint metadata is shared while live window edits and custom/current callbacks retain every actual progress read and the same one-minus grouping.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Native intervals avoid repeated name-map queries; all actual target/path/finger/goal and scalar easing work remains. Speedup is unmeasured.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to move; the window's two instants, constants of the clock, are resolved once, and the weight is one minus their progress.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two name lookups once instead of at every written second; all target, path, finger, goal and easing work remains. Speedup is unmeasured.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains its original arguments and one lazy constant-size interval reader until release, with no progress, target or time history.
    */
   export function retract(
@@ -264,15 +266,9 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 }
 
-/** Share numeric metadata only for current names; legacy borrowed windows stay live. */
+/** The window's minimum-jerk progress, its two instants resolved once (`AutoMovieMotionClock.prepare`). */
 function progressOn(clock: IAutoMovieMotionClock, window: readonly [string, string]):
   (seconds: number) => number {
-  let current: { from: string; to: string; read: ReturnType<typeof AutoMovieMotionClock.prepare> } | undefined;
-  return (seconds: number): number => {
-    const from: string = window[0];
-    const to: string = window[1];
-    if (current === undefined || current.from !== from || current.to !== to)
-      current = { from, to, read: AutoMovieMotionClock.prepare(clock, from, to) };
-    return current.read.progress(seconds);
-  };
+  const read: ReturnType<typeof AutoMovieMotionClock.prepare> = AutoMovieMotionClock.prepare(clock, window[0], window[1]);
+  return (seconds: number): number => read.progress(seconds);
 }
