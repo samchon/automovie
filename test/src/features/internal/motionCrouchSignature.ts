@@ -62,14 +62,13 @@ export function motionCrouchSignature(
     `${label}: extreme heel clearance ${(extreme * 1000).toFixed(1)} mm, ${raised ? "at least 30 mm held" : "within the 20 mm contact limit throughout"}`,
     raised ? extreme >= 0.03 : extreme <= M.CONTACT,
   );
-  const knees: number = M.mean(
-    held,
-    (t: number): number => (M.knee(crouch, t, "left") + M.knee(crouch, t, "right")) / 2,
-  );
-  complaints.check(
-    `${label}: held mean knee flexion ${knees.toFixed(1)}°, ${full ? "at least 120°" : "40–110°"}`,
-    full ? knees >= 120 : knees >= 40 && knees <= 110,
-  );
+  for (const side of SIDES) {
+    const knee: number = M.mean(held, (t: number): number => M.knee(crouch, t, side));
+    complaints.check(
+      `${label}: held ${side} knee flexion ${knee.toFixed(1)}°, ${full ? "at least 120°" : "40–110°"}`,
+      full ? knee >= 120 : knee >= 40 && knee <= 110,
+    );
+  }
 
   let upright: number | undefined = stance.get(name);
   if (upright === undefined) {
