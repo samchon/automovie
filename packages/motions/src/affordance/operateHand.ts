@@ -61,6 +61,12 @@ export function operateHand(context: IAutoMovieMotionHumanActionContext<IAutoMov
       curl: mechanism.kind === "button" ? 0 : 40,
     },
   );
+  // A rigid prop's part moves by the mechanism's own geometry, prepared once
+  // for the plan; an articulated one is posed by the prop.
+  const rigid: ReturnType<typeof operateState.prepare> | undefined =
+    props.part === undefined
+      ? operateState.prepare(mechanism, props.place, props.hinge)
+      : undefined;
   const strokeStart: number = props.clock.at("strokeStart");
   const strokeEnd: number = props.clock.at("strokeEnd");
 
@@ -83,7 +89,7 @@ export function operateHand(context: IAutoMovieMotionHumanActionContext<IAutoMov
     forward: IAutoMovieVector3;
   } = (posture: IAutoMovieMotionHumanPosture, progress: number): ReturnType<typeof frame> => {
     const now: ReturnType<typeof operateState.at> = props.part === undefined
-      ? operateState.at(mechanism, props.place, props.hinge, progress)
+      ? rigid!(progress)
       : {
           ...props.part.place(progress, context.start + reached(progress)),
           roll: mechanism.kind === "knob" ? mechanism.turn * progress : 0,

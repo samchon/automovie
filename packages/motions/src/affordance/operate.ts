@@ -262,9 +262,9 @@ export namespace operate {
     // parts it moves), so the part is worked by the arm alone, and one that
     // would need a lean is refused there instead of leaned to.
     const grounded: boolean = context.carrier === undefined;
-    for (let k: number = 0; k <= 8; k++) {
+    for (let k: number = 0; !grounded && k <= 8; k++) {
       const needed: number = lean.pitch(standing, k / 8);
-      if (!grounded && needed > 1e-6)
+      if (needed > 1e-6)
         throw new HumanRefusal({
           kind: "reach",
           axis: "at",

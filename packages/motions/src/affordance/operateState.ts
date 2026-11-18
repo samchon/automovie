@@ -76,7 +76,7 @@ export namespace operateState {
         return (progress: number): ReturnType<typeof at> => ({
           point: Vector3.add(
             place.point,
-            Vector3.scale(n, -(mechanism.travel ?? 0.005) * progress),
+            Vector3.scale(n, -operateDrive.amount(mechanism) * progress),
           ),
           normal: n,
           roll: 0,
