@@ -35,7 +35,7 @@ const DEFAULT_ASPECT: number = 16 / 9;
 export function resolvePoseKeypoints(
   props: IAutoMovieResolvePoseKeypoints.IProps,
 ): IAutoMoviePoseKeypoint[] {
-  const joints = props.joints ?? DEFAULT_KEYPOINT_BONES;
+  const joints: readonly AutoMovieHumanoidBone[] = props.joints ?? DEFAULT_KEYPOINT_BONES;
   const rigByBone: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map(
     resolvePose(
       props.pose,

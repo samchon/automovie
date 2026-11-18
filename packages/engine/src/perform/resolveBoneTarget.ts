@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -43,7 +44,7 @@ export const resolveBoneTarget: (
     motion === undefined
       ? context.restPose
       : sampleMotion(motion, seconds).pose;
-  const [resolved] = resolvePose(
+  const [resolved]: IAutoMovieResolvedBone[] = resolvePose(
     pose,
     context.rig,
     HUMANOID_JOINT_AXES,

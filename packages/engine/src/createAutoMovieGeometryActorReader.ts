@@ -3,6 +3,7 @@ import {
   type IAutoMovieGeometryActorReader,
   IAutoMovieGeometrySelector,
   IAutoMoviePose,
+  type IAutoMovieResolvedBone,
   type IAutoMovieSampledChannel,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
@@ -92,7 +93,7 @@ const resolveSelector: (
     throw new Error(
       `Actor "${selector.actor}" has no skeleton, so bone "${selector.bone}" cannot resolve.`,
     );
-  const [bone] = resolvePose(
+  const [bone]: IAutoMovieResolvedBone[] = resolvePose(
     spatial.pose,
     actor.model.skeleton,
     HUMANOID_JOINT_AXES,
