@@ -12,6 +12,7 @@ import type {
 
 import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
+import { HumanArmTrajectoryContactContinuation } from "../posture/HumanArmTrajectoryContactContinuation";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
@@ -126,7 +127,7 @@ export namespace AutoMovieMotionHumanArmCourse {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instants, the phases, the result and when there is none.
    * @evidence contracts/development/implementation.md#principled-implementation The hold is the rig's analytic two-bone fit per instant, continued from the instant before; the transports are the trajectory reader's blend, and the whole is admitted by the trajectory model's own feasibility reading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The instants, the hold's chain of fits, the admission.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The instants, held poses and original model admission, followed by a local contact-branch continuation for a refused hold.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is admitted that the model refuses; a refused course only seeds the optimiser, every requirement intact.
    * @evidence contracts/development/implementation.md#efficient-algorithms One two-bone limb fit per arm per hold instant on the planner's solved base (a golden refinement about the last instant's swivel after the first, no posture solve), no fit on a transport instant, then one model evaluation, in place of the optimiser's penalty rounds of convexified programmes and its sampling planner. Unmeasured.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the planner's cached postures, bases and goals, and the trajectory's playback.
@@ -214,7 +215,7 @@ export namespace AutoMovieMotionHumanArmCourse {
         props.stretches === true,
         props.tempo,
       );
-    return read;
+    return HumanArmTrajectoryContactContinuation(problem, held, read, props.stretches === true, props.tempo);
   }
 
   /**

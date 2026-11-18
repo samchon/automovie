@@ -98,6 +98,7 @@ export namespace HumanArmTrajectoryLaid {
    * @param held Each arm's clinical triples at each waypoint of the hold, in the problem's order; a waypoint of the reach or the return is not read.
    * @param stretches Whether the span is the law's own, which a slower replan lengthens; a span fixed from outside paces a detour no slower than `M.ENVELOPE`.
    * @param tempo The explicit replan's duration multiplier. It recovers the original seconds for the law's pace.
+   * @param inheritedPace The original action's speed bound in metres per second by time, retained on another contact branch.
    * @returns The course's readers, its admission with the refusing term, and its reading; a course not admitted is `solve`'s seed.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the caller gives, how the transports are laid and timed, what is read, the fixed ends, the admission and its equivalence to `solve`'s refusal test.
@@ -116,6 +117,7 @@ export namespace HumanArmTrajectoryLaid {
     )[])[],
     stretches: boolean = false,
     tempo: number = 1,
+    inheritedPace?: M.IContext["speed"],
   ): IAdmitted {
     // Read in the mirror image when the first arm is the left, as `solve`
     // reads it, so a course and its mirror are admitted alike to the bit;
@@ -350,7 +352,7 @@ export namespace HumanArmTrajectoryLaid {
     // gives it) and the two transports'. A transport the law does not move
     // takes the fastest of the others; an arm the law moves nowhere has no
     // pace to keep and none bounds it.
-    const holding: number = ((): number => {
+    const holding: number = inheritedPace === undefined ? ((): number => {
       let most: number = 0;
       x.forEach((arm: number[][], a: number): void => {
         let previous: IAutoMovieMotionHumanArmGeometry.IPlaced | undefined;
@@ -383,7 +385,7 @@ export namespace HumanArmTrajectoryLaid {
         }
       });
       return most;
-    })();
+    })() : 0;
     const [reach, back]: ITransport[] = transports as [ITransport, ITransport];
     const widest: number = Math.max(reach.laid.pace, back.laid.pace, holding);
     // A span fixed from outside cannot stretch for a detour, so there the
@@ -398,12 +400,12 @@ export namespace HumanArmTrajectoryLaid {
     const onHold: number = paced(widest);
     const reachPace: number = paced(reach.laid.pace);
     const backPace: number = paced(back.laid.pace);
-    context.speed = (seconds: number): number =>
+    context.speed = inheritedPace ?? ((seconds: number): number =>
       seconds <= times[first]!
         ? reachPace
         : seconds >= times[last]!
           ? backPace
-          : onHold;
+          : onHold);
 
     let reading: M.IEvaluation = M.evaluate(context, x);
     const relaid: boolean[] = new Array<boolean>(n).fill(false);
