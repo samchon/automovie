@@ -33,13 +33,58 @@ import { HumanTrunk } from "./HumanTrunk";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No body or case is special-cased.
  */
 export namespace bendLower {
-  /** Hip height kept by each strategy, a share of the standing hip height (provisional: a stoop's nearly straight knees, a semi-squat's half-bent and a squat's deep ones, the three postures the lifting literature compares, van Dieen, Hoozemans and Toussaint 1999, Clin Biomech 14:685, without these heights). */
-  export const HIPS: Readonly<Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>> =
+  /**
+   * The knee flexion each strategy lifts at, degrees: a semi-squat's 90 and a
+   * squat's 135, the knee angles that tell the lifting postures apart
+   * (Washmuth, McAfee and Bickel 2022, Int J Sports Phys Ther 17:104), and a
+   * stoop's 30, inside that classification's stoop, knees flexed under 45
+   * degrees (the class is bounded, not measured at a value: 30 is provisional
+   * within it).
+   */
+  export const KNEE: Readonly<Record<Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">, number>> =
     {
-      stoop: 0.97,
-      semiSquat: 0.75,
-      squat: 0.45,
+      stoop: 30,
+      semiSquat: 90,
+      squat: 135,
     };
+
+  /** The ankle's dorsiflexion in a crouch, degrees: the most measured while crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa, Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of 26 adults), within the range table's loaded maximum (`ANKLE_DORSIFLEXION.loaded`). */
+  export const ANKLE: number = 28;
+
+  /**
+   * The share of the standing hip height a strategy keeps, from the body's
+   * own leg: the knee flexed by the strategy's `KNEE`, split between the
+   * shank's forward tilt and the thigh's, half each so the hip stays over the
+   * ankle on a thigh and shank of nearly equal length (Winter, Biomechanics
+   * and Motor Control of Human Movement, fig. 4.1: 0.245 and 0.246 of
+   * stature), the shank's tilt no more than the crouching ankle's `ANKLE`
+   * and the heel lift `HEEL` allow.
+   *
+   * @param body The body, for its ankle height, shank and thigh.
+   * @param strategy The strategy.
+   * @returns The share, in (0, 1].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the geometry, its sources, the split rule and the result's range.
+   * @evidence contracts/development/implementation.md#principled-implementation The hip's height over the floor is the ankle height plus each segment's length times the cosine of its tilt from the vertical; divided by the same chain straight, it is the share of the standing height.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression over the body's measures and the strategy's angles.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The knee angles are the cited classes', the ankle's the measured crouch's; no body is special-cased.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function hipShare(
+    body: IAutoMovieMotionHumanBody,
+    strategy: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto">,
+  ): number {
+    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const knee: number = KNEE[strategy];
+    const shank: number = Math.min(knee / 2, ANKLE + HEEL[strategy]);
+    const rad: number = Math.PI / 180;
+    return (
+      (m.ankleHeight + m.shank * Math.cos(shank * rad) + m.thigh * Math.cos((knee - shank) * rad)) /
+      (m.ankleHeight + m.shank + m.thigh)
+    );
+  }
 
   /**
    * A standing posture lowered by a strategy: the hips dropped by a share of
@@ -58,7 +103,7 @@ export namespace bendLower {
    * @evidence contracts/development/common.md#meaningful-documentation States what is lowered, moved and pitched, each parameter's unit and range, and the squat's heel lift in the implementation comments.
    * @evidence contracts/development/implementation.md#principled-implementation Moves the hips' goal down by the strategy's share of the hip height and back by `back` in the posture's frame, inclines the trunk by the lumbopelvic rhythm with the pelvis limited by hip flexion (HumanTrunk.pelvisLimit), lifts a squat's heels about the ball (HumanFoot.pivot) with the toes bent to stay flat, and re-solves the planted legs, lowering the pelvis where a leg cannot reach.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture transform shared by the plan, the balance solve and the reach bisection; the inclination split, foot pivot and leg solve are imported from their owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts HIPS and HEEL are named provisional shares; no body or case is special-cased. The pelvis limit is read over the lifted ankles, so the hip stays within its flexion range and the foot holds its contact through the squat.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The drop is `hipShare`'s, from the body's own leg at the cited knee angles; HEEL is a named provisional lift with no source found; no body or case is special-cased. The pelvis limit is read over the lifted ankles, so the hip stays within its flexion range and the foot holds its contact through the squat.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: one trunk incline, at most two foot pivots and one leg-lowering solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A synchronous parent FK source may share exact raw-pelvis hip dependencies with the current evaluation; every current hip/root/plant and scalar lowering remains calculated, without a retained lowered pose or a new ROM policy.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a new posture and retains nothing.
@@ -73,7 +118,7 @@ export namespace bendLower {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanPosture {
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-    const drop: number = (1 - HIPS[strategy]) * body.measure.hipHeight * share;
+    const drop: number = (1 - hipShare(body, strategy)) * body.measure.hipHeight * share;
     const frame: IAutoMovieMotionHumanFrame = { origin: posture.root, yaw: posture.yaw };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
@@ -253,14 +298,14 @@ export namespace bendLower {
   /** The step of the inclination scan `pitch` closes the reach on, degrees (provisional: fine enough that the gap, which turns once over the range, cannot close and open again between two steps). */
   export const SCAN: number = 5;
 
-  /** The deepest trunk inclination `pitch` searches, degrees (provisional: past the 120 degree hip flexion range of the range table plus most of the lumbar spine's, so no inclination a standing body can take is cut off). */
-  export const DEEPEST: number = 150;
+  /** The deepest trunk inclination `pitch` searches, degrees: all the pelvis can tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the 40 degrees of lumbar flexion at full forward bending (Esola et al. 1996, Spine 21:71), the most a standing trunk inclines. */
+  export const DEEPEST: number = HumanTrunk.HIP_FLEXION + 40;
 
-  /** The inclination the first balance shift is solved at, degrees, before the needed one is known (provisional: a middling stoop, read from no measured source). */
+  /** The inclination the first balance shift is solved at, degrees, before the needed one is known. A numerical starting point, not a body fact: the shift per sine it gives is used only to find the needed inclination, at which the shift is solved again unless that inclination is under `SHALLOW`. */
   export const NOMINAL: number = 60;
 
-  /** The inclination under which the first balance shift is kept instead of solved again, degrees (provisional: one `SCAN` step, under which the shift, which scales with the inclination's sine, stays within a few millimetres). */
-  export const SHALLOW: number = 5;
+  /** The inclination under which the first balance shift is kept instead of solved again, degrees: one `SCAN` step, a numerical policy, under which the shift, which scales with the inclination's sine, is under a tenth of its value at `NOMINAL`. */
+  export const SHALLOW: number = SCAN;
 
   /**
    * The lowering that brings a hand within reach of a target under a

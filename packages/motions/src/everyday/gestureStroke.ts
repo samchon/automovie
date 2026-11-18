@@ -59,8 +59,8 @@ import { gestureTouch } from "./gestureTouch";
  *   (provisional).
  * - `clap`: both palms face each other ahead of the chest, `0.1` arm lengths
  *   below and `0.17` ahead of its place, part `0.09` and meet at the
- *   midpoint on each beat, three beats a second (provisional; free
- *   applause is faster than the near-2 Hz synchronised rhythm, Neda et al.
+ *   midpoint on each beat, four beats a second (free applause clusters near
+ *   4 Hz, faster than the near-2 Hz synchronised rhythm, Neda et al.
  *   2000, Nature 403:849).
  * - `thumbsDown`: the fist ahead of the chest, the palm outward and the
  *   knuckles ahead and 45 degrees down, so a straight thumb, which leans

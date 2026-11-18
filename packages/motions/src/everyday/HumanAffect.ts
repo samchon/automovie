@@ -35,8 +35,10 @@ import { HumanBound } from "../law/HumanBound";
  * - `yawn`: the jaw opens 25 degrees and the head extends 15 with the chest
  *   extending 5, peaking at 40 % of the yawn (a yawn lasts about six
  *   seconds, Provine 1986, Ethology 72:109; profile provisional).
- * - `cough`: three sharp trunk flexions of 10 degrees at the chest, 4 at the
- *   lumbar spine and 8 at the head, from 0.1 s and 0.5 s apart, each rising
+ * - `cough`: three sharp trunk flexions, the first of 10 degrees at the
+ *   chest, 4 at the lumbar spine and 8 at the head and the next two smaller
+ *   by the air each expels (53.2, 28.5 and 18.8 %, Harris and Lawson 1968),
+ *   from 0.1 s and 0.5 s apart, each rising
  *   in 0.12 s and recovering over 0.38 s, the whole ramped in over its
  *   first 2 % and out over its last 5 % (provisional).
  * - `sneeze`: an inhalation that extends the head 10 degrees and the chest 3
@@ -157,8 +159,9 @@ export namespace HumanAffect {
       }
       case "cough": {
         let p: number = 0;
-        for (let i: number = 0; i < 3; i++)
-          p = Math.max(p, pulse(t - 0.1 - 0.5 * i, 0.12, 0.38));
+        COUGHS.forEach((size: number, i: number): void => {
+          p = Math.max(p, size * pulse(t - 0.1 - 0.5 * i, 0.12, 0.38));
+        });
         const e: number = k * p * ramp(u, 0.02, 0.05);
         write(joints, additive, "chest", 10 * e, 0, 0);
         write(joints, additive, "spine", 4 * e, 0, 0);
@@ -257,6 +260,9 @@ function write(joints: IAutoMovieMotionHumanPosture["joints"], additive: boolean
 
 /** The angles of a bone the record holds none for. */
 const ZERO: readonly [number, number, number] = [0, 0, 0];
+
+/** Each of a bout's three coughs relative to the first: the first three coughs of a bout expel 53.2, 28.5 and 18.8 % of the air (Harris and Lawson 1968, as relayed), so each flexes the trunk by its expulsion's share of the first's. */
+const COUGHS: readonly number[] = [1, 28.5 / 53.2, 18.8 / 53.2];
 
 /** The share of a sneeze its inhalation takes (provisional). */
 const SNEEZE_BUILD: number = 0.7;

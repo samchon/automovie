@@ -306,7 +306,7 @@ function pointingReach(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide
   return POINT_REACH * (body.measure.upperArm + body.measure.forearm) + tip;
 }
 
-/** The share of the arm (upper arm and forearm) a pointing arm extends to (provisional: nearly straight, read from no measured source). */
+/** The share of the arm (upper arm and forearm) a pointing arm extends to: nearly straight, as people point at a distant target with an almost fully extended arm (Herbort and Kunde 2016, J Exp Psychol Hum Percept Perform 42:78, Exp. 1, Fig. 3); the study gives no extension in numbers, so the share is short of straight only by what keeps the elbow off its end stop. */
 const POINT_REACH: number = 0.95;
 
 /** The vertical component of a pointing line past which palm down has no meaning and the palm turns back or forward instead (provisional: about 64 degrees from the horizontal). */

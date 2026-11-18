@@ -36,15 +36,15 @@ import { HumanBound } from "../law/HumanBound";
  *   drawn from the cycle's index; a sigh's amplitude is 2.5 times a tidal
  *   breath (provisional: a sigh is described as about two to three tidal
  *   volumes, the joint scale of that volume is unmeasured).
- * - Exertion: each declared bout raises the rate toward 40 a minute and the
- *   amplitude toward 3 times tidal at level 1 (exercise ventilation reaches
- *   rates near 40 to 50 a minute with tidal volumes several times resting;
- *   provisional scale). A bout's drive is `level g^3`, where its share `g`
- *   rises linearly from its start over `ONSET` (ventilation climbs over the
- *   first tens of seconds of exercise, Whipp and Ward 1990, Med Sci Sports
- *   Exerc 22:62; provisional ramp), holds at 1 until it ends, and falls as
- *   `1 - u` over its recovery time, so the drive recovers as `(1 - u)^3`
- *   (provisional polynomials; ventilation rises and recovers roughly
+ * - Exertion: each declared bout raises the rate toward 43 a minute and the
+ *   amplitude toward 5 times tidal at level 1, the peak breathing frequency
+ *   and tidal volume of exercise to exhaustion (Loe, Steinshamn and Wisloff
+ *   2014, PLoS ONE 9:e113884). A bout's drive is `level g^3`, where its share
+ *   `g` rises linearly from its start over `ONSET`, 60 s (ventilation's
+ *   on-kinetics: a 15 to 20 s delay and a time constant of 40 to 60 s, Whipp
+ *   and Ward 1990, Med Sci Sports Exerc 22:62), holds at 1 until it ends, and
+ *   falls as `1 - u` over its recovery time, so the drive recovers as
+ *   `(1 - u)^3` (the polynomial shapes are no measurement; ventilation rises and recovers roughly
  *   exponentially, and a polynomial keeps the computation exact in
  *   ECMAScript). Overlapping bouts do not add: the hardest one drives the
  *   breathing at each instant, the largest `level g^3`, so no number of
@@ -86,16 +86,16 @@ export namespace HumanBreath {
   /** A sigh's amplitude in tidal breaths (provisional). */
   export const SIGH: number = 2.5;
 
-  /** Rate at full exertion, breaths a minute (provisional). */
-  export const EXERTION_RATE: number = 40;
+  /** Rate at full exertion, breaths a minute: the peak breathing frequency of graded treadmill exercise to exhaustion, 44 +- 8 in men and 42 +- 8 in women, their mean (Loe, Steinshamn and Wisloff 2014, PLoS ONE 9:e113884, Table 2, 4631 adults). */
+  export const EXERTION_RATE: number = 43;
 
-  /** Amplitude at full exertion, tidal breaths (provisional). */
-  export const EXERTION_AMPLITUDE: number = 3;
+  /** Amplitude at full exertion, tidal breaths: the same study's peak tidal volume, 2.84 L in men and 1.94 L in women (Loe et al. 2014, Table 2), over a resting tidal volume of about 0.5 L (West, Respiratory Physiology: The Essentials), about five resting breaths. */
+  export const EXERTION_AMPLITUDE: number = 5;
 
-  /** Seconds over which a bout with a start comes to its full drive (provisional: within the first tens of seconds of exercise in which ventilation climbs, Whipp and Ward 1990). */
-  export const ONSET: number = 20;
+  /** Seconds over which a bout with a start comes to its full drive: ventilation follows exercise onset after a 15 to 20 s delay with a time constant of about 40 to 60 s (Whipp and Ward 1990, Med Sci Sports Exerc 22:62), so the ramp spans the slower end. */
+  export const ONSET: number = 60;
 
-  /** A bout's recovery seconds when it names none (provisional). */
+  /** A bout's recovery seconds when it names none: the same span as the onset, ventilation's off-kinetics mirroring its on-kinetics (Whipp and Ward 1990). */
   export const RECOVERY: number = 60;
 
   /** Clinical degrees at one tidal breath (provisional). */

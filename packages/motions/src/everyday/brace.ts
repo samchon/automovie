@@ -61,11 +61,13 @@ import { gestureHands } from "./gestureHands";
  * turned up and lower to receive a `catchBody`. The arms rise from the
  * entry's and hold the palms there as one trajectory planned clear of the
  * body (`AutoMovieMotionHumanArmPlanned`, through `gestureHands.planned`),
- * so no forearm passes through the trunk on the way. Step size, drop, lean and
- * timing are provisional (Massion describes the adjustments, not these
- * magnitudes). The stepping foot swings over 0.4 s with a 3 cm lift, the
- * set is reached at `set`, 0.6 s after the start (provisional lead time),
- * and held for the rest of the action.
+ * so no forearm passes through the trunk on the way. Step size, drop and lean
+ * have no measured source (Massion describes the adjustments, not these
+ * magnitudes). The stepping foot swings over 0.4 s, a walking swing (Perry
+ * and Burnfield; Pachi and Ji 2005), with a 3 cm lift, and the set is
+ * reached at `set`, 0.5 s after the start, the end of the 400 to 500 ms in
+ * which early postural adjustments precede a predictable impact (Krishnan,
+ * Latash and Aruin 2012), and held for the rest of the action.
  *
  * The force comes from `toward` (a person, prop or point the force comes
  * from) or from straight ahead when absent.
@@ -90,8 +92,11 @@ export namespace brace {
   /** How far the rear foot steps back along the force's line, leg lengths (provisional). */
   export const STAGGER: number = 0.3;
 
-  /** Lead time to the set posture, seconds (provisional). */
-  export const SET: number = 0.6;
+  /** Lead time to the set posture, seconds: the early postural adjustments to a predictable impact begin 400 to 500 ms before it (Krishnan, Latash and Aruin 2012, Clin Neurophysiol 123:1016), so the set is reached at the end of that window. */
+  export const SET: number = 0.5;
+
+  /** How long the stepping foot swings, seconds: 40 % of a stride, the swing's share of the gait cycle (Perry and Burnfield 2010, Gait Analysis, ch. 1), at the 1.8 to 2.0 steps a second of pedestrians (Pachi and Ji 2005, Struct Eng 83(3):36), 0.40 to 0.44 s. */
+  export const SWING: number = 0.4;
 
   /** The least the set posture is held after it is reached, seconds (provisional: long enough to read as held, read from no measured source). */
   export const HELD: number = 0.2;
@@ -99,8 +104,8 @@ export namespace brace {
   /** The brace's length when the caller names none, seconds (provisional). */
   export const SECONDS: number = 1.5;
 
-  /** When the stepping foot leaves and lands, seconds from the start (provisional: a 0.4 s swing ending before the set). */
-  export const STEP: readonly [number, number] = [0.1, 0.5];
+  /** When the stepping foot leaves and lands, seconds from the start: a `SWING` long step that lands as the set is reached. */
+  export const STEP: readonly [number, number] = [SET - SWING, SET];
 
   /** The stepping foot's lift at mid-swing, metres (provisional: a shuffle's clearance, read from no measured source). */
   export const LIFT: number = 0.03;
@@ -131,7 +136,7 @@ export namespace brace {
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, when the set is reached and how a short duration is treated; the law's doc gives the sources and the provisional magnitudes.
    * @evidence contracts/development/implementation.md#principled-implementation The anticipatory adjustments of Massion 1992: the foot away from the force steps back along its line and out to shoulder width, the pelvis drops by the leg-length change of a `KNEE` flexion (law of cosines over thigh and shank), and the root moves so the engine's centre of mass stands over the mean of the new base's hull vertices, measured on the solved posture; the trunk inclines toward the force by the cosine of its bearing, so a force from the side adds no lean.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plans the step and the set root once; the posture closure interpolates root, lean and palms on one minimum-jerk set curve and delegates legs to the stand law and hands to handGoals.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts KNEE, STAGGER, SET, HELD, SECONDS, STEP, LIFT, LEAN, AHEAD, SPREAD, RECEIVE and ELBOW_OUT are named provisional magnitudes; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts SET and SWING are cited and STEP derived from them; KNEE, STAGGER, HELD, SECONDS, LIFT, LEAN, AHEAD, SPREAD, RECEIVE and ELBOW_OUT are named provisional magnitudes with no source found; the centring runs exactly two corrections, a fixed precision policy, and the hull centre is the vertex mean, not the area centroid.
    * @evidence contracts/development/implementation.md#efficient-algorithms Planning costs two posture solves with centre-of-mass and hull evaluation and the arms' one planned trajectory; each posture costs one leg solve and writes the planned arms. The standing legs' heading-dependent foot data is prepared once for the brace's fixed heading.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The step, the set root, the foot data and the sternum's bone demand are prepared once per plan. The centring's two support solves share the set inclination's joints, one FK workspace and one ROM projector; each root tried is lowered and fitted afresh. The arm planner lends its FK workspace and ROM projector to each frame it asks for.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The centring releases its FK workspace and projector before returning the set root. The plan holds the body, the feet, the foot data and the bone demand until it is released; borrowed workspaces end with each call and enter no returned value.

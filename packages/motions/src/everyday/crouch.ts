@@ -77,10 +77,11 @@ import { prepareCrouchInclination } from "./prepareCrouchInclination";
  * rounded back of a deep squat (`HumanTrunk.incline`); the hands rest
  * on the thighs just above the knees, as people support the trunk on the
  * thighs (Kingma, Faber and van Dieen 2016, J Biomech 49:881). The descent
- * takes 1.0 s for a partial and 1.3 s for a full squat at a 0.93 m hip
- * (`REFERENCE_HIP`)
- * height, scaled by the square root of the hip height (dynamic similarity,
- * Alexander 1984) and by the manner's tempo (provisional), the hold `hold`
+ * takes 1.0 s for a partial squat (half a self-paced repetition, Hannan and
+ * King 2022) and that times the square root of the full squat's greater knee
+ * travel, about 1.22 s, for a full one (`DESCENT`) at a 0.93 m hip
+ * (`REFERENCE_HIP`) height, scaled by the square root of the hip height
+ * (dynamic similarity, Alexander 1984) and by the manner's tempo, the hold `hold`
  * seconds and the rise as long as the descent. Events: `descend` at the
  * start, `lowest`, `ascend`.
  *
@@ -129,19 +130,27 @@ export namespace crouch {
     full: 150,
   };
 
-  /** The ankle's dorsiflexion in a crouch, degrees: the most measured while crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa, Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of 26 adults), within the range table's loaded maximum. */
-  export const ANKLE: number = 28;
+  /** The ankle's dorsiflexion in a crouch, degrees: `bendLower.ANKLE`, the most measured while crouching (Hyodo et al. 2017). */
+  export const ANKLE: number = bendLower.ANKLE;
 
-  /** The heel lift of `heels: "up"`, degrees about the toes' joint: the bend law's squat lift (`bendLower.HEEL.squat`, provisional). */
+  /** The heel lift of `heels: "up"`, degrees about the toes' joint: the bend law's squat lift (`bendLower.HEEL.squat`, no source found). */
   export const HEEL: number = bendLower.HEEL.squat;
 
-  /** Shares of the descent at which the balancing inclination is solved (provisional: eighths, so the solved course has a node about every 12 degrees of a full squat's knee). */
+  /** Shares of the descent at which the balancing inclination is solved. A numerical setting: eighths, so the solved course has a node about every 19 degrees of a full squat's knee, between which the secant search fills in. */
   export const SHARES: number = 8;
 
-  /** Descent seconds by depth for a `REFERENCE_HIP` hip height (provisional). */
+  /**
+   * Descent seconds by depth for a `REFERENCE_HIP` hip height: a partial
+   * squat's half of a self-paced bodyweight squat, 1.92 +- 0.27 s a
+   * repetition (Hannan and King 2022, Int J Sports Phys Ther 17:1075), so
+   * about 1 s down; a full squat's from it by the square root of the knee's
+   * travel, the time of a minimum-jerk movement of bounded peak acceleration
+   * growing with the square root of its amplitude (peak acceleration
+   * `5.77 D / T^2`, Flash and Hogan 1985).
+   */
   export const DESCENT: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
     partial: 1.0,
-    full: 1.3,
+    full: 1.0 * Math.sqrt(KNEE.full / KNEE.partial),
   };
 
   /** The hip height `DESCENT` is stated for, metres, from which other bodies' descents scale by its square root: the walk law's reference hip (`walkRoot.REFERENCE_HIP`), the one every dynamically similar timing is stated at. */

@@ -34,7 +34,7 @@ import { readHumanGazeBones } from "./readHumanGazeBones";
  * Brain Res 154:261) find that large turns recruit the eyes, head, trunk and
  * feet in that order. The split here keeps the final eye-in-head eccentricity
  * at most `EYES` (15 degrees) on each axis, gives the head and neck the
- * remainder up to `HEAD` (provisional comfortable cervical share: 60 degrees
+ * remainder up to `HEAD` (comfortable cervical share, the yaw after Bennett et al. 2002 and the pitch provisional: 60 degrees
  * of yaw, 40 down and 30 up, inside `DEFAULT_HUMANOID_ROM`), and, when the
  * trunk may join, gives the chest and lumbar spine the yaw beyond that up to
  * `TRUNK` (40 degrees, provisional, inside their combined twist range), 60 %
@@ -69,7 +69,7 @@ export namespace HumanGaze {
   /** Final eye-in-head eccentricity before the head joins, degrees (Freedman 2008). */
   export const EYES: number = 15;
 
-  /** The head and neck's comfortable share, degrees (provisional). */
+  /** The head and neck's comfortable share, degrees: a yaw of 60, between the 54 and 68 degrees of cervical rotation measured in crossing a street and reversing a car (Bennett, Schenk and Simmons 2002, J Spinal Disord Tech 15:307; Bible et al. 2010, J Spinal Disord Tech 23:15, 13 to 57 degrees over daily tasks); the 40 down and 30 up have no measured source (provisional). */
   export const HEAD: Readonly<{ yaw: number; down: number; up: number }> = {
     yaw: 60,
     down: 40,

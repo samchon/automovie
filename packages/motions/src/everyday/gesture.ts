@@ -72,8 +72,10 @@ import { prepareGestureTransport } from "./prepareGestureTransport";
  * Transport time is the free-space time of the distance moved
  * (`AutoMovieMotionHumanTiming.transport`), and at least the time each
  * moving arm's arc takes within the audit's travel bound
- * (`gestureHands.reaching`), 0.3 s for head and shoulder gestures and one second per 30 degrees of a
- * bow (provisional). The Effort's tempo scales every phase, its extent the
+ * (`gestureHands.reaching`), 0.3 s for head and shoulder gestures (no source
+ * found), and for a bow its depth at the measured rates of standing bows,
+ * down in 1.21 s and up in 1.38 s for 60 degrees, held 0.95 s at the
+ * deepest (Kawabata et al. 2009, ISBS 27). The Effort's tempo scales every phase, its extent the
  * gesture's size and its elbow term the arm's width ({@link HumanEffort}).
  *
  * The plan names the hands it moves (`hands`), so a gesture with a hand that
@@ -110,16 +112,19 @@ export namespace gesture {
   /** A gesture may be performed over a carrier: it claims the moving arms with their hands, and the head or the trunk when its kind moves them. */
   export const overlay: boolean = true;
 
-  /** A bow's depth when the caller names none, degrees: the ordinary of the conventional light, ordinary and deep bows of 15, 30 and 45 degrees. */
+  /** A bow's depth when the caller names none, degrees: the ordinary of the conventional light, ordinary and deep bows of 15, 30 and 45 degrees (the Japanese eshaku, keirei and saikeirei). */
   export const BOW: number = 30;
 
-  /** The deepest bow accepted, degrees (provisional: past the conventional deep bow, before the trunk's pitch leaves the feet's support unbalanced). */
-  export const DEEPEST_BOW: number = 60;
+  /** The deepest bow accepted, degrees: two standard deviations past the mean deepest trunk angle of 33 men's standing bows, 60.0 +- 11.1 degrees (Kawabata et al. 2009, ISBS 27, Table 1). */
+  export const DEEPEST_BOW: number = 60 + 2 * 11.1;
 
-  /** How fast a bow goes down and comes up, degrees a second (provisional). */
-  export const BOW_RATE: number = 30;
+  /** How fast a bow goes down, degrees a second: the same bows reached their 60 degree mean depth in 1.21 +- 0.41 s (Kawabata et al. 2009, Table 2). */
+  export const BOW_DOWN: number = 60 / 1.21;
 
-  /** The preparation and retraction of a head, shoulder or trunk gesture, seconds (provisional). */
+  /** How fast a bow comes back up, degrees a second: the same bows rose in 1.38 +- 0.32 s (Kawabata et al. 2009, Table 2). */
+  export const BOW_UP: number = 60 / 1.38;
+
+  /** The preparation and retraction of a head, shoulder or trunk gesture, seconds (provisional: no source found). */
   export const JOINT_TRANSPORT: number = 0.3;
 
   /**
@@ -129,12 +134,12 @@ export namespace gesture {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On a missing pointing target, a count that is not a positive whole number, a negative hold, or a bow outside (0, 60] degrees.
+   * @throws {HumanRefusal} On a missing pointing target, a count that is not a positive whole number, a negative hold, or a bow outside (0, `DEEPEST_BOW`] degrees.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned and every refusal; the law's doc gives the phases, timing laws and provisional values.
    * @evidence contracts/development/implementation.md#principled-implementation Kendon's phases (Kendon 1980; McNeill 1992): hand goals from gestureStroke solved by the arm's inverse kinematics, the moving arms planned to, on and from them as one trajectory clear of the body; joint gestures added under an envelope; a bow is `AutoMovieMotionHumanLean.bow`, its hip shift from the engine's centre of mass solved at the peak pitch and scaled by the pitch's sine between. The entry's and the rest's arm angles are joint angles, so they follow the standing body.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan owns phase timing, transport and the channels and hands it declares; the body under it is the stand law's or, over a carrier, the carrier's (`under`); gestureStroke owns each gesture's goals and angles, `AutoMovieMotionHumanLean` the bowed posture, handGoals the arm solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; `JOINT_TRANSPORT`, `BOW_RATE`, `BOW` and `DEEPEST_BOW` are named constants, the default bow the conventional ordinary one and the rest provisional; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The free-space transport time is the timing owner's; `BOW`, `DEEPEST_BOW`, `BOW_DOWN` and `BOW_UP` are the conventional and measured bow's; `JOINT_TRANSPORT` is a named provisional constant with no source found; Effort modifiers come from HumanEffort; no gesture or body is special-cased beyond the kind's own table rows.
    * @evidence contracts/development/implementation.md#efficient-algorithms Only moving hands resolve entry and rest arms and plan trajectories; a bow solves its balance once. Between the ends, a posture reads the base, the direct joints, the fingers and the planned arms, building no hand goal; the two ends fit the hand goals. Kinds with no direct joints write none, and the hand and touch geometry is prepared once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The phase times, the hand preparations and the kind's direct bones belong to one plan. Each posture read lends its FK workspace and ROM projector to the base, the hand goals and the end carry.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its inputs, preparations and planned arm trajectories until it is released; borrowed workspaces end with each posture call.
@@ -302,7 +307,7 @@ export namespace gesture {
     const timed: number =
       T *
       (p.kind === "bow"
-        ? depth / BOW_RATE
+        ? depth / BOW_DOWN
         : sides.length === 0
           ? JOINT_TRANSPORT
           : AutoMovieMotionHumanTiming.transport(transport));
@@ -314,7 +319,9 @@ export namespace gesture {
       Math.max(0, ...sides.map((side: AutoMovieHumanSide): number =>
         gestureHands.reaching(body, at0, side, from[side]!, hands[side]!,
           gestureStroke.hand(p.kind, side, u, cycles, input(at0, 0, side)))));
-    const retract: number = Math.max(timed, arcs(1, rest));
+    // A bow comes up slower than it goes down (Kawabata et al. 2009).
+    const back: number = p.kind === "bow" ? (timed * BOW_DOWN) / BOW_UP : timed;
+    const retract: number = Math.max(back, arcs(1, rest));
     const prepare: number = Math.max(
       AutoMovieMotionHumanVariation.duration(source, "prepare", timed),
       arcs(0, begin),

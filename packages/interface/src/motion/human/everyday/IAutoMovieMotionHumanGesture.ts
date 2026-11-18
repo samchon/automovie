@@ -52,7 +52,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * quality.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, unit, the gestures it applies to and the default an absent value takes.
-   * @evidence contracts/development/design.md#principled-representation The kind is gestureStroke's closed union; the target is the shared motion target union, read at each instant so pointing follows a moving target; count, hold and depth are a whole number, seconds and degrees, validated at plan time (positive whole count, non-negative hold, a bow in (0, 60]) since the types cannot express those ranges.
+   * @evidence contracts/development/design.md#principled-representation The kind is gestureStroke's closed union; the target is the shared motion target union, read at each instant so pointing follows a moving target; count, hold and depth are a whole number, seconds and degrees, validated at plan time (positive whole count, non-negative hold, a bow in (0, gesture.DEEPEST_BOW], about 82 degrees) since the types cannot express those ranges.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the kind, face region, hand and Effort types are imported from their owners.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The fields that apply to only some kinds (target, region, depth) stay optional on one record rather than a union per kind: a field a kind does not read is ignored, and the one required pairing, `point` with a target, is refused at plan time. A per-kind discriminated union would rule that state out by type.
    *
@@ -81,7 +81,7 @@ export namespace IAutoMovieMotionHumanGesture {
      */
     hold?: number;
 
-    /** A bow's depth, degrees in (0, 60], refused outside that range only for a bow, so it carries no schema bound; 30 when absent. */
+    /** A bow's depth, degrees in (0, gesture.DEEPEST_BOW], about 82 (two deviations past the measured mean, Kawabata et al. 2009), refused outside that range only for a bow, so it carries no schema bound; 30 when absent. */
     depth?: number;
 
     /** Movement quality. */

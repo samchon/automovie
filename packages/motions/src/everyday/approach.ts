@@ -54,7 +54,7 @@ import { HumanTrunk } from "./HumanTrunk";
  * named in `avoid`, so a stop behind them is not reached through them.
  * People named in `avoid` are walked round: where the straight
  * leg would pass one nearer than the walker's lateral clearance (0.5 m,
- * provisional; walkers keep an elliptical personal space wider ahead than to
+ * `CLEARANCE`; walkers keep an elliptical personal space wider ahead than to
  * the side while circumventing a person, Gerin-Lajoie, Richards and McFadyen
  * 2005, Motor Control 9:242) plus half the walker's chest breadth, a
  * waypoint abeam that person takes the walk round on the side that deviates
@@ -92,7 +92,7 @@ export namespace approach {
   /** What it yields to an overlay: the walk's own. */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
-  /** Lateral clearance a walker keeps from a person it passes, metres (provisional; Gerin-Lajoie, Richards and McFadyen 2005). */
+  /** Lateral clearance a walker keeps from a person it passes, metres: the lateral half axis of the elliptical personal space walkers keep while circumventing a person, 0.48 m on average (Gerin-Lajoie, Richards and McFadyen 2005, Motor Control 9:242; 2006, Gait Posture 24:364), to which the plan adds half the walker's chest breadth. */
   export const CLEARANCE: number = 0.5;
 
   /**
@@ -107,7 +107,7 @@ export namespace approach {
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, the arrival correction, the returned plan and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The stop is the proxemic gap (Hall) measured from the sternum region along the line to the target, the partner's own measure for the handing gap; the walk law places whole footprints to it, and one correction moves the stop by the arriving sternum's measured gap error, since the walk's arrival lean shifts the chest off the standing estimate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes the stop, then the waypoints through `abeam`, then delegates stepping to the walk law; the gap arithmetic lives in HumanProxemics and the chest lead in `chest`.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.002 m acceptance of the arrival error and the single correction are the law's precision policy, not a tuned case; the 0.5 m clearance is a named provisional constant; Effort modifiers are clamped to the walk's documented parameter ranges.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.002 m acceptance of the arrival error and the single correction are the law's precision policy, not a tuned case; the 0.5 m clearance is the cited personal space (`CLEARANCE`); Effort modifiers are clamped to the walk's own parameter ranges (`walk.STRIDE_RANGE`, `walk.ARM_SWING_RANGE`, `walk.ELBOWS_RANGE`). Limitation: the elbow modifier, in upper-arm lengths, is read as degrees by a factor of 100 that no source gives.
    * @evidence contracts/development/implementation.md#efficient-algorithms At most two walk plans and one posture evaluation for the arrival check, plus one aim per avoided person, linear in the avoid list; a tracked person adds `HORIZON / REST_STEP` (120) reads of their placed root and four more for their way.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the first walk plan when its arrival is within tolerance instead of planning again; nothing is shared across instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the returned walk plan, whose closures hold this instance's inputs and are released with the performance; the first plan is dropped when a corrected one replaces it.
@@ -225,20 +225,20 @@ export namespace approach {
     return wait < 1e-6 ? walked : walkDelayed(walked, wait);
   }
 
-  /** How far ahead a tracked person's placed root is read for where they come to rest, seconds (provisional: longer than a shot). */
+  /** How far ahead a tracked person's placed root is read for where they come to rest, seconds. A numerical policy bounding the scan at `HORIZON / REST_STEP` reads: a minute, longer than any one shot a follower is planned in, so a leader still moving after it is followed to where they are then. */
   export const HORIZON: number = 60;
 
-  /** Seconds between two reads of a tracked person's placed root (provisional: about one walking step, 0.5 s at the natural cadence near 120 steps a minute, so no stop between two steps is missed). */
+  /** Seconds between two reads of a tracked person's placed root: one walking step, 0.50 to 0.56 s at the 1.8 to 2.0 steps a second of 800 pedestrians (Pachi and Ji 2005, Struct Eng 83(3):36), so a stop is found within the step it is made on. */
   export const REST_STEP: number = 0.5;
 
-  /** How far a tracked person's root may move between two reads and still count as at rest, metres (provisional: a millimetre, below any step yet above the arithmetic's round-off on a placed root). */
+  /** How far a tracked person's root may move between two reads and still count as at rest, metres. A numerical policy: the millimetre the balance margins are reported in (`HumanBalance.TOLERANCE` resolves to half of it), far below the shortest step and far above a placed root's round-off. */
   export const REST_MOVE: number = 1e-3;
 
-  /** How far a tracked person's heading may turn between two reads and still count as at rest, degrees (provisional: a tenth of a degree, below any visible turn). */
+  /** How far a tracked person's heading may turn between two reads and still count as at rest, degrees. A numerical policy: a tenth of a degree carries a shoulder, about 0.2 m from the root, by 0.35 mm, under `REST_MOVE`, so a turn is read at least as finely as a move. */
   export const REST_TURN: number = 0.1;
 
-  /** How far a tracked person's way must leave the straight line for the follower to take it by their places, and how near either end such a place is dropped, metres (provisional: about a body's clearance, as `CLEARANCE`). */
-  export const BEND: number = 0.5;
+  /** How far a tracked person's way must leave the straight line for the follower to take it by their places, and how near either end such a place is dropped, metres: the lateral clearance walkers keep from a person (`CLEARANCE`, Gerin-Lajoie et al. 2005), under which taking the leader's turn would not change the follower's path by more than its own personal space. */
+  export const BEND: number = CLEARANCE;
 
   /** How long after a tracked person has stopped a walk that waited for them arrives, seconds: a follower's visual-motor delay, the mean optimal delay between a leader's and a follower's acceleration (420 ms; Rio, Rhea and Warren 2014, J Vis 14(2):4). */
   export const LAG: number = 0.42;
@@ -363,9 +363,9 @@ export namespace approach {
           ...(p.effort === undefined
             ? {}
             : {
-                stride: Math.min(1.3, Math.max(0.6, mods.step)),
-                armSwing: Math.min(2, Math.max(0, mods.swing)),
-                elbows: Math.min(30, Math.max(0, 100 * mods.elbow)),
+                stride: Math.min(walk.STRIDE_RANGE.maximum, Math.max(walk.STRIDE_RANGE.minimum, mods.step)),
+                armSwing: Math.min(walk.ARM_SWING_RANGE.maximum, Math.max(walk.ARM_SWING_RANGE.minimum, mods.swing)),
+                elbows: Math.min(walk.ELBOWS_RANGE.maximum, Math.max(walk.ELBOWS_RANGE.minimum, 100 * mods.elbow)),
               }),
         },
       });
