@@ -272,7 +272,7 @@ export namespace legTouch {
       ? prepareSupportCorrection(body, window, { duration, contacts }, [`${side}LowerLeg`])
       : prepareGroundedBalance(body, window, () => [standing]);
     return {
-      duration, events, balanceWindow: window,
+      duration, events, ...HumanPhysics.declared(context.params, window),
       contacts,
       posture: (
         seconds: number,

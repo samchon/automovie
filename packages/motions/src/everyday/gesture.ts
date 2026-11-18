@@ -450,7 +450,7 @@ export namespace gesture {
     return {
       duration,
       events,
-      balanceWindow: window,
+      ...HumanPhysics.declared(context.params, window),
       contacts: base.contacts,
 
       // The hands the gesture moves, so a hand that holds a prop is refused it.
