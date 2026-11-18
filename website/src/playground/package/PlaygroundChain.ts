@@ -124,29 +124,56 @@ export namespace PlaygroundChain {
   }
 
   /**
-   * The mutual actions: every record the package exports, in any namespace
-   * (`HumanMutual`, and the lexicon's social and partner families), that
-   * names itself and casts roles.
+   * The named mutual actions the installed chain can join.
    *
    * @returns Each record by its name; empty when the package has none or its chain cannot join them.
    */
   export function mutuals(): Record<string, IMutual> {
+    return Object.fromEntries(
+      Object.entries(mutualExports()).map(
+        ([name, { record }]): [string, IMutual] => [name, record],
+      ),
+    );
+  }
+
+  /** A mutual action and the expression that refers to it in authored code. */
+  interface IMutualExport {
+    /** The exported action record. */
+    record: IMutual;
+
+    /** Its named export or namespace member. */
+    expression: string;
+  }
+
+  /**
+   * Find named mutual actions exported directly or in a namespace. The
+   * playground and a scene's displayed program use the same export.
+   *
+   * @returns The action and its public expression for each name.
+   */
+  export function mutualExports(): Record<string, IMutualExport> {
     const join: unknown = (HumanChain as unknown as Record<string, unknown>)[
       "mutual"
     ];
     if (typeof join !== "function") return {};
-    const found: Record<string, IMutual> = {};
-    for (const space of Object.values(EXPORTS)) {
+    const found: Record<string, IMutualExport> = {};
+    const register = (value: unknown, expression: string): void => {
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        typeof (value as IMutual).name === "string" &&
+        Array.isArray((value as IMutual).roles) &&
+        typeof (value as IMutual).act === "function"
+      ) {
+        const record: IMutual = value as IMutual;
+        found[record.name] = { record, expression };
+      }
+    };
+    for (const [key, space] of Object.entries(EXPORTS)) {
       if (typeof space !== "object" || space === null) continue;
-      for (const value of Object.values(space as Record<string, unknown>))
-        if (
-          typeof value === "object" &&
-          value !== null &&
-          typeof (value as IMutual).name === "string" &&
-          Array.isArray((value as IMutual).roles) &&
-          typeof (value as IMutual).act === "function"
-        )
-          found[(value as IMutual).name] = value as IMutual;
+      register(space, key);
+      for (const [member, value] of Object.entries(space))
+        register(value, `${key}.${member}`);
     }
     return found;
   }

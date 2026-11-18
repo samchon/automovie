@@ -11,13 +11,13 @@ import type { IGalleryView } from "../../src/gallery/structures/IGalleryView";
  * Scenarios:
  * 1. For every archetype and variant under eight seeds, every listed dimension lies inside the band listed beside it.
  * 2. For every archetype and variant with at least one band wider than a point, two of the eight seeds list a different value for some dimension, so the seed control changes what is shown.
- * 3. Every archetype whose producer carries bands lists at least one dimension, so the table is not empty for a seeded subject.
+ * 3. Every dimension the producer records appears in the gallery's dimension list, including derived values.
  * 4. Each articulation the gallery offers a slider for builds at both ends of the travel it lists, so the slider cannot ask for a refused state.
  */
 export function test_website_gallery_seed(): void {
   const outside: string[] = [];
   const unchanged: string[] = [];
-  const empty: string[] = [];
+  const unlisted: string[] = [];
   const refused: string[] = [];
   const subjects: IGalleryCatalogue.ISubject[] =
     GalleryCatalogue.catalogue().groups.flatMap(
@@ -34,14 +34,23 @@ export function test_website_gallery_seed(): void {
       let free: boolean = false;
       let rest: Omit<IGalleryView, "grid"> | null = null;
       for (let seed: number = 1; seed <= 8; seed++) {
-        const view: Omit<IGalleryView, "grid"> = GalleryArchetype.build({
-          subject: subject.id,
-          variant,
-          seed: String(seed),
-          state: {},
-          affordances: true,
-        }).view;
+        const { archetype, view }: GalleryArchetype.IBuilt =
+          GalleryArchetype.build({
+            subject: subject.id,
+            variant,
+            seed: String(seed),
+            state: {},
+            affordances: true,
+          });
         rest = view;
+        const listed: Set<string> = new Set(
+          view.dimensions.map(
+            (dimension: IGalleryView.IDimension): string => dimension.name,
+          ),
+        );
+        for (const dimension of Object.keys(archetype.dimensions))
+          if (!listed.has(dimension))
+            unlisted.push(`${name} seed ${seed}: ${dimension}`);
         for (const dimension of view.dimensions) {
           if (dimension.maximum > dimension.minimum) free = true;
 
@@ -63,7 +72,6 @@ export function test_website_gallery_seed(): void {
         );
       }
       if (free && drawn.size < 2) unchanged.push(name);
-      if (rest !== null && rest.dimensions.length === 0) empty.push(name);
 
       for (const affordance of rest?.affordances ?? []) {
         if (affordance.travel === null) continue;
@@ -89,6 +97,6 @@ export function test_website_gallery_seed(): void {
 
   TestValidator.equals("every dimension lies inside its band", outside, []);
   TestValidator.equals("a seed changes a listed dimension", unchanged, []);
-  TestValidator.equals("a seeded subject lists its dimensions", empty, []);
+  TestValidator.equals("every recorded dimension is listed", unlisted, []);
   TestValidator.equals("each slider's ends build", refused, []);
 }

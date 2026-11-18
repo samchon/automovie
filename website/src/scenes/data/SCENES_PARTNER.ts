@@ -58,10 +58,7 @@ const use = (kind: string): Record<string, string> => ({
  * @param kind The tool's kind.
  * @returns The pick-up.
  */
-const taken = (
-  subject: string,
-  kind: string,
-): ReturnType<typeof act> =>
+const taken = (subject: string, kind: string): ReturnType<typeof act> =>
   act("pickUp", { prop: subject, handle: "grip", use: use(kind) });
 
 /** Where the first carpenter's hammer lies on the bench and is put back, floor metres. */
@@ -69,6 +66,24 @@ const HAMMER_A: { x: number; z: number } = { x: -1.13, z: 0.42 };
 
 /** The partner, riding and work scenes composed from the lexicon of #3392. */
 export const SCENES_PARTNER: readonly IScene[] = [
+  scene(
+    {
+      id: "shoulder-greeting",
+      title: "A shoulder greeting",
+      summary:
+        "Two people face each other and rest a hand on each other's shoulder before letting go.",
+      setting: "partner",
+      roles: { a: "guest", b: "guest" },
+      needs: [],
+    },
+    "shoulder-greeting",
+    [
+      person("a", "m1", 0, 0, 0, [act("stand", { seconds: 0.3 })]),
+      person("b", "m1", 0, 0.45, 180, [act("stand", { seconds: 0.3 })]),
+    ],
+    [],
+    [mutual("shoulderClasp", { one: "a", other: "b" }, { hold: 0.8 })],
+  ),
   scene(
     {
       id: "partner-dance",
