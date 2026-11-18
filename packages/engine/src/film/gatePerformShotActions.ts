@@ -21,7 +21,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * - its actor: a non-blank id or a non-empty list of distinct ids, each a staged node or camera, and a camera only for a `frame` action;
  * - its timing: a start inside `[0, duration]`, a positive finite duration or `"auto"`, a span inside the shot, an `"auto"` span that is not empty because it starts at the shot's end, and a positive integer `repeat`.
  *
- * A `frame` action must also state a usable framing and move, name exactly one staged camera, and frame a subject that resolves, with its focus and focal length gated as lens intents. The first camera a `frame` action names becomes the live camera, and a second camera is refused, because a take has one live camera. Every other action joins the stage list and is gated by {@link gatePerformShotStageAction}. Violations go into the context's collector; the plan can still contain actions with violations. performShot consumes it only after the collector is clean.
+ * A `frame` action must also state a usable framing and move, name exactly one staged camera, and frame a subject that resolves, with ordinary focus and focal length gated as lens intents. Timed focus pulls resolve after object motion is available. The first camera a `frame` action names becomes the live camera, and a second camera is refused, because a take has one live camera. Every other action joins the stage list and is gated by {@link gatePerformShotStageAction}. Violations go into the context's collector; the plan can still contain actions with violations. performShot consumes it only after the collector is clean.
  *
  * @param context The shot's staged tables and collector.
  * @param actions The performing action list, the revise pass's when present.
@@ -70,9 +70,8 @@ export function gatePerformShotActions(
         formationsFramed: true,
       },
     );
-    // The two lens intents are gated like any target or scalar but never read
-    // by the camera solve; they ride to `shot.cameraIntent`.
-    if (action.focus !== undefined)
+    // A timed pull resolves its lens subjects after motion is compiled.
+    if (action.focus !== undefined && action.focusPull === undefined)
       resolvePerformShotTarget(context, {
         target: action.focus,
         path: `${path}.focus`,

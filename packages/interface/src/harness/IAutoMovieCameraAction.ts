@@ -14,8 +14,8 @@ import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * `compileCameraMove` owns the path each `move` takes.
  *
  * @evidence contracts/development/design.md#principled-representation performShot sorts frame starts and checks overlap, then compileCameraMove fits supplied subject height/radius by the pinhole vertical/horizontal bounds along staged bearing. Orbit/push/truck use eight eased segments, follow samples at 4 Hz and whip turns within 0.2 seconds; linear keys approximate these paths, and opening rest/proxy extents are not a measured visible-pixel enclosure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Framing, move and subject are closed choices the solver understands; the two lens intents are optional fields copied into `shot.cameraIntent` instead of a separate lens record the solve would also have to ignore.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Focus and focalLength leave the deterministic solve unchanged and produce no depth-of-field blur. Missing/invalid aspect uses a square-fit fallback at the low-level compiler, close keys within 1e-9 seconds merge with later values, and focus is resolved as a metadata point at the compiler's opening read rather than animated lens tracking.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Framing, move and subject are closed choices the solver understands; the lens intents are optional fields copied into `shot.cameraIntent` instead of a separate lens record the solve would also have to ignore.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Focus and focalLength leave the deterministic solve unchanged and produce no depth-of-field blur. Missing/invalid aspect uses a square-fit fallback at the low-level compiler, close keys within 1e-9 seconds merge with later values, and ordinary focus is resolved at the shot opening and a timed pull records its two marks without continuous lens tracking.
  * @evidence contracts/development/common.md#meaningful-documentation States the camera-as-actor model, every refusal about actor, live camera, overlap and target kind, what `"auto"` means here, and the owner of each move's path; members give the closed values, units, bounds and that the lens fields only reach `shot.cameraIntent`.
  */
 export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
@@ -32,14 +32,27 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   on: IAutoMovieActionTarget;
 
   /**
-   * What the lens holds sharp, when it differs from `on` (a rack focus onto the
-   * approaching rider while the frame stays on the gate). Structural intent
-   * for a diffusion or render host: `performShot` copies its resolved point
-   * into `shot.cameraIntent`, the deterministic camera solve never reads it,
-   * and it produces no depth-of-field blur. Omit when the framed subject is
-   * the focus.
+   * The lens subject, which may differ from the framed subject `on`.
+   * `performShot` records the world point in `shot.cameraIntent` at the shot
+   * opening, or at the pull's first mark when `focusPull` is present.
    */
   focus?: IAutoMovieActionTarget;
+
+  /**
+   * Timed focus pull from the explicit `focus` subject to another lens subject.
+   * The frame action's interval contains both marks. A downstream host can
+   * read these lens marks independently of the camera path.
+   */
+  focusPull?: {
+    /** Finite seconds from the frame action's start, at least zero. */
+    start: number;
+
+    /** Finite seconds from the first mark to the second, strictly positive. */
+    duration: number;
+
+    /** Positional lens subject at the second mark. */
+    to: IAutoMovieActionTarget;
+  };
 
   /**
    * Lens intent in millimetres, full-frame equivalent (24 wide, 50 normal, 85
