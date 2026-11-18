@@ -587,23 +587,39 @@ export function motionRecomposeTravel(
           }
         }
 
-        // 10. Replay and variation.
-        const again: IAutoMovieMotionHumanPerformance | undefined = walked(6);
-        if (again !== undefined)
-          for (let t: number = 0; t <= plain.duration; t += 0.1) {
-            const p: IAutoMovieVector3 = plain
-              .bones("a", t)
-              .get("rightFoot")!.worldPosition;
-            const q: IAutoMovieVector3 = again
-              .bones("a", t)
-              .get("rightFoot")!.worldPosition;
-            if (p.x !== q.x || p.y !== q.y || p.z !== q.z) {
-              findings.push(
-                `${name}: the walk performed again with its seed differs at ${t.toFixed(1)} s`,
+        // 4 and 10. Both controls reproduce the same complete neutral walk.
+        const controls = [
+          ["same seed", walked(6)],
+          ["empty manner", walked(6, {})],
+        ] as const;
+        for (const [label, comparison] of controls)
+          if (comparison !== undefined && comparison.duration !== plain.duration)
+            findings.push(
+              `${name}: ${label} walk lasts ${comparison.duration} s against ${plain.duration} s`,
+            );
+        const differences = new Set<string>();
+        for (let t: number = 0; t <= plain.duration; t += 0.1) {
+          const expected = plain.bones("a", t);
+          for (const [label, comparison] of controls) {
+            if (comparison === undefined || differences.has(label)) continue;
+            const actual = comparison.bones("a", t);
+            const different = [...expected].find(([joint, bone]): boolean => {
+              const position = actual.get(joint)?.worldPosition;
+              return (
+                position === undefined ||
+                position.x !== bone.worldPosition.x ||
+                position.y !== bone.worldPosition.y ||
+                position.z !== bone.worldPosition.z
               );
-              break;
+            });
+            if (different !== undefined || actual.size !== expected.size) {
+              differences.add(label);
+              findings.push(
+                `${name}: ${label} walk differs at ${different?.[0] ?? "joint count"} at ${t.toFixed(1)} s`,
+              );
             }
           }
+        }
         const other: IAutoMovieMotionHumanPerformance | undefined = walked(
           6,
           undefined,
@@ -613,33 +629,6 @@ export function motionRecomposeTravel(
           findings.push(
             `${name}: the walk with another seed lasts exactly as long, ${plain.duration} s, a different stride timing expected`,
           );
-      }
-    }
-
-    // 4. A neutral manner is no manner.
-    if (group === "gait") {
-      const none: IAutoMovieMotionHumanPerformance | undefined = walked(3);
-      const empty: IAutoMovieMotionHumanPerformance | undefined = walked(3, {});
-      if (none !== undefined && empty !== undefined) {
-        if (none.duration !== empty.duration)
-          findings.push(
-            `${name}: a walk with an empty manner lasts ${empty.duration} s against ${none.duration} s without one`,
-          );
-        else
-          for (let t: number = 0; t <= none.duration; t += 0.1) {
-            const p: IAutoMovieVector3 = none
-              .bones("a", t)
-              .get("leftHand")!.worldPosition;
-            const q: IAutoMovieVector3 = empty
-              .bones("a", t)
-              .get("leftHand")!.worldPosition;
-            if (Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z) !== 0) {
-              findings.push(
-                `${name}: a walk with an empty manner differs from one without at ${t.toFixed(1)} s`,
-              );
-              break;
-            }
-          }
       }
     }
 
