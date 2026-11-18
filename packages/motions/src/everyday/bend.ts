@@ -261,9 +261,9 @@ export namespace bend {
       lateralTilt,
     );
 
-    const squat = strategy === "stoop" || fixedWrist === undefined ? undefined : prepareBendSquat(
-      body, atContact, bendLower.lower(body, atContact, strategy, pitch, 1, lean * Math.sin(pitch * Math.PI / 180)),
-      strategy, side, fixedWrist,
+    const squat = strategy === "stoop" ? undefined : prepareBendSquat(
+      body, atContact, bendLower.lower(body, atContact, strategy, pitch, 1, lean * Math.sin(pitch * Math.PI / 180), undefined, lateralTilt),
+      strategy, side, fixedWrist ?? ((posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 => goal(posture).point),
     );
     const base: IAutoMovieMotionHumanActionPlan = window === null ? standing : {
       ...standing,

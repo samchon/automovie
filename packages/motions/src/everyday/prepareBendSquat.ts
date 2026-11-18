@@ -26,6 +26,8 @@ import { braceOnThighPoint } from "./braceOnThighPoint";
 import { seatedPairDepth } from "./seatedPairDepth";
 
 type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
+/** A world-fixed wrist or the wrist carried by the current target surface. */
+type Wrist = IAutoMovieVector3 | ((posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3);
 type Course = (
   posture: IAutoMovieMotionHumanPosture,
   share: number,
@@ -63,7 +65,7 @@ export function prepareBendSquat(
   nominal: IAutoMovieMotionHumanPosture,
   strategy: Strategy,
   side: AutoMovieHumanSide,
-  wrist: IAutoMovieVector3,
+  wrist: Wrist,
 ): Course | undefined {
   const native = (
     p: IAutoMovieMotionHumanPosture,
@@ -111,7 +113,7 @@ export function prepareBendSquat(
   ];
   const local = HumanFrame.local(
     { origin: standing.root, yaw: standing.yaw },
-    wrist,
+    typeof wrist === "function" ? wrist(nominal) : wrist,
   );
   const lean: number = Math.atan2(-local.x, -local.y) / RAD;
   const turn: number =
@@ -209,7 +211,7 @@ export function prepareBendSquat(
     const rows: number[] = [
       Math.max(
         0,
-        Vector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, wrist) -
+        Vector3.distance(bones.get(`${side}UpperArm`)!.worldPosition, typeof wrist === "function" ? wrist(p) : wrist) -
           span,
       ),
       Math.max(
