@@ -1,5 +1,6 @@
 import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieChainBone,
   IAutoMovieHumanLimbGoal,
@@ -26,13 +27,13 @@ import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Goal, workspace, fit policy and bounded current/best candidate state are synchronous local data. Returned records retain no reader, callback, source factory, history or handle.
  */
 export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFit>, goal: IAutoMovieHumanLimbGoal,
-  side: "left" | "right", leg: boolean,
+  side: AutoMovieHumanSide, leg: boolean,
   fit: (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear) => IAutoMovieSeededChainFit): IAutoMovieSeededChainFit {
   let fitted: IAutoMovieSeededChainFit = fit(goal.point);
   if (goal.contact === undefined || goal.rotation === undefined) return fitted;
   const anchor: IAutoMovieVector3 = Vector3.add(goal.point, Quaternion.rotateVector(goal.rotation, goal.contact));
   let point: IAutoMovieVector3 = goal.point;
-  let last: { image: IAutoMovieVector3; miss: IAutoMovieVector3 } | undefined;
+  let last: IReaimIteration | undefined;
   let nearestRotation: IAutoMovieQuaternion | undefined;
   let nearest: IAutoMovieSeededChainFit = fitted;
   let nearestMiss: number = Infinity;
@@ -77,7 +78,10 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
     nearestMiss = Infinity;
     for (let i: number = 0; i < REAIM_PASSES; ++i) {
       const frame: IAutoMovieChainBone = fitter.effector(fitted.pose);
-      const contact: IAutoMovieVector3 = Vector3.add(frame.worldPosition, Quaternion.rotateVector(frame.worldRotation, goal.contact));
+      const contact: IAutoMovieVector3 = Vector3.add(
+        frame.worldPosition,
+        Quaternion.rotateVector(frame.worldRotation, goal.contact),
+      );
       const residual: IAutoMovieVector3 = Vector3.subtract(anchor, contact);
       const error: number = Vector3.length(residual);
       if (error >= nearestMiss) break;
@@ -101,6 +105,12 @@ export function fitHumanLimbContact(fitter: ReturnType<typeof prepareHumanLimbFi
     seed: fitted.seed,
     ...(fitted.value === undefined ? {} : { value: fitted.value }),
   };
+}
+
+/** The preceding target image and its fixed-point residual for Anderson mixing. */
+interface IReaimIteration {
+  image: IAutoMovieVector3;
+  miss: IAutoMovieVector3;
 }
 
 /** Original provisional 20-micrometre re-aim resolution, finer than every contact verdict. */
