@@ -32,6 +32,7 @@ export function test_motion_dynamics_locomotion_clip(): void {
     TestValidator.predicate(
       "whole-cycle timing and exact endpoint",
       nclose(clip.duration, seconds) &&
+        nclose(clip.gaitCycle!.period, Math.min(seconds, 1)) &&
         vclose(end.translation, { x: 0.6 * distance, y: 0, z: 0.8 * distance }),
     );
     TestValidator.predicate(
@@ -48,6 +49,21 @@ export function test_motion_dynamics_locomotion_clip(): void {
     speed: number,
     heading: IAutoMovieVector3,
   ): IAutoMovieMotion => locomoteMotion("walk", gait, distance, speed, heading);
+  const strafe = admitted(1, 1, direction);
+  TestValidator.equals(
+    "default facing stays at rest",
+    strafe.keyframes.at(-1)!.pose.root!.rotation,
+    { x: 0, y: 0, z: 0, w: 1 },
+  );
+  for (const value of [0, -1, Infinity, NaN])
+    TestValidator.predicate(
+      "travel and cycle sizing require positive finite scalars",
+      throwsError(() => admitted(value, 1, direction)) &&
+        throwsError(() => admitted(1, value, direction)) &&
+        throwsError(() =>
+          locomoteMotion("walk", { ...gait, duration: value }, 1, 1, direction),
+        ),
+    );
   TestValidator.predicate(
     "degenerate or nonfinite travel refused",
     throwsError(() => admitted(-1, 1, direction)) &&

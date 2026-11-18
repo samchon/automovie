@@ -3,6 +3,7 @@ import type { IAutoMoviePose } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * A one-sided pose derivative distinguishes approach and departure at a kink.
@@ -17,6 +18,56 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_pose_velocity(): void {
+  const knee = (t: number, rounded: boolean): IAutoMoviePose => ({
+    skeleton: "knee",
+    root: null,
+    joints: [
+      {
+        bone: "leftLowerLeg",
+        flexion: rounded
+          ? Math.round((10 + 33.7 * t) * 100) / 100
+          : 10 + 33.7 * t,
+        abduction: 0,
+        twist: 0,
+      },
+    ],
+  });
+  const shown = (t: number): IAutoMoviePose => knee(t, true);
+  const exact = (t: number): IAutoMoviePose => knee(t, false);
+  const exactRate = samplePoseVelocity(
+    shown,
+    0.4,
+    0.001,
+    "after",
+    undefined,
+    exact,
+  );
+  TestValidator.predicate(
+    "continuation does not replace the displayed pose",
+    exactRate.pose.joints[0]!.flexion === shown(0.4).joints[0]!.flexion &&
+      nclose(exactRate.velocity.joints.get("leftLowerLeg")![0], 33.7, 1e-9),
+  );
+  TestValidator.predicate(
+    "rounded geometry changes the apparent tangent",
+    Math.abs(
+      samplePoseVelocity(shown, 0.4, 0.001, "after").velocity.joints.get(
+        "leftLowerLeg",
+      )![0] - 33.7,
+    ) > 1,
+  );
+  TestValidator.predicate(
+    "continuation tolerance in pose units",
+    nclose(
+      samplePoseVelocity.tolerance(0.001, 0.4),
+      (0.01 * 0.001 * 3125) / (8 * 256 * 0.4),
+      1e-15,
+    ),
+  );
+  TestValidator.predicate(
+    "positive observation span",
+    throwsError(() => samplePoseVelocity(exact, 0, 0, "before")) &&
+      throwsError(() => samplePoseVelocity.tolerance(0.001, 0)),
+  );
   const sample = (t: number): IAutoMoviePose => ({
     skeleton: "root",
     joints: [],

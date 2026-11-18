@@ -23,6 +23,31 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_spring_response(): void {
+  const initialOffset: number = 0.01,
+    velocity: number = -24,
+    decay: number = 0.3;
+  const clampTime: number = (-5 * initialOffset) / velocity;
+  const allowed = (time: number) =>
+    inertializeOffset(initialOffset, velocity, decay, time, true);
+  TestValidator.predicate(
+    "clamped and pass-through decay durations",
+    nclose(
+      inertializeOffset(initialOffset, velocity, decay, 0).duration,
+      clampTime,
+      1e-15,
+    ) && allowed(0).duration === decay,
+  );
+  const lobe = allowed(decay / 5).value,
+    bound = ((-velocity - (5 * initialOffset) / decay) * 256 * decay) / 3125;
+  TestValidator.predicate(
+    "overshoot crosses zero inside the Hermite bound",
+    lobe < 0 && -lobe <= bound && allowed(decay).value === 0,
+  );
+  TestValidator.predicate(
+    "zero offset can carry a rate",
+    inertializeOffset(0, 1, decay, decay / 5).value > 0 &&
+      inertializeOffset(0, 1, decay, decay).value === 0,
+  );
   const duration: number = 0.4;
   for (const basis of [carriedRate, carriedAcceleration]) {
     for (const time of [-duration, 0, duration, 2 * duration])
@@ -65,7 +90,7 @@ export function test_motion_dynamics_spring_response(): void {
           carriedAcceleration(duration, time - h)) /
           (2 * h),
         0,
-        1e-3,
+        time === h ? 1e-3 : 1e-6,
       ),
     );
     const rateCurvature: number =
@@ -93,6 +118,45 @@ export function test_motion_dynamics_spring_response(): void {
       ),
   );
   const entry = inertializeOffset(1, -2, 1, 0);
+  const smooth = (u: number): number => u ** 3 * (10 - 15 * u + 6 * u * u);
+  const reach = (t: number): number =>
+    0.3 * smooth(t / 0.5) + 1.2 * carriedRate(0.5, t);
+  const descent = (t: number): number =>
+    0.02 * smooth(t / 0.25) + 3 * carriedAcceleration(0.25, 0.25 - t);
+  TestValidator.predicate(
+    "joined reach carries the entering speed",
+    nclose((reach(h) - reach(0)) / h, 1.2, 1e-3) &&
+      nclose(reach(0.5), 0.3, 1e-12),
+  );
+  TestValidator.predicate(
+    "reversed basis meets a stationary accelerating goal",
+    nclose(descent(0.25), 0.02, 1e-12) &&
+      nclose((descent(0.25) - descent(0.25 - h)) / h, 0, 1e-3) &&
+      nclose(
+        (descent(0.25) - 2 * descent(0.25 - h) + descent(0.25 - 2 * h)) /
+          (h * h),
+        3,
+        2e-2,
+      ),
+  );
+  for (const u of [1 / 5, 1 / 2, 4 / 5]) {
+    TestValidator.predicate(
+      "interior rate profile",
+      nclose(
+        carriedRate(duration, u * duration),
+        duration * u * (1 - u) ** 3 * (1 + 3 * u),
+        1e-12,
+      ),
+    );
+    TestValidator.predicate(
+      "interior acceleration profile",
+      nclose(
+        carriedAcceleration(duration, u * duration),
+        (duration ** 2 * u ** 2 * (1 - u) ** 3) / 2,
+        1e-12,
+      ),
+    );
+  }
   const elapsed: number = 1e-6;
   TestValidator.predicate(
     "entry value and tangent",

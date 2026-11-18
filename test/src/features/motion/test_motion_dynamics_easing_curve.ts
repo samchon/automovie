@@ -17,6 +17,15 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_easing_curve(): void {
+  // At parameter 3/4 the cubic time coordinate is 9/16 and the easing ordinate is 27/32.
+  TestValidator.predicate(
+    "inverse through stationary abscissa",
+    nclose(cubicBezierEasing([1, 0, 0, 1], 9 / 16), 27 / 32, 1e-3),
+  );
+  TestValidator.predicate(
+    "zero derivative at the entering control",
+    nclose(cubicBezierEasing([0, 0, 0, 0], 1e-4), 1e-4, 1e-3),
+  );
   const forward = (t: number): number => cubicBezierEasing([0, 0, 1, 0], t);
   const reverse = (t: number): number => cubicBezierEasing([0, 1, 1, 1], t);
   TestValidator.predicate(
