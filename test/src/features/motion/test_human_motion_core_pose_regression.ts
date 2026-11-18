@@ -112,7 +112,7 @@ function pickup(
   const rise: number = up.position.y - initial.position.y;
   complaints.check(
     `${name}: grip closure keeps the bottle at its authored position`,
-    vclose(held.position, initial.position, ATTACHMENT),
+    distance(held.position, initial.position) <= ATTACHMENT,
   );
   complaints.check(
     `${name}: the bottle rises ${(rise * 1000).toFixed(1)} mm by lifted, 80–120 mm expected`,
@@ -130,8 +130,13 @@ function pickup(
   };
   complaints.check(
     `${name}: the bottle remains rigidly in the same hand frame from lift-off to lifted`,
-    vclose(inHand(liftOff), inHand(lifted), ATTACHMENT),
+    distance(inHand(liftOff), inHand(lifted)) <= ATTACHMENT,
   );
+}
+
+/** Euclidean drift in metres between two observations in the same frame. */
+function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
+  return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
 /** Distinct posed contact dependencies shared by the original regression. */
