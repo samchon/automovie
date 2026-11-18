@@ -3,6 +3,7 @@ import {
   ArchetypeBuilder,
   ArchetypeDrawSession,
   ArchetypeFrame,
+  createDoor,
   createStorage,
 } from "@automovie/archetypes";
 import { AutoMovieComposition, Quaternion, Vector3 } from "@automovie/engine";
@@ -19,6 +20,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
+  operate,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -45,6 +47,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the two numbered scenarios.
  */
 export function test_motion_posture_hinge_drive(): void {
+  checkDoorStroke();
   checkKnobWriters();
   const chest: ReturnType<typeof createStorage> = createStorage({
     kind: "chest",
@@ -311,4 +314,139 @@ function checkKnobWriters(): void {
       refusal.message.includes("a") &&
       refusal.message.includes("b"),
   );
+}
+
+function checkDoorStroke(): void {
+  const origin = { x: 0, y: 0, z: 0 };
+  const transform: IAutoMovieTransform = {
+    translation: origin,
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    scale: { x: 1, y: 1, z: 1 },
+  };
+  const door = createDoor({ hinge: "right", hardware: "lever" });
+  const handle = door.placed("pull", transform).translation;
+  const pivot = door.placed("hinge", transform).translation;
+  const body = motionHumanBody("m-average");
+  const swing = 40;
+  const performance = new HumanPerformance({
+    seed: "door",
+    props: [
+      HumanObject.prop("door", door, { at: origin, yaw: 0, fixed: true }),
+    ],
+    performers: [
+      {
+        subject: "operator",
+        body,
+        at: {
+          x:
+            handle.x +
+            Math.sign(handle.x - pivot.x) *
+              (body.measure.shoulderHalfWidth + body.measure.upperArmRadius),
+          y: 0,
+          z: 0.45,
+        },
+        yaw: 180,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("operator")
+      .operate({
+        mechanism: {
+          kind: "hinge",
+          at: { kind: "prop", subject: "door", point: "pull" },
+          hinge: { kind: "prop", subject: "door", point: "hinge" },
+          swing,
+        },
+      })
+      .stand({ seconds: 1 }).node,
+  });
+  const stroke = performance.segments("operator")[0]!;
+  const drives = stroke.plan.drives!;
+  TestValidator.equals(
+    "driven part",
+    drives.map((drive) => [drive.prop, drive.articulation]),
+    [["door", "hinge"]],
+  );
+  const from = stroke.start + stroke.plan.duration * drives[0]!.from;
+  const to = stroke.start + stroke.plan.duration * drives[0]!.to;
+  TestValidator.equals(
+    "closed before contact",
+    performance.state("door", from / 2).hinge,
+    undefined,
+  );
+  const mid = performance.state("door", (from + to) / 2).hinge!;
+  TestValidator.predicate(
+    "moving inside the drive window",
+    0 < mid && mid < swing,
+  );
+  const opened = door
+    .articulate({ hinge: swing })
+    .placed("pull", transform).translation;
+  for (const time of [to, performance.duration]) {
+    TestValidator.predicate(
+      "open position is held",
+      nclose(performance.state("door", time).hinge!, swing, 1e-9),
+    );
+    const actual = performance.aim(
+      { kind: "prop", subject: "door", point: "pull" },
+      time,
+      {
+        root: origin,
+        yaw: 0,
+        heights: { low: 0.5, middle: 1, high: 1.5 },
+        range: 1,
+        body,
+        bones: () => performance.bones("operator", time),
+      },
+    ).point;
+    TestValidator.predicate(
+      "contact follows the articulated handle",
+      Vector3.length(Vector3.subtract(actual, opened)) <= 1e-3,
+    );
+  }
+  const hand = performance
+    .bones("operator", to)
+    .get("rightHand")!.worldPosition;
+  TestValidator.predicate(
+    "grip finishes on the handle",
+    Vector3.length(Vector3.subtract(hand, opened)) <= 0.7 * body.measure.hand,
+  );
+  const place = { point: { x: 1, y: 1, z: 0 }, normal: { x: 0, y: 0, z: 1 } };
+  const at = { kind: "point", frame: "world", at: origin } as const;
+  const lid = operate.state(
+    { kind: "hinge", at, swing: 90 },
+    place,
+    { point: origin, axis: { x: 1, y: 0, z: 0 } },
+    1,
+  );
+  TestValidator.predicate(
+    "horizontal lid rotates through a quarter circle",
+    nclose(lid.point.x, 1) && nclose(lid.point.y, 0) && nclose(lid.point.z, 1),
+  );
+  const upright = operate.state(
+    { kind: "hinge", at, swing: 90 },
+    place,
+    { point: origin },
+    1,
+  );
+  TestValidator.predicate(
+    "a door defaults to the vertical pivot",
+    nclose(upright.point.x, 0) &&
+      nclose(upright.point.y, 1) &&
+      nclose(upright.point.z, 1),
+  );
+  const travel = 0.01;
+  for (const progress of [0, 0.5, 1]) {
+    const button = operate.state(
+      { kind: "button", at, travel },
+      place,
+      undefined,
+      progress,
+    );
+    TestValidator.equals(
+      "button displaces only along inward normal",
+      button.point,
+      { ...place.point, z: -travel * progress },
+    );
+  }
 }
