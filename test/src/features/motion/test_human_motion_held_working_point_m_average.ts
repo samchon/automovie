@@ -26,7 +26,7 @@ import { motionHeldWorkingPoint } from "../internal/motionHeldWorkingPoint";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds performances through the public chain, props and input and reads the displayed implement's own affordance; a swing that lands another part of the implement on the target, or is refused, fails with the distance or the reason.
  * @evidence contracts/development/testing.md#independent-expectations The working point is the archetype's declared affordance, placed in the world by the displayed prop frame; each target is placed by the implement's own length; the bound is the campaign's contact bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Two implements whose working points lie at different places along them, two lines of the racket's swing, on two bodies of opposite build.
+ * @evidence contracts/development/testing.md#distinguishing-cases The target is measured at the working point on the average body.
  * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds three films, under a minute alone; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the defect it replaces, the bound and the 3 scenarios.
  */
