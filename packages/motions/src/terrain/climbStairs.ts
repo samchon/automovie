@@ -102,6 +102,9 @@ export namespace climbStairs {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "climbStairs";
 
+  /** The legs and trunk carry the climb while the head, arms and hands remain free. */
+  export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
+
   /** Cancel table: the climb ends into standing or walking once both feet are on the last tread. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
