@@ -7,16 +7,20 @@ import type {
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import {
   HumanChain,
   HumanObject,
   HumanPerformance,
+  HumanSupportCarry,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { nclose } from "../internal/nclose";
+import { vclose } from "../internal/vclose";
 
 /**
  * A standing support is retained through sitting, shifting and rising.
@@ -41,8 +45,101 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States both scenarios, the sampled instants and the numerical bounds.
  */
 export function test_motion_posture_support_frame(): void {
+  const frame = (seconds: number): IAutoMovieRigidTransform =>
+    HumanObject.frame({
+      at: { x: 2 * seconds, y: 0.3, z: 1 },
+      yaw: 90 * seconds,
+    });
+  const carry = HumanSupportCarry.of(frame, 0, 1);
+  const localStep = { x: 0.2, y: 0.3, z: 2 };
+  const carried = HumanSupportCarry.posture(carry, {
+    root: { x: 0, y: 0.3, z: 1 },
+    yaw: 10,
+    pitch: 0,
+    roll: 0,
+    joints: { head: [5, 0, 0] },
+    limbs: {
+      leftLeg: { point: localStep, bend: { ...localStep, z: 2.5 } },
+      rightArm: {
+        point: { x: 0, y: 0.8, z: 2 },
+        bend: { x: 0.2, y: 0.8, z: 2 },
+      },
+    },
+  });
+  TestValidator.predicate(
+    "stance, stepping foot and inert object attachment share the moving support frame",
+    vclose(carried.root, { x: 2, y: 0.3, z: 1 }, 1e-9) &&
+      nclose(carried.yaw, 100, 1e-9) &&
+      vclose(carried.limbs.leftLeg!.point, { x: 3, y: 0.3, z: 0.8 }, 1e-9) &&
+      vclose(carried.limbs.rightArm!.point, { x: 3, y: 0.8, z: 1 }, 1e-9) &&
+      carried.joints.head![0] === 5,
+  );
+  const pickup = { x: 0, y: 1, z: 2 };
+  TestValidator.predicate(
+    "a released inert object takes the support frame at its event",
+    vclose(
+      HumanSupportCarry.of(frame, 0, 1).point(pickup),
+      { x: 3, y: 1, z: 1 },
+      1e-9,
+    ) && vclose(HumanSupportCarry.of(frame, 0, 0).point(pickup), pickup, 1e-9),
+  );
   const findings: string[] = [];
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
+  const deckBody = motionHumanBody("m-average");
+  const deck = (speed: number): IAutoMovieMotionHumanPerformance => {
+    const placement = (t: number) => ({
+      at: { x: 0, y: 0.3, z: speed * t },
+      yaw: 0,
+    });
+    return new HumanPerformance({
+      seed: "wagon",
+      props: [HumanObject.prop("cart", cart, placement(0), placement)],
+      performers: [
+        {
+          subject: "a",
+          body: deckBody,
+          at: { x: 0, y: 0.3, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a")
+        .stand({ seconds: 0.5, on: { prop: "cart" } })
+        .walk({
+          to: { x: 0, y: 0.3, z: 3 + speed * 0.5 },
+          on: { prop: "cart" },
+        }).node,
+    });
+  };
+  const stationary = deck(0),
+    moving = deck(2);
+  const span = Math.min(moving.duration, stationary.duration);
+  for (const side of ["left", "right"] as const) {
+    for (const t of [0.25, span / 3, (span * 2) / 3]) {
+      const observed = moving.bones("a", t).get(`${side}Toes`)!.worldPosition;
+      const reference = stationary
+        .bones("a", t)
+        .get(`${side}Toes`)!.worldPosition;
+      TestValidator.predicate(
+        "displayed foot follows identical local path on a moving deck",
+        Vector3.length(
+          Vector3.subtract({ ...observed, z: observed.z - 2 * t }, reference),
+        ) <= 0.01,
+      );
+    }
+  }
+  TestValidator.predicate(
+    "walking and standing declare the deck",
+    moving
+      .segments("a")
+      .every((s) =>
+        s.plan.contacts
+          .filter((c) => c.kind === "plant")
+          .every(
+            (c) => c.support.kind === "prop" && c.support.subject === "cart",
+          ),
+      ),
+  );
   for (const name of ["f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const perform: (floor: number) => IAutoMovieMotionHumanPerformance = (
