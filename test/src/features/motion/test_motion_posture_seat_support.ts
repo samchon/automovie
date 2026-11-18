@@ -1,4 +1,20 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import { createSeat } from "@automovie/archetypes";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
+  IAutoMovieMotionHumanSignature,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSignature,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -40,6 +56,8 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  * (Kendall et al. 2005, ideal alignment; `motionHumanSignature.calibrate`).
  *
  * Scenarios:
+ * A high stool supports a drink within 10 mm. Raising it raises the sitter equally.
+ * Repeating the seed reproduces the entry, and infeasible seat requests describe a feasible alternative.
  * 1. Observe the supplied action through the phases identified above.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real sit law on real bodies and reads displayed joints and soles; a perched or sunk sit, an upright back that leans, a descent with an upright trunk or a lifted foot fails with its cell, value, bound and source.
@@ -50,15 +68,18 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  */
 export function test_motion_posture_seat_support(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
+  checkHighSeat(complaints.list);
   const audited: Map<string, M.IStaged> = new Map();
-  complaints.list.push(...motionPostureBranches(AUDITED, (film, [law, row, name]): void => {
-    const staged: M.IStaged = { film, body: motionHumanBody(name), yaw: 0 };
-    // A shift and a rise each start with the same upright sit. Its complete
-    // seated segment provides the matched reference on that very rig.
-    const back: string = law === "sit" ? row : "back=upright";
-    audited.set(`${back} ${name}`, staged);
-    if (law === "rise") motionHumanRiseSignature(staged, name, complaints);
-  }));
+  complaints.list.push(
+    ...motionPostureBranches(AUDITED, (film, [law, row, name]): void => {
+      const staged: M.IStaged = { film, body: motionHumanBody(name), yaw: 0 };
+      // A shift and a rise each start with the same upright sit. Its complete
+      // seated segment provides the matched reference on that very rig.
+      const back: string = law === "sit" ? row : "back=upright";
+      audited.set(`${back} ${name}`, staged);
+      if (law === "rise") motionHumanRiseSignature(staged, name, complaints);
+    }),
+  );
 
   for (const name of BODIES) {
     const back: Record<string, number> = {};
@@ -71,8 +92,10 @@ export function test_motion_posture_seat_support(): void {
       const end: number = s.film.performance.segments("a")[0]!.end;
       if (row === "back=upright") {
         const stance: number = M.trunk(s, 0);
-        complaints.check(`${cell}: quiet entry inclination ${stance}°, at most ${M.STANCE}°`,
-          Math.abs(stance) <= M.STANCE);
+        complaints.check(
+          `${cell}: quiet entry inclination ${stance}°, at most ${M.STANCE}°`,
+          Math.abs(stance) <= M.STANCE,
+        );
       }
       const contact: number = M.event(s, "seatContact")!;
       const seated: number = M.event(s, "seated")!;
@@ -84,9 +107,15 @@ export function test_motion_posture_seat_support(): void {
         const bones: ReturnType<typeof M.bones> = M.bones(s, t);
         const neck: IAutoMovieVector3 = bones.get("neck")!.worldPosition;
         for (const side of ["left", "right"] as const) {
-          const thigh: IAutoMovieVector3 = bones.get(`${side}UpperLeg`)!.worldPosition;
-          const shin: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;
-          const foot: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
+          const thigh: IAutoMovieVector3 = bones.get(
+            `${side}UpperLeg`,
+          )!.worldPosition;
+          const shin: IAutoMovieVector3 = bones.get(
+            `${side}LowerLeg`,
+          )!.worldPosition;
+          const foot: IAutoMovieVector3 = bones.get(
+            `${side}Foot`,
+          )!.worldPosition;
           const hip: number = M.flexion(neck, thigh, shin);
           const knee: number = M.flexion(thigh, shin, foot);
           complaints.check(
@@ -96,9 +125,12 @@ export function test_motion_posture_seat_support(): void {
         }
         trunkSum += M.trunk(s, t);
         const head: IAutoMovieVector3 = bones.get("head")!.worldPosition;
-        const left: IAutoMovieVector3 = bones.get("leftUpperArm")!.worldPosition;
-        const right: IAutoMovieVector3 = bones.get("rightUpperArm")!.worldPosition;
-        headSum += (head.x - (left.x + right.x) / 2) * heading.x +
+        const left: IAutoMovieVector3 =
+          bones.get("leftUpperArm")!.worldPosition;
+        const right: IAutoMovieVector3 =
+          bones.get("rightUpperArm")!.worldPosition;
+        headSum +=
+          (head.x - (left.x + right.x) / 2) * heading.x +
           (head.z - (left.z + right.z) / 2) * heading.z;
       }
       back[row] = trunkSum / ts.length;
@@ -139,7 +171,9 @@ export function test_motion_posture_seat_support(): void {
         slumped >= head + 0.01,
       );
   }
-  complaints.assert("Sitting and rising keep their prescribed geometry and supports");
+  complaints.assert(
+    "Sitting and rising keep their prescribed geometry and supports",
+  );
 }
 
 /** The existing full-interval checks of the distinct seat and exit branches. */
@@ -152,3 +186,117 @@ const AUDITED: readonly motionPostureBranches.Branch[] = [
 
 /** The chair scales with the body, so the two stature limits bracket this geometry. */
 const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];
+
+function checkHighSeat(complaints: string[]): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const stool = createSeat({ kind: "barStool" });
+  const seatAt = (height: number): IAutoMovieMotionHumanSeated.ISeat =>
+    HumanObject.seat(stool, { at: { x: 0, y: height, z: -0.6 }, yaw: 0 });
+  const drink = (
+    chain: IAutoMovieMotionHumanChain,
+  ): IAutoMovieMotionHumanChain => chain.handToFace({ task: "drink" });
+  const perform = (
+    seat: IAutoMovieMotionHumanSeated.ISeat,
+    then: typeof drink = drink,
+    ahead: number = 0.2,
+  ): IAutoMovieMotionHumanPerformance =>
+    new HumanPerformance({
+      seed: "high-seat",
+      performers: [
+        {
+          subject: "a",
+          body,
+          yaw: seat.yaw,
+          proficiency: { level: "trained" },
+          at: HumanFrame.point(
+            { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
+            { x: 0, y: 0, z: ahead },
+          ),
+        },
+      ],
+      composition: then(HumanChain.subject("a").sit({ seat, seconds: 0.5 }))
+        .node,
+    });
+  const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
+    Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+  const low = perform(seatAt(0));
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    low,
+    "a",
+    body,
+    0,
+  );
+  const segment = low.segments("a")[1]!;
+  const start = HumanSignature.region(reader, "seat", segment.entryTime);
+  if (
+    !segment.plan.contacts.some(
+      (c) => c.part === "seat" && c.from <= 1e-9 && c.to >= 1 - 1e-9,
+    )
+  )
+    complaints.push("The drink does not declare its full seat support.");
+  for (const t of HumanSignature.times(segment.entryTime, segment.end, 4))
+    if (distance(start, HumanSignature.region(reader, "seat", t)) > 0.01)
+      complaints.push(`High-seat support moved more than 10 mm at ${t} s.`);
+  const lift: number = 0.1;
+  const raised = perform(seatAt(lift), (chain) => chain);
+  const height = HumanSignature.region(
+    HumanSignature.of(raised, "a", body, 0),
+    "seat",
+    raised.segments("a")[0]!.end,
+  ).y;
+  const end = low.segments("a")[0]!.end;
+  if (
+    Math.abs(height - HumanSignature.region(reader, "seat", end).y - lift) >
+    0.01
+  )
+    complaints.push(
+      "The seated body did not follow the stool's 100 mm rise within 10 mm.",
+    );
+  const repeat = perform(seatAt(0));
+  const repeated = HumanSignature.of(repeat, "a", body, 0);
+  for (const share of [0, 0.25, 0.5, 0.75, 1]) {
+    const t = share * end;
+    if (
+      distance(low.posture("a", t).root, repeat.posture("a", t).root) > 1e-9 ||
+      distance(
+        HumanSignature.joint(reader, t, "rightFoot"),
+        HumanSignature.joint(repeated, t, "rightFoot"),
+      ) > 1e-9
+    )
+      complaints.push(`Same-seed sitting differs at ${t} s.`);
+  }
+  const refused = (
+    run: () => IAutoMovieMotionHumanPerformance,
+    kind: string,
+    axis: string,
+  ): void => {
+    try {
+      run().segments("a");
+    } catch (error) {
+      if (
+        error instanceof HumanRefusal &&
+        error.kind === kind &&
+        error.axis === axis &&
+        error.feasible != null &&
+        (kind !== "base" ||
+          (error.feasible.kind === "alternatives" &&
+            error.feasible.values.includes("rise")))
+      )
+        return;
+      complaints.push(`Unexpected ${axis} refusal: ${String(error)}`);
+      return;
+    }
+    complaints.push(`Expected a ${kind} refusal on ${axis}.`);
+  };
+  refused(() => perform(seatAt(0), (chain) => chain, 1.5), "reach", "seat");
+  refused(
+    () => perform({ at: { x: 0, y: 0.1, z: -0.6 }, yaw: 0 }, (chain) => chain),
+    "reach",
+    "seat",
+  );
+  refused(
+    () => perform(seatAt(0), (chain) => chain.shift({ by: 0.1 })),
+    "base",
+    "base",
+  );
+}
