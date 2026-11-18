@@ -1,0 +1,30 @@
+import { HUMAN_ACTIONS, jump, sit, stand, walk } from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import LEDGER from "../internal/MOTION_HUMAN_LEDGER.json";
+
+/**
+ * Compare the documented base-action keys with the runtime law identities.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification The vocabulary ledger supplies the expected public names. Separately verify direct law identities across stance, travel, transfer and flight.
+ * @evidence contracts/development/testing.md#independent-expectations The authored ledger and public standalone action laws are independent of the runtime registration object.
+ * @evidence contracts/development/testing.md#distinguishing-cases Checks omitted or additional registrations, repeated names under different keys and incorrect handler bindings.
+ * @evidence contracts/development/testing.md#execution-ownership One in-memory comparison, no scene or physical evaluation.
+ */
+export function test_motion_root_runtime_dispatch(): void {
+  const order = (a: string, b: string): number => a.localeCompare(b);
+  TestValidator.equals(
+    "the registered vocabulary equals the authored base vocabulary",
+    Object.keys(HUMAN_ACTIONS).sort(order),
+    LEDGER.laws.map((law) => law.law).sort(order),
+  );
+  TestValidator.predicate(
+    "each dispatch key binds its own declared law name",
+    Object.entries(HUMAN_ACTIONS).every(([name, law]) => name === law.name),
+  );
+  TestValidator.predicate(
+    "the registered stance, travel, seat and flight are the public implementations",
+    HUMAN_ACTIONS.stand === stand && HUMAN_ACTIONS.walk === walk &&
+      HUMAN_ACTIONS.sit === sit && HUMAN_ACTIONS.jump === jump,
+  );
+}

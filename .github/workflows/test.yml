@@ -24,13 +24,15 @@ jobs:
       matrix:
         shard:
           - name: motion
-            select: --include test_human_motion_ --exclude law_sweep lexicon test_human_motion_core_flight_sample
+            select: --include test_human_motion_ test_motion_dynamics_ --exclude test_human_motion_law_sweep_posture test_human_motion_lexicon test_human_motion_core_flight_sample
           - name: sweep-posture
-            select: --include law_sweep_posture
+            select: --include test_human_motion_law_sweep_posture test_motion_posture_
           - name: lexicon
-            select: --include test_human_motion_lexicon
+            select: --include test_human_motion_lexicon test_motion_catalogue_
+          - name: contact
+            select: --include test_motion_contact_ test_motion_root_
           - name: other
-            select: --exclude test_human_motion_
+            select: --exclude test_human_motion_ test_motion_dynamics_ test_motion_posture_ test_motion_catalogue_ test_motion_contact_ test_motion_root_
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
