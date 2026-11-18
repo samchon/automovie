@@ -204,8 +204,7 @@ export namespace support {
     ): IAutoMovieMotionHumanPosture =>
       supportKey.preferred(body, preferred, stance, from, place);
 
-    // The plan's contact forms, so a stepping foot's quiet-stance normal is
-    // measured once for every swing.
+    // Every key and swing on this body shares the same anatomical datums.
     const form: ReturnType<typeof supportContact.prepareForm> =
       supportContact.prepareForm(body);
 
@@ -215,18 +214,6 @@ export namespace support {
     // chapter 17). The first stance starts from its stated posture, else
     // the entry; every later key from the key before, which bears on all its
     // contacts but the one being set down.
-    const seed: (
-      stance: IAutoMovieMotionHumanSupport.IStance,
-      from: IAutoMovieMotionHumanPosture,
-      place: Place,
-    ) => IAutoMovieMotionHumanPosture = (
-      stance: IAutoMovieMotionHumanSupport.IStance,
-      from: IAutoMovieMotionHumanPosture,
-      place: Place,
-    ): IAutoMovieMotionHumanPosture =>
-      stance.prefer === undefined ? from : preference(stance, from, place);
-
-    // Each key: one fit on its contacts, whose seed is selected by constraint violation.
     const keys: IKey[] = [
       { posture: preferred, seconds: 0, name: "start", contacts: inherited, place: locate(0) },
     ];
@@ -323,6 +310,7 @@ export namespace support {
                 }];
               },
             ),
+            form,
           ),
           seconds,
           name: `lift${i}`,
@@ -341,6 +329,7 @@ export namespace support {
             `bear${i}`,
             MISS,
             [],
+            form,
           ),
           seconds,
           name: `bear${i}`,
@@ -364,6 +353,7 @@ export namespace support {
             `bear${i}`,
             MISS,
             [],
+            form,
           ),
           seconds,
           name: `bear${i}`,
@@ -372,18 +362,19 @@ export namespace support {
         });
         seconds += move / 2;
       } else seconds += move;
+      const arriving: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
+      const intended: IAutoMovieMotionHumanPosture = preference(stance, arriving, place);
       push({
         posture: supportKey.solved(
           body,
-          preference(stance, keys[keys.length - 1]!.posture, place),
-          i === 0
-            ? seed(stance, keys[keys.length - 1]!.posture, place)
-            : keys[keys.length - 1]!.posture,
+          intended,
+          i === 0 && stance.prefer !== undefined ? intended : arriving,
           stance.contacts,
           place,
           `stance${i}`,
           MISS,
           [],
+          form,
         ),
         seconds,
         name: stance.event ?? `stance${i}`,

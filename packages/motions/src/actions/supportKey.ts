@@ -56,12 +56,13 @@ export namespace supportKey {
    * @param label The key's name, for the refusal.
    * @param miss How far a contact may miss its target, millimetres.
    * @param swings The targets of the parts stepping, which bear on nothing; none when absent.
+   * @param form The contact frames for the plan's unchanged body, including its measured quiet-foot normals.
    * @returns The posture.
    * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact misses by more than `miss`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The whole-body fit on the contact forms is seeded from the previous solution or geometrically placed preference, whichever violates less of the fit's complete constraint merit before solving once.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Forms, two candidate merit readings, one fit and one pass over residuals.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The original contact forms and whole-body merit admit both direct and reduced support candidates. A held-contact miss can open the diagonal or bilateral branch before the original refusal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact the fit misses is refused, never left where the fit stopped; a swing's residual refuses nothing, since it bears on nothing, and a swing whose top would cost a contact is dropped from the key rather than traded against it.
    * @evidence contracts/development/implementation.md#efficient-algorithms A feasible preference already minimizes the merit and needs no SQP. An unplaced knee or trunk contact earns one geometric seed alongside the two original seeds. The best seed gets one fit, plus a retry without a swing only if that swing costs a contact.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepareForm operation shares unchanged body geometry across all contacts, and HumanBodyFit.fit remains the actual complete multi-contact solve.
@@ -76,9 +77,8 @@ export namespace supportKey {
     label: string,
     miss: number,
     swings: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [],
+    form: ReturnType<typeof supportContact.prepareForm> = supportContact.prepareForm(body),
   ): IAutoMovieMotionHumanPosture {
-    const form: ReturnType<typeof supportContact.prepareForm> =
-      supportContact.prepareForm(body);
     const points: ContactPoint[] = contacts.map(at);
     const forms: supportContact.IForm[] = contacts.map(
       (c: IAutoMovieMotionHumanSupport.IContact, k: number): supportContact.IForm =>
@@ -121,12 +121,17 @@ export namespace supportKey {
         preparePairedFloorSupport(body, preferred, from, contacts, targets, bearing, merit);
       if (paired !== undefined) return paired;
     }
-    const previous: HumanBodyFitMerit.IEvaluation = merit.evaluate(
+    const previous: HumanBodyFitMerit.IEvaluation = preferred === from ? stated : merit.evaluate(
       HumanFitVariables.vector(variables, from),
     );
     let start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
     if (!merit.holds(previous.misses)) {
+      if (swings.length === 0) {
+        const closed: ReturnType<typeof prepareRaisedKneeSupport> =
+          prepareRaisedKneeSupport(body, preferred, from, contacts, holding, bearing, merit);
+        if (closed !== undefined) return closed;
+      }
       const aligned: ReturnType<typeof prepareSupportSeed> =
         prepareSupportSeed(body, preferred, contacts, holding);
       if (aligned !== undefined) {
@@ -167,11 +172,6 @@ export namespace supportKey {
     let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
     if (swings.length > 0 && misses(result))
       result = fitted(holding);
-    if (swings.length === 0 && misses(result)) {
-      const closed: ReturnType<typeof prepareRaisedKneeSupport> =
-        prepareRaisedKneeSupport(body, preferred, from, contacts, holding, bearing, merit);
-      if (closed !== undefined) return closed;
-    }
     // The preceding support can leave a limb against its range boundary.
     // The authored stance supplies its own articulation on the other side
     // of that boundary, even when its initial aggregate error is larger.
