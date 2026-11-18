@@ -18,6 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
@@ -62,7 +63,7 @@ import { HumanGrip } from "./HumanGrip";
  * (`HumanGrasp.reachable`), so a clasp both arms take with the elbow low
  * ranks above one an arm reaches only by raising it; the smaller turns win
  * ties by a
- * hundredth of a degree per degree. When no pair is clear, the pair with the
+ * hundredth of a millimetre per degree. When no pair is clear, the pair with the
  * largest clearance is taken. Both partners compute the same choice from the
  * same two standing postures, enumerating the pairs in the order of their
  * subject ids, so each hand's fingers close on the hand the other actually
@@ -165,14 +166,14 @@ export namespace HumanClasp {
 
   /**
    * The largest miss of a fit that still counts as reaching the clasp and
-   * the pump's top and bottom: 1, a degree of hand rotation plus a millimetre
-   * of position, the bound the carried object's cases hold a grip to. A turn
-   * past it leaves the wrist short at one end of the pump (the wrist's ulnar
-   * deviation ends at 30 degrees and the pump takes about 5.5 more), where
-   * the hand then swings 15 mm into the partner's forearm on the sweep's
-   * bodies.
+   * the pump's top and bottom, millimetres of the hand (the position's miss
+   * plus the rotation's arc over the hand's length, `HumanGraspSearch`): the
+   * limb solver's own place tolerance (`HumanArmTrajectoryTerms.TOLERANCE`),
+   * the miss it accepts as feasible. A turn past it leaves the wrist short at
+   * one end of the pump (the wrist's ulnar deviation ends at 30 degrees and
+   * the pump takes about 5.5 more).
    */
-  export const REACHED: number = 1;
+  export const REACHED: number = HumanArmTrajectoryTerms.TOLERANCE;
 
   /**
    * Choose both hands' turns about their palms' normals, with each palm
@@ -186,7 +187,7 @@ export namespace HumanClasp {
    * @returns Both grips and their clearance.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States both hand inputs, the world meeting point and pump amplitude, and the reciprocal result; the namespace gives the reach, posture-band, clearance and subject-order rules.
-   * @evidence contracts/development/implementation.md#principled-implementation Each turn is fitted over the clasp and both pump ends; admitted candidates are paired, a pair is clear when no phalanx capsule of either open hand enters the other's forearm collider, and clear pairs rank by the worse arm's miss plus elbow departure with a hundredth-degree-per-degree turn preference.
+   * @evidence contracts/development/implementation.md#principled-implementation Each turn is fitted over the clasp and both pump ends; admitted candidates are paired, a pair is clear when no phalanx capsule of either open hand enters the other's forearm collider, and clear pairs rank by the worse arm's miss plus its elbow departure's arc on the upper arm, millimetres of the hand, with a hundredth-millimetre-per-degree turn preference.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fit each person's turns, admit them (`HumanClaspCandidateFrames`), place admitted digit and forearm geometry once each, then rank the pairs.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pair is accepted without the clearance test; with none clear, the largest clearance wins and is reported.
    * @evidence contracts/development/implementation.md#efficient-algorithms Thirteen turn fits per person share one body FK workspace; digit and forearm geometry is placed once per admitted candidate (O(A+B)), and each of the A*B pairs runs two fifteen-segment distance reductions.
@@ -283,8 +284,14 @@ export namespace HumanClasp {
           HumanClaspClearance.between(aDigits.get(i)!, bForearms.get(j)!),
           HumanClaspClearance.between(bDigits.get(j)!, aForearms.get(i)!),
         );
+        // Each hand's miss, millimetres of the hand, with its elbow's
+        // departure from the hint carried the same way, as the arc the elbow
+        // swings on its upper arm; the turns break ties.
         const cost: number =
-          Math.max(a[i]!.miss + a[i]!.departure, b[j]!.miss + b[j]!.departure) +
+          Math.max(
+            a[i]!.miss + arc(a[i]!.departure, one.body.measure.upperArm),
+            b[j]!.miss + arc(b[j]!.departure, two.body.measure.upperArm),
+          ) +
           0.01 * (Math.abs(a[i]!.turn) + Math.abs(b[j]!.turn));
         const better: boolean =
           best === undefined ||
@@ -409,4 +416,9 @@ export namespace HumanClasp {
         ),
       );
   }
+}
+
+/** An angle in degrees carried as the arc it swings at a length in metres, millimetres. */
+function arc(degrees: number, length: number): number {
+  return ((degrees * Math.PI) / 180) * 1000 * length;
 }

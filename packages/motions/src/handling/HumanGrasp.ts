@@ -145,12 +145,14 @@ export namespace HumanGrasp {
    * family of turns produces (about a grasped part's own axis, where any
    * azimuth wraps it alike, or about the palm's normal, where the palm's
    * contact is unchanged), the one the arm can actually take from a posture,
-   * by the error left after the arm's fit: the hand's rotation in degrees
-   * plus the wrist's position in millimetres. The elbow's turn from its hint
-   * about the shoulder-to-wrist line, the one freedom a placed wrist leaves
-   * the elbow (Tolani, Goswami and Badler 2000), is reported as `departure`
-   * and costs nothing here. The authored turn wins ties by a hundredth of a
-   * degree per degree of turn. Grasp planners rank a part's symmetric grasps
+   * by the error left after the arm's fit, in millimetres of the hand: the
+   * wrist's position miss plus the hand's rotation miss carried as an arc over
+   * the hand's length, the characteristic length that makes a pose error
+   * dimensionally homogeneous (Angeles, Fundamentals of Robotic Mechanical
+   * Systems). The elbow's turn from its hint about the shoulder-to-wrist
+   * line, the one freedom a placed wrist leaves the elbow (Tolani, Goswami and
+   * Badler 2000), is reported as `departure` and costs nothing here. The
+   * authored turn wins ties by a hundredth of a millimetre per degree of turn. Grasp planners rank a part's symmetric grasps
    * by reachability the same way (Miller et al. 2003, Automatic grasp
    * planning using shape primitives), since an authored grip frame alone may
    * ask the wrist for more deviation than it has.
@@ -180,7 +182,7 @@ export namespace HumanGrasp {
    * @evidence contracts/development/common.md#meaningful-documentation Documents the world wrist goals, degree turns and tilts, the lazy stroke keys, the shown hand, the required measure, the caller's admission and the returned arm reference.
    * @evidence contracts/development/implementation.md#principled-implementation Reachability ranking of a part's symmetric grasps (Miller et al. 2003) over full coupled posture fits within the joint ranges, held over the stroke; HumanGraspSearch runs the lower-bound ordered search.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of the search owner, which also serves the clasp's per-turn queries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip the required measure rejects never wins over one it accepts; a goal the caller refuses is tried only when it refuses every one. The degree-plus-millimetre cost is a convention without a measured exchange rate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip the required measure rejects never wins over one it accepts; a goal the caller refuses is tried only when it refuses every one. Rotation and position enter one cost through the hand's own length, not an exchange rate set by hand.
    * @evidence contracts/development/implementation.md#efficient-algorithms C grasp fits for C admitted turn and tilt goals, plus the stroke-key fits of the candidates the grasp-error lower bound does not prune.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work All fits of one call share one FK workspace; each fit resolves its own posture.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The workspace and candidate fits end with the call; only the chosen wrist, pose, reference and scalar reports escape.

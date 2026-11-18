@@ -21,7 +21,7 @@ import { HumanClaspClearance } from "./HumanClaspClearance";
  * @param body The body, unchanged through the search.
  * @param side The offered hand and its arm.
  * @param reaches Every turn's grasp-and-stroke fit, in turn order.
- * @param reached The largest miss that counts as reaching (`HumanClasp.REACHED`), degrees plus millimetres.
+ * @param reached The largest miss that counts as reaching (`HumanClasp.REACHED`), millimetres of the hand.
  * @param bands The upper limits of the upper-arm bands, degrees of the upper arm from hanging (`HumanClasp.BANDS`).
  * @returns The admitted indices into `reaches`, and the lower arm, hand and digit frames of each admitted fit, world metres.
  *

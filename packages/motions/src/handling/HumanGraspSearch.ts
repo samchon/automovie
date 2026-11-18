@@ -44,9 +44,16 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
 
+  /** The hand's characteristic length a rotation's miss is carried over, millimetres. */
+  const lever: number = 1000 * body.measure.hand;
+
   // One key pose fitted, its elbow left to the body (`elbow`): the pose and
-  // the error the arm leaves there, the rotation in degrees plus the
-  // position in millimetres. The rotation is the fit's own optimal value
+  // the error the arm leaves there, in millimetres of the hand: the
+  // position's miss, plus the rotation's miss carried to the hand's length
+  // as an arc (the rotation in radians times the hand's characteristic
+  // length, which makes a pose error dimensionally homogeneous; Angeles,
+  // Fundamentals of Robotic Mechanical Systems, the characteristic length of
+  // a manipulator's Jacobian). The rotation is the fit's own optimal value
   // where it reports one: the least hand error over the arm's legal
   // swivels, continuous in the key (Berge's maximum theorem), where a
   // quantity read at the chosen swivel jumps wherever two swivels trade
@@ -94,8 +101,8 @@ export function HumanGraspSearch(body: IAutoMovieMotionHumanBody, posture: IAuto
       pose,
       shown: { point: hand.worldPosition, rotation: hand.worldRotation },
       miss:
-        (resolved.values[limb]?.error ??
-          angle(dot)) +
+        ((resolved.values[limb]?.error ?? angle(dot)) * Math.PI / 180) *
+          lever +
         1000 *
           Vector3.length(
             Vector3.subtract(hand.worldPosition, key.wrist.point),
@@ -247,7 +254,7 @@ interface IFitted {
   /** The displayed wrist frame, world metres and rest-relative rotation. */
   shown: IAutoMovieMotionHumanHand.IWrist;
 
-  /** The hand's rotation error in degrees plus the wrist's position error in millimetres. */
+  /** The wrist's position error plus the hand's rotation error carried as an arc over the hand's length, millimetres. */
   miss: number;
 
   /** The elbow's turn from the hint about the shoulder-to-wrist line, degrees. */
