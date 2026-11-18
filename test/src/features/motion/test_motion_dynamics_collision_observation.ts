@@ -1,7 +1,16 @@
 import { segmentSegmentDistance } from "@automovie/engine";
+import {
+  HumanColliders,
+  poseBones,
+  resolveHumanPosture,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
+import { qclose } from "../internal/qclose";
+import { vclose } from "../internal/vclose";
 
 /**
  * Two crossing capsule axes determine clearance by subtracting their radii.
@@ -16,6 +25,68 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
  */
 export function test_motion_dynamics_collision_observation(): void {
+  const body = motionHumanBody("m-average");
+  const posture = stand.posture(body, { x: 0, y: 0, z: 0 }, 0);
+  const standing = poseBones(body, resolveHumanPosture(body, posture));
+  const crown = {
+    ...standing.get("head")!.worldPosition,
+    y: standing.get("head")!.worldPosition.y + 1.3,
+  };
+  const distance = HumanColliders.distance(body, standing, crown).distance;
+  TestValidator.predicate(
+    "point and zero-length segment above the head",
+    distance >= 0.9 &&
+      distance ===
+        HumanColliders.distanceToSegment(body, standing, crown, crown).distance,
+  );
+  TestValidator.predicate(
+    "standing colliders meet the floor",
+    Math.abs(HumanColliders.lowest(body, standing)) <= 0.01,
+  );
+  const bones = (rise: number) =>
+    poseBones(
+      body,
+      resolveHumanPosture(body, {
+        ...posture,
+        root: { ...posture.root, y: posture.root.y + rise },
+        limbs: {},
+      }),
+    );
+  const ground = bones(0),
+    raised = bones(0.25);
+  const flat = HumanColliders.placed(body, ground),
+    up = HumanColliders.placed(body, raised);
+  TestValidator.predicate(
+    "vertical lift preserves every collider frame",
+    flat.length === body.profile.segments.length &&
+      up.length === flat.length &&
+      up.every((s, i) => {
+        const other = flat[i]!.pose;
+        return (
+          vclose(
+            s.pose.position,
+            { ...other.position, y: other.position.y + 0.25 },
+            1e-9,
+          ) && qclose(s.pose.rotation, other.rotation, 1e-12)
+        );
+      }) &&
+      nclose(
+        HumanColliders.lowest(body, raised) -
+          HumanColliders.lowest(body, ground),
+        0.25,
+        1e-9,
+      ),
+  );
+  const pelvis = flat.find((s) => s.bone === "hips")!.pose.position;
+  const from = { ...pelvis, x: pelvis.x - 0.5 },
+    to = { ...pelvis, x: pelvis.x + 0.5 };
+  const interior = HumanColliders.distance(body, ground, pelvis).distance;
+  TestValidator.predicate(
+    "a segment through an interior point penetrates at least that deeply",
+    interior < 0 &&
+      HumanColliders.distanceToSegment(body, ground, from, to).distance <=
+        interior + 1e-9,
+  );
   const separation = (offset: number): number =>
     segmentSegmentDistance(
       { x: -1, y: 0, z: 0 },
