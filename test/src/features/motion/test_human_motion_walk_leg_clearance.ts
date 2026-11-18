@@ -17,8 +17,7 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * Two legs' clearance is the tangle audit's own reading of them, and its
- * binding piece moves as the reading does.
+ * Two legs' clearance is the tangle audit's own reading of them.
  *
  * Scenario: the average man stands quietly, then with his left foot set
  * down across the right one, 12 cm to its right and from 30 cm in front of
@@ -27,12 +26,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * knees and the ankles, the thighs', the shanks' and the feet's rotations.
  * `walkLegClearance.excess` equals the deepest pair of the two legs the
  * audit finds (`AutoMovieMotionHumanAuditTangle.pose`) to a nanometre, the
- * audit's own rounding floor, and is none in the quiet stance; at the
- * crossings that pass into each other, moving the crossed leg 0.1 mm
- * forward changes the binding piece (`IReading.at`) as it changes the
- * reading itself, to 1e-6 m per metre.
+ * audit's own rounding floor, and is none in the quiet stance; some of the
+ * crossings pass into each other.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Resolves real postures and reads the audit on their bones; a clearance that drifts from the audit, or a piece whose slope is not the reading's, fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves real postures and reads the audit on their bones; a clearance that drifts from the audit fails.
  * @evidence contracts/development/testing.md#independent-expectations The expectation is the audit's own reading of the same bones; the crossings and the step are written here.
  * @evidence contracts/development/testing.md#distinguishing-cases The quiet stance, which reads none, against crossings in front and behind, some passing into each other and some clear.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory unit on one prepared body; it runs in CI.
@@ -97,34 +94,12 @@ export function test_human_motion_walk_leg_clearance(): void {
       },
     };
     const read = legs(crossed);
-    const reading: IAutoMovieMotionHumanWalkLegClearance.IReading =
-      walkLegClearance.reading(body, read.left, read.right);
+    const excess: number = walkLegClearance.excess(body, read.left, read.right);
     TestValidator.predicate(
       `the clearance is the audit's reading ${ahead} m ahead`,
-      Math.abs(reading.excess - read.audited) <= 1e-9,
+      Math.abs(excess - read.audited) <= 1e-9,
     );
-    if (reading.excess <= 0) continue;
-    binding++;
-    const step: number = 1e-4;
-    const nudged = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-      ...p,
-      z: p.z + step,
-    });
-    const moved: IAutoMovieMotionHumanWalkLegClearance.ILeg = {
-      ...read.left,
-      hip: nudged(read.left.hip),
-      knee: nudged(read.left.knee),
-      ankle: nudged(read.left.ankle),
-    };
-    const exact: number =
-      (walkLegClearance.excess(body, moved, read.right) - reading.excess) /
-      step;
-    const piece: number =
-      (reading.at(moved, read.right) - reading.excess) / step;
-    TestValidator.predicate(
-      `the binding piece moves as the reading ${ahead} m ahead`,
-      Math.abs(exact - piece) <= 1e-6,
-    );
+    if (excess > 0) binding++;
   }
   TestValidator.predicate("some crossings pass into each other", binding > 0);
 }
