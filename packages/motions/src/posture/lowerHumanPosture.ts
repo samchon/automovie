@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAudit } from "../audit/AutoMovieMotionHumanAudit";
+import { AutoMovieMotionHumanAuditLimits } from "../audit/AutoMovieMotionHumanAuditLimits";
 import { hipJoints } from "./hipJoints";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
@@ -198,7 +198,7 @@ function reachLimit(body: IAutoMovieMotionHumanBody, knee: number, step?: number
 
 /**
  * The width of the soft band that keeps a knee near full extension within
- * the audit's jump bound (`AutoMovieMotionHumanAudit.LIMITS.jump`, 5 mm a
+ * the audit's jump bound (`AutoMovieMotionHumanAuditLimits.jump`, 5 mm a
  * frame) while the hip moves `step` metres a frame: soft IK (Nicholas 2009,
  * "Soft IK", the hip-to-ankle reach eased over a last width before full
  * extension).
@@ -215,7 +215,7 @@ function reachLimit(body: IAutoMovieMotionHumanBody, knee: number, step?: number
  */
 function soft(a: number, b: number, limit: number, step: number): number {
   const c: number = (a * b) / (a + b);
-  const jump: number = AutoMovieMotionHumanAudit.LIMITS.jump;
+  const jump: number = AutoMovieMotionHumanAuditLimits.jump;
   return Math.max(0, (c * step * step) / (2 * jump * jump) - (a + b - limit));
 }
 
