@@ -52,6 +52,9 @@ export function prepareBilateralSupport(
     targets[contacts.findIndex((c: IAutoMovieMotionHumanSupport.IContact): boolean => c.part === part)]!.goal;
   const hand: IAutoMovieVector3 = Vector3.lerp(targetAt("leftHand"), targetAt("rightHand"), 0.5);
   const foot: IAutoMovieVector3 = Vector3.lerp(targetAt("leftFoot"), targetAt("rightFoot"), 0.5);
+  // The longest component path has three midpoint operations, one
+  // subtraction, one projection product and two dot-product additions.
+  // Include the initial rounding of the supplied world coordinate.
   const tolerance: number = Number.EPSILON * (1 + Vector3.length(hand) + Vector3.length(foot)) * 8;
   if (Math.abs(Vector3.dot(Vector3.subtract(hand, foot), across)) > tolerance) return undefined;
   for (const suffix of ["Hand", "Foot"] as const) {
