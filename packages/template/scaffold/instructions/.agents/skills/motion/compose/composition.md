@@ -1,6 +1,6 @@
 # Composing a performance
 
-Compose each screenplay beat with installed actions, parameters and operators. Read the [package API](../../automovie/SKILL.md#reading-a-package) first.
+Read the installed [package API](../../automovie/SKILL.md#reading-a-package) first. Compose each beat as a kinematic performance using its actions, parameters and operators.
 
 ## Actions
 
@@ -42,12 +42,12 @@ The vocabulary joins actions with a few operators:
 | A layer | Something running under everything a person does |
 | Parallel compositions | Several people each doing their own thing at once |
 | A mutual join | Two or more people performing one action together |
-| Attaching the action to the object's [affordance](../../development/entities.md#objects) | An action on an object |
+| A target on an object's [affordance](../../development/entities.md#objects) | An action on an object |
 | A sync between the named instants | An action timed to something else |
 
 A cut ends its action at a time or proximity within a declared window. An overlay uses parts yielded by the action that moves the body. A layer is additive.
 
-A mutual join plans roles from a shared meeting. An attach action uses an object connection. A sync aligns action to an event, partner, line, command or beat.
+A mutual join plans roles from a shared meeting. A sync aligns named instants, including events from dialogue or music cues.
 
 Use an admitted interruption when the beat overlaps actions. For example, initiate a handover as the carrier stops, transfer the prop during the two-handed grip window, and keep it held into the receiver's next action. Carry through the resolved entry state under [declared cuts](../laws/transitions.md#declared-cuts).
 
@@ -63,4 +63,4 @@ Derive variation from the film's [seed](../../development/modules.md#how-the-par
 
 ## Handoff
 
-A cast or crowd entity's capability returns the composition, as [modules](../../development/modules.md#how-the-parts-work-together) sets. A composition the vocabulary cannot perform is refused when the performance is built, and one that plans is accepted in its [catalog case](../catalog-cases.md).
+A cast or crowd entity's capability returns the composition, as [modules](../../development/modules.md#how-the-parts-work-together) sets.

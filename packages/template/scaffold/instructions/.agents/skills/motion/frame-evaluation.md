@@ -12,9 +12,9 @@ Verify the first and last frames and both sides of cuts and trims against the pl
 
 ## Sampling and retained state
 
-Resolve the performance once for the shot or sequence. At output time sample its plan under [pose by time](laws/transitions.md#pose-by-time). All commissioned channels use the same resolved state and schedule. Follow [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) for production behavior.
+Sample the film's resolved schedule at output time under [pose by time](laws/transitions.md#pose-by-time). Share the resolved state and schedule across picture and control channels. Follow [deterministic evaluation](../contracts/development/behaviors.md#deterministic-evaluation) for production behavior.
 
-Before enabling seeks, retries or split renders, identify state retained across frames. Reset it to a defined initial state and update repeatably, or restore a supported cache before evaluating later frames.
+Before enabling seeks, retries or split renders, identify any state carried between frames. Recreate it from a defined initial state or read the result through supported playback.
 
 ## Verification
 

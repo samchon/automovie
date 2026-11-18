@@ -15,7 +15,7 @@ Read only inputs covered by the key. See [Bazel's hermeticity guide](https://baz
 
 Record input and output digests. Reuse a stage only if its own key and artifact digest still match, even after an upstream stage recomputes.
 
-A captured frame is reusable only as a pure function of resolved state and frame index under [frame evaluation](../motion/frame-evaluation.md#sampling-and-retained-state). Resume a simulation under [preparing simulation](../motion/physical-feedback.md#preparing-simulation).
+A captured frame is reusable only as a pure function of resolved state and frame index under [frame evaluation](../motion/frame-evaluation.md#sampling-and-retained-state). Reuse a valid simulation playback archive to sample a checked response.
 
 Use the caches the installed packages provide rather than writing one in the production.
 

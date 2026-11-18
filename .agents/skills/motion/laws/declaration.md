@@ -4,7 +4,7 @@ An action law takes a body, parameters, skill, entry state and targets.
 
 ## Plan and time
 
-Resolve the instance plan from its entry and bound inputs before playback. Follow [pose by time](transitions.md#pose-by-time) for the work that preparation and sampling each own.
+Follow [pose by time](transitions.md#pose-by-time) to plan from bound inputs and sample the result.
 
 ## Entry state
 

@@ -1,6 +1,6 @@
 # {{name}}
 
-An AutoMovie workspace: several productions share one set of skills and contracts, one AutoMovie release and the workspace's own packages. Each production turns an LLM-authored screenplay into a reproducible motion hint, as its own README describes.
+An AutoMovie workspace lets productions share skills, contracts, an AutoMovie release and workspace packages. Follow each production's README for its workflow.
 
 ## Layout
 

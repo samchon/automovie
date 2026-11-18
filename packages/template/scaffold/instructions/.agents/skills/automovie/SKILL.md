@@ -29,4 +29,4 @@ The skills use package roles from the table. [Entity work](../development/entiti
 
 Read the installed README for entry points and the public types and JSDoc under `node_modules` for units, limits and refusals.
 
-Use the installed function or primitive that already performs the work. If the capability is missing, open the owning package's `src/` under `node_modules`. When the installation omits source, use the repository revision for the installed version. Follow the nearest implementation's frames, units, ownership, law and validation conventions when extending it. Send reusable gaps to the package owner.
+Use the installed function or primitive that performs the work. If the API lacks a capability, inspect the owning package's `src/` next to its installed `package.json`. If source is absent, use the repository named in that manifest at the installed version's revision. Follow the nearest implementation's frames, units, ownership and validation conventions when extending it. Send reusable gaps to the package owner.
