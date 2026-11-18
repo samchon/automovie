@@ -61,6 +61,8 @@ export interface IAutoMovieMotionMeetingKind {
     roles: readonly IAutoMovieMotionMeetingRole[],
   ): Record<string, IAutoMovieVector3>;
 
+  /** Place oriented anatomical contacts once from the complete pair, giving their world points and outward normals. */
+  surfaces?(roles: readonly IAutoMovieMotionMeetingRole[]): Record<string, IAutoMovieMotionMeetingKind.ISurface>;
   /**
    * The coupling of a kind in which one role bears another (#3437): the
    * borne role's contacts on the bearer with their load shares, and the
@@ -83,4 +85,9 @@ export interface IAutoMovieMotionMeetingKind {
     roles: readonly IAutoMovieMotionMeetingRole[],
     instants: IAutoMovieMotionMeetingTiming,
   ): IAutoMovieMotionCoupling;
+}
+
+export namespace IAutoMovieMotionMeetingKind {
+  /** A contact's world point and outward normal before the meeting grants solid contact. */
+  export type ISurface = Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">;
 }
