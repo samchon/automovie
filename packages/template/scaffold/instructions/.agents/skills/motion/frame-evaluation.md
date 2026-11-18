@@ -1,10 +1,10 @@
 # Frame evaluation
 
-Use the installed engine and renderer to map film time to frame schedules, source trims, playback rates, transitions and shot-local time.
+Use the installed engine and renderer to map film time to frame schedules, trims, transitions and shot-local time.
 
 ## Output time and performance
 
-Keep output frame, output time, shot-local time and simulation time distinct, and give each shot in a transition its own local time and state. Set an edit entry's `playbackRate` to a positive constant when a retained excerpt needs a different pace. The trim stays in shot-local seconds and the transition stays in output seconds. Place fixed soundtrack cues on the output clock.
+Keep output frame, output time, shot-local time and simulation time distinct, and give each shot in a transition its own local time and state.
 
 Use [operators](compose/composition.md#operators) at named instants to carry pose, velocity, support and held objects into the next action. Sync participants and sound to the resolved contact.
 
