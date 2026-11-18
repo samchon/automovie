@@ -153,9 +153,9 @@ export namespace GymnasticsFlight {
    * @evidence contracts/development/implementation.md#principled-implementation The engine's segment mass model over the posture's bones: forward kinematics alone for a posture of joints, the full resolution for one with goals.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolution and one weighted mean.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Complete canonical joint admission and actual limb/digit fits remain. Final FK requests only mass-observed bone ancestry, followed by the unchanged segment reduction. The canonical model's genuine fixed-name lookup/sorting prepares once per actual body FK owner; alternate models retain their current segment demand. One operation-scoped reader shares equal dependency math and speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The body's canonical mass model/collider demand share its unchanged profile and one genuine fixed-demand reader; changing the FK owner rebinds it. Alternate models construct actual segment demands without freezing their membership. An optional exact reader shares only equal FK dependencies, and a genuine same-body projector shares static ROM metadata while every current joint is still projected; unknown functions use ordinary admission.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One bounded static canonical-demand reader is weakly owned per body, replacing itself after an FK-owner change without history. The local lazy reader ends on return/throw; optional borrowed FK/projector sources stay with their synchronous parent. No pose, workspace, projector, bone map or query history escapes in the returned centre vector or enters that weak metadata.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Complete canonical joint admission and limb/digit fits, then forward kinematics of only the mass-bearing bones' ancestry and one segment reduction; the laws read a handful of centres per plan, so the demand is built per call.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The canonical mass model reads the bones its body collides with, so its demand is the collider set; another model demands its own segments. An optional exact reader shares only equal FK dependencies, and a same-body projector shares static ROM metadata while every current joint is still projected.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The demand, the local reader and the bone map end on return or throw; optional borrowed FK/projector sources stay with their synchronous parent, and only the centre escapes.
    */
   export function centre(
     body: IAutoMovieMotionHumanBody,
@@ -175,9 +175,7 @@ export namespace GymnasticsFlight {
       requested = massBones;
     }
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(body, posture, undefined, undefined, read, undefined, projection).pose;
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = canonical
-      ? massReader(body, requested)(pose, read())
-      : poseBones(body, pose, read(), requested);
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, pose, read(), requested);
     return resolveAutoMovieCenterOfMass.place(model, bones);
   }
 
@@ -471,18 +469,3 @@ export namespace GymnasticsFlight {
   }
 }
 
-/** Canonical mass-name metadata only; no model, pose, workspace or query result is retained. */
-const MASS_READERS: WeakMap<IAutoMovieMotionHumanBody, {
-  rig: IAutoMovieMotionHumanBody["poseResolution"];
-  read: ReturnType<typeof poseBones.prepare>;
-}> = new WeakMap();
-
-/** Bind the actual body's canonical demand after its current full solve; replace metadata on FK-owner change. */
-function massReader(body: IAutoMovieMotionHumanBody, requested: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones.prepare> {
-  let known: ReturnType<typeof MASS_READERS.get> = MASS_READERS.get(body);
-  if (known === undefined || known.rig !== body.poseResolution) {
-    known = { rig: body.poseResolution, read: poseBones.prepare(body, requested) };
-    MASS_READERS.set(body, known);
-  }
-  return known.read;
-}
