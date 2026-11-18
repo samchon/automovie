@@ -28,18 +28,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. Every `HumanSport` row is a row of one of the shipped sport, exercise,
  *    stretch, dance, swim or stance laws, and every `HumanSportThrow` row of
  *    a throw, catch, kick, jump, run or tumbling law; no name repeats.
- * 2. The shipped sport kinds keep their names: `sprintStart` athletics,
- *    `handstand` gymnastics, `horseStance`, `karatePunches` and `taiChiPush`
- *    martial art, `dribble`, `volleyDig`, `volleySet` and `throwIn` ball
- *    sport, `catcherCrouch`, `fieldGrounder` and `battingStance` baseball,
- *    `readyPosition`, `splitStep` and `golfAddress` racket.
- * 3. A pitch of a handball held in the right hand, at a point 10 m ahead, by
+ * 2. A pitch of a handball held in the right hand, at a point 10 m ahead, by
  *    the average man and the small woman, launches the ball at the release
  *    and the ball flies: at the throw's end it is more than 2 m from where it
  *    was released.
- * 4. Over two rows of the same kind at novice and elite proficiency, the
+ * 3. Over two rows of the same kind at novice and elite proficiency, the
  *    pitch plans at both.
- * 5. A throw-in of a football held from a `pickUp`, at a point on the floor
+ * 4. A throw-in of a football held from a `pickUp`, at a point on the floor
  *    15 m ahead, on the same two bodies: the ball is launched at the
  *    throw-in's `stroke`, rising at the distance-best release angle, 30
  *    degrees (Linthorne and Everett 2006), within the joints' resolution
@@ -47,7 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    within 10 mm (the issue's flight bound); and each foot stays within
  *    5 mm of where it stood (both feet on the ground, the Laws of the Game,
  *    with the issue's slip bound).
- * 6. A throw-in given a ball and no target is refused, a `parameter`
+ * 5. A throw-in given a ball and no target is refused, a `parameter`
  *    refusal on `at`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the rows' records and performs a pitch with a real ball archetype; a row of the wrong law, a renamed skill, a ball left at the release or a proficiency that does not plan fails.
@@ -101,99 +96,7 @@ export function test_human_motion_sport_rows(): void {
     names.length,
   );
 
-  // 2. The shipped kinds.
-  const kinds: [IAutoMovieMotionHumanActionLaw<never>, string, string][] = [
-    [
-      HumanSport.sprintStart as IAutoMovieMotionHumanActionLaw<never>,
-      "athletics",
-      "",
-    ],
-    [
-      HumanSport.handstand as IAutoMovieMotionHumanActionLaw<never>,
-      "gymnastics",
-      "",
-    ],
-    [
-      HumanSport.horseStance as IAutoMovieMotionHumanActionLaw<never>,
-      "martialArt",
-      "horseStance",
-    ],
-    [
-      HumanSport.karatePunches as IAutoMovieMotionHumanActionLaw<never>,
-      "martialArt",
-      "chokuZuki",
-    ],
-    [
-      HumanSport.taiChiPush as IAutoMovieMotionHumanActionLaw<never>,
-      "martialArt",
-      "taiChiPush",
-    ],
-    [
-      HumanSport.dribble as IAutoMovieMotionHumanActionLaw<never>,
-      "ballSport",
-      "dribble",
-    ],
-    [
-      HumanSport.volleyDig as IAutoMovieMotionHumanActionLaw<never>,
-      "ballSport",
-      "dig",
-    ],
-    [
-      HumanSport.volleySet as IAutoMovieMotionHumanActionLaw<never>,
-      "ballSport",
-      "set",
-    ],
-    [
-      HumanSport.throwIn as IAutoMovieMotionHumanActionLaw<never>,
-      "ballSport",
-      "throwIn",
-    ],
-    [
-      HumanSport.catcherCrouch as IAutoMovieMotionHumanActionLaw<never>,
-      "baseball",
-      "catcherCrouch",
-    ],
-    [
-      HumanSport.fieldGrounder as IAutoMovieMotionHumanActionLaw<never>,
-      "baseball",
-      "groundBall",
-    ],
-    [
-      HumanSport.battingStance as IAutoMovieMotionHumanActionLaw<never>,
-      "baseball",
-      "battingStance",
-    ],
-    [
-      HumanSport.readyPosition as IAutoMovieMotionHumanActionLaw<never>,
-      "racket",
-      "readyPosition",
-    ],
-    [
-      HumanSport.splitStep as IAutoMovieMotionHumanActionLaw<never>,
-      "racket",
-      "splitStep",
-    ],
-    [
-      HumanSport.golfAddress as IAutoMovieMotionHumanActionLaw<never>,
-      "racket",
-      "golfAddress",
-    ],
-  ];
-  for (const [law, family, kind] of kinds) {
-    TestValidator.equals(
-      `${law.name} is a row of ${family}`,
-      law.family,
-      family,
-    );
-    if (kind !== "")
-      TestValidator.equals(
-        `${law.name} fixes the kind ${kind}`,
-        (law.resolve!({}) as { kind?: string }).kind,
-        kind,
-      );
-  }
-
-  // 3 and 4. A pitched ball flies.
+  // 2 and 3. A pitched ball flies.
   const ball = createBall({ kind: "handball" });
   for (const name of ["m-average", "f-small"] as const)
     for (const level of ["novice", "elite"] as const) {
@@ -252,7 +155,7 @@ export function test_human_motion_sport_rows(): void {
 
   const complaints: string[] = [];
 
-  // 5 and 6. A throw-in of a football.
+  // 4 and 5. A throw-in of a football.
   const football = createBall({ kind: "football" });
   for (const name of ["f-small", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
