@@ -56,8 +56,9 @@ export function test_human_motion_core_load(): void {
 
   // 1. Statics.
   for (const [mass, height] of bodies) {
-    for (const load of [5, 10, 20])
-      for (const ahead of [0.3, 0.5]) {
+    for (const ahead of [0.3, 0.5]) {
+      let previous: number = 0;
+      for (const load of [5, 10, 20]) {
         const lean: number | null = HumanLoad.lean({
           mass,
           height,
@@ -76,17 +77,13 @@ export function test_human_motion_core_load(): void {
           findings.push(
             `${mass} kg with ${load} kg at ${ahead} m: the combined centre lies ${(1000 * combined).toFixed(2)} mm off`,
           );
-        if (!(lean < 0))
+        if (!(lean < previous))
           findings.push(
-            `${mass} kg: a load ahead leans ${lean} degrees, not back`,
+            `${mass} kg: ${load} kg at ${ahead} m leans ${lean} degrees against ${previous} before increasing the load`,
           );
+        previous = lean;
       }
-    const one: number = HumanLoad.lean({ mass, height, load: 10, ahead: 0.3 })!;
-    const two: number = HumanLoad.lean({ mass, height, load: 20, ahead: 0.3 })!;
-    if (!(two < one))
-      findings.push(
-        `${mass} kg: doubling the load leans ${two} against ${one}`,
-      );
+    }
     const behind: number | null = HumanLoad.lean({
       mass,
       height,
@@ -101,6 +98,16 @@ export function test_human_motion_core_load(): void {
       findings.push(`${mass} kg: an unbalanceable load is clamped to a lean`);
   }
 
+  // Equal mass and equal lever arms balance at a right angle. The next
+  // representable lever arm exceeds capacity on either side of the base.
+  for (const sign of [-1, 1]) {
+    const at: number | null = HumanLoad.lean({ mass: 1, height: 1, load: 1, ahead: sign });
+    const outside: number | null = HumanLoad.lean({
+      mass: 1, height: 1, load: 1, ahead: sign * (1 + Number.EPSILON),
+    });
+    if (at !== -sign * 90 || outside !== null)
+      findings.push(`signed moment capacity ${sign}: got ${at} at the limit, ${outside} beyond it`);
+  }
   // 2. The carry's layer.
   const posture: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
@@ -117,12 +124,11 @@ export function test_human_motion_core_load(): void {
     load: 20,
     ahead: 0.3,
   }).apply(posture, 0, context);
-  const balanced: number = HumanLoad.lean({
-    mass: 76,
-    height: 0.95,
-    load: 20,
-    ahead: 0.3,
-  })!;
+  // The moment equation gives the opposite side and hypotenuse of the
+  // lean triangle. Its horizontal leg determines the signed pitch.
+  const moment: number = 20 * 0.3;
+  const capacity: number = 76 * 0.95;
+  const balanced: number = -Math.atan2(moment, Math.sqrt(capacity ** 2 - moment ** 2)) * 180 / Math.PI;
   if (
     Math.abs(known.pitch - balanced) > 1e-12 ||
     Object.keys(known.joints).length !== 0
