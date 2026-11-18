@@ -13,7 +13,10 @@ import type { IAutoMovieMotionHumanFreedomChoice } from "@automovie/interface";
  * tried in the law's order of preference, nearest the asked pose first, and
  * the first held exactly is taken; when none is, the least missed is refined
  * by a pattern search (Hooke and Jeeves 1961) inside each freedom's bounds,
- * or round its period for a wrapped one.
+ * or round its period for a wrapped one, and while still none holds exactly
+ * the search starts again from each other tried value, least missed first,
+ * that no finished search ended within half a step of (a multistart local
+ * search, Marti 2003), the budget shared by every start.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is chosen, how it is judged, the order, the stop and the refinement with its source.
  * @evidence contracts/development/design.md#principled-representation A freedom is a bounded interval or a wrapped period, each with its refinement step in its own unit; a judgement is the misses of one pose at its instants, so a pose kept through a motion counts its worst.
@@ -27,7 +30,7 @@ export namespace HumanFreedomChoice {
   /** The shares of each freedom's step a refinement takes in turn, halving: the last is an eighth of the first. */
   export const REFINE: readonly number[] = [1, 0.5, 0.25, 0.125];
 
-  /** The most candidates a refinement judges, a search budget: each is one posture resolution per instant it is judged at. */
+  /** The most candidates the refinements of one choice judge together, a search budget: each is one posture resolution per instant it is judged at. */
   export const FITS: number = 48;
 
   /**
@@ -79,19 +82,22 @@ export namespace HumanFreedomChoice {
    * @throws {Error} When no values are tried.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation The tried values in order, the first under `EXACT` ending the search and a later one winning only by more than it; then the pattern search (Hooke and Jeeves 1961): each freedom is stepped either way by `REFINE` of its step, a step that lessens the miss is kept, and the steps halve when none does. A bounded value is clamped, a wrapped one taken into its period's half-open range about zero, so the search crosses a round handle's seam.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tried values, then one pattern search, both judged by one lazy worst-of.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is moved outside the freedoms; a candidate's misses are read only until their worst reaches the best less `EXACT`, past which it cannot be taken, so the result is that of reading them all.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The tried values are judged lazily and stop at the first exact hold; a refinement judges at most `FITS` candidates, each read only as far as it can still win.
+   * @evidence contracts/development/implementation.md#principled-implementation The tried values in order, the first under `EXACT` ending the search and a later one winning only by more than it; then the pattern search (Hooke and Jeeves 1961): each freedom is stepped either way by `REFINE` of its step, a step that lessens the miss is kept, and the steps halve when none does. A fitted miss has many local least points, so while none holds exactly the search restarts from each other tried value, least missed first, refined from half its step since its neighbours a step away were tried, unless a finished search ended within half a step of it (multistart local search, Marti 2003, Handbook of Metaheuristics), the least of all ends taken. A bounded value is clamped, a wrapped one taken into its period's half-open range about zero, so the search crosses a round handle's seam.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The tried values, then one pattern search per start, all judged by one lazy worst-of.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is moved outside the freedoms; a candidate's misses are read only until their worst reaches its search's best less `EXACT`, past which it cannot be taken there. The first start is the least missed tried value, so a choice its search makes is the single search's; a start whose tried value was read short of its worst orders by that lower bound.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The tried values are judged lazily and stop at the first exact hold; all starts together judge at most `FITS` candidates, the single search's budget, each read only as far as it can still win, and a start within half a step of a finished search's end is skipped.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan and pose.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function chosen(problem: IAutoMovieMotionHumanFreedomChoice.IProblem): IAutoMovieMotionHumanFreedomChoice.IChoice {
+  export function chosen(
+    problem: IAutoMovieMotionHumanFreedomChoice.IProblem,
+  ): IAutoMovieMotionHumanFreedomChoice.IChoice {
     const { tried, freedoms, judge } = problem;
     if (tried.length === 0) throw new Error("A pose has no candidate");
     const within = (values: readonly number[]): number[] =>
       values.map((v: number, i: number): number => {
-        const freedom: IAutoMovieMotionHumanFreedomChoice.Freedom = freedoms[i]!;
+        const freedom: IAutoMovieMotionHumanFreedomChoice.Freedom =
+          freedoms[i]!;
         if (freedom.kind === "bounded")
           return Math.min(freedom.greatest, Math.max(freedom.least, v));
         const p: number = freedom.period;
@@ -111,40 +117,104 @@ export namespace HumanFreedomChoice {
 
     let best: number[] = within(tried[0]!);
     let least: number = Infinity;
+    const seeds: { values: number[]; miss: number }[] = [];
     for (const values of tried) {
       if (least <= EXACT) break;
       const v: number[] = within(values);
       const missed: number = worst(v, least);
+      seeds.push({ values: v, miss: missed });
       if (missed < least - EXACT) {
         least = missed;
         best = v;
       }
     }
 
+    // The pattern search from one start, its steps judged against the
+    // start's own course, the budget shared by every start.
     let fits: number = 0;
-    for (const share of REFINE)
-      for (let moved: boolean = true; moved; ) {
-        moved = false;
-        for (let d: number = 0; d < best.length && !moved; d++)
-          for (const sign of [1, -1]) {
-            const step: number = freedoms[d]!.step;
-            if (least <= EXACT || fits >= FITS || step === 0) break;
-            const v: number[] = within(
-              best.map((x: number, i: number): number =>
-                i === d ? x + sign * share * step : x,
-              ),
-            );
-            if (v[d] === best[d]) continue;
-            fits++;
-            const missed: number = worst(v, least);
-            if (missed < least - EXACT) {
-              least = missed;
-              best = v;
-              moved = true;
-              break;
+    const search = (
+      start: number[],
+      missed: number,
+      shares: readonly number[],
+    ): { values: number[]; miss: number } => {
+      let here: number[] = start;
+      let low: number = missed;
+      for (const share of shares)
+        for (let moved: boolean = true; moved; ) {
+          moved = false;
+          for (let d: number = 0; d < here.length && !moved; d++)
+            for (const sign of [1, -1]) {
+              const step: number = freedoms[d]!.step;
+              if (low <= EXACT || fits >= FITS || step === 0) break;
+              const v: number[] = within(
+                here.map((x: number, i: number): number =>
+                  i === d ? x + sign * share * step : x,
+                ),
+              );
+              if (v[d] === here[d]) continue;
+              fits++;
+              const miss: number = worst(v, low);
+              if (miss < low - EXACT) {
+                low = miss;
+                here = v;
+                moved = true;
+                break;
+              }
             }
-          }
+        }
+      return { values: here, miss: low };
+    };
+
+    // A fitted body's miss over a freedom has many local least points (an
+    // arm reaching a turned hat's crown holds exactly at one turn and misses
+    // by a fifth of a metre 15 degrees away), so while nothing holds exactly
+    // and the budget lasts the search starts again from each other tried
+    // value, least missed first: a multistart local search (Marti,
+    // "Multi-start methods", Handbook of Metaheuristics, 2003). A restart
+    // refines inside its own value's half step, from half the step, since
+    // the values a step away were tried themselves, and a value a finished
+    // search ended within half a step of is not restarted.
+    const ended: number[][] = [];
+    const near = (a: readonly number[], b: readonly number[]): boolean =>
+      a.every((x: number, i: number): boolean => {
+        const freedom: IAutoMovieMotionHumanFreedomChoice.Freedom =
+          freedoms[i]!;
+        const gap: number = Math.abs(x - b[i]!);
+        return (
+          (freedom.kind === "wrapped"
+            ? Math.min(gap, freedom.period - gap)
+            : gap) <
+          Math.abs(freedom.step) / 2
+        );
+      });
+
+    // The least missed tried value starts first, as the single search did.
+    const first: { values: number[]; miss: number } = {
+      values: best,
+      miss: least,
+    };
+    for (const seed of [
+      first,
+      ...seeds
+        .filter((s: { values: number[] }): boolean => s.values !== best)
+        .sort(
+          (a: { miss: number }, b: { miss: number }): number => a.miss - b.miss,
+        ),
+    ]) {
+      if (least <= EXACT || fits >= FITS) break;
+      if (ended.some((end: number[]): boolean => near(seed.values, end)))
+        continue;
+      const found: { values: number[]; miss: number } = search(
+        seed.values,
+        seed.miss,
+        seed === first ? REFINE : REFINE.slice(1),
+      );
+      ended.push(found.values);
+      if (found.miss < least - EXACT) {
+        least = found.miss;
+        best = found.values;
       }
+    }
     return { values: best, miss: least };
   }
 }
