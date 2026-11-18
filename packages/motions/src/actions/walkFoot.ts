@@ -65,7 +65,7 @@ export namespace walkFoot {
    * @param side The foot.
    * @param flat The footprint.
    * @param heading Its fixed heading, degrees.
-   * @param strike Its strike, seconds, or `-Infinity` for the opening stance.
+   * @param strike Its strike, seconds, or `-Infinity` for the opening stance, which stands from the take's start at second 0.
    * @param toeOff Its toe-off, seconds, or `Infinity` for the closing stance.
    * @param push Its toe-off pitch, degrees, negative toes down.
    * @param typical The gait's cruising stance, seconds, from a heel strike to the same foot's toe-off: the length the rockers of an opening or closing stance, which has only one of the two ends, take their shares of.
@@ -74,7 +74,7 @@ export namespace walkFoot {
    * @returns The planted foot at each second.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States fixed footprint/time inputs, angular conventions, defaults and the random-access stance reader.
-   * @evidence contracts/development/implementation.md#principled-implementation The forward, backward and raised-heel rockers on minimum-jerk profiles, the heel rocker over `HEEL_SHARE` of the stance and the forefoot rocker over its last `PUSH_SHARE`, a stance with one end taking those shares of the gait's typical stance; the heel and toe-joint pivots are prepared outside the time reader.
+   * @evidence contracts/development/implementation.md#principled-implementation The forward, backward and raised-heel rockers on minimum-jerk profiles, the heel rocker over `HEEL_SHARE` of the stance and the forefoot rocker over its last `PUSH_SHARE`, a stance with one end taking those shares of the gait's typical stance, an opening stance's rocker beginning no sooner than the take; the heel and toe-joint pivots are prepared outside the time reader.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed temporal terms and lazy rigid pivots precede one selected forward, backward or raised-heel reader.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every share and angle is a named constant, sourced or provisional; the toes extend at the ball by the foot's pitch so they stay flat on the floor.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and evaluation; gait-kind selection and the interval endpoints and denominators leave the time reader. A flat stance copies its fixed rotation, while each rocker contact and yaw/roll prefix is prepared at most once per footprint.
@@ -98,11 +98,19 @@ export namespace walkFoot {
     const length: number =
       struck && leaves ? toeOff - strike : typical;
     const settle: number = PUSH_SHARE * length;
-    const rise: number = leaves ? toeOff - PUSH_SHARE * length : Infinity;
+
+    // An opening stance stands from the take's start, its second 0, where
+    // the foot is the entry's: no rocker of it begins before then, so a
+    // first toe-off sooner than its share of the typical stance rolls the
+    // foot over what is left of it.
+    const begun: number = struck ? strike : 0;
+    const rise: number = leaves
+      ? Math.max(begun, toeOff - PUSH_SHARE * length)
+      : Infinity;
     const settled: number = strike + settle;
     const heelSpan: number = HEEL_SHARE * length;
     const heelEnd: number = strike + heelSpan;
-    const heelStart: number = toeOff - heelSpan;
+    const heelStart: number = Math.max(begun, toeOff - heelSpan);
     const pushSpan: number = toeOff - rise;
     const level: IAutoMovieQuaternion = HumanFoot.rotation(heading, 0);
     const pivots: Partial<Record<"heel" | "mtp", ReturnType<typeof HumanFoot.preparePivot>>> = {};
@@ -120,7 +128,7 @@ export namespace walkFoot {
         };
       }
       if (leaves && t > heelStart) {
-        const degrees: number = STRIKE * minimumJerk.share((t - heelStart) / heelSpan);
+        const degrees: number = STRIKE * minimumJerk.share((t - heelStart) / (toeOff - heelStart));
         return {
           placement: rock(degrees, "heel"),
           toes: 0,
