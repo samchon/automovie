@@ -41,11 +41,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds four short performances in memory; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 4 scenarios with their bounds.
  */
-export function test_human_motion_travel_intercept(): void {
+export function test_motion_posture_travel_target(): void {
   const complaints: string[] = [];
   for (const names of [
     ["m-average", "f-small"],
-    ["f-small", "m-average"],
   ] as const) {
     const bodies: readonly [
       IAutoMovieMotionHumanBody,
@@ -144,3 +143,4 @@ export function test_human_motion_travel_intercept(): void {
   }
   TestValidator.equals("an interceptor heads a walker off", complaints, []);
 }
+

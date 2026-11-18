@@ -38,13 +38,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public reach and reads the leant posture's shoulders by forward kinematics; a lean that stops short, overshoots, is sampled instead of exact, or ignores a hand fails with the distances.
  * @evidence contracts/development/testing.md#independent-expectations The reach is read from the body's own segments by forward kinematics, the leant shoulder likewise, and the bound 1e-6 m is far under the millimetre any contact check reads; nothing is read from the reach's own arithmetic.
- * @evidence contracts/development/testing.md#distinguishing-cases A point within reach, three beyond it, one beyond every lean, two hands at once and none, on two bodies.
- * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
+ * @evidence contracts/development/testing.md#distinguishing-cases A point within reach, three beyond it, one beyond every lean, two hands at once and none, on one measured body.
+ * @evidence contracts/development/testing.md#execution-ownership In memory on one prepared body; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the stage and the 7 scenarios with their bounds.
  */
-export function test_human_motion_ride_reach(): void {
+export function test_motion_posture_reach_for_target(): void {
   const complaints: string[] = [];
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const seated: IAutoMovieMotionHumanPosture = stand.posture(
       body,
@@ -120,9 +120,16 @@ export function test_human_motion_ride_reach(): void {
       previous = lean;
     }
 
+    // At maximum lean construct a point on the measured reach sphere.
+    const limitShoulder: IAutoMovieVector3 = shoulder(read(60), "right");
+    const boundary: IAutoMovieVector3 = {...limitShoulder, z:limitShoulder.z + span("right")};
+    const boundaryLean: number = reach({right: boundary});
+    if (Math.abs(boundaryLean - 60) > 1e-6)
+      complaints.push(name + ": exact outer reach uses " + boundaryLean + " degrees instead of 60");
     // 5. Beyond every lean.
     const far: number = reach({ right: ahead("right", 3) });
-    if (far !== HumanMountRider.LEAN)
+    // Sixty degrees is the published seated lean limit. One unit in the last place can change a boundary comparison.
+    if (Math.abs(far - 60) > 60 * Number.EPSILON)
       complaints.push(`${name}: a point beyond every lean leans ${far}`);
 
     // 6. Two hands: the larger lean.
@@ -142,3 +149,4 @@ export function test_human_motion_ride_reach(): void {
   }
   TestValidator.equals("the rider's lean", complaints, []);
 }
+

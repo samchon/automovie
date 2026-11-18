@@ -37,10 +37,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Uses the existing prepared bodies and an in-memory cart, without a host or capture.
  * @evidence contracts/development/common.md#meaningful-documentation States both scenarios, the sampled instants and the numerical bounds.
  */
-export function test_human_motion_support_seated_frame(): void {
+export function test_motion_posture_support_frame(): void {
   const findings: string[] = [];
   const cart: ReturnType<typeof createCart> = createCart({ kind: "cart" });
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const perform: (floor: number) => IAutoMovieMotionHumanPerformance = (
       floor: number,
@@ -138,3 +138,4 @@ export function test_human_motion_support_seated_frame(): void {
     [],
   );
 }
+

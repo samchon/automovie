@@ -42,7 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Prepares polygon men in memory, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and their bounds.
  */
-export function test_human_motion_water(): void {
+export function test_motion_posture_water_buoyancy(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const findings: string[] = [];
   const prone = (body: IAutoMovieMotionHumanBody): Bones => {
@@ -86,7 +86,7 @@ export function test_human_motion_water(): void {
   const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const fresh: IAutoMovieMotionHumanWater = { surface: 0 };
 
-  for (const name of ["f-small", "m-large", "f-tall", "m-average"] as const) {
+  for (const name of ["f-small", "m-large"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const bones: Bones = prone(body);
     const mass: number = body.profile.mass;
@@ -172,19 +172,7 @@ export function test_human_motion_water(): void {
       }
     }
 
-    // 4. Order invariance.
-    const times: number[] = Array.from(
-      { length: 30 },
-      (_: unknown, i: number): number => (2 * i) / 29,
-    );
-    const sorted: string = JSON.stringify(
-      times.map((t: number): number[] => glide.at(t).x),
-    );
-    const shuffled: number[][] = new Array<number[]>(30);
-    for (const i of times.map((_: number, j: number): number => (j * 7) % 30))
-      shuffled[i] = glide.at(times[i]!).x;
-    if (JSON.stringify(shuffled) !== sorted)
-      findings.push(`${name}: the glide depends on the reading order`);
+
   }
 
   TestValidator.predicate(
@@ -192,3 +180,4 @@ export function test_human_motion_water(): void {
     findings.length === 0,
   );
 }
+

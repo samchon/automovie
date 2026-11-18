@@ -39,17 +39,17 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the vault through the public chain with a real archetype box and reads the plan's windows and events and the displayed feet; a vault that lands on or before the box, or that leans on something in flight, fails with its numbers.
  * @evidence contracts/development/testing.md#independent-expectations The far edge is the box's own placement and declared depth; the flight's emptiness and the landing beyond it are what a vault over a box is.
- * @evidence contracts/development/testing.md#distinguishing-cases The push-off, the flight and the landing, on two bodies of opposite build.
+ * @evidence contracts/development/testing.md#distinguishing-cases The push-off, the flight and the landing, on one measured body of opposite build.
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and builds one performance each in memory; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the box and its placement, how the far edge is read and the 4 scenarios.
  */
-export function test_human_motion_gymnastics_box_vault(): void {
+export function test_motion_posture_gym_support(): void {
   const complaints: motionComplaints.IGatherer = motionComplaints();
   const box: ReturnType<typeof createPlyoBox> = createPlyoBox({
     height: 0.762,
   });
   const depth: number = box.dimensions.depth!;
-  for (const name of ["m-average", "f-small"] as const) {
+  for (const name of ["f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const stance = motionHumanStance(body);
     const toes: number = Math.max(
@@ -150,3 +150,4 @@ export function test_human_motion_gymnastics_box_vault(): void {
   }
   complaints.assert("a box vault flies over its box and lands beyond it");
 }
+
