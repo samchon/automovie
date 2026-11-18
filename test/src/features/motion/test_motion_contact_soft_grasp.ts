@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, simulateSoftBodyCore } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  simulateSoftBodyCore,
+  simulateSoftBodyWithBoundaries,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
@@ -111,20 +116,24 @@ export function test_motion_contact_soft_grasp(): void {
     points: {},
     soft: domain,
   };
-  const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-    seed: "soft",
-    props: [lanyard],
-    performers: [
-      {
-        subject: "a",
-        body,
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
-    composition: HumanChain.subject("a").stand({ seconds: 4 }).node,
-  });
+  const hang = (
+    soft: IAutoMovieSoftBodyDomain,
+  ): IAutoMovieMotionHumanPerformance =>
+    new HumanPerformance({
+      seed: "soft",
+      props: [{ ...lanyard, soft }],
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a").stand({ seconds: 4, sway: 0 }).node,
+    });
+  const performance = hang(domain);
   const end: number = performance.duration;
   const at = (seconds: number): number[] =>
     performance.soft("lanyard", seconds);
@@ -157,6 +166,21 @@ export function test_motion_contact_soft_grasp(): void {
     "right",
     end,
   );
+  const fine = hang({
+    ...domain,
+    solver: {
+      ...domain.solver,
+      fixedStepSeconds: domain.solver.fixedStepSeconds / 2,
+      maxSteps: 2 * domain.solver.maxSteps,
+    },
+  });
+  const refined = fine.softLoad("lanyard", "a", "right", end);
+  const weight = G * domain.mass.slice(1).reduce((a, b) => a + b, 0);
+  const converged = (4 * refined.y - loaded.y) / 3;
+  TestValidator.predicate(
+    "static anchor reaction balances the suspended particle weights",
+    Math.abs(converged + weight) <= STATICS * weight,
+  );
   const empty: IAutoMovieVector3 = performance.softLoad(
     "lanyard",
     "a",
@@ -186,6 +210,54 @@ export function test_motion_contact_soft_grasp(): void {
       step <= second
         ? { step, anchors: [{ particle: 0, position: anchor }], capsules: [] }
         : { step, anchors: [], released: [0], capsules: [] },
+  );
+  const last: IAutoMovieVector3 = {
+    x: anchor.x + LENGTH,
+    y: anchor.y,
+    z: anchor.z,
+  };
+  const pinned: IAutoMovieSoftBodyBoundarySample = {
+    step: 0,
+    anchors: [
+      { particle: 0, position: anchor },
+      { particle: LINKS, position: last },
+    ],
+    capsules: [],
+  };
+  const paired: IAutoMovieSoftBodyDomain = {
+    ...domain,
+    anchors: [
+      ...domain.anchors,
+      { ...domain.anchors[0]!, id: "second", particle: LINKS },
+    ],
+  };
+  let width: number = 0;
+  simulateSoftBodyCore(paired, 1, null, [pinned, { ...pinned, step: 1 }], {
+    step: (_step, points) => {
+      width = Math.hypot(
+        points[3 * LINKS]! - points[0]!,
+        points[3 * LINKS + 1]! - points[1]!,
+        points[3 * LINKS + 2]! - points[2]!,
+      );
+    },
+  });
+  TestValidator.predicate(
+    "separate grips keep the cord's full span",
+    Math.abs(width - LENGTH) <= 0.001,
+  );
+  let conflict: unknown;
+  try {
+    simulateSoftBodyWithBoundaries(paired, 1, [
+      pinned,
+      { ...pinned, step: 1, released: [0] },
+    ]);
+  } catch (error) {
+    conflict = error;
+  }
+  TestValidator.predicate(
+    "one particle cannot be held and released in the same step",
+    conflict instanceof Error &&
+      conflict.message.includes("both holds and releases"),
   );
   const heights: number[] = [];
   simulateSoftBodyCore(domain, 2 * second, null, boundaries, {

@@ -110,16 +110,17 @@ export function test_motion_contact_grasp_for_use(): void {
   );
   let overshoot: unknown;
   try {
-    pick("lip", body.measure.stature);
+    pick("lip", 1.2);
   } catch (error) {
     overshoot = error;
   }
   TestValidator.predicate(
-    "an impossible lift identifies its height and a smaller alternative",
+    "an impossible lift identifies its height and a smaller alternative: " +
+      String(overshoot),
     overshoot instanceof HumanRefusal &&
       overshoot.kind === "reach" &&
       overshoot.axis === "lift" &&
-      /smaller|lower|reduce/i.test(overshoot.fix ?? ""),
+      /lift it less/.test(overshoot.fix ?? ""),
   );
   let failure: unknown;
   try {
