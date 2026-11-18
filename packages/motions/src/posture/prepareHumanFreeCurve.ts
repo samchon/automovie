@@ -45,7 +45,7 @@ import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
  * @evidence contracts/development/implementation.md#principled-implementation Predictor-corrector continuation uses the existing near-basin hinged solver. A directed interval's actual endpoint correction either meets the original branch/swivel and one-degree postclamp rotation gates or requires deterministic left-before-right subdivision. Every actual query is independently corrected and checked for ankle position, requested orientation, pole side and ROM with those same gates. Query-local failure can descend without changing the parent's canonical classification. A unique smooth local basin remains a premise; sampled endpoints do not certify global C1 or analytic root selection.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One correct/observe pair owns all actual fit and physical gates. interval retains canonical endpoint classification; boundary constructs canonical preceding anchors; solve selects that prepared interval then actually fits the current target. A usable phase-zero or midpoint anchor starts the hierarchy; absent both, the original one-sided cold-reference policy remains. Precision-limited or physically unusable cases use cold fitting.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body/law/fixture switch, approximate result key, sampled global certificate, fixed physical grid, skipped bound, interpolated pose or whole-pose cache is used. Every target still runs the actual fit and full checks. Query-dependent failures never mutate another target's canonical choice. Unsupported contexts retain ordinary cold fitting.
- * @evidence contracts/development/implementation.md#efficient-algorithms For C retained intervals and depth D, selection uses O(D) map lookups and normally one current correction instead of repeating the same coarse failures and recursive anchor reconstruction. A newly demanded canonical boundary still pays actual correction/subdivision. Endpoint classification is reused while resident; eviction may recompute it. Each correction retains actual demanded FK and changed-tuple ROM scoring. C is bounded by the numerical-retention budget, not by weakened angular resolution; gains remain unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms For C retained intervals and depth D, selection uses O(D) map lookups and normally one current correction instead of repeating the same coarse failures and recursive anchor reconstruction. The geodesic triangle inequality can reject a canonical endpoint before IK when its requested foot turn exceeds the sum of both acceptance radii and the angular roundoff reserve. Remaining boundaries pay actual correction/subdivision. Endpoint classification is reused while resident; eviction may recompute it. Each correction retains actual demanded FK and changed-tuple ROM scoring. C is bounded by the numerical-retention budget, not by weakened angular resolution; gains remain unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Exact directed dyadic boundaries under the same immutable curve and live rig identify one canonical left-anchor construction. Only primitive seeds, quaternions and endpoint classification share; every requested target is fitted afresh through the existing exact continuous-policy memory. No child links affect construction after eviction. ROM memoization still requires exact current nullable coordinates.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A curve owns at most 1024 unlinked numerical interval records, one origin, fixed ROM scorers/last tuples, at most four observed-bone sets with their bound demands (one per sequence of leg goals), and one cold-reference anchor per finite binary64 level when no origin exists. Recursive boundary construction owns O(D) temporary anchors; adjacent midpoint collapse ends refinement. Rig invalidation clears all numerical populations. No pose, output history, FK loan, callback handle or task is retained in interval data.
  */
@@ -152,8 +152,8 @@ export function prepareHumanFreeCurve(
   /** Fit this actual target and retain the original physical and local-basin gates. */
   function correct(share: number, prior: IAnchor,
     resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined): ICorrection {
-    const raw: IAutoMovieMotionHumanPosture = at(share);
+    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
+    raw: IAutoMovieMotionHumanPosture = at(share)): ICorrection {
     const near: IAutoMovieMotionHumanResolveHumanPosture.INear = Object.fromEntries(Object.entries(prior.seeds).flatMap(
       ([limb, seed]: [string, IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb]]): [AutoMovieHumanLimb, IAutoMovieSwivelNear][] =>
         seed === null || seed === undefined ? [] : [[limb as AutoMovieHumanLimb, { ...seed, tolerance }]],
@@ -195,9 +195,11 @@ export function prepareHumanFreeCurve(
       intervals.set(key, known);
       return known;
     }
-    const corrected: ICorrection = correct(to, left, resolution, projection);
-    const value: IInterval = { direct: corrected.kind === "accepted",
-      boundary: corrected.kind === "accepted" ? corrected.anchor : undefined };
+    const raw: IAutoMovieMotionHumanPosture = at(to);
+    const corrected: ICorrection | undefined = excludesFootTurn(raw, left)
+      ? undefined : correct(to, left, resolution, projection, raw);
+    const value: IInterval = { direct: corrected?.kind === "accepted",
+      boundary: corrected?.kind === "accepted" ? corrected.anchor : undefined };
     intervals.set(key, value);
 
     // This is a retained-work budget, not a physical grid or an error limit.
@@ -314,6 +316,28 @@ export function prepareHumanFreeCurve(
     }
     return solve(share, resolution, projection).prepared;
   };
+}
+
+/**
+ * A validated previous foot and a current orientation goal bound a canonical
+ * interval before IK. An accepted foot lies within ROM_TOLERANCE of its
+ * goal and within STEP of the previous achieved orientation. A second ROM
+ * tolerance is reserved for the independently evaluated quaternion angles.
+ * This excludes only a direct interval; its ordinary subdivision and every
+ * actual queried target still use their original correction policies.
+ */
+function excludesFootTurn(raw: IAutoMovieMotionHumanPosture, prior: IAnchor): boolean {
+  if (raw.rotation !== undefined || !HumanPostureRaw.eligible(raw)) return false;
+  const goals: readonly IAutoMovieHumanLimbGoal[] = Object.values(raw.limbs);
+  if (goals.length * 3 !== prior.rotations.length) return false;
+  for (let index: number = 0; index < goals.length; ++index) {
+    const goal: IAutoMovieQuaternion | undefined = goals[index]!.rotation;
+    if (goal === undefined) continue;
+    const previous: IAutoMovieQuaternion = prior.rotations[3 * index + 2]!;
+    const angle: number = Quaternion.angleAfterNormalize(previous, Quaternion.normalize(goal)) * 180 / Math.PI;
+    if (angle > hingedArmSwivel.STEP + 2 * ROM_TOLERANCE) return true;
+  }
+  return false;
 }
 
 /** The bones a curve observes for one sequence of leg goals, and the rig's bound demand of them. */
