@@ -49,12 +49,15 @@ import { motionHumanStance } from "../internal/motionHumanStance";
  *    carry does not depend on the span it is differenced over.
  * 6. With the right foot planted only from 0.5 s, the forward film is read
  *    from 0.5 s on; with a hand gripping a rail throughout it is not read.
+ * 7. The same forward film in an action that is not physical (no staged
+ *    physical outcome and no physics asked, `HumanPhysics.judged`) is not
+ *    read; scenarios 1 to 6 mark their action physical.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public measure and margin on a real body's mass model; a velocity taken over the wrong span, a pendulum of the wrong length, or an instant read while a hand bears the body fails.
  * @evidence contracts/development/testing.md#independent-expectations The distance outside is Hof's closed form over the stance's own centre of mass and sole points, with the eigenfrequency written out from the body's hip height.
  * @evidence contracts/development/testing.md#distinguishing-cases Still, slow, fast forward and fast backward; two statures; declared, partly declared and gripped.
  * @evidence contracts/development/testing.md#execution-ownership In memory on two prepared bodies; slow because preparing a body takes seconds; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
- * @evidence contracts/development/common.md#meaningful-documentation States the construction with its formula and lists the 6 scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the construction with its formula and lists the 7 scenarios.
  */
 export function test_human_motion_audit_balance(): void {
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
@@ -81,6 +84,7 @@ export function test_human_motion_audit_balance(): void {
         plant("leftFoot", 0),
         plant("rightFoot", 0),
       ],
+      physical: boolean = true,
     ): IAutoMovieMotionHumanAuditMotion =>
       motionAuditMoved(
         stance,
@@ -96,6 +100,7 @@ export function test_human_motion_audit_balance(): void {
             start: 0,
             entryTime: 0,
             end: 1,
+            physical,
             plan: { duration: 1, contacts },
           },
         ],
@@ -188,6 +193,13 @@ export function test_human_motion_audit_balance(): void {
     TestValidator.predicate(
       `${name}: a gripping hand leaves the instant unread`,
       gripped.value === 0 && gripped.where === "none",
+    );
+    const posed: IAutoMovieMotionHumanAuditMeasure = measure(
+      film(1, undefined, false),
+    );
+    TestValidator.predicate(
+      `${name}: an action that stages no physical outcome and asks no physics is not judged`,
+      posed.value === 0 && posed.where === "none",
     );
   }
 }

@@ -142,6 +142,9 @@ export namespace stagger {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "stagger";
 
+  /** A stagger's content is a staged loss of balance, so its balance is judged (`IAutoMovieMotionHumanActionLaw.physical`). */
+  export const physical: true = true;
+
   /** Cancel table: a stagger flows into a guard or a knockdown. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({

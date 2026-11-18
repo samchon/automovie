@@ -41,6 +41,9 @@ export namespace IAutoMovieMotionHumanLeanInto {
     /** The posture the body stands in before it leans. */
     standing: IAutoMovieMotionHumanPosture;
 
+    /** Whether the hips move back by the balance shift of the lean (`IAutoMovieMotionHumanPhysics.balance`); absent or false, the trunk tips about the hips where they stand and no centre of mass is computed. */
+    balance?: boolean;
+
     /** The working hand. */
     side: AutoMovieHumanSide;
 

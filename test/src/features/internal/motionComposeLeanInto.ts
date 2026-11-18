@@ -30,7 +30,8 @@ import { motionHumanBody } from "./motionHumanBody";
  *
  * The contract: the trunk tips by the least pitch that keeps the wrist's
  * goal within a share of the arm's length (upper arm and forearm) from the
- * shoulder, the hips move back so the body stays balanced, work within the
+ * shoulder, the hips move back so the body stays balanced (the lean's
+ * balance asked, `balance`, as a caller's physics option asks it), work within the
  * share needs no lean, and work still beyond the share at the limit
  * (`AutoMovieMotionHumanReach.LEAN_LIMIT`) is refused.
  *
@@ -122,6 +123,7 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
           AutoMovieMotionHumanLeanInto.solve({
             body,
             standing,
+            balance: true,
             side,
             share,
             wrist: (): IAutoMovieVector3 => goal,
@@ -212,6 +214,7 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
           AutoMovieMotionHumanLeanInto.solve({
             body,
             standing,
+            balance: true,
             side,
             share,
             wrist: (
@@ -288,6 +291,7 @@ export function motionComposeLeanInto(name: motionHumanBody.Name): void {
           AutoMovieMotionHumanLeanInto.solve({
             body,
             standing,
+            balance: true,
             side,
             share,
             wrist: (): IAutoMovieVector3 => far,

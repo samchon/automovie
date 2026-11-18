@@ -9,6 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
@@ -41,7 +42,10 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
  * the body (the seat a person lowers onto): that body is taking the step
  * Hof et al.'s condition demands, and in steady walking the extrapolated
  * centre does lie ahead of the leading foot through the double support
- * (Hof 2008, Hum Mov Sci 27:112).
+ * (Hof 2008, Hum Mov Sci 27:112). An instant is read only inside an action
+ * whose balance is its content (`HumanPhysics.judged`: a staged physical
+ * outcome, or physics its caller asked for); a posed action on planted
+ * feet computes no balance and is not judged by it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the measure with its source, its pendulum length, the support hull and which instants are read.
  * @evidence contracts/development/implementation.md#principled-implementation Hof et al.'s extrapolated centre of mass through the engine's owners of the centre, the extrapolation and the hull margin.
@@ -85,8 +89,19 @@ export namespace AutoMovieMotionHumanAuditBalance {
         resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
       );
     const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
+    // Balance is judged only where it is the content: an action that stages
+    // a physical outcome or whose caller asked for its physics
+    // (`HumanPhysics.judged`); a posed action on planted feet computes none
+    // and is not judged by it.
+    const spans: readonly IAutoMovieMotionHumanAuditMotion.ISpan[] = motion.segments(subject);
+    const judged = (t: number): boolean =>
+      spans.some(
+        (s: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
+          s.entryTime <= t && t <= s.end && HumanPhysics.judged(s),
+      );
     for (let i: number = 0; i < times.length; i++) {
       const t: number = times[i]!;
+      if (!judged(t)) continue;
       // A foot that lifts within the pendulum's own time is a step being
       // taken: the body is walking there, not standing.
       if (!standing(windows, t, Math.min(motion.duration, t + hold))) continue;

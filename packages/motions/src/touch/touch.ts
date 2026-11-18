@@ -42,6 +42,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
 import { HumanBound } from "../law/HumanBound";
+import { HumanPhysics } from "../law/HumanPhysics";
 import { poseBones } from "../posture/poseBones";
 import { touchEffectors } from "./touchEffectors";
 import { touchHold } from "./touchHold";
@@ -253,6 +254,8 @@ export namespace touch {
         body,
         standing: entry,
         ...(grounded ? { feet: context.entry.feet } : {}),
+        // Balance only when the caller asks (`IAutoMovieMotionHumanPhysics`).
+        ...(HumanPhysics.balanced(p) ? { balance: true } : {}),
         side: first,
         share: REACH,
         wrist: (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>

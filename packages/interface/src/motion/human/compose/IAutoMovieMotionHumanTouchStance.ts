@@ -47,6 +47,9 @@ export namespace IAutoMovieMotionHumanTouchStance {
     /** Both feet as they stand flat, when the body stands on them alone and may rise onto its toes; no rise when absent. */
     feet?: IAutoMovieMotionHumanRise.Stance;
 
+    /** Whether the lean balances its hips (`IAutoMovieMotionHumanLeanInto.IProps.balance`); absent or false, no centre of mass is computed. */
+    balance?: boolean;
+
     /** The working hand. */
     side: AutoMovieHumanSide;
 

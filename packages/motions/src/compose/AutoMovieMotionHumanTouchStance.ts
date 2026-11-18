@@ -135,6 +135,7 @@ export namespace AutoMovieMotionHumanTouchStance {
       AutoMovieMotionHumanLeanInto.solve({
         body,
         standing: risen,
+        ...(props.balance === true ? { balance: true } : {}),
         side: props.side,
         share: props.share,
         wrist: props.wrist,
