@@ -110,14 +110,9 @@ export namespace AutoMovieMotionHumanAuditBalance {
       }
     if (times === undefined || candidates.length === 0) return worst;
     candidates.sort((a: ISampledInterval, b: ISampledInterval): number => a.from - b.from);
-    const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
-      HumanAuditMotion.windows(motion, subject);
-    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
-    const hold: number =
-      1 /
-      resolveAutoMovieCenterOfMass.frequency(
-        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
-      );
+    let windows: IAutoMovieMotionHumanAuditMotion.IWindow[] | undefined;
+    let model: IAutoMovieResolveCenterOfMass.IModel | undefined;
+    let hold: number | undefined;
     const samples: Map<number, IStencilSample> = new Map();
     const sampleAt: StencilAt = (seconds: number, bones?: Bones): IStencilSample => {
       const known: IStencilSample | undefined = samples.get(seconds);
@@ -128,7 +123,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
     };
     const centreAt: CentreAt = (seconds: number, bones?: Bones): IAutoMovieVector3 => {
       const sample: IStencilSample = sampleAt(seconds, bones);
-      sample.centre ??= resolveAutoMovieCenterOfMass.place(model, sample.bones);
+      sample.centre ??= resolveAutoMovieCenterOfMass.place(model ??= body.massModel, sample.bones);
       return sample.centre;
     };
     const active: ISampledInterval[] = [];
@@ -148,6 +143,10 @@ export namespace AutoMovieMotionHumanAuditBalance {
       )) continue;
       // A foot that lifts within the pendulum's own time is a step being
       // taken: the body is walking there, not standing.
+      windows ??= HumanAuditMotion.windows(motion, subject);
+      hold ??= 1 / resolveAutoMovieCenterOfMass.frequency(
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      );
       if (!standing(windows, t, Math.min(motion.duration, t + hold))) continue;
       const before: number = times.at(Math.max(0, i - 1));
       const after: number = times.at(Math.min(times.length - 1, i + 1));
