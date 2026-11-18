@@ -6,7 +6,11 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanPerformance,
+  HumanVerdicts,
+} from "@automovie/motions";
 
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,26 +38,39 @@ import { nclose } from "../internal/nclose";
 export function test_motion_posture_turn_in_place(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  checkWalkPlacement(body);
   const at: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const forward: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
   const firstFeet: string[] = [];
   for (const sign of [1, -1]) {
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: "probe",
-      performers: [{ subject: "a", body, at, yaw: 0, proficiency: { level: "trained" } }],
-      composition: HumanChain.subject("a").walk({ to: at, face: sign * (360 / 4) }).node,
+      performers: [
+        { subject: "a", body, at, yaw: 0, proficiency: { level: "trained" } },
+      ],
+      composition: HumanChain.subject("a").walk({
+        to: at,
+        face: sign * (360 / 4),
+      }).node,
     });
-    const report: string = HumanVerdicts.describe(HumanVerdicts.of(performance));
+    const report: string = HumanVerdicts.describe(
+      HumanVerdicts.of(performance),
+    );
     all.equals(`turn ${sign}: physical verdicts`, report, "clean");
     const initial: IAutoMovieTransform | null = performance.pose("a", 0).root;
-    const root: IAutoMovieTransform | null =
-      performance.pose("a", performance.duration).root;
+    const root: IAutoMovieTransform | null = performance.pose(
+      "a",
+      performance.duration,
+    ).root;
     all.check(
       `turn ${sign}: both displayed end frames have a world root`,
       initial !== null && root !== null,
     );
     if (initial === null || root === null) continue;
-    const facing: IAutoMovieVector3 = Quaternion.rotateVector(root.rotation, forward);
+    const facing: IAutoMovieVector3 = Quaternion.rotateVector(
+      root.rotation,
+      forward,
+    );
     const horizontal: number = Math.hypot(facing.x, facing.z);
     // A quarter-turn quaternion and its vector product take only a few
     // binary64 operations. This bounds numerical noise in the unit vector.
@@ -73,16 +90,65 @@ export function test_motion_posture_turn_in_place(): void {
       drift <= HumanVerdicts.SKIN,
     );
     const first: IAutoMovieMotionEvent | undefined = performance
-      .segments("a")[0]!.plan.events.find(
-        (event: IAutoMovieMotionEvent): boolean => /^(left|right)HeelStrike\d+$/.test(event.name),
+      .segments("a")[0]!
+      .plan.events.find((event: IAutoMovieMotionEvent): boolean =>
+        /^(left|right)HeelStrike\d+$/.test(event.name),
       );
     all.check(`turn ${sign}: names its first landing`, first !== undefined);
-    if (first !== undefined)
-      firstFeet.push(first.name.split("HeelStrike")[0]!);
+    if (first !== undefined) firstFeet.push(first.name.split("HeelStrike")[0]!);
   }
   all.check(
     "reflected turns first land on opposite feet",
     firstFeet.length === 2 && firstFeet[0] !== firstFeet[1],
   );
   all.assert("the turn-in-place reflection keeps both physical verdicts");
+}
+
+/** A rigidly placed walk has the same clock and transforms each displayed joint rigidly. */
+function checkWalkPlacement(body: IAutoMovieMotionHumanBody): void {
+  const walk = (
+    at: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    yaw: number,
+  ): IAutoMovieMotionHumanPerformance =>
+    new HumanPerformance({
+      seed: "placement",
+      performers: [
+        { subject: "walker", body, at, yaw, proficiency: { level: "trained" } },
+      ],
+      composition: HumanChain.subject("walker").walk({ to }).node,
+    });
+  const shift = { x: 3, y: 0, z: -2 };
+  const moved = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+    x: shift.x + p.z,
+    y: p.y,
+    z: shift.z - p.x,
+  });
+  const at = { x: 0, y: 0, z: 0 },
+    to = { x: 0, y: 0, z: 2 };
+  const original = walk(at, to, 0);
+  const placed = walk(moved(at), moved(to), 90);
+  const findings = motionComplaints();
+  findings.check(
+    "placement preserves walk duration",
+    nclose(original.duration, placed.duration, 1e-9),
+  );
+  const samplePeriod = 0.25;
+  for (let i = 0; i <= Math.ceil(original.duration / samplePeriod); ++i) {
+    const time = Math.min(original.duration, i * samplePeriod);
+    const destination = placed.bones("walker", time);
+    for (const [bone, joint] of original.bones("walker", time)) {
+      const actual = destination.get(bone)!.worldPosition;
+      const expected = moved(joint.worldPosition);
+      findings.check(
+        `${bone} at ${time}s follows the placed walk`,
+        Math.hypot(
+          actual.x - expected.x,
+          actual.y - expected.y,
+          actual.z - expected.z,
+        ) <= 1e-3,
+      );
+    }
+  }
+  findings.assert("walk uses its authored placement");
 }

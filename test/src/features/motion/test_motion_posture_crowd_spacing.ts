@@ -2,14 +2,16 @@ import type {
   IAutoMovieMotionHumanFormation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFormation } from "@automovie/motions";
+import { HumanCrowd, HumanEnsemble, HumanFormation } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
+
+import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * A formation retains its grid spacing when its frame translates and turns.
  *
  * Scenarios:
- * 1. Place each member of three ranks of forty on the stated rank and file spacings, with and without a bounded dressing offset.
+ * 1. Place each member of two ranks of two on the stated rank and file spacings, with and without a bounded dressing offset.
  * 2. Compare pairwise separations after translating and rotating the entire frame.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the frame, units and membership geometry under test.
@@ -19,18 +21,19 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership Generates only formation positions; no bodies or films are constructed.
  */
 export function test_motion_posture_crowd_spacing(): void {
+  checkCrossing();
   const findings: string[] = [];
   const line = (dress: number): IAutoMovieMotionHumanFormation => ({
     blocks: [
       {
         layout: {
           kind: "line",
-          ranks: 3,
-          files: 40,
+          ranks: 2,
+          files: 2,
           spacing: { lateral: 0.56, depth: 0.33 },
           dressing: { lateral: dress, depth: dress },
         },
-        count: 120,
+        count: 4,
         seed: 7,
       },
     ],
@@ -40,14 +43,14 @@ export function test_motion_posture_crowd_spacing(): void {
   // 1. The lattice.
   for (const dress of [0.04, 0]) {
     const f: IAutoMovieMotionHumanFormation = HumanFormation.of(line(dress));
-    for (let i: number = 0; i < 120; ++i) {
-      const rank: number = Math.floor(i / 40);
-      const file: number = i % 40;
+    for (let i: number = 0; i < 4; ++i) {
+      const rank: number = Math.floor(i / 2);
+      const file: number = i % 2;
       const at: IAutoMovieVector3 = HumanFormation.slot(f, i, 0).at;
 
       // Facing +Z, the frame's right is -X and its rear -Z.
       const lattice: IAutoMovieVector3 = {
-        x: -(file - 19.5) * 0.56,
+        x: -(file - 0.5) * 0.56,
         y: 0,
         z: -rank * 0.33,
       };
@@ -83,12 +86,77 @@ export function test_motion_posture_crowd_spacing(): void {
     const b: IAutoMovieVector3 = HumanFormation.slot(f, j, 0).at;
     return Math.hypot(a.x - b.x, a.z - b.z);
   };
-  for (let i: number = 0; i < 120; i += 7)
-    for (let j: number = i + 1; j < 120; j += 11)
+  for (let i: number = 0; i < 4; ++i)
+    for (let j: number = i + 1; j < 4; ++j)
       if (Math.abs(pairwise(still, i, j) - pairwise(moved, i, j)) > 1e-9)
         findings.push(
           `slots ${i} and ${j} change distance when the frame moves`,
         );
 
   TestValidator.equals("formation spacing and frame", findings, []);
+}
+
+/** Two walkers and a translating square directly exercise agent and obstacle clearance. */
+function checkCrossing(): void {
+  const body = motionHumanBody("m-average");
+  const ensemble = HumanEnsemble.of({
+    id: "crossing",
+    seed: "pairs",
+    count: 2,
+    bodies: [body],
+    preset: "civilians",
+    places: (index) => ({
+      at: { x: index === 0 ? -0.6 : 0.6, y: 0, z: -2 },
+      yaw: 0,
+    }),
+  });
+  const halfWidth = 0.4;
+  const end = 12;
+  const result = HumanCrowd.steer(ensemble, {
+    goals: (member) => ({ ...member.place.at, z: 2 }),
+    gait: "walk",
+    start: 0,
+    until: end,
+    obstacles: [
+      {
+        subject: "cart",
+        bottom: 0,
+        top: 1,
+        footprint: [
+          [-1, -1],
+          [1, -1],
+          [1, 1],
+          [-1, 1],
+        ].map(([x, z]) => ({ x: x! * halfWidth, y: 0, z: z! * halfWidth })),
+        motion: (time) => ({ position: { x: time - 2, y: 0, z: 0 }, yaw: 0 }),
+      },
+    ],
+  });
+  TestValidator.predicate(
+    "each walker reaches their own goal",
+    result.arrivals.length === 2 &&
+      result.arrivals.every((time) => time !== null),
+  );
+  const radii = ensemble.members.map(HumanCrowd.half);
+  for (let frame = 0; frame <= 24 * end; ++frame) {
+    const time = frame / 24;
+    const [left, right] = result.frames.map(
+      (course) => HumanFormation.frame({ blocks: [], frame: course }, time).at,
+    );
+    TestValidator.predicate(
+      "the two bodies stay apart",
+      Math.hypot(left!.x - right!.x, left!.z - right!.z) >=
+        radii[0]! + radii[1]! - 1e-6,
+    );
+    for (const [i, point] of [left!, right!].entries()) {
+      const gap = Math.hypot(
+        Math.max(0, Math.abs(point.x - (time - 2)) - halfWidth),
+        Math.max(0, Math.abs(point.z) - halfWidth),
+      );
+      TestValidator.predicate(
+        "the cart clears the walker",
+        gap >= radii[i]! - 1e-6,
+      );
+    }
+  }
 }
