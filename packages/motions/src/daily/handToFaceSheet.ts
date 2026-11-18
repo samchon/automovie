@@ -50,7 +50,7 @@ export namespace handToFaceSheet {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
-    const bones = HumanTrunk.resolve(context.body, posture);
+    const bones: ReturnType<typeof HumanTrunk.resolve> = HumanTrunk.resolve(context.body, posture);
     const eyes: IAutoMovieVector3 = Vector3.scale(
       Vector3.add(
         bones.get("leftEye")!.worldPosition,
@@ -58,9 +58,12 @@ export namespace handToFaceSheet {
       ),
       0.5,
     );
-    const head = posture.joints.head ?? [0, 0, 0];
-    const neck = posture.joints.neck ?? [0, 0, 0];
+    const head: readonly [number, number, number] = posture.joints.head ?? [0, 0, 0];
+    const neck: readonly [number, number, number] = posture.joints.neck ?? [0, 0, 0];
     const down: number = ((head[0] + neck[0] + GAZE) * Math.PI) / 180;
+    // The line leans toward the reading hand by 0.05 across per unit ahead,
+    // about 3 degrees, so the sheet stands on the hand's side of the
+    // midline (provisional).
     const line: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
       {

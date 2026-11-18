@@ -12,7 +12,7 @@ import type { IAutoMovieMotionHumanHandToFaceRows } from "@automovie/interface";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Regions are the interface's; tool tips are shares of the hand's length.
  */
 export namespace handToFaceRows {
-  /** The tasks' rows (tool lengths and head angles provisional, except the reading head flexion). */
+  /** The tasks' rows (tool lengths, head angles, times at the face and stroke counts provisional, except the reading head flexion). */
   export const ROWS: Readonly<
     Record<
       IAutoMovieMotionHumanHandToFaceRows.Task,

@@ -160,7 +160,7 @@ export namespace handToFace {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanHandToFace.IParams = context.params;
     const row: IAutoMovieMotionHumanHandToFaceRows.IRow = typeof p.task === "string" ? ROWS[p.task] : p.task;
-    const body = context.body;
+    const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const count: number = p.count ?? row.count;
     const hold: number =
       typeof p.seconds === "object"
@@ -175,7 +175,7 @@ export namespace handToFace {
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const bones = poseBones(body, context.entry.pose);
+    const bones: ReturnType<typeof poseBones> = poseBones(body, context.entry.pose);
     const first: AutoMovieHumanSide = p.side ?? "right";
 
     // The acting hand's effector: the row's implied tool, or the point of

@@ -1,6 +1,7 @@
 import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanHandToFaceArm,
+  IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionHumanTouchDrink,
   IAutoMovieVector3,
@@ -29,9 +30,9 @@ export namespace handToFaceArm {
    * holds it: leaned toward the lips as little as lets the arm stay low, and
    * turned the way its arm then meets it best. Its elbow is hinted where the
    * arm hangs, moved into the drinking range where it lies outside, the hint
-   * its drinking arm was found with, so the arm shown is the one admitted. A vessel held as the grasp it was taken up by presents
-   * it (`own`) has its turn in the hand fixed, so only its lean toward the
-   * lips is sought, with the grasp's elbow hint: the same drink takes the
+   * its drinking arm was found with, so the arm shown is the one admitted.
+   * A vessel held as the grasp it was taken up by presents it (`own`) has
+   * its turn in the hand fixed, so only its lean toward the lips is sought, with the grasp's elbow hint: the same drink takes the
    * same arm however the vessel came to the hand.
    *
    * @param props The hand and its place.
@@ -55,6 +56,14 @@ export namespace handToFaceArm {
       atFace,
       side,
     );
+
+    // The place at the face and, for a held vessel, where it is held while
+    // the drinker drinks: each read once, since over a carrier a read
+    // resolves the posture.
+    const at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = place(atFace, 0);
+    let after: IAutoMovieMotionHumanTouchDrink.IAfter | undefined;
+    const drinking: () => IAutoMovieMotionHumanTouchDrink.IAfter = (): IAutoMovieMotionHumanTouchDrink.IAfter =>
+      (after ??= { posture: turned, place: place(turned, 0) });
     const vessel: IAutoMovieMotionHumanTouchDrink.IDrink | undefined =
       props.drink ??
       (props.upright && own === null
@@ -63,9 +72,9 @@ export namespace handToFaceArm {
             atFace,
             side,
             effector,
-            place(atFace, 0),
+            at,
             hang,
-            { posture: turned, place: place(turned, 0) },
+            drinking(),
           )
         : undefined);
     const tipped: IAutoMovieMotionHumanTouchDrink.IHeld | undefined =
@@ -77,14 +86,16 @@ export namespace handToFaceArm {
               atFace,
               side,
               effector,
-              place(atFace, 0),
+              at,
               own.bend,
               own.wrist.rotation,
-              { posture: turned, place: place(turned, 0) },
+              drinking(),
             )
           : { lean: 0, goal: { ...own.wrist, bend: own.bend } };
     const lean: number | undefined = vessel?.lean ?? tipped?.lean;
     const facing: IAutoMovieVector3 | undefined = vessel?.facing;
+    // A hand neither holding its grasp nor drinking from a vessel lays its
+    // arm by the least strain, with no facing or lean to keep.
     const bend: IAutoMovieVector3 =
       own?.bend ??
       vessel?.bend ??
@@ -93,12 +104,11 @@ export namespace handToFaceArm {
         atFace,
         side,
         effector,
-        place(atFace, 0),
+        at,
         tangent,
         lay,
-        facing,
+        undefined,
         "natural",
-        vessel?.lean,
       );
     const goal: IAutoMovieHumanLimbGoal =
       tipped === undefined
@@ -107,7 +117,7 @@ export namespace handToFaceArm {
             atFace,
             side,
             effector,
-            place(atFace, 0),
+            at,
             tangent,
             bend,
             lay,
@@ -124,7 +134,7 @@ export namespace handToFaceArm {
             atFace,
             side,
             effector,
-            place(atFace, 0),
+            at,
             tangent,
             bend,
             lay,
