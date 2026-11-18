@@ -122,8 +122,12 @@ export function projectileFirstContact(
       ? ((Math.abs(projectile.attitude.rate) * Math.PI) / 180) * reach
       : 0;
   const fastest: number = centre + turning;
-  const step: number =
-    fastest > 0 ? options.thickness / fastest : span.to - span.from;
+  // A step longer than the span, an infinite one where the thickness
+  // outruns any speed, is the span itself: one interval covers it.
+  const step: number = Math.min(
+    span.to - span.from,
+    fastest > 0 ? options.thickness / fastest : Infinity,
+  );
 
   const tail = (
     state: IAutoMovieProjectileState,
