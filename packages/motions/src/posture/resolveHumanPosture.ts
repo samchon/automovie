@@ -351,14 +351,15 @@ export namespace resolveHumanPosture {
     return humanPostureHeading.angles(rotation);
   }
 
-  /** The posture's root lowered so every planted leg keeps at least knee degrees of knee flexion, KNEE when absent; an optional same-operation FK supplier is borrowed only by the actual hip reading. */
+  /** The posture's root lowered so every planted leg keeps at least knee degrees of knee flexion, KNEE when absent; an optional same-operation FK supplier is borrowed only by the actual hip reading, and the hip's largest vertical step a frame (step, metres) eases the reach over its soft band (lowerHumanPosture). */
   export function lower(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     knee: number = KNEE,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    step?: number,
   ): IAutoMovieMotionHumanPosture {
-    return lowerHumanPosture(body, posture, knee, resolution);
+    return lowerHumanPosture(body, posture, knee, resolution, step);
   }
 
   /** The lowering one leg asks of the root, metres; `-Infinity` beyond the leg's reach ({@link lowerHumanPosture.short}). */
@@ -367,16 +368,18 @@ export namespace resolveHumanPosture {
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     knee: number,
+    step?: number,
   ): number {
-    return lowerHumanPosture.short(body, hip, ankle, knee);
+    return lowerHumanPosture.short(body, hip, ankle, knee, step);
   }
 
   /** Prepare fixed body/knee reach geometry; every hip/ankle query retains the original lowering and refusal arithmetic. */
   export function prepareShort(
     body: IAutoMovieMotionHumanBody,
     knee: number,
+    step?: number,
   ): ReturnType<typeof lowerHumanPosture.prepareShort> {
-    return lowerHumanPosture.prepareShort(body, knee);
+    return lowerHumanPosture.prepareShort(body, knee, step);
   }
 
   /**

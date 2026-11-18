@@ -5,6 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAudit } from "../audit/AutoMovieMotionHumanAudit";
 import { hipJoints } from "./hipJoints";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
@@ -26,6 +27,7 @@ const SIDES: readonly ["left", "right"] = Object.freeze(["left", "right"] as con
  * @param posture The posture; legs with `planted` goals are kept reachable.
  * @param knee The least knee flexion, degrees; a planted leg's (`resolveHumanPosture.KNEE`) when absent.
  * @param resolution Optional exact FK reader or lazy supplier borrowed from this synchronous person evaluation; never requested without an actual planted-leg read.
+ * @param step The hip's largest vertical step a frame of the audit's rate in the motion this posture is read from, metres (its law's planned hip course); given, the reach is eased over the soft band that step asks (soft), so the knee straightens continuously; absent, the reach is hard.
  * @returns The posture, its root lowered when needed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States gravity-axis lowering, minimum knee degrees, original targets and synchronous FK borrowing; prepare binds an unchanged body/knee with lazy first-use reach production. short/prepareShort document metre/degree inputs, live versus fixed dimensions, negative slack and the horizontally-unreachable -Infinity result.
@@ -41,8 +43,9 @@ export function lowerHumanPosture(
   posture: IAutoMovieMotionHumanPosture,
   knee: number = resolveHumanPosture.KNEE,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  step?: number,
 ): IAutoMovieMotionHumanPosture {
-  return lower(body, posture, knee, resolution);
+  return lower(body, posture, knee, resolution, undefined, step);
 }
 
 /** One current-goal/hip/drop law; the optional scalar reader belongs only to this producer. */
@@ -52,6 +55,7 @@ function lower(
   knee: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   readShort?: ReturnType<typeof lowerHumanPosture.prepareShort>,
+  step?: number,
 ): IAutoMovieMotionHumanPosture {
   // Only world-anchored plants are lowered for: a leg goal attached to a
   // bone moves with that bone, so the root cannot be solved against it here.
@@ -74,7 +78,7 @@ function lower(
     drop = Math.max(
       drop,
       readShort === undefined
-        ? lowerHumanPosture.short(body, hips[side], goal, knee)
+        ? lowerHumanPosture.short(body, hips[side], goal, knee, step)
         : readShort(hips[side], goal),
     );
   return drop === 0
@@ -108,10 +112,11 @@ export namespace lowerHumanPosture {
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     knee: number = resolveHumanPosture.KNEE,
+    step?: number,
   ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieMotionHumanPosture {
     let short: ReturnType<typeof prepareShort> | undefined;
     const read: ReturnType<typeof prepareShort> = (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => {
-      short ??= prepareShort(body, knee);
+      short ??= prepareShort(body, knee, step);
       return short(hip, ankle);
     };
     return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieMotionHumanPosture =>
@@ -132,10 +137,11 @@ export namespace lowerHumanPosture {
   export function prepareShort(
     body: IAutoMovieMotionHumanBody,
     knee: number,
+    step?: number,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
-    const limit: number = reachLimit(body, knee);
+    const reach: IReach = reachLimit(body, knee, step);
     return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number =>
-      reachDrop(limit, hip, ankle);
+      reachDrop(reach, hip, ankle);
   }
 
   /**
@@ -148,6 +154,7 @@ export namespace lowerHumanPosture {
    * @param hip The hip joint, world metres.
    * @param ankle The ankle, world metres.
    * @param knee The least knee flexion, degrees.
+   * @param step The hip's largest vertical step a frame, metres, for the soft band (soft); absent, the reach is hard.
    * @returns Metres, negative by the slack of a leg that reaches with more
    *   flexion, and `-Infinity` for an ankle horizontally beyond the leg's
    *   reach, which no lowering helps.
@@ -163,20 +170,72 @@ export namespace lowerHumanPosture {
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     knee: number,
+    step?: number,
   ): number {
-    return reachDrop(reachLimit(body, knee), hip, ankle);
+    return reachDrop(reachLimit(body, knee, step), hip, ankle);
   }
 }
 
-/** Compute the original fixed two-segment cosine-law reach in metres. */
-function reachLimit(body: IAutoMovieMotionHumanBody, knee: number): number {
-  const a: number = body.measure.thigh;
-  const b: number = body.measure.shank;
-  return Math.sqrt(a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180));
+/**
+ * A leg's fixed reach: the two-segment cosine-law length at the least knee
+ * flexion, metres, and the width of its soft band (`soft`).
+ */
+interface IReach {
+  /** The hip-to-ankle length at `knee` degrees of flexion, metres. */
+  limit: number;
+
+  /** The soft band's width below that length, metres; 0 for the hard reach. */
+  width: number;
 }
 
-/** Read current points under the original strict horizontal reach and subtraction law. */
-function reachDrop(limit: number, hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number {
+/** The leg's reach at `knee` degrees, with the soft band a hip moving `step` metres a frame asks (`soft`). */
+function reachLimit(body: IAutoMovieMotionHumanBody, knee: number, step?: number): IReach {
+  const a: number = body.measure.thigh;
+  const b: number = body.measure.shank;
+  const limit: number = Math.sqrt(a * a + b * b + 2 * a * b * Math.cos((knee * Math.PI) / 180));
+  return { limit, width: step === undefined ? 0 : soft(a, b, limit, step) };
+}
+
+/**
+ * The width of the soft band that keeps a knee near full extension within
+ * the audit's jump bound (`AutoMovieMotionHumanAudit.LIMITS.jump`, 5 mm a
+ * frame) while the hip moves `step` metres a frame: soft IK (Nicholas 2009,
+ * "Soft IK", the hip-to-ankle reach eased over a last width before full
+ * extension).
+ *
+ * Near a straight knee a two-segment leg of lengths `a` and `b` holds its
+ * knee `h = sqrt(2 c G)` off the hip-ankle line, `c = ab / (a + b)` and `G`
+ * the gap of the reach to the straight leg, so the knee moves `c / h` per
+ * unit of reach: without bound as the leg straightens. Eased over a band of
+ * width `w` ending at the least-flexion reach, the reach moves by `g / w` of
+ * the hip's motion, `g` its gap to that reach, so the knee moves at most
+ * `sqrt(c / (2 (w + g0))) step` a frame, `g0` the straight leg's gap to the
+ * least-flexion reach, greatest at the band's entry. Held to the bound `J`,
+ * `w >= c step^2 / (2 J^2) - g0`; a slow enough hip needs no band.
+ */
+function soft(a: number, b: number, limit: number, step: number): number {
+  const c: number = (a * b) / (a + b);
+  const jump: number = AutoMovieMotionHumanAudit.LIMITS.jump;
+  return Math.max(0, (c * step * step) / (2 * jump * jump) - (a + b - limit));
+}
+
+/**
+ * The lowering one leg asks of the root at current points, metres: the
+ * strict horizontal reach refusal (`-Infinity`) first, then the hip's height
+ * over the ankle against the leg's vertical reach. A hard reach (`width` 0)
+ * asks the excess over that reach and reports a reach to spare as negative
+ * slack. A soft reach eases the leg's vertical extent over the band below
+ * it, `s(v) = (V - w) + w (1 - exp(-(v - (V - w)) / w))` for a hip `v` above
+ * the band's start, so a hip rising through full extension straightens the
+ * knee continuously, and measures slack to the band's start below it.
+ */
+function reachDrop(reach: IReach, hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number {
   const dh: number = Math.hypot(hip.x - ankle.x, hip.z - ankle.z);
-  return dh < limit ? hip.y - ankle.y - Math.sqrt(limit * limit - dh * dh) : -Infinity;
+  if (!(dh < reach.limit)) return -Infinity;
+  const vertical: number = Math.sqrt(reach.limit * reach.limit - dh * dh);
+  const v: number = hip.y - ankle.y;
+  if (!(reach.width > 0)) return v - vertical;
+  const w: number = Math.min(reach.width, vertical);
+  const start: number = vertical - w;
+  return v <= start ? v - start : v - (start + w * (1 - Math.exp(-(v - start) / w)));
 }
