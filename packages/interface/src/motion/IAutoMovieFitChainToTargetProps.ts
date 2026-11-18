@@ -105,6 +105,25 @@ export interface IAutoMovieFitChainToTargetProps {
   ) => number;
 
   /**
+   * Whether `bend` is the mid joint's place a completed elbow search chose
+   * for this target (`AutoMovieMotionHumanBend.solve`), not merely a side to
+   * bend toward: the fit then starts its local search at the swivel that puts
+   * the mid joint there (the pole) and returns its legal result, sweeping only
+   * where that is not legal, so the place is searched once. Absent, a hinted
+   * fit with a requested rotation accepts its local start only where the
+   * rotation is met and sweeps otherwise.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the flag certifies and the two behaviours.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A flag; the fit owns the search.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared here.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This flag computes nothing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The flag has no cost of its own.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The flag owns no cache.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The flag retains nothing.
+   */
+  placed?: boolean;
+
+  /**
    * The effector's model-frame rotation, as `resolvePose` reports world
    * rotations; omitted, the effector keeps the pose's own angles.
    */

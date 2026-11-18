@@ -25,9 +25,13 @@ export interface IAutoMovieHumanLimbGoal {
    * `"strain"` takes, among the places that leave the hand's rotation
    * error least, the one where the arm strains least, read from the fit's
    * own sweep (`AutoMovieMotionHumanBend.strainOf`), with `bend` serving only
-   * where no place is legal. Absent, `bend` decides; a leg ignores it.
+   * where no place is legal. `"placed"` says `bend` is itself the elbow's
+   * place, which the law's own elbow search chose (`AutoMovieMotionHumanBend.solve`):
+   * the fit takes the swivel that puts the elbow there, refined locally, and
+   * sweeps only where that is not legal, so the place is searched once.
+   * Absent, `bend` decides; a leg ignores it.
    */
-  elbow?: "strain";
+  elbow?: "strain" | "placed";
 
   /** The hand's or foot's world rotation from its rest, when the law sets it. */
   rotation?: IAutoMovieQuaternion;

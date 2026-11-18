@@ -66,6 +66,8 @@ export function prepareHumanLimbFit(
     ...(obstruction === undefined ? {} : { obstruction }),
     ...(near === undefined ? {} : { near }),
     ...(strain === null ? {} : { strain }),
+    // A bend the law's own elbow search placed is searched from, not again.
+    ...(goal.elbow === "placed" ? { placed: true } : {}),
 
     // A reference of no weight decides nothing and remains absent, as in
     // the one-shot fit. Its root and non-chain pose never replace the source.

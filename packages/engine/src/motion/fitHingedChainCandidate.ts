@@ -97,7 +97,9 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * opposite side), enough to decide between otherwise equal swivels while
  * never outweighing a visible effector error. A request continuing a nearby
  * fit (`near`) refines that fit's seed instead of sweeping, and the candidate
- * carries the seed it was chosen at. A request with a `strain` ranks the
+ * carries the seed it was chosen at. A request whose bend is the place a
+ * completed elbow search chose (`placed`) searches locally from that
+ * place's pole and answers there when legal, sweeping only where it is not. A request with a `strain` ranks the
  * swivels by task priority instead (Siciliano and Slotine 1991): legality,
  * then the hand's rotation error, two errors in one bucket of the joints'
  * tolerance (`ROM_TOLERANCE`) being one (a quantisation, so the ranking is
@@ -709,8 +711,17 @@ export function fitHingedChainCandidate(
       // twist, the swivel that needs the least end-joint articulation
       // (`hingedRotationStart`), accepted only when the rotation is then met.
       // Either way the sweep decides what the local result leaves unmet.
+      // A bend that is the place a completed elbow search chose
+      // (`IAutoMovieFitChainToTargetProps.placed`) starts the local search at
+      // its pole and is answered there when legal, whether or not the
+      // rotation is met: the place was searched once, by that search.
       ...(strain !== undefined
         ? {}
+        : props.placed === true && side !== null
+          ? {
+              pole: (posed: ReturnType<typeof hingedArmSwivel.pose>): number | null =>
+                hingedChainSide.peak(offsetOf((swivel: number): IAutoMovieQuaternion => posed(swivel).upper), side),
+            }
         : turn === null
           ? side === null
             ? {}
