@@ -1,6 +1,10 @@
+import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import { HUMAN_LEXICON, HumanHand, HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanOverlayChannels } from "../internal/motionHumanOverlayChannels";
+import { motionUpperPhrase } from "../internal/motionUpperPhrase";
 
 /**
  * A person performs two actions at once on different parts of the body, read
@@ -34,6 +38,41 @@ import { motionHumanOverlayChannels } from "../internal/motionHumanOverlayChanne
  * @evidence contracts/development/common.md#meaningful-documentation States the act, the films it performs and the 6 scenarios with their bounds.
  */
 export function test_motion_posture_gait_overlay(): void {
+  for (const family of ["emblem", "habit"] as const) {
+    const rows = HUMAN_LEXICON[family]!;
+    TestValidator.predicate(
+      "registered upper-body family names are unique and plannable",
+      rows.length > 0 &&
+        new Set(rows.map((row) => row.name)).size === rows.length &&
+        rows.every((row) => typeof row.plan === "function"),
+    );
+  }
+  const body = motionHumanBody("f-small");
+  const touch = motionUpperPhrase.perform(
+    body,
+    "handOnHip",
+    { side: "left" },
+    false,
+    "left",
+  );
+  const action = touch.segments("a").at(-1)!;
+  TestValidator.equals("placed public phrase", action.name, "handOnHip");
+  const stroke = action.plan.events.find((e) => e.name === "stroke")!;
+  const bones = touch.bones(
+    "a",
+    action.start + stroke.share * action.plan.duration,
+  );
+  const hip = body.surfaces.regions.hipLeft;
+  const palm = HumanHand.frame(body, bones, "left", "palm", "flat").point;
+  TestValidator.predicate(
+    "left palm meets mirrored hip at the authored stroke",
+    Vector3.length(
+      Vector3.subtract(
+        palm,
+        resolveAutoMovieHumanoidSurfaces.place(hip, bones.get(hip.bone)!).point,
+      ),
+    ) <= HumanVerdicts.SKIN,
+  );
   const complaints: string[] = [];
   motionHumanOverlayChannels.read("m-average", complaints, true);
   TestValidator.equals("an overlay and its carrier", complaints, []);
