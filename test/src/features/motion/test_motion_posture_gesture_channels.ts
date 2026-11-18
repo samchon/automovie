@@ -19,11 +19,11 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
-  selfAction,
   HumanGaze,
   gestureSignal,
   gestureStroke,
   resolveHumanPosture,
+  selfAction,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -260,45 +260,91 @@ function checkChannelSignals(): void {
     );
 }
 
-function checkAuthoredChannels():void {
-  const body=motionHumanBody("m-average");
+function checkAuthoredChannels(): void {
+  const body = motionHumanBody("m-average");
   // All five laws are evaluated from one real standing context without scheduling five performances.
-  const standing=motionHumanLaw.perform("channels",[{subject:"a",body}],HumanChain.subject("a").stand({seconds:1}));
-  const context=standing.performance.segments("a")[0]!.context;
-  const authored=(params:IAutoMovieMotionHumanSelfAction.IParams)=>selfAction.plan({...context,params});
-  const at=(plan:IAutoMovieMotionHumanActionPlan,name:string)=>plan.events.find(e=>e.name===name)!.share*plan.duration;
-  for(const [kind,bone] of [["neckRoll","neck"],["shoulderRoll","rightShoulder"]] as const){
-    const plan=authored({kind}),start=at(plan,"strokeStart"),end=at(plan,"strokeEnd");
-    const initial=resolveHumanPosture(body,plan.posture(0)).joints;
-    const channel=(joints:typeof initial, joint: AutoMovieHumanoidBone)=>{
-      const j=joints.find(v=>v.bone===joint);return [j?.flexion??0,j?.abduction??0,j?.twist??0];
+  const standing = motionHumanLaw.perform(
+    "channels",
+    [{ subject: "a", body }],
+    HumanChain.subject("a").stand({ seconds: 1 }),
+  );
+  const context = standing.performance.segments("a")[0]!.context;
+  const authored = (params: IAutoMovieMotionHumanSelfAction.IParams) =>
+    selfAction.plan({ ...context, params });
+  const at = (plan: IAutoMovieMotionHumanActionPlan, name: string) =>
+    plan.events.find((e) => e.name === name)!.share * plan.duration;
+  for (const [kind, bone] of [
+    ["neckRoll", "neck"],
+    ["shoulderRoll", "rightShoulder"],
+  ] as const) {
+    const plan = authored({ kind }),
+      start = at(plan, "strokeStart"),
+      end = at(plan, "strokeEnd");
+    const initial = resolveHumanPosture(body, plan.posture(0)).joints;
+    const channel = (joints: typeof initial, joint: AutoMovieHumanoidBone) => {
+      const j = joints.find((v) => v.bone === joint);
+      return [j?.flexion ?? 0, j?.abduction ?? 0, j?.twist ?? 0];
     };
-    const neutral=channel(initial,bone),elbow=channel(initial,"rightLowerArm"),rom=DEFAULT_HUMANOID_ROM[bone]!;
-    for(const phase of [0,0.25,0.5,0.75,2]){
-      const joints=resolveHumanPosture(body,plan.posture(start+phase*(end-start)/2)).joints;
-      const angles=channel(joints,bone),other=channel(joints,"rightLowerArm");
-      TestValidator.predicate(kind+" circular channel "+phase,
-        nclose(angles[0]!-neutral[0]!,rom.flexion!.max*Math.cos(2*Math.PI*phase)/4) &&
-        nclose(angles[1]!-neutral[1]!,rom.abduction!.max*Math.sin(2*Math.PI*phase)/4) &&
-        other.every((value,i)=>nclose(value,elbow[i]!)));
+    const neutral = channel(initial, bone),
+      elbow = channel(initial, "rightLowerArm"),
+      rom = DEFAULT_HUMANOID_ROM[bone]!;
+    for (const phase of [0, 0.25, 0.5, 0.75, 2]) {
+      const joints = resolveHumanPosture(
+        body,
+        plan.posture(start + (phase * (end - start)) / 2),
+      ).joints;
+      const angles = channel(joints, bone),
+        other = channel(joints, "rightLowerArm");
+      TestValidator.predicate(
+        kind + " circular channel " + phase,
+        nclose(
+          angles[0]! - neutral[0]!,
+          (rom.flexion!.max * Math.cos(2 * Math.PI * phase)) / 4,
+        ) &&
+          nclose(
+            angles[1]! - neutral[1]!,
+            (rom.abduction!.max * Math.sin(2 * Math.PI * phase)) / 4,
+          ) &&
+          other.every((value, i) => nclose(value, elbow[i]!)),
+      );
     }
   }
-  const bone=(bones:IAutoMovieResolvedBone[],name:AutoMovieHumanoidBone)=>bones.find(b=>b.bone===name)!.worldPosition;
-  for(const kind of ["stretch","victory"] as const){
-    const plan=authored({kind});
-    const [entry,ready,end]=[0,at(plan,"ready"),plan.duration].map(t=>displayed(body,plan.posture(t)));
-    for(const side of ["left","right"] as const){
-      const wrist=bone(ready!,`${side}Hand`);
-      TestValidator.predicate(kind+" raises and releases "+side,wrist.y>bone(ready!,`${side}UpperArm`).y &&
-        (side==="left"?wrist.x>0:wrist.x<0) && Vector3.distance(bone(entry!,`${side}Hand`),bone(end!,`${side}Hand`))<=0.01);
+  const bone = (bones: IAutoMovieResolvedBone[], name: AutoMovieHumanoidBone) =>
+    bones.find((b) => b.bone === name)!.worldPosition;
+  for (const kind of ["stretch", "victory"] as const) {
+    const plan = authored({ kind });
+    const [entry, ready, end] = [0, at(plan, "ready"), plan.duration].map((t) =>
+      displayed(body, plan.posture(t)),
+    );
+    for (const side of ["left", "right"] as const) {
+      const wrist = bone(ready!, `${side}Hand`);
+      TestValidator.predicate(
+        kind + " raises and releases " + side,
+        wrist.y > bone(ready!, `${side}UpperArm`).y &&
+          (side === "left" ? wrist.x > 0 : wrist.x < 0) &&
+          Vector3.distance(
+            bone(entry!, `${side}Hand`),
+            bone(end!, `${side}Hand`),
+          ) <= 0.01,
+      );
     }
   }
-  const pump=authored({kind:"fistPump",side:"left"}),start=at(pump,"strokeStart"),period=(at(pump,"strokeEnd")-start)/3;
-  const [entry,down,release]=[start,start+period/2,start+period].map(t=>displayed(body,pump.posture(t)));
-  TestValidator.predicate("a unilateral pump drops and returns its hand without moving the free arm",
-    bone(down!,"leftHand").y<bone(entry!,"leftHand").y &&
-    Vector3.distance(bone(release!,"leftHand"),bone(entry!,"leftHand"))<=0.01 &&
-    Vector3.distance(bone(down!,"rightHand"),bone(entry!,"rightHand"))<=0.01);
+  const pump = authored({ kind: "fistPump", side: "left" }),
+    start = at(pump, "strokeStart"),
+    period = (at(pump, "strokeEnd") - start) / 3;
+  const [entry, down, release] = [
+    start,
+    start + period / 2,
+    start + period,
+  ].map((t) => displayed(body, pump.posture(t)));
+  TestValidator.predicate(
+    "a unilateral pump drops and returns its hand without moving the free arm",
+    bone(down!, "leftHand").y < bone(entry!, "leftHand").y &&
+      Vector3.distance(bone(release!, "leftHand"), bone(entry!, "leftHand")) <=
+        0.01 &&
+      Vector3.distance(bone(down!, "rightHand"), bone(entry!, "rightHand")) <=
+        0.01,
+  );
 }
 /** Heading acts on the displayed gesture. Cues translate both gaze events together. */
 function checkGestureFrame(): void {
