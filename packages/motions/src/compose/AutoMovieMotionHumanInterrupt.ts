@@ -33,12 +33,17 @@ export namespace AutoMovieMotionHumanInterrupt {
     "reflex",
     "quick",
     "smooth",
+    "deliberate",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanInterrupt.Blend>[];
 
   /**
-   * The seconds of each blend (the values the reaction laws shipped with):
-   * `reflex` 0.08, a blow that overrides what the body was doing; `quick`
-   * 0.1, a defence; `smooth` 0.15, a voluntary change.
+   * The seconds of each blend (the values the reaction and everyday laws
+   * shipped with; provisional, no measured blend time of a human transition
+   * located): `reflex` 0.08, a blow that overrides what the body was doing;
+   * `quick` 0.1, a defence; `smooth` 0.15, a voluntary change of one
+   * gesture; `deliberate` 0.3, a change of the whole body's action (sitting
+   * down, standing up, setting off, putting a task down), which every
+   * everyday and locomotion cancel row reads here.
    */
   export const BLENDS: Readonly<
     Record<IAutoMovieMotionHumanInterrupt.Blend, number>
@@ -46,6 +51,7 @@ export namespace AutoMovieMotionHumanInterrupt {
     reflex: 0.08,
     quick: 0.1,
     smooth: 0.15,
+    deliberate: 0.3,
   };
 
   /**

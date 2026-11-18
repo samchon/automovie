@@ -34,9 +34,9 @@ export namespace IAutoMovieMotionHumanInterrupt {
    * How fast the next action blends in.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is named; `BLENDS` gives each time.
-   * @evidence contracts/development/design.md#principled-representation Three speeds of an inertialized transition, from a reflex that overrides the body to a voluntary change.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three names, each used by a shipped cancel table.
+   * @evidence contracts/development/design.md#principled-representation Four speeds of an inertialized transition, from a reflex that overrides the body through a voluntary change of one gesture to a deliberate change of the whole body's action.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Four names, each used by a shipped cancel table.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed union keyed into one table.
    */
-  export type Blend = (readonly ["reflex", "quick", "smooth"])[number];
+  export type Blend = (readonly ["reflex", "quick", "smooth", "deliberate"])[number];
 }
