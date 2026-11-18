@@ -4,6 +4,7 @@ import {
   stageScene,
 } from "@automovie/engine";
 import {
+  AutoMovieHumanoidBone,
   IAutoMovieActionCall,
   type IAutoMovieActorContext,
   IAutoMovieCameraAction,
@@ -52,10 +53,10 @@ const walk: (
 /**
  * The bones a gait spec drives, as its limb rows name them.
  */
-const gaitBones: (gait: IAutoMovieGait) => string[] = (
+const gaitBones: (gait: IAutoMovieGait) => AutoMovieHumanoidBone[] = (
   gait: IAutoMovieGait,
-): string[] =>
-  gait.limbs.map((limb: IAutoMovieGait["limbs"][number]): string => limb.bone);
+): AutoMovieHumanoidBone[] =>
+  gait.limbs.map((limb: IAutoMovieGait["limbs"][number]): AutoMovieHumanoidBone => limb.bone);
 
 /**
  * A custom gait that genuinely authors legs only.
