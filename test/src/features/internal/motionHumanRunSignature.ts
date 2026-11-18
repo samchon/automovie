@@ -70,15 +70,9 @@ export namespace motionHumanRunSignature {
         `${cell}: mean trunk inclination ${lean[row]!.toFixed(2)} deg outside [2, 20] (Thorstensson et al. 1984; Novacheck 1998)`,
         lean[row]! >= 2 && lean[row]! <= 20,
       );
-      const g: M.IGait = M.gait(s, from, to);
-      complaints.check(
-        `${cell}: duty factor ${g.duty.toFixed(3)} not below ${sprint ? 0.35 : 0.45} (Alexander 1984; Novacheck 1998)`,
-        g.duty < (sprint ? 0.35 : 0.45),
-      );
-      complaints.check(
-        `${cell}: cadence ${g.cadence.toFixed(0)} steps/min outside ${sprint ? "[200, inf)" : "[150, 200]"} (Cavanagh and Kram 1989; Mero et al. 1992)`,
-        sprint ? g.cadence >= 200 : g.cadence >= 150 && g.cadence <= 200,
-      );
+      let bearing: number = 0;
+      const strikes: number[] = [];
+      const lastStrike: Partial<Record<"left" | "right", number>> = {};
       let flight: number = 0;
       let both: number = 0;
       const stances: { from: number; to: number; side: "left" | "right" }[] =
@@ -99,13 +93,36 @@ export namespace motionHumanRunSignature {
           ["left", l],
           ["right", r],
         ] as const) {
-          if (down && open[side] === undefined) open[side] = t;
+          if (down) bearing++;
+          if (down && open[side] === undefined) {
+            open[side] = t;
+
+            // A foot already bearing at the window edge has no observed strike.
+            // Suppress a heel-to-ball handoff within the same footfall.
+            const previous: number | undefined = lastStrike[side];
+            if (t > from && (previous === undefined || t - previous >= M.STRIDE)) {
+              strikes.push(t);
+              lastStrike[side] = t;
+            }
+          }
           if (!down && open[side] !== undefined) {
             stances.push({ from: open[side]!, to: t, side });
             delete open[side];
           }
         }
       }
+      const duty: number = bearing / (2 * instants.length);
+      const cadence: number = strikes.length < 2
+        ? 0
+        : (60 * (strikes.length - 1)) / (strikes[strikes.length - 1]! - strikes[0]!);
+      complaints.check(
+        `${cell}: duty factor ${duty.toFixed(3)} not below ${sprint ? 0.35 : 0.45} (Alexander 1984; Novacheck 1998)`,
+        duty < (sprint ? 0.35 : 0.45),
+      );
+      complaints.check(
+        `${cell}: cadence ${cadence.toFixed(0)} steps/min outside ${sprint ? "[200, inf)" : "[150, 200]"} (Cavanagh and Kram 1989; Mero et al. 1992)`,
+        sprint ? cadence >= 200 : cadence >= 150 && cadence <= 200,
+      );
       complaints.check(
         `${cell}: ${flight} instants of flight and ${both} of double support at 120 Hz (Alexander 1984)`,
         flight > 0 && both === 0,
