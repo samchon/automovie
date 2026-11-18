@@ -24,11 +24,11 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
  * LA Metro's [boarding guide](https://www.metro.net/riding/how-to-ride-metro-bus/) and [rider guide](https://www.metro.net/safety-support/rider-guide/) ground the passenger routes and handhold use.
  * The grasping diameter follows [§1192.29(b)](https://www.access-board.gov/ada/vehicles/subpart-b/).
  *
- * @param id The model id within the scene.
+ * @param params The model id, supplied as an option or as a positional string.
  * @param seed Draws the aisle width in the Xcelsior seat-model range. Omit it for the nominal 0.59 m aisle.
  * @returns A bus at rest with both passenger doors shut.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the local axes, controls, passenger routes and sources for the principal proportions.
+ * @evidence contracts/development/common.md#meaningful-documentation States local axes, both paired door controls, boarding supports and handholds, and the seeded or nominal aisle fit.
  * @evidence contracts/development/implementation.md#principled-implementation One sourced draw sets the width between opposing seat banks and the aisle affordance. Shared door bay dimensions set the side openings, paired leaves and public contacts. Opposite slider axes and a 1:1 follower keep each opening centered.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the cabin, the two axles and wheel housings, and then the door, seat and handhold affordances.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Door locations, pocket-slide mechanisms, flat passenger floor, seat layout and clearances are scenic approximations. Driver controls, working ramps and wheel spin are outside this model.
@@ -37,7 +37,7 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Acquires no external resources and holds only the returned model.
  */
 export function createTransitBus(
-  id: string = "transitBus",
+  params: { id?: string } | string = {},
   seed?: number | string,
 ): Archetype<createTransitBus.Affordance, createTransitBus.Dimension> {
   const draw: ArchetypeDrawSession<createTransitBus.Dimension> =
@@ -47,7 +47,7 @@ export function createTransitBus(
   const { aisleWidth }: Record<createTransitBus.Dimension, number> =
     draw.dimensions({ aisleWidth: AISLE_BAND });
   const builder: BusBuilder = new ArchetypeBuilder({
-    id,
+    id: (typeof params === "string" ? params : params.id) ?? "transitBus",
     name: "low-floor transit bus",
     material: "steel",
     draw,
@@ -161,11 +161,6 @@ export function createTransitBus(
 export namespace createTransitBus {
   /**
    * The clear span in metres between the innermost seat edges.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the measured span and unit.
-   * @evidence contracts/development/design.md#principled-representation A literal key for the band's value and provenance records.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The one seat-model dimension this producer varies.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The key excludes fixed shell and doorway dimensions.
    */
   export type Dimension = "aisleWidth";
 
@@ -173,11 +168,6 @@ export namespace createTransitBus {
    * Front and rear sliders, with their coupled leaves, apertures, thresholds
    * and stanchions. The center aisle and a forward-facing passenger seat are
    * shared staging contacts for both routes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the two entrance banks and common passenger contacts.
-   * @evidence contracts/development/design.md#principled-representation The paired doorway descriptions define the moving and fixed bay ids.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Contains only registered affordances.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A finite id union excludes arbitrary model part names.
    */
   export type Affordance =
     | "frontDoor"

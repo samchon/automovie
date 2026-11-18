@@ -16,7 +16,7 @@ import {
  * offset by the same amount, so the line to the face follows the stick
  * and the shaft clears the head when the bead lands.
  *
- * @param id Optional model id.
+ * @param params The model id, supplied as an option or as a positional string.
  * @returns A rigid wooden stick with `grip` and `face` contacts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the local axes, contact placements, source dimensions and estimates.
@@ -28,7 +28,7 @@ import {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned prop.
  */
 export function createDrumstick(
-  id?: string,
+  params: { id?: string } | string = {},
 ): Archetype<"grip" | "face", never> {
   const v: typeof Vector3.create = Vector3.create;
   const length: number = 0.4064;
@@ -39,7 +39,7 @@ export function createDrumstick(
   const color: string = "#c58b54";
   const builder: ArchetypeBuilder<"grip" | "face", never> =
     new ArchetypeBuilder({
-      id,
+      id: typeof params === "string" ? params : params.id,
       name: "drumstick",
       material: "wood",
       draw: new ArchetypeDrawSession<never>("drumstick", {}, undefined),

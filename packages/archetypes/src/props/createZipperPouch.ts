@@ -19,7 +19,7 @@ import {
  * swing clear independently, behind the moving tab. This approximates a
  * flexible pouch mouth with rigid pieces.
  *
- * @param id Optional model id.
+ * @param params The model id, supplied as an option or as a positional string.
  * @returns A closed pouch with tab, brace, stops and lip articulation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the model frame, reference figures, tab travel and opening approximation.
@@ -30,7 +30,9 @@ import {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each build produces an independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer retains no resources.
  */
-export function createZipperPouch(id?: string): Archetype<string, never> {
+export function createZipperPouch(
+  params: { id?: string } | string = {},
+): Archetype<string, never> {
   const v: typeof Vector3.create = Vector3.create;
   const width: number = 0.21;
   const depth: number = 0.1;
@@ -42,7 +44,7 @@ export function createZipperPouch(id?: string): Archetype<string, never> {
   const travel: number = 0.18;
   const tabY: number = height + 0.009;
   const builder: ArchetypeBuilder<string, never> = new ArchetypeBuilder({
-    id,
+    id: typeof params === "string" ? params : params.id,
     name: "zipper pouch",
     material: "fabric",
     draw: new ArchetypeDrawSession<never>("zipper-pouch", {}, undefined),
@@ -149,7 +151,7 @@ export function createZipperPouch(id?: string): Archetype<string, never> {
           ...ArchetypeFrame.upright(
             v(edge - section / 2, height - skin, (side * depth) / 2),
           ),
-          rotation: Quaternion.fromAxisAngle(v(0, 0, 1), side * 90),
+          rotation: Quaternion.fromAxisAngle(v(0, 0, 1), -side * 90),
         },
         follows: {
           id: "zipper",

@@ -10,14 +10,6 @@ import {
   type IArchetypeBand,
 } from "../core";
 
-/** The author chooses one of four padded screen silhouettes. */
-const KINDS: readonly createStageWeaponProp.Kind[] = [
-  "mace",
-  "pike",
-  "shuo",
-  "halberd",
-];
-
 /** The size axis measures from the base plane to the uppermost visible part. */
 const UNITS: Readonly<Record<createStageWeaponProp.Dimension, "m">> = {
   height: "m",
@@ -50,7 +42,7 @@ const DISPLAY_HEIGHTS: Readonly<Record<createStageWeaponProp.Kind, number>> = {
  * @returns A foam model with a named grip for kinematic staging.
  * @throws {ArchetypeRefusal} When the outline or height is out of range.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names each outline, its rest axes, the grip approach and the size control.
+ * @evidence contracts/development/common.md#meaningful-documentation Names each catalogue outline, the fixed scale assigned by the outline, the optional height override, and the common grip approach.
  * @evidence contracts/development/implementation.md#principled-implementation Each silhouette builds padded forms above a common shaft, with top coordinates derived from the same display height. The grip sits on the shaft centreline.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the outline and size, lay out the shared shaft and chosen ornament, then register the grip.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses authored display shapes and a nominal body mass for the model record. No material contact or flight parameters are authored.
@@ -69,14 +61,17 @@ export function createStageWeaponProp(
     "stageWeaponProp",
     "kind",
     params.kind,
-    KINDS,
+    createStageWeaponProp.KINDS,
   );
   const draw: ArchetypeDrawSession<createStageWeaponProp.Dimension> =
     new ArchetypeDrawSession("stageWeaponProp", UNITS, seed, {
-      height: params.height ?? DISPLAY_HEIGHTS[kind],
+      height: params.height,
     });
-  const { height }: Record<createStageWeaponProp.Dimension, number> =
-    draw.dimensions({ height: HEIGHT });
+  // The chosen silhouette fixes its display height unless the scene supplies one.
+  const height: number =
+    params.height === undefined
+      ? draw.derive("height", DISPLAY_HEIGHTS[kind])
+      : draw.dimensions({ height: HEIGHT }).height;
   const builder: ArchetypeBuilder<
     createStageWeaponProp.Affordance,
     createStageWeaponProp.Dimension
@@ -142,43 +137,26 @@ export function createStageWeaponProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported outlines and inadmissible heights are refused by the shared draw owners.
  */
 export namespace createStageWeaponProp {
+  /** The padded silhouette variants admitted by the factory and listed in the catalogue. */
+  export const KINDS = ["mace", "pike", "shuo", "halberd"] as const;
+
   /**
    * The four authored display silhouettes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the named outlines.
-   * @evidence contracts/development/design.md#principled-representation Each literal selects an authored outline.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One discriminator covers the supported forms.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An untyped unknown literal is refused at entry.
    */
-  export type Kind = "mace" | "pike" | "shuo" | "halberd";
+  export type Kind = (typeof KINDS)[number];
 
   /**
    * The shaft handle used by a kinematically placed hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the hand site.
-   * @evidence contracts/development/design.md#principled-representation The site names an actual round shaft handle.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One site suffices for the shared hand placement.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The handle comes from the same shaft geometry used by the model.
    */
   export type Affordance = "grip";
 
   /**
    * The overall display height in metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the visual dimension and its unit.
-   * @evidence contracts/development/design.md#principled-representation One overall scale sizes the normalized silhouette.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The record exposes the one visual size control.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Both the scale and its unit use the shared draw record.
    */
   export type Dimension = "height";
 
   /**
    * Stage outline, optional scale override, and scene identity.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes which fields name, scale and identify the display model.
-   * @evidence contracts/development/design.md#principled-representation An explicit outline and optional overall height uniquely determine the stage geometry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The caller can choose the outline and scene scale independently of identity.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer validates the outline and height using the existing draw session.
    */
   export interface IParams {
     /** The padded outline. */

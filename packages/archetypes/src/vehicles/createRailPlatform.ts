@@ -21,7 +21,7 @@ import { createRailCarriage } from "./createRailCarriage";
  * The 75 mm gap is inside the three-inch level-boarding bound in §1192.53(d)
  * (https://www.access-board.gov/ada/vehicles/subpart-c/).
  *
- * @param id The scene model id, defaulting to railPlatform.
+ * @param params The model id, supplied as an option or as a positional string.
  * @returns The stationary platform, including the support top and its track edge.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the matching model, units, axes, level-boarding relation and sources.
@@ -33,11 +33,11 @@ import { createRailCarriage } from "./createRailCarriage";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned model.
  */
 export function createRailPlatform(
-  id: string = "railPlatform",
+  params: { id?: string } | string = {},
 ): Archetype<"platform" | "platformEdge", never> {
   const builder: ArchetypeBuilder<"platform" | "platformEdge", never> =
     new ArchetypeBuilder({
-      id,
+      id: (typeof params === "string" ? params : params.id) ?? "railPlatform",
       name: "rail platform",
       material: "concrete",
       draw: new ArchetypeDrawSession<never>("railPlatform", {}, undefined),

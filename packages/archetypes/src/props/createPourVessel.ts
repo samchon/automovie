@@ -71,7 +71,7 @@ const SIDES: number = 16;
  * @returns The model and its three rigid contact sites.
  * @throws {ArchetypeRefusal} For an unknown kind or out-of-band fixed dimension.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States where the three sites are, how the model stands and who supplies the liquid.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies both catalogue variants, the open dimensions and units, and each vessel's rest frame and contact sites.
  * @evidence contracts/development/implementation.md#principled-implementation Two polygonal sections on the same radial planes bound per-sector convex wall cells. Their same ring locates the lip and closes against a solid floor. Three rods form the handle and share its bar axis with the hook affordance.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build floor and wall cells, then add the handle and rim contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Physical and visible walls share one bounded solid per sector. The opening and handle clearance remain free of enclosing hulls.
@@ -87,7 +87,7 @@ export function createPourVessel(
     "pourVessel",
     "kind",
     params.kind,
-    ["cup", "pitcher"],
+    createPourVessel.KINDS,
   );
   const draw: ArchetypeDrawSession<Dimension> = new ArchetypeDrawSession(
     "pourVessel",
@@ -248,23 +248,16 @@ function section(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Dimensions describe empty props and leave authored liquid state with the pour action.
  */
 export namespace createPourVessel {
+  /** The serving vessel variants admitted by the factory and listed in the catalogue. */
+  export const KINDS = ["cup", "pitcher"] as const;
+
   /**
    * The receiving cup or the pouring pitcher.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each serving role.
-   * @evidence contracts/development/design.md#principled-representation A closed choice indexed by sourced bands.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the two shapes the producer constructs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every admitted choice has its own geometry.
    */
-  export type Kind = "cup" | "pitcher";
+  export type Kind = (typeof KINDS)[number];
 
   /**
    * Select a serving vessel and optionally fix its size and empty mass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measured sites and units of optional dimensions.
-   * @evidence contracts/development/design.md#principled-representation Each optional fixed quantity has an explicit band with provenance.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Inputs are scene identity, silhouette and quantities that vary in the model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the shared draw session to refuse fixed dimensions outside their bands.
    */
   export interface IParams {
     /** Which silhouette to construct. */

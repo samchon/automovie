@@ -16,7 +16,7 @@ import {
  * estimates. The stick is rigid. The hair contacts mark the underside of the
  * ribbon at the frog and tip, with outward normals facing the string.
  *
- * @param id Optional model id.
+ * @param params The model id, supplied as an option or as a positional string.
  * @returns A bow with grip, hairFrog and hairTip affordances.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives axes, named contacts, measured dimensions, estimates and rigid construction.
@@ -28,7 +28,7 @@ import {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createViolinBow(
-  id?: string,
+  params: { id?: string } | string = {},
 ): Archetype<"grip" | "hairFrog" | "hairTip", never> {
   const v: typeof Vector3.create = Vector3.create;
   const overall: number = 0.745;
@@ -41,7 +41,7 @@ export function createViolinBow(
   const wood: string = "#744426";
   const builder: ArchetypeBuilder<"grip" | "hairFrog" | "hairTip", never> =
     new ArchetypeBuilder({
-      id,
+      id: typeof params === "string" ? params : params.id,
       name: "violin bow",
       material: "composite",
       draw: new ArchetypeDrawSession<never>("violin bow", {}, undefined),

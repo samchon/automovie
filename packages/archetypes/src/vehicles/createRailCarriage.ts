@@ -24,12 +24,12 @@ import {
  * vertical, just inside the principal bay. Create the stationary platform with
  * createRailPlatform and move only the carriage on a ride.
  *
- * @param id The scene model id, defaulting to railCarriage.
- * @param params Optional seat height above the finished floor, in metres. The default is 0.45 m.
+ * @param params Model id and floor-relative seat height. Also accepts a positional id.
+ * @param options A gallery seed or, with a positional id, the seat height options.
  * @returns The carriage at rest with the door pairs closed.
  * @throws {ArchetypeRefusal} When the height is nonfinite or outside the 17–19 inch scenic contact band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the model's source, coordinates, default pose, boarding convention and optional floor-relative seat height.
+ * @evidence contracts/development/common.md#meaningful-documentation States the model coordinates, paired door controls, fixed matching platform dimensions, seedless seat height and the accepted seat-height override.
  * @evidence contracts/development/implementation.md#principled-implementation The reference supplies the envelope, floor, door pitch and width, truck arrangement and seating widths. One validated height determines both seat geometry and contact. Paired leaves use opposite slider axes with a positive 1:1 coupling.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the shell and doors, end walls and trucks, seats and grab rails, then the fixed boarding contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Body and interior details are staged estimates, including sheet thickness, cushion depth and pole stations. The seat-height band uses the RVAA Committee's transfer-seat recommendation for scenic staging. The gap between cars has no bellows.
@@ -38,11 +38,24 @@ import {
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no model or external resource.
  */
 export function createRailCarriage(
-  id: string = "railCarriage",
-  { seatHeight = 0.45 }: createRailCarriage.IParams = {},
+  params: createRailCarriage.IParams | string = {},
+  options?: number | string | Pick<createRailCarriage.IParams, "seatHeight">,
 ): Archetype<createRailCarriage.Affordance, createRailCarriage.Dimension> {
+  const id: string =
+    (typeof params === "string" ? params : params.id) ?? "railCarriage";
+  const dimensionsInput: Pick<createRailCarriage.IParams, "seatHeight"> =
+    typeof options === "object"
+      ? options
+      : typeof params === "object"
+        ? params
+        : {};
+  const seed: number | string | undefined =
+    typeof options === "object" ? undefined : options;
   const draw: ArchetypeDrawSession<createRailCarriage.Dimension> =
-    new ArchetypeDrawSession("railCarriage", UNITS, undefined, { seatHeight });
+    new ArchetypeDrawSession("railCarriage", UNITS, seed, {
+      seatHeight:
+        dimensionsInput.seatHeight ?? (seed === undefined ? 0.45 : undefined),
+    });
   const dimensions: Record<createRailCarriage.Dimension, number> =
     draw.dimensions(BANDS);
   const builder: ArchetypeBuilder<
@@ -372,11 +385,6 @@ export namespace createRailCarriage {
   /**
    * Boarding supports and hand contact at the principal bay plus the positive-Z
    * leader and negative-Z follower of each paired door.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes each door pair's control direction and identifies the boarding bay.
-   * @evidence contracts/development/design.md#principled-representation A closed union of model-local contact names.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Holds only names implemented by the model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No arbitrary string fallback for contacts.
    */
   export type Affordance =
     | "threshold"
@@ -388,31 +396,22 @@ export namespace createRailCarriage {
 
   /**
    * The height of the seat pad's top above the finished cabin floor, in metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the seat height's two reference surfaces and its unit.
-   * @evidence contracts/development/design.md#principled-representation The typed dimension key for the seat pad and contact frame's shared height.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The carriage accepts only one size override.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No arbitrary dimension names.
    */
   export type Dimension = "seatHeight";
 
   /**
    * Optional seat height in metres for staging seated contact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the finished floor datum, sourced interval and legacy default.
-   * @evidence contracts/development/design.md#principled-representation An optional physical measurement using the carriage's dimension key.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Scene identity stays in the first argument and shell dimensions stay fixed.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The draw session enforces the closed height interval.
    */
   export interface IParams {
-    /** Seat pad top above the cabin floor, 17–19 inches expressed in metres. Defaults to 0.45 m. */
+    /** Scene model id, defaulting to railCarriage. */
+    id?: string;
+
+    /** Seat pad top above the cabin floor, 17–19 inches expressed in metres. Defaults to 0.45 m without a seed and draws in the band with a seed. */
     seatHeight?: number;
   }
 
   /**
    * Outside width and floor height above rail in metres, reference §II.C.3.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives units, reference and datum for use in matching a platform.
    */
   export const REFERENCE: Readonly<{ width: number; floor: number }> = {
     width: 126 * ArchetypeUnits.INCH,

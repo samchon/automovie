@@ -17,7 +17,7 @@ import {
  * The plate thickness, bell and stand proportions and assembly mass are
  * scenic estimates for the rigid prop.
  *
- * @param id Optional model id.
+ * @param params The model id, supplied as an option or as a positional string.
  * @returns The mounted cymbal with the upward-facing `edge` on the rim at
  * local −Z and `bell` at the raised center.
  *
@@ -29,7 +29,9 @@ import {
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds an independent scenic prop.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the returned prop.
  */
-export function createCymbal(id?: string): Archetype<"edge" | "bell", never> {
+export function createCymbal(
+  params: { id?: string } | string = {},
+): Archetype<"edge" | "bell", never> {
   const radius: number = 8 * ArchetypeUnits.INCH;
   const edgeHeight: number = 0.85;
   const plateThickness: number = 0.002;
@@ -45,7 +47,7 @@ export function createCymbal(id?: string): Archetype<"edge" | "bell", never> {
   const v: typeof Vector3.create = Vector3.create;
   const builder: ArchetypeBuilder<"edge" | "bell", never> =
     new ArchetypeBuilder({
-      id,
+      id: typeof params === "string" ? params : params.id,
       name: "mounted cymbal",
       material: "composite",
       draw: new ArchetypeDrawSession<never>("cymbal", {}, undefined),
