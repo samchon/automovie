@@ -9,17 +9,17 @@ import { HumanFrame } from "../posture/HumanFrame";
 /**
  * Prepare the measured two-bone geometry and fixed heading of a stepping shank.
  *
- * @param body The unchanged body's thigh and shank lengths, metres.
- * @param heading The unchanged heading toward which its knee bends, degrees.
- * @returns The original forward shank lean, degrees, for each actual world-metre hip and ankle.
+ * @param body The fixed body's thigh and shank lengths, metres.
+ * @param heading The fixed heading toward which its knee bends, degrees.
+ * @returns The forward shank lean, degrees, for each world-metre hip and ankle.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States fixed body/heading, world-metre varying joints, forward-positive degree result and unchanged-body lifetime; bounded additionally reports an actual reach outside the body's total leg length before knee geometry.
- * @evidence contracts/development/implementation.md#principled-implementation Retains the cosine-law knee circle and the original least-absolute swing satisfying the foot's no-twist condition, followed by the same shank forward-angle projection. The bounded companion compares the same actual hip-to-ankle length against thigh+shank before this shared geometry, as the rocker room rule already does. The geometry is evaluated on the points' components with each original product, sum and quotient in its original order; the engine's `Vector3.distance` is its `length(subtract(a, b))`, and a perpendicular whose square sum lies in `[2^-1000, 2^1000]` has the engine's ordinary square-root length, any other being read by the engine's `length` and `normalize` themselves.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One private measured/axis preparation owns the full knee geometry; raw and bounded readers differ only by the original reach screen before invoking it with their actual points and distance.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original multiply/add grouping, degeneracy thresholds, cosine clamp, first equal-swing choice and knee construction; no probe, range or sampled result changes.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation shares two length squares and the heading/lateral axes; each trial retains the full bounded two-bone geometry without repeating fixed trigonometry, wraps only the nearer of the two knee-circle intersections where their principal readings decide which it is (both within DECIDED), and builds no vector record on a perpendicular of ordinary size. A bounded rocker room trial computes its actual length once for both the original reach screen and knee geometry instead of twice. Runtime improvement is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller binds one unchanged measured body and heading for its rocker or stance; changing either requires another reader, while every actual hip/ankle is evaluated.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned closure retains fixed lengths and private axes until its stance/search releases it, with no hip, ankle, angle or time history; a reader borrows its two points for the call and keeps neither.
+ * @evidence contracts/development/common.md#meaningful-documentation States fixed body/heading, world-metre varying joints, the forward-positive degree result and the body's lifetime; bounded additionally reports a reach beyond the body's total leg length before the knee geometry.
+ * @evidence contracts/development/implementation.md#principled-implementation The knee lies on the cosine-law circle about the hip-to-ankle axis; of its two points whose shank keeps the foot's lateral axis perpendicular (no twist) the one at the least absolute swing is taken, and the shank's forward angle is projected from it. The bounded companion compares the hip-to-ankle length with thigh plus shank before that geometry, as the rocker room rule does. A leg along the forward axis, a vanishing reach or a straight knee leaves no bend plane and reads 0.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One private measured/axis preparation owns the knee geometry; the plain and bounded readers differ only by the reach screen before calling it.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The degeneracy thresholds are numeric guards on unit-vector arithmetic, far under any posed leg's angles; the cosine is clamped only against rounding.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation shares two length squares and the heading/lateral axes; each trial is constant work with no vector records, and wraps only the nearer knee-circle point where the principal readings decide it (both within `DECIDED`). A bounded trial computes its length once for the reach screen and the knee geometry. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller binds one measured body and heading for its rocker or stance; changing either needs another reader, while every hip/ankle is evaluated.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One caller-owned closure holds fixed lengths and axes until its stance/search releases it, with no hip, ankle, angle or time history; a reader borrows its two points for the call and keeps neither.
  */
 export function prepareWalkLegLean(
   body: IAutoMovieMotionHumanBody,
@@ -31,19 +31,21 @@ export function prepareWalkLegLean(
 }
 
 /**
- * The same shank geometry with the rocker's original actual reach screen.
+ * The same shank geometry behind the rocker's reach screen.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the unchanged body/heading and outside-total-leg-length result used by heel-rise room evaluation.
- * @evidence contracts/development/design.md#principled-representation One actual joint reader returns either the original shank lean or an explicit outside-reach absence; it does not claim a fitted limb or relaxed bound.
- * @evidence contracts/development/design.md#minimal-and-owned-surface bounded serves actual heel-rise room trials and shares this module's one knee geometry owner with ordinary lean.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the exact original greater-than thigh+shank comparison, followed by unchanged knee arithmetic; no supplied distance or solved-result token can bypass the actual world-joint reading.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed body/heading and the beyond-total-leg-length result read by heel-rise room evaluation.
+ * @evidence contracts/development/design.md#principled-representation One joint reader returns either the shank lean or an explicit absence beyond reach; it does not claim a fitted limb or a relaxed bound.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface bounded serves heel-rise room trials and shares this module's one knee geometry owner with the plain lean.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A strict greater-than comparison with thigh plus shank, then the same knee arithmetic; no supplied distance or solved result bypasses the world-joint reading.
  */
 export namespace prepareWalkLegLean {
   /**
-   * Bind the body's total length and heading, then compute each actual joint
-   * length once. Return undefined only beyond the same thigh+shank
-   * reach the rocker room rejected; otherwise evaluate ordinary lean. Release
-   * fixed geometry with the synchronous stance/search, without query history.
+   * The shank lean behind a reach screen: bind the body's total leg length and
+   * heading, then compute each hip-to-ankle length once.
+   *
+   * @param body The body's thigh and shank lengths, metres.
+   * @param heading The heading toward which its knee bends, degrees.
+   * @returns For a world-metre hip and ankle, undefined beyond thigh plus shank, else the forward shank lean in degrees.
    */
   export function bounded(
     body: IAutoMovieMotionHumanBody,
@@ -57,7 +59,7 @@ export namespace prepareWalkLegLean {
   }
 }
 
-/** Private measured prerequisites and one actual knee-circle calculation. */
+/** Private measured prerequisites and one knee-circle calculation. */
 interface IGeometry {
   /** The thigh and the shank end to end, metres. */
   span: number;
@@ -83,11 +85,13 @@ const TURN: number = 2 * Math.PI;
  */
 const DECIDED: number = 1e-9;
 
-/** The least and the greatest square sum whose square root is the engine's ordinary vector length (`Vector3.distance`'s own bounds). */
-const ORDINARY_MIN: number = 2 ** -1000;
-const ORDINARY_MAX: number = 2 ** 1000;
-
-/** Prepare fixed terms only; actual joint vectors/distances remain call-local. */
+/**
+ * Prepare a body's and heading's fixed terms; joint vectors and distances stay call-local.
+ *
+ * @param body The body's thigh and shank lengths, metres.
+ * @param heading The heading toward which the knee bends, degrees.
+ * @returns The total leg length and the knee-circle reader.
+ */
 function geometry(body: IAutoMovieMotionHumanBody, heading: number): IGeometry {
   const a: number = body.measure.thigh;
   const b: number = body.measure.shank;
@@ -105,6 +109,8 @@ function geometry(body: IAutoMovieMotionHumanBody, heading: number): IGeometry {
   const lx: number = forward.z;
   const ly: number = 0;
   const lz: number = -forward.x;
+  // The guards below are numeric: a micrometre of reach and 1e-9 of a unit
+  // vector lie far under any posed leg, and only keep the divisions finite.
   const at: IGeometry["at"] = (hip: IAutoMovieVector3, ankle: IAutoMovieVector3, d: number): number => {
     if (d < 1e-6) return 0;
 
@@ -116,31 +122,22 @@ function geometry(body: IAutoMovieMotionHumanBody, heading: number): IGeometry {
     const along: number = (aa - bb + d * d) / (2 * d);
     const across: number = Math.sqrt(Math.max(0, aa - along * along));
 
-    // The forward axis's part perpendicular to that axis, as a unit.
+    // The forward axis's part perpendicular to that axis, as a unit. Both
+    // axes are units, so its squared length `1 - ahead^2` lies in [0, 1]; a
+    // leg along the forward axis leaves no plane to bend in.
     const ahead: number = fx * ux + fy * uy + fz * uz;
-    let px: number = fx - ux * ahead;
-    let py: number = fy - uy * ahead;
-    let pz: number = fz - uz * ahead;
-    const squared: number = px * px + py * py + pz * pz;
-    if (squared >= ORDINARY_MIN && squared <= ORDINARY_MAX) {
-      const norm: number = Math.sqrt(squared);
-      if (norm < 1e-9) return 0;
-      const scale: number = 1 / norm;
-      px *= scale;
-      py *= scale;
-      pz *= scale;
-    } else {
-      // Outside the ordinary range the engine's own length and unit are read.
-      const perpendicular: IAutoMovieVector3 = { x: px, y: py, z: pz };
-      if (Vector3.length(perpendicular) < 1e-9) return 0;
-      const unit: IAutoMovieVector3 = Vector3.normalize(perpendicular);
-      px = unit.x;
-      py = unit.y;
-      pz = unit.z;
-    }
+    const rx: number = fx - ux * ahead;
+    const ry: number = fy - uy * ahead;
+    const rz: number = fz - uz * ahead;
+    const norm: number = Math.sqrt(rx * rx + ry * ry + rz * rz);
+    if (norm < 1e-9) return 0;
+    const scale: number = 1 / norm;
+    const px: number = rx * scale;
+    const py: number = ry * scale;
+    const pz: number = rz * scale;
 
     // The shank's forward axis must be perpendicular to the foot's lateral
-    // axis; choose the same nearer of the two knee-circle intersections.
+    // axis; choose the nearer of the two knee-circle intersections.
     const sx: number = uy * pz - uz * py;
     const sy: number = uz * px - ux * pz;
     const sz: number = ux * py - uy * px;

@@ -52,6 +52,8 @@ export namespace walkDescent {
    *   with the claim's rate and acceleration there, by backward differences.
    */
   export function plan(need: (u: number) => number): IPlan {
+    // The leg folds through mid-swing and asks nothing there, so the search
+    // starts a quarter into the second half and runs to the strike.
     let until: number = 1;
     let most: number = need(1);
     for (let k: number = SAMPLES / 4; k < SAMPLES; k++) {
@@ -103,6 +105,6 @@ export namespace walkDescent {
   /** The shares of a swing's second half sampled for its largest claim (provisional): the claim is smooth, and the schedule meets it at the sampled share with its rate and acceleration there, whichever share that is. */
   const SAMPLES: number = 16;
 
-  /** The share of a swing over which the claim's rate and acceleration are differenced. */
+  /** The share of a swing over which the claim's rate and acceleration are differenced: the second difference's rounding error, the reach solve's nanometre root tolerance over `STEP^2`, stays near 1e-4 m per squared share, far under the claim's own curvature (centimetres over a tenth of the swing, about a metre per squared share), while its truncation error, of order `STEP` times the claim's third derivative, stays as small. */
   const STEP: number = 4e-3;
 }

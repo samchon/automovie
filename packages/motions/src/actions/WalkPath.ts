@@ -144,9 +144,18 @@ export class WalkPath {
 
 /** Exact fixed prerequisites for one original floor-path segment. */
 interface ISegment {
+  /** The segment's first point, world metres. */
   from: IAutoMovieVector3;
+
+  /** The segment's x extent, metres. */
   dx: number;
+
+  /** The segment's z extent, metres. */
   dz: number;
+
+  /** The segment's arc length, metres, as the difference of the cumulative lengths at its ends. */
   span: number;
+
+  /** The arc length squared, square metres, the projection's denominator. */
   squared: number;
 }
