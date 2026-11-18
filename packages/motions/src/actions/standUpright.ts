@@ -2,7 +2,6 @@ import {
   Quaternion,
   bracketedCrossing,
   bracketedMinimum,
-  resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -10,7 +9,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanStandUpright,
   IAutoMoviePose,
-  IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -36,9 +34,9 @@ import { walkRoot } from "./walkRoot";
  * the squared horizontal distances of the shoulder joints' midpoint and the
  * head joint, the ear's proxy, from the hip joints' vertical, since a
  * simplified neck need not let all three stack exactly; head flexion that
- * levels the head's forward axis; and the forward lean that brings the centre of
- * mass 4 cm in front of the ankles' midpoint for a 0.93 m hip height, scaled
- * with it (a provisional value inside Winter's few centimetres).
+ * levels the head's forward axis. The planted entry places the hip joints
+ * ahead of the ankles by the early quiet-standing separation, scaled by hip
+ * height to preserve the posture's proportions across rigs.
  */
 export namespace standUpright {
 
@@ -50,7 +48,7 @@ export namespace standUpright {
    * @returns Its alignment.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the per-body alignment; the namespace documents its physical targets and search bounds.
-   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from the mass model's centre against the ankles, with FK requested only for each residual's measured bones.
+   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from measured hip-to-ankle separation and the rig's joint midpoints, with FK requested only for each residual's measured bones.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One read of the body's own property.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound and tolerance is a named constant with its derivation; no body-specific angle is chosen.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One property read.
@@ -70,12 +68,12 @@ export namespace standUpright {
    * @returns Its alignment.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is solved and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from the mass model's centre against the ankles.
+   * @evidence contracts/development/implementation.md#principled-implementation The plumb-line trunk by Brent's minimisation (`bracketedMinimum`), the neck and level head by bracketed roots (`bracketedCrossing`), and the lean from measured hip-to-ankle separation and the rig's joint midpoints.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One synchronous search whose single caller is the body's record.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound and tolerance is a named constant with its derivation; no body-specific angle is chosen.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Residuals visit requested ancestry instead of every bone and prepare each of the four fixed name demands once.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Residuals visit requested ancestry instead of every bone and prepare each of the three fixed name demands once.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One search shares the engine's dependency reader across candidates.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, four bounded name readers and the per-candidate necks end with the search's return or throw.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, three bounded name readers and the per-candidate necks end with the search's return or throw.
    */
   export function align(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanStandUpright.IAlignment {
     const prepared: ReturnType<typeof prepareHumanPoseResolution> =
@@ -124,11 +122,9 @@ export namespace standUpright {
       const q: IAutoMovieVector3 = map.get(b)!.worldPosition;
       return { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, z: (p.z + q.z) / 2 };
     };
-    const hips: number = mid(
-      bones({}, HIPS),
-      "leftUpperLeg",
-      "rightUpperLeg",
-    ).z;
+    const base: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones({}, BASE);
+    const hips: number = mid(base, "leftUpperLeg", "rightUpperLeg").z;
+    const ankles: number = mid(base, "leftFoot", "rightFoot").z;
     // For a trunk flexion, the neck flexion within the comfortable cervical
     // range that brings the ear closest over the hips, and the squared
     // distances of the shoulders and the ear from the hips' vertical.
@@ -167,26 +163,10 @@ export namespace standUpright {
       neck: [neck, 0, 0],
       head: [head, 0, 0],
     };
-    // The centre of mass of the aligned column, relative to the ankles' midpoint.
-    const model: ReturnType<typeof resolveAutoMovieCenterOfMass> =
-      body.massModel;
-    const requested: Set<AutoMovieHumanoidBone> = new Set(
-      model.segments.map(
-        (
-          segment: IAutoMovieResolveCenterOfMass.ISegment,
-        ): AutoMovieHumanoidBone => segment.bone,
-      ),
-    );
-    requested.add("leftFoot");
-    requested.add("rightFoot");
-    const aligned: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
-      { spine: trunk, chest: trunk, neck, head },
-      requested,
-    );
-    const ahead: number =
-      resolveAutoMovieCenterOfMass.place(model, aligned).z -
-      mid(aligned, "leftFoot", "rightFoot").z;
-    return { joints, lean: 0.04 * (body.measure.hipHeight / walkRoot.REFERENCE_HIP) - ahead };
+    // Translating the pelvis by this difference places the measured hip
+    // midpoint over planted ankles regardless of the rig's neutral offset.
+    const ahead: number = EARLY_HIP_AHEAD * (body.measure.hipHeight / walkRoot.REFERENCE_HIP);
+    return { joints, lean: ahead - (hips - ankles) };
   }
 
   /** The head joint, at the atlanto-occipital joint near the ear's height, standing for the ear. */
@@ -195,6 +175,16 @@ export namespace standUpright {
   ): number {
     return map.get("head")!.worldPosition.z;
   }
+
+  /**
+   * Hip midpoint ahead of the ankle midpoint, metres, at the planted entry.
+   * Di Giulio and Baltzopoulos (2019) measured the centre of gravity 47 mm
+   * ahead of the ankles and 2 mm ahead of the hips at 0.50–0.55 s after
+   * stopping. Their corresponding settled separation at 7.55–7.60 s was
+   * 63 mm. The entry key uses the earlier measurement.
+   * https://doi.org/10.3389/fphys.2019.00625
+   */
+  const EARLY_HIP_AHEAD: number = (47 - 2) / 1000;
 
   /** The comfortable cervical flexion range, degrees, either way (provisional, inside DEFAULT_HUMANOID_ROM). */
   const NECK: number = 20;
@@ -205,10 +195,12 @@ export namespace standUpright {
   /** The head flexion bracket of the level-gaze search, degrees either way (provisional). */
   const HEAD_RANGE: number = 40;
 
-  /** Only the named output bones are needed by each alignment residual. */
-  const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  /** Joint centres of the neutral hip and ankle midpoints. */
+  const BASE: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperLeg",
     "rightUpperLeg",
+    "leftFoot",
+    "rightFoot",
   ]);
 
   /** The ear and gaze residuals read only the head. */
