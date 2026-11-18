@@ -25,7 +25,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is placed where and how it is turned.
  * @evidence contracts/development/design.md#principled-representation The wearable's frame in the world, from its own socket and the body's own region.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Cold frames, fixed-entry frame/site readers and changing-posture preparation serve dress and grasp-use searches through one wear-socket/region/alignment owner.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three readers of one placement: one frame (`frame`, read by the grasp-use search), a fixed site tried at many turns (`prepareSite`, read by `dressTurn`) and a site read on a moving posture (`prepareMoving`, read by `dress`'s stroke).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The socket is the wearable's own contact and the place the body's own region; no offset is typed.
  */
 export namespace HumanWorn {
@@ -42,10 +42,10 @@ export namespace HumanWorn {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The socket's `+Y` turned onto the region's inward normal exactly and the wearable's front (its `+Z`, or its `+Y` where the socket runs along `Z`) onto the body's forward (or up) as nearly as that allows (`HumanHand.align`); the origin follows so the socket lies on the region's point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup, one alignment, one translation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The fixed site's frame at one turn (`prepareSite`).
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wearable without its socket is refused with its contacts.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One fixed socket/region preparation and one actual requested turn; repeated-turn callers explicitly use prepare so they pay its region FK only once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to the same prepared geometry/turn owner as grasp search; this cold facade retains no preparation across calls.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One socket lookup, one region read and one alignment; a caller trying many turns prepares the site once instead.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `prepareSite`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function frame(
@@ -55,45 +55,26 @@ export namespace HumanWorn {
     region: AutoMovieHumanoidRegion,
     turn: number = 0,
   ): IAutoMovieRigidTransform {
-    return prepare(body, posture, prop, region)(turn);
+    return prepareSite(body, posture, prop, region).frame(turn);
   }
 
   /**
-   * Prepare a wearable's fixed socket and region before trying its turns.
+   * A wearable's site on a fixed posture, read once and tried at many turns.
    *
-   * @param body The unchanged body.
-   * @param posture The unchanged posture whose region receives the wearable.
-   * @param prop The wearable with its declared wear socket.
-   * @param region The body region receiving that socket.
-   * @returns A world-frame builder accepting turns in degrees about the region normal.
+   * @param body The body.
+   * @param posture The posture whose region receives the wearable.
+   * @param prop The wearable.
+   * @param region The region it goes onto.
+   * @returns `frame`, the wearable's world frame at a turn about the region's normal, degrees; `point`, a copy of the region's world point, metres.
+   * @throws {HumanRefusal} When the wearable declares no `wear` socket.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed geometry, the turn's unit and axis and the operation-owned builder.
-   * @evidence contracts/development/implementation.md#principled-implementation The original wear-socket alignment and region placement are independent of turn; each call composes the requested turn with that same alignment and translates the actual socket onto the region.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and fixed alignment precede the turn-specific rigid transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing sockets retain the original refusal and each turn retains its original quaternion normalization and translation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One socket search and region FK serve all T turns, followed by O(1) work per actual turn; no fitted arm result is stored.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the fixed body, posture, prop and region share their geometry; differing turns still compute their own frame.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous grasp search owns a constant-size alignment, region frame and socket offset; releasing its builder releases them without a global cache.
-   */
-  export function prepare(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    prop: IAutoMovieMotionHumanProp,
-    region: AutoMovieHumanoidRegion,
-  ): (turn: number) => IAutoMovieRigidTransform {
-    return prepareSite(body, posture, prop, region).frame;
-  }
-
-  /**
-   * Prepare the actual receiving region and its turned wearable frames.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes unchanged body/posture/prop/region for a synchronous turn search; frame reads actual degree turns and point returns an independent world-metre receiving site.
-   * @evidence contracts/development/implementation.md#principled-implementation The same original socket lookup, actual body-region observation and wear alignment own both the original transformed frame and the receiving point used to judge it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One fixed geometry owner returns a turn builder plus a copied-site reader; prepare/frame remain facades of this original alignment/placement body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The site is the original actual region observation, never a point reconstructed from an achieved wearable pose. Every requested turn retains original normalization/translation and all missing-socket refusals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One socket search, region FK and alignment serve all T turns and site judgements; each frame and requested site copy costs constant work, without repeating region FK per score. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed immutable body/posture/prop/region prove the shared receiving geometry; every turn remains actual and copied sites prevent output mutation from changing later frames.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous owner releases constant-size region/alignment/socket data with its builder; frame/site outputs are fresh numeric records without a body reader, query history or external handle.
+   * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, the two readers with their units and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation The socket and the alignment do not depend on the turn, so only the turn's rotation about the region's normal and the translation are computed per call.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Socket, region, alignment, then the two readers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The point is the region's own, never one reconstructed from a placed wearable.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One socket lookup, one region read and one alignment serve every turn; each turn costs constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The site is shared only across one fixed body, posture, wearable and region.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The readers hold the socket, the region and the alignment until the caller drops them; each result is a fresh record.
    */
   export function prepareSite(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
     prop: IAutoMovieMotionHumanProp, region: AutoMovieHumanoidRegion): {
@@ -114,15 +95,22 @@ export namespace HumanWorn {
   }
 
   /**
-   * Prepare fixed wearable geometry while its actual receiving posture moves.
+   * A wearable's frame on a posture that changes from call to call, such as
+   * the stroke that carries it onto the head.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes unchanged body/prop/region metadata; each call takes current authored posture, degree turn and optional same-person FK source and returns a fresh world frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The original wear socket and rest basis are posture-independent. A genuine fixed-region reader evaluates every actual current receiving surface, and the same alignment/placed owners preserve world-facing orientation and exact socket translation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lazy socket admission precedes current region FK and lazy fixed-rest alignment; each query delegates original world alignment and turn placement without retaining its region observation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves socket-first refusal, current raw-region policy, along-Z threshold, world-first alignment admission, original quaternion normalization/grouping and every actual turn/target point; no body frame or fitted answer is reused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Across Q frames, socket lookup, rest basis and region-name binding occur once; every actual authored admission, current ancestor FK, world alignment and socket placement remains. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only immutable body/prop/region geometry proves fixed metadata equivalence; current posture, yaw, turn and optional FK loan stay query inputs, and changed fixed geometry requires another producer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns one fixed socket/rest basis and static region reader until release. Current region data and optional operation source release per call; fresh numeric frames retain no reader, query time, pose history or external handle.
+   * @param body The body.
+   * @param prop The wearable.
+   * @param region The region it goes onto.
+   * @returns For a posture, a turn in degrees and an optional pose workspace, the wearable's world frame.
+   * @throws {HumanRefusal} At the first call, when the wearable declares no `wear` socket.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what varies per call, the units and when the refusal is raised.
+   * @evidence contracts/development/implementation.md#principled-implementation The same placement as `frame`, with the region read on each call's own posture.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Socket, region reader and the wearable's rest basis bound at the first call; each call reads its region, aligns and places.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No region or frame of an earlier call is reused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Per call one region read on the region's bone chain and one alignment.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the body's, the wearable's and the region's fixed data are bound once.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader holds the socket, the region reader and the rest basis until the plan that owns it is dropped; each frame is a fresh record.
    */
   export function prepareMoving(body: IAutoMovieMotionHumanBody, prop: IAutoMovieMotionHumanProp,
     region: AutoMovieHumanoidRegion): (posture: IAutoMovieMotionHumanPosture, turn: number,
@@ -141,7 +129,7 @@ export namespace HumanWorn {
   }
 }
 
-/** Original socket admission shared by cold, fixed-entry and changing-posture readers. */
+/** The wearable's `wear` socket, or the refusal naming the contacts it does declare. */
 function socketOf(prop: IAutoMovieMotionHumanProp): IAutoMovieAffordance {
   const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
   const wear: IAutoMovieAffordance | undefined = affordances.find(
@@ -154,7 +142,14 @@ function socketOf(prop: IAutoMovieMotionHumanProp): IAutoMovieAffordance {
   return wear;
 }
 
-/** The original fixed wear basis aligned against each actual receiving region/yaw. */
+/**
+ * The rotation that lays the wear socket on a region: the socket's `+Y`
+ * onto the region's inward normal, and the wearable's front onto the
+ * body's forward. A socket whose `+Y` runs within about 26 degrees of the
+ * wearable's `Z` (|z| > 0.9, cos 26 degrees) takes `+Y` as its front and
+ * the world's up as the target, since its `Z` is then too near the normal
+ * to name a front.
+ */
 function alignment(wear: IAutoMovieAffordance):
   (at: ReturnType<typeof HumanTrunk.region>, yaw: number) => IAutoMovieQuaternion {
   const into: IAutoMovieVector3 = Quaternion.rotateVector(wear.frame.rotation, { x: 0, y: 1, z: 0 });
@@ -169,7 +164,7 @@ function alignment(wear: IAutoMovieAffordance):
   });
 }
 
-/** Original requested turn and socket translation, with no added normalization or grouping. */
+/** The wearable's frame at a turn about the region's normal, its socket on the region's point. */
 function placed(at: ReturnType<typeof HumanTrunk.region>, aligned: IAutoMovieQuaternion,
   wear: IAutoMovieAffordance, turn: number): IAutoMovieRigidTransform {
   const rotation: IAutoMovieQuaternion = Quaternion.normalize(
