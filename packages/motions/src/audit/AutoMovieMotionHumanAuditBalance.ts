@@ -29,7 +29,8 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
  * Winter's definition). A person whose extrapolated centre leaves that hull must
  * step or fall, so a motion that keeps both feet planted while it lies
  * outside shows a body no one could hold. While a part other than a foot
- * bears on the ground (a `bear` window: a knee, a shin, a palm), the base is
+ * bears on the ground (a `bear` window, a knee or a shin, or the `plant` of a
+ * palm laid on the floor), the base is
  * the planted feet's outlines and those parts' contact points
  * (`AutoMovieMotionHumanAuditStatics.point`), and the instant is read when
  * every open window bears on the ground through the hold (#3425). An instant where a hand grips, a
@@ -46,7 +47,7 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
  * @evidence contracts/development/implementation.md#principled-implementation Hof et al.'s extrapolated centre of mass through the engine's owners of the centre, the extrapolation and the hull margin.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One predicate for the instants read, one measure of an instant, one walk of the grid.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads displayed bones; an instant is skipped only by the declared contacts, never by its margin.
- * @evidence contracts/development/implementation.md#efficient-algorithms A whole motion reads only its grid's poses, each instant's velocity from its two neighbours; the mass model is built once per call.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A whole motion reads only its grid's poses, each instant's velocity from its two neighbours; the mass model is the body's own (`body.massModel`), built once with the body.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the motion handed in.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -72,8 +73,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
   ): IAutoMovieMotionHumanAuditMeasure {
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject);
-    const model: IAutoMovieResolveCenterOfMass.IModel =
-      resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     let worst: IAutoMovieMotionHumanAuditMeasure = {
       value: 0,
       seconds: 0,
@@ -130,8 +130,10 @@ export namespace AutoMovieMotionHumanAuditBalance {
       resolveAutoMovieCenterOfMass.place(model, motion.bones(subject, t));
 
     // The base of support: the planted feet's outlines and the contact point
-    // of every other part bearing on the ground (a knee, a palm), or both
-    // feet when no window says otherwise.
+    // of every other part bearing on the ground, whether its window is a
+    // `bear` (a knee, a shin) or a `plant` (a palm laid on the floor), or
+    // both feet when no window says otherwise. The instants `standing` reads
+    // admit both kinds, so the base takes both.
     const open: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject).filter(
         (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
@@ -141,7 +143,10 @@ export namespace AutoMovieMotionHumanAuditBalance {
       );
     const borne: IAutoMovieMotionHumanAuditMotion.IWindow[] = open.filter(
       (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
-        w.contact.kind === "bear",
+        w.contact.kind === "bear" ||
+        (w.contact.kind === "plant" &&
+          w.contact.part !== "leftFoot" &&
+          w.contact.part !== "rightFoot"),
     );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       motion.bones(subject, seconds);

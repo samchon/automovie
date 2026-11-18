@@ -35,7 +35,9 @@ import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
  * flexion lets (`kneelKeys.SIT`). With the knees down, the feet and the knees
  * bear, so the trunk leans until the palms reach their places, the shoulders
  * as far from the wrists as the crawl holds them, with the hips as far back
- * as keeps the centre of mass behind the knees. With the hands down the
+ * as keeps the centre of mass behind the knees, or behind the feet's toes
+ * when a bear crawl holds its knees over the floor and the feet alone bear
+ * until the hands land. With the hands down the
  * hips come forward over the knees into the crawl. A bear crawl comes down
  * the same way, as it is cued from all fours, its knees stopping where it
  * holds them over the floor. The knees and the hands land side by side, the
@@ -97,6 +99,9 @@ export namespace crawlDown {
 
     /** Each foot tucked behind its knee where the way down ends. */
     tucks: Record<"left" | "right", crawlFeet.ITuck>;
+
+    /** Whether the knees stop over the floor (a bear crawl), so until the hands land the feet alone bear the lean. */
+    hover: boolean;
   }
 
   /**
@@ -350,9 +355,14 @@ export namespace crawlDown {
         ),
       );
 
-      // Leaning to the hands, the centre of mass behind the knees.
-      const error = (back: number): number =>
-        along(read.centre(at(back, leanAt(back)))) - along(knee);
+      // Leaning to the hands, the centre of mass behind the supports that
+      // bear until the hands land: the knees on the floor, or, with the knees
+      // held over it, the tucked feet's toes' joints.
+      const behind: IAutoMovieVector3 = props.hover
+        ? pair((side: "left" | "right"): IAutoMovieVector3 => tucked[side].at)
+        : knee;
+      const error: (back: number) => number = (back: number): number =>
+        along(read.centre(at(back, leanAt(back)))) - along(behind);
       const leaning: number = Math.min(sitting, furthest(leanAt));
       const leantBack: number =
         error(0) <= 0

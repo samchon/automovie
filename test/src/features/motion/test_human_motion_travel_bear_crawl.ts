@@ -27,9 +27,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *    "an inch or two off the floor").
  * 2. A crawl on hands and knees brings each knee joint within 15 mm of the
  *    shank's radius over the floor at some instant (the knee on the floor).
- * 3. The bear crawl plants each foot in as many windows as each hand, and
- *    the left hand's windows are the right foot's and the right hand's the
- *    left foot's (the diagonal pattern).
+ * 3. From the instant the hands land, the bear crawl plants each foot in as
+ *    many windows as each hand, and the left hand's windows are the right
+ *    foot's and the right hand's the left foot's (the diagonal pattern;
+ *    before the hands land the feet bear alone, from standing).
  * 4. At the middle of each of its plant windows after `down`, a foot's
  *    lowest sole socket lies within 15 mm of the floor (the campaign's bound
  *    for a contact).
@@ -112,12 +113,29 @@ export function test_human_motion_travel_bear_crawl(): void {
         crawl!.plan.contacts.filter(
           (c: IAutoMovieMotionHumanContactWindow): boolean => c.part === part,
         );
+      // The gait starts as the hands land: before that the feet bear alone,
+      // from standing, so each foot's first window is read from there.
+      const landed: number = Math.min(
+        ...windows("leftHand").map(
+          (w: IAutoMovieMotionHumanContactWindow): number => w.from,
+        ),
+        ...windows("rightHand").map(
+          (w: IAutoMovieMotionHumanContactWindow): number => w.from,
+        ),
+      );
       for (const [hand, foot] of [
         ["leftHand", "rightFoot"],
         ["rightHand", "leftFoot"],
       ] as const) {
         const a: IAutoMovieMotionHumanContactWindow[] = windows(hand);
-        const b: IAutoMovieMotionHumanContactWindow[] = windows(foot);
+        const b: IAutoMovieMotionHumanContactWindow[] = windows(foot).map(
+          (
+            w: IAutoMovieMotionHumanContactWindow,
+          ): IAutoMovieMotionHumanContactWindow => ({
+            ...w,
+            from: Math.max(w.from, landed),
+          }),
+        );
         if (
           a.length !== b.length ||
           a.some(

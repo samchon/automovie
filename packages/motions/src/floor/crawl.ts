@@ -374,6 +374,7 @@ export namespace crawl {
               ),
             pitch,
             tucks,
+            hover: bear,
           });
     const downAt: number = down?.seconds ?? DOWN;
     const handsDown: number = down?.hands ?? DOWN;
@@ -446,7 +447,8 @@ export namespace crawl {
     };
     // The hands bear from landing. Each foot keeps its standing contact
     // through the descent, then bears while its knee is in stance, in both
-    // the kneeling and the bear crawl: rolling onto the toes does not unload it.
+    // the kneeling and the bear crawl: rolling onto the toes does not unload
+    // it, and the roll turns about the toes' tip (`crawlFeet.prepareRoll`).
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     const bearing: (readonly [IAutoMovieMotionHumanContactWindow["part"], IAutoMovieMotionHumanCrawl.Limb])[] = [
       ["leftHand", "leftHand"],
@@ -457,11 +459,7 @@ export namespace crawl {
     for (const [part, limb] of bearing)
       for (let k: number = 0; k <= cycles; k++) {
         const from: number =
-          k === 0
-            ? part.endsWith("Foot")
-              ? 0
-              : handsDown
-            : lift(limb, k) + swing;
+          k === 0 ? (part.endsWith("Foot") ? 0 : handsDown) : lift(limb, k) + swing;
         const to: number = k === cycles ? duration : lift(limb, k + 1);
         contacts.push({
           part,
