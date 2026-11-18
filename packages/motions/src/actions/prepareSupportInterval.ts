@@ -259,9 +259,20 @@ export function prepareSupportInterval(
   let legs: ReturnType<typeof prepareLegs> | undefined;
   let sunk: readonly [number, number] | undefined;
   let ends: readonly [IAutoMovieMotionHumanResolveHumanPosture.INear, IAutoMovieMotionHumanResolveHumanPosture.INear] | undefined;
+  let settled: IAutoMovieMotionHumanPosture | undefined;
   return {
-    write,
+    write: a.posture !== b.posture ? write : (
+      _share: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      // The certified key and every material anchor are identical at both
+      // ends. Preserve the planted limb goals for compositing this hold.
+      settled ??= write(0, resolution, projection);
+      return settled;
+    },
     settle: (): void => {
+      settled = undefined;
       fixed = undefined;
       ends = undefined;
     },

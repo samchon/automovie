@@ -362,8 +362,12 @@ export namespace support {
         });
         seconds += move / 2;
       } else seconds += move;
-      const arriving: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
+      const prior: IKey = keys.at(-1)!;
+      const arriving: IAutoMovieMotionHumanPosture = prior.posture;
       const intended: IAutoMovieMotionHumanPosture = preference(stance, arriving, place);
+      const held: boolean = prior.place === place && prior.contacts.length === stance.contacts.length &&
+        stance.contacts.every((c: IAutoMovieMotionHumanSupport.IContact): boolean =>
+          prior.contacts.some((p: IAutoMovieMotionHumanSupport.IContact): boolean => supportContact.same(c, p)));
       push({
         posture: supportKey.solved(
           body,
@@ -375,6 +379,7 @@ export namespace support {
           MISS,
           [],
           form,
+          held,
         ),
         seconds,
         name: stance.event ?? `stance${i}`,

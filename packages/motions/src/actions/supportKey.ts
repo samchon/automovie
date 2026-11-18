@@ -57,6 +57,7 @@ export namespace supportKey {
    * @param miss How far a contact may miss its target, millimetres.
    * @param swings The targets of the parts stepping, which bear on nothing; none when absent.
    * @param form The contact frames for the plan's unchanged body, including its measured quiet-foot normals.
+   * @param held Whether the preceding transfer already established this stance's preference and exact contact set.
    * @returns The posture.
    * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact misses by more than `miss`.
    *
@@ -78,6 +79,7 @@ export namespace supportKey {
     miss: number,
     swings: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [],
     form: ReturnType<typeof supportContact.prepareForm> = supportContact.prepareForm(body),
+    held: boolean = false,
   ): IAutoMovieMotionHumanPosture {
     const points: ContactPoint[] = contacts.map(at);
     const forms: supportContact.IForm[] = contacts.map(
@@ -124,6 +126,7 @@ export namespace supportKey {
     const previous: HumanBodyFitMerit.IEvaluation = preferred === from ? stated : merit.evaluate(
       HumanFitVariables.vector(variables, from),
     );
+    if (held && merit.holds(previous.misses)) return from;
     let start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
     if (!merit.holds(previous.misses)) {
