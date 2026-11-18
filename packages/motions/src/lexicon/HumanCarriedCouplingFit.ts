@@ -153,9 +153,12 @@ export namespace HumanCarriedCouplingFit {
       (_: AutoMovieHumanSide, k: number): boolean =>
         row.holds[k] !== null && grips[k] !== null,
     );
-    let keyBones: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
     // A perturbation of the borne legs leaves the bearer's current stance exact.
-    function at(x: readonly number[], sameStance?: Bones): IRead {
+    function at(
+      x: readonly number[],
+      sameStance?: Bones,
+      keyBones?: ReturnType<typeof HumanTrunk.prepareResolve>,
+    ): IRead {
       const theirs: Bones =
         sameStance ??
         HumanCarriedCouplingPose.stood(bearer, {
@@ -201,7 +204,8 @@ export namespace HumanCarriedCouplingFit {
       observed.add("leftLowerLeg");
       observed.add("rightLowerLeg");
     }
-    keyBones = HumanTrunk.prepareResolve(borne, observed);
+    const keyBones: ReturnType<typeof HumanTrunk.prepareResolve> =
+      HumanTrunk.prepareResolve(borne, observed);
     // Only an inadmissible key needs to vary the legs or the bearer's stance.
     const spans: number[] = [
       ...legRanges.map((r: IAutoMovieAngleRange): number => r.max - r.min),
@@ -237,7 +241,8 @@ export namespace HumanCarriedCouplingFit {
     const accuracy: number = arm * Number.EPSILON ** 0.5;
     const origin: Float64Array = Float64Array.from(start);
     const evaluate = (x: Float64Array): IReading => {
-      const read: IRead = x === origin ? keyed : at([...x]);
+      const read: IRead =
+        x === origin ? keyed : at([...x], undefined, keyBones);
       const g: number[] = x === origin ? keyGaps : gaps(read);
       return {
         read,
@@ -281,9 +286,9 @@ export namespace HumanCarriedCouplingFit {
             const sameStance: Bones | undefined =
               k < legRanges.length || k === 5 ? e.read.theirs : undefined;
             const a: number[] =
-              up[k] === x[k] ? e.gaps : gaps(at(up, sameStance));
+              up[k] === x[k] ? e.gaps : gaps(at(up, sameStance, keyBones));
             const b: number[] =
-              down[k] === x[k] ? e.gaps : gaps(at(down, sameStance));
+              down[k] === x[k] ? e.gaps : gaps(at(down, sameStance, keyBones));
             return a.map(
               (v: number, i: number): number =>
                 (v - b[i]!) / (up[k]! - down[k]!),
