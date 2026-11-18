@@ -1,9 +1,13 @@
 import type {
   IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieMotionHumanWalkSteps,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanFoot } from "../posture/HumanFoot";
 import { walkReach } from "./walkReach";
 
 /**
@@ -30,6 +34,7 @@ export namespace walkWindows {
   /**
    * The events and contact windows of a gait's footstep plan.
    *
+   * @param body The fixed walking body's sole geometry.
    * @param steps The gait's footstep plan.
    * @returns The plan's named instants and its stances' windows, in the stances' order, as shares of the plan's duration.
    *
@@ -37,11 +42,12 @@ export namespace walkWindows {
    * @evidence contracts/development/implementation.md#principled-implementation Each instant is its second over the duration. At each original STEP, walkReach.footPivot reads the same stance foot's spin as the full pelvis would and splits the window on changes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass for the instants and one pass per stance.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A stance in which the foot never spins stays one plant, as before.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One yaw and one foot query per original STEP of stance, with no opposite-foot, root, pelvic-angle or FK demand.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The pivot formula is shared with full pelvis placement. No sampled result is kept.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns new arrays and retains nothing.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One yaw and one foot query per original STEP of stance, with no opposite-foot, root, pelvic-angle or FK demand. An anchor request evaluates only the fixed starting foot and the planned root.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The pivot formula is shared with full pelvis placement. The anchor uses the same step plan as that posture; there is no alternate support schedule or retained sample.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The windows retain their original step plan and fixed anchor times; they store no observed poses or query history.
    */
   export function of(
+    body: IAutoMovieMotionHumanBody,
     steps: IAutoMovieMotionHumanWalkSteps.IPlan,
   ): IWindows {
     const duration: number = steps.duration;
@@ -63,6 +69,19 @@ export namespace walkWindows {
           from: from / duration,
           to: to / duration,
           support: { kind: "ground" },
+          anchor: (): IAutoMovieMotionHumanContactWindow.IAnchor => {
+            const foot: IAutoMovieMotionHumanWalkFoot.IScheduled = steps.foot(stance.side, from);
+            const heel: IAutoMovieVector3 = HumanFoot.point(body, stance.side, "heel", foot.placement);
+            const ball: IAutoMovieVector3 = HumanFoot.point(body, stance.side, "ball", foot.placement);
+            const toe: IAutoMovieVector3 = HumanFoot.point(body, stance.side, "toe", foot.placement, foot.toes);
+            const base: IAutoMovieVector3 = ball.y < heel.y ? ball : heel;
+            return {
+              point: toe.y < base.y ? toe : base,
+              root: steps.root(from),
+              foot: foot.placement,
+              toes: foot.toes,
+            };
+          },
         });
       };
       let start: number = stance.from;

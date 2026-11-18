@@ -31,6 +31,7 @@ import { walkDescent } from "./walkDescent";
 import { walkFacing } from "./walkFacing";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
+import { walkHorizontalRoot } from "./walkHorizontalRoot";
 import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
@@ -296,7 +297,7 @@ export namespace walk {
         walkPosture.PELVIS * Math.sin(2 * Math.PI * phase) * amount,
       ];
     };
-    const { events, contacts }: ReturnType<typeof walkWindows.of> = walkWindows.of(steps);
+    const { events, contacts }: ReturnType<typeof walkWindows.of> = walkWindows.of(body, steps);
     // A foot as its schedule alone has it, before any pelvis is settled.
     const endOf: (foot: IAutoMovieMotionHumanWalkFoot.IScheduled) => walkFoot.IEnd = (foot: IAutoMovieMotionHumanWalkFoot.IScheduled): walkFoot.IEnd => ({
       ankle: foot.placement.ankle,
@@ -476,7 +477,7 @@ export namespace walk {
       duration,
       events,
       contacts,
-      horizontalRoot: walkPosture.horizontal(body, gait, steps),
+      horizontalRoot: walkHorizontalRoot(body, gait, steps),
       posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const legs: readonly ("left" | "right")[] = channels === undefined

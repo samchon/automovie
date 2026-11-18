@@ -5,6 +5,7 @@ import {
   wrapDegrees,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
@@ -42,6 +43,10 @@ import { HumanFoot } from "../posture/HumanFoot";
  * terminal swing as it descends (Winter 1992), so no sole is on the floor
  * while it still travels. The toes relax over the first half and take the
  * landing's flexion over the second.
+ * At ordinary walking toe-off, the lowest sole point keeps its horizontal
+ * anchor while the foot lifts to the contact height. The original swing
+ * path resumes smoothly over the same interval length, following the
+ * local placement correction of Kovar, Schreiner and Gleicher (2002).
  */
 export namespace walkFoot {
 
@@ -219,10 +224,10 @@ export namespace walkFoot {
    * @returns The swinging foot at each share of the swing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the fixed inputs, random-access share reader and lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift and a sole-clearance correction; endpoint angle decomposition and terminal-settle preparation leave the reader.
+   * @evidence contracts/development/implementation.md#principled-implementation Minimum-jerk travel with the carried departure rates, a raised-cosine lift, a sole-clearance correction and the lowest departing socket held horizontally until the lift interval passes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed swing geometry precedes one reader of its varying share.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The authored lift, stiffness, rates, duration and landing rule enter as given; `CLEARANCE` is the cited minimum toe clearance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and work per share; endpoint quaternion decompositions, coordinate deltas, lift height, fixed time prefixes and terminal-settle inverse trigonometry run once per prepared swing. Height-only heel queries omit unread world-point components.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and work per share; endpoint quaternion decompositions, coordinate deltas, lift height, fixed time prefixes and terminal-settle inverse trigonometry run once per prepared swing. Read the departure socket's horizontal components only while the release correction is active.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader shares preparation only for the fixed body, side and endpoint inputs it closes over.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each reader holds one swing's fixed inputs and scalar terms until its owning plan releases it, with no query-dependent growth.
    */
@@ -261,6 +266,9 @@ export namespace walkFoot {
     const carriedSeconds: number = (1 - settle) * props.seconds;
     const turnSeconds: number = (stiff ? LEVEL : 0.5) * props.seconds;
     const levelSeconds: number = LEVEL * props.seconds;
+    const departure: IDeparture | undefined = settle > 0
+      ? takeoffAnchor(body, side, props.from)
+      : undefined;
     return (share: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
       const travel: number = Math.min(1, u / (1 - settle));
@@ -312,6 +320,12 @@ export namespace walkFoot {
       );
       const clearance: number = CLEARANCE * bump;
       if (low < clearance) ankle.y += clearance - low;
+      if (departure !== undefined && u < settle + settle) {
+        const sole: IAutoMovieVector3 = HumanFoot.point(body, side, departure.socket, placement, toes);
+        const released: number = minimumJerk.share(Math.max(0, (u - settle) / settle));
+        ankle.x += (departure.point.x - sole.x) * (1 - released);
+        ankle.z += (departure.point.z - sole.z) * (1 - released);
+      }
       return { placement, toes };
     };
   }
@@ -350,4 +364,27 @@ export namespace walkFoot {
    * Ther 72:45) agrees; only its abstract was reachable.
    */
   export const CLEARANCE: number = 0.015;
+}
+
+/** The actual lowest authored sole socket and its starting position. */
+interface IDeparture {
+  socket: IAutoMovieMotionHumanFoot.Socket;
+  point: IAutoMovieVector3;
+}
+
+/** Pick the stationary sole point from the swing's authored release posture. */
+function takeoffAnchor(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  from: walkFoot.IEnd,
+): IDeparture {
+  const anchor: IDeparture = { socket: "heel", point: HumanFoot.point(body, side, "heel", from) };
+  for (const socket of ["ball", "toe"] as const) {
+    const point: IAutoMovieVector3 = HumanFoot.point(body, side, socket, from, from.toes);
+    if (point.y < anchor.point.y) {
+      anchor.socket = socket;
+      anchor.point = point;
+    }
+  }
+  return anchor;
 }

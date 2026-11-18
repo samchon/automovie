@@ -115,8 +115,8 @@ export namespace IAutoMovieMotionHumanPlaced {
   /**
    * Where the wrist stands when a hand surface lies on a place. Input place of AutoMovieMotionHumanPlaced.wrist. The point, the direction the surface faces and where the fingers point.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation point: Hand-surface target point in world metres.
-   * @evidence contracts/development/design.md#principled-representation point: Hand-surface target point in world metres.
+   * @evidence contracts/development/common.md#meaningful-documentation Forward supplies the preferred world-space direction of the fingers as a required part of the wrist construction.
+   * @evidence contracts/development/design.md#principled-representation The target point and surface normal come from IPlace. The additional required direction completes the wrist's orientation frame.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanPlaced.ts (AutoMovieMotionHumanPlaced.wrist, place).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
