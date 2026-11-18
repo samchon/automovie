@@ -243,6 +243,7 @@ export function test_human_motion_ensemble_formation(): void {
     const last: IAutoMovieMotionHumanSegment = march
       .segments(m.subject)
       .at(-1)!;
+    if (m === troop.members[0]) projection(last.plan, "entrained march", findings);
     const root: IAutoMovieVector3 = march.posture(m.subject, last.end).root;
     const slot: IAutoMovieVector3 = HumanFormation.slot(path, m.index, end).at;
     const off: number = Math.hypot(root.x - slot.x, root.z - slot.z);
@@ -329,6 +330,7 @@ export function test_human_motion_ensemble_formation(): void {
     const last: IAutoMovieMotionHumanSegment = walking
       .segments(m.subject)
       .at(-1)!;
+    if (m === pair.members[0]) projection(last.plan, "station-paced walk", findings);
     const root: IAutoMovieVector3 = walking.posture(m.subject, last.end).root;
     const slot: IAutoMovieVector3 = HumanFormation.slot(
       marks,
@@ -439,4 +441,24 @@ export function test_human_motion_ensemble_formation(): void {
       `the dressed member ends ${reach.toFixed(3)} m from its slot`,
     );
   TestValidator.equals("a formation and its station keeping", findings, []);
+}
+
+/** Compare the shortcut against complete root coordinates on the retimed action clock. */
+function projection(plan: walkStation.IPlan, label: string, findings: string[]): void {
+  if (plan.horizontalRoot === undefined) {
+    findings.push(`${label}: no horizontal root projection`);
+    return;
+  }
+  const seconds: Set<number> = new Set<number>([0, plan.duration]);
+  for (const event of plan.events) seconds.add(event.share * plan.duration);
+  for (let k: number = 1; k * walkStation.TICK < plan.duration; k++)
+    seconds.add(k * walkStation.TICK);
+  for (const at of seconds) {
+    const full: IAutoMovieVector3 = plan.posture(at).root;
+    const point: walkStation.HorizontalPoint = plan.horizontalRoot(at);
+    if (point.x !== full.x || point.z !== full.z) {
+      findings.push(`${label}: horizontal projection at ${at} s is (${point.x}, ${point.z}), expected (${full.x}, ${full.z})`);
+      return;
+    }
+  }
 }
