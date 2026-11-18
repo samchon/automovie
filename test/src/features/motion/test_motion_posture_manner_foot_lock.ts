@@ -58,7 +58,7 @@ export function test_motion_posture_manner_foot_lock(): void {
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
        seed:"recompose-travel",props:name === "f-small" ? [box] : [], performers:[{subject:"a",body,at:{x:0,y:0,z:0},yaw:0,proficiency:{level:"trained"}}],composition:chain.node
     });
-    
+
     const verdict = HumanVerdicts.of(performance);
     if (!verdict.clean) findings.push(name + ": " + HumanVerdicts.describe(verdict));
    } catch(error) { findings.push(name+": "+String(error)); }

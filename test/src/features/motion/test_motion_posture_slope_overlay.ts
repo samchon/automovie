@@ -18,7 +18,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_slope_overlay(): void {
  const findings: string[]=[];
- 
+
  for (const name of ["f-small","m-average"] as const) {
    const body=motionHumanBody(name);
    const actor=HumanChain.subject("a");

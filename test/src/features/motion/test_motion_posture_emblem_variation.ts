@@ -1,9 +1,10 @@
 import type {
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
-import { HumanChain, HumanEmblem, HumanPerformance } from "@automovie/motions";
+import { HumanChain, HumanEmblem, HumanPerformance, HumanSkill } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -32,37 +33,32 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#behavioral-verification Builds two hundred performances through the public chain and reads each plan's events; a seed that is ignored, a preparation outside its band or a stroke whose length moves fails.
  * @evidence contracts/development/testing.md#independent-expectations The 200 seeds and the two claims are #3345's; the band and the count of distinct values are provisional and stated as such.
  * @evidence contracts/development/testing.md#distinguishing-cases The varied row against the same row unvaried; a place's variation is `variationCases`'.
- * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and builds 201 one-row performances without reading a posture; it runs locally and wherever CI runs the human motion tests.
+ * @evidence contracts/development/testing.md#execution-ownership Prepares one polygon man and evaluates the 201 seeded action plans on one standing entry without reading a posture; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, why no posture is read and the 4 scenarios with their bounds.
  */
 export function test_motion_posture_emblem_variation(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
 
-  /** A seed's preparation and stroke lengths, seconds. */
+  // Resolve the one standing entry once. Each seed still receives its own
+  // public skill and independent named random streams, as at action entry.
+  const initial: IAutoMovieMotionHumanPerformance = new HumanPerformance({
+    seed:"plain", laws:[HumanEmblem.halt],
+    performers:[{subject:"a",body,at:{x:0,y:0,z:0},yaw:0,proficiency:{level:"trained"}}],
+    composition: HumanChain.subject("a").registered("halt",{}).node,
+  });
+  const entry: IAutoMovieMotionHumanSegment = initial.segments("a")[0]!;
   const read = (seed: string, variation: number): [number, number] => {
-    const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
-      seed,
-      laws: [HumanEmblem.halt],
-      performers: [
-        {
-          subject: "a",
-          body,
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
-          proficiency: { level: "trained" },
-        },
-      ],
-      composition: HumanChain.subject("a").registered(
-        "halt",
-        variation === 0 ? {} : { manner: { variation } },
-      ).node,
+    const skill = HumanSkill.resolve({level:"trained"},seed);
+    const plan: IAutoMovieMotionHumanActionPlan = HumanEmblem.halt.plan({
+      ...entry.context,
+      params: HumanEmblem.halt.resolve!(variation===0 ? {} : {manner:{variation}}),
+      skill,
+      random: channel => HumanSkill.stream(skill,"a","halt",1,channel),
+      series: channel => ({random:HumanSkill.series(skill,"a","halt",channel),index:1}),
     });
-    const placed: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
-    const at = (event: string): number =>
-      (placed.plan.events.find((e): boolean => e.name === event)?.share ??
-        NaN) * placed.plan.duration;
-    return [at("strokeStart"), at("strokeEnd") - at("strokeStart")];
+    const at = (event:string): number => (plan.events.find(e=>e.name===event)?.share ?? NaN)*plan.duration;
+    return [at("strokeStart"),at("strokeEnd")-at("strokeStart")];
   };
   const [named, stroke] = read("plain", 0);
   const prepared: number[] = [];
