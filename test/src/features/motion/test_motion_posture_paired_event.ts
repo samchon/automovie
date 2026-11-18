@@ -9,8 +9,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
-import { AutoMovieMotionClock } from "@automovie/motions";
-import { HumanChain, HumanCue, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionClock, HumanChain, HumanCue, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";

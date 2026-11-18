@@ -1,10 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformance,
@@ -13,13 +8,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanCarried,
-  HumanCarriedCoupling,
-  HumanCarriedCouplingPose,
   HumanChain,
   HumanCoupled,
   HumanPerformance,
-  HumanRefusal,
   HumanSignature,
 } from "@automovie/motions";
 
@@ -28,9 +19,6 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** A pair's helper and helped actor ids. */
 type HelpSubject = "a" | "b";
-
-/** A supported walk adds a second helper. */
-type WalkSubject = HelpSubject | "c";
 
 /** The floor position and heading of one helper at entry. */
 interface IHelperPlace {
@@ -79,7 +67,6 @@ export function test_motion_posture_coupled_support(): void {
     ["m-large", "f-small"],
     ["f-small", "m-large"],
   ];
-  const SECONDS: number = 2;
   const START: number = 0.3;
   const CONTACT: number = 0.01;
   // 1. Helping someone up from the floor.
@@ -241,33 +228,4 @@ function helperStand(
     },
     yaw: (Math.atan2(-out.x, -out.z) * 180) / Math.PI,
   };
-}
-
-/**
- * Where the second helper of a supported walk stands, relative to the first
- * standing still at the origin: the coupling's frame of the second helper's
- * anchor bone, read in the first's anchor bone, less where that bone lies on
- * the second helper standing at the origin.
- */
-function secondAt(
-  first: IAutoMovieMotionHumanBody,
-  second: IAutoMovieMotionHumanBody,
-  coupling: IAutoMovieMotionCoupling,
-): IAutoMovieVector3 {
-  const frame = coupling.bearers![HumanCarriedCoupling.SECOND]!;
-  const anchor = HumanCarriedCouplingPose.stood(first, {
-    incline: 0,
-    depth: 0,
-  }).get(coupling.anchor)!;
-  const own: IAutoMovieVector3 = HumanCarriedCouplingPose.stood(second, {
-    incline: 0,
-    depth: 0,
-  }).get(frame.anchor)!.worldPosition;
-  return Vector3.subtract(
-    Vector3.add(
-      anchor.worldPosition,
-      Quaternion.rotateVector(anchor.worldRotation, frame.position),
-    ),
-    own,
-  );
 }

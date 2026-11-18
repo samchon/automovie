@@ -1,4 +1,3 @@
-import type {AutoMovieHumanSide} from "@automovie/interface";
 import {
   Quaternion,
   ROM_TOLERANCE,
@@ -6,6 +5,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,

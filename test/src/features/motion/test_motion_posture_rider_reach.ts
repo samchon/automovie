@@ -1,7 +1,7 @@
-import type {AutoMovieHumanSide} from "@automovie/interface";
 import { createBicycle, rideBicycle } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPerformance,

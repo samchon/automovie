@@ -58,7 +58,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_two_actor_notification(): void {
   const FRAME: number = 1 / 24;
-  const cues: ICueTracks = {
+  const cues: CueTracks = {
     dialogue: HumanCue.dialogue([{ from: 1, to: 4, accents: [2.0, 3.2] }]),
     music: HumanCue.beats({ bpm: 96, count: 16 }),
   };
@@ -301,8 +301,8 @@ export function test_motion_posture_two_actor_notification(): void {
   TestValidator.equals("actions meet their instants", complaints, []);
 }
 
-/** Inputs for the measured cues. */
-interface ICueTracks {
-    dialogue: IAutoMovieScheduleCue[];
-    music: IAutoMovieScheduleCue[];
-  }
+/** The named speech and music tracks used by the performance. */
+type CueTrackName = "dialogue" | "music";
+
+/** Cue sequences supplied under their authored track names. */
+type CueTracks = Readonly<Record<CueTrackName, readonly IAutoMovieScheduleCue[]>>;
