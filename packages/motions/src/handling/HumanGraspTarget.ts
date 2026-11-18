@@ -32,8 +32,8 @@ import type { HumanGrasp } from "./HumanGrasp";
  * @evidence contracts/development/implementation.md#principled-implementation The affordance frame composed with the prop's places the grip point, the approach along its -Y and the wrapped axis along its +X (`AutoMovieAffordanceKind`); the width is the authored aperture or else the span along the approach of the collider whose centre lies nearest the grip point (`physicalShapeSpan`).
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One handle lookup, one point transform, the frame on it and the complete target on the frame.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing handle or collider list is refused; the frame reader never fabricates a collider list.
- * @evidence contracts/development/implementation.md#efficient-algorithms The handle is found once; a frame read is O(1) with an authored aperture, else S - 1 centre comparisons and one span; a complete target wraps S colliders.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The handle and shapes are read once for the plan; each frame computes its own target.
+ * @evidence contracts/development/implementation.md#efficient-algorithms The handle is found and its width read once (S - 1 centre comparisons and one span without an authored aperture); each frame read is O(1); a complete target wraps S colliders.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The handle, the shapes and the width are read once for the plan, the width being a distance in the rigid prop's own frame that no placement changes; each frame computes its own point, approach and axis.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The readers hold the affordance and the shape list until the plan is released.
  */
 export function HumanGraspTarget(prop: IAutoMovieMotionHumanProp, id: string): {
@@ -68,29 +68,41 @@ export function HumanGraspTarget(prop: IAutoMovieMotionHumanProp, id: string): {
     });
   const pointAt: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3 = (frame: IAutoMovieRigidTransform): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, affordance.frame.translation));
+
+  // The handle's width is the prop's own: the authored aperture, or the
+  // span along the approach of the collider whose centre lies nearest the
+  // grip point. Both are distances in the rigid prop's own frame, which no
+  // placement of the prop changes, so the width is read once there.
+  const width: number = affordance.aperture ?? ((): number => {
+    let nearest: IAutoMoviePhysicalShape = shapes[0]!;
+    let nearestDistance: number = Vector3.length(
+      Vector3.subtract(nearest.transform.position, affordance.frame.translation),
+    );
+    for (let index: number = 1; index < shapes.length; ++index) {
+      const shape: IAutoMoviePhysicalShape = shapes[index]!;
+      const candidate: number = Vector3.length(
+        Vector3.subtract(shape.transform.position, affordance.frame.translation),
+      );
+      if (candidate < nearestDistance) {
+        nearest = shape;
+        nearestDistance = candidate;
+      }
+    }
+    const [low, high]: readonly [number, number] = physicalShapeSpan(
+      { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
+      nearest,
+      Quaternion.rotateVector(affordance.frame.rotation, { x: 0, y: -1, z: 0 }),
+    );
+    return high - low;
+  })();
   const read: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame = (frame: IAutoMovieRigidTransform): HumanGrasp.IFrame => {
     const turn: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, affordance.frame.rotation);
-    const approach: IAutoMovieVector3 = Quaternion.rotateVector(turn, { x: 0, y: -1, z: 0 });
-    const point: IAutoMovieVector3 = pointAt(frame);
-    let width: number | undefined = affordance.aperture;
-    if (width === undefined) {
-      const centre: (shape: IAutoMoviePhysicalShape) => IAutoMovieVector3 = (shape: IAutoMoviePhysicalShape): IAutoMovieVector3 =>
-        Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, shape.transform.position));
-      let nearest: IAutoMoviePhysicalShape = shapes[0]!;
-      let nearestDistance: number | undefined;
-      for (let index: number = 1; index < shapes.length; ++index) {
-        const shape: IAutoMoviePhysicalShape = shapes[index]!;
-        const candidate: number = Vector3.length(Vector3.subtract(centre(shape), point));
-        nearestDistance ??= Vector3.length(Vector3.subtract(centre(nearest), point));
-        if (candidate < nearestDistance) {
-          nearest = shape;
-          nearestDistance = candidate;
-        }
-      }
-      const [low, high]: readonly [number, number] = physicalShapeSpan(frame, nearest, approach);
-      width = high - low;
-    }
-    return { point, approach, axis: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }), width };
+    return {
+      point: pointAt(frame),
+      approach: Quaternion.rotateVector(turn, { x: 0, y: -1, z: 0 }),
+      axis: Quaternion.rotateVector(turn, { x: 1, y: 0, z: 0 }),
+      width,
+    };
   };
   return {
     point: pointAt,
