@@ -7,6 +7,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { stand } from "../actions/stand";
+
 /**
  * Where a palm braces on its own thigh just above the knee, the hand
  * support of a low posture (Kingma, Faber and van Dieen 2016, J Biomech
@@ -51,12 +53,37 @@ export function braceOnThighPoint(
     Vector3.subtract(onThigh, Vector3.lerp(thigh.worldPosition, knee, 0.5)),
   );
   const along: IAutoMovieVector3 = Vector3.subtract(knee, thigh.worldPosition);
+  const axis: IAutoMovieVector3 = Vector3.normalize(along);
+
+  // Half a hand above the knee, or as far up the thigh's front as the
+  // relaxed arm reaches when that is higher (an upright kneeling thigh,
+  // whose knee is on the floor): the nearer root s of
+  // |front - s axis - shoulder| = reach, the shoulder-to-palm length of the
+  // arm at the body's relaxed elbow flexion (law of cosines over the upper
+  // arm and the forearm), so the arm is not asked onto its straight end.
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  const palm: IAutoMovieVector3 =
+    body.surfaces.sockets[side === "left" ? "palmLeft" : "palmRight"].point;
+  const elbow: number =
+    ((stand.relaxed(body)[`${side}LowerArm`]?.[0] ?? 0) * Math.PI) / 180;
+  const reach: number =
+    Math.sqrt(
+      m.upperArm * m.upperArm +
+        m.forearm * m.forearm +
+        2 * m.upperArm * m.forearm * Math.cos(elbow),
+    ) + Vector3.length(palm);
+  const d: IAutoMovieVector3 = Vector3.subtract(
+    front,
+    bones.get(`${side}UpperArm`)!.worldPosition,
+  );
+  const b: number = Vector3.dot(axis, d);
+  const disc: number = b * b - Vector3.dot(d, d) + reach * reach;
+  const up: number = Math.max(
+    m.hand / 2,
+    disc >= 0 ? b - Math.sqrt(disc) : m.hand / 2,
+  );
   return {
-    point: Vector3.addScaled(
-      front,
-      Vector3.normalize(along),
-      -body.measure.hand / 2,
-    ),
+    point: Vector3.addScaled(front, axis, -up),
     normal: Quaternion.rotateVector(thigh.worldRotation, region.normal),
     forward: along,
   };

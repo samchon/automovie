@@ -19,6 +19,7 @@ import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanCourse } from "../compose/AutoMovieMotionHumanCourse";
+import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
@@ -226,13 +227,13 @@ export namespace kneel {
       along?: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieMotionHumanPosture => {
-      const { phase, index, u }: ReturnType<typeof at> = at(seconds);
+      const { phase, index, u, linear }: ReturnType<typeof at> = at(seconds);
       const feet: Record<
         "left" | "right",
         ReturnType<ReturnType<typeof prepareKneelPhases>[number]["feet"]["left"]>
       > = {
-        left: geometry[index]!.feet.left(u),
-        right: geometry[index]!.feet.right(u),
+        left: geometry[index]!.feet.left(u, linear),
+        right: geometry[index]!.feet.right(u, linear),
       };
       const pair: number = phase.from + phase.to;
       const fixed: ((share: number) => IAutoMovieVector3) | undefined =
@@ -436,6 +437,13 @@ export namespace kneel {
         lowered,
       );
 
+    // The hands open onto the thighs as the palms come to them, as the crouch's
+    // do: a relaxed hand's curled fingers would go into the thigh it lies on.
+    const open: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanPrimitive =>
+      AutoMovieMotionHumanHand.shape({ side, shape: "flat", from: 0, to: duration, weight: lowered });
+
     const contacts: IAutoMovieMotionHumanContactWindow[] = kneelContacts(
       context,
       keys,
@@ -455,7 +463,7 @@ export namespace kneel {
         base: { ...base, contacts },
         clock,
         contact: marks[0]!,
-        primitives: [kneelBody, hand("left"), hand("right")],
+        primitives: [kneelBody, hand("left"), hand("right"), open("left"), open("right")],
       }),
       base: { kind: rise ? "standing" : "kneeling" },
     };

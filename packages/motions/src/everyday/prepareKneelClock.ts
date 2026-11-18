@@ -9,7 +9,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
  *
  * @param clock The unchanged phase clock.
  * @param phases Ordered records whose names exist on that clock.
- * @returns The active original phase, its index and minimum-jerk progress.
+ * @returns The active original phase, its index, its minimum-jerk progress `u` and its linear progress `linear` (the share of the phase's time, on which a swinging foot's lift is timed).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States phase order, named-clock premise, original record ownership, progress and the existing phase-selection allowance.
  * @evidence contracts/development/implementation.md#principled-implementation Upper-bound search selects the same latest phase whose start minus 1e-9 seconds has passed; the native guarded interval reader retains the same requested clock.linear method and minimumJerk with the same named endpoints.
@@ -22,7 +22,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 export function prepareKneelClock<T extends { name: string }>(
   clock: IAutoMovieMotionClock,
   phases: readonly T[],
-): (seconds: number) => { phase: T; index: number; u: number } {
+): (seconds: number) => { phase: T; index: number; u: number; linear: number } {
   const starts: number[] = phases.map(
     (phase: T): number => clock.at(phase.name) - 1e-9,
   );
@@ -38,7 +38,7 @@ export function prepareKneelClock<T extends { name: string }>(
           index + 1 < phases.length ? phases[index + 1]!.name : "end",
         ),
     );
-  return (seconds: number): { phase: T; index: number; u: number } => {
+  return (seconds: number): { phase: T; index: number; u: number; linear: number } => {
     let lo: number = 0;
     let hi: number = starts.length;
     while (lo < hi) {
@@ -48,10 +48,12 @@ export function prepareKneelClock<T extends { name: string }>(
     }
     const index: number = Math.max(0, lo - 1);
     const phase: T = phases[index]!;
+    const linear: number = intervals[index]!.linear(seconds);
     return {
       phase,
       index,
-      u: minimumJerk.share(intervals[index]!.linear(seconds)),
+      u: minimumJerk.share(linear),
+      linear,
     };
   };
 }

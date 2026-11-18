@@ -44,7 +44,7 @@ export function braceOnThigh(
   weight: (seconds: number) => number,
 ): IAutoMovieMotionHumanPrimitive {
   const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    `${side}UpperLeg`, `${side}LowerLeg`,
+    `${side}UpperLeg`, `${side}LowerLeg`, `${side}UpperArm`,
   ]);
   const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
   return AutoMovieMotionHumanArm.carried({

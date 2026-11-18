@@ -177,7 +177,7 @@ export namespace bend {
     };
     const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const legBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-      `${free}UpperLeg`, `${free}LowerLeg`,
+      `${free}UpperLeg`, `${free}LowerLeg`, `${free}UpperArm`,
     ]);
     const readLeg: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, legBones);
 
