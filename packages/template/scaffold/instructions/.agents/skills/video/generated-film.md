@@ -4,7 +4,7 @@ A video model turns the motion hint into finished picture and, when it can, soun
 
 ## Prerequisites
 
-Use a hint that passed [segment review](../motion/segment-review.md). Close any [required screenplay review](../story/workflow/routes.md#who-writes-the-screenplay) before generating takes, because repairing either input discards its takes.
+Use a hint that passed [segment review](../motion/segment-review.md). Close any [required screenplay review](../story/workflow/routes.md#completion) before generating takes.
 
 ## Steps
 

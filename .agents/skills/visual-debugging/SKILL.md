@@ -5,9 +5,9 @@ description: Captures, compares and corrects pictures.
 
 # Visual debugging
 
-Readiness or numerical success proves no appearance; only an observed picture does. This skill owns how a picture is captured, compared and corrected, whatever made it: a form, a motion, a guide channel, a generated image or an encoded film. The skill of each subject owns what to look for in it.
+Judge appearance from captured stills. The subject skill defines what to inspect.
 
-An agent reads a picture only as stills, so each judgment starts from a planned capture. The instrument that plans and draws them is the inspection and capture core of `render`, which the inspector page of `viewer` and the capture host of `cli` both drive with one request text.
+Plan each capture. The inspector in `viewer` and capture host in `cli` drive the same `render` core with the same request text.
 
 | Read | For |
 | --- | --- |

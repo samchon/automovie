@@ -1,22 +1,22 @@
 # Repair
 
-Identify the earliest owner, the consumers that use it, the current pass and the closed boundaries before changing the work. For a requested revision, name the change, what the user wants preserved and the smallest useful scope, then trace its impact through dependent facts, scenes, assets, performance and edit.
+Identify the earliest owner, its consumers, the current pass and closed boundaries. Record the requested change, what to preserve and its smallest useful scope. Trace dependencies through facts, scenes, assets, performance and edit.
 
 ## Owner repairs
 
 ### Upstream defects
 
-A construction author who finds a missing, conflicting or unrealizable parent decision repairs its earliest owner before writing from it, using the selected [upstream questions](../../contracts/story/SKILL.md); a downstream workaround leaves every other consumer with the defect.
+Repair missing, conflicting or unrealizable parent decisions at their earliest owner before writing the downstream work. Use the selected [upstream questions](../../contracts/story/SKILL.md).
 
 ### Cause rounds
 
-Finish the inspection the [route](../workflow/SKILL.md) sets before editing. Group the findings by cause, including every member of a recurring class, and repair each cause where its action or explanation belongs, recomposing a passage when cutting would lose its meaning.
+Finish the [route's inspection](../workflow/SKILL.md) before editing. Group all findings by cause. Repair each cause at its owner. Rewrite passages whose meaning would be lost by cutting.
 
-In the same repair, reconcile dependent statements, quotations, values and, while their stage is enabled, answers. Then read the changed passages and the whole progression for new uniformity, fidelity losses and broken seams before the next round.
+Update dependent text, quotations, values and enabled answers together. Before the next round, reread passages and the whole progression for uniformity, fidelity and continuity.
 
 ### Concretization
 
-A decision the screenplay left vague, which scene composition or a generation prompt must make, belongs to the screenplay. Add it to the beat's record in the same change, or to the scene file's standing state when it holds for the whole scene. When another scene or film must keep it, also add it as a new anchored fact citing that beat, to settings, or to the brief when it is of a kind the brief holds.
+Resolve an implementation decision in the screenplay's beat record, or in standing state if scene-wide. In the same change, add a cited, anchored fact to settings or the brief if another scene or film depends on it.
 
 A closed screenplay stays closed: a concretized beat keeps its answers and reviews under closed passes, and the next review of that screenplay reads the beat afresh.
 
@@ -26,12 +26,12 @@ An exchange, an outcome or a reaction is never a concretization. A screenplay th
 
 ### Closed passes
 
-Completed layers stay closed when their bodies or parents change: do not reopen their evidence, reviews or approvals. While their stage is enabled, remove answers for deleted H2s and write answers for new ones only; report other diagnostics without repairing them, keeping the original failed reports.
+Keep completed layers closed after body or parent changes. While their stage is enabled, remove answers for deleted H2s and answer new ones. Keep and report other diagnostics without repairing them.
 
-Replacing a unit from scratch removes its obsolete answers, reviews and replaced descendants and keeps other material. A reused filename grants no approval, and the new unit begins its own cycle.
+If a unit is rewritten from scratch, replace its obsolete answers, reviews and descendants. Start the new unit's own cycle and preserve unrelated work.
 
 ### Scope expansion
 
 A first-part pilot needs the user's commission and its exact part. Settings stay work-wide; the other layers cover the slice with its lineage, and the result states what the slice cannot establish.
 
-To expand, reconfigure through the evidence skill's configuration page, reset the affected passes together, design the complete treatment sequence including the pilot, and establish whole-population evidence and review; pilot approval cannot stand for the whole work.
+To expand a pilot, reconfigure Evidence and reset affected passes together. Design the full treatment sequence including the pilot and run whole-population Evidence and review.

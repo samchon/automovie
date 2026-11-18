@@ -1,10 +1,8 @@
 # Source layout
 
-Where source, tests and runtime setup belong, and where a new subject, practice, scene, host or integration goes.
-
 ## Source
 
-One folder owns each responsibility, and the folders follow the chain from settings or brief through the screenplay to the delivered film, so a module and the document it realizes pair by path. Each source folder answers the shared [development contracts](../contracts/development/SKILL.md) and its own.
+Pair each source module with the document it realizes by path. Apply the shared and folder-specific [development contracts](../contracts/development/SKILL.md).
 
 | Location | Owns |
 | --- | --- |
@@ -26,39 +24,39 @@ Entities, scenes and films are every film's base. The laws, interactions and con
 
 ### Entities
 
-`<kind>` is one of `cast`, `crowds`, `props`, `sets`, `cameras` and `lights`. A subject's folder holds its public entry class `<Subject>.ts` and the fragments it composes, such as a person's prepared body or an object's affordances.
+`<kind>` is `cast`, `crowds`, `props`, `sets`, `cameras` or `lights`. Keep the public `<Subject>.ts` class and its fragments in the subject's folder.
 
 An entity realizes its settings or brief record's facts and the research its measurements follow, under the [entities contract](../contracts/development/entities.md).
 
 ### Scenes and films
 
-A scene composition realizes its screenplay scene file, with that file's sections and beats. A film orders its scenes and holds the transitions, titles and subtitles, grade, [delivery profile](../production/project-context.md) and control channels of one delivered video. Both answer the [composition contract](../contracts/development/composition.md), which also sets how a catalog case names what it exhibits.
+A scene realizes its screenplay file, sections and beats. A film owns scene order, transitions, titles, subtitles, grade, control channels and [delivery profile](../production/project-context.md). Apply the [composition contract](../contracts/development/composition.md) to both and to catalog cases.
 
-A catalog case composition takes its case parameters, such as an action with its target, partner response and outcome, or an entity state. The catalog film gives each case its interval.
+A catalog case takes the parameters of the behavior or entity state it exhibits. The catalog film gives the case its interval.
 
 Every film is registered in `src/composition/films/index.ts`.
 
-`<film>` is the screenplay film folder's path under `docs/body/screenplay/` with `/` replaced by `--`, such as `duet` or `001-part--001-episode`. `<scene>` is a scene file's name without `.md`, such as `010-ring`, so two scenes at the same place keep separate folders.
+Derive `<film>` from its path under `docs/body/screenplay/` by replacing `/` with `--`. Derive `<scene>` from its file name without `.md`.
 
-The same film name reaches `media/automovie/<film>/`, so screenplay, scene, film and video pair by path and two parts' episodes cannot collide. Rendered frames, videos and control channels go to [media records](../production/media-records.md), never into `src`.
+Use the same film name in `media/automovie/<film>/`. Keep render output and channels under [media records](../production/media-records.md).
 
 ### Laws, interactions and consequences
 
 These three folders answer the [behaviors contract](../contracts/development/behaviors.md), and a film adds one only for the need below.
 
-`src/laws/<discipline>/` holds a row or law registered with the motion vocabulary, the law of a body no installed package moves, and a rule or table the practice adds, such as which actions it allows. Each follows the adopted rules and any `docs/research/<discipline>/` study it required.
+`src/laws/<discipline>/` holds registered rows and laws, unsupported bodies' laws and practice rules or tables. Follow adopted rules and relevant `docs/research/<discipline>/` studies.
 
-`src/interactions/<discipline>/` holds a relation between entities by role that several scenes reuse: who joins whom in a mutual action, what synchronizes on what, and how cameras and lights follow the action. A catalog case counts as a scene here, so an exchange the catalog accepts and a film scene then composes lives in this folder. A relation one scene uses stays in that scene.
+`src/interactions/<discipline>/` holds relations shared by scenes, including catalog cases. Keep relations used by one scene in that scene.
 
-`src/consequences/effects/` and `src/consequences/sound/` hold what the performed outcomes leave when the commission asks for it, such as scuffs and dust, or the effect cues of a preview or soundtrack.
+Keep commissioned outcome effects in `src/consequences/effects/` and outcome sound cues in `src/consequences/sound/`.
 
 ### Host, commands and integrations
 
-The page entries in `src/*.ts` are the inspector's and the draw page's, and the film interfaces sit beside them. `src/executable/` also holds the tooling its commands run. Node-only tooling the installed command-line tool does not run, such as the physics and recovery commands, is not published, so the production owns the scaffold-supplied copy there and keeps it in step with the scaffold.
+Keep inspector and draw entries with film interfaces in `src/*.ts`. Keep command tooling in `src/executable/`. The production owns and maintains its scaffold copies of unpublished Node tooling.
 
 `src/integrations/<provider>/` realizes the generation requests in `docs/prompts/` for a provider the production adopts, such as a video-generation service. No film or scene calls it, because generation stays outside deterministic playback.
 
-The runtime `README.md` and `.env.example` hold nonsecret setup, commands, environment-variable names and example configuration, and the ignored local `.env` the secret values. Audio and video never go in `public/`; they belong in [media records](../production/media-records.md).
+Keep public setup and sample environment variables in the runtime `README.md` and `.env.example`. Keep secrets in ignored `.env` and audio and video under [media records](../production/media-records.md).
 
 ### Records to code
 
@@ -78,7 +76,7 @@ A generated film carries its look in the video prompts' shared description, a di
 
 ## Dependencies and files
 
-Imports point down the chain: host and commands to films, films to scenes, scenes to consequences, interactions and entities, and each of those to laws and installed packages. Tests may import any source folder. An import against that direction, or into a folder outside the source table, is a layout defect.
+Imports go from hosts and commands to films, scenes, then consequences, interactions and entities, then laws and installed packages. Tests may import any source folder. Follow the source table.
 
 A subject never imports another subject and a scene never imports another scene: an interaction relates subjects by role, and a film orders scenes. Lint stays generic and rejects `Math.random` everywhere.
 

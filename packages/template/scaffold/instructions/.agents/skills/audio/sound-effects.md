@@ -2,11 +2,11 @@
 
 Effects are built for a requested voice preview, for a bed or effect a generated film's sound needs beyond its takes, and for a commissioned soundtrack. A generated film's own effects come first from its prompts.
 
-Define each cue by its event, source material, action, intensity, distance and acoustic space, and choose a recording, self-recorded Foley or a purpose-built generator that can express them. Keep close effects separate from ambience and speech, so their timing and perspective stay editable.
+Match the event, material, action, intensity, distance and space with recorded sound, Foley or generation. Keep close effects separate from ambience and speech.
 
 ## Sound acquisition
 
-Inspect each recording's source, recording method and terms, because a site's free catalog is not one license, and adopt it under [acquisition](acquisition.md). [Freesound](https://freesound.org/) is searchable with per-asset licenses: filter for [CC0](https://creativecommons.org/publicdomain/zero/1.0/) when the raw files must be redistributable, or weigh [CC BY](https://creativecommons.org/licenses/by/4.0/) with its credit requirements. [OpenGameArt](https://opengameart.org/) offers sound packs with licenses on their asset pages.
+Check each recording's origin, recording method and license under [acquisition](acquisition.md). [Freesound](https://freesound.org/) and [OpenGameArt](https://opengameart.org/) list terms per asset. Check raw-file redistribution under [CC0](https://creativecommons.org/publicdomain/zero/1.0/) or attribution under [CC BY](https://creativecommons.org/licenses/by/4.0/) where applicable.
 
 Record Foley when the required material or movement is missing, capturing isolated variations that differ usefully in intensity and perspective.
 
@@ -14,7 +14,7 @@ Choose a purpose-built generator under [effects and ambience](diffusion/models.m
 
 ## Editing to picture
 
-Select dry takes that match the depicted event, and layer, trim and shape them to distinguish contact types and intensities, with movement sound for a pass-by and contact sound for an impact. Start each cue at its measured onset, end it with its event and decay, and place it with gain, pan and room sound consistent with the scene.
+Pick dry takes. Layer and trim them to distinguish contact and intensity. Set measured onsets and natural decay. Match gain, pan and room sound to the scene.
 
 Cap overlapping instances per sound and per source, and duck beds and effects under speech. Measure the mix's loudness as [film sound](film-sound.md#loudness) sets.
 

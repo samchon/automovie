@@ -1,33 +1,28 @@
 ---
 name: pull-request
-description: Branches, commits, pushes, opens, updates and merges pull requests.
+description: Opens, updates and merges automovie pull requests when authorized.
 ---
 
 # Pull request
 
-Pushing, opening and merging each need the user's request or a mandate that names them. Never bump versions, tag or publish; releases belong to the maintainer.
+Use this workflow when the user or a delivery mandate authorizes the action. A request to open a pull request includes committing and pushing its changes. Leave version bumps, tags and releases to the maintainer.
 
-## Branch and commit
+## Opening a pull request
 
-Each pull request follows these rules for its branch and commits:
+Create a `<type>/<scope>` branch from `master` in the current checkout. Stage only paths you own under the [shared checkout rules](../development/SKILL.md#several-agents-in-one-checkout). Commit as `<type>(<scope>): <imperative lowercase subject>`, push the branch and open the pull request against `master`.
 
-- Branch `<type>/<scope>` from `master` in the current checkout.
-- Never commit to `master` or use another clone or worktree.
-- Stage only your own paths, as a [shared checkout](../development/SKILL.md#several-agents-in-one-checkout) requires.
-- Commit as `<type>(<scope>): <imperative lowercase subject>`.
+### Body
 
-## Body
+In the opening body, explain the intent, scope, deferred work, local verification and skipped checks. For pull requests, issues and comments, save the text as UTF-8, pass the file with `--body-file` and read back the published text.
 
-Write the body once: intent, scope, deferred items, local verification and skipped checks.
+## Updating a pull request
 
-Record later fixes and each [self-review](../review/SKILL.md) pass or round as a `COMMENT` review, with line findings inline, never as ordinary comments, `APPROVE` or `REQUEST_CHANGES`.
+Record later fixes and each [self-review](../review/SKILL.md) round in a `COMMENT` review. Attach findings to the relevant lines.
 
-Write an issue, pull request or comment body to a UTF-8 file, pass it with `--body-file` from a shell that keeps its bytes, then read the published body back. Windows PowerShell 5.1 reads UTF-8 without a BOM as ANSI and turns every non-ASCII character into `?`.
+Review the diff for simple documentation and skill edits and leave CI unattended. For other changes, let the current head's checks finish before pushing a correction.
 
-## Push and merge
+## Merging
 
-Push a correction only after every check of the current head has settled, because a push cancels the running checks.
+Squash-merge when the user requests it or a delivery mandate authorizes it. When CI monitoring applies, verify that the required checks passed on the exact head. Issue campaigns also require a completed [overall self-review](../review/SKILL.md#overall-self-review) on that head. Honor branch protection and report any block.
 
-Squash-merge once required checks are green on the exact head. An issue campaign also needs a completed [overall self-review](../review/SKILL.md#overall-self-review) on that head.
-
-Under a delivery mandate, merge without asking. Report a branch-protection block instead of bypassing it.
+After a user-requested merge, run `git checkout master` and then `git pull`.

@@ -6,7 +6,7 @@ Execution:
 
 1. The scene starts in an executable block, not a planning summary.
 2. It establishes time, space, participants or forces, access, inherited pressure and the initiating condition.
-3. It performs action, process, exchange and reaction, reporting no exchange and omitting no transition or reaction, and ends in an observable exit state that follows from the final operation without restating its meaning.
+3. Perform each action, process, exchange, transition and reaction. End on the observable result of the last operation.
 4. Blocks follow meaningful changes of action, response, process, time, space, form or view.
 5. Speakers are separated, and interruption, silence and simultaneous action sit beside the operation they change.
 6. Block length and division carry urgency, duration, humor or stillness; [execution rhythm](../../naturalness/scripts.md#execution-rhythm) judges their repeated patterns.
@@ -30,14 +30,14 @@ Staging:
     - performance, expression and gaze;
     - appearance, clothing and possessions;
     - nonverbal sound.
-16. Canonical names and appearance terms are used, and unchanged state is carried forward instead of recited in every block.
+16. Use canonical names and appearance terms. Carry forward unchanged state.
 17. The scene distinguishes who speaks, whether the speaker is visible, what is audible within the world or only to the audience, and consequential overlap with action or sound.
 18. Space, sightlines, props, light, costume and sound fit settings, research and inherited state, leaving none of these:
     - a missing view;
     - an impossible position or sightline;
     - an unsupported core appearance;
     - a habitual composition that conceals the scene's changing force.
-19. Lens numbers, music composition and other incidental instruction, such as inconsequential acting detail, are left to production unless the work requires them.
-20. A change of mood is expressed through its conditions, never by an interpretive label alone, and inner meaning through visible action, sound, or an explicitly adopted voiceover, caption or inserted form. Exception: a declared theatrical, experimental or fixed-view form expresses both in its declared notation.
-21. Each participant's knowledge, belief, doubt and error has a path such as speech or absence. A camera view grants a participant no knowledge.
+19. Leave lens settings, music composition and incidental acting details to production unless the work requires them.
+20. Show mood through conditions. Convey inner meaning by action, sound or adopted voiceover, captions or inserts. A declared theatrical, experimental or fixed-view form may use its own notation.
+21. Establish how each participant comes to know, believe, doubt or mistake something. A camera view alone grants no character knowledge.
 22. Finished realization, transitions, attention and duration are left to the final screenplay.

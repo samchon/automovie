@@ -1,12 +1,12 @@
 # Method references
 
-These primary sources help choose the algorithm of a law written under [vocabulary extension](extension.md), and inform the retargeting and control-channel checks. The installed motion vocabulary has already made these choices for its own actions, and the installed engine may already provide a method, so read its README before adopting one.
+Check installed APIs before adopting an algorithm for [a law](extension.md), retargeting or conditioning.
 
-The sources inform implementation methods and failure checks only; movement evidence comes from the [performance study](../../story/planning/research.md#performance-study). Their experiments, embodiments and hardware neither validate this production nor supply an installed solver, so check an adopted principle on the current host and the commissioned output.
+Use these sources for implementation and failure checks. Derive movement targets from the [performance study](../../story/planning/research.md#performance-study). Verify the adopted method in the intended host and output.
 
 ## Reuse and transitions
 
-[Motion Graphs](https://graphics.cs.wisc.edu/Papers/2002/KGP02/mograph.pdf), Sections 3–4, and [parameterized motions](https://research.cs.wisc.edu/graphics/Gallery/kovar.vol/ParamMotion/motionFamilies.pdf), Section 1.1.2, inform how to reuse motion units: through compatible transitions and meaningful bounded parameters. These captured-motion methods inform composition without supplying a procedural controller or contact solver.
+[Motion Graphs](https://graphics.cs.wisc.edu/Papers/2002/KGP02/mograph.pdf), Sections 3–4, and [parameterized motions](https://research.cs.wisc.edu/graphics/Gallery/kovar.vol/ParamMotion/motionFamilies.pdf), Section 1.1.2, inform reusable transitions and bounded parameters for captured motion.
 
 ## Phase alignment and target fitting
 
@@ -18,13 +18,13 @@ The sources inform implementation methods and failure checks only; movement evid
 
 ## Foot plants and ground
 
-[Footskate Cleanup](https://research.cs.wisc.edu/graphics/Gallery/kovar.vol/Cleanup) holds each foot plant exactly and blends the correction into neighboring frames, because plants switching on and off pop the knee and root. The method cleans existing motion and may stretch legs slightly, which a rigid rig does not allow.
+[Footskate Cleanup](https://research.cs.wisc.edu/graphics/Gallery/kovar.vol/Cleanup) constrains each plant and blends neighboring frames. Its slight leg stretch is unsuitable for a rigid rig.
 
-[Semi-Procedural Locomotion](https://runevision.com/thesis/) adapts example gait cycles so each foot lands on the actual ground, with heel and toe aligned as one constraint. Built for keyframed or captured cycles, it informs a law for a gait no installed package carries, such as that of an animal no archetype offers.
+[Semi-Procedural Locomotion](https://runevision.com/thesis/) adapts existing gait cycles to terrain with one heel-and-toe constraint.
 
 ## Spatial relations in contact
 
-[Spatial Relationship Preserving Character Motion Adaptation](https://history.siggraph.org/?p=105435) shows that close contact between characters or with objects, such as wrestling, dancing or entering a car, survives editing when their spatial relations are kept rather than their joint angles. It says what to preserve, not how to solve it here.
+[Spatial Relationship Preserving Character Motion Adaptation](https://history.siggraph.org/?p=105435) preserves character and object contact through spatial relationships during motion edits.
 
 [Spatiotemporal Retargeting](https://arxiv.org/abs/2610.30540) shows that object interaction depends on preserving body–object relations at critical stages and key body parts. Inspect those actual contacts instead of weighting every frame and part alike.
 

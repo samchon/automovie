@@ -1,16 +1,14 @@
 # Launching workers
 
-The coordinator prepares each production, starts every writer and reviewer as its own process, and assigns each its write scope.
-
 ## Prepare
 
 Establish each production's state as its [sustained runs guide](../../../packages/template/scaffold/instructions/.agents/skills/production/sustained-runs.md#actual-state) requires, reading its AGENTS and PROJECT as well. Install or prepare only what is missing or stale, and reset no valid saved stage or verdict.
 
 ## Launch workers as processes
 
-Start each writer and each reviewer as a new CLI process with a new session in the production's directory, never as a subagent of the coordinator. Only the observer is a subagent, because it authors nothing in a production.
+Launch each writer and reviewer as a new CLI session in the production's directory. Use a subagent only for the observer.
 
-A subagent runs inside the coordinator's session, directory, runtime and permissions, so it cannot take the production as its own project or run on another runtime, and once stopped it leaves no session to resume. Malfoy's film owners, run as subagents, stopped mid-film with their evidence and review steps undone.
+Separate CLI sessions give workers the production's directory, runtime and permissions and allow them to resume.
 
 ### The brief
 
@@ -27,9 +25,9 @@ Earlier verdicts reach a worker only in the order the production's independent r
 
 ### The command
 
-Keep the user's model, runtime, effort, independence and observation interval. Check the installed CLI's options with `claude --help` or `codex exec --help` before each launch rather than recalling flags.
+Keep the user's model, runtime, effort, independence and observation interval. Read `claude --help` or `codex exec --help` before launch.
 
-Launch so that the worker can work, be found and be resumed:
+Configure the following for each launch:
 
 | Need | How |
 | --- | --- |
@@ -39,12 +37,12 @@ Launch so that the worker can work, be found and be resumed:
 | The observer can find the process | A unique run marker among the process's own arguments |
 | The run leaves a log | Background execution with its event stream, written to a log named for the run |
 
-A run marker is Claude's `--session-id` with a UUID you generate, or Codex's `-o` with a file named for the run. An event stream is Claude's `--output-format stream-json --verbose` or Codex's `--json`, and its log sits under the production's ignored `.cache/`.
+For Claude use a UUID in `--session-id` and `--output-format stream-json --verbose`. For Codex use a run-specific `-o` and `--json`. Log under the production's ignored `.cache/`.
 
 Without a granted mode a worker fails quietly: a Claude print run denies every call that needs approval unless a mode or rule allows it, and a Codex exec run is read-only by default.
 
 ## Roles and write scope
 
-Assign film and module writers as the production's sustained runs guide divides them, one writer at a time per changing body. A reviewer writes only review records and its own run-record lines, never a body, and an evidence answerer only evidence answers, its gap list and its run-record lines.
+Assign one writer per changing body under sustained runs. Reviewers write only review records and their own run entries. Answerers write only Evidence answers, gaps and their own run entries.
 
 The coordinator writes when no writer is assigned. Repairs to shared packages, skills and programs go to their repository owner.

@@ -6,4 +6,4 @@ Statements: [statements/discovery/scripts.md](../statements/discovery/scripts.md
 
 ## Script requirements
 
-Were the work's own rules of scene execution and presentation found, in a form the scenes that apply them can be checked against? A convention nobody wrote down is kept in one script and lost in the next.
+Did discovery make the work's own execution and presentation rules checkable in each scene that uses them?

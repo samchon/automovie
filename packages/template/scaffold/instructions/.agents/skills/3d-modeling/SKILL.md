@@ -23,7 +23,7 @@ A coarse form that reads poorly gets a better choice of primitives, never finer 
 
 ## Commissioned detail
 
-A [detail option](../development/entities.md#detail) is made on the user's commission, such as for a direct 3D film. The user chooses a generated, crafted or existing mesh, and the detail covers only its requested views and controls.
+For a commissioned [detail option](../development/entities.md#detail), use the source the user chooses and cover the required views and controls.
 
 | Read | To |
 | --- | --- |

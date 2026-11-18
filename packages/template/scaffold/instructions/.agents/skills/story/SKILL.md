@@ -5,7 +5,7 @@ description: Researches, plans, writes and repairs a film's narrative.
 
 # Story
 
-Make the commissioned audience experience and a usable handoff to the next layer, keeping what the user fixed and deciding what was delegated. Find the task, route, layer and pass from the request, [project context](../production/project-context.md) and the current work. The production workflow connects the screenplay to the film.
+Use the request, [project context](../production/project-context.md) and current work to identify the route and layer. Preserve the user's decisions and make delegated ones. Write for the commissioned audience and the next layer.
 
 | Read | For |
 | --- | --- |
@@ -16,4 +16,4 @@ Make the commissioned audience experience and a usable handoff to the next layer
 | [Answers](answers.md) | Writing and placing the answers to the story contracts |
 | [Document layout](document-layout.md) | Finding where a document, answer or review lives, or taking in supplied work |
 
-The [story contracts](../contracts/story/SKILL.md) hold the quality questions, and independent [review](../review/SKILL.md) judges the result. A creative body follows the production's adopted language, voice and form under those contracts, not the documentation rules, so fixed quotations, purposeful repetition, nonstandard speech and punctuation stay as written.
+Follow the adopted language, voice and form, including fixed quotations and deliberate departures. Use the [story contracts](../contracts/story/SKILL.md) and independent [review](../review/SKILL.md).

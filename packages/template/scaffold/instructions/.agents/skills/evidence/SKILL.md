@@ -5,7 +5,7 @@ description: Adopts requirements, configures the evidence graph and writes sourc
 
 # Evidence
 
-Connect each required achievement to the work that can establish it. The [contracts](../contracts/SKILL.md) say which respondent answers which checklist; this skill adopts requirements, configures the graph and writes source answers.
+The [contracts](../contracts/SKILL.md) assign checklists to respondents.
 
 | Read | To |
 | --- | --- |

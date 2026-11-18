@@ -14,7 +14,7 @@ Expect one body without the object or partner it touches, so a contact between t
 
 ### Rotations
 
-Expect joint positions only, with any body parameters fitted later to a neutral shape. Convert positions to rotations by a stated fit rather than relabeling them, and treat the fit as derived.
+When a model returns only joint positions, fit rotations explicitly and record the derived fit. Fit any needed body parameters separately to a neutral shape.
 
 ### Proportions
 
@@ -26,6 +26,6 @@ Expect expiring hosted outputs, and a seed that does not repeat a clip, as [medi
 
 ## Licenses
 
-Each rights layer [media records](../../production/media-records.md#records) lists must allow the clip's use. The SMPL and SMPL-X body models and the AMASS data forbid commercial use without a separate license, though most code built on them is MIT. Several capture models are research-only, and some open weights exclude whole regions.
+Verify use at every [rights layer](../../production/media-records.md#records). SMPL, SMPL-X and AMASS require separate commercial permission. Check model weights for research or regional restrictions.
 
 Sources: [SMPL license](https://smpl.is.tue.mpg.de/modellicense.html), [AMASS license](https://amass.is.tue.mpg.de/license.html), [HumanML3D](https://github.com/EricGuo5513/HumanML3D), [PhysDiff](https://arxiv.org/abs/2212.02500), [PyTorch reproducibility](https://docs.pytorch.org/docs/2.15/notes/randomness.html), [Footskate Cleanup](https://research.cs.wisc.edu/graphics/Gallery/kovar.vol/Cleanup).

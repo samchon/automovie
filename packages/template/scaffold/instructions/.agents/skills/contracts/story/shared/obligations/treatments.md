@@ -10,4 +10,4 @@ Read in order, does what the audience knows, expects and receives build from the
 
 ## Material and handoff
 
-Can a script author work from this material at the declared scale without inventing core progression or reassembling settings? Length and scene counts cannot prove sufficiency, and prescriptions that consume script choices leave no room for realization.
+Can the script author follow the core progression at the declared scale without rebuilding settings? Do the treatments leave execution choices to scripts?

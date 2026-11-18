@@ -17,9 +17,9 @@
 2. No absolute coordinate, offset or tuned joint angle stands in for a goal.
 3. A motion law declares and follows its [out-of-reach rule](../../../motion/laws/authoring.md#out-of-reach). A relation retains the installed action's rule, and neither silently clamps a target.
 4. A motion law declares each contact's window and [support frame](../../../motion/laws/contacts.md#windows-and-support-frames); a relation uses its action's declared events and contacts.
-5. A relation passes the screenplay's decided outcome to the vocabulary. A new outcome law realizes that class from the studied rules rather than choosing a different result for the story.
+5. A relation passes the screenplay's outcome to the vocabulary. A new outcome law realizes that outcome class under the studied rules.
 6. What the installed package reports of the action establishes its outcome; a geometric miss stays a failure, and a scheduled impact event alone establishes no contact or solved impulse.
-7. A consequence such as sweat, a scuff, dust or a sound cue follows only from a computed outcome.
+7. Consequences derive only from computed outcomes.
 8. A motion law's unit tests assert each bound of [motion verification](../../../motion/laws/verification.md) that applies, each taken from the requirement or the study:
     - end-effector-to-target distance;
     - penetration;
@@ -27,7 +27,7 @@
     - range of motion;
     - balance;
     - continuity at cuts.
-9. A motion law's unit tests run across bodies of several statures and proportions, and against the partners and props the scenes use. Relations verify their own cases without taking ownership of that SDK test population. Pure rules and tables test their input domains; they need no body or effector when they plan no motion.
+9. Test motion laws across statures, proportions and the production's partners and props. Test each relation's own cases. Test pure rules and tables over their input domains.
 
 ## Deterministic evaluation
 

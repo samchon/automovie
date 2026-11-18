@@ -12,5 +12,5 @@ Speakers:
 
 Action and line order:
 
-6. An ordering of action and line fails when it hides or misstates their relation, not because it repeats.
+6. The order of action and speech makes their relationship legible.
 7. Delivery notes, speaker cues and neighboring action clarify the exchange without explaining again what the line has already done.

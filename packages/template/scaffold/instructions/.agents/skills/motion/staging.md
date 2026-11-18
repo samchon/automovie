@@ -4,15 +4,15 @@ Staging turns screenplay beats into scene compositions, and returns whenever blo
 
 ## Reading the scene
 
-Read each scene with its beat records: the required action or change, who starts it, the intended reaction and the resulting state, and the consequential props, supports, entrances and exits. Silence, stillness or an off-screen event can be the decision. One beat may need several camera setups and one setup may span several beats; each scene cites what it realizes under the [composition contract](../contracts/development/composition.md).
+Read each beat's action, initiator, reaction, result, props, supports and entrances or exits, including authored silence, stillness and off-screen action. Map beats to setups as needed and cite them under [composition](../contracts/development/composition.md).
 
 ## Blocking
 
 Stage in the set's zones and landmarks, never in coordinates: each beat's spatial change moves its participants between them through entity capabilities, and the set entity resolves where that is.
 
-Program each person's actions, reactions, pauses and result through their composition, joined by the vocabulary's operators where participants act together. An installed action carries its own preparation and follow-through, so add only the anticipation the screenplay decides, such as stepping nearer first.
+Compose each person's actions, reactions, pauses and outcomes with the installed operators. Use the action's preparation and follow-through. Add anticipation only where the screenplay decides it.
 
-Everyone present performs for their whole presence, as [living scene](../contracts/development/composition.md#living-scene) asks: an official repositions, a crowd composed as a group reacts and a partner keeps reading the action. Take each background mover's purpose and destination from the screenplay, or record them as a [concretization](../story/correction/repair.md#concretization). Cross a mover behind the principal action rather than through it, and quiet it at the beat's focal moment, as the DGA's [background guidance](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) advises.
+Follow [living scene](../contracts/development/composition.md#living-scene) for every presence. Use scripted purposes and destinations or record a [concretization](../story/correction/repair.md#concretization). Move background performers behind the main action and quiet them at the focal moment under [DGA guidance](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background).
 
 Each entity has one transform owner, so a clip, an attachment and a procedural driver never fight for the same state. A reach or scale mismatch is fixed at its owner, never by changing the outcome.
 
@@ -20,9 +20,9 @@ Each entity has one transform owner, so a clip, an attachment and a procedural d
 
 Cameras and lights are entities whose behavior follows the action.
 
-A camera realizes the shots and cuts the screenplay decided under [shots and cuts](../story/layers/shots.md), through the installed camera grammar the interface package's types define: it frames subjects by relation, reframes as they move and follows motivated action. A decided lens reaches the picture only through the camera's field of view, so set the field of view from it as those types document. A view the grammar cannot give goes back to the user.
+Realize [shots and cuts](../story/layers/shots.md) with the installed camera types. Derive field of view from a decided lens. Report views the grammar cannot supply.
 
-Light each scene from the sources its set and story day give, such as a window or the sun, and keep each source's direction and color across the scene's cuts, because light that jumps at a cut reads as another place or time.
+Light from the set and story day's sources. Keep direction and color continuous across cuts.
 
 Inspect every shot at the delivered aspect and scale through the whole action, in the camera's frames rather than in subject bounds:
 
@@ -32,7 +32,7 @@ Inspect every shot at the delivered aspect and scale through the whole action, i
 - nothing clips or hides a contact or a reaction, and no detail competes with it;
 - screen direction, eyelines and light hold across each cut, apart from a discontinuity the screenplay decided.
 
-Repair a framing failure in the camera's placement within the beat's camera entry, or at that entry or the space entry in the screenplay, never by moving the performance. A light that jumps goes to its light entity; a wrong gaze, a wrong contact or a body passing through another goes to the module that performs it.
+Fix framing within the beat's camera placement or revise its screenplay camera or space entry. Send lighting to the light entity and gaze, contact or penetration to the performing module.
 
 ## Segments and handoff
 
