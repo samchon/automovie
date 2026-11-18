@@ -121,7 +121,7 @@ export namespace catchObject {
    * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no size, the glove is not worn on the one catching hand or has no pocket, the path never comes within reach, or the catch would start before the action.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the original throw/ball/glove/reach/start refusals, returned object path and composed hand plan; the namespace specifies interception, give and contact timing.
-   * @evidence contracts/development/implementation.md#principled-implementation The original interception bracket and fifty bisections meet the ballistic path; each hand's twelve original palm rolls retain their actual elbow solve and separately ranked strain sweep before the same give/carry targets are composed.
+   * @evidence contracts/development/implementation.md#principled-implementation The interception is the root of the path's distance ahead, linear in the flight's time because a drag-free flight keeps its horizontal velocity; a path that does not close on the catcher never comes within reach, and one that meets the reach line far below the arms is refused by the shoulders' reach; each hand's twelve original palm rolls retain their actual elbow solve and separately ranked strain sweep before the same give/carry targets are composed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Interception/timing and the shared object path precede each hand's rank loop and arm primitive. HumanHandTarget's shared frame/placement owner separates actual palm orientation from the glove correction and actual elbow searches.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves all rolls, both original Bend sweeps, strict strain tie, pocket-correction-before-wrist subtraction order, phase paths, contacts, refusal bounds and timing; no achieved pose replaces the original target.
    * @evidence contracts/development/implementation.md#efficient-algorithms Entry FK requests only actual shoulders/hands. Each hand's rank loop prepares its fixed palm offset/rest basis and fixed trunk Bend geometry once across all twelve rolls, while all actual orientations, complete candidate sweeps and runtime targets remain. Speedup is unmeasured.
@@ -161,10 +161,18 @@ export namespace catchObject {
       yaw: standing.yaw,
     };
 
-    // The interception: where the path first comes REACH arms ahead.
-    const ahead: (u: number) => number = (u: number): number =>
-      HumanFrame.local(frame, throwObject.path(launch, u)).z - REACH * arm;
-    if (ahead(0) <= 0)
+    // The interception: where the path first comes REACH arms ahead. A
+    // drag-free flight keeps its horizontal velocity, so the path's distance
+    // ahead of the catcher falls linearly with the flight's time, at the
+    // closing speed along the catcher's heading, and meets REACH arms at
+    // that line's root.
+    const ahead: number =
+      HumanFrame.local(frame, launch.point).z - REACH * arm;
+    const closing: number = -HumanFrame.local(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+      launch.velocity,
+    ).z;
+    if (ahead <= 0)
       throw new HumanRefusal({
         kind: "reach",
         axis: "from",
@@ -172,10 +180,7 @@ export namespace catchObject {
         reason: `the throw starts within the reach`,
         fix: "stand farther from the thrower, beyond the arms' reach of the release",
       });
-    let lo: number = 0;
-    let hi: number = 0.05;
-    while (ahead(hi) > 0 && hi < 10) hi *= 1.5;
-    if (ahead(hi) > 0)
+    if (!(closing > 0))
       throw new HumanRefusal({
         kind: "reach",
         axis: "from",
@@ -183,12 +188,7 @@ export namespace catchObject {
         reason: `the throw never comes within reach`,
         fix: "stand on the throw's path, or aim the throw at the catcher",
       });
-    for (let i: number = 0; i < 50; i++) {
-      const mid: number = (lo + hi) / 2;
-      if (ahead(mid) > 0) lo = mid;
-      else hi = mid;
-    }
-    const flight: number = (lo + hi) / 2;
+    const flight: number = ahead / closing;
     const meet: IAutoMovieVector3 = throwObject.path(launch, flight);
     const contact: number = released + flight;
     const speed: IAutoMovieVector3 = {

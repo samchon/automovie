@@ -1,4 +1,4 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, bracketedBisection, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -191,9 +191,12 @@ export namespace armWrestle {
             .worldPosition,
           elbow,
         ) - upperArm;
-    let low: number = -20;
-    let high: number = 70;
-    let below: number = short(low);
+    // The lean is searched from 20 degrees back to 70 forward of upright
+    // (provisional: a standing trunk's working range over a table), and
+    // bisected 24 times, to 90 / 2^24 of a degree.
+    const low: number = -20;
+    const high: number = 70;
+    const below: number = short(low);
     const above: number = short(high);
     if (!(below * above <= 0))
       throw new HumanRefusal({
@@ -210,16 +213,12 @@ export namespace armWrestle {
         reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(below * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(above * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
         fix: "sit the performer at the table, or give a table point nearer the shoulder",
       });
-    for (let i: number = 0; i < 24; i++) {
-      const mid: number = (low + high) / 2;
-      const gap: number = short(mid);
-      if (below * gap <= 0) high = mid;
-      else {
-        low = mid;
-        below = gap;
-      }
-    }
-    const lean: number = (low + high) / 2;
+    const lean: number = bracketedBisection(
+      (pitch: number): boolean => below * short(pitch) > 0,
+      low,
+      high,
+      (high - low) / 2 ** 24,
+    );
 
     // The body at a turn: leant, the arm on its goal.
     const set = (

@@ -51,7 +51,7 @@ export namespace touchReach {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States entry/reached frames, ordered hand-target demand, anatomical effector, region/lay readers and seconds output; region may borrow current same-body FK/ROM metadata.
    * @evidence contracts/development/implementation.md#principled-implementation Each actual laid goal is solved by the original full posture resolver, and the original arm travel calculation compares entry and arrival angles before strict longest-duration selection.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered hand loop owns goal creation, complete actual fitting and duration comparison; lazy fixed-body metadata is local to this synchronous query.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered hand loop reads each hand's region and lay and compares durations; goal creation, the complete fit and the travel bound are the one arm-onto-place measurement `place` shares; lazy fixed-body metadata is local to this synchronous query.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No hand, target, goal, rival clearance, authored admission, ROM clamp or physical travel bound is skipped or approximated, and an empty hand list still returns zero.
    * @evidence contracts/development/implementation.md#efficient-algorithms H hands retain H physical fits and H travel calculations; one lazy genuine ROM projector and exact FK workspace remove repeated fixed preparation, with no measured speedup.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit query fixes one canonical body and reached posture while complete per-hand goals vary. Only genuine same-body metadata reaches the region and native fit; changed targets and poses are actually queried.
@@ -72,32 +72,18 @@ export namespace touchReach {
     for (const [side, target] of hands) {
       const read: ReturnType<typeof prepareHumanPoseResolution> = resolution ??= prepareHumanPoseResolution();
       const project: ReturnType<typeof prepareHumanPostureProjection> = projection ??= prepareHumanPostureProjection(body);
-      const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
-        body,
-        reached,
-        side,
-        effector,
-        region(target)(reached, 0, read, project),
-        laid(side, target).tangent,
-        AutoMovieMotionHumanBend.hang(body, reached, side),
-        "arm",
-      );
-      const arrival: IAutoMovieMotionHumanArmAngles.IAngles =
-        AutoMovieMotionHumanArm.angles(
-          resolveHumanPosture.seeded(body, {
-            ...reached,
-            limbs: { ...reached.limbs, [`${side}Arm`]: goal },
-          }, undefined, undefined, read, undefined, project).pose,
-          side,
-        );
       longest = Math.max(
         longest,
-        AutoMovieMotionHumanArmPlanned.reaching(
+        laidReach(
           body,
           reached,
+          entry,
           side,
-          AutoMovieMotionHumanArm.angles(entry, side),
-          arrival,
+          effector,
+          region(target)(reached, 0, read, project),
+          laid(side, target).tangent,
+          read,
+          project,
         ),
       );
     }
@@ -159,7 +145,7 @@ export namespace touchReach {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two ends, the region the point is read as and the unit.
    * @evidence contracts/development/implementation.md#principled-implementation The arm laid on the point as `duration` lays it on a region, solved by the posture resolver, and the observation's travel bound between it and the entry's arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One region, one goal, one solve, one measurement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One level normal, then the arm-onto-place measurement `duration` shares: one goal, one solve, one travel bound.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The arc is the arm's fitted blend, never the hand's straight distance; a point at the performer's own place has no level normal and is faced forward.
    * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve and the observation's arc samples.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each meeting role is measured once by its caller.
@@ -180,29 +166,60 @@ export namespace touchReach {
     const normal: IAutoMovieVector3 = length > 1e-6
       ? { x: back.x / length, y: 0, z: back.z / length }
       : { x: -Math.sin(yaw), y: 0, z: -Math.cos(yaw) };
-    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
-      body,
-      reached,
-      side,
-      effector,
-      { point, normal },
-      tangent,
-      AutoMovieMotionHumanBend.hang(body, reached, side),
-      "arm",
-    );
-    const arrival: IAutoMovieMotionHumanArmAngles.IAngles = AutoMovieMotionHumanArm.angles(
-      resolveHumanPosture.seeded(body, {
-        ...reached,
-        limbs: { ...reached.limbs, [`${side}Arm`]: goal },
-      }).pose,
-      side,
-    );
-    return AutoMovieMotionHumanArmPlanned.reaching(
-      body,
-      reached,
-      side,
-      AutoMovieMotionHumanArm.angles(entry.pose, side),
-      arrival,
-    );
+    return laidReach(body, reached, entry.pose, side, effector, { point, normal }, tangent);
   }
+}
+
+/**
+ * The shortest reach of one arm onto a place: from its angles at the entry
+ * to the arm laid there with the elbow hung naturally, solved on the posture
+ * the arms are solved on, and the audit's travel bound between the two
+ * (`touchReach.duration` for a region, `touchReach.place` for a point).
+ *
+ * @param body The body.
+ * @param reached The posture the arm is laid on.
+ * @param entry The pose the arm leaves from.
+ * @param side The hand.
+ * @param effector The part of the hand laid on the place.
+ * @param place The place's point and outward normal, world.
+ * @param tangent Which tangent the effector lies along.
+ * @param read The caller's exact FK workspace, when it lends one.
+ * @param project The caller's range-of-motion projector, when it lends one.
+ * @returns Seconds.
+ */
+function laidReach(
+  body: IAutoMovieMotionHumanBody,
+  reached: IAutoMovieMotionHumanPosture,
+  entry: IAutoMoviePose,
+  side: AutoMovieHumanSide,
+  effector: IAutoMovieMotionHumanTouchEffector.IEffector,
+  place: { point: IAutoMovieVector3; normal: IAutoMovieVector3 },
+  tangent: IAutoMovieMotionHumanTouchForm.Tangent,
+  read?: ReturnType<typeof prepareHumanPoseResolution>,
+  project?: ReturnType<typeof prepareHumanPostureProjection>,
+): number {
+  const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchLaid.rest(
+    body,
+    reached,
+    side,
+    effector,
+    place,
+    tangent,
+    AutoMovieMotionHumanBend.hang(body, reached, side),
+    "arm",
+  );
+  const arrival: IAutoMovieMotionHumanArmAngles.IAngles = AutoMovieMotionHumanArm.angles(
+    resolveHumanPosture.seeded(body, {
+      ...reached,
+      limbs: { ...reached.limbs, [`${side}Arm`]: goal },
+    }, undefined, undefined, read, undefined, project).pose,
+    side,
+  );
+  return AutoMovieMotionHumanArmPlanned.reaching(
+    body,
+    reached,
+    side,
+    AutoMovieMotionHumanArm.angles(entry, side),
+    arrival,
+  );
 }
