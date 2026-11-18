@@ -1,25 +1,32 @@
-import { createDrinkware } from "@automovie/archetypes";
+import { createBag, createDrinkware } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPickUp,
+  IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   StrikingHeld,
+  seated,
   stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { motionHumanLaw } from "../internal/motionHumanLaw";
 
 /**
  * A grip selected while planning a pickup must be one of the grip transforms
@@ -38,6 +45,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_contact_grasp_for_use(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const admissions: string[] = checkSupportEntries(body);
   const candidates: IAutoMovieRigidTransform[] = [];
   const points: IAutoMovieMotionHumanStrikingHeld.IPoints = { tip: "lip" };
   const actual: IAutoMovieRigidTransform[] = [];
@@ -157,4 +165,120 @@ export function test_motion_contact_grasp_for_use(): void {
       matched,
     );
   }
+  TestValidator.equals("grasp support branches", admissions, []);
+}
+
+/** Measure the external lift and the support retained for a seated, lowered or stepping entry. */
+function checkSupportEntries(body: IAutoMovieMotionHumanBody): string[] {
+  const issues: string[] = [];
+  const actor = HumanChain.subject("a");
+  const chair: IAutoMovieMotionHumanSeated.ISeat = {
+    at: { x: 0, y: seated.popliteal(body), z: -0.1 },
+    yaw: 0,
+    depth: 0.45,
+  };
+  const glass = createDrinkware({ kind: "glass" });
+  const tote = createBag({ kind: "tote" });
+  const arm = body.measure.upperArm + body.measure.forearm;
+  const socket = Vector3.length(HumanHand.offset(body, "right", "grip").point);
+  const stages = ["seated", "step", "floor"] as const;
+  for (const branch of stages) {
+    const entry: IAutoMovieMotionHumanChain =
+      branch === "seated"
+        ? actor.sit({ seat: chair, seconds: 0.5 })
+        : actor.stand({ seconds: 0.3 });
+    const still = motionHumanLaw.perform(
+      "pickup entry",
+      [{ subject: "a", body }],
+      entry,
+    );
+    const shoulder = still
+      .bones("a", still.performance.duration)
+      .get("rightUpperArm")!.worldPosition;
+    const offset = glass.affordance("body").frame.translation;
+    const d = arm + socket + body.measure.stature / 8;
+    const at: IAutoMovieVector3 =
+      branch === "floor"
+        ? { x: shoulder.x, y: 0, z: 0.45 }
+        : branch === "seated"
+          ? {
+              x: shoulder.x - offset.x,
+              y: chair.at.y,
+              z: shoulder.z + arm + socket + 0.1 - offset.z,
+            }
+          : {
+              x: shoulder.x - d / 2 - offset.x,
+              y: shoulder.y - offset.y,
+              z: shoulder.z + (d * Math.sqrt(3)) / 2 - offset.z,
+            };
+    const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
+      "object",
+      branch === "floor" ? tote : glass,
+      { at, yaw: 0 },
+    );
+    const handle = branch === "floor" ? "handle" : "body";
+    try {
+      const run = motionHumanLaw.perform(
+        "pickup entry",
+        [{ subject: "a", body }],
+        entry.pickUp({ prop: "object", handle }),
+        [prop],
+      );
+      const seg = run.performance.segments("a").at(-1)!;
+      const rise = run.performance.prop("object", seg.end).position.y - at.y;
+      if (rise < 0.05)
+        issues.push(branch + " raised the object only " + rise + " m");
+      if (branch === "step") {
+        const before = run
+          .bones("a", seg.start)
+          .get("rightFoot")!.worldPosition;
+        const plant = seg.plan.contacts
+          .filter((c) => c.part === "rightFoot" && c.kind === "plant")
+          .at(1);
+        const landed =
+          seg.start + (plant?.from ?? 0) * seg.plan.duration + 0.01;
+        const after = run.bones("a", landed).get("rightFoot")!.worldPosition;
+        const nearer =
+          Math.hypot(before.x - at.x, before.z - at.z) -
+          Math.hypot(after.x - at.x, after.z - at.z);
+        if (nearer < 0.05)
+          issues.push("right foot advances only " + nearer + " m");
+      } else if (branch === "seated") {
+        const before = run.bones("a", seg.start).get("leftFoot")!.worldPosition;
+        const after = run.bones("a", seg.end).get("leftFoot")!.worldPosition;
+        if (Vector3.distance(before, after) > 0.01)
+          issues.push("lean displaced the planted foot");
+      }
+    } catch (error) {
+      issues.push(branch + ": " + String(error));
+    }
+    if (branch !== "floor") {
+      const far = HumanObject.prop("object", glass, {
+        at: { ...at, z: shoulder.z + 2 * arm },
+        yaw: 0,
+      });
+      let refusal: unknown;
+      try {
+        motionHumanLaw.perform(
+          "unreachable pickup",
+          [{ subject: "a", body }],
+          entry.pickUp({ prop: "object", handle }),
+          [far],
+        );
+      } catch (error) {
+        refusal = error;
+      }
+      const fix = branch === "seated" ? /stand/ : /step closer/;
+      if (
+        !(
+          refusal instanceof HumanRefusal &&
+          refusal.kind === "reach" &&
+          refusal.axis === "prop" &&
+          fix.test(refusal.fix ?? "")
+        )
+      )
+        issues.push(branch + " range: " + String(refusal));
+    }
+  }
+  return issues;
 }
