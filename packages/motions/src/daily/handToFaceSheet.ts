@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -17,13 +17,22 @@ import { HumanFrame } from "../posture/HumanFrame";
  * `handToFace` so each file holds one responsibility.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the place is and why it stands apart.
- * @evidence contracts/development/design.md#principled-representation The reading distance, the head's measured reading flexion and the eyes' range as named data beside the place and the head flexion they give.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three constants, the place and the head flexion; read by `handToFace` and `handToFaceRegion`, and the distance cited by the lexicon's watch look.
+ * @evidence contracts/development/design.md#principled-representation The standing text distance, the measured walking gaze and distance, the head flexion and the eyes' range determine a held text's place.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The reading measurements, the place and the head flexion; read by `handToFace` and `handToFaceRegion`, and the distance cited by the lexicon's watch look.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sheet or body is named: the place is the body's own arm meeting its own reading distance.
  */
 export namespace handToFaceSheet {
   /** The reading distance from the eyes to a held text, metres (Bababekova et al. 2011, mean for text). */
   export const READING: number = 0.362;
+
+  // Moving readers held the phone 33.3 cm from their eyes at customary speed.
+  const WALK_DISTANCE: number = 0.333;
+
+  // Mean downward gaze relative to the calibrated head during customary
+  // walking (Table 1, doi:10.1007/s00221-021-06267-6). The study found
+  // no significant change in vertical gaze angle between conditions.
+  const GAZE: number = (10.3 * Math.PI) / 180;
+  const WALK_SIGHT: IAutoMovieVector3 = { x: 0, y: -Math.sin(GAZE), z: Math.cos(GAZE) };
 
   /**
    * The head's flexion while reading a handheld text, degrees: 35, inside
@@ -43,7 +52,7 @@ export namespace handToFaceSheet {
    * Where a held sheet is read: where the holding hand, its upper arm
    * hanging from the shoulder and its forearm swung up about the elbow,
    * meets the reading distance from the eyes, in front of its own shoulder,
-   * facing back at the eyes. The line from the eyes to that place is the
+   * facing back at the eyes. During a walk the preferred point instead follows the calibrated head-relative gaze at the walking viewing distance (Table 1, doi:10.1007/s00221-021-06267-6), provided it lies forward and within the arm's reach. The line from the eyes to that place is the
    * whole line of sight; how it splits between the head and the eyes is
    * `head`'s.
    *
@@ -53,7 +62,7 @@ export namespace handToFaceSheet {
    * @returns The place.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two constraints the place meets, the side it lies on and its facing.
-   * @evidence contracts/development/implementation.md#principled-implementation In the vertical plane through the hand's elbow along the heading, the place is the forward intersection of the circle of the reading distance about the eyes (cut by that plane) with the circle the hand sweeps about the hanging elbow (the forearm and half the hand); when the two do not meet, the hand's circle's point nearest the eyes.
+   * @evidence contracts/development/implementation.md#principled-implementation For the walking carrier the bilateral eye centre, current head rotation and measured gaze give the preferred target. For a head directed outside the forward arm reach, or without the walking carrier, in the vertical plane through the hand's elbow along the heading, the place is the forward intersection of the circle of the reading distance about the eyes (cut by that plane) with the circle the hand sweeps about the hanging elbow (the forearm and half the hand); when the two do not meet, the hand's circle's point nearest the eyes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One trunk resolve, one change of frame and one circle intersection.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every length is the body's own or the measured reading distance; no direction is typed.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanTrunk.resolve` and `HumanFrame`.
@@ -61,7 +70,7 @@ export namespace handToFaceSheet {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "carrier">,
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> {
@@ -74,6 +83,14 @@ export namespace handToFaceSheet {
       ),
       0.5,
     );
+    if (context.carrier?.name === "walk") {
+      const sight: IAutoMovieVector3 = Quaternion.rotateVector(bones.get("head")!.worldRotation, WALK_SIGHT);
+      const viewed: IAutoMovieVector3 = Vector3.add(eyes, Vector3.scale(sight, WALK_DISTANCE));
+      const upper: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
+      const heading: IAutoMovieVector3 = HumanFrame.local({ origin: upper, yaw: posture.yaw }, viewed);
+      if (heading.z > 0 && Vector3.distance(upper, viewed) <= m.upperArm + m.forearm + m.hand / 2)
+        return { point: viewed, normal: Vector3.scale(sight, -1) };
+    }
     const frame: IAutoMovieMotionHumanFrame = { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw };
     const shoulder: IAutoMovieVector3 = HumanFrame.local(
       frame,
@@ -140,7 +157,7 @@ export namespace handToFaceSheet {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function head(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "carrier">,
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): number {

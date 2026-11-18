@@ -70,7 +70,9 @@ import { handToFaceVessel } from "./handToFaceVessel";
  * only once the vessel is at the lips, in the drinking phase that follows
  * the transport (Alt Murphy et al. 2011), and reading holds the sheet 36.2 cm
  * from the eyes (Bababekova et al. 2011, the mean for text) where the hanging
- * arm's hand meets that distance, the head flexed by Lee et al. 2015's
+ * arm's hand meets that distance. While walking, the sheet follows the preferred
+ * head-relative gaze and viewing distance measured for walking readers
+ * (doi:10.1007/s00221-021-06267-6, Table 1). The head flexes by Lee et al. 2015's
  * measured 35 degrees and the eyes taking the rest of the line of sight up
  * to their range (`handToFaceSheet`). Tool lengths, the other head shares
  * and the sip's extension have no located measurement.
