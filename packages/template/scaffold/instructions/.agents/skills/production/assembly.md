@@ -6,7 +6,7 @@ Assemble the delivered video to the scope in [project context](project-context.m
 
 Build one film per screenplay film folder. Before rendering, check that compositions cite and realize each required scene, section and beat once.
 
-A motion hint or direct 3D film assembles its programmed scenes, and a generated film its finished takes with their [film sound](../audio/film-sound.md).
+A motion hint or direct 3D film assembles its programmed scenes. A generated film assembles its finished takes.
 
 Keep each channel's meaning as the motion skill's control channels define it, and schedule frames and check both sides of every cut under [frame evaluation](../motion/frame-evaluation.md).
 
@@ -16,7 +16,9 @@ Realize the screenplay's scene order, cuts, transitions, pauses and titles under
 
 Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file.
 
-Render once under [delivery render](stage-caches.md#one-whole-film-render) and [measure](../review/delivery-review.md#measurement-and-comparison) against the [profile](project-context.md#the-delivery-profile). Use the README command for programmed picture. Assemble that picture or finished takes with commissioned sound and [captions](captions.md) in the installed renderer.
+Iterate on stills under [segment review](../motion/segment-review.md). For a motion hint or direct 3D film, use the README command for one whole-film picture render per delivery after all review segments pass. For a generated film, assemble the accepted finished takes as the picture.
+
+Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). To add those streams, use a documented assembly command that supports them or an approved production tool. The scaffold's render command produces picture only. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
 
 ## Repair and delivery
 

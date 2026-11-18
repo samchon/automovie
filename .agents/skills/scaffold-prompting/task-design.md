@@ -2,9 +2,11 @@
 
 Check production instructions against the [product contract](../project/SKILL.md#product-contract).
 
+Read the production's own `AGENTS.md`, README and relevant source before working on it.
+
 ## Production boundaries
 
-Preserve the production's [route choice](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/routes.md#choosing-the-route) and [commissioned outputs](../../../packages/template/scaffold/instructions/.agents/skills/production/SKILL.md#commissioned-outputs). Keep all four [long-route layers](../project/SKILL.md#commissions) and their construction, Evidence, review and completion. State which route each conditional rule applies to.
+Preserve the production's [route choice](../../../packages/template/scaffold/instructions/.agents/skills/story/workflow/routes.md#choosing-the-route) and [commissioned outputs](../../../packages/template/scaffold/instructions/.agents/skills/production/workflow.md#commissioned-outputs). Keep all four [long-route layers](../project/SKILL.md#commissions) and their construction, Evidence, review and completion. State which route each conditional rule applies to.
 
 Express scene intent on coarse forms. Compose installed packages first and vary [existing modules](../../../packages/template/scaffold/instructions/.agents/skills/development/modules.md#one-module). Add [detail](../project/SKILL.md#coarse-models-detailed-motion) for commissioned delivery.
 

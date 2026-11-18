@@ -28,7 +28,7 @@ Set duration through documented controls, then measure the bytes. Prompted pace 
 
 ### First take
 
-Compare voices on identical complete lines with difficult names and required emotions. Decode the results and have the user [listen](../acquisition.md#listening) before batching.
+Compare voices on identical complete lines with difficult names and required emotions. Decode the results and have the user [listen](../listening.md#user-listening) before batching.
 
 Adopt the accepted take under [take adoption](../acquisition.md#take-adoption), with the request's text, controls and inputs in its record. An accepted designed voice can become the cloning reference for later lines; a seed alone does not preserve identity.
 

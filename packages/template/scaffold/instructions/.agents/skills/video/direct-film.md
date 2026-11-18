@@ -34,7 +34,7 @@ On stills, check that each shape the installed face performs lands on the frames
 
 ## Renderer
 
-Render with the README command. Use documented renderer effects and report any required effect it lacks during delivery review.
+Prepare the supported renderer settings here. Inspect them with the README's capture command before assembly renders the final picture. Report missing required effects during delivery review.
 
 Use an external renderer only through a documented scene export. Report unsupported exports. Route neural picture generation to [generated film](generated-film.md).
 

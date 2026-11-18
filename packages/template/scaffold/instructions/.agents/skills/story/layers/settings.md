@@ -1,12 +1,12 @@
 # Settings
 
-On the long route, define findable world facts and baseline states under the [story contracts](../../contracts/story/SKILL.md). [Treatments](treatments.md) choose how events change or reveal them. A short uses its brief.
+On the long route, define findable world facts and baseline states under the [settings criteria](../../contracts/story/shared/principles/settings.md). [Treatments](treatments.md) choose how events change or reveal them. A short uses its brief.
 
 Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md). Derive needed facts from planned scenes. Do assigned [research](../planning/research.md#when-to-study), cite support and uncertainty, and finish the settings [pass](../workflow/long.md#each-layers-pass).
 
 ## Records
 
-Keep one file per subject and domain under [document layout](../document-layout.md#documents). Use H1 for subject, H2 for facets and anchored H3s for facts. Cite fact paths and stable anchors under [identities](notation.md#identities).
+Follow [canon records](../document-layout.md#canon-records) for subject files, anchors, fixed interpretations and references.
 
 Write only the facets the planned scenes and arcs use, leaving an unused facet out, not marked `N/A`:
 
@@ -23,8 +23,6 @@ Write only the facets the planned scenes and arcs use, leaving an unused facet o
 A practice shown is, for example, a sport or a ceremony. The film's look is its medium or rendering style, lighting style, lens character and grade.
 
 The work's scope record links the adopted representation in `PROJECT.md` and states what it cannot show. Measurements such as dimensions and timings stay out of records except as the [usable-facts question](../../contracts/story/shared/principles/settings.md#usable-facts) allows.
-
-Preserve user-fixed interpretations and report conflicting instructions or sources. Embed commissioned [canon references](../../image/canon-references.md) from `media/diffusion/images/<domain>/`. Resolve inconsistencies at the document or image that introduces them.
 
 ### Cast facets
 

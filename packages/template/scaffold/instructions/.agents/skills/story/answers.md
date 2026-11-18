@@ -6,7 +6,7 @@ The evidence answerer writes the answers a narrative body gives its story contra
 
 The answerer changes no body. A question it cannot answer truthfully goes back to the author as a gap, with the passage and the statement it fails.
 
-Read the full respondent and required parents. Find each question in the [story contracts](../contracts/story/SKILL.md) and check its [statements](../contracts/SKILL.md#items-and-statements). Answer overview questions first.
+Read the full respondent and required parents. Use the questions selected in the production's Evidence configuration, including work and language contracts. Check each question's [statements](../contracts/items.md#items-and-statements). Answer overview questions first. Record waived stages as waived.
 
 Answer only what the item asks from the current body and parents. Check exact quotations and owner addresses. Verify claimed counts, order, causes, places and states across the scope. Cite a shared cause once.
 

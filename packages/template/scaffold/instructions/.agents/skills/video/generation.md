@@ -20,7 +20,7 @@ Check the provider's content policy, including refusal billing and account limit
 
 Generate the recorded number of takes and choose among them before changing the prompt. Where supported, choose among drafts and follow the model's documented path to a final take.
 
-Compare [extracted stills](../visual-debugging/capture.md#times) with matched hint frames under [comparison](../visual-debugging/comparison.md). Check contacts and outcomes first, then identity, placement, camera and motion. Choose for fidelity to the beat. Have the user judge sound and playback.
+Compare [extracted stills](../visual-debugging/capture.md#times) with matched hint frames under [comparison](../visual-debugging/comparison.md). Check contacts and outcomes first, then identity, placement, camera and motion. Choose for fidelity to the beat. Have the user judge playback and any commissioned sound.
 
 Repair a take by its cause:
 

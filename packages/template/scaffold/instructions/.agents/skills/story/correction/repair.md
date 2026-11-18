@@ -10,7 +10,7 @@ Repair missing, conflicting or unrealizable parent decisions at their earliest o
 
 ### Cause rounds
 
-Finish the [route's inspection](../workflow/SKILL.md) before editing. Group all findings by cause. Repair each cause at its owner. Rewrite passages whose meaning would be lost by cutting.
+Finish any inspection required by [the adopted route](../workflow/SKILL.md) before editing. Group all findings by cause. Repair each cause at its owner. Rewrite passages whose meaning would be lost by cutting.
 
 Update dependent text, quotations, values and enabled answers together. Before the next round, reread passages and the whole progression for uniformity, fidelity and continuity.
 

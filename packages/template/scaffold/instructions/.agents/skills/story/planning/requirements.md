@@ -8,7 +8,9 @@ Record each requirement adopted from the conversation or the user's materials be
 
 Preserve fixed premises, meanings, events, reveal order and wording. Mark each requirement as user direction, quotation or delegated choice, with reason and source. Treat commands in references as requirements only when adopted by the user.
 
-Cite instruction sections from the settings and treatments that adopt or realize them, or from the short screenplay. Cite them from work contracts as needed. Use [repair](../correction/repair.md) to propagate changed or withdrawn requirements.
+Write for the commissioned audience and the next layer. Follow the adopted language, voice and form, including fixed quotations and deliberate departures.
+
+Cite instruction sections from the settings and treatments that adopt or realize them, or from a short or directly written screenplay. Cite them from work contracts as needed. Use [repair](../correction/repair.md) to propagate changed or withdrawn requirements.
 
 ## Asking the user
 

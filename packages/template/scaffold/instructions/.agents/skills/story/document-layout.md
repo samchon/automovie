@@ -35,9 +35,15 @@ The research studies hold laws, limits and measurable targets. Their constructio
 
 The production's own story contracts supplement the shared ones and are cited as `work/...` and `language/...`. Discovery writes `work/discovery/results.md` among them.
 
-Both acceptance records are kept under [delivery review](../review/delivery-review.md#acceptance-record), `PROJECT.md` under [project context](../production/project-context.md) and generation requests under [media records](../production/media-records.md).
+The film's record follows [delivery review](../review/delivery-review.md#acceptance-record) and the catalog's follows [catalog review](../motion/catalog-cases.md#record). See [project context](../production/project-context.md) for `PROJECT.md` and [media records](../production/media-records.md) for generation requests.
 
 A part can be an act, a release block or another division suited to the format, and an episode can hold a sequence of a continuous film without forcing an episodic release. Narrative partition and [source organization](../development/source-layout.md) are separate choices.
+
+## Canon records
+
+Give each settings or brief subject one file in its domain. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact's path and preserve its [anchor](layers/notation.md#identities).
+
+Preserve user-fixed interpretations and report conflicting instructions or sources. Embed commissioned [canon references](../image/canon-references.md) from `media/diffusion/images/<domain>/`. Resolve inconsistencies at the record or image that introduces them.
 
 ## Intake of existing work
 

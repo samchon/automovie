@@ -5,8 +5,6 @@ description: Finishes a motion hint as a direct 3D or generated film.
 
 # Video
 
-Turn the accepted coarse performance into the commissioned final picture, preserving its action, contacts, camera and timing. The production workflow places this after motion; a motion-hint-only commission stops before this work.
-
 | Read | To |
 | --- | --- |
 | [Direct 3D film](direct-film.md) | Render the programmed film with its commissioned detail options |
@@ -15,5 +13,3 @@ Turn the accepted coarse performance into the commissioned final picture, preser
 | [Requests](requests.md) | Plan generation intervals and their inputs |
 | [Generation](generation.md) | Submit, inspect and adopt takes |
 | [Finishing](finishing.md) | Repair, upscale, conform and match accepted takes |
-
-Both paths hand their picture to [assembly](../production/assembly.md), with [audio](../audio/SKILL.md) for commissioned sound. [Delivery review](../review/delivery-review.md) judges the finished film.

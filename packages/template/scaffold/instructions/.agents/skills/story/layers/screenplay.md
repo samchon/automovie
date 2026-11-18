@@ -1,20 +1,22 @@
 # Screenplay
 
-Write a complete audiovisual experience the audience can follow without parent documents. Apply the [story contracts](../../contracts/story/SKILL.md). Motion, sound, generation and assembly [realize](../../contracts/development/composition.md#composition-only) the screenplay's decisions.
+Write a complete audiovisual experience the audience can follow without parent documents. Use the [screenplay criteria](../../contracts/story/shared/principles/screenplay.md) that apply to the work. Motion, sound, generation and assembly [realize](../../contracts/development/composition.md#composition-only) the screenplay's decisions.
 
 Decide what is seen and heard, how attention moves and when the audience learns or connects events. Use [notation](notation.md) and [shots and cuts](shots.md). Make silence, fixed views, captions and narration serve the chosen form.
 
 ## Scenes
 
-Use one file per continuous place and time. On the long route, map each script scene to one file in its episode folder. Follow [document layout](../document-layout.md#documents) and [heading identities](notation.md#identities).
+Use one file per continuous place and time. With long-route narrative passes, map each script scene to one file in its episode folder. Follow [document layout](../document-layout.md#documents) and [heading identities](notation.md#identities).
 
 ## Realization
 
-For long work, extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts. Draft from those notes, requirements and fixed quotations in a [separate context](../workflow/routes.md#separate-contexts). Check the actual parents. Preserve event order and [compose the realization afresh](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
+With long-route narrative passes, extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts. Draft from those notes, requirements and fixed quotations in a [separate context](../workflow/routes.md#separate-contexts). Check the actual parents. Preserve event order and [compose the realization afresh](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
 
-For a short, decide events, consequences, setups, payoffs and the ending from the instructions. Set when the audience learns dangers and secrets relative to the characters. Cite the [brief](brief.md) and complete assigned [research](../planning/research.md#when-to-study).
+With short-route narrative passes, decide events, consequences, setups, payoffs and the ending from the instructions. Set when the audience learns dangers and secrets relative to the characters. Cite the [brief](brief.md) and complete assigned [research](../planning/research.md#when-to-study).
 
-On either route, write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them; the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) says what a commissioned generated film's prompt may carry beyond that.
+For direct writing, use the adopted instructions and assigned research as the source of its creative decisions.
+
+Write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them; the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) says what a commissioned generated film's prompt may carry beyond that.
 
 A polygon man without a drawn face shows attention by the turn of its head and torso, and feeling by its posture, tempo and distance from others, named by the distance bands the installed motion vocabulary performs, not by a number.
 
@@ -34,4 +36,4 @@ Give each speaker an aim and disclose information when it serves that aim. Time 
 
 A beat that no composition of installed actions or cited law can produce is repaired here, or at the parent that owns the decision under [upstream defects](../correction/repair.md#upstream-defects), before code is written from it.
 
-Before evidence, read the whole progression in viewing order, then inspect and repair as the route sets.
+Read the whole progression in viewing order. When the route runs narrative Evidence, finish its inspection and repairs before enabling the stage.
