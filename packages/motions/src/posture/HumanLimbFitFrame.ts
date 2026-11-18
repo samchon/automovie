@@ -1,7 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLimbFitFrame,
   IAutoMoviePose,
   IAutoMovieVector3,
@@ -33,7 +32,7 @@ import type {
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, why a fit is invariant in it, what is handed back unchanged and why, and which goals stay in the world.
  * @evidence contracts/development/design.md#principled-representation A rigid reference frame removes all three root translation components and only its world-up heading; pitch/roll, joint coordinates, local contacts and seed branch/swivel remain unchanged. Optional y defaults to zero for existing explicitly constructed floor frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The frame and moving a pose, a goal and a point into it, read by solveHumanLimbFit; and the solve counters with the former memory's hit/miss fields, which specifications still read.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The frame and moving a pose, a goal and a point into it, read by solveHumanLimbFit.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is moved that names a world collider: it is keyed in the world, not approximated.
  */
 export namespace HumanLimbFitFrame {
@@ -160,53 +159,4 @@ export namespace HumanLimbFitFrame {
         : { rotation: Quaternion.multiply(frame.into, goal.rotation) }),
     };
   }
-
-  /**
-   * Record one actual operation event without retaining keys or inputs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines solve attempts and curve and continuation events; positive amounts accumulate actual work only.
-   * @evidence contracts/development/implementation.md#principled-implementation Call sites report events at their actual solver and planner boundaries.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed field-name union updates the same weak body's fixed scalar counter record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Diagnostics never select a solver, alter acceptance, patch a method or keep a seen-key set to invent unavailable provenance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and no per-event allocation after the body's first counter record; there is no candidate logging or graph scan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each supplied event is counted once at its actual owning call site.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One fixed scalar record is weakly owned per body; no input, key, pose, callback, output or query population is retained.
-   */
-  export function work(body: IAutoMovieMotionHumanBody, event: Exclude<keyof IAutoMovieMotionHumanLimbFitFrame.IStatistics, "hits" | "misses">, amount: number = 1): void {
-    counters(body)[event] += amount;
-  }
-
-  /**
-   * A body's limb-fit work counts since the process began.
-   *
-   * @param body The body.
-   * @returns Independent cumulative actual fitting, curve and continuation counts, with the former memory's hit/miss fields at zero.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines copied cumulative counters and initial zero values.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the body's actual scalar counters or initial zero fields and returns an independent observation; no unavailable cause of a historical miss is inferred.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One weak lookup and fixed-field copy expose existing counters without mutation access.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No counter reset, fabricated memory event or acceptance effect is introduced.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant lookup and one fresh fixed-size scalar record.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Every observation reads current effects; no previous statistics result is cached.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record belongs to the caller; this read adds no retained state beyond the existing weak body counters.
-   */
-  export function statistics(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLimbFitFrame.IStatistics {
-    return { ...counters(body) };
-  }
-
-  /** Lazily allocate the one bounded scalar population for an actual body. */
-  function counters(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanLimbFitFrame.IStatistics {
-    let out: IAutoMovieMotionHumanLimbFitFrame.IStatistics | undefined = COUNTS.get(body);
-    if (out === undefined) {
-      out = { hits: 0, misses: 0, coldFits: 0, continuedFits: 0,
-        curveQueries: 0, curveProbes: 0, curveAccepted: 0, curveColdAnchors: 0,
-        curveColdFallbacks: 0, curveRefinements: 0, orientationRootTrials: 0,
-        orientationRootAccepted: 0, continuationNearAttempts: 0, continuationColdAttempts: 0 };
-      COUNTS.set(body, out);
-    }
-    return out;
-  }
-
-  /** The counts, by body, released with the body. */
-  const COUNTS: WeakMap<IAutoMovieMotionHumanBody, IAutoMovieMotionHumanLimbFitFrame.IStatistics> = new WeakMap();
 }

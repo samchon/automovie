@@ -22,7 +22,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { HumanPostureRaw } from "./HumanPostureRaw";
 import { poseBones } from "./poseBones";
@@ -75,7 +74,6 @@ export function prepareHumanFreeCurve(
   /** Actual current admission/solve remains the ordinary owner in every fallback. */
   function cold(share: number, resolution: Parameters<typeof prepareHumanPoseResolution>[0],
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined, anchor: boolean = false): HumanPosturePreparation.IPrepared {
-    HumanLimbFitFrame.work(body, anchor ? "curveColdAnchors" : "curveColdFallbacks");
     return HumanPosturePreparation.continued(body, at(share), {}, resolution, projection);
   }
 
@@ -160,7 +158,6 @@ export function prepareHumanFreeCurve(
       ([limb, seed]: [string, IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb]]): [AutoMovieHumanLimb, IAutoMovieSwivelNear][] =>
         seed === null || seed === undefined ? [] : [[limb as AutoMovieHumanLimb, { ...seed, tolerance }]],
     ));
-    HumanLimbFitFrame.work(body, "curveProbes");
     const prepared: HumanPosturePreparation.IPrepared = HumanPosturePreparation.continued(body, raw, near, resolution, projection);
     const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = HumanPosturePreparation.seeds(prepared);
     const interior: boolean = Object.entries(seeds).every(([limb, seed]: [string, IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb]]): boolean => {
@@ -169,7 +166,6 @@ export function prepareHumanFreeCurve(
         Math.abs(seed.swivel - before.swivel) < hingedArmSwivel.STEP - tolerance;
     });
     if (!interior) {
-      HumanLimbFitFrame.work(body, "curveRefinements");
       return { kind: "refine" };
     }
     const value: IAnchor | undefined = observe(prepared, raw, seeds);
@@ -178,10 +174,8 @@ export function prepareHumanFreeCurve(
       (rotation: IAutoMovieQuaternion, i: number): boolean => Quaternion.angleAfterNormalize(rotation, prior.rotations[i]!) * 180 / Math.PI <= hingedArmSwivel.STEP,
     );
     if (!continuous) {
-      HumanLimbFitFrame.work(body, "curveRefinements");
       return { kind: "refine" };
     }
-    HumanLimbFitFrame.work(body, "curveAccepted");
     return { kind: "accepted", prepared, anchor: value };
   }
 
@@ -296,7 +290,6 @@ export function prepareHumanFreeCurve(
 
   return (share: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>): HumanPosturePreparation.IPrepared => {
-    HumanLimbFitFrame.work(body, "curveQueries");
     if (!supported || !(share > 0 && share < 1) || !prepareHumanPoseResolution.isNativeSource(resolution)) return cold(share, resolution, projection);
     if (!unchanged!()) {
       supported = false; origin = undefined; anchors.clear(); intervals.clear(); checked.clear();

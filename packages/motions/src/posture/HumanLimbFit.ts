@@ -18,7 +18,6 @@ import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanLimbAt } from "./HumanLimbAt";
-import { HumanLimbFitFrame } from "./HumanLimbFitFrame";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { poseBones } from "./poseBones";
@@ -351,7 +350,7 @@ export namespace HumanLimbFit {
     );
     return fitHumanLimbContact(fitter, goal, side, limb.endsWith("Leg"),
       (point: IAutoMovieVector3, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit =>
-        read(fitter, point, near, body, continued, incumbent));
+        read(fitter, point, near, continued, incumbent));
   }
 
   /**
@@ -406,7 +405,7 @@ export namespace HumanLimbFit {
 
   /** Public near/cold fitting retains its original workspace entry and order; a re-aim pass continues its previous pass. */
   function ordinary(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    _near: IAutoMovieSwivelNear | undefined, _body: IAutoMovieMotionHumanBody, continued?: IAutoMovieSwivelNear,
+    _near: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear,
     incumbent?: IAutoMovieSwivelSeed): IAutoMovieSeededChainFit {
     // A held seed only starts a swept fit's bounded search (HumanLimbIncumbent).
     return continued === undefined && incumbent !== undefined ? workspace.fit(point, undefined, incumbent) : workspace.fit(point, continued);
@@ -414,18 +413,10 @@ export namespace HumanLimbFit {
 
   /** Only the actual continuous-curve constructor selects current hinged correction. */
   function correcting(workspace: ReturnType<typeof prepareHumanLimbFit>, point: IAutoMovieVector3,
-    given: IAutoMovieSwivelNear | undefined, body: IAutoMovieMotionHumanBody, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
+    given: IAutoMovieSwivelNear | undefined, continued?: IAutoMovieSwivelNear): IAutoMovieSeededChainFit {
     const near: IAutoMovieSwivelNear | undefined = continued ?? given;
     if (near === undefined) return workspace.fit(point);
-    return workspace.continued(point, near,
-      (event: Parameters<NonNullable<Parameters<typeof workspace.continued>[2]>>[0]): void => {
-        switch (event) {
-          case "orientationRootTrial": HumanLimbFitFrame.work(body, "orientationRootTrials"); break;
-          case "orientationRootAccepted": HumanLimbFitFrame.work(body, "orientationRootAccepted"); break;
-          case "nearAttempt": HumanLimbFitFrame.work(body, "continuationNearAttempts"); break;
-          case "coldAttempt": HumanLimbFitFrame.work(body, "continuationColdAttempts"); break;
-        }
-      });
+    return workspace.continued(point, near);
   }
 
   /** What a limb's fit must keep clear of: the degrees a mid joint and an end joint, world metres, count as out of range. */

@@ -84,8 +84,7 @@ export namespace solveHumanLimbFit {
   /**
    * Solve one limb fit in the world frame the pose is given in: the reduced
    * pose, a left limb's mirror image and the merge of
-   * {@link solveHumanLimbFit}, without its root-position frame and without
-   * its solve counters. `HumanLimbFit.fit` and `HumanLimbFit.continued` are
+   * {@link solveHumanLimbFit}, without its root-position frame. `HumanLimbFit.fit` and `HumanLimbFit.continued` are
    * this solve.
    */
   export function world(
@@ -143,7 +142,6 @@ function solved(
   const aim: IAutoMovieHumanLimbGoal = frame === null ? asked : HumanLimbFitFrame.goal(frame, asked);
   const away: IAutoMovieVector3 | undefined =
     frame === null || coming === undefined ? coming : HumanLimbFitFrame.point(frame, coming);
-  if (framed) HumanLimbFitFrame.work(body, near === undefined ? "coldFits" : "continuedFits");
   const out: IAutoMovieSeededChainFit = HumanLimbFit.direct(
     body, own, chain, aim, others, away, near, reader, policy,
     (): void => HumanLimbView.admitted(body, pose, admission),
