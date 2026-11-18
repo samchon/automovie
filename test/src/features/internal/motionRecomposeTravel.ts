@@ -1,5 +1,7 @@
 import { createLadder } from "@automovie/archetypes";
 import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieResolvedBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -588,7 +590,7 @@ export function motionRecomposeTravel(
         }
 
         // 4 and 10. Both controls reproduce the same complete neutral walk.
-        const controls = [
+        const controls: ReadonlyArray<readonly [string, IAutoMovieMotionHumanPerformance | undefined]> = [
           ["same seed", walked(6)],
           ["empty manner", walked(6, {})],
         ] as const;
@@ -597,14 +599,14 @@ export function motionRecomposeTravel(
             findings.push(
               `${name}: ${label} walk lasts ${comparison.duration} s against ${plain.duration} s`,
             );
-        const differences = new Set<string>();
+        const differences: Set<string> = new Set<string>();
         for (let t: number = 0; t <= plain.duration; t += 0.1) {
-          const expected = plain.bones("a", t);
+          const expected: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> = plain.bones("a", t);
           for (const [label, comparison] of controls) {
             if (comparison === undefined || differences.has(label)) continue;
-            const actual = comparison.bones("a", t);
-            const different = [...expected].find(([joint, bone]): boolean => {
-              const position = actual.get(joint)?.worldPosition;
+            const actual: typeof expected = comparison.bones("a", t);
+            const different: [AutoMovieHumanoidBone, IAutoMovieResolvedBone] | undefined = [...expected].find(([joint, bone]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): boolean => {
+              const position: IAutoMovieVector3 | undefined = actual.get(joint)?.worldPosition;
               return (
                 position === undefined ||
                 position.x !== bone.worldPosition.x ||
