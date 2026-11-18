@@ -133,6 +133,11 @@ export namespace HumanArmTrajectoryModel {
      * bounds it.
      */
     speed: (seconds: number) => number;
+    /** Each arm's coordinates one frame before the first waypoint and one after the last, where the arm goes on moving there: a stretch cut from a laid course (`HumanArmTrajectory.solve`), whose ends' accelerations read the course beyond them; absent at an end, the arm is at rest beyond it, as at an action's own rest and return. */
+    beyond?: {
+      before?: readonly (readonly number[])[];
+      after?: readonly (readonly number[])[];
+    };
     /** Each arm's setup. */
     setups: IAutoMovieMotionHumanArmGeometry.ISetup[];
     /** Each arm's frame at each waypoint. */
@@ -201,6 +206,8 @@ export namespace HumanArmTrajectoryModel {
     swept: HumanArmTrajectorySweep.ISwept[][][];
     /** The two arms' pairs with each other at each inner waypoint (`HumanArmTrajectoryPairs.crossing`, read to `CUT`), as the reading found them; no entry at a waypoint that is not solved for, and none for one arm. */
     crossing: Map<string, P.ICrossing>[];
+    /** Whether each waypoint takes part in a violation past its slack and `TOLERANCE`, the test a trajectory is refused by: the waypoint a site, a limit or a pair is read at, and both ends of an interval whose step or sweep is. */
+    failing: boolean[];
   }
 
   /**
@@ -291,14 +298,16 @@ export namespace HumanArmTrajectoryModel {
    * @param c The context.
    * @param x Each arm's coordinates at each waypoint.
    * @param kept An earlier reading of this context and the waypoints whose coordinates changed since it; absent, every waypoint is read.
+   * @param contact The waypoints whose clearance pairs are read (`HumanArmTrajectoryEvaluate`); absent, every waypoint's.
    * @returns The arms placed, the objective, the summed violation and the worst one past its slack.
    */
   export function evaluate(
     c: IContext,
     x: readonly (readonly number[])[][],
     kept?: { reading: IEvaluation; laid: readonly boolean[] },
+    contact?: readonly boolean[],
   ): IEvaluation {
-    return HumanArmTrajectoryEvaluate(c, x, kept);
+    return HumanArmTrajectoryEvaluate(c, x, kept, contact);
   }
 
   /** Configuration validity owned by HumanArmTrajectoryInvalid.of. */

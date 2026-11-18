@@ -170,7 +170,7 @@ export namespace HumanArmTrajectory {
    *
    * @param read The problem on given waypoints' seconds.
    * @param times The first knots' seconds, ascending, each taken to the frame grid's nearest instant: knots are grid instants, so a stretch refined to the end is bounded at the very instants it is admitted at, and the admission there is the knots' own evaluation.
-   * @param course A laid course the model refused (`admitted`), read at the knots as the seed, its reading's context the frame grid; the sampling planner's seed (`HumanArmSeed`) on a grid of thirtieths of a second when absent, and after the course when it leads to no admitted trajectory.
+   * @param course A laid course the model refused (`admitted`): where its reading is given, only the stretches about the instants it fails at are optimised, each from the course and between two of its instants held fixed, the rest of the course kept; where that is refused, or the course carries no reading (a stretch cut from one), the whole span is solved from it at the knots; the sampling planner's seed (`HumanArmSeed`) on a grid of thirtieths of a second when absent, and after a course with a reading when it leads to no admitted trajectory.
    * @param warm An earlier solution of this action on this span's seconds (`ISolved.state`, retimed by the caller where the span changed): tried first as it stands and returned where the model admits it at its knots and on the frame grid, the optimiser's start at its penalty where not, and dropped for the course and the planner's seed where that ends unadmitted. Any state is safe to give: nothing of it is trusted.
    * @param stretches Whether the span is its law's own, lengthened by a replan at a slower tempo; a laid course refused only for its speed is then handed back for the span it needs before any optimisation. False for a span a meeting fixes.
    * @returns Each arm's trajectory, in the problem's order, and the solution.
@@ -180,7 +180,7 @@ export namespace HumanArmTrajectory {
    * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them (Schulman et al. 2013, sections V and VI), the reading here the model's own evaluation of the played interpolant on the frame grid, so nothing the film samples rests on the knots alone; a second initialisation only when the first ends unadmitted (their multiple initialisations).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The site refinement, one optimisation, then the admit-split-continue loop; a module-private factory creates each returned reader outside the builder's lexical environment.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading, the optimiser's own last evaluation of the knots' interpolant, is within the model's tolerance; no bound is scaled to stand in for the reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables are the knots', a few per transport, instead of the frame grid's, while every evaluation and linearisation is the grid's (`HumanArmTrajectoryKnots`); a solve optimises on its knots, refines the intervals the frame grid's reading fails in, and optimises again where it still fails. A hold's configuration found by the precheck is the planner seed's own, not solved twice.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The optimiser's variables and its rounds' readings are the knots', a few per transport, their intervals checked by swept spheres, and the frame grid is read once per converged path to certify it (TrajOpt's continuous-time check, Schulman et al. 2014, section IV-C); an interval the grid fails between knots is split and solved again, and only a miss at the knots themselves continues on the grid's own instants. A laid course is optimised only on the stretches about its failing instants, the closed form kept wherever the model admits it, so the solve's size is the defect's, not the span's. Measured on a tai chi push on f-small, whose course fails at one instant of a 12 s span: 36 s to 8.4 s. A hold's configuration found by the precheck is the planner seed's own, not solved twice.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work A course's reading lends its context builder and its grid context, the same body, arms, bases and sites by identity, so the grid's frames and waypoint records are built once for the course and the solve; continued contexts keep the waypoint records of the knots they share.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setup list, final times, coordinate arrays and their arm index; the problem/read callbacks, contexts and readings are released on return or throw.
    */
@@ -325,14 +325,51 @@ export namespace HumanArmTrajectory {
       // the same level.
       let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
         HumanArmOptimiser.optimise(context, seed, penalty, fine);
-      if (solved.evaluation.worst.value > M.TOLERANCE && context.n < fine.n) {
-        let carried: number[][][] = solved.x;
-        for (
-          let wide: number[] = intervals(knots);
-          wide.length > 0;
-          wide = intervals(knots)
-        )
-          carried = refine(carried, wide);
+
+      // The continuous check's refinement (Schulman et al. 2013, section
+      // V): where the knots' converged path fails its frame-grid reading
+      // between two knots, that interval and its neighbours are split and
+      // the path solved again from itself at the penalty it reached, until
+      // the reading admits it. A failure at a knot instant is the knots'
+      // own, which no finer spacing between them answers; a speed or a sweep
+      // is read over the grid interval its instant starts.
+      while (
+        solved.evaluation.worst.value > M.TOLERANCE &&
+        context.n < fine.n
+      ) {
+        const g: number = solved.evaluation.worst.at;
+        const term: string = solved.evaluation.worst.term;
+        if (term !== "speed" && term !== "swept" && knots.includes(g)) {
+          // The knots' own miss: the grid's own instants as knots give the
+          // path the freedom the knots lack, continued from the knots at
+          // their penalty, the whole problem a frame-grid trajectory always
+          // was.
+          let carried: number[][][] = solved.x;
+          for (
+            let wide: number[] = intervals(knots);
+            wide.length > 0;
+            wide = intervals(knots)
+          )
+            carried = refine(carried, wide);
+          solved = HumanArmOptimiser.optimise(
+            context,
+            carried,
+            solved.penalty,
+            fine,
+          );
+          break;
+        }
+        let k: number = 0;
+        while (k + 2 < knots.length && knots[k + 1]! <= g) ++k;
+        const split: number[] = [k - 1, k, k + 1].filter(
+          (i: number): boolean =>
+            i >= 0 && i + 1 < knots.length && knots[i + 1]! - knots[i]! >= 2,
+        );
+        if (split.length === 0) break;
+
+        // The refinement replaces the context, so it runs before the solve
+        // reads it.
+        const carried: number[][][] = refine(solved.x, split);
         solved = HumanArmOptimiser.optimise(
           context,
           carried,
@@ -351,6 +388,140 @@ export namespace HumanArmTrajectory {
     };
     const met = (solved: Solved): boolean =>
       solved.played.evaluation.worst.value <= M.TOLERANCE;
+
+    // The closed form first: a laid course is kept wherever the model admits
+    // it, and only the stretches it fails on are optimised, each between two
+    // instants of the course held fixed, the rest of the course played as it
+    // was laid. A stretch is the failing instants widened to the knot before
+    // and after them and one knot interval more on either side, the room
+    // the optimiser's cubic needs to leave the course and rejoin it; touching
+    // stretches are one. The course with its stretches solved is admitted by
+    // the model's reading of the whole frame grid, the test any solved
+    // trajectory is admitted by; a stretch that is refused, a course that
+    // fails over its whole span, or a splice the reading refuses leaves the
+    // whole span to the optimiser below.
+    const repair = (
+      laid: IAdmitted,
+      verdict: M.IEvaluation,
+    ): ISolved | undefined => {
+      if (fine.still) return undefined;
+      const stretches: [number, number][] = [];
+      verdict.failing.forEach((failing: boolean, g: number): void => {
+        if (!failing) return;
+        let before: number = 0;
+        while (before + 1 < snapped.length && snapped[before + 1]! < g)
+          ++before;
+        let after: number = snapped.length - 1;
+        while (after > 0 && snapped[after - 1]! > g) --after;
+        const from: number = snapped[Math.max(0, before - 1)]!;
+        const to: number = snapped[Math.min(snapped.length - 1, after + 1)]!;
+        const last: [number, number] | undefined =
+          stretches[stretches.length - 1];
+        if (last !== undefined && from <= last[1])
+          last[1] = Math.max(last[1], to);
+        else stretches.push([from, to]);
+      });
+      if (
+        stretches.length === 0 ||
+        (stretches.length === 1 &&
+          stretches[0]![0] === 0 &&
+          stretches[0]![1] === grid.length - 1)
+      )
+        return undefined;
+      const x: number[][][] = laid.read.x.map((arm: number[][]): number[][] =>
+        arm.map((v: number[]): number[] => [...v]),
+      );
+      let penalty: number = 0;
+      for (const [from, to] of stretches) {
+        // The stretch's problem: the course's arms at its two instants as
+        // its rest and its return, its last instant fixed where the span goes
+        // on past it.
+        const start: IAutoMovieMotionHumanArmClearance.IArm[] =
+          laid.trajectories.map(
+            (
+              t: IAutoMovieMotionHumanArmTrajectory.Trajectory,
+            ): IAutoMovieMotionHumanArmClearance.IArm => t(grid[from]!),
+          );
+        const end: IAutoMovieMotionHumanArmClearance.IArm[] =
+          laid.trajectories.map(
+            (
+              t: IAutoMovieMotionHumanArmTrajectory.Trajectory,
+            ): IAutoMovieMotionHumanArmClearance.IArm => t(grid[to]!),
+          );
+        const cut = (p: IProblem): IProblem => ({
+          ...p,
+          arms: p.arms.map(
+            (arm: IArm, a: number): IArm => ({
+              ...arm,
+              ...(from > 0 ? { rest: start[a]! } : {}),
+              ...(to < grid.length - 1
+                ? {
+                    back: end[a]!,
+                    sites: arm.sites.map(
+                      (s: ISite | undefined, k: number): ISite | undefined =>
+                        k === arm.sites.length - 1 ? undefined : s,
+                    ),
+                  }
+                : {}),
+            }),
+          ),
+        });
+        const within = (t: number): boolean =>
+          t > grid[from]! + 1e-9 && t < grid[to]! - 1e-9;
+        const own: number[] = grid.slice(from, to + 1);
+        const local: M.IContext = contextOf(cut(reading(own)), fine);
+        // The course goes on beyond the stretch, so its ends' accelerations
+        // read the course's next instants, not an arm at rest.
+        local.beyond = {
+          ...(from > 0
+            ? { before: x.map((arm: number[][]): number[] => arm[from - 1]!) }
+            : {}),
+          ...(to < grid.length - 1
+            ? { after: x.map((arm: number[][]): number[] => arm[to + 1]!) }
+            : {}),
+        };
+        let solved: ISolved;
+        try {
+          solved = solve(
+            (t: readonly number[]): IProblem => cut(read(t)),
+            [grid[from]!, ...times.filter(within), grid[to]!],
+            {
+              trajectories: laid.trajectories,
+              admitted: false,
+              refused: laid.refused,
+              ramps: laid.ramps.filter(within),
+              read: {
+                of: contextOf,
+                context: local,
+                x: x.map((arm: number[][]): number[][] =>
+                  arm.slice(from, to + 1),
+                ),
+              },
+            },
+          );
+        } catch (error) {
+          if (error instanceof HumanRefusal) return undefined;
+          throw error;
+        }
+        const played: number[][][] = Knots.read(
+          solved.state.times,
+          own,
+          solved.state.x,
+        );
+        played.forEach((arm: number[][], a: number): void => {
+          for (let g: number = from + 1; g < to; ++g) x[a]![g] = arm[g - from]!;
+        });
+        penalty = Math.max(penalty, solved.state.penalty);
+      }
+      if (M.evaluate(fine, x).worst.value > M.TOLERANCE) return undefined;
+      return {
+        trajectories: problem.arms.map(
+          (_: IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
+            HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a),
+        ),
+        state: { times: [...fine.times], x, penalty },
+      };
+    };
 
     // A laid course seeds the optimiser in place of the sampling planner;
     // a course that leads it to no admitted trajectory is followed by the
@@ -395,6 +566,13 @@ export namespace HumanArmTrajectory {
         context = contextOf(problem, fine);
       }
     }
+    if (solved === undefined && course?.read.evaluation !== undefined) {
+      const repaired: ISolved | undefined = repair(
+        course,
+        course.read.evaluation,
+      );
+      if (repaired !== undefined) return repaired;
+    }
     if (solved === undefined) {
       const laid: number[][][] | undefined =
         course === undefined
@@ -410,7 +588,9 @@ export namespace HumanArmTrajectory {
           ? undefined
           : HumanArmSeed.held(problem, context, laid);
       solved = optimised(laid ?? HumanArmSeed.seed(problem, context));
-      if (course !== undefined && !met(solved)) {
+      // A stretch cut from a course is solved from that course alone: its
+      // refusal leaves the whole span to the optimiser.
+      if (course?.read.evaluation !== undefined && !met(solved)) {
         knots = snapped;
         problem = initial;
         context = contextOf(problem, fine);

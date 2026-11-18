@@ -42,14 +42,14 @@ export namespace HumanArmOptimiser {
    * @param context The problem's context.
    * @param start Each arm's coordinates at each waypoint; the first and the last waypoint stay.
    * @param from The penalty to start at, a solve continued from an earlier one of the same problem on other waypoints (`penalty` of its result); the first when absent.
-   * @param fine The context at the frame grid's instants over the same span. When it holds more instants than `context`, the waypoints are knots: every evaluation and linearisation is the grid's, on the knots' interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`); absent, or for a still configuration, the waypoints are read themselves.
-   * @returns The last iterate at the waypoints, its evaluation (the grid's where a grid was read) and the penalty it was reached at.
+   * @param fine The context at the frame grid's instants over the same span. When it holds more instants than `context`, the waypoints are knots: every evaluation and linearisation is the grid's, on the knots' interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`), the rounds reading the clearance pairs at the knots' instants alone and the motion terms and the sweeps on every instant; absent, or for a still configuration, the waypoints are read themselves.
+   * @returns The last iterate at the waypoints, its evaluation (the grid's in full where a grid was read) and the penalty it was reached at.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States unchanged waypoint endpoints, penalty continuation and actual final evaluation.
    * @evidence contracts/development/implementation.md#principled-implementation Uses the TrajOpt merit/trust loop and actual nonlinear evaluation; each convexification fixes P/q/A and only its trust intervals vary across retries, and each subproblem, its domain rows elastic as TrajOpt's, is solved by the interior method, by the operator splitting where that leaves it unsolved.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and a subproblem the interior method leaves unsolved is solved by the operator splitting, never read as a zero step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. No measured speedup is claimed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. On a grid the rounds read the clearance pairs, the costliest readings, at the knots alone, TrajOpt's discrete collision terms at its timesteps with swept volumes between them (Schulman et al. 2014, section IV-C), and the converged path once in full; a pair that the full reading finds between knots is the caller's to refine (`HumanArmTrajectory.solve`). Measured on a tai chi push's row on f-small, two 87-knot reaches on a 361-instant grid: 52 s to 36-42 s.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales and the solver's scratch serve them all, and the models of one linearisation, which share its rows, start from the last one solved, a start that decides no answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
    */
@@ -71,6 +71,19 @@ export namespace HumanArmOptimiser {
     const spread = (x: number[][][]): number[][][] =>
       grid === undefined ? x : Knots.read(context.times, grid.times, x);
 
+    // The clearance pairs, the costliest of the model's readings, are read
+    // at the knots' own instants by the rounds, the swept spheres between
+    // every two frames keeping the continuous check and every motion term
+    // read on every frame, so the path optimised is the one played; the
+    // converged path is then read whole, which the caller admits by.
+    const contact: boolean[] | undefined =
+      grid === undefined
+        ? undefined
+        : ((): boolean[] => {
+            const at: Set<number> = new Set(context.times);
+            return grid.times.map((t: number): boolean => at.has(t));
+          })();
+
     // The objective's exact quadratic terms, the same at every iterate.
     const smooth: HumanArmTrajectorySmooth.ISmooth =
       HumanArmTrajectorySmooth.of(read);
@@ -82,7 +95,8 @@ export namespace HumanArmOptimiser {
     // which share its rows, each start from the one solved before.
     const session: HumanQuadraticInteriorSession.ISession = {};
     const problem: IAutoMovieMotionHumanSequentialConvex.IProblem<number[][][], M.IEvaluation> = {
-      evaluate: (x: number[][][]): M.IEvaluation => M.evaluate(read, spread(x)),
+      evaluate: (x: number[][][]): M.IEvaluation =>
+        M.evaluate(read, spread(x), undefined, contact),
       feasible: (evaluation: M.IEvaluation): boolean =>
         evaluation.worst.value <= M.TOLERANCE,
       convexify: (
@@ -235,7 +249,10 @@ export namespace HumanArmOptimiser {
     );
     return {
       x: solved.x,
-      evaluation: solved.evaluation,
+      evaluation:
+        contact === undefined
+          ? solved.evaluation
+          : M.evaluate(read, spread(solved.x)),
       penalty: solved.penalty,
     };
   }

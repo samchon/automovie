@@ -415,6 +415,9 @@ export namespace HumanArmTrajectoryContext {
       // The law's pace the laid course sets (`HumanArmTrajectoryLaid`), kept
       // by a refinement of the same arms; none read yet bounds nothing.
       speed: previous?.speed ?? ((): number => Infinity),
+      // A stretch's course beyond its ends, kept by the contexts of the same
+      // stretch.
+      ...(previous?.beyond === undefined ? {} : { beyond: previous.beyond }),
       setups,
       frames,
       sites,

@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanArm,
+  AutoMovieMotionHumanAudit,
   AutoMovieMotionHumanTarget,
   HumanHand,
   poseBones,
@@ -30,16 +31,20 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * and 1.05 s and lets go by 1.5 s, each hand held to a 4 mm disc about its
  * grip (`ICarry.disc`), the left riding the right (`ICarry.on`), both
  * declaring their hands and forearms as the grasp (`ICarry.grasp`): every
- * frame at 60 a second is finite, each palm moves within the audit's
- * travel bound, the lead palm lies within 5 mm of its place on the rod over
- * the hold, and the two palms keep their spacing within 5 mm, each the
+ * frame at 60 a second is finite, each palm moves within the audit's own
+ * limits (`AutoMovieMotionHumanAudit.LIMITS`): no faster than its speed
+ * limit, and no frame's step departing from the mean of its two
+ * neighbours' by more than its jump limit, the audit's test for a frame
+ * that may hide a jump. The pace a reach may take is its law's own
+ * (`HumanArmTrajectoryModel.IContext.speed`), not a fixed cap; the lead
+ * palm lies within 5 mm of its place on the rod over the hold, and the two palms keep their spacing within 5 mm, each the
  * bound its row holds a grip to: one 4 mm disc and the planner's 1 mm
  * tolerance; the second palm's place follows from the two.
  * The same rod undeclared is refused
  * (`test_human_motion_core_bimanual_rod_undeclared`).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans and writes two real carried arms and reads the palms on the resolved pose; a grasp read as a collision, a hand that drifts off its grip or a jump fails.
- * @evidence contracts/development/testing.md#independent-expectations The rod, its lift and the hands' places are written here; the travel bound is the audit's 80 mm per twenty-fourth of a second and the disc the 4 mm stated.
+ * @evidence contracts/development/testing.md#independent-expectations The rod, its lift and the hands' places are written here; the speed and jump limits are the audit's own, read from their owner, and the disc the 4 mm stated.
  * @evidence contracts/development/testing.md#distinguishing-cases The declared half of a pair whose undeclared half is refused in its own spec; the reach, the lift and the release.
  * @evidence contracts/development/testing.md#execution-ownership An in-memory unit on one prepared body; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation States the scenario and its bounds.
@@ -141,6 +146,7 @@ export function test_human_motion_core_bimanual_rod(): void {
     ),
   );
   let step: number = 0;
+  let departure: number = 0;
   let off: number = 0;
   let spacing: number = 0;
   read.forEach((p, i: number): void => {
@@ -151,6 +157,29 @@ export function test_human_motion_core_bimanual_rod(): void {
         distance(p.left, read[i - 1]!.left),
         distance(p.right, read[i - 1]!.right),
       );
+    if (i > 1 && i + 1 < read.length)
+      for (const side of ["left", "right"] as const) {
+        // The frame's displacement against the mean of its neighbours'.
+        const at = (k: number): IAutoMovieVector3 => read[k]![side];
+        const twice: IAutoMovieVector3 = {
+          x:
+            2 * (at(i).x - at(i - 1).x) -
+            (at(i - 1).x - at(i - 2).x) -
+            (at(i + 1).x - at(i).x),
+          y:
+            2 * (at(i).y - at(i - 1).y) -
+            (at(i - 1).y - at(i - 2).y) -
+            (at(i + 1).y - at(i).y),
+          z:
+            2 * (at(i).z - at(i - 1).z) -
+            (at(i - 1).z - at(i - 2).z) -
+            (at(i + 1).z - at(i).z),
+        };
+        departure = Math.max(
+          departure,
+          distance(twice, { x: 0, y: 0, z: 0 }) / 2,
+        );
+      }
     if (seconds >= span.ready && seconds <= span.relax) {
       // The lead hand is held to its place; the second to the lead, so its
       // place follows from the lead's and the spacing.
@@ -159,8 +188,12 @@ export function test_human_motion_core_bimanual_rod(): void {
     }
   });
   TestValidator.predicate(
-    `the palms' largest step between frames, ${(step * 1000).toFixed(1)} mm, is within the audit's travel bound`,
-    step <= (0.08 * 24) / rate,
+    `the palms' fastest step, ${(step * rate).toFixed(2)} m/s, is within the audit's speed limit`,
+    step * rate <= AutoMovieMotionHumanAudit.LIMITS.speed,
+  );
+  TestValidator.predicate(
+    `no palm's step departs from its neighbours' mean by more than the audit's jump limit: ${(departure * 1000).toFixed(1)} mm`,
+    departure <= AutoMovieMotionHumanAudit.LIMITS.jump,
   );
   TestValidator.predicate(
     `the lead palm stays within ${(off * 1000).toFixed(1)} mm of its place over the hold`,

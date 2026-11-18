@@ -29,13 +29,18 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
  * @param kept An earlier reading of the same context and the waypoints whose coordinates changed since it (`laid[k]` true), every other waypoint's coordinates being those that reading read; absent, every waypoint is read.
- * @returns The arms placed, the objective, the summed violation and the worst one past its slack, with the pairs, sweeps and crossings the reading found.
+ * @param contact The waypoints whose clearance pairs (the probes' deepest, the body's corners embedded, the two arms' crossings) are read, `contact[k]` true: an optimiser's rounds read them at its knots, the sweeps between consecutive waypoints keeping the continuous check, and the converged path is read whole; absent, every waypoint's are read.
+ * @returns The arms placed, the objective, the summed violation and the worst one past its slack, with the pairs, sweeps and crossings the reading found and the waypoints that take part in a violation past the tolerance.
  */
 export function HumanArmTrajectoryEvaluate(
   c: M.IContext,
   x: readonly (readonly number[])[][],
   kept?: { reading: M.IEvaluation; laid: readonly boolean[] },
+  contact?: readonly boolean[],
 ): M.IEvaluation {
+  // Whether a waypoint's clearance pairs are read.
+  const reads = (k: number): boolean =>
+    contact === undefined || contact[k] === true;
   // Whether a waypoint's reading is the earlier one's.
   const same = (k: number): boolean => kept !== undefined && kept.laid[k] !== true;
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
@@ -67,6 +72,9 @@ export function HumanArmTrajectoryEvaluate(
     (): M.IEvaluation["swept"][number] => [],
   );
   const crossing: M.IEvaluation["crossing"] = [];
+  const failing: boolean[] = new Array<boolean>(c.n).fill(false);
+  // Whether the violation noted is read over the interval `here` starts.
+  let interval: boolean = false;
   // A term's refusal axis: a speed asks for time, a task point names its
   // target, every other term the region.
   const note = (
@@ -77,6 +85,10 @@ export function HumanArmTrajectoryEvaluate(
   ): void => {
     if (v <= 0) return;
     violation += v;
+    if (v - slack > M.TOLERANCE) {
+      failing[here] = true;
+      if (interval) failing[here + 1] = true;
+    }
     if (v - slack > worst.value) worst = { value: v - slack, what: what(), at: here, term,
       axis: term === "speed" ? "duration" : term === "limit" ? "target" : "region" };
   };
@@ -87,10 +99,16 @@ export function HumanArmTrajectoryEvaluate(
     // only: its ends are not part of it.
     for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
       for (const d of c.free[a]!) {
+        // An end's neighbour beyond it: the course beyond a stretch
+        // (`M.IContext.beyond`), or the end itself.
+        const after: readonly number[] | undefined =
+          k === n - 1 ? c.beyond?.after?.[a] : undefined;
+        const before: readonly number[] | undefined =
+          k === 0 ? c.beyond?.before?.[a] : undefined;
         const acc: number =
-          arm[Math.min(n - 1, k + 1)]![d]! -
+          (after === undefined ? arm[Math.min(n - 1, k + 1)]! : after)[d]! -
           2 * arm[k]![d]! +
-          arm[Math.max(0, k - 1)]![d]!;
+          (before === undefined ? arm[Math.max(0, k - 1)]! : before)[d]!;
         objective += T.ACCELERATION * acc * acc;
       }
     // A still configuration drawn to its anchor.
@@ -103,6 +121,7 @@ export function HumanArmTrajectoryEvaluate(
         }
     for (let k: number = 0; k + 1 < n; ++k) {
       here = k;
+      interval = true;
       // A probe's travel is read against the arm's own base, so a carried
       // body's travel is never charged to the arm (`HumanArmTrajectoryTravel`).
       const travel = (p: number): number =>
@@ -145,6 +164,7 @@ export function HumanArmTrajectoryEvaluate(
         );
       }
     }
+    interval = false;
     for (let k: number = 1; k < n; ++k) {
       if (!M.inner(c, k)) continue;
       here = k;
@@ -208,9 +228,11 @@ export function HumanArmTrajectoryEvaluate(
       const known: M.IEvaluation["pairs"][number][number] | undefined =
         same(k) ? kept!.reading.pairs[a]![k] : undefined;
       const deepest: Map<number, P.IPair> =
-        known?.deepest ?? P.deepest(c, a, k, placed[a]![k]!, P.CUT);
+        known?.deepest ??
+        (reads(k) ? P.deepest(c, a, k, placed[a]![k]!, P.CUT) : new Map());
       const embedded: Map<number, P.IEmbedded> =
-        known?.embedded ?? P.embedded(c, a, k, placed[a]![k]!, P.CUT);
+        known?.embedded ??
+        (reads(k) ? P.embedded(c, a, k, placed[a]![k]!, P.CUT) : new Map());
       pairs[a]![k] = { deepest, embedded };
       for (const pair of deepest.values()) {
         note(
@@ -240,7 +262,9 @@ export function HumanArmTrajectoryEvaluate(
       if (!M.inner(c, k)) continue;
       crossing[k] =
         (same(k) ? kept!.reading.crossing[k] : undefined) ??
-        P.crossing(c, k, placed[0]![k]!, placed[1]![k]!, P.CUT);
+        (reads(k)
+          ? P.crossing(c, k, placed[0]![k]!, placed[1]![k]!, P.CUT)
+          : new Map());
       for (const pair of crossing[k]!.values()) {
         here = k;
         note(
@@ -253,5 +277,14 @@ export function HumanArmTrajectoryEvaluate(
         if (pair.rested) objective += T.LIFT * pair.short * pair.short;
       }
     }
-  return { placed, objective, violation, worst, pairs, swept, crossing };
+  return {
+    placed,
+    objective,
+    violation,
+    worst,
+    pairs,
+    swept,
+    crossing,
+    failing,
+  };
 }

@@ -56,6 +56,12 @@ export namespace HumanArmTrajectoryLaid {
 
       /** The context at the course's waypoints, the frame grid of the span. */
       context: M.IContext;
+
+      /** The course's coordinates at those waypoints, each arm's. */
+      x: number[][][];
+
+      /** The model's reading of the course there; absent for a stretch cut from a refused course (`HumanArmTrajectory.solve`), which is solved from that course alone. */
+      evaluation?: M.IEvaluation;
     };
   }
 
@@ -378,7 +384,8 @@ export namespace HumanArmTrajectoryLaid {
       reading = M.evaluate(context, x, { reading, laid });
     }
     for (const t of transports) ramps.push(...t.laid.ramps);
-    const worst: M.IEvaluation["worst"] = reading.worst;    return {
+    const worst: M.IEvaluation["worst"] = reading.worst;
+    return {
       trajectories: problem.arms.map(
         (_: HumanArmTrajectory.IArm, a: number): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
           HumanArmTrajectoryPlayback(context.setups, context.times, x, a),
@@ -386,7 +393,7 @@ export namespace HumanArmTrajectoryLaid {
       admitted: worst.value <= M.TOLERANCE,
       refused: worst.value <= M.TOLERANCE ? "" : worst.term,
       ramps,
-      read: { of, context },
+      read: { of, context, x, evaluation: reading },
     };
   }
 }
