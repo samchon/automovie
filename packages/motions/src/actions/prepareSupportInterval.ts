@@ -201,7 +201,7 @@ export function prepareSupportInterval(
         prepareHumanPoseResolution.isNativeSource(read) && project === body.projection
           ? pin0.pinFloor(blended, read, project)
           : undefined;
-      const now: IAutoMovieVector3 = fused?.point ?? pin0.originalPoint(blended, read, project)[0]!;
+      const now: IAutoMovieVector3 = fused === undefined ? pin0.originalPoint(blended, read, project)[0]! : fused.point;
       const pinned: IAutoMovieVector3 = Vector3.lerp(pin0.held, pin0.arrived, s);
       const goals: IAutoMovieMotionHumanPosture["limbs"] = { ...blended.limbs };
       for (const frame of held) goals[frame.limb] = heldGoal(frame, s);

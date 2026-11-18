@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
+  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionTarget,
@@ -26,6 +27,7 @@ import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportFloor } from "./prepareSupportFloor";
+import { prepareSupportPreference } from "./prepareSupportPreference";
 import { prepareSupportInterval } from "./prepareSupportInterval";
 import { supportAssist } from "./supportAssist";
 import { supportContact } from "./supportContact";
@@ -193,17 +195,9 @@ export namespace support {
     const locate: (phase: number) => Place = (phase: number): Place =>
       (c: IAutoMovieMotionHumanSupport.IContact): Point => paired?.(c, phase) ?? at(c) ?? laid.get(supportContact.id(c)) ?? null;
 
-    // A stance's preferred posture (`supportKey.preferred`).
-    const preference: (
-      stance: IAutoMovieMotionHumanSupport.IStance,
-      from: IAutoMovieMotionHumanPosture,
-      place: Place,
-    ) => IAutoMovieMotionHumanPosture = (
-      stance: IAutoMovieMotionHumanSupport.IStance,
-      from: IAutoMovieMotionHumanPosture,
-      place: Place,
-    ): IAutoMovieMotionHumanPosture =>
-      supportKey.preferred(body, preferred, stance, from, place);
+    // Root translation may differ at the bridge and its following stance.
+    // Both place the same authored angular configuration and floor shape.
+    const preference: ReturnType<typeof prepareSupportPreference> = prepareSupportPreference(body, preferred);
 
     // Every key and swing on this body shares the same anatomical datums.
     const form: ReturnType<typeof supportContact.prepareForm> =
@@ -466,10 +460,10 @@ export namespace support {
     )
       HumanPreparedPlayback.attach(planned, body, {
         mode: "posture",
-        phases: keys.slice(0, -1).map((key: IKey, i: number): HumanPreparedPlayback.IPhase => ({
+        phases: keys.slice(0, -1).map((key: IKey, i: number): IAutoMovieMotionHumanPlayback.IPhase => ({
           from: key.seconds,
           to: keys[i + 1]!.seconds,
-          sample: (...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>): HumanPreparedPlayback.ISample => ({
+          sample: (...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>): IAutoMovieMotionHumanPlayback.ISample => ({
             posture: transfer(i, ...args),
           }),
         })),
