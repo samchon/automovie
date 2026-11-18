@@ -35,6 +35,8 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  * @evidence contracts/development/common.md#meaningful-documentation Describes the projection, coordinate frames and domain.
  */
 export function test_motion_contact_target_surface(): void {
+  checkCheekNormals();
+  checkAnatomicalExtents();
   const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
     { p: 0 },
     "site",
@@ -164,7 +166,7 @@ export function test_motion_contact_target_surface(): void {
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and reads one instant each; it runs locally and wherever CI runs the human motion tests.
  * @evidence contracts/development/common.md#meaningful-documentation States the landmark, the stage and the 5 scenarios with their bounds.
  */
-export function test_motion_contact_target_surface_cheek_normals(): void {
+function checkCheekNormals(): void {
   const complaints: string[] = [];
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average"] as const) {
@@ -257,7 +259,7 @@ export function test_motion_contact_target_surface_cheek_normals(): void {
  * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and reads their rest pose in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the 3 scenarios.
  */
-export function test_motion_contact_target_surface_anatomical_extents(): void {
+function checkAnatomicalExtents(): void {
   const findings: string[] = [];
   for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

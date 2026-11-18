@@ -42,6 +42,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios with their bounds.
  */
 export function test_motion_contact_prop_trajectory(): void {
+  checkArticulatedTrack();
   const mug: ReturnType<typeof createDrinkware> = createDrinkware({
     kind: "mug",
   });
@@ -154,7 +155,7 @@ export function test_motion_contact_prop_trajectory(): void {
  * @evidence contracts/development/testing.md#execution-ownership Builds one performance in memory.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule and the four numbered scenarios.
  */
-export function test_motion_contact_prop_trajectory_articulated_track(): void {
+function checkArticulatedTrack(): void {
   const door: ReturnType<typeof createDoor> = createDoor({
     hinge: "right",
     hardware: "lever",

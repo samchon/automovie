@@ -1,6 +1,7 @@
 import { createDrinkware } from "@automovie/archetypes";
 import {
   Quaternion,
+  Vector3,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -13,6 +14,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -23,6 +25,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
+  StrikingHeld,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -71,6 +74,7 @@ interface IHeldReading {
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, how it is read and the 4 scenarios with their bound.
  */
 export function test_motion_posture_working_frame(): void {
+  checkHeldAxis();
   const complaints: string[] = [];
   const archetype = createDrinkware({ kind: "glass" });
   for (const name of ["m-average"] as const) {
@@ -285,4 +289,70 @@ export function test_motion_posture_working_frame(): void {
 }
 
 /** Largest sampled gap and its film second. */
-interface IGap { off: number; seconds: number }
+interface IGap {
+  off: number;
+  seconds: number;
+}
+
+/**
+ * Two points on a rigid mug define its working axis.
+ *
+ * Scenarios:
+ * 1. Rotate and translate the mug. The lip moves as a point and the axis as a direction.
+ * 2. A coincident pair cannot define an axis.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the public held-tool frame, including its refusal axis.
+ * @evidence contracts/development/testing.md#independent-expectations Subtracts the two authored contact points and analytically rotates their displacement through a quarter turn.
+ * @evidence contracts/development/testing.md#distinguishing-cases The frame is translated, rotated, and then given two coincident endpoints.
+ * @evidence contracts/development/testing.md#execution-ownership Uses a real mug asset and no film.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the frames and the degenerate case.
+ */
+function checkHeldAxis(): void {
+  const mug: ReturnType<typeof createDrinkware> = createDrinkware({
+    kind: "mug",
+  });
+  const shift: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+  const held: IAutoMovieMotionHumanHeld.IHeld = {
+    prop: "mug",
+    side: "left",
+    affordances: mug.affordances,
+    frame: {
+      position: shift,
+      rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 90),
+    },
+  };
+  const tip: IAutoMovieVector3 = mug.affordance("lip").frame.translation;
+  const handle: IAutoMovieVector3 = mug.affordance("handle").frame.translation;
+  const line: IAutoMovieVector3 = Vector3.subtract(tip, handle);
+  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.read(
+    held,
+    { from: "handle", tip: "lip" },
+  );
+  const turn = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+    x: p.z,
+    y: p.y,
+    z: -p.x,
+  });
+  TestValidator.predicate(
+    "rotated mug lip",
+    Vector3.distance(tool.tip, Vector3.add(shift, turn(tip))) < 1e-9,
+  );
+  TestValidator.predicate(
+    "rotated handle-to-lip axis",
+    Vector3.distance(tool.axis, Vector3.normalize(turn(line))) < 1e-9,
+  );
+  TestValidator.predicate(
+    "rigid length",
+    Math.abs(tool.length - Vector3.length(line)) < 1e-9,
+  );
+  let refusal: unknown;
+  try {
+    StrikingHeld.read(held, { from: "lip", tip: "lip" });
+  } catch (error) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "coincident contacts identify the endpoint parameter",
+    refusal instanceof HumanRefusal && refusal.axis === "from",
+  );
+}

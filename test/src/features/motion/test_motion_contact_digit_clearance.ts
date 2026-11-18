@@ -37,6 +37,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Each of three rest performances supplies one FK map to all five digits.
  */
 export function test_motion_contact_digit_clearance(): void {
+  checkRestClasp();
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const complaints: string[] = [];
   // A hand at rest on the body lays its digits on it: no phalanx of the
@@ -138,7 +139,7 @@ export function test_motion_contact_digit_clearance(): void {
  * @evidence contracts/development/testing.md#execution-ownership Prepares four polygon men and performs eight short films; the test program discovers every `test_` function, so `pnpm test` and the CI test job run it.
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the defect it guards with its cause, and the 2 scenarios.
  */
-export function test_motion_contact_digit_clearance_rest_clasp(): void {
+function checkRestClasp(): void {
   const complaints: string[] = [];
   for (const name of motionHumanBody.EXTREMES) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);

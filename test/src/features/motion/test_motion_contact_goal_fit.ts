@@ -50,6 +50,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership Portable CPU tests on the existing real-body fixtures through public package imports; no patched global, private compiler or renderer.
  */
 export function test_motion_contact_goal_fit(): void {
+  checkSelectedFallback();
   type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   const all: motionComplaints.IGatherer = motionComplaints();
   const tolerance: number = HumanBodyFit.TOLERANCE;
@@ -331,7 +332,7 @@ interface IGoalFrame {
  * @evidence contracts/development/testing.md#distinguishing-cases Covers a requested leg with unsupported reference-bearing rival-arm context, either requested arm with both goals present, unchanged all-joint fallback, actual capsule separation and the adjacent legal leg-only selection. Attached/normal/digit contexts have their existing owners; this test adds no new tolerance.
  * @evidence contracts/development/testing.md#execution-ownership One portable discoverable unit borrows the unchanged canonical Human fixture and owns all raw goals/poses. It invokes only real public resolver/FK/distance APIs, starts no host/compiler and replaces no foreign operation or global.
  */
-export function test_motion_contact_goal_fit_selected_fallback(): void {
+function checkSelectedFallback(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const raw: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
