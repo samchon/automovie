@@ -15,7 +15,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { createSkeleton, makePose } from "../internal/fixtures";
-import { namedFacts, nclose, vclose } from "../internal/predicates";
+import { nclose, vclose } from "../internal/predicates";
 
 const ctx: (facingDeg: number) => IAutoMovieActorContext = (
   facingDeg: number,
@@ -102,73 +102,59 @@ const worldHand: (
  * @evidence contracts/development/testing.md#execution-ownership The named synchronous entry owns synthesis, sampling and FK calls through local fixture callbacks. The initial null predicate fails before its defensive return, and later non-null assertions fail naturally on absent clips; no dynamic registration, native artifact or viewer is needed.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Facing 0 yields three keyframes, no loop, duration 0.6 and a held hand within 2e-3 of lever.).
  */
-export function test_perform_reach_synthesis(): void {
-  const lever: IAutoMovieVector3 = nodes.get("lever")!;
-
-  const s0: IAutoMovieActionSynthesizer = makeActorSynthesizer(
-    new Map<string, IAutoMovieActorContext>([["hero", ctx(0)]]),
-    nodes,
-  );
-  const clip: IAutoMovieMotion | null = s0(reach(), "hero");
-  TestValidator.predicate("reach produced a clip", clip !== null);
-  if (clip === null) return;
-  TestValidator.equals("rest → extend → hold", clip.keyframes.length, 3);
-  TestValidator.equals("not looped", clip.loop, false);
-  TestValidator.predicate("lasts the duration", nclose(clip.duration, 0.6));
-  TestValidator.predicate(
-    "the held hand lands on the world target (facing 0)",
-    vclose(
-      worldHand(sampleMotion(clip, 0.6).pose, 0, { x: 1, y: 0, z: 2 }),
-      lever,
-      2e-3,
-    ),
-  );
-
-  const lever90: IAutoMovieVector3 = nodes.get("lever90")!;
-  const s90: IAutoMovieActionSynthesizer = makeActorSynthesizer(
-    new Map<string, IAutoMovieActorContext>([["hero", ctx(90)]]),
-    nodes,
-  );
-  const turned: IAutoMovieMotion = s90(
-    reach({ to: { kind: "node", node: "lever90" } }),
-    "hero",
-  )!;
-  TestValidator.predicate(
-    "the held hand lands on the world target (facing 90)",
-    vclose(
-      worldHand(sampleMotion(turned, 0.6).pose, 90, { x: 1, y: 0, z: 2 }),
-      lever90,
-      2e-3,
-    ),
-  );
-
-  const rigless: IAutoMovieActionSynthesizer = makeActorSynthesizer(
-    new Map<string, IAutoMovieActorContext>([
-      ["hero", { ...ctx(0), rig: undefined }],
-    ]),
-    nodes,
-  );
-  TestValidator.equals("no rig, no reach", rigless(reach(), "hero"), null);
-  TestValidator.equals(
-    "a relative reach target → null",
-    s0(reach({ to: { kind: "direction", headingDeg: 45 } }), "hero"),
-    null,
-  );
-  TestValidator.equals(
-    "a reach with no arm chain (right, no rightHand) → null",
-    s0(reach({ hand: "right" }), "hero"),
-    null,
-  );
-  const auto: IAutoMovieMotion | null = s0(reach({ duration: "auto" }), "hero");
-  TestValidator.equals(
-    "an auto-duration reach runs the default 0.6 s",
-    namedFacts([
-      ["auto", (): boolean => auto !== null],
-      [
-        "ncloseAutoDuration",
-        (): boolean => auto !== null && nclose(auto.duration, 0.6),
-      ],
-    ]),
-    { auto: true, ncloseAutoDuration: true },
-  );
+export function test_motion_contact_world_reach(): void {
+  for (const [facing, node] of [
+    [0, "lever"],
+    [90, "lever90"],
+  ] as const) {
+    const actor: IAutoMovieActorContext = ctx(facing);
+    const synth: IAutoMovieActionSynthesizer = makeActorSynthesizer(
+      new Map([["hero", actor]]),
+      nodes,
+    );
+    const source: IAutoMovieReachAction = reach({
+      to: { kind: "node", node },
+      duration: "auto",
+    });
+    const clip: OptionalMotion = synth(source, "hero");
+    if (clip === null)
+      throw new Error("A reachable stage marker produced no motion");
+    TestValidator.predicate(
+      "automatic duration and terminal hold",
+      !clip.loop && nclose(clip.duration, 0.6) && clip.keyframes.length === 3,
+    );
+    for (const time of [clip.keyframes[1]!.time, clip.duration]) {
+      const displayed = worldHand(
+        sampleMotion(clip, time).pose,
+        facing,
+        actor.position,
+      );
+      TestValidator.predicate(
+        "displayed hand reaches " + node + " at " + time,
+        vclose(displayed, nodes.get(node)!, 0.002),
+      );
+    }
+    if (facing !== 0) continue;
+    TestValidator.equals(
+      "a directional target provides no endpoint",
+      synth(reach({ to: { kind: "direction", headingDeg: 45 } }), "hero"),
+      null,
+    );
+    TestValidator.equals(
+      "a missing limb cannot reach",
+      synth(reach({ hand: "right" }), "hero"),
+      null,
+    );
+    const missing = makeActorSynthesizer(
+      new Map([["hero", { ...actor, rig: undefined }]]),
+      nodes,
+    );
+    TestValidator.equals(
+      "a missing rig cannot reach",
+      missing(source, "hero"),
+      null,
+    );
+  }
 }
+/** A request may be unavailable on the given skeleton. */
+type OptionalMotion = IAutoMovieMotion | null;

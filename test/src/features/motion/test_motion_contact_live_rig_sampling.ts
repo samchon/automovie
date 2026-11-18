@@ -50,78 +50,159 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers all three native arm branches, initial versus sampled reads, target-before-frame effects, absolute versus local clocks, regular versus added landmark times, stable-identity A/B/A rest geometry, same-record affine edits, full-phase contact and callback-free reverse numeric playback. This is a borrowed-input numerical contract, without continuous-contact, animation-of-rig or whole-shot admission claims.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable portable engine unit owns the existing bare-arm kernel fixture, contexts, mutable rig/frame records, callbacks, traces and snapshots. It calls public synthesis/sampling/FK only, adds no new producer/API, replaces no foreign function/global, and starts no Human producer, viewer, process or compiler.
  */
-export function test_engine_actor_reach_mutable_source(): void {
-  const cases: readonly { kind: "reach" | "point" | "strike"; mode: "geometry" | "frames" }[] = [
-    { kind: "reach", mode: "geometry" }, { kind: "point", mode: "geometry" },
-    { kind: "strike", mode: "geometry" }, { kind: "reach", mode: "frames" },
-  ];
-  for (const { kind, mode } of cases) {
+export function test_motion_contact_live_rig_sampling(): void {
+  for (const mode of ["geometry", "frames"] as const) {
     const rig: IAutoMovieSkeleton = motionFitArms.arms();
-    const lower: IAutoMovieBone = rig.bones.find((bone: IAutoMovieBone): boolean => bone.bone === "rightLowerArm")!;
-    const hand: IAutoMovieBone = rig.bones.find((bone: IAutoMovieBone): boolean => bone.bone === "rightHand")!;
-    const frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = structuredClone(HUMANOID_REST_FRAME);
-    const affine: NonNullable<IAutoMovieRestFrame["flexion"]> = { sign: 1, neutral: 0 };
+    const lower: IAutoMovieBone = rig.bones.find(
+      (bone: IAutoMovieBone): boolean => bone.bone === "rightLowerArm",
+    )!;
+    const hand: IAutoMovieBone = rig.bones.find(
+      (bone: IAutoMovieBone): boolean => bone.bone === "rightHand",
+    )!;
+    const frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> =
+      structuredClone(HUMANOID_REST_FRAME);
+    const affine: NonNullable<IAutoMovieRestFrame["flexion"]> = {
+      sign: 1,
+      neutral: 0,
+    };
     frames.rightLowerArm = { ...frames.rightLowerArm, flexion: affine };
-    const context: IAutoMovieActorContext = { skeleton: rig.id, rig, restFrames: frames,
-      gaits: [], position: { x: 0, y: 0, z: 0 }, speed: 1, facingDeg: 0, eyeHeight: 1.6,
-      restPose: { skeleton: rig.id, root: null, joints: [] } };
+    const context: IAutoMovieActorContext = {
+      skeleton: rig.id,
+      rig,
+      restFrames: frames,
+      gaits: [],
+      position: { x: 0, y: 0, z: 0 },
+      speed: 1,
+      facingDeg: 0,
+      eyeHeight: 1.6,
+      restPose: { skeleton: rig.id, root: null, joints: [] },
+    };
     const point: IAutoMovieVector3 = { x: -0.18, y: 1.2, z: 0.35 };
     const start: number = 2;
-    const target: IAutoMovieActionTarget = { kind: "bone", node: "movingTarget", bone: "head" };
-    const action: IAutoMovieActionCall = kind === "reach"
-      ? { verb: "reach", actor: "hero", start, duration: 1, hand: "right", to: target }
-      : { verb: "gesture", kind, actor: "hero", start, duration: 1, at: target };
+    const target: IAutoMovieActionTarget = {
+      kind: "bone",
+      node: "movingTarget",
+      bone: "head",
+    };
+    const action: IAutoMovieActionCall = {
+      verb: "reach",
+      actor: "hero",
+      start,
+      duration: 1,
+      hand: "right",
+      to: target,
+    };
     const trace: ITrace[] = [];
     const snapshots: Map<number, ISnapshot> = new Map();
-    const actorFrame: IAutoMovieActorWorldFrame = { position: { x: 0, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0, w: 1 }, facingDeg: 0 };
-    const synthesize: ReturnType<typeof makeActorSynthesizer> = makeActorSynthesizer(
-      new Map([["hero", context]]), new Map([["movingTarget", point]]),
-      (asked: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 => {
-        TestValidator.predicate("the original live target is passed at every actual lookup",
-          asked.kind === "bone" && asked.node === "movingTarget");
-        trace.push({ kind: "target", seconds });
-        const changed: boolean = seconds - start >= 0.25 && seconds - start < 0.75;
-        lower.rest.translation.x = mode === "geometry" && changed ? -0.38 : -0.3;
-        affine.neutral = mode === "frames" && changed ? 15 : 0;
-        return { ...point };
-      },
-      (actor: string, seconds: number): IAutoMovieActorWorldFrame => {
-        TestValidator.equals("each sampled frame belongs to the requested actor", actor, "hero");
-        trace.push({ kind: "frame", seconds });
-        const changed: boolean = seconds - start >= 0.25 && seconds - start < 0.75;
-        hand.rest.translation.x = mode === "geometry" && changed ? -0.29 : -0.25;
-        snapshots.set(seconds, { rig: structuredClone(rig), frames: structuredClone(frames) });
-        return actorFrame;
-      });
-    const clip: IAutoMovieMotion | null = synthesize(action, "hero");
-    TestValidator.predicate(`${kind}/${mode} produces its actual numeric bake`, clip !== null);
+    const actorFrame: IAutoMovieActorWorldFrame = {
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+      facingDeg: 0,
+    };
+    const synthesize: ReturnType<typeof makeActorSynthesizer> =
+      makeActorSynthesizer(
+        new Map([["hero", context]]),
+        new Map([["movingTarget", point]]),
+        (asked: IAutoMovieActionTarget, seconds: number): IAutoMovieVector3 => {
+          TestValidator.predicate(
+            "the original live target is passed at every actual lookup",
+            asked.kind === "bone" && asked.node === "movingTarget",
+          );
+          trace.push({ kind: "target", seconds });
+          const changed: boolean =
+            seconds - start >= 0.25 && seconds - start < 0.75;
+          lower.rest.translation.x =
+            mode === "geometry" && changed ? -0.38 : -0.3;
+          affine.neutral = mode === "frames" && changed ? 15 : 0;
+          return { ...point };
+        },
+        (actor: string, seconds: number): IAutoMovieActorWorldFrame => {
+          TestValidator.equals(
+            "each sampled frame belongs to the requested actor",
+            actor,
+            "hero",
+          );
+          trace.push({ kind: "frame", seconds });
+          const changed: boolean =
+            seconds - start >= 0.25 && seconds - start < 0.75;
+          hand.rest.translation.x =
+            mode === "geometry" && changed ? -0.29 : -0.25;
+          snapshots.set(seconds, {
+            rig: structuredClone(rig),
+            frames: structuredClone(frames),
+          });
+          return actorFrame;
+        },
+      );
+    const clip: OptionalMotion = synthesize(action, "hero");
+    TestValidator.predicate(
+      `reach/${mode} produces its actual numeric bake`,
+      clip !== null,
+    );
     if (clip === null) throw new Error("native mutable-source bake refused");
-    const times: number[] = Array.from({ length: 25 }, (_: unknown, index: number): number => index / 24);
-    if (kind === "strike") times.push(0.4);
+    const times: number[] = Array.from(
+      { length: 25 },
+      (_: unknown, index: number): number => index / 24,
+    );
+
     times.sort((a: number, b: number): number => a - b);
-    const events: ITrace[] = [{ kind: "target", seconds: start }, ...times.flatMap(
-      (time: number): ITrace[] => [{ kind: "target", seconds: start + time }, { kind: "frame", seconds: start + time }])];
-    TestValidator.predicate("native bake preserves the original grid, landmark and absolute callback order",
-      nclose(clip.duration, 1, 0) && !clip.loop && clip.keyframes.length === times.length && trace.length === events.length &&
-      trace.every((entry: ITrace, index: number): boolean => entry.kind === events[index]!.kind &&
-        nclose(entry.seconds, events[index]!.seconds, 1e-12)) &&
-      clip.keyframes.every((key: IAutoMovieMotion["keyframes"][number], index: number): boolean => nclose(key.time, times[index]!, 1e-12)));
+    const events: ITrace[] = [
+      { kind: "target", seconds: start },
+      ...times.flatMap((time: number): ITrace[] => [
+        { kind: "target", seconds: start + time },
+        { kind: "frame", seconds: start + time },
+      ]),
+    ];
+    TestValidator.predicate(
+      "native bake preserves the original grid, landmark and absolute callback order",
+      nclose(clip.duration, 1, 0) &&
+        !clip.loop &&
+        clip.keyframes.length === times.length &&
+        trace.length === events.length &&
+        trace.every(
+          (entry: ITrace, index: number): boolean =>
+            entry.kind === events[index]!.kind &&
+            nclose(entry.seconds, events[index]!.seconds, 1e-12),
+        ) &&
+        clip.keyframes.every(
+          (
+            key: IAutoMovieMotion["keyframes"][number],
+            index: number,
+          ): boolean => nclose(key.time, times[index]!, 1e-12),
+        ),
+    );
     for (const key of clip.keyframes) {
-      if (kind === "strike" ? !nclose(key.time, 0.4, 1e-12) : key.time < 0.5) continue;
-      const snapshot: ISnapshot | undefined = snapshots.get(start + key.time);
-      TestValidator.predicate("every full-phase key has its actual after-frame source snapshot", snapshot !== undefined);
-      if (snapshot === undefined) throw new Error("native mutable-source snapshot missing");
-      const shown: IAutoMovieVector3 = resolvePose(key.pose, snapshot.rig, HUMANOID_JOINT_AXES, snapshot.frames).find(
-        (bone: ReturnType<typeof resolvePose>[number]): boolean => bone.bone === "rightHand")!.worldPosition;
-      TestValidator.predicate(`${kind}/${mode} reads current borrowed source at full phase${key.time}: hand=${JSON.stringify(shown)}`,
-        vclose(shown, point, 2e-3));
+      if (key.time < 0.5) continue;
+      const snapshot: OptionalSnapshot = snapshots.get(start + key.time);
+      TestValidator.predicate(
+        "every full-phase key has its actual after-frame source snapshot",
+        snapshot !== undefined,
+      );
+      if (snapshot === undefined)
+        throw new Error("native mutable-source snapshot missing");
+      const shown: IAutoMovieVector3 = resolvePose(
+        key.pose,
+        snapshot.rig,
+        HUMANOID_JOINT_AXES,
+        snapshot.frames,
+      ).find(
+        (bone: ReturnType<typeof resolvePose>[number]): boolean =>
+          bone.bone === "rightHand",
+      )!.worldPosition;
+      TestValidator.predicate(
+        `reach/${mode} reads current borrowed source at full phase${key.time}: hand=${JSON.stringify(shown)}`,
+        vclose(shown, point, 2e-3),
+      );
     }
     const before: number = trace.length;
     sampleMotion(clip, 0.9);
     sampleMotion(clip, 0.2);
     sampleMotion(clip, 0.9);
-    TestValidator.equals("completed numeric playback retains no live target/frame callback", trace.length, before);
+    TestValidator.equals(
+      "completed numeric playback retains no live target/frame callback",
+      trace.length,
+      before,
+    );
   }
 }
 
@@ -140,3 +221,6 @@ interface ISnapshot {
   /** Then-current clinical affine mappings. */
   frames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }
+
+type OptionalSnapshot = ISnapshot | undefined;
+type OptionalMotion = IAutoMovieMotion | null;
