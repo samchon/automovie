@@ -1,14 +1,20 @@
 import type {
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
+  IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
 } from "@automovie/interface";
 import {
   HUMAN_LEXICON,
   HumanChain,
+  HumanFoot,
+  HumanFrame,
   HumanPerformance,
+  HumanRefusal,
   HumanSignature,
+  seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -20,6 +26,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * up, and folded legs lie on the floor.
  *
  * Scenarios:
+ * Full and partial crouch, two flinch intensities, recovering balance, quiet hand placement and a self-directed gesture preserve their declared foot plants.
  * each row performed after 0.3 s of standing and read at its
  * end, on the average man or the small woman, alternating down the rows.
  * One body a row is enough because both builds meet a sitting and the
@@ -50,6 +57,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  */
 export function test_motion_posture_posture_geometry(): void {
   const complaints: string[] = [];
+  checkStandingSupports(complaints);
+  checkCrossedSeat(complaints);
   const rows: readonly string[] = [
     "lieStill",
     "sitOnFloor",
@@ -147,4 +156,199 @@ export function test_motion_posture_posture_geometry(): void {
       );
   });
   TestValidator.equals("floor poses end on the floor", complaints, []);
+}
+
+/** Check the planted socket throughout each support window of the base action. */
+function checkStandingSupports(findings: string[]): void {
+  const body = motionHumanBody("m-average");
+  const actor = HumanChain.subject("a");
+  const take = (action: IAutoMovieMotionHumanChain) =>
+    new HumanPerformance({
+      seed: "poses",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: action.node,
+    });
+  const lifts: number[] = [];
+  for (const [kind, action] of [
+    ["deep crouch", actor.crouch({ depth: "full", heels: "up", hold: 3 })],
+    ["partial crouch", actor.crouch({ hold: 2 })],
+    ["full flinch", actor.flinch({ intensity: 1 })],
+    ["light flinch", actor.flinch({ intensity: 0.4 })],
+    ["brace", actor.brace({ kind: "impact" })],
+    ["stagger", actor.stagger({ speed: 0.5 })],
+    ["rest", actor.rest({ left: "hip", right: "hip" })],
+    ["self action", actor.selfAction({ kind: "victory" })],
+  ] as const) {
+    try {
+      const p = take(action),
+        segment = p.segments("a")[0]!,
+        reader = HumanSignature.of(p, "a", body, 0);
+      const end = segment.end,
+        middle = (segment.entryTime + end) / 2;
+      const stance = kind === "rest" || kind === "self action";
+      for (const side of ["left", "right"] as const) {
+        if (kind !== "deep crouch" && !HumanSignature.bears(reader, end, side))
+          findings.push(kind + " finishes without " + side + " foot support");
+        if (
+          stance &&
+          !segment.plan.contacts.some(
+            (c) =>
+              c.kind === "plant" &&
+              c.part === side + "Foot" &&
+              c.from <= 1e-9 &&
+              c.to >= 1 - 1e-9,
+          )
+        )
+          findings.push(kind + " lacks continuous " + side + " plant");
+        if (kind === "deep crouch" || kind === "partial crouch") {
+          const expected = kind === "deep crouch" ? 150 : 100;
+          if (
+            Math.abs(HumanSignature.knee(reader, middle, side) - expected) > 10
+          )
+            findings.push(
+              kind + " knee angle differs from " + expected + " degrees",
+            );
+        }
+        for (const c of segment.plan.contacts.filter(
+          (c) => c.kind === "plant" && c.part === side + "Foot",
+        )) {
+          const from = Math.max(
+              segment.entryTime,
+              segment.start + c.from * segment.plan.duration,
+            ),
+            to = Math.min(end, segment.start + c.to * segment.plan.duration);
+          if (to - from < 0.1) continue;
+          const socket = (t: number) => {
+            const points = HumanFoot.sockets(
+              body,
+              HumanSignature.bones(reader, t),
+              side,
+            );
+            return kind === "brace" || kind === "stagger"
+              ? points.reduce((a, b) => (a.point.y < b.point.y ? a : b))
+              : points.find(
+                  (s) => s.socket === (kind === "deep crouch" ? "toe" : "ball"),
+                )!;
+          };
+          let origin = socket(from + 0.02);
+          for (const t of HumanSignature.times(
+            from + 0.02,
+            to - 0.02,
+            3 / (to - from - 0.04),
+          )) {
+            const at = socket(t);
+            if (at.socket !== origin.socket) {
+              origin = at;
+              continue;
+            }
+            if (
+              Math.hypot(
+                at.point.x - origin.point.x,
+                at.point.y - origin.point.y,
+                at.point.z - origin.point.z,
+              ) > 0.005
+            )
+              findings.push(kind + " " + side + " slips at " + t);
+          }
+        }
+      }
+      if (stance || kind === "partial crouch") {
+        const height = (t: number) =>
+          (HumanSignature.joint(reader, t, "leftUpperLeg").y +
+            HumanSignature.joint(reader, t, "rightUpperLeg").y) /
+          2;
+        if (Math.abs(height(end) - height(0)) > 0.02)
+          findings.push(kind + " standing hips differ by more than 20 mm");
+      }
+      if (kind.endsWith("flinch")) {
+        const wrist = (t: number) =>
+          Math.max(
+            HumanSignature.joint(reader, t, "leftHand").y,
+            HumanSignature.joint(reader, t, "rightHand").y,
+          );
+        lifts.push(
+          Math.max(
+            ...HumanSignature.times(
+              segment.entryTime,
+              end,
+              4 / (end - segment.entryTime),
+            ).map(wrist),
+          ) - wrist(0),
+        );
+      }
+    } catch (error) {
+      findings.push(kind + ": " + String(error));
+    }
+  }
+  if (lifts.length !== 2 || !(lifts[0]! > lifts[1]!))
+    findings.push(
+      "Full flinch must lift the wrists further than a light flinch.",
+    );
+}
+
+function checkCrossedSeat(findings: string[]): void {
+  const body = motionHumanBody("m-average");
+  const chair: IAutoMovieMotionHumanSeated.ISeat = {
+    at: { x: 0, y: seated.popliteal(body), z: -0.1 },
+    yaw: 0,
+    depth: 0.45,
+  };
+  const perform = (seconds: number) =>
+    new HumanPerformance({
+      seed: "crossed",
+      performers: [
+        {
+          subject: "a",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
+      composition: HumanChain.subject("a")
+        .sit({ seat: chair, legs: "crossed", seconds })
+        .rise().node,
+    });
+  try {
+    perform(0.2).segments("a");
+    findings.push("The crossed sit accepted 200 ms.");
+  } catch (error) {
+    if (
+      !(
+        error instanceof HumanRefusal &&
+        error.kind === "parameter" &&
+        error.axis === "seconds"
+      )
+    )
+      findings.push(String(error));
+  }
+  const p = perform(1.5),
+    [sit, rise] = p.segments("a");
+  const reader = HumanSignature.of(p, "a", body, 0),
+    settled = sit!.end - 0.05;
+  const frame = { origin: { ...chair.at, y: 0 }, yaw: chair.yaw };
+  const left = HumanFrame.local(
+    frame,
+    HumanSignature.joint(reader, settled, "leftFoot"),
+  );
+  const right = HumanFrame.local(
+    frame,
+    HumanSignature.joint(reader, settled, "rightFoot"),
+  );
+  if (!(left.x < right.x && left.z > right.z))
+    findings.push("Crossed ankles do not cross on the chair frame.");
+  for (const side of ["left", "right"] as const)
+    if (
+      !HumanSignature.bears(reader, settled, side) ||
+      !HumanSignature.bears(reader, rise!.end, side)
+    )
+      findings.push(side + " sole lacks support after crossing or rising.");
 }
