@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, getConstraint, hingedArmSwivel } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  getConstraint,
+  hingedArmSwivel,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -209,16 +214,26 @@ export namespace AutoMovieMotionHumanTouchLaid {
     goal: IAutoMovieHumanLimbGoal,
     source?: Parameters<typeof resolveHumanPosture.seeded>[4],
     projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    fitted?: (goal: IAutoMovieHumanLimbGoal) => Parameters<typeof resolveHumanPosture.reference>[0],
+    fitted?: (
+      goal: IAutoMovieHumanLimbGoal,
+    ) => Parameters<typeof resolveHumanPosture.reference>[0],
   ): NonNullable<IAutoMovieHumanLimbGoal["reference"]> {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     const solved: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
       fitted !== undefined
         ? fitted(goal)
-        : resolveHumanPosture.seeded(body, {
-            ...posture,
-            limbs: { ...posture.limbs, [limb]: goal },
-          }, undefined, undefined, source, undefined, projection).pose,
+        : resolveHumanPosture.seeded(
+            body,
+            {
+              ...posture,
+              limbs: { ...posture.limbs, [limb]: goal },
+            },
+            undefined,
+            undefined,
+            source,
+            undefined,
+            projection,
+          ).pose,
       limb,
     );
 
@@ -274,7 +289,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
+    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,
     side: AutoMovieHumanSide,
     effector: IAutoMovieMotionHumanTouchEffector.IEffector,
     place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
@@ -374,7 +389,11 @@ export namespace AutoMovieMotionHumanTouchLaid {
     const rounds: number =
       Math.ceil(Math.log2((2 * body.measure.upperArm) / tolerance)) + 1;
     let moved: number = Infinity;
-    for (let round: number = 0; round < rounds && !(moved <= tolerance); ++round) {
+    for (
+      let round: number = 0;
+      round < rounds && !(moved <= tolerance);
+      ++round
+    ) {
       const goal: IAutoMovieHumanLimbGoal = rest(
         body,
         posture,
@@ -411,7 +430,10 @@ export namespace AutoMovieMotionHumanTouchLaid {
         undefined,
         new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]),
       ).get(`${side}LowerArm`)!.worldPosition;
-      moved = Math.max(Vector3.distance(next, hint), Vector3.distance(taken, from ?? hint));
+      moved = Math.max(
+        Vector3.distance(next, hint),
+        Vector3.distance(taken, from ?? hint),
+      );
       hint = next;
       from = taken;
     }
