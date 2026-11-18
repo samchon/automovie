@@ -373,6 +373,22 @@ export namespace punchGeometry {
       }
       return at;
     };
+    // The wrist's share of its way from the guard to where the arm lands on
+    // the launch plan, on its free path at a clock: the delivery's own reach
+    // of the hand, through the contact and held there after.
+    const way: IAutoMovieVector3 = Vector3.subtract(landed, origin);
+    const span: number = Vector3.dot(way, way);
+    const travelled = (clock: number): number =>
+      clock >= shown || !(span > 0)
+        ? 1
+        : Math.max(
+            0,
+            Math.min(
+              1,
+              Vector3.dot(Vector3.subtract(stroke.free(t0 + clock), origin), way) /
+                span,
+            ),
+          );
     const compose = (
       t: number,
       end: IAutoMovieVector3,
@@ -386,7 +402,17 @@ export namespace punchGeometry {
     ): IAutoMovieMotionHumanPosture => {
       const reference: IAutoMovieHumanLimbReference | undefined =
         bare === undefined ? anchored(clock) : undefined;
-      const held: number = Math.max(0, Math.min(1, out(clock) - back(clock)));
+
+      // The elbow and the arm's reference go out as far as the wrist has: the
+      // wrist launches after the skill's lag and peaks late in its delivery
+      // (`StrikingStroke.delivery`), so an elbow on the delivery's own clock
+      // led it, and mid-flight it stood ahead of the fist with the forearm
+      // sweeping back across the line (the small woman's cross met the
+      // partner's lead elbow 47 ms before impact with the elbow 15 cm ahead
+      // of the wrist). Read as the wrist's share of its way from the guard
+      // to where the arm lands, the elbow stays behind the fist.
+      const gone: number = travelled(clock);
+      const held: number = Math.max(0, Math.min(1, gone - back(clock)));
       const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
       const posture: IAutoMovieMotionHumanPosture = (bare?.base ?? footwork.base)(t, clock, resolution);
       const guard: ReturnType<typeof StrikingStance.guard> = guardAt(posture, resolution, projection);
@@ -396,7 +422,7 @@ export namespace punchGeometry {
           bare === undefined
             ? carry(contact.hint, clock, (c: punchReach.ICorrection) => c.hint)
             : bare.hint(clock),
-          out(clock),
+          gone,
         ),
         guard[arm]!.bend,
         back(clock),
