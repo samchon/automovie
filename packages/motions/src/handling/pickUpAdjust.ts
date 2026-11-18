@@ -22,6 +22,28 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import type { pickUpPosture } from "./pickUpPosture";
+import { pickUpStepReach } from "./pickUpStepReach";
+
+/** A ready stance and the distance its adjustment foot travels, metres. */
+interface IStep {
+  /** Foot travel along the floor, metres. */
+  length: number;
+
+  /** The body and its retained step schedule. */
+  stance: pickUpPosture.IStance;
+}
+
+/** The requested adjustment may lie beyond a single step. */
+type Step = IStep | null;
+
+/** The least foot travel, if its reach intersects the permitted course. */
+type Travel = pickUpStepReach.Distance;
+
+/** The opposite ankle is absent when the entry has no placement for it. */
+type Ankle = IAutoMovieHumanLimbGoal | undefined;
+
+/** Whether another admitted reach adjustment can use the stepped base. */
+type Accept = (posture: IAutoMovieMotionHumanPosture) => boolean;
 
 /**
  * How a standing reach adapts its body before its arm refuses a grip it
@@ -38,8 +60,8 @@ export namespace pickUpAdjust {
   /** The longest adjustment step a reach takes, metres for a body of `STATURE`: the median step of healthy adults reaching with a step to a target at 130 percent of the arm's length, 423.96 mm (Tomita et al. 2024, Neurorehabil Neural Repair 38:176, Table 3, 13 adults aged 64.7 years); a body's own is scaled by its stature over `STATURE`. */
   export const STEP: number = 0.42396;
 
-  /** The stature a step's length is scaled against, metres (provisional: the study gives no height). */
-  export const STATURE: number = 1.7;
+  /** The healthy control group's mean stature, metres, from Tomita et al. (2024), Table 1. */
+  export const STATURE: number = 1.714;
 
   /** The shares of the reach's time at which an adjustment step's foot leaves the floor and lands: 262.51 ms after the hand sets off and 454.62 ms later, of a 993.46 ms reach with a step (Tomita et al. 2024, Tables 2 and 3, medians). */
   export const STEPPING: readonly [number, number] = [
@@ -168,34 +190,37 @@ export namespace pickUpAdjust {
    * does not bring within reach is none of a reach's: the person steps
    * closer first.
    *
-   * @param context The action's context.
+   * @param context The action's body.
    * @param side The reaching arm.
    * @param wrist Where the wrist must go on the grip, world metres.
    * @param stance The stance to step from.
    * @param lifted Where the wrist must also come by the lift's end, world metres: the step then brings the shoulder within `bendLower.REACH` of the arm of it, the arm near and not at full extension, or else within the arm (`pickUpStance`). The grip alone when absent.
+   * @param reach How near the shoulder must come to the wrist, metres. The arm's length when absent.
+   * @param accept Optional admission of the actual stepped base, including another reach adjustment. If the direct step fails, success must stay monotone up to the permitted maximum.
    * @returns The stepped stance, or null when one step does not reach or the stance places no foot.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which foot steps, where, how far, when and the limit.
    * @evidence contracts/development/implementation.md#principled-implementation One foot's planted goal moved along the floor toward the wrist, the root half as far, the shoulder read on the moved body; the step is solved for the least length that reaches, and the foot chosen from the target's side where the data settle it and from the shorter step where they do not.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The direction, the feet to try, one solve per foot, one closure.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A step beyond `STEP` is never taken; the caller refuses instead. No angle decides a midline target's foot.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains each original foot trial and bounded step-length bisection. Genuine shoulder/two-hip name readers bind once, and one planning-only exact FK getter serves every actual hip/shoulder probe. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Body/side and actual hip names establish static demand equivalence; every shifted root, drop, target distance and foot trial remains actual. Runtime step calls borrow only their supplied current reader and retain the original raw hip policy without ROM projection.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Static body/name metadata and original stance/step geometry may live with returned callbacks. The planning getter is cleared before return; dynamic FK, candidate root/maps and distance results do not enter the returned stance or a history.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The flat shoulder path intersects the reach spheres directly. A planted-leg lowering that changes the feasible interval uses a bounded scalar search without any FK in the trials.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The endpoint shoulder and planted hip are read once since each step trial translates them rigidly by the root's displacement. Runtime reads the current planted hip where the carrier can change.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned stance retains the fixed body/builders and step geometry. Candidate positions and numerical observations are confined to planning.
    */
   export function stepped(
-    context: IAutoMovieMotionHumanActionContext<object>,
+    context: Pick<IAutoMovieMotionHumanActionContext<object>, "body">,
     side: AutoMovieHumanSide,
     wrist: IAutoMovieVector3,
     stance: pickUpPosture.IStance,
     lifted?: IAutoMovieVector3,
+    reach?: number,
+    accept?: Accept,
   ): pickUpPosture.IStance | null {
     const readShoulder: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
       context.body, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]));
     const readHips: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(
       context.body, new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]));
-    let prepared: ReturnType<typeof prepareHumanPoseResolution> | undefined = prepareHumanPoseResolution();
-    const from: IAutoMovieVector3 = shoulder(side, stance.posture, readShoulder, prepared);
+    const from: IAutoMovieVector3 = shoulder(side, stance.posture, readShoulder);
     const flat: IAutoMovieVector3 = {
       x: wrist.x - from.x,
       y: 0,
@@ -217,7 +242,7 @@ export namespace pickUpAdjust {
       y: 0,
       z: -Math.sin(yaw),
     });
-    const feet: readonly ("left" | "right")[] =
+    const feet: readonly AutoMovieHumanSide[] =
       Math.abs(across) >= Math.sin((LATERAL * Math.PI) / 180)
         ? [across > 0 ? "left" : "right"]
         : [side, side === "left" ? "right" : "left"];
@@ -225,36 +250,36 @@ export namespace pickUpAdjust {
     // The places the step must bring within reach, each with its reach:
     // the grip within the arm, and the lifted place near full extension or
     // else within the arm.
-    const reaches: readonly (readonly [IAutoMovieVector3, number][])[] =
+    const wristReach: pickUpStepReach.IReach = [wrist, reach ?? arm];
+    const reaches: readonly (readonly pickUpStepReach.IReach[])[] =
       lifted === undefined
-        ? [[[wrist, arm]]]
+        ? [[wristReach]]
         : [
             [
-              [wrist, arm],
+              wristReach,
               [lifted, bendLower.REACH * arm],
             ],
             [
-              [wrist, arm],
+              wristReach,
               [lifted, arm],
             ],
           ];
-    let best: { length: number; stance: pickUpPosture.IStance } | null = null;
+    const hips: ReturnType<typeof HumanTrunk.resolve> = readHips(stance.posture);
+    const short: ReturnType<typeof walkReach.prepareShort> = walkReach.prepareShort(context.body);
+    let best: Step = null;
     for (const foot of feet) {
-      const taken: { length: number; stance: pickUpPosture.IStance } | null =
-        take(foot);
+      const taken: Step = take(foot);
       if (taken !== null && (best === null || taken.length < best.length))
         best = taken;
     }
-    prepared = undefined;
     return best === null ? null : best.stance;
 
     /** The least step of a foot that reaches, and its stance; null when one step does not. */
-    function take(
-      foot: "left" | "right",
-    ): { length: number; stance: pickUpPosture.IStance } | null {
-      const leg: "leftLeg" | "rightLeg" =
-        foot === "left" ? "leftLeg" : "rightLeg";
+    function take(foot: AutoMovieHumanSide): Step {
+      const leg: Leg = `${foot}Leg`;
       if (stance.posture.limbs[leg] === undefined) return null;
+      const fixed: AutoMovieHumanSide = foot === "left" ? "right" : "left";
+      const fixedLeg: Leg = `${fixed}Leg`;
 
       // The body with its foot moved `length` along the floor, a share of it.
       const step: (posture: IAutoMovieMotionHumanPosture, length: number, share: number, resolution?: IFK) => IAutoMovieMotionHumanPosture = (
@@ -284,24 +309,11 @@ export namespace pickUpAdjust {
 
         // The pelvis comes down as far as either planted leg asks to reach
         // its foot, as a walk's does (`walkReach.short`).
-        const hips: ReturnType<typeof HumanTrunk.resolve> = readHips(
-          { ...posture, root: shifted },
-          resolution,
-        );
-        const drop: number = Math.max(
-          0,
-          ...(["left", "right"] as const).map((s: "left" | "right"): number => {
-            const ankle: IAutoMovieHumanLimbGoal | undefined =
-              posture.limbs[s === "left" ? "leftLeg" : "rightLeg"];
-            return ankle === undefined || s === foot
-              ? 0
-              : walkReach.short(
-                  context.body,
-                  hips.get(`${s}UpperLeg`)!.worldPosition,
-                  ankle.point,
-                );
-          }),
-        );
+        const ankle: Ankle = posture.limbs[fixedLeg];
+        const drop: number = ankle === undefined ? 0 : Math.max(0, short(
+          readHips({ ...posture, root: shifted }, resolution).get(`${fixed}UpperLeg`)!.worldPosition,
+          ankle.point,
+        ));
         return {
           ...posture,
           root: { ...shifted, y: shifted.y - drop },
@@ -320,45 +332,63 @@ export namespace pickUpAdjust {
       };
 
       // How far past its reach the furthest place lies, metres.
-      const gap: (places: readonly [IAutoMovieVector3, number][], length: number) => number = (
-        places: readonly [IAutoMovieVector3, number][],
+      const ankle: Ankle = stance.posture.limbs[fixedLeg];
+      const hip: IAutoMovieVector3 = hips.get(`${fixed}UpperLeg`)!.worldPosition;
+      const dropAt: (length: number) => number = (length: number): number =>
+        ankle === undefined || length <= 0
+          ? 0
+          : Math.max(0, short(Vector3.addScaled(hip, toward, length / 2), ankle.point));
+      const gap: (places: readonly pickUpStepReach.IReach[], length: number) => number = (
+        places: readonly pickUpStepReach.IReach[],
         length: number,
       ): number => {
-        const at: IAutoMovieVector3 = shoulder(
-          side,
-          step(stance.posture, length, 1, prepared),
-          readShoulder,
-          prepared,
-        );
+        const at: IAutoMovieVector3 = Vector3.addScaled(from, toward, length / 2);
+        at.y -= dropAt(length);
         return Math.max(
           ...places.map(
-            ([place, reach]: [IAutoMovieVector3, number]): number =>
-              Vector3.length(Vector3.subtract(place, at)) - reach,
+            ([place, limit]: pickUpStepReach.IReach): number =>
+              Vector3.length(Vector3.subtract(place, at)) - limit,
           ),
         );
       };
-      const places: readonly [IAutoMovieVector3, number][] | undefined =
-        reaches.find(
-          (candidate: readonly [IAutoMovieVector3, number][]): boolean =>
-            gap(candidate, longest) <= 0,
+      let length: Travel = null;
+      for (const places of reaches) {
+        const direct: Travel = pickUpStepReach(from, toward, places, longest);
+        if (direct !== null && dropAt(direct) === 0) {
+          length = direct;
+          break;
+        }
+        if (gap(places, longest) <= 0) {
+          // The planted leg bends the shoulder path away from the horizontal
+          // solution. Refine the feasible length to a tenth of a millimetre.
+          length = bracketedBisection(
+            (tried: number): boolean => gap(places, tried) > 0,
+            0,
+            longest,
+            1e-4,
+          );
+          break;
+        }
+      }
+      if (accept !== undefined && length !== null && !accept(step(stance.posture, length, 1)))
+        length = null;
+      if (length === null && accept !== undefined && accept(step(stance.posture, longest, 1)))
+        length = bracketedBisection(
+          (tried: number): boolean => !accept(step(stance.posture, tried, 1)),
+          0,
+          longest,
+          1e-4,
         );
-      if (places === undefined) return null;
-
-      // The least step that reaches, to a tenth of a millimetre.
-      const length: number = bracketedBisection(
-        (tried: number): boolean => gap(places, tried) > 0,
-        0,
-        longest,
-        1e-4,
-      );
+      if (length === null) return null;
+      const travel: number = length;
       return {
-        length,
+        length: travel,
         stance: {
-          posture: step(stance.posture, length, 1, prepared),
+          posture: step(stance.posture, travel, 1),
           at: (s: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
-            step(stance.at(s, resolution, projection), length, s, resolution),
+            step(stance.at(s, resolution, projection), travel, s, resolution),
           lower: (posture: IAutoMovieMotionHumanPosture, s: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
-            step(stance.lower(posture, s, resolution, projection), length, s, resolution),
+            step(stance.lower(posture, s, resolution, projection), travel, s, resolution),
           step: { side: foot, off: STEPPING[0], on: STEPPING[1] },
         },
       };
@@ -448,12 +478,10 @@ export namespace pickUpAdjust {
   export const LATERAL: number = 30;
 
   /** The time share at which a minimum-jerk progress has gone a share of its way (`minimumJerk.time`). */
-  const timed: (share: number) => number = (share: number): number =>
-    minimumJerk.time(share);
+  const timed = minimumJerk.time;
 
   /** Actual holding shoulder through its same-body fixed-name reader, world metres. */
-  const shoulder: (side: AutoMovieHumanSide, posture: IAutoMovieMotionHumanPosture,
-    read: ReturnType<typeof HumanTrunk.prepareResolve>, resolution?: IFK) => IAutoMovieVector3 = (
+  const shoulder = (
     side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
     read: ReturnType<typeof HumanTrunk.prepareResolve>,
@@ -462,8 +490,10 @@ export namespace pickUpAdjust {
     read(posture, resolution).get(`${side}UpperArm`)!.worldPosition;
 }
 
+/** A leg goal addressed by the side of its support. */
+type Leg = `${AutoMovieHumanSide}Leg`;
+
 /** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */
 type IFK = Parameters<pickUpPosture.IStance["at"]>[1];
 
-/** Same-person ROM projection forwarded only to the original solved stance observations. */
 type IROM = Parameters<pickUpPosture.IStance["at"]>[2];

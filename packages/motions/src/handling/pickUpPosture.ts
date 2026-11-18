@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection } from "@automovie/engine";
+import { Quaternion, Vector3, bracketedBisection } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -17,6 +18,7 @@ import { bend } from "../everyday/bend";
 import { bendLower } from "../everyday/bendLower";
 import { seated } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -184,6 +186,13 @@ export namespace pickUpPosture {
       throw new Error("A seated lean of a body that is not seated");
     const limit: number =
       reach ?? context.body.measure.upperArm + context.body.measure.forearm;
+    const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
+    const freeArm: Arm = `${free}Arm`;
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+      `${free}UpperArm`, `${free}LowerArm`, `${free}Hand`,
+    ]);
+    type Bones = ReturnType<typeof poseBones> | undefined;
+    let initial: Bones;
     // Reach probes read only the trunk, so hand-rest goals belong to actual
     // output lowering rather than every discarded bisection trial.
     const leanBody: (posture: IAutoMovieMotionHumanPosture, pitch: number, resolution?: IFK) => IAutoMovieMotionHumanPosture =
@@ -204,10 +213,13 @@ export namespace pickUpPosture {
         joints: tilt.joints,
       }, undefined, resolution);
     };
-    const lower: (posture: IAutoMovieMotionHumanPosture, pitch: number, resolution?: IFK, projection?: IROM) => IAutoMovieMotionHumanPosture =
-      (posture: IAutoMovieMotionHumanPosture, pitch: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture => {
-      if (pitch <= 0) return posture;
-      const leant: IAutoMovieMotionHumanPosture = leanBody(posture, pitch, resolution);
+    const lower: IStance["lower"] = (
+      posture: IAutoMovieMotionHumanPosture, share: number, resolution?: IFK, projection?: IROM,
+    ): IAutoMovieMotionHumanPosture => {
+      const angle: number = pitch * share;
+      if (angle <= 0) return posture;
+      const leant: IAutoMovieMotionHumanPosture = leanBody(posture, angle, resolution);
+      if (context.entry.holds[free] !== undefined || base.seat?.armrests?.[free] !== undefined) return leant;
 
       // A free hand rests where the leaned body sets it, on the thigh or
       // the armrest, as it rested sitting; a hand that holds keeps its goal.
@@ -241,40 +253,32 @@ export namespace pickUpPosture {
         y: 0,
         z: Math.cos(yaw),
       };
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...leant.limbs };
-      const hands: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
-        (hand: AutoMovieHumanSide): boolean => context.entry.holds[hand] === undefined &&
-          rested.limbs[`${hand}Arm`] !== undefined,
-      );
-      if (hands.length === 0) return { ...leant, limbs };
-      const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(hands.map(
-        (hand: AutoMovieHumanSide): AutoMovieHumanoidBone => `${hand}UpperArm`,
-      ));
-      const after: ReturnType<typeof HumanTrunk.resolve> =
-        HumanTrunk.resolve(context.body, leant, undefined, resolution, requested);
-      const before: ReturnType<typeof HumanTrunk.resolve> =
-        HumanTrunk.resolve(context.body, posture, undefined, resolution, requested);
-      for (const hand of hands) {
-        const goal: IAutoMovieHumanLimbGoal = rested.limbs[`${hand}Arm`]!;
-        const slide: number = Math.min(
-          0.5 * context.body.measure.thigh,
-          Math.max(
-            0,
-            Vector3.dot(
-              Vector3.subtract(
-                after.get(`${hand}UpperArm`)!.worldPosition,
-                before.get(`${hand}UpperArm`)!.worldPosition,
-              ),
-              ahead,
-            ),
-          ),
-        );
-        limbs[`${hand}Arm`] = {
-          ...goal,
-          point: Vector3.add(goal.point, Vector3.scale(ahead, slide)),
-        };
-      }
-      return { ...leant, limbs };
+      const goal: FreeGoal = rested.limbs[freeArm];
+      if (goal === undefined) return leant;
+      initial ??= poseBones(context.body, context.entry.pose, undefined, requested);
+      const wrist: IAutoMovieResolvedBone = initial.get(`${free}Hand`)!;
+      const elbow: IAutoMovieResolvedBone = initial.get(`${free}LowerArm`)!;
+      const slide: number = Math.min(0.5 * context.body.measure.thigh, Math.max(0, Vector3.dot(
+        Vector3.subtract(shoulder(context, free, leant), initial.get(`${free}UpperArm`)!.worldPosition), ahead,
+      )));
+      // Start and finish on the displayed entry arm. A new full thigh goal
+      // at the first nonzero lean lets the swivel choose a different elbow.
+      return {
+        ...leant,
+        limbs: {
+          ...leant.limbs,
+          [freeArm]: {
+            ...goal,
+            point: Vector3.lerp(wrist.worldPosition, Vector3.addScaled(goal.point, ahead, slide), share),
+            rotation: Quaternion.slerp(wrist.worldRotation, goal.rotation ?? wrist.worldRotation, share),
+            bend: Vector3.lerp(elbow.worldPosition, goal.bend, share),
+            reference: {
+              upper: entry.joints[`${free}UpperArm`] ?? ZERO,
+              lower: entry.joints[`${free}LowerArm`] ?? ZERO,
+            },
+          },
+        },
+      };
     };
     const far: (pitch: number) => number = (pitch: number): number =>
       Vector3.length(
@@ -321,12 +325,11 @@ export namespace pickUpPosture {
             0.01,
           );
     const at: IStance["at"] = (share: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
-      lower(entry, pitch * share, resolution, projection);
+      lower(entry, share, resolution, projection);
     return {
       posture: at(1),
       at,
-      lower: (posture: IAutoMovieMotionHumanPosture, share: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
-        lower(posture, pitch * share, resolution, projection),
+      lower,
     };
   };
 
@@ -416,3 +419,12 @@ type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
 /** Genuine current-person ROM projection borrowed only by actual solved observations. */
 type IROM = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
+
+/** An arm owned by its side of the body. */
+type Arm = `${AutoMovieHumanSide}Arm`;
+
+/** A free arm may have no reachable thigh contact. */
+type FreeGoal = IAutoMovieHumanLimbGoal | undefined;
+
+/** Unset clinical angles hold their neutral coordinates. */
+const ZERO: readonly [number, number, number] = [0, 0, 0];
