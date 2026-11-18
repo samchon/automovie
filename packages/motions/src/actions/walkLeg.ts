@@ -218,7 +218,7 @@ export namespace walkLeg {
    * @param pivot The fixed toe-joint contact, world metres.
    * @param heading The fixed foot heading, degrees.
    * @param width The fixed dorsal-room onset, degrees.
-   * @returns The original heel-rise rule for a world-space hip and asked pitch.
+   * @returns The heel-rise rule for a world-space hip and asked pitch.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each fixed input, its unit and the varying hip/pitch reader.
    * @evidence contracts/development/implementation.md#principled-implementation Runs rise's folded-room search on roomValue's dorsal room, a pitch whose ankle lies beyond the leg's reach reading no room (`prepareWalkLegLean.bounded`), sharing only the fixed sole pivot and forward direction.

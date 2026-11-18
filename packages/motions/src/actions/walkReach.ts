@@ -23,6 +23,7 @@ import type { walkFoot } from "./walkFoot";
 import { walkHipTwist } from "./walkHipTwist";
 import { walkLeg } from "./walkLeg";
 import { walkReachFeet } from "./walkReachFeet";
+import { walkReachShort } from "./walkReachShort";
 import { walkReachStance } from "./walkReachStance";
 
 /**
@@ -31,7 +32,7 @@ import { walkReachStance } from "./walkReachStance";
  * are enforced by IK, and the root moves so the IK can meet them.
  *
  * `ground` settles the pelvis against the stances. It lowers the root until
- * each stance's ankle is reached with the knee at least `KNEE` degrees bent
+ * each stance's ankle is reached with the knee at least `walkReachShort.KNEE` degrees bent
  * and turns the pelvis no further than `TWIST` from each stance's foot
  * (`pelvis`). Each foot claims a lowering (`short`), signed, so a leg with
  * slack claims less than none. A swinging foot claims through the stance it
@@ -114,50 +115,11 @@ export namespace walkReach {
       : minimumJerk.share(Math.max(0, (u - (1 - FADE)) / FADE));
   }
 
-  /**
-   * The lowering a leg asks of the root to reach an ankle with the knee
-   * `KNEE` bent (`resolveHumanPosture.short`).
-   *
-   * @param body The body.
-   * @param hip The hip joint, world metres.
-   * @param ankle The ankle, world metres.
-   * @returns Metres, negative by the leg's slack and no less than the leg's
-   *   length under none (`slack`), which claims as little as any slack does.
-   */
-  export function short(
-    body: IAutoMovieMotionHumanBody,
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-  ): number {
-    return Math.max(-slack(body), resolveHumanPosture.short(body, hip, ankle, KNEE));
-  }
+  /** The lowering a leg asks of the root at the knee floor (`walkReachShort.short`). */
+  export const short: typeof walkReachShort.short = walkReachShort.short;
 
-  /** The most slack a claim counts, metres: the leg's whole length, thigh and shank, the most a hip can be lowered toward its ankle; any slack past it claims as little, the smooth maximum with none (`CLAIM` wide) reading it as none. */
-  function slack(body: IAutoMovieMotionHumanBody): number {
-    return body.measure.thigh + body.measure.shank;
-  }
-
-  /**
-   * Prepare the fixed body's knee-flexed reach for repeated lowering claims.
-   *
-   * @param body The unchanged body whose measured thigh/shank determine reach.
-   * @returns The metre claim for world-metre hip/ankle pairs, bounded below by the leg's length of slack (`short`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed measured-body premise, world-metre varying points, signed claim and slack floor.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the shared lowering owner's cosine-law reach at this law's `KNEE`, its horizontal-distance comparison and Pythagorean vertical reach, floored at the leg's length of slack.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical reach preparation feeds a scalar claim reader, used both by ground's root trials and a walk's descent samples.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Applies `short`'s knee threshold, outside-reach result and slack floor to every point pair, with no tuned bound.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed cosine and reach square root prepare once rather than in every root/descent probe; every actual point pair retains its horizontal distance and remaining square root.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The synchronous ground solve or fixed-body take owns its unchanged measured lengths and knee threshold; changing that body requires a new reader, without sharing any queried claim.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One owner-local closure retains the canonical scalar reach reader until its solve/take releases it; no hip, ankle, claim, time history or global pose cache is retained.
-   */
-  export function prepareShort(
-    body: IAutoMovieMotionHumanBody,
-  ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
-    const read: ReturnType<typeof resolveHumanPosture.prepareShort> = resolveHumanPosture.prepareShort(body, KNEE);
-    const least: number = -slack(body);
-    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number => Math.max(least, read(hip, ankle));
-  }
+  /** Prepare the fixed body's lowering claims (`walkReachShort.prepare`). */
+  export const prepareShort: typeof walkReachShort.prepare = walkReachShort.prepare;
 
   /**
    * Turn the pelvis toward its stances: no further than `TWIST` from each
@@ -475,7 +437,7 @@ export namespace walkReach {
     side: "left" | "right",
   ): ReturnType<typeof prepareWalkReachSwing> {
     return prepareWalkReachSwing(body, side, {
-      knee: KNEE, extension: EXTENSION, side: SIDE, twist: TWIST, fade: FADE,
+      knee: walkReachShort.KNEE, extension: EXTENSION, side: SIDE, twist: TWIST, fade: FADE,
     });
   }
   /** Both feet. */
@@ -496,9 +458,6 @@ export namespace walkReach {
 
   /** The furthest a swinging leg's line leans to the side of its foot, degrees: the ankle's inversion and eversion (`walkReachStance.SIDE`), the same bound a stance stands inside, so a swing joins its stances where they are. */
   const SIDE: number = walkReachStance.SIDE;
-
-  /** The least knee flexion of a planted or reaching leg, degrees (provisional): a walking knee never locks straight. */
-  const KNEE: number = 10;
 
   /** The largest heading, degrees, a foot may keep from the pelvis: the hip's own internal and external rotation (`DEFAULT_HUMANOID_ROM`, 45° either way, `walkHipTwist`); a turn that asks more is taken by spinning on the ball of the foot (a spin turn, Hase and Stein 1999). */
   export const TWIST: number = walkHipTwist(DEFAULT_HUMANOID_ROM);
