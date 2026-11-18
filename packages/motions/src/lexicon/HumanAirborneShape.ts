@@ -14,6 +14,7 @@ import type {
 
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
@@ -113,6 +114,71 @@ export namespace HumanAirborneShape {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The layer holds one table entry, its claimed limbs and three bone sets of at most six names; each application's resolution ends with it.
    */
   export function layer(shape: IAutoMovieMotionHumanAirborneShape.Shape): IAutoMovieMotionHumanLayer {
+    return new NativeLayer(shape);
+  }
+
+  /** Receive the actual projected joints and root during the same displayed evaluation. */
+  export type Assembly = (direct: resolveHumanPostureSource.IAssembled) => void;
+
+  /** A native shape blend can lend the direct assembly used to place its held goals. */
+  export type ShapeBlend = (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+    context: IAutoMovieMotionHumanLayer.IContext,
+    weight: number,
+    assembly?: Assembly,
+  ) => IAutoMovieMotionHumanPosture;
+
+  /**
+   * Read the original blend only for the layer that constructed it. Its private
+   * callback can create an assembly only from the actual projected posture.
+   * An external layer, wrapped function, changed property or proxy has no loan.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies which native shape can lend its direct assembly and the ordinary fallback for foreign, wrapped or edited layers.
+   * @evidence contracts/development/implementation.md#principled-implementation The constructor accepts only a shape name and creates its own blend. A private field establishes provenance and the current own data property must still name that exact function.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private-field admission precedes one own-property comparison; foreign layers and proxies are never inspected.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A caller cannot register a callback, supply a readiness flag, recover a stored pose, or pass a copied native callback as another layer.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The constant-time identity test allows the next leaf to fit its actual new goals on the same projected joints, avoiding one direct assembly per accepted evaluation.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the exact factory blend can supply its actual authored posture and direct pose; the leaf verifies that same posture before the single fit.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owner holds its own callable for its layer lifetime. The receiver and assembly remain on one displayed evaluation, with no global registry or history.
+   */
+  export function prepared(layer: IAutoMovieMotionHumanLayer): ShapeBlend | undefined {
+    return NativeLayer.read(layer);
+  }
+
+  /** The definition returned by the native shape constructor. */
+  interface IDefinition {
+    channels: AutoMovieHumanLimb[];
+    blend: ShapeBlend;
+  }
+
+  /** Each layer owns its actual callable; its constructor accepts only a shape name. */
+  class NativeLayer implements IAutoMovieMotionHumanLayer {
+    public readonly name: IAutoMovieMotionHumanAirborneShape.Shape;
+    public readonly channels: AutoMovieHumanLimb[];
+    public readonly blend: ShapeBlend;
+    public readonly apply: IAutoMovieMotionHumanLayer["apply"];
+    readonly #original: ShapeBlend;
+
+    public constructor(shape: IAutoMovieMotionHumanAirborneShape.Shape) {
+      const definition: IDefinition = build(shape);
+      this.name = shape;
+      this.channels = definition.channels;
+      this.blend = definition.blend;
+      this.#original = definition.blend;
+      this.apply = (posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext): IAutoMovieMotionHumanPosture =>
+        definition.blend(posture, seconds, context, 1);
+    }
+
+    public static read(layer: IAutoMovieMotionHumanLayer): ShapeBlend | undefined {
+      if (!(#original in layer)) return undefined;
+      const field: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(layer, "blend");
+      return field?.value === layer.#original ? layer.#original : undefined;
+    }
+  }
+
+  /** Construct the clinical keys, demanded limb chains and their native blend. */
+  function build(shape: IAutoMovieMotionHumanAirborneShape.Shape): IDefinition {
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     > = ANGLES[shape];
@@ -129,11 +195,12 @@ export namespace HumanAirborneShape {
       demands[limb] = chain;
       for (const bone of chain) requested.add(bone);
     }
-    const blend: NonNullable<IAutoMovieMotionHumanLayer["blend"]> = (
+    const blend: ShapeBlend = (
       posture: IAutoMovieMotionHumanPosture,
       _seconds: number,
       context: IAutoMovieMotionHumanLayer.IContext,
       weight: number,
+      assembly?: Assembly,
     ): IAutoMovieMotionHumanPosture => {
       if (weight <= 0) return posture;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
@@ -175,11 +242,17 @@ export namespace HumanAirborneShape {
       // A held goal goes where the shape's joints put the end joint, posed
       // before the whole-body turn the goals are stated under, so a
       // fading layer moves the goal there and never drops it mid-air.
-      const still: IAutoMovieMotionHumanPosture = { ...shaped };
-      delete still.rotation;
+      const still: IAutoMovieMotionHumanPosture = shaped.rotation === undefined ? shaped : { ...shaped };
+      if (still !== shaped) delete still.rotation;
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(reader);
-      const pose: IAutoMoviePose = resolveHumanPosture.seeded(
+      // No limb or digit changes the direct pose here. Its root and joints
+      // are also those of the final authored goals added to limbs below.
+      const direct: resolveHumanPostureSource.IAssembled | undefined =
+        assembly !== undefined && still === shaped && still.digits === undefined &&
+        Object.keys(limbs).length === 0 && prepareHumanPoseResolution.isNativeSource(reader)
+          ? resolveHumanPostureSource.assemble(context.body, still, undefined, projection) : undefined;
+      const pose: IAutoMoviePose = direct?.pose ?? resolveHumanPosture.seeded(
         context.body, still, undefined, undefined, resolution, observed,
         projection,
       ).pose;
@@ -213,15 +286,10 @@ export namespace HumanAirborneShape {
               : goal.bend,
         };
       }
+      if (direct !== undefined) assembly!(direct);
       return shaped;
     };
-    return {
-      name: shape,
-      channels: [...claimed],
-      blend,
-      apply: (posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext): IAutoMovieMotionHumanPosture =>
-        blend(posture, seconds, context, 1),
-    };
+    return { channels: [...claimed], blend };
   }
 
   /** Each limb's upper, middle and end joints' bones. */

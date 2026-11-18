@@ -10,6 +10,7 @@ import type {
 
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
@@ -49,6 +50,7 @@ export namespace HumanSegmentLayer {
     seconds: number,
     resolution?: Resolution,
     projection?: Projection,
+    assembly?: HumanAirborneShape.Assembly,
   ): IAutoMovieMotionHumanPosture {
     if (person.layers.length === 0) return posture;
 
@@ -100,7 +102,10 @@ export namespace HumanSegmentLayer {
                 HumanSkill.stream(person.skill, person.performer.subject,
                   `layer:${layer.name}`, 0, channel),
             };
-            if (layer.blend !== undefined) return layer.blend(current, seconds, context, weight);
+            if (layer.blend !== undefined) {
+              const native: HumanAirborneShape.ShapeBlend | undefined = assembly === undefined ? undefined : HumanAirborneShape.prepared(layer);
+              return native === undefined ? layer.blend(current, seconds, context, weight) : native(current, seconds, context, weight, assembly);
+            }
             return mixHumanPosture(current, layer.apply(current, seconds, context), weight);
           } finally {
             borrowed?.release();

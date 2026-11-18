@@ -24,6 +24,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
+import type { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentPlant } from "./HumanSegmentPlant";
@@ -161,11 +162,14 @@ export namespace HumanSegmentPose {
         Math.min(segment.plan.duration, Math.max(0, localSeconds)),
         undefined, prepared.resolution, prepared.clamp,
       ]);
-      let written: IAutoMovieMotionHumanPosture = layered(
+      let direct: resolveHumanPostureSource.IAssembled | undefined;
+      let written: IAutoMovieMotionHumanPosture = HumanSegmentLayer.apply(
         person, raw,
         t,
         prepared.resolution,
         prepared.clamp,
+        fits === undefined && person.layers.length === 1 && person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0
+          ? (assembly: resolveHumanPostureSource.IAssembled): void => { direct = assembly; } : undefined,
       );
 
       const borne: IAutoMovieMotionHumanSegment.IHeld[] = HumanSegmentCarry.borne(person, segment, t);
@@ -176,7 +180,7 @@ export namespace HumanSegmentPose {
       }
       const overlaid: HumanSegmentOverlay.IOverlaid =
         HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
-          unplantedHumanObservation(written.limbs, observed), prepared, segment);
+          unplantedHumanObservation(written.limbs, observed), prepared, segment, direct);
       return {
         posture: {
           ...written,

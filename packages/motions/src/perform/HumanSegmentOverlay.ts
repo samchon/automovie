@@ -22,6 +22,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { refitHumanPosture } from "../posture/refitHumanPosture";
 import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
+import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 import { HumanSegment } from "./HumanSegment";
@@ -114,6 +115,7 @@ export namespace HumanSegmentOverlay {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
     carrier?: IAutoMovieMotionHumanSegment,
+    direct?: resolveHumanPostureSource.IAssembled,
   ): IOverlaid {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     const projection: Parameters<typeof resolveHumanPosture.seeded>[6] = prepared?.clamp;
@@ -171,9 +173,16 @@ export namespace HumanSegmentOverlay {
       if (overlay === undefined) {
         // Kept legs in a legs-still window (`HumanSegmentLegs`); the last leaf's seeds as incumbents (`HumanLimbIncumbent`).
         const leafed = (): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => HumanSegmentLegs.resolved(person, carrier, seconds, under,
-          near === undefined && observed === undefined, (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanResolveHumanPosture.ISeeded =>
-            resolveHumanPosture.seeded(body, posture, undefined, continuations(posture.limbs, near, tag), resolution,
-              unplantedHumanObservation(posture.limbs, observed), projection));
+          near === undefined && observed === undefined, (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => {
+            const seedsForLeaf: ReturnType<typeof continuations> = continuations(posture.limbs, near, tag);
+            const demand: ReturnType<typeof unplantedHumanObservation> = unplantedHumanObservation(posture.limbs, observed);
+            if (direct?.posture === posture) {
+              const assembly: resolveHumanPostureSource.IAssembled = direct;
+              direct = undefined;
+              return resolveHumanPostureSource.fit(body, assembly, undefined, seedsForLeaf, resolution, undefined, demand);
+            }
+            return resolveHumanPosture.seeded(body, posture, undefined, seedsForLeaf, resolution, demand, projection);
+          });
         const held: IAutoMovieMotionHumanSegment["incumbents"] = carrier?.incumbents;
         const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = held === undefined ? leafed() : HumanLimbIncumbent.within({ body, seeds: held }, leafed);
         if (carrier !== undefined) carrier.incumbents = fitted.seeds;

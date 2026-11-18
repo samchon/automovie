@@ -138,6 +138,7 @@ export namespace resolveHumanPostureSource {
     near: IAutoMovieMotionHumanResolveHumanPosture.INear = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     solved?: deriveHumanPosture.ISolved,
+    requested?: ReadonlySet<AutoMovieHumanoidBone>,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     if (
       solved !== undefined &&
@@ -159,7 +160,7 @@ export namespace resolveHumanPostureSource {
           },
       near,
       resolution,
-      undefined,
+      requested,
       refitHumanPosture.constructed,
     );
   }
