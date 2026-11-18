@@ -4,9 +4,11 @@ import {
   rideBicycle,
   rideHorse,
 } from "@automovie/archetypes";
-import { Quaternion } from "@automovie/engine";
+import {
+  Quaternion,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
-  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanObject,
@@ -237,35 +239,61 @@ export function test_human_motion_ride_mounts(): void {
         0,
       );
 
-      // A region of the rider in the saddle's own frame.
-      const within = (
-        region: AutoMovieHumanoidRegion,
-        seconds: number,
-      ): IAutoMovieVector3 => {
-        const frame: IAutoMovieRigidTransform = saddle(seconds);
-        const world: IAutoMovieVector3 = HumanSignature.region(
-          reader,
-          region,
-          seconds,
-        );
-        return Quaternion.rotateVector(Quaternion.inverse(frame.rotation), {
-          x: world.x - frame.position.x,
-          y: world.y - frame.position.y,
-          z: world.z - frame.position.z,
-        });
-      };
       const from: number = ride.entryTime + 0.3;
       const to: number = ride.end - 0.05;
       let banked: number = 0;
       let low: number = Infinity;
       let high: number = -Infinity;
+      const samples: SaddleSample[] = [];
+
+      // One displayed pose locates both regions at the same film second.
+      for (let k: number = 0; k <= 8; ++k) {
+        const seconds: number = from + (k / 8) * (to - from);
+        const frame: IAutoMovieRigidTransform = saddle(seconds);
+        const bones: ReturnType<typeof HumanSignature.bones> =
+          HumanSignature.bones(reader, seconds);
+        const within: (name: SaddleSite) => IAutoMovieVector3 = (
+          name: SaddleSite,
+        ): IAutoMovieVector3 => {
+          const region: IAutoMovieMotionHumanBody["surfaces"]["regions"][typeof name] =
+            body.surfaces.regions[name];
+          const world: IAutoMovieVector3 =
+            resolveAutoMovieHumanoidSurfaces.place(
+              region,
+              bones.get(region.bone)!,
+            ).point;
+          return Quaternion.rotateVector(Quaternion.inverse(frame.rotation), {
+            x: world.x - frame.position.x,
+            y: world.y - frame.position.y,
+            z: world.z - frame.position.z,
+          });
+        };
+        samples.push({
+          seconds,
+          seat: within("seat"),
+          sternum: within("sternum"),
+        });
+        const up: IAutoMovieVector3 = Quaternion.rotateVector(
+          placed(seconds).rotation,
+          {
+            x: 0,
+            y: 1,
+            z: 0,
+          },
+        );
+        banked = Math.max(
+          banked,
+          (Math.acos(Math.max(-1, Math.min(1, up.y))) * 180) / Math.PI,
+        );
+        low = Math.min(low, frame.position.y);
+        high = Math.max(high, frame.position.y);
+      }
       for (const region of ["seat", "sternum"] as const) {
-        const first: IAutoMovieVector3 = within(region, from);
+        const first: IAutoMovieVector3 = samples[0]![region];
         let worst: number = 0;
         let when: number = from;
-        for (let k: number = 0; k <= 8; ++k) {
-          const seconds: number = from + (k / 8) * (to - from);
-          const now: IAutoMovieVector3 = within(region, seconds);
+        for (const sample of samples) {
+          const now: IAutoMovieVector3 = sample[region];
           const moved: number = Math.hypot(
             now.x - first.x,
             now.y - first.y,
@@ -273,27 +301,14 @@ export function test_human_motion_ride_mounts(): void {
           );
           if (moved > worst) {
             worst = moved;
-            when = seconds;
+            when = sample.seconds;
           }
-          const frame: IAutoMovieRigidTransform = placed(seconds);
-          const up: IAutoMovieVector3 = Quaternion.rotateVector(
-            frame.rotation,
-            { x: 0, y: 1, z: 0 },
-          );
-          banked = Math.max(
-            banked,
-            (Math.acos(Math.max(-1, Math.min(1, up.y))) * 180) / Math.PI,
-          );
-          const height: number = saddle(seconds).position.y;
-          low = Math.min(low, height);
-          high = Math.max(high, height);
         }
         if (worst > 0.01)
           complaints.push(
             `${label}: the ${region} moves ${(worst * 1000).toFixed(1)} mm in the saddle's frame (at ${when.toFixed(2)} s), within 10 mm expected`,
           );
       }
-
       // 3. The mount moved under the rider.
       if (mount.name === "the bicycle" && banked < 8)
         complaints.push(
@@ -355,3 +370,13 @@ export function test_human_motion_ride_mounts(): void {
     );
   TestValidator.equals("a rider is carried by the saddle", complaints, []);
 }
+
+/** The two rider sites in the saddle's frame at one displayed film second. */
+interface SaddleSample {
+  seconds: number;
+  seat: IAutoMovieVector3;
+  sternum: IAutoMovieVector3;
+}
+
+/** The two rider regions observed relative to the saddle. */
+type SaddleSite = "seat" | "sternum";

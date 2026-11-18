@@ -58,7 +58,10 @@ export function test_human_motion_lexicon_rows_coupled(): void {
   const all: motionComplaints.IGatherer = motionComplaints();
   const SECONDS: number = 2;
   // A record maps roles and timings before it encounters either body.
-  const cast = { bearer: "a", borne: "b" } as const;
+  const cast: Parameters<typeof HumanCoupled.carry.act>[2] = {
+    bearer: "a",
+    borne: "b",
+  };
   for (const carry of Object.keys(
     HumanCarried.CARRIES,
   ) as IAutoMovieMotionHumanCarried.Carry[]) {
