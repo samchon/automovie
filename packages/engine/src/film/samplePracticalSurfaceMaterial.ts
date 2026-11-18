@@ -1,4 +1,9 @@
-import type { IAutoMovieShot } from "@automovie/interface";
+import type {
+  IAutoMoviePracticalSurfaceTrack,
+  IAutoMovieShot,
+} from "@automovie/interface";
+
+import { samplePracticalSurfaceTrackMaterial } from "./samplePracticalSurfaceTrackMaterial";
 
 /**
  * Sample the material id for one prop part from an admitted shot. Time is
@@ -27,20 +32,12 @@ export function samplePracticalSurfaceMaterial(
 ): string | undefined {
   if (!Number.isFinite(time) || time < 0 || time >= shot.duration)
     return undefined;
-  const track: NonNullable<IAutoMovieShot["practicalSurfaces"]>[number] | undefined =
+  const track: IAutoMoviePracticalSurfaceTrack | undefined =
     shot.practicalSurfaces?.find(
-      (entry: NonNullable<IAutoMovieShot["practicalSurfaces"]>[number]): boolean =>
+      (entry: IAutoMoviePracticalSurfaceTrack): boolean =>
         entry.node === node && entry.part === part,
     );
   if (track === undefined) return undefined;
 
-  // The first key is at zero, so the upper bound always has a predecessor.
-  let lower: number = 0;
-  let upper: number = track.keys.length;
-  while (lower < upper) {
-    const middle: number = lower + Math.floor((upper - lower) / 2);
-    if (track.keys[middle]!.time <= time) lower = middle + 1;
-    else upper = middle;
-  }
-  return track.keys[lower - 1]!.material;
+  return samplePracticalSurfaceTrackMaterial(track, time);
 }

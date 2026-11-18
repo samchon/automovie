@@ -44,6 +44,7 @@ export * from "./importedModel/index.js";
 export * from "./applyObjectMotion.js";
 export * from "./applyObjectMotions.js";
 export * from "./applyLightMotion.js";
+export * from "./applyPracticalSurfaceMaterials.js";
 export * from "./applyLightState.js";
 export * from "./renderCrossDissolveFrames.js";
 export * from "./renderCrossDissolve.js";
