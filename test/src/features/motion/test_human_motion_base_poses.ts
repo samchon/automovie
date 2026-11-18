@@ -23,8 +23,14 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * name keeps them where they are and ends standing: a brace and a stumble.
  *
  * A foot that bears does not slide. Each action declares when each foot is
- * planted, and through each of those windows the ball of that foot stays
- * within the campaign's slip bound. The flinches are
+ * planted, and through each of those windows the point the foot touches the
+ * floor with stays within the campaign's slip bound. That point is the
+ * foot's lowest sole socket, as the verdicts read a contact, and it rolls:
+ * a heel rising or coming down turns the foot about its toes' joint, the
+ * metatarsal heads rolling on the floor, so the touching point travels
+ * along the sole while it does not slide. Reading the ball socket instead
+ * read that roll as slip (the stumble's backward step, landing on its
+ * forefoot and lowering its heel, moved the ball 5.8 mm). The flinches are
  * `test_human_motion_base_flinch_poses`'s, the poses that crouch
  * `test_human_motion_base_crouching_poses`'s, those that go down to the
  * knees `test_human_motion_base_kneeling_poses`'s, those that go down to
@@ -39,7 +45,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * the instants are each window's two ends and two between, where a planted
  * foot dragged by the pelvis shows, and the end:
  * 1. Through every plant window the row declares, read at four instants
- *    spread over it, the foot's ball moves at most 5 mm.
+ *    spread over it, the foot's contact moves at most 5 mm while the same
+ *    socket stays the contact.
  * 2. Every row ends on the feet: both feet bear at the end.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the remaining pose rows through the public input, performs each on a real body and reads the displayed feet; a sliding plant or a reaction that leaves a foot in the air fails.
@@ -109,13 +116,28 @@ export function test_human_motion_base_poses(): void {
         0,
       );
       const end: number = segment.end;
-      const planted = (side: "left" | "right", t: number): IAutoMovieVector3 =>
-        HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
-            s.socket === "ball",
-        )!.point;
 
-      // 1. No declared plant slips.
+      // The foot's contact: its lowest sole socket, as the verdicts' contact
+      // reading takes it (`AutoMovieMotionHumanAuditContact`).
+      const contact = (
+        side: "left" | "right",
+        t: number,
+      ): IAutoMovieMotionHumanFoot.ISocket =>
+        HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).reduce(
+          (
+            a: IAutoMovieMotionHumanFoot.ISocket,
+            b: IAutoMovieMotionHumanFoot.ISocket,
+          ): IAutoMovieMotionHumanFoot.ISocket =>
+            b.point.y < a.point.y ? b : a,
+        );
+
+      // 1. No declared plant slips. The contact rolls: a heel coming down
+      // or rising turns the foot about its toes' joint, the metatarsal heads
+      // rolling on the floor, so the sole point that touches moves along the
+      // sole while the touching point itself does not slide. Slip is
+      // therefore read on the contact while the same socket stays the
+      // contact, from where it became the contact; a hand-over to another
+      // socket is rolling, not slipping.
       for (const c of segment.plan.contacts) {
         if (c.kind !== "plant" || !c.part.endsWith("Foot")) continue;
         const side: "left" | "right" = c.part === "leftFoot" ? "left" : "right";
@@ -128,17 +150,30 @@ export function test_human_motion_base_poses(): void {
           segment.start + c.to * segment.plan.duration,
         );
         if (to - from < 0.1) continue;
-        const first: IAutoMovieVector3 = planted(side, from + 0.02);
+        let held: IAutoMovieMotionHumanFoot.ISocket = contact(
+          side,
+          from + 0.02,
+        );
+        let first: IAutoMovieVector3 = held.point;
         let slip: number = 0;
         for (const t of HumanSignature.times(
           from + 0.02,
           to - 0.02,
           3 / (to - from - 0.04),
         )) {
-          const now: IAutoMovieVector3 = planted(side, t);
+          const now: IAutoMovieMotionHumanFoot.ISocket = contact(side, t);
+          if (now.socket !== held.socket) {
+            held = now;
+            first = now.point;
+            continue;
+          }
           slip = Math.max(
             slip,
-            Math.hypot(now.x - first.x, now.y - first.y, now.z - first.z),
+            Math.hypot(
+              now.point.x - first.x,
+              now.point.y - first.y,
+              now.point.z - first.z,
+            ),
           );
         }
         if (slip > 0.005)
