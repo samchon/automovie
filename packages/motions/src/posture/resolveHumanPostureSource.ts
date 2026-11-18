@@ -11,6 +11,7 @@ import { assembleHumanPosture } from "./assembleHumanPosture";
 import { deriveHumanPosture } from "./deriveHumanPosture";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
+import type { HumanLimbPair } from "./HumanLimbPair";
 import { refitHumanPosture } from "./refitHumanPosture";
 import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
 import { turnHumanPosture } from "./turnHumanPosture";
@@ -139,9 +140,10 @@ export namespace resolveHumanPostureSource {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     solved?: deriveHumanPosture.ISolved,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
+    assess?: HumanLimbPair.Assessment,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     if (
-      solved !== undefined &&
+      solved !== undefined && assess === undefined &&
       limbs === undefined &&
       Object.keys(near).length === 0
     ) {
@@ -161,7 +163,9 @@ export namespace resolveHumanPostureSource {
       near,
       resolution,
       requested,
-      refitHumanPosture.constructed,
+      assess === undefined ? refitHumanPosture.constructed : (
+        ...args: Parameters<typeof refitHumanPosture>
+      ): ReturnType<typeof refitHumanPosture> => refitHumanPosture.constructed(...args, assess),
     );
   }
 

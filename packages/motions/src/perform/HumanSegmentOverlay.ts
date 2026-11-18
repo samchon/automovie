@@ -16,6 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
+import { WorkingSeatRidePlan } from "../lexicon/WorkingSeatRidePlan";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
@@ -116,6 +117,7 @@ export namespace HumanSegmentOverlay {
     prepared?: prepareHumanSegmentPose.IPrepared,
     carrier?: IAutoMovieMotionHumanSegment,
     direct?: resolveHumanPostureSource.IAssembled,
+    working?: WorkingSeatRidePlan.ISample,
   ): IOverlaid {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
     const projection: Parameters<typeof resolveHumanPosture.seeded>[6] = prepared?.clamp;
@@ -176,6 +178,8 @@ export namespace HumanSegmentOverlay {
           near === undefined && observed === undefined, (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => {
             const seedsForLeaf: ReturnType<typeof continuations> = continuations(posture.limbs, near, tag);
             const demand: ReturnType<typeof unplantedHumanObservation> = unplantedHumanObservation(posture.limbs, observed);
+            const taken = working && WorkingSeatRidePlan.take(working, body, posture, carrier, seconds, demand === undefined && (seedsForLeaf === undefined || Object.keys(seedsForLeaf).length === 0));
+            if (taken !== undefined) return taken;
             if (direct?.posture === posture) {
               const assembly: resolveHumanPostureSource.IAssembled = direct;
               direct = undefined;

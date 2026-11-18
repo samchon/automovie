@@ -17,6 +17,7 @@ import { seated as seatSocket } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
+import { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
 import { fixedSeatGripReach } from "./fixedSeatGripReach";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
@@ -60,6 +61,8 @@ export namespace HumanRideHands {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip is read again at each second, so a moving part is followed.
    */
   export interface IHands {
+    /** The planted working-seat alternatives when pelvic inclination exceeds the legs' reach. */
+    alternatives?: NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
     /**
      * The trunk's forward lean that brings the holding hands in reach of
      * what they hold, read by `gripAt` at a film second, the support in its
@@ -276,6 +279,7 @@ export namespace HumanRideHands {
       }
     }
     let working: ReturnType<typeof fixedSeatGripPosture>;
+    let alternatives: ReturnType<typeof fixedSeatWorkingPostures>;
     if (check !== undefined && seat !== undefined && context.params.seconds >= take) {
       const heldAt: number = context.start + take;
       const heldFrame: IAutoMovieRigidTransform = support.frame(heldAt);
@@ -285,6 +289,19 @@ export namespace HumanRideHands {
         rotation: Quaternion.multiply(origin.rotation, seat.frame.rotation),
       };
       working = fixedSeatGripPosture(context.body, seated, bearing ??= seatSocket.socket(context.body, seated), seatFrame, reach(points), points);
+      const design: typeof working = working;
+      if (design !== undefined && points.left && points.right && !context.params.feet) {
+        const wrists: Record<AutoMovieHumanSide, IAutoMovieVector3> = { left: points.left, right: points.right };
+        const shifted: number = reach({
+          left: Vector3.subtract(wrists.left, design.shift),
+          right: Vector3.subtract(wrists.right, design.shift),
+        });
+        alternatives = fixedSeatWorkingPostures(context.body, (degree: number): IAutoMovieMotionHumanPosture => {
+          const base: IAutoMovieMotionHumanPosture = bow(degree);
+          return { ...base, root: Vector3.add(base.root, design.shift),
+            joints: { ...base.joints, ...design.joints(degree, 1, wrists) } };
+        }, origin, shifted, wrists);
+      }
     }
     function posture(grips: Grips, frame: IAutoMovieRigidTransform, taken: number, heldAt?: number): IAutoMovieMotionHumanPosture {
       if (working === undefined) return bow(lean(grips,frame,heldAt)*taken);
@@ -317,6 +334,6 @@ export namespace HumanRideHands {
         origin,
       );
     }
-    return { posture, gripsAt, closures };
+    return { posture, gripsAt, closures, ...(alternatives === undefined ? {} : { alternatives }) };
   }
 }

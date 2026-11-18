@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -198,7 +199,7 @@ export namespace HumanRide {
         }
 
         // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
-        const { posture, gripsAt, closures }: HumanRideHands.IHands =
+        const { posture, gripsAt, closures, alternatives }: HumanRideHands.IHands =
           HumanRideHands.of(context, on, support, seated, origin, TAKE);
         const saddle: string | undefined = context.params.seat;
         if (saddle !== undefined && support.prop.points[saddle] === undefined)
@@ -245,14 +246,8 @@ export namespace HumanRide {
         const turned: IAutoMovieQuaternion = Quaternion.inverse(
           origin.rotation,
         );
-        return {
-          duration: seconds,
-          events: [],
-          contacts,
-
-          // The seat sat on is passed on, so getting off after the ride still knows it.
-          base: entered,
-          posture: (at: number): IAutoMovieMotionHumanPosture => {
+        // The pose and any certified candidate use the same actual carrier read.
+        const written = <T>(at: number, publish: (posture: IAutoMovieMotionHumanPosture, frame: IAutoMovieRigidTransform) => T): T => {
             const film: number = context.start + Math.min(seconds, Math.max(0, at));
             const now: IAutoMovieRigidTransform = support.frame(film);
             const taken: number = minimumJerk(Math.min(1, at / TAKE)).s;
@@ -345,7 +340,7 @@ export namespace HumanRide {
             }
             if (Object.keys(grasp).length > 0)
               out.joints = { ...out.joints, ...grasp };
-            if (pedals.length === 0) return out;
+            if (pedals.length === 0) return publish(out, now);
 
             // Where a pedal is further than the leg reaches with its knee still bent, the foot points down about its ball, as a cyclist's ankle does through the bottom of the stroke.
             const hips: Record<"left" | "right", IAutoMovieVector3> = hipJoints(
@@ -380,9 +375,20 @@ export namespace HumanRide {
                   resolveHumanPosture.heading(out),
                 );
             }
-            return out;
-          },
+            return publish(out, now);
         };
+        const plan: IAutoMovieMotionHumanActionPlan = {
+          duration: seconds,
+          events: [],
+          contacts,
+
+          // The seat sat on is passed on, so getting off after the ride still knows it.
+          base: entered,
+          posture: (at: number): IAutoMovieMotionHumanPosture => written(at, WorkingSeatRidePlan.postureOnly),
+        };
+        return alternatives === undefined ? plan : new WorkingSeatRidePlan(
+          plan, context.body, alternatives, (at: number): WorkingSeatRidePlan.IWritten => written(at, WorkingSeatRidePlan.withFrame),
+        );
       },
     };
 }

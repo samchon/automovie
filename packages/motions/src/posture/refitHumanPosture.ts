@@ -74,8 +74,9 @@ export namespace refitHumanPosture {
     limbs: IAutoMovieMotionHumanPosture["limbs"],
     near: IAutoMovieMotionHumanResolveHumanPosture.INear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    assess?: HumanLimbPair.Assessment,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit, true);
+    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit, true, assess);
   }
 
   /**
@@ -120,6 +121,7 @@ function fitted(
     ...args: Parameters<typeof applyHumanLimbFit>
   ) => ReturnType<typeof applyHumanLimbFit>,
   assembled: boolean = false,
+  assess?: HumanLimbPair.Assessment,
 ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
   if (
     limbs.leftLeg === undefined &&
@@ -180,6 +182,7 @@ function fitted(
             ...(near.rightArm === undefined ? {} : { right: near.rightArm }),
           },
           read,
+          assess,
         );
         pose = pair.pose;
         seeds.leftArm = pair.seeds.left;

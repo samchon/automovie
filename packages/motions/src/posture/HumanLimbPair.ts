@@ -59,6 +59,14 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No order between the arms: independent fits, or one joint solve.
  */
 export namespace HumanLimbPair {
+  /** A request-local observation of the complete accepted or returned static pair. */
+  export interface Assessment {
+    /** Read the native full model at the actual returned configuration. */
+    inspect(reading: Readonly<M.IEvaluation>): void;
+    /** Only certified ordinary analytic branches can win a speculative trial. */
+    analytic: boolean;
+  }
+
   /**
    * The pose with both arms fitted.
    *
@@ -85,6 +93,7 @@ export namespace HumanLimbPair {
       Partial<Record<"left" | "right", IAutoMovieSwivelNear>>
     > = {},
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    assess?: Assessment,
   ): IFitted {
     const readResolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
@@ -98,7 +107,7 @@ export namespace HumanLimbPair {
     };
     // Whole keys preserve every original getter/toJSON observation and key.
     if (compareHumanLimbPair(pose, goals, mirrored, image) <= 0)
-      return solved(body, pose, goals, near, readResolution);
+      return solved(body, pose, goals, near, readResolution, assess);
     // The image's left arm is this pose's right arm, solved alike.
     const out: IFitted = solved(
       body,
@@ -109,6 +118,7 @@ export namespace HumanLimbPair {
         ...(near.left === undefined ? {} : { right: near.left }),
       },
       readResolution,
+      assess,
     );
     return {
       pose: HumanArmMirror.mirrored({ pose: out.pose, others: [] }).pose,
@@ -144,6 +154,7 @@ function solved(
   goals: Readonly<Record<"left" | "right", IAutoMovieHumanLimbGoal>>,
   near: Readonly<Partial<Record<"left" | "right", IAutoMovieSwivelNear>>>,
   resolution: ReturnType<typeof prepareHumanPoseResolution>,
+  assess?: HumanLimbPair.Assessment,
 ): HumanLimbPair.IFitted {
   let authoredBones:
     | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
@@ -256,7 +267,8 @@ function solved(
       ) > 0
     );
   };
-  if (!meets("left") && !meets("right"))
+  const independent: boolean = !meets("left") && !meets("right");
+  if (independent && assess === undefined)
     return {
       pose: both,
       seeds,
@@ -319,8 +331,11 @@ function solved(
   );
   // The segment clearance precheck is conservative. Admission by the
   // complete posed two-arm model is sufficient at this static instant.
-  if (M.evaluate(context, start).worst.value <= M.TOLERANCE)
+  const initial: M.IEvaluation = M.evaluate(context, start);
+  if (independent || initial.worst.value <= M.TOLERANCE) {
+    assess?.inspect(initial);
     return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
+  }
 
   // A free elbow swivel can separate a pair with both hands already on
   // their sites. Keep one arm fixed, fit the other around its actual
@@ -336,18 +351,29 @@ function solved(
         ? [frames[0]!, G.encode(context.setups[a]!, arm(fitted.pose, side)), frames[2]!]
         : frames,
     );
-    if (M.evaluate(context, candidate).worst.value <= M.TOLERANCE)
+    const checked: M.IEvaluation = M.evaluate(context, candidate);
+    if (checked.worst.value <= M.TOLERANCE) {
+      assess?.inspect(checked);
       return {
         pose: fitted.pose,
         seeds: { ...seeds, [side]: fitted.seed },
         values: { left: undefined, right: undefined },
       };
+    }
   }
 
-  const result: { x: number[][][] } = HumanArmOptimiser.optimise(
+  // A speculative posture which no ordinary direct branch admits is a
+  // rejected proposal. Only the selected candidate needs the general solve.
+  if (assess?.analytic) {
+    assess.inspect(initial);
+    return { pose: both, seeds, values: { left: own.left.value, right: own.right.value } };
+  }
+
+  const result: ReturnType<typeof HumanArmOptimiser.optimise> = HumanArmOptimiser.optimise(
     context,
     start,
   );
+  assess?.inspect(result.evaluation);
   let out: IAutoMoviePose = pose;
   sides.forEach((side: "left" | "right", a: number): void => {
     out = HumanArmClearance.posed(

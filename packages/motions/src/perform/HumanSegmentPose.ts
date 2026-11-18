@@ -22,9 +22,9 @@ import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { humanRig } from "../posture/humanRig";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
-import type { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource";
 import { HumanSegmentLayer } from "./HumanSegmentLayer";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentPlant } from "./HumanSegmentPlant";
@@ -32,7 +32,6 @@ import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanSegmentStop } from "./HumanSegmentStop";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
-import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
 /**
  * A person's displayed pose: the layered action, carried holds, overlays,
@@ -144,53 +143,8 @@ export namespace HumanSegmentPose {
         ? requested
         : undefined;
 
-    // The action as it is shown at a second before any transition offset:
-    // its posture under the layers, the holds it carries, and the pose with
-    // the overlays written over it.
-    function shown(
-      t: number,
-      fits?: INear,
-    ): {
-      posture: IAutoMovieMotionHumanPosture;
-      carried: IAutoMovieMotionHumanSegment.IHeld[];
-      pose: IAutoMoviePose;
-      seeds: IFits;
-    } {
-      const reader: typeof segment.plan.posture = segment.plan.posture;
-      const localSeconds: number = t - segment.start;
-      const raw: IAutoMovieMotionHumanPosture = Reflect.apply(reader, segment.plan, [
-        Math.min(segment.plan.duration, Math.max(0, localSeconds)),
-        undefined, prepared.resolution, prepared.clamp,
-      ]);
-      let direct: resolveHumanPostureSource.IAssembled | undefined;
-      let written: IAutoMovieMotionHumanPosture = HumanSegmentLayer.apply(
-        person, raw,
-        t,
-        prepared.resolution,
-        prepared.clamp,
-        fits === undefined && person.layers.length === 1 && person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0
-          ? (assembly: resolveHumanPostureSource.IAssembled): void => { direct = assembly; } : undefined,
-      );
-
-      const borne: IAutoMovieMotionHumanSegment.IHeld[] = HumanSegmentCarry.borne(person, segment, t);
-      if (borne.length !== 0) {
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...written.joints };
-        for (const h of borne) Object.assign(joints, h.fingers);
-        written = { ...written, joints };
-      }
-      const overlaid: HumanSegmentOverlay.IOverlaid =
-        HumanSegmentOverlay.overlaid(person, written, t, borne, fits, prepared.resolution,
-          unplantedHumanObservation(written.limbs, observed), prepared, segment, direct);
-      return {
-        posture: {
-          ...written,
-          limbs: { ...written.limbs, ...overlaid.contacts },
-        },
-        carried: borne,
-        pose: overlaid.pose,
-        seeds: overlaid.seeds,
-      };
-    }
+    const shown = (t: number, fits?: INear): readHumanSegmentLeaf.IReading =>
+      readHumanSegmentLeaf(person, segment, t, fits, observed, prepared);
     const now: ReturnType<typeof shown> = shown(seconds, near);
     const seeds: IFits = now.seeds;
     let posture: IAutoMovieMotionHumanPosture = now.posture;
