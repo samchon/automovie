@@ -63,6 +63,8 @@ Record what the user fixed, what the director decided within delegation and why,
 
 ### The delivery profile
 
+<!-- @source [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) gives one platform's scan, color and audio requirements. -->
+
 The profile records, for each delivered video:
 
 - dimensions, scan, running time and frame rate as an exact fraction;
@@ -72,7 +74,6 @@ The profile records, for each delivered video:
 - for generated video, the disclosure its release owes.
 
 For a film with sound, it also records the audio tracks and sample rate, the loudness target with its measurement method and true-peak limit, and any stems or music-and-effects mix the release requires.
-<!-- @source [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) gives one platform's scan, color and audio requirements. -->
 
 For standalone audio, record the promised format, sample rate and any required loudness targets.
 

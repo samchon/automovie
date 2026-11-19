@@ -21,7 +21,7 @@ const PACKAGE: string = path.resolve(__dirname, "..");
  *
  * A `$<name>` placeholder under a layer's `.agents/skills` is replaced by the repository skill item the build copied to `generated/skills`. A layer's root `_gitignore` becomes `.gitignore`, because npm pack renames a packed `.gitignore`. `{{name}}` becomes the admitted name and `{{skills}}` the path of the skills the production reads. Line endings become LF. Every `package.json` dependency is a `catalog:` reference: the `automovie` catalog ranges this package's own version, and the others carry the ranges the build read from the repository's `pnpm-workspace.yaml`.
  *
- * Instruction Markdown omits reserved `<!-- @source ... -->` lines after shared skills are expanded. Links in the instructions remain available to the production.
+ * Instruction Markdown omits reserved `<!-- @source ... -->` lines after shared skills are expanded. A source paragraph leaves one blank line between its heading and the body.
  *
  * Nothing is written; the caller writes the map.
  *
@@ -79,13 +79,14 @@ const readLayer = (
 ): void => {
   const root: string = path.join(PACKAGE, "scaffold", layer);
 
-  /** Drop maintainer citations only when reading instruction Markdown. */
+  /** Strip the source note while keeping one of its surrounding blank lines. */
   const read = (file: string): string => {
     const text: string = fs.readFileSync(file, "utf8");
     return layer === "instructions" && file.endsWith(".md")
       ? text.replace(
-          /^<!-- @source (?:(?!-->)[^\r\n])+ -->[ \t]*(?:\r?\n|$)/gmu,
-          "",
+          /(?<=^|\n)(\r?\n)?<!-- @source (?:(?!-->)[^\r\n])+ -->[ \t]*(?:\r?\n|$)(\r?\n)?/gu,
+          (_: string, before?: string, after?: string): string =>
+            before ?? after ?? "",
         )
       : text;
   };

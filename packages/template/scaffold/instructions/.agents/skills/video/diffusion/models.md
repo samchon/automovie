@@ -10,6 +10,8 @@ Read each model's terms and usage policy before adopting it: territory limits, r
 
 ### Video editing and reference generation
 
+<!-- @source [Ray 3.2 video-to-video guide](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) documents its motion and structure controls. -->
+
 [Runway Aleph 2.0](https://docs.dev.runwayml.com/guides/models.md) edits or restyles one video with timed keyframe images. It has no adherence setting; its [prompt](https://help.runwayml.com/hc/en-us/articles/52150503729171-Aleph-2-0-Prompting-Guide) names what changes. Continue from a chain frame used as the first keyframe.
 
 [Seedance](https://docs.byteplus.com/docs/en/modelark/seedance-2-5.md) takes a video to edit or extend, or several reference videos. Its task type and [prompt](https://docs.byteplus.com/docs/en/modelark/seedance-2-5-prompt-guide.md) distinguish those roles and say what each reference supplies. It can extend one video while another remains a reference.
@@ -19,7 +21,6 @@ Read each model's terms and usage policy before adopting it: territory limits, r
 [Gemini Omni](https://aistudio.google.com/docs/omni) edits video with reference images and a first or last frame. Wording sets adherence, and further turns extend the take.
 
 [Luma Ray](https://docs.agents.lumalabs.ai/guides/videos/editing) edits one video with keyframes, strength presets and per-signal controls for pose, depth, normals, trajectory and face. Continue from a chain frame used as the first keyframe.
-<!-- @source [Ray 3.2 video-to-video guide](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) documents its motion and structure controls. -->
 
 ### Layout and structural control
 

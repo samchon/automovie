@@ -34,13 +34,13 @@ const ROOT: string = repositoryRoot();
  *    version, every other catalog at the repository's range.
  * 2. Only `production` and `workspace` carry the instructions and a
  *    `pnpm-workspace.yaml`, which lists packages only for `workspace`. Both
- *    install a cited instruction with its source note removed.
+ *    omit the source note and leave one blank line between heading and body.
  * 3. Only `production` and `workspace-production` carry `evidence.config.ts`,
  *    which names a skills root only inside a workspace.
  * 4. A refused name throws.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public generator for every kind and checks the selected files, name, catalog ranges and installed guide. Leaking a citation or dropping part of the guide changes the expected output.
- * @evidence contracts/development/testing.md#independent-expectations Ranges come from the repository catalogs and template manifest. The expected guide is the authored Markdown with its reserved source lines omitted, so its rules, links and paragraph breaks must survive installation.
+ * @evidence contracts/development/testing.md#independent-expectations Ranges come from the repository catalogs and template manifest. The expected guide is the authored Markdown with its source paragraph omitted, so its rules, links and paragraph breaks must survive installation.
  * @evidence contracts/development/testing.md#distinguishing-cases The three kinds differ in instructions, workspace file, packages and evidence configuration, and the refused name pins admission.
  * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that reads the installed template in-process and writes nothing.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
@@ -118,9 +118,12 @@ export function test_template_create_scaffold(): void {
     "utf8",
   );
   const installed: string = manuscript
-    .split(/\r?\n/u)
-    .filter((line: string): boolean => !line.startsWith("<!-- @source "))
-    .join("\n");
+    .replaceAll("\r\n", "\n")
+    .split("\n\n")
+    .filter(
+      (paragraph: string): boolean => !paragraph.startsWith("<!-- @source "),
+    )
+    .join("\n\n");
   TestValidator.equals("production guide", production[guide], installed);
   TestValidator.equals("workspace guide", workspace[guide], installed);
 

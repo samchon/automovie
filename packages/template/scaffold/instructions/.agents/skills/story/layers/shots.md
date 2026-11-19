@@ -10,10 +10,11 @@ Set camera height, point of view and movement for the action and the delivered a
 
 ## Continuity across a cut
 
+<!-- @source Bordwell and Thompson, Film Art, on continuity editing. Walter Murch, In the Blink of an Eye, on priorities at a cut. -->
+
 Keep eyelines and screen direction across cuts. Cross the axis on screen through camera or subject movement, or to create deliberate disorientation.
 
 Cut on action with positions, gaze and held objects continuous. Where priorities conflict, preserve emotion, story and rhythm before spatial continuity.
-<!-- @source Bordwell and Thompson, Film Art, on continuity editing. Walter Murch, In the Blink of an Eye, on priorities at a cut. -->
 
 Cut when a new view changes what the audience can follow or feel. A held wide can sustain pressure as the relationships within it change. For a seamless cut, make the change of view legible. Default to a cut between scenes.
 

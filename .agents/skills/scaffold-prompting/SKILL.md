@@ -7,7 +7,7 @@ description: Designs the skills, contracts and routers a production receives.
 
 Apply [prompting](../prompting/SKILL.md) and the [writing rules](../documentation/writing.md) to shipped instructions.
 
-Reserve a line of the form `<!-- @source ... -->` for supporting sources beside their rule. The installer omits these lines. Keep limits and links the production needs in the text.
+Put a section's sources on one `<!-- @source ... -->` line directly below its heading, with one blank line above and below the comment. The installer omits the comment. Keep limits and links the production needs in the text.
 
 | Read | To |
 | --- | --- |
