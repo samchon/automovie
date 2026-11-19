@@ -55,8 +55,15 @@ export namespace BakedClient {
     return loading;
   }
 
-  /** Fetch, inflate and decode one take; a missing file fails with `MISSING`. */
+  /** Fetch, inflate and decode one take; a missing file, or a browser without `DecompressionStream`, fails with `MISSING`. */
   async function load(url: string): Promise<ITake> {
+    // A browser that cannot inflate gzip computes the take instead, as for
+    // a take that was never baked.
+    if (typeof DecompressionStream === "undefined") {
+      const unable: Error = new Error("This browser cannot inflate a baked take");
+      unable.name = MISSING;
+      throw unable;
+    }
     const response: Response = await fetch(url);
     if (response.status === 404) {
       const missing: Error = new Error(`No baked take at ${url}`);

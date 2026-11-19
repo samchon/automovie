@@ -218,7 +218,7 @@ article:has(> main > .am-app) {
   bottom: 0.75rem;
   min-height: 2rem;
   padding: 0 0.75rem;
-  border: 1px solid var(--am-viewport-grid);
+  border: 1px solid var(--am-viewport-control);
   border-radius: 999px;
   background: var(--am-viewport-button);
   color: var(--am-viewport-ink);

@@ -18,7 +18,7 @@ import type { ITake } from "../../src/takes/structures/ITake";
  * 3. A scene that places objects outlines each object's meshes as closed paths in their own colours, and the still without the shapes has none of those paths.
  */
 export function test_website_figure_poster(): void {
-  const take = (id: string): { scene: IScene; take: ITake } => {
+  const take: (id: string) => { scene: IScene; take: ITake } = (id: string): { scene: IScene; take: ITake } => {
     const scene: IScene = SCENES.find((s: IScene): boolean => s.id === id)!;
     const made: ITake | IPlaygroundRefusal = TakeCompute.take(scene.composition!, 6);
     if (!("track" in made)) throw new Error(`${id} was refused: ${made.message}`);
@@ -60,7 +60,8 @@ export function test_website_figure_poster(): void {
     props: shapes,
   });
   const bare: string = FigurePoster.draw(placed.take, { view: placed.scene.camera.view });
-  const closed = (text: string): number => (text.match(/Z" fill="#/g) ?? []).length;
+  const closed: (text: string) => number = (text: string): number =>
+    (text.match(/Z" fill="#/g) ?? []).length;
   TestValidator.predicate(
     "outlined meshes are closed filled paths",
     closed(outlined) > 0 && closed(bare) === 0,

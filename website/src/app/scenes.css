@@ -415,6 +415,10 @@
   padding-top: 1.25rem;
 }
 
+.am-panel-body[hidden] {
+  display: none;
+}
+
 .am-panel-body > p {
   max-width: 48rem;
 }

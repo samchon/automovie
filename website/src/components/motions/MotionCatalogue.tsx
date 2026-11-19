@@ -178,6 +178,8 @@ function MotionCard(props: { entry: MotionIndex.IEntry; opening: number }): Reac
       className="am-motion-card"
       onPointerEnter={(): void => setLive(playable)}
       onPointerLeave={(): void => setLive(false)}
+      onFocus={(): void => setLive(playable)}
+      onBlur={(): void => setLive(false)}
     >
       <a href={`${SITE_BASE}/motions/${entry.name}/`} id={entry.name}>
         <span className="am-motion-card-view" data-scene={entry.poster?.kind === "scene"}>

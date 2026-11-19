@@ -70,6 +70,13 @@ export default function SceneMovie(props: {
     useState<ILoaded | null>(null);
   const [notice, setNotice]: [string, Dispatch<SetStateAction<string>>] = useState<string>("");
 
+  // The takes are computed from the first time their tab opens, and kept.
+  const [opened, setOpened]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
+  useEffect((): void => {
+    if (panel === "takes") setOpened(true);
+  }, [panel]);
+
   // An address ending in #timeline or #takes opens on that panel.
   useEffect((): void => {
     const hash: string = window.location.hash.slice(1);
@@ -331,39 +338,56 @@ export default function SceneMovie(props: {
         )}
       </div>
 
-      {panel === "code" ? (
-        <section role="tabpanel" id="am-panel-code" aria-labelledby="am-tab-code" className="am-panel-body">
-          <p className="am-muted">
-            Each person is a chain of typed actions from{" "}
-            <code>@automovie/motions</code>. This is what an agent writes for
-            the scene; <Link href="/docs/motion/composing/">Composing motion</Link>{" "}
-            explains the parts.
+      <section
+        role="tabpanel"
+        id="am-panel-code"
+        aria-labelledby="am-tab-code"
+        className="am-panel-body"
+        hidden={panel !== "code"}
+      >
+        <p className="am-muted">
+          Each person is a chain of typed actions from{" "}
+          <code>@automovie/motions</code>. This is what an agent writes for the
+          scene; <Link href="/docs/motion/composing/">Composing motion</Link>{" "}
+          explains the parts.
+        </p>
+        <pre className="am-code">
+          <code>{formatSceneChain(composition, props.names!)}</code>
+        </pre>
+      </section>
+      <section
+        role="tabpanel"
+        id="am-panel-timeline"
+        aria-labelledby="am-tab-timeline"
+        className="am-panel-body"
+        hidden={panel !== "timeline"}
+      >
+        <p className="am-muted">
+          Each person&apos;s actions on the film clock, with their named
+          instants, as the engine placed them.
+        </p>
+        {player === null ? (
+          <p className="am-status" role="status">
+            The timeline appears when the take is drawn.
           </p>
-          <pre className="am-code">
-            <code>{formatSceneChain(composition, props.names!)}</code>
-          </pre>
-        </section>
-      ) : panel === "timeline" ? (
-        <section role="tabpanel" id="am-panel-timeline" aria-labelledby="am-tab-timeline" className="am-panel-body">
-          <p className="am-muted">
-            Each person&apos;s actions on the film clock, with their named
-            instants, as the engine placed them.
-          </p>
-          {player === null ? (
-            <p className="am-status" role="status">
-              The timeline appears when the take is drawn.
-            </p>
-          ) : (
-            <SceneTimeline timeline={player.take.timeline} roles={roles} />
-          )}
-        </section>
-      ) : (
-        <section role="tabpanel" id="am-panel-takes" aria-labelledby="am-tab-takes" className="am-panel-body">
-          <p className="am-muted">
-            The same composition in {scene.takes.length} takes on the
-            player&apos;s clock. Each changes one choice and keeps the rest; the
-            other takes are computed in this page, which takes a few seconds.
-          </p>
+        ) : (
+          <SceneTimeline timeline={player.take.timeline} roles={roles} />
+        )}
+      </section>
+      <section
+        role="tabpanel"
+        id="am-panel-takes"
+        aria-labelledby="am-tab-takes"
+        className="am-panel-body"
+        hidden={panel !== "takes"}
+      >
+        <p className="am-muted">
+          The same composition in {scene.takes.length} takes on the
+          player&apos;s clock. Each changes one choice and keeps the rest; the
+          other takes are computed in this page, which takes a few seconds.
+        </p>
+        {/* The takes are computed only once their tab has been opened. */}
+        {opened ? (
           <ul className="am-take-grid">
             {scene.takes.map(
               (take: IScene.ITake, index: number): ReactElement => (
@@ -389,8 +413,8 @@ export default function SceneMovie(props: {
               ),
             )}
           </ul>
-        </section>
-      )}
+        ) : null}
+      </section>
     </main>
   );
 }

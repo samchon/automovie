@@ -43,6 +43,10 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["viewport-muted", "viewport", 4.5],
   ["viewport-ink", "viewport-button", 4.5],
   ["instrument-fg", "instrument-bg", 4.5],
+  ["viewport-fg", "viewport-lit", 4.5],
+  ["room-code", "room", 4.5],
+  ["room-muted", "room-deep", 4.5],
+  ["viewport-control", "viewport", 3],
 
   // What is not text but must be seen: control borders and the focus ring.
   ["border-control", "bg", 3],
@@ -55,8 +59,8 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
 ];
 
 /** The relative luminance of an sRGB colour written `#rrggbb`. */
-const luminance = (hex: string): number => {
-  const channel = (at: number): number => {
+const luminance: (hex: string) => number = (hex: string): number => {
+  const channel: (at: number) => number = (at: number): number => {
     const value: number = parseInt(hex.slice(at, at + 2), 16) / 255;
     return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   };
@@ -64,7 +68,7 @@ const luminance = (hex: string): number => {
 };
 
 /** The colour tokens of one rule block: every `--am-<name>: #rrggbb;`. */
-const tokens = (block: string): Map<string, string> =>
+const tokens: (block: string) => Map<string, string> = (block: string): Map<string, string> =>
   new Map(
     [...block.matchAll(/--am-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)].map(
       (match: RegExpMatchArray): [string, string] => [match[1]!, match[2]!],

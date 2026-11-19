@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import ForwardMovie from "../../../movies/ForwardMovie";
 
 export const metadata: Metadata = {
-  title: "AutoMovie",
+  title: { absolute: "AutoMovie" },
   robots: { index: false },
 };
 

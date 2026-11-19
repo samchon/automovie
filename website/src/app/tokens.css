@@ -52,6 +52,7 @@
   --am-viewport-track: #dcd8cf;
   --am-viewport-lit: #e3a24a;
   --am-viewport-button: #f7f6f2;
+  --am-viewport-control: #7f7a6f;
 
   /* The screening room: the one dark band the landing page sets, the same
      in both themes. */
@@ -154,7 +155,4 @@
   --am-viewport-tag-bg: #17181c;
   --am-viewport-tag-fg: #ffffff;
 
-  --am-room: #08090b;
-  --am-room-panel: #131418;
-  --am-room-line: #25272d;
 }

@@ -20,8 +20,10 @@ import path from "node:path";
 import {
   type Browser,
   type BrowserContext,
+  type ConsoleMessage,
   type Locator,
   type Page,
+  type Request,
   chromium,
 } from "playwright-core";
 
@@ -96,14 +98,14 @@ const REFUSED_SCENE: IScene | undefined = SCENES.find(
 );
 
 /** A baked still on a card. */
-const STILL = (kind: "scenes" | "motions"): string =>
+const STILL: (kind: "scenes" | "motions") => string = (kind: "scenes" | "motions"): string =>
   `img[src*="/automovie/baked/${kind}/"]`;
 
 /**
  * Pointing at the gallery's first card plays its baked take in place of
  * its still; the time from pointing to drawing is logged.
  */
-const hoverCard = async (page: Page, problems: string[]): Promise<void> => {
+const hoverCard: (page: Page, problems: string[]) => Promise<void> = async (page: Page, problems: string[]): Promise<void> => {
   const card: Locator = page.locator(".am-scene-card").first();
   const started: number = Date.now();
   await card.hover();
@@ -118,7 +120,7 @@ const hoverCard = async (page: Page, problems: string[]): Promise<void> => {
 };
 
 /** The landing page's bench draws its scene once scrolled to. */
-const benchDraws = async (page: Page, problems: string[]): Promise<void> => {
+const benchDraws: (page: Page, problems: string[]) => Promise<void> = async (page: Page, problems: string[]): Promise<void> => {
   await page.locator(".am-bench").scrollIntoViewIfNeeded();
   try {
     await page.locator(`.am-bench ${DRAWN}`).waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
@@ -337,7 +339,7 @@ const COUNTERS: string = `
   };
 `;
 
-const main = async (): Promise<void> => {
+const main: () => Promise<void> = async (): Promise<void> => {
   const served: { server: http.Server; address: string } = await serveExport(0);
   const browser: Browser = await chromium.launch({
     headless: true,
@@ -355,14 +357,14 @@ const main = async (): Promise<void> => {
       await context.addInitScript(COUNTERS);
       const page: Page = await context.newPage();
       const problems: string[] = [];
-      page.on("console", (message): void => {
+      page.on("console", (message: ConsoleMessage): void => {
         if (message.type() === "error")
           problems.push(`console: ${message.text()}`);
       });
       page.on("pageerror", (error: Error): void => {
         problems.push(`error: ${error.message}`);
       });
-      page.on("requestfailed", (request): void => {
+      page.on("requestfailed", (request: Request): void => {
         problems.push(`failed request: ${request.url()}`);
       });
       const opened: number = Date.now();
@@ -390,7 +392,7 @@ const main = async (): Promise<void> => {
       if (each.check !== undefined)
         try {
           await each.check(page, problems);
-        } catch (error) {
+        } catch (error: unknown) {
           problems.push(error instanceof Error ? error.message : String(error));
         }
       for (const selector of each.lacks)

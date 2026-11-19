@@ -26,7 +26,7 @@ export interface ILandingFilm {
   /** A brief file the beats cite. */
   brief: { file: string; text: string[] };
 
-  /** The brief decisions the beats cite, as the graph labels them, such as en.md#stance. */
+  /** The brief decisions the beats cite, as the graph labels them, such as `ren.md#stance`. */
   decisions: string[];
 
   /** The scene modules, each with the beats it cites; the first is the one the code panel shows. */
@@ -53,7 +53,7 @@ export namespace ILandingFilm {
     /** What happens, as the screenplay says it. */
     text: string;
 
-    /** The brief decisions the beat's record cites, by their labels in decisions. */
+    /** The brief decisions the beat's record cites, by their labels in `decisions`. */
     cites: string[];
 
     /**

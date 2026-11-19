@@ -47,8 +47,9 @@ export namespace ScenePlayer {
    * @param scene The scene's record.
    * @param take The take's index.
    * @param signal Aborted when the view stops waiting.
+   * @param baked Where the first take was baked, which plays from its bytes; a take never baked is computed instead.
    * @returns The player.
-   * @throws {Error} When the packages refuse the take, the worker fails, or `signal` aborts.
+   * @throws {Error} When the packages refuse the take, the worker fails, a baked take is broken, or `signal` aborts.
    */
   export async function load(
     scene: IScene,
@@ -62,7 +63,7 @@ export namespace ScenePlayer {
       let read: ITake | null = null;
       try {
         read = await BakedClient.take(baked, scene.id);
-      } catch (error) {
+      } catch (error: unknown) {
         // Only a take that was never baked falls back; a broken one fails.
         if (!(error instanceof Error) || error.name !== BakedClient.MISSING)
           throw error;
@@ -258,7 +259,7 @@ export namespace ScenePlayer {
           i & 4 ? box.max.z : box.min.z,
         ).sub(centre),
     );
-    const fit = (toward: THREE.Vector3, ratio: number): number => {
+    const fit: (toward: THREE.Vector3, ratio: number) => number = (toward: THREE.Vector3, ratio: number): number => {
       if (record.camera.distance !== undefined) return record.camera.distance;
       const right: THREE.Vector3 = new THREE.Vector3(0, 1, 0)
         .cross(toward)

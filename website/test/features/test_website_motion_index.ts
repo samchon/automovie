@@ -2,6 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { BakeJobs } from "../../src/baked/BakeJobs";
 import type { IBakeJob } from "../../src/baked/IBakeJob";
+import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { MotionUsage } from "../../src/motions/MotionUsage";
 import { MotionIndex } from "../../src/motions/package/MotionIndex";
 import { MotionReference } from "../../src/motions/package/MotionReference";
@@ -83,7 +84,7 @@ export function test_website_motion_index(): void {
       (j: IBakeJob): boolean =>
         j.from === MotionUsage.OPENING &&
         j.composition.performers.length === 1 &&
-        j.composition.performers[0]!.actions.map((a): string => a.name).join(" ") ===
+        j.composition.performers[0]!.actions.map((a: IPlaygroundComposition.IAction): string => a.name).join(" ") ===
           `stand ${j.id}`,
     ),
   );
