@@ -17,7 +17,8 @@
 // 4. runs the created scripts: `lint`, `test`, `build` in each production, and
 //    `evidence`, including a nested test that imports the installed SDK;
 // 5. loads those SDK imports in the development and built inspector pages,
-//    and exercises Play and Pause in the pinned headless browser.
+//    and exercises Play and Pause in the pinned headless browser;
+// 6. saves and reopens a motion take in separate processes in the production.
 //
 // Packing `@automovie/template` runs its `prepare` script, which rebuilds the
 // checkout's `packages/template/generated`, so run one layout at a time per
@@ -332,7 +333,7 @@ const browserSmoke = (directory) => {
       ],
       directory,
     )
-  )
+  ) {
     run(
       "development and built inspector",
       process.execPath,
@@ -342,6 +343,55 @@ const browserSmoke = (directory) => {
       ],
       directory,
     );
+    return true;
+  }
+  return false;
+};
+
+/** Run the same installed take across a real process restart. */
+const motionTakeSmoke = (directory) => {
+  const fixture = "test/e2e-motion-take";
+  fs.cpSync(
+    path.join(import.meta.dirname, "motion-take"),
+    path.join(directory, fixture),
+    {
+      recursive: true,
+    },
+  );
+  const body = JSON.parse(
+    fs.readFileSync(
+      path.join(ROOT, "test/src/features/internal/MOTION_HUMAN_PEOPLE.json"),
+      "utf8",
+    ),
+  );
+  fs.writeFileSync(
+    path.join(directory, fixture, "body.json"),
+    JSON.stringify(body["m-average"]),
+  );
+  for (const stage of ["save", "reopen"])
+    if (
+      !run(
+        `installed motion take: ${stage}`,
+        "pnpm",
+        [
+          "exec",
+          "ttsx",
+          "--cache-dir",
+          "node_modules/.cache/ttsc",
+          "-P",
+          "tsconfig.json",
+          `${fixture}/${stage}.ts`,
+        ],
+        directory,
+      )
+    )
+      return;
+  run(
+    "pnpm run motion:take open (saved branch)",
+    "pnpm",
+    ["run", "motion:take", "open", `${fixture}/branch.ts`, `${fixture}/branch.json`],
+    directory,
+  );
 };
 
 // 2. Install the packed CLI, as `npx automovie` would fetch it.
@@ -390,7 +440,7 @@ if (layout === "production") {
   run("pnpm run test", "pnpm", ["run", "test"], target);
   run("pnpm run build", "pnpm", ["run", "build"], target);
   run("pnpm run evidence", "pnpm", ["run", "evidence"], target);
-  browserSmoke(target);
+  if (browserSmoke(target)) motionTakeSmoke(target);
 } else {
   if (
     !run(

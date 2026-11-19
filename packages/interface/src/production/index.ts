@@ -135,6 +135,9 @@ export type { IAutoMovieMeasurementProxyReference } from "./IAutoMovieMeasuremen
 export type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 export type { IAutoMovieModelPartPoints } from "./IAutoMovieModelPartPoints";
 export type { IAutoMovieMotionAdoptionConsumer } from "./IAutoMovieMotionAdoptionConsumer";
+export type { IAutoMovieMotionTake } from "./IAutoMovieMotionTake";
+export type { IAutoMovieMotionTakeAnchor } from "./IAutoMovieMotionTakeAnchor";
+export type { IAutoMovieMotionTakeProvenance } from "./IAutoMovieMotionTakeProvenance";
 export type { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
 export type { IAutoMovieNamedState } from "./IAutoMovieNamedState";
 export type { IAutoMovieObjectMotionGate } from "./IAutoMovieObjectMotionGate";

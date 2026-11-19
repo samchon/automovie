@@ -6,12 +6,14 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  IAutoMovieComposition,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieInteractionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanSegment,
@@ -27,12 +29,14 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanVerdicts,
+  compileHumanPerformanceContinuation,
   stageCatch,
   stand,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { throwsError } from "../internal/throwsError";
 
 /**
  * A centered foam ball moves from its staged launch to the catcher and is
@@ -43,6 +47,8 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. The complete catch takes custody and carries the foam ball.
  * 2. A catch cut at preparation stops before custody.
  * 3. A relaunch placed after the catch replaces its tagged flight before closure.
+ * 4. A branch saved during flight preserves the capture and replaces a later stand.
+ * 5. A suffix cannot use an anchor offset or an opaque callback.
  *
  * The catch plane is the catch contract's documented 0.6 arm lengths
  * ahead of the performer's entry pelvis. The emitter sends the ball to that plane in
@@ -116,7 +122,10 @@ export function test_human_motion_stage_catch(): void {
       },
     };
   /** Compose the release and catch, optionally placing a second launch afterward. */
-  const take = (cut: boolean, redirect: boolean = false): HumanPerformance => {
+  const input = (
+    cut: boolean,
+    redirect: boolean = false,
+  ): IAutoMovieMotionHumanPerformance.IInput => {
     const catcher: IAutoMovieMotionHumanChain = HumanChain.subject(
       "catcher",
     ).registered("stageCatch", {
@@ -124,7 +133,7 @@ export function test_human_motion_stage_catch(): void {
       ball: launch.prop,
       hands: "one",
     });
-    return new HumanPerformance({
+    return {
       seed: "staged-foam-catch",
       laws: [release, stageCatch],
       props: [ball],
@@ -174,8 +183,11 @@ export function test_human_motion_stage_catch(): void {
             ]
           : []),
       ),
-    });
+    };
   };
+  /** Resolve one independent test take. */
+  const take = (cut: boolean, redirect: boolean = false): HumanPerformance =>
+    new HumanPerformance(input(cut, redirect));
   const performance: HumanPerformance = take(false);
   const tolerance: number = 1e-6;
   const flight: IAutoMovieMotionHumanPropFlight.IFlight = performance.flights(
@@ -264,6 +276,83 @@ export function test_human_motion_stage_catch(): void {
       Vector3.length(
         Vector3.subtract(local(hand, received), local(carryingHand, carried)),
       ) <= tolerance,
+  );
+
+  const source: IAutoMovieMotionHumanPerformance.IInput = input(false);
+  source.composition = AutoMovieComposition.sequence(
+    source.composition,
+    HumanChain.subject("catcher").stand({ seconds: 2, sway: 0 }),
+  );
+  const saved: number = launch.seconds + flightTime / 2;
+  const variant: IAutoMovieComposition = HumanChain.subject("catcher").stand({
+    seconds: 2,
+    sway: 0.04,
+  }).node;
+  const {
+    source: original,
+    branch,
+    branchStart,
+  } = compileHumanPerformanceContinuation(source, saved, 1, variant);
+  const branchFlight: IAutoMovieMotionHumanPropFlight.IFlight = branch.flights(
+    launch.prop,
+  )[0]!;
+  const variantSecond: number = branchStart + 1;
+  TestValidator.predicate(
+    "the saved flight and its later capture reach the same hand before a distinct replacement",
+    branchStart === 2 &&
+      branchStart < original.duration &&
+      original.segments("catcher").at(-1)?.params !==
+        branch.segments("catcher").at(-1)?.params &&
+      Math.abs((branchFlight.capturedAt ?? Infinity) - intercept) <=
+        tolerance &&
+      [saved, later, branchStart].every(
+        (at: number): boolean =>
+          Vector3.length(
+            Vector3.subtract(
+              original.prop(launch.prop, at).position,
+              branch.prop(launch.prop, at).position,
+            ),
+          ) <= tolerance &&
+          Vector3.length(
+            Vector3.subtract(
+              original.bones("catcher", at).get(palm.bone)!.worldPosition,
+              branch.bones("catcher", at).get(palm.bone)!.worldPosition,
+            ),
+          ) <= tolerance,
+      ) &&
+      Vector3.length(
+        Vector3.subtract(
+          original.bones("catcher", variantSecond).get(palm.bone)!
+            .worldPosition,
+          branch.bones("catcher", variantSecond).get(palm.bone)!.worldPosition,
+        ),
+      ) > tolerance,
+  );
+
+  TestValidator.predicate(
+    "a suffix cannot schedule backward or supply an opaque callback",
+    throwsError(
+      (): unknown =>
+        compileHumanPerformanceContinuation(source, saved, 1, {
+          kind: "at",
+          anchor: "foam-release",
+          offset: -0.1,
+          part: variant,
+        }),
+      "cannot use anchor-relative placement",
+    ) &&
+      throwsError(
+        (): unknown =>
+          compileHumanPerformanceContinuation(source, saved, 1, {
+            kind: "intent",
+            intent: {
+              subject: "catcher",
+              capability: "stand",
+              parameters: { sway: (): number => 0.04 },
+            },
+          }),
+        "requires portable action data",
+      ),
   );
 
   const cut: HumanPerformance = take(true);
