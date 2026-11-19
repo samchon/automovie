@@ -64,6 +64,12 @@ const taken = (subject: string, kind: string): ReturnType<typeof act> =>
 /** Where the first carpenter's hammer lies on the bench and is put back, floor metres. */
 const HAMMER_A: { x: number; z: number } = { x: -1.13, z: 0.42 };
 
+/** The residential rise and tread of `createKerb`'s step, in metres. */
+const GOODNIGHT_STEP: { height: number; depth: number } = {
+  height: 0.196,
+  depth: 0.254,
+};
+
 /** The partner, riding and work scenes composed from the lexicon of #3392. */
 export const SCENES_PARTNER: readonly IScene[] = [
   scene(
@@ -123,7 +129,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "goodnight",
       title: "Goodnight",
       summary:
-        "At night a parent kisses a grown child on the forehead, and the child flicks a speck off the parent's shoulder.",
+        "At night a parent steps up onto a doorstep and kisses a grown child on the forehead. The parent turns, and the child flicks a speck off their shoulder.",
       setting: "partner",
       roles: { par: "parent", kid: "grown child" },
       needs: [],
@@ -131,14 +137,40 @@ export const SCENES_PARTNER: readonly IScene[] = [
     "goodnight",
     [
       person("par", "m1", 0, 0, 0, [
+        act("climbStairs", {
+          count: 1,
+          riser: GOODNIGHT_STEP.height,
+          tread: GOODNIGHT_STEP.depth,
+          start: 0.05,
+          on: "entryStep",
+        }),
         act("foreheadKiss", { partner: "kid" }),
-        act("stand", { seconds: 1.5 }),
+        act(
+          "look",
+          {
+            with: "trunk",
+            cue: "seen",
+            target: {
+              kind: "point",
+              frame: "world",
+              at: { x: 0.8, y: 1.75, z: 0.54 },
+            },
+          },
+          { anchor: "goodnight-turned" },
+        ),
       ]),
-      person("kid", "f2", 0, 0.45, 180, [
-        act("stand", { seconds: 1.5 }),
-        act("flickOff", { target: at("par", "shoulderLeft") }),
+      person("kid", "f2", 0, 0.9, 180, [
+        act("stand", { seconds: 3, sway: 0 }),
+        act(
+          "flickOff",
+          { target: at("par", "shoulderLeft") },
+          {
+            sync: { of: "goodnight-turned", event: "end" },
+          },
+        ),
       ]),
     ],
+    [object("entryStep", "createKerb", "step", 0, 0.31, 0, 0, GOODNIGHT_STEP)],
   ),
   scene(
     {
