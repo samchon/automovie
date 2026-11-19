@@ -20,36 +20,41 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * A reading of an iterate that differs from an earlier one's only at some
  * waypoints (`kept`, a laid course's detour round, which lays a transport's
  * inner waypoints again and leaves every other as it was) takes the earlier
- * reading's arm placement, pairs and crossings at every waypoint it does not
- * name, and its sweeps over every interval both of whose ends it does not
- * name: each is a function of the context and the coordinates at its own
- * waypoints alone, so they are the same values. Every term is then summed by
- * the same loop in the same order, so the objective, the violation and the
- * worst term are the ones a reading of the whole iterate gives, bit for bit.
+ * reading's placement and body pairs at unchanged waypoints. A static
+ * swivel trial can also keep those readings for the other arm at its
+ * edited waypoint. A crossing at that waypoint still reads both arms, and
+ * the static terms are summed in their original order. Moving sweeps reuse
+ * only intervals with unchanged ends, and material sweeps also require
+ * unchanged adjacent knots that define their tangents.
  *
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
- * @param kept An earlier reading of the same context and the waypoints whose coordinates changed since it (`laid[k]` true), every other waypoint's coordinates being those that reading read; absent, every waypoint is read.
+ * @param kept An earlier reading with the same context and contact selection and the waypoints actually changed, optionally for a single arm. Absent, every waypoint is read.
  * @param contact The waypoints whose clearance pairs (the probes' deepest, the body's corners embedded, the two arms' crossings) are read, `contact[k]` true: an optimiser's rounds read them at its knots, the sweeps between consecutive waypoints keeping the continuous check, and the converged path is read whole; absent, every waypoint's are read.
  * @returns The arms placed, the objective, the summed violation and the worst one past its slack, with the pairs, sweeps and crossings the reading found and the waypoints that take part in a violation past the tolerance.
  */
 export function HumanArmTrajectoryEvaluate(
   c: M.IContext,
   x: readonly (readonly number[])[][],
-  kept?: { reading: M.IEvaluation; laid: readonly boolean[] },
+  kept?: M.IKept,
   contact?: readonly boolean[],
 ): M.IEvaluation {
   // Whether a waypoint's clearance pairs are read.
   const reads = (k: number): boolean =>
     contact === undefined || contact[k] === true;
-  // Whether a waypoint's reading is the earlier one's.
-  const same = (k: number): boolean =>
-    kept !== undefined && kept.laid[k] !== true;
+
+  const laid: readonly boolean[] | undefined = kept?.laid;
+  const edited: 0 | 1 | undefined = c.still ? kept?.arm : undefined;
+
+  // Whether this arm stayed on the earlier coordinates at a waypoint.
+  const same = (a: number, k: number): boolean =>
+    laid !== undefined &&
+    (laid[k] !== true || (edited !== undefined && edited !== a));
   // A material encounter also depends on the neighbours defining the two
   // Hermite tangents. The ordinary swept spheres only depend on the ends.
   const sameInterval = (a: number, k: number): boolean =>
-    same(k) && same(k + 1) &&
-    ((c.material?.parts[a] ?? -1) < 0 || (same(k - 1) && same(k + 2)));
+    same(a, k) && same(a, k + 1) &&
+    ((c.material?.parts[a] ?? -1) < 0 || (same(a, k - 1) && same(a, k + 2)));
   const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][] = x.map(
     (
       arm: readonly (readonly number[])[],
@@ -60,7 +65,7 @@ export function HumanArmTrajectoryEvaluate(
           v: readonly number[],
           k: number,
         ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-          same(k)
+          same(a, k)
             ? kept!.reading.placed[a]![k]!
             : G.placed(c.setups[a]!, c.frames[a]![k]!, v),
       ),
@@ -260,7 +265,7 @@ export function HumanArmTrajectoryEvaluate(
       }
       // Only the pairs the merit and the convex model can use are read
       // exactly (`HumanArmTrajectoryPairs.CUT`).
-      const known: M.IEvaluation["pairs"][number][number] | undefined = same(k)
+      const known: M.IEvaluation["pairs"][number][number] | undefined = same(a, k)
         ? kept!.reading.pairs[a]![k]
         : undefined;
       const deepest: Map<number, P.IPair> =
@@ -313,7 +318,9 @@ export function HumanArmTrajectoryEvaluate(
     for (let k: number = 1; k < n; ++k) {
       if (!M.inner(c, k)) continue;
       crossing[k] =
-        (same(k) ? kept!.reading.crossing[k] : undefined) ??
+        (laid !== undefined && laid[k] !== true
+          ? kept!.reading.crossing[k]
+          : undefined) ??
         (reads(k)
           ? P.crossing(c, k, placed[0]![k]!, placed[1]![k]!, P.CUT)
           : new Map());

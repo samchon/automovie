@@ -311,6 +311,25 @@ export namespace HumanArmTrajectoryModel {
     HumanArmTrajectoryInvalid.swing;
 
   /**
+   * Geometry from an earlier evaluation in the same context and contact
+   * selection. `laid[k]` marks each changed waypoint. For a static fit with
+   * one edited arm, all coordinates of the other arm are still identical.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines which geometry belongs to the previous reading and the unchanged inputs needed to borrow it.
+   * @evidence contracts/development/design.md#principled-representation One actual reading and an edit set derived by the owner that built both coordinate arrays.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The evaluation consumes the previous reading only for parts of the same iterate with unchanged inputs.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A change of context, contact selection or either participant of a bilateral pair requires the current reading.
+   */
+  export interface IKept {
+    /** The previously evaluated coordinates in this same problem. */
+    reading: IEvaluation;
+    /** Waypoints where coordinates were replaced. */
+    laid: readonly boolean[];
+    /** The only arm edited in a static fit; moving trajectories use the waypoint set for both arms. */
+    arm?: 0 | 1;
+  }
+
+  /**
    * The objective and the constraints' violations at an iterate, read in
    * full or, given an earlier reading and the waypoints changed since it, at
    * those waypoints only (`HumanArmTrajectoryEvaluate`, which owns the
@@ -318,14 +337,14 @@ export namespace HumanArmTrajectoryModel {
    *
    * @param c The context.
    * @param x Each arm's coordinates at each waypoint.
-   * @param kept An earlier reading of this context and the waypoints whose coordinates changed since it; absent, every waypoint is read.
+   * @param kept An earlier reading with the same context and contact selection, and the actual changes in its coordinates. Absent, every waypoint is read.
    * @param contact The waypoints whose clearance pairs are read (`HumanArmTrajectoryEvaluate`); absent, every waypoint's.
    * @returns The arms placed, the objective, the summed violation and the worst one past its slack.
    */
   export function evaluate(
     c: IContext,
     x: readonly (readonly number[])[][],
-    kept?: { reading: IEvaluation; laid: readonly boolean[] },
+    kept?: IKept,
     contact?: readonly boolean[],
   ): IEvaluation {
     return HumanArmTrajectoryEvaluate(c, x, kept, contact);
