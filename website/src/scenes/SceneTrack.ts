@@ -13,6 +13,8 @@
  * 32-bit floats, at an error of half a millimetre and a few thousandths of a
  * degree, which no drawing shows.
  *
+ * Frames follow the sampling rate up to the final frame, whose timestamp
+ * is the exact end and may shorten the last interval.
  * Reading between two frames interpolates each position linearly and each
  * rotation along the shorter arc, so a take posed at a low rate still plays
  * smoothly.
@@ -46,6 +48,9 @@ export namespace SceneTrack {
 
     /** Frames in the track. */
     frames: number;
+
+    /** Final frame's timestamp in seconds, absent for a fixed-rate track. */
+    duration?: number;
 
     /** Each entry group's order: a figure's bones, or a prop's one frame. */
     orders: string[][];
@@ -123,10 +128,7 @@ export namespace SceneTrack {
    * @returns For each group, its placements in its order.
    */
   export function sample(track: ITrack, seconds: number): IPlacement[][] {
-    const at: number = Math.min(
-      track.frames - 1,
-      Math.max(0, seconds * track.fps),
-    );
+    const at: number = frameAt(track, seconds);
     const lower: number = Math.floor(at);
     const upper: number = Math.min(track.frames - 1, lower + 1);
     const t: number = at - lower;
@@ -151,6 +153,19 @@ export namespace SceneTrack {
         return placement;
       }),
     );
+  }
+
+  /** Fractional frame number at a film second, accounting for the final interval. */
+  function frameAt(track: ITrack, seconds: number): number {
+    const last: number = track.frames - 1;
+    if (track.duration === undefined)
+      return Math.min(last, Math.max(0, seconds * track.fps));
+    if (seconds >= track.duration) return last;
+    if (seconds <= 0 || last === 0) return 0;
+
+    const tail: number = (last - 1) / track.fps;
+    if (seconds < tail) return Math.min(last - 1, seconds * track.fps);
+    return last - 1 + (seconds - tail) / (track.duration - tail);
   }
 
   /** The rotation a share `t` of the way along the shorter arc between two stored quaternions. */

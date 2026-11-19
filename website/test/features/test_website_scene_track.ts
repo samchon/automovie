@@ -1,5 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
+import { SceneClock } from "../../src/scenes/SceneClock";
 import { SceneTrack } from "../../src/scenes/SceneTrack";
 
 /**
@@ -10,6 +11,7 @@ import { SceneTrack } from "../../src/scenes/SceneTrack";
  * 2. Halfway between two frames, a position is the mean of the two, and a rotation is the halfway turn about its axis: a 90 degree turn about +Y reads 45 degrees.
  * 3. A second before the film or after it holds the first or the last frame.
  * 4. A frame that gives a group other entries than its order, and a position beyond what a track holds, are refused.
+ * 5. A shorter take interpolates across its fractional last interval and holds its exact final pose when the shared presentation outlasts it.
  */
 export function test_website_scene_track(): void {
   const turn: (degrees: number) => [number, number, number, number] = (
@@ -124,5 +126,41 @@ export function test_website_scene_track(): void {
         [["frame"]],
       );
     }),
+  );
+
+  // 5. The last interval is half of a regular interval in this short take.
+  const short: SceneTrack.ITrack = { ...track, duration: 1 / 24 };
+  const clock: SceneClock = new SceneClock(false);
+  clock.fps = 12;
+  clock.duration = 0.2;
+  clock.seek(1 / 48);
+  const between: SceneTrack.IPlacement = SceneTrack.sample(
+    short,
+    clock.time,
+  )[0]![0]!;
+  TestValidator.predicate(
+    "half the short interval reaches the halfway translation and rotation",
+    close(between.position, [0.5, 1, 0], 5e-4) &&
+      same(between.rotation, turn(45)),
+  );
+  clock.seek(1 / 24);
+  TestValidator.predicate(
+    "the shorter take reaches its final frame at its own exact end",
+    close(
+      SceneTrack.sample(short, clock.time)[0]![0]!.position,
+      [1, 1, 0],
+      5e-4,
+    ),
+  );
+  clock.seekFrame(clock.lastFrame);
+  const held: SceneTrack.IPlacement = SceneTrack.sample(
+    short,
+    clock.time,
+  )[0]![0]!;
+  TestValidator.predicate(
+    "the shared presentation ends later and still shows the short take's final pose",
+    clock.time === 0.2 &&
+      close(held.position, [1, 1, 0], 5e-4) &&
+      same(held.rotation, turn(90)),
   );
 }
