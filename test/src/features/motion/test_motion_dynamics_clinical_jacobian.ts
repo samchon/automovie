@@ -16,7 +16,6 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { prepareHumanPostureRigCheck } from "../../../../packages/motions/src/posture/prepareHumanPostureRigCheck";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { vclose } from "../internal/vclose";
 
@@ -27,7 +26,7 @@ import { vclose } from "../internal/vclose";
  * Scenarios:
  * 1. Each flexion-first hip variable predicts the derivative of the same
  *    material point on a posed foot.
- * 2. Changing only the live joint order invalidates the old rig check.
+ * 2. Changing only the live joint order returns an issued bone observation to cold resolution.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the physical point, axes and isolated rig edit.
  * @evidence contracts/development/testing.md#behavioral-verification Compares each real kinematic derivative with a central difference of displayed forward kinematics, then changes just the source metadata.
@@ -40,8 +39,9 @@ export function test_motion_dynamics_clinical_jacobian(): void {
   const bone: IAutoMovieBone = source.skeleton.bones.find(
     (value: IAutoMovieBone): boolean => value.bone === "rightUpperLeg",
   )!;
-  const basis: IAutoMovieJointAxes =
-    bone.axes ?? HUMANOID_JOINT_AXES.rightUpperLeg!;
+  const basis: IAutoMovieJointAxes | undefined =
+    bone.axes ?? HUMANOID_JOINT_AXES.rightUpperLeg;
+  if (basis === undefined) throw new Error("The right hip has no joint axes");
   const hip: IAutoMovieBone = {
     ...bone,
     axes: { ...basis, rotationOrder: "flexion-abduction-twist" },
@@ -115,14 +115,48 @@ export function test_motion_dynamics_clinical_jacobian(): void {
     );
   }
 
-  const unchanged: (() => boolean) | undefined =
-    prepareHumanPostureRigCheck(body);
-  const initial: boolean = unchanged?.() === true;
+  let reads: number = 0;
+  const raw: IAutoMovieMotionHumanPosture = {
+    root: current.root,
+    yaw: current.yaw,
+    pitch: current.pitch,
+    roll: current.roll,
+    limbs: current.limbs,
+    get joints(): IAutoMovieMotionHumanPosture["joints"] {
+      ++reads;
+      return current.joints;
+    },
+  };
+  const prepared: resolveHumanPosture.IPrepared = resolveHumanPosture.prepare(
+    body,
+    raw,
+  );
+  const requested = new Set(["rightFoot"] as const);
+  reads = 0;
+  const reused = resolveHumanPosture.preparedBones(prepared, requested);
+  TestValidator.predicate(
+    "the issued source reads the foot without re-reading authored joints",
+    reads === 0 && vclose(point(reused.get("rightFoot")!), point(foot), 1e-9),
+  );
+
   body.skeleton.bones.find(
     (def: IAutoMovieBone): boolean => def.bone === hip.bone,
   )!.axes = basis;
+  const fallback = resolveHumanPosture.preparedBones(prepared, requested);
+  const coldRead: boolean = reads > 0;
+  const expected = poseBones(
+    body,
+    resolveHumanPosture(body, raw),
+    undefined,
+    requested,
+  );
   TestValidator.predicate(
-    "changing only the joint order invalidates the earlier rig check",
-    initial && unchanged?.() === false,
+    "changing only the live joint order re-resolves the authored joints",
+    coldRead &&
+      vclose(
+        point(fallback.get("rightFoot")!),
+        point(expected.get("rightFoot")!),
+        1e-9,
+      ),
   );
 }
