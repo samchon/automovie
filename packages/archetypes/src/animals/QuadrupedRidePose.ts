@@ -6,11 +6,12 @@ import type {
 } from "@automovie/interface";
 
 import { type Archetype, ArchetypeFrame } from "../core";
+import type { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
+import { PrepareQuadrupedPose } from "./PrepareQuadrupedPose";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
 import type { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedLimb } from "./QuadrupedLimb";
-import { QuadrupedPose } from "./QuadrupedPose";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRootRange } from "./QuadrupedRootRange";
@@ -85,6 +86,7 @@ export namespace QuadrupedRidePose {
       goals: Readonly<Record<QuadrupedBody.Limb, IGoal>>,
       nod: number,
       preferredRoot: number,
+      witness?: ArchetypeRideWitness.Witness,
     ) => Archetype<Id, Dimension>;
   }
 
@@ -109,14 +111,17 @@ export namespace QuadrupedRidePose {
     animal: Archetype<Id, Dimension>,
     species: createQuadruped.ISpecies,
     source: ReturnType<typeof QuadrupedJoints.read>,
+    nativeCourse: boolean,
   ): IPrepared<Id, Dimension> {
     const bindings: ReturnType<typeof QuadrupedCarriage.of> =
       QuadrupedCarriage.of(animal, species);
-    const pose: QuadrupedPosePlan.IPrepared<Id, Dimension> = QuadrupedPose(
-      animal,
-      bindings.parts,
-      bindings.contacts,
-    );
+    const pose: PrepareQuadrupedPose.IPrepared<Id, Dimension> =
+      PrepareQuadrupedPose.ride(
+        animal,
+        bindings.parts,
+        bindings.contacts,
+        nativeCourse,
+      );
     const neutral: QuadrupedPosePlan.IState = pose.read();
     const parts: Map<string, IAutoMovieModelPart> = new Map(
       animal.parts.map(
@@ -149,6 +154,8 @@ export namespace QuadrupedRidePose {
         ],
       ),
     );
+    /** Identity of the private chain workspaces and admitted rig in this prepared source. */
+    const geometryOwner: object = {};
     return { sample };
 
     /** Read one actual foot primitive; no endpoint-only ground proxy is retained. */
@@ -193,6 +200,7 @@ export namespace QuadrupedRidePose {
       goals: Readonly<Record<QuadrupedBody.Limb, IGoal>>,
       nod: number,
       preferredRoot: number,
+      witness?: ArchetypeRideWitness.Witness,
     ): Archetype<Id, Dimension> {
       if (!Number.isFinite(nod))
         throw new RangeError("The quadruped head nod must be finite degrees");
@@ -219,9 +227,12 @@ export namespace QuadrupedRidePose {
         leftHind: constraint("leftHind"),
         rightHind: constraint("rightHind"),
       };
+      // Spans and any old source effects remain live on every call. Only the
+      // geometry following this actual floor observation can share exact work.
+      const floor: number = -pose.bodyFloor(preview.frames);
       const range: QuadrupedRootRange.IRange = QuadrupedRootRange.intersect(
         constraints,
-        -pose.bodyFloor(preview.frames),
+        floor,
       );
       const coordinateScale: number = Math.max(
         sourceScale,
@@ -231,34 +242,56 @@ export namespace QuadrupedRidePose {
           Math.abs(target.endpoint.z),
         ]),
       );
-      const height: number = chooseQuadrupedBodyRoot(
-        range,
-        preferredRoot,
-        coordinateScale,
-      );
-      const root: IAutoMovieTransform = ArchetypeFrame.upright({
-        x: 0,
-        y: height,
-        z: 0,
-      });
-      const solved: Map<QuadrupedBody.Limb, readonly IAutoMovieVector3[]> =
-        new Map();
-      for (const limb of QuadrupedBody.LIMBS) {
-        const target: Target = targets.get(limb)!;
-        solved.set(
-          limb,
-          ends[limb].solver.solve(
-            { ...target.attachment, y: target.attachment.y + height },
-            target.endpoint,
-            target.fold,
-          ),
+      /** Solve the shared-root limbs and prove their actual canonical FK. */
+      const geometry = (): ReturnType<typeof pose.position> => {
+        const height: number = chooseQuadrupedBodyRoot(
+          range,
+          preferredRoot,
+          coordinateScale,
         );
-      }
-      const result: Archetype<Id, Dimension> = pose.sample(
-        solved,
-        root,
-        axial,
-      ).animal;
+        const root: IAutoMovieTransform = ArchetypeFrame.upright({
+          x: 0,
+          y: height,
+          z: 0,
+        });
+        const solved: Map<QuadrupedBody.Limb, readonly IAutoMovieVector3[]> =
+          new Map();
+        for (const limb of QuadrupedBody.LIMBS) {
+          const target: Target = targets.get(limb)!;
+          solved.set(
+            limb,
+            ends[limb].solver.solve(
+              { ...target.attachment, y: target.attachment.y + height },
+              target.endpoint,
+              target.fold,
+            ),
+          );
+        }
+        return pose.position(solved, root, axial);
+      };
+      const prepared: ReturnType<typeof geometry> =
+        witness === undefined
+          ? geometry()
+          : witness.geometry(
+              geometryOwner,
+              [
+                nod,
+                preferredRoot,
+                floor,
+                coordinateScale,
+                ...QuadrupedBody.LIMBS.flatMap(
+                  (limb: QuadrupedBody.Limb): number[] => [
+                    goals[limb].z,
+                    goals[limb].lift,
+                    goals[limb].fold,
+                  ],
+                ),
+              ],
+              geometry,
+            );
+      // Current metadata, model/carrier emission and the final solid floor
+      // check always execute, even when the admitted numerical geometry matches.
+      const result: Archetype<Id, Dimension> = prepared.emit(witness?.ode);
 
       // Terminal support alone cannot admit an elbow or folded lower bar
       // below the same floor. Verify those actual solids after exact FK.

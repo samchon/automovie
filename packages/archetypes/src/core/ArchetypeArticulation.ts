@@ -13,6 +13,7 @@ import type {
 
 import { ArchetypeArticulationState } from "./ArchetypeArticulationState";
 import { ArchetypeFrame } from "./ArchetypeFrame";
+import { ArchetypePartOwnership } from "./ArchetypePartOwnership";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 
 /**
@@ -154,7 +155,10 @@ export namespace ArchetypeArticulation {
         return { ...a, frame: ArchetypeFrame.move(by, a.frame) };
       },
     );
-    const parts: IAutoMovieModelPart[] = rest.parts.map(
+    const original: IPosed["parts"] = rest.parts;
+    const ownership: object | undefined =
+      ArchetypePartOwnership.beforeMap(original);
+    const parts: IAutoMovieModelPart[] = original.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
         const by: ArchetypeFrame.IMotion | undefined = moved.get(part.id);
         return by === undefined
@@ -168,6 +172,7 @@ export namespace ArchetypeArticulation {
             };
       },
     );
+    ArchetypePartOwnership.afterMap(ownership, parts);
     return { parts, affordances, travels: selected.travels };
   }
 

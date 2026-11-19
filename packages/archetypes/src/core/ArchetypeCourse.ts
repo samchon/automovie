@@ -457,7 +457,7 @@ export namespace ArchetypeCourse {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the course and one table row per leg for as long as its caller keeps it.
    */
   export function plan(archetype: string, course: ICourse): IPlan {
-    return ArchetypeCourseLegs.plan(archetype, course);
+    return ArchetypeCourseLegs.plan(archetype, course).plan;
   }
 
   /**

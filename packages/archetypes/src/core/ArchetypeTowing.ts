@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieIntegrateMotionTrajectory,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -313,7 +314,8 @@ export namespace ArchetypeTowing {
       return { reach, pitch: Math.atan2(Math.sin(angle), Math.cos(angle)) };
     }
     return {
-      front: front === null ? null : { pivot: { ...front.pivot }, turn: front.turn },
+      front:
+        front === null ? null : { pivot: { ...front.pivot }, turn: front.turn },
       body,
       height,
       pose: (
@@ -368,9 +370,19 @@ export namespace ArchetypeTowing {
     };
 
     /** Coordinate contradictions are refused, rather than choosing one input silently. */
-    function same(a: IAutoMovieVector3 | null | undefined, b: IAutoMovieVector3 | null | undefined): boolean {
-      return a !== null && a !== undefined && b !== null && b !== undefined &&
-        a.x === b.x && a.y === b.y && a.z === b.z;
+    function same(
+      a: IAutoMovieVector3 | null | undefined,
+      b: IAutoMovieVector3 | null | undefined,
+    ): boolean {
+      return (
+        a !== null &&
+        a !== undefined &&
+        b !== null &&
+        b !== undefined &&
+        a.x === b.x &&
+        a.y === b.y &&
+        a.z === b.z
+      );
     }
 
     /** A missing declared freedom is an actionable model/support refusal. */
@@ -384,6 +396,53 @@ export namespace ArchetypeTowing {
         reason,
         fix: "Supply compatible producer towing geometry and a reachable hitch without lifting its grounded supports.",
       });
+    }
+  }
+
+  /**
+   * Refuse a front axle whose required steering exceeds its lock.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the actual front axle articulation and the completed planar heading trajectory in radians.
+   * @evidence contracts/development/implementation.md#principled-implementation Measure the maximum absolute link-heading difference across the existing knots against the articulation's own degree limit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Apply one knot scan for a steerable axle and a single original refusal when it exceeds the lock.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No different sampling time, steering clamp or substitute articulation limit.
+   * @evidence contracts/development/implementation.md#efficient-algorithms O(K) reads for K prepared knots, O(1) auxiliary space.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read the existing continuous heading trajectory at its knots without a new integration.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous validation keeps only the current maximum.
+   */
+  export function checkSteering<Id extends string, D extends string>(
+    trailer: Archetype<Id, D>,
+    front: IFront<Id> | null,
+    heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory,
+  ): void {
+    // A front axle turned past its lock at any knot refuses the course, naming the most it needed.
+    if (front !== null) {
+      const lock: number = trailer.affordance(front.turn).travel ?? 0;
+      let most: number = 0;
+      for (let k: number = 0; k < heading.knots; k++) {
+        const x: readonly number[] = heading.at(
+          Math.min(heading.t0 + k * heading.h, heading.t1),
+        ).x;
+        most = Math.max(
+          most,
+          Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE),
+        );
+      }
+      if (most > lock)
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype: trailer.archetype,
+          axis: "front",
+          value: most,
+          feasible: {
+            kind: "range",
+            minimum: 0,
+            maximum: lock,
+            unit: "degrees",
+          },
+          reason: `the leader's path turns the front axle ${most} degrees, past its ${lock} degree lock`,
+          fix: "lead the trailer on wider turns",
+        });
     }
   }
 }
