@@ -152,11 +152,12 @@ function constraint(a: IAutoMovieJointConstraint | null | undefined, b: IAutoMov
     ? x === y : range(x.twist, y.twist) && Object.is(x.reach, y.reach);
 }
 
-/** Actual basis vectors and intrinsic twist placement precede any normalization. */
+/** Actual basis vectors, intrinsic twist placement and explicit rotation order are checked before normalization. */
 function axes(a: IAutoMovieJointAxes | undefined, b: IAutoMovieJointAxes | undefined): boolean {
   return a === undefined || b === undefined ? a === b :
     vector(a.flexion, b.flexion) && vector(a.abduction, b.abduction) &&
-    vector(a.twist, b.twist) && a.twistPlacement === b.twistPlacement;
+    vector(a.twist, b.twist) && a.twistPlacement === b.twistPlacement &&
+    a.rotationOrder === b.rotationOrder;
 }
 
 /** Clinical affine signs/neutrals and axis omission are checked in original axis order. */

@@ -4,6 +4,7 @@ import type {
   IAutoMovieJointConstraint,
   IAutoMovieJointRotationFrame,
   IAutoMovieQuaternion,
+  IAutoMovieRestFrame,
   IAutoMovieSwingTwistBasis,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -43,7 +44,7 @@ export namespace swingTwistRegion {
    * @returns The radius on each of `swingTwistBasis.RAYS` great circles, degrees; built on first use and kept.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the table, its units and that it is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, or that same lattice point placed from the intervals' closed-form reach and confirmed by the scan's own test, widened for a proximal twist and raised to the slope bound.
+   * @evidence contracts/development/implementation.md#principled-implementation Each radius is the farthest reached swing found by a scan from the far end and a bisection, or that same lattice point placed from the intervals' closed-form reach and confirmed by the scan's own test, widened when twist is the outer factor and raised to the slope bound. The explicit flexion-first chart swaps the inner and outer swing axes, clinical boxes and affine maps while preserving the ray frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup by identity, and the build in three steps on a miss.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scan runs from the far end, so a ray the ranges leave and re-enter keeps its farthest reach. `SLOPE` (3) is provisional; `SCAN` and `HALVINGS` are resolutions.
    * @evidence contracts/development/implementation.md#efficient-algorithms A hit is three map reads by identity, no serialization; a miss builds the table once per constraint, axes and frame: on each of `swingTwistBasis.RAYS` (360) rays the scan's answer placed from the closed form in a handful of reach tests where the intervals' own reach covers the cell and no swing cone cuts it (`latticed`), and otherwise a scan from the farthest grid step a closed-form interval holds down in half-degree steps and 20 bisections, each one reach test of two flexions. One basis cross/dot serves the build, one prepared flexion-axis turn its tests (the axis's scaling and length read once, each angle's quaternion `fromAxisAngle`'s), one extra ray reader holds its azimuth trig, and a module helper omits per-test admission closures. Each test projects its unchanged direction into the abduction plane at most once. Widening still reads one ray per twist degree and raising reads, for each ray, only the rays near enough to lend a positive radius (60 degrees either way at a radius of 180 and the slope of 3); speedup is unmeasured.
@@ -143,10 +144,24 @@ function build(
  * degree steps toward the rest direction and refined by `HALVINGS` bisections.
  */
 function reach(
-  constraint: IAutoMovieJointConstraint,
+  clinical: IAutoMovieJointConstraint,
   joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
-  const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+  const rayBasis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(joint.axes);
+  const flexionFirst: boolean = joint.axes.rotationOrder === "flexion-abduction-twist";
+
+  // The reach equations use flexion as the inner factor. Exchange the two
+  // swing axes and their clinical ranges for F·A, keeping the ray basis.
+  const basis: IAutoMovieSwingTwistBasis.IBasis = flexionFirst
+    ? { ...rayBasis, f: rayBasis.a, a: rayBasis.f }
+    : rayBasis;
+  const constraint: IAutoMovieJointConstraint = flexionFirst
+    ? { ...clinical, flexion: clinical.abduction, abduction: clinical.flexion }
+    : clinical;
+  const frame: IAutoMovieRestFrame | undefined =
+    flexionFirst && joint.frame !== undefined
+      ? { flexion: joint.frame.abduction, abduction: joint.frame.flexion }
+      : joint.frame;
   const table: Float64Array = new Float64Array(swingTwistBasis.RAYS);
   const across: number = Vector3.dot(Vector3.cross(basis.f, basis.u), basis.a);
 
@@ -157,7 +172,7 @@ function reach(
   // antipode is reached on every great circle, in an interval far narrower
   // than a step, and the scan passed it by a hundred steps on half of them.
   const bound: ((cosine: number, sine: number, span?: swingTwistReachBound.ISpan) => number) | null =
-    swingTwistReachBound.prepare(constraint, joint.frame, basis, across);
+    swingTwistReachBound.prepare(constraint, frame, basis, across);
   const span: swingTwistReachBound.ISpan = { grid: SCAN, cell: 0, low: NaN, high: NaN };
 
   // Where the swing cone removes no direction the intervals reach, the
@@ -172,9 +187,9 @@ function reach(
   for (let ray: number = 0; ray < swingTwistBasis.RAYS; ++ray) {
     const azimuth: number = (360 * ray) / swingTwistBasis.RAYS;
     const direction: (swing: number) => IAutoMovieVector3 =
-      swingTwistBasis.prepareRay(basis, azimuth);
+      swingTwistBasis.prepareRay(rayBasis, azimuth);
     const inside: (swing: number) => boolean = (swing: number): boolean =>
-      reached(constraint, joint, basis, direction(swing), across, flexed, free);
+      reached(constraint, frame, basis, direction(swing), across, flexed, free);
     const angle: number = azimuth / swingTwistBasis.DEG;
     const farthest: number =
       bound === null ? 180 : bound(Math.cos(angle), Math.sin(angle), span);
@@ -305,7 +320,12 @@ function widen(
   joint: IAutoMovieJointRotationFrame,
 ): Float64Array {
   const twist: IAutoMovieAngleRange | null = constraint.twist;
-  if (joint.axes.twistPlacement === "distal" || twist === null) return table;
+  if (
+    joint.axes.rotationOrder === "flexion-abduction-twist" ||
+    joint.axes.twistPlacement === "distal" ||
+    twist === null
+  )
+    return table;
   const ends: readonly number[] = [
     toRigAngle(twist.min, joint.frame?.twist)!,
     toRigAngle(twist.max, joint.frame?.twist)!,
@@ -381,8 +401,8 @@ function raise(table: Float64Array): Float64Array {
 
 /**
  * Whether the flexion and abduction intervals, with no twist and within the
- * swing cone, reach a direction in either reading. With no twist the rotation
- * is the abduction's after the flexion's, in either order of the twist: the
+ * swing cone, reach a direction in either reading. The caller maps its inner
+ * and outer factors to flexion and abduction respectively. The mapped
  * flexion turns `u` within the plane normal to the flexion axis, and the
  * abduction then turns it about its own axis, which keeps the part along that
  * axis, so that part gives the flexion twice and the abduction follows for
@@ -390,7 +410,7 @@ function raise(table: Float64Array): Float64Array {
  */
 function reached(
   constraint: IAutoMovieJointConstraint,
-  joint: IAutoMovieJointRotationFrame,
+  frame: IAutoMovieRestFrame | undefined,
   basis: IAutoMovieSwingTwistBasis.IBasis,
   direction: IAutoMovieVector3,
   across: number,
@@ -406,7 +426,7 @@ function reached(
   let projected: IAutoMovieVector3 | undefined;
   for (const f of [first, 180 - first]) {
     // A branch outside the flexion interval is unreachable for every abduction.
-    const clinical: number = nearestAngleAlias(toClinicalAngle(f, joint.frame?.flexion)!, flexion);
+    const clinical: number = nearestAngleAlias(toClinicalAngle(f, frame?.flexion)!, flexion);
     if (!(clinical >= flexion.min && clinical <= flexion.max)) continue;
     const swung: IAutoMovieVector3 = Quaternion.rotateVector(flexed(f), basis.u);
     const from: IAutoMovieVector3 = flat(swung, basis.a);
@@ -421,11 +441,11 @@ function reached(
         if (
           admits(
             constraint,
-            joint,
+            frame,
             free,
             abduction,
             clinical,
-            toRigAngle(a, joint.frame?.abduction)!,
+            toRigAngle(a, frame?.abduction)!,
           )
         )
           return true;
@@ -436,7 +456,7 @@ function reached(
         Vector3.dot(basis.a, Vector3.cross(from, to)),
         Vector3.dot(from, to),
       ) * swingTwistBasis.DEG;
-    if (admits(constraint, joint, free, abduction, clinical, a)) return true;
+    if (admits(constraint, frame, free, abduction, clinical, a)) return true;
   }
   return false;
 }
@@ -444,14 +464,14 @@ function reached(
 /** Test one clinical reading with the same frame, interval and swing-cone order. */
 function admits(
   constraint: IAutoMovieJointConstraint,
-  joint: IAutoMovieJointRotationFrame,
+  frame: IAutoMovieRestFrame | undefined,
   free: boolean,
   abduction: IAutoMovieAngleRange,
   f: number,
   rigAbduction: number,
 ): boolean {
   const a: number = nearestAngleAlias(
-    toClinicalAngle(rigAbduction, joint.frame?.abduction)!,
+    toClinicalAngle(rigAbduction, frame?.abduction)!,
     abduction,
   );
   return (

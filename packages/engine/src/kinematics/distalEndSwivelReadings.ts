@@ -108,7 +108,7 @@ export namespace distalEndSwivelReadings {
    * Read an end joint over a turn of the swivel.
    *
    * @param props The end joint and the mid segment's direction by swivel.
-   * @returns The readings, or null when the analysis does not apply (no range, a swing-twist gate, a mobile twist, a rest that carries the mid segment's axis neither onto the twist axis nor onto its opposite, an abduction interval past a quarter turn or a flexion interval wider than a half turn).
+   * @returns The readings, or null when the analysis does not apply (no range, a swing-twist gate, a mobile or explicitly reordered twist chart, a rest that carries the mid segment's axis neither onto the twist axis nor onto its opposite, an abduction interval past a quarter turn or a flexion interval wider than a half turn).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and every case that returns null.
    * @evidence contracts/development/implementation.md#principled-implementation Three sampled directions fit each component's sinusoid exactly, since the direction is affine in the mid joint's place, which circles the root-to-target line (Tolani, Goswami and Badler 2000, after Korein).
@@ -123,7 +123,12 @@ export namespace distalEndSwivelReadings {
     if (constraint === null) return null;
     if (constraint.swingTwist !== undefined && constraint.swingTwist !== null) return null;
     if (constraint.twist !== null) return null;
-    if (props.basis.twistPlacement === "distal") return null;
+    // The column readings below use the legacy end-joint swing chart.
+    if (
+      props.basis.rotationOrder !== undefined ||
+      props.basis.twistPlacement === "distal"
+    )
+      return null;
     const basis: IAutoMovieJointAxes = props.basis;
     const handed: 1 | -1 =
       Vector3.dot(basis.twist, Vector3.cross(basis.flexion, basis.abduction)) >= 0 ? 1 : -1;
