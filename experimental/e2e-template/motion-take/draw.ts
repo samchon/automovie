@@ -30,7 +30,7 @@ export async function draw(
         seconds + 0.04,
       ].entries()) {
         const frames: Awaited<ReturnType<typeof session.frame>> =
-          await session.frame(second, ["clay"]);
+          await session.frame(second, ["beauty"]);
         const { picture } = frames[0]!;
         digests.push(createHash("sha256").update(picture.pixels).digest("hex"));
         await writeFile(
