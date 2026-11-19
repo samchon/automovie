@@ -6,9 +6,9 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * arched, the legs lifted after the hips pass, and a landing on the back.
  *
  * The take-off is the jump's push-off (`GymnasticsTakeoff`), aimed so the
- * centre of mass peaks at the bar's height and comes down at the landing
- * place at the height it has lying on its back there. The flight is
- * ballistic in the centre of mass (`GymnasticsFlight`), and its rotation runs
+ * centre of mass peaks at the bar axis plus the authored reserve. It comes
+ * down at the landing place at the height it has lying on its back there.
+ * The flight is ballistic in the centre of mass (`GymnasticsFlight`), and its rotation runs
  * through the whole flight from the take-off, as the angular momentum a flop
  * builds during the take-off (Dapena 1980, "Mechanics of rotation in the
  * Fosbury-flop", Med Sci Sports Exerc 12:45-53: most of the somersault's
@@ -25,10 +25,9 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * back there (`GymnasticsMat`).
  *
  * The bar is the scene's high jump, a prop whose `bar` affordance is the
- * crossbar (`createHighJump`'s): the centre of mass peaks at its axis's
- * height, read where the prop stands at the action's start. A prop without
- * a `bar` is refused, and so is a bar no higher than the take-off's centre,
- * or one that needs a vertical take-off speed past `RISE`. The horizontal
+ * crossbar (`createHighJump`'s). The law reads its axis where the prop
+ * stands at the action's start. The requested apex must exceed the take-off
+ * centre and fit within the vertical take-off speed bound `RISE`. The horizontal
  * take-off speed is not stated: it follows from the landing place the
  * author gives, which world-class finalists reach leaving the floor at
  * 4.14 ± 0.37 m/s (the same table of Nicholson et al. 2022).
@@ -40,8 +39,8 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * marks a passage of the centre through the crossbar's plane within its
  * span when the authored flight crosses it. The push-off's own flight, which
  * aims the take-off, leaves 20 to 24 mm from its take-off pose, so the flight
- * starts from that pose's centre with the vertical speed that peaks it at the
- * bar, and the body does not step at the take-off.
+ * starts from that pose's centre with the vertical speed that reaches the
+ * requested apex, and the body does not step at the take-off.
  *
  * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`, `relax`.
  *
@@ -55,7 +54,7 @@ export namespace IAutoMovieMotionHumanHighJump {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The landing place, its support and the high jump whose crossbar is cleared.
+   * @evidence contracts/development/design.md#principled-representation The landing place, its support, the high jump's crossbar and the authored centre-of-mass rise above its axis.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The surface is a prop's subject id, as the jump's.
    *
@@ -68,8 +67,11 @@ export namespace IAutoMovieMotionHumanHighJump {
     /** The prop landed on, its subject id; the floor when absent. */
     on?: string;
 
-    /** The high jump's prop subject; its `bar` affordance is the crossbar, whose axis's height the centre of mass peaks at. */
+    /** The high jump's prop subject. Its `bar` affordance supplies the crossbar's world axis and span. */
     bar: string;
+
+    /** The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed. */
+    apexReserve?: number;
 
     /** The planted foot that pushes off. Omitted uses the incoming stance's leading support. */
     takeoffFoot?: "left" | "right";

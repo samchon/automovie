@@ -269,6 +269,9 @@ export namespace SceneBuild {
     /** The camera's view. */
     view?: IScene.ICamera["view"];
 
+    /** Metres from the camera to the framed action. Omit to fit the whole set. */
+    distance?: IScene.ICamera["distance"];
+
     /** The skill of the last take. */
     skill?: IPlaygroundComposition.Proficiency;
 
@@ -328,7 +331,10 @@ export namespace SceneBuild {
               (take: IScene.ITake): boolean => take.bodies === undefined,
             )
           : takes,
-      camera: { view: about.view ?? "three-quarter" },
+      camera: {
+        view: about.view ?? "three-quarter",
+        ...(about.distance === undefined ? {} : { distance: about.distance }),
+      },
       needs: about.needs,
       ...(about.featured === undefined ? {} : { featured: about.featured }),
       ...(about.refusedUntil === undefined

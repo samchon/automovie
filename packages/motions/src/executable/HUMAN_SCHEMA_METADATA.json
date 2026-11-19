@@ -475,6 +475,7 @@
     "stageBladeFootwork": {},
     "stageProp": {},
     "stickBall": {},
+    "tennisForehandReturn": {},
     "bowViolin": {
       "properties": {
         "seconds": {
@@ -2348,7 +2349,18 @@
     },
     "foreheadKiss": {},
     "forwardRoll": {},
-    "fosburyFlop": {},
+    "fosburyFlop": {
+      "properties": {
+        "apexReserve": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
     "fret": {},
     "frontCrawl": {
       "properties": {

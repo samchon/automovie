@@ -45,9 +45,9 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * (World Athletics TR27). The foot must already be planted.
  *
  * The take-off is the jump's push-off (`GymnasticsTakeoff`), aimed so the
- * centre of mass peaks at the bar's height and comes down at the landing
- * place at the height it has lying on its back there. The flight is
- * ballistic in the centre of mass (`GymnasticsFlight`), and its rotation runs
+ * centre of mass peaks at the bar axis plus the authored reserve. It comes
+ * down at the landing place at the height it has lying on its back there.
+ * The flight is ballistic in the centre of mass (`GymnasticsFlight`), and its rotation runs
  * through the whole flight from the take-off, as the angular momentum a flop
  * builds during the take-off (Dapena 1980, "Mechanics of rotation in the
  * Fosbury-flop", Med Sci Sports Exerc 12:45-53: most of the somersault's
@@ -64,10 +64,9 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * back there (`GymnasticsMat`).
  *
  * The bar is the scene's high jump, a prop whose `bar` affordance is the
- * crossbar (`createHighJump`'s): the centre of mass peaks at its axis's
- * height, read where the prop stands at the action's start. A prop without
- * a `bar` is refused, and so is a bar no higher than the take-off's centre,
- * or one that needs a vertical take-off speed past `RISE`. The horizontal
+ * crossbar (`createHighJump`'s). Its axis is read where the prop stands at
+ * the action's start. The requested apex must exceed the take-off centre
+ * and fit within the vertical take-off speed bound `RISE`. The horizontal
  * take-off speed is not stated: it follows from the landing place the
  * author gives, which world-class finalists reach leaving the floor at
  * 4.14 ± 0.37 m/s (the same table of Nicholson et al. 2022).
@@ -79,15 +78,15 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * `barCrossing` event records the centre's passage within the physical
  * span, when present. The push-off's own flight, which
  * aims the take-off, leaves 20 to 24 mm from its take-off pose, so the flight
- * starts from that pose's centre with the vertical speed that peaks it at the
- * bar, and the body does not step at the take-off.
+ * starts from that pose's centre with the vertical speed for the requested
+ * apex, and the body does not step at the take-off.
  *
  * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`, `relax`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the figure, the take-off's aim, the flight's physics, the one-axis turns and the follow-up, the keyed arch, the landing, the bar's place, the refusals and the first pass.
  * @evidence contracts/development/design.md#principled-representation The jump's push-off, a parabola from it and a posture of joints turned and placed on it; the rates follow from the flight time.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the bound, the turn's share, the keyed postures, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The bar and the landing place are the author's; every speed and time follows from them.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The actual bar sets the crossing geometry. The authored reserve and landing place set the flight with its launch bounds.
  */
 export namespace highJump {
   /** The action's name. */
@@ -258,6 +257,42 @@ export namespace highJump {
       p.bar,
     );
     const bar: number = cross.point.y;
+    const reserve: number = HumanBound.least(
+      "apexReserve",
+      p.apexReserve ?? 0,
+      0,
+      "m",
+    );
+    const apex: number = bar + reserve;
+
+    /** Bound the requested apex against the observed takeoff centre. */
+    const riseFrom: (height: number) => number = (height: number): number => {
+      HumanBound.above("bar", bar, height - reserve, "m");
+      const speed: number = Math.sqrt(
+        2 * AutoMovieGravity.STANDARD * (apex - height),
+      );
+      if (speed > RISE) {
+        const ceiling: number =
+          height + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD);
+        if (reserve > 0 && ceiling >= bar)
+          HumanBound.within("apexReserve", reserve, 0, ceiling - bar, "m");
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "bar",
+          value: bar,
+          feasible: {
+            kind: "range",
+            minimum: height - reserve,
+            maximum: ceiling - reserve,
+            unit: "m",
+            open: "minimum",
+          },
+          reason: `the requested apex at ${apex.toFixed(2)} m needs a vertical take-off speed of ${speed.toFixed(2)} m/s, past ${RISE}`,
+          fix: "lower the bar or reduce the apex reserve",
+        });
+      }
+      return speed;
+    };
 
     // The centre's height lying on the back on the surface.
     const supine: IAutoMovieMotionHumanPosture = {
@@ -291,45 +326,13 @@ export namespace highJump {
         ).y;
       })();
 
-    // The take-off: the centre peaks at the bar and comes down at the
+    // The take-off: the centre reaches the requested apex and comes down at the
     // landing place at its lying height.
     const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
       GymnasticsTakeoff.of(
         context,
         (centre: IAutoMovieVector3): IAutoMovieVector3 => {
-          if (!(bar > centre.y))
-            throw new HumanRefusal({
-              kind: "parameter",
-              axis: "bar",
-              value: bar,
-              feasible: {
-                kind: "range",
-                minimum: centre.y,
-                maximum: null,
-                unit: "m",
-                open: "minimum",
-              },
-              reason: `the bar at ${bar.toFixed(2)} m is no higher than the take-off's centre of mass at ${centre.y.toFixed(2)} m`,
-              fix: "raise the bar",
-            });
-          const vy: number = Math.sqrt(
-            2 * AutoMovieGravity.STANDARD * (bar - centre.y),
-          );
-          if (vy > RISE)
-            throw new HumanRefusal({
-              kind: "parameter",
-              axis: "bar",
-              value: bar,
-              feasible: {
-                kind: "range",
-                minimum: centre.y,
-                maximum:
-                  centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
-                unit: "m",
-              },
-              reason: `a bar at ${bar.toFixed(2)} m needs a vertical take-off speed of ${vy.toFixed(2)} m/s, past ${RISE}`,
-              fix: "lower the bar",
-            });
+          const vy: number = riseFrom(centre.y);
           const time: number = GymnasticsFlight.fall(centre.y, vy, lying)!;
           return {
             x: (p.to.x - centre.x) / time,
@@ -342,8 +345,8 @@ export namespace highJump {
     const off: number = takeoff.seconds;
     // The flight leaves from the take-off posture's own centre, so the body
     // does not step at the take-off where the push-off's flight, which the
-    // launch is read from, does not meet its take-off pose; its vertical
-    // speed is the one that peaks that centre at the bar.
+    // launch is read from, does not meet its take-off pose. Its vertical
+    // speed takes that centre to the requested apex.
     const launchFrame: {
       posture: IAutoMovieMotionHumanPosture;
       centre: IAutoMovieVector3;
@@ -372,10 +375,9 @@ export namespace highJump {
     })();
     const from: IAutoMovieMotionHumanPosture = launchFrame.posture;
     const c0: IAutoMovieVector3 = launchFrame.centre;
-    HumanBound.above("bar", bar, c0.y, "m");
     const v: IAutoMovieVector3 = {
       ...takeoff.velocity,
-      y: Math.sqrt(2 * AutoMovieGravity.STANDARD * (bar - c0.y)),
+      y: riseFrom(c0.y),
     };
     const rising: number = v.y / AutoMovieGravity.STANDARD;
 

@@ -6,8 +6,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * step and golf address (#3249). A named implement stays in the racket hand
  * through preparation, impact and recovery.
  *
- * - Ready position: the feet step apart to two shoulder widths, the knees
- *   give 4 % of the stature and the trunk leans 15 degrees, the racket hand
+ * - Ready position: the feet step in sequence to two shoulder widths, the pelvis
+ *   lowers by 4 % of stature and the trunk leans 15 degrees, the racket hand
  *   on the handle at waist height before the body and the other hand a hand
  *   ahead on the throat (provisional places).
  * - Split step: from the ready position's width, a small hop of 3 % of the
@@ -50,7 +50,7 @@ export namespace IAutoMovieMotionHumanRacket {
      */
     seconds?: number;
 
-    /** The held racket subject for a stroke. Omit for a solo stroke. */
+    /** The held racket subject during a ready position, split step or stroke. Omit to rehearse without a prop. */
     implement?: string;
 
     /** The desired centre of the striking face at the stroke, in world metres. Omit for a body-relative rehearsal. */
