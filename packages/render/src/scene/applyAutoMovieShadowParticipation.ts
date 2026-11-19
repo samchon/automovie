@@ -17,11 +17,10 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * The requirement asks for caster and receiver to be **distinguished** rather
  * than blanket-enabled, and the product knows the difference at exactly one
  * place, which is here. A model's parts are solids: they cast and they receive.
- * The standable surfaces under {@link SPACE_GROUP_NAME} are semantic patches
- * reserved for structural guide passes. They neither cast nor receive: a flat
- * volume-free patch casting onto its own plane produces depth acne, while a
- * patch receiving a shadow would promote the declaration back into beauty
- * evidence of a physical floor. Anything carrying no geometry is untouched.
+ * The standable surfaces under {@link SPACE_GROUP_NAME} are open patches for
+ * structural guides and optional flat color. They neither cast nor receive.
+ * A volume-free patch casting onto its own plane produces depth acne, and its
+ * basic material has no shadow response. Objects without geometry are untouched.
  *
  * Exported, and separate from {@link buildScene}, for the reason
  * {@link applySceneFog} is: a host that assembles its own scene graph — a

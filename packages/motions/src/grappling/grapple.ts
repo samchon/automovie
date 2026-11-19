@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBase,
+  IAutoMovieMotionHumanClinch,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanGrapple,
   IAutoMovieMotionHumanPerformerReader,
@@ -30,6 +31,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { clinch } from "./clinch";
+import { grappleMatRoll } from "./grappleMatRoll";
 import { grappleStances } from "./grappleStances";
 
 /**
@@ -104,6 +106,12 @@ export namespace grapple {
       case "mmaReset":
         return { reach: 0.03, take: 0.17, release: 0.37, rest: 0.55 };
       case "seoiNage":
+        return {
+          reach: 0.01,
+          take: 0.155,
+          release: grappleStances.SHOULDER_ENTRY,
+          rest: 0.42,
+        };
       case "oGoshi":
       case "oSotoGari":
       case "deAshiHarai":
@@ -148,10 +156,15 @@ export namespace grapple {
       p,
       duration,
     );
-    const floor: IAutoMovieMotionHumanActionPlan = support.plan({
+    const supportPlan: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,
       params: { stances: keys },
     });
+    const shoulder: boolean = p.kind === "seoiNage" && p.outcome !== "denied";
+    const floor: IAutoMovieMotionHumanActionPlan =
+      shoulder && p.role === "receiver"
+        ? grappleMatRoll(context.body, supportPlan)
+        : supportPlan;
     const ending: ReturnType<typeof grappleStances.keys>[number] =
       keys[keys.length - 1]!;
     const base: IAutoMovieMotionHumanBase = {
@@ -208,6 +221,8 @@ export namespace grapple {
     const needed: Set<AutoMovieHumanoidBone> = new Set();
     const arms: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [...floor.contacts];
+    const release: number = clock.at("release");
+    const rest: number = clock.at("rest");
     let observed:
       | ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>
       | undefined;
@@ -220,6 +235,7 @@ export namespace grapple {
         armBone,
       ]);
       const goal: `${AutoMovieHumanSide}Arm` = `${side}Arm`;
+      const sleeve: boolean = shoulder && side !== (p.side ?? "right");
       const bones: ReturnType<typeof poseBones> = poseBones(
         context.body,
         context.entry.pose,
@@ -240,16 +256,33 @@ export namespace grapple {
         ),
         weight: (time: number): number =>
           clock.envelope(["reach", "take"], ["release", "rest"], time),
+        // Arc around the other actor's torso instead of crossing it on the approach.
+        ...(shoulder ? { curvature: 0.62 } : {}),
         target: (
           posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieMotionHumanArmTarget.ITarget =>
-          AutoMovieMotionHumanTarget.hand(
+          seconds: number,
+        ): IAutoMovieMotionHumanArmTarget.ITarget => {
+          const contact: IAutoMovieMotionHumanClinch.IPlaceResult =
+            clinch.place(partner.body, observed!, region, 0);
+          // The sleeve hand first separates along the material normal.
+          // This offset is zero at release and at the end of withdrawal.
+          if (sleeve && seconds > release && seconds < rest) {
+            const phase: number = (seconds - release) / (rest - release);
+            const offset: number =
+              0.55 * context.body.measure.hand * Math.sin(Math.PI * phase) ** 2;
+            contact.point = Vector3.add(
+              contact.point,
+              Vector3.scale(contact.normal, offset),
+            );
+          }
+          return AutoMovieMotionHumanTarget.hand(
             context.body,
             posture,
             side,
-            clinch.place(partner.body, observed!, region, 0),
+            contact,
             { surface: "palm", shape: "relaxed", bend: "forward" },
-          ),
+          );
+        },
       });
       arms.push({
         ...arm,

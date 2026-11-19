@@ -4,6 +4,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
+import type { ArchetypeMass } from "./ArchetypeMass";
 import type { IArchetypeProps } from "./IArchetypeProps";
 
 /**
@@ -22,11 +23,15 @@ import type { IArchetypeProps } from "./IArchetypeProps";
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Rest contact metadata and immutable geometry/material/mass data remain owned by the original producer; only changed contact records and the props record are rebuilt.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns independent props/contact records, retains no frame map or query cache and acquires no external resource.
  */
-export function reposeArchetype<Id extends string, Dimension extends string>(
-  rest: IArchetypeProps<Id, Dimension>,
+export function reposeArchetype<
+  Id extends string,
+  Dimension extends string,
+  Physical extends ArchetypeMass.IProperties | null,
+>(
+  rest: IArchetypeProps<Id, Dimension, Physical>,
   parts: IAutoMovieModelPart[],
   frames?: ReadonlyMap<string, IAutoMovieTransform>,
-): IArchetypeProps<Id, Dimension> {
+): IArchetypeProps<Id, Dimension, Physical> {
   if (
     frames !== undefined &&
     (frames.size !== rest.affordances.length ||

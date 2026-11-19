@@ -3,6 +3,7 @@ import type { IAutoMovieResolvedBone } from "../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import type { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
+import type { IAutoMovieTimedGround } from "./IAutoMovieTimedGround";
 
 /**
  * Data and callback contracts shared by the PinStanceTargets operations.
@@ -45,6 +46,9 @@ export namespace IAutoMoviePinStanceTargets {
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMoviePinStanceTargets.IProps.groundAt is used through packages/engine/src/motion/pinStanceTargets.ts.
      */
     groundAt: (x: number, z: number) => number;
+
+    /** Static terrain scoped on the local clock, when authored. */
+    support?: IAutoMovieTimedGround;
 
     /** Contact tolerance above the ground counted as stance. */
     tolerance: number;

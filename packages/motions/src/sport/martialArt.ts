@@ -41,10 +41,11 @@ import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
  * - Horse stance: the left foot steps out until the feet stand two
  *   shoulder widths apart (provisional) and the hips sink a fifth of the
  *   thigh (provisional), held, and the foot steps back.
- * - Choku-zuki: from the horse stance, each fist drives from its chamber at
- *   the hip (waist height, at the shoulder's side) to the midline at chest
- *   height an arm's reach ahead, the other fist pulled back to its chamber
- *   at the same time (hikite). Each punch extends in 0.2 s and stays 0.2 s,
+ * - Choku-zuki: each fist leaves a waist-high chamber outside the live
+ *   shoulder and passes around the flank before reaching the midline at
+ *   chest height. The other fist returns to its chamber (hikite). Upper-arm
+ *   and forearm radii provide provisional clearance for the tucked elbow
+ *   as it turns. Each punch extends in 0.2 s and stays 0.2 s,
  *   inside the 400 ms a choku-zuki takes (VencesBrito et al. 2011); the
  *   hands alternate.
  * - Tai chi push: the lead foot steps ahead 0.35 statures (provisional)
@@ -289,7 +290,16 @@ export namespace martialArt {
         const fall: number = Math.min(1, Math.max(0, (s - a - 2 * len) / len));
         return Math.max(0, ease(rise) - ease(fall));
       };
-      for (const side of ["left", "right"] as const)
+      for (const side of ["left", "right"] as const) {
+        const outward: number = side === "left" ? 1 : -1;
+        const chamberOffset: IAutoMovieVector3 = {
+          x: outward * (m.upperArmRadius + m.forearmRadius),
+          y: m.waistHeight - m.shoulderHeight,
+          z:
+            AutoMovieMotionHumanTargetGrid.DISTANCES.close *
+              (m.upperArm + m.forearm) +
+            m.forearmRadius / 2,
+        };
         primitives.push(
           ...AutoMovieMotionHumanPlaced.arm({
             body,
@@ -301,13 +311,28 @@ export namespace martialArt {
             span,
             surface: "fist",
             shape: "fist",
-            place: (posture: IAutoMovieMotionHumanPosture, s: number) => {
-              const chamber: IAutoMovieVector3 =
-                AutoMovieMotionHumanPlaced.grid(body, posture, side, {
-                  height: "waist",
-                  lateral: "shoulder",
-                  distance: "close",
-                });
+            place: (
+              posture: IAutoMovieMotionHumanPosture,
+              s: number,
+              resolution?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[2],
+            ) => {
+              const axes: IAutoMovieMotionHumanFrame = {
+                origin: { x: 0, y: 0, z: 0 },
+                yaw: posture.yaw,
+              };
+              const shoulder: IAutoMovieVector3 =
+                AutoMovieMotionHumanPlaced.joint(
+                  body,
+                  posture,
+                  `${side}UpperArm`,
+                  resolution,
+                );
+              const chamber: IAutoMovieVector3 = HumanFrame.point(
+                { ...axes, origin: shoulder },
+                chamberOffset,
+              );
               const aim: IAutoMovieVector3 = HumanFrame.point(
                 {
                   origin: { x: posture.root.x, y: 0, z: posture.root.z },
@@ -321,17 +346,26 @@ export namespace martialArt {
                   z: m.upperArm + m.forearm,
                 },
               );
+              const phase: number = extended(side, s);
+
+              // A shallow outward arc clears the flank as the forearm turns
+              // out of or back into chamber. Its endpoint is the same midline.
               return {
-                point: Vector3.lerp(chamber, aim, extended(side, s)),
-                facing: HumanFrame.point(
-                  { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                  { x: 0, y: 0, z: 1 },
+                point: Vector3.add(
+                  Vector3.lerp(chamber, aim, phase),
+                  HumanFrame.point(axes, {
+                    x: outward * m.forearmRadius * 2 * phase * (1 - phase),
+                    y: 0,
+                    z: 0,
+                  }),
                 ),
+                facing: HumanFrame.point(axes, { x: 0, y: 0, z: 1 }),
               };
             },
             bend: "tucked",
           }),
         );
+      }
     }
     if (p.kind === "taiChiPush") {
       const stride: number = 0.35 * m.stature * modifiers.extent;

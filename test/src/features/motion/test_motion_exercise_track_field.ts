@@ -32,14 +32,15 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 1. The sprint hands come off at the gun. The right-foot block leaves
  *    before the left one. The displayed hips and rear ankle rise.
  * 2. Each high-jump support choice holds that foot to takeoff. The
- *    displayed centre crosses the bar's world plane within 10 mm.
+ *    displayed centre crosses the bar's world plane within 10 mm and
+ *    peaks at its axis plus the optional reserve.
  * 3. A 50 mm mat rise changes both ankles' touchdown height by 50 mm
  *    within 10 mm, and both feet subsequently bear on the mat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged actions, contact order and metre-valued checks.
  * @evidence contracts/development/testing.md#behavioral-verification Plans through the public lexicon and measures resolved skeletons alongside declared bearing windows.
- * @evidence contracts/development/testing.md#independent-expectations Authored drive time, legal order of block releases, bar placement and mat height provide the expected relationships.
- * @evidence contracts/development/testing.md#distinguishing-cases Alternates the chosen high-jump support and compares the same vault on flat and raised landing surfaces.
+ * @evidence contracts/development/testing.md#independent-expectations Authored drive time, legal order of block releases, bar axis and reserve, and mat height provide the expected relationships.
+ * @evidence contracts/development/testing.md#distinguishing-cases Alternates the chosen high-jump support, adds a reserve on the same bar and compares the same vault on flat and raised landing surfaces.
  * @evidence contracts/development/testing.md#execution-ownership Uses the shared Human fixture without a render or external process.
  */
 export function test_motion_exercise_track_field(): void {
@@ -114,7 +115,11 @@ export function test_motion_exercise_track_field(): void {
   });
   const barZ: number = 1.25;
   const matHeight: number = 0.762;
-  for (const side of ["left", "right"] as const) {
+  for (const [side, reserve] of [
+    ["left", undefined],
+    ["right", undefined],
+    ["left", 0.25],
+  ] as const) {
     const barYaw: number = side === "left" ? 0 : 30;
     const jump: HumanPerformance = new HumanPerformance({
       seed: "exercise-field",
@@ -137,6 +142,7 @@ export function test_motion_exercise_track_field(): void {
           on: "mat",
           to: { x: 0, y: matHeight, z: 2.5 },
           takeoffFoot: side,
+          ...(reserve === undefined ? {} : { apexReserve: reserve }),
         }).node,
     });
     const leap: IAutoMovieMotionHumanSegment = jump.segments("a")[1]!;
@@ -169,8 +175,13 @@ export function test_motion_exercise_track_field(): void {
         Math.abs(planeDistance) <= 0.01,
     );
     TestValidator.predicate(
-      side + " takeoff peaks at the authored crossbar height",
-      Math.abs(HumanSignature.centre(reader, apex).y - 1.4) <= 0.01,
+      side +
+        " takeoff peaks at the crossbar axis plus reserve " +
+        (reserve ?? 0),
+      Math.abs(
+        HumanSignature.centre(reader, apex).y -
+          (crossbar.affordance("bar").frame.translation.y + (reserve ?? 0)),
+      ) <= 0.01,
     );
   }
 

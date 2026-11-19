@@ -1,5 +1,4 @@
 import {
-  type Archetype,
   ArchetypeArticulation,
   type ArchetypeDrawSession,
   ArchetypeMarks,
@@ -21,7 +20,7 @@ export namespace GalleryArchetype {
   /** One built archetype. */
   export interface IBuilt {
     /** The archetype, with its articulations at the request's state. */
-    archetype: Archetype<string, string>;
+    archetype: GalleryCatalogue.Model;
 
     /** What the page lists; the stage adds the floor grid it draws. */
     view: Omit<IGalleryView, "grid">;
@@ -48,7 +47,7 @@ export namespace GalleryArchetype {
       ...producer.PRODUCERS?.[request.variant]?.REFERENCE,
       ...(key === "" ? {} : { [key]: request.variant }),
     };
-    const rest: Archetype<string, string> = producer(
+    const rest: GalleryCatalogue.Model = producer(
       params,
       request.seed === "" ? undefined : request.seed,
     );
@@ -60,7 +59,7 @@ export namespace GalleryArchetype {
         rest.affordances.some((a): boolean => a.id === id),
       ),
     );
-    const archetype: Archetype<string, string> =
+    const archetype: GalleryCatalogue.Model =
       Object.keys(state).length === 0 ? rest : rest.articulate(state);
 
     // Each dimension is listed from the archetype's own record of where it came

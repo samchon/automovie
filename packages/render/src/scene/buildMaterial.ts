@@ -18,6 +18,7 @@ import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
  * meaning and leaving an omitted lobe at its neutral value. It
  * carries the material's name, or its id when unnamed, as the glTF export
  * does, so a preview can recognise a finish by it.
+ * A fully transparent blended surface with no transmission skips color, depth and shadow draws.
  * The producer owns its new material before resolving texture bindings. Setup
  * failure retires that material and preserves cleanup causes; resolver textures
  * and shared shader tables remain owned by their actual producers.
@@ -55,6 +56,12 @@ export const buildMaterial: (
           transparent: alphaMode === "blend",
           depthWrite: alphaMode !== "blend",
           opacity: material.opacity,
+          // Three's shadow materials copy alpha tests and maps, but do not copy opacity.
+          visible: !(
+            alphaMode === "blend" &&
+            material.opacity === 0 &&
+            (material.transmission ?? 0) === 0
+          ),
           alphaTest: alphaMode === "mask" ? (material.alphaCutoff ?? 0.5) : 0,
           side:
             material.doubleSided === true ? THREE.DoubleSide : THREE.FrontSide,

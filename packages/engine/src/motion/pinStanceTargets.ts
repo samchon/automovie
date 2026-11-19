@@ -5,17 +5,18 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { STATIC_SUPPORT_HEIGHT_EPSILON } from "./constants/STATIC_SUPPORT_HEIGHT_EPSILON";
 import { contactMask } from "./contactMask";
 
 /**
- * Group each leg's stance mask into maximal inclusive runs and assign one fixed model-frame contact per run. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
+ * Group each leg's stance into inclusive runs and assign one fixed model-frame contact per run. On a timed support change, the prior target survives while it remains supported at the same height. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Contiguous true intervals define one stance run; its fixed target is shared by all covered frame maps and compact metadata, preserving prior-beat contact only at the opening boundary. Every resulting target must be finite.
+ * @evidence contracts/development/implementation.md#principled-implementation Legacy contiguous true samples define stance runs. Timed contacts follow the same height threshold and recheck an active target at every exact support boundary. Every resulting target must be finite.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The detection/pinning stage owns run grouping and target choice, leaving clinical IK and dense keyframe output to rekeyPlantedFeet.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact is invented for false mask frames; opening pins apply only to an actual opening stance, and malformed sampled/carried target coordinates throw rather than replacing the target.
- * @evidence contracts/development/common.md#meaningful-documentation States inclusive times, model-frame coordinates, parallel-array premise, ground snapping and authoritative opening-target precedence.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing timed support is contact absence. Opening pins apply to actual opening stance. Malformed sampled or carried target coordinates throw.
+ * @evidence contracts/development/common.md#meaningful-documentation States inclusive times, model-frame coordinates, parallel-array premise, ground snapping, exact scope changes, and opening-target precedence.
  * @evidence contracts/development/implementation.md#efficient-algorithms For L legs and F frames, mask construction, run grouping and target assignment take O(LF) work with O(F plus contacts) maps/entries and O(number of runs) compact metadata.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All frames in one run share the same fixed target object and the compact plant record, so IK reads one admitted contact rather than resampling ground at each pinned frame.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Frames in a run share one fixed target. A timed run resamples that target only when the active scope may change.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned per-frame maps and plants belong to the pass caller; run masks/ranges are temporary, and no input pose, callback or external handle is retained.
  */
 export const pinStanceTargets: (
@@ -23,6 +24,8 @@ export const pinStanceTargets: (
 ) => IAutoMoviePinStanceTargets.IResult = (
   props: IAutoMoviePinStanceTargets.IProps,
 ): IAutoMoviePinStanceTargets.IResult => {
+  if (props.support !== undefined)
+    return pinTimedStanceTargets(props, props.support);
   const { legs, resolved, times, groundAt, tolerance }: typeof props = props;
   const plants: IAutoMovieFootPlant[] = [];
   const targets: Array<Map<AutoMovieHumanoidBone, IAutoMovieVector3>> =
@@ -70,6 +73,67 @@ export const pinStanceTargets: (
 
   return { plants, targets };
 };
+
+/** Track each contacting foot on the scope clock and reuse a pin while its surface remains eligible. */
+function pinTimedStanceTargets(
+  props: IAutoMoviePinStanceTargets.IProps,
+  support: NonNullable<IAutoMoviePinStanceTargets.IProps["support"]>,
+): IAutoMoviePinStanceTargets.IResult {
+  const plants: IAutoMovieFootPlant[] = [];
+  const targets: Map<AutoMovieHumanoidBone, IAutoMovieVector3>[] =
+    props.times.map(
+      (): Map<AutoMovieHumanoidBone, IAutoMovieVector3> => new Map(),
+    );
+  const boundaries: Set<number> = new Set(support.boundaries);
+  for (const { foot } of props.legs) {
+    let active: IAutoMovieFootPlant | null = null;
+    props.times.forEach((time: number, i: number): void => {
+      const point: IAutoMovieVector3 | undefined =
+        props.resolved[i]!.get(foot)?.worldPosition;
+      const height: number | null =
+        point === undefined ? null : support.at(time, point, "foot");
+      if (height !== null && !Number.isFinite(height))
+        throw new Error(`stance support for ${foot} must be finite`);
+      if (
+        point === undefined ||
+        height === null ||
+        point.y > height + props.tolerance
+      ) {
+        active = null;
+        return;
+      }
+      if (active !== null && boundaries.has(time)) {
+        const retained: number | null = support.at(
+          time,
+          active.position,
+          "foot",
+        );
+        if (
+          retained === null ||
+          Math.abs(retained - active.position.y) > STATIC_SUPPORT_HEIGHT_EPSILON
+        )
+          active = null;
+      }
+      if (active === null) {
+        const carried: IAutoMovieVector3 | undefined =
+          i === 0 ? props.openingTargets?.get(foot) : undefined;
+        const target: IAutoMovieVector3 =
+          carried === undefined
+            ? { x: point.x, y: height, z: point.z }
+            : { ...carried };
+        if (![target.x, target.y, target.z].every(Number.isFinite))
+          throw new Error(
+            `stance target for ${foot} must have finite coordinates`,
+          );
+        active = { foot, start: time, end: time, position: target };
+        plants.push(active);
+      }
+      active.end = time;
+      targets[i]!.set(foot, active.position);
+    });
+  }
+  return { plants, targets };
+}
 
 /** Contiguous `true` runs of a contact mask, as inclusive frame ranges. */
 const stanceRuns: (

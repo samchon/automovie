@@ -16,6 +16,9 @@ export interface IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /** Cricket front-foot drive after the delivery bounce. */
   cricketDrive: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
 
+  /** A one-handed tennis racket stroke that returns the live ball. */
+  tennisForehandReturn: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
+
   /** A full golf drive from a teed ball. */
   golfDrive: IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke;
 

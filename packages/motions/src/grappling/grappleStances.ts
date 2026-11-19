@@ -144,6 +144,9 @@ export namespace grappleStances {
     0.18, 0.38, 0.61, 0.78, 1,
   ];
 
+  /** Shared shoulder-exchange entry and release beat, as a share of the take. */
+  export const SHOULDER_ENTRY: number = 0.34;
+
   /** Both feet bearing, with one optionally set down anew by the support law. */
   function feet(
     step?: AutoMovieHumanSide,
@@ -245,8 +248,8 @@ export namespace grappleStances {
   /**
    * Author the support keys over the two actors' shared scene duration.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Returns five ordered stances. The role, outcome and lead choose separate paths using the same phase shares.
-   * @evidence contracts/development/implementation.md#principled-implementation The authored lead steps at entry; transfer and recovery either retain standing support or add floor contacts, with seat support before the receiver reaches the back.
+   * @evidence contracts/development/common.md#meaningful-documentation Returns five ordered stances, with a shared shoulder-exchange clock for the completed shoulder scene and the ordinary floor shares for other scenes.
+   * @evidence contracts/development/implementation.md#principled-implementation The completed shoulder scene keeps the original foot bearings under its small turn and prepares the seat and back roll endpoints. The other entries step and either recover standing or add floor contacts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the stance family and creates the common entry, transfer, settle and release keys.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Floor fitting belongs to support. An interrupted scene has no fall or award event.
    * @evidence contracts/development/implementation.md#efficient-algorithms Five keys per role, independent of duration or the number of playback queries.
@@ -257,6 +260,8 @@ export namespace grappleStances {
     p: IAutoMovieMotionHumanGrapple.IParams,
     duration: number,
   ): readonly IAutoMovieMotionHumanSupport.IStance[] {
+    if (p.kind === "seoiNage" && p.outcome !== "denied")
+      return shoulderKeys(p.role, p.side ?? "right", duration);
     const row: IRow = rows[p.kind];
     const lead: AutoMovieHumanSide = p.side ?? "right";
     const receiver: boolean = p.role === "receiver";
@@ -346,13 +351,113 @@ export namespace grappleStances {
             prefer: getUp.POSES.stood,
           },
     ];
+    return timed(stances, shares, duration);
+  }
+
+  /** Prepare the shared planted turn and the receiver's cleared mat poses. */
+  function shoulderKeys(
+    role: IAutoMovieMotionHumanGrapple.Role,
+    lead: AutoMovieHumanSide,
+    duration: number,
+  ): readonly IAutoMovieMotionHumanSupport.IStance[] {
+    const receiver: boolean = role === "receiver";
+    const direction: number = lead === "right" ? 1 : -1;
+    const turn: number = direction * (receiver ? 1 : 24);
+    const entry: IEntry = {
+      ...rows.seoiNage[role],
+      depth: receiver ? 20 : 28,
+      pitch: receiver ? 8 : 22,
+    };
+    const ready: IAutoMovieMotionHumanSupport.IStance = {
+      event: "ready",
+      contacts: feet(),
+      prefer: stance(entry, direction, receiver ? 0.18 : 0.2),
+    };
+    const loaded: IAutoMovieMotionHumanSupport.IStance = {
+      event: "entry",
+      contacts: feet(),
+      prefer: stance(entry, direction, receiver ? 0.78 : 1),
+      turn,
+    };
+    if (!receiver)
+      return timed(
+        [
+          ready,
+          loaded,
+          {
+            ...loaded,
+            event: "transfer",
+            prefer: stance(entry, direction, 0.7),
+          },
+          {
+            ...loaded,
+            event: "supportRegained",
+            prefer: stance(entry, direction, 0.15),
+            turn: turn * 0.3,
+          },
+          { ...ready, event: "recovered", prefer: getUp.POSES.stood },
+        ],
+        [0.12, SHOULDER_ENTRY, 0.61, 0.79, 1],
+        duration,
+      );
+
+    // The arms clear the floor during the roll, so they cannot lift the pelvis.
+    const seated: IAutoMovieMotionHumanLieDown.IPose = {
+      ...lieDown.POSES.sit,
+      joints: {
+        ...lieDown.POSES.sit.joints,
+        leftUpperArm: [25, 20, 0],
+        rightUpperArm: [25, 20, 0],
+        leftLowerArm: [55, 0, 0],
+        rightLowerArm: [55, 0, 0],
+      },
+    };
+    const settled: IAutoMovieMotionHumanSupport.IStance = {
+      event: "settled",
+      contacts: [{ part: "back", kind: "bear" }],
+      prefer: {
+        ...lieDown.POSES.supine,
+        joints: {
+          ...lieDown.POSES.supine.joints,
+          leftUpperLeg: [10, 8, 0],
+          rightUpperLeg: [10, 8, 0],
+          leftLowerLeg: [10, 0, 0],
+          rightLowerLeg: [10, 0, 0],
+        },
+      },
+      turn,
+    };
+    return timed(
+      [
+        ready,
+        loaded,
+        {
+          event: "matTransfer",
+          contacts: [{ part: "seat", kind: "bear" }, ...feet()],
+          prefer: seated,
+          turn,
+        },
+        settled,
+        { ...settled, event: "recoveredOnMat" },
+      ],
+      [0.12, SHOULDER_ENTRY, 0.56, 0.79, 1],
+      duration,
+    );
+  }
+
+  /** Convert cumulative phase shares to the support owner's durations. */
+  function timed(
+    stances: readonly IAutoMovieMotionHumanSupport.IStance[],
+    at: readonly number[],
+    duration: number,
+  ): readonly IAutoMovieMotionHumanSupport.IStance[] {
     return stances.map(
       (
         key: IAutoMovieMotionHumanSupport.IStance,
         index: number,
       ): IAutoMovieMotionHumanSupport.IStance => ({
         ...key,
-        seconds: duration * (shares[index]! - (shares[index - 1] ?? 0)),
+        seconds: duration * (at[index]! - (at[index - 1] ?? 0)),
       }),
     );
   }

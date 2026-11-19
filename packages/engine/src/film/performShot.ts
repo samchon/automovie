@@ -285,14 +285,17 @@ export function performShot(
   );
   const motions: Record<string, IAutoMovieMotion> = compiled.performances;
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] =
-    plantPerformShotStanceFeet({
-      staged,
-      motions,
-      previous: props.previous,
-      skeleton,
-      jointAxes: props.jointAxes,
-      restFrames: props.restFrames,
-    });
+    plantPerformShotStanceFeet(
+      {
+        staged,
+        motions,
+        previous: props.previous,
+        skeleton,
+        jointAxes: props.jointAxes,
+        restFrames: props.restFrames,
+      },
+      { duration: performance.duration, out },
+    );
   for (const drop of compiled.masked)
     out.push(
       "type",

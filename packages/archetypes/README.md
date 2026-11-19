@@ -54,6 +54,29 @@ Each family is also a subpath, such as `@automovie/archetypes/furniture`.
 
 Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands (`createSeat.BANDS`).
 
+### Environments
+
+Import place builders from `@automovie/archetypes/environments`. Give each placed item a local name, a module to build, and its position or a named attachment. The environment supplies the set and walkable space to the shot program, and the models, props, world design and object motions to the compile runtime.
+
+```ts
+import { createEnvironment, createTerrain } from "@automovie/archetypes/environments";
+
+const park = createEnvironment({
+  id: "park",
+  seed: 7,
+  items: {
+    ground: {
+      use: createTerrain({ size: [28, 18] }),
+      at: { x: -14, y: 0, z: -9 },
+    },
+  },
+});
+```
+
+Add buildings, furnished rooms and rides as named items. Resolve a motion target through the item's named frame, such as a door's threshold or a chair's seat. Spread `park.stage` into the shot's stage and `park.runtime` into the runtime passed to `compileDefinedShot`. The shot retains its own camera, cast and choreography.
+
+In the production's set source, resize a room by editing its `[x, z, width, depth]` rectangle in local metres. Move a named entrance with its `offset` in metres along the selected wall. An action can target the `seat` affordance on the placed prop `park/cafe/table-1/chair-near`. If an attachment target is missing, check the item, level and local name against `park.anchors`. If a bridge between named openings is refused, align the span perpendicular to both walls and fit its width to the narrower clear opening.
+
 ### Articulation
 
 A door's leaf, a drawer, a lever, a suitcase's handle and a bicycle's crank are parts bound to an articulation affordance (`hinge`, `slider`, `knob`, `button`, `trigger`, `crank`, `wheel`, `pedal`). `archetype.articulate({ id: travel })` returns the archetype with those parts, and every contact that rides them, moved; the travel is degrees for a turning kind and metres otherwise, and a travel outside the articulation's range is refused.
@@ -102,7 +125,7 @@ The dog table includes a measured walking interval and two faster experimental p
 
 ### Mass and colliders
 
-`archetype.body` carries the mass and the centre of mass, `archetype.properties.inertia` the inertia about it, and `archetype.moment(point, direction)` the moment about a line. `archetype.shapes()` gives one collider per part in the engine's contact shapes, for a hand to close on.
+`archetype.body` carries the mass and the centre of mass, `archetype.properties.inertia` the inertia about it, and `archetype.moment(point, direction)` the moment about a line. `archetype.shapes()` gives one collider per solid primitive or declared convex cell. A producer can use separate solid parts for contact while visual meshes supply details such as racket strings or net twine.
 
 ## Inspection
 

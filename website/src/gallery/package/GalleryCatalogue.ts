@@ -1,4 +1,8 @@
-import { ARCHETYPE_FAMILIES, type Archetype } from "@automovie/archetypes";
+import {
+  ARCHETYPE_FAMILIES,
+  type Archetype,
+  type ArchetypeMass,
+} from "@automovie/archetypes";
 
 import { formatArchetypeLabel } from "../formatArchetypeLabel";
 import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
@@ -6,9 +10,8 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
 /**
  * The gallery's catalogue, read from the packages.
  *
- * An archetype family is one entry of the package's `ARCHETYPE_FAMILIES`,
- * which names each subpath it exports with that subpath's module. A producer
- * is every function a family exports whose name starts with `create`. Its
+ * The package's `ARCHETYPE_FAMILIES` supplies its model-producing subpaths.
+ * A producer is every function a family exports whose name starts with `create`. Its
  * variants are the closed list it carries beside it, `KINDS` or `FRAMES`,
  * and the parameters it needs beyond its variant
  * are its `REFERENCE`, the stated instance it carries for a caller without
@@ -17,13 +20,17 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
  * without a change to the site.
  */
 export namespace GalleryCatalogue {
+  /** A displayed archetype with optional physical mass properties. */
+  export type Model = Archetype<
+    string,
+    string,
+    ArchetypeMass.IProperties | null
+  >;
+
   /** A producer as the gallery calls it: the function with the tables it carries. */
   export interface IProducer {
     /** Build the archetype from its parameters and a seed. */
-    (
-      params: Record<string, unknown>,
-      seed?: number | string,
-    ): Archetype<string, string>;
+    (params: Record<string, unknown>, seed?: number | string): Model;
 
     /** The kinds, where the producer has kinds. */
     KINDS?: readonly string[];

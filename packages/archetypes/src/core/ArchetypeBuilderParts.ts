@@ -40,19 +40,19 @@ export class ArchetypeBuilderParts {
   public constructor(private readonly archetype: string) {}
 
   /**
-   * Record a real primitive or admitted convex-cell geometry and its material.
+   * Record a primitive, admitted convex cell or visual mesh and its material.
    * @param id Unique part id.
    * @param geometry Actual local geometry; no bounding representation is substituted.
    * @param at Local origin in model metres.
    * @param rotation Unit local-to-model quaternion, or identity when absent.
-   * @param options Optical colour, relative density/weight and physical surface.
+   * @param options Optical colour and opacity, relative density/weight and physical surface.
    * @throws {Error} For a repeated part id.
    * @evidence contracts/development/common.md#meaningful-documentation Defines geometry ownership, rigid placement and optional appearance/mass inputs.
    * @evidence contracts/development/implementation.md#principled-implementation Preserves the builder's existing exact colour normalization, unit scale and explicit density/share/surface semantics for both primitive and actual convex parts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse duplicate id, share its colour material, record optional physical data, then append the placed part.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never renames ids, adds a proxy solid or derives a physical material from colour.
    * @evidence contracts/development/implementation.md#efficient-algorithms Duplicate-id scan is linear in the existing P parts; the remaining work is constant and geometry is retained without cloning.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The colour-keyed map shares exactly equal normalized optical materials within this builder. Geometry and mass facts are shared with the built model.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Normalized colour and opacity share equal optical materials within this builder. Geometry and mass facts are shared with the built model.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The builder owns these finite part/material/data records and hands them over at build. No process, external handle or cross-model cache is acquired.
    */
   public add(
@@ -67,7 +67,8 @@ export class ArchetypeBuilderParts {
     const hex: string = (
       options?.color ?? ArchetypeBuilderParts.NEUTRAL
     ).toLowerCase();
-    const material: string = `flat-${hex.slice(1)}`;
+    const clear: boolean = options?.opacity === 0;
+    const material: string = `flat-${hex.slice(1)}${clear ? "-clear" : ""}`;
     if (!this.materials.has(material))
       this.materials.set(material, {
         id: material,
@@ -76,7 +77,8 @@ export class ArchetypeBuilderParts {
         metallic: 0,
         roughness: 0.8,
         emissive: null,
-        opacity: 1,
+        opacity: clear ? 0 : 1,
+        ...(clear ? { alphaMode: "blend" as const } : {}),
         baseColorTexture: null,
       });
     if (options?.density !== undefined) this.density[id] = options.density;

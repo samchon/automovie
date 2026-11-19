@@ -2151,6 +2151,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamscyclesphraseshapesurfaceswingtarget",
       "description": "Brushing the teeth: the hand that holds the brush oscillates before the mouth."
     },
+    "tennisForehandReturn": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+      "description": "A one-handed tennis racket stroke that returns the live ball."
+    },
     "thighTrap": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "A thigh trap, the ball not moved."
@@ -18226,7 +18230,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "implement": {
             "type": "string",
-            "description": "The held racket subject for a stroke. Omit for a solo stroke."
+            "description": "The held racket subject during a ready position, split step or stroke. Omit to rehearse without a prop."
           },
           "contactAt": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
@@ -19157,6 +19161,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
             "description": "Cricket front-foot drive after the delivery bounce."
           },
+          "tennisForehandReturn": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+            "description": "A one-handed tennis racket stroke that returns the live ball."
+          },
           "golfDrive": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
             "description": "A full golf drive from a teed ball."
@@ -19225,6 +19233,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "required": [
           "baseballHit",
           "cricketDrive",
+          "tennisForehandReturn",
           "golfDrive",
           "golfChip",
           "golfPutt",
@@ -20698,7 +20707,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "bar": {
             "type": "string",
-            "description": "The high jump's prop subject; its `bar` affordance is the crossbar, whose axis's height the centre of mass peaks at."
+            "description": "The high jump's prop subject. Its `bar` affordance supplies the crossbar's world axis and span."
+          },
+          "apexReserve": {
+            "type": "number",
+            "description": "The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed.",
+            "minimum": 0,
+            "default": 0,
+            "x-unit": "m"
           },
           "takeoffFoot": {
             "oneOf": [
@@ -35438,7 +35454,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "implement": {
             "type": "string",
-            "description": "The held racket subject for a stroke. Omit for a solo stroke."
+            "description": "The held racket subject during a ready position, split step or stroke. Omit to rehearse without a prop."
           },
           "contactAt": {
             "$ref": "#/components/schemas/IAutoMovieVector3",
