@@ -47,7 +47,7 @@ const NAMES: Readonly<Record<createDevice.Kind, string>> = {
  * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and how the device is oriented.
- * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box per device, with each hold's aperture set by the slab's thickness. The camera has an upright primary grip and a precision support on the front half of its far underside, where the other hand braces the case.
+ * @evidence contracts/development/implementation.md#principled-implementation Each grip's aperture is the material span along its approach. The camera's primary grip is its upright bar. The precision grip supports the front half of the far lower edge, with the case height measured along its vertical approach.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the slab, then each kind's contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bezel, button or lens detail beyond the one barrel that makes a camera a camera.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
@@ -179,22 +179,22 @@ export function createDevice(
       length: height,
     });
     // The thumb on the left side and index finger underneath brace the
-    // lower outer edge (https://in.canon/en/support/8000009200). The device
-    // depth supplies the grip width. The front half of the edge leaves room
-    // between the hand and the face at the back of the camera. Its underside
-    // is the near face, with the centre one half-width inside the case.
+    // lower outer edge (https://in.canon/en/support/8000009200). The approach
+    // is vertical, so the case's height is its aperture. Centre the frame
+    // vertically so the near face lands on the underside. The front half
+    // of the edge leaves room for the hand ahead of the photographer's face.
     builder.affordance({
       id: "support",
       kind: "handle",
       symmetry: "none",
       frame: ArchetypeFrame.facing(
-        Vector3.create(width / 2 - grip / 2, grip, grip / 2),
+        Vector3.create(width / 2, height / 2, grip / 2),
         Vector3.create(0, -1, 0),
         Vector3.create(0, 0, 1),
       ),
       extent: null,
       grip: "precision",
-      aperture: depth,
+      aperture: height,
       length: grip,
     });
     builder.affordance({
@@ -324,7 +324,7 @@ export namespace createDevice {
    * The affordance ids:
    *
    * - `grip`: the hold, a power grip: across the back of a phone, a remote, a tablet or a walkie-talkie, on a camera's grip bar at its `-X` end.
-   * - `support`: a camera's other hold, the far `+X` end of its body taken from the front, where the second hand steadies it.
+   * - `support`: the camera's lower front edge at its far `+X` side, where the other hand supports it from underneath.
    * - `pinch`: a lateral pinch at the bottom edge of a phone or a remote.
    * - `screen`: the face that is looked at: a phone's or a tablet's front, a camera's back.
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
