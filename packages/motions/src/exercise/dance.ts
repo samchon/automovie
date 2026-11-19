@@ -27,7 +27,9 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { prepareDanceFootCourse } from "./prepareDanceFootCourse";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { prepareDanceSteps } from "./prepareDanceSteps";
+import { prepareWaltzBox } from "./prepareWaltzBox";
 
 /**
  * A solo dance step locked to a declared beat (#3253, M23): the bounce, the
@@ -63,9 +65,9 @@ import { prepareDanceFootCourse } from "./prepareDanceFootCourse";
  *   side level with it, the other closed. The square's side is a shoulder
  *   width (provisional); the feet and the hips move as in the step-touch.
  *
- * First pass: the box step has no rise and fall and no turn, and its three
- * counts are even beats, not a waltz's bar. Not drafted here: turns with
- * spotting; the partner figures are rows of other laws.
+ * With `waltz`, the box adds a three-beat lowering and rise and can rotate
+ * around an authored floor pivot. A second dancer can share the pivot and
+ * cue track and start back on beat one. Held partner contacts are separate.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the beat rule and its sources, each step's geometry and provisional values, and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record whose steps are root and leg rows on a beat clock.
@@ -83,15 +85,6 @@ export namespace dance {
       dance: ["anytime", "smooth"],
       walk: ["anytime", "smooth"],
     });
-
-  /** A foot's offset from its stance over the floor, metres: `x` to the body's left, `z` forward. */
-  interface IOffset {
-    /** To the body's left. */
-    x: number;
-
-    /** Forward. */
-    z: number;
-  }
 
   /** The default tempo, beats per minute. */
   export const BPM: number = 120;
@@ -119,7 +112,8 @@ export namespace dance {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanDance.IParams = context.params;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.beats ?? 8;
     HumanBound.above("bpm", bpm, 0, "beats per minute");
@@ -140,8 +134,7 @@ export namespace dance {
             )
             .slice(0, beats)
             .map(
-              (c: IAutoMovieScheduleCue): number =>
-                c.seconds - context.start,
+              (c: IAutoMovieScheduleCue): number => c.seconds - context.start,
             );
     if (locked !== null && locked.length < Math.min(2, beats))
       throw new HumanRefusal({
@@ -159,17 +152,40 @@ export namespace dance {
       locked === null || locked.length < 2
         ? 60 / bpm
         : (locked[locked.length - 1]! - locked[0]!) / (locked.length - 1);
+    HumanBound.above("beat interval", period, 0, "s");
     const lead: number = locked === null ? period : locked[0]!;
-    const beatAt: (k: number) => number = (k: number): number => lead + (k - 1) * period;
+    const beatAt: (k: number) => number = (k: number): number =>
+      (p.waltz === undefined ? undefined : locked?.[k - 1]) ??
+      lead + (k - 1) * period;
     const instants: IAutoMovieMotionClockInstant[] = [];
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
     const duration: number = beatAt(beats) + period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      duration,
-      [...instants, { name: "relax", seconds: beatAt(beats) }],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+      ...instants,
+      { name: "relax", seconds: beatAt(beats) },
+    ]);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+    if (p.waltz !== undefined && p.kind !== "boxStep")
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "waltz",
+        value: p.kind,
+        reason: "waltz timing describes the box step",
+        fix: "use the boxStep dance kind",
+      });
+    const waltz: ReturnType<typeof prepareWaltzBox> | undefined =
+      p.waltz === undefined
+        ? undefined
+        : prepareWaltzBox(
+            p.waltz,
+            entry.root,
+            m.stature,
+            period,
+            lead,
+            beatAt(beats),
+            duration,
+          );
     const leftward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 1, y: 0, z: 0 },
@@ -178,7 +194,10 @@ export namespace dance {
       { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const stance: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const stance: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       left: {
         ankle: context.entry.feet.left.ankle,
         rotation: context.entry.feet.left.rotation,
@@ -197,13 +216,17 @@ export namespace dance {
       reads: ["root"],
       from: 0,
       to: duration,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => ({
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => ({
         ...posture,
         root: Vector3.add(posture.root, offset(seconds)),
       }),
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] =
+      AutoMovieMotionHumanBase.plants();
 
     switch (p.kind) {
       case "bounce": {
@@ -244,7 +267,8 @@ export namespace dance {
           m.hipHeight +
           entry.root.y -
           (stance.left.ankle.y + stance.right.ankle.y) / 2;
-        const ease: (u: number) => number = (u: number): number => u * u * (3 - 2 * u);
+        const ease: (u: number) => number = (u: number): number =>
+          u * u * (3 - 2 * u);
         const side: (s: number) => number = (s: number): number =>
           s <= lead
             ? lead > 0
@@ -268,90 +292,21 @@ export namespace dance {
       }
       case "stepTouch":
       case "boxStep": {
-        const d: number = 2 * m.shoulderHalfWidth * modifiers.extent;
-        const first: "left" | "right" = p.side ?? "right";
-        const second: "left" | "right" = first === "right" ? "left" : "right";
-        // Each footfall: the foot, its beat and the offset from its stance
-        // it lands at, `x` to the body's left and `z` forward.
-        const falls: { foot: "left" | "right"; beat: number; at: IOffset }[] =
-          [];
-        const offset: Record<"left" | "right", IOffset> = {
-          left: { x: 0, z: 0 },
-          right: { x: 0, z: 0 },
-        };
-        // The second foot's own side.
-        const out: number = first === "right" ? 1 : -1;
-        for (let k: number = 1; k <= beats; k++) {
-          let foot: "left" | "right";
-          if (p.kind === "stepTouch") {
-            const group: number = Math.floor((k - 1) / 2);
-            const leader: "left" | "right" = group % 2 === 0 ? first : second;
-            foot = k % 2 === 1 ? leader : leader === "left" ? "right" : "left";
-            offset[foot] = {
-              x: offset[foot].x + (group % 2 === 0 ? -1 : 1) * out * d,
-              z: 0,
-            };
-          } else {
-            // The square's corners in the order the feet take them: forward,
-            // side, close, back, side, close.
-            const count: number = (k - 1) % 6;
-            foot = count % 2 === 0 ? first : second;
-            offset[foot] = {
-              x: count === 1 || count === 2 || count === 3 ? out * d : 0,
-              z: count < 3 ? d : 0,
-            };
-          }
-          falls.push({ foot, beat: beatAt(k), at: offset[foot] });
-        }
-        const paths: Record<"left" | "right", typeof falls> = {
-          left: falls.filter(
-            (fall: (typeof falls)[number]): boolean => fall.foot === "left",
-          ),
-          right: falls.filter(
-            (fall: (typeof falls)[number]): boolean => fall.foot === "right",
-          ),
-        };
-        const origin: IOffset = { x: 0, z: 0 };
-        const placements: Record<
-          "left" | "right",
-          Map<IOffset, IAutoMovieMotionHumanFoot.IPlacement>
-        > = { left: new Map(), right: new Map() };
-        for (const foot of ["left", "right"] as const)
-          for (const at of [
-            origin,
-            ...paths[foot].map(
-              (fall: (typeof falls)[number]): IOffset => fall.at,
-            ),
-          ])
-            placements[foot].set(at, {
-              ankle: Vector3.add(
-                stance[foot].ankle,
-                Vector3.add(
-                  Vector3.scale(leftward, at.x),
-                  Vector3.scale(forward, at.z),
-                ),
-              ),
-              rotation: stance[foot].rotation,
-            });
-        const courses: Record<
-          "left" | "right",
-          ReturnType<typeof prepareDanceFootCourse>
-        > = {
-          left: prepareDanceFootCourse(
-            paths.left,
-            placements.left,
-            origin,
+        const { paths, courses }: ReturnType<typeof prepareDanceSteps> =
+          prepareDanceSteps({
+            kind: p.kind,
+            side: p.side,
+            reverse: p.waltz?.reverse === true,
+            beats,
+            beatAt,
             period,
-            0.04 * m.stature,
-          ),
-          right: prepareDanceFootCourse(
-            paths.right,
-            placements.right,
-            origin,
-            period,
-            0.04 * m.stature,
-          ),
-        };
+            distance: 2 * m.shoulderHalfWidth * modifiers.extent,
+            clearance: 0.04 * m.stature,
+            stance,
+            leftward,
+            forward,
+            rotate: waltz?.rotate,
+          });
         const placed: (
           foot: "left" | "right",
           s: number,
@@ -359,14 +314,16 @@ export namespace dance {
           foot: "left" | "right",
           s: number,
         ): IAutoMovieMotionHumanFoot.IPlacement => courses[foot].placed(s);
-        const planted: (foot: "left" | "right", s: number) => boolean = (foot: "left" | "right", s: number): boolean =>
-          courses[foot].planted(s);
+        const planted: (foot: "left" | "right", s: number) => boolean = (
+          foot: "left" | "right",
+          s: number,
+        ): boolean => courses[foot].planted(s);
         // The hips follow the feet's mean and sink until each leg reaches
         // its foot, the travelling one too: feet a shoulder width further
         // apart lie beyond the legs' standing length, and hips that waited
         // for the footfall to sink would drop at it and leave the arriving
         // foot short of its place until then.
-        primitives.push(
+        const sway: IAutoMovieMotionHumanPrimitive =
           AutoMovieMotionHumanLean.sway({
             body,
             from: 0,
@@ -376,8 +333,25 @@ export namespace dance {
               roll: 0,
             }),
             shift: (s: number): IAutoMovieVector3 => {
-              const left: IOffset = courses.left.along(s);
-              const right: IOffset = courses.right.along(s);
+              if (waltz !== undefined) {
+                const moved: IAutoMovieVector3 = Vector3.subtract(
+                  Vector3.lerp(
+                    placed("left", s).ankle,
+                    placed("right", s).ankle,
+                    0.5,
+                  ),
+                  Vector3.lerp(stance.left.ankle, stance.right.ankle, 0.5),
+                );
+                return {
+                  x: Vector3.dot(moved, leftward),
+                  y: 0,
+                  z: Vector3.dot(moved, forward),
+                };
+              }
+              const left: ReturnType<typeof courses.left.along> =
+                courses.left.along(s);
+              const right: ReturnType<typeof courses.right.along> =
+                courses.right.along(s);
               return {
                 x: (left.x + right.x) / 2,
                 y: 0,
@@ -400,7 +374,59 @@ export namespace dance {
                 true,
               ),
             }),
-          }),
+          });
+        primitives.push(
+          waltz === undefined
+            ? sway
+            : {
+                ...sway,
+                write: (
+                  posture,
+                  s,
+                  before,
+                  resolution,
+                  projection,
+                ): IAutoMovieMotionHumanPosture => {
+                  const moved: IAutoMovieMotionHumanPosture = sway.write(
+                    posture,
+                    s,
+                    before,
+                    resolution,
+                    projection,
+                  );
+                  const turned: IAutoMovieMotionHumanPosture = {
+                    ...moved,
+                    yaw: moved.yaw + waltz.yaw(s),
+                    root: { ...moved.root, y: moved.root.y - waltz.depth(s) },
+                  };
+                  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+                    ...turned.limbs,
+                    leftLeg: AutoMovieMotionHumanLeg.goal(
+                      body,
+                      turned,
+                      "left",
+                      placed("left", s),
+                      true,
+                    ),
+                    rightLeg: AutoMovieMotionHumanLeg.goal(
+                      body,
+                      turned,
+                      "right",
+                      placed("right", s),
+                      true,
+                    ),
+                  };
+                  return {
+                    ...turned,
+                    root: resolveHumanPosture.lower(
+                      body,
+                      { ...turned, limbs },
+                      undefined,
+                      resolution,
+                    ).root,
+                  };
+                },
+              },
         );
         for (const foot of ["left", "right"] as const)
           primitives.push(
@@ -409,14 +435,16 @@ export namespace dance {
               side: foot,
               from: 0,
               to: duration,
-              placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
-                placed(foot, s),
+              placement: (
+                _: IAutoMovieMotionHumanPosture,
+                s: number,
+              ): IAutoMovieMotionHumanFoot.IPlacement => placed(foot, s),
               planted: (s: number): boolean => planted(foot, s),
             }),
           );
 
         // Each foot bears between its travels, the half beat before each of
-        // its footfalls (`prepareDanceFootCourse`).
+        // its footfalls.
         contacts = [];
         for (const foot of ["left", "right"] as const) {
           let from: number = 0;

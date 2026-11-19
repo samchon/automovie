@@ -12,6 +12,7 @@ import { seatedHeelBounce } from "../everyday/seatedHeelBounce";
 import { shiftStandingWeight } from "../everyday/shiftStandingWeight";
 import { swipeTouchscreen } from "../everyday/swipeTouchscreen";
 import { ropeSkip } from "../exercise/ropeSkip";
+import { grapple } from "../grappling/grapple";
 import { button } from "../handling/button";
 import { guitarChord } from "../handling/guitarChord";
 import { guitarNote } from "../handling/guitarNote";
@@ -24,11 +25,15 @@ import { write } from "../handling/write";
 import { zip } from "../handling/zip";
 import { bowViolin } from "../music/bowViolin";
 import { spacecraftGlide } from "../spacecraft/spacecraftGlide";
+import { aquatic } from "../sport/aquatic";
+import { stickBall } from "../sport/stickBall";
 import { swimImmersed } from "../sport/swimImmersed";
 import { cymbalStrike } from "../tasks/cymbalStrike";
 import { sideDrumStrike } from "../tasks/sideDrumStrike";
 import { stageCatch } from "../throwing/stageCatch";
 import { HumanArchery } from "./HumanArchery";
+import { HumanBicycleEffort } from "./HumanBicycleEffort";
+import { HumanBikeTransfer } from "./HumanBikeTransfer";
 import { HumanBlade } from "./HumanBlade";
 import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
@@ -51,12 +56,14 @@ import { HumanManipulate } from "./HumanManipulate";
 import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
+import { HumanPrecisionSport } from "./HumanPrecisionSport";
 import { HumanPursuit } from "./HumanPursuit";
 import { HumanRegrasp } from "./HumanRegrasp";
 import { HumanRestRows } from "./HumanRestRows";
 import { HumanRevolver } from "./HumanRevolver";
 import { HumanRide } from "./HumanRide";
 import { HumanSelfActionRows } from "./HumanSelfActionRows";
+import { HumanSittingVolley } from "./HumanSittingVolley";
 import { HumanSocial } from "./HumanSocial";
 import { HumanSport } from "./HumanSport";
 import { HumanSportCarry } from "./HumanSportCarry";
@@ -65,9 +72,11 @@ import { HumanSportSwing } from "./HumanSportSwing";
 import { HumanSportThrow } from "./HumanSportThrow";
 import { HumanSportWorkout } from "./HumanSportWorkout";
 import { HumanStageFight } from "./HumanStageFight";
+import { HumanStageProp } from "./HumanStageProp";
 import { HumanStance } from "./HumanStance";
 import { HumanStrike } from "./HumanStrike";
 import { HumanSupportRows } from "./HumanSupportRows";
+import { HumanSurface } from "./HumanSurface";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanSwordParry } from "./HumanSwordParry";
@@ -82,6 +91,7 @@ import { HumanTravelLeaf } from "./HumanTravelLeaf";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
+import { stageBladeFootwork } from "./stageBladeFootwork";
 import { tuckHair } from "./tuckHair";
 
 /**
@@ -108,20 +118,27 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   ],
   pursuit: [HumanPursuit],
   social: [HumanSocial, HumanPartner, { curtsy }],
-  stageFight: [HumanStageFight],
+  stageFight: [HumanStageFight, { grapple, HumanStageProp }],
   drill: [HumanDrill],
-  blade: [HumanBlade],
+  blade: [HumanBlade, { stageBladeFootwork }],
   firearm: [HumanFirearm],
   labour: [HumanLabour],
-  ride: [HumanRide, { HumanHandrimStroke }],
+  ride: [
+    HumanRide,
+    { HumanHandrimStroke, HumanBicycleEffort, HumanBikeTransfer },
+  ],
   carried: [HumanCarried, { spacecraftGlide }],
-  sport: [HumanSport, { swimImmersed }],
+  sport: [
+    HumanSport,
+    HumanSurface,
+    { aquatic, HumanSittingVolley, stickBall, swimImmersed },
+  ],
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
   floorFall: [HumanFloorFall],
   support: [HumanSupportRows],
-  sportSwing: [HumanSportSwing],
+  sportSwing: [HumanSportSwing, HumanPrecisionSport],
   sportThrow: [HumanSportThrow, { stageCatch }],
   sportWorkout: [HumanSportWorkout, { ropeSkip }],
   gymnastics: [HumanGymnastics],

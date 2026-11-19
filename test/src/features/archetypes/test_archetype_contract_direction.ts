@@ -83,6 +83,8 @@ export function test_archetype_contract_direction(): void {
     "food-bread": { bite: along },
     "food-apple": { bite: normal },
     "food-drumstick": { bite: along },
+    "ball-puck": { rim: normal },
+    "stick-lacrosse": { blade: normal, scoop: normal },
     "longTool-sling": {},
     "longTool-atlatl": { spur: along },
   };

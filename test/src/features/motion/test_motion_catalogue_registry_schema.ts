@@ -91,7 +91,7 @@ function admission(name: string, params: object): HumanRefusal | undefined {
  * 1. Compare both published schema tables with the public action registry and every category.
  * 2. Construct the required members of each published object form. An extra member is refused.
  * 3. Submit an invalid value for every scalar numeric boundary. Verify the refused axis, bound and unit.
- * 4. Check omitted required and optional arguments and the selected target alternative's nested error path.
+ * 4. Check omitted required and optional arguments, the selected target alternative's nested error path and the staged catch's exclusive interception parameter.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names schema publication, closure, valid inhabitants and numeric refusal units.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public admission function for every row and base action.
@@ -197,6 +197,18 @@ export function test_motion_catalogue_registry_schema(): void {
     }
   }
   TestValidator.equals("schema admission disagreements", issues, []);
+  const catchAt: object = { from: "pass", ball: "ball", intercept: 0.4 };
+  TestValidator.equals(
+    "a staged catch accepts an elapsed interception",
+    admission("stageCatch", catchAt),
+    undefined,
+  );
+  for (const name of ["catchObject", "gloveCatch", "twoHandCatch"])
+    TestValidator.equals(
+      `${name} refuses the staged-only interception`,
+      admission(name, catchAt)?.axis,
+      "intercept",
+    );
   TestValidator.equals("stand has defaults", admission("stand", {}), undefined);
   for (const name of ["walk", "stroll"])
     TestValidator.equals(

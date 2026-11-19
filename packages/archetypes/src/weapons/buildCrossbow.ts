@@ -122,15 +122,35 @@ export function buildCrossbow(
       createBow.STRING,
       { color: "#e8e1cf" },
     );
-  // The bow hand closes across the fore-stock's thickness, Payne-Gallwey's 1½ in, its palm on the stock's left face, `+X`, with the stock along its line.
+  // Both hands close across the stock's width, at separate positions along it.
   builder.affordance({
     id: "grip",
+    kind: "handle",
+    symmetry: "none",
+    frame: ArchetypeFrame.facing(
+      v(0, top / 2, nut - c.trigger),
+      v(1, 0, 0),
+      v(0, 0, 1),
+    ),
+    extent: null,
+    grip: "power",
+    aperture: d.depth!,
+  });
+  builder.affordance({
+    id: "foreEnd",
     kind: "handle",
     symmetry: "none",
     frame: ArchetypeFrame.facing(v(0, top / 2, fore), v(1, 0, 0), v(0, 0, 1)),
     extent: null,
     grip: "power",
     aperture: d.depth!,
+    length: c.nut,
+  });
+  builder.affordance({
+    id: "rail",
+    kind: "socket",
+    frame: ArchetypeFrame.facing(centre, v(0, 0, 1), v(0, 1, 0)),
+    extent: null,
   });
   builder.affordance({
     id: "rest",
@@ -158,6 +178,7 @@ export function buildCrossbow(
     ),
     extent: null,
     travel: c.release,
+    parts: ["trigger"],
   });
   builder.affordance({
     id: "stirrup",

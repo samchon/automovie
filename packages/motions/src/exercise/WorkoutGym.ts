@@ -262,8 +262,22 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A power clean as its positions: the start over the bar, the full extension on the toes, the catch in a quarter squat with the hands at the shoulders, and standing up with them. */
+    /** A power clean with the pull, catch and standing rack on separate events. */
     powerClean: WorkoutStance.of(
+      WorkoutStance.ANKLES,
+      WorkoutStance.FEET,
+      1,
+      1,
+      clean,
+    ),
+
+    /**
+     * A clean followed by a squat jerk. The IWF separates the rack and
+     * standing recovery from the dip, drive and overhead receive; the
+     * squat receive follows the shape compared with the lunge-style jerk
+     * in PMID 39337870. The transition durations are authored staging values.
+     */
+    cleanAndJerk: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1,
@@ -271,32 +285,38 @@ export namespace WorkoutGym {
       (
         body: IAutoMovieMotionHumanBody,
       ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+        ...clean(body),
         WorkoutKind.step(
-          squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
-          1,
-          "set",
-          "start",
+          squat(5, 32, 13, { shoulder: 85, raise: 5, elbow: 145 })(body),
           0.3,
+          "dip",
+          "jerkDip",
         ),
         WorkoutKind.step(
-          key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
-          0.45,
-          "pull",
-          "extension",
+          key({}, { shoulder: 135, raise: 12, elbow: 65 })(body),
+          0.18,
+          "drive",
+          "jerkDrive",
         ),
         WorkoutKind.step(
-          squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
-          0.3,
-          "turnOver",
-          "catch",
-          0.2,
+          squat(10, 100, 28, { shoulder: 167, raise: 15, elbow: 3 })(body),
+          0.28,
+          "receive",
+          "jerkCatch",
+          0.15,
+        ),
+        WorkoutKind.step(
+          key({}, { shoulder: 170, raise: 15, elbow: 3 })(body),
+          0.85,
+          "standOverhead",
+          "jerkOverhead",
+          0.5,
         ),
         WorkoutKind.step(
           key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
-          0.8,
-          "recover",
-          "rack",
-          0.5,
+          0.6,
+          "lowerToRack",
+          "resetRack",
         ),
       ],
     ),
@@ -343,4 +363,39 @@ export namespace WorkoutGym {
       ],
     ),
   };
+
+  /** The clean's shared pull, receiving support and rack. */
+  function clean(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanWorkoutKind.IStep[] {
+    return [
+      WorkoutKind.step(
+        squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
+        1,
+        "set",
+        "start",
+        0.3,
+      ),
+      WorkoutKind.step(
+        key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
+        0.45,
+        "pull",
+        "extension",
+      ),
+      WorkoutKind.step(
+        squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        0.3,
+        "turnOver",
+        "catch",
+        0.2,
+      ),
+      WorkoutKind.step(
+        key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        0.8,
+        "recover",
+        "rack",
+        0.5,
+      ),
+    ];
+  }
 }

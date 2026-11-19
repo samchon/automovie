@@ -41,9 +41,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * - otherwise it stays where it struck, riding it: an outcome the body's data
  *   do not give is never invented.
  *
- * A body's radius is its least round shape's, or half the least extent of
- * its boxes; a body with no such shape has no rebound to measure, so it does
- * not bounce. A roll is on the ground and meets nothing on its way; a body
+ * An explicit launch sphere supplies its radius. Otherwise it is the body's
+ * least round shape's radius, or half the least extent of its boxes. A body
+ * with no measurable shape does not bounce. A roll is on the ground and meets
+ * nothing on its way; a body
  * that rebounds and flies is swept again by the flight's one sweep.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each outcome, the datum that grants it, the bounce's settling rule and what a roll does not meet.
@@ -99,6 +100,7 @@ export namespace HumanPropOutcome {
   export function decide(
     prop: IAutoMovieMotionHumanProp,
     struck: IAutoMovieMotionHumanPropFlight.Struck,
+    size: number | undefined = radius(prop),
   ): IAutoMovieProjectileContinue.Outcome | undefined {
     const body: IAutoMovieBody | undefined = prop.body;
     if (body === undefined) return undefined;
@@ -110,7 +112,6 @@ export namespace HumanPropOutcome {
       return { kind: "pass", loss: contact.passLoss };
     const friction: number | null | undefined =
       body.kineticFriction ?? body.friction;
-    const size: number | undefined = radius(prop);
     const restitution: number | undefined = body.restitution;
     if (friction !== null && friction !== undefined && size !== undefined) {
       if (restitution === undefined) {
@@ -191,10 +192,12 @@ export namespace HumanPropOutcome {
     let projectile: IAutoMovieProjectile = props.projectile;
     let meeting: IAutoMovieMotionHumanPropOutcome.IMeeting = props.meeting;
     let base: number = 0;
+    const size: number | undefined = props.sphereRadius ?? radius(props.prop);
     for (;;) {
       const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
         props.prop,
         meeting.struck,
+        size,
       );
       if (outcome === undefined || outcome.kind === "stick") return out;
       const next: IAutoMovieProjectileContinue.Segment = shift(
@@ -215,7 +218,7 @@ export namespace HumanPropOutcome {
         pull > 0
           ? Vector3.dot(next.projectile.velocity, n) ** 2 / (2 * pull)
           : Infinity;
-      if (outcome.kind === "bounce" && rise < radius(props.prop)!) return out;
+      if (outcome.kind === "bounce" && rise < size!) return out;
       if (!(next.from < props.horizon)) return out;
       const met: IAutoMovieMotionHumanPropOutcome.IMeeting | null = props.meet(
         next.projectile,
@@ -303,10 +306,12 @@ export namespace HumanPropOutcome {
     prop: IAutoMovieMotionHumanProp,
     struck: IAutoMovieMotionHumanPropFlight.Struck,
     state: IAutoMovieProjectileState,
+    sphereRadius?: number,
   ): IAutoMovieVector3 {
     const outcome: IAutoMovieProjectileContinue.Outcome | undefined = decide(
       prop,
       struck,
+      sphereRadius,
     );
     const speed: number = Vector3.length(state.velocity);
     return outcome?.kind === "stick" && speed > 0

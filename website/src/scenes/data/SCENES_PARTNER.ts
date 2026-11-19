@@ -208,18 +208,55 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "judo-randori",
       title: "Judo randori",
       summary:
-        "The first half of a judo throw: tori takes the collar-and-sleeve grip as uke is drawn off balance forward over the toes.",
+        "Two judoka enter a staged shoulder throw, land on the mat and settle into the next beat.",
       setting: "partner",
       roles: { tor: "tori", uke: "uke" },
       needs: [],
     },
     "judo",
     [
-      person("tor", "m2", 0, 0, 0, [act("stand", { seconds: 0.5 })]),
-      person("uke", "m1", 0, 0.7, 180, [act("stand", { seconds: 0.5 })]),
+      person("tor", "m2", 0, -0.25, 0, [act("stand", { seconds: 0.5 })]),
+      person("uke", "m1", 0, 0.25, 180, [act("stand", { seconds: 0.5 })]),
     ],
     [],
-    [mutual("judoThrow", { tori: "tor", uke: "uke" })],
+    [
+      mutual(
+        "grappling",
+        { initiator: "tor", receiver: "uke" },
+        { kind: "seoiNage", outcome: "complete", side: "right" },
+      ),
+    ],
+  ),
+  scene(
+    {
+      id: "wrestling-reset",
+      title: "Wrestling reset",
+      summary:
+        "Two wrestlers rehearse a low entry, a brief grip and a return to their upright stances.",
+      setting: "partner",
+      roles: { red: "initiator", blue: "defender" },
+      needs: [],
+
+      // The alternate cast cannot reach the staged grip at these marks.
+      bodySwap: false,
+    },
+    "exercise-grapple-singleLeg",
+    [
+      person("red", "m1", 0, -0.21, 0, [
+        act("stand", { seconds: 0.3, sway: 0 }),
+      ]),
+      person("blue", "m2", -0.46, 0.82, 165, [
+        act("stand", { seconds: 0.3, sway: 0 }),
+      ]),
+    ],
+    [],
+    [
+      mutual(
+        "grappling",
+        { initiator: "red", receiver: "blue" },
+        { kind: "singleLeg", outcome: "denied" },
+      ),
+    ],
   ),
   scene(
     {

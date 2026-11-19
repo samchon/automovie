@@ -78,6 +78,7 @@ export namespace WorkoutLoad {
    * @param context The action's context.
    * @param load The load's parameters.
    * @param midfoot Whether a bar in both hands travels over the middle of the feet.
+   * @param turnover Whether to preserve the keyed shoulder-to-bar direction through turnover and the overhead receive.
    * @returns What the plan needs of it.
    * @throws {HumanRefusal} When the hand does not hold the prop, or the prop lacks the other handle.
    *
@@ -90,9 +91,13 @@ export namespace WorkoutLoad {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "subject"
+    >,
     load: IAutoMovieMotionHumanWorkoutLoad.IParams,
     midfoot: boolean = false,
+    turnover: boolean = false,
   ): IAutoMovieMotionHumanWorkoutLoad.ILoad {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const side: AutoMovieHumanSide = load.hand ?? "right";
@@ -111,7 +116,9 @@ export namespace WorkoutLoad {
       const held: ReturnType<typeof AutoMovieMotionHumanHeld.of> =
         AutoMovieMotionHumanHeld.of(context, side, load.prop);
       return {
-        apply: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture => ({
+        apply: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           joints: { ...posture.joints, ...closed },
         }),
@@ -120,10 +127,18 @@ export namespace WorkoutLoad {
         hands: [side],
       };
     }
-    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(context, side, load.prop, {
-      tip: load.other,
-    });
-    const own: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(context, side);
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      side,
+      load.prop,
+      {
+        tip: load.other,
+      },
+    );
+    const own: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      side,
+    );
 
     // The bar's line in the hand: from the handle the hand took to the
     // other one, both read in the hand's frame.
@@ -135,8 +150,14 @@ export namespace WorkoutLoad {
             StrikingHeld.of(context, side, load.prop, { tip: load.handle }).tip,
           ),
     );
-    const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(context, other);
-    const fist: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(other, "fist");
+    const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+      context,
+      other,
+    );
+    const fist: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      other,
+      "fist",
+    );
     const requested: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>([
         `${side}UpperArm`,
@@ -256,14 +277,26 @@ export namespace WorkoutLoad {
           // A flexed key does not measure the performer's full reach. The
           // triangle inequality does bound the distance between two grips.
           const partner: IAutoMovieVector3 = StrikingBody.trunk(
-            body, posture, read, new Set<AutoMovieHumanoidBone>([`${other}UpperArm`]), projection,
+            body,
+            posture,
+            read,
+            new Set<AutoMovieHumanoidBone>([`${other}UpperArm`]),
+            projection,
           ).get(`${other}UpperArm`)!.worldPosition;
           let maximum: number = Vector3.distance(shoulder, partner);
           for (const arm of [side, other]) {
             const elbow: IAutoMovieVector3 = body.rest.get(`${arm}LowerArm`)!;
-            maximum += Vector3.distance(body.rest.get(`${arm}UpperArm`)!, elbow)
-              + Vector3.distance(elbow, body.rest.get(`${arm}Hand`)!)
-              + Vector3.length(HumanHand.offset(body, arm, "grip", arm === side ? "relaxed" : "fist").point);
+            maximum +=
+              Vector3.distance(body.rest.get(`${arm}UpperArm`)!, elbow) +
+              Vector3.distance(elbow, body.rest.get(`${arm}Hand`)!) +
+              Vector3.length(
+                HumanHand.offset(
+                  body,
+                  arm,
+                  "grip",
+                  arm === side ? "relaxed" : "fist",
+                ).point,
+              );
           }
           const span: number = Vector3.length(tool.tip);
           if (span > maximum)
@@ -279,22 +312,31 @@ export namespace WorkoutLoad {
         // Beyond the keyed circle the shortest extension to the centred
         // handle is purely lateral. The native arm fit owns its articulation.
         const radius: number = remaining > 0 ? Math.sqrt(remaining) : 0;
-        const forth: number = Math.max(
-          -radius,
-          Math.min(
-            radius,
-            Vector3.dot(reach, ahead) + (balance === undefined ? 0 : Vector3.dot(off, ahead)),
-          ),
-        );
+        const keyedForth: number = Vector3.dot(reach, ahead);
+        // Keep turnover on its continuous vertical/forward route when the
+        // bar moves from below the shoulders into the rack and overhead.
+        const radial: number = Math.hypot(keyedForth, reach.y);
+        const fit: number = radial === 0 ? 0 : Math.min(1, radius / radial);
+        const forth: number = turnover
+          ? keyedForth * fit
+          : Math.max(
+              -radius,
+              Math.min(
+                radius,
+                keyedForth +
+                  (balance === undefined ? 0 : Vector3.dot(off, ahead)),
+              ),
+            );
         const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
           ...keyed,
           point: Vector3.add(
             Vector3.add(shoulder, Vector3.scale(across, aside)),
             Vector3.add(Vector3.scale(ahead, forth), {
               x: 0,
-              y:
-                (reach.y > 0 ? 1 : -1) *
-                Math.sqrt(radius * radius - forth * forth),
+              y: turnover
+                ? reach.y * fit
+                : (reach.y > 0 ? 1 : -1) *
+                  Math.sqrt(radius * radius - forth * forth),
               z: 0,
             }),
           ),

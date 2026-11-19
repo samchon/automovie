@@ -11,7 +11,10 @@ import type {
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanKickBall,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionManner,
+  IAutoMovieMotionPropLaunch,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -23,6 +26,7 @@ import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoint
 import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -50,9 +54,9 @@ import { HumanBall } from "./HumanBall";
  * `ready` (`backswing`), `strokeStart`, `stroke` (`contact`), `strokeEnd`
  * (`followThrough`), `relax`.
  *
- * Not yet: the approach run-up at 30 to 45 degrees and the support foot's
- * plant step beside the ball, the side-foot and toe kicks, the ball's launch
- * (A4), a moving ball, and striking a ball with a held implement.
+ * With `speed`, the foot meets the prop at the stroke's film instant and
+ * publishes the authored outgoing velocity for that same prop. Both uses
+ * retain the planted support foot.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the contact goal with sources, the swing, the refusal, the timing, the events and what is missing.
  * @evidence contracts/development/design.md#principled-representation A law record of a leg swing and an arm pulse over a standing base.
@@ -66,10 +70,20 @@ export namespace kickBall {
   /** Cancel table: stand or walk after the follow-through. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["strokeEnd", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     walk: [
-      { window: ["strokeEnd", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["strokeEnd", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
   };
 
@@ -144,10 +158,33 @@ export namespace kickBall {
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
-    const ball: HumanBall.IBall = HumanBall.of(
-      context,
+    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
+      AutoMovieMotionClock.phrase({
+        prepare: 0.35,
+        attack: 0.1,
+        follow: 0.15,
+        hold: 0.1,
+        retract: 0.45,
+      }),
+      modifiers,
+      { fixed: ["strokeStart", "stroke"] },
+    );
+    const speed: number | undefined = context.params.speed;
+    const lift: number = context.params.lift ?? 0.3;
+    if (speed !== undefined) {
+      HumanBound.least("speed", speed, 0, "m/s");
+      HumanBound.least("lift", lift, 0, "m/s");
+    }
+    const strikeAt: number = clock.at("stroke");
+    const sampleAt: number =
+      context.start + (speed === undefined ? 0 : strikeAt);
+    const ballReader: IAutoMovieMotionHumanPropReader = context.prop(
       context.params.ball,
-      context.start,
+    );
+    const ballFrame: IAutoMovieRigidTransform = ballReader.frame(sampleAt);
+    const ball: HumanBall.IBall = HumanBall.placed(
+      ballReader.prop,
+      () => ballFrame,
       "ball",
     );
     const centre: IAutoMovieVector3 = ball.centre;
@@ -160,7 +197,7 @@ export namespace kickBall {
       context.params.toward === undefined
         ? heading
         : Vector3.subtract(
-            context.aim(context.params.toward, context.start).point,
+            context.aim(context.params.toward, sampleAt).point,
             centre,
           );
     const direction: IAutoMovieVector3 = Vector3.normalize({
@@ -202,17 +239,6 @@ export namespace kickBall {
       rotation: hit.rotation,
     };
 
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.phrase({
-        prepare: 0.35,
-        attack: 0.1,
-        follow: 0.15,
-        hold: 0.1,
-        retract: 0.45,
-      }),
-      modifiers,
-      { fixed: ["strokeStart", "stroke"] },
-    );
     const duration: number = clock.duration;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const stance: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
@@ -222,40 +248,60 @@ export namespace kickBall {
       { ...context, params: { seconds: duration } },
       side,
     );
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(duration, base.posture(0), [
-        {
-          part: support === "left" ? "leftFoot" : "rightFoot",
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        },
-      ]),
-      clock,
-      contact: "stroke",
-      primitives: [
-        AutoMovieMotionHumanLegPhrase.swing({
-          body,
-          clock,
-          side,
-          stance: {
-            ankle: stance.point,
-            rotation: stance.rotation ?? HumanFrame.turn(standing.yaw),
-          },
-          chamber: (): IAutoMovieMotionHumanFoot.IPlacement => chamber,
-          target: (): IAutoMovieMotionHumanFoot.IPlacement => hit,
-        }),
-        // The opposite arm swings out for balance (provisional angles).
-        AutoMovieMotionHumanJoints.pulse(
-          clock,
-          ["start", "stroke"],
-          ["relax", "end"],
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(duration, base.posture(0), [
           {
-            [`${support}UpperArm`]: [10, 40, 0],
-          } as IAutoMovieMotionHumanJoints.Angles,
-        ),
-      ],
-    });
+            part: support === "left" ? "leftFoot" : "rightFoot",
+            kind: "plant",
+            from: 0,
+            to: 1,
+            support: { kind: "ground" },
+          },
+        ]),
+        clock,
+        contact: "stroke",
+        primitives: [
+          AutoMovieMotionHumanLegPhrase.swing({
+            body,
+            clock,
+            side,
+            stance: {
+              ankle: stance.point,
+              rotation: stance.rotation ?? HumanFrame.turn(standing.yaw),
+            },
+            chamber: (): IAutoMovieMotionHumanFoot.IPlacement => chamber,
+            target: (): IAutoMovieMotionHumanFoot.IPlacement => hit,
+          }),
+          // The opposite arm swings out for balance (provisional angles).
+          AutoMovieMotionHumanJoints.pulse(
+            clock,
+            ["start", "stroke"],
+            ["relax", "end"],
+            {
+              [`${support}UpperArm`]: [10, 40, 0],
+            } as IAutoMovieMotionHumanJoints.Angles,
+          ),
+        ],
+      });
+    if (speed === undefined) return plan;
+    const launch: IAutoMovieMotionPropLaunch = {
+      prop: context.params.ball,
+      seconds: strikeAt,
+      point: ballFrame.position,
+      rotation: ballFrame.rotation,
+      sphere: {
+        radius: ball.radius,
+        centre: ballReader.prop.affordances!.find(
+          (point) => point.id === "grip",
+        )!.frame.translation,
+      },
+      velocity: {
+        x: direction.x * speed,
+        y: lift,
+        z: direction.z * speed,
+      },
+    };
+    return { ...plan, launches: [...(plan.launches ?? []), launch] };
   }
 }

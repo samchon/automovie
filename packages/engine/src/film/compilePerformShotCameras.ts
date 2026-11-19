@@ -58,15 +58,17 @@ export function compilePerformShotCameras(
   const hero: IAutoMovieCamera = context.staged.scene.cameras.find(
     (camera: IAutoMovieCamera): boolean => camera.id === props.liveCamera,
   )!;
-  const frame: (on: IAutoMovieActionTarget) => IAutoMovieFramedSubject =
-    createPerformShotSubjectFramer(context, props);
+  const frame: (
+    on: IAutoMovieActionTarget,
+    start?: number,
+  ) => IAutoMovieFramedSubject = createPerformShotSubjectFramer(context, props);
   const cameraMotion: IAutoMovieClip | null = compileCameraMove({
     clipId: `cam:${props.scope}`,
     camera: hero,
     entries: props.frames.map(
       (job: IAutoMoviePerformShotFrameJob): IAutoMovieCameraFrameEntry => ({
         action: job.action,
-        subject: frame(job.action.on),
+        subject: frame(job.action.on, job.action.start),
       }),
     ),
     shotDuration: duration,

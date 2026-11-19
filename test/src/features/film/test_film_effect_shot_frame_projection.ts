@@ -1,15 +1,24 @@
 import {
+  materializeCompiledEffects,
   productionFilmFrameForShotTime,
   projectProductionShotEffectFilmIntervals,
+  sampleCompiledEffect,
 } from "@automovie/engine";
 import {
+  type IAutoMovieCompiledEffect,
+  type IAutoMovieEffectSample,
   type IAutoMovieFilmEffectClock,
   IAutoMovieFilmTimelineSegment,
+  type IAutoMovieShotContract,
   type IAutoMovieShotEffectFilmInterval,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { filmEffectRefusal } from "./filmEffectRuntimeFixtures";
+import { nclose } from "../internal/nclose";
+import {
+  filmEffectRefusal,
+  filmEffectWorld,
+} from "./filmEffectRuntimeFixtures";
 
 const segment: (
   shot: string,
@@ -40,12 +49,13 @@ const segment: (
  * 1. Trim repeated shot occurrences and drop absent/empty intersections.
  * 2. Resolve four floating boundary witnesses and frame zero.
  * 3. Refuse malformed intervals/clocks and return null for invalid, absent or multiply realized seconds.
+ * 4. Compare ownership and runtime samples when cue bounds fall between simulation steps.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs interval projection and shot-time mapping and asserts exact integer frame records, refusal classes and null ambiguity, catching a rounded seconds-times-rate estimate that assigns an adjacent frame.
  * @evidence contracts/development/testing.md#independent-expectations The half-open source interval and exact boundary-second comparison determine expected integer frames by hand; selected adjacent doubles around 32/24 and 34/24 distinguish the rounded product estimate. Frame outputs are discrete indexes, not floating coordinate comparisons.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers repeated/absent shots, segment trimming, zero, four one-ulp witnesses, invalid/unrepresentable seconds/intervals and inconsistent clocks. Sampling particle state belongs to runtime_sampling.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers repeated/absent shots, segment trimming, zero, four one-ulp witnesses, invalid/unrepresentable seconds/intervals and inconsistent clocks. A cue from 0.04 to 0.12 seconds on a 0.1-second step exposes lost opening bursts and effects lingering into an unowned frame.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable unit owns portable timeline queries without a review-page/browser host; productionFilmFrameForShotTime currently has test-only reach, so this verifies its semantics rather than a live installed consumer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Trim repeated shot occurrences and drop absent/empty intersections.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists four projection cases, including how an off-grid cue is sampled across its first and last owned frames.
  */
 export function test_film_effect_shot_frame_projection(): void {
   const clock: IAutoMovieFilmEffectClock = {
@@ -216,5 +226,41 @@ export function test_film_effect_shot_frame_projection(): void {
       }),
     ),
     "film-effect-input-invalid",
+  );
+
+  const flash: IAutoMovieCompiledEffect = materializeCompiledEffects({
+    world: filmEffectWorld(),
+    contract: { id: "w" } as IAutoMovieShotContract,
+    fixedStepSeconds: 0.1,
+    cues: [
+      {
+        id: "flash",
+        zone: "yard",
+        start: 0.04,
+        end: 0.12,
+        intensity: { from: 1, to: 1 },
+      },
+    ],
+  })[0]!;
+  TestValidator.equals(
+    "a source trim places the two owned off-grid frames at the edit start",
+    projectProductionShotEffectFilmIntervals({
+      timeline: { fps: 24, segments: [segment("w", 1, 4, 0)] },
+      shots: new Map([["w", { effects: [flash] }]]),
+    }),
+    [{ cue: "flash", shot: "w", zone: "yard", startFrame: 0, endFrame: 2 }],
+  );
+  const samples: IAutoMovieEffectSample[] = [0, 1, 2, 3].map(
+    (source: number): IAutoMovieEffectSample =>
+      sampleCompiledEffect(flash, source / 24),
+  );
+  TestValidator.equals(
+    "simulation rounding neither drops the first owned frame nor extends the cue",
+    samples.map((sample: IAutoMovieEffectSample): boolean => sample.active),
+    [false, true, true, false],
+  );
+  TestValidator.predicate(
+    "the first owned frame samples the opening burst at the authored start",
+    nclose(samples[1]!.time, 0.04) && samples[1]!.particles.length === 2,
   );
 }

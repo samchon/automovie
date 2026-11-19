@@ -65,6 +65,90 @@ export namespace HumanPerformanceHold {
     return read(self, subject, seconds, own);
   }
 
+  /**
+   * The active mounted carrier, provided no newer flight has taken custody.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Reports a mount carrying the prop on the film clock, with the same closure and precedence as a displayed frame.
+   * @evidence contracts/development/implementation.md#principled-implementation Reads the existing grip and mount spans and rules out a later flight before returning the socket identity.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares carrier selection with frame reads and leaves flight precedence to HumanPropFlight.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither an inactive mount declaration nor spatial coincidence takes custody.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One grip scan and, only for an active mount, a flight selection bounded by the requested time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the same grip records and flight selection used to display the prop.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a borrowed socket identity without retaining any query.
+   */
+  export function mount(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    seconds: number,
+  ): Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point"> | undefined {
+    if (self.props.get(subject)?.motion !== undefined) return undefined;
+    const { active, since }: ICustody = custody(
+      HumanPerformanceRead.grips(self, subject),
+      seconds,
+      false,
+    );
+    return active?.mount !== undefined &&
+      HumanPropFlight.active(self, subject, seconds, since) === undefined
+      ? active.mount
+      : undefined;
+  }
+
+  /** The carriers picked by the frame's usual grip and flight precedence. */
+  interface ICustody {
+    /** The latest carrier that still holds the prop. */
+    active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    /** The other hand when it steadies the active carrier's grip. */
+    steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    /** The last carrier to let go, whose final frame supplies unlaunched rest. */
+    released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    /** Film second of the last closure before the query, which overrides older flights. */
+    since: number;
+  }
+
+  /** Select displayed grip, second hand, rest and the flight cutoff once from the sorted spans. */
+  function custody(
+    grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
+    seconds: number,
+    takeSocket: boolean,
+  ): ICustody {
+    // The latest grip still holding carries it; with none holding, the one released last left it.
+    let active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    let steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
+    let since: number = -Infinity;
+    for (const g of grips) {
+      // At closure the world frame comes from the previous carrier. A supplied
+      // pose used for aiming can take the authored socket chain at that instant.
+      const from: number = g.from;
+      if (
+        from > seconds ||
+        (from === seconds &&
+          g.bone === undefined &&
+          (g.mount === undefined || !takeSocket))
+      )
+        continue;
+      if (from < seconds) since = Math.max(since, from);
+      if (seconds <= g.to) {
+        // A performer's other hand on a prop that performer already holds
+        // steadies it and does not take it over: a camera's far end held
+        // with the right hand on the grip.
+        const steadies: boolean =
+          active !== undefined &&
+          active.bone === undefined &&
+          active.mount === undefined &&
+          g.bone === undefined &&
+          g.mount === undefined &&
+          active.subject === g.subject &&
+          active.side !== g.side;
+        if (!steadies) {
+          active = g;
+          steady = undefined;
+        } else steady = g;
+      } else if (released === undefined || g.to >= released.to) released = g;
+    }
+    return { active, steady, released, since };
+  }
+
   /** Resolve a frame while keeping the current chain of socket samples. */
   function read(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -90,41 +174,11 @@ export namespace HumanPerformanceHold {
     if (prop.motion !== undefined) return prop.motion(seconds);
     const grips: IAutoMovieMotionHumanPerformanceState.IGrip[] =
       HumanPerformanceRead.grips(self, subject);
-    // The latest grip still holding carries it; with none holding, the one released last left it.
-    let active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    let steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    let since: number = -Infinity;
-    for (const g of grips) {
-      // At closure the world frame comes from the previous carrier. A supplied
-      // pose used for aiming can take the authored socket chain at that instant.
-      const from: number = g.from;
-      if (
-        from > seconds ||
-        (from === seconds &&
-          g.bone === undefined &&
-          (g.mount === undefined || own === undefined))
-      )
-        continue;
-      if (from < seconds) since = Math.max(since, from);
-      if (seconds <= g.to) {
-        // A performer's other hand on a prop that performer already holds
-        // steadies it and does not take it over: a camera's far end held
-        // with the right hand on the grip.
-        const steadies: boolean =
-          active !== undefined &&
-          active.bone === undefined &&
-          active.mount === undefined &&
-          g.bone === undefined &&
-          g.mount === undefined &&
-          active.subject === g.subject &&
-          active.side !== g.side;
-        if (!steadies) {
-          active = g;
-          steady = undefined;
-        } else steady = g;
-      } else if (released === undefined || g.to >= released.to) released = g;
-    }
+    const { active, steady, released, since }: ICustody = custody(
+      grips,
+      seconds,
+      own !== undefined,
+    );
 
     // A launch after the latest grip's start sets the prop flying, and it
     // flies until a later grip takes it (#3479: a grip, then a worn bone,

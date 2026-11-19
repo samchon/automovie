@@ -1,9 +1,10 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
+import type { IAutoMovieMotionHumanSupport } from "../actions/IAutoMovieMotionHumanSupport";
 import type { IAutoMovieMotionHumanClimbLadder } from "./IAutoMovieMotionHumanClimbLadder";
 
 /**
  * An authored wall-climbing route on fixed holds. The climber starts with a
- * hold for each hand and foot, then moves one limb at a time to another hold.
+ * hold for each hand and foot, then moves or releases one limb at a time.
  * The support planner fits grip-socket and toe positions and admits the route
  * against reach. Finger closure and wall contact forces are outside this fit.
  *
@@ -44,19 +45,22 @@ export namespace IAutoMovieMotionHumanWallClimb {
   >;
 
   /**
-   * One limb leaves its current hold and moves to another while the other
-   * three keep their assigned holds.
+   * One limb reaches a hold or releases it. Other limbs retain their current
+   * assignments. A release must leave at least three contacts.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what changes and what stays assigned.
-   * @evidence contracts/development/design.md#principled-representation One limb and one destination encode a single contact transfer and keep other assignments implicit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `wallClimbSupport` reads both members when constructing the next stance.
+   * @evidence contracts/development/design.md#principled-representation One limb and an optional destination encode transfer and release while keeping other assignments implicit.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface `wallClimbSupport` reads the destination and optional stance timing and labels.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the common climbing limb and target contracts without an embedded posture.
    */
-  export interface IMove {
+  export interface IMove extends Pick<
+    IAutoMovieMotionHumanSupport.IStance,
+    "seconds" | "event" | "turn"
+  > {
     /** The limb that moves. */
     limb: IAutoMovieMotionHumanClimbLadder.Limb;
 
-    /** The hold it moves to. */
-    to: IAutoMovieMotionHumanWallClimb.Hold;
+    /** The destination hold, or null to release this limb without acquiring another hold. */
+    to: IAutoMovieMotionHumanWallClimb.Hold | null;
   }
 }

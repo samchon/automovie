@@ -61,7 +61,7 @@ export function ballSportCases(
       "dig",
       "set",
       "throwIn",
-    ] as IAutoMovieMotionHumanBallSport.Kind[]) {
+    ] as const satisfies readonly IAutoMovieMotionHumanBallSport.Kind[]) {
       const name: string = `team-ball-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
       try {

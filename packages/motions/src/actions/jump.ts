@@ -156,6 +156,7 @@ export namespace jump {
    * Plan a jump.
    *
    * @param context The action's context.
+   * @param supportFoot The optional planted foot named by a composing sport law.
    * @returns The plan.
    * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight), or the turned landing is incompatible.
    *
@@ -169,6 +170,7 @@ export namespace jump {
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>,
+    supportFoot?: "left" | "right",
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -205,8 +207,16 @@ export namespace jump {
         reason: `a jump takes off from a planted foot, and neither is planted`,
         fix: "enter the jump from an action that leaves a foot planted, such as stand or walk",
       });
+    if (supportFoot !== undefined && !entry.feet[supportFoot].planted)
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "takeoffFoot",
+        value: supportFoot,
+        reason: `the named ${supportFoot} take-off foot is not planted`,
+        fix: "end the approach on that foot or select the planted foot",
+      });
     // A symmetric double support must choose the same foot after a rigid move.
-    const takeoff: "left" | "right" = jumpTakeoff(body, entry);
+    const takeoff: "left" | "right" = supportFoot ?? jumpTakeoff(body, entry);
     const reaching: "left" | "right" = takeoff === "left" ? "right" : "left";
     const support: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: entry.feet[takeoff].ankle,

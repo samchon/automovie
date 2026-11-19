@@ -36,12 +36,14 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * First pass: no curved run-up and no lean into the take-off; the arms do
  * not lead; the angular momentum appears at the take-off instead of being
  * built over the push; the apex falls where the landing place puts it, the
- * crossbar's place along the run unchecked. The push-off's own flight, which
+ * crossbar's horizontal position can differ from that apex. `barCrossing`
+ * marks a passage of the centre through the crossbar's plane within its
+ * span when the authored flight crosses it. The push-off's own flight, which
  * aims the take-off, leaves 20 to 24 mm from its take-off pose, so the flight
  * starts from that pose's centre with the vertical speed that peaks it at the
  * bar, and the body does not step at the take-off.
  *
- * Events: `takeoff`, `apex` (the bar), `touchdown`, `settled`, `relax`.
+ * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`, `relax`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
  * @evidence contracts/development/design.md#principled-representation to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
@@ -68,5 +70,8 @@ export namespace IAutoMovieMotionHumanHighJump {
 
     /** The high jump's prop subject; its `bar` affordance is the crossbar, whose axis's height the centre of mass peaks at. */
     bar: string;
+
+    /** The planted foot that pushes off. Omitted uses the incoming stance's leading support. */
+    takeoffFoot?: "left" | "right";
   }
 }

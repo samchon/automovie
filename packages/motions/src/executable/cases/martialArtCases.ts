@@ -60,7 +60,7 @@ export function martialArtCases(
       "horseStance",
       "chokuZuki",
       "taiChiPush",
-    ] as IAutoMovieMotionHumanMartialArt.Kind[]) {
+    ] as const satisfies readonly IAutoMovieMotionHumanMartialArt.Kind[]) {
       const name: string = `martial-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
       try {

@@ -9,6 +9,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { GOAL_BANDS } from "./GOAL_BANDS";
+import { buildBasketballHoop } from "./buildBasketballHoop";
 
 /** The builder every construction fills. */
 type Builder = ArchetypeBuilder<createGoal.Affordance, createGoal.Dimension>;
@@ -18,9 +19,6 @@ type Drawn = Partial<Record<createGoal.Dimension, number>>;
 
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;
-
-/** How far the backboard's bottom edge lies below the ring's top, metres: FIBA Basketball Equipment 1.1.5, the rectangle's base level with the ring's top and 150 mm above the backboard's bottom edge. */
-const BOARD_BELOW_RING: number = 0.15;
 
 /** The half side line spacing of a volleyball court, metres: the net's side bands 9 m apart (FIVB 2.2, its 9.50 m less two 25 cm). */
 const VOLLEYBALL_SIDE: number = 4.5;
@@ -37,9 +35,6 @@ const CORD: number = 0.008;
 /** The width of the tennis net's centre strap, metres: ITF Rule 1, at most 5 cm, the limit the model takes. */
 const STRAP: number = 0.05;
 
-/** How many rods a basketball ring is drawn with. */
-const RING_RODS: number = 16;
-
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `post`, a volleyball post's diameter; `mesh`, a net's thickness; `antenna`, half of FIVB's 10 mm antenna. */
 const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
   post: 0.1,
@@ -48,7 +43,7 @@ const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
 };
 
 /**
- * A goal or net of a game: a football goal, a basketball hoop, a volleyball net or a tennis net.
+ * A goal, hoop or net sized for its game, with its scoring aperture or playing surface ready for motion.
  *
  * Each stands in the `XY` plane through the origin on the ground, its span along `X` and the field toward `+Z`; a basketball hoop's backboard faces `+Z` from that plane with its ring out over the court, and is mounted by the production on a wall or a stand. Each kind's construction says what it declares.
  *
@@ -99,10 +94,15 @@ export function createGoal(
         : `${net.name}'s ${createGoal.NAMES[kind]}`,
     draw,
   });
-  if (kind === "footballGoal") football(builder, d);
-  else if (kind === "basketballHoop") hoop(builder, d);
+  if (kind === "basketballHoop") buildBasketballHoop(builder, d);
   else if (kind === "volleyballNet") volleyball(builder, d);
-  else tennis(builder, d);
+  else if (kind === "tennisNet") tennis(builder, d);
+  else
+    rectangularGoal(
+      builder,
+      d,
+      kind === "iceHockeyGoal" || kind === "lacrosseGoal",
+    );
   return builder.build(d.mass!);
 }
 
@@ -141,40 +141,57 @@ function posts(
 }
 
 /**
- * Build a football goal: two square posts on the goal line and the crossbar on them, the mouth between; `crossbar` and the posts are bars, `mouth` the opening a ball passes.
+ * Build two posts and a crossbar around the scoring opening. Field goals and handball use square sections, while ice hockey and lacrosse use pipes. The mouth lies in the goal plane.
  *
  * @param builder The builder to fill.
  * @param d The drawn dimensions.
+ * @param round Whether the frame uses pipes.
  */
-function football(builder: Builder, d: Drawn): void {
+function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
   const half: number = d.width! / 2;
   const height: number = d.height!;
   const bar: number = d.bar!;
   const x: number = half + bar / 2;
+  const color: string = round ? "#d53635" : "#f7f7f7";
   for (const [id, sign] of [
     ["post-left", 1],
     ["post-right", -1],
-  ] as const)
-    builder.box(
-      id,
-      v(bar, height + bar, bar),
-      v(sign * x, (height + bar) / 2, 0),
-      {
-        color: "#f7f7f7",
-      },
+  ] as const) {
+    if (round)
+      builder.rod(
+        id,
+        bar / 2,
+        v(sign * x, 0, 0),
+        v(sign * x, height + bar / 2, 0),
+        { color },
+      );
+    else
+      builder.box(
+        id,
+        v(bar, height + bar, bar),
+        v(sign * x, (height + bar) / 2, 0),
+        { color },
+      );
+  }
+  if (round)
+    builder.rod(
+      "crossbar",
+      bar / 2,
+      v(-x, height + bar / 2, 0),
+      v(x, height + bar / 2, 0),
+      { color },
     );
-  builder.box(
-    "crossbar",
-    v(d.width! + 2 * bar, bar, bar),
-    v(0, height + bar / 2, 0),
-    {
-      color: "#f7f7f7",
-    },
-  );
+  else
+    builder.box(
+      "crossbar",
+      v(d.width! + 2 * bar, bar, bar),
+      v(0, height + bar / 2, 0),
+      { color },
+    );
   builder.affordance({
     id: "crossbar",
     kind: "bar",
-    symmetry: "half",
+    symmetry: round ? "round" : "half",
     frame: ArchetypeFrame.facing(
       v(0, height + bar / 2, 0),
       v(0, 0, 1),
@@ -193,70 +210,6 @@ function football(builder: Builder, d: Drawn): void {
     extent: null,
     width: d.width!,
     height,
-  });
-}
-
-/**
- * Build a basketball hoop: the backboard, the ring out from its face on a bracket, the ring's top at the rule's height; `rim` is the ring's front, a bar, and `board` the backboard's face.
- *
- * @param builder The builder to fill.
- * @param d The drawn dimensions.
- */
-function hoop(builder: Builder, d: Drawn): void {
-  const bottom: number = d.height! - BOARD_BELOW_RING;
-  const metal: number = d.bar!;
-  const y: number = d.height! - metal / 2;
-  const radius: number = d.ring! / 2 + metal / 2;
-  const centre: number = d.offset! + d.ring! / 2;
-  builder.box(
-    "backboard",
-    v(d.width!, d.board!, d.thickness!),
-    v(0, bottom + d.board! / 2, -d.thickness! / 2),
-    { color: "#e8f1f5" },
-  );
-  builder.rod("bracket", metal / 2, v(0, y, 0), v(0, y, d.offset!), {
-    color: "#d9531e",
-  });
-  // Each rod a tangent to the ring's circle at its middle, so the rods' middles lie on the circle.
-  const step: number = (2 * Math.PI) / RING_RODS;
-  const corner: number = radius / Math.cos(step / 2);
-  const at = (angle: number): ReturnType<typeof Vector3.create> =>
-    v(corner * Math.sin(angle), y, centre + corner * Math.cos(angle));
-  for (let k: number = 0; k < RING_RODS; k++)
-    builder.rod(
-      `ring-${k + 1}`,
-      metal / 2,
-      at((k - 0.5) * step),
-      at((k + 0.5) * step),
-      {
-        color: "#d9531e",
-      },
-    );
-  builder.affordance({
-    id: "rim",
-    kind: "bar",
-    symmetry: "round",
-    frame: ArchetypeFrame.facing(
-      v(0, y, centre + radius),
-      v(0, 0, 1),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    grip: "hook",
-    aperture: metal,
-    length: 2 * radius * Math.tan(step / 2),
-  });
-  builder.affordance({
-    id: "board",
-    kind: "surface",
-    frame: ArchetypeFrame.facing(
-      v(0, bottom + d.board! / 2, 0),
-      v(0, 0, 1),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    width: d.width!,
-    depth: d.board!,
   });
 }
 
@@ -367,6 +320,10 @@ export namespace createGoal {
   /** The kinds of goal. */
   export type Kind =
     | "footballGoal"
+    | "fieldHockeyGoal"
+    | "iceHockeyGoal"
+    | "lacrosseGoal"
+    | "handballGoal"
     | "basketballHoop"
     | "volleyballNet"
     | "tennisNet";
@@ -374,6 +331,10 @@ export namespace createGoal {
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "footballGoal",
+    "fieldHockeyGoal",
+    "iceHockeyGoal",
+    "lacrosseGoal",
+    "handballGoal",
     "basketballHoop",
     "volleyballNet",
     "tennisNet",
@@ -382,6 +343,10 @@ export namespace createGoal {
   /** The readable name of each kind. */
   export const NAMES: Readonly<Record<Kind, string>> = {
     footballGoal: "football goal",
+    fieldHockeyGoal: "field hockey goal",
+    iceHockeyGoal: "ice hockey goal",
+    lacrosseGoal: "lacrosse goal",
+    handballGoal: "handball goal",
     basketballHoop: "basketball hoop",
     volleyballNet: "volleyball net",
     tennisNet: "tennis net",

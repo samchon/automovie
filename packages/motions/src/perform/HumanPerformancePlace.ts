@@ -37,6 +37,7 @@ import { HumanForce } from "./HumanForce";
 import { HumanPerformanceAhead } from "./HumanPerformanceAhead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
@@ -44,8 +45,8 @@ import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
-import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
+import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 
@@ -426,6 +427,16 @@ export namespace HumanPerformancePlace {
             ),
           launchAt: (seconds: number): IAutoMovieMotionPropLaunch | undefined =>
             HumanPropFlight.active(self, subject, seconds)?.published,
+          flightApproach: (
+            seconds: number,
+            before: number,
+          ): IAutoMovieMotionHumanPropReader.IFlightApproach | undefined =>
+            HumanPropFlight.approach(self, subject, seconds, before),
+          mountAt: (
+            seconds: number,
+          ):
+            | Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point">
+            | undefined => HumanPerformanceHold.mount(self, subject, seconds),
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
         };
