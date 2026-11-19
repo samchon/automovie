@@ -2,6 +2,7 @@ export type { AutoMovieBodyRegion } from "./AutoMovieBodyRegion";
 export type { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
 export type { AutoMovieHumanoidRegion } from "./AutoMovieHumanoidRegion";
 export type { AutoMovieHumanoidSocket } from "./AutoMovieHumanoidSocket";
+export type { AutoMovieJointRotationOrder } from "./AutoMovieJointRotationOrder";
 export type { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacement";
 export type { IAutoMovieAngleRange } from "./IAutoMovieAngleRange";
 export type { IAutoMovieArticulatedRig } from "./IAutoMovieArticulatedRig";

@@ -1,4 +1,5 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { AutoMovieJointRotationOrder } from "./AutoMovieJointRotationOrder";
 import type { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacement";
 
 /**
@@ -41,7 +42,13 @@ export interface IAutoMovieJointAxes {
 
   /**
    * Where the axial rotation sits relative to the swing, which fixes the
-   * composition order; omitted, `"proximal"`.
+   * legacy composition order. Without `rotationOrder`, proximal (the default)
+   * composes twist, abduction, flexion, and distal composes abduction,
+   * flexion, twist. With an explicit order, this field may be omitted or
+   * distal.
    */
   twistPlacement?: AutoMovieJointTwistPlacement;
+
+  /** Explicit clinical order. Omit for the legacy order selected by twist placement. */
+  rotationOrder?: AutoMovieJointRotationOrder;
 }
