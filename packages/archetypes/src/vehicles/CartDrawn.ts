@@ -208,6 +208,7 @@ export namespace CartDrawn {
       builder.affordance({
         id: `${side}LineEnd`,
         kind: "rein",
+        symmetry: "round",
         frame: ArchetypeFrame.facing(
           Vector3.addScaled(terret, toward, run),
           handUp,
