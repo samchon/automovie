@@ -371,11 +371,7 @@ function solved(
         ? [frames[0]!, G.encode(context.setups[a]!, arm(fitted.pose, side)), frames[2]!]
         : frames,
     );
-    const checked: M.IEvaluation = M.evaluate(context, candidate, {
-      reading: initial,
-      laid: [false, true, false],
-      arm: side === sides[0] ? 0 : 1,
-    });
+    const checked: M.IEvaluation = M.evaluate(context, candidate);
     if (checked.worst.value <= M.TOLERANCE) {
       assess?.inspect(checked);
       return {

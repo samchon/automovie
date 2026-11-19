@@ -26,48 +26,35 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  */
 export namespace HumanArmTrajectoryKnots {
   /**
-   * The moving-knot weights for interpolating a step at each grid instant.
+   * The interpolant's weights: each grid instant's coordinates as a sum over
+   * the knots.
    *
-   * @param c The knot count, ascending knot times in seconds and whether the last knot can move.
+   * @param knots The knots' seconds, ascending.
    * @param grid The grid instants' seconds over the same span.
-   * @returns Each grid instant's nonzero weights at moving knots, in ascending knot order.
+   * @returns For each grid instant, the weight of each knot.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States inputs, units and the result's shape.
    * @evidence contracts/development/implementation.md#principled-implementation The interpolant is linear in its knots, so its value on a knot's unit sequence is that knot's weight; read from `HumanArmRefine.hermite` itself, the weights cannot drift from the played interpolant.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the unit sequences of the bracket and its two tangent neighbours.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No weight is assumed: end knots' zero tangents and uneven knot spacing come out of the interpolant's own reading.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most four scalar Hermite evaluations per grid instant, only for the moving knots in its window. The flat table has room for four moving entries per instant.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each solve builds the ordered moving support once and reuses it for every convexification.
+   * @evidence contracts/development/implementation.md#efficient-algorithms At most four scalar Hermite evaluations per grid instant, with one dense output row per instant for the reduced model.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading computed once by its caller.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh table and retains nothing.
    */
   export function weights(
-    c: Pick<M.IContext, "times" | "n" | "open">,
+    knots: readonly number[],
     grid: readonly number[],
-  ): IAutoMovieArmKnotSupport {
-    const starts: Int32Array = new Int32Array(grid.length + 1);
-    const knots: Int32Array = new Int32Array(4 * grid.length);
-    const weights: Float64Array = new Float64Array(knots.length);
-    let length: number = 0;
-    windows(c.times, grid).forEach((window: IWindow, g: number): void => {
+  ): number[][] {
+    return windows(knots, grid).map((window: IWindow): number[] => {
+      const row: number[] = new Array<number>(knots.length).fill(0);
       for (let j: number = 0; j < window.times.length; ++j) {
-        const knot: number = window.first + j;
-        if (!M.inner(c, knot)) continue;
         const unit: number[][] = window.times.map(
           (_: number, i: number): number[] => [i === j ? 1 : 0],
         );
-        const weight: number = HumanArmRefine.hermite(
-          window.times,
-          unit,
-          window.at,
-        )[0]!;
-        if (weight === 0) continue;
-        knots[length] = knot;
-        weights[length] = weight;
-        ++length;
+        row[window.first + j] = HumanArmRefine.hermite(window.times, unit, window.at)[0]!;
       }
-      starts[g + 1] = length;
+      return row;
     });
-    return { starts, knots, weights };
   }
 
   /**
@@ -157,48 +144,55 @@ export namespace HumanArmTrajectoryKnots {
    * A grid subproblem carried onto the knots' steps.
    *
    * @param c The knots' context; the grid's has the same arms and coordinates.
-   * @param spread The ordered moving knots and their weights from `weights`.
+   * @param w The interpolant's weights (`weights`).
    * @param model The subproblem in the grid's steps.
    * @returns The same subproblem in the knots' steps.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the contexts, the map and the result.
    * @evidence contracts/development/implementation.md#principled-implementation With the grid's step `d = W s` for the knots' step `s`: `1/2 d'Pd + q'd = 1/2 s'(W'PW)s + (W'q)'s` and a row `a.d` is `(aW).s`; a knot the problem holds fixed takes no step, so its column is left out. The grid's upper band is read as the symmetric matrix it stores.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reads the prepared moving knots to carry the curvature, the gradient and the rows in turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Projects every row in its original order. A row is omitted only when none of its grid variables has a moving-knot weight.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The grid band's stored entries times at most sixteen knot pairs each, into the knots' upper band of the widest coupling those pairs can write (V x W doubles for V variables, not V x V), whose nonzero band is then read off. Constraint rows share one pair of scratch arrays of length V and clear only touched variables.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each linearisation reads the solve's unchanged interpolation support directly. Each constraint row reuses the accumulation arrays after the preceding row clears its entries.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The temporary upper band and row scratch become eligible for collection on return. The caller owns the projected subproblem.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The weights of each grid instant's moving knots, then the curvature, the gradient and the rows in turn.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every row is carried; one whose coefficients all fall on fixed knots constrains no step and is omitted.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The grid band's stored entries times at most sixteen knot pairs each, into the knots' upper band of the widest coupling those pairs can write (V x W doubles for V variables, not V x V), whose nonzero band is then read off.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each linearisation is carried once.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The upper band is released on return; the returned subproblem is the caller's.
    */
   export function reduce(
     c: M.IContext,
-    spread: IAutoMovieArmKnotSupport,
+    w: readonly (readonly number[])[],
     model: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   ): IAutoMovieMotionHumanQuadraticProgram.IProblem {
-    const { starts, knots, weights } = spread;
     const width: number = c.width;
     const vars: number = (c.open ? c.n - 1 : c.n - 2) * width;
 
+    // Each grid instant's moving knots and their weights.
+    const spread: [number, number][][] = w.map(
+      (row: readonly number[]): [number, number][] => {
+        const out: [number, number][] = [];
+        row.forEach((weight: number, j: number): void => {
+          if (weight !== 0 && M.inner(c, j)) out.push([j, weight]);
+        });
+        return out;
+      },
+    );
     // The widest coupling the curvature can write: two grid instants it
     // couples touch knots between the least and the greatest of theirs.
     let wide: number = 0;
     for (let r: number = 0; r < model.n; ++r) {
-      const from: number = Math.floor(r / width) + 1;
-      const first: number = starts[from]!;
-      const next: number = starts[from + 1]!;
+      const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
       const row: Float64Array = model.p[r]!;
       for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
         if (row[off] === 0) continue;
-        const to: number = Math.floor((r + off) / width) + 1;
-        const begin: number = starts[to]!;
-        const end: number = starts[to + 1]!;
-        const least: number = Math.min(
-          first < next ? knots[first]! : Infinity,
-          begin < end ? knots[begin]! : Infinity,
-        );
-        const most: number = Math.max(
-          first < next ? knots[next - 1]! : -Infinity,
-          begin < end ? knots[end - 1]! : -Infinity,
-        );
+        const to: [number, number][] = spread[Math.floor((r + off) / width) + 1]!;
+        let least: number = Infinity;
+        let most: number = -Infinity;
+        for (const [j] of from) {
+          least = Math.min(least, j);
+          most = Math.max(most, j);
+        }
+        for (const [i] of to) {
+          least = Math.min(least, i);
+          most = Math.max(most, i);
+        }
         if (most >= least) wide = Math.max(wide, (most - least + 1) * width - 1);
       }
     }
@@ -213,28 +207,20 @@ export namespace HumanArmTrajectoryKnots {
     );
     const q: Float64Array = new Float64Array(vars);
     for (let r: number = 0; r < model.n; ++r) {
-      const from: number = Math.floor(r / width) + 1;
-      const first: number = starts[from]!;
-      const next: number = starts[from + 1]!;
+      const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
       const slot: number = r % width;
-      for (let j: number = first; j < next; ++j) {
-        const a: number = (knots[j]! - 1) * width + slot;
-        q[a] = q[a]! + weights[j]! * model.q[r]!;
-      }
+      for (const [j, weight] of from)
+        q[(j - 1) * width + slot] = q[(j - 1) * width + slot]! + weight * model.q[r]!;
       const row: Float64Array = model.p[r]!;
       for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
         const value: number = row[off]!;
         if (value === 0) continue;
-        const to: number = Math.floor((r + off) / width) + 1;
-        const begin: number = starts[to]!;
-        const end: number = starts[to + 1]!;
+        const to: [number, number][] = spread[Math.floor((r + off) / width) + 1]!;
         const other: number = (r + off) % width;
-        for (let j: number = first; j < next; ++j)
-          for (let i: number = begin; i < end; ++i) {
-            const a: number = (knots[j]! - 1) * width + slot;
-            const b: number = (knots[i]! - 1) * width + other;
-            const wj: number = weights[j]!;
-            const wi: number = weights[i]!;
+        for (const [j, wj] of from)
+          for (const [i, wi] of to) {
+            const a: number = (j - 1) * width + slot;
+            const b: number = (i - 1) * width + other;
             if (b >= a) upper[a]![b - a] = upper[a]![b - a]! + value * wj * wi;
             if (off !== 0 && a >= b)
               upper[b]![a - b] = upper[b]![a - b]! + value * wj * wi;
@@ -242,34 +228,24 @@ export namespace HumanArmTrajectoryKnots {
       }
     }
     const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [];
-    // Each row visits the grid coefficients in their original order. Track
-    // touched variables separately so cancellation preserves a zero coefficient.
-    const sums: Float64Array = new Float64Array(vars);
-    const seen: Uint8Array = new Uint8Array(vars);
     for (const row of model.rows) {
-      const index: number[] = [];
+      const sum: Map<number, number> = new Map();
       row.index.forEach((r: number, at: number): void => {
         const slot: number = r % width;
-        const frame: number = Math.floor(r / width) + 1;
-        const end: number = starts[frame + 1]!;
-        for (let j: number = starts[frame]!; j < end; ++j) {
-          const a: number = (knots[j]! - 1) * width + slot;
-          if (seen[a] === 0) {
-            seen[a] = 1;
-            index.push(a);
-          }
-          sums[a] = sums[a]! + weights[j]! * row.coef[at]!;
+        for (const [j, weight] of spread[Math.floor(r / width) + 1]!) {
+          const a: number = (j - 1) * width + slot;
+          sum.set(a, (sum.get(a) ?? 0) + weight * row.coef[at]!);
         }
       });
-      if (index.length === 0) continue;
-      index.sort((a: number, b: number): number => a - b);
-      const coef: number[] = index.map((a: number): number => {
-        const value: number = sums[a]!;
-        sums[a] = 0;
-        seen[a] = 0;
-        return value;
+      if (sum.size === 0) continue;
+      const index: number[] = [...sum.keys()].sort(
+        (a: number, b: number): number => a - b,
+      );
+      rows.push({
+        ...row,
+        index,
+        coef: index.map((a: number): number => sum.get(a)!),
       });
-      rows.push({ ...row, index, coef });
     }
 
     // The band holds the curvature's farthest entry and every row's span,
@@ -294,16 +270,6 @@ export namespace HumanArmTrajectoryKnots {
     );
     return { n: vars, band, p, q, rows };
   }
-}
-
-/** Grid support in row order, with each row's moving knots in ascending order. */
-interface IAutoMovieArmKnotSupport {
-  /** Offset of each grid row and one final one-past-end sentinel. */
-  readonly starts: Int32Array;
-  /** Knot indices in ascending order within each row. */
-  readonly knots: Int32Array;
-  /** The same Hermite weights in the corresponding knot slots. */
-  readonly weights: Float64Array;
 }
 
 /** Four consecutive knots suffice for the two endpoint values and both centred tangents. */
