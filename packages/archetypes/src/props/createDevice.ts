@@ -47,7 +47,7 @@ const NAMES: Readonly<Record<createDevice.Kind, string>> = {
  * @throws {ArchetypeRefusal} For a model the kind does not have, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and how the device is oriented.
- * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box per device; a hold's `aperture` is the slab's thickness along the hand's approach, which is what the collider measures there, and a camera's grip is its own upright bar of the body's depth, its far end the other hand's hold of the same depth, as a camera is held in both hands.
+ * @evidence contracts/development/implementation.md#principled-implementation A dimensioned box per device, with each hold's aperture set by the slab's thickness. The camera has an upright primary grip and a precision support on the front half of its far underside, where the other hand braces the case.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, build the slab, then each kind's contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bezel, button or lens detail beyond the one barrel that makes a camera a camera.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
@@ -178,23 +178,24 @@ export function createDevice(
       aperture: depth,
       length: height,
     });
-    // The other hand's hold: the body's far (+X) end, taken from the front
-    // with the fingers there and the thumb round onto the back, so the hand
-    // closes across the body's depth, not its width, and stays off the face
-    // the back is held to.
+    // The thumb on the left side and index finger underneath brace the
+    // lower outer edge (https://in.canon/en/support/8000009200). The device
+    // depth supplies the grip width. The front half of the edge leaves room
+    // between the hand and the face at the back of the camera. Its underside
+    // is the near face, with the centre one half-width inside the case.
     builder.affordance({
       id: "support",
       kind: "handle",
       symmetry: "none",
       frame: ArchetypeFrame.facing(
-        Vector3.create(width / 2 - grip, height / 2, 0),
+        Vector3.create(width / 2 - grip / 2, grip, grip / 2),
+        Vector3.create(0, -1, 0),
         Vector3.create(0, 0, 1),
-        Vector3.create(0, 1, 0),
       ),
       extent: null,
-      grip: "power",
+      grip: "precision",
       aperture: depth,
-      length: height,
+      length: grip,
     });
     builder.affordance({
       id: "lens",
