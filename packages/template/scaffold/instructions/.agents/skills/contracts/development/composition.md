@@ -19,23 +19,32 @@ Every section, beat and scene file is realized. An `OMITTED` one is covered by a
 
 Does each scene realize every cited beat as written, and does the film play every scene in screenplay order at the recorded delivery profile?
 
-- Bind the staged instances to the subjects in the standing state. Follow the same instances through movement, handovers and cuts, including when they leave view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
-- Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time, and the screenplay and profile for grade and control channels.
-- Open the scene comment with its screenplay citation, action and relevant staging choices. If realizing it requires inventing an exchange, response or pause, return the decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
-- For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
+### Scene
+
+Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
+
+If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
+
+### Film and catalog
+
+Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take grade and control channels from the screenplay and profile.
+
+For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
 ## Composition only
 
 Does the declaration compose only accepted module capabilities using installed operators and the screenplay's decisions?
 
-- Resolve the film once from one seed. Place absolute time only at screenplay anchors. Combine entity capabilities, interactions and consequences with installed operators. Give calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections to their capability owner.
-- Cast and crowd entities perform their actions through the vocabulary. A supplied or user-chosen clip must be [retargeted](../../motion/retargeting.md) to its performer. Fix package [refusals](../../motion/compose/refusals.md) at the named axis.
-- Use the same capabilities in the film and catalog. Use a [catalog case](../../motion/catalog-cases.md#record) accepted for the scene's body, load, support and partner conditions. Recheck affected capabilities after a repair or change of conditions.
+Resolve the film once from one seed. Place absolute time only at screenplay anchors. Compose entity capabilities, interactions and consequences with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections.
+
+Cast and crowds perform through the vocabulary. [Retarget](../../motion/retargeting.md) a supplied or user-chosen clip to its performer. Fix package [refusals](../../motion/compose/refusals.md) at the named axis.
+
+Use the same capabilities in the film and catalog. Select a [catalog case](../../motion/catalog-cases.md#record) accepted for the scene's body, load, support and partner conditions. Recheck affected capabilities after a repair or change of conditions.
 
 ## Living scene
 
 Does each participant carry out their part throughout the interval, with the movement and framing the beat requires?
 
-- Follow every presence through the interval. A held position has a purpose in the beat or standing state. Combine the actions and axes that the exchange needs, including [secondary actions](../../motion/compose/composition.md#action-axes).
-- Move between the set's zones and landmarks. Follow or reframe motivated action unless the screenplay calls for a fixed view.
-- Locate each adopted picture or sound target in the scene. For skilled practice, include the study's cues, timing and responses. Delivery review checks them in the rendered exchange.
+Follow every presence through the interval. A held position needs a purpose in the beat or standing state. Combine the actions and axes the exchange requires, including [secondary actions](../../motion/compose/composition.md#action-axes).
+
+Stage movement between the set's zones and landmarks. Follow or reframe motivated action unless the screenplay calls for a fixed view. Locate each adopted picture or sound target in the scene. For skilled practice, include the study's cues, timing and responses so delivery review can check them in the rendered exchange.

@@ -6,8 +6,21 @@ Each question compares the complete declared layer population and has exactly on
 
 Is each required decision findable and usable at its owning layer, so downstream authors can rely on one source?
 
-- Map each promised interval, start, ending, person, event, fact, constraint, relationship and result to its smallest useful owner. Report unauthorized omissions, conflicting duplicates, independent content buried together and material whose removal costs nothing. Keep inseparable operations and dependent attributes together.
-- Compare central and peripheral development. Brief, settings and treatment need sufficient decisions. Scripts need enough story to connect the scenes. The screenplay needs sufficient action and time to deliver the experience. Counts, lengths, ratios and diffs only locate material to inspect.
-- Settings own world facts, appearance and baselines. Treatments own events, time, place and reveal order. Scripts own scene progression, draft exchanges and release partition. The screenplay owns dialogue, staging, viewpoint, sound, transitions and experienced time. A short assigns subjects to its [brief](../../../story/layers/brief.md#what-it-holds) and events to its screenplay.
-- Identify the owner of language, audience, register, switching, access and expressive form. World facts own character voice. Preserve the audience context of nonstandard forms. Repair inventions, duplicated authority and planning prose at their earliest owner and update consumers.
-- Across the work preserve colors, materials, dimensions and units. Add the reference or conversion at the owner when artists could otherwise infer incompatible values. Idiomatic perception may preserve a fact without repeating an appearance inventory.
+### Coverage
+
+Map promised starts, endings, intervals, people, events, facts, constraints, relationships and results to the smallest unit that can own them. Report unauthorized omissions, conflicting duplicates, unrelated decisions buried together and material whose removal costs nothing. Keep inseparable operations and dependent attributes together.
+
+Compare central and peripheral development. Does the brief, settings or treatment settle what subsequent writers need? Can the reader follow the story from one script scene to the next? Does the screenplay give its action enough time? Use counts, lengths, ratios and diffs to locate passages for inspection.
+
+### Ownership across layers
+
+Follow each decision to its source.
+
+- Settings establish world facts, appearance and baselines.
+- Treatments decide events, time, place and reveal order.
+- Scripts decide scene progression, draft exchanges and release boundaries.
+- The screenplay writes the final dialogue, staging, viewpoint, sound, transitions and experienced time.
+
+On a short, the [brief](../../../story/layers/brief.md#what-it-holds) establishes subjects and the screenplay decides events. Trace language, audience, register, language switching, access and expressive form to their owners. Ground a character's voice in world facts and preserve the audience context of nonstandard forms. Repair inventions, duplicated authority and misplaced planning at their earliest owner and update consumers.
+
+Check colors, materials, dimensions and units across the work. Where two artists could infer incompatible values, record the reference or conversion at its owner. A character can describe a familiar object idiomatically and still preserve its appearance.

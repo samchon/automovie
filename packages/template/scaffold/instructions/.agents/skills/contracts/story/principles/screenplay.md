@@ -6,21 +6,23 @@ Each screenplay section answers for what its audience can see and hear.
 
 Can the audience follow and feel the action through image, sound, timing and transitions?
 
-- Realize the long-route script or the decisions the short's [brief](../../../story/layers/brief.md#what-it-holds) delegates. Preserve established choices, relationships, outcomes and reveal order. Keep unresolved relationships open. Return an overdetermined parent to its author.
-- Give consequential choices, tension, humor and loss enough time to play. A held look, short reply or deliberate summary may carry the moment. Show preparation, effort and recovery where the action depends on them.
-- Use image, speech, text, silence and recurring motifs within the commissioned form. Make on-screen, off-screen and overlapping sources distinguishable when meaning depends on them.
-- Choose details that change what the audience notices, understands or feels. Ground each character's knowledge in what reaches them. Preserve intentional ambiguity and give inward meaning a perceptible form.
-- Write action with a clear actor, target and result. Use speech and text idiomatic to the period, variety and register.
+Realize the long-route script or the decisions the short's [brief](../../../story/layers/brief.md#what-it-holds) delegates. Preserve established choices, relationships, outcomes and reveal order, including relationships left open. Return an overdetermined parent to its author.
+
+Give consequential choices, tension, humor and loss enough time to play. A held look, short reply or deliberate summary may carry the moment. Show preparation, effort and recovery where the action depends on them.
+
+Choose the image, speech, text, silence or recurring motif that conveys what the audience should notice, understand or feel. Distinguish on-screen, off-screen and overlapping sources wherever that distinction changes the meaning. Ground each character's knowledge in what reaches them. Preserve intentional ambiguity and give inward meaning a perceptible form.
+
+Write action with a clear actor, target and result. Give speech and text the idiom of their period, variety and register.
 
 ## Beat decisions
 
 Can the next author stage the exchange from its cue through its outcome?
 
-- Establish the opening light, camera and sound. Name the places, people and objects the action tracks by subject record or scene-local name. Give starting positions, possessions, entrances and consequential routes, barriers and sightlines. Group other dressing and crowds.
-- Show who acts, why, who responds and what changes. Include participants whose movement or held position affects someone else's choice and objects that support or obstruct it. Follow changes in position, gaze, possession and state across cuts.
-- For skilled practice, identify the observation supporting the action, spacing, pace and response. Choose actions the installed vocabulary can compose together or a research law supports.
-- Record changes to the view and sound. A new shot gives its size and subject under [beat records](../../../story/layers/notation.md#records). Choose expressions the representation can show and identify any reaction reserved for a generation prompt.
-- Specify exact synchronization for a line, lyric, count or edit that depends on it. Code derives coordinates, offsets and other exact timings.
+Establish opening light, camera and sound. Identify the places, people and objects the action tracks by subject record or scene-local name. Give starting positions, possessions, entrances and consequential routes, barriers and sightlines. Group other dressing and crowds.
+
+Follow the exchange from cue to response. Show who acts, why and what changes, including participants whose movement or held position affects someone else's choice and objects that support or obstruct it. Track position, gaze, possession and state across cuts. For skilled practice, identify the observation supporting the action, spacing, pace and response. Use a combination the installed vocabulary can express or a research law supports.
+
+Record changes to the view and sound. A new shot gives its size and subject under [beat records](../../../story/layers/notation.md#records). Choose expressions the representation can show and identify any reaction reserved for a generation prompt. Specify exact synchronization where a line, lyric, count or edit depends on it. Code derives coordinates, offsets and other exact timings.
 
 ## Performance timing
 
@@ -32,13 +34,31 @@ Estimate from the performance, counting concurrent action once. Account for cuts
 
 Does each line, direction and detail serve its moment in the adopted language and register? Only the following failure cases and exceptions apply.
 
-- **Padding.** Look for repeated action or delivery, closing aphorisms, balanced summaries, delayed entry, research digressions, lists of absences and denials of imagined misunderstandings. Keep modifiers, contrasts and formatting that change information, access or pressure.
-- **Recognition.** Establish appearance and rank on entry or through costume, action, address or a distinguishing trait. Locate empty links, jargon, arbitrary patterns and habitual gestures. A repeated name, word or framing alone proves no habit. Recall, speaker cues and necessary performance directions can serve the scene.
-- **Thought and idiom.** Cut thoughts that repeat a visible emotion or conclusion. Keep calculations, memories or expectations that reveal something new in a form the film can convey. Make actor, action and target clear in the adopted variety, period and register. Preserve functional dialect, quotation, institutional language, fragments, passives, inversion and repetition.
-- **Concrete action.** Locate gaze, movement and object use from the chosen viewpoint. Flag unlocated inventories, missing material, scale, color or position, interchangeable metaphors and bodily limits conveyed only by labels or numbers. Preserve inherited values and access. Check for missing detail and detail that obscures a choice. Selective or documentary restraint may serve the scene.
-- **Connections.** Follow speakers, actions, reaction targets, causes and spatial relationships across paragraphs. Preserve the occasion for emotion, voice, humor or changing pressure. Restore a consequential exchange reduced to a report without inventing events or opposition. Recoverable subjects and deliberate summary can serve the scene.
-
 Locate the passage and show the effect of a repair or the reason to retain it. Silence, execution directions, narration, lies, refrains, speech habits and formal regularity may earn their place. Judge narration by its wording, placement and relation to the image and sound. If no case applies, name the scope read.
+
+### Padding
+
+Look for repeated action or delivery, closing aphorisms, balanced summaries, delayed entry, research digressions, lists of absences and denials of imagined misunderstandings. Keep modifiers, contrasts and formatting that change information, access or pressure.
+
+### Recognition
+
+Establish appearance and rank on entry or through costume, action, address or a distinguishing trait. Check for empty links, jargon, arbitrary patterns and habitual gestures. A repeated name, word or framing alone proves no habit. Recall, speaker cues and necessary performance directions can serve the scene.
+
+### Thought and idiom
+
+Cut a thought that repeats a visible emotion or conclusion. Keep a calculation, memory or expectation that reveals something new in a form the film can convey.
+
+Make actor, action and target clear in the adopted variety, period and register. Dialect, quotation, institutional language, fragments, passives, inversion and repetition may each serve the speaker or situation.
+
+### Concrete action
+
+Locate gaze, movement and object use from the chosen viewpoint. Check for unlocated inventories, missing material, scale, color or position, interchangeable metaphors and bodily limits conveyed only by labels or numbers.
+
+Preserve inherited values and access. Check what detail a choice needs and what detail obscures it. Selective or documentary restraint may serve the scene.
+
+### Connections
+
+Follow speakers, actions, reaction targets, causes and spatial relationships across paragraphs. Preserve the occasion for emotion, voice, humor or changing pressure. Restore a consequential exchange reduced to a report without inventing events or opposition. Recoverable subjects and deliberate summary can serve the scene.
 
 ## Expression fidelity
 
