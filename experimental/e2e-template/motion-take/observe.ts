@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieJointPose,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanSegment,
@@ -34,6 +35,21 @@ interface IObservation {
   grip: boolean;
 }
 
+/** Order the sparse override map by bone while retaining every joint value. */
+function canonicalPose(pose: IAutoMoviePose): IAutoMoviePose {
+  const joints: IAutoMovieJointPose[] = [...pose.joints].sort(
+    (left: IAutoMovieJointPose, right: IAutoMovieJointPose): number =>
+      left.bone < right.bone ? -1 : Number(left.bone > right.bone),
+  );
+  assert.equal(
+    new Set(joints.map((joint: IAutoMovieJointPose): string => joint.bone))
+      .size,
+    joints.length,
+    "each bone has a single joint override",
+  );
+  return { ...pose, joints };
+}
+
 /** Observe the actual Human owner at the supplied clock without accessing its caches. */
 export function observe(
   performance: HumanPerformance,
@@ -66,8 +82,8 @@ export function observe(
     .map((window): number => (window.part === "leftFoot" ? 0 : 1))
     .sort((left: number, right: number): number => left - right);
   return {
-    catcher: performance.pose("catcher", seconds),
-    emitter: performance.pose("emitter", seconds),
+    catcher: canonicalPose(performance.pose("catcher", seconds)),
+    emitter: canonicalPose(performance.pose("emitter", seconds)),
     ball: performance.prop("foam-ball", seconds),
     door: performance.prop("door", seconds),
     hinge: performance.state("door", seconds).hinge!,
