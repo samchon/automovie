@@ -1,6 +1,6 @@
 {
   "name": "@automovie/recovery",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Source-independent recovery workflows and Node artifact commands",
   "main": "src/index.ts",
   "exports": {

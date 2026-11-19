@@ -1,6 +1,6 @@
 {
   "name": "automovie",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Scaffold a coding-agent-first AutoMovie production repository.",
   "main": "src/index.ts",
   "bin": {

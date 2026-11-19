@@ -2,7 +2,7 @@
   "name": "{{name}}",
   "private": true,
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "license": "MIT",
   "description": "An AutoMovie workspace of productions and their shared packages.",
   "engines": {
