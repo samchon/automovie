@@ -6,7 +6,9 @@ Identify the earliest owner, its consumers, the current pass and closed boundari
 
 ### Upstream defects
 
-Repair missing, conflicting or unrealizable parent decisions at their earliest owner before writing the downstream work. Use the selected [upstream questions](../../contracts/story/SKILL.md).
+Trace a story finding to the first decision that must change. On a short, check whether the [brief](../layers/brief.md#what-it-holds) fixed that decision or left it to the screenplay. On the long route, follow the [actual parents](../workflow/long.md#parents). Scripts organize scenes, treatments establish event causes and reveals, and settings establish world and character facts. If the decision depends on a disputed fact, check its study. Use the selected [upstream questions](../../contracts/story/SKILL.md#testing-the-parents).
+
+Repair that decision before its dependents. Follow a shared change into every affected scene or film in the commission. Refer changes to [user-fixed requirements](../planning/requirements.md#requirements) to the user.
 
 ### Cause rounds
 

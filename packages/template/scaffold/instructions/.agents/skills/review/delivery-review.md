@@ -14,6 +14,8 @@ Where narrative passes apply, lock the recipient's first reading before consulti
 
 Give the independent viewer the commission and complete candidate at its intended speed. Before disclosing plans or repairs, record where movement, stillness, simultaneous action or a cut sustained or broke the performance. For a disputed beat, identify the picture, sound or words that conveyed its cause. A score or caption can reveal the result while the action remains unreadable.
 
+For a narrative, record what the opening led the viewer to expect, what they knew when a choice or reveal landed, and what the ending delivered. A sequence of convincing beats can still leave a payoff without its setup.
+
 If the reviewer cannot watch continuous playback, obtain that observation from the user or their delegated viewer. For commissioned sound, follow [user listening](../audio/listening.md#user-listening). Keep the cut a candidate while a required observation or material defect remains open.
 
 Check a motion hint's [control channels](../motion/control-channels.md), a [direct film's finish](../video/direct-film.md#what-to-look-for) or the [generated takes](../video/generation.md) as commissioned. Check [narrative records](#narrative-records) after the independent viewing when those passes apply.
@@ -52,8 +54,8 @@ A retake verdict covers the interval checked. Promote only a cut with current wh
 
 ## Repairs
 
-From the first playable draft through delivery, give the director the failed beat, its film time and what the viewer saw or heard. Compare the performance with the current screenplay. Where they differ, correct the production step that introduced the difference and replay the beat.
+From the first playable draft through delivery, give the director the affected passage, its film time and what the viewer saw or heard. Compare the performance, framing and edit with the current screenplay. Where the production obscures or changes the intended action, correct it and replay the passage.
 
-If the beat plays as written and still fails, the director returns it to the writer for revision with the observed loss and any relevant study. Changes to [user-fixed text](../story/workflow/routes.md#fixed-screenplay) go to the user. If a missing story decision prevents staging, follow [concretization](../story/correction/repair.md#concretization).
+If the passage plays as written and the story still fails, the director gives the writer the observed loss to trace to its [earliest story decision](../story/correction/repair.md#upstream-defects). Changes to [user-fixed text](../story/workflow/routes.md#fixed-screenplay) go to the user. If a missing story decision prevents staging, follow [concretization](../story/correction/repair.md#concretization).
 
-Stage the revised beat, recheck affected intervals and joins, and review the rebuilt candidate before approval.
+Stage the affected passages and recheck their joins. Review the rebuilt candidate in order to verify the original loss is resolved before approval.
