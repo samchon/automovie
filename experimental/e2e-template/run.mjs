@@ -213,8 +213,12 @@ export async function test_installed_sdk(): Promise<void> {
 import { createSeat } from "@automovie/archetypes/furniture";
 import { compileDefinedShot, defineShot } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
-import { buildModel, buildScene, collectAutoMovieOwnedResources } from "@automovie/render";
-import type { IAutoMovieSceneObject } from "@automovie/render";
+import {
+  type IAutoMovieSceneObject,
+  buildModel,
+  buildScene,
+  collectAutoMovieOwnedResources,
+} from "@automovie/render";
 
 import type { IFilm } from "../../IFilm";
 import type { IFilmProduction } from "../../IFilmProduction";
