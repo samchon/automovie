@@ -5,6 +5,7 @@ import {
   IAutoMovieSequence,
 } from "@automovie/interface";
 
+import { playbackEntryAt } from "./playbackEntryAt";
 import { playbackSampleAt } from "./playbackSampleAt";
 
 /**
@@ -33,12 +34,10 @@ export function resolveFromTimeline(
   seconds: number,
 ): IAutoMoviePlaybackSample {
   const entries: readonly IAutoMoviePlaybackEntry[] = timeline.entries;
-  let low: number = 0;
-  let high: number = entries.length - 1;
-  while (low < high) {
-    const middle: number = Math.ceil((low + high) / 2);
-    if (entries[middle]!.start <= seconds) low = middle;
-    else high = middle - 1;
-  }
-  return playbackSampleAt(sequence, entries, entries[low]!, seconds);
+  return playbackSampleAt(
+    sequence,
+    entries,
+    playbackEntryAt(entries, seconds),
+    seconds,
+  );
 }

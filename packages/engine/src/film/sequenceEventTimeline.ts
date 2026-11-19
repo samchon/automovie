@@ -9,6 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { exactPlaybackHardCut } from "./exactPlaybackHardCut";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
 /** Original clock tolerance for ordinary numeric plays away from exact seams. */
@@ -69,11 +70,12 @@ export function sequenceEventTimeline(
       previous !== undefined && preciseHardCut(previous, entry);
     const preciseNext: IAutoMoviePlaybackEntry | undefined =
       next !== undefined && preciseHardCut(entry, next) ? next : undefined;
+    const sourceEndpoint: number = sourceEnd(entry, shot.duration);
     const outgoingSeam: number | undefined =
       preciseNext === undefined
         ? undefined
-        : sharedBoundary(entry, preciseNext, shot.duration);
-    const to: number = outgoingSeam ?? sourceEnd(entry, shot.duration);
+        : exactPlaybackHardCut(sequence, entry, preciseNext, sourceEndpoint);
+    const to: number = outgoingSeam ?? sourceEndpoint;
     const fromEpsilon: number = exact || exactCutIn ? 0 : TIME_EPSILON;
     const exactEnd: boolean = exact || preciseNext !== undefined;
     const toEpsilon: number = exactEnd ? 0 : TIME_EPSILON;
@@ -155,23 +157,6 @@ export function sequenceEventTimeline(
       sequence.shots[incoming.entry]!.transition === null &&
       (precise(outgoing) || precise(incoming))
     );
-  }
-
-  /** Returns the shared source boundary of an adjacent same-shot hard cut. */
-  function sharedBoundary(
-    outgoing: IAutoMoviePlaybackEntry,
-    incoming: IAutoMoviePlaybackEntry,
-    duration: number,
-  ): number | undefined {
-    if (incoming.offset <= outgoing.offset) return undefined;
-    const end: number = sourceEnd(outgoing, duration);
-    const allowance: number =
-      sequence.shots[outgoing.entry]!.exactSourceEnd === undefined
-        ? Number.EPSILON * end
-        : 0;
-    return Math.abs(end - incoming.offset) <= allowance
-      ? incoming.offset
-      : undefined;
   }
 }
 

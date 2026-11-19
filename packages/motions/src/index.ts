@@ -187,6 +187,7 @@ export * from "./law/IHumanEntryState";
 export * from "./law/HumanInterruptRow";
 export * from "./law/IHumanLayer";
 export * from "./perform/HumanPerformance";
+export * from "./perform/compileHumanPerformanceContinuation";
 export * from "./perform/HumanPerformanceParams";
 export * from "./law/HumanPerception";
 export * from "./perform/HumanSegment";
