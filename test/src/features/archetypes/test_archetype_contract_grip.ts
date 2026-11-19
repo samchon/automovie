@@ -13,6 +13,7 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieModelPart,
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
@@ -28,10 +29,10 @@ import { archetypeCatalog } from "../internal/archetypeCatalog";
  * Scenarios:
  * 1. For each `handle` and `bar` affordance of each catalog row that declares an `aperture`, at rest for three seeds: the held colliders span the aperture along the grip's `+Y` approach within a millimetre. Use the nearest collider centres for ordinary grips. The closed book is gripped across its stack, so measure all three layers intersected by the approach line at the spine.
  * 2. Every affordance frame of every row has orthonormal axes with `+X` cross `+Y` equal to `+Z`.
- * 3. Every archetype has one collider per part.
+ * 3. Each solid primitive or declared convex cell has one collider with the part's id. Visual meshes without a declared cell contribute no collider.
  * 4. `+Y` points out of the contact: for a dining chair's seat at its middle and at its front edge, a desk's top, a bed's surface and a door's push plate, the point a centimetre along `+Y` from the site lies in no collider and the point a centimetre along `-Y` lies in or on one; for a door's upright pull bar, whose frame is on the bar's axis, every 5 mm step out from the bar's surface along `+Y` for 100 mm is free while the steps back along `-Y` reach the leaf.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces every archetype, takes its colliders and measures them with the engine's shape span along each grip's approach and its point distance beside a contact; a grip placed off its part's axis, an aperture that is not the part's width, a frame built from non-perpendicular directions, a part without a collider, or a contact frame facing into its solid is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Checks the collider ids against each model's solid declarations, then measures shape span along each grip's approach and point distance beside a contact with the engine. This catches missing or extra colliders, misplaced frames and grip widths that differ from their solids.
  * @evidence contracts/development/testing.md#independent-expectations The millimetre is #3369's acceptance ("each grip affordance's aperture matches the object's collider within 1 mm"); the nearest-collider rule comes from the grasp's width fallback. The closed book's authored spine grip closes on the outer faces of its stack, whose approach line crosses the back, leaf and front; `+Y` out of the contact is the frame convention of `AutoMovieAffordanceKind`; the span and the point distance are measured by the engine, not by the archetypes.
  * @evidence contracts/development/testing.md#distinguishing-cases Every producer and kind for widths and frames; grips without an aperture are skipped because the grasp then reads the collider itself. The outward sense is checked on a representative seat, three surfaces and one handle mounted on a face, each with both the free and the solid side; a round bar taken from any side has no solid side to tell.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
@@ -47,9 +48,20 @@ export function test_archetype_contract_grip(): void {
     for (const seed of [undefined, 1, 2]) {
       const archetype: ReturnType<typeof row.create> = row.create(seed);
       const shapes: IAutoMoviePhysicalShape[] = archetype.shapes();
-      if (shapes.length !== archetype.parts.length)
+      const cells: Archetype["convexCells"] = archetype.convexCells;
+      const expected: string[] = archetype.parts
+        .filter(
+          ({ id, geometry }: IAutoMovieModelPart): boolean =>
+            cells.has(id) ||
+            (geometry.type === "primitive" && geometry.shape.type !== "plane"),
+        )
+        .map(({ id }: IAutoMovieModelPart): string => id);
+      if (
+        shapes.length !== expected.length ||
+        shapes.some((shape, i): boolean => shape.id !== expected[i])
+      )
         findings.push(
-          `${row.name}: ${shapes.length} colliders for ${archetype.parts.length} parts`,
+          `${row.name}: expected ${expected.join(", ")}, found ${shapes.map(({ id }) => id).join(", ")}`,
         );
       for (const affordance of archetype.affordances) {
         const x: IAutoMovieVector3 = ArchetypeFrame.axis(affordance.frame, "x");

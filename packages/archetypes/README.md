@@ -125,7 +125,7 @@ The dog table includes a measured walking interval and two faster experimental p
 
 ### Mass and colliders
 
-`archetype.body` carries the mass and the centre of mass, `archetype.properties.inertia` the inertia about it, and `archetype.moment(point, direction)` the moment about a line. `archetype.shapes()` gives one collider per part in the engine's contact shapes, for a hand to close on.
+`archetype.body` carries the mass and the centre of mass, `archetype.properties.inertia` the inertia about it, and `archetype.moment(point, direction)` the moment about a line. `archetype.shapes()` gives one collider per solid primitive or declared convex cell. A producer can use separate solid parts for contact while visual meshes supply details such as racket strings or net twine.
 
 ## Inspection
 

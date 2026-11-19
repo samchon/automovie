@@ -68,6 +68,7 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * cannot follow a morph or replace a transformed normal-map frame. This
  * changes no source arrays or material coefficients, is not a MikkTSpace bake
  * guarantee and leaves degenerate UVs on their existing fallback.
+ * Fully transparent, non-transmissive parts stay hidden when a guide swaps materials.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, selects linear or dual quaternion skinning per skin through the material shader patch and matching shadow materials, realizes geometry/PBR through their canonical owners and derives vertex tangents only for anisotropic rigid, morph-free, normal-map-free indexed normal/UV geometry. Nonfinite/zero derived axes discard the new attribute; mapped/deforming or unsupported geometry retains its existing derivative-frame limitations. Consistent source normals remain a premise; this is not a MikkTSpace bake guarantee. AttachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns one model graph plus semantic bone/part registries, one skeleton per ordered joint list, material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
@@ -232,6 +233,7 @@ export const buildModel: (
         > = skin !== null
           ? new AutoMovieSkinnedMesh(geo, mat, skin.method ?? "linear")
           : new THREE.Mesh(geo, mat);
+        mesh.visible = mat.visible;
         mesh.name = part.name ?? part.id;
         parts.set(part.id, mesh);
         // Three's Mesh constructor ran updateMorphTargets(), so the dictionary
