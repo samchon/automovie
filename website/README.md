@@ -5,7 +5,8 @@ The public site at [samchon.github.io/automovie](https://samchon.github.io/autom
 | Route | Holds |
 | --- | --- |
 | `/` | The landing page: one scene followed from its brief to its frames |
-| `/docs/` | The documentation: setup, the screenplay and its evidence graph, motion, delivery and reference |
+| `/docs/` | The guide, for the person who makes a film: setup, the screenplay and its evidence graph, motion as code and delivery |
+| `/reference/` | The reference, for a developer or a coding agent: the packages, the CLI, the evidence configuration and the motion API |
 | `/scenes/`, `/scenes/<id>/` | The scene gallery, and each scene with its player, code, timeline and takes |
 | `/motions/`, `/motions/<name>/` | The motion catalogue by category and family, and each motion with its take and parameters |
 | `/archetypes/` | Every archetype of `@automovie/archetypes`, and one archetype's page with its specs and controls |
@@ -63,7 +64,7 @@ pnpm --filter @automovie/website run posters            # the baked stills on on
 
 | Path | Holds |
 | --- | --- |
-| `src/content/` | The MDX pages and `_meta.ts`, which lists the navigation bar. Add a documentation page under `docs/`. |
+| `src/content/` | The MDX pages and `_meta.ts`, which lists the navigation bar: the guide under `docs/` and the reference under `reference/`. |
 | `src/app/` | The Next routes, the root layout and the stylesheets over `tokens.css`, one per part of the site, as [DESIGN.md](./DESIGN.md) lists them. |
 | `src/landing/` | The landing page and the scene, documents and rail it shows. |
 | `src/baked/` | The baked take's format, the stills, the manifest reader, the jobs and the page's client. |

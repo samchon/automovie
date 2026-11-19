@@ -19,10 +19,7 @@ const COLUMNS: readonly {
         label: "Evidence graph",
         href: `${SITE_BASE}/docs/screenplay/evidence-graph/`,
       },
-      {
-        label: "Composing motion",
-        href: `${SITE_BASE}/docs/motion/composing/`,
-      },
+      { label: "Reference", href: `${SITE_BASE}/reference/` },
     ],
   },
   {

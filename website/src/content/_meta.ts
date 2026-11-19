@@ -39,6 +39,10 @@ const meta: MetaRecord = {
     title: "Docs",
     type: "page",
   },
+  reference: {
+    title: "Reference",
+    type: "page",
+  },
   scenes: {
     title: "Scenes",
     type: "page",

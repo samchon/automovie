@@ -1,8 +1,7 @@
 import type { MetaRecord } from "nextra";
 
-/** The motion guide's pages, in the order its sidebar lists them. */
+/** The motion API's pages, in the order the sidebar lists them. */
 const meta: MetaRecord = {
-  "motion-as-code": "Motion as code",
   composing: "Composing actions",
   objects: "Objects and archetypes",
   layers: "Layers",

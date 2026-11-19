@@ -321,6 +321,12 @@ const CASES: readonly ICase[] = [
     lacks: [],
   },
   {
+    name: "the reference opens",
+    path: "reference/motion/composing/",
+    shows: ["article h1", "nav"],
+    lacks: [],
+  },
+  {
     name: "playground performs the dance circle",
     path: "playground/",
     shows: [

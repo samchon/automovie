@@ -21,7 +21,7 @@ Show a card or a player from a baked take, never by planning a take in the brows
 
 A scene that plays must bake: the bake exits 1 when the packages refuse one, so a scene record is fixed or marked `refusedUntil` in the same change.
 
-The docs live in `src/content/docs/` with a `_meta.ts` per folder. A rule the product owns stays in its package README or skill, and the docs link to it rather than restate it.
+The documentation is two trees, each with a `_meta.ts` per folder. The guide in `src/content/docs/` serves the person who makes a film: what to do, what happens and why. The reference in `src/content/reference/` serves whoever writes against the packages: commands, configuration, formats and APIs. A page that mixes the two is split, the guide linking to the reference for the details. A rule the product owns stays in its package README or skill, and the docs link to it rather than restate it.
 
 ## Verifying a change
 

@@ -10,7 +10,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "tennis-rally",
       title: "Tennis rally",
       summary:
-        "Two players take their rackets and set their feet by the net. A hand-fed ball comes across the court for a forehand return.",
+        "Two players pick their rackets up off the court on either side of the net. The feeder takes a ball from the court and hand-feeds it across for a forehand return.",
       setting: "sport",
       roles: { ana: "receiver", bea: "feeder" },
       needs: [],
@@ -89,46 +89,22 @@ export const SCENES_GAMES: readonly IScene[] = [
     ],
     [
       {
-        ...object("ana-bench", "createTable", "workbench", -0.64, 0.7, 0, 0, {
-          height: 0.902,
-        }),
-        fixed: true,
-      },
-      {
-        ...object("bea-bench", "createTable", "workbench", 0.405, 5.405, 0, 0, {
-          height: 0.9,
-        }),
-        fixed: true,
-      },
-      {
-        ...object(
-          "ball-rest",
-          "createTableware",
-          "saucer",
-          -0.13,
-          5.66,
-          0,
-          0.9,
-        ),
-        fixed: true,
-      },
-      {
         ...object(
           "ana-racket",
           "createRacket",
           "tennis",
           -0.36,
-          0.19,
+          0.42,
           0,
-          0.914,
+          0.012,
         ),
         rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
       },
       {
-        ...object("bea-racket", "createRacket", "tennis", 0.35, 5.76, 0, 0.914),
+        ...object("bea-racket", "createRacket", "tennis", 0.35, 5.6, 0, 0.012),
         rotation: { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
       },
-      object("tennis-ball", "createBall", "tennis", -0.13, 5.66, 0, 0.914),
+      object("tennis-ball", "createBall", "tennis", -0.2, 5.62, 0, 0.034),
       { ...object("court-net", "createGoal", "tennisNet", 0, 3), fixed: true },
     ],
   ),

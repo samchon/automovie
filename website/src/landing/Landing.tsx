@@ -296,7 +296,7 @@ export function Landing(): ReactElement {
             and when, never what. Change the bodies or the skill and the same
             code fits them.
           </p>
-          <Link className="am-text-link" href="/docs/motion/motion-as-code/">
+          <Link className="am-text-link" href="/docs/motion-as-code/">
             Motion as code
           </Link>
         </div>

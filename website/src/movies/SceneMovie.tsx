@@ -380,7 +380,8 @@ export default function SceneMovie(props: {
         <p className="am-muted">
           Each person is a chain of typed actions from{" "}
           <code>@automovie/motions</code>. This is what an agent writes for the
-          scene; <Link href="/docs/motion/composing/">Composing motion</Link>{" "}
+          scene;{" "}
+          <Link href="/reference/motion/composing/">Composing motion</Link>{" "}
           explains the parts.
         </p>
         <pre className="am-code">
