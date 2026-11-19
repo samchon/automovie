@@ -121,12 +121,12 @@ export function test_motion_dynamics_carried_stationarity(): void {
       carried!.still === undefined &&
       carried!.legsStill === undefined,
   );
-  TestValidator.equals(
+  TestValidator.equals<readonly [number, number] | undefined>(
     "the ground retains its known still interval",
     [0, 1],
     ground!.still,
   );
-  TestValidator.equals(
+  TestValidator.equals<readonly [number, number] | undefined>(
     "the ground retains its known lower body",
     [0, 1],
     ground!.legsStill,
