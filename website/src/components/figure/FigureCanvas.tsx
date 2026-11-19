@@ -31,9 +31,8 @@ import type { ITake } from "../../takes/structures/ITake";
  */
 export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
-  const [state, setState]: [State, Dispatch<SetStateAction<State>>] = useState<State>(
-    "loading",
-  );
+  const [state, setState]: [State, Dispatch<SetStateAction<State>>] =
+    useState<State>("loading");
   const playing: RefObject<boolean> = useRef(true);
   const onTime: RefObject<FigureCanvas.IProps["onTime"]> = useRef(props.onTime);
   onTime.current = props.onTime;
@@ -57,7 +56,9 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     playing.current = !reduced;
-    const camera: FigureProjection.ICamera = FigureProjection.camera(props.view);
+    const camera: FigureProjection.ICamera = FigureProjection.camera(
+      props.view,
+    );
 
     // One frame: advance the clock while playing, paint, and ask for the
     // next frame only while playing and seen, so a paused or hidden canvas
@@ -96,7 +97,9 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
       });
     const observer: IntersectionObserver = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]): void => {
-        visible = entries.some((e: IntersectionObserverEntry): boolean => e.isIntersecting);
+        visible = entries.some(
+          (e: IntersectionObserverEntry): boolean => e.isIntersecting,
+        );
         if (visible) kick();
       },
     );
@@ -246,21 +249,39 @@ function paint(
   g.fillRect(0, 0, width, height);
 
   // The floor, a metre between lines, around the figures' hips.
-  const now: FigureProjection.IFrame = FigureProjection.sample(take, seconds, camera);
+  const now: FigureProjection.IFrame = FigureProjection.sample(
+    take,
+    seconds,
+    camera,
+  );
   g.strokeStyle = FigurePoster.COLOUR.grid;
   g.lineWidth = ratio;
   g.beginPath();
-  const xs: number[] = now.hips.map((h: [number, number, number]): number => h[0]);
-  const zs: number[] = now.hips.map((h: [number, number, number]): number => h[2]);
+  const xs: number[] = now.hips.map(
+    (h: [number, number, number]): number => h[0],
+  );
+  const zs: number[] = now.hips.map(
+    (h: [number, number, number]): number => h[2],
+  );
   const gx: number = Math.round((Math.min(...xs) + Math.max(...xs)) / 2);
   const gz: number = Math.round((Math.min(...zs) + Math.max(...zs)) / 2);
   for (let k: number = -4; k <= 4; k++) {
     for (const [a, b] of [
-      [[gx + k, 0, gz - 4], [gx + k, 0, gz + 4]],
-      [[gx - 4, 0, gz + k], [gx + 4, 0, gz + k]],
+      [
+        [gx + k, 0, gz - 4],
+        [gx + k, 0, gz + 4],
+      ],
+      [
+        [gx - 4, 0, gz + k],
+        [gx + 4, 0, gz + k],
+      ],
     ] as [number, number, number][][]) {
-      const [ax, ay]: [number, number] = at(FigureProjection.project(a!, camera));
-      const [bx, by]: [number, number] = at(FigureProjection.project(b!, camera));
+      const [ax, ay]: [number, number] = at(
+        FigureProjection.project(a!, camera),
+      );
+      const [bx, by]: [number, number] = at(
+        FigureProjection.project(b!, camera),
+      );
       g.moveTo(ax, ay);
       g.lineTo(bx, by);
     }
@@ -274,7 +295,13 @@ function paint(
     [0.12, 0.18],
   ] as const)
     if (seconds - lag >= from)
-      figures(g, FigureProjection.sample(take, seconds - lag, camera), at, scale, alpha);
+      figures(
+        g,
+        FigureProjection.sample(take, seconds - lag, camera),
+        at,
+        scale,
+        alpha,
+      );
 
   // The hands' paths over the last second, fading out behind.
   g.lineWidth = 1.6 * ratio;
@@ -282,9 +309,16 @@ function paint(
   for (let f: number = 0; f < now.figures.length; f++)
     for (const bone of ["leftMiddleProximal", "rightMiddleProximal"]) {
       let previous: [number, number] | null = null;
-      for (let s: number = Math.max(from, seconds - 1); s <= seconds; s += 1 / 30) {
-        const p: FigureProjection.IPoint | undefined = FigureProjection.sample(take, s, camera)
-          .figures[f]?.[bone];
+      for (
+        let s: number = Math.max(from, seconds - 1);
+        s <= seconds;
+        s += 1 / 30
+      ) {
+        const p: FigureProjection.IPoint | undefined = FigureProjection.sample(
+          take,
+          s,
+          camera,
+        ).figures[f]?.[bone];
         if (p === undefined) continue;
         const point: [number, number] = at(p);
         if (previous !== null) {
@@ -311,28 +345,33 @@ function figures(
   alpha: number,
 ): void {
   g.lineCap = "round";
-  frame.figures.forEach((figure: FigureProjection.IFigure, index: number): void => {
-    const colour: string =
-      FigurePoster.COLOUR.figures[index % FigurePoster.COLOUR.figures.length]!;
-    for (const capsule of FigureProjection.capsules(figure)) {
-      g.globalAlpha =
-        alpha * (capsule.nearness >= 0.5 ? 1 : 0.72 + 0.56 * capsule.nearness);
-      const [ax, ay]: [number, number] = at(capsule.a);
-      if (capsule.a === capsule.b) {
-        g.fillStyle = colour;
+  frame.figures.forEach(
+    (figure: FigureProjection.IFigure, index: number): void => {
+      const colour: string =
+        FigurePoster.COLOUR.figures[
+          index % FigurePoster.COLOUR.figures.length
+        ]!;
+      for (const capsule of FigureProjection.capsules(figure)) {
+        g.globalAlpha =
+          alpha *
+          (capsule.nearness >= 0.5 ? 1 : 0.72 + 0.56 * capsule.nearness);
+        const [ax, ay]: [number, number] = at(capsule.a);
+        if (capsule.a === capsule.b) {
+          g.fillStyle = colour;
+          g.beginPath();
+          g.arc(ax, ay, capsule.radius * scale, 0, Math.PI * 2);
+          g.fill();
+          continue;
+        }
+        const [bx, by]: [number, number] = at(capsule.b);
+        g.strokeStyle = colour;
+        g.lineWidth = capsule.radius * 2 * scale;
         g.beginPath();
-        g.arc(ax, ay, capsule.radius * scale, 0, Math.PI * 2);
-        g.fill();
-        continue;
+        g.moveTo(ax, ay);
+        g.lineTo(bx, by);
+        g.stroke();
       }
-      const [bx, by]: [number, number] = at(capsule.b);
-      g.strokeStyle = colour;
-      g.lineWidth = capsule.radius * 2 * scale;
-      g.beginPath();
-      g.moveTo(ax, ay);
-      g.lineTo(bx, by);
-      g.stroke();
-    }
-  });
+    },
+  );
   g.globalAlpha = 1;
 }

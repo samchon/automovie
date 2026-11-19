@@ -115,7 +115,10 @@ const main = async (): Promise<void> => {
           (): number => document.documentElement.scrollHeight,
         );
         for (let y: number = 0; y < height; y += options.height / 2) {
-          await page.evaluate((top: number): void => window.scrollTo(0, top), y);
+          await page.evaluate(
+            (top: number): void => window.scrollTo(0, top),
+            y,
+          );
           await page.waitForTimeout(250);
         }
         await page.evaluate((): void => window.scrollTo(0, 0));

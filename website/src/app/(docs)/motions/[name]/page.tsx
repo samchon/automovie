@@ -34,7 +34,8 @@ export function generateStaticParams(): { name: string }[] {
  */
 export async function generateMetadata(props: IPageProps): Promise<Metadata> {
   const { name }: { name: string } = await props.params;
-  if (!MotionIndex.has(name)) return { title: "Motions", robots: { index: false } };
+  if (!MotionIndex.has(name))
+    return { title: "Motions", robots: { index: false } };
   const detail: MotionIndex.IDetail = MotionIndex.detail(name);
   return {
     title: name,
@@ -50,11 +51,16 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
  * @param props The route's parameters.
  * @returns The page.
  */
-export default async function MotionPage(props: IPageProps): Promise<ReactElement> {
+export default async function MotionPage(
+  props: IPageProps,
+): Promise<ReactElement> {
   const { name }: { name: string } = await props.params;
   return MotionIndex.has(name) ? (
     <MotionMovie detail={MotionIndex.detail(name)} />
   ) : (
-    <ForwardMovie to={`/motions/#family-${name}`} label="its family in the motions" />
+    <ForwardMovie
+      to={`/motions/#family-${name}`}
+      label="its family in the motions"
+    />
   );
 }

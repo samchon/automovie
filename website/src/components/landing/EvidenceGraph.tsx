@@ -1,6 +1,11 @@
 "use client";
 
-import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useState,
+} from "react";
 
 import type { ILandingFilm } from "../../landing/ILandingFilm";
 
@@ -20,9 +25,12 @@ import type { ILandingFilm } from "../../landing/ILandingFilm";
  */
 export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
   const { film }: { film: ILandingFilm } = props;
-  const [broken, setBroken]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
-  const [focus, setFocus]: [string | null, Dispatch<SetStateAction<string | null>>] =
-    useState<string | null>(null);
+  const [broken, setBroken]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
+  const [focus, setFocus]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
   const last: string = film.beats.at(-1)!.anchor;
   const owner: ILandingFilm["modules"][number] | undefined = film.modules.find(
     (m: ILandingFilm["modules"][number]): boolean => m.beats.includes(last),
@@ -30,8 +38,10 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
 
   // Columns of rows, each row's middle at an even spacing.
   const rows: number = Math.max(film.beats.length, film.decisions.length);
-  const middle: (index: number, count: number) => number = (index: number, count: number): number =>
-    (rows - 1) / 2 + index - (count - 1) / 2;
+  const middle: (index: number, count: number) => number = (
+    index: number,
+    count: number,
+  ): number => (rows - 1) / 2 + index - (count - 1) / 2;
   const nodes: INode[] = [
     ...film.decisions.map(
       (label: string, i: number): INode => ({
@@ -61,12 +71,23 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
   ];
   const edges: IEdge[] = [
     ...film.beats.flatMap((beat: ILandingFilm.IBeat): IEdge[] =>
-      beat.cites.map((label: string): IEdge => ({ from: beat.anchor, to: `brief:${label}` })),
+      beat.cites.map(
+        (label: string): IEdge => ({ from: beat.anchor, to: `brief:${label}` }),
+      ),
     ),
-    ...film.modules.flatMap((module: ILandingFilm["modules"][number]): IEdge[] =>
-      module.beats
-        .filter((anchor: string): boolean => !(broken && module === owner && anchor === last))
-        .map((anchor: string): IEdge => ({ from: `code:${module.file}`, to: anchor })),
+    ...film.modules.flatMap(
+      (module: ILandingFilm["modules"][number]): IEdge[] =>
+        module.beats
+          .filter(
+            (anchor: string): boolean =>
+              !(broken && module === owner && anchor === last),
+          )
+          .map(
+            (anchor: string): IEdge => ({
+              from: `code:${module.file}`,
+              to: anchor,
+            }),
+          ),
     ),
     ...film.modules.map(
       (module: ILandingFilm["modules"][number]): IEdge => ({
@@ -75,8 +96,10 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
       }),
     ),
   ];
-  const lit: Set<string> = focus === null ? new Set<string>() : reach(focus, edges);
-  const x: (column: number) => number = (column: number): number => 24 + column * 196;
+  const lit: Set<string> =
+    focus === null ? new Set<string>() : reach(focus, edges);
+  const x: (column: number) => number = (column: number): number =>
+    24 + column * 196;
   const y: (row: number) => number = (row: number): number => 48 + row * 56;
   const find: (id: string) => INode = (id: string): INode =>
     nodes.find((n: INode): boolean => n.id === id)!;
@@ -101,7 +124,10 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
               .map(
                 (module: ILandingFilm["modules"][number]): string =>
                   `${module.file} cites ${module.beats
-                    .filter((a: string): boolean => !(broken && module === owner && a === last))
+                    .filter(
+                      (a: string): boolean =>
+                        !(broken && module === owner && a === last),
+                    )
                     .join(", ")}.`,
               )
               .join(" ")}{" "}
@@ -153,7 +179,9 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
           aria-pressed={broken}
           onClick={(): void => setBroken(!broken)}
         >
-          {broken ? `Restore the citation of #${last}` : `Delete the citation of #${last}`}
+          {broken
+            ? `Restore the citation of #${last}`
+            : `Delete the citation of #${last}`}
         </button>
         <pre className="am-terminal" data-failed={broken} aria-live="polite">
           {(broken ? film.report.failing : film.report.passing).join("\n")}

@@ -19,7 +19,12 @@ export namespace BakedManifest {
    */
   export function read(): IBakedManifest {
     if (cached !== null) return cached;
-    const file: string = path.join(process.cwd(), "public", "baked", "manifest.json");
+    const file: string = path.join(
+      process.cwd(),
+      "public",
+      "baked",
+      "manifest.json",
+    );
     cached = fs.existsSync(file)
       ? (JSON.parse(fs.readFileSync(file, "utf8")) as IBakedManifest)
       : { format: "AMT1", scenes: {}, motions: {} };

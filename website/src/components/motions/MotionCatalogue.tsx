@@ -28,7 +28,9 @@ import { FigureCanvas } from "../figure/FigureCanvas";
  * @param props The catalogue.
  * @returns The page's body.
  */
-export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElement {
+export function MotionCatalogue(props: {
+  index: MotionIndex.IIndex;
+}): ReactElement {
   const [query, setQuery]: [string, Dispatch<SetStateAction<string>>] =
     useState<string>("");
 
@@ -56,20 +58,26 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
     );
   };
   const words: string[] = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const matches: (entry: MotionIndex.IEntry, family: MotionIndex.IFamily) => boolean = (
+  const matches: (
+    entry: MotionIndex.IEntry,
+    family: MotionIndex.IFamily,
+  ) => boolean = (
     entry: MotionIndex.IEntry,
     family: MotionIndex.IFamily,
   ): boolean =>
     words.every(
       (w: string): boolean =>
-        entry.name.toLowerCase().includes(w) || family.label.toLowerCase().includes(w),
+        entry.name.toLowerCase().includes(w) ||
+        family.label.toLowerCase().includes(w),
     );
 
   // A family's motions the search keeps.
   const kept: (family: MotionIndex.IFamily) => MotionIndex.IEntry[] = (
     family: MotionIndex.IFamily,
   ): MotionIndex.IEntry[] =>
-    family.motions.filter((m: MotionIndex.IEntry): boolean => matches(m, family));
+    family.motions.filter((m: MotionIndex.IEntry): boolean =>
+      matches(m, family),
+    );
   const shown: number = props.index.categories.reduce(
     (sum: number, c: MotionIndex.ICategory): number =>
       sum +
@@ -89,11 +97,15 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
             type="search"
             placeholder="Search: kick, bow, sit"
             value={query}
-            onChange={(event: ChangeEvent<HTMLInputElement>): void => change(event.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+              change(event.target.value)
+            }
           />
         </label>
         <p className="am-index-shown" role="status">
-          {words.length === 0 ? `${props.index.total} motions` : `${shown} of ${props.index.total} motions`}
+          {words.length === 0
+            ? `${props.index.total} motions`
+            : `${shown} of ${props.index.total} motions`}
         </p>
         <ol>
           {props.index.categories.map(
@@ -121,57 +133,77 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
       </nav>
 
       <div className="am-indexed-body">
-        {props.index.categories.map((category: MotionIndex.ICategory): ReactElement | null => {
-          const families: MotionIndex.IFamily[] = category.families.filter(
-            (f: MotionIndex.IFamily): boolean => kept(f).length !== 0,
-          );
-          if (families.length === 0) return null;
-          return (
-            <section key={category.id} id={category.id} className="am-index-category">
-              <header>
-                <h2>{category.title}</h2>
-                <p>{category.summary}</p>
-              </header>
-              {families.map(
-                (family: MotionIndex.IFamily): ReactElement => (
-                  <section
-                    key={family.name}
-                    id={`family-${family.name}`}
-                    className="am-index-family"
-                    aria-labelledby={`am-family-${family.name}`}
-                  >
-                    <h3
-                      id={`am-family-${family.name}`}
-                      className={category.families.length === 1 ? "am-visually-hidden" : undefined}
+        {props.index.categories.map(
+          (category: MotionIndex.ICategory): ReactElement | null => {
+            const families: MotionIndex.IFamily[] = category.families.filter(
+              (f: MotionIndex.IFamily): boolean => kept(f).length !== 0,
+            );
+            if (families.length === 0) return null;
+            return (
+              <section
+                key={category.id}
+                id={category.id}
+                className="am-index-category"
+              >
+                <header>
+                  <h2>{category.title}</h2>
+                  <p>{category.summary}</p>
+                </header>
+                {families.map(
+                  (family: MotionIndex.IFamily): ReactElement => (
+                    <section
+                      key={family.name}
+                      id={`family-${family.name}`}
+                      className="am-index-family"
+                      aria-labelledby={`am-family-${family.name}`}
                     >
-                      {family.label}
-                      <span className="am-catalogue-count">
-                        {kept(family).length}
-                      </span>
-                    </h3>
-                    <ul className="am-motion-grid">
-                      {kept(family).map(
+                      <h3
+                        id={`am-family-${family.name}`}
+                        className={
+                          category.families.length === 1
+                            ? "am-visually-hidden"
+                            : undefined
+                        }
+                      >
+                        {family.label}
+                        <span className="am-catalogue-count">
+                          {kept(family).length}
+                        </span>
+                      </h3>
+                      <ul className="am-motion-grid">
+                        {kept(family).map(
                           (entry: MotionIndex.IEntry): ReactElement => (
-                            <MotionCard key={entry.name} entry={entry} opening={props.index.opening} />
+                            <MotionCard
+                              key={entry.name}
+                              entry={entry}
+                              opening={props.index.opening}
+                            />
                           ),
                         )}
-                    </ul>
-                  </section>
-                ),
-              )}
-            </section>
-          );
-        })}
-        {shown === 0 ? <p className="am-status">No motion matches this search.</p> : null}
+                      </ul>
+                    </section>
+                  ),
+                )}
+              </section>
+            );
+          },
+        )}
+        {shown === 0 ? (
+          <p className="am-status">No motion matches this search.</p>
+        ) : null}
       </div>
     </div>
   );
 }
 
-/** One motion's card: its still, and the motion playing flat while pointed at. */
-function MotionCard(props: { entry: MotionIndex.IEntry; opening: number }): ReactElement {
+/** One motion's card: its still, and the motion playing flat while pointed at or focused. */
+function MotionCard(props: {
+  entry: MotionIndex.IEntry;
+  opening: number;
+}): ReactElement {
   const { entry }: { entry: MotionIndex.IEntry } = props;
-  const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
+  const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
   const playable: boolean = entry.poster?.kind === "motion";
   return (
     <li
@@ -182,14 +214,21 @@ function MotionCard(props: { entry: MotionIndex.IEntry; opening: number }): Reac
       onBlur={(): void => setLive(false)}
     >
       <a href={`${SITE_BASE}/motions/${entry.name}/`} id={entry.name}>
-        <span className="am-motion-card-view" data-scene={entry.poster?.kind === "scene"}>
+        <span
+          className="am-motion-card-view"
+          data-scene={entry.poster?.kind === "scene"}
+        >
           {entry.poster === null ? (
             <span className="am-motion-card-none" aria-hidden="true">
               no scene yet
             </span>
           ) : (
             <img
-              src={BakedClient.address(entry.poster.kind, entry.poster.id, "svg")}
+              src={BakedClient.address(
+                entry.poster.kind,
+                entry.poster.id,
+                "svg",
+              )}
               alt=""
               width={240}
               height={180}

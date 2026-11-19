@@ -7,13 +7,14 @@ import { BakedTake } from "./BakedTake";
  * browser's `DecompressionStream` and decode it. A take asked for twice is
  * fetched once for the life of the page; a failed fetch is forgotten, so a
  * later view asks again. The serve script and GitHub Pages answer 404 for a
- * take that was never baked, which is told apart from a broken one.
+ * take that was never baked, which is told apart from a broken one, as is a
+ * browser that cannot inflate it.
  */
 export namespace BakedClient {
   /** What was baked: a scene's first take or a motion tried alone. */
   export type Kind = "scene" | "motion";
 
-  /** The name of the error a take that was never baked fails with, so a caller computes it instead; any other failure is a broken bake. */
+  /** The name of the error a take that was never baked, or a browser without `DecompressionStream`, fails with, so a caller computes the take instead; any other failure is a broken bake. */
   export const MISSING: string = "BakedTakeMissing";
 
   /** Takes already asked for, by address. */
@@ -60,7 +61,9 @@ export namespace BakedClient {
     // A browser that cannot inflate gzip computes the take instead, as for
     // a take that was never baked.
     if (typeof DecompressionStream === "undefined") {
-      const unable: Error = new Error("This browser cannot inflate a baked take");
+      const unable: Error = new Error(
+        "This browser cannot inflate a baked take",
+      );
       unable.name = MISSING;
       throw unable;
     }
@@ -71,7 +74,9 @@ export namespace BakedClient {
       throw missing;
     }
     if (!response.ok || response.body === null)
-      throw new Error(`The baked take at ${url} failed to load (${response.status})`);
+      throw new Error(
+        `The baked take at ${url} failed to load (${response.status})`,
+      );
     const inflated: ArrayBuffer = await new Response(
       response.body.pipeThrough(new DecompressionStream("gzip")),
     ).arrayBuffer();

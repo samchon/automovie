@@ -98,19 +98,25 @@ const REFUSED_SCENE: IScene | undefined = SCENES.find(
 );
 
 /** A baked still on a card. */
-const STILL: (kind: "scenes" | "motions") => string = (kind: "scenes" | "motions"): string =>
-  `img[src*="/automovie/baked/${kind}/"]`;
+const STILL: (kind: "scenes" | "motions") => string = (
+  kind: "scenes" | "motions",
+): string => `img[src*="/automovie/baked/${kind}/"]`;
 
 /**
  * Pointing at the gallery's first card plays its baked take in place of
  * its still; the time from pointing to drawing is logged.
  */
-const hoverCard: (page: Page, problems: string[]) => Promise<void> = async (page: Page, problems: string[]): Promise<void> => {
+const hoverCard: (page: Page, problems: string[]) => Promise<void> = async (
+  page: Page,
+  problems: string[],
+): Promise<void> => {
   const card: Locator = page.locator(".am-scene-card").first();
   const started: number = Date.now();
   await card.hover();
   try {
-    await card.locator(DRAWN).waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
+    await card
+      .locator(DRAWN)
+      .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
     console.log(
       `  the first card drew its take ${((Date.now() - started) / 1000).toFixed(1)} s after it was pointed at`,
     );
@@ -120,10 +126,15 @@ const hoverCard: (page: Page, problems: string[]) => Promise<void> = async (page
 };
 
 /** The landing page's bench draws its scene once scrolled to. */
-const benchDraws: (page: Page, problems: string[]) => Promise<void> = async (page: Page, problems: string[]): Promise<void> => {
+const benchDraws: (page: Page, problems: string[]) => Promise<void> = async (
+  page: Page,
+  problems: string[],
+): Promise<void> => {
   await page.locator(".am-bench").scrollIntoViewIfNeeded();
   try {
-    await page.locator(`.am-bench ${DRAWN}`).waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
+    await page
+      .locator(`.am-bench ${DRAWN}`)
+      .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
   } catch {
     problems.push("the landing page's bench did not draw its scene");
   }
@@ -173,7 +184,9 @@ const CASES: readonly ICase[] = [
           .nth(1)
           .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
       } catch {
-        problems.push("the second take was not computed when the takes were opened");
+        problems.push(
+          "the second take was not computed when the takes were opened",
+        );
       }
     },
   },
@@ -234,7 +247,8 @@ const CASES: readonly ICase[] = [
   {
     name: "the oldest archetype address arrives at the opened door",
     path: "gallery/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
-    arrives: "archetypes/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
+    arrives:
+      "archetypes/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
     shows: [
       '.am-viewport[aria-busy="false"] canvas',
       ".am-viewport-tag",
@@ -255,7 +269,9 @@ const CASES: readonly ICase[] = [
     shows: [`.am-motion-card ${STILL("motions")}`, ".am-index-nav"],
     lacks: [],
     check: async (page: Page, problems: string[]): Promise<void> => {
-      await page.getByRole("searchbox", { name: "Search motions" }).fill("headTilt");
+      await page
+        .getByRole("searchbox", { name: "Search motions" })
+        .fill("headTilt");
       await page.getByRole("link", { name: /^headTilt/ }).click();
       await page.getByRole("link", { name: "Open in the playground" }).click();
       await Promise.all([

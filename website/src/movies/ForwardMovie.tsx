@@ -26,7 +26,8 @@ export default function ForwardMovie(props: {
   return (
     <main className="am-app">
       <p className="am-status" role="status">
-        This page moved to <a href={`${SITE_BASE}${props.to}`}>{props.label}</a>.
+        This page moved to <a href={`${SITE_BASE}${props.to}`}>{props.label}</a>
+        .
       </p>
     </main>
   );

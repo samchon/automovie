@@ -26,7 +26,8 @@ export default function ScenesPage(): ReactElement {
     <ScenesMovie
       playing={SCENES.filter(
         (scene: IScene): boolean =>
-          scene.refusedUntil === undefined && SceneStatus.of(scene).kind === "plays",
+          scene.refusedUntil === undefined &&
+          SceneStatus.of(scene).kind === "plays",
       ).map((scene: IScene): string => scene.id)}
       baked={Object.keys(BakedManifest.read().scenes)}
     />

@@ -46,7 +46,6 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["viewport-fg", "viewport-lit", 4.5],
   ["room-code", "room", 4.5],
   ["room-muted", "room-deep", 4.5],
-  ["viewport-control", "viewport", 3],
 
   // What is not text but must be seen: control borders and the focus ring.
   ["border-control", "bg", 3],
@@ -55,6 +54,7 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["focus", "bg", 3],
   ["focus", "bg-panel", 3],
   ["focus", "viewport", 3],
+  ["viewport-control", "viewport", 3],
   ["accent-line", "bg", 3],
 ];
 
@@ -68,7 +68,9 @@ const luminance: (hex: string) => number = (hex: string): number => {
 };
 
 /** The colour tokens of one rule block: every `--am-<name>: #rrggbb;`. */
-const tokens: (block: string) => Map<string, string> = (block: string): Map<string, string> =>
+const tokens: (block: string) => Map<string, string> = (
+  block: string,
+): Map<string, string> =>
   new Map(
     [...block.matchAll(/--am-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)].map(
       (match: RegExpMatchArray): [string, string] => [match[1]!, match[2]!],

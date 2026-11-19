@@ -11,7 +11,13 @@ import { SITE_BASE } from "../SITE_BASE";
 export default function NotFound(): ReactElement {
   return (
     <main className="am-missing">
-      <img src={`${SITE_BASE}/favicon.svg`} width={40} height={40} alt="" aria-hidden="true" />
+      <img
+        src={`${SITE_BASE}/favicon.svg`}
+        width={40}
+        height={40}
+        alt=""
+        aria-hidden="true"
+      />
       <h1>No page here.</h1>
       <p>The address may have moved when the site was rebuilt.</p>
       <nav aria-label="Where to go">

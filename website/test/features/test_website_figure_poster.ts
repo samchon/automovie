@@ -18,16 +18,24 @@ import type { ITake } from "../../src/takes/structures/ITake";
  * 3. A scene that places objects outlines each object's meshes as closed paths in their own colours, and the still without the shapes has none of those paths.
  */
 export function test_website_figure_poster(): void {
-  const take: (id: string) => { scene: IScene; take: ITake } = (id: string): { scene: IScene; take: ITake } => {
+  const take: (id: string) => { scene: IScene; take: ITake } = (
+    id: string,
+  ): { scene: IScene; take: ITake } => {
     const scene: IScene = SCENES.find((s: IScene): boolean => s.id === id)!;
-    const made: ITake | IPlaygroundRefusal = TakeCompute.take(scene.composition!, 6);
-    if (!("track" in made)) throw new Error(`${id} was refused: ${made.message}`);
+    const made: ITake | IPlaygroundRefusal = TakeCompute.take(
+      scene.composition!,
+      6,
+    );
+    if (!("track" in made))
+      throw new Error(`${id} was refused: ${made.message}`);
     return { scene, take: made };
   };
 
   // 1. A fixed SVG.
-  const dance = take("dance-circle");
-  const still: string = FigurePoster.draw(dance.take, { view: dance.scene.camera.view });
+  const dance: { scene: IScene; take: ITake } = take("dance-circle");
+  const still: string = FigurePoster.draw(dance.take, {
+    view: dance.scene.camera.view,
+  });
   TestValidator.predicate(
     "an SVG of the poster's size on the viewport ground",
     still.startsWith(
@@ -49,17 +57,22 @@ export function test_website_figure_poster(): void {
   );
 
   // 3. Props outlined.
-  const placed = take("stuck-sled");
-  const shapes: PropShapes.IShape[] = PropShapes.of(placed.scene.composition!.objects ?? []);
+  const placed: { scene: IScene; take: ITake } = take("stuck-sled");
+  const shapes: PropShapes.IShape[] = PropShapes.of(
+    placed.scene.composition!.objects ?? [],
+  );
   TestValidator.predicate(
     "the scene places objects with meshes",
-    shapes.length !== 0 && shapes.every((s: PropShapes.IShape): boolean => s.parts.length !== 0),
+    shapes.length !== 0 &&
+      shapes.every((s: PropShapes.IShape): boolean => s.parts.length !== 0),
   );
   const outlined: string = FigurePoster.draw(placed.take, {
     view: placed.scene.camera.view,
     props: shapes,
   });
-  const bare: string = FigurePoster.draw(placed.take, { view: placed.scene.camera.view });
+  const bare: string = FigurePoster.draw(placed.take, {
+    view: placed.scene.camera.view,
+  });
   const closed: (text: string) => number = (text: string): number =>
     (text.match(/Z" fill="#/g) ?? []).length;
   TestValidator.predicate(

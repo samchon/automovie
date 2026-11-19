@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { type Dispatch, type KeyboardEvent, type ReactElement, type SetStateAction, useEffect, useState } from "react";
+import {
+  type Dispatch,
+  type KeyboardEvent,
+  type ReactElement,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 
 import { SITE_BASE } from "../SITE_BASE";
 import { BakedClient } from "../baked/BakedClient";
@@ -65,22 +72,28 @@ export default function SceneMovie(props: {
 }): ReactElement {
   const { scene, computes }: typeof props = props;
   const clock: SceneClock = useSceneClock();
-  const [panel, setPanel]: [Panel, Dispatch<SetStateAction<Panel>>] = useState<Panel>("code");
-  const [player, setPlayer]: [ILoaded | null, Dispatch<SetStateAction<ILoaded | null>>] =
-    useState<ILoaded | null>(null);
-  const [notice, setNotice]: [string, Dispatch<SetStateAction<string>>] = useState<string>("");
+  const [panel, setPanel]: [Panel, Dispatch<SetStateAction<Panel>>] =
+    useState<Panel>("code");
+  const [player, setPlayer]: [
+    ILoaded | null,
+    Dispatch<SetStateAction<ILoaded | null>>,
+  ] = useState<ILoaded | null>(null);
+  const [notice, setNotice]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
 
-  // The takes are computed from the first time their tab opens, and kept.
+  // The takes are computed from the first time their tab opens, and kept,
+  // so choosing a panel records that in the same render.
   const [opened, setOpened]: [boolean, Dispatch<SetStateAction<boolean>>] =
     useState<boolean>(false);
-  useEffect((): void => {
-    if (panel === "takes") setOpened(true);
-  }, [panel]);
+  const choose: (next: Panel) => void = (next: Panel): void => {
+    setPanel(next);
+    if (next === "takes") setOpened(true);
+  };
 
   // An address ending in #timeline or #takes opens on that panel.
   useEffect((): void => {
     const hash: string = window.location.hash.slice(1);
-    if (hash === "timeline" || hash === "takes") setPanel(hash);
+    if (hash === "timeline" || hash === "takes") choose(hash);
   }, []);
 
   const head: ReactElement = (
@@ -98,7 +111,9 @@ export default function SceneMovie(props: {
         <p className="am-scene-refused" role="note">
           The packages refuse this scene today, in their own words on the view
           below.{" "}
-          <a href={`https://github.com/samchon/automovie/issues/${scene.refusedUntil}`}>
+          <a
+            href={`https://github.com/samchon/automovie/issues/${scene.refusedUntil}`}
+          >
             #{scene.refusedUntil}
           </a>{" "}
           fixes it.
@@ -180,7 +195,11 @@ export default function SceneMovie(props: {
             clock={clock}
             orbit
             baked={props.baked ? "scene" : undefined}
-            poster={props.baked ? BakedClient.address("scene", scene.id, "svg") : undefined}
+            poster={
+              props.baked
+                ? BakedClient.address("scene", scene.id, "svg")
+                : undefined
+            }
             onLoad={(take: IScenePlayer, redraw: () => void): void => {
               clock.duration = take.duration;
               clock.fps = take.fps;
@@ -219,7 +238,8 @@ export default function SceneMovie(props: {
             {composition.performers.map(
               (p: IPlaygroundComposition.IPerformer): ReactElement => (
                 <li key={p.subject}>
-                  <span className="am-mono">{p.subject}</span> {roles[p.subject]}
+                  <span className="am-mono">{p.subject}</span>{" "}
+                  {roles[p.subject]}
                   <span className="am-muted">
                     {" "}
                     {p.body}, {p.proficiency}
@@ -243,7 +263,11 @@ export default function SceneMovie(props: {
                       >
                         {formatArchetypeLabel(o.producer)}
                       </a>
-                      {o.kind === undefined ? "" : <span className="am-muted"> {o.kind}</span>}
+                      {o.kind === undefined ? (
+                        ""
+                      ) : (
+                        <span className="am-muted"> {o.kind}</span>
+                      )}
                     </li>
                   ),
                 )}
@@ -286,7 +310,11 @@ export default function SceneMovie(props: {
             >
               Open in the playground
             </Link>
-            <button type="button" className="am-button" onClick={(): void => void copy()}>
+            <button
+              type="button"
+              className="am-button"
+              onClick={(): void => void copy()}
+            >
               Copy link
             </button>
             <span className="am-muted am-small" role="status">
@@ -316,7 +344,7 @@ export default function SceneMovie(props: {
                     : null;
           if (next === null) return;
           event.preventDefault();
-          setPanel(PANELS[next]!);
+          choose(PANELS[next]!);
           document.getElementById(`am-tab-${PANELS[next]!}`)?.focus();
         }}
       >
@@ -330,9 +358,13 @@ export default function SceneMovie(props: {
               aria-selected={panel === id}
               aria-controls={`am-panel-${id}`}
               tabIndex={panel === id ? 0 : -1}
-              onClick={(): void => setPanel(id)}
+              onClick={(): void => choose(id)}
             >
-              {id === "code" ? "Code" : id === "timeline" ? "Timeline" : `Takes (${scene.takes.length})`}
+              {id === "code"
+                ? "Code"
+                : id === "timeline"
+                  ? "Timeline"
+                  : `Takes (${scene.takes.length})`}
             </button>
           ),
         )}
@@ -404,7 +436,10 @@ export default function SceneMovie(props: {
                         : undefined
                     }
                     onLoad={(loaded: IScenePlayer): void => {
-                      clock.duration = Math.max(clock.duration, loaded.duration);
+                      clock.duration = Math.max(
+                        clock.duration,
+                        loaded.duration,
+                      );
                       clock.seek(clock.time);
                     }}
                   />

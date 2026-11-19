@@ -60,8 +60,10 @@ export namespace PropShapes {
       const point: THREE.Vector3 = new THREE.Vector3();
       model.traverse((node: THREE.Object3D): void => {
         if (!(node instanceof THREE.Mesh) || node.visible === false) return;
-        const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined =
-          node.geometry.getAttribute("position");
+        const position:
+          | THREE.BufferAttribute
+          | THREE.InterleavedBufferAttribute
+          | undefined = node.geometry.getAttribute("position");
         if (position === undefined) return;
         const seen: Set<string> = new Set<string>();
         const points: number[] = [];
@@ -77,10 +79,15 @@ export namespace PropShapes {
             Number(point.z.toFixed(3)),
           );
         }
-        const material: THREE.Material = [node.material].flat()[0] as THREE.Material;
-        const colour: THREE.Color | undefined = (material as THREE.MeshStandardMaterial).color;
+        const material: THREE.Material = [
+          node.material,
+        ].flat()[0] as THREE.Material;
+        const colour: THREE.Color | undefined = (
+          material as THREE.MeshStandardMaterial
+        ).color;
         parts.push({
-          colour: colour === undefined ? "#8a8478" : `#${colour.getHexString()}`,
+          colour:
+            colour === undefined ? "#8a8478" : `#${colour.getHexString()}`,
           opacity: material.transparent ? Math.min(1, material.opacity) : 1,
           points,
         });

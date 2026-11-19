@@ -127,12 +127,17 @@ const child: (file: string) => void = (file: string): void => {
         path.join(CACHE, `${job.key}.refusal.json`),
         JSON.stringify(made),
       );
-    process.stdout.write(`${"track" in made ? "baked" : "refused"} ${job.id}\n`);
+    process.stdout.write(
+      `${"track" in made ? "baked" : "refused"} ${job.id}\n`,
+    );
   }
 };
 
 /** Run one child process over a share of the jobs. */
-const run: (jobs: IChildJob[], index: number) => Promise<void> = (jobs: IChildJob[], index: number): Promise<void> =>
+const run: (jobs: IChildJob[], index: number) => Promise<void> = (
+  jobs: IChildJob[],
+  index: number,
+): Promise<void> =>
   new Promise((resolve: () => void, reject: (error: Error) => void): void => {
     const file: string = path.join(CACHE, `jobs-${index}.json`);
     fs.writeFileSync(file, JSON.stringify(jobs));
@@ -154,9 +159,13 @@ const main: () => Promise<void> = async (): Promise<void> => {
   if (argv[0] === "--child") return child(argv[1]!);
   const at: number = argv.indexOf("--jobs");
   const asked: number =
-    at === -1 ? Math.max(1, os.availableParallelism() - 1) : Number(argv[at + 1]);
+    at === -1
+      ? Math.max(1, os.availableParallelism() - 1)
+      : Number(argv[at + 1]);
   if (!Number.isInteger(asked) || asked < 1)
-    throw new Error(`--jobs takes a whole number of processes, not ${argv[at + 1]}`);
+    throw new Error(
+      `--jobs takes a whole number of processes, not ${argv[at + 1]}`,
+    );
   const parallel: number = asked;
 
   fs.mkdirSync(CACHE, { recursive: true });
@@ -182,11 +191,13 @@ const main: () => Promise<void> = async (): Promise<void> => {
   // Compute what the cache lacks, spread round-robin over the children.
   const missing: IChildJob[] = keyed
     .filter(({ key }: IKeyed): boolean => !cached(key))
-    .map(({ job, key }: IKeyed): IChildJob => ({
-      key,
-      id: `${job.kind} ${job.id}`,
-      composition: job.composition,
-    }));
+    .map(
+      ({ job, key }: IKeyed): IChildJob => ({
+        key,
+        id: `${job.kind} ${job.id}`,
+        composition: job.composition,
+      }),
+    );
   console.log(
     `${jobs.length} takes, ${jobs.length - missing.length} cached, ${missing.length} to compute on ${Math.min(parallel, missing.length)} processes`,
   );
@@ -219,7 +230,9 @@ const main: () => Promise<void> = async (): Promise<void> => {
       continue;
     }
     const bytes: Buffer = fs.readFileSync(source);
-    const take: ITake = BakedTake.decode(new Uint8Array(zlib.gunzipSync(bytes)));
+    const take: ITake = BakedTake.decode(
+      new Uint8Array(zlib.gunzipSync(bytes)),
+    );
     const folder: string = path.join(OUT, `${job.kind}s`);
     fs.writeFileSync(path.join(folder, `${job.id}.take`), bytes);
     fs.writeFileSync(
@@ -241,9 +254,12 @@ const main: () => Promise<void> = async (): Promise<void> => {
 
   // Drop what no job of this run used, so a cache carried between runs
   // holds the current takes alone.
-  const used: Set<string> = new Set(keyed.map(({ key }: IKeyed): string => key));
+  const used: Set<string> = new Set(
+    keyed.map(({ key }: IKeyed): string => key),
+  );
   for (const file of fs.readdirSync(CACHE))
-    if (!used.has(file.split(".")[0]!)) fs.rmSync(path.join(CACHE, file), { force: true });
+    if (!used.has(file.split(".")[0]!))
+      fs.rmSync(path.join(CACHE, file), { force: true });
   console.log(
     `baked ${Object.keys(manifest.scenes).length} scenes and ${Object.keys(manifest.motions).length} motions in ${Math.round((Date.now() - started) / 1000)} s`,
   );

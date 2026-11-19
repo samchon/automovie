@@ -81,7 +81,8 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
     }),
   );
   const total: number = props.catalogue.groups.reduce(
-    (sum: number, g: IGalleryCatalogue.IGroup): number => sum + g.subjects.length,
+    (sum: number, g: IGalleryCatalogue.IGroup): number =>
+      sum + g.subjects.length,
     0,
   );
   const shown: number = groups.reduce(
@@ -108,46 +109,51 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
             />
           </label>
           <p className="am-index-shown" role="status">
-            {words.length === 0 ? `${total} archetypes` : `${shown} of ${total} archetypes`}
+            {words.length === 0
+              ? `${total} archetypes`
+              : `${shown} of ${total} archetypes`}
           </p>
           <ol>
-            {groups.map(({ group, shown: kept }: IShownGroup): ReactElement => (
-              <li key={group.name}>
-                <a href={`#family-${group.name}`}>
-                  {title(group.name)}
-                  <span>{kept.length}</span>
-                </a>
-              </li>
-            ))}
+            {groups.map(
+              ({ group, shown: kept }: IShownGroup): ReactElement => (
+                <li key={group.name}>
+                  <a href={`#family-${group.name}`}>
+                    {title(group.name)}
+                    <span>{kept.length}</span>
+                  </a>
+                </li>
+              ),
+            )}
           </ol>
         </nav>
         <div className="am-indexed-body">
-          {groups.map(({ group, shown: kept }: IShownGroup): ReactElement | null =>
-            kept.length === 0 ? null : (
-              <section
-                key={group.name}
-                id={`family-${group.name}`}
-                className="am-index-category"
-                aria-labelledby={`am-family-${group.name}`}
-              >
-                <header>
-                  <h2 id={`am-family-${group.name}`}>
-                    {title(group.name)}
-                    <span className="am-catalogue-count">{kept.length}</span>
-                  </h2>
-                  {ARCHETYPE_FAMILY_NOTES[group.name] === undefined ? null : (
-                    <p>{ARCHETYPE_FAMILY_NOTES[group.name]}</p>
-                  )}
-                </header>
-                <ul className="am-object-grid">
-                  {kept.map(
-                    (subject: IGalleryCatalogue.ISubject): ReactElement => (
-                      <ObjectCard key={subject.id} subject={subject} />
-                    ),
-                  )}
-                </ul>
-              </section>
-            ),
+          {groups.map(
+            ({ group, shown: kept }: IShownGroup): ReactElement | null =>
+              kept.length === 0 ? null : (
+                <section
+                  key={group.name}
+                  id={`family-${group.name}`}
+                  className="am-index-category"
+                  aria-labelledby={`am-family-${group.name}`}
+                >
+                  <header>
+                    <h2 id={`am-family-${group.name}`}>
+                      {title(group.name)}
+                      <span className="am-catalogue-count">{kept.length}</span>
+                    </h2>
+                    {ARCHETYPE_FAMILY_NOTES[group.name] === undefined ? null : (
+                      <p>{ARCHETYPE_FAMILY_NOTES[group.name]}</p>
+                    )}
+                  </header>
+                  <ul className="am-object-grid">
+                    {kept.map(
+                      (subject: IGalleryCatalogue.ISubject): ReactElement => (
+                        <ObjectCard key={subject.id} subject={subject} />
+                      ),
+                    )}
+                  </ul>
+                </section>
+              ),
           )}
           {shown === 0 ? (
             <p className="am-status">No archetype matches this search.</p>

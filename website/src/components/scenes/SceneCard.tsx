@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useState,
+} from "react";
 
 import { BakedClient } from "../../baked/BakedClient";
 import type { SceneClock } from "../../scenes/SceneClock";
@@ -28,7 +33,8 @@ export function SceneCard(props: {
   baked: boolean;
 }): ReactElement {
   const { scene }: typeof props = props;
-  const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
+  const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
   const poster: string = BakedClient.address("scene", scene.id, "svg");
   return (
     <li
@@ -41,11 +47,20 @@ export function SceneCard(props: {
       <Link href={`/scenes/${scene.id}/`} className="am-scene-card-link">
         <span className="am-scene-card-view">
           {props.baked ? (
-            <img src={poster} alt="" width={480} height={360} loading="lazy" decoding="async" />
+            <img
+              src={poster}
+              alt=""
+              width={480}
+              height={360}
+              loading="lazy"
+              decoding="async"
+            />
           ) : (
             <span className="am-scene-card-blank" aria-hidden="true" />
           )}
-          {live ? <LiveTake scene={scene} baked={props.baked} poster={poster} /> : null}
+          {live ? (
+            <LiveTake scene={scene} baked={props.baked} poster={poster} />
+          ) : null}
         </span>
         <span className="am-scene-card-title">{scene.title}</span>
       </Link>

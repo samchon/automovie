@@ -42,7 +42,7 @@ export namespace BakedTake {
     const width: number = values.length / Math.max(1, take.track.frames);
     for (let i: number = 0; i < values.length; i++) {
       const before: number = i >= width ? values[i - width]! : 0;
-      view.setInt16(start + i * 2, (values[i]! - before) << 16 >> 16, true);
+      view.setInt16(start + i * 2, ((values[i]! - before) << 16) >> 16, true);
     }
     return bytes;
   }
@@ -72,7 +72,8 @@ export namespace BakedTake {
     const width: number = count / Math.max(1, header.track.frames);
     for (let i: number = 0; i < count; i++) {
       const delta: number = view.getInt16(start + i * 2, true);
-      values[i] = i >= width ? (values[i - width]! + delta) << 16 >> 16 : delta;
+      values[i] =
+        i >= width ? ((values[i - width]! + delta) << 16) >> 16 : delta;
     }
     return { ...header, track: { ...header.track, values } };
   }

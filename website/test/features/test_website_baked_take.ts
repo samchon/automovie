@@ -22,18 +22,29 @@ export function test_website_baked_take(): void {
     SCENES.find((s: IScene): boolean => s.id === "dance-circle")!.composition!,
     4,
   );
-  if (!("track" in made)) throw new Error(`The dance circle was refused: ${made.message}`);
+  if (!("track" in made))
+    throw new Error(`The dance circle was refused: ${made.message}`);
   const bytes: Uint8Array = BakedTake.encode(made);
-  TestValidator.equals("the magic", String.fromCharCode(...bytes.subarray(0, 4)), "AMT1");
+  TestValidator.equals(
+    "the magic",
+    String.fromCharCode(...bytes.subarray(0, 4)),
+    "AMT1",
+  );
   const read: ITake = BakedTake.decode(bytes);
-  TestValidator.equals("the header", { ...read, track: { ...read.track, values: [] } }, {
-    ...made,
-    track: { ...made.track, values: [] },
-  });
+  TestValidator.equals(
+    "the header",
+    { ...read, track: { ...read.track, values: [] } },
+    {
+      ...made,
+      track: { ...made.track, values: [] },
+    },
+  );
   TestValidator.predicate(
     "every value",
     read.track.values.length === made.track.values.length &&
-      read.track.values.every((v: number, i: number): boolean => v === made.track.values[i]),
+      read.track.values.every(
+        (v: number, i: number): boolean => v === made.track.values[i],
+      ),
   );
 
   // 2. Differences across the whole 16-bit range wrap and restore.
@@ -57,7 +68,8 @@ export function test_website_baked_take(): void {
   );
 
   // 3. Foreign bytes are refused.
-  TestValidator.error("bytes without the magic", (): ITake =>
-    BakedTake.decode(new Uint8Array([1, 2, 3, 4, 0, 0, 0, 0])),
+  TestValidator.error(
+    "bytes without the magic",
+    (): ITake => BakedTake.decode(new Uint8Array([1, 2, 3, 4, 0, 0, 0, 0])),
   );
 }

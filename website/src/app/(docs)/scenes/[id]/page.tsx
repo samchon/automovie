@@ -65,7 +65,9 @@ export default async function ScenePage(
       scene={scene}
       computes={SceneStatus.computes(SceneStatus.of(scene))}
       baked={BakedManifest.read().scenes[scene.id] !== undefined}
-      motions={SceneFacts.actions(scene).filter((name: string): boolean => MotionIndex.has(name))}
+      motions={SceneFacts.actions(scene).filter((name: string): boolean =>
+        MotionIndex.has(name),
+      )}
       names={
         scene.composition === null
           ? null

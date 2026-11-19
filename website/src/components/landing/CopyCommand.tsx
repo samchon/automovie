@@ -27,7 +27,10 @@ export function CopyCommand(props: { command: string }): ReactElement {
   const [outcome, setOutcome]: [Outcome, Dispatch<SetStateAction<Outcome>>] =
     useState<Outcome>("idle");
   const timer: RefObject<number> = useRef<number>(0);
-  useEffect((): (() => void) => (): void => window.clearTimeout(timer.current), []);
+  useEffect(
+    (): (() => void) => (): void => window.clearTimeout(timer.current),
+    [],
+  );
 
   const show: (next: Outcome) => void = (next: Outcome): void => {
     setOutcome(next);
@@ -59,7 +62,7 @@ export function CopyCommand(props: { command: string }): ReactElement {
         {outcome === "copied"
           ? "The command was copied."
           : outcome === "refused"
-            ? "The browser gave no clipboard; select the command to copy it."
+            ? "The browser would not copy it; select the command to copy it."
             : ""}
       </span>
     </div>

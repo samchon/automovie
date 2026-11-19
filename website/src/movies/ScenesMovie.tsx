@@ -81,17 +81,24 @@ export default function ScenesMovie(props: {
 
   const playing: Set<string> = new Set(props.playing);
   const baked: Set<string> = new Set(props.baked);
-  const listed: IScene[] = SCENES.filter((s: IScene): boolean => s.hidden !== true);
+  const listed: IScene[] = SCENES.filter(
+    (s: IScene): boolean => s.hidden !== true,
+  );
   const shown: IScene[] = listed.filter(
     (scene: IScene): boolean =>
       playing.has(scene.id) &&
       (filter.setting === null || scene.setting === filter.setting) &&
       SceneFacts.matches(scene, filter.query),
   );
-  const settings: IScene.Setting[] = ORDER.filter((setting: IScene.Setting): boolean =>
-    listed.some((s: IScene): boolean => s.setting === setting && playing.has(s.id)),
+  const settings: IScene.Setting[] = ORDER.filter(
+    (setting: IScene.Setting): boolean =>
+      listed.some(
+        (s: IScene): boolean => s.setting === setting && playing.has(s.id),
+      ),
   );
-  const coming: IScene[] = listed.filter((s: IScene): boolean => !playing.has(s.id));
+  const coming: IScene[] = listed.filter(
+    (s: IScene): boolean => !playing.has(s.id),
+  );
 
   return (
     <main className="am-app am-catalogue" data-pagefind-body>
@@ -118,9 +125,11 @@ export default function ScenesMovie(props: {
                 {setting === null ? "All" : IScene.SETTING_LABELS[setting]}
                 <span className="am-chip-count">
                   {setting === null
-                    ? listed.filter((s: IScene): boolean => playing.has(s.id)).length
+                    ? listed.filter((s: IScene): boolean => playing.has(s.id))
+                        .length
                     : listed.filter(
-                        (s: IScene): boolean => s.setting === setting && playing.has(s.id),
+                        (s: IScene): boolean =>
+                          s.setting === setting && playing.has(s.id),
                       ).length}
                 </span>
               </button>
@@ -146,7 +155,11 @@ export default function ScenesMovie(props: {
         );
         if (group.length === 0) return null;
         return (
-          <section key={setting} className="am-catalogue-group" aria-labelledby={`am-setting-${setting}`}>
+          <section
+            key={setting}
+            className="am-catalogue-group"
+            aria-labelledby={`am-setting-${setting}`}
+          >
             <h2 id={`am-setting-${setting}`}>
               {IScene.SETTING_LABELS[setting]}
               <span className="am-catalogue-count">{group.length}</span>
@@ -154,7 +167,11 @@ export default function ScenesMovie(props: {
             <ul className="am-scene-grid">
               {group.map(
                 (scene: IScene): ReactElement => (
-                  <SceneCard key={scene.id} scene={scene} baked={baked.has(scene.id)} />
+                  <SceneCard
+                    key={scene.id}
+                    scene={scene}
+                    baked={baked.has(scene.id)}
+                  />
                 ),
               )}
             </ul>
@@ -168,7 +185,8 @@ export default function ScenesMovie(props: {
       {coming.length === 0 ? null : (
         <details className="am-roadmap">
           <summary>
-            In the works <span className="am-catalogue-count">{coming.length}</span>
+            In the works{" "}
+            <span className="am-catalogue-count">{coming.length}</span>
           </summary>
           <p className="am-muted">
             Scenes written for pieces the packages do not have yet. Each joins

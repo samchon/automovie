@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useState,
+} from "react";
 
 import { BakedClient } from "../baked/BakedClient";
 import { SceneView } from "../components/scenes/SceneView";
@@ -21,19 +26,26 @@ import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
  * @param props The motion's page data.
  * @returns The page.
  */
-export default function MotionMovie(props: { detail: MotionIndex.IDetail }): ReactElement {
+export default function MotionMovie(props: {
+  detail: MotionIndex.IDetail;
+}): ReactElement {
   const { detail }: { detail: MotionIndex.IDetail } = props;
   const clock: SceneClock = useSceneClock();
-  const [ready, setReady]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
+  const [ready, setReady]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(false);
   return (
     <main className="am-app am-scene-page am-motion-page" data-pagefind-body>
       <header className="am-scene-head">
         <nav aria-label="Breadcrumb" className="am-crumbs">
           <Link href="/motions/">Motions</Link>
           <span aria-hidden="true">/</span>
-          <Link href={`/motions/#${detail.category.id}`}>{detail.category.title}</Link>
+          <Link href={`/motions/#${detail.category.id}`}>
+            {detail.category.title}
+          </Link>
           <span aria-hidden="true">/</span>
-          <Link href={`/motions/#family-${detail.family.name}`}>{detail.family.label}</Link>
+          <Link href={`/motions/#family-${detail.family.name}`}>
+            {detail.family.label}
+          </Link>
         </nav>
         <h1 className="am-motion-name">{detail.name}</h1>
         <p>
@@ -64,7 +76,11 @@ export default function MotionMovie(props: { detail: MotionIndex.IDetail }): Rea
                 poster={
                   detail.play.baked === null
                     ? undefined
-                    : BakedClient.address(detail.play.baked, detail.play.record.id, "svg")
+                    : BakedClient.address(
+                        detail.play.baked,
+                        detail.play.record.id,
+                        "svg",
+                      )
                 }
                 onLoad={(take: IScenePlayer): void => {
                   clock.duration = take.duration;
@@ -88,7 +104,8 @@ export default function MotionMovie(props: { detail: MotionIndex.IDetail }): Rea
           </pre>
           {detail.family.name === "actions" ? null : (
             <p className="am-muted am-small">
-              A row is registered in the performance&apos;s <code>laws</code> too.
+              A row is registered in the performance&apos;s <code>laws</code>{" "}
+              too.
             </p>
           )}
           <h2>Used in</h2>
@@ -107,7 +124,10 @@ export default function MotionMovie(props: { detail: MotionIndex.IDetail }): Rea
           )}
           <div className="am-scene-links">
             {detail.playground === null ? null : (
-              <Link className="am-button am-button-primary" href={detail.playground}>
+              <Link
+                className="am-button am-button-primary"
+                href={detail.playground}
+              >
                 Open in the playground
               </Link>
             )}
@@ -155,7 +175,9 @@ export default function MotionMovie(props: { detail: MotionIndex.IDetail }): Rea
                     <tr key={p.name}>
                       <td>
                         <code>{p.name}</code>
-                        {p.required ? <span className="am-required">required</span> : null}
+                        {p.required ? (
+                          <span className="am-required">required</span>
+                        ) : null}
                       </td>
                       <td>
                         <code className="am-param-type">{p.type}</code>
@@ -182,7 +204,8 @@ function snippet(detail: MotionIndex.IDetail): string {
   const required: string[] = (detail.parameters ?? [])
     .filter((p: IMotionReference.IParameter): boolean => p.required)
     .map((p: IMotionReference.IParameter): string => p.name);
-  const args: string = required.length === 0 ? "" : `{ ${required.join(", ")} }`;
+  const args: string =
+    required.length === 0 ? "" : `{ ${required.join(", ")} }`;
   return detail.family.name === "actions"
     ? `HumanChain.subject("a")\n  .${detail.name}(${args})`
     : `const Chain = HumanChain.extend({\n  ${detail.name},\n});\nChain.subject("a")\n  .${detail.name}(${args})`;

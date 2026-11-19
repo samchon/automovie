@@ -1,6 +1,11 @@
 "use client";
 
-import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
+import {
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+  useState,
+} from "react";
 
 import type { ILandingFilm } from "../../landing/ILandingFilm";
 import type { IPlaygroundTimeline } from "../../playground/structures/IPlaygroundTimeline";
@@ -23,10 +28,11 @@ export function ScriptStage(props: { film: ILandingFilm }): ReactElement {
     [number, number][] | null,
     Dispatch<SetStateAction<[number, number][] | null>>,
   ] = useState<[number, number][] | null>(null);
-  const [now, setNow]: [IClock, Dispatch<SetStateAction<IClock>>] = useState<IClock>({
-    seconds: 0,
-    duration: 1,
-  });
+  const [now, setNow]: [IClock, Dispatch<SetStateAction<IClock>>] =
+    useState<IClock>({
+      seconds: 0,
+      duration: 1,
+    });
   const active: number =
     windows?.findIndex(
       ([from, to]: [number, number]): boolean =>
@@ -35,11 +41,15 @@ export function ScriptStage(props: { film: ILandingFilm }): ReactElement {
 
   return (
     <div className="am-script-stage">
-      <article className="am-script-page" aria-label="The screenplay scene file">
+      <article
+        className="am-script-page"
+        aria-label="The screenplay scene file"
+      >
         <p className="am-script-file">{film.file}</p>
         <h3 className="am-script-h1"># {film.heading}</h3>
         <p className="am-script-h2">
-          ## {film.section.title} <span className="am-script-anchor">{`{#${film.section.anchor}}`}</span>
+          ## {film.section.title}{" "}
+          <span className="am-script-anchor">{`{#${film.section.anchor}}`}</span>
         </p>
         <ol className="am-script-beats">
           {film.beats.map(
@@ -65,10 +75,11 @@ export function ScriptStage(props: { film: ILandingFilm }): ReactElement {
           onLoad={(take: ITake): void => setWindows(windowsOf(film, take))}
           onTime={(seconds: number, duration: number): void => {
             // Re-render only when the shown tenth of a second changes.
-            setNow((before: IClock): IClock =>
-              Math.abs(before.seconds - seconds) < 0.1
-                ? before
-                : { seconds, duration },
+            setNow(
+              (before: IClock): IClock =>
+                Math.abs(before.seconds - seconds) < 0.1
+                  ? before
+                  : { seconds, duration },
             );
           }}
         />
@@ -104,9 +115,12 @@ function windowsOf(film: ILandingFilm, take: ITake): [number, number][] {
     let from: number = Infinity;
     let to: number = -Infinity;
     for (const [subject, [first, last]] of Object.entries(beat.spans)) {
-      const spans: IPlaygroundTimeline.ISpan[] | undefined = take.timeline.tracks
-        .find((t: IPlaygroundTimeline.ITrack): boolean => t.subject === subject)
-        ?.spans.filter((s: IPlaygroundTimeline.ISpan): boolean => !s.overlay);
+      const spans: IPlaygroundTimeline.ISpan[] | undefined =
+        take.timeline.tracks
+          .find(
+            (t: IPlaygroundTimeline.ITrack): boolean => t.subject === subject,
+          )
+          ?.spans.filter((s: IPlaygroundTimeline.ISpan): boolean => !s.overlay);
       if (spans === undefined) continue;
       const a: IPlaygroundTimeline.ISpan | undefined = spans[first];
       const b: IPlaygroundTimeline.ISpan | undefined = spans[last];

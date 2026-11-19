@@ -55,10 +55,18 @@ export function GalleryViewport(props: {
   // The subject and variant last drawn, which decides whether the camera is
   // put back on the whole subject.
   const shown: RefObject<string> = useRef<string>("");
-  const [busy, setBusy]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(true);
-  const [error, setError]: [string | null, Dispatch<SetStateAction<string | null>>] = useState<string | null>(null);
-  const [name, setName]: [string, Dispatch<SetStateAction<string>>] = useState<string>("");
-  const [grid, setGrid]: [number | null, Dispatch<SetStateAction<number | null>>] = useState<number | null>(null);
+  const [busy, setBusy]: [boolean, Dispatch<SetStateAction<boolean>>] =
+    useState<boolean>(true);
+  const [error, setError]: [
+    string | null,
+    Dispatch<SetStateAction<string | null>>,
+  ] = useState<string | null>(null);
+  const [name, setName]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
+  const [grid, setGrid]: [
+    number | null,
+    Dispatch<SetStateAction<number | null>>,
+  ] = useState<number | null>(null);
   const { adapter, request, onView } = props;
 
   // One stage for the life of the view.

@@ -88,7 +88,11 @@ export namespace MotionIndex {
     uses: { id: string; title: string }[];
 
     /** What its page plays: the motion alone or the first scene that performs it, with whether it was baked; null when nothing would play. */
-    play: { record: IScene; baked: "motion" | "scene" | null; label: string } | null;
+    play: {
+      record: IScene;
+      baked: "motion" | "scene" | null;
+      label: string;
+    } | null;
 
     /** The playground's address of its trial; null when none would play. */
     playground: string | null;
@@ -128,9 +132,12 @@ export namespace MotionIndex {
    * @returns The family names.
    */
   export function families(): string[] {
-    const { index, details }: { index: IIndex; details: Map<string, IDetail> } = build();
+    const { index, details }: { index: IIndex; details: Map<string, IDetail> } =
+      build();
     return index.categories
-      .flatMap((c: ICategory): string[] => c.families.map((f: IFamily): string => f.name))
+      .flatMap((c: ICategory): string[] =>
+        c.families.map((f: IFamily): string => f.name),
+      )
       .filter((name: string): boolean => !details.has(name));
   }
 
@@ -191,7 +198,10 @@ export namespace MotionIndex {
               title: "More",
               summary: "Families this release adds.",
               families: Object.fromEntries(
-                extra.map((name: string): [string, string] => [name, spell(name)]),
+                extra.map((name: string): [string, string] => [
+                  name,
+                  spell(name),
+                ]),
               ),
             },
           ]),
@@ -217,7 +227,14 @@ export namespace MotionIndex {
             rows.forEach((row: IMotionReference.IRow, i: number): void => {
               details.set(
                 row.name,
-                detailOf(row, { name, label }, category, manifest, rows[i - 1]?.name ?? null, rows[i + 1]?.name ?? null),
+                detailOf(
+                  row,
+                  { name, label },
+                  category,
+                  manifest,
+                  rows[i - 1]?.name ?? null,
+                  rows[i + 1]?.name ?? null,
+                ),
               );
             });
             return {
@@ -242,7 +259,11 @@ export namespace MotionIndex {
       }),
     );
     cached = {
-      index: { categories: out, total: details.size, opening: MotionUsage.OPENING },
+      index: {
+        categories: out,
+        total: details.size,
+        opening: MotionUsage.OPENING,
+      },
       details,
     };
     return cached;
@@ -258,12 +279,19 @@ export namespace MotionIndex {
     next: string | null,
   ): IDetail {
     const uses: MotionUsage.IUse = MotionUsage.of(row.name);
-    const trial: MotionUsage.ITrial | null = MotionUsage.trial(row.name, row.parameters);
+    const trial: MotionUsage.ITrial | null = MotionUsage.trial(
+      row.name,
+      row.parameters,
+    );
     let play: IDetail["play"] = null;
 
     // A trial alone that was baked plays alone; one the bake refused, or a
     // trial in a scene, plays the first scene that performs it.
-    if (trial !== null && trial.alone && manifest.motions[row.name] !== undefined)
+    if (
+      trial !== null &&
+      trial.alone &&
+      manifest.motions[row.name] !== undefined
+    )
       play = {
         record: {
           id: row.name,
@@ -286,7 +314,11 @@ export namespace MotionIndex {
           uses.scenes.some((u: { id: string }): boolean => u.id === s.id),
       );
       if (scene !== undefined)
-        play = { record: scene, baked: "scene", label: `Performed in ${scene.title}` };
+        play = {
+          record: scene,
+          baked: "scene",
+          label: `Performed in ${scene.title}`,
+        };
     }
     return {
       name: row.name,

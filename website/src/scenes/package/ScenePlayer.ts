@@ -259,7 +259,10 @@ export namespace ScenePlayer {
           i & 4 ? box.max.z : box.min.z,
         ).sub(centre),
     );
-    const fit: (toward: THREE.Vector3, ratio: number) => number = (toward: THREE.Vector3, ratio: number): number => {
+    const fit: (toward: THREE.Vector3, ratio: number) => number = (
+      toward: THREE.Vector3,
+      ratio: number,
+    ): number => {
       if (record.camera.distance !== undefined) return record.camera.distance;
       const right: THREE.Vector3 = new THREE.Vector3(0, 1, 0)
         .cross(toward)
@@ -281,7 +284,9 @@ export namespace ScenePlayer {
       fieldOfView,
       aspect,
       0.05,
-      fit(VIEWS["top"], aspect) + fit(VIEWS["side"], aspect) + bounds.radius * 4,
+      fit(VIEWS["top"], aspect) +
+        fit(VIEWS["side"], aspect) +
+        bounds.radius * 4,
     );
     const frame: (view: IScene.ICamera["view"]) => void = (
       view: IScene.ICamera["view"],

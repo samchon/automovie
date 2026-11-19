@@ -236,7 +236,12 @@ export namespace FigureProjection {
         nearness: 0,
         depth: crown.depth,
       });
-    out.sort((l: ICapsule & { depth: number }, r: ICapsule & { depth: number }): number => l.depth - r.depth);
+    out.sort(
+      (
+        l: ICapsule & { depth: number },
+        r: ICapsule & { depth: number },
+      ): number => l.depth - r.depth,
+    );
     const near: number = out.at(-1)?.depth ?? 0;
     const far: number = out[0]?.depth ?? 0;
     return out.map(

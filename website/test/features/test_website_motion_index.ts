@@ -2,11 +2,11 @@ import { TestValidator } from "@nestia/e2e";
 
 import { BakeJobs } from "../../src/baked/BakeJobs";
 import type { IBakeJob } from "../../src/baked/IBakeJob";
-import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { MotionUsage } from "../../src/motions/MotionUsage";
 import { MotionIndex } from "../../src/motions/package/MotionIndex";
 import { MotionReference } from "../../src/motions/package/MotionReference";
 import type { IMotionReference } from "../../src/motions/structures/IMotionReference";
+import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { SCENES } from "../../src/scenes/SCENES";
 import { SceneStatus } from "../../src/scenes/package/SceneStatus";
 import type { IScene } from "../../src/scenes/structures/IScene";
@@ -24,10 +24,11 @@ import type { IScene } from "../../src/scenes/structures/IScene";
 export function test_website_motion_index(): void {
   const reference: IMotionReference = MotionReference.read();
   const index: MotionIndex.IIndex = MotionIndex.index();
-  const listed: string[] = index.categories.flatMap((c: MotionIndex.ICategory): string[] =>
-    c.families.flatMap((f: MotionIndex.IFamily): string[] =>
-      f.motions.map((m: MotionIndex.IEntry): string => m.name),
-    ),
+  const listed: string[] = index.categories.flatMap(
+    (c: MotionIndex.ICategory): string[] =>
+      c.families.flatMap((f: MotionIndex.IFamily): string[] =>
+        f.motions.map((m: MotionIndex.IEntry): string => m.name),
+      ),
   );
   const names: Set<string> = new Set([
     ...reference.actions.map((a: IMotionReference.IRow): string => a.name),
@@ -54,17 +55,23 @@ export function test_website_motion_index(): void {
     for (const family of category.families)
       family.motions.forEach((entry: MotionIndex.IEntry, i: number): void => {
         const detail: MotionIndex.IDetail = MotionIndex.detail(entry.name);
-        TestValidator.equals(`${entry.name}'s neighbours`, [detail.previous, detail.next], [
-          family.motions[i - 1]?.name ?? null,
-          family.motions[i + 1]?.name ?? null,
-        ]);
+        TestValidator.equals(
+          `${entry.name}'s neighbours`,
+          [detail.previous, detail.next],
+          [
+            family.motions[i - 1]?.name ?? null,
+            family.motions[i + 1]?.name ?? null,
+          ],
+        );
       });
 
   // 3. The scene jobs.
   const jobs: IBakeJob[] = BakeJobs.list();
   TestValidator.equals(
     "a job per playing scene",
-    jobs.filter((j: IBakeJob): boolean => j.kind === "scene").map((j: IBakeJob): string => j.id),
+    jobs
+      .filter((j: IBakeJob): boolean => j.kind === "scene")
+      .map((j: IBakeJob): string => j.id),
     SCENES.filter(
       (s: IScene): boolean =>
         s.hidden !== true &&
@@ -76,7 +83,9 @@ export function test_website_motion_index(): void {
   );
 
   // 4. The motion jobs.
-  const motions: IBakeJob[] = jobs.filter((j: IBakeJob): boolean => j.kind === "motion");
+  const motions: IBakeJob[] = jobs.filter(
+    (j: IBakeJob): boolean => j.kind === "motion",
+  );
   TestValidator.predicate("some motions are tried alone", motions.length > 0);
   TestValidator.predicate(
     "each opens with its stand, then performs its motion",
@@ -84,8 +93,9 @@ export function test_website_motion_index(): void {
       (j: IBakeJob): boolean =>
         j.from === MotionUsage.OPENING &&
         j.composition.performers.length === 1 &&
-        j.composition.performers[0]!.actions.map((a: IPlaygroundComposition.IAction): string => a.name).join(" ") ===
-          `stand ${j.id}`,
+        j.composition.performers[0]!.actions.map(
+          (a: IPlaygroundComposition.IAction): string => a.name,
+        ).join(" ") === `stand ${j.id}`,
     ),
   );
 }

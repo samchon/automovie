@@ -41,7 +41,9 @@ export function Landing(): ReactElement {
       sum + group.subjects.length,
     0,
   );
-  const scene: IScene = SCENES.find((s: IScene): boolean => s.id === LANDING_FILM.scene)!;
+  const scene: IScene = SCENES.find(
+    (s: IScene): boolean => s.id === LANDING_FILM.scene,
+  )!;
   const playing: number = Object.keys(manifest.scenes).length;
   const rail: string[] = LANDING_RAIL.filter(
     (name: string): boolean => manifest.motions[name] !== undefined,
@@ -82,15 +84,14 @@ export function Landing(): ReactElement {
         <Reveal className="am-why-inner">
           <h2 id="am-why-title" className="am-section-title">
             A video model invents motion.
-            <br />
-            A motion hint tells it what happens.
+            <br />A motion hint tells it what happens.
           </h2>
           <div className="am-why-columns">
             <p>
               A prompt can describe a fight. It cannot put a fist on a jaw at
-              4.2 seconds, keep both feet on the floor through the turn, or
-              make the next take match this one. The model fills in what the
-              words leave out, differently every time.
+              4.2 seconds, keep both feet on the floor through the turn, or make
+              the next take match this one. The model fills in what the words
+              leave out, differently every time.
             </p>
             <p>
               AutoMovie gives the model who is where, what they do, what they
@@ -111,10 +112,10 @@ export function Landing(): ReactElement {
             every link is written down.
           </h2>
           <p>
-            A short runs brief to screenplay; a series runs settings,
-            treatments and scripts first. Each layer cites the one above it,
-            and the code cites the screenplay, so nothing in the film exists
-            without a written reason.
+            A short runs brief to screenplay; a series runs settings, treatments
+            and scripts first. Each layer cites the one above it, and the code
+            cites the screenplay, so nothing in the film exists without a
+            written reason.
           </p>
         </header>
         <ol className="am-chain-steps">
@@ -124,8 +125,8 @@ export function Landing(): ReactElement {
               <h3>Decide</h3>
               <p>
                 The brief holds only the decisions several scenes must keep
-                true: a fighter&apos;s stance, his temper, the ring. Each has
-                an anchor a scene can cite.
+                true: a fighter&apos;s stance, his temper, the ring. Each has an
+                anchor a scene can cite.
               </p>
             </div>
             <div className="am-chain-panel">
@@ -139,14 +140,16 @@ export function Landing(): ReactElement {
               <h3>Write</h3>
               <p>
                 The screenplay is the last place a decision is made. One file
-                per scene, one heading per beat, and each beat records who is
-                in it, what they intend, what comes of it and where the camera
+                per scene, one heading per beat, and each beat records who is in
+                it, what they intend, what comes of it and where the camera
                 stands.
               </p>
             </div>
             <div className="am-chain-panel">
               <p className="am-panel-file">{LANDING_FILM.file}</p>
-              <pre className="am-doc am-doc-script">{LANDING_FILM.record.join("\n")}</pre>
+              <pre className="am-doc am-doc-script">
+                {LANDING_FILM.record.join("\n")}
+              </pre>
             </div>
           </Reveal>
           <Reveal as="li" className="am-chain-step">
@@ -154,15 +157,17 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">3</span>
               <h3>Program</h3>
               <p>
-                The agent composes each performance from typed actions and
-                cites the beats it realizes. An action the vocabulary lacks
-                does not type-check; a placement the body cannot reach is
-                refused with the reason and a fix.
+                The agent composes each performance from typed actions and cites
+                the beats it realizes. An action the vocabulary lacks does not
+                type-check; a placement the body cannot reach is refused with
+                the reason and a fix.
               </p>
             </div>
             <div className="am-chain-panel">
               <p className="am-panel-file">{LANDING_FILM.modules[0]!.file}</p>
-              <pre className="am-doc am-doc-code">{lines(LANDING_FILM.code.text)}</pre>
+              <pre className="am-doc am-doc-code">
+                {lines(LANDING_FILM.code.text)}
+              </pre>
             </div>
           </Reveal>
           <Reveal as="li" className="am-chain-step">
@@ -171,8 +176,8 @@ export function Landing(): ReactElement {
               <h3>Check</h3>
               <p>
                 With the composition check on, <code>pnpm run evidence</code>{" "}
-                counts every beat, section and scene file and fails while one
-                is not realized, so an agent cannot report a scene done while a
+                counts every beat, section and scene file and fails while one is
+                not realized, so an agent cannot report a scene done while a
                 beat is missing.
               </p>
             </div>
@@ -191,9 +196,9 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">5</span>
               <h3>Render</h3>
               <p>
-                The engine computes each frame from the code and a seed.
-                A defect is found on a still, fixed in the module that caused
-                it and recomputed at the same second, never regenerated.
+                The engine computes each frame from the code and a seed. A
+                defect is found on a still, fixed in the module that caused it
+                and recomputed at the same second, never regenerated.
               </p>
             </div>
             <div className="am-chain-panel am-chain-panel-still">
@@ -205,7 +210,14 @@ export function Landing(): ReactElement {
                 loading="lazy"
               />
               <ul className="am-channels" aria-label="What a hint delivers">
-                {["hint video", "pose", "depth", "normal", "outline", "mask"].map(
+                {[
+                  "hint video",
+                  "pose",
+                  "depth",
+                  "normal",
+                  "outline",
+                  "mask",
+                ].map(
                   (c: string): ReactElement => (
                     <li key={c}>{c}</li>
                   ),
@@ -225,9 +237,9 @@ export function Landing(): ReactElement {
             </h2>
             <p>
               Every citation is an obligation <code>pnpm run evidence</code>{" "}
-              counts on its own, so one reference never covers another. Point
-              at a node to see what it rests on and what rests on it. Then
-              delete a citation.
+              counts on its own, so one reference never covers another. Point at
+              a node to see what it rests on and what rests on it. Then delete a
+              citation.
             </p>
           </header>
           <EvidenceGraph film={LANDING_FILM} />
@@ -243,19 +255,22 @@ export function Landing(): ReactElement {
             <li>
               <h3>Reviews expire</h3>
               <p>
-                A review is tied to the text it read; edit a beat and its
-                review is stale until it is read again.
+                A review is tied to the text it read; edit a beat and its review
+                is stale until it is read again.
               </p>
             </li>
             <li>
               <h3>Verified or watched</h3>
               <p>
-                The acceptance record says what the agent verified on stills
-                and what only you watched.
+                The acceptance record says what the agent verified on stills and
+                what only you watched.
               </p>
             </li>
           </ul>
-          <Link className="am-button am-button-light" href="/docs/screenplay/evidence-graph/">
+          <Link
+            className="am-button am-button-light"
+            href="/docs/screenplay/evidence-graph/"
+          >
             How the evidence graph works
           </Link>
         </div>
@@ -272,9 +287,9 @@ export function Landing(): ReactElement {
           <p>
             People are a polygon man and sets are coarse models, on purpose: a
             video model supplies the surfaces. The accuracy goes into the
-            performance. A fist meets the struck region, each foot lands on
-            the floor at its step, both hands close on a grip, all scaled to
-            the body that performs it.
+            performance. A fist meets the struck region, each foot lands on the
+            floor at its step, both hands close on a grip, all scaled to the
+            body that performs it.
           </p>
           <p>
             One composition plays the same way every time. A seed changes how
@@ -285,7 +300,10 @@ export function Landing(): ReactElement {
             Motion as code
           </Link>
         </div>
-        <TakeBench scene={scene} baked={manifest.scenes[scene.id] !== undefined} />
+        <TakeBench
+          scene={scene}
+          baked={manifest.scenes[scene.id] !== undefined}
+        />
       </section>
 
       {/* Library */}
@@ -298,8 +316,8 @@ export function Landing(): ReactElement {
             {reference.actions.length} actions and {rows} named rows in{" "}
             {reference.families.length} families, {archetypes} archetypes of
             things people hold, sit on, ride and fight with, and {playing}{" "}
-            scenes composed from them. A production writes a law of its own
-            only for what the vocabulary lacks.
+            scenes composed from them. A production writes a law of its own only
+            for what the vocabulary lacks.
           </p>
         </header>
         <ul className="am-rail" aria-label="Some motions">
@@ -352,7 +370,10 @@ export function Landing(): ReactElement {
             <CopyCommand command="cd my-film && pnpm install" />
           </li>
           <li>
-            <p>Open it in a coding agent that reads AGENTS.md or CLAUDE.md, and say what to make.</p>
+            <p>
+              Open it in a coding agent that reads AGENTS.md or CLAUDE.md, and
+              say what to make.
+            </p>
             <blockquote className="am-prompt">
               Write a three-minute short about two sparring partners whose
               friendly round stops being friendly. Deliver the motion hint.
@@ -385,7 +406,11 @@ function lines(text: readonly string[]): ReactElement[] {
     (line: string, index: number): ReactElement => (
       <span
         key={index}
-        className={line.includes("@evidence") || line.startsWith(" *   ") ? "am-line-evidence" : undefined}
+        className={
+          line.includes("@evidence") || line.startsWith(" *   ")
+            ? "am-line-evidence"
+            : undefined
+        }
       >
         {line}
         {"\n"}

@@ -96,10 +96,10 @@ Colour. Every colour is a token with a light and a dark value:
 | Accent | `--am-accent`, `--am-accent-bg`, `--am-accent-fg`, `--am-accent-soft`, `--am-accent-line` |
 | Danger and success | `--am-danger`, `--am-danger-soft`, `--am-danger-border`, `--am-success`, `--am-success-soft` |
 | Focus | `--am-focus` |
-| 3D views and stills | `--am-viewport`, `--am-viewport-fg`, `--am-viewport-grid`, `--am-viewport-tag-bg`, `--am-viewport-tag-fg` |
+| 3D views and stills | `--am-viewport`, `--am-viewport-fg`, `--am-viewport-grid`, `--am-viewport-control`, `--am-viewport-ink`, `--am-viewport-muted`, `--am-viewport-track`, `--am-viewport-lit`, `--am-viewport-button`, `--am-viewport-tag-bg`, `--am-viewport-tag-fg` |
 | The dark band | `--am-room`, `--am-room-panel`, `--am-room-fg`, `--am-room-muted`, `--am-room-line` |
 
-The ground is a warm off-white and the ink near black; the one accent is tungsten amber, the favicon's, used for what is selected, the one primary action and a motion's paths. The viewport ground is the same warm grey in both themes, because the packages' coarse colours are chosen for a light ground. `pnpm check` computes the contrast of 31 token pairs in both themes and stops the build when one is below its bound.
+The ground is a warm off-white and the ink near black; the one accent is tungsten amber, the favicon's, used for what is selected, the one primary action and a motion's paths. The viewport ground is the same warm grey in both themes, because the packages' coarse colours are chosen for a light ground. `pnpm check` computes the contrast of 43 token pairs in both themes and stops the build when one is below its bound.
 
 Shape and space. Steps on a 4 px grid; a radius of 6 px for controls and 12 px for panels and views; pill-shaped buttons and chips.
 

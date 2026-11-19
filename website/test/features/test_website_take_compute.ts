@@ -145,7 +145,10 @@ export function test_website_take_compute(): void {
       performers: composition.performers.map(
         (
           performer: IPlaygroundComposition.IPerformer,
-        ): IPlaygroundComposition.IPerformer => ({ ...performer, body: "nobody" }),
+        ): IPlaygroundComposition.IPerformer => ({
+          ...performer,
+          body: "nobody",
+        }),
       ),
     },
     fps: FPS,

@@ -15,8 +15,14 @@ const COLUMNS: readonly {
     links: [
       { label: "Introduction", href: `${SITE_BASE}/docs/` },
       { label: "Setup", href: `${SITE_BASE}/docs/setup/` },
-      { label: "Evidence graph", href: `${SITE_BASE}/docs/screenplay/evidence-graph/` },
-      { label: "Composing motion", href: `${SITE_BASE}/docs/motion/composing/` },
+      {
+        label: "Evidence graph",
+        href: `${SITE_BASE}/docs/screenplay/evidence-graph/`,
+      },
+      {
+        label: "Composing motion",
+        href: `${SITE_BASE}/docs/motion/composing/`,
+      },
     ],
   },
   {
@@ -31,10 +37,26 @@ const COLUMNS: readonly {
   {
     title: "Project",
     links: [
-      { label: "GitHub", href: "https://github.com/samchon/automovie", external: true },
-      { label: "npm", href: "https://www.npmjs.com/package/automovie", external: true },
-      { label: "Examples", href: "https://github.com/samchon/automovie-examples", external: true },
-      { label: "Issues", href: "https://github.com/samchon/automovie/issues", external: true },
+      {
+        label: "GitHub",
+        href: "https://github.com/samchon/automovie",
+        external: true,
+      },
+      {
+        label: "npm",
+        href: "https://www.npmjs.com/package/automovie",
+        external: true,
+      },
+      {
+        label: "Examples",
+        href: "https://github.com/samchon/automovie-examples",
+        external: true,
+      },
+      {
+        label: "Issues",
+        href: "https://github.com/samchon/automovie/issues",
+        external: true,
+      },
     ],
   },
 ];
@@ -44,10 +66,18 @@ const footer: ReactElement = (
     <div className="am-footer">
       <div className="am-footer-brand">
         <span className="am-logo">
-          <img src={`${SITE_BASE}/favicon.svg`} width={24} height={24} alt="" aria-hidden="true" />
+          <img
+            src={`${SITE_BASE}/favicon.svg`}
+            width={24}
+            height={24}
+            alt=""
+            aria-hidden="true"
+          />
           <span>AutoMovie</span>
         </span>
-        <p>Write the film. Program the motion. Get the same frames every time.</p>
+        <p>
+          Write the film. Program the motion. Get the same frames every time.
+        </p>
         <p className="am-footer-legal">
           MIT License. Copyright {new Date().getFullYear()}{" "}
           <a href="https://github.com/samchon" target="_blank" rel="noreferrer">
@@ -58,7 +88,11 @@ const footer: ReactElement = (
       </div>
       {COLUMNS.map(
         (column): ReactElement => (
-          <nav key={column.title} aria-label={column.title} className="am-footer-column">
+          <nav
+            key={column.title}
+            aria-label={column.title}
+            className="am-footer-column"
+          >
             <h2>{column.title}</h2>
             <ul>
               {column.links.map(
@@ -66,7 +100,9 @@ const footer: ReactElement = (
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      {...(link.external === true ? { target: "_blank", rel: "noreferrer" } : {})}
+                      {...(link.external === true
+                        ? { target: "_blank", rel: "noreferrer" }
+                        : {})}
                     >
                       {link.label}
                     </a>
@@ -97,7 +133,13 @@ export default async function DocsLayout(props: {
         <Navbar
           logo={
             <span className="am-logo">
-              <img src={`${SITE_BASE}/favicon.svg`} width={26} height={26} alt="" aria-hidden="true" />
+              <img
+                src={`${SITE_BASE}/favicon.svg`}
+                width={26}
+                height={26}
+                alt=""
+                aria-hidden="true"
+              />
               <span>AutoMovie</span>
             </span>
           }

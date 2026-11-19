@@ -57,7 +57,10 @@ export namespace FigurePoster {
   }
 
   /** The joints whose paths are drawn: the hands. */
-  const PATHS: readonly string[] = ["leftMiddleProximal", "rightMiddleProximal"];
+  const PATHS: readonly string[] = [
+    "leftMiddleProximal",
+    "rightMiddleProximal",
+  ];
 
   /** Each limb end and the joint its reach is measured from, which choose the key pose. */
   const REACH: readonly [string, string][] = [
@@ -121,7 +124,12 @@ export namespace FigurePoster {
     );
 
     // Fit every drawn point.
-    const box: IBox = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    const box: IBox = {
+      x0: Infinity,
+      y0: Infinity,
+      x1: -Infinity,
+      y1: -Infinity,
+    };
     const shapes: readonly PropShapes.IShape[] = options.props ?? [];
     for (const index of [...chosen, key]) {
       for (const figure of frames[index]!.figures)
@@ -262,7 +270,8 @@ export namespace FigurePoster {
   /** The convex hull of points on the screen, by the monotone chain. */
   function hull(points: FigureProjection.IPoint[]): FigureProjection.IPoint[] {
     const sorted: FigureProjection.IPoint[] = [...points].sort(
-      (a: FigureProjection.IPoint, b: FigureProjection.IPoint): number => a.x - b.x || a.y - b.y,
+      (a: FigureProjection.IPoint, b: FigureProjection.IPoint): number =>
+        a.x - b.x || a.y - b.y,
     );
     const cross: (
       o: FigureProjection.IPoint,
@@ -322,8 +331,8 @@ export namespace FigurePoster {
     px: (p: FigureProjection.IPoint) => [string, string],
     scale: number,
   ): string[] {
-    return frame.figures
-      .map((figure: FigureProjection.IFigure, index: number): string => {
+    return frame.figures.map(
+      (figure: FigureProjection.IFigure, index: number): string => {
         const colour: string = COLOUR.figures[index % COLOUR.figures.length]!;
         const parts: string[] = FigureProjection.capsules(figure).map(
           (capsule: FigureProjection.ICapsule): string => {
@@ -339,7 +348,8 @@ export namespace FigurePoster {
           },
         );
         return `<g stroke="${colour}" stroke-linecap="round" fill="none">${parts.join("")}</g>`;
-      });
+      },
+    );
   }
 
   /** The paths of every figure's hands over a span. */
@@ -353,12 +363,14 @@ export namespace FigurePoster {
       for (const bone of PATHS) {
         const points: string[] = span
           .map(
-            (frame: FigureProjection.IFrame): FigureProjection.IPoint | undefined =>
-              frame.figures[f]?.[bone],
+            (
+              frame: FigureProjection.IFrame,
+            ): FigureProjection.IPoint | undefined => frame.figures[f]?.[bone],
           )
           .filter(
-            (p: FigureProjection.IPoint | undefined): p is FigureProjection.IPoint =>
-              p !== undefined,
+            (
+              p: FigureProjection.IPoint | undefined,
+            ): p is FigureProjection.IPoint => p !== undefined,
           )
           .map((p: FigureProjection.IPoint): string => px(p).join(" "));
         if (points.length > 1) out.push(`<path d="M${points.join("L")}"/>`);
@@ -372,14 +384,20 @@ export namespace FigurePoster {
     camera: FigureProjection.ICamera,
     px: (p: FigureProjection.IPoint) => [string, string],
   ): string {
-    const xs: number[] = frame.hips.map((p: [number, number, number]): number => p[0]);
-    const zs: number[] = frame.hips.map((p: [number, number, number]): number => p[2]);
+    const xs: number[] = frame.hips.map(
+      (p: [number, number, number]): number => p[0],
+    );
+    const zs: number[] = frame.hips.map(
+      (p: [number, number, number]): number => p[2],
+    );
     const x0: number = Math.floor(Math.min(...xs)) - 2;
     const x1: number = Math.ceil(Math.max(...xs)) + 2;
     const z0: number = Math.floor(Math.min(...zs)) - 2;
     const z1: number = Math.ceil(Math.max(...zs)) + 2;
-    const at: (x: number, z: number) => string = (x: number, z: number): string =>
-      px(FigureProjection.project([x, 0, z], camera)).join(" ");
+    const at: (x: number, z: number) => string = (
+      x: number,
+      z: number,
+    ): string => px(FigureProjection.project([x, 0, z], camera)).join(" ");
     const lines: string[] = [];
     for (let x: number = x0; x <= x1; x++)
       lines.push(`M${at(x, z0)}L${at(x, z1)}`);

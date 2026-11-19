@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import type { NextFontWithVariable } from "next/dist/compiled/@next/font/dist/types";
-import { Courier_Prime, Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import {
+  Courier_Prime,
+  Geist,
+  Geist_Mono,
+  Instrument_Serif,
+} from "next/font/google";
 import { Head } from "nextra/components";
 import type { ReactElement, ReactNode } from "react";
 
 import { SITE_BASE } from "../SITE_BASE";
-import "./global.css";
-import "./playground.css";
-import "./shared.css";
-import "./landing.css";
-import "./landing-band.css";
 import "./catalogue.css";
+import "./global.css";
+import "./landing-band.css";
+import "./landing.css";
 import "./motions.css";
+import "./playground.css";
 import "./scenes.css";
+import "./shared.css";
 
 const title: string = "AutoMovie";
 const description: string =
@@ -73,7 +78,12 @@ export default function RootLayout(props: {
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={[sans.variable, mono.variable, display.variable, script.variable].join(" ")}
+      className={[
+        sans.variable,
+        mono.variable,
+        display.variable,
+        script.variable,
+      ].join(" ")}
     >
       <Head
         color={{
@@ -83,7 +93,11 @@ export default function RootLayout(props: {
         }}
         backgroundColor={{ light: "#fbfaf7", dark: "#0f1013" }}
       >
-        <link rel="icon" type="image/svg+xml" href={`${SITE_BASE}/favicon.svg`} />
+        <link
+          rel="icon"
+          type="image/svg+xml"
+          href={`${SITE_BASE}/favicon.svg`}
+        />
         <meta name="theme-color" content="#17181c" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={title} />
