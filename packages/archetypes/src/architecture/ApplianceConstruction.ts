@@ -181,6 +181,7 @@ export namespace ApplianceConstruction {
     const radius: number = 0.0125;
     const bar: number = face + E.handle - radius;
     const edge: number = -width / 2;
+    const barX: number = edge + radius;
     for (const [door, handle, bottom, top, grip] of [
       ["fridgeDoor", "fridgeHandle", freezer, height, d.pullHeight!],
       ["freezerDoor", "freezerHandle", 0, freezer, freezer],
@@ -195,8 +196,8 @@ export namespace ApplianceConstruction {
       builder.rod(
         `${handle}-bar`,
         radius,
-        v(edge + radius, low, bar),
-        v(edge + radius, low + 0.3, bar),
+        v(barX, low, bar),
+        v(barX, low + 0.3, bar),
         { color: METAL },
       );
       builder.affordance({
@@ -211,7 +212,11 @@ export namespace ApplianceConstruction {
         id: handle,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(v(edge, grip, face), v(0, 0, 1), v(0, 1, 0)),
+        frame: ArchetypeFrame.facing(
+          v(barX, grip, bar),
+          v(0, 0, 1),
+          v(0, 1, 0),
+        ),
         extent: null,
         grip: "power",
         rides: door,

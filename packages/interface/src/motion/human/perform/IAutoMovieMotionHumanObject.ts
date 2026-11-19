@@ -3,6 +3,9 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieAffordance } from "../../../model/IAutoMovieAffordance";
 import type { IAutoMovieBody } from "../../../model/IAutoMovieBody";
 import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysicalShape";
+import type { IAutoMovieSoftCollider } from "../../../soft/IAutoMovieSoftCollider";
+import type { IAutoMovieSoftSolver } from "../../../soft/IAutoMovieSoftSolver";
+import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 
 /**
  * Attach actions to an object: an object says where a person meets it
@@ -31,8 +34,24 @@ export namespace IAutoMovieMotionHumanObject {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieAffordance, IAutoMoviePhysicalShape, IAutoMovieBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IModel {
+    /** Whether the model declares internal articulation. Omission leaves the adapter unable to certify that a model with a pose method is rigid. */
+    readonly hasArticulations?: boolean;
+
     /** Its contacts, in its own space. */
     affordances?: readonly IAutoMovieAffordance[] | null;
+
+    /**
+     * Endpoints of a declared span at this model's current articulation state.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the span identity and the current model pose used by the reader.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The model provider owns endpoint resolution.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature has no body.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature introduces no substitute endpoint.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Lookup and placement costs belong to the model provider.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no reads or pose lifetimes.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources.
+     */
+    span?(id: string): ISpanEnds;
 
     /**
      * Its colliders in its own space, for a hand to close on.
@@ -49,12 +68,12 @@ export namespace IAutoMovieMotionHumanObject {
 
     /**
      * The object with its articulations at stated travels, for an object
-     * whose parts move (an archetype's `articulate`); a rigid object has none.
+     * whose parts move (an archetype's `articulate`). Providers may expose this method on rigid models with `hasArticulations: false`.
      *
      * @param state Travel by articulation id.
      * @returns The posed object.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.articulate: The object with its articulations at stated travels, for an object whose parts move (an archetype's `articulate`); a rigid object has none.
+     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.articulate: The object with its articulations at stated travels, for an object whose parts move (an archetype's `articulate`). Providers may expose this method on rigid models with `hasArticulations: false`.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
      * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
@@ -68,6 +87,74 @@ export namespace IAutoMovieMotionHumanObject {
 
     /** Its physical data (an archetype's model body); none when absent or null. */
     body?: IAutoMovieBody | null;
+  }
+
+  /**
+   * Two endpoints in the current model pose, in model-space metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States endpoint order, frame and units.
+   * @evidence contracts/development/design.md#principled-representation The ordered endpoints use the canonical vector and are resolved at one articulation state.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A provider can return its existing span state. Motion uses only the endpoints.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No model class or algorithm is required by this record.
+   */
+  export interface ISpanEnds {
+    /** The first endpoint in the model's posed space, in metres. */
+    from: IAutoMovieVector3;
+
+    /** The second endpoint in the model's posed space, in metres. */
+    to: IAutoMovieVector3;
+  }
+
+  /**
+   * The model's declared span geometry and its current endpoint reader.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names span identity, physical lengths and the no-rest-length case.
+   * @evidence contracts/development/design.md#principled-representation A stable span id identifies geometry in metres, including the declared length of a line allowed to slack.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.cord reads the same declaration and endpoint method the provider uses to lay out the line.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The span reader is required. Its provider's own span records may carry other data without motions importing the provider package.
+   */
+  export type ISpanModel = IModel &
+    Required<Pick<IModel, "span">> & {
+      /** Each line's stable id, radius and declared length, null for a rigid span. */
+      readonly spans: readonly {
+        readonly id: string;
+        readonly radius: number;
+        readonly length: number | null;
+      }[];
+    };
+
+  /**
+   * A declared span's soft-cord placement and physical discretization.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names subject and owner identity, linear topology, mass, friction and the fixed-step solver.
+   * @evidence contracts/development/design.md#principled-representation Rest length and radius belong to the model. The caller supplies its cord mass in kg, number of links and the engine's timebase and material settings.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.cord consumes only the owning prop, the separate cord identity and the soft settings absent from the model's span declaration.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No gravity, mass, timestep, friction or animation is inferred from the model name.
+   */
+  export interface ICord {
+    /** Unique subject id of the soft cord in the performance. */
+    subject: string;
+
+    /** The existing prop built from the same model, included in the performance. */
+    owner: Pick<IAutoMovieMotionHumanProp, "subject" | "frame" | "motion">;
+
+    /** Number of cord links, at least two. The soft body has one more particle. */
+    links: number;
+
+    /** Total cord mass in kilograms, distributed along the line. */
+    mass: number;
+
+    /** The fixed-step solver's integration, stiffness and budget settings. */
+    solver: IAutoMovieSoftSolver;
+
+    /** Coulomb friction coefficient used for cord contact. */
+    friction: number;
+
+    /** Whether the cord asks the engine to project self-contact. */
+    selfCollision?: boolean;
+
+    /** Additional collision boundaries, absent for a free-hanging cord. */
+    colliders?: readonly IAutoMovieSoftCollider[];
   }
 
   /**

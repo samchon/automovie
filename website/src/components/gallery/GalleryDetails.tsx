@@ -166,36 +166,38 @@ export function GalleryDetails(props: {
                         {unit(dimension.unit)}
                       </td>
                       <td>
-                        <div
-                          className="am-band"
-                          role="img"
-                          aria-label={`${format(dimension.minimum)} to ${format(dimension.maximum)} ${dimension.unit}`}
-                        >
-                          <span
-                            className="am-band-mark"
-                            style={{
-                              left: `${
-                                dimension.maximum > dimension.minimum
-                                  ? Math.min(
-                                      100,
-                                      Math.max(
-                                        0,
-                                        ((dimension.value - dimension.minimum) /
-                                          (dimension.maximum -
-                                            dimension.minimum)) *
-                                          100,
-                                      ),
-                                    )
-                                  : 50
-                              }%`,
-                            }}
-                          />
-                        </div>
-                        <span className="am-band-text">
-                          {format(dimension.minimum)} to{" "}
-                          {format(dimension.maximum)}
-                          {unit(dimension.unit)}
-                        </span>
+                        {dimension.maximum === dimension.minimum ? (
+                          <span className="am-band-text">Single value</span>
+                        ) : (
+                          <>
+                            <div
+                              className="am-band"
+                              role="img"
+                              aria-label={`${format(dimension.minimum)} to ${format(dimension.maximum)} ${dimension.unit}`}
+                            >
+                              <span
+                                className="am-band-mark"
+                                style={{
+                                  left: `${Math.min(
+                                    100,
+                                    Math.max(
+                                      0,
+                                      ((dimension.value - dimension.minimum) /
+                                        (dimension.maximum -
+                                          dimension.minimum)) *
+                                        100,
+                                    ),
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                            <span className="am-band-text">
+                              {format(dimension.minimum)} to{" "}
+                              {format(dimension.maximum)}
+                              {unit(dimension.unit)}
+                            </span>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ),

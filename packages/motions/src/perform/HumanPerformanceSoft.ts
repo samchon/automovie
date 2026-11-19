@@ -14,6 +14,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
+import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 
 /**
  * A performance's soft props: each solved once from the displayed poses of
@@ -30,7 +31,8 @@ import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
  * binds the particle nearest the hand's grip socket when the grip closes,
  * read from the solve as it stands then, to that socket for the window, and
  * releases it after, so the particle falls with the velocity the hand gave
- * it. Two hands on one particle (a handover's shared window) bind it to the
+ * it. On a cord attached at both ends to a model span, only the interior
+ * particles are available to the grip. Two hands on one particle (a handover's shared window) bind it to the
  * hand that closed last, as a rigid prop rides the last grip. The engine
  * solves the whole span once (`simulateSoftBodyWithBoundaries` with an
  * observer that keeps every step), replaying from step 0 once per grip that
@@ -285,22 +287,18 @@ export namespace HumanPerformanceSoft {
         fix: "read a prop that declares `soft`",
       });
     const dt: number = domain.solver.fixedStepSeconds;
-    const count: number = Math.ceil(state.duration / dt - 1e-9);
-    if (count > domain.solver.maxSteps)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: `${subject}.soft.solver.maxSteps`,
-        value: count,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: domain.solver.maxSteps,
-          unit: "steps",
-          whole: true,
-        },
-        reason: `the performance lasts ${state.duration} s, ${count} steps of ${dt} s, past the domain's budget of ${domain.solver.maxSteps}`,
-        fix: "raise the domain's maxSteps within the engine's soft budget, or lengthen its step",
-      });
+    const count: number = HumanPerformanceSoftBudget(
+      subject,
+      domain,
+      state.duration,
+    );
+    const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined =
+      prop?.softSpan;
+    const {
+      seed,
+      spans,
+    }: ReturnType<typeof HumanPerformanceSoftBoundary.seed> =
+      HumanPerformanceSoftBoundary.seed(state, domain, span, count);
 
     // The displayed bones of every person the domain or a grip names, read
     // once per step.
@@ -314,24 +312,20 @@ export namespace HumanPerformanceSoft {
       IAutoMovieMotionHumanPerformanceSoft.ISolved,
       "steps" | "loads"
     > => {
+      const gripped: ReadonlySet<number> = new Set(
+        grips.map(
+          (grip: HumanPerformanceSoftBoundary.IGripAnchor): number =>
+            grip.particle,
+        ),
+      );
       const anchored: IAutoMovieSoftBodyDomain = {
-        ...domain,
+        ...seed,
         anchors: [
-          ...domain.anchors.filter(
-            (a: IAutoMovieSoftAnchor): boolean =>
-              !grips.some(
-                (g: HumanPerformanceSoftBoundary.IGripAnchor): boolean =>
-                  g.particle === a.particle,
-              ),
+          ...seed.anchors.filter(
+            (anchor: IAutoMovieSoftAnchor): boolean =>
+              !gripped.has(anchor.particle),
           ),
-          ...[
-            ...new Set(
-              grips.map(
-                (g: HumanPerformanceSoftBoundary.IGripAnchor): number =>
-                  g.particle,
-              ),
-            ),
-          ].map(
+          ...[...gripped].map(
             (particle: number): IAutoMovieSoftAnchor => ({
               id: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
               particle,
@@ -352,9 +346,11 @@ export namespace HumanPerformanceSoft {
             state,
             anchored,
             grips,
+            gripped,
             bones,
             k,
             k * dt,
+            spans?.[k],
           ),
         );
       const steps: Float64Array[] = [
@@ -440,9 +436,13 @@ export namespace HumanPerformanceSoft {
         k,
         k * dt,
       );
-      let nearest: number = 0;
+
+      // A double-ended model cord keeps both attachments when a hand holds it.
+      const first: number = span === undefined ? 0 : 1;
+      const end: number = positions.length / 3 - first;
+      let nearest: number = first;
       let best: number = Infinity;
-      for (let p: number = 0; p * 3 < positions.length; ++p) {
+      for (let p: number = first; p < end; ++p) {
         const d: number = Math.hypot(
           positions[p * 3]! - socket.x,
           positions[p * 3 + 1]! - socket.y,

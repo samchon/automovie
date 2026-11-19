@@ -32,6 +32,12 @@ import { HumanSegmentStill } from "./HumanSegmentStill";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A hand that holds a prop and is driven elsewhere is refused.
  */
 export namespace HumanPerformanceContacts {
+  /** A closed hold remembers the action that took it over for cut rollback. */
+  const takeovers: WeakMap<
+    IAutoMovieMotionHumanSegment.IHeld,
+    IAutoMovieMotionHumanSegment
+  > = new WeakMap();
+
   /**
    * The contact scan's step, seconds: a 120th, so a strike of at most a few metres a second moves a few centimetres between samples.
 
@@ -46,12 +52,12 @@ export namespace HumanPerformanceContacts {
    * holds of its own.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States hand takeover, held-prop transfer and refusal when a different contact drives a holding hand.
-   * @evidence contracts/development/implementation.md#principled-implementation Existing hold windows determine which props the plan receives or releases, and the plan's final holds extend that state at their declared absolute times.
+   * @evidence contracts/development/implementation.md#principled-implementation Only a matching contact within the placed action can take over a hold. The plan's final holds extend that state at their declared absolute times, provided their closures survive the placed end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The existing hold takeover pass precedes insertion of the new plan's declared holds.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An incompatible drive throws HumanRefusal with its hand/prop; riding keeps the declared hand-use policy.
    * @evidence contracts/development/implementation.md#efficient-algorithms Scans current holds and the plan's contacts/driven hands, then appends its declared holds; no geometry or fitting is introduced here.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads existing plan hold/contact metadata rather than recomputing grasp geometry.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the placed person's existing hold records; their windows bound activity and their lifetime remains the person's performance lifetime.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates the person's ordered holds and adds one weak takeover reference per closed hold so a cut can undo it. These records are bounded by the placed holds and released with their performance.
    */
   export function hold(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -69,13 +75,17 @@ export namespace HumanPerformanceContacts {
           c.kind === "grip" &&
           c.support.kind === "prop" &&
           c.support.carries !== false &&
-          c.support.subject === held.prop,
+          c.support.subject === held.prop &&
+          segment.start + c.from * plan.duration <= segment.end + 1e-9 &&
+          segment.start + c.to * plan.duration >= segment.entryTime - 1e-9,
       );
       if (take !== undefined) {
         held.until = Math.max(
           held.from,
+          segment.entryTime,
           segment.start + take.from * plan.duration,
         );
+        takeovers.set(held, segment);
         if (riding) held.riding = true;
       } else if (HumanSegment.drives(plan, held.side))
         throw new HumanRefusal({
@@ -95,19 +105,66 @@ export namespace HumanPerformanceContacts {
           fix: `put ${held.prop} down or hand it over first, or perform ${segment.name} with the free hand`,
         });
     }
-    for (const hold of plan.holds ?? [])
+    for (const hold of plan.holds ?? []) {
+      const from: number = segment.start + hold.from * plan.duration;
+      if (
+        from > segment.end + 1e-9 ||
+        (hold.capture !== undefined && from < segment.entryTime - 1e-9)
+      )
+        continue;
       person.holds.push({
         side: hold.side,
         prop: hold.prop,
         fingers: hold.fingers ?? {},
         source: segment,
         ...(hold.use === undefined ? {} : { use: hold.use }),
-        from: segment.start + hold.from * plan.duration,
+        from,
+        ...(hold.capture === undefined ? {} : { capture: hold.capture }),
         until: Infinity,
       });
+    }
 
     // A hold changes what the person shows from here on.
     person.planning?.clear();
+  }
+
+  /**
+   * Roll back holds and takeovers in the part of an action removed by a cut.
+   *
+   * @param person The performer whose action was cut.
+   * @param entry The cut action's schedule index.
+   * @param end The inclusive film second where that action now ends.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the schedule identity, inclusive time and both custody changes.
+   * @evidence contracts/development/implementation.md#principled-implementation Removes an owned hold only if its closure lies after the resolved end. Reopens an earlier hold only if the cut action supplied its deleted takeover.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keeps surviving holds in order, then clears planning reads once if a hold changed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps closures at the cut boundary with the same 1 ns action-window allowance as hold admission. An unrelated action's takeover is never undone.
+   * @evidence contracts/development/implementation.md#efficient-algorithms For H holds, one O(H) in-place compaction with at most one weak lookup per live hold.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing ordered hold records and the scheduler's cut boundary. Takeover ownership is tracked on the original hold identity.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Removes any reopened takeover link and retains no new record. Existing links have weak hold keys and release when the hold is no longer reachable.
+   */
+  export function cutHolds(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    entry: number,
+    end: number,
+  ): void {
+    let changed: boolean = false;
+    let next: number = 0;
+    for (const held of person.holds) {
+      if (held.source.entry === entry && held.from > end + 1e-9) {
+        changed = true;
+        continue;
+      }
+      if (held.until > end + 1e-9 && takeovers.get(held)?.entry === entry) {
+        held.until = Infinity;
+        delete held.riding;
+        takeovers.delete(held);
+        changed = true;
+      }
+      person.holds[next++] = held;
+    }
+    person.holds.length = next;
+    if (changed) person.planning?.clear();
   }
 
   /**

@@ -43,10 +43,13 @@ import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceKey } from "./HumanPerformanceKey";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
+import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
+import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
+import { validateInitialPropMounts } from "./validateInitialPropMounts";
 
 /**
  * Everything a performance resolves and its readers share: the people with
@@ -184,6 +187,7 @@ export class HumanPerformanceState {
         p,
       ]),
     );
+    validateInitialPropMounts(this.props);
     this.performers = [...input.performers];
     this.cues = input.cues ?? {};
     this.obstacles = input.obstacles ?? [];
@@ -331,6 +335,8 @@ export class HumanPerformanceState {
         );
       }
     this.schedule = HumanPerformanceSchedule.resolve(this, input);
+    for (const person of this.people.values())
+      HumanPerformanceOverlays.validate(person);
     // A production's rules (a sport's fouls, a scene's constraints) judge the
     // placed schedule before any contact is resolved: an illegal performance is
     // refused outright, the way an undeclared cut is, instead of being shown.
@@ -399,6 +405,9 @@ export class HumanPerformanceState {
     // Every action ends where it is placed, so the props' drives are known.
     HumanPerformanceObject.admit(this);
     this.duration = this.schedule.duration;
+    for (const prop of this.props.values())
+      if (prop.soft !== undefined)
+        HumanPerformanceSoftBudget(prop.subject, prop.soft, this.duration);
     for (const person of this.people.values()) {
       for (const segment of person.segments)
         HumanPreparedPlayback.prepare(segment.plan);

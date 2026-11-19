@@ -1,9 +1,13 @@
 import type {
+  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanLexiconParams,
+  IAutoMovieMotionHumanManipulate,
 } from "@automovie/interface";
 
 import { manipulate } from "../handling/manipulate";
+import { manipulateHeld } from "../handling/manipulateHeld";
 import { HumanActionRow } from "../law/HumanActionRow";
 
 /**
@@ -12,11 +16,10 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * (`HumanPerformance.IInput.laws`, `HumanChain.extend`); `manipulate` itself
  * is registered with them.
  *
- * Writing with a pen waits on its glyph strokes: no single-stroke font's
- * licence has been checked for shipping its data, so a production gives its
- * strokes as contacts until one is.
+ * Register the separate write law to trace an authored planar stroke with
+ * a held tool.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes and what waits.
+ * @evidence contracts/development/common.md#meaningful-documentation States what each row fixes and where an authored stroke belongs.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of `manipulate` (`HumanActionRow`), data over a law that already places the hand, fits the digits and refuses.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The family's law and rows and nothing else.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own.
@@ -63,11 +66,31 @@ export namespace HumanManipulate {
     digit: "index",
   });
 
-  /** Texting with a thumb: the right thumb on each key of the held phone's screen. */
+  /**
+   * Texting with a thumb. Over a carrier, give the sites in `contacts` and
+   * hold the prop beforehand with the thumb free. A site without travel is
+   * pressed on its surface. The carrier must yield the holding thumb. As a
+   * standalone action the right thumb presses an unheld pad.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the standalone and overlay inputs and the overlay's existing hold and channel requirements.
+   * @evidence contracts/development/design.md#principled-representation Both modes consume the same keyed contact contract. The held grip supplies the otherwise missing wrist frame.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The existing row exposes the overlay with its original parameter schema.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing keyed sequence off a carrier and the sampled thumb plan over one.
+   */
   export const thumbText: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["thumbText"]
-  > = HumanActionRow.of("thumbText", manipulate, {
-    side: "right",
-    digit: "thumb",
-  });
+  > = HumanActionRow.of(
+    "thumbText",
+    {
+      ...manipulate,
+      overlay: true,
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
+      ): IAutoMovieMotionHumanActionPlan =>
+        context.carrier === undefined
+          ? manipulate.plan(context)
+          : manipulateHeld(context),
+    },
+    { side: "right", digit: "thumb" },
+  );
 }

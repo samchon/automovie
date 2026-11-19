@@ -44,6 +44,8 @@ export namespace jumpEndpoints {
    * @param rootT The unlowered terminal push root, world metres.
    * @param rootL The unlowered touchdown root, world metres.
    * @param landing The original authored flat landing footprints.
+   * @param landingHeading The flat landing's world heading in degrees.
+   * @param landingKnee The authored pole in the landing frame.
    * @returns The two achieved canonical boundary states.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States phase/root provenance, original footprints and preparation order.
@@ -59,37 +61,84 @@ export namespace jumpEndpoints {
     rootT: IAutoMovieVector3,
     rootL: IAutoMovieVector3,
     landing: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    landingHeading: number,
+    landingKnee: typeof props.knee,
   ): IEnds {
-    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(props.body);
-    const lower: ReturnType<typeof lowerHumanPosture.prepare> = lowerHumanPosture.prepare(props.body);
-    const legs: ReturnType<typeof jumpState.prepareLegs> = jumpState.prepareLegs(props.body);
-    const terminal: ReturnType<typeof jumpPushEnd> = jumpPushEnd(props, rootT, read);
-    const pushed: IAutoMovieMotionHumanPosture = lower({
-      root: rootT, yaw: props.heading, pitch: 0, roll: 0,
-      joints: {
-        ...jumpJoints(props.body, props.upright.joints, jumpJoints.TAKEOFF, jumpJoints.TAKEOFF),
-        ...terminal.joints,
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(props.body);
+    const lower: ReturnType<typeof lowerHumanPosture.prepare> =
+      lowerHumanPosture.prepare(props.body);
+    const legs: ReturnType<typeof jumpState.prepareLegs> =
+      jumpState.prepareLegs(props.body);
+    const terminal: ReturnType<typeof jumpPushEnd> = jumpPushEnd(
+      props,
+      rootT,
+      read,
+    );
+    const pushed: IAutoMovieMotionHumanPosture = lower(
+      {
+        root: rootT,
+        yaw: props.heading,
+        pitch: 0,
+        roll: 0,
+        joints: {
+          ...jumpJoints(
+            props.body,
+            props.upright.joints,
+            jumpJoints.TAKEOFF,
+            jumpJoints.TAKEOFF,
+          ),
+          ...terminal.joints,
+        },
+        limbs: terminal.limbs,
       },
-      limbs: terminal.limbs,
-    }, read);
-    const start: jumpState.IState = jumpState.of(props.body,
-      jumpGroundPosture(props.body, pushed, props.reaching, read), legs, read, projection);
+      read,
+    );
+    const start: jumpState.IState = jumpState.of(
+      props.body,
+      jumpGroundPosture(props.body, pushed, props.reaching, read),
+      legs,
+      read,
+      projection,
+    );
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of ["left", "right"] as const)
       limbs[`${side}Leg`] = {
         point: landing[side].ankle,
         rotation: landing[side].rotation,
-        bend: props.knee(rootL, side, HumanFoot.heading(landing[side].rotation)),
+        bend: landingKnee(
+          rootL,
+          side,
+          HumanFoot.heading(landing[side].rotation),
+        ),
         planted: true,
         contact: HumanFoot.offset(props.body, side, "mtp"),
       };
-    const landed: IAutoMovieMotionHumanPosture = lower({
-      root: rootL, yaw: props.heading, pitch: 0, roll: 0,
-      joints: jumpJoints(props.body, props.upright.joints, jumpJoints.LANDING, jumpJoints.LANDING), limbs,
-    }, read);
-    const end: jumpState.IState = jumpState.of(props.body,
-      jumpGroundPosture(props.body, landed, "landing", read), legs, read, projection);
+    const landed: IAutoMovieMotionHumanPosture = lower(
+      {
+        root: rootL,
+        yaw: landingHeading,
+        pitch: 0,
+        roll: 0,
+        joints: jumpJoints(
+          props.body,
+          props.upright.joints,
+          jumpJoints.LANDING,
+          jumpJoints.LANDING,
+        ),
+        limbs,
+      },
+      read,
+    );
+    const end: jumpState.IState = jumpState.of(
+      props.body,
+      jumpGroundPosture(props.body, landed, "landing", read),
+      legs,
+      read,
+      projection,
+    );
     return { start, end };
   }
 }

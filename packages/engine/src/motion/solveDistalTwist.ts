@@ -28,7 +28,9 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * convention, and the share it cannot take is that convention's twist. The
  * mid bone's twist composes last in its own articulation, `A = Abd Flex
  * T(u, r)`, so the effector's local rotation is `rest^-1 T(u, -r) K` with `K`
- * fixed by the pose above and the request. The effector's rig twist is
+ * fixed by the pose above and the request. Explicit flexion-abduction-twist
+ * likewise keeps the lower twist last and selects the corresponding matrix
+ * entries when the effector uses that chart. The effector's rig twist is
  * `atan2(P, Q)` of two components of that rotation applied to its flexion
  * (and, for a distal effector, abduction) axis (`decomposeJointRotationOnBasis`),
  * and each component of a vector turned about `u` by `-r` is
@@ -171,9 +173,14 @@ function solve(
   };
 
   // How far the effector, clamped to its range, shows its asked rotation.
+  const chord: ReturnType<typeof prepareJointRotationProjection.wristChord> =
+    prepareJointRotationProjection.wristChord(projectWithQuaternion);
   let latestProjection: solveDistalTwist.IProjection | undefined;
-  const missed: (twist: number) => number = (twist: number): number => {
-    const local: IAutoMovieQuaternion = effectorOf(at(twist));
+  const missed: (twist: number, demand?: IAutoMovieQuaternion) => number = (
+    twist: number,
+    demand?: IAutoMovieQuaternion,
+  ): number => {
+    const local: IAutoMovieQuaternion = demand ?? effectorOf(at(twist));
     let effector: IAutoMovieJointPose;
     let shown: IAutoMovieQuaternion;
     if (projectWithQuaternion === undefined) {
@@ -276,13 +283,18 @@ function solve(
     ];
   };
   const x: IAutoMovieVector3 = Quaternion.rotateVector(K, e.flexion);
+  // Explicit F·A·T reads twist from minus the flexion/abduction matrix
+  // entry and the flexion diagonal, as the inverse chart does.
+  const charted: boolean = e.rotationOrder === "flexion-abduction-twist";
   const [P, Q]: [number, number, number][] =
-    e.twistPlacement === "distal"
-      ? [harmonic(abduction, x), harmonic(abduction, Quaternion.rotateVector(K, e.abduction))]
-      : [harmonic(abduction, x), harmonic(fixed.flexion(), x)];
+    charted
+      ? [harmonic(fixed.flexion(), Quaternion.rotateVector(K, e.abduction)), harmonic(fixed.flexion(), x)]
+      : e.twistPlacement === "distal"
+        ? [harmonic(abduction, x), harmonic(abduction, Quaternion.rotateVector(K, e.abduction))]
+        : [harmonic(abduction, x), harmonic(fixed.flexion(), x)];
   const { cosine, sine }: solveDistalTwist.IZero = fixed.zero();
   const [A, B, C]: number[] = [0, 1, 2].map(
-    (i: number): number => P[i]! * cosine - Q[i]! * sine,
+    (i: number): number => (charted ? -P[i]! : P[i]!) * cosine - Q[i]! * sine,
   );
 
   // The forearm's range, and the clinical twist of each solution inside it.
@@ -320,7 +332,17 @@ function solve(
     const clamped: number = at(t).twist ?? 0;
     if (read.has(clamped)) continue;
     read.add(clamped);
-    const m: number = missed(t);
+    let demand: IAutoMovieQuaternion | undefined;
+    if (chord !== undefined) {
+      demand = effectorOf(at(t));
+
+      // A candidate beyond even the nearest-start tie cannot win. Reserve
+      // a second tie width for the original normalized Hamilton/atan2 score's
+      // rounding. The lower bound is squared, so this needs no angle read.
+      const outside: number = least + 2 * TIE;
+      if (chord(demand) > outside * outside) continue;
+    }
+    const m: number = missed(t, demand);
     if (
       m < least - TIE ||
       (Math.abs(m - least) <= TIE &&

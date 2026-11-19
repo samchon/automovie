@@ -1,3 +1,4 @@
+export type { IAutoMovieMotionHumanButton } from "./IAutoMovieMotionHumanButton";
 export type { IAutoMovieMotionHumanCarryHang } from "./IAutoMovieMotionHumanCarryHang";
 export type { IAutoMovieMotionHumanGrasp } from "./IAutoMovieMotionHumanGrasp";
 export type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGraspUse";
@@ -8,13 +9,22 @@ export type { IAutoMovieMotionHumanHandshake } from "./IAutoMovieMotionHumanHand
 export type { IAutoMovieMotionHumanHeldUse } from "./IAutoMovieMotionHumanHeldUse";
 export type { IAutoMovieMotionHumanManipulate } from "./IAutoMovieMotionHumanManipulate";
 export type { IAutoMovieMotionHumanManipulateFacing } from "./IAutoMovieMotionHumanManipulateFacing";
+export type { IAutoMovieMotionHumanGuitarNote } from "./IAutoMovieMotionHumanGuitarNote";
+export type { IAutoMovieMotionHumanGuitarChord } from "./IAutoMovieMotionHumanGuitarChord";
+export type { IAutoMovieMotionHumanPianoScore } from "./IAutoMovieMotionHumanPianoScore";
+export type { IAutoMovieMotionHumanPianoPedal } from "./IAutoMovieMotionHumanPianoPedal";
+export type { IAutoMovieMotionHumanPianoPerformance } from "./IAutoMovieMotionHumanPianoPerformance";
 export type { IAutoMovieMotionHumanPickUp } from "./IAutoMovieMotionHumanPickUp";
+export type { IAutoMovieMotionHumanPickUpMoving } from "./IAutoMovieMotionHumanPickUpMoving";
 export type { IAutoMovieMotionHumanPrehension } from "./IAutoMovieMotionHumanPrehension";
 export type { IAutoMovieMotionHumanPreshape } from "./IAutoMovieMotionHumanPreshape";
 export type { IAutoMovieMotionHumanPushPull } from "./IAutoMovieMotionHumanPushPull";
 export type { IAutoMovieMotionHumanPushPullLean } from "./IAutoMovieMotionHumanPushPullLean";
 export type { IAutoMovieMotionHumanPushSled } from "./IAutoMovieMotionHumanPushSled";
 export type { IAutoMovieMotionHumanPutDown } from "./IAutoMovieMotionHumanPutDown";
+export type { IAutoMovieMotionHumanPutDownAperture } from "./IAutoMovieMotionHumanPutDownAperture";
+export type { IAutoMovieMotionHumanZip } from "./IAutoMovieMotionHumanZip";
 export type { IAutoMovieMotionHumanReceive } from "./IAutoMovieMotionHumanReceive";
 export type { IAutoMovieMotionHumanRegrasp } from "./IAutoMovieMotionHumanRegrasp";
 export type { IAutoMovieMotionHumanRelayPass } from "./IAutoMovieMotionHumanRelayPass";
+export type { IAutoMovieMotionHumanWrite } from "./IAutoMovieMotionHumanWrite";

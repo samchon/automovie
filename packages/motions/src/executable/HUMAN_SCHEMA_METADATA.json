@@ -442,6 +442,306 @@
     }
   },
   "rows": {
+    "bowViolin": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "default": 1,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "button": {},
+    "coverFace": {
+      "properties": {
+        "seconds": {
+          "alternatives": [
+            {
+              "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
+              "occurrence": 0,
+              "tree": {
+                "numeric": {
+                  "type": "number",
+                  "minimum": 0,
+                  "x-unit": "s"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "crossAnkleOverKnee": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 1,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "curtsy": {
+      "properties": {
+        "depth": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 0.08,
+            "default": 0.045,
+            "x-unit": "hip heights"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "cymbalStrike": {},
+    "getOut": {},
+    "guitarChord": {},
+    "guitarNote": {},
+    "handrimStroke": {
+      "properties": {
+        "approach": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "push": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "recovery": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "headTilt": {
+      "properties": {
+        "degrees": {
+          "numeric": {
+            "type": "number",
+            "minimum": -20,
+            "maximum": 20,
+            "x-unit": "degrees"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0.6,
+            "default": 0.9,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "pianoPedal": {},
+    "pianoPerformance": {},
+    "pianoScore": {},
+    "pickUpMoving": {},
+    "playWindInstrument": {
+      "properties": {
+        "delay": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "x-unit": "s"
+          }
+        },
+        "prepare": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "default": 1,
+            "x-unit": "s"
+          }
+        },
+        "retract": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "pour": {},
+    "putDownAperture": {},
+    "ropeSkip": {
+      "properties": {
+        "flightSeconds": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0.12,
+            "maximum": 0.36,
+            "default": 0.26,
+            "x-unit": "s"
+          }
+        },
+        "periodSeconds": {
+          "numeric": {
+            "type": "number",
+            "default": 0.5882352941176471,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "seatedHeelBounce": {
+      "properties": {
+        "beats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "cadence": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/s"
+          }
+        }
+      }
+    },
+    "shiftStandingWeight": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "hold": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "returnSeconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "sideDrumStrike": {},
+    "spacecraftGlide": {},
+    "stageCatch": {},
+    "swimImmersed": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "speed": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "x-unit": "m/s"
+          }
+        },
+        "water": {
+          "properties": {
+            "density": {
+              "numeric": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "x-unit": "kg/m³"
+              }
+            }
+          }
+        }
+      }
+    },
+    "swipeTouchscreen": {
+      "properties": {
+        "from": {
+          "numeric": {
+            "type": "number",
+            "minimum": -0.5,
+            "maximum": 0.5,
+            "x-unit": "width"
+          }
+        },
+        "to": {
+          "numeric": {
+            "type": "number",
+            "minimum": -0.5,
+            "maximum": 0.5,
+            "x-unit": "width"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "default": 0.2851,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "tipHat": {},
+    "tuckHair": {},
+    "wipeTears": {
+      "properties": {
+        "seconds": {
+          "alternatives": [
+            {
+              "shape": "{\"type\":\"number\",\"properties\":[],\"discriminants\":[]}",
+              "occurrence": 0,
+              "tree": {
+                "numeric": {
+                  "type": "number",
+                  "minimum": 0,
+                  "x-unit": "s"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "write": {},
+    "zip": {},
     "advance": {},
     "aim": {
       "properties": {

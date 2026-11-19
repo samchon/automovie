@@ -13,7 +13,7 @@ import { GalleryCatalogue } from "./GalleryCatalogue";
 
 /**
  * Builds one archetype for the gallery and reads off what the page lists:
- * the dimensions its seed drew with their bands or the model they belong to,
+ * the dimensions it records with a band, a model or a derived value,
  * as the archetype records them, and its affordances with
  * the range each articulation moves through.
  */
@@ -66,7 +66,7 @@ export namespace GalleryArchetype {
     // Each dimension is listed from the archetype's own record of where it came
     // from: a drawn one with the band it was drawn in, a picked model's figure
     // as that fixed value in its dimension's unit, named by the model it
-    // belongs to.
+    // belongs to. A derived value has only its recorded unit.
     const provenance: ArchetypeDrawSession.IProvenance<string> =
       rest.provenance;
     const drawn: Readonly<Partial<Record<string, number>>> =
@@ -92,19 +92,20 @@ export namespace GalleryArchetype {
                 },
               ];
             const axis: string | undefined = provenance.figures[name];
-            return axis === undefined
-              ? []
-              : [
-                  {
-                    name,
-                    value,
-                    minimum: value,
-                    maximum: value,
-                    unit: provenance.units[name] ?? "",
-                    source: `${axis} ${provenance.models[axis]}`,
-                    provisional: false,
-                  },
-                ];
+            return [
+              {
+                name,
+                value,
+                minimum: value,
+                maximum: value,
+                unit: provenance.units[name] ?? "",
+                source:
+                  axis === undefined
+                    ? "Derived by the archetype"
+                    : `${axis} ${provenance.models[axis]}`,
+                provisional: false,
+              },
+            ];
           },
         ),
 

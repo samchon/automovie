@@ -99,7 +99,7 @@ A seat too low to sit down on from standing is refused with the least height tha
 
 ## Mutual actions
 
-A mutual action is one thing two or more people do together. It is stated once: its roles, and the action each role performs. `HumanChain.mutual` plays every chain of the cast, then has every role perform its part at once from one meeting, so no role chases another. An action that follows or meets a person who moves plans from where that person's actions take them, so compose that person's chain first. `HumanMutual` holds the vocabulary's (`handshake`, `highFive`, `handOver`); a production states its own as an `IHumanMutual` over its registered actions:
+A mutual action defines the roles and the action each role performs. `HumanChain.mutual` starts those actions together after the cast's entry chains. The meeting laws in `HumanMutual` include `handshake`, `highFive` and `handOver`. They solve a shared meeting. The package also exports `hug` and `shoulderClasp`, whose role-local touches each plan their own arrival and dwell. A production can define an `IHumanMutual` over its registered actions.
 
 ```ts
 const toast: IHumanMutual<object, "host" | "guest"> = {

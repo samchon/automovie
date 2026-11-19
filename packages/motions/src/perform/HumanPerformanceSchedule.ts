@@ -27,6 +27,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanResponse } from "../skill/HumanResponse";
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanHitTrack } from "./HumanHitTrack";
+import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
+import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
@@ -79,6 +81,19 @@ export namespace HumanPerformanceSchedule {
           placed: { start: number; duration: number },
         ): number | undefined =>
           HumanPerformanceSchedule.proximity(self, intent, placed),
+        state: (entry: IAutoMovieScheduleEntry): void => {
+          const overlay: boolean = self.riding.has(entry.index);
+          if (!overlay && entry.cut === undefined) return;
+          const person: IAutoMovieMotionHumanSegment.IPerson =
+            HumanPerformanceRead.person(self, entry.subject);
+          if (overlay) HumanPerformanceOverlays.finish(person, entry);
+          if (entry.cut !== undefined)
+            HumanPerformanceContacts.cutHolds(
+              person,
+              entry.index,
+              entry.end,
+            );
+        },
         // A struck subject's hits are a track computed from what is placed.
         instants: (
           of: string,

@@ -242,11 +242,11 @@ export namespace HumanRide {
           began: IAutoMovieVector3,
           film: number,
           now: IAutoMovieRigidTransform,
+          sample?: RigidCarrierSample.IRead,
         ): IAutoMovieVector3 => {
-          const moved: IAutoMovieVector3 | undefined = support.prop.point?.(
-            id,
-            film,
-          )?.point;
+          const moved: IAutoMovieVector3 | undefined =
+            sample?.point(id).translation ??
+            support.prop.point?.(id, film)?.point;
           return moved === undefined
             ? { x: 0, y: 0, z: 0 }
             : Vector3.subtract(
@@ -276,10 +276,13 @@ export namespace HumanRide {
             context.start + Math.min(seconds, Math.max(0, at));
           const now: IAutoMovieRigidTransform =
             nativeFrame === undefined ? support.frame(film) : nativeFrame(film);
+          const sample: RigidCarrierSample.IRead | undefined =
+            RigidCarrierSample.playback(support.prop)?.sample(film);
           const taken: number = minimumJerk.share(Math.min(1, at / TAKE));
           const grips: ReturnType<HumanRideHands.IHands["gripsAt"]> = gripsAt(
             film,
             now,
+            sample,
           );
           const leant: IAutoMovieMotionHumanPosture = posture(
             grips,
@@ -334,7 +337,7 @@ export namespace HumanRide {
           const seat: IAutoMovieVector3 =
             sat === undefined || saddle === undefined
               ? { x: 0, y: 0, z: 0 }
-              : strayed(saddle, sat, film, now);
+              : strayed(saddle, sat, film, now, sample);
           const out: IAutoMovieMotionHumanPosture = {
             ...carried,
             limbs,
@@ -453,8 +456,11 @@ export namespace HumanRide {
             )
               return undefined;
             const film: number = context.start + Math.min(seconds, local);
-            return domains.find((domain: RigidCarrierSample.IHold): boolean =>
-              film >= domain.from && film <= domain.to && domain.contains(film),
+            return domains.find(
+              (domain: RigidCarrierSample.IHold): boolean =>
+                film >= domain.from &&
+                film <= domain.to &&
+                domain.contains(film),
             );
           };
           const events: readonly number[] = [TAKE, seconds].filter(

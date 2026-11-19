@@ -132,12 +132,15 @@ export namespace HumanCrowd {
   }
 
   /**
-   * Steer the crowd.
+   * Plan the crowd's routes and sample all leaders together on the 24 Hz
+   * course grid. A group shares its leader's route and arrival. The combined
+   * breadth disc is a steering proxy; placed members' clearances depend on
+   * their formation offsets and course heading.
    *
    * @param ensemble The ensemble.
    * @param request The goals, the gait, the cue and the obstacles.
    * @returns The course frames and arrivals.
-   * @throws {HumanRefusal} When two members, or a member and an obstacle, stay closer than their summed radii for longer than one step: the pass is kinematic and does not push.
+   * @throws {HumanRefusal} When two steering proxies, or a proxy and an obstacle, overlap at two successive integration knots.
    */
   export function steer(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -218,25 +221,27 @@ export namespace HumanCrowd {
       });
     }
 
-    // Each agent's course sampled every STEP, a member taking its agent's.
+    // Sample all agents at one film second before seeking to the next.
+    // Their course readers share that interpolation of the crowd state.
     const step: number = STEP;
     const count: number = Math.ceil((request.until - request.start) / step);
-    const frames: IAutoMovieMotionHumanFormation.ICourse[] = leaders.map(
+    const samples: IAutoMovieMotionHumanFormation.ISample[][] = leaders.map(
+      (): IAutoMovieMotionHumanFormation.ISample[] => [],
+    );
+    for (let k: number = 0; k <= count; ++k) {
+      const seconds: number = Math.min(request.until, request.start + k * step);
+      for (const [a, course] of pass.courses.entries()) {
+        const p: IAutoMovieVector3 = course.at(seconds).position;
+        samples[a]!.push({ seconds, x: p.x, y: 0, z: p.z });
+      }
+    }
+    const frames: IAutoMovieMotionHumanFormation.ICourse[] = samples.map(
       (
-        _: IAutoMovieMotionHumanEnsemble.IMember,
-        a: number,
-      ): IAutoMovieMotionHumanFormation.ICourse => {
-        const samples: IAutoMovieMotionHumanFormation.ISample[] = [];
-        for (let k: number = 0; k <= count; ++k) {
-          const seconds: number = Math.min(
-            request.until,
-            request.start + k * step,
-          );
-          const p: IAutoMovieVector3 = pass.courses[a]!.at(seconds).position;
-          samples.push({ seconds, x: p.x, y: 0, z: p.z });
-        }
-        return { kind: "course", samples };
-      },
+        values: IAutoMovieMotionHumanFormation.ISample[],
+      ): IAutoMovieMotionHumanFormation.ICourse => ({
+        kind: "course",
+        samples: values,
+      }),
     );
     const byLeader: Map<number, number> = new Map(
       leaders.map(

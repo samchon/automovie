@@ -17,10 +17,17 @@ import { mixSeed } from "./math/mixSeed";
  * the cue is half-open. Far LOD retains indexes divisible by four, and the
  * output caps live particles rather than all candidate allocations.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Absolute-step spawn times and the preserved seed/index/domain stream determine ballistic drift, lifetime and sinusoidal opacity independently of evaluation order; admitted positive step and recipe ranges are required.
+ * For a localized plume, a wide outline develops as surrounding air mixes into
+ * the flow. Crapper (1977), Forced plume characteristics, describes linear
+ * growth of mean plume radius with distance from the source
+ * (https://doi.org/10.3402/tellusa.v29i5.11380). At constant rise speed, age is
+ * proportional to travel distance. The optional linear billboard growth
+ * depicts that widening without calculating air or droplet motion.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation Absolute-step spawn times and the preserved seed/index/domain stream determine ballistic drift, lifetime, optional airborne growth with a landing cutoff, and sinusoidal opacity independently of evaluation order; admitted positive step and recipe ranges are required.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Viewer instanced effects and shot runtime sampling share one compiled v1 sampler while recipe compilation owns validation and source-derived budgets.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fixed-step quotient allowance and index-quarter thinning are stated clock and LOD conventions, not fixture-specific recovery; invalid direct inputs are not silently admitted here.
- * @evidence contracts/development/common.md#meaningful-documentation Documents scheduling independence, half-open cue time, admitted-input premise, quotient allowance, LOD thinning and the distinction between candidate storage and output budget.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents scheduling independence, half-open cue time, admitted-input premise, plume approximation and its source, quotient allowance, LOD thinning and the distinction between candidate storage and output budget.
  * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary work and candidate indexes use the maximum-lifetime window; retained stains scan the complete recipe-bounded emission history. Returned records stop at maxParticles, independently of candidate storage.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each particle identity reuses stable random domains but each time sample recomputes its live population; no mutable recipe equivalence is assumed across frames.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Candidate and thinned index arrays are call-local; output owns its particle positions and bounded live records, and no GPU object or recipe reference is retained.
@@ -156,6 +163,15 @@ export const sampleCompiledEffect: (
     if (age >= lifetime && !settled) continue;
     if (settled && ballistic?.retainStains !== true) continue;
     const travel: number = Math.min(age, landing);
+    const initialSize: number = interpolate(
+      recipe.particle.size.min,
+      recipe.particle.size.max,
+      effectValue(effect.seed, index, 0x73697a65),
+    );
+    const size: number =
+      recipe.particle.size.end === undefined
+        ? initialSize
+        : interpolate(initialSize, recipe.particle.size.end, travel / lifetime);
     const opacity: number =
       interpolate(
         recipe.particle.opacity.min,
@@ -177,12 +193,7 @@ export const sampleCompiledEffect: (
             0.5 * (ballistic?.gravity ?? 0) * travel ** 2,
         z: initial.z + velocity.z * travel,
       },
-      size:
-        interpolate(
-          recipe.particle.size.min,
-          recipe.particle.size.max,
-          effectValue(effect.seed, index, 0x73697a65),
-        ) * (settled ? (ballistic?.stainSizeMultiplier ?? 1) : 1),
+      size: size * (settled ? (ballistic?.stainSizeMultiplier ?? 1) : 1),
       opacity,
       ageRatio,
       ...(settled ? { normal: { x: 0, y: 1, z: 0 } } : {}),

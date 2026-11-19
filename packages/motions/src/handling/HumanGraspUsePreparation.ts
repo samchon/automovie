@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -57,6 +58,9 @@ export namespace HumanGraspUsePreparation {
     /** The held prop's reader. */
     held: IAutoMovieMotionHumanPropReader;
 
+    /** The prop frame at grasp closure, in world metres and unit rotation. */
+    world: IAutoMovieRigidTransform;
+
     /** The working-point affordance. */
     tip: IAutoMovieAffordance;
 
@@ -83,20 +87,22 @@ export namespace HumanGraspUsePreparation {
    * Read the use's contacts, lines, region and laid hand.
    *
    * @param props The request.
+   * @param closure The prop frame at closure, or the entry frame when absent.
    * @returns The setup.
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop lacks the handle or the working point; a `parameter` refusal on `use` for an `along` or `worn` line with no region of the performer's own.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the request, the setup and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool's line runs from the handle to the working point in the prop's frame at the start; the asked line is forward of the body risen by the use's angle, across toward the other hand, or into the region's surface; the shortest turn between them about their cross product, or about the body's left when they oppose, lays the candidate hand.
+   * @evidence contracts/development/implementation.md#principled-implementation The tool's line runs from the handle to the working point in the prop's frame at closure; the asked line is forward of the body risen by the use's angle, across toward the other hand, or into the region's surface; the shortest turn between them about their cross product, or about the body's left when they oppose, lays the candidate hand.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Contacts, lines, region, turn and the two socket places, in that order.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing contact or region is refused, never substituted; the 1e-9 cross-product length is the floating-point floor below which the lines are parallel.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance scans and one entry FK of the arm and the region's bone.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The asked axis is prepared once for every roll of the search.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The setup lives for one `presented` call.
    */
-  export function of(props: IInput): IPrepared {
+  export function of(props: IInput, closure?: IAutoMovieRigidTransform): IPrepared {
     const context: (typeof props)["context"] = props.context;
     const held: IAutoMovieMotionHumanPropReader = context.prop(props.prop);
+    const world: IAutoMovieRigidTransform = closure ?? held.frame(context.start);
     const contact: (id: string) => IAutoMovieAffordance | undefined = (id: string): IAutoMovieAffordance | undefined =>
       (held.prop.affordances ?? []).find(
         (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
@@ -122,7 +128,7 @@ export namespace HumanGraspUsePreparation {
     // body, risen by the use's angle.
     const lying: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(
-        held.frame(context.start).rotation,
+        world.rotation,
         Vector3.subtract(tip.frame.translation, handle.frame.translation),
       ),
     );
@@ -195,7 +201,7 @@ export namespace HumanGraspUsePreparation {
     // hand, its right from the left.
     const face: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(
-        held.frame(context.start).rotation,
+        world.rotation,
         Quaternion.rotateVector(tip.frame.rotation, { x: 0, y: 1, z: 0 }),
       ),
     );
@@ -244,7 +250,7 @@ export namespace HumanGraspUsePreparation {
       "grip",
     ).point;
 
-    return { context, held, tip, at, site, laid, ahead, socket,
+    return { context, held, world, tip, at, site, laid, ahead, socket,
       roll: Quaternion.prepareAxisAngle(asked) };
   }
 }

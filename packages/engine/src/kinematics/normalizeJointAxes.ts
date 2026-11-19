@@ -11,16 +11,17 @@ import { validateJointAxesBasis } from "./validateJointAxesBasis";
  * quaternion composition and decomposition.
  *
  * The axes must pass {@link validateJointAxesBasis}: finite, non-zero and
- * mutually orthogonal, with a known `twistPlacement`. Otherwise the first issue
+ * mutually orthogonal, with a supported rotation order and compatible twist
+ * placement. Otherwise the first issue
  * is thrown as `<path> <expected>`, such as
  * `jointToQuaternion axes.twist must have non-zero length`. The result has
- * unit axes, `twistPlacement` copied only when the input declares it; it is
+ * unit axes and any declared placement and rotation order. It is
  * frozen and may be shared between calls on the same axes record.
  *
  * A rig's axes are a handful of constant records read for every bone of
  * every pose, so the admitted basis is remembered per record. A remembered
  * basis is returned only while the record still holds the nine components and
- * the placement it was admitted with, compared exactly, so a record edited
+ * the placement and order it was admitted with, compared exactly, so a record edited
  * since is validated again; a basis that fails is never remembered, and the
  * path, which only words a failure, plays no part in the result.
  *
@@ -31,7 +32,7 @@ import { validateJointAxesBasis } from "./validateJointAxesBasis";
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Turns the issue list of `validateJointAxesBasis`, which retargeting reports as violations, into the throwing guard the quaternion functions need, so the basis rules live in one place.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A skewed or degenerate basis throws instead of being orthogonalized or replaced by the default, and no bone or caller is special-cased; a remembered basis is the one the same values gave, so the result is the same number for number.
  * @evidence contracts/development/common.md#meaningful-documentation States the accepted basis, the thrown message shape with an example, that the result is frozen and may be shared, and when a remembered basis is reused.
- * @evidence contracts/development/implementation.md#efficient-algorithms An exact immutable output of this producer costs one weak membership lookup. Other remembered records cost ten scalar comparisons; new or edited ones validate three axes and normalize them, then register the produced immutable result. Prepared FK and inverse metadata use genuine outputs without probing arbitrary caller records; runtime speedup is unmeasured.
+ * @evidence contracts/development/implementation.md#efficient-algorithms An exact immutable output of this producer costs one weak membership lookup. Other remembered records cost eleven scalar comparisons; new or edited ones validate three axes and normalize them, then register the produced immutable result. Prepared FK and inverse metadata use genuine outputs without probing arbitrary caller records; runtime speedup is unmeasured.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The admitted basis of a raw record is remembered with its actual scalars, since poses and limb fits reuse axes. Private weak membership identifies only this producer's successfully frozen own-data outputs, so normalization itself and inverse handedness metadata can reuse them without re-reading immutable values. Arbitrary copies, proxies and caller-created frozen bases keep their existing live comparisons and admission.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One remembered basis per axes record remains in a weak map; one weak membership entry per produced immutable basis adds no strong lifetime. Both release with their owning records, and no skeleton, pose, angle or quaternion result population is retained.
  */
@@ -54,6 +55,9 @@ export function normalizeJointAxes(
     ...(axes.twistPlacement === undefined
       ? {}
       : { twistPlacement: axes.twistPlacement }),
+    ...(axes.rotationOrder === undefined
+      ? {}
+      : { rotationOrder: axes.rotationOrder }),
   });
   ADMITTED.set(axes, {
     values: [
@@ -68,6 +72,7 @@ export function normalizeJointAxes(
       axes.twist.z,
     ],
     placement: axes.twistPlacement,
+    order: axes.rotationOrder,
     basis,
   });
   OWNED.add(basis);
@@ -102,6 +107,9 @@ interface IRemembered {
   /** The record's twist placement. */
   placement: IAutoMovieJointAxes["twistPlacement"];
 
+  /** The record's explicit rotation order, when declared. */
+  order: IAutoMovieJointAxes["rotationOrder"];
+
   /** The normalized basis. */
   basis: IAutoMovieJointAxes;
 }
@@ -126,4 +134,5 @@ const same: (known: IRemembered, axes: IAutoMovieJointAxes) => boolean = (
   Object.is(known.values[6], axes.twist.x) &&
   Object.is(known.values[7], axes.twist.y) &&
   Object.is(known.values[8], axes.twist.z) &&
-  known.placement === axes.twistPlacement;
+  known.placement === axes.twistPlacement &&
+  known.order === axes.rotationOrder;

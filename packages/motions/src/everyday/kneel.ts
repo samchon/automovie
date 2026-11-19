@@ -6,8 +6,8 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanArmPlanned,
+  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanKneel,
@@ -86,16 +86,36 @@ export namespace kneel {
   /** Cancel table: the body stands, crouches or handles a low thing once it has settled. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["settled", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     crouch: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["settled", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     pickUp: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["settled", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     putDown: [
-      { window: ["settled", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["settled", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
   };
 
@@ -195,34 +215,56 @@ export namespace kneel {
     }
     const display: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(
-        phases.map((p: IPhase): { name: string; seconds: number } => ({ name: p.name, seconds: p.seconds })),
+        phases.map((p: IPhase): { name: string; seconds: number } => ({
+          name: p.name,
+          seconds: p.seconds,
+        })),
       ),
       modifiers,
       { holds: ["settled"] },
     );
     const window: HumanPhysics.Window = HumanPhysics.prepare(
-      context.params, kneel, context.start, { duration: display.duration, events: display.events() }, context.instant,
+      context.params,
+      kneel,
+      context.start,
+      { duration: display.duration, events: display.events() },
+      context.instant,
     );
     if (window !== null && window.by !== "hips")
       throw new HumanRefusal({
-        kind: "parameter", axis: "balance.by", value: window.by,
+        kind: "parameter",
+        axis: "balance.by",
+        value: window.by,
         reason: "kneeling moves the hips along the supporting legs",
         fix: "give hips for balance.by",
       });
     const settled: number = display.at("settled");
     const next: IPhase | undefined =
-      phases[phases.findIndex((phase: IPhase): boolean => phase.name === "settled") + 1];
-    const release: number = next === undefined ? display.duration : display.at(next.name);
+      phases[
+        phases.findIndex((phase: IPhase): boolean => phase.name === "settled") +
+          1
+      ];
+    const release: number =
+      next === undefined ? display.duration : display.at(next.name);
     const stationary: number = release - settled;
     const duration: number = display.duration - stationary;
-    const movingSecond: (seconds: number) => number = (seconds: number): number =>
-      Math.min(settled, seconds) + Math.max(0, seconds - release);
+    const movingSecond: (seconds: number) => number = (
+      seconds: number,
+    ): number => Math.min(settled, seconds) + Math.max(0, seconds - release);
     // Lay the changing body and arms only on the travel clock. The settled
     // interval has one geometry regardless of its duration after mannering.
-    const clock: IAutoMovieMotionClock = stationary === 0 ? display : AutoMovieMotionClock.of(
-      duration, phases.map((phase: IPhase): IAutoMovieMotionClockInstant =>
-        ({ name: phase.name, seconds: movingSecond(display.at(phase.name)) })),
-    );
+    const clock: IAutoMovieMotionClock =
+      stationary === 0
+        ? display
+        : AutoMovieMotionClock.of(
+            duration,
+            phases.map(
+              (phase: IPhase): IAutoMovieMotionClockInstant => ({
+                name: phase.name,
+                seconds: movingSecond(display.at(phase.name)),
+              }),
+            ),
+          );
     const at: ReturnType<typeof prepareKneelClock<IPhase>> = prepareKneelClock(
       clock,
       phases,
@@ -249,7 +291,10 @@ export namespace kneel {
     let landedKey: number | undefined;
     let landedBalance: number | undefined;
     const weightAt: (second: number) => number = (second: number): number =>
-      HumanPhysics.weightAt(window, second > settled ? second + stationary : second);
+      HumanPhysics.weightAt(
+        window,
+        second > settled ? second + stationary : second,
+      );
     const write: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -264,7 +309,9 @@ export namespace kneel {
       const { phase, index, u, linear }: ReturnType<typeof at> = at(seconds);
       const feet: Record<
         "left" | "right",
-        ReturnType<ReturnType<typeof prepareKneelPhases>[number]["feet"]["left"]>
+        ReturnType<
+          ReturnType<typeof prepareKneelPhases>[number]["feet"]["left"]
+        >
       > = {
         left: geometry[index]!.feet.left(u, linear),
         right: geometry[index]!.feet.right(u, linear),
@@ -299,21 +346,28 @@ export namespace kneel {
         const reach: number =
           (solved.extension + (REACH - solved.extension) * step) * length;
         const high: number = Math.min(
-          ...(["left", "right"] as const).map((side: "left" | "right"): number => {
-            const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
-            const hip: IAutoMovieVector3 = Vector3.add(flat, solved.rest[side]);
-            const d: number = Math.hypot(ankle.x - hip.x, ankle.z - hip.z);
-            return (
-              ankle.y +
-              Math.sqrt(Math.max(0, reach * reach - d * d)) -
-              solved.rest[side].y
-            );
-          }),
+          ...(["left", "right"] as const).map(
+            (side: "left" | "right"): number => {
+              const ankle: IAutoMovieVector3 = feet[side].placement.ankle;
+              const hip: IAutoMovieVector3 = Vector3.add(
+                flat,
+                solved.rest[side],
+              );
+              const d: number = Math.hypot(ankle.x - hip.x, ankle.z - hip.z);
+              return (
+                ankle.y +
+                Math.sqrt(Math.max(0, reach * reach - d * d)) -
+                solved.rest[side].y
+              );
+            },
+          ),
         );
         // Once the foot has landed the hips never ride above the straight
         // way between the neighbouring states' heights.
-        const landed: number | undefined = landedKey === undefined || landedBalance === undefined
-          ? landedKey : landedKey + weightAt(seconds) * (landedBalance - landedKey);
+        const landed: number | undefined =
+          landedKey === undefined || landedBalance === undefined
+            ? landedKey
+            : landedKey + weightAt(seconds) * (landedBalance - landedKey);
         const cap: number =
           landed === undefined || (pair === 1 && phase.from === 0)
             ? Infinity
@@ -341,7 +395,9 @@ export namespace kneel {
         0,
       );
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
+      };
       for (const side of ["left", "right"] as const) {
         limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
           body,
@@ -388,21 +444,44 @@ export namespace kneel {
     const downEnd: number = display.at(phases[2]!.name);
     const upStart: number = off === undefined ? Infinity : display.at(off.name);
     if (window !== null && (window.from < downEnd || window.to > upStart)) {
-      const course: ReturnType<typeof prepareKneelBalance> = prepareKneelBalance({
-        body, standing, forward: solved.forward, feet: keys[1]!.feet, yaw, at, write,
-      });
+      const course: ReturnType<typeof prepareKneelBalance> =
+        prepareKneelBalance({
+          body,
+          standing,
+          forward: solved.forward,
+          feet: keys[1]!.feet,
+          yaw,
+          at,
+          write,
+        });
       if (window.to > landing)
-        landedBalance = write(standing, landing, course(0, landing, 0, landing)(landing)).root.y;
-      const blend: (keyed: Course, balanced: Course) => Course = (keyed: Course, balanced: Course): Course =>
+        landedBalance = write(
+          standing,
+          landing,
+          course(0, landing, 0, landing)(landing),
+        ).root.y;
+      const blend: (keyed: Course, balanced: Course) => Course =
+        (keyed: Course, balanced: Course): Course =>
         (second: number): number => {
           const key: number = keyed(second);
           const weight: number = weightAt(second);
           return weight === 0 ? key : key + weight * (balanced(second) - key);
         };
       if (window.from < downEnd)
-        courses[0] = blend(courses[0]!, course(0, clock.at(phases[2]!.name), 0, movingSecond(window.to)));
+        courses[0] = blend(
+          courses[0]!,
+          course(0, clock.at(phases[2]!.name), 0, movingSecond(window.to)),
+        );
       if (off !== undefined && window.to > upStart)
-        courses[1] = blend(courses[1]!, course(clock.at(off.name), duration, kneeling, movingSecond(window.to)));
+        courses[1] = blend(
+          courses[1]!,
+          course(
+            clock.at(off.name),
+            duration,
+            kneeling,
+            movingSecond(window.to),
+          ),
+        );
     }
     const kneelBody: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -414,7 +493,8 @@ export namespace kneel {
         seconds: number,
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      ): IAutoMovieMotionHumanPosture => write(posture, seconds, undefined, resolution),
+      ): IAutoMovieMotionHumanPosture =>
+        write(posture, seconds, undefined, resolution),
     };
 
     // The hands come onto the thighs while the hips lower and leave them as
@@ -429,14 +509,16 @@ export namespace kneel {
     const lowered: (seconds: number) => number = (seconds: number): number =>
       handDown.progress(seconds) *
       (handUp === undefined ? 1 : 1 - handUp.progress(seconds));
-    const armEnd: number = firstUp === undefined ? clock.at("settled") : duration;
+    const armEnd: number =
+      firstUp === undefined ? clock.at("settled") : duration;
     const armSpan: IAutoMovieMotionHumanArmPlanned.ISpan = {
       start: clock.at("lowering"),
       ready: clock.at(phases[2]!.name),
       relax: firstUp === undefined ? armEnd : clock.at(firstUp.name),
       end: armEnd,
     };
-    const arms: IAutoMovieMotionHumanArmPlanned.ITogether = AutoMovieMotionHumanArm.together();
+    const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
+      AutoMovieMotionHumanArm.together();
     const hand: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive =>
@@ -455,7 +537,13 @@ export namespace kneel {
     const open: (side: "left" | "right") => IAutoMovieMotionHumanPrimitive = (
       side: "left" | "right",
     ): IAutoMovieMotionHumanPrimitive =>
-      AutoMovieMotionHumanHand.shape({ side, shape: "flat", from: 0, to: duration, weight: lowered });
+      AutoMovieMotionHumanHand.shape({
+        side,
+        shape: "flat",
+        from: 0,
+        to: duration,
+        weight: lowered,
+      });
 
     const contacts: IAutoMovieMotionHumanContactWindow[] = kneelContacts(
       context,
@@ -471,17 +559,34 @@ export namespace kneel {
     // A kneel that rises leaves the body standing; one that stays down
     // leaves it kneeling (#3363: a base transition declares the base it
     // ends in).
-    const course: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+    const course: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
         base: { ...base, contacts },
         clock,
         contact: marks[0]!,
-        primitives: [kneelBody, hand("left"), hand("right"), open("left"), open("right")],
+        primitives: [
+          kneelBody,
+          hand("left"),
+          hand("right"),
+          open("left"),
+          open("right"),
+        ],
       });
     let held: IAutoMovieMotionHumanPosture | undefined;
-    const posture: IAutoMovieMotionHumanActionPlan["posture"] = (seconds, channels, resolution, projection) =>
+    const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
+      seconds,
+      channels,
+      resolution,
+      projection,
+    ) =>
       settled <= seconds && seconds <= release
         ? (held ??= course.posture(settled))
-        : course.posture(movingSecond(seconds), channels, resolution, projection);
+        : course.posture(
+            movingSecond(seconds),
+            channels,
+            resolution,
+            projection,
+          );
     return {
       ...course,
       ...HumanPhysics.declared(context.params, window),
@@ -489,6 +594,8 @@ export namespace kneel {
       events: display.events(),
       posture,
       base: { kind: rise ? "standing" : "kneeling" },
+      // The feet and knees carry the body, leaving the resting arms and head to overlays.
+      yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
     };
   }
 
@@ -499,5 +606,4 @@ export namespace kneel {
     from: number;
     to: number;
   }
-
 }

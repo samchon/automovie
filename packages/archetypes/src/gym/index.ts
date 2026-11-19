@@ -6,6 +6,7 @@ export * from "./createExerciseBike";
 export * from "./createExerciseMat";
 export * from "./createHeavyBag";
 export * from "./createJumpRope";
+export * from "./createJumpRopeHandle";
 export * from "./createKettlebell";
 export * from "./createParallelBars";
 export * from "./createPlyoBox";

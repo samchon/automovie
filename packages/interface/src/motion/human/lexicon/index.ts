@@ -1,4 +1,5 @@
 export type { IAutoMovieMotionHumanAirborneShape } from "./IAutoMovieMotionHumanAirborneShape";
+export type { IAutoMovieMotionHumanBladeExchange } from "./IAutoMovieMotionHumanBladeExchange";
 export type { IAutoMovieMotionHumanCarried } from "./IAutoMovieMotionHumanCarried";
 export type { IAutoMovieMotionHumanCarriedCoupling } from "./IAutoMovieMotionHumanCarriedCoupling";
 export type { IAutoMovieMotionHumanCarriedCouplingFit } from "./IAutoMovieMotionHumanCarriedCouplingFit";
@@ -62,13 +63,16 @@ export type { IAutoMovieMotionHumanLexiconWeaponMeleeParams } from "./IAutoMovie
 export type { IAutoMovieMotionHumanMountRider } from "./IAutoMovieMotionHumanMountRider";
 export type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursuit";
 export type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
+export type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
 export type { IAutoMovieMotionHumanSocial } from "./IAutoMovieMotionHumanSocial";
 export type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 export type { IAutoMovieMotionHumanSwordGuard } from "./IAutoMovieMotionHumanSwordGuard";
 export type { IAutoMovieMotionHumanSwordParry } from "./IAutoMovieMotionHumanSwordParry";
 export type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
+export type { IAutoMovieMotionHumanTravelCarExit } from "./IAutoMovieMotionHumanTravelCarExit";
 export type { IAutoMovieMotionHumanTravelDoor } from "./IAutoMovieMotionHumanTravelDoor";
 export type { IAutoMovieMotionHumanTravelLeaf } from "./IAutoMovieMotionHumanTravelLeaf";
 export type { IAutoMovieMotionHumanWeaponHeld } from "./IAutoMovieMotionHumanWeaponHeld";
 export type { IAutoMovieMotionHumanWeaponPresent } from "./IAutoMovieMotionHumanWeaponPresent";
 export type { IAutoMovieMotionHumanWeaponTrack } from "./IAutoMovieMotionHumanWeaponTrack";
+export type { AutoMovieMotionHumanTuckHairParams } from "./AutoMovieMotionHumanTuckHairParams";

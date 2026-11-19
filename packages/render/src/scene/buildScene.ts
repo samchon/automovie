@@ -1,6 +1,7 @@
 import { resolveAutoMovieShadowProfile } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
+  IAutoMovieRenderSoftPropFrame,
   IAutoMovieScene,
   IAutoMovieSpace,
 } from "@automovie/interface";
@@ -8,12 +9,15 @@ import * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSceneObject } from "./IAutoMovieSceneObject.js";
+import type { IAutoMovieSceneSoftProps } from "./IAutoMovieSceneSoftProps.js";
 import { applyAutoMovieShadowParticipation } from "./applyAutoMovieShadowParticipation.js";
 import { applySceneEnvironment } from "./applySceneEnvironment.js";
 import { applySceneFog } from "./applySceneFog.js";
 import { applyTransform } from "./applyTransform.js";
 import { buildLight } from "./buildLight.js";
+import { buildSceneSoftProps } from "./buildSceneSoftProps.js";
 import { buildSpaceObject } from "./buildSpace.js";
+import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
  * Build a `three.js` scene from an {@link IAutoMovieScene}.
@@ -40,28 +44,33 @@ import { buildSpaceObject } from "./buildSpace.js";
  * {@link buildSpaceObject}), so guide passes describe a world instead of actors
  * floating in a void. Their ordinary material writes no beauty colour or depth,
  * because a semantic support declaration is not evidence that physical floor
- * geometry exists. The group is added LAST, after the nodes and lights, for
- * that reason, and so the whole ground reads as one mask colour rather than one
- * per surface.
+ * geometry exists. The group follows the nodes and lights so the whole
+ * ground reads as one mask colour rather than one per surface.
+ *
+ * An optional frame of soft props follows the designed scene objects.
+ * Its returned handle updates plain surfaces at later times and releases
+ * the meshes. Pass an empty frame to opt in before the first prop appears.
  *
  * The cited refusal contribution covers the supplied shadow profile and unresolved node model. Complete hierarchy, material and numeric admission, lowering receipts and structured safe-retry policy remain with their corresponding owners.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Preserves authored node order under placement groups, admits the shadow profile, builds native lights/cameras, optional semantic support, fog and environment; each resolver call must supply a distinct mutable model object and valid admitted TRS. Static pose/props/compiled populations are not lowered here and current production pages assemble their own graph rather than calling this producer.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the scene graph join and camera/light lookup result while model loading/building, articulation, temporal sampling and rendering remain external; leading node-child order exposes the existing positional semantic-mask dependency.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns the scene graph join and camera/light lookup while model loading, articulation, temporal sampling and rendering remain external. The soft layer uses its own owner and follows the designed children.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses unresolved models rather than dropping an authored child and shifting mask indices; no fixture nodes/lights are invented, but complete admission and partial-construction rollback are not supplied by this scene wrapper.
  * @evidence contracts/development/common.md#meaningful-documentation States resolver uniqueness, authored node order, placement/root composition, semantic-ground beauty exclusion, static-pose caller duty and explicit refusal/admission ownership boundary.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds N placement groups, L lights and C cameras with id maps plus support tessellation and shadow participation traversal; dominant memory follows actual model/support resources returned by producers, and no anonymous member runtime is created here.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses canonical transform/light/fog/environment/space adapters and maps lights by semantic id; model object reuse across placements is invalid because native parenting is exclusive, and scene-level effectful construction is not cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Transfers new scene/group/light/camera/support references and adopts resolver model objects into the result; environment texture handoff has its separate exclusive owner. No universal scene disposer or late-refusal rollback is returned, so callers must own both retirement and partially assembled graph recovery rather than assuming this wrapper frees them.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Transfers new scene, group, light, camera and support references and adopts resolver model objects. Failed soft-prop mounting retires that layer. The caller otherwise owns retirement and partial graph recovery; environment texture handoff has a separate owner.
  */
 export const buildScene: (
   scene: IAutoMovieScene,
   getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
   environmentTexture?: THREE.Texture,
+  softFrame?: readonly IAutoMovieRenderSoftPropFrame[],
 ) => IAutoMovieSceneObject = (
   scene: IAutoMovieScene,
   getModelObject: (modelId: string) => IAutoMovieModelObject | undefined,
   environmentTexture?: THREE.Texture,
+  softFrame?: readonly IAutoMovieRenderSoftPropFrame[],
 ): IAutoMovieSceneObject => {
   const shadowProfile: ReturnType<typeof resolveAutoMovieShadowProfile> =
     resolveAutoMovieShadowProfile({
@@ -119,7 +128,14 @@ export const buildScene: (
   applyAutoMovieShadowParticipation(root);
 
   const cameras: THREE.PerspectiveCamera[] = scene.cameras.map(buildCamera);
-  return { scene: root, cameras, lights };
+  if (softFrame === undefined) return { scene: root, cameras, lights };
+  const softProps: IAutoMovieSceneSoftProps = buildSceneSoftProps(root);
+  try {
+    softProps.update(softFrame);
+  } catch (error) {
+    restoreAutoMovieRenderModeState([softProps.dispose], { error });
+  }
+  return { scene: root, cameras, lights, softProps };
 };
 
 const buildCamera: (cam: IAutoMovieCamera) => THREE.PerspectiveCamera = (

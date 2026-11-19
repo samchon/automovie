@@ -103,6 +103,7 @@ export namespace PoseResolutionSnapshot {
       abduction: vector(input.abduction),
       twist: vector(input.twist),
       ...(input.twistPlacement === undefined ? {} : { twistPlacement: input.twistPlacement }),
+      ...(input.rotationOrder === undefined ? {} : { rotationOrder: input.rotationOrder }),
     });
   }
 

@@ -151,8 +151,8 @@ export namespace HumanPerformanceRead {
    * grip released it. A worn span is a grip by a bone: from the film's start
    * for a prop declared worn, from the instant an action puts it on
    * (`IHumanActionPlan.wears`), each to the next grip that takes it off; a
-   * prop set on another prop's socket (`IHumanActionPlan.mounts`) rides
-   * that socket the same way, posed as the other prop is.
+   * prop initially mounted or placed by an action (`IHumanActionPlan.mounts`)
+   * rides the other prop's posed socket in the same way.
    *
    * A grip is any action's contact window of kind `grip` on a hand whose
    * support is this prop. The hand's grip socket rides the hand bone, so the

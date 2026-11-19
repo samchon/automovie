@@ -3,15 +3,15 @@ import type { IAutoMovieEffectRecipe } from "@automovie/interface";
 import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 
 /**
- * Refuse malformed optional transport and lifetime-envelope controls before compiled bytes are published.
+ * Refuse malformed optional transport, opacity-envelope and final-size controls before compiled bytes are published.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Refuse malformed optional transport and lifetime-envelope controls before compiled bytes are published) as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Refuse malformed optional transport and lifetime-envelope controls before compiled bytes are published) directly over its typed inputs (`recipe`) as a single pass (some over [ ballistic.velocitySpread.x, ), delegating to `isAutoMovieRecord`, `Number.isFinite`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (2 throw sites). Beyond structural 0, 1 and 2 the body uses the literals 16, 50, whose basis this answer does not independently establish and a reviewer must confirm.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 32 lines and 4 top-level statements that reuses `isAutoMovieRecord`, `Number.isFinite` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters. Literal caveat: 16, 50 are not independently sourced here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `recipe`; the dominant cost is a single pass (some over [ ballistic.velocitySpread.x, ), performed once per call with 4 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 4 allocation sites become the returned value or die with the call, so nothing grows.
+ * @evidence contracts/development/common.md#meaningful-documentation Documents the optional recipe fields this gate owns before the materializer creates a stream.
+ * @evidence contracts/development/implementation.md#principled-implementation A supplied extent obeys the existing 20-metre airborne size ceiling and cannot shrink any initial particle. Opacity accepts the two defined envelopes. Ballistic controls enforce finite gravity and floor, explicit retention, and the recipe's velocity and stain bounds. Recipe fields outside these optional controls remain the caller's premise.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks each optional control in its recipe group, using the common record predicate for structured ballistic fields. The materializer calls one gate for both shot and film streams.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid supplied controls throw before the recipe is cloned or hashed. Missing optional controls pass through without rewriting the recipe.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Fixed work per call. The only scan has three world axes and no work depends on particle count.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Admission reads one recipe without caching its mutable fields.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Admission holds only call-local values and opens no resource.
  */
 export function admitEffectTransport(recipe: IAutoMovieEffectRecipe): void {
   if (
@@ -19,6 +19,12 @@ export function admitEffectTransport(recipe: IAutoMovieEffectRecipe): void {
     !["sine", "constant"].includes(recipe.particle.opacity.envelope)
   )
     throw new Error("Invalid effect opacity envelope");
+  const size: IAutoMovieEffectRecipe["particle"]["size"] = recipe.particle.size;
+  if (
+    size.end !== undefined &&
+    (!Number.isFinite(size.end) || !(size.end >= size.max && size.end <= 20))
+  )
+    throw new Error("Invalid effect final particle extent");
   const ballistic: IAutoMovieEffectRecipe["motion"]["ballistic"] =
     recipe.motion.ballistic;
   if (ballistic === undefined) return;

@@ -1,5 +1,33 @@
 import type { IAutoMovieMotionHumanLexiconFamilies } from "@automovie/interface";
 
+import { pour } from "../affordance/pour";
+import { coverFace } from "../daily/coverFace";
+import { playWindInstrument } from "../daily/playWindInstrument";
+import { wipeTears } from "../daily/wipeTears";
+import { tipHat } from "../dressing/tipHat";
+import { crossAnkleOverKnee } from "../everyday/crossAnkleOverKnee";
+import { curtsy } from "../everyday/curtsy";
+import { headTilt } from "../everyday/headTilt";
+import { seatedHeelBounce } from "../everyday/seatedHeelBounce";
+import { shiftStandingWeight } from "../everyday/shiftStandingWeight";
+import { swipeTouchscreen } from "../everyday/swipeTouchscreen";
+import { ropeSkip } from "../exercise/ropeSkip";
+import { button } from "../handling/button";
+import { guitarChord } from "../handling/guitarChord";
+import { guitarNote } from "../handling/guitarNote";
+import { pianoPedal } from "../handling/pianoPedal";
+import { pianoPerformance } from "../handling/pianoPerformance";
+import { pianoScore } from "../handling/pianoScore";
+import { pickUpMoving } from "../handling/pickUpMoving";
+import { putDownAperture } from "../handling/putDownAperture";
+import { write } from "../handling/write";
+import { zip } from "../handling/zip";
+import { bowViolin } from "../music/bowViolin";
+import { spacecraftGlide } from "../spacecraft/spacecraftGlide";
+import { swimImmersed } from "../sport/swimImmersed";
+import { cymbalStrike } from "../tasks/cymbalStrike";
+import { sideDrumStrike } from "../tasks/sideDrumStrike";
+import { stageCatch } from "../throwing/stageCatch";
 import { HumanArchery } from "./HumanArchery";
 import { HumanBlade } from "./HumanBlade";
 import { HumanBoltAction } from "./HumanBoltAction";
@@ -17,6 +45,7 @@ import { HumanGunDrill } from "./HumanGunDrill";
 import { HumanGymnastics } from "./HumanGymnastics";
 import { HumanHabit } from "./HumanHabit";
 import { HumanHandToFaceRows } from "./HumanHandToFaceRows";
+import { HumanHandrimStroke } from "./HumanHandrimStroke";
 import { HumanLabour } from "./HumanLabour";
 import { HumanManipulate } from "./HumanManipulate";
 import { HumanMusketDrill } from "./HumanMusketDrill";
@@ -47,59 +76,84 @@ import { HumanThrownWeapon } from "./HumanThrownWeapon";
 import { HumanToolRows } from "./HumanToolRows";
 import { HumanTouchRows } from "./HumanTouchRows";
 import { HumanTravelCar } from "./HumanTravelCar";
+import { HumanTravelCarExit } from "./HumanTravelCarExit";
 import { HumanTravelDoor } from "./HumanTravelDoor";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 import { HumanUpperRows } from "./HumanUpperRows";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
+import { tuckHair } from "./tuckHair";
 
 /**
- * The namespaces each family of the lexicon is read from, in order, with
- * their types kept: `HUMAN_LEXICON` lists their laws as data, and the
- * lexicon's parameter schemas are derived from these same types
- * (`HUMAN_LEXICON_SCHEMAS`), so the two cannot name different rows.
+ * Sources of named laws for each lexicon family. `HUMAN_LEXICON` reads
+ * these records for explicit installation. Schema generation pairs each
+ * law's registered name with its parameters from the canonical family map.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the table holds and the two readers that derive from it.
- * @evidence contracts/development/design.md#principled-representation One readonly tuple of namespaces per family, `as const`, so each namespace's own law types survive for a type to read.
+ * @evidence contracts/development/design.md#principled-representation One readonly list of sources per family. Each source exposes existing typed law records.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The family table; the families own their rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No row is named here: a family lists namespaces, and their rows are read from them.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Standalone laws and row namespaces retain their canonical export and registration names.
  */
 export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   emblem: [HumanEmblem],
-  habit: [HumanHabit],
+  habit: [HumanHabit, { seatedHeelBounce }],
   stance: [HumanStance],
-  pose: [HumanPose],
-  gait: [HumanGait, HumanTravelDoor, HumanTravelCar, HumanTravelLeaf],
+  pose: [HumanPose, { crossAnkleOverKnee, shiftStandingWeight }],
+  gait: [
+    HumanGait,
+    HumanTravelDoor,
+    HumanTravelCar,
+    HumanTravelLeaf,
+    HumanTravelCarExit,
+  ],
   pursuit: [HumanPursuit],
-  social: [HumanSocial, HumanPartner],
+  social: [HumanSocial, HumanPartner, { curtsy }],
   stageFight: [HumanStageFight],
   drill: [HumanDrill],
   blade: [HumanBlade],
   firearm: [HumanFirearm],
   labour: [HumanLabour],
-  ride: [HumanRide],
-  carried: [HumanCarried],
-  sport: [HumanSport],
+  ride: [HumanRide, { HumanHandrimStroke }],
+  carried: [HumanCarried, { spacecraftGlide }],
+  sport: [HumanSport, { swimImmersed }],
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
   floorFall: [HumanFloorFall],
   support: [HumanSupportRows],
   sportSwing: [HumanSportSwing],
-  sportThrow: [HumanSportThrow],
-  sportWorkout: [HumanSportWorkout],
+  sportThrow: [HumanSportThrow, { stageCatch }],
+  sportWorkout: [HumanSportWorkout, { ropeSkip }],
   gymnastics: [HumanGymnastics],
   sword: [HumanSword, HumanSwordGuard, HumanSwordParry, HumanSwordThrust],
   weaponFirearm: [HumanWeaponFirearm],
   weaponMelee: [HumanWeaponMelee],
-  manipulate: [HumanManipulate],
+  manipulate: [
+    HumanManipulate,
+    {
+      write,
+      swipeTouchscreen,
+      pour,
+      pickUpMoving,
+      putDownAperture,
+      bowViolin,
+      playWindInstrument,
+      guitarNote,
+      guitarChord,
+      pianoScore,
+      pianoPedal,
+      pianoPerformance,
+      sideDrumStrike,
+      cymbalStrike,
+    },
+  ],
   regrasp: [HumanRegrasp],
   upperPhrase: [HumanUpperRows],
-  upperGesture: [HumanGestureRows],
+  upperGesture: [HumanGestureRows, { headTilt }],
   upperRest: [HumanRestRows],
-  upperTouch: [HumanTouchRows, HumanSelfActionRows],
-  upperFace: [HumanHandToFaceRows],
-  upperDress: [HumanDressRows],
+  upperTouch: [HumanTouchRows, HumanSelfActionRows, { tuckHair }],
+  upperFace: [HumanHandToFaceRows, { coverFace, wipeTears }],
+  upperDress: [HumanDressRows, { tipHat, button, zip }],
   upperTool: [HumanToolRows],
   strike: [HumanStrike],
   defence: [HumanDefence],

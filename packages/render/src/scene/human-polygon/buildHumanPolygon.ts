@@ -11,6 +11,7 @@ import { applyHumanPolygonPose } from "./applyHumanPolygonPose.js";
 import { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";
 import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
+import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentation.js";
 
 /**
  * Draw a rigid polygon blockout from the generated skeleton, in metres.
@@ -36,7 +37,7 @@ import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
  * The caller may attach a face to `head.object` in that same local frame.
  *
  * @param output Generated bones and placements.
- * @param options Optional display colours keyed by emitted bone name; unmatched palette entries are unused.
+ * @param options Optional display colours keyed by emitted bone name and authored cues sampled on the shot-local source clock.
  * @returns Owned surface, actual bone/mesh registries, pose/palette ports, generating sections, head attachment and cleanup. Local probe points use registered rest point minus the corresponding rest joint; actor-root placement belongs to the parent.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Every dimension comes from skeleton joints, tips and girth radii; no skin surface of the realistic Human is read, so a change in how the Human lofts its skin cannot break the blockout.
@@ -52,6 +53,8 @@ export function buildHumanPolygon(
   options: {
     /** RGB hex overrides for matching emitted parts; omitted parts retain clay. */
     partColors?: Readonly<Record<string, number>>;
+    /** Source pose, actor frame and authored polygon cues for optional time-based drawing. */
+    presentation?: AutoMovieHumanPolygon.IPresentation;
   } = {},
 ): AutoMovieHumanPolygon.IDrawing {
   createHumanPolygonPalette.validate(options.partColors);
@@ -121,6 +124,9 @@ export function buildHumanPolygon(
   const palette: ReturnType<typeof createHumanPolygonPalette> =
     createHumanPolygonPalette(material, partMeshes);
   let disposed: boolean = false;
+  let samplePresentation:
+    | ReturnType<typeof prepareHumanPolygonPresentation>
+    | undefined;
   let retirementFailure: { error: unknown } | undefined;
 
   /**
@@ -210,6 +216,7 @@ export function buildHumanPolygon(
     if (retirementFailure !== undefined) throw retirementFailure.error;
     if (disposed) return;
     disposed = true;
+    samplePresentation = undefined;
     try {
       reportAutoMovieResourceRetirement(
         [
@@ -259,13 +266,19 @@ export function buildHumanPolygon(
       groups.set(bone.bone, joint);
       bindings.set(bone.bone, [joint]);
     }
+    if (options.presentation !== undefined)
+      samplePresentation = prepareHumanPolygonPresentation(
+        options.presentation,
+        bones,
+        new Set(partMeshes.keys()),
+      );
     setPartColors(options.partColors);
     applyHumanPolygonPose(object, bindings, required, output);
   } catch (error: unknown) {
     dispose({ error });
     throw error;
   }
-  return {
+  const drawing: AutoMovieHumanPolygon.IDrawing = {
     object,
     surface,
     sections,
@@ -291,4 +304,11 @@ export function buildHumanPolygon(
     },
     dispose,
   };
+  if (samplePresentation !== undefined)
+    drawing.drawAt = (seconds: number): void => {
+      if (samplePresentation === undefined)
+        throw new Error("Polygon drawing is disposed");
+      drawing.setPose(samplePresentation(seconds));
+    };
+  return drawing;
 }

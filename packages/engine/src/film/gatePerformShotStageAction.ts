@@ -14,6 +14,8 @@ import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGr
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { isRecord } from "../validation/isRecord";
+import { validateObjectArtifact } from "../validation/validateObjectArtifact";
+import { validateVectorArtifact } from "../validation/validateVectorArtifact";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotId } from "./validatePerformShotId";
 
@@ -29,7 +31,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * - `emote`: an intensity in `[0, 1]`.
  * - `lookAt` and `reach`: a target that resolves; `reach` also needs a rig whose elbow can bend the named arm.
  * - `point` and `strike` gestures: a right arm that can bend, because the reference synthesizer solves that arm, and an aim that resolves.
- * - `attachTo`: a child that is not its own parent and a parent that is a rigged staged node carrying the named bone.
+ * - `attachTo`: a child distinct from its rigged parent, a bone on that rig and, when supplied, an offset with a finite position and a unit rotation.
  * - `hold`: nothing beyond the shared checks.
  *
  * An unbendable arm is refused here because the synthesizer answers such a verb with `null` and the builder skips a `null` clip, so the shot would otherwise succeed having performed nothing.
@@ -40,7 +42,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  * @param actors The actor ids the action names.
  * @param index Position of the action in the performing action list.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Checks verb domains, supplied gait vocabulary, force bounds, available rig elbow geometry through armChainFault and locomote displacement through classifyLocomoteGroundDisplacement. These gates admit supported structure; absent rig context skips arm geometry and a custom synthesizer can still return null.
+ * @evidence contracts/development/implementation.md#principled-implementation Checks optional attachment position and quaternion, verb domains, supplied gait vocabulary, force bounds, available rig elbow geometry through armChainFault and locomote displacement through classifyLocomoteGroundDisplacement. These gates admit supported structure; absent rig context skips arm geometry and a custom synthesizer can still return null.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The verb dispatch of the action gate, separate from the checks every action shares in `gatePerformShotActions`; target resolution is `resolvePerformShotTarget` and id checks `validatePerformShotId`, both shared.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No actor, gait or prop is special-cased; a known unbendable arm is refused before the reference synthesizer's null result, while absent rig context and arbitrary callback null results are outside that proof. Camera aims remain legal for launch without onHit.
  * @evidence contracts/development/common.md#meaningful-documentation States every verb's requirements and the reason behind the non-obvious ones, why an unbendable arm is refused here, and which jobs are recorded.
@@ -283,6 +285,39 @@ export function gatePerformShotStageAction(
         );
       return;
     case "attachTo": {
+      const before: number = out.items.length;
+      if (action.offset !== undefined) {
+        const at: string = `${path}.offset`;
+        const label: string = "attachment offset";
+        if (validateObjectArtifact(action.offset, at, label, out.items)) {
+          validateVectorArtifact(
+            action.offset.position,
+            `${at}.position`,
+            `${label} position`,
+            out.items,
+          );
+          const rotation: string = `${at}.rotation`;
+          if (
+            validateObjectArtifact(
+              action.offset.rotation,
+              rotation,
+              `${label} rotation`,
+              out.items,
+            )
+          ) {
+            const q: typeof action.offset.rotation = action.offset.rotation;
+            if ([q.x, q.y, q.z, q.w].every(Number.isFinite))
+              out.unitQuaternion(rotation, q, `${label} rotation`);
+            else
+              out.push(
+                "range",
+                rotation,
+                `${label} quaternion components must be finite numbers`,
+                q,
+              );
+          }
+        }
+      }
       for (const child of actors)
         if (child === action.parent)
           out.push(
@@ -326,7 +361,8 @@ export function gatePerformShotStageAction(
           `bone "${describeInvalidValue(action.bone)}" is not on ${describeInvalidValue(action.parent)}'s skeleton`,
           action.bone,
         );
-      else plan.attachments.push({ action, index });
+      else if (out.items.length === before)
+        plan.attachments.push({ action, index });
       return;
     }
     case "hold":

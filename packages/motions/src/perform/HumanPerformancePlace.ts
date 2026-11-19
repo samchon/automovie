@@ -21,6 +21,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionPropLaunch,
   IAutoMovieMotionTarget,
   IAutoMovieRigidTransform,
   IAutoMovieScheduleCue,
@@ -43,6 +44,7 @@ import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
 import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
+import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentShown } from "./HumanSegmentShown";
@@ -422,6 +424,8 @@ export namespace HumanPerformancePlace {
                   }
                 : undefined,
             ),
+          launchAt: (seconds: number): IAutoMovieMotionPropLaunch | undefined =>
+            HumanPropFlight.active(self, subject, seconds)?.published,
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
         };
@@ -530,6 +534,7 @@ export namespace HumanPerformancePlace {
     if (!over && previous !== undefined && start < previous.end - 1e-9) {
       previous.end = start;
       self.clipped.set(previous.entry, start);
+      HumanPerformanceContacts.cutHolds(person, previous.entry, start);
     }
 
     // A law may refuse only once a posture is asked of it (a goal that turns

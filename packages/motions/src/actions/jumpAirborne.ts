@@ -1,9 +1,16 @@
-import { Quaternion, Vector3, inertializeOffset, integrateMotionTrajectory, minimumJerk } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  inertializeOffset,
+  integrateMotionTrajectory,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFlight,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanJumpAirborne,
   IAutoMovieMotionHumanPosture,
@@ -39,9 +46,19 @@ const ARCH: number = 0.1;
 export namespace jumpAirborne {
   /** Clinical coordinates varied by this free-flight law. All others are copied from the achieved takeoff pose. */
   export const TRACKS: readonly AutoMovieHumanoidBone[] = Object.freeze([
-      "leftUpperArm", "rightUpperArm", "leftLowerArm", "rightLowerArm",
-      "leftUpperLeg", "rightUpperLeg", "leftLowerLeg", "rightLowerLeg", "leftFoot", "rightFoot", "leftToes", "rightToes",
-    ] as const);
+    "leftUpperArm",
+    "rightUpperArm",
+    "leftLowerArm",
+    "rightLowerArm",
+    "leftUpperLeg",
+    "rightUpperLeg",
+    "leftLowerLeg",
+    "rightLowerLeg",
+    "leftFoot",
+    "rightFoot",
+    "leftToes",
+    "rightToes",
+  ] as const);
 
   /**
    * What the airborne shape is drawn from.
@@ -66,7 +83,6 @@ export namespace jumpAirborne {
 
     /** The jump's heading, degrees about +Y. */
     heading: number;
-
   }
 
   /**
@@ -90,16 +106,34 @@ export namespace jumpAirborne {
     body: IAutoMovieMotionHumanBody,
     heading: number,
     poleHeadings: readonly number[] = [],
-  ): (root: IAutoMovieVector3, side: "left" | "right", yaw: number) => IAutoMovieVector3 {
-    const lower: Record<"left" | "right", ReturnType<typeof HumanFrame.preparePoint>> = {
+  ): (
+    root: IAutoMovieVector3,
+    side: "left" | "right",
+    yaw: number,
+  ) => IAutoMovieVector3 {
+    const lower: Record<
+      "left" | "right",
+      ReturnType<typeof HumanFrame.preparePoint>
+    > = {
       left: HumanFrame.preparePoint(heading, body.rest.get("leftLowerLeg")!),
       right: HumanFrame.preparePoint(heading, body.rest.get("rightLowerLeg")!),
     };
-    const poles: (readonly [number, ReturnType<typeof HumanFrame.preparePoint>])[] = poleHeadings.map(
-      (yaw: number): readonly [number, ReturnType<typeof HumanFrame.preparePoint>] =>
-        [yaw, HumanFrame.preparePoint(yaw, { x: 0, y: 0, z: 1 })],
+    const poles: (readonly [
+      number,
+      ReturnType<typeof HumanFrame.preparePoint>,
+    ])[] = poleHeadings.map(
+      (
+        yaw: number,
+      ): readonly [number, ReturnType<typeof HumanFrame.preparePoint>] => [
+        yaw,
+        HumanFrame.preparePoint(yaw, { x: 0, y: 0, z: 1 }),
+      ],
     );
-    return (root: IAutoMovieVector3, side: "left" | "right", yaw: number): IAutoMovieVector3 => {
+    return (
+      root: IAutoMovieVector3,
+      side: "left" | "right",
+      yaw: number,
+    ): IAutoMovieVector3 => {
       const origin: IAutoMovieVector3 = lower[side](root);
       for (const [fixed, point] of poles)
         if (Object.is(fixed, yaw)) return point(origin);
@@ -126,43 +160,103 @@ export namespace jumpAirborne {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only fixed body-dimension/endpoint/delta/frame/arc prerequisites prepare; changed dimensions require another prepared shape. Every root/share/sine still evaluates its original scalar sequence: local interpolation, explicit point Y lift, then unchanged world multiply/add order; bends add no artificial zero lift. No affine regrouping, target substitute or time-keyed result cache is used.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns endpoints, fixed joint/scalar interpolation data and two arc readers. Each posture query owns fresh changed tuples/world vectors and retains no history, body workspace or handle; unchanged clinical tuples keep their original readonly endpoint ownership.
    */
-  export function prepare(
-    shape: IShape,
-  ): IPrepared {
+  export function prepare(shape: IShape): IPrepared {
     const { body, heading }: IShape = shape;
-    const fixed: { start: Pick<jumpState.IState, "root" | "joints" | "legs">; end: Pick<jumpState.IState, "joints" | "legs"> } = structuredClone({
-      start: { root: shape.start.root, joints: shape.start.joints, legs: shape.start.legs },
+    const fixed: {
+      start: Pick<jumpState.IState, "root" | "joints" | "legs">;
+      end: Pick<jumpState.IState, "joints" | "legs">;
+    } = structuredClone({
+      start: {
+        root: shape.start.root,
+        joints: shape.start.joints,
+        legs: shape.start.legs,
+      },
       end: { joints: shape.end.joints, legs: shape.end.legs },
     });
     const archHeight: number = ARCH * body.measure.hipHeight;
     const tracks: IJointTrack[] = [];
     for (const bone of TRACKS) {
-      const from: readonly [number, number, number] = fixed.start.joints[bone] ?? [0, 0, 0];
-      const into: readonly [number, number, number] = fixed.end.joints[bone] ?? [0, 0, 0];
-      tracks.push({ bone, from, delta: [into[0] - from[0], into[1] - from[1], into[2] - from[2]] });
+      const from: readonly [number, number, number] = fixed.start.joints[
+        bone
+      ] ?? [0, 0, 0];
+      const into: readonly [number, number, number] = fixed.end.joints[
+        bone
+      ] ?? [0, 0, 0];
+      tracks.push({
+        bone,
+        from,
+        delta: [into[0] - from[0], into[1] - from[1], into[2] - from[2]],
+      });
     }
     const turn: ReturnType<typeof HumanFrame.turn> = HumanFrame.turn(heading);
     // The pelvis keeps its takeoff articulation and heading throughout the
     // free shape. Translating its two hip origins preserves the current shanks.
-    const hipOffsets: ReturnType<typeof hipJoints> =
-      hipJoints(body, { x: 0, y: 0, z: 0 }, turn, fixed.start.joints.hips);
-    const ankleRange: ReturnType<typeof walkLeg.prepareAnkleRange> = walkLeg.prepareAnkleRange(body, heading);
-    const frame: IAutoMovieMotionHumanFrame = { origin: fixed.start.root, yaw: heading };
-    const points: Record<"left" | "right", ReturnType<typeof HumanFrame.prepareLerp>> = {
-      left: HumanFrame.prepareLerp(frame, fixed.start.legs.left.point, fixed.end.legs.left.point),
-      right: HumanFrame.prepareLerp(frame, fixed.start.legs.right.point, fixed.end.legs.right.point),
+    const hipOffsets: ReturnType<typeof hipJoints> = hipJoints(
+      body,
+      { x: 0, y: 0, z: 0 },
+      turn,
+      fixed.start.joints.hips,
+    );
+    const ankleRange: ReturnType<typeof walkLeg.prepareAnkleRange> =
+      walkLeg.prepareAnkleRange(body, heading);
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: fixed.start.root,
+      yaw: heading,
     };
-    const bends: Record<"left" | "right", ReturnType<typeof HumanFrame.prepareLerp>> = {
-      left: HumanFrame.prepareLerp(frame, fixed.start.legs.left.bend, fixed.end.legs.left.bend),
-      right: HumanFrame.prepareLerp(frame, fixed.start.legs.right.bend, fixed.end.legs.right.bend),
+    const points: Record<
+      "left" | "right",
+      ReturnType<typeof HumanFrame.prepareLerp>
+    > = {
+      left: HumanFrame.prepareLerp(
+        frame,
+        fixed.start.legs.left.point,
+        fixed.end.legs.left.point,
+      ),
+      right: HumanFrame.prepareLerp(
+        frame,
+        fixed.start.legs.right.point,
+        fixed.end.legs.right.point,
+      ),
     };
-    const rotations: Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>> = {
-      left: Quaternion.prepareSlerp(fixed.start.legs.left.rotation, fixed.end.legs.left.rotation),
-      right: Quaternion.prepareSlerp(fixed.start.legs.right.rotation, fixed.end.legs.right.rotation),
+    const bends: Record<
+      "left" | "right",
+      ReturnType<typeof HumanFrame.prepareLerp>
+    > = {
+      left: HumanFrame.prepareLerp(
+        frame,
+        fixed.start.legs.left.bend,
+        fixed.end.legs.left.bend,
+      ),
+      right: HumanFrame.prepareLerp(
+        frame,
+        fixed.start.legs.right.bend,
+        fixed.end.legs.right.bend,
+      ),
     };
-    const posture: (root: IAutoMovieVector3, u: number) => IAutoMovieMotionHumanPosture = (root: IAutoMovieVector3, u: number): IAutoMovieMotionHumanPosture => {
+    const rotations: Record<
+      "left" | "right",
+      ReturnType<typeof Quaternion.prepareSlerp>
+    > = {
+      left: Quaternion.prepareSlerp(
+        fixed.start.legs.left.rotation,
+        fixed.end.legs.left.rotation,
+      ),
+      right: Quaternion.prepareSlerp(
+        fixed.start.legs.right.rotation,
+        fixed.end.legs.right.rotation,
+      ),
+    };
+    const posture: (
+      root: IAutoMovieVector3,
+      u: number,
+    ) => IAutoMovieMotionHumanPosture = (
+      root: IAutoMovieVector3,
+      u: number,
+    ): IAutoMovieMotionHumanPosture => {
       const s: number = minimumJerk.share(u);
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...fixed.start.joints };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...fixed.start.joints,
+      };
       for (const track of tracks)
         joints[track.bone] = [
           track.from[0] + track.delta[0] * s,
@@ -173,12 +267,25 @@ export namespace jumpAirborne {
       const arch: number = archHeight * Math.sin(Math.PI * u);
       for (const side of ["left", "right"] as const) {
         const point: IAutoMovieVector3 = points[side](s, root, arch);
-        const asked: IAutoMovieQuaternion = Quaternion.multiply(turn, rotations[side](s));
-        const ranged: IAutoMovieQuaternion = ankleRange(Vector3.add(root, hipOffsets[side]), point, asked);
+        const asked: IAutoMovieQuaternion = Quaternion.multiply(
+          turn,
+          rotations[side](s),
+        );
+        const ranged: IAutoMovieQuaternion = ankleRange(
+          Vector3.add(root, hipOffsets[side]),
+          point,
+          asked,
+        );
         limbs[`${side}Leg`] = {
           point,
-          rotation: ranged === asked ? asked : HumanFoot.rotation(
-            HumanFoot.heading(asked), HumanFoot.pitch(ranged), HumanFoot.roll(asked)),
+          rotation:
+            ranged === asked
+              ? asked
+              : HumanFoot.rotation(
+                  HumanFoot.heading(asked),
+                  HumanFoot.pitch(ranged),
+                  HumanFoot.roll(asked),
+                ),
           bend: bends[side](s, root),
         };
       }
@@ -248,7 +355,10 @@ export namespace jumpAirborne {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses exactly the rotation supplied by the real performance flight pass.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its existing handed-back reader; each call preserves unchanged posture identity or returns one new record with no added global state.
      */
-    turned(posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
+    turned(
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture;
 
     /**
      * A landing posture carrying the flight's touchdown attitude away: the
@@ -262,7 +372,7 @@ export namespace jumpAirborne {
      *
      * @param posture The landing posture.
      * @param seconds Seconds of the jump.
-     * @returns The posture, turned by the decaying offset, or unchanged outside the absorption or without a handed-back turn.
+     * @returns The posture, turned by the decaying offset, or unchanged outside the absorption, without a handed-back turn or with an admitted turned stance.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the rule, its source, the offset, its window and what the turn reaches.
      * @evidence contracts/development/implementation.md#principled-implementation The offset is the flight's own handed-back turn at touchdown and its rate by the plan-time step's backward difference, decayed by the engine's inertialization quintic.
@@ -272,7 +382,30 @@ export namespace jumpAirborne {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work The touchdown offset is read once from the handed-back reader and kept with it.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the one offset beside the handed-back reader, for as long as the plan.
      */
-    landed(posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture;
+    landed(
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture;
+  }
+
+  /**
+   * Identify the actual flight request whose ground phase owns a turned landing.
+   *
+   * @param flight The plan's original flight request.
+   * @returns Whether its constructor installed a returned-touchdown check.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the identity prerequisite and what the originating jump verifies.
+   * @evidence contracts/development/implementation.md#principled-implementation Native request identity carries the verified ground-phase intent through placement. The jump's own callback still verifies the handed-back rotation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup on the original request.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Copies, flags and arbitrary action requests cannot claim a turned landing.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One weak-set membership test.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the original flight record already held by the plan.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak membership retains neither the flight nor its phase callback.
+   */
+  export function hasTurnedLanding(
+    flight: IAutoMovieMotionHumanFlight,
+  ): boolean {
+    return TURNED_LANDINGS.has(flight);
   }
 
   /**
@@ -285,6 +418,7 @@ export namespace jumpAirborne {
    * @param touchdown Seconds of the jump at touchdown.
    * @param duration The jump's duration, seconds.
    * @param settled Seconds of the jump where the landing's absorption ends.
+   * @param admitTouchdown Verifies the returned rotation when footprints already use the terminal stance.
    * @returns The turning.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the signs, the side salto's frame and when the rotation applies.
@@ -301,13 +435,15 @@ export namespace jumpAirborne {
     touchdown: number,
     duration: number,
     settled: number,
+    admitTouchdown?: (rotation: IAutoMovieHumanPostureRotation) => void,
   ): ITurning {
     const somersault: number =
       (rotation?.somersault ?? 0) * (rotation?.way === "backward" ? -1 : 1);
     const twist: number = rotation?.twist ?? 0;
     const sideways: boolean =
       rotation?.way === "left" || rotation?.way === "right";
-    let rotated: ((seconds: number) => IAutoMovieHumanPostureRotation) | null = null;
+    let rotated: ((seconds: number) => IAutoMovieHumanPostureRotation) | null =
+      null;
     let known: boolean = false;
     let offset: ITouchdown = STILL;
     const declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember> =
@@ -334,15 +470,21 @@ export namespace jumpAirborne {
             airborne: (
               handed: (seconds: number) => IAutoMovieHumanPostureRotation,
             ): void => {
+              admitTouchdown?.(handed(to));
               rotated = handed;
               known = false;
               offset = STILL;
             },
           };
+    if (admitTouchdown !== undefined && declared.flight !== undefined)
+      TURNED_LANDINGS.add(declared.flight);
+
     // Every reader reconstructs seconds from the public shares. Use those
     // same representable boundaries for both phase selection and handback.
-    const from: number = declared.flight === undefined ? takeoff : declared.flight.from * duration;
-    const to: number = declared.flight === undefined ? touchdown : declared.flight.to * duration;
+    const from: number =
+      declared.flight === undefined ? takeoff : declared.flight.from * duration;
+    const to: number =
+      declared.flight === undefined ? touchdown : declared.flight.to * duration;
     // The touchdown offset: the handed-back turn there as an axis and an
     // angle, and its rate by the backward difference over the plan-time step.
     // None (a zero turn, which decays to nothing) until read, and where the
@@ -352,41 +494,96 @@ export namespace jumpAirborne {
       known = true;
       const h: number = Math.min(integrateMotionTrajectory.STEP, to - from);
       const at: IAutoMovieHumanPostureRotation = rotated(to);
-      const turn: IAutoMovieQuaternion = at.turn.w < 0
-        ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w } : at.turn;
+      const turn: IAutoMovieQuaternion =
+        at.turn.w < 0
+          ? { x: -at.turn.x, y: -at.turn.y, z: -at.turn.z, w: -at.turn.w }
+          : at.turn;
       const sine: number = Math.hypot(turn.x, turn.y, turn.z);
       if (!(sine > 0) || !(h > 0)) return offset;
-      const axis: IAutoMovieVector3 = { x: turn.x / sine, y: turn.y / sine, z: turn.z / sine };
+      const axis: IAutoMovieVector3 = {
+        x: turn.x / sine,
+        y: turn.y / sine,
+        z: turn.z / sine,
+      };
       const angle: number = (2 * Math.atan2(sine, turn.w) * 180) / Math.PI;
-      const step: IAutoMovieQuaternion = Quaternion.multiply(at.turn, Quaternion.inverse(rotated(to - h).turn));
-      const signed: IAutoMovieQuaternion = step.w < 0 ? { x: -step.x, y: -step.y, z: -step.z, w: -step.w } : step;
-      const swept: number = (2 * Math.atan2(Math.hypot(signed.x, signed.y, signed.z), signed.w) * 180) / Math.PI;
-      const along: number = Math.hypot(signed.x, signed.y, signed.z) > 0
-        ? (signed.x * axis.x + signed.y * axis.y + signed.z * axis.z) / Math.hypot(signed.x, signed.y, signed.z) : 0;
-      return (offset = { about: at.about, axis, angle, rate: (swept * along) / h });
+      const step: IAutoMovieQuaternion = Quaternion.multiply(
+        at.turn,
+        Quaternion.inverse(rotated(to - h).turn),
+      );
+      const signed: IAutoMovieQuaternion =
+        step.w < 0 ? { x: -step.x, y: -step.y, z: -step.z, w: -step.w } : step;
+      const swept: number =
+        (2 *
+          Math.atan2(Math.hypot(signed.x, signed.y, signed.z), signed.w) *
+          180) /
+        Math.PI;
+      const along: number =
+        Math.hypot(signed.x, signed.y, signed.z) > 0
+          ? (signed.x * axis.x + signed.y * axis.y + signed.z * axis.z) /
+            Math.hypot(signed.x, signed.y, signed.z)
+          : 0;
+      return (offset = {
+        about: at.about,
+        axis,
+        angle,
+        rate: (swept * along) / h,
+      });
     };
     return {
-      from, to, declared,
+      from,
+      to,
+      declared,
       prepareLanding: (): void => {
-        if (settled > to) touched();
+        if (admitTouchdown === undefined && settled > to) touched();
       },
-      turned: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture =>
+      turned: (
+        posture: IAutoMovieMotionHumanPosture,
+        t: number,
+      ): IAutoMovieMotionHumanPosture =>
         // At touchdown itself the flight's turn still holds, so the landing's
         // decaying offset starts from exactly the pose the flight ends on.
         rotated === null || t <= from || t > to
           ? posture
           : HumanPosturePreparation.turned(posture, rotated(t)),
-      landed: (posture: IAutoMovieMotionHumanPosture, t: number): IAutoMovieMotionHumanPosture => {
-        if (rotated === null || !(t > to) || !(t < settled) || !(settled > to)) return posture;
+      landed: (
+        posture: IAutoMovieMotionHumanPosture,
+        t: number,
+      ): IAutoMovieMotionHumanPosture => {
+        // Turned footprints already place the body in the admitted terminal stance.
+        if (
+          admitTouchdown !== undefined ||
+          rotated === null ||
+          !(t > to) ||
+          !(t < settled) ||
+          !(settled > to)
+        )
+          return posture;
         const touch: ITouchdown = touched();
-        const decayed: number = inertializeOffset(touch.angle, touch.rate, settled - to, t - to).value;
+        const decayed: number = inertializeOffset(
+          touch.angle,
+          touch.rate,
+          settled - to,
+          t - to,
+        ).value;
         return decayed === 0
           ? posture
-          : { ...posture, rotation: { ...createHumanPostureRotation(touch.about, Quaternion.fromAxisAngle(touch.axis, decayed)), planted: true } };
+          : {
+              ...posture,
+              rotation: {
+                ...createHumanPostureRotation(
+                  touch.about,
+                  Quaternion.fromAxisAngle(touch.axis, decayed),
+                ),
+                planted: true,
+              },
+            };
       },
     };
   }
 }
+
+/** Originating jump requests with a touchdown check on their turned stance. */
+const TURNED_LANDINGS: WeakSet<IAutoMovieMotionHumanFlight> = new WeakSet();
 
 /** Action-plan members supplied for an authored turning flight. */
 type FlightMember = "flight" | "airborne";
@@ -407,7 +604,12 @@ interface ITouchdown {
 }
 
 /** No turn to carry away: a zero angle and rate decay to nothing. */
-const STILL: ITouchdown = { about: { x: 0, y: 0, z: 0 }, axis: { x: 0, y: 1, z: 0 }, angle: 0, rate: 0 };
+const STILL: ITouchdown = {
+  about: { x: 0, y: 0, z: 0 },
+  axis: { x: 0, y: 1, z: 0 },
+  angle: 0,
+  rate: 0,
+};
 
 /** One fixed endpoint joint and its clinical difference, prepared once per flight. */
 interface IJointTrack {

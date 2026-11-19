@@ -123,6 +123,7 @@ export namespace AutoMovieMotionHumanArmCourse {
    * none when the span holds no instant on the hold.
    *
    * @param props The planner's readers.
+   * @param inheritedPace The original coupled speed limits for a separate trial of one member.
    * @returns The trajectories in the group's order and the admission; none without a hold instant.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instants, the phases, the result and when there is none.
@@ -135,6 +136,7 @@ export namespace AutoMovieMotionHumanArmCourse {
    */
   export function course(
     props: IProps,
+    inheritedPace?: (seconds: number) => number,
   ): ReturnType<typeof HumanArmTrajectory.admitted> | undefined {
     const { span, arms } = props;
 
@@ -214,6 +216,7 @@ export namespace AutoMovieMotionHumanArmCourse {
         ),
         props.stretches === true,
         props.tempo,
+        inheritedPace,
       );
     return HumanArmTrajectoryContactContinuation(problem, held, read, props.stretches === true, props.tempo);
   }

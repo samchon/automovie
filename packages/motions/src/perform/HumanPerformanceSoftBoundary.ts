@@ -1,9 +1,15 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  softBodyRestConfiguration,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidSocket,
   IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformanceState,
+  IAutoMovieMotionHumanProp,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieSoftAnchorBinding,
@@ -14,48 +20,52 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanObjectCord } from "./HumanObjectCord";
+import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
  * One step's boundary of a soft prop in a performance: every moving
  * anchor's world point (an `actor-bone` binding on its person's displayed
- * bone, a `node` binding on a rigid prop's frame, a grip's particle on the
- * gripping hand's grip socket), the grips' particles released at this step,
- * and every body capsule on its person's displayed bones.
+ * bone, a `node` binding on a rigid prop's frame or a span endpoint on that
+ * prop, a grip's particle on the gripping hand's grip socket), the grips'
+ * particles released at this step, and every body capsule on its person's
+ * displayed bones.
  *
  * @param state The performance.
  * @param domain The soft domain with its grips' anchors added.
  * @param grips The grips that bind particles.
+ * @param gripped The particles whose anchors this replay assigned to grips.
  * @param bones The displayed bones by person and step.
  * @param k The absolute step.
  * @param seconds Its film second.
+ * @param spanEnds A span's world endpoints for the first and last particles at this step.
  * @returns The step's boundary sample.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the sample holds for each kind of anchor and capsule.
- * @evidence contracts/development/implementation.md#principled-implementation Each binding's rigid offset carried by its displayed bone or prop frame; a grip's particle follows the hand that closed last on it and is released when no grip holds it.
+ * @evidence contracts/development/implementation.md#principled-implementation Each binding's local offset is carried by its displayed bone or prop frame. A placed span supplies both world endpoints. A gripped particle follows the hand that closed last.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the anchors and one over the body capsules.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or prop throws through its reader rather than leaving the anchor at an origin.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in anchors and capsules; the bones are read once per person and step through the reader.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone reader keeps each person's bones per step.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone or prop throws through its reader, and authored node ids cannot be mistaken for temporary grip anchors.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in anchors and capsules, plus a grip scan for each replay-assigned grip particle. Bones are read once per person and step through the reader.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The bone reader keeps each person's bones per step. The caller supplies both span endpoints from one prop frame and one posed span read at this step.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh sample and retains nothing.
  */
 export function HumanPerformanceSoftBoundary(
   state: IAutoMovieMotionHumanPerformanceState,
   domain: IAutoMovieSoftBodyDomain,
   grips: readonly HumanPerformanceSoftBoundary.IGripAnchor[],
+  gripped: ReadonlySet<number>,
   bones: HumanPerformanceSoftBoundary.BoneReader,
   k: number,
   seconds: number,
+  spanEnds?: IAutoMovieMotionHumanObject.ISpanEnds,
 ): IAutoMovieSoftBodyBoundarySample {
   const anchors: { particle: number; position: IAutoMovieVector3 }[] = [];
   const released: number[] = [];
   for (const anchor of domain.anchors) {
     const binding: IAutoMovieSoftAnchorBinding | undefined = anchor.binding;
     if (binding === undefined) continue;
-    if (
-      binding.kind === "node" &&
-      binding.node.startsWith(HumanPerformanceSoftBoundary.GRIP)
-    ) {
+    if (gripped.has(anchor.particle)) {
       const g: HumanPerformanceSoftBoundary.IGripAnchor | undefined =
         HumanPerformanceSoftBoundary.owner(grips, anchor.particle, seconds);
       if (g === undefined) released.push(anchor.particle);
@@ -74,17 +84,20 @@ export function HumanPerformanceSoftBoundary(
       continue;
     }
     if (binding.kind === "node") {
-      const frame: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
-        state,
-        binding.node,
-        seconds,
-      );
+      const endpoint: IAutoMovieVector3 | undefined =
+        anchor.particle === 0
+          ? spanEnds?.from
+          : anchor.particle === domain.lattice.rows - 1
+            ? spanEnds?.to
+            : undefined;
       anchors.push({
         particle: anchor.particle,
-        position: Vector3.add(
-          frame.position,
-          Quaternion.rotateVector(frame.rotation, binding.offset),
-        ),
+        position:
+          endpoint ??
+          place(
+            HumanPerformanceRead.prop(state, binding.node, seconds),
+            binding.offset,
+          ),
       });
       continue;
     }
@@ -237,6 +250,100 @@ export namespace HumanPerformanceSoftBoundary {
     );
   };
 
+  /**
+   * Seed the actual first placement and reuse model-span samples across grip replays.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the initial placement and the replay sample lifetime.
+   * @evidence contracts/development/implementation.md#principled-implementation Takes the first pair of endpoints through the same span reader as later samples, preserving the declaration's rest length in the seeded lattice.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The cord builder seeds the lattice from the first pair of endpoints and samples the remaining pairs in film order.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A domain without a declared span length keeps its supplied rest array, and an overextended span with a declared length is refused at initial placement.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One linear seed in links and one owner pose and span lookup per distinct native step.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each solver pass reads the same planned model boundaries for the native clock.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds one endpoint pair per admitted native step.
+   */
+  export function seed(
+    state: IAutoMovieMotionHumanPerformanceState,
+    domain: IAutoMovieSoftBodyDomain,
+    span: IAutoMovieMotionHumanProp.ISoftSpan | undefined,
+    count: number,
+  ): {
+    seed: IAutoMovieSoftBodyDomain;
+    spans?: readonly IAutoMovieMotionHumanObject.ISpanEnds[];
+  } {
+    if (span === undefined) return { seed: domain };
+
+    const initial: IAutoMovieMotionHumanObject.ISpanEnds = placedSpan(
+      state,
+      domain,
+      span,
+      0,
+    );
+    const seed: IAutoMovieSoftBodyDomain =
+      span.length === undefined
+        ? domain
+        : {
+            ...domain,
+            rest: HumanObjectCord.rest(
+              span.id,
+              initial,
+              span.length,
+              domain.lattice.rows - 1,
+              domain.solver.gravity,
+            ),
+          };
+    const spans: IAutoMovieMotionHumanObject.ISpanEnds[] = [initial];
+    const dt: number = domain.solver.fixedStepSeconds;
+    for (let step: number = 1; step <= count; ++step)
+      spans.push(placedSpan(state, domain, span, step * dt));
+    return { seed, spans };
+  }
+
+  /** The owner's span ends in world metres, from one prop frame and at most one posed model read. */
+  function placedSpan(
+    state: IAutoMovieMotionHumanPerformanceState,
+    domain: IAutoMovieSoftBodyDomain,
+    binding: IAutoMovieMotionHumanProp.ISoftSpan,
+    seconds: number,
+  ): IAutoMovieMotionHumanObject.ISpanEnds {
+    const owner: IAutoMovieMotionHumanProp | undefined = state.props.get(
+      binding.owner,
+    );
+    const frame: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
+      state,
+      binding.owner,
+      seconds,
+    );
+    if (
+      owner?.articulate !== undefined &&
+      HumanPerformanceObject.writers(state, owner).length !== 0
+    ) {
+      const posed: IAutoMovieMotionHumanProp.IPosed =
+        HumanPerformanceObject.pose(state, owner, seconds);
+      if (posed.span === undefined)
+        throw new Error(
+          `Prop "${binding.owner}" does not supply posed endpoints for span "${binding.id}".`,
+        );
+      const ends: IAutoMovieMotionHumanObject.ISpanEnds = posed.span(
+        binding.id,
+      );
+      return { from: place(frame, ends.from), to: place(frame, ends.to) };
+    }
+    const from: IAutoMovieSoftAnchorBinding | undefined =
+      domain.anchors[0]?.binding;
+    const to: IAutoMovieSoftAnchorBinding | undefined =
+      domain.anchors[1]?.binding;
+    if (
+      from?.kind !== "node" ||
+      to?.kind !== "node" ||
+      from.node !== binding.owner ||
+      to.node !== binding.owner
+    )
+      throw new Error(
+        `Cord "${domain.id}" needs both of its model span anchors.`,
+      );
+    return { from: place(frame, from.offset), to: place(frame, to.offset) };
+  }
+
   /** The node name prefix of an anchor a grip makes. */
   export const GRIP: string = "grip:";
 
@@ -248,12 +355,27 @@ export namespace HumanPerformanceSoftBoundary {
     domain: IAutoMovieSoftBodyDomain,
     first: IAutoMovieSoftBodyBoundarySample,
   ): number[] => {
-    const out: number[] = [...domain.rest];
+    const out: number[] = softBodyRestConfiguration(domain);
     for (const a of first.anchors) {
       out[a.particle * 3] = a.position.x;
       out[a.particle * 3 + 1] = a.position.y;
       out[a.particle * 3 + 2] = a.position.z;
     }
+    if (!out.every(Number.isFinite))
+      throw new Error(
+        `Soft prop "${domain.id}" has nonfinite initial positions.`,
+      );
     return out;
   };
+}
+
+/** Express a rigid prop's local anchor offset in world metres. */
+function place(
+  frame: IAutoMovieRigidTransform,
+  offset: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, offset),
+  );
 }

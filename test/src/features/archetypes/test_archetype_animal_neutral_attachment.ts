@@ -14,12 +14,12 @@ import { AnimalNeutralObservation } from "../internal/AnimalNeutralObservation";
 import { AnimalNeutralReferences } from "../internal/AnimalNeutralReferences";
 
 /**
- * Every supported neutral reference has real connected, grounded, rigid controls.
+ * The neutral fixture set has real connected, grounded, rigid controls.
  *
  * Scenarios:
- * 1. All eight kinds, four equid tacks, five pony breeds, two mule sexes,
+ * 1. The fixture covers eight kinds, four equid tacks, five pony breeds, two mule sexes,
  *    three dog cohorts, six camel references and both adult deer references
- *    construct 200 seeds per explicit case, with a total unit budget of 60 s.
+ *    with 200 seeds per explicit case and a total unit budget of 60 s.
  * 2. Actual primitive-centre parent inverses, capsule membership and directed
  *    bar endpoints establish physical attachment and adjacent-joint closure.
  *    Real four-control lengths preserve independent source or declared-transfer
@@ -45,10 +45,10 @@ import { AnimalNeutralReferences } from "../internal/AnimalNeutralReferences";
  * at 0.11 of height. No catalogue row or source SD is an individual population band.
  * Authored dog22/ox300/camel450 kg include their drawn equipment and are not study weights.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines complete species/cohort/tack coverage, source measurements versus coarse transfers, actual bar/solid frame semantics, source-floor support, isolation and negative admission scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the fixture's species, cohort and tack coverage, source measurements versus coarse transfers, actual bar/solid frame semantics, source-floor support, isolation and negative admission scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Constructs actual public models for every explicit request and seed, inspects their actual physical geometry, exercises the actual public neutral reader, verifies real tack identities and queries, and submits independently edited real source parts to its refusal boundary.
  * @evidence contracts/development/testing.md#independent-expectations Primary length/body literals and declared transfer arithmetic live in an independent test data owner without importing producer tables. Actual primitive dimensions, quaternion-transformed endpoints, inverse parent-centre coordinates and analytic support functions are the geometric oracles; production read/conform functions never supply expected results. Equine half-quantum tolerances represent documented source normalization precision, while closure, attachment and floor checks remain at 1e-9 m.
- * @evidence contracts/development/testing.md#distinguishing-cases Crosses eight kinds, all four equid tacks and every admitted named source cohort over 200 seeds each. Contrasts neutral connected geometry with detached/coplanar-preserving bad chains, malformed versus positive rigid bars, visible gaps versus binary64 noise, cap centres versus true soles and shared-query mutation versus independent builds. Time-varying locomotion/FK and interaction choreography have their separate units.
+ * @evidence contracts/development/testing.md#distinguishing-cases Crosses eight kinds, all four equid tacks and the fixture's named source cohorts over 200 seeds each. Contrasts neutral connected geometry with detached/coplanar-preserving bad chains, malformed versus positive rigid bars, visible gaps versus binary64 noise, cap centres versus true soles and shared-query mutation versus independent builds. Time-varying locomotion/FK and interaction choreography have their separate units.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous unit owns its in-memory public requests, independent source data and observers, malformed actual-part inputs and timing budget. It starts no process, compiler, renderer, watcher, GPU or monkeypatch and claims no rendered or biological validation.
  */
 export function test_archetype_animal_neutral_attachment(): void {

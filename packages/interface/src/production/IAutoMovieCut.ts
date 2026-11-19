@@ -5,7 +5,7 @@ import type { IAutoMovieConstraintViolation } from "../validation/IAutoMovieCons
  * What `cutSequence` returns for one edit plan: the {@link IAutoMovieSequence}
  * the ASSEMBLE stage edited, or every contradiction that stopped it.
  *
- * @evidence contracts/development/design.md#principled-representation A discriminated union on the literal `success`, so a caller cannot read a sequence from a refused cut without narrowing first; `cutSequence` checks every entry before choosing a branch, so the failure branch carries the whole list rather than the first fault.
+ * @evidence contracts/development/design.md#principled-representation A discriminated union on the literal `success`, so a caller cannot read a sequence from a refused cut without narrowing first; `cutSequence` checks every entry before choosing a branch, so the failure branch carries all findings whose operands are valid at the stage that checks them.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Two branches, the playable cut with its runtime and the violation list for the correction round, which is the same success-or-violations shape every engine stage gate returns.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The union adds no partial-success state: a cut with any violation emits no sequence, so a renderer never receives an edit the gate refused.
  * @evidence contracts/development/common.md#meaningful-documentation States the producer, the stage it serves, and that the failure branch lists every contradiction rather than the first.
@@ -18,7 +18,9 @@ export namespace IAutoMovieCut {
    * Every gate held: each entry names a built shot, each trim is a positive
    * span inside its shot, each transition fits inside both neighbours' played
    * spans without overlapping the previous entry's own incoming transition,
-   * ids are non-blank, and the frame rate is finite and positive.
+   * ids are non-blank, and the frame rate is finite and positive. Each edit
+   * event requirement matches exactly one event in its addressed playback entry.
+   * Every declared prop channel matches within tolerance across its hard cut.
    *
    * @evidence contracts/development/design.md#principled-representation `runtime` is the sum of played spans minus the sum of transition durations, the overlap arithmetic `sequenceTimeline` replays entry by entry, so the cut's runtime and the playback timeline's runtime agree for the same sequence.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the sequence the renderer plays and the one number every caller asks of it, so a consumer does not rebuild the timeline only to learn the running time.
@@ -54,7 +56,7 @@ export namespace IAutoMovieCut {
 
     /**
      * Every violation found, each with a path into the edit plan
-     * (`$input.entries[i]...`) or the shot list (`$shots[i]...`).
+     * (`$input.entries[i]...`, `$input.requiredEvents[i]...` or `$input.requiredPropContinuity[i]...`) or the shot list (`$shots[i]...`).
      */
     violations: IAutoMovieConstraintViolation[];
   }

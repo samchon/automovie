@@ -315,6 +315,8 @@ export namespace createCart {
    * - `bed`: a wagon body's floor, inside.
    * - `box`: a carriage driver's seat on the box at its front, facing forward.
    * - `leftLine`, `rightLine`: a cart's driving lines' held runs, each line's length behind its terret, each frame at the run's middle, the run pointing forward to the horse's terret; the driver's hands hold anywhere along it.
+   * - `leftLineGrip`, `rightLineGrip`: the modeled driver's hand stations, between the terrets and the ends of the lines.
+   * - `leftLineEnd`, `rightLineEnd`: the ends behind the modeled hand stations, at the full line length measured from the terrets after subtracting the run forward of them.
    * - `leftDoor`, `rightDoor`: a carriage's doors' hinges at their front edges; a positive travel swings a door outward. `leftAperture`, `rightAperture`: the openings behind them, passed through into the carriage.
    */
   export type Affordance =
@@ -346,7 +348,11 @@ export namespace createCart {
     | "leftAperture"
     | "rightAperture"
     | "leftLine"
-    | "rightLine";
+    | "rightLine"
+    | "leftLineGrip"
+    | "rightLineGrip"
+    | "leftLineEnd"
+    | "rightLineEnd";
 
   /**
    * The free dimensions, metres unless stated; a kind lacks those of the parts it does not have:

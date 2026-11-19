@@ -45,6 +45,8 @@ export type { IAutoMovieCompiledPredicateResult } from "./IAutoMovieCompiledPred
 export type { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSource";
 export type { IAutoMovieCompileLaunch } from "./IAutoMovieCompileLaunch";
 export type { IAutoMovieCompilePerformShotLaunches } from "./IAutoMovieCompilePerformShotLaunches";
+export type { IAutoMovieCompilePracticalLightMotion } from "./IAutoMovieCompilePracticalLightMotion";
+export type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
 export type { IAutoMovieComputeModelRestExtent } from "./IAutoMovieComputeModelRestExtent";
 export type { IAutoMovieComputeModelRestExtentY } from "./IAutoMovieComputeModelRestExtentY";
 export type { IAutoMovieCoupleObjects } from "./IAutoMovieCoupleObjects";
@@ -103,6 +105,7 @@ export type { IAutoMovieFormationSlotMotion } from "./IAutoMovieFormationSlotMot
 export type { IAutoMovieFormationSlotPlacement } from "./IAutoMovieFormationSlotPlacement";
 export type { IAutoMovieFormationSlotRecord } from "./IAutoMovieFormationSlotRecord";
 export type { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotState";
+export type { IAutoMovieFormationStageMarkSet } from "./IAutoMovieFormationStageMarkSet";
 export type { IAutoMovieFormationSubjectBox } from "./IAutoMovieFormationSubjectBox";
 export type { IAutoMovieFormationSubjectReviewDescription } from "./IAutoMovieFormationSubjectReviewDescription";
 export type { IAutoMovieGeneratedCollisionProxy } from "./IAutoMovieGeneratedCollisionProxy";
@@ -146,6 +149,7 @@ export type { IAutoMoviePlaceFormationSlot } from "./IAutoMoviePlaceFormationSlo
 export type { IAutoMoviePlacementSummary } from "./IAutoMoviePlacementSummary";
 export type { IAutoMoviePlantPerformShotStanceFeet } from "./IAutoMoviePlantPerformShotStanceFeet";
 export type { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
+export type { IAutoMoviePlaybackEditorialMarker } from "./IAutoMoviePlaybackEditorialMarker";
 export type { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
 export type { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 export type { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";

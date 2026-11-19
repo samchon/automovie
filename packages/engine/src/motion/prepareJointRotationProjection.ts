@@ -16,6 +16,7 @@ import { readNormalizedQuaternion } from "../math/readNormalizedQuaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
+import { prepareCardinalWristChord } from "./prepareCardinalWristChord";
 import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
 import { prepareJointProjectionScores } from "./prepareJointProjectionScores";
 import { prepareJointRotationCoefficientDots } from "./prepareJointRotationCoefficientDots";
@@ -40,6 +41,12 @@ interface IComposed {
 
 /** Direct joint output, or the explicitly requested joint/raw-quaternion pair. */
 type IEvaluation = IAutoMovieJointPose | prepareJointRotationProjection.IProjection;
+
+/** A private bound belongs only to the exact paired callback that owns it. */
+const WRIST_CHORDS: WeakMap<
+  prepareJointRotationProjection.IProjector["withQuaternion"],
+  NonNullable<ReturnType<typeof prepareCardinalWristChord>>
+> = new WeakMap();
 
 /** Exact composition key; null and signed zero remain different coordinates. */
 function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
@@ -150,9 +157,11 @@ export function prepareJointRotationProjection(props: {
       })
     : [];
   const order: readonly ClinicalAxis[] =
-    props.basis.twistPlacement === "distal"
-      ? ["abduction", "flexion", "twist"]
-      : ["twist", "abduction", "flexion"];
+    props.basis.rotationOrder === "flexion-abduction-twist"
+      ? ["flexion", "abduction", "twist"]
+      : props.basis.twistPlacement === "distal"
+        ? ["abduction", "flexion", "twist"]
+        : ["twist", "abduction", "flexion"];
   const coefficientDots: ReturnType<typeof prepareJointRotationCoefficientDots> | null =
     box && mobile.length > 0 ? prepareJointRotationCoefficientDots({
       basis: props.basis, frame: props.frame,
@@ -414,12 +423,26 @@ export function prepareJointRotationProjection(props: {
 
     return scoreBox!(local, reference, pairs, clamp, requested);
   };
+  /** The original paired projection and its independently admitted bound. */
+  const withQuaternion: prepareJointRotationProjection.IProjector["withQuaternion"] =
+    (rotation: IAutoMovieQuaternion): prepareJointRotationProjection.IProjection =>
+      evaluate(rotation, true) as prepareJointRotationProjection.IProjection;
+  if (
+    box && constraint !== null && constraint.twist === null &&
+    mobile.length === 2 && mobile[0] === "flexion" && mobile[1] === "abduction" &&
+    (props.frame?.twist?.neutral ?? 0) === 0 &&
+    clampJointToSkeleton.ownsConstraint(props.clamp, constraint)
+  ) {
+    const chord: ReturnType<typeof prepareCardinalWristChord> = prepareCardinalWristChord(
+      props.basis, ranges[0]!, ranges[1]!,
+    );
+    if (chord !== undefined) WRIST_CHORDS.set(withQuaternion, chord);
+  }
   return Object.assign(
     (rotation: IAutoMovieQuaternion): IAutoMovieJointPose =>
       evaluate(rotation, false) as IAutoMovieJointPose,
     {
-      withQuaternion: (rotation: IAutoMovieQuaternion): prepareJointRotationProjection.IProjection =>
-        evaluate(rotation, true) as prepareJointRotationProjection.IProjection,
+      withQuaternion,
       swivelCandidates: (cosine: IAutoMovieQuaternion,
         sine: IAutoMovieQuaternion): ReturnType<prepareJointRotationCoefficientDots.IReader["swivels"]> => {
         if (!box || mobile.length !== 2 ||
@@ -437,9 +460,9 @@ export function prepareJointRotationProjection(props: {
 /**
  * Same-query access to the selected joint's already completed composition.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines original callable/paired output, raw-quaternion ownership and explicit degree-valued two-axis circle proposals with independent physical acceptance obligations.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines paired output ownership, degree-valued circle proposals, and the squared-radian wrist chord's genuine callback and unsupported fallback.
  * @evidence contracts/development/design.md#principled-representation A selected articulation/raw quaternion pair describes one completed projection. The separate half-angle-circle proposal uses the same fixed coefficient basis but returns only geometric roots, never an admitted pose or global score.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Pose authoring uses callable projection, distal/final scoring uses withQuaternion, and explicit owned continuation uses optional swivelCandidates. No coefficient state, last-result getter, pose cache or target history is exposed.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Pose authoring uses callable projection, distal scoring uses withQuaternion and its optional registered chord, and owned continuation uses swivelCandidates. No coefficient state, last-result getter or target history is exposed.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Both projection reads retain original clamp/candidate/tie policy. Native-only root proposals retain no query and certify no constraint; foreign/coupled/non-two-axis cases decline and actual curve checks/fallback remain mandatory.
  */
 export namespace prepareJointRotationProjection {
@@ -448,4 +471,18 @@ export namespace prepareJointRotationProjection {
 
   /** The interface contract (`IAutoMoviePrepareJointRotationProjection.IProjection`). */
   export type IProjection = IAutoMoviePrepareJointRotationProjection.IProjection;
+
+  /**
+   * Read a squared angular lower bound owned by the exact paired callback.
+   * Native box ownership, zero rig twist and cardinal arcs are checked at
+   * construction. A foreign, wrapped or unsupported callback has no bound.
+   *
+   * A constant-time weak lookup borrows the original proof reader without
+   * invoking the callback. The fixed arc metadata releases with that callback.
+   */
+  export function wristChord(
+    projector: IProjector["withQuaternion"] | undefined,
+  ): ReturnType<typeof prepareCardinalWristChord> {
+    return projector === undefined ? undefined : WRIST_CHORDS.get(projector);
+  }
 }

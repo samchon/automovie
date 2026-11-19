@@ -1,5 +1,6 @@
 import type {
   IAutoMovieMotionHumanProp,
+  IAutoMovieMotionPlayback,
   IAutoMovieRigidTransform,
   IAutoMovieTransform,
 } from "@automovie/interface";
@@ -10,7 +11,7 @@ type Point = (part: string, seconds: number) => IAutoMovieTransform;
 
 /**
  * Identity of an owned carrier clock and its stationary intervals. This
- * registry transports only authored interval metadata across the prop
+ * registry transports authored interval metadata and a same-time reader across the prop
  * adapter. It neither invokes unknown readers nor stores a fitted pose.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Holds identify the constant portions of the support and its attached material frames, in film seconds.
@@ -62,11 +63,37 @@ export namespace RigidCarrierSample {
     readonly point: Point;
   }
 
+  /**
+   * Same-time outputs from one actual read of an authored carrier.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the current world placement and the producer's selected material frames.
+   * @evidence contracts/development/design.md#principled-representation One snapshot holds the rigid frame and the selected material observations made from that same film second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A carrier anchor and its named contacts are enough for the supported-body reader.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares canonical world transforms. The producer owns the actual material geometry and time.
+   */
+  export interface IRead {
+    /** The carrier's actual world placement at this film second. */
+    readonly frame: IAutoMovieRigidTransform;
+    /**
+     * A named material point in world space at the same film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States the material id, world space and already selected film second.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The source owns the material placement law.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature routes selected ids to the source's current reader.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The implementing source guards material and its actual frame.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Per-point work belongs to the implementing source.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This method declares a same-time dependency. The source selects the shared geometry.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This portable callback signature retains nothing itself. The implementation owns the snapshot lifetime.
+     */
+    point(id: string): IAutoMovieTransform;
+  }
+
   /** Borrowed dispatch pair, keyed by the root reader's actual identity. */
   interface ISample {
     readonly model: object;
     readonly point: Point;
     readonly holds: readonly IHold[];
+    readonly playback?: IAutoMovieMotionPlayback<IRead>;
   }
 
   /** An adapter's actual readers, rather than the wrappers' declared types. */
@@ -74,6 +101,7 @@ export namespace RigidCarrierSample {
     readonly motion: IAutoMovieMotionHumanProp["motion"];
     readonly point: IAutoMovieMotionHumanProp["point"];
     readonly holds: readonly IHold[];
+    readonly playback?: IAutoMovieMotionPlayback<IRead>;
   }
 
   /** Weak metadata is released with the reader returned by its author. */
@@ -81,25 +109,27 @@ export namespace RigidCarrierSample {
   const adapted: WeakMap<IAutoMovieMotionHumanProp, IAdapted> = new WeakMap();
 
   /**
-   * Publish the producer's actual own clock pair and constant domains.
+   * Publish the producer's actual clock pair, its constant domains and any paired playback.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Publishes the exact pair and its source-authored stationary intervals.
+   * @evidence contracts/development/common.md#meaningful-documentation Publishes the exact pair, source-authored stationary intervals and optional playback over current film seconds.
    * @evidence contracts/development/implementation.md#principled-implementation The model and exact callbacks are the admission provenance, with membership owned by the producer's film clock.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One registration, returning the original callbacks directly.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Registration does not infer a hold from a pose or velocity and invokes no reader.
    * @evidence contracts/development/implementation.md#efficient-algorithms Copying the finite domain list costs O(H) for H authored intervals.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every adapter of the same source pair receives the same immutable domain records.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The source root callback weakly owns its model, matching socket callback and immutable domain list.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The source root callback weakly owns its model, matching socket callback, optional evaluator and immutable domain list. No sampled result enters the registry.
    */
   export function bind(
     model: object,
     motion: Motion,
     point: Point,
     holds: readonly IHold[],
+    playback?: IAutoMovieMotionPlayback<IRead>,
   ): IBinding {
     authored.set(motion, {
       model,
       point,
+      playback,
       holds: Object.freeze(
         holds.map((hold: IHold): IHold => Object.freeze({ ...hold })),
       ),
@@ -108,7 +138,7 @@ export namespace RigidCarrierSample {
   }
 
   /**
-   * Transfer domains only for the actual callback pair from the same model.
+   * Transfer domains and paired playback only for the actual callback pair from the same model.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The original model and exact callbacks authorize their newly adapted prop.
    * @evidence contracts/development/implementation.md#principled-implementation The dual callback and model identity check covers both root and articulating sockets.
@@ -131,6 +161,7 @@ export namespace RigidCarrierSample {
         motion: prop.motion,
         point: prop.point,
         holds: sample.holds,
+        playback: sample.playback,
       });
   }
 
@@ -148,12 +179,35 @@ export namespace RigidCarrierSample {
   export function holds(
     prop: IAutoMovieMotionHumanProp,
   ): readonly IHold[] | undefined {
+    return current(prop)?.holds;
+  }
+
+  /**
+   * The producer's same-time playback body, when the current prop still
+   * owns its exact root and point reader pair. The caller chooses the second.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the callback identity and that the returned evaluator has no supplied time yet.
+   * @evidence contracts/development/implementation.md#principled-implementation Uses the same paired identity admission as the stationary domains, without requiring a stationary interval.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One guarded metadata read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Foreign and rewrapped callbacks retain their ordinary route; no source is invoked here.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The weak lookup and two descriptor comparisons take constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the originally authored evaluator by identity while the callback pair still matches.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No sample or additional state is retained by this read.
+   */
+  export function playback(
+    prop: IAutoMovieMotionHumanProp,
+  ): IAutoMovieMotionPlayback<IRead> | undefined {
+    return current(prop)?.playback;
+  }
+
+  /** The prop's still-current own callback pair, checked without calling getters. */
+  function current(prop: IAutoMovieMotionHumanProp): IAdapted | undefined {
     const binding: IAdapted | undefined = adapted.get(prop);
     return binding !== undefined &&
       Object.getOwnPropertyDescriptor(prop, "motion")?.value ===
         binding.motion &&
       Object.getOwnPropertyDescriptor(prop, "point")?.value === binding.point
-      ? binding.holds
+      ? binding
       : undefined;
   }
 }

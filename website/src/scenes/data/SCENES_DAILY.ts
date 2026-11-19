@@ -33,6 +33,32 @@ export const SCENES_DAILY: readonly IScene[] = [
   ),
   scene(
     {
+      id: "rehearsing-reactions",
+      title: "Rehearsing reactions",
+      summary:
+        "One actor tilts their head while crossing the floor. The other covers their face, then wipes a tear from one cheek.",
+      setting: "everyday",
+      roles: { walker: "actor", partner: "actor" },
+      needs: [],
+    },
+    "rehearsing-reactions",
+    [
+      person("walker", "m1", -0.75, 0, 0, [
+        act("stand", { seconds: 0.3 }),
+        act(
+          "walk",
+          { to: to(-0.75, 2) },
+          { over: [act("headTilt", { degrees: 20 })] },
+        ),
+      ]),
+      person("partner", "f1", 0.75, 1, 0, [
+        act("coverFace", { seconds: 0.8 }),
+        act("wipeTears", { side: "right" }),
+      ]),
+    ],
+  ),
+  scene(
+    {
       id: "cafe",
       title: "Café",
       summary:

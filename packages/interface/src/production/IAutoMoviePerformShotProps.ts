@@ -1,6 +1,8 @@
 import type { IAutoMovieBlocking } from "../authoring/IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
+import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
+import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieClip } from "../core/IAutoMovieClip";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
@@ -15,6 +17,7 @@ import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
+import type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
 import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
@@ -193,6 +196,23 @@ export interface IAutoMoviePerformShotProps {
    * light. Omitted, the shot carries no such field.
    */
   lightMotions?: readonly IAutoMovieClip[];
+
+  /**
+   * Practical lights bound to staged prop emitters. Compiled from the final
+   * object clips, using the corresponding prop model in models, and appended
+   * to lightMotions. Omit when no practical source follows a prop.
+   */
+  practicalLights?: readonly IAutoMoviePracticalLightBinding[];
+
+  /**
+   * Shot-local material changes on placed prop parts. Nonempty input requires
+   * the corresponding generated rigid models in models. Omit for the staged
+   * appearance alone.
+   */
+  practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
+
+  /** Polygon body changes keyed by staged node and rig bone, timed in source-shot seconds. */
+  polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**
    * Clips the source authored over non-performing scene nodes, such as a
