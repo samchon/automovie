@@ -77,7 +77,7 @@ const validateMaterial: (
  *
  * Scenarios:
  *
- * 1. Five maps, UV transform, sampler, alpha coverage and physical lobes lower onto MeshPhysicalMaterial; bare asset IDs, unresolved bindings, absent resolver and omitted alpha/cutoff retain their declared defaults.
+ * 1. Five maps, UV transform, sampler, alpha coverage and physical lobes lower onto MeshPhysicalMaterial. Zero-alpha non-transmissive blended surfaces skip color, depth and shadow draws. Bare asset IDs, unresolved bindings, absent resolver and omitted alpha/cutoff retain their declared defaults.
  * 2. validateModel refuses malformed bindings, samplers, UV sets, coordinates, transforms and contradictory alpha/transmission at authored paths, while negative normal scale, opaque transmission and legacy opacity blending remain admitted.
  * 3. Generated geometry exposes one UV attribute with the expected CPU-side values.
  * 4. Image lighting mounts environment and background, uses byte-sRGB or float-linear texture metadata and restores structural-pass state; unresolved images fall back to solid or transparent background.
@@ -270,9 +270,30 @@ export async function test_viewer_pbr_environment(): Promise<void> {
   });
   TestValidator.equals(
     "blend mode enables blending without writing opaque depth",
-    { transparent: blend.transparent, depthWrite: blend.depthWrite },
-    { transparent: true, depthWrite: false },
+    {
+      visible: blend.visible,
+      transparent: blend.transparent,
+      depthWrite: blend.depthWrite,
+    },
+    { visible: true, transparent: true, depthWrite: false },
   );
+  const clear: THREE.MeshPhysicalMaterial = buildMaterial({
+    ...base,
+    opacity: 0,
+    alphaMode: "blend",
+  });
+  const opaque: THREE.MeshPhysicalMaterial = buildMaterial({
+    ...base,
+    opacity: 0,
+    alphaMode: "opaque",
+    transmission: 0.65,
+  });
+  TestValidator.predicate(
+    "the fully blended clear surface skips Three.js draws and opaque transmission stays visible",
+    !clear.visible && clear.transparent && !clear.depthWrite && opaque.visible,
+  );
+  clear.dispose();
+  opaque.dispose();
   const legacyBlend: THREE.MeshPhysicalMaterial = buildMaterial({
     ...base,
     opacity: 0.5,

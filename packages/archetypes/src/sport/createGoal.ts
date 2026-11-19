@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieMesh } from "@automovie/interface";
 
 import {
   Archetype,
@@ -10,6 +11,7 @@ import {
 } from "../core";
 import { GOAL_BANDS } from "./GOAL_BANDS";
 import { buildBasketballHoop } from "./buildBasketballHoop";
+import { buildTennisNet } from "./buildTennisNet";
 
 /** The builder every construction fills. */
 type Builder = ArchetypeBuilder<createGoal.Affordance, createGoal.Dimension>;
@@ -56,7 +58,7 @@ const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
  * @evidence contracts/development/implementation.md#principled-implementation Picks a volleyball net's class whole, draws the kind's bands and builds its construction from them.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the class, draw the dimensions, then one construction per kind.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal net, stand or padding; the constructions name their estimates.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms At most twenty parts.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most twenty parts. Tennis emits its bound lattice and tape once per model.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -277,6 +279,7 @@ function tennis(builder: Builder, d: Drawn): void {
   const bar: number = d.bar!;
   const tall: number = d.post! + POST_ABOVE;
   const centre: number = d.height!;
+  const post: number = d.post!;
   for (const [id, sign] of [
     ["post-left", 1],
     ["post-right", -1],
@@ -287,17 +290,28 @@ function tennis(builder: Builder, d: Drawn): void {
     builder.rod(
       `cord-${id === "post-left" ? "left" : "right"}`,
       CORD / 2,
-      v(sign * x, d.post!, 0),
+      v(sign * x, post, 0),
       v(0, centre, 0),
       { color: "#f7f7f7" },
     );
+    // These original solid panels retain ball collision and mass behind the open lattice.
     builder.box(
       `net-${id === "post-left" ? "left" : "right"}`,
       v(x, centre, ESTIMATES.mesh),
       v((sign * x) / 2, centre / 2, 0),
-      { color: "#1d1d1d", density: 0.05 },
+      { color: "#1d1d1d", density: 0.05, opacity: 0 },
     );
   }
+  const net: { twine: IAutoMovieMesh; tape: IAutoMovieMesh } = buildTennisNet(
+    x,
+    centre,
+    post,
+    CORD,
+    STRAP,
+  );
+  const origin: ReturnType<typeof v> = v(0, 0, 0);
+  builder.visualMesh("net-twine", net.twine, origin, { color: "#1d1d1d" });
+  builder.visualMesh("net-tape", net.tape, origin, { color: "#f7f7f7" });
   builder.affordance({
     id: "top",
     kind: "ledge",
