@@ -1,5 +1,7 @@
 # Direction
 
+<!-- @source [AFTRS, Screenwriting](https://medialab.aftrs.edu.au/wp-content/uploads/2021/07/AFTRS16_Screenwriting.pdf) on choosing a short film's scope to fit the production. -->
+
 Identify the fixed conditions, the delegated choices and what supplied material must keep, and study what [when to study](research.md#when-to-study) assigns to direction. Changing a user-fixed condition needs the user's authority.
 
 When the premise is delegated, compare materially different directions, distinguished by situation, pursuit, forces, progression or ending, and choose the one that best serves the commission, settling as far as delegation allows:

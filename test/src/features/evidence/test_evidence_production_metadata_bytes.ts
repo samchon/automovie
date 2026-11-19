@@ -21,7 +21,7 @@ export async function test_evidence_production_metadata_bytes(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();
   try {
     const before: string =
-      "\uFEFF# Arrival\r\n<!--\r\n@evidence shared/principles/common.md#scope Original evidence.\r\n-->\r\nThe guest opens the door.\r\n";
+      "\uFEFF# Arrival\r\n<!--\r\n@evidence principles/common.md#scope Original evidence.\r\n-->\r\nThe guest opens the door.\r\n";
     const after: string = before.replace(
       "Original evidence.",
       "Rechecked evidence.",

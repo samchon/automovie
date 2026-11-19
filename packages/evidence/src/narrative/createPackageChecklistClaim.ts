@@ -111,10 +111,8 @@ export function createPackageChecklistClaim(
 /**
  * Keeps the package API on the tracked work-owned contract subtree.
  *
- * `naturalness` is admitted for the same reason the shared and language trees
- * carry one: a work's own expression questions, which scripts construction
- * answers. The caller selects the hosts and their stage; the document
- * directory alone never chooses its host population.
+ * Existing work-owned `naturalness` addresses remain valid. The caller selects
+ * the hosts and stage for a work-specific expression question.
  */
 function isWorkDocument(document: string): boolean {
   const normalized: string = document.replaceAll("\\", "/");

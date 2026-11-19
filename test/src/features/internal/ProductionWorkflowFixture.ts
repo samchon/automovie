@@ -88,13 +88,13 @@ export class ProductionWorkflowFixture {
       for (const family of ["principles", "obligations", "discovery"])
         ProductionWorkflowFixture.write(
           root,
-          `.agents/skills/contracts/story/shared/${family}/${layer}.md`,
+          `.agents/skills/contracts/story/${family}/${layer}.md`,
           "# Contract\n\n## Scope {#scope}\n\nAccount for the selected work.\n",
         );
       if (layer !== "settings")
         ProductionWorkflowFixture.write(
           root,
-          `.agents/skills/contracts/story/shared/upstream/${layer}.md`,
+          `.agents/skills/contracts/story/upstream/${layer}.md`,
           "# Upstream\n\n## Repair {#repair}\n\nIdentify inherited defects.\n",
         );
     }
@@ -107,14 +107,14 @@ export class ProductionWorkflowFixture {
     for (const family of ["principles", "obligations", "discovery"])
       ProductionWorkflowFixture.write(
         root,
-        `.agents/skills/contracts/story/shared/${family}/brief.md`,
+        `.agents/skills/contracts/story/${family}/brief.md`,
         "# Contract\n\n## Scope {#scope}\n\nAccount for the selected work.\n",
       );
     for (const family of ["principles", "obligations", "discovery"])
       for (const group of ["common", "narratives"])
         ProductionWorkflowFixture.write(
           root,
-          `.agents/skills/contracts/story/shared/${family}/${group}.md`,
+          `.agents/skills/contracts/story/${family}/${group}.md`,
           "# Contract\n\n## Scope {#scope}\n\nAccount for the selected work.\n",
         );
     ProductionWorkflowFixture.write(
@@ -161,19 +161,9 @@ export class ProductionWorkflowFixture {
     for (const family of ["principles", "obligations"])
       ProductionWorkflowFixture.write(
         root,
-        `.agents/skills/contracts/story/shared/${family}/review.md`,
+        `.agents/skills/contracts/story/${family}/review.md`,
         "# Review\n\n## Scope {#scope}\n\nCompare the complete fixture.\n",
       );
-    ProductionWorkflowFixture.write(
-      root,
-      ".agents/skills/contracts/story/shared/naturalness/common.md",
-      "# Expression\n\n## Scope {#scope}\n\nPreserve the scene decision.\n",
-    );
-    ProductionWorkflowFixture.write(
-      root,
-      ".agents/skills/contracts/story/shared/naturalness/obligations/common.md",
-      "# Expression population\n\n## Scope {#scope}\n\nCompare expression across all selected scenes.\n",
-    );
     ProductionWorkflowFixture.write(
       root,
       "docs/instructions/001-brief.md",
@@ -184,7 +174,7 @@ export class ProductionWorkflowFixture {
       for (const family of ["principles", "obligations"])
         ProductionWorkflowFixture.write(
           root,
-          `.agents/skills/contracts/story/shared/${family}/index.md`,
+          `.agents/skills/contracts/story/${family}/index.md`,
           "# Outline\n\n## Scope {#scope}\n\nGuide the reader to every canon file.\n",
         );
       ProductionWorkflowFixture.write(
@@ -195,12 +185,12 @@ export class ProductionWorkflowFixture {
       ProductionWorkflowFixture.write(
         root,
         "docs/evidence/construction/units/settings/outline/index.md",
-        "# docs/body/settings/outline/index.md#canon\n\n## @evidence shared/principles/index.md#scope\n\nThe canon part guides the reader to the arrival record.\n",
+        "# docs/body/settings/outline/index.md#canon\n\n## @evidence principles/index.md#scope\n\nThe canon part guides the reader to the arrival record.\n",
       );
       ProductionWorkflowFixture.write(
         root,
         "docs/evidence/construction/files/settings/outline/index.md",
-        "# docs/body/settings/outline/index.md\n\n## @evidence shared/obligations/index.md#scope\n\nThe only canon file has one matching ordered entry.\n",
+        "# docs/body/settings/outline/index.md\n\n## @evidence obligations/index.md#scope\n\nThe only canon file has one matching ordered entry.\n",
       );
     }
     for (const layer of layers) {
@@ -218,10 +208,10 @@ export class ProductionWorkflowFixture {
           ? ["common", layer]
           : ["common", "narratives", layer];
       const units: string[] = groups.map(
-        (group: string): string => `shared/principles/${group}.md#scope`,
+        (group: string): string => `principles/${group}.md#scope`,
       );
       const files: string[] = groups.map(
-        (group: string): string => `shared/obligations/${group}.md#scope`,
+        (group: string): string => `obligations/${group}.md#scope`,
       );
 
       // Settings adopts each instruction, and treatments or a short's
@@ -234,10 +224,9 @@ export class ProductionWorkflowFixture {
         units.push("instructions/001-brief.md#door");
       if (layer === "settings" && mode === "long")
         files.push("settings/outline/index.md#001-event");
-      for (const group of groups)
-        discovery.add(`shared/discovery/${group}.md#scope`);
+      for (const group of groups) discovery.add(`discovery/${group}.md#scope`);
       if (layer !== "settings" && layer !== "brief")
-        units.push(`shared/upstream/${layer}.md#repair`);
+        units.push(`upstream/${layer}.md#repair`);
       if (mode === "short" && layer === "screenplay")
         units.push("brief/world/arrival.md#arrival");
       if (layer === "treatments") units.push("settings/001-event.md#arrival");
@@ -249,10 +238,6 @@ export class ProductionWorkflowFixture {
       // A long screenplay scene file realizes exactly one script scene.
       if (mode === "long" && layer === "screenplay")
         files.push("scripts/001-part/001-scene.md#arrival");
-      if (layer === "scripts") {
-        units.push("shared/naturalness/common.md#scope");
-        files.push("shared/naturalness/obligations/common.md#scope");
-      }
       ProductionWorkflowFixture.write(
         root,
         `docs/evidence/construction/units/${layer}/${file}`,
@@ -266,12 +251,12 @@ export class ProductionWorkflowFixture {
       ProductionWorkflowFixture.write(
         root,
         `docs/review/draft/${layer}/round-1/${file}`,
-        `# Arrival record\n\n## Arrival {#arrival}\n<!--\n@evidence ${file}#arrival Read the fixture scene.\n@evidence shared/principles/review.md#scope Compared the complete fixture.\n-->\nThe fixture review is structural only.\n`,
+        `# Arrival record\n\n## Arrival {#arrival}\n<!--\n@evidence ${file}#arrival Read the fixture scene.\n@evidence principles/review.md#scope Compared the complete fixture.\n-->\nThe fixture review is structural only.\n`,
       );
       ProductionWorkflowFixture.write(
         root,
         `docs/review/draft/${layer}/round-1/verdict/index.md`,
-        "<!--\n@evidence shared/obligations/review.md#scope Read every selected fixture unit.\n-->\n# Verdict\n\nNo structural finding remains.\n",
+        "<!--\n@evidence obligations/review.md#scope Read every selected fixture unit.\n-->\n# Verdict\n\nNo structural finding remains.\n",
       );
     }
     ProductionWorkflowFixture.write(

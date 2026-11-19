@@ -43,4 +43,4 @@ Start an authorized fresh context with the author's model. Pass the job and inpu
 
 ## Completion
 
-For a route with narrative passes, finish the required layer reviews and repairs. Verify parent coverage and read the unfiltered Evidence report while the required stages are active. Follow [closed passes](../correction/repair.md#closed-passes) for completed layers. Keep the manuscript revision and any open diagnostics with the handoff.
+For each narrative pass, read the unfiltered Evidence report while its required stages are active. Check parent coverage and the reviewer's unit records and verdict against the manuscript revision. Finish the route's repairs and hand off the revision reviewed, subsequent changes and any open diagnostics under [closed passes](../correction/repair.md#closed-passes).

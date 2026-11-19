@@ -6,7 +6,6 @@ import {
 import fs from "node:fs";
 import path from "node:path";
 
-import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import { constructionStage } from "../constructionStage";
@@ -14,8 +13,8 @@ import { createLineageReference } from "../references/createLineageReference";
 import { createSharedReference } from "../references/createSharedReference";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
-import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
+import { hasStoryContract } from "../utilities/hasStoryContract";
 
 /**
  * Creates the claims that record the evidence-stage reviews in the graph.
@@ -51,8 +50,8 @@ export function createReviewClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  const principles: boolean = installed(props, "principles/review.md");
-  const obligations: boolean = installed(props, "obligations/review.md");
+  const principles: boolean = hasStoryContract(props, "principles/review.md");
+  const obligations: boolean = hasStoryContract(props, "obligations/review.md");
   if (!principles && !obligations) return [];
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
   const inside: string[] = files.map((file: string): string =>
@@ -225,25 +224,4 @@ function hasCurrentReview(
       return true;
   }
   return false;
-}
-
-/**
- * Reports whether one review-family document is installed.
- *
- * Principled implementation: The shared story tree from createContractDirectory and the requested relative family path identify the installed optional review question document, wherever a workspace keeps the shared tree.
- * Clear and simple design: This private predicate keeps optional-family discovery separate from review host selection and native evaluation.
- * Prohibited implementation shortcuts: Existence only determines whether the optional family is installed; native extraction still owns readable valid contract content and cannot be replaced by this probe.
- * Meaningful documentation: The comment identifies optional review-family document discovery; the caller supplies the two supported relative contract paths.
- * Efficient algorithms: One path assembly and synchronous existence probe cost path-length work and constant-size metadata observation.
- * Reuse equivalent work: Each factory build observes current installation instead of caching a mutable contract path's existence.
- * Bound retention and release resources: The temporary path and synchronous probe retain no cache, open handle or task.
- */
-function installed(contracts: IContractLocation, file: string): boolean {
-  return fs.existsSync(
-    path.join(
-      createContractDirectory(contracts, "shared"),
-      "shared",
-      ...file.split("/"),
-    ),
-  );
 }

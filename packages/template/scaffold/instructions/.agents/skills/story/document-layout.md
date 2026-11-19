@@ -13,14 +13,13 @@ Commit instructions, bodies and Evidence answers. Keep review records local. Ide
 | `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
 | `docs/body/brief/<domain>/<subject>.md` | A short's brief, one subject per file in a settings domain |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
-| `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
+| `docs/body/scripts/NNN-part/NNN-episode.md` | First-draft scenes, dialogue and release partition, with part indexes |
 | `docs/body/screenplay/<film>/NNN-<scene>.md` | Complete final audiovisual text, one file per scene |
 | `docs/research/index.md` | The source index |
 | `docs/research/<discipline>/<topic>.md` | The studies of each practice and style |
 | `references/` | Retained research originals that are permitted copies |
 | Ignored `references/private/` | Retained research originals whose rights are unconfirmed |
-| `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contracts |
-| `docs/contracts/statements/...` | This production's own contract statements, which no evidence stage selects |
+| `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contract items and their criteria |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance record |
 | `docs/acceptance/catalog.md` | The catalog's accepted cases |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files |
@@ -41,9 +40,17 @@ A part can be an act, a release block or another division suited to the format, 
 
 ## Canon records
 
-Give each settings or brief subject one file in its domain. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact's path and preserve its [anchor](layers/notation.md#identities).
+Give each settings or brief subject one file in its domain. Its production-relative path identifies the subject across scenes and films. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact by path and [anchor](layers/notation.md#identities).
 
 For commissioned appearances on a route with no settings or brief, use `docs/instructions/appearance-<subject>.md` as the subject record. Preserve user-fixed interpretations. Embed commissioned [canon references](../image/canon-references.md) from `media/diffusion/images/<domain>/`. Report conflicting sources or instructions and resolve inconsistencies at their owner.
+
+### Scene elements
+
+<!-- @source The opening of [Knives Out](https://rian-johnson.com/pdfs/knives-out.pdf#page=2) describes the rooms along Fran's route. [ScreenSkills](https://www.screenskills.com/skills-checklists/scripted-film-and-tv/props-department/standby-props-skills/) covers prop continuity. [Movie Magic Scheduling](https://mms-docs.ep.com/Elements/ManagingElements.html) tracks named elements across scenes. -->
+
+Identify places, people, props and groups in the scene's [standing state](layers/notation.md#records). Link each subject that has a record. Give a scene-local instance a stable name only when the action tracks it. A house key and a spare key may share a design but change hands separately. Describe other dressing and crowds collectively.
+
+Keep the identity through changes of holder, appearance or camera. Link newly discovered subjects to their [brief](layers/brief.md#growth) or [settings record](layers/settings.md#records) when they belong there. Instructions own shared subjects on routes without canon layers.
 
 ## Intake of existing work
 

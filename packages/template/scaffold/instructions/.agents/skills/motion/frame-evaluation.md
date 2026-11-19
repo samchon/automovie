@@ -8,6 +8,8 @@ Keep output frame, output time, shot-local time and simulation time distinct, an
 
 Schedule participants, camera and sound from the same resolved events. A contact or interruption can fall between output frames. Keep the event's time and sample on either side when verifying the join.
 
+Derive travel time from the performed steps. If an action at the studied pace leaves unaccounted time before a fixed cue, revisit [the beat's timing](../contracts/story/principles/screenplay.md#performance-timing). Preserve authored waits and speed changes.
+
 Verify the first and last frames and both sides of cuts and trims against the plan.
 
 ## Sampling and retained state

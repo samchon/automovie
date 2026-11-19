@@ -18,6 +18,8 @@ Check the provider's content policy, including refusal billing and account limit
 
 ### Inspection and choice
 
+<!-- @source [fal’s clay-render case study](https://blog.fal.ai/from-clay-3d-render-to-a-real-action-short-a-3d-to-ai-pipeline-with-total-control/) describes correcting the framing in the source camera. -->
+
 Generate the recorded number of takes and choose among them before changing the prompt. Where supported, choose among drafts and follow the model's documented path to a final take.
 
 Compare [extracted stills](../visual-debugging/capture.md#times) with matched hint frames under [comparison](../visual-debugging/comparison.md). Check contacts and outcomes first, then identity, placement, camera and motion. Choose for fidelity to the beat. Have the user judge playback and any commissioned sound.
@@ -34,6 +36,8 @@ Repair a take by its cause:
 Preserve action, identity and causality through cuts. Repair framing in the hint's camera within the screenplay entry.
 
 ### Placement in time
+
+<!-- @source The [FFmpeg filter guide](https://ffmpeg.org/ffmpeg-filters.html) covers trim, setpts and fps. -->
 
 Place takes by decoded timestamps and time base. Keep trims, retimes and rebases distinct. Preserve required material when aligning streams. Avoid truncation or silent padding that hides loss.
 

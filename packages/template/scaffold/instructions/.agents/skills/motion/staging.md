@@ -8,11 +8,13 @@ Read each beat's action, initiator, reaction, result, props, supports and entran
 
 ## Blocking
 
+<!-- @source [DGA](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) on cueing background performers. [Disney Animation](https://cdn.disneyanimation.com/uploads/publications/SIGGRAPH_2025_The_Art_of_Crowds_Animation.pdf) on directing attention within a crowd. -->
+
 Stage in the set's zones and landmarks, never in coordinates: each beat's spatial change moves its participants between them through entity capabilities, and the set entity resolves where that is.
 
 Compose each person's actions, reactions, pauses and outcomes with the installed operators. Use the action's preparation and follow-through. Add anticipation only where the screenplay decides it.
 
-Follow [living scene](../contracts/development/composition.md#living-scene) for every presence. Use scripted purposes and destinations or record a [concretization](../story/correction/repair.md#concretization). Move background performers behind the main action and quiet them at the focal moment under [DGA guidance](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background).
+Follow [living scene](../contracts/development/composition.md#living-scene) for every presence. Stage participants whose choices affect the exchange even while the camera follows someone else. Give background activity a purpose and let it settle when the scene calls for stillness. Return a missing action or response to the writer under [upstream defects](../story/correction/repair.md#upstream-defects).
 
 Each entity has one transform owner, so a clip, an attachment and a procedural driver never fight for the same state. A reach or scale mismatch is fixed at its owner, never by changing the outcome.
 
@@ -27,12 +29,12 @@ Light from the set and story day's sources. Keep direction and color continuous 
 Inspect every shot at the delivered aspect and scale through the whole action, in the camera's frames rather than in subject bounds:
 
 - the subject the beat names reads at the decided size;
-- at the key action, the moving limb and the turned head stand clear of the torso and the background;
+- the pose and movement that carry the beat read against the surrounding figures and background;
 - no head or limb is cut at a joint or crowded against the frame edge unless the shot intends it;
-- nothing clips or hides a contact or a reaction, and no detail competes with it;
+- the intended cue leads attention through competing actions, including a reaction or sound when the cause stays out of view;
 - screen direction, eyelines and light hold across each cut, apart from a discontinuity the screenplay decided.
 
-Fix framing within the beat's camera placement or revise its screenplay camera or space entry. Send lighting to the light entity and gaze, contact or penetration to the performing module.
+Use a diagnostic view to check a hidden physical relationship. Judge what the audience learns in the film camera. Fix framing within the beat's placement or revise the screenplay camera or space entry. Send lighting to the light entity and gaze, contact or penetration to the performing module.
 
 ## Segments and handoff
 

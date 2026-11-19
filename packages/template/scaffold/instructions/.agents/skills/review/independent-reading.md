@@ -6,7 +6,7 @@ An independent reader is a [separate context](../story/workflow/routes.md#separa
 
 Give the reviewer the task, the recipient and the annotation-free body before parents, contracts or earlier verdicts, and never the [evidence answers](narrative-rounds.md#reviewers).
 
-Read every declared unit, in disjoint chunks when needed. Lock the first response and concrete losses against the [independent-reading statements](../contracts/story/shared/principles/review.md#independent-reading) before reading other records.
+Read every declared unit, in disjoint chunks when needed. Lock the first response and concrete losses against the [independent-reading criteria](../contracts/story/principles/review.md#independent-reading) before reading other records.
 
 Read each layer as its recipient:
 
@@ -15,7 +15,7 @@ Read each layer as its recipient:
 | Settings | Treatment writer and designer |
 | Brief | Screenplay writer and designer |
 | Treatments | Script writer |
-| Scripts | Screenplay writer and performer |
+| Scripts | Screenplay writer following the story from scene to scene |
 | Screenplay | Audience, then filmmaker |
 
 A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream defects](../story/correction/repair.md#upstream-defects).
@@ -28,6 +28,6 @@ Where the route runs [independent classification](../story/correction/inspection
 
 ## Expression
 
-Scripts receive content and expression together under their expression questions. The screenplay's speech is judged under [speaker plausibility](../contracts/story/shared/principles/realized.md#speaker-plausibility), and its idiom and action lines under the language statements of [audiovisual realization](../contracts/story/shared/principles/screenplay.md#audiovisual-realization).
+Read the screenplay's dialogue and action in context under [its expression criteria](../contracts/story/principles/screenplay.md#reads-as-written). Compare [recurring forms and voices](../contracts/story/obligations/screenplay.md#recurrent-frames) across the film.
 
-Scene headings, useful parentheticals, first-entry appearance and the screenplay's standing state and [beat records](../story/layers/notation.md#records) are notation, not expression failures. Treatment prescriptions are judged under their [completion question](../contracts/story/shared/principles/treatments.md#decided-event).
+Scene headings, useful parentheticals, first-entry appearance and the screenplay's standing state and [beat records](../story/layers/notation.md#records) are notation, not expression failures. Treatment prescriptions are judged under their [completion question](../contracts/story/principles/treatments.md#decided-event).

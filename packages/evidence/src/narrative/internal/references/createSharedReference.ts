@@ -7,13 +7,12 @@ import { createContractRoot } from "../utilities/createContractRoot";
  * Creates one reference against a shared contract document.
  *
  * Every shared family is the same relation — anchored H2 items of a document
- * in the effective `contracts/story/shared` tree, answered by the selected H2
+ * in the effective `contracts/story` tree, answered by the selected H2
  * hosts of one layer — and differs only in two flags, so it is declared once
  * rather than assembled separately. The shared tree is the bundled one, which
  * a workspace keeps at its root and a standalone production under its own
- * `.agents/skills`. A host cites the document under the family that owns it,
- * `shared/...`, because the production's `docs/contracts/language` holds files
- * of the same name.
+ * `.agents/skills`. A host cites the file relative to `contracts/story`.
+ * Production-owned contracts retain their `work/` or `language/` prefix.
  *
  * `checklist` decides who answers. A checklist is answered by every selected
  * host for itself, so a strong sibling never answers for a weak one. Ordinary
@@ -42,7 +41,7 @@ export function createSharedReference(props: {
   return {
     type: "markdown",
     root: createContractRoot(props.contracts, "shared"),
-    files: [`shared/${props.file}`],
+    files: [props.file],
     symbol: "h2",
     ...(props.checklist ? { checklist: true } : {}),
     ...(props.exclusion ? {} : { noEvidenceExclude: true }),

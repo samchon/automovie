@@ -19,14 +19,15 @@
 export interface IAutoMovieDevelopmentProps {
   /**
    * Types, classes, functions and methods under `src/entities/` answer
-   * `contracts/development/entities.md`.
+   * `contracts/development/entities.md`. Submitting entities or composition
+   * on a narrative route also connects entity types to its subject records.
    */
   entities?: "disabled" | "evidence";
 
   /**
    * Functions and methods under `src/laws/`, `src/interactions/` and
-   * `src/consequences/` answer `contracts/development/behaviors.md`. A law
-   * names the study it follows in its answer; no study citation is required.
+   * `src/consequences/` answer `contracts/development/behaviors.md`. Cite a
+   * skilled behavior's study passage in its studied laws answer.
    */
   behaviors?: "disabled" | "evidence";
 
@@ -35,7 +36,9 @@ export interface IAutoMovieDevelopmentProps {
    * `contracts/development/composition.md` and cite a screenplay scene file
    * or its sections and beats, every section and beat of which must be cited;
    * those under `src/composition/films/` answer it and cite the scene files
-   * they order, every one of which must belong to a film.
+   * they order, every one of which must belong to a film. Catalog sources
+   * answer the composition checklist alone. Submitting programmed film or
+   * scene sources requires the catalog film, case sources and acceptance record.
    */
   composition?: "disabled" | "evidence";
 }

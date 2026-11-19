@@ -1,8 +1,6 @@
 # Screenplay
 
-Write a complete audiovisual experience the audience can follow without parent documents. Use the [screenplay criteria](../../contracts/story/shared/principles/screenplay.md) that apply to the work. Motion, sound, generation and assembly [realize](../../contracts/development/composition.md#composition-only) the screenplay's decisions.
-
-Decide what is seen and heard, how attention moves and when the audience learns or connects events. Use [notation](notation.md) and [shots and cuts](shots.md). Make silence, fixed views, captions and narration serve the chosen form.
+Write the experience in viewing order. Use the [screenplay criteria](../../contracts/story/principles/screenplay.md) to decide what the audience sees, hears and learns. Write it in [screenplay blocks](notation.md) with the intended [shots and cuts](shots.md). Compare [recurring forms, voices and rhythm](../../contracts/story/obligations/screenplay.md#recurrent-frames) across the film.
 
 ## Scenes
 
@@ -10,30 +8,18 @@ Use one file per continuous place and time. With long-route narrative passes, ma
 
 ## Realization
 
-With long-route narrative passes, extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts. Draft from those notes, requirements and fixed quotations in a [separate context](../workflow/routes.md#separate-contexts). Check the actual parents. Preserve event order and [compose the realization afresh](../../contracts/story/shared/principles/narratives.md#parent-differentiation).
+With long-route narrative passes, extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts. Draft from those notes, requirements and fixed quotations in a [separate context](../workflow/routes.md#separate-contexts). Write the dialogue from each exchange’s intent, information and outcome. Check the result against the actual parents. Preserve event order and [compose the realization afresh](../../contracts/story/principles/narratives.md#parent-differentiation).
 
 With short-route narrative passes, decide events, consequences, setups, payoffs and the ending from the instructions. Set when the audience learns dangers and secrets relative to the characters. Cite the [brief](brief.md) and complete assigned [research](../planning/research.md#when-to-study).
 
 For direct writing, use the adopted instructions and assigned research as the source of its creative decisions.
 
-Write only what the adopted representation and frame can show, as [project context](../../production/project-context.md) records them; the [beat-decisions question](../../contracts/story/shared/principles/screenplay.md#beat-decisions) says what a commissioned generated film's prompt may carry beyond that.
-
-A polygon man without a drawn face shows attention by the turn of its head and torso, and feeling by its posture, tempo and distance from others, named by the distance bands the installed motion vocabulary performs, not by a number.
-
-A fact the representation cannot carry reaches a generated film through canon references and the generation prompt, and a [direct 3D film](../../video/direct-film.md) through a detail option that shows it.
+Stage for the representation in [project context](../../production/project-context.md). A faceless figure can turn toward someone, hesitate or step away. Use the installed distance bands when specifying spacing. Carry details beyond the coarse figure through a [direct film's detail option](../../video/direct-film.md) or a generated film's canon reference and prompt.
 
 ## Beats
 
-Use one beat per exchange. End it when intent or initiative changes. List its chained actions in order and write one record for the exchange.
+Plan each section's density, pressure and recurring motifs. For skilled practice, use the [performance study](../planning/research.md#performance-study) to choose and time its exchanges. Keep working plans in ignored `.cache/`.
 
-Plan the whole performance before writing beats. Set each section's action density, pressure and motif variations. Apply the study's density and distribution targets where available.
+Write one beat per exchange, ending when intent or initiative changes. Give speakers an aim and let reactions follow the cue the participant can see or hear. Record consequential departures from default listening or breathing in the [beat record](notation.md#records).
 
-Keep performance plans only in ignored `.cache/`.
-
-Decide each beat completely in its [beat record](notation.md#records). An action the installed motion vocabulary does not perform, alone or joined with others, is named by the research law that describes it, under [what needs a study](../planning/research.md#what-needs-a-study).
-
-Give each speaker an aim and disclose information when it serves that aim. Time each reaction from its visible or audible cause. Record departures from default listening and breathing.
-
-A beat that no composition of installed actions or cited law can produce is repaired here, or at the parent that owns the decision under [upstream defects](../correction/repair.md#upstream-defects), before code is written from it.
-
-Read the whole progression in viewing order. When the route runs narrative Evidence, finish its inspection and repairs before enabling the stage.
+For a programmed performance, return an unstageable decision to its [earliest owner](../correction/repair.md#upstream-defects). Read the whole screenplay in viewing order and finish any required inspection and repairs before enabling Evidence.

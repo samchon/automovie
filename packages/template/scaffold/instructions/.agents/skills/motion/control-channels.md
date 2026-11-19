@@ -4,6 +4,8 @@ A motion hint reaches its receiver through control channels rendered from the pe
 
 ## Channels to render
 
+<!-- @source [DiffusionRenderer](https://arxiv.org/abs/2501.18590) uses geometry and material buffers as rendering inputs. -->
+
 Render only the receiver's required channels. Use outlines for edge inputs and scene-projected points for exact tracks.
 
 Material channels, such as base color and roughness, carry only what the forms' materials hold, so they serve only a film that switched on its [detail options](../development/entities.md#detail).
@@ -15,6 +17,8 @@ Light coarse forms to show volume. Use [entity colors](../development/entities.m
 Render from the scene any control mask a video request asks for, never estimate it from pictures.
 
 ## Dense channels
+
+<!-- @source [LooseControl](https://arxiv.org/html/2312.03079v1) studies coarse depth constraints. [Cosmos-Transfer1](https://arxiv.org/abs/2503.14492) demonstrates control weights that vary across space and time. -->
 
 Dense conditioning carries both placement and shape. Higher adherence preserves more coarse geometry.
 

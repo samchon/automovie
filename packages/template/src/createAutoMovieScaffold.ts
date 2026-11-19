@@ -21,6 +21,8 @@ const PACKAGE: string = path.resolve(__dirname, "..");
  *
  * A `$<name>` placeholder under a layer's `.agents/skills` is replaced by the repository skill item the build copied to `generated/skills`. A layer's root `_gitignore` becomes `.gitignore`, because npm pack renames a packed `.gitignore`. `{{name}}` becomes the admitted name and `{{skills}}` the path of the skills the production reads. Line endings become LF. Every `package.json` dependency is a `catalog:` reference: the `automovie` catalog ranges this package's own version, and the others carry the ranges the build read from the repository's `pnpm-workspace.yaml`.
  *
+ * Instruction Markdown omits reserved `<!-- @source ... -->` lines after shared skills are expanded. A source paragraph leaves one blank line between its heading and the body.
+ *
  * Nothing is written; the caller writes the map.
  *
  * @param props The installation kind and its name.
@@ -30,8 +32,8 @@ const PACKAGE: string = path.resolve(__dirname, "..");
  * @evidence contracts/development/implementation.md#principled-implementation Layers are read from the installed package, so the map always matches the shipped scaffold. Catalog ranges come from the build's record of the repository catalogs and the automovie range from this package's own manifest, so a workspace and its productions resolve the release the package belongs to. A duplicate path throws instead of keeping either source.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One function owns the whole map for every kind; the kind decides only which layers are read and which generated files are added, and writing is left to the caller.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No file is named except the generated `pnpm-workspace.yaml` and `evidence.config.ts`, whose content differs by kind, and the root `_gitignore`, whose rename npm pack forces.
- * @evidence contracts/development/common.md#meaningful-documentation The comment lists every kind's layers and generated files, the placeholder, rename, token and line-ending rules, the version sources, and what throws.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each shipped file is listed and read once, and each content is scanned once for tokens and line endings, so the cost is linear in the scaffold's size plus each directory's sort.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment lists every kind's layers and generated files, shared skills, source notes, renames, substitutions, line endings, version sources and failures.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each file is listed and read once. Source lines, tokens and line endings take a fixed number of linear scans, plus each directory's sort.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads the scaffold as installed now, once per creation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Files are read with `readFileSync`, which releases its handle before returning; only the returned map, owned by the caller, outlives the call.
  */
@@ -76,6 +78,19 @@ const readLayer = (
   add: (relative: string, content: string) => void,
 ): void => {
   const root: string = path.join(PACKAGE, "scaffold", layer);
+
+  /** Strip the source note while keeping one of its surrounding blank lines. */
+  const read = (file: string): string => {
+    const text: string = fs.readFileSync(file, "utf8");
+    return layer === "instructions" && file.endsWith(".md")
+      ? text.replace(
+          /(?<=^|\n)(\r?\n)?<!-- @source (?:(?!-->)[^\r\n])+ -->[ \t]*(?:\r?\n|$)(\r?\n)?/gu,
+          (_: string, before?: string, after?: string): string =>
+            before ?? after ?? "",
+        )
+      : text;
+  };
+
   for (const relative of listAutoMovieScaffoldFiles(root)) {
     const shared: string | null = scaffoldSharedSkillPath(relative);
     if (shared === null) {
@@ -108,8 +123,6 @@ const renderEvidenceConfig = (workspace: boolean): string =>
     `});`,
     ``,
   ].join("\n");
-
-const read = (file: string): string => fs.readFileSync(file, "utf8");
 
 const toPosix = (relative: string): string =>
   relative.split(path.sep).join("/");

@@ -4,6 +4,8 @@ Every request is a separate generation, so identity, light, color and motion can
 
 ## Chaining requests
 
+<!-- @source The [VACE user guide](https://github.com/ali-vilab/VACE/blob/main/UserGuide.md) describes extension from selected frames. -->
+
 Where the model takes multiple videos with roles, pass the accepted take's ending as a continuation input and count it toward the input limit. Otherwise start from a chain frame.
 
 Choose a chain frame before end-of-take drift. Record it and state the pose and state at the seam. Use the model's lossless or high-bit-depth format when available.

@@ -16,7 +16,7 @@ Cloth and hair follow the body only as far as the installed packages simulate th
 
 ### Look
 
-The look is the one [project context](../production/project-context.md) records, taken on long work from the settings cinematography record and on a short from the user.
+Use the look adopted in [project context](../production/project-context.md#overview-and-look), including the cinematography record on long work.
 
 Use record and canon materials in the installed format. Get textures and environment maps from [sources](../3d-modeling/sources.md). Use clay for form and beauty for materials under [form inspection](../3d-modeling/inspection.md#light-and-material).
 

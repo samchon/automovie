@@ -4,23 +4,19 @@ Choose continuous views and cuts by conventional film grammar. Motion staging re
 
 ## Defaults
 
-Use wide or full shots for layout and movement, medium shots for exchanges, and close shots for decisive reactions, objects or contacts. Re-establish the layout on an opening, entrance or change.
+Choose the view for what the audience needs to follow. A wide shot can show one person's movement opening space for another. A closer view can reveal a choice the wide conceals. Re-establish the layout when the audience needs its bearings.
 
-Put the camera at eye height for an exchange between equals. Raise or lower it, or show one character's point of view, only where the balance between people or what one of them sees is the point of the moment.
-
-Use motivated camera movement or a deliberate held frame.
-
-Decide a lens only where its effect on perspective carries meaning, and leave it to the production otherwise.
-
-Compose for the delivered aspect ratio. A vertical frame fits one figure or a close pair best, so stage travel toward or away from the camera, not across the frame.
+Set camera height, point of view and movement for the action and the delivered aspect ratio. Decide a lens where its perspective matters. Check which participant, cue or response the frame reveals or withholds.
 
 ## Continuity across a cut
 
+<!-- @source Bordwell and Thompson, Film Art, on continuity editing. Walter Murch, In the Blink of an Eye, on priorities at a cut. -->
+
 Keep eyelines and screen direction across cuts. Cross the axis on screen through camera or subject movement, or to create deliberate disorientation.
 
-Cut on action with positions, gaze and held objects continuous. Where priorities conflict, preserve emotion, story and rhythm before spatial continuity (Walter Murch, *In the Blink of an Eye*).
+Cut on action with positions, gaze and held objects continuous. Where priorities conflict, preserve emotion, story and rhythm before spatial continuity.
 
-Cut to shift attention. Change shot size or shift the angle by about 30 degrees or more to avoid a jump. Shorten shots as pressure rises. Hold stillness or actions that need continuity. Default to a cut between scenes. Choose another transition only when its effect serves the scene.
+Cut when a new view changes what the audience can follow or feel. A held wide can sustain pressure as the relationships within it change. For a seamless cut, make the change of view legible. Default to a cut between scenes.
 
 ## Writing them down
 

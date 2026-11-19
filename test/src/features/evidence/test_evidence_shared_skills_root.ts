@@ -29,7 +29,7 @@ import path from "node:path";
  *
  * Scenarios:
  *
- * 1. With `skills` at the workspace root, every `shared/...` story reference
+ * 1. With `skills` at the workspace root, each bundled story checklist
  *    roots at `../../../.agents/skills/contracts/story`, every `language/...`
  *    reference and the discovery claim over `work/**` root at the production's
  *    `docs/contracts`, and the engineering, development and research claims
@@ -73,10 +73,10 @@ export function test_evidence_shared_skills_root(): void {
       path.join(root, "contracts", "story", file);
     const own = (file: string): string =>
       path.join(location, "docs", "contracts", file);
-    write(story(skills, "shared/principles/realized.md"));
-    write(story(skills, "shared/obligations/screenplay.md"));
+    write(story(skills, "principles/realized.md"));
+    write(story(skills, "obligations/screenplay.md"));
     write(story(skills, "language/principles/common.md"));
-    write(story(local, "shared/obligations/realized.md"));
+    write(story(local, "obligations/realized.md"));
     write(own("language/principles/screenplay.md"));
     write(own("language/discovery/questions.md"));
 
@@ -120,15 +120,18 @@ export function test_evidence_shared_skills_root(): void {
     // 2. Optional contracts are probed in their owner's tree.
     const selected: string[] = collectFiles(config);
     TestValidator.predicate(
+      "the configuration emits no retired shared prefix",
+      selected.every((file: string): boolean => !file.startsWith("shared/")),
+    );
+    TestValidator.predicate(
       "shared documents in the workspace tree are selected",
-      [
-        "shared/principles/realized.md",
-        "shared/obligations/screenplay.md",
-      ].every((file: string): boolean => selected.includes(file)),
+      ["principles/realized.md", "obligations/screenplay.md"].every(
+        (file: string): boolean => selected.includes(file),
+      ),
     );
     TestValidator.predicate(
       "a shared document only in the production's skills tree is not selected",
-      !selected.includes("shared/obligations/realized.md"),
+      !selected.includes("obligations/realized.md"),
     );
     TestValidator.predicate(
       "language documents in the production's docs/contracts are selected",
@@ -166,7 +169,7 @@ export function test_evidence_shared_skills_root(): void {
     );
     TestValidator.predicate(
       "standalone selects the shared document of its own tree",
-      collectFiles(standalone).includes("shared/obligations/realized.md"),
+      collectFiles(standalone).includes("obligations/realized.md"),
     );
 
     // 4. A relative shared tree resolves against the production.
@@ -320,7 +323,7 @@ function references(claim: IEvidenceClaim): IEvidenceReference[] {
   return Array.isArray(claim.reference) ? claim.reference : [claim.reference];
 }
 
-/** Groups the roots of contract references by their family folder. */
+/** Groups bundled and production-language references by their owning tree. */
 function collectStoryRoots(config: IEvidenceConfig): Map<string, string[]> {
   const roots: Map<string, string[]> = new Map();
   for (const claim of config.claims)
@@ -328,11 +331,18 @@ function collectStoryRoots(config: IEvidenceConfig): Map<string, string[]> {
       if (reference.type !== "markdown") continue;
       for (const file of reference.files) {
         const family: string = file.split("/")[0]!;
-        if (family !== "shared" && family !== "language") continue;
-        roots.set(family, [
-          ...(roots.get(family) ?? []),
-          rootOf(reference.root),
-        ]);
+        if (
+          ![
+            "discovery",
+            "obligations",
+            "principles",
+            "upstream",
+            "language",
+          ].includes(family)
+        )
+          continue;
+        const owner: string = family === "language" ? "language" : "shared";
+        roots.set(owner, [...(roots.get(owner) ?? []), rootOf(reference.root)]);
       }
     }
   return roots;

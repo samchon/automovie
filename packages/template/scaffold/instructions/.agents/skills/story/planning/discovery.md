@@ -1,6 +1,6 @@
 # Discovery
 
-Before bulk writing, assign each consequential instruction, reference, finding and delegated choice to an owner under [requirement ownership](../../contracts/story/shared/discovery/common.md#requirement-ownership). Define what the chosen form presents, withholds and makes visible to its recipient.
+Before bulk writing, assign each consequential instruction, reference, finding and delegated choice to an owner under [requirement ownership](../../contracts/story/discovery/common.md#requirement-ownership). Define what the chosen form presents, withholds and makes visible to its recipient.
 
 Put facts in settings or within the [brief's boundary](../layers/brief.md#what-it-holds). Assign events and release to their layers. Adopt production-specific judgments and their populations through [adoption](../../evidence/adoption.md).
 

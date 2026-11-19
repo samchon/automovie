@@ -26,6 +26,8 @@ On long work a settings record owns both, and a link to it may replace them.
 
 Record the commissioned output and its boundary, with any authorized slice, deferred work and exclusions.
 
+When an output depends on earlier work, check that its inputs exist. An exclusion applies only to the delivery for which it was agreed. Resolve missing inputs within the delegation and refer any change in deliverables to the user.
+
 ### Representation
 
 Record that people are polygon men and other subjects coarse forms, and which delivery, if any, selects which entity's detail option.
@@ -60,6 +62,8 @@ Record what the work runs on and within:
 Record what the user fixed, what the director decided within delegation and why, and what remains open. Record the scope of an authorized exception.
 
 ### The delivery profile
+
+<!-- @source [YouTube upload encoding](https://support.google.com/youtube/answer/1722171) gives one platform's scan, color and audio requirements. -->
 
 The profile records, for each delivered video:
 

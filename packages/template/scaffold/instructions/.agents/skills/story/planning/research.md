@@ -1,35 +1,27 @@
 # Research
 
-Study the practices, conduct and audiovisual conventions the film must depict. Cite each relevant study from settings or brief, beats, measurements and added laws.
+Study the facts and practices a production decision depends on. Cite the study where the writer or maker uses it.
 
 ## Study scope
 
 ### When to study
 
-Study only what could change direction before choosing it. Afterwards, study values when a written decision needs them, at the depicted level.
+Before choosing a direction, study facts that could change it. On a short, the brief or screenplay author owns the study their layer needs. On the long route, settings establish world facts and the first treatment or script to use a practice studies its limits.
 
-On shorts, research where the brief, screenplay or code needs a fact. On long projects, settings own their facts, and the first treatment or script using an action studies its law and limits. With [no narrative pass](../workflow/routes.md#who-writes-the-screenplay), code owns these studies. Code and delivery review study their own measurements.
+A [direct writer](../workflow/routes.md#direct-writing) studies the screenplay's open decisions. With fixed text or a standalone asset, the maker studies the production choices left open.
 
 ### What needs a study
 
-Read the installed package READMEs first and use the [standard shot grammar](../layers/shots.md). Study decisions those sources do not cover.
-
-Study needed movement sequences, timing, unsupported actions, forces, group outcome rates and bodies. Keep studies that a settings or brief record, screenplay beat, entity or law uses.
+A skilled performance needs a basis for the actions chosen, including when `@automovie/motions` supplies them all. Reuse a study that covers the depicted conditions. The package README explains its mechanics.
 
 ### Performance study
 
-Study real practice at the depicted level, such as a sport or a craft, and the broadcast or film practice of shooting it; an invented action studies its closest real analogue.
-
-Start with density and distribution at the depicted level. Record needed rules, procedures and conventions under the [depicted-practice question](../../contracts/story/shared/principles/research.md#depicted-practice) and its statements.
+Study a complete passage of the practice at the depicted level. Follow the [research criteria](../../contracts/story/principles/research.md#depicted-practice) for timing, action density and variation, and study how the passage is filmed when the camera matters.
 
 ## Sources
 
-Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners. Search results only locate them.
-
-Read passages in context and inspect consecutive frames across phases. Mark [traced measurements](../../motion/diffusion/tracing.md) as estimates. Record values, units and conditions. Verify each value against its source once, cross-check disputes and report gaps.
-
-Retain and open study originals, studies and their index under [document layout](../document-layout.md#documents). Keep footage in ignored `media/acquired/videos/`. Index creator, URL, retrieval date, locator, rights and use.
+Read original rulebooks, teaching texts, measurements, practitioner footage or production accounts. Verify consequential claims in context and cross-check disputes. Index creator, URL, date, locator, rights and use under [document layout](../document-layout.md#documents). Retain permitted originals under the indexed paths. Keep footage in ignored `media/acquired/videos/`.
 
 ## Use
 
-Test the adopted values in the real entity, behavior or sound, and compare the result with the footage frame by frame. The study informs the work; delivery review measures its targets on the picture and judges what it produced.
+Compare the staged action, entity or sound with the corresponding phases in the study. Use matched frames when [tracing](../../motion/diffusion/tracing.md) the same action. Delivery review measures the result in the film.

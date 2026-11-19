@@ -6,6 +6,8 @@ Read the installed [package API](../../automovie/SKILL.md#reading-a-package) fir
 
 ### Action axes
 
+<!-- @source [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
+
 For each thing a person does in the beat, settle these axes from the beat record and its [performance study](../../story/planning/research.md#performance-study), top to bottom, because each narrows the next:
 
 | Axis | Settle |
@@ -22,9 +24,11 @@ For each thing a person does in the beat, settle these axes from the beat record
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
 
-Author those axes through the installed operators. Leave joint fitting and contact response to their package owners. Use studied action defaults for unspecified parameters. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
+Author those axes through the installed operators. Leave joint fitting and contact response to their package owners. Use the module's defaults for unspecified mechanical parameters. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
 
-Use layers for ongoing breathing and listener gaze unless the beat changes them. Sync reactions to their cause and use the law's studied reaction time where it supplies one.
+Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
+
+Match travel to the visible steps. Carry speed through an intermediate mark on a continuing run. Give a stop or turn the support and weight transfer it needs.
 
 ### Forces and outcomes
 

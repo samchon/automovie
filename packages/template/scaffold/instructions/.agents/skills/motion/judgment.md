@@ -1,37 +1,37 @@
 # Motion judgment
 
-How an author or a reviewer decides whether a performed action works, in a catalog case, a segment or the assembled film.
-
-Answer from the pictures. A passing check, a count of captured sheets, a hash or a clean report shows that something ran, never how it looks.
+Judge the performed action in its catalog case, scene or finished film.
 
 ## Questions
 
-Judge the complete performed action on stills captured under the [capture plan](../visual-debugging/capture.md#plan), at the [times](../visual-debugging/capture.md#times) it sets, opening full-size stills as [stills and sheets](../visual-debugging/capture.md#stills-and-sheets) sets.
+Inspect the complete action at the [planned times](../visual-debugging/capture.md#times). Use [full-size stills](../visual-debugging/capture.md#stills-and-sheets) for spatial detail and continuous playback for pace.
 
 ### Form
 
-Are the complete forms correctly proportioned, oriented and attached beside the bodies and objects they meet, at the camera's use scale?
+At the film camera's scale, do the proportions, orientation and attachments hold alongside the bodies and objects they meet?
 
 ### Action
 
-Do preparation, support, body movement, contact and recovery connect into the intended action, including the counterpart's response? Deliberate stillness remains valid.
+<!-- @source [Kovar, Schreiner and Gleicher](https://pages.cs.wisc.edu/~kovar/footskateCleanup.pdf) describe sliding during an intended footplant. -->
 
-At an interruption or exchange, inspect load transfer, the displayed contact surfaces and what each person carries into the next action. Check selected frames around the resolved event as well as its exact time through [frame evaluation](frame-evaluation.md).
+Do the participants' preparation, support, movement and recovery produce the response shown? For a reaction to contact, locate where the depicted surfaces meet at or before its onset. Follow clearance along the path and judge a planted foot or held object relative to its support, even when that support moves. If perspective hides the answer, use another view or measure the posed surfaces at and around the event under [frame evaluation](frame-evaluation.md).
 
 ### Staging
 
-Do blocking and camera preserve the required geography, participants, contacts and reactions through the action and its joins? [The view](staging.md#the-view) lists what each shot must show.
+Can the viewer follow the required geography, action and response through the cut? Check the [intended view](staging.md#the-view), including what it deliberately withholds.
 
 ### Outcome
 
-Does the picture show the screenplay's outcome, rather than only an event named for it?
+What in the picture delivers the intended outcome?
 
 ## Findings
 
-Record each finding with the cells that show it, the requirement it fails and its repair owner. Trace the cause through authored input, composition, package output and drawing under [correction rounds](../visual-debugging/correction-rounds.md#causes).
+Record the time or frames, the failed requirement and the repair owner. Trace the cause under [correction rounds](../visual-debugging/correction-rounds.md#causes).
 
 ## Before widening
 
-Accept one representative exchange on full-size stills before composing the rest of the film.
+<!-- @source [Disney Animation](https://disneyanimation.com/process/layout/) on staging with the camera. Blender Studio on the [timed edit](https://studio.blender.org/tools/pipeline-overview/pre-production/editorial) and [blocking pass](https://studio.blender.org/tools/artist-guide/shot-production/animation). -->
 
-Measure that exchange's evaluation and capture cost. Plan the whole film under [stage caches](../production/stage-caches.md).
+Stage the passage on which the commission depends with its coarse cast, props and obstacles. Play it at delivery speed in the intended camera and edit, including its lead-in and consequence. Include a temporary line or sound cue if it determines the timing. For skilled practice, compare cue, spacing, simultaneous responses and elapsed time with the study.
+
+If the preview drops frames, use a timed export. Keep the pace judgment open until someone watches the passage at speed. Measure evaluation and capture cost for the [whole-film plan](../production/stage-caches.md) and check new performance conditions as they enter the film.

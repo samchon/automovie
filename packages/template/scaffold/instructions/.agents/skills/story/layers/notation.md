@@ -1,14 +1,14 @@
 # Notation
 
-How scripts and the screenplay are written down: their blocks, their headings and anchors, and the screenplay's records.
+Scripts and screenplay share stable [heading identities](#identities). Screenplay blocks and beat records describe the finished performance.
 
 ## Blocks
 
-Unless commissioned otherwise, follow [BBC](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) or [Final Draft](https://www.finaldraft.com/learn/screenplay-formatting-elements/) screenplay blocks. Use a scene heading such as `INT. LOCATION - DAY`, short present-tense paragraphs of visible or audible action, and an uppercase speaker cue on its own line.
+For the screenplay, unless commissioned otherwise, follow [BBC](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) or [Final Draft](https://www.finaldraft.com/learn/screenplay-formatting-elements/) screenplay blocks. Use a scene heading such as `INT. LOCATION - DAY`, short present-tense paragraphs of visible or audible action, and an uppercase speaker cue on its own line.
 
 Start a new action paragraph at each change of action, response or attention, and mark off-screen speech, voiceover, overlap, screen text and time shifts wherever they would otherwise be ambiguous.
 
-The blocks run as one continuous sequence, each starting where the one before it ends. Running time comes from the performed action, speech, pauses and edit, never from the length of the text.
+Write events in the order the viewer discovers them. When attention shifts during an ongoing action, show what continues underneath. Estimate running time from the performed action, overlapping speech, pauses and edit. Name the clock for a fixed cue when screen time, story time or a replay differ.
 
 Where music is stated, name its usage: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, where visual means a source the picture shows, and `MT` main title and `ET` end title music.
 
@@ -25,7 +25,11 @@ Never reuse or renumber an anchor in any layer, or a scene file's number. Number
 
 ## Records
 
-Put the standing-state list inside the first section, before its scene heading and action. Cite owning settings or brief decisions. End each beat with its record. Include the [beat decisions](../../contracts/story/shared/principles/screenplay.md#beat-decisions):
+<!-- @source [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/technical/script-supervisor-film-and-tv-drama/) describes how script supervisors track action, eyelines and props across takes. -->
+
+Inside the first section, before its scene heading and action, establish the [scene elements](../document-layout.md#scene-elements), their starting relationships, routes and sightlines. Note expected entrances there and record changes of state as they occur. Preserve the intended reveal order.
+
+End each beat with its record under [beat decisions](../../contracts/story/principles/screenplay.md#beat-decisions).
 
 ```markdown
 ### Mara cues the lift {#s03-b04}

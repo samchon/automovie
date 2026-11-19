@@ -4,6 +4,8 @@ A request is one planned generation: an interval of the motion hint with its inp
 
 ## Intervals
 
+<!-- @source The [OpenTimelineIO time range guide](https://opentimelineio.readthedocs.io/en/latest/tutorials/time-ranges.html) distinguishes trimmed media from the frames a transition needs. -->
+
 End requests at screenplay cuts unless the model handles several shots. Disable automatic cuts for a continuous shot. Use hint-based cuts where frame accuracy matters.
 
 Split a long shot at a beat boundary or held pose only when the model's length requires it. Avoid splits during contact or dialogue. Time beats from the rendered hint frames.

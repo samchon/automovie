@@ -1,31 +1,25 @@
 # Catalog cases
 
-Accept each entity and reusable motion module in the catalog before composing it into a film.
-
-A case isolates one module with its target, partner response and outcome, and its variants are parameters of the same case composition.
-
-The [catalog film](../development/source-layout.md#scenes-and-films) gives each required case a labeled interval and replays every case after a repair, so acceptance happens only there. A composition no registered film plays is scratch.
+Before using an entity or reusable motion module in a film, inspect its capability in the [registered catalog film](../development/source-layout.md#scenes-and-films). Give each case a labeled interval. Use parameters to exercise variants.
 
 ## Capture and review
 
-Capture with the README command and add `joint` marks where available. Apply [motion judgment](judgment.md) against subject records and studies. Fix findings before recapturing or expanding.
+Play the complete case with the relevant body, load, support, surface and partner. When the action can miss, test that its contact-dependent effects occur only on contact. Capture with the README command and use joint marks where available. Apply [motion judgment](judgment.md) against the subject record and, for skilled practice, the observed exchange.
 
-Resolve a case once on load. Audit it separately from loading, playback and capture. Reuse reports only with the same inputs and package versions.
+Resolve a case once on load. Audit it separately from loading, playback and capture. Reuse its report only with the same inputs and package versions.
 
 ## What each case owes
 
-Every case is accepted only when no still shows a flaw. What else it owes depends on what it exhibits:
+Select automated checks for the implementation the catalog plays.
 
-| Case of | Also owes |
+| Implementation | Check |
 | --- | --- |
-| Installed actions, composed as the vocabulary's README shows | Nothing |
-| A row or law the production registered, or a body it moves | Passing motion checks and a clean report |
-| Anything else the production wrote, such as an entity or a retargeted clip | Passing tests |
+| Installed action used as documented | The package tests its internal mechanics |
+| Production-registered row or law, or a body it moves | Passing motion checks and a clean report |
+| Other production code, including an entity or retargeted clip | Passing tests |
 
-[Testing](../development/testing.md) sets those tests and says why installed actions take none. The report is the vocabulary's own for the case, and its README names the report and its measures.
-
-Route an installed action defect through [refusals](compose/refusals.md#when-no-repair-holds).
+Follow [testing](../development/testing.md#motion-checks) for production code and [refusals](compose/refusals.md#when-no-repair-holds) for an installed action defect.
 
 ## Record
 
-The author records each accepted case's revision and views in `docs/acceptance/catalog.md`. Compose only accepted cases. Reapprove a case after its module changes.
+In `docs/acceptance/catalog.md`, record the revision, inputs, tested conditions and inspected interval. Reuse an accepted case within those conditions. Replay affected cases after a repair and check any new condition before use.

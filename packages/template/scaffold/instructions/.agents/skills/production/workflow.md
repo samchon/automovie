@@ -40,6 +40,6 @@ A motion hint or direct 3D film is silent by default. Follow the [soundtrack rou
 
 ## Completion
 
-Finish [source checks](../development/testing.md#finishing-a-change) when the commission includes source work. A passing render establishes technical completion. Record the applicable [acceptance or handoff](../review/delivery-review.md#acceptance-record) and identify any missing parts or checks.
+Finish [source checks](../development/testing.md#finishing-a-change) for commissioned code. The director closes a film after the [video decision](../review/delivery-review.md#video) and records the [acceptance or handoff](../review/delivery-review.md#acceptance-record) for the commissioned output.
 
 Before closing delivery on a long work with narrative passes, run the [post-review discovery checkpoint](../story/planning/discovery.md#checkpoints) against the reviewed output and its records. If a repair changes the delivered result, recheck the affected acceptance.

@@ -31,12 +31,12 @@ Realize the screenplay in code.
 
 Work from evidence and verify the result.
 
-- Research uncertain details the task depends on. Ask the user if the answer remains unclear or sources still conflict.
+- [Study a skilled performance](.agents/skills/story/planning/research.md#performance-study) even when installed motions supply its actions. Research other uncertain details and refer unresolved choices to the user.
 - Finish each inspection round, then repair all its findings together by cause.
-- Judge pictures on captured stills. Ask the user for observations that require playback or listening.
-- Review unprompted as a critical viewer of the depicted practice. Report what you verified.
+- Inspect spatial detail on captured frames. Judge a film's pace in continuous playback and record who watched or listened under [delivery review](.agents/skills/review/delivery-review.md#video).
+- If faithful staging exposes a story defect, [return it to its story owner](.agents/skills/review/delivery-review.md#repairs) and inspect the revised cut.
 
-Finish the commission. Pause only for a user decision or approval for a destructive or outward-facing action.
+Continue independent work while awaiting a required decision or viewing. Keep the delivery open until its required checks are complete. Get approval for destructive or outward-facing actions.
 
 ## Attitude
 

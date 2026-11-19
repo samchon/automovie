@@ -1,6 +1,6 @@
 # Settings
 
-On the long route, define findable world facts and baseline states under the [settings criteria](../../contracts/story/shared/principles/settings.md). [Treatments](treatments.md) choose how events change or reveal them. A short uses its brief.
+On the long route, define findable world facts and baseline states under the [settings criteria](../../contracts/story/principles/settings.md). [Treatments](treatments.md) choose how events change or reveal them. A short uses its brief.
 
 Read the [instructions](../planning/requirements.md#requirements) and finish [discovery](../planning/discovery.md). Derive needed facts from planned scenes. Do assigned [research](../planning/research.md#when-to-study), cite support and uncertainty, and finish the settings [pass](../workflow/long.md#each-layers-pass).
 
@@ -22,7 +22,7 @@ Write only the facets the planned scenes and arcs use, leaving an unused facet o
 
 A practice shown is, for example, a sport or a ceremony. The film's look is its medium or rendering style, lighting style, lens character and grade.
 
-The work's scope record links the adopted representation in `PROJECT.md` and states what it cannot show. Measurements such as dimensions and timings stay out of records except as the [usable-facts question](../../contracts/story/shared/principles/settings.md#usable-facts) allows.
+The work's scope record links the adopted representation in `PROJECT.md` and states what it cannot show. Measurements such as dimensions and timings stay out of records except as the [usable-facts question](../../contracts/story/principles/settings.md#usable-facts) allows.
 
 ### Cast facets
 

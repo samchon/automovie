@@ -39,6 +39,8 @@ The pipeline keeps one film's files in these folders of `media/automovie/<film>/
 | `videos/` | Renders and their reports |
 | `audios/` | Audio made for the user to hear |
 
+Use the film's [acceptance record](../review/delivery-review.md#acceptance-record) to establish the current verdict on a revision.
+
 ## Records
 
 Record the following in `media/manifest.json` or the generation request:

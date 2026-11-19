@@ -4,13 +4,13 @@ The evidence answerer writes the answers a narrative body gives its story contra
 
 ## Answer writing
 
-The answerer changes no body. A question it cannot answer truthfully goes back to the author as a gap, with the passage and the statement it fails.
+The answerer changes no body. A question it cannot answer truthfully goes back to the author as a gap, with the passage and the criterion it fails.
 
-Read the full respondent and required parents. Use the questions selected in the production's Evidence configuration, including work and language contracts. Check each question's [statements](../contracts/items.md#items-and-statements). Answer overview questions first. Record waived stages as waived.
+Read the full respondent and required parents. Answer the [complete items](../contracts/items.md#item-structure) selected by the production's Evidence configuration, including work and language contracts. Answer overview questions first. Record waived stages as waived.
 
 Answer only what the item asks from the current body and parents. Check exact quotations and owner addresses. Verify claimed counts, order, causes, places and states across the scope. Cite a shared cause once.
 
-Update affected answers after repairs while the stage is enabled. Follow [closed passes](correction/repair.md#closed-passes) otherwise. Return the body and answers to the director. The director sends the reviewer the annotation-free body in [independent reading order](../review/independent-reading.md). [Narrative rounds](../review/narrative-rounds.md) owns review records and fingerprints.
+During an open Evidence pass, update affected answers after repairs. Once the pass closes, follow [closed passes](correction/repair.md#closed-passes), even if the stage stays enabled. Return the body and answers to the director. The director sends the reviewer the annotation-free body in [independent reading order](../review/independent-reading.md). [Narrative rounds](../review/narrative-rounds.md) owns review records and fingerprints.
 
 ## Answer placement
 
@@ -22,6 +22,6 @@ A work- or language-specific question is adopted through [adoption](../evidence/
 
 ## Grounds for retaining a candidate
 
-Apply the [decision and exception rule](../contracts/story/shared/naturalness/common.md#reads-as-written) to named failures. For other candidates, compare a variant that preserves information, access and pressure without the disputed form. Keep gains and losses in ignored notes and the decision in its record.
+For screenplay expression, apply the [decision and exception rule](../contracts/story/principles/screenplay.md#reads-as-written) to named failures. For other candidates, compare a variant that preserves information, access and pressure without the disputed form. Keep gains and losses in ignored notes and the decision in its record.
 
 Demonstrate the form's effect in the text. Use comparisons to repair independently found failures. Preserve the function in a rewrite and send inherited defects to their [earliest owner](correction/repair.md#upstream-defects).

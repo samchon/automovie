@@ -149,7 +149,7 @@ export async function test_evidence_production_current_review(): Promise<void> {
     pilot.construction.scripts = "evidence";
     ProductionWorkflowFixture.write(
       pilotRoot,
-      ".agents/skills/contracts/story/shared/principles/review.md",
+      ".agents/skills/contracts/story/principles/review.md",
       "# Review\n\n## Scope {#scope}\n\nRead the whole selected scene.\n",
     );
     ProductionWorkflowFixture.write(
@@ -158,7 +158,7 @@ export async function test_evidence_production_current_review(): Promise<void> {
       "# Scene\n\n## Arrival {#arrival}\n\nThe guest opens the door.\n\n## Departure {#departure}\n\nThe guest leaves.\n",
     );
     const review: string =
-      "# Review\n\n## Arrival {#arrival}\n<!--\n@evidence 001-part/001-scene.md#arrival Read the arrival.\n@evidence shared/principles/review.md#scope Read the complete selected scene.\n-->\nThe entrance is executable.\n";
+      "# Review\n\n## Arrival {#arrival}\n<!--\n@evidence 001-part/001-scene.md#arrival Read the arrival.\n@evidence principles/review.md#scope Read the complete selected scene.\n-->\nThe entrance is executable.\n";
     ProductionWorkflowFixture.write(
       pilotRoot,
       "docs/review/draft/scripts/round-1/001-part/001-scene.md",
