@@ -1,3 +1,5 @@
+import { AutoMovieFrameGrid } from "@automovie/render";
+
 /**
  * One film clock that several views read, so the takes of a scene shown
  * side by side stay on the same second. It advances by wall time while it
@@ -23,6 +25,21 @@ export class SceneClock {
   /** Frames a second, for frame steps. */
   public fps: number = 24;
 
+  /** The last zero-based frame number of the current presentation. */
+  public get lastFrame(): number {
+    return AutoMovieFrameGrid.last(this.duration, this.fps);
+  }
+
+  /** The nearest regular frame while playing, or the end when reached. */
+  public get frame(): number {
+    return AutoMovieFrameGrid.nearest(
+      this.time,
+      this.duration,
+      this.fps,
+      this.lastFrame,
+    );
+  }
+
   private last: number | null = null;
   private readonly listeners: Set<() => void> = new Set();
 
@@ -46,17 +63,19 @@ export class SceneClock {
       this.last = null;
       return this.time;
     }
-    if (this.playing && this.last !== null && this.duration > 0) {
-      let next: number = this.time + ((now - this.last) / 1000) * this.speed;
-      if (next >= this.duration) {
-        if (this.loop) next %= this.duration;
-        else {
-          next = this.duration;
-          this.playing = false;
-          this.emit();
-        }
+    if (this.playing && this.last !== null) {
+      const next: number = this.time + ((now - this.last) / 1000) * this.speed;
+      const ended: boolean = !this.loop && next >= this.duration;
+      this.time =
+        next < this.duration
+          ? next
+          : this.loop
+            ? next % this.duration
+            : this.duration;
+      if (ended) {
+        this.playing = false;
+        this.emit();
       }
-      this.time = next;
     }
     this.last = now;
     return this.time;
@@ -89,7 +108,16 @@ export class SceneClock {
    */
   public step(frames: number): void {
     this.playing = false;
-    this.seek(Math.round(this.time * this.fps + frames) / this.fps);
+    this.seekFrame(this.frame + frames);
+  }
+
+  /**
+   * Go to a frame, mapping the last frame to the presentation's exact end.
+   *
+   * @param frame The zero-based frame number, clamped to the presentation.
+   */
+  public seekFrame(frame: number): void {
+    this.seek(AutoMovieFrameGrid.time(frame, this.duration, this.fps));
   }
 
   /** Set the speed or the loop, and tell the listeners. */

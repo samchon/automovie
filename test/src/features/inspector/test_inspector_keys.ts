@@ -18,12 +18,13 @@ type Target = { closest(selectors: string): unknown } | null;
  * 4. Home goes to 0 and End to 4; a letter the inspector does not use is not handled and moves nothing.
  * 5. Space, L and Home held with Ctrl, Meta or Alt are not handled and move nothing, while Shift with L still seeks.
  * 6. Space and L that go to a button, a summary, a link, a field or a `role=slider` widget, or to an element inside a button, are not handled and move nothing; on the canvas, an element outside every control, they are handled.
+ * 7. For a 5.6 s film at 12 fps, comma from the exact end reaches frame 67 and period returns to the exact end. From a second that lies between frames, stepping starts from the displayed frame.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives the public key handler on a public playhead and reads the playhead's snapshot and the handler's result.
- * @evidence contracts/development/testing.md#independent-expectations Each expected second is the starting second plus or minus the step the key names, clamped to the film, worked out in the test; a target is a test element whose `closest` answers by its own tag and role and those of its ancestors, written here, not by the handler's selector list.
+ * @evidence contracts/development/testing.md#independent-expectations Expected seconds come from literal seek distances, frame timestamps divided by their rates, and the stated endpoints. A test target's `closest` answers by its own tag and role and those of its ancestors.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts playing against stopped, seeks inside against seeks past either end, a known frame rate against none, used against unused keys, each modifier against none and Shift, and every kind of control against the canvas and against a child of a control.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_inspector_keys`; no React is rendered and no DOM event is made, a target being a plain object with `closest`.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each naming its input and the behaviour it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming its input and the behaviour it pins.
  */
 export function test_inspector_keys(): void {
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
@@ -187,4 +188,15 @@ export function test_inspector_keys(): void {
     press("Home", 24, { target: null }),
     { handled: true, seconds: 0 },
   );
+
+  // 7. The exact end and the regular frame immediately before it are separate.
+  playhead.setDuration(5.6);
+  near("fractional End", press("End", 12).seconds, 5.6);
+  near("comma from the fractional end", press(",", 12).seconds, 67 / 12);
+  near("period returns to the fractional end", press(".", 12).seconds, 5.6);
+  near("period at the end stays there", press(".", 12).seconds, 5.6);
+  playhead.seek(1.06);
+  near("comma from displayed frame 13", press(",", 12).seconds, 1);
+  playhead.seek(1.06);
+  near("period from displayed frame 13", press(".", 12).seconds, 14 / 12);
 }

@@ -19,7 +19,7 @@ const FPS: number = 1;
  * The take worker's computation, the one path by which the playground and every scene reach the packages, gives a take whose track, figures and timeline agree with the composition, or the packages' refusal, and pairs each answer with its request.
  *
  * Scenarios:
- * 1. The dance circle's take has one frame at each whole second of its film and one at 0 s, a track of exactly frames × every entry × `SceneTrack.STRIDE` values, one figure per performer in the composition's order with its body and rest bones, each figure's track group in the order of its posed bones, no prop, a column-major 4 × 4 reflection, and a timeline whose spans are each performer's actions in order over the take's length.
+ * 1. The dance circle's take has frames from 0 s at the given cadence and a final frame at its fractional end. The track has exactly frames × every entry × `SceneTrack.STRIDE` values, one figure per performer in the composition's order with its body and rest bones, each figure's track group in the order of its posed bones, no prop, a column-major 4 × 4 reflection, and a timeline whose spans are each performer's actions in order over the take's length.
  * 2. An action the vocabulary lacks gives the packages' refusal, not a throw: the axis `act` with `stand` among its alternatives.
  * 3. A take request is answered with its id and moves its track's buffer instead of copying it; a request for a body no one has is answered with its id as an error naming the bodies that exist.
  * 4. The impulse scene and an otherwise identical zero-impulse control have the same pre-impact position; only the authored forward impulse produces a forward hip displacement at one second, through the actual take worker and encoded track.
@@ -34,9 +34,13 @@ export function test_website_take_compute(): void {
   if (!("track" in made))
     throw new Error(`The dance circle was refused: ${made.message}`);
   TestValidator.equals(
-    "a frame at 0 s and at every whole second of the film",
+    "a frame at 0 s, each whole second, and the fractional end",
     made.track.frames,
-    Math.floor(made.duration * FPS) + 1,
+    Math.floor(made.duration * FPS) + 2,
+  );
+  TestValidator.predicate(
+    "the dance ends between whole seconds and the worker records that exact time",
+    !Number.isInteger(made.duration) && made.track.duration === made.duration,
   );
   const width: number = made.track.orders.reduce(
     (sum: number, order: string[]): number => sum + order.length,

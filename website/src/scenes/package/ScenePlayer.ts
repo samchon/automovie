@@ -1,4 +1,5 @@
 import {
+  AutoMovieFrameGrid,
   type AutoMovieHumanPolygon,
   type IAutoMovieModelObject,
   buildHumanPolygon,
@@ -83,6 +84,10 @@ export namespace ScenePlayer {
       track.fps <= 0 ||
       !Number.isInteger(track.frames) ||
       track.frames < 1 ||
+      (track.duration !== undefined &&
+        (track.duration !== take.duration ||
+          track.frames !==
+            AutoMovieFrameGrid.last(take.duration, track.fps) + 1)) ||
       entriesPerFrame === 0 ||
       track.orders.length !== take.figures.length + take.props.length ||
       track.orders.some((order: string[]): boolean => order.length === 0) ||

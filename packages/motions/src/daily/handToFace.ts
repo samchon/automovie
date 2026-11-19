@@ -43,6 +43,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanHeld } from "../handling/HumanHeld";
 import { HumanHeldEffector } from "../handling/HumanHeldEffector";
 import { HumanHeldUse } from "../handling/HumanHeldUse";
+import { planHumanHeldSupport } from "../handling/planHumanHeldSupport";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
@@ -361,11 +362,16 @@ export namespace handToFace {
         AutoMovieMotionHumanTouchForm.FORMS[row.kind].period,
       ),
     );
+    const support: boolean =
+      kept !== null && p.prop !== undefined && p.other !== undefined;
+    // Present the held tool before the support starts. The extra hold
+    // interval lets the support withdraw before the holding arm returns.
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: transport,
+        ...(support ? { wait: transport } : {}),
         attack: count * repetition,
-        hold,
+        hold: hold + (support ? transport : 0),
         retract: transport,
       }),
       modifiers,
@@ -384,7 +390,8 @@ export namespace handToFace {
       primitives.push(
         AutoMovieMotionHumanJoints.pulse(clock, rises, ["relax", "end"], turn),
       );
-    // Two hands are planned as one trajectory; one hand is a group of one,
+    // Direct touches can share a trajectory. A tool's secondary grip is
+    // prepared separately against the already posed holding arm.
     const together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
       AutoMovieMotionHumanArmPlanned.together(context.handover, true, context.tempo);
     for (const [index, [side, name]] of hands.entries()) {
@@ -424,26 +431,37 @@ export namespace handToFace {
             }),
       };
       primitives.push(...AutoMovieMotionHumanTouch.touch(stroke));
-
-      // The other hand on the held prop's other handle, where this hand's
-      // goal carries it.
-      if (own !== null && p.prop !== undefined && p.other !== undefined)
-        primitives.push(
-          ...HumanHeldUse.second({
-            context,
-            clock,
-            side,
-            prop: p.prop,
-            handle: p.other,
-            key: own,
-            goal: AutoMovieMotionHumanTouch.goal(stroke),
-            weight: (seconds: number): number =>
-              AutoMovieMotionHumanTouch.share(clock, seconds),
-          }),
-        );
+    }
+    const base: ReturnType<typeof AutoMovieMotionHumanBase.under> =
+      AutoMovieMotionHumanBase.under(context, clock.duration);
+    if (support && p.prop !== undefined && p.other !== undefined) {
+      // Preparation publishes the lead group's course. The final composer
+      // reuses that course and adds the independently admitted support.
+      const lead: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        primitives,
+      });
+      const prepare: number = clock.at("strokeStart") - clock.at("ready");
+      primitives.push(
+        ...planHumanHeldSupport({
+          context,
+          clock,
+          side: first,
+          prop: p.prop,
+          handle: p.other,
+          lead,
+          span: {
+            start: clock.at("ready"),
+            ready: clock.at("strokeStart"),
+            relax: clock.at("relax") - prepare,
+            end: clock.at("relax"),
+          },
+        }),
+      );
     }
     const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.under(context, clock.duration),
+      base,
       clock,
       primitives,
       contact: row.at,

@@ -1,3 +1,4 @@
+import { playgroundActionParams } from "../playground/data/playgroundActionParams";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { ISceneChainNames } from "./structures/ISceneChainNames";
 
@@ -45,16 +46,22 @@ export function formatSceneChain(
 
   const calls: (
     actions: IPlaygroundComposition.IAction[],
+    bodyId: string,
     by: string,
   ) => string[] = (
     actions: IPlaygroundComposition.IAction[],
+    bodyId: string,
     by: string,
   ): string[] =>
     actions.flatMap((action: IPlaygroundComposition.IAction): string[] => {
       const method: string =
         names.rows[action.name] === undefined ? "act" : "registered";
+      const params: Record<string, unknown> = playgroundActionParams(
+        action,
+        names.bodySex[bodyId],
+      );
       const out: string[] = [
-        `${by}.${method}(${JSON.stringify(action.name)}, ${indent(value(action.params), by)}${action.anchor === undefined ? "" : `, ${JSON.stringify(action.anchor)}`})`,
+        `${by}.${method}(${JSON.stringify(action.name)}, ${indent(value(params), by)}${action.anchor === undefined ? "" : `, ${JSON.stringify(action.anchor)}`})`,
       ];
       if (action.until !== undefined)
         out.push(`${by}.until(${indent(value(action.until), by)})`);
@@ -62,7 +69,7 @@ export function formatSceneChain(
         out.push(
           `${by}.over((overlay) =>`,
           `${by}  overlay`,
-          ...calls(action.over, `${by}    `),
+          ...calls(action.over, bodyId, `${by}    `),
           `${by})`,
         );
       if (action.sync !== undefined)
@@ -86,7 +93,7 @@ export function formatSceneChain(
     body.push(
       `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}°, ${performer.proficiency}`,
       `const ${identifier(performer.subject)} = HumanChain.subject(${JSON.stringify(performer.subject)})`,
-      ...calls(performer.actions, "  "),
+      ...calls(performer.actions, performer.body, "  "),
     );
     body[body.length - 1] += ";";
     body.push("");

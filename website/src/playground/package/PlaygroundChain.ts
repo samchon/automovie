@@ -1,7 +1,12 @@
-import type { IAutoMovieComposition } from "@automovie/interface";
+import type {
+  AutoMovieHumanSex,
+  IAutoMovieComposition,
+} from "@automovie/interface";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
 
+import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
+import { playgroundActionParams } from "../data/playgroundActionParams";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
 import { PlaygroundObjects } from "./PlaygroundObjects";
 
@@ -197,16 +202,18 @@ export namespace PlaygroundChain {
 
     const append = (
       chain: ILoose,
-      written: IPlaygroundComposition.IAction,
+      action: IPlaygroundComposition.IAction,
+      sex: AutoMovieHumanSex | undefined,
     ): ILoose => {
+      const bound: Record<string, unknown> = playgroundActionParams(
+        action,
+        sex,
+      );
       // A seat named by its object becomes that object's seat.
-      const action: IPlaygroundComposition.IAction =
+      const params: Record<string, unknown> =
         objects.length === 0
-          ? written
-          : {
-              ...written,
-              params: PlaygroundObjects.resolve(written.params, objects),
-            };
+          ? bound
+          : PlaygroundObjects.resolve(bound, objects);
       // A lexicon row is registered with the performance and appended by its
       // name. Any other name goes to `act`, so a name the vocabulary lacks is
       // refused by the package in its own words.
@@ -215,8 +222,8 @@ export namespace PlaygroundChain {
       let next: ILoose;
       if (row !== undefined && chain.registered !== undefined) {
         laws.set(row.name, row);
-        next = chain.registered(action.name, action.params, action.anchor);
-      } else next = chain.act(action.name, action.params, action.anchor);
+        next = chain.registered(action.name, params, action.anchor);
+      } else next = chain.act(action.name, params, action.anchor);
 
       if (action.until !== undefined) next = next.until(action.until);
 
@@ -227,7 +234,12 @@ export namespace PlaygroundChain {
           );
         const overlaid: IPlaygroundComposition.IAction[] = action.over;
         next = next.over(
-          (overlay: ILoose): ILoose => overlaid.reduce(append, overlay),
+          (overlay: ILoose): ILoose =>
+            overlaid.reduce(
+              (part: ILoose, action: IPlaygroundComposition.IAction): ILoose =>
+                append(part, action, sex),
+              overlay,
+            ),
         );
       }
 
@@ -248,10 +260,15 @@ export namespace PlaygroundChain {
         (performer: IPlaygroundComposition.IPerformer): boolean =>
           performer.actions.length !== 0,
       )
-      .map(
-        (performer: IPlaygroundComposition.IPerformer): ILoose =>
-          performer.actions.reduce(append, empty(performer.subject)),
-      );
+      .map((performer: IPlaygroundComposition.IPerformer): ILoose => {
+        const sex: AutoMovieHumanSex | undefined =
+          PLAYGROUND_BODIES[performer.body]?.parameters?.body.anatomy.sex;
+        return performer.actions.reduce(
+          (part: ILoose, action: IPlaygroundComposition.IAction): ILoose =>
+            append(part, action, sex),
+          empty(performer.subject),
+        );
+      });
     if (chains.length === 0 && data.mutuals.length === 0)
       throw new Error("The composition has no action; add one to a performer");
 
