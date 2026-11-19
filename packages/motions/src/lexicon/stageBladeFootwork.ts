@@ -69,21 +69,30 @@ const PROFILES: Readonly<
   Record<IAutoMovieMotionHumanStageBladeFootwork.Style, IProfile>
 > = {
   fencing: {
-    windows: [[0.06, 0.40], [0.49, 0.82]],
+    windows: [
+      [0.06, 0.4],
+      [0.49, 0.82],
+    ],
     travel: 0.14,
     lift: 0.014,
     follow: 3,
     seconds: 0.55,
   },
   kendo: {
-    windows: [[0.05, 0.43], [0.47, 0.85]],
+    windows: [
+      [0.05, 0.43],
+      [0.47, 0.85],
+    ],
     travel: 0.12,
     lift: 0,
     follow: 1,
     seconds: 0.62,
   },
   armoured: {
-    windows: [[0.12, 0.51], [0.60, 0.91]],
+    windows: [
+      [0.12, 0.51],
+      [0.6, 0.91],
+    ],
     travel: 0.11,
     lift: 0.025,
     follow: 4,
@@ -110,32 +119,34 @@ const MAX_TRAVEL: number = 0.23;
  * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes one registered action, its profile choice and a stage synchronization cue.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Profile numbers are authored screen choices. The optional prop cue declares neither a hit nor a geometric contact.
  */
-export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<
-  IAutoMovieMotionHumanStageBladeFootwork.IParams
-> = {
-  name: "stageBladeFootwork",
-  interrupts: {
-    any: [{ window: [0.92, 1], kind: "inertialize", entry: 0, blend: 0.12 }],
-  },
-  plan,
-};
+export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStageBladeFootwork.IParams> =
+  {
+    name: "stageBladeFootwork",
+    interrupts: {
+      any: [{ window: [0.92, 1], kind: "inertialize", entry: 0, blend: 0.12 }],
+    },
+    plan,
+  };
 
 /**
  * Resolve the parameters once and transport the carried upper posture over
  * the same floor frame as the two foot paths.
  */
 function plan(
-  context: IAutoMovieMotionHumanActionContext<
-    IAutoMovieMotionHumanStageBladeFootwork.IParams
-  >,
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageBladeFootwork.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-  const params: IAutoMovieMotionHumanStageBladeFootwork.IParams = context.params;
+  const params: IAutoMovieMotionHumanStageBladeFootwork.IParams =
+    context.params;
   if (!Object.hasOwn(PROFILES, params.style))
     refuse("style", params.style, Object.keys(PROFILES));
   if (!Object.hasOwn(DIRECTIONS, params.direction))
     refuse("direction", params.direction, Object.keys(DIRECTIONS));
-  if (params.lead !== undefined && params.lead !== "left" && params.lead !== "right")
+  if (
+    params.lead !== undefined &&
+    params.lead !== "left" &&
+    params.lead !== "right"
+  )
     refuse("lead", params.lead, ["left", "right"]);
   const profile: IProfile = PROFILES[params.style];
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -160,16 +171,22 @@ function plan(
     origin: { x: 0, y: 0, z: 0 },
     yaw: entry.yaw,
   };
-  const forward: IAutoMovieVector3 = HumanFrame.point(heading, DIRECTIONS.forward);
-  const lead: Side = params.lead ??
-    (Vector3.dot(Vector3.subtract(feet.left.ankle, feet.right.ankle), forward) > 0
+  const forward: IAutoMovieVector3 = HumanFrame.point(
+    heading,
+    DIRECTIONS.forward,
+  );
+  const lead: Side =
+    params.lead ??
+    (Vector3.dot(Vector3.subtract(feet.left.ankle, feet.right.ankle), forward) >
+    0
       ? "left"
       : "right");
-  const first: Side = params.direction === "forward"
-    ? lead
-    : params.direction === "back"
-      ? opposite(lead)
-      : params.direction;
+  const first: Side =
+    params.direction === "forward"
+      ? lead
+      : params.direction === "back"
+        ? opposite(lead)
+        : params.direction;
   const following: Side = opposite(first);
   const travel: IAutoMovieVector3 = Vector3.scale(
     HumanFrame.point(heading, DIRECTIONS[params.direction]),
@@ -188,7 +205,10 @@ function plan(
       name: "propCue",
       seconds: duration * HumanBound.within("propCue", params.propCue, 0, 1),
     });
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, instants);
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    duration,
+    instants,
+  );
   const firstPath: AutoMovieMotionInterval.IPrepared =
     AutoMovieMotionClock.prepare(clock, "firstLift", "firstSettle");
   const followingPath: AutoMovieMotionInterval.IPrepared =
@@ -196,7 +216,10 @@ function plan(
   return {
     duration,
     events: clock.events(),
-    contacts: [...plants(first, firstWindow), ...plants(following, followingWindow)],
+    contacts: [
+      ...plants(first, firstWindow),
+      ...plants(following, followingWindow),
+    ],
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const initial: number = firstPath.progress(seconds);
       const next: number = followingPath.progress(seconds);
@@ -213,13 +236,18 @@ function plan(
 
       // Fit the root height against both placements to keep their reach
       // limit continuous as a travelling foot becomes a plant.
-      const lower: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(body, {
-        ...entry,
-        root,
-        limbs: StrikingStance.legs(body, placed),
-      });
-      const upper: IAutoMovieMotionHumanPosture =
-        HumanPostureRaw.translated(entry, lower.root);
+      const lower: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
+        body,
+        {
+          ...entry,
+          root,
+          limbs: StrikingStance.legs(body, placed),
+        },
+      );
+      const upper: IAutoMovieMotionHumanPosture = HumanPostureRaw.translated(
+        entry,
+        lower.root,
+      );
       const [flexion, abduction, twist] = upper.joints.spine ?? [0, 0, 0];
       const travelFlexion: number =
         profile.follow * (pulse(initial) + pulse(next));
@@ -242,10 +270,25 @@ function plan(
 }
 
 /** Both fixed intervals of a foot's ground contact outside its travel window. */
-function plants(side: Side, window: Window): IAutoMovieMotionHumanContactWindow[] {
+function plants(
+  side: Side,
+  window: Window,
+): IAutoMovieMotionHumanContactWindow[] {
   return [
-    { part: `${side}Foot`, kind: "plant", from: 0, to: window[0], support: { kind: "ground" } },
-    { part: `${side}Foot`, kind: "plant", from: window[1], to: 1, support: { kind: "ground" } },
+    {
+      part: `${side}Foot`,
+      kind: "plant",
+      from: 0,
+      to: window[0],
+      support: { kind: "ground" },
+    },
+    {
+      part: `${side}Foot`,
+      kind: "plant",
+      from: window[1],
+      to: 1,
+      support: { kind: "ground" },
+    },
   ];
 }
 
@@ -282,7 +325,11 @@ function opposite(side: Side): Side {
 }
 
 /** State the closed set of accepted stage values to the planner. */
-function refuse(axis: string, value: unknown, choices: readonly string[]): never {
+function refuse(
+  axis: string,
+  value: unknown,
+  choices: readonly string[],
+): never {
   throw new HumanRefusal({
     kind: "parameter",
     axis,

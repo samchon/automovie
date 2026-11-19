@@ -1,6 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
-import { Archetype, ArchetypeBand, ArchetypeBuilder, ArchetypeDrawSession, ArchetypeFrame } from "../core";
+import {
+  Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+} from "../core";
 
 /**
  * An adult cricket wicket at the origin, with three separately named stumps and two separately named bails across X.
@@ -21,27 +27,67 @@ export function createCricketWicket(
   params: { id?: string } = {},
   seed?: number | string,
 ): Archetype<createCricketWicket.Affordance, "diameter"> {
-  const draw: ArchetypeDrawSession<"diameter"> = new ArchetypeDrawSession("cricketWicket", { diameter: "m" }, seed, {});
+  const draw: ArchetypeDrawSession<"diameter"> = new ArchetypeDrawSession(
+    "cricketWicket",
+    { diameter: "m" },
+    seed,
+    {},
+  );
   const { diameter }: Record<"diameter", number> = draw.dimensions({
-    diameter: ArchetypeBand.metres(0.035, 0.0381, "MCC Laws of Cricket 2026, Law 8.2"),
+    diameter: ArchetypeBand.metres(
+      0.035,
+      0.0381,
+      "MCC Laws of Cricket 2026, Law 8.2",
+    ),
   });
-  const builder: ArchetypeBuilder<createCricketWicket.Affordance, "diameter"> = new ArchetypeBuilder({
-    material: "wood", id: params.id, name: "cricket wicket", draw,
-  });
+  const builder: ArchetypeBuilder<createCricketWicket.Affordance, "diameter"> =
+    new ArchetypeBuilder({
+      material: "wood",
+      id: params.id,
+      name: "cricket wicket",
+      draw,
+    });
   const v: typeof Vector3.create = Vector3.create;
   const height: number = 0.7112;
   const offset: number = (0.2286 - diameter) / 2;
-  for (const [id, x] of [["leftStump", -offset], ["middleStump", 0], ["rightStump", offset]] as const) {
-    builder.rod(id, diameter / 2, v(x, 0, 0), v(x, height, 0), { color: "#ead5ad" });
-    builder.affordance({ id, kind: "socket", frame: ArchetypeFrame.upright(v(x, height / 2, 0)), extent: null });
+  for (const [id, x] of [
+    ["leftStump", -offset],
+    ["middleStump", 0],
+    ["rightStump", offset],
+  ] as const) {
+    builder.rod(id, diameter / 2, v(x, 0, 0), v(x, height, 0), {
+      color: "#ead5ad",
+    });
+    builder.affordance({
+      id,
+      kind: "socket",
+      frame: ArchetypeFrame.upright(v(x, height / 2, 0)),
+      extent: null,
+    });
   }
-  for (const [id, sign] of [["leftBail", -1], ["rightBail", 1]] as const) {
-    const x: number = sign * offset / 2;
+  for (const [id, sign] of [
+    ["leftBail", -1],
+    ["rightBail", 1],
+  ] as const) {
+    const x: number = (sign * offset) / 2;
     const y: number = height + 0.003;
     const barrel: number = 0.054 / 2;
-    builder.rod(id, 0.009, v(x - barrel, y, 0), v(x + barrel, y, 0), { color: "#ead5ad" });
-    builder.rod(`${id}Spigot`, 0.004, v(x - sign * (barrel + 0.0206), y, 0), v(x + sign * (barrel + 0.035), y, 0), { color: "#ead5ad" });
-    builder.affordance({ id, kind: "socket", frame: ArchetypeFrame.upright(v(x, y, 0)), extent: null });
+    builder.rod(id, 0.009, v(x - barrel, y, 0), v(x + barrel, y, 0), {
+      color: "#ead5ad",
+    });
+    builder.rod(
+      `${id}Spigot`,
+      0.004,
+      v(x - sign * (barrel + 0.0206), y, 0),
+      v(x + sign * (barrel + 0.035), y, 0),
+      { color: "#ead5ad" },
+    );
+    builder.affordance({
+      id,
+      kind: "socket",
+      frame: ArchetypeFrame.upright(v(x, y, 0)),
+      extent: null,
+    });
   }
   // Assembly mass is provisional for staging because Law 8 gives no weight.
   return builder.build(1.5);
@@ -57,5 +103,10 @@ export function createCricketWicket(
  */
 export namespace createCricketWicket {
   /** Three stump centers and two bail barrel centers. */
-  export type Affordance = "leftStump" | "middleStump" | "rightStump" | "leftBail" | "rightBail";
+  export type Affordance =
+    | "leftStump"
+    | "middleStump"
+    | "rightStump"
+    | "leftBail"
+    | "rightBail";
 }

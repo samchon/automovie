@@ -106,7 +106,10 @@ export namespace StrikingStepTransition {
     const entryTurn: number = StrikingStance.heading({ line: 0, lead });
     const baseLine: number = entry.posture.yaw - entryTurn;
     const turnPerBeat: number = turn / count;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.posture.joints, ...StrikingStance.joints(entry.posture.joints) };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...entry.posture.joints,
+      ...StrikingStance.joints(entry.posture.joints),
+    };
     const lift: number = 0.025 * body.measure.stature;
     const beats: IBeat[] = [];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
@@ -132,14 +135,24 @@ export namespace StrikingStepTransition {
       const fromOrigin: IAutoMovieVector3 = pivot?.ball ?? root;
       const toOrigin: IAutoMovieVector3 = pivot?.ball ?? destination;
       const next: Feet = swap
-        ? StrikingStance.feet(body, { lead: nextLead, line: line + turnPerBeat }, destination)
+        ? StrikingStance.feet(
+            body,
+            { lead: nextLead, line: line + turnPerBeat },
+            destination,
+          )
         : {
             left: moved(feet.left, fromOrigin, toOrigin, turnPerBeat),
             right: moved(feet.right, fromOrigin, toOrigin, turnPerBeat),
           };
       if (pivot)
-        next[lead] = HumanFoot.pivot(body, lead, "ball", pivot.ball,
-          HumanFoot.heading(feet[lead].rotation) + turnPerBeat, pivot.pitch);
+        next[lead] = HumanFoot.pivot(
+          body,
+          lead,
+          "ball",
+          pivot.ball,
+          HumanFoot.heading(feet[lead].rotation) + turnPerBeat,
+          pivot.pitch,
+        );
 
       const first: Side = swap
         ? StrikingStance.rear({ lead })
@@ -148,8 +161,22 @@ export namespace StrikingStepTransition {
         ? { left: undefined, right: undefined }
         : pivot
           ? { left: PIVOT, right: PIVOT }
-          : { left: first === "left" ? FIRST : SECOND, right: first === "right" ? FIRST : SECOND };
-      const beat: IBeat = { from: feet, to: next, root, destination, line, delta: turnPerBeat, lead, nextLead, windows, pivot };
+          : {
+              left: first === "left" ? FIRST : SECOND,
+              right: first === "right" ? FIRST : SECOND,
+            };
+      const beat: IBeat = {
+        from: feet,
+        to: next,
+        root,
+        destination,
+        line,
+        delta: turnPerBeat,
+        lead,
+        nextLead,
+        windows,
+        pivot,
+      };
       for (const side of ["left", "right"] as const)
         book(contacts, beat, side, index, count);
       events.push({ name: `step${index + 1}`, share: (index + 1) / count });
@@ -174,11 +201,20 @@ export namespace StrikingStepTransition {
         const bearing: IAutoMovieVector3 = beat.pivot
           ? rotateAround(beat.root, beat.pivot.ball, turning)
           : Vector3.lerp(beat.root, beat.destination, motion);
-        const leadAngle: number = StrikingStance.heading({ line, lead: beat.lead });
-        const nextAngle: number = StrikingStance.heading({ line, lead: beat.nextLead });
-        const bodyTurn: number = leadAngle + (nextAngle - leadAngle) * swap - line;
+        const leadAngle: number = StrikingStance.heading({
+          line,
+          lead: beat.lead,
+        });
+        const nextAngle: number = StrikingStance.heading({
+          line,
+          lead: beat.nextLead,
+        });
+        const bodyTurn: number =
+          leadAngle + (nextAngle - leadAngle) * swap - line;
         const active: boolean = beat.windows.left !== undefined;
-        const trunkLag: number = active ? -0.1 * (beat.delta + nextAngle - leadAngle) * load : 0;
+        const trunkLag: number = active
+          ? -0.1 * (beat.delta + nextAngle - leadAngle) * load
+          : 0;
         const placed: Feet = {
           left: placement(context, beat, "left", local, lift),
           right: placement(context, beat, "right", local, lift),
@@ -190,7 +226,10 @@ export namespace StrikingStepTransition {
         const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           {
-            root: { ...bearing, y: bearing.y - (active ? 0.025 * body.measure.thigh * load : 0) },
+            root: {
+              ...bearing,
+              y: bearing.y - (active ? 0.025 * body.measure.thigh * load : 0),
+            },
             yaw: line + bodyTurn,
             pitch: entry.posture.pitch,
             roll: entry.posture.roll,
@@ -204,7 +243,19 @@ export namespace StrikingStepTransition {
         );
         return {
           ...posture,
-          limbs: { ...posture.limbs, ...StrikingGuard(body, posture, { lead: beat.lead }, {}, undefined, undefined, params.guard, swap) },
+          limbs: {
+            ...posture.limbs,
+            ...StrikingGuard(
+              body,
+              posture,
+              { lead: beat.lead },
+              {},
+              undefined,
+              undefined,
+              params.guard,
+              swap,
+            ),
+          },
         };
       },
     };
@@ -212,14 +263,28 @@ export namespace StrikingStepTransition {
 }
 
 /** Apply a world turn around an anchor without changing the point's height. */
-function rotateAround(point: IAutoMovieVector3, anchor: IAutoMovieVector3, yaw: number): IAutoMovieVector3 {
-  return HumanFrame.point({ origin: anchor, yaw }, Vector3.subtract(point, anchor));
+function rotateAround(
+  point: IAutoMovieVector3,
+  anchor: IAutoMovieVector3,
+  yaw: number,
+): IAutoMovieVector3 {
+  return HumanFrame.point(
+    { origin: anchor, yaw },
+    Vector3.subtract(point, anchor),
+  );
 }
 
 /** Travel one chord in the direction of the stance at the middle of the beat. */
-function travel(root: IAutoMovieVector3, direction: IAutoMovieMotionHumanStep.IParams["direction"], yaw: number, length: number): IAutoMovieVector3 {
-  const x: number = direction === "left" ? length : direction === "right" ? -length : 0;
-  const z: number = direction === "forward" ? length : direction === "back" ? -length : 0;
+function travel(
+  root: IAutoMovieVector3,
+  direction: IAutoMovieMotionHumanStep.IParams["direction"],
+  yaw: number,
+  length: number,
+): IAutoMovieVector3 {
+  const x: number =
+    direction === "left" ? length : direction === "right" ? -length : 0;
+  const z: number =
+    direction === "forward" ? length : direction === "back" ? -length : 0;
   return HumanFrame.point({ origin: root, yaw }, { x, y: 0, z });
 }
 
@@ -231,13 +296,22 @@ function moved(
   turn: number,
 ): IAutoMovieMotionHumanFoot.IPlacement {
   return {
-    ankle: HumanFrame.point({ origin: to, yaw: turn }, Vector3.subtract(foot.ankle, from)),
-    rotation: Quaternion.multiply(Quaternion.fromAxisAngle(UP, turn), foot.rotation),
+    ankle: HumanFrame.point(
+      { origin: to, yaw: turn },
+      Vector3.subtract(foot.ankle, from),
+    ),
+    rotation: Quaternion.multiply(
+      Quaternion.fromAxisAngle(UP, turn),
+      foot.rotation,
+    ),
   };
 }
 
 /** Pick the near foot first for travel without changing lead. */
-function firstSide(direction: IAutoMovieMotionHumanStep.IParams["direction"], lead: Side): Side {
+function firstSide(
+  direction: IAutoMovieMotionHumanStep.IParams["direction"],
+  lead: Side,
+): Side {
   if (direction === "forward") return lead;
   if (direction === "back") return StrikingStance.rear({ lead });
   return direction;
@@ -251,7 +325,12 @@ function progress(window: Window, local: number): number {
 /** The bearing selection includes the anchored ball throughout its pivot. */
 function bearingAt(beat: IBeat, side: Side, local: number): boolean {
   const window: Window | undefined = beat.windows[side];
-  return beat.pivot?.side === side || window === undefined || local <= window[0] || local >= window[1];
+  return (
+    beat.pivot?.side === side ||
+    window === undefined ||
+    local <= window[0] ||
+    local >= window[1]
+  );
 }
 
 /** Evaluate the pivot or swing of one foot on its own clock. */
@@ -276,14 +355,31 @@ function placement(
       HumanFoot.heading(beat.from[side].rotation) + beat.delta * share,
       beat.pivot.pitch - 12 * 4 * share * (1 - share),
     );
-  return AutoMovieMotionHumanLeg.arc(beat.from[side], beat.to[side], lift, share);
+  return AutoMovieMotionHumanLeg.arc(
+    beat.from[side],
+    beat.to[side],
+    lift,
+    share,
+  );
 }
 
 /** Declare only the ground windows occupied by each motion. */
-function book(contacts: IAutoMovieMotionHumanContactWindow[], beat: IBeat, side: Side, index: number, count: number): void {
+function book(
+  contacts: IAutoMovieMotionHumanContactWindow[],
+  beat: IBeat,
+  side: Side,
+  index: number,
+  count: number,
+): void {
   const add = (kind: "plant" | "pivot", from: number, to: number): void => {
     if (from < to)
-      contacts.push({ part: `${side}Foot`, kind, from: (index + from) / count, to: (index + to) / count, support: { kind: "ground" } });
+      contacts.push({
+        part: `${side}Foot`,
+        kind,
+        from: (index + from) / count,
+        to: (index + to) / count,
+        support: { kind: "ground" },
+      });
   };
   const window: Window | undefined = beat.windows[side];
   if (window === undefined) add("plant", 0, 1);

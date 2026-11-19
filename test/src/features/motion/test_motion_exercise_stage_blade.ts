@@ -11,7 +11,12 @@ import type {
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HUMAN_LEXICON, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import {
+  HUMAN_LEXICON,
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -58,21 +63,41 @@ export function test_motion_exercise_stage_blade(): void {
   const cases: readonly ICase[] = [
     {
       body: "m-average",
-      params: { style: "fencing", direction: "forward", lead: "right", distance: 0.16, duration: 1.2, propCue: 0.34 },
+      params: {
+        style: "fencing",
+        direction: "forward",
+        lead: "right",
+        distance: 0.16,
+        duration: 1.2,
+        propCue: 0.34,
+      },
       first: "rightFoot",
       travel: { x: 0, y: 0, z: 0.16 },
       lifts: true,
     },
     {
       body: "f-small",
-      params: { style: "kendo", direction: "left", lead: "left", distance: 0.15, duration: 1.5, propCue: 0.57 },
+      params: {
+        style: "kendo",
+        direction: "left",
+        lead: "left",
+        distance: 0.15,
+        duration: 1.5,
+        propCue: 0.57,
+      },
       first: "leftFoot",
       travel: { x: 0.15, y: 0, z: 0 },
       lifts: false,
     },
     {
       body: "m-average",
-      params: { style: "armoured", direction: "back", lead: "left", distance: 0.16, duration: 1.7 },
+      params: {
+        style: "armoured",
+        direction: "back",
+        lead: "left",
+        distance: 0.16,
+        duration: 1.7,
+      },
       first: "rightFoot",
       travel: { x: 0, y: 0, z: -0.16 },
       lifts: true,
@@ -85,7 +110,8 @@ export function test_motion_exercise_stage_blade(): void {
     const subject: string = "performer";
     const anchor: string = "marked-shift";
     const paddedFoil = createStageBladeProp({ kind: "foil", id: "inert-foil" });
-    const grip: IAutoMovieVector3 = paddedFoil.affordance("grip").frame.translation;
+    const grip: IAutoMovieVector3 =
+      paddedFoil.affordance("grip").frame.translation;
     const prop: IAutoMovieMotionHumanProp = HumanObject.prop(
       "inert-foil",
       paddedFoil,
@@ -106,17 +132,30 @@ export function test_motion_exercise_stage_blade(): void {
     const performance: IAutoMovieMotionHumanPerformance = new HumanPerformance({
       seed: `stage-blade-${style}`,
       laws: HUMAN_LEXICON.blade,
-      performers: [{ subject, body, at: { x: 0, y: 0, z: 0 }, yaw: 0, proficiency: { level: "trained" } }],
+      performers: [
+        {
+          subject,
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
       props: hasProp ? [prop] : [],
-      composition: entry.registered("stageBladeFootwork", sample.params, anchor).node,
+      composition: entry.registered("stageBladeFootwork", sample.params, anchor)
+        .node,
     });
-    const stage: IAutoMovieScheduleEntry | undefined = performance.schedule.entries.find(
-      (span: IAutoMovieScheduleEntry): boolean => span.intent.anchor === anchor,
-    );
-    if (stage === undefined) throw new Error(`Missing the ${style} stage shift`);
+    const stage: IAutoMovieScheduleEntry | undefined =
+      performance.schedule.entries.find(
+        (span: IAutoMovieScheduleEntry): boolean =>
+          span.intent.anchor === anchor,
+      );
+    if (stage === undefined)
+      throw new Error(`Missing the ${style} stage shift`);
 
     const first: ICase["first"] = sample.first;
-    const other: ICase["first"] = first === "leftFoot" ? "rightFoot" : "leftFoot";
+    const other: ICase["first"] =
+      first === "leftFoot" ? "rightFoot" : "leftFoot";
     const ankle = (foot: ICase["first"], seconds: number): IAutoMovieVector3 =>
       performance.bones(subject, seconds).get(foot)!.worldPosition;
     const early: number = stage.start + 0.27 * sample.params.duration!;
@@ -125,8 +164,8 @@ export function test_motion_exercise_stage_blade(): void {
     const firstTravel: IAutoMovieVector3 = Vector3.subtract(drawnEarly, from);
     TestValidator.predicate(
       `${style} moves the leading foot toward the mark while the other foot holds`,
-      Vector3.dot(firstTravel, sample.travel) / Vector3.length(sample.travel) > 0.03 &&
-        vclose(ankle(other, early), ankle(other, stage.start), 0.004),
+      Vector3.dot(firstTravel, sample.travel) / Vector3.length(sample.travel) >
+        0.03 && vclose(ankle(other, early), ankle(other, stage.start), 0.004),
     );
     TestValidator.predicate(
       `${style} has the requested floor relationship`,
@@ -146,15 +185,20 @@ export function test_motion_exercise_stage_blade(): void {
       vclose(ankle(first, early), drawnEarly),
     );
 
-    const cue: number | undefined = stage.events?.find((event) => event.name === "propCue")?.seconds;
+    const cue: number | undefined = stage.events?.find(
+      (event) => event.name === "propCue",
+    )?.seconds;
     const share: number | undefined = sample.params.propCue;
     TestValidator.predicate(
       `${style} publishes only the authored editing cue`,
       share === undefined
         ? cue === undefined
         : cue !== undefined &&
-          nclose(cue, stage.start + sample.params.duration! * share) &&
-          stage.events!.every((event) => !event.name.endsWith("Settle") || !nclose(event.seconds, cue)),
+            nclose(cue, stage.start + sample.params.duration! * share) &&
+            stage.events!.every(
+              (event) =>
+                !event.name.endsWith("Settle") || !nclose(event.seconds, cue),
+            ),
     );
     TestValidator.predicate(
       `${style} reports no physical hit from the visual staging cue`,
@@ -163,8 +207,13 @@ export function test_motion_exercise_stage_blade(): void {
 
     if (hasProp) {
       const handleInHand = (seconds: number): IAutoMovieVector3 => {
-        const hand: IAutoMovieResolvedBone = performance.bones(subject, seconds).get("rightHand")!;
-        const frame: IAutoMovieRigidTransform = performance.prop(prop.subject, seconds);
+        const hand: IAutoMovieResolvedBone = performance
+          .bones(subject, seconds)
+          .get("rightHand")!;
+        const frame: IAutoMovieRigidTransform = performance.prop(
+          prop.subject,
+          seconds,
+        );
         const handle: IAutoMovieVector3 = Vector3.add(
           frame.position,
           Quaternion.rotateVector(frame.rotation, grip),

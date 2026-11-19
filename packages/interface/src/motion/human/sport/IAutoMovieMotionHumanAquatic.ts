@@ -47,7 +47,7 @@ export namespace IAutoMovieMotionHumanAquatic {
     /** The world height of the water surface in metres; zero when omitted. */
     water?: number;
 
-    /** Boat subject id for a craft, or optional end-wall subject for pool contact metadata. */
+    /** Boat subject id for a craft, or the fixed end-wall subject with a finite level edge facing across the swimmer's lane. */
     support?: string;
 
     /** Paddle or water polo ball subject id. */
@@ -66,9 +66,17 @@ export namespace IAutoMovieMotionHumanAquatic {
     phase?: number;
 
     /** Polo attack or defense, artistic figure role, or dinghy crew role. */
-    role?: "attack" | "defend" | "keeper" | "figure" | "base" | "flyer" | "helm" | "crew";
+    role?:
+      | "attack"
+      | "defend"
+      | "keeper"
+      | "figure"
+      | "base"
+      | "flyer"
+      | "helm"
+      | "crew";
 
-    /** The two previously composed base swimmers supplying the flyer’s left and right foot supports. */
+    /** Two distinct, previously composed base swimmers supplying the flyer's left and right foot supports. */
     bases?: readonly [string, string];
 
     /** Optional prop-local foot reference for a seated stroke or initial dinghy stance. */

@@ -204,6 +204,9 @@ export const SCENES_PARTNER: readonly IScene[] = [
       setting: "partner",
       roles: { red: "initiator", blue: "defender" },
       needs: [],
+
+      // The alternate cast cannot reach the staged grip at these marks.
+      bodySwap: false,
     },
     "exercise-grapple-singleLeg",
     [

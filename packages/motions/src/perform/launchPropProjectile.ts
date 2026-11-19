@@ -49,7 +49,8 @@ export function launchPropProjectile(
       kind: "parameter",
       axis: "sphere",
       value: sphere,
-      reason: "a spherical launch needs a finite local centre, positive radius, fixed attitude and finite nonnegative optional friction",
+      reason:
+        "a spherical launch needs a finite local centre, positive radius, fixed attitude and finite nonnegative optional friction",
       fix: "declare the ball's spherical collider and a valid release attitude and friction",
     });
   const aim: IAutoMovieMotionPropLaunch["aim"] = launch.aim;
@@ -64,21 +65,24 @@ export function launchPropProjectile(
       kind: "parameter",
       axis: "aim",
       value: aim,
-      reason: "an aimed launch needs a drag-free prop, a finite world point, and a positive finite flight time",
+      reason:
+        "an aimed launch needs a drag-free prop, a finite world point, and a positive finite flight time",
       fix: "fix the flight time and target or give an explicit release velocity",
     });
 
-  const centre: IAutoMovieVector3 = sphere === undefined
-    ? origin
-    : Vector3.add(origin, Quaternion.rotateVector(rotation, sphere.centre));
+  const centre: IAutoMovieVector3 =
+    sphere === undefined
+      ? origin
+      : Vector3.add(origin, Quaternion.rotateVector(rotation, sphere.centre));
   return {
     origin: centre,
-    velocity: aim === undefined
-      ? launch.velocity
-      : Vector3.subtract(
-          Vector3.scale(Vector3.subtract(aim.point, centre), 1 / aim.seconds),
-          Vector3.scale(AutoMovieGravity.DOWN, aim.seconds / 2),
-        ),
+    velocity:
+      aim === undefined
+        ? launch.velocity
+        : Vector3.subtract(
+            Vector3.scale(Vector3.subtract(aim.point, centre), 1 / aim.seconds),
+            Vector3.scale(AutoMovieGravity.DOWN, aim.seconds / 2),
+          ),
     gravity: AutoMovieGravity.DOWN,
     ...(drag === undefined ? {} : { drag }),
     attitude:

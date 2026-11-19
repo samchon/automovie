@@ -124,12 +124,22 @@ export function createStick(
   } else if (kind === "fieldHockey") {
     const color: string = "#2b5797";
     const toeDepth: number = width / 2;
-    builder.box("head", v(E.toe, toeDepth, width), v(E.toe / 4, toeDepth / 2, 0), {
-      color,
-    });
-    builder.box("toe", v(toeDepth, head / 2, width), v(3 * E.toe / 4 - toeDepth / 2, head / 4, 0), {
-      color,
-    });
+    builder.box(
+      "head",
+      v(E.toe, toeDepth, width),
+      v(E.toe / 4, toeDepth / 2, 0),
+      {
+        color,
+      },
+    );
+    builder.box(
+      "toe",
+      v(toeDepth, head / 2, width),
+      v((3 * E.toe) / 4 - toeDepth / 2, head / 4, 0),
+      {
+        color,
+      },
+    );
     builder.rod("heel", width / 2, v(0, toeDepth, 0), v(0, head, 0), {
       color,
     });
@@ -176,7 +186,11 @@ export function createStick(
       id: "scoop",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(v(0, section, section), v(0, 0, 1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, section, section),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       width,
       depth: section * 2,
@@ -340,8 +354,19 @@ export namespace createStick {
       length: ArchetypeBand.metres(0.9, 1.1, SIXES),
       head: ArchetypeBand.metres(0.254, 0.254, SIXES),
       width: ArchetypeBand.metres(0.15, 0.15, SIXES),
-      depth: ArchetypeBand.metres(0.025, 0.03, "Coarse shaft diameter for grip placement", true),
-      mass: ArchetypeBand.of("kg", 0.28, 0.45, ArchetypeBand.TYPICAL_MASS, true),
+      depth: ArchetypeBand.metres(
+        0.025,
+        0.03,
+        "Coarse shaft diameter for grip placement",
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.28,
+        0.45,
+        ArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     cricketBat: {
       length: ArchetypeBand.metres(

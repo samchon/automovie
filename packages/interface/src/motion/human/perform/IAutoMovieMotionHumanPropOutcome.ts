@@ -94,6 +94,8 @@ export namespace IAutoMovieMotionHumanPropOutcome {
   export type ILegsProps = {
     /** Borrowed prop and physical outcome settings, stable throughout this synchronous continuation call. */
     prop: IAutoMovieMotionHumanProp;
+    /** Effective finite positive collider radius in metres for an explicit spherical launch. */
+    sphereRadius?: number;
     /** Initial projectile whose zero is the original launch. */
     projectile: IAutoMovieProjectile;
     /** First observed contact; hit.time is finite nonnegative seconds from the original launch, checked by legs. */

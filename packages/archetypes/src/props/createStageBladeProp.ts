@@ -63,13 +63,16 @@ const PROFILES = {
     guard: 0.082,
     color: "#b9b3ce",
   },
-} as const satisfies Record<createStageBladeProp.Kind, {
-  length: number;
-  grip: number;
-  shaft: number;
-  guard: number;
-  color: string;
-}>;
+} as const satisfies Record<
+  createStageBladeProp.Kind,
+  {
+    length: number;
+    grip: number;
+    shaft: number;
+    guard: number;
+    color: string;
+  }
+>;
 
 /**
  * A digital padded blade silhouette for sport or theatrical staging.
@@ -104,9 +107,10 @@ export function createStageBladeProp(
     new ArchetypeDrawSession("stageBladeProp", UNITS, seed, {
       length: params.length,
     });
-  const length: number = params.length === undefined
-    ? draw.derive("length", profile.length)
-    : draw.dimensions({ length: LENGTH }).length;
+  const length: number =
+    params.length === undefined
+      ? draw.derive("length", profile.length)
+      : draw.dimensions({ length: LENGTH }).length;
   const builder: ArchetypeBuilder<
     createStageBladeProp.Affordance,
     createStageBladeProp.Dimension
@@ -197,7 +201,13 @@ export function createStageBladeProp(
  */
 export namespace createStageBladeProp {
   /** Ordered silhouette names in the digital prop catalogue. */
-  export const KINDS = ["foil", "epee", "sabre", "shinai", "longsword"] as const;
+  export const KINDS = [
+    "foil",
+    "epee",
+    "sabre",
+    "shinai",
+    "longsword",
+  ] as const;
 
   /**
    * A foil, épée, sabre, shinai or longsword display silhouette.

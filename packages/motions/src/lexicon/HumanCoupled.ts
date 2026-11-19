@@ -156,19 +156,35 @@ export namespace HumanCoupled {
         assist: { role, partner, side },
         stances: [
           {
-            contacts: role === "helped" ? [{ part: "back", kind: "bear" }, grip] : [...feet, grip],
+            contacts:
+              role === "helped"
+                ? [{ part: "back", kind: "bear" }, grip]
+                : [...feet, grip],
             ...(role === "helped" ? {} : { prefer: getUp.POSES.squat }),
             seconds,
             event: "take",
           },
           {
-            contacts: role === "helped" ? [{ part: "seat", kind: "bear" }, ...feet, grip] : [...feet, grip],
+            contacts:
+              role === "helped"
+                ? [{ part: "seat", kind: "bear" }, ...feet, grip]
+                : [...feet, grip],
             prefer: role === "helped" ? getUp.POSES.sit : getUp.POSES.squat,
             seconds,
             event: "seat",
           },
-          { contacts: [...feet, grip], prefer: getUp.POSES.squat, seconds, event: "lift" },
-          { contacts: feet, prefer: getUp.POSES.stood, seconds, event: "standing" },
+          {
+            contacts: [...feet, grip],
+            prefer: getUp.POSES.squat,
+            seconds,
+            event: "lift",
+          },
+          {
+            contacts: feet,
+            prefer: getUp.POSES.stood,
+            seconds,
+            event: "standing",
+          },
         ],
       };
       return {

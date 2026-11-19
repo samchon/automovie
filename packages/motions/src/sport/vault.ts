@@ -67,8 +67,11 @@ export namespace vault {
   ): IAutoMovieMotionHumanActionPlan {
     const on: string = context.params.on;
     const landOn: string | undefined = context.params.landOn;
-    return handspring.over(context, surfaceOf(context, on, "on"),
-      landOn === undefined ? undefined : surfaceOf(context, landOn, "landOn"));
+    return handspring.over(
+      context,
+      surfaceOf(context, on, "on"),
+      landOn === undefined ? undefined : surfaceOf(context, landOn, "landOn"),
+    );
   }
 
   /** Resolve a named prop top and check contact points in its local footprint. */
@@ -77,10 +80,11 @@ export namespace vault {
     prop: string,
     axis: "on" | "landOn",
   ): IAutoMovieMotionHumanHandspring.ISurface {
-    const surface: ReturnType<typeof WorkoutSupport.placed> = WorkoutSupport.placed(context, {
-      prop,
-      affordance: "surface",
-    });
+    const surface: ReturnType<typeof WorkoutSupport.placed> =
+      WorkoutSupport.placed(context, {
+        prop,
+        affordance: "surface",
+      });
     const top: IAutoMovieVector3 = surface.point;
     const rotation: IAutoMovieQuaternion = surface.frame.rotation;
     const declared: IAutoMovieAffordance = surface.affordance;

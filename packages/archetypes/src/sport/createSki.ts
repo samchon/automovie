@@ -75,6 +75,8 @@ export function createSki(
   const v: typeof Vector3.create = Vector3.create;
   const half: number = d.length! / 2;
   const thick: number = d.thickness!;
+  const contactWidth: number = (WIDTH.waist + WIDTH.tail) / 2;
+  const contactLength: number = 2 * Math.min(STANCE, half - STANCE);
   builder.box(
     "forebody",
     v((WIDTH.tip + WIDTH.waist) / 2, thick, half),
@@ -83,7 +85,7 @@ export function createSki(
   );
   builder.box(
     "afterbody",
-    v((WIDTH.waist + WIDTH.tail) / 2, thick, half),
+    v(contactWidth, thick, half),
     v(0, thick / 2, half / 2),
     { color: "#d6202b" },
   );
@@ -99,20 +101,23 @@ export function createSki(
     kind: "surface",
     frame: ArchetypeFrame.upright(v(0, 0, STANCE)),
     extent: null,
-    width: (WIDTH.waist + WIDTH.tail) / 2,
-    depth: half,
+    width: contactWidth,
+    depth: contactLength,
   });
-  for (const [id, sign] of [["leftEdge", 1], ["rightEdge", -1]] as const)
+  for (const [id, sign] of [
+    ["leftEdge", 1],
+    ["rightEdge", -1],
+  ] as const)
     builder.affordance({
       id,
       kind: "ledge",
       frame: ArchetypeFrame.facing(
-        v(sign * (WIDTH.waist + WIDTH.tail) / 4, 0, STANCE),
+        v((sign * contactWidth) / 2, 0, STANCE),
         v(0, 1, 0),
-        v(sign, 0, 0),
+        v(0, 0, -sign),
       ),
       extent: null,
-      length: half,
+      length: contactLength,
     });
   return builder.build(d.mass!);
 }

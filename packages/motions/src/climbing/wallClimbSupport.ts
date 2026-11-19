@@ -39,16 +39,19 @@ const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
 export function wallClimbSupport(
   route: IAutoMovieMotionHumanWallClimb,
 ): IAutoMovieMotionHumanSupport.IParams {
-  const holds: Partial<Record<
-    IAutoMovieMotionHumanClimbLadder.Limb,
-    IAutoMovieMotionHumanWallClimb.Hold
-  >> = { ...route.start };
+  const holds: Partial<
+    Record<
+      IAutoMovieMotionHumanClimbLadder.Limb,
+      IAutoMovieMotionHumanWallClimb.Hold
+    >
+  > = { ...route.start };
   const stance = (
     move?: IAutoMovieMotionHumanWallClimb.IMove,
   ): IAutoMovieMotionHumanSupport.IStance => {
     const contacts: IAutoMovieMotionHumanSupport.IContact[] = [];
     for (const limb of LIMBS) {
-      const target: IAutoMovieMotionHumanWallClimb.Hold | undefined = holds[limb];
+      const target: IAutoMovieMotionHumanWallClimb.Hold | undefined =
+        holds[limb];
       if (target === undefined) continue;
       contacts.push({
         part: limb,
@@ -66,7 +69,12 @@ export function wallClimbSupport(
   const stances: IAutoMovieMotionHumanSupport.IStance[] = [stance()];
   for (const move of route.moves) {
     if (move.to === null) {
-      if (LIMBS.some((limb: IAutoMovieMotionHumanClimbLadder.Limb): boolean => holds[limb] === undefined))
+      if (
+        LIMBS.some(
+          (limb: IAutoMovieMotionHumanClimbLadder.Limb): boolean =>
+            holds[limb] === undefined,
+        )
+      )
         throw new HumanRefusal({
           kind: "parameter",
           axis: "moves",

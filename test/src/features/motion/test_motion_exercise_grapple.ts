@@ -78,44 +78,78 @@ export function test_motion_exercise_grapple(): void {
           composition: HumanChain.mutual(
             HumanCoupled.grappling,
             {
-              initiator: HumanChain.subject("a").stand({ seconds: 0.3, sway: 0 }),
-              receiver: HumanChain.subject("b").stand({ seconds: 0.3, sway: 0 }),
+              initiator: HumanChain.subject("a").stand({
+                seconds: 0.3,
+                sway: 0,
+              }),
+              receiver: HumanChain.subject("b").stand({
+                seconds: 0.3,
+                sway: 0,
+              }),
             },
             scene,
           ).node,
         }),
       );
-      const a: IAutoMovieMotionHumanSegment = film.performance.segments("a").at(-1)!;
-      const b: IAutoMovieMotionHumanSegment = film.performance.segments("b").at(-1)!;
+      const a: IAutoMovieMotionHumanSegment = film.performance
+        .segments("a")
+        .at(-1)!;
+      const b: IAutoMovieMotionHumanSegment = film.performance
+        .segments("b")
+        .at(-1)!;
       complaints.check(
         `${label} shares a start and end with both actors`,
         Math.abs(a.start - b.start) < 1e-9 && Math.abs(a.end - b.end) < 1e-9,
       );
 
-      const initiator: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(film.performance, "a", body, 0);
-      const receiver: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(film.performance, "b", body, receiverYaw);
-      const grips: IAutoMovieMotionHumanContactWindow[] = a.plan.contacts.filter(
-        (contact: IAutoMovieMotionHumanContactWindow): boolean =>
-          contact.kind === "grip" && contact.support.kind === "person" && contact.support.subject === "b",
-      );
+      const initiator: IAutoMovieMotionHumanSignature.IReader =
+        HumanSignature.of(film.performance, "a", body, 0);
+      const receiver: IAutoMovieMotionHumanSignature.IReader =
+        HumanSignature.of(film.performance, "b", body, receiverYaw);
+      const grips: IAutoMovieMotionHumanContactWindow[] =
+        a.plan.contacts.filter(
+          (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+            contact.kind === "grip" &&
+            contact.support.kind === "person" &&
+            contact.support.subject === "b",
+        );
       const expected: readonly AutoMovieHumanoidRegion[] =
-        scene.kind === "seoiNage" ? ["elbowRight", "neckLeft"] : ["thighFrontLeft"];
-      complaints.equals(`${label} partner regions`, grips.map(
-        (contact: IAutoMovieMotionHumanContactWindow): AutoMovieHumanoidRegion | undefined =>
-          "region" in contact.support ? contact.support.region : undefined,
-      ).sort((left: AutoMovieHumanoidRegion | undefined, right: AutoMovieHumanoidRegion | undefined): number =>
-        (left ?? "").localeCompare(right ?? ""),
-      ), expected);
+        scene.kind === "seoiNage"
+          ? ["elbowRight", "neckLeft"]
+          : ["thighFrontLeft"];
+      complaints.equals(
+        `${label} partner regions`,
+        grips
+          .map(
+            (
+              contact: IAutoMovieMotionHumanContactWindow,
+            ): AutoMovieHumanoidRegion | undefined =>
+              "region" in contact.support ? contact.support.region : undefined,
+          )
+          .sort(
+            (
+              left: AutoMovieHumanoidRegion | undefined,
+              right: AutoMovieHumanoidRegion | undefined,
+            ): number => (left ?? "").localeCompare(right ?? ""),
+          ),
+        expected,
+      );
       for (const grip of grips) {
         if (!("region" in grip.support)) continue;
-        const palm: AutoMovieHumanoidRegion = grip.part === "leftHand" ? "palmLeft" : "palmRight";
-        complaints.check(`${label} ${palm} has a positive grip and a release`, grip.from < grip.to && grip.to < 1);
+        const palm: AutoMovieHumanoidRegion =
+          grip.part === "leftHand" ? "palmLeft" : "palmRight";
+        complaints.check(
+          `${label} ${palm} has a positive grip and a release`,
+          grip.from < grip.to && grip.to < 1,
+        );
         for (const share of [grip.from, (grip.from + grip.to) / 2, grip.to]) {
           const time: number = a.start + share * a.plan.duration;
-          const gap: number = Vector3.length(Vector3.subtract(
-            HumanSignature.region(initiator, palm, time),
-            HumanSignature.region(receiver, grip.support.region, time),
-          ));
+          const gap: number = Vector3.length(
+            Vector3.subtract(
+              HumanSignature.region(initiator, palm, time),
+              HumanSignature.region(receiver, grip.support.region, time),
+            ),
+          );
           complaints.check(
             `${label} ${palm} on ${grip.support.region} at ${time.toFixed(3)} s has ${gap.toFixed(4)} m separation`,
             gap <= contactAllowance,
@@ -125,22 +159,28 @@ export function test_motion_exercise_grapple(): void {
 
       const mat: IAutoMovieMotionHumanContactWindow[] = b.plan.contacts.filter(
         (contact: IAutoMovieMotionHumanContactWindow): boolean =>
-          contact.support.kind === "ground" && (contact.part === "seat" || contact.part === "back"),
+          contact.support.kind === "ground" &&
+          (contact.part === "seat" || contact.part === "back"),
       );
       const headAboveHips: number =
         HumanSignature.joint(receiver, b.end, "head").y -
         HumanSignature.joint(receiver, b.end, "hips").y;
       if (scene.outcome === "complete") {
         const seat: IAutoMovieMotionHumanContactWindow | undefined = mat.find(
-          (contact: IAutoMovieMotionHumanContactWindow): boolean => contact.part === "seat",
+          (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+            contact.part === "seat",
         );
         const back: IAutoMovieMotionHumanContactWindow | undefined = mat.find(
-          (contact: IAutoMovieMotionHumanContactWindow): boolean => contact.part === "back",
+          (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+            contact.part === "back",
         );
         complaints.check(
           `${label} receives back support before releasing the seat and retains it to the end`,
-          seat !== undefined && back !== undefined && seat.from < back.from &&
-            back.from <= seat.to + 1e-9 && Math.abs(back.to - 1) < 1e-9,
+          seat !== undefined &&
+            back !== undefined &&
+            seat.from < back.from &&
+            back.from <= seat.to + 1e-9 &&
+            Math.abs(back.to - 1) < 1e-9,
         );
         complaints.check(
           `${label} final head-to-hip height ${headAboveHips.toFixed(3)} m reads as lying`,
@@ -152,7 +192,9 @@ export function test_motion_exercise_grapple(): void {
         const to: number = a.start + grip.to * a.plan.duration;
         const samples: Set<number> = new Set([
           ...HumanSignature.times(a.start, a.end, 30),
-          ...a.plan.events.map((event): number => a.start + event.share * a.plan.duration),
+          ...a.plan.events.map(
+            (event): number => a.start + event.share * a.plan.duration,
+          ),
           from,
           (from + to) / 2,
           to,
@@ -162,7 +204,11 @@ export function test_motion_exercise_grapple(): void {
         let closestTime: number = a.start;
         let forearmClearance: number = Infinity;
         for (const time of samples) {
-          const distance: number = HumanSignature.apart(initiator, receiver, time);
+          const distance: number = HumanSignature.apart(
+            initiator,
+            receiver,
+            time,
+          );
           if (distance < closest) {
             closest = distance;
             closestTime = time;
@@ -188,14 +234,22 @@ export function test_motion_exercise_grapple(): void {
         );
         complaints.check(
           `${label} interruption recovers upright without a mat transfer`,
-          mat.length === 0 && headAboveHips > uprightHeight &&
-            b.plan.events.some((event): boolean => event.name === "interrupted") &&
+          mat.length === 0 &&
+            headAboveHips > uprightHeight &&
+            b.plan.events.some(
+              (event): boolean => event.name === "interrupted",
+            ) &&
             b.plan.events.some((event): boolean => event.name === "recovered"),
         );
       }
     } catch (error) {
-      complaints.check(`${label} refused: ${error instanceof Error ? error.message : String(error)}`, false);
+      complaints.check(
+        `${label} refused: ${error instanceof Error ? error.message : String(error)}`,
+        false,
+      );
     }
   }
-  complaints.assert("the paired grappling scenes show held contact and the selected support outcome");
+  complaints.assert(
+    "the paired grappling scenes show held contact and the selected support outcome",
+  );
 }

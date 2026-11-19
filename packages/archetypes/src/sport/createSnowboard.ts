@@ -17,7 +17,12 @@ const SIZE: Readonly<{ length: number; waist: number; stance: number }> = {
 };
 
 /** Provisional edge appearance, section thickness and tip rise, in metres. */
-const FORM: Readonly<{ hip: number; tip: number; thickness: number; rise: number }> = {
+const FORM: Readonly<{
+  hip: number;
+  tip: number;
+  thickness: number;
+  rise: number;
+}> = {
   hip: 0.29,
   tip: 0.17,
   thickness: 0.012,
@@ -48,7 +53,10 @@ export function createSnowboard(
   seed?: number | string,
 ): Archetype<createSnowboard.Affordance, "mass"> {
   const draw: ArchetypeDrawSession<"mass"> = new ArchetypeDrawSession(
-    "snowboard", { mass: "kg" }, seed, params,
+    "snowboard",
+    { mass: "kg" },
+    seed,
+    params,
   );
   const { mass }: Record<"mass", number> = draw.dimensions({
     mass: ArchetypeBand.of("kg", 2.8, 3.8, ArchetypeBand.TYPICAL_MASS, true),
@@ -70,7 +78,11 @@ export function createSnowboard(
     [SIZE.length / 2, d.tip, d.rise],
   ];
   const rings: readonly IAutoMovieVector3[][] = profile.map(
-    ([z, width, rise]: readonly [number, number, number]): IAutoMovieVector3[] => [
+    ([z, width, rise]: readonly [
+      number,
+      number,
+      number,
+    ]): IAutoMovieVector3[] => [
       v(-width / 2, rise, z),
       v(width / 2, rise, z),
       v(-width / 2, rise + d.thickness, z),
@@ -82,14 +94,20 @@ export function createSnowboard(
       color: "#35999e",
     });
   builder.affordance({
-    id: "deck", kind: "surface",
+    id: "deck",
+    kind: "surface",
     frame: ArchetypeFrame.upright(v(0, d.thickness, 0)),
-    extent: null, width: SIZE.waist, depth: 2 * SIZE.length / 3,
+    extent: null,
+    width: SIZE.waist,
+    depth: (2 * SIZE.length) / 3,
   });
   const padHeight: number = 0.015;
   const padDepth: number = 0.12;
-  for (const [id, sign] of [["frontBinding", -1], ["rearBinding", 1]] as const) {
-    const z: number = sign * SIZE.stance / 2;
+  for (const [id, sign] of [
+    ["frontBinding", -1],
+    ["rearBinding", 1],
+  ] as const) {
+    const z: number = (sign * SIZE.stance) / 2;
     builder.box(
       id,
       v(SIZE.waist, padHeight, padDepth),
@@ -97,15 +115,22 @@ export function createSnowboard(
       { color: "#25384a" },
     );
     builder.affordance({
-      id, kind: "surface",
+      id,
+      kind: "surface",
       frame: ArchetypeFrame.upright(v(0, d.thickness + padHeight, z)),
-      extent: null, width: SIZE.waist, depth: padDepth,
+      extent: null,
+      width: SIZE.waist,
+      depth: padDepth,
     });
   }
-  for (const [id, sign] of [["leftEdge", 1], ["rightEdge", -1]] as const)
+  for (const [id, sign] of [
+    ["leftEdge", 1],
+    ["rightEdge", -1],
+  ] as const)
     builder.affordance({
-      id, kind: "socket",
-      frame: ArchetypeFrame.upright(v(sign * SIZE.waist / 2, 0, 0)),
+      id,
+      kind: "socket",
+      frame: ArchetypeFrame.upright(v((sign * SIZE.waist) / 2, 0, 0)),
       extent: null,
     });
   return builder.build(mass);

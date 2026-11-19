@@ -53,8 +53,10 @@ export namespace IAutoMovieMotionHumanWallClimb {
    * @evidence contracts/development/design.md#minimal-and-owned-surface `wallClimbSupport` reads the destination and optional stance timing and labels.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the common climbing limb and target contracts without an embedded posture.
    */
-  export interface IMove
-    extends Pick<IAutoMovieMotionHumanSupport.IStance, "seconds" | "event" | "turn"> {
+  export interface IMove extends Pick<
+    IAutoMovieMotionHumanSupport.IStance,
+    "seconds" | "event" | "turn"
+  > {
     /** The limb that moves. */
     limb: IAutoMovieMotionHumanClimbLadder.Limb;
 

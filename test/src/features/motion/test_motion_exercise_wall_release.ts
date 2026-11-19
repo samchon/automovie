@@ -53,11 +53,19 @@ export function test_motion_exercise_wall_release(): void {
     frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
     points: {
       leftGrip: {
-        point: { x: body.measure.shoulderHalfWidth, y: height, z: body.measure.forearm },
+        point: {
+          x: body.measure.shoulderHalfWidth,
+          y: height,
+          z: body.measure.forearm,
+        },
         normal: out,
       },
       rightGrip: {
-        point: { x: -body.measure.shoulderHalfWidth, y: height, z: body.measure.forearm },
+        point: {
+          x: -body.measure.shoulderHalfWidth,
+          y: height,
+          z: body.measure.forearm,
+        },
         normal: out,
       },
       leftStart: { point: { ...left, y: 0 }, normal: up },
@@ -67,7 +75,9 @@ export function test_motion_exercise_wall_release(): void {
   };
   /** One fixed target read by the public route helper. */
   const hold = (point: string): IAutoMovieMotionHumanWallClimb.Hold => ({
-    kind: "prop", subject: wall.subject, point,
+    kind: "prop",
+    subject: wall.subject,
+    point,
   });
   const route: IAutoMovieMotionHumanWallClimb = {
     start: {
@@ -78,7 +88,12 @@ export function test_motion_exercise_wall_release(): void {
     },
     moves: [
       { limb: "rightFoot", to: null, seconds: 0.5, event: "free" },
-      { limb: "rightFoot", to: hold("raised"), seconds: 0.5, event: "acquired" },
+      {
+        limb: "rightFoot",
+        to: hold("raised"),
+        seconds: 0.5,
+        event: "acquired",
+      },
     ],
   };
   const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
@@ -87,20 +102,29 @@ export function test_motion_exercise_wall_release(): void {
     HumanChain.subject("a").support(wallClimbSupport(route)),
     [wall],
   );
-  const segment: IAutoMovieMotionHumanSegment = film.performance.segments("a")[0]!;
+  const segment: IAutoMovieMotionHumanSegment =
+    film.performance.segments("a")[0]!;
   const free: number = motionHumanLaw.event(film, "free");
   const acquired: number = motionHumanLaw.event(film, "acquired");
   const freeShare: number = (free - segment.start) / segment.plan.duration;
   const freeBones: motionHumanLaw.Bones = film.bones("a", free);
   TestValidator.predicate(
     "the named free interval releases the right foot before the next acquisition",
-    free < acquired && !segment.plan.contacts.some(
-      (window: IAutoMovieMotionHumanContactWindow): boolean =>
-        window.part === "rightFoot" && window.from <= freeShare && freeShare <= window.to,
-    ),
+    free < acquired &&
+      !segment.plan.contacts.some(
+        (window: IAutoMovieMotionHumanContactWindow): boolean =>
+          window.part === "rightFoot" &&
+          window.from <= freeShare &&
+          freeShare <= window.to,
+      ),
   );
   for (const side of ["left", "right"] as const) {
-    const grip: IAutoMovieVector3 = HumanHand.frame(body, freeBones, side, "grip").point;
+    const grip: IAutoMovieVector3 = HumanHand.frame(
+      body,
+      freeBones,
+      side,
+      "grip",
+    ).point;
     TestValidator.predicate(
       `${side} displayed grip stays within 10 mm of its wall hold through the release`,
       Vector3.distance(grip, wall.points[`${side}Grip`]!.point) <= CONTACT,
@@ -108,12 +132,18 @@ export function test_motion_exercise_wall_release(): void {
   }
   TestValidator.predicate(
     "the released foot reaches the next hold",
-    Vector3.distance(film.bones("a", acquired).get("rightToes")!.worldPosition, raised) <= CONTACT,
+    Vector3.distance(
+      film.bones("a", acquired).get("rightToes")!.worldPosition,
+      raised,
+    ) <= CONTACT,
   );
-  TestValidator.error("releasing a second limb before acquisition is refused", (): void => {
-    wallClimbSupport({
-      ...route,
-      moves: [route.moves[0]!, { limb: "leftHand", to: null }],
-    });
-  });
+  TestValidator.error(
+    "releasing a second limb before acquisition is refused",
+    (): void => {
+      wallClimbSupport({
+        ...route,
+        moves: [route.moves[0]!, { limb: "leftHand", to: null }],
+      });
+    },
+  );
 }

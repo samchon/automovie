@@ -12,8 +12,7 @@ import type { IAutoMovieMotionHumanSwordGuard } from "./IAutoMovieMotionHumanSwo
  * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the sportSwing row parameter map used by the family registry and schema generator.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
-export interface IAutoMovieMotionHumanLexiconSportSwingParams
-  extends IAutoMovieMotionHumanLexiconPrecisionSportParams {
+export interface IAutoMovieMotionHumanLexiconSportSwingParams extends IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /** A baseball swing: both hands, level from the bat hand's side. */
   batSwing: Omit<IAutoMovieMotionHumanSword.ICut, "from" | "hands">;
 

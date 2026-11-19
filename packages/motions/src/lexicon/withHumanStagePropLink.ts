@@ -34,7 +34,10 @@ export function withHumanStagePropLink(
   const articulation: string = "link";
   const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
     (prop.affordances ?? []).map(
-      (site: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [site.id, site],
+      (site: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [
+        site.id,
+        site,
+      ],
     ),
   );
   if (byId.get(articulation)?.kind !== "hinge" || prop.articulate === undefined)
@@ -45,10 +48,20 @@ export function withHumanStagePropLink(
     throw new Error("Give the link track at least two keys starting at zero");
 
   const samples: readonly withHumanStagePropLink.IKey[] = keys.map(
-    (key: withHumanStagePropLink.IKey, index: number): withHumanStagePropLink.IKey => {
-      if (!Number.isFinite(key.seconds) || (index > 0 && key.seconds <= keys[index - 1]!.seconds))
-        throw new Error("Link key seconds must be finite and strictly increasing");
-      if (!AffordanceArticulation.input(byId, articulation, key.degrees).success)
+    (
+      key: withHumanStagePropLink.IKey,
+      index: number,
+    ): withHumanStagePropLink.IKey => {
+      if (
+        !Number.isFinite(key.seconds) ||
+        (index > 0 && key.seconds <= keys[index - 1]!.seconds)
+      )
+        throw new Error(
+          "Link key seconds must be finite and strictly increasing",
+        );
+      if (
+        !AffordanceArticulation.input(byId, articulation, key.degrees).success
+      )
         throw new Error(`Inadmissible hinge travel at link key ${index}`);
       return { ...key };
     },
@@ -71,7 +84,9 @@ export function withHumanStagePropLink(
       }
       const from: withHumanStagePropLink.IKey = samples[lower]!;
       const to: withHumanStagePropLink.IKey = samples[upper]!;
-      const share: number = minimumJerk.share((seconds - from.seconds) / (to.seconds - from.seconds));
+      const share: number = minimumJerk.share(
+        (seconds - from.seconds) / (to.seconds - from.seconds),
+      );
       return from.degrees + share * (to.degrees - from.degrees);
     },
   };

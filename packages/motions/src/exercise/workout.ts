@@ -353,7 +353,12 @@ export namespace workout {
     const load: IAutoMovieMotionHumanWorkoutLoad.ILoad | null =
       p.load === undefined
         ? null
-        : WorkoutLoad.of(context, p.load, kind.midfoot === true, p.kind === "cleanAndJerk");
+        : WorkoutLoad.of(
+            context,
+            p.load,
+            kind.midfoot === true,
+            p.kind === "cleanAndJerk",
+          );
 
     /** The time-only keyed contribution, including any load owned by the exercise. */
     const write: IAutoMovieMotionHumanPrimitive["write"] = (
@@ -367,7 +372,11 @@ export namespace workout {
         prepareHumanPoseResolution(resolution);
       const project: ReturnType<typeof prepareHumanPostureProjection> =
         projection ?? prepareHumanPostureProjection(body);
-      const placed: IAutoMovieMotionHumanPosture = posture(seconds, read, project);
+      const placed: IAutoMovieMotionHumanPosture = posture(
+        seconds,
+        read,
+        project,
+      );
       return load === null ? placed : load.apply(placed, read, project);
     };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
@@ -550,7 +559,13 @@ export namespace workout {
                   ? posed.posture(...args)
                   : merge(
                       standing,
-                      write(standing, seconds, undefined, resolution, projection),
+                      write(
+                        standing,
+                        seconds,
+                        undefined,
+                        resolution,
+                        projection,
+                      ),
                     ),
             };
           },

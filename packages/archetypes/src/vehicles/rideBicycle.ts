@@ -28,7 +28,11 @@ import type { createBicycle } from "./createBicycle";
 export function rideBicycle(
   bicycle: Archetype<createBicycle.Affordance, createBicycle.Dimension>,
   course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-  gear: { chainring: number; sprocket: number; coast?: readonly [number, number] } = {
+  gear: {
+    chainring: number;
+    sprocket: number;
+    coast?: readonly [number, number];
+  } = {
     chainring: 34,
     sprocket: 17,
   },
@@ -54,19 +58,21 @@ export function rideBicycle(
   const plan: ArchetypeCourse.IPlan =
     course.kind === "plan" ? course : ArchetypeCourse.plan("bicycle", course);
   if (plan.course.kind !== "timed")
-    plan.course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
-      if (leg.reverse === true)
-        throw new ArchetypeRefusal({
-          kind: "parameter",
-          archetype: "bicycle",
-          axis: `course.legs[${index}].reverse`,
-          value: true,
-          feasible: null,
-          reason:
-            "a bicycle freewheels backward, so its crank does not turn with a reversed leg",
-          fix: "ride the leg forward, or wheel the bicycle by hand",
-        });
-    });
+    plan.course.legs.forEach(
+      (leg: ArchetypeCourse.Leg, index: number): void => {
+        if (leg.reverse === true)
+          throw new ArchetypeRefusal({
+            kind: "parameter",
+            archetype: "bicycle",
+            axis: `course.legs[${index}].reverse`,
+            value: true,
+            feasible: null,
+            reason:
+              "a bicycle freewheels backward, so its crank does not turn with a reversed leg",
+            fix: "ride the leg forward, or wheel the bicycle by hand",
+          });
+      },
+    );
   ArchetypeCourse.admitLean("bicycle", plan, rideBicycle.LEAN);
   const coast: typeof gear.coast = gear.coast;
   if (
@@ -95,7 +101,11 @@ export function rideBicycle(
   for (let k: number = 1; (k * development) / 2 <= pedalled(plan.length); k++) {
     const powered: number = (k * development) / 2;
     instants.push({
-      seconds: plan.when(coast !== undefined && powered > coast[0] ? powered + coastLength : powered),
+      seconds: plan.when(
+        coast !== undefined && powered > coast[0]
+          ? powered + coastLength
+          : powered,
+      ),
       label: k % 2 === 0 ? "leftTopDeadCentre" : "rightTopDeadCentre",
     });
   }

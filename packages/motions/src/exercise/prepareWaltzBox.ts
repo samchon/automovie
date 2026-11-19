@@ -1,4 +1,4 @@
-import { minimumJerk, Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanDance,
   IAutoMovieMotionHumanFoot,
@@ -42,25 +42,42 @@ export function prepareWaltzBox(
 ): {
   yaw: (seconds: number) => number;
   depth: (seconds: number) => number;
-  rotate: (placement: IAutoMovieMotionHumanFoot.IPlacement, seconds: number) => IAutoMovieMotionHumanFoot.IPlacement;
+  rotate: (
+    placement: IAutoMovieMotionHumanFoot.IPlacement,
+    seconds: number,
+  ) => IAutoMovieMotionHumanFoot.IPlacement;
 } {
   const pivot: IAutoMovieVector3 = options.pivot ?? origin;
   const turn: number = options.turn ?? 0;
-  const yaw = (seconds: number): number => turn * minimumJerk.share(seconds / Math.max(beatPeriod, lastBeat));
+  const yaw = (seconds: number): number =>
+    turn * minimumJerk.share(seconds / Math.max(beatPeriod, lastBeat));
   return {
     yaw,
     depth: (seconds: number): number => {
       const beat: number = 1 + (seconds - firstBeat) / beatPeriod;
       const lowered: number = (1 - Math.cos((2 * Math.PI * beat) / 3)) / 2;
-      const gate: number = minimumJerk.share(seconds / beatPeriod) * minimumJerk.share((duration - seconds) / beatPeriod);
+      const gate: number =
+        minimumJerk.share(seconds / beatPeriod) *
+        minimumJerk.share((duration - seconds) / beatPeriod);
       return 0.012 * metre * lowered * gate;
     },
-    rotate: (placement: IAutoMovieMotionHumanFoot.IPlacement, seconds: number): IAutoMovieMotionHumanFoot.IPlacement => {
+    rotate: (
+      placement: IAutoMovieMotionHumanFoot.IPlacement,
+      seconds: number,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       const angle: number = yaw(seconds);
-      return angle === 0 ? placement : {
-        ankle: HumanFrame.point({ origin: pivot, yaw: angle }, Vector3.subtract(placement.ankle, pivot)),
-        rotation: Quaternion.multiply(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle), placement.rotation),
-      };
+      return angle === 0
+        ? placement
+        : {
+            ankle: HumanFrame.point(
+              { origin: pivot, yaw: angle },
+              Vector3.subtract(placement.ankle, pivot),
+            ),
+            rotation: Quaternion.multiply(
+              Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, angle),
+              placement.rotation,
+            ),
+          };
     },
   };
 }

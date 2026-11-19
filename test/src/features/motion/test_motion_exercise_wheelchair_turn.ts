@@ -45,13 +45,16 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_exercise_wheelchair_turn(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const chair: ReturnType<typeof createWheelchair> = createWheelchair({ kind: "selfPropelled" }, 2);
+  const chair: ReturnType<typeof createWheelchair> = createWheelchair(
+    { kind: "selfPropelled" },
+    2,
+  );
   const radius: number = 2;
   const wheel: number = chair.dimensions.wheelDiameter! / 2;
   const approach: number = 0.45;
   const push: number = 0.42;
   const recovery: number = 0.7;
-  const cruise: number = (wheel * Math.PI / 6) / push;
+  const cruise: number = (wheel * Math.PI) / 6 / push;
   const turn: ReturnType<typeof rideWheelchair> = rideWheelchair(chair, {
     start: { x: 2, z: -1, heading: 63 },
     legs: [{ kind: "turn", radius, angle: 35 }],
@@ -65,23 +68,46 @@ export function test_motion_exercise_wheelchair_turn(): void {
   const right: number = chair.affordance("rightSpin").frame.translation.x;
   const arc: number = turning.course.distance / radius;
   const degrees: number = 180 / (Math.PI * wheel);
-  TestValidator.predicate("the inner and outer wheels roll different distances on the arc",
-    nclose(turning.archetype.travel("leftSpin"), (radius - left) * arc * degrees, 1e-6) &&
-    nclose(turning.archetype.travel("rightSpin"), (radius - right) * arc * degrees, 1e-6),
+  TestValidator.predicate(
+    "the inner and outer wheels roll different distances on the arc",
+    nclose(
+      turning.archetype.travel("leftSpin"),
+      (radius - left) * arc * degrees,
+      1e-6,
+    ) &&
+      nclose(
+        turning.archetype.travel("rightSpin"),
+        (radius - right) * arc * degrees,
+        1e-6,
+      ),
   );
 
   const original: IAutoMovieTransform = turn.at(0).placement;
-  const origin: IAutoMovieRigidTransform = { position: original.translation, rotation: original.rotation };
-  const seat: ReturnType<typeof HumanObject.seat> = HumanObject.seat(chair, origin);
-  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(origin.rotation, { x: 0, y: 0, z: 0.2 });
-  const performer: ConstructorParameters<typeof HumanPerformance>[0]["performers"][number] = {
+  const origin: IAutoMovieRigidTransform = {
+    position: original.translation,
+    rotation: original.rotation,
+  };
+  const seat: ReturnType<typeof HumanObject.seat> = HumanObject.seat(
+    chair,
+    origin,
+  );
+  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(origin.rotation, {
+    x: 0,
+    y: 0,
+    z: 0.2,
+  });
+  const performer: ConstructorParameters<
+    typeof HumanPerformance
+  >[0]["performers"][number] = {
     subject: "player",
     body,
     at: { x: seat.at.x + ahead.x, y: 0, z: seat.at.z + ahead.z },
     yaw: seat.yaw,
     proficiency: { level: "trained" },
   };
-  const sitting: ReturnType<typeof HumanChain.subject> = HumanChain.subject("player").sit({ seat });
+  const sitting: ReturnType<typeof HumanChain.subject> = HumanChain.subject(
+    "player",
+  ).sit({ seat });
   const rest: HumanPerformance = new HumanPerformance({
     seed: "chair-turn",
     performers: [performer],
@@ -92,7 +118,8 @@ export function test_motion_exercise_wheelchair_turn(): void {
     const frame: IAutoMovieTransform = turn.at(film - begins).placement;
     return { position: frame.translation, rotation: frame.rotation };
   };
-  const material: ReturnType<typeof wheelchairHandrimFrame> = wheelchairHandrimFrame(turn, atCatch, -15);
+  const material: ReturnType<typeof wheelchairHandrimFrame> =
+    wheelchairHandrimFrame(turn, atCatch, -15);
   const part = (id: string, film: number): IAutoMovieTransform =>
     material(id as createWheelchair.Affordance, film - begins);
   const performance: HumanPerformance = new HumanPerformance({
@@ -109,46 +136,88 @@ export function test_motion_exercise_wheelchair_turn(): void {
       recovery,
     }).node,
   });
-  const stroke: IAutoMovieMotionHumanSegment = performance.segments("player")[1]!;
+  const stroke: IAutoMovieMotionHumanSegment =
+    performance.segments("player")[1]!;
   const catchAt: number = stroke.entryTime + approach;
   const during: number = catchAt + push / 2;
   const recovering: number = catchAt + push + recovery / 2;
-  const display: ReturnType<typeof HumanSignature.of> = HumanSignature.of(performance, "player", body, seat.yaw);
-  const restDisplay: ReturnType<typeof HumanSignature.of> = HumanSignature.of(rest, "player", body, seat.yaw);
+  const display: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+    performance,
+    "player",
+    body,
+    seat.yaw,
+  );
+  const restDisplay: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+    rest,
+    "player",
+    body,
+    seat.yaw,
+  );
 
   /** Convert a displayed world coordinate to the relevant chair placement. */
-  const local = (frame: IAutoMovieRigidTransform, point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Quaternion.rotateVector(Quaternion.inverse(frame.rotation), Vector3.subtract(point, frame.position));
-  const grips: IAutoMovieMotionHumanContactWindow[] = stroke.plan.contacts.filter(
-    (contact: IAutoMovieMotionHumanContactWindow): boolean => contact.kind === "grip",
-  );
+  const local = (
+    frame: IAutoMovieRigidTransform,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Quaternion.rotateVector(
+      Quaternion.inverse(frame.rotation),
+      Vector3.subtract(point, frame.position),
+    );
+  const grips: IAutoMovieMotionHumanContactWindow[] =
+    stroke.plan.contacts.filter(
+      (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+        contact.kind === "grip",
+    );
   const grip: IAutoMovieMotionHumanContactWindow | undefined = grips[0];
-  TestValidator.predicate("only the left hand grips from catch to release",
+  TestValidator.predicate(
+    "only the left hand grips from catch to release",
     grips.length === 1 &&
-    grip?.part === "leftHand" &&
-    grip.support.kind === "prop" &&
-    grip.support.subject === "chair" &&
-    nclose(grip.from * stroke.plan.duration, approach, 1e-9) &&
-    nclose(grip.to * stroke.plan.duration, approach + push, 1e-9),
+      grip?.part === "leftHand" &&
+      grip.support.kind === "prop" &&
+      grip.support.subject === "chair" &&
+      nclose(grip.from * stroke.plan.duration, approach, 1e-9) &&
+      nclose(grip.to * stroke.plan.duration, approach + push, 1e-9),
   );
-  TestValidator.predicate("the left wrist follows the inner rim material during the turn",
-    [catchAt, during, catchAt + push].every((film: number): boolean =>
-      Vector3.distance(HumanSignature.joint(display, film, "leftHand"), part("leftRim", film).translation) <= 0.5 * body.measure.hand,
+  TestValidator.predicate(
+    "the left wrist follows the inner rim material during the turn",
+    [catchAt, during, catchAt + push].every(
+      (film: number): boolean =>
+        Vector3.distance(
+          HumanSignature.joint(display, film, "leftHand"),
+          part("leftRim", film).translation,
+        ) <=
+        0.5 * body.measure.hand,
     ),
   );
-  const leftAtRest: IAutoMovieVector3 = local(origin, HumanSignature.joint(restDisplay, rest.duration, "leftHand"));
-  const leftAtRelease: IAutoMovieVector3 = local(placed(catchAt + push), HumanSignature.joint(display, catchAt + push, "leftHand"));
-  const leftAtEnd: IAutoMovieVector3 = local(placed(stroke.end), HumanSignature.joint(display, stroke.end, "leftHand"));
-  TestValidator.predicate("the left wrist leaves the rim and returns to its carried rest",
-    Vector3.distance(leftAtRelease, leftAtEnd) > 0.01 &&
-    vclose(leftAtEnd, leftAtRest, 0.01),
+  const leftAtRest: IAutoMovieVector3 = local(
+    origin,
+    HumanSignature.joint(restDisplay, rest.duration, "leftHand"),
   );
-  const freeAtRest: IAutoMovieVector3 = local(origin, HumanSignature.joint(restDisplay, rest.duration, "rightHand"));
-  TestValidator.predicate("the passive right wrist is carried without taking the rim",
-    [during, recovering].every((film: number): boolean => vclose(
-      local(placed(film), HumanSignature.joint(display, film, "rightHand")),
-      freeAtRest,
-      0.01,
-    )),
+  const leftAtRelease: IAutoMovieVector3 = local(
+    placed(catchAt + push),
+    HumanSignature.joint(display, catchAt + push, "leftHand"),
+  );
+  const leftAtEnd: IAutoMovieVector3 = local(
+    placed(stroke.end),
+    HumanSignature.joint(display, stroke.end, "leftHand"),
+  );
+  TestValidator.predicate(
+    "the left wrist leaves the rim and returns to its carried rest",
+    Vector3.distance(leftAtRelease, leftAtEnd) > 0.01 &&
+      vclose(leftAtEnd, leftAtRest, 0.01),
+  );
+  const freeAtRest: IAutoMovieVector3 = local(
+    origin,
+    HumanSignature.joint(restDisplay, rest.duration, "rightHand"),
+  );
+  TestValidator.predicate(
+    "the passive right wrist is carried without taking the rim",
+    [during, recovering].every((film: number): boolean =>
+      vclose(
+        local(placed(film), HumanSignature.joint(display, film, "rightHand")),
+        freeAtRest,
+        0.01,
+      ),
+    ),
   );
 }

@@ -27,20 +27,28 @@ export function rideWheelchair(
   createWheelchair.Dimension
 > {
   const circumference: number = Math.PI * chair.dimensions.wheelDiameter!;
-  const halfTrack: number = (
-    chair.affordance("leftSpin").frame.translation.x -
-    chair.affordance("rightSpin").frame.translation.x
-  ) / 2;
+  const halfTrack: number =
+    (chair.affordance("leftSpin").frame.translation.x -
+      chair.affordance("rightSpin").frame.translation.x) /
+    2;
   const plan: ArchetypeCourse.IPlan =
-    course.kind === "plan" ? course : ArchetypeCourse.plan("wheelchair", course);
+    course.kind === "plan"
+      ? course
+      : ArchetypeCourse.plan("wheelchair", course);
   const turns: readonly { from: number; span: number; outer: number }[] =
     plan.course.kind === "timed"
       ? []
       : plan.course.legs.flatMap(
-          (leg: ArchetypeCourse.Leg, index: number): { from: number; span: number; outer: number }[] => {
+          (
+            leg: ArchetypeCourse.Leg,
+            index: number,
+          ): { from: number; span: number; outer: number }[] => {
             if (leg.kind !== "turn") return [];
-            const { from, span }: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
-            return [{ from, span, outer: (halfTrack * leg.angle * Math.PI) / 180 }];
+            const { from, span }: ArchetypeCourse.ILegSpan =
+              plan.legSpans[index]!;
+            return [
+              { from, span, outer: (halfTrack * leg.angle * Math.PI) / 180 },
+            ];
           },
         );
 
@@ -58,7 +66,9 @@ export function rideWheelchair(
     > => {
       const outside: number = turns.reduce(
         (distance: number, turn: (typeof turns)[number]): number =>
-          distance + turn.outer * Math.min(1, Math.max(0, (state.distance - turn.from) / turn.span)),
+          distance +
+          turn.outer *
+            Math.min(1, Math.max(0, (state.distance - turn.from) / turn.span)),
         0,
       );
       return {

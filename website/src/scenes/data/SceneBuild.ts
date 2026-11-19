@@ -272,6 +272,9 @@ export namespace SceneBuild {
     /** The skill of the last take. */
     skill?: IPlaygroundComposition.Proficiency;
 
+    /** Whether the same stage marks admit the standard body-swapped take. */
+    bodySwap?: boolean;
+
     /** Its place in the landing page's hero. */
     featured?: number;
 
@@ -306,6 +309,7 @@ export namespace SceneBuild {
       ...(objects.length === 0 ? {} : { objects }),
       ...(forces.length === 0 ? {} : { forces }),
     };
+    const takes: IScene.ITake[] = SceneTakes.of(composition, about.skill);
     return {
       id: about.id,
       title: about.title,
@@ -318,7 +322,12 @@ export namespace SceneBuild {
         }),
       ),
       composition,
-      takes: SceneTakes.of(composition, about.skill),
+      takes:
+        about.bodySwap === false
+          ? takes.filter(
+              (take: IScene.ITake): boolean => take.bodies === undefined,
+            )
+          : takes,
       camera: { view: about.view ?? "three-quarter" },
       needs: about.needs,
       ...(about.featured === undefined ? {} : { featured: about.featured }),

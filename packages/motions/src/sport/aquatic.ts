@@ -7,8 +7,11 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
-import { AquaticCrew } from "./AquaticCrew";
+import { AquaticDive } from "./AquaticDive";
+import { AquaticPaddle } from "./AquaticPaddle";
+import { AquaticPolo } from "./AquaticPolo";
 import { AquaticPool } from "./AquaticPool";
+import { AquaticSail } from "./AquaticSail";
 import { AquaticTeam } from "./AquaticTeam";
 
 /**
@@ -40,17 +43,18 @@ export namespace aquatic {
       case "breaststrokeStartTurn":
         return AquaticPool.race(context, water, context.params.kind);
       case "springboardDive":
-        return AquaticPool.dive(context, water);
+        return AquaticDive.dive(context, water);
       case "waterPolo":
-        return AquaticTeam.polo(context, water);
+        return AquaticPolo.plan(context, water);
       case "artisticSwim":
         return AquaticTeam.artistic(context, water);
       case "doubleScull":
       case "canoeStroke":
       case "kayakStroke":
+        return AquaticPaddle.plan(context, context.params.kind);
       case "sailTack":
       case "sailAbort":
-        return AquaticCrew.plan(context, context.params.kind);
+        return AquaticSail.plan(context, context.params.kind === "sailAbort");
     }
   }
 }

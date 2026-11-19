@@ -1988,7 +1988,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "description": "Move to a stage mark in the chosen blade sport's stance."
     },
     "stageCatch": {
-      "$ref": "#/components/schemas/IAutoMovieMotionHumanCatchObject.IParams",
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanCatchObject.IStageParams",
       "description": "Catch a staged prop under the specified trajectory."
     },
     "stageProp": {
@@ -17625,7 +17625,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           },
           "support": {
             "type": "string",
-            "description": "Boat subject id for a craft, or optional end-wall subject for pool contact metadata."
+            "description": "Boat subject id for a craft, or the fixed end-wall subject with a finite level edge facing across the swimmer's lane."
           },
           "prop": {
             "type": "string",
@@ -17693,7 +17693,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "type": "string"
               }
             ],
-            "description": "The two previously composed base swimmers supplying the flyer’s left and right foot supports.",
+            "description": "Two distinct, previously composed base swimmers supplying the flyer's left and right foot supports.",
             "additionalItems": false
           },
           "footRest": {
@@ -19861,7 +19861,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "description": "A sprint: the acceleration out of the start, a base run or a run-up, at sprint pace."
           },
           "stageCatch": {
-            "$ref": "#/components/schemas/IAutoMovieMotionHumanCatchObject.IParams",
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanCatchObject.IStageParams",
             "description": "Catch a staged prop under the specified trajectory."
           }
         },
@@ -19916,10 +19916,6 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "glove": {
             "type": "string",
             "description": "A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent."
-          },
-          "intercept": {
-            "type": "number",
-            "description": "Seconds after the anchored prop release at which `stageCatch` reads the realized interception. Absent, use the ordinary throw's approach.\nExclusive minimum: 0. Unit: s. `stageCatch` admits this only inside the source action's surviving window."
           }
         },
         "required": [
@@ -20194,7 +20190,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "required": [],
         "additionalProperties": false
       },
-      "IAutoMovieMotionHumanCatchObject.IParams": {
+      "IAutoMovieMotionHumanCatchObject.IStageParams": {
         "type": "object",
         "properties": {
           "from": {
@@ -20241,7 +20237,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "ball"
         ],
         "additionalProperties": false,
-        "description": "Parameters."
+        "description": "Staged catch parameters, using the prop's actual placed trajectory."
       },
       "IAutoMovieMotionHumanLexiconSportWorkoutParams": {
         "type": "object",
@@ -32841,6 +32837,51 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "The parameters of a throw (`IAutoMovieMotionHumanThrowObjectParams`)."
+      },
+      "IAutoMovieMotionHumanCatchObject.IParams": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "The anchor of the throw caught."
+          },
+          "hands": {
+            "oneOf": [
+              {
+                "const": "one"
+              },
+              {
+                "const": "two"
+              }
+            ],
+            "description": "One hand or two; `two` when absent."
+          },
+          "side": {
+            "oneOf": [
+              {
+                "const": "left"
+              },
+              {
+                "const": "right"
+              }
+            ],
+            "description": "The catching hand when one; `right` when absent."
+          },
+          "ball": {
+            "type": "string",
+            "description": "The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts)."
+          },
+          "glove": {
+            "type": "string",
+            "description": "A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent."
+          }
+        },
+        "required": [
+          "from",
+          "ball"
+        ],
+        "additionalProperties": false,
+        "description": "Parameters."
       },
       "IAutoMovieMotionHumanLieDown.IParams": {
         "type": "object",

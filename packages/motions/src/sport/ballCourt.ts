@@ -30,26 +30,88 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
 
 /** The court phrases handled by this planner. */
-type Kind = "dribbleRelease" | "chestPass" | "bouncePass" | "setShot" | "handballThrow" | "highHandContest";
+type Kind =
+  | "dribbleRelease"
+  | "chestPass"
+  | "bouncePass"
+  | "setShot"
+  | "handballThrow"
+  | "highHandContest";
 
 /** Planted motion parameters. Depth scales by stature; lean is forward degrees. Durations are provisional seconds. */
 const PHRASES: Readonly<
-  Record<Kind, { depth: number; lean: number; prepare: number; attack: number; flight: number }>
+  Record<
+    Kind,
+    {
+      depth: number;
+      lean: number;
+      prepare: number;
+      attack: number;
+      flight: number;
+    }
+  >
 > = {
-  dribbleRelease: { depth: 0.04, lean: 14, prepare: 0.36, attack: 0.21, flight: 0 },
-  chestPass: { depth: 0.025, lean: 6, prepare: 0.37, attack: 0.24, flight: 0.42 },
-  bouncePass: { depth: 0.04, lean: 11, prepare: 0.39, attack: 0.25, flight: 0.28 },
+  dribbleRelease: {
+    depth: 0.04,
+    lean: 14,
+    prepare: 0.36,
+    attack: 0.21,
+    flight: 0,
+  },
+  chestPass: {
+    depth: 0.025,
+    lean: 6,
+    prepare: 0.37,
+    attack: 0.24,
+    flight: 0.42,
+  },
+  bouncePass: {
+    depth: 0.04,
+    lean: 11,
+    prepare: 0.39,
+    attack: 0.25,
+    flight: 0.28,
+  },
   setShot: { depth: 0.06, lean: 6, prepare: 0.45, attack: 0.35, flight: 0.88 },
-  handballThrow: { depth: 0.035, lean: 12, prepare: 0.48, attack: 0.22, flight: 0.33 },
-  highHandContest: { depth: 0.05, lean: 7, prepare: 0.34, attack: 0.55, flight: 0 },
+  handballThrow: {
+    depth: 0.035,
+    lean: 12,
+    prepare: 0.48,
+    attack: 0.22,
+    flight: 0.33,
+  },
+  highHandContest: {
+    depth: 0.05,
+    lean: 7,
+    prepare: 0.34,
+    attack: 0.55,
+    flight: 0,
+  },
 };
 
 /** Resolve the one spherical ball the release moves. The collider's centre need not coincide with the prop origin. */
 function sphericalBall(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,
   subject: string,
-): { reader: IAutoMovieMotionHumanPropReader; sphere: NonNullable<IAutoMovieMotionPropLaunch["sphere"]> } {
+  hands: readonly AutoMovieHumanSide[],
+): {
+  reader: IAutoMovieMotionHumanPropReader;
+  sphere: NonNullable<IAutoMovieMotionPropLaunch["sphere"]>;
+} {
   const reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
+  if (
+    !hands.some(
+      (side: AutoMovieHumanSide): boolean =>
+        context.entry.holds[side] === subject,
+    )
+  )
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "prop",
+      value: subject,
+      reason: "a court release needs the ball already held by a releasing hand",
+      fix: "pick up or catch the ball before releasing it, or choose its holding hand",
+    });
   const shape: IAutoMoviePhysicalShape | undefined = reader.prop.shapes?.[0];
   if (
     reader.prop.shapes?.length !== 1 ||
@@ -65,7 +127,8 @@ function sphericalBall(
       reason: "a court release needs one portable spherical prop",
       fix: "give the held ball's subject with its spherical collider",
     });
-  const body: IAutoMovieMotionHumanPropReader["prop"]["body"] = reader.prop.body;
+  const body: IAutoMovieMotionHumanPropReader["prop"]["body"] =
+    reader.prop.body;
   const friction: number | null | undefined =
     body?.kineticFriction ?? body?.friction;
   return {
@@ -119,11 +182,16 @@ export function ballCourt(
   const { body, params }: typeof context = context;
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const row: (typeof PHRASES)[Kind] = PHRASES[kind];
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(context, params.manner);
+  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+    context,
+    params.manner,
+  );
   const guard: boolean = kind === "highHandContest";
   const dribble: boolean = kind === "dribbleRelease";
   const one: boolean = dribble || kind === "handballThrow";
-  const hands: readonly AutoMovieHumanSide[] = one ? [params.side ?? "right"] : ["left", "right"];
+  const hands: readonly AutoMovieHumanSide[] = one
+    ? [params.side ?? "right"]
+    : ["left", "right"];
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({
       prepare: row.prepare,
@@ -136,7 +204,8 @@ export function ballCourt(
   );
   const release: number = clock.at("stroke");
   const arm: number = body.measure.upperArm + body.measure.forearm;
-  const weight = (t: number): number => clock.envelope(["start", "ready"], ["relax", "end"], t);
+  const weight = (t: number): number =>
+    clock.envelope(["start", "ready"], ["relax", "end"], t);
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
     ready: clock.at("ready"),
@@ -162,7 +231,9 @@ export function ballCourt(
       fix: "give a world point for the flight or its first floor contact",
     });
   const ball: ReturnType<typeof sphericalBall> | undefined =
-    guard || prop === undefined ? undefined : sphericalBall(context, prop);
+    guard || prop === undefined
+      ? undefined
+      : sphericalBall(context, prop, hands);
   const radius: number = ball?.sphere.radius ?? 0;
   const primitives: IAutoMovieMotionHumanPrimitive[] = [
     AutoMovieMotionHumanTrunk.crouch({
@@ -170,9 +241,10 @@ export function ballCourt(
       standing: entry,
       clock,
       rise: ["start", "ready"],
-      fall: kind === "setShot" || kind === "handballThrow"
-        ? ["strokeStart", "stroke"]
-        : ["relax", "end"],
+      fall:
+        kind === "setShot" || kind === "handballThrow"
+          ? ["strokeStart", "stroke"]
+          : ["relax", "end"],
       depth: row.depth * body.measure.stature * modifiers.extent,
       pitch: row.lean,
     }),
@@ -188,11 +260,16 @@ export function ballCourt(
         weight,
         span,
         bend: guard || kind === "handballThrow" ? "raised" : "forward",
-        place: (posture, t, resolution): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
+        place: (
+          posture,
+          t,
+          resolution,
+        ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
           const sign: number = side === "left" ? 1 : -1;
           const u: number = clock.progress("strokeStart", "stroke", t);
           const follow: number = clock.progress("stroke", "strokeEnd", t);
-          const shoulders: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.shoulders(body, posture, resolution);
+          const shoulders: IAutoMovieVector3 =
+            AutoMovieMotionHumanPlaced.shoulders(body, posture, resolution);
           const width: number = body.measure.shoulderHalfWidth;
           const yaw: number = posture.yaw;
           let offset: IAutoMovieVector3;
@@ -200,20 +277,36 @@ export function ballCourt(
           switch (kind) {
             case "highHandContest": {
               const wave: number = Math.sin(4 * Math.PI * u) * arm * 0.13;
-              offset = { x: sign * (width + 0.1 * arm + wave), y: arm * (0.49 + 0.24 * u), z: 0.21 * arm };
+              offset = {
+                x: sign * (width + 0.1 * arm + wave),
+                y: arm * (0.49 + 0.24 * u),
+                z: 0.21 * arm,
+              };
               facing = { x: 0, y: 0, z: 1 };
               break;
             }
             case "dribbleRelease":
-              offset = { x: sign * (width + 0.09 * arm), y: -(0.39 + 0.34 * u) * arm, z: 0.27 * arm };
+              offset = {
+                x: sign * (width + 0.09 * arm),
+                y: -(0.39 + 0.34 * u) * arm,
+                z: 0.27 * arm,
+              };
               facing = { x: 0, y: -1, z: 0 };
               break;
             case "handballThrow":
-              offset = { x: sign * (width + (0.37 - 0.19 * u) * arm), y: (0.4 + 0.2 * u - 0.36 * follow) * arm, z: (-0.2 + 0.71 * u + 0.15 * follow) * arm };
+              offset = {
+                x: sign * (width + (0.37 - 0.19 * u) * arm),
+                y: (0.4 + 0.2 * u - 0.36 * follow) * arm,
+                z: (-0.2 + 0.71 * u + 0.15 * follow) * arm,
+              };
               facing = { x: 0, y: 0, z: 1 };
               break;
             case "setShot":
-              offset = { x: sign * radius, y: (0.18 + 0.67 * u) * arm, z: (0.34 + 0.08 * u) * arm };
+              offset = {
+                x: sign * radius,
+                y: (0.18 + 0.67 * u) * arm,
+                z: (0.34 + 0.08 * u) * arm,
+              };
               facing = { x: -sign * (1 - u), y: u, z: 0.4 * u };
               break;
             case "bouncePass":
@@ -223,13 +316,19 @@ export function ballCourt(
                 y: (-0.2 - (kind === "bouncePass" ? 0.27 : 0.05) * u) * arm,
                 z: (0.31 + 0.45 * u + 0.08 * follow) * arm,
               };
-              facing = { x: -sign, y: kind === "bouncePass" ? -0.4 * u : 0, z: u };
+              facing = {
+                x: -sign,
+                y: kind === "bouncePass" ? -0.4 * u : 0,
+                z: u,
+              };
               break;
           }
           return {
             point: Vector3.add(shoulders, turn(yaw, offset)),
             facing: Vector3.normalize(turn(yaw, facing)),
-            forward: dribble ? turn(yaw, { x: 0, y: 0, z: 1 }) : { x: 0, y: 1, z: 0 },
+            forward: dribble
+              ? turn(yaw, { x: 0, y: 0, z: 1 })
+              : { x: 0, y: 1, z: 0 },
           };
         },
       }),
@@ -245,12 +344,17 @@ export function ballCourt(
         target: (): IAutoMovieVector3 => target,
       }),
     );
-  const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-    base: AutoMovieMotionHumanBase.still(clock.duration, entry, AutoMovieMotionHumanBase.plants()),
-    clock,
-    primitives,
-    contact: "stroke",
-  });
+  const plan: IAutoMovieMotionHumanActionPlan =
+    composeAutoMovieMotionHumanAction({
+      base: AutoMovieMotionHumanBase.still(
+        clock.duration,
+        entry,
+        AutoMovieMotionHumanBase.plants(),
+      ),
+      clock,
+      primitives,
+      contact: "stroke",
+    });
   if (ball === undefined || prop === undefined) return plan;
 
   const seconds: number = params.flightSeconds ?? row.flight;
@@ -259,13 +363,15 @@ export function ballCourt(
       ? undefined
       : {
           seconds,
-          point: kind === "bouncePass" ? { ...target, y: target.y + radius } : target,
+          point:
+            kind === "bouncePass"
+              ? { ...target, y: target.y + radius }
+              : target,
         };
   const point: IAutoMovieVector3 = ball.reader.frame(context.start).position;
-  const velocity: IAutoMovieVector3 =
-    dribble
-      ? { x: 0, y: -1.3 * Math.sqrt(AutoMovieGravity.STANDARD * arm), z: 0 }
-      : { x: 0, y: 0, z: 0 };
+  const velocity: IAutoMovieVector3 = dribble
+    ? { x: 0, y: -1.3 * Math.sqrt(AutoMovieGravity.STANDARD * arm), z: 0 }
+    : { x: 0, y: 0, z: 0 };
   const launch: IAutoMovieMotionPropLaunch = {
     prop,
     seconds: release,

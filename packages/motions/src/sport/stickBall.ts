@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
@@ -23,19 +22,15 @@ import { HumanBall } from "../ballStrike/HumanBall";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanPropFrame } from "../perform/HumanPropFrame";
-import { HumanPropHold } from "../perform/HumanPropHold";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { throwObjectCurve } from "../throwing/throwObjectCurve";
+import { admitPuckContact } from "./admitPuckContact";
 
 /** The producer's shaft axis in its model frame. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -45,9 +40,6 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 const SIDE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /** Stationary endpoint for the stroke's prepared curves. */
 const REST: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-/** Ball-strike contact allowance reused from the 15 mm instep verification. */
-const PUCK_CONTACT_ALLOWANCE: number = 0.015;
-
 /**
  * A hockey blade push or a lacrosse pocket exchange. The carrier owns
  * the foot plants or skating path. The two arm goals follow one rigid
@@ -107,14 +99,20 @@ export namespace stickBall {
         reason: "the stick and the object it moves must be separate props",
         fix: "name distinct stick and ball subjects",
       });
-    const duration: number = HumanBound.above("seconds", params.seconds ?? 0.75, 0, "s");
+    const duration: number = HumanBound.above(
+      "seconds",
+      params.seconds ?? 0.75,
+      0,
+      "s",
+    );
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
       { name: "stroke", seconds: duration * 0.55 },
       { name: "strokeEnd", seconds: duration * 0.85 },
     ]);
     const seconds: number = clock.at("stroke");
     const filmSecond: number = context.start + seconds;
-    const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(context, duration);
+    const base: IAutoMovieMotionHumanActionPlan =
+      AutoMovieMotionHumanBase.under(context, duration);
     const cue: IAutoMovieMotionHumanPosture = base.posture(seconds);
     const head: AutoMovieHumanSide = params.hand ?? "right";
     const rear: AutoMovieHumanSide = head === "left" ? "right" : "left";
@@ -123,36 +121,63 @@ export namespace stickBall {
     const ball: IAutoMovieMotionHumanPropReader = context.prop(params.ball);
     const initial: IAutoMovieRigidTransform = stick.frame(context.start);
     const ballFrame: IAutoMovieRigidTransform = ball.frame(filmSecond);
-    const ballShape: HumanBall.IBall = HumanBall.placed(ball.prop, () => ballFrame, "ball");
+    const ballShape: HumanBall.IBall = HumanBall.placed(
+      ball.prop,
+      () => ballFrame,
+      "ball",
+    );
     const shaft: IAutoMovieAffordance = point(stick, "grip");
     const scoop: boolean = params.kind === "lacrosseScoop";
     const pocketPass: boolean = params.kind === "lacrossePass";
     const pocket: boolean = scoop || pocketPass;
     const ice: boolean = params.kind === "iceHockey";
-    const working: IAutoMovieAffordance = point(stick, pocket ? "pocket" : "blade");
+    const working: IAutoMovieAffordance = point(
+      stick,
+      pocket ? "pocket" : "blade",
+    );
     if (scoop) point(stick, "scoop");
     if (pocketPass) {
-      const separation: number = Vector3.length(Vector3.subtract(
-        world(initial, working.frame.translation),
-        ball.frame(context.start).position,
-      ));
+      const mount: ReturnType<
+        NonNullable<IAutoMovieMotionHumanPropReader["mountAt"]>
+      > = ball.mountAt?.(context.start);
+      if (mount?.prop !== params.stick || mount.point !== "pocket")
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "ball",
+          value: params.ball,
+          reason:
+            "the passing crosse must already carry the ball in its pocket",
+          fix: "scoop the ball or mount it to this crosse's pocket before passing",
+        });
+      const separation: number = Vector3.length(
+        Vector3.subtract(
+          world(initial, working.frame.translation),
+          ball.frame(context.start).position,
+        ),
+      );
       if (separation > ballShape.radius / 2)
         throw new HumanRefusal({
           kind: "reach",
           axis: "ball",
           value: separation,
-          reason: "the ball is outside the working pocket at the start of the pass",
+          reason:
+            "the ball is outside the working pocket at the start of the pass",
           fix: "scoop or mount the ball into the crosse before this action",
         });
     }
 
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(HumanFrame.turn(cue.yaw), FORWARD);
-    const target: IAutoMovieVector3 | undefined = params.toward === undefined
-      ? undefined
-      : context.aim(params.toward, filmSecond).point;
-    const delta: IAutoMovieVector3 = target === undefined
-      ? forward
-      : Vector3.subtract(target, ballShape.centre);
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      HumanFrame.turn(cue.yaw),
+      FORWARD,
+    );
+    const target: IAutoMovieVector3 | undefined =
+      params.toward === undefined
+        ? undefined
+        : context.aim(params.toward, filmSecond).point;
+    const delta: IAutoMovieVector3 =
+      target === undefined
+        ? forward
+        : Vector3.subtract(target, ballShape.centre);
     const horizontal: IAutoMovieVector3 = { x: delta.x, y: 0, z: delta.z };
     HumanBound.above("toward", Vector3.length(horizontal), 0, "m");
     const line: IAutoMovieVector3 = Vector3.normalize(horizontal);
@@ -171,23 +196,35 @@ export namespace stickBall {
         Quaternion.fromAxisAngle(FORWARD, roll),
       ),
     );
-    const rim: IAutoMovieAffordance | undefined = ice ? point(ball, "rim") : undefined;
-    const radial: number = rim === undefined
-      ? ballShape.radius
-      : HumanBound.above("rim", (rim.width ?? 0) / 2, 0, "m");
+    const rim: IAutoMovieAffordance | undefined = ice
+      ? point(ball, "rim")
+      : undefined;
+    const radial: number =
+      rim === undefined
+        ? ballShape.radius
+        : HumanBound.above("rim", (rim.width ?? 0) / 2, 0, "m");
     const strokePoint: IAutoMovieVector3 = pocketPass
-      ? Vector3.add(AutoMovieMotionHumanPlaced.shoulders(body, cue), Vector3.scale(line, 0.4 * arm))
+      ? Vector3.add(
+          AutoMovieMotionHumanPlaced.shoulders(body, cue),
+          Vector3.scale(line, 0.4 * arm),
+        )
       : scoop
         ? ballFrame.position
         : Vector3.subtract(ballShape.centre, Vector3.scale(line, radial));
     const workingPoint: IAutoMovieVector3 = ice
       ? {
           ...working.frame.translation,
-          y: Math.min(working.frame.translation.y, ballShape.radius / Math.cos((pitch * Math.PI) / 180)),
+          y: Math.min(
+            working.frame.translation.y,
+            ballShape.radius / Math.cos((pitch * Math.PI) / 180),
+          ),
         }
       : working.frame.translation;
     const impact: IAutoMovieRigidTransform = {
-      position: Vector3.subtract(strokePoint, Quaternion.rotateVector(rotation, workingPoint)),
+      position: Vector3.subtract(
+        strokePoint,
+        Quaternion.rotateVector(rotation, workingPoint),
+      ),
       rotation,
     };
     const travel: IAutoMovieVector3 = Vector3.add(
@@ -196,39 +233,71 @@ export namespace stickBall {
     );
     const followSpan: number = clock.at("strokeEnd") - seconds;
     const through: IAutoMovieVector3 = Vector3.scale(travel, 1 / followSpan);
-    const approachPath: (share: number) => IAutoMovieVector3 =
-      throwObjectCurve(initial.position, REST, impact.position, through, seconds);
-    const followPath: (share: number) => IAutoMovieVector3 =
-      throwObjectCurve(impact.position, through, Vector3.add(impact.position, travel), REST, followSpan);
+    const approachPath: (share: number) => IAutoMovieVector3 = throwObjectCurve(
+      initial.position,
+      REST,
+      impact.position,
+      through,
+      seconds,
+    );
+    const followPath: (share: number) => IAutoMovieVector3 = throwObjectCurve(
+      impact.position,
+      through,
+      Vector3.add(impact.position, travel),
+      REST,
+      followSpan,
+    );
     const approach: ReturnType<typeof AutoMovieMotionClock.prepare> =
       AutoMovieMotionClock.prepare(clock, "start", "stroke");
     const follow: ReturnType<typeof AutoMovieMotionClock.prepare> =
       AutoMovieMotionClock.prepare(clock, "stroke", "strokeEnd");
     /** The shared rigid frame sampled by both hands. */
-    const tool = (posture: IAutoMovieMotionHumanPosture, at: number): IAutoMovieRigidTransform => {
+    const tool = (
+      posture: IAutoMovieMotionHumanPosture,
+      at: number,
+    ): IAutoMovieRigidTransform => {
       if (at <= seconds)
         return {
           position: approachPath(approach.linear(at)),
-          rotation: Quaternion.slerp(initial.rotation, impact.rotation, approach.progress(at)),
+          rotation: Quaternion.slerp(
+            initial.rotation,
+            impact.rotation,
+            approach.progress(at),
+          ),
         };
       return {
         position: Vector3.add(
           followPath(follow.linear(at)),
-          Vector3.scale(Vector3.subtract(posture.root, cue.root), follow.progress(at)),
+          Vector3.scale(
+            Vector3.subtract(posture.root, cue.root),
+            follow.progress(at),
+          ),
         ),
         rotation: impact.rotation,
       };
     };
 
-    const gap: number = shaft.length === undefined ? 0 : Math.min(shaft.length / 3, 0.55 * arm);
+    const gap: number =
+      shaft.length === undefined ? 0 : Math.min(shaft.length / 3, 0.55 * arm);
     HumanBound.above("grip", gap, 0, "m");
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const grips: IAutoMovieMotionHumanContactWindow[] = [];
     for (const hand of [head, rear]) {
-      const grip: IAutoMovieVector3 = Vector3.add(shaft.frame.translation, Vector3.scale(UP, (hand === head ? -1 : 1) * gap / 2));
-      const shoulder: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.joint(body, cue, `${hand}UpperArm`);
-      const reach: number = Vector3.length(Vector3.subtract(world(impact, grip), shoulder));
-      const handOffset: number = Vector3.length(HumanHand.offset(body, hand, "grip", "fist").point);
+      const grip: IAutoMovieVector3 = Vector3.add(
+        shaft.frame.translation,
+        Vector3.scale(UP, ((hand === head ? -1 : 1) * gap) / 2),
+      );
+      const shoulder: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.joint(
+        body,
+        cue,
+        `${hand}UpperArm`,
+      );
+      const reach: number = Vector3.length(
+        Vector3.subtract(world(impact, grip), shoulder),
+      );
+      const handOffset: number = Vector3.length(
+        HumanHand.offset(body, hand, "grip", "fist").point,
+      );
       if (reach > arm + handOffset)
         throw new HumanRefusal({
           kind: "reach",
@@ -237,136 +306,117 @@ export namespace stickBall {
           reason: `the ${hand} hand cannot reach the shaft at the ball contact`,
           fix: "bring the ball within reach of the body on the declared support or change the heading",
         });
-      primitives.push(...AutoMovieMotionHumanPlaced.arm({
-        body,
-        side: hand,
+      primitives.push(
+        ...AutoMovieMotionHumanPlaced.arm({
+          body,
+          side: hand,
+          from: 0,
+          to: duration,
+          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
+          weight: () => 1,
+          surface: "grip",
+          shape: "fist",
+          place: (posture: IAutoMovieMotionHumanPosture, at: number) => {
+            const frame: IAutoMovieRigidTransform = tool(posture, at);
+            return {
+              point: world(frame, grip),
+              facing: Quaternion.rotateVector(
+                frame.rotation,
+                Vector3.scale(SIDE, hand === "left" ? -1 : 1),
+              ),
+              forward: Quaternion.rotateVector(frame.rotation, FORWARD),
+            };
+          },
+        }),
+      );
+      grips.push({
+        part: `${hand}Hand`,
+        kind: "grip",
         from: 0,
-        to: duration,
-        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
-        weight: () => 1,
-        surface: "grip",
-        shape: "fist",
-        place: (posture: IAutoMovieMotionHumanPosture, at: number) => {
-          const frame: IAutoMovieRigidTransform = tool(posture, at);
-          return {
-            point: world(frame, grip),
-            facing: Quaternion.rotateVector(frame.rotation, Vector3.scale(SIDE, hand === "left" ? -1 : 1)),
-            forward: Quaternion.rotateVector(frame.rotation, FORWARD),
-          };
-        },
-      }));
-      grips.push({ part: `${hand}Hand`, kind: "grip", from: 0, to: 1, support: { kind: "prop", subject: params.stick } });
+        to: 1,
+        support: { kind: "prop", subject: params.stick },
+      });
     }
 
-    const action: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base,
-      clock,
-      contact: "stroke",
-      primitives,
-    });
-    if (ice) admitPuckContact(context, action, initial, working, strokePoint, line, seconds);
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [...action.contacts, ...grips];
+    const action: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base,
+        clock,
+        contact: "stroke",
+        primitives,
+      });
+    if (ice)
+      admitPuckContact(
+        context,
+        action,
+        initial,
+        working,
+        strokePoint,
+        line,
+        seconds,
+      );
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [
+      ...action.contacts,
+      ...grips,
+    ];
     if (scoop)
       return {
         ...action,
         contacts,
-        mounts: [{ prop: params.ball, onto: params.stick, point: "pocket", from: seconds / duration }],
+        mounts: [
+          {
+            prop: params.ball,
+            onto: params.stick,
+            point: "pocket",
+            from: seconds / duration,
+          },
+        ],
       };
 
-    const speed: number = HumanBound.above("speed", params.speed ?? (pocketPass ? 6 : 3), 0, "m/s");
+    const speed: number = HumanBound.above(
+      "speed",
+      params.speed ?? (pocketPass ? 6 : 3),
+      0,
+      "m/s",
+    );
     const launch: IAutoMovieMotionPropLaunch = {
       prop: params.ball,
       seconds,
       point: pocketPass ? strokePoint : ballFrame.position,
       velocity: Vector3.add(
-        Vector3.scale(pocketPass ? Vector3.normalize(target === undefined ? line : Vector3.subtract(target, strokePoint)) : line, speed),
+        Vector3.scale(
+          pocketPass
+            ? Vector3.normalize(
+                target === undefined
+                  ? line
+                  : Vector3.subtract(target, strokePoint),
+              )
+            : line,
+          speed,
+        ),
         Vector3.scale(UP, pocketPass ? 0 : 0.3),
       ),
       ...(rim === undefined
-        ? { sphere: { radius: ballShape.radius, centre: point(ball, "grip").frame.translation } }
+        ? {
+            sphere: {
+              radius: ballShape.radius,
+              centre: point(ball, "grip").frame.translation,
+            },
+          }
         : {}),
     };
     return { ...action, contacts, launches: [launch] };
   }
 }
 
-/**
- * Reconstruct the finite ice blade face from the fitted grip sockets at
- * closure and impact. The nominal shaft frame can remain inside both arm
- * lengths even though the body cannot put its wrists there.
- *
- * @param context The actor's body and any held entry grips.
- * @param action The composed stroke on its own support or carrier.
- * @param initial The stick's world frame before the new grips close.
- * @param blade The stick model's blade face, with local X across, Y out and Z up its face.
- * @param rim The world point on the puck's rim that the blade must meet.
- * @param direction The authored puck's horizontal departure direction.
- * @param seconds The action-local contact second.
- * @throws {HumanRefusal} If the achieved finite face cannot make the authored contact.
- */
-function admitPuckContact(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,
-  action: IAutoMovieMotionHumanActionPlan,
-  initial: IAutoMovieRigidTransform,
-  blade: IAutoMovieAffordance,
-  rim: IAutoMovieVector3,
-  direction: IAutoMovieVector3,
-  seconds: number,
-): void {
-  const body: typeof context.body = context.body;
-  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    body.surfaces.sockets.gripLeft.bone,
-    body.surfaces.sockets.gripRight.bone,
-  ]);
-  const fittedHands = (at: number): ReturnType<typeof poseBones> =>
-    poseBones(body, resolveHumanPosture.seeded(
-      body, action.posture(at), undefined, {}, undefined, requested,
-    ).pose, undefined, requested);
-  const entry: ReturnType<typeof poseBones> = fittedHands(0);
-  const impact: ReturnType<typeof poseBones> = fittedHands(seconds);
-  const grip = (side: AutoMovieHumanSide): HumanPropHold.IHand => ({
-    hand: HumanPropHold.frame(body, impact, { side }),
-    offset: context.entry.holds[side] === context.params.stick
-      ? AutoMovieMotionHumanHeld.of(context, side, context.params.stick).frame
-      : HumanPropFrame.relative(HumanPropHold.frame(body, entry, { side }), initial),
-  });
-  const fitted: IAutoMovieRigidTransform = HumanPropHold.fit(grip("left"), grip("right"));
-  const face: IAutoMovieRigidTransform = HumanPropFrame.compose(fitted, {
-    position: blade.frame.translation,
-    rotation: blade.frame.rotation,
-  });
-  const local: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.inverse(face.rotation),
-    Vector3.subtract(rim, face.position),
-  );
-  const miss: number = Math.hypot(
-    Math.max(0, Math.abs(local.x) - (blade.width ?? 0) / 2),
-    local.y,
-    Math.max(0, Math.abs(local.z) - (blade.depth ?? 0) / 2),
-  );
-  if (miss > PUCK_CONTACT_ALLOWANCE)
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "stick",
-      value: miss,
-      feasible: { kind: "range", minimum: 0, maximum: PUCK_CONTACT_ALLOWANCE, unit: "m" },
-      reason: `the fitted blade face misses the puck rim by ${(miss * 1000).toFixed(1)} mm`,
-      fix: "place the performer and stick so both fitted hands can keep the blade at the puck",
-    });
-  const facing: number = Vector3.dot(Quaternion.rotateVector(face.rotation, UP), direction);
-  if (facing <= 0)
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "stick",
-      value: facing,
-      reason: "the fitted blade face points away from the puck's departure",
-      fix: "place the performer and stick so the blade's working face points along the pass",
-    });
-}
-
 /** Get a working point from the authored model, or report the missing point. */
-function point(reader: IAutoMovieMotionHumanPropReader, id: string): IAutoMovieAffordance {
-  const match: IAutoMovieAffordance | undefined = reader.prop.affordances?.find((value) => value.id === id);
+function point(
+  reader: IAutoMovieMotionHumanPropReader,
+  id: string,
+): IAutoMovieAffordance {
+  const match: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
+    (value) => value.id === id,
+  );
   if (match === undefined)
     throw new HumanRefusal({
       kind: "affordance",
@@ -379,6 +429,12 @@ function point(reader: IAutoMovieMotionHumanPropReader, id: string): IAutoMovieA
 }
 
 /** Apply a model's rigid frame to one of its local points. */
-function world(frame: IAutoMovieRigidTransform, local: IAutoMovieVector3): IAutoMovieVector3 {
-  return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
+function world(
+  frame: IAutoMovieRigidTransform,
+  local: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, local),
+  );
 }

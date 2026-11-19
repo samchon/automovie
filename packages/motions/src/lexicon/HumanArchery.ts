@@ -74,18 +74,14 @@ export namespace HumanArchery {
   /** Hold the bow out in one hand on the line from the face to the target. */
   export const presentBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentBow"]
-  > = HumanActionRow.of(
-    "presentBow",
-    HumanWeaponPresent.present,
-    {
-      anchor: "face",
-      hands: 1,
-      from: "nock",
-      tip: "rest",
-      edge: "grip",
-      extended: true,
-    },
-  );
+  > = HumanActionRow.of("presentBow", HumanWeaponPresent.present, {
+    anchor: "face",
+    hands: 1,
+    from: "nock",
+    tip: "rest",
+    edge: "grip",
+    extended: true,
+  });
 
   /** Draw the string back to the anchor, over `presentBow`. */
   export const drawBow: IAutoMovieMotionHumanActionLaw<
@@ -97,7 +93,11 @@ export namespace HumanArchery {
     IAutoMovieMotionHumanLexiconParams["archery"]["loose"]
   > = {
     ...HumanActionRow.of("loose", release, {}),
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLexiconParams["archery"]["loose"]>): IAutoMovieMotionHumanActionPlan => {
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<
+        IAutoMovieMotionHumanLexiconParams["archery"]["loose"]
+      >,
+    ): IAutoMovieMotionHumanActionPlan => {
       const { continuation, prop, launch } = context.params;
       if (continuation === undefined) return release.plan(context);
       if (prop !== undefined || launch !== undefined)
@@ -136,7 +136,10 @@ export namespace HumanArchery {
     ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] =>
       HumanWeaponPresent.present.demands!({
         ...ahead,
-        params: ahead.grip.prop === ahead.params.gun ? crossbowMarks(ahead) : ahead.params,
+        params:
+          ahead.grip.prop === ahead.params.gun
+            ? crossbowMarks(ahead)
+            : ahead.params,
       }),
   };
 
@@ -145,15 +148,24 @@ export namespace HumanArchery {
     IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]
   > = {
     ...HumanActionRow.of("shootCrossbow", HumanWeaponPresent.fire, {}),
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]>): IAutoMovieMotionHumanActionPlan => {
+    plan: (
+      context: IAutoMovieMotionHumanActionContext<
+        IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]
+      >,
+    ): IAutoMovieMotionHumanActionPlan => {
       const { continuation, gun, shot } = context.params;
-      if (continuation === undefined) return HumanWeaponPresent.fire.plan(context);
-      if (shot !== undefined || (gun !== undefined && gun !== continuation.source))
+      if (continuation === undefined)
+        return HumanWeaponPresent.fire.plan(context);
+      if (
+        shot !== undefined ||
+        (gun !== undefined && gun !== continuation.source)
+      )
         throw new HumanRefusal({
           kind: "parameter",
           axis: "continuation",
           value: continuation.prop,
-          reason: "the staged hand-off must identify a single source and destination",
+          reason:
+            "the staged hand-off must identify a single source and destination",
           fix: "use continuation with the depicted crossbow and omit shot",
         });
       return HumanArcheryCue(context, continuation, true);
@@ -177,12 +189,21 @@ function crossbowMarks(
 
   const marks: readonly IAutoMovieAffordance[] =
     context.prop(params.gun).prop.affordances ?? [];
-  if (!marks.some((a: IAutoMovieAffordance): boolean => a.id === "rail" && a.kind === "socket"))
+  if (
+    !marks.some(
+      (a: IAutoMovieAffordance): boolean =>
+        a.id === "rail" && a.kind === "socket",
+    )
+  )
     return params;
   return {
     ...params,
     tip: params.tip ?? "rail",
-    ...(params.edge === undefined && marks.some((a: IAutoMovieAffordance): boolean => a.id === "rest" && a.kind === "surface")
+    ...(params.edge === undefined &&
+    marks.some(
+      (a: IAutoMovieAffordance): boolean =>
+        a.id === "rest" && a.kind === "surface",
+    )
       ? { edge: "rest" }
       : {}),
   };

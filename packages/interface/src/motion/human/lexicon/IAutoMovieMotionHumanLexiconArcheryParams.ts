@@ -22,7 +22,10 @@ export interface IAutoMovieMotionHumanLexiconArcheryParams {
   nockArrow: IAutoMovieMotionHumanPutDown.IParams;
 
   /** Hold the bow out in one hand on the line from the face to the target. */
-  presentBow: Omit<IAutoMovieMotionHumanWeaponPresent.IPresent, "anchor" | "hands" | "from" | "tip" | "edge" | "extended">;
+  presentBow: Omit<
+    IAutoMovieMotionHumanWeaponPresent.IPresent,
+    "anchor" | "hands" | "from" | "tip" | "edge" | "extended"
+  >;
 
   /** Draw the string back to the anchor, over `presentBow`. */
   drawBow: IAutoMovieMotionHumanOperate.IParams;

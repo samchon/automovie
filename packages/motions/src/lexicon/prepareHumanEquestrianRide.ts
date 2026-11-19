@@ -147,7 +147,8 @@ export function prepareHumanEquestrianRide(
         axis: "equestrian.jump",
         value: options.jump,
         feasible: null,
-        reason: "the jump needs both feet on distinct stirrups and no rising trot",
+        reason:
+          "the jump needs both feet on distinct stirrups and no rising trot",
         fix: "enter sitting on the saddle with both feet supported, and name both stirrup points",
       });
     jump = [
@@ -195,13 +196,16 @@ export function prepareHumanEquestrianRide(
     AutoMovieHumanoidBone,
     ReturnType<typeof getConstraint>
   > = new Map(
-    BONES.map((bone: (typeof BONES)[number]) => [
-      bone,
-      getConstraint(
-        bone,
-        readHumanBone(context.body, bone)?.constraint ?? null,
-      ),
-    ] as const),
+    BONES.map(
+      (bone: (typeof BONES)[number]) =>
+        [
+          bone,
+          getConstraint(
+            bone,
+            readHumanBone(context.body, bone)?.constraint ?? null,
+          ),
+        ] as const,
+    ),
   );
   return {
     ...(jump === undefined ? {} : { offSeat: [jump[0], jump[3]] as const }),
@@ -226,7 +230,9 @@ export function prepareHumanEquestrianRide(
       const turn: number =
         look === undefined
           ? 0
-          : minimumJerk.share(1 - Math.min(1, Math.abs(at - look.peak) / look.half));
+          : minimumJerk.share(
+              1 - Math.min(1, Math.abs(at - look.peak) / look.half),
+            );
       if (gait === 0 && rise === 0 && turn === 0) return;
 
       // Each used touchdown closes a cycle at rest, including the first and last cues. Two diagonals or hind limbs contribute within a trot or walk stride.
@@ -241,7 +247,9 @@ export function prepareHumanEquestrianRide(
       const roll: number =
         stride?.gait === "canter"
           ? (stride.lead === "right" ? -1 : 1) *
-            active * Math.sin(cycle) * (1 - Math.cos(cycle))
+            active *
+            Math.sin(cycle) *
+            (1 - Math.cos(cycle))
           : 0;
       if (pitch !== 0 || roll !== 0 || rise !== 0) {
         const original: IAutoMovieQuaternion =
@@ -281,8 +289,9 @@ export function prepareHumanEquestrianRide(
       for (const [bone, flex, bend, share] of joints) {
         const limits: ReturnType<typeof getConstraint> | undefined =
           ranges.get(bone);
-        const before: readonly [number, number, number] =
-          posture.joints[bone] ?? [0, 0, 0];
+        const before: readonly [number, number, number] = posture.joints[
+          bone
+        ] ?? [0, 0, 0];
         const end: number | undefined =
           look?.direction === 1 ? limits?.twist?.max : limits?.twist?.min;
         posture.joints[bone] = [

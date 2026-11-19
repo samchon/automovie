@@ -78,5 +78,5 @@ export interface IAutoMovieMotionHumanLexiconSportThrowParams {
   dash: Omit<IAutoMovieMotionHumanRun.IParams, "pace">;
 
   /** Catch a staged prop under the specified trajectory. */
-  stageCatch: IAutoMovieMotionHumanCatchObject.IParams;
+  stageCatch: IAutoMovieMotionHumanCatchObject.IStageParams;
 }

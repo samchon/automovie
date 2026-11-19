@@ -282,7 +282,9 @@ export namespace WorkoutGym {
       WorkoutStance.FEET,
       1,
       1,
-      (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
+      (
+        body: IAutoMovieMotionHumanBody,
+      ): IAutoMovieMotionHumanWorkoutKind.IStep[] => [
         ...clean(body),
         WorkoutKind.step(
           squat(5, 32, 13, { shoulder: 85, raise: 5, elbow: 145 })(body),
@@ -363,35 +365,37 @@ export namespace WorkoutGym {
   };
 
   /** The clean's shared pull, receiving support and rack. */
-  function clean(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanWorkoutKind.IStep[] {
+  function clean(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanWorkoutKind.IStep[] {
     return [
-        WorkoutKind.step(
-          squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
-          1,
-          "set",
-          "start",
-          0.3,
-        ),
-        WorkoutKind.step(
-          key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
-          0.45,
-          "pull",
-          "extension",
-        ),
-        WorkoutKind.step(
-          squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
-          0.3,
-          "turnOver",
-          "catch",
-          0.2,
-        ),
-        WorkoutKind.step(
-          key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
-          0.8,
-          "recover",
-          "rack",
-          0.5,
-        ),
+      WorkoutKind.step(
+        squat(65, 75, 25, { shoulder: 65, raise: 0, elbow: 3 })(body),
+        1,
+        "set",
+        "start",
+        0.3,
+      ),
+      WorkoutKind.step(
+        key({ pitch: -5 }, { hip: -5, ankle: -15, elbow: 3 })(body),
+        0.45,
+        "pull",
+        "extension",
+      ),
+      WorkoutKind.step(
+        squat(10, 55, 18, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        0.3,
+        "turnOver",
+        "catch",
+        0.2,
+      ),
+      WorkoutKind.step(
+        key({}, { shoulder: 85, raise: 5, elbow: 145 })(body),
+        0.8,
+        "recover",
+        "rack",
+        0.5,
+      ),
     ];
   }
 }

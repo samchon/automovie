@@ -29,7 +29,6 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
-
 import { clinch } from "./clinch";
 import { grappleStances } from "./grappleStances";
 
@@ -53,11 +52,26 @@ export namespace grapple {
   /** Standing recoveries can stand, while settled mat roles can rise. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
-      { window: ["recovered", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
-      { window: ["separated", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["recovered", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+      {
+        window: ["separated", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     getUp: [
-      { window: ["recoveredOnMat", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["recoveredOnMat", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
   };
 
@@ -79,7 +93,8 @@ export namespace grapple {
     // window leaves its target below the available shoulder-to-wrist reach.
     if (p.kind === "singleLeg" || p.kind === "doubleLeg")
       return { reach: 0.19, take: 0.36, release: 0.4, rest: 0.55 };
-    if (p.outcome === "denied") return { reach: 0.04, take: 0.22, release: 0.30, rest: 0.47 };
+    if (p.outcome === "denied")
+      return { reach: 0.04, take: 0.22, release: 0.3, rest: 0.47 };
     switch (p.kind) {
       case "judoHold":
       case "wrestlingFall":
@@ -123,29 +138,46 @@ export namespace grapple {
         reason: "a grappling scene needs two different performers",
         fix: "name the other actor in the staged scene",
       });
-    const partner: IAutoMovieMotionHumanPerformerReader = context.performer(p.partner);
+    const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+      p.partner,
+    );
     const duration: number = p.seconds ?? grappleStances.seconds(p.kind);
     HumanBound.above("seconds", duration, 0, "s");
 
-    const keys: ReturnType<typeof grappleStances.keys> = grappleStances.keys(p, duration);
-    const floor: IAutoMovieMotionHumanActionPlan = support.plan({ ...context, params: { stances: keys } });
-    const ending: ReturnType<typeof grappleStances.keys>[number] = keys[keys.length - 1]!;
+    const keys: ReturnType<typeof grappleStances.keys> = grappleStances.keys(
+      p,
+      duration,
+    );
+    const floor: IAutoMovieMotionHumanActionPlan = support.plan({
+      ...context,
+      params: { stances: keys },
+    });
+    const ending: ReturnType<typeof grappleStances.keys>[number] =
+      keys[keys.length - 1]!;
     const base: IAutoMovieMotionHumanBase = {
       kind: ending.contacts.some((contact): boolean => contact.part === "back")
         ? "lying"
-        : ending.contacts.some((contact): boolean => contact.part.endsWith("Knee"))
+        : ending.contacts.some((contact): boolean =>
+              contact.part.endsWith("Knee"),
+            )
           ? "kneeling"
           : "standing",
     };
     const timing: IWindow = window(p);
     const control: boolean =
-      p.outcome !== "denied" && (p.kind === "judoHold" || p.kind === "wrestlingFall" || p.kind === "guardPass");
+      p.outcome !== "denied" &&
+      (p.kind === "judoHold" ||
+        p.kind === "wrestlingFall" ||
+        p.kind === "guardPass");
     const beats: IAutoMovieMotionEvent[] = [
       ...floor.events,
       { name: "grip", share: timing.take },
       ...(control ? [{ name: "controlEstablished", share: timing.take }] : []),
       { name: "release", share: timing.release },
-    ].sort((a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number => a.share - b.share);
+    ].sort(
+      (a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number =>
+        a.share - b.share,
+    );
     const landing: IAutoMovieMotionEvent | undefined = floor.events.find(
       (event: IAutoMovieMotionEvent): boolean => event.name === "matTransfer",
     );
@@ -156,42 +188,66 @@ export namespace grapple {
         ...floor,
         base,
         events: beats,
-        ...(landing === undefined ? {} : { contact: landing.share * floor.duration }),
+        ...(landing === undefined
+          ? {}
+          : { contact: landing.share * floor.duration }),
       };
 
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(floor.duration, [
-      { name: "reach", seconds: floor.duration * timing.reach },
-      { name: "take", seconds: floor.duration * timing.take },
-      { name: "release", seconds: floor.duration * timing.release },
-      { name: "rest", seconds: floor.duration * timing.rest },
-    ]);
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+      floor.duration,
+      [
+        { name: "reach", seconds: floor.duration * timing.reach },
+        { name: "take", seconds: floor.duration * timing.take },
+        { name: "release", seconds: floor.duration * timing.release },
+        { name: "rest", seconds: floor.duration * timing.rest },
+      ],
+    );
     const needed: Set<AutoMovieHumanoidBone> = new Set();
     const arms: IAutoMovieMotionHumanPrimitive[] = [];
     const contacts: IAutoMovieMotionHumanContactWindow[] = [...floor.contacts];
-    let observed: ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> | undefined;
+    let observed:
+      | ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>
+      | undefined;
     for (const side of ["left", "right"] as const) {
       const region: AutoMovieHumanoidRegion | undefined = regions[side];
       if (region === undefined) continue;
       needed.add(partner.body.surfaces.regions[region].bone);
       const armBone: AutoMovieHumanoidBone = `${side}UpperArm`;
-      const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([armBone]);
+      const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+        armBone,
+      ]);
       const goal: `${AutoMovieHumanSide}Arm` = `${side}Arm`;
       const bones: ReturnType<typeof poseBones> = poseBones(
-        context.body, context.entry.pose, undefined, new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
+        context.body,
+        context.entry.pose,
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
       );
       const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.move({
         body: context.body,
         side,
         from: clock.at("reach"),
         to: clock.at("rest"),
-        origin: AutoMovieMotionHumanArm.origin(context.body, bones, { origin: entry.root, yaw: entry.yaw }, side, "palm"),
-        weight: (time: number): number => clock.envelope(["reach", "take"], ["release", "rest"], time),
-        target: (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanArmTarget.ITarget =>
+        origin: AutoMovieMotionHumanArm.origin(
+          context.body,
+          bones,
+          { origin: entry.root, yaw: entry.yaw },
+          side,
+          "palm",
+        ),
+        weight: (time: number): number =>
+          clock.envelope(["reach", "take"], ["release", "rest"], time),
+        target: (
+          posture: IAutoMovieMotionHumanPosture,
+        ): IAutoMovieMotionHumanArmTarget.ITarget =>
           AutoMovieMotionHumanTarget.hand(
-            context.body, posture, side, clinch.place(partner.body, observed!, region, 0),
+            context.body,
+            posture,
+            side,
+            clinch.place(partner.body, observed!, region, 0),
             { surface: "palm", shape: "relaxed", bend: "forward" },
           ),
       });
@@ -204,14 +260,28 @@ export namespace grapple {
           resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3],
           projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
         ): IAutoMovieMotionHumanPosture => {
-          const next: IAutoMovieMotionHumanPosture = arm.write(posture, seconds, before, resolution, projection);
+          const next: IAutoMovieMotionHumanPosture = arm.write(
+            posture,
+            seconds,
+            before,
+            resolution,
+            projection,
+          );
           if (seconds >= clock.at("take") && seconds <= clock.at("release")) {
             const wrist: IAutoMovieHumanLimbGoal = next.limbs[goal]!;
             const shoulder: IAutoMovieVector3 = HumanTrunk.resolve(
-              context.body, posture, undefined, resolution, shoulderBones,
+              context.body,
+              posture,
+              undefined,
+              resolution,
+              shoulderBones,
             ).get(armBone)!.worldPosition;
-            const reach: number = context.body.measure.upperArm + context.body.measure.forearm;
-            const offset: IAutoMovieVector3 = Vector3.subtract(wrist.point, shoulder);
+            const reach: number =
+              context.body.measure.upperArm + context.body.measure.forearm;
+            const offset: IAutoMovieVector3 = Vector3.subtract(
+              wrist.point,
+              shoulder,
+            );
             const distance: number = Vector3.length(offset);
             if (distance > reach)
               throw new HumanRefusal({
@@ -226,7 +296,10 @@ export namespace grapple {
         },
       });
       contacts.push({
-        part: `${side}Hand`, kind: "grip", from: timing.take, to: timing.release,
+        part: `${side}Hand`,
+        kind: "grip",
+        from: timing.take,
+        to: timing.release,
         support: { kind: "person", subject: p.partner, region },
       });
     }
@@ -236,16 +309,30 @@ export namespace grapple {
       events: beats,
       contacts,
       contact: clock.at("take"),
-      posture: (...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>): IAutoMovieMotionHumanPosture => {
+      posture: (
+        ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+      ): IAutoMovieMotionHumanPosture => {
         const [time, channels, resolution, projection] = args;
-        let posture: IAutoMovieMotionHumanPosture = floor.posture(time, channels, resolution, projection);
-        if (time <= clock.at("reach") || time >= clock.at("rest")) return posture;
+        let posture: IAutoMovieMotionHumanPosture = floor.posture(
+          time,
+          channels,
+          resolution,
+          projection,
+        );
+        if (time <= clock.at("reach") || time >= clock.at("rest"))
+          return posture;
 
         const previous: typeof observed = observed;
         observed = partner.bones(context.start + time, needed);
         try {
           for (const arm of arms)
-            posture = arm.write(posture, time, undefined, resolution, projection);
+            posture = arm.write(
+              posture,
+              time,
+              undefined,
+              resolution,
+              projection,
+            );
           return posture;
         } finally {
           observed = previous;

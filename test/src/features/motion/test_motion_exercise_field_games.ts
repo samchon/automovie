@@ -56,7 +56,9 @@ export function test_motion_exercise_field_games(): void {
 
 /** Read a registered action's named cue in film seconds. */
 function instant(segment: IAutoMovieMotionHumanSegment, name: string): number {
-  const share: number | undefined = segment.plan.events.find((event) => event.name === name)?.share;
+  const share: number | undefined = segment.plan.events.find(
+    (event) => event.name === name,
+  )?.share;
   if (share === undefined) throw new Error(`Missing ${name} cue`);
   return segment.start + share * segment.plan.duration;
 }
@@ -67,52 +69,102 @@ function kick(body: IAutoMovieMotionHumanBody): void {
   const radius: number = diameter / 2;
   const foot: IAutoMovieVector3 = body.rest.get("rightFoot")!;
   const toe: number = foot.z + HumanFoot.offset(body, "right", "toe").z;
-  const position: IAutoMovieVector3 = { x: foot.x, y: 0, z: toe + 0.15 + radius };
+  const position: IAutoMovieVector3 = {
+    x: foot.x,
+    y: 0,
+    z: toe + 0.15 + radius,
+  };
   const speed: number = 2.4;
   const lift: number = 1;
   const performance: HumanPerformance = new HumanPerformance({
     seed: "exercise-field-kick",
-    performers: [{ subject: "player", body, at: ORIGIN, yaw: 0, proficiency: { level: "trained" } }],
+    performers: [
+      {
+        subject: "player",
+        body,
+        at: ORIGIN,
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
     laws: [HumanSportThrow.kickRight],
-    props: [HumanObject.prop("ball", createBall({ kind: "football", diameter }), { at: position, yaw: 0 })],
-    composition: HumanChain.subject("player").registered("kickRight", { ball: "ball", speed, lift }).node,
+    props: [
+      HumanObject.prop("ball", createBall({ kind: "football", diameter }), {
+        at: position,
+        yaw: 0,
+      }),
+    ],
+    composition: HumanChain.subject("player").registered("kickRight", {
+      ball: "ball",
+      speed,
+      lift,
+    }).node,
   });
 
   const stroke: number = instant(performance.segments("player")[0]!, "stroke");
   const step: number = 0.05;
   const centre: IAutoMovieVector3 = { ...position, y: radius };
-  const instep: IAutoMovieVector3 = performance.bones("player", stroke).get("rightToes")!.worldPosition;
-  const plantBefore: IAutoMovieVector3 = performance.bones("player", stroke - step).get("leftFoot")!.worldPosition;
-  const plantAt: IAutoMovieVector3 = performance.bones("player", stroke).get("leftFoot")!.worldPosition;
+  const instep: IAutoMovieVector3 = performance
+    .bones("player", stroke)
+    .get("rightToes")!.worldPosition;
+  const plantBefore: IAutoMovieVector3 = performance
+    .bones("player", stroke - step)
+    .get("leftFoot")!.worldPosition;
+  const plantAt: IAutoMovieVector3 = performance
+    .bones("player", stroke)
+    .get("leftFoot")!.worldPosition;
   // Existing kick case specifies a 15 mm instep gap and 5 mm plant-slip bound.
-  TestValidator.predicate("football instep contact", nclose(Vector3.distance(instep, centre), radius, 0.015));
-  TestValidator.predicate("support foot stays planted at the stroke", vclose(plantBefore, plantAt, 0.005));
+  TestValidator.predicate(
+    "football instep contact",
+    nclose(Vector3.distance(instep, centre), radius, 0.015),
+  );
+  TestValidator.predicate(
+    "support foot stays planted at the stroke",
+    vclose(plantBefore, plantAt, 0.005),
+  );
 
   const flight = performance.flights("ball");
   TestValidator.equals("the same football starts one flight", flight.length, 1);
-  TestValidator.predicate("the ball leaves on the contact cue", nclose(flight[0]!.launch, stroke, 1e-6));
+  TestValidator.predicate(
+    "the ball leaves on the contact cue",
+    nclose(flight[0]!.launch, stroke, 1e-6),
+  );
   const expected: IAutoMovieVector3 = {
     x: position.x,
     y: position.y + lift * step - 0.5 * 9.80665 * step ** 2,
     z: position.z + speed * step,
   };
-  TestValidator.predicate("actual football after departure", vclose(performance.prop("ball", stroke + step).position, expected, 1e-5));
-  TestValidator.predicate("backward seek still displays the pre-kick ball", vclose(performance.prop("ball", stroke - step).position, position, 1e-6));
+  TestValidator.predicate(
+    "actual football after departure",
+    vclose(performance.prop("ball", stroke + step).position, expected, 1e-5),
+  );
+  TestValidator.predicate(
+    "backward seek still displays the pre-kick ball",
+    vclose(performance.prop("ball", stroke - step).position, position, 1e-6),
+  );
 }
 
 /** Check the real blade's displayed face against the puck's radial side. */
 function hockey(body: IAutoMovieMotionHumanBody): void {
   const puck: ReturnType<typeof createBall> = createBall({ kind: "puck" });
-  const stick: ReturnType<typeof createStick> = createStick({ kind: "iceHockey" });
+  const stick: ReturnType<typeof createStick> = createStick({
+    kind: "iceHockey",
+  });
   const puckPosition: IAutoMovieVector3 = { x: 0, y: 0, z: 0.75 };
   const stickFrame: IAutoMovieRigidTransform = {
     position: { x: -0.16, y: 0, z: 0.51 },
     rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -35),
   };
-  const play = (at: IAutoMovieVector3, yaw: number, hand: AutoMovieHumanSide): HumanPerformance =>
+  const play = (
+    at: IAutoMovieVector3,
+    yaw: number,
+    hand: AutoMovieHumanSide,
+  ): HumanPerformance =>
     new HumanPerformance({
       seed: "exercise-hockey-puck",
-      performers: [{ subject: "player", body, at, yaw, proficiency: { level: "trained" } }],
+      performers: [
+        { subject: "player", body, at, yaw, proficiency: { level: "trained" } },
+      ],
       laws: [stickBall],
       props: [
         HumanObject.prop("puck", puck, { at: puckPosition, yaw: 0 }),
@@ -121,30 +173,57 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
       composition: HumanChain.subject("player")
         .crouch({ depth: "full", hold: 1 }, "low")
         .over((upper) =>
-          upper.registered("stickBall", {
-            kind: "iceHockey",
-            stick: "stick",
-            ball: "puck",
-            speed: 3,
-            hand,
-            toward: { kind: "point", frame: "world", at: { x: 0, y: 0.0125, z: 4 } },
-          })
+          upper
+            .registered("stickBall", {
+              kind: "iceHockey",
+              stick: "stick",
+              ball: "puck",
+              speed: 3,
+              hand,
+              toward: {
+                kind: "point",
+                frame: "world",
+                at: { x: 0, y: 0.0125, z: 4 },
+              },
+            })
             .sync({ of: "low", event: "lowest" }),
         ).node,
     });
 
   // In this side-on crouch both grips stay in front of the torso.
-  const performance: HumanPerformance = play({ x: 0.3, y: 0, z: 0.18 }, -90, "left");
+  const performance: HumanPerformance = play(
+    { x: 0.3, y: 0, z: 0.18 },
+    -90,
+    "left",
+  );
   const stroke: number = instant(performance.overlays("player")[0]!, "stroke");
-  const releasedStick: IAutoMovieRigidTransform = performance.prop("stick", stroke);
-  const face: IAutoMovieTransform = stick.placed("blade", Transform.of(releasedStick.position, releasedStick.rotation));
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(face.rotation, { x: 0, y: 1, z: 0 });
+  const releasedStick: IAutoMovieRigidTransform = performance.prop(
+    "stick",
+    stroke,
+  );
+  const face: IAutoMovieTransform = stick.placed(
+    "blade",
+    Transform.of(releasedStick.position, releasedStick.rotation),
+  );
+  const normal: IAutoMovieVector3 = Quaternion.rotateVector(face.rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
   const rim: IAutoMovieVector3 = { x: 0, y: 0.0125, z: puckPosition.z - 0.038 };
   const delta: IAutoMovieVector3 = Vector3.subtract(rim, face.translation);
   const gap: number = Math.abs(Vector3.dot(delta, normal));
-  const blade = stick.affordances.find((affordance) => affordance.id === "blade")!;
-  const across: number = Vector3.dot(delta, Quaternion.rotateVector(face.rotation, { x: 1, y: 0, z: 0 }));
-  const vertical: number = Vector3.dot(delta, Quaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 }));
+  const blade = stick.affordances.find(
+    (affordance) => affordance.id === "blade",
+  )!;
+  const across: number = Vector3.dot(
+    delta,
+    Quaternion.rotateVector(face.rotation, { x: 1, y: 0, z: 0 }),
+  );
+  const vertical: number = Vector3.dot(
+    delta,
+    Quaternion.rotateVector(face.rotation, { x: 0, y: 0, z: 1 }),
+  );
   // Reuse the 15 mm ball-strike contact bound and require the actual face extent.
   TestValidator.predicate(
     `blade face meets the radial puck rim (normal gap ${(gap * 1000).toFixed(1)} mm, rim minus blade ${JSON.stringify(delta)} m, face coordinates ${across} m and ${vertical} m)`,
@@ -155,7 +234,10 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
   );
   const flights = performance.flights("puck");
   TestValidator.equals("one named puck flight", flights.length, 1);
-  TestValidator.predicate("blade cue releases puck", nclose(flights[0]!.launch, stroke, 1e-6));
+  TestValidator.predicate(
+    "blade cue releases puck",
+    nclose(flights[0]!.launch, stroke, 1e-6),
+  );
   TestValidator.predicate(
     "the displayed puck moves down the play lane",
     performance.prop("puck", stroke + 0.035).position.z > puckPosition.z + 0.07,
@@ -184,42 +266,89 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
 /** Check side, forward and rear deliveries and their different body support geometry. */
 function deliveries(body: IAutoMovieMotionHumanBody): void {
   const cases = [
-    { name: "rugbyPass", kind: "rugby", law: HumanSportThrow.rugbyPass, target: { x: 4, y: 1, z: -0.4 } },
-    { name: "gridironPass", kind: "americanFootball", law: HumanSportThrow.gridironPass, target: { x: 0, y: 1, z: 7 } },
-    { name: "gridironSnap", kind: "americanFootball", law: HumanSportThrow.gridironSnap, target: { x: 0, y: 0.9, z: -4 } },
+    {
+      name: "rugbyPass",
+      kind: "rugby",
+      law: HumanSportThrow.rugbyPass,
+      target: { x: 4, y: 1, z: -0.4 },
+    },
+    {
+      name: "gridironPass",
+      kind: "americanFootball",
+      law: HumanSportThrow.gridironPass,
+      target: { x: 0, y: 1, z: 7 },
+    },
+    {
+      name: "gridironSnap",
+      kind: "americanFootball",
+      law: HumanSportThrow.gridironSnap,
+      target: { x: 0, y: 0.9, z: -4 },
+    },
   ] as const;
   const releases: { height: number; lean: number }[] = [];
   for (const sample of cases) {
     const performance: HumanPerformance = new HumanPerformance({
       seed: sample.name,
-      performers: [{ subject: "player", body, at: ORIGIN, yaw: 0, proficiency: { level: "trained" } }],
+      performers: [
+        {
+          subject: "player",
+          body,
+          at: ORIGIN,
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
       laws: [sample.law],
       props: [
-        HumanObject.prop("ball", createBall({ kind: sample.kind }), { at: { x: -0.25, y: 0.9, z: 0.35 }, yaw: 0 }),
+        HumanObject.prop("ball", createBall({ kind: sample.kind }), {
+          at: { x: -0.25, y: 0.9, z: 0.35 },
+          yaw: 0,
+        }),
       ],
-      composition: HumanChain.subject("player").pickUp({ prop: "ball", handle: "grip" })
-        .registered(sample.name, { prop: "ball", at: { kind: "point", frame: "world", at: sample.target } })
-        .node,
+      composition: HumanChain.subject("player")
+        .pickUp({ prop: "ball", handle: "grip" })
+        .registered(sample.name, {
+          prop: "ball",
+          at: { kind: "point", frame: "world", at: sample.target },
+        }).node,
     });
-    const release: number = instant(performance.segments("player").at(-1)!, "release");
+    const release: number = instant(
+      performance.segments("player").at(-1)!,
+      "release",
+    );
     const shown: IAutoMovieVector3 = performance.prop("ball", release).position;
-    const next: IAutoMovieVector3 = performance.prop("ball", release + 0.04).position;
+    const next: IAutoMovieVector3 = performance.prop(
+      "ball",
+      release + 0.04,
+    ).position;
     const travel: IAutoMovieVector3 = Vector3.subtract(next, shown);
     const toward: IAutoMovieVector3 = Vector3.subtract(sample.target, shown);
     const lateral: boolean = sample.name === "rugbyPass";
     const backsnap: boolean = sample.name === "gridironSnap";
     const reader = HumanSignature.of(performance, "player", body, 0);
-    TestValidator.equals(`${sample.name} publishes one actual ball flight`, performance.flights("ball").length, 1);
+    TestValidator.equals(
+      `${sample.name} publishes one actual ball flight`,
+      performance.flights("ball").length,
+      1,
+    );
     TestValidator.predicate(
       `${sample.name} departs on its declared lane`,
       Vector3.dot(travel, toward) > 0 &&
-        (lateral ? travel.x > Math.abs(travel.z) : backsnap ? travel.z < 0 : travel.z > 0),
+        (lateral
+          ? travel.x > Math.abs(travel.z)
+          : backsnap
+            ? travel.z < 0
+            : travel.z > 0),
     );
     TestValidator.predicate(
       `${sample.name} has grounded support at release`,
-      HumanSignature.bears(reader, release, "left") || HumanSignature.bears(reader, release, "right"),
+      HumanSignature.bears(reader, release, "left") ||
+        HumanSignature.bears(reader, release, "right"),
     );
-    releases.push({ height: shown.y, lean: HumanSignature.trunk(reader, release) });
+    releases.push({
+      height: shown.y,
+      lean: HumanSignature.trunk(reader, release),
+    });
   }
 
   const quarterback = releases[1]!;

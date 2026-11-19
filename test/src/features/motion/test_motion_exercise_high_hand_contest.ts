@@ -34,19 +34,22 @@ export function test_motion_exercise_high_hand_contest(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const performance: HumanPerformance = new HumanPerformance({
       seed: "exercise-high-hand",
-      performers: [{
-        subject: "defender",
-        body,
-        at: { x: 0, y: 0, z: 0 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      }],
+      performers: [
+        {
+          subject: "defender",
+          body,
+          at: { x: 0, y: 0, z: 0 },
+          yaw: 0,
+          proficiency: { level: "trained" },
+        },
+      ],
       composition: HumanChain.subject("defender").ballSport({
         kind: "highHandContest",
         at: { x: 0, y: 1.4, z: 3 },
       }).node,
     });
-    const segment: IAutoMovieMotionHumanSegment = performance.segments("defender")[0]!;
+    const segment: IAutoMovieMotionHumanSegment =
+      performance.segments("defender")[0]!;
     const eventTime = (event: string): number => {
       const share: number | undefined = segment.plan.events.find(
         (entry): boolean => entry.name === event,
@@ -54,7 +57,10 @@ export function test_motion_exercise_high_hand_contest(): void {
       if (share === undefined) throw new Error(`No contest beat ${event}`);
       return segment.start + share * segment.plan.duration;
     };
-    const at = (seconds: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
+    const at = (
+      seconds: number,
+      bone: AutoMovieHumanoidBone,
+    ): IAutoMovieVector3 =>
       performance.bones("defender", seconds).get(bone)!.worldPosition;
     const start: number = segment.start;
     const ready: number = eventTime("ready");

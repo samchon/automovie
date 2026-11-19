@@ -44,8 +44,7 @@ export const sampleCompiledEffect: (
   cameraDistance: number = 0,
 ): IAutoMovieEffectSample => {
   const step: number = effect.fixedStepSeconds;
-  const stepTime: number =
-    Math.floor(Math.max(0, time) / step + 1e-9) * step;
+  const stepTime: number = Math.floor(Math.max(0, time) / step + 1e-9) * step;
   if (time < effect.start || time >= effect.end)
     return { time: stepTime, active: false, intensity: 0, particles: [] };
   const sampledTime: number = Math.max(

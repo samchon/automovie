@@ -102,7 +102,8 @@ export namespace racket {
         ...(p.implement === undefined ? {} : { implement: p.implement }),
       });
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
     const hold: number = p.seconds ?? 0.6;
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -142,14 +143,21 @@ export namespace racket {
     const leftward: IAutoMovieVector3 = local(entry, { x: 1, y: 0, z: 0 });
     const arm: number = m.upperArm + m.forearm;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
-    let contacts: IAutoMovieMotionHumanContactWindow[] = AutoMovieMotionHumanBase.plants();
+    let contacts: IAutoMovieMotionHumanContactWindow[] =
+      AutoMovieMotionHumanBase.plants();
     const grip: (
       hand: "left" | "right",
-      place: (posture: IAutoMovieMotionHumanPosture, s: number) => IAutoMovieVector3,
+      place: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ) => IAutoMovieVector3,
       bend: "front" | "forward",
     ) => IAutoMovieMotionHumanPrimitive[] = (
       hand: "left" | "right",
-      place: (posture: IAutoMovieMotionHumanPosture, s: number) => IAutoMovieVector3,
+      place: (
+        posture: IAutoMovieMotionHumanPosture,
+        s: number,
+      ) => IAutoMovieVector3,
       bend: "front" | "forward",
     ): IAutoMovieMotionHumanPrimitive[] =>
       AutoMovieMotionHumanPlaced.arm({
@@ -196,7 +204,9 @@ export namespace racket {
           ankle: context.entry.feet[foot].ankle,
           rotation: context.entry.feet[foot].rotation,
         };
-        const out: (by: number) => IAutoMovieMotionHumanFoot.IPlacement = (by: number): IAutoMovieMotionHumanFoot.IPlacement => ({
+        const out: (by: number) => IAutoMovieMotionHumanFoot.IPlacement = (
+          by: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement => ({
           ankle: Vector3.add(
             from.ankle,
             Vector3.scale(leftward, (foot === "left" ? 1 : -1) * by),
@@ -209,7 +219,10 @@ export namespace racket {
             side: foot,
             from: 0,
             to: clock.duration,
-            placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement => {
+            placement: (
+              _: IAutoMovieMotionHumanPosture,
+              s: number,
+            ): IAutoMovieMotionHumanFoot.IPlacement => {
               const placed: IAutoMovieMotionHumanFoot.IPlacement =
                 AutoMovieMotionHumanLegPhrase.between(
                   from,
@@ -234,7 +247,10 @@ export namespace racket {
           channels: ["root"],
           from: 0,
           to: clock.duration,
-          write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            s: number,
+          ): IAutoMovieMotionHumanPosture => ({
             ...posture,
             root: {
               ...posture.root,
@@ -246,7 +262,10 @@ export namespace racket {
           channels: ["trunk"],
           from: 0,
           to: clock.duration,
-          write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            s: number,
+          ): IAutoMovieMotionHumanPosture => ({
             ...posture,
             pitch: posture.pitch + 15 * into(s),
           }),
@@ -290,7 +309,10 @@ export namespace racket {
       contacts = bearing
         .filter(([from, to]: [number, number]): boolean => to > from)
         .flatMap(
-          ([from, to]: [number, number]): IAutoMovieMotionHumanContactWindow[] =>
+          ([from, to]: [
+            number,
+            number,
+          ]): IAutoMovieMotionHumanContactWindow[] =>
             AutoMovieMotionHumanBase.plants(from, to),
         );
     } else {

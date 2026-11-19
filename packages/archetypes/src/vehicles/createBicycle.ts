@@ -96,9 +96,14 @@ export function createBicycle(
       density: 0.2,
       surface: "rubber",
     });
-    builder.box(marker, v(0.028, radius * 0.76, 0.008), v(0, at.y + radius * 0.45, at.z), {
-      color: "#8a8d91",
-    });
+    builder.box(
+      marker,
+      v(0.028, radius * 0.76, 0.008),
+      v(0, at.y + radius * 0.45, at.z),
+      {
+        color: "#8a8d91",
+      },
+    );
     builder.affordance({
       id: `${end}Spin`,
       kind: "knob",

@@ -89,20 +89,30 @@ export function createSurfboard(
     grip: "power",
     aperture: thickness,
   });
-  for (const [id, sign] of [["frontStance", -1], ["rearStance", 1]] as const)
+  for (const [id, sign] of [
+    ["frontStance", -1],
+    ["rearStance", 1],
+  ] as const)
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, thickness, sign * length / 5)),
+      frame: ArchetypeFrame.upright(v(0, thickness, (sign * length) / 5)),
       extent: null,
       width,
       depth: length / 5,
     });
-  for (const [id, sign] of [["leftRail", 1], ["rightRail", -1]] as const)
+  for (const [id, sign] of [
+    ["leftRail", 1],
+    ["rightRail", -1],
+  ] as const)
     builder.affordance({
       id,
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(sign * width / 2, 0, 0), v(0, 1, 0), v(sign, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v((sign * width) / 2, 0, 0),
+        v(0, 1, 0),
+        v(0, 0, -sign),
+      ),
       extent: null,
       length,
     });

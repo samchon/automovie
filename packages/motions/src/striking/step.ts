@@ -63,7 +63,8 @@ export namespace step {
    * reading) on the 0.93 m hip the gait laws' speeds are measured at
    * (`walk.FROUDE`, Bohannon 1997).
    */
-  export const PERIOD: number = 0.35 / Math.sqrt(0.93 / AutoMovieGravity.STANDARD);
+  export const PERIOD: number =
+    0.35 / Math.sqrt(0.93 / AutoMovieGravity.STANDARD);
 
   /**
    * A body's step period, seconds: `PERIOD` pendulum units of its own hip
@@ -72,8 +73,12 @@ export namespace step {
    * @param body The body.
    * @returns Seconds.
    */
-  export function period(body: IAutoMovieMotionHumanActionContext["body"]): number {
-    return PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieGravity.STANDARD);
+  export function period(
+    body: IAutoMovieMotionHumanActionContext["body"],
+  ): number {
+    return (
+      PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieGravity.STANDARD)
+    );
   }
 
   /** Share of a stance length one step covers (IBA: the following foot restores the stance without crossing). */
@@ -104,8 +109,10 @@ export namespace step {
     const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const turn: number = p.turn ?? 0;
     HumanBound.within("turn", turn, -90 * count, 90 * count, "deg");
-    const transition: boolean = turn !== 0 || (p.lead !== undefined && p.lead !== lead);
-    const length: number = p.length ?? (transition ? 0 : STEP_SHARE * StrikingStance.length(body));
+    const transition: boolean =
+      turn !== 0 || (p.lead !== undefined && p.lead !== lead);
+    const length: number =
+      p.length ?? (transition ? 0 : STEP_SHARE * StrikingStance.length(body));
     HumanBound.within(
       "length",
       length,
@@ -126,7 +133,10 @@ export namespace step {
 
     const duration: number = count * stride;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...entry.joints,
+      ...StrikingStance.joints(entry.joints),
+    };
     const rear: "left" | "right" = StrikingStance.rear({ lead });
 
     // The line frame: the stance's line is the heading turned back by the
@@ -210,7 +220,10 @@ export namespace step {
       contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const placed = {} as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+        const placed = {} as Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        >;
         const down = {} as Record<"left" | "right", boolean>;
         for (const side of ["left", "right"] as const) {
           const g = progress(side, t);
@@ -224,7 +237,8 @@ export namespace step {
           };
           down[side] = !g.swinging;
         }
-        const carried: number = count * length * minimumJerk.share(t / duration);
+        const carried: number =
+          count * length * minimumJerk.share(t / duration);
         const posture: IAutoMovieMotionHumanPosture = resolveHumanPosture.lower(
           body,
           {
@@ -241,7 +255,15 @@ export namespace step {
           ...posture,
           limbs: {
             ...posture.limbs,
-            ...StrikingGuard(body, posture, { lead }, {}, undefined, undefined, p.guard),
+            ...StrikingGuard(
+              body,
+              posture,
+              { lead },
+              {},
+              undefined,
+              undefined,
+              p.guard,
+            ),
           },
         };
       },

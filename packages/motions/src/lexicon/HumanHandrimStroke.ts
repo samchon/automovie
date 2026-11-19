@@ -29,6 +29,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
+import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 
 /** The two hands that act together in this stroke. */
 const SIDES: readonly ("left" | "right")[] = ["left", "right"];
@@ -187,10 +188,11 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           reason: "a handrim stroke follows a chair on a declared course",
           fix: "bind the chair's course as the prop motion",
         });
-      const base: IAutoMovieMotionHumanActionPlan = HumanRide.ride.plan({
-        ...context,
-        params: { on, seconds: duration },
-      });
+      const { postureWithFrame, ...base }: WorkingSeatRidePlan.IPlan =
+        HumanRide.ride.plan({
+          ...context,
+          params: { on, seconds: duration },
+        });
       const active: readonly ("left" | "right")[] =
         side === undefined ? SIDES : [side];
       if (side === undefined && rims?.left === rims?.right)
@@ -250,7 +252,10 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
 
       const frameAt = (at: number): IAutoMovieRigidTransform =>
         chair.frame(context.start + at);
-      const catchFrame: IAutoMovieRigidTransform = frameAt(approach);
+      const {
+        posture: catchPosture,
+        frame: catchFrame,
+      }: WorkingSeatRidePlan.IWritten = postureWithFrame(approach);
       const seatCentre: number = chair.prop.affordances!.find(
         (affordance: IAutoMovieAffordance): boolean =>
           affordance.kind === "seat",
@@ -309,7 +314,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
             HumanMountRider.closed(
               context.body,
               side,
-              base.posture(approach),
+              catchPosture,
               caught,
               chair.prop.shapes ?? [],
               catchFrame,
@@ -330,9 +335,11 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       /** Compose the carried seated posture and the selected wrist targets. */
       const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
         const at: number = Math.max(0, Math.min(duration, seconds));
-        const seated: IAutoMovieMotionHumanPosture = base.posture(at);
-        if (at === 0 || at === duration) return seated;
-        const chairFrame: IAutoMovieRigidTransform = frameAt(at);
+        if (at === 0 || at === duration) return base.posture(at);
+        const {
+          posture: seated,
+          frame: chairFrame,
+        }: WorkingSeatRidePlan.IWritten = postureWithFrame(at);
         const recovering: number = Math.max(0, (at - release) / recovery);
         const share: number =
           at < approach

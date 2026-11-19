@@ -8,12 +8,10 @@ import type {
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBallSport,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPlaced,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
-  IAutoMovieMotionPropLaunch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -28,11 +26,10 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
 import { ballCourt } from "./ballCourt";
 import { courtStroke } from "./courtStroke";
+import { throwInRelease } from "./throwInRelease";
 
 /**
  * Team ball skills. The original stationary dribble, volleyball dig and
@@ -157,7 +154,8 @@ export namespace ballSport {
         break;
     }
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
     const count: number = p.count ?? 4;
     HumanBound.whole("count", count);
     const modifiers: IAutoMovieMotionManner.IModifiers =
@@ -191,14 +189,24 @@ export namespace ballSport {
     const stroke: (s: number) => number = (s: number): number =>
       clock.progress("strokeStart", "stroke", s);
     const arm: number = m.upperArm + m.forearm;
-    const local: (posture: IAutoMovieMotionHumanPosture, v: IAutoMovieVector3) => IAutoMovieVector3 = (
+    const local: (
+      posture: IAutoMovieMotionHumanPosture,
+      v: IAutoMovieVector3,
+    ) => IAutoMovieVector3 = (
       posture: IAutoMovieMotionHumanPosture,
       v: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw }, v);
-    const rest: (side: "left" | "right") => IAutoMovieMotionHumanArmAngles.IAngles = (side: "left" | "right"): IAutoMovieMotionHumanArmAngles.IAngles =>
+    const rest: (
+      side: "left" | "right",
+    ) => IAutoMovieMotionHumanArmAngles.IAngles = (
+      side: "left" | "right",
+    ): IAutoMovieMotionHumanArmAngles.IAngles =>
       AutoMovieMotionHumanArm.angles(context.entry.pose, side);
-    const crouch: (depth: number, pitch: number) => IAutoMovieMotionHumanPrimitive = (
+    const crouch: (
+      depth: number,
+      pitch: number,
+    ) => IAutoMovieMotionHumanPrimitive = (
       depth: number,
       pitch: number,
     ): IAutoMovieMotionHumanPrimitive =>
@@ -217,12 +225,7 @@ export namespace ballSport {
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
 
     // A throw-in's real ball: its grips and its launch.
-    let thrown:
-      | {
-          contacts: IAutoMovieMotionHumanContactWindow[];
-          launches: IAutoMovieMotionPropLaunch[];
-        }
-      | undefined = undefined;
+    let thrown: ReturnType<typeof throwInRelease> = undefined;
     switch (p.kind) {
       case "dribble": {
         const side: "left" | "right" = p.side ?? "right";
@@ -263,9 +266,14 @@ export namespace ballSport {
         break;
       }
       case "dig": {
-        const pad: number = AutoMovieMotionHumanTouchEffector.pad(body, "right", {
-          surface: "palm", shape: "flat",
-        });
+        const pad: number = AutoMovieMotionHumanTouchEffector.pad(
+          body,
+          "right",
+          {
+            surface: "palm",
+            shape: "flat",
+          },
+        );
         primitives.push(crouch(0.08, 25));
         for (const side of ["left", "right"] as const)
           primitives.push(
@@ -277,8 +285,13 @@ export namespace ballSport {
               rest: rest(side),
               weight: into,
               span,
-              place: (posture: IAutoMovieMotionHumanPosture, s: number,
-                resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
+              place: (
+                posture: IAutoMovieMotionHumanPosture,
+                s: number,
+                resolution?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[2],
+              ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
                 // The platform: nearly straight arms from the displayed shoulders, lifted at the contact.
                 const below: number =
                   ((PLATFORM - LIFT * stroke(s)) * Math.PI) / 180;
@@ -290,7 +303,11 @@ export namespace ballSport {
                 return {
                   point: Vector3.add(
                     Vector3.add(
-                      AutoMovieMotionHumanPlaced.shoulders(body, posture, resolution),
+                      AutoMovieMotionHumanPlaced.shoulders(
+                        body,
+                        posture,
+                        resolution,
+                      ),
                       Vector3.scale(along, REACH * arm),
                     ),
                     local(posture, {
@@ -358,7 +375,9 @@ export namespace ballSport {
           }),
         );
         const heading: IAutoMovieVector3 = local(entry, { x: 0, y: 0, z: 1 });
-        const tilted: (pitch: number) => IAutoMovieMotionHumanPosture = (pitch: number): IAutoMovieMotionHumanPosture =>
+        const tilted: (pitch: number) => IAutoMovieMotionHumanPosture = (
+          pitch: number,
+        ): IAutoMovieMotionHumanPosture =>
           AutoMovieMotionHumanLean.pivot(body, entry, { pitch, roll: 0 });
         // Behind the head as the arched trunk carries it, at the head's middle.
         const drawn: IAutoMovieVector3 = Vector3.add(
@@ -390,47 +409,7 @@ export namespace ballSport {
           Vector3.scale(line, travel),
         );
 
-        // A real ball is held in both hands to the release and launched
-        // there, on the path rising at the release angle through `at`.
-        if (p.prop !== undefined) {
-          if (p.at === undefined)
-            throw new HumanRefusal({
-              kind: "parameter",
-              axis: "at",
-              value: null,
-              feasible: { kind: "alternatives", values: [] },
-              reason: `a throw-in of ${p.prop} needs the point its path passes through`,
-              fix: "give `at`, or leave out `prop` for an implied ball",
-            });
-          const velocity: IAutoMovieVector3 | undefined =
-            throwObjectLaunch.aimed(released, p.at, RELEASE);
-          if (velocity === undefined)
-            throw new HumanRefusal({
-              kind: "reach",
-              axis: "at",
-              value: p.at,
-              reason: `a throw-in rising at ${RELEASE} degrees cannot reach a point above that line or straight above the release`,
-              fix: "aim at a point farther ahead or lower",
-            });
-          const seconds: number = clock.at("stroke");
-          thrown = {
-            contacts: (["left", "right"] as const).map(
-              (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
-                part: `${side}Hand`,
-                kind: "grip",
-                from: 0,
-                to: seconds / clock.duration,
-                support: { kind: "prop", subject: p.prop! },
-              }),
-            ),
-            launches: throwObjectLaunch.launches(p.prop, undefined, {
-              point: released,
-              velocity,
-              seconds,
-              target: p.at,
-            }),
-          };
-        }
+        thrown = throwInRelease(p, clock, released, RELEASE);
         for (const side of ["left", "right"] as const) {
           const beside: IAutoMovieVector3 = local(entry, {
             x: (side === "left" ? 1 : -1) * BALL,
@@ -465,16 +444,17 @@ export namespace ballSport {
         break;
       }
     }
-    const planned: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(
-        clock.duration,
-        entry,
-        AutoMovieMotionHumanBase.plants(),
-      ),
-      clock,
-      primitives,
-      contact: "stroke",
-    });
+    const planned: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(
+          clock.duration,
+          entry,
+          AutoMovieMotionHumanBase.plants(),
+        ),
+        clock,
+        primitives,
+        contact: "stroke",
+      });
     return thrown === undefined
       ? planned
       : {

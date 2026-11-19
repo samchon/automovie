@@ -1,8 +1,8 @@
 import {
   AutoMovieGravity,
   Quaternion,
-  resolveAutoMovieCenterOfMass,
   Vector3,
+  resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
@@ -34,7 +34,7 @@ import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
-import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
+import { highJumpFlight } from "./highJumpFlight";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
 /**
@@ -127,7 +127,9 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function arched(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function arched(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { spine: [-25, 0, 0], chest: [-20, 0, 0], neck: -30 },
@@ -150,7 +152,9 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
-  export function piked(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function piked(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return ExerciseKey.from(
       body,
       { spine: [10, 0, 0], neck: 30 },
@@ -186,7 +190,11 @@ export namespace highJump {
   function placedCrossbar(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
-  ): { point: IAutoMovieVector3; axis: IAutoMovieVector3; length: number | undefined } {
+  ): {
+    point: IAutoMovieVector3;
+    axis: IAutoMovieVector3;
+    length: number | undefined;
+  } {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
@@ -207,9 +215,15 @@ export namespace highJump {
       });
     const frame: IAutoMovieRigidTransform = read.frame(context.start);
     return {
-      point: Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, found.frame.translation)),
+      point: Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, found.frame.translation),
+      ),
       // A bar affordance's length runs along its local +X.
-      axis: Quaternion.rotateVector(Quaternion.multiply(frame.rotation, found.frame.rotation), { x: 1, y: 0, z: 0 }),
+      axis: Quaternion.rotateVector(
+        Quaternion.multiply(frame.rotation, found.frame.rotation),
+        { x: 1, y: 0, z: 0 },
+      ),
       length: found.length ?? undefined,
     };
   }
@@ -233,11 +247,16 @@ export namespace highJump {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighJump.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
-    const prepareFrame: ReturnType<typeof prepareGymnasticsFrame> = prepareGymnasticsFrame(body, model);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
+      GymnasticsFlight.model(body);
+    const prepareFrame: ReturnType<typeof prepareGymnasticsFrame> =
+      prepareGymnasticsFrame(body, model);
     const p: IAutoMovieMotionHumanHighJump.IParams = context.params;
     const surface: number = p.to.y;
-    const cross: ReturnType<typeof placedCrossbar> = placedCrossbar(context, p.bar);
+    const cross: ReturnType<typeof placedCrossbar> = placedCrossbar(
+      context,
+      p.bar,
+    );
     const bar: number = cross.point.y;
 
     // The centre's height lying on the back on the surface.
@@ -249,73 +268,107 @@ export namespace highJump {
       joints: lieDown.POSES.supine.joints,
       limbs: {},
     };
-    const lying: number = surface + ((): number => {
-      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      return GymnasticsFlight.centre(body, model, {
-        ...supine,
-        root: { x: 0, y: knockdown.rest(body, supine, read, projection), z: 0 },
-      }, read, projection).y;
-    })();
+    const lying: number =
+      surface +
+      ((): number => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution();
+        const projection: ReturnType<typeof prepareHumanPostureProjection> =
+          prepareHumanPostureProjection(body);
+        return GymnasticsFlight.centre(
+          body,
+          model,
+          {
+            ...supine,
+            root: {
+              x: 0,
+              y: knockdown.rest(body, supine, read, projection),
+              z: 0,
+            },
+          },
+          read,
+          projection,
+        ).y;
+      })();
 
     // The take-off: the centre peaks at the bar and comes down at the
     // landing place at its lying height.
-    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff = GymnasticsTakeoff.of(
-      context,
-      (centre: IAutoMovieVector3): IAutoMovieVector3 => {
-        if (!(bar > centre.y))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "bar",
-            value: bar,
-            feasible: {
-              kind: "range",
-              minimum: centre.y,
-              maximum: null,
-              unit: "m",
-              open: "minimum",
-            },
-            reason: `the bar at ${bar.toFixed(2)} m is no higher than the take-off's centre of mass at ${centre.y.toFixed(2)} m`,
-            fix: "raise the bar",
-          });
-        const vy: number = Math.sqrt(
-          2 * AutoMovieGravity.STANDARD * (bar - centre.y),
-        );
-        if (vy > RISE)
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "bar",
-            value: bar,
-            feasible: {
-              kind: "range",
-              minimum: centre.y,
-              maximum:
-                centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
-              unit: "m",
-            },
-            reason: `a bar at ${bar.toFixed(2)} m needs a vertical take-off speed of ${vy.toFixed(2)} m/s, past ${RISE}`,
-            fix: "lower the bar",
-          });
-        const time: number = GymnasticsFlight.fall(centre.y, vy, lying)!;
-        return {
-          x: (p.to.x - centre.x) / time,
-          y: vy,
-          z: (p.to.z - centre.z) / time,
-        };
-      },
-      p.takeoffFoot,
-    );
+    const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
+      GymnasticsTakeoff.of(
+        context,
+        (centre: IAutoMovieVector3): IAutoMovieVector3 => {
+          if (!(bar > centre.y))
+            throw new HumanRefusal({
+              kind: "parameter",
+              axis: "bar",
+              value: bar,
+              feasible: {
+                kind: "range",
+                minimum: centre.y,
+                maximum: null,
+                unit: "m",
+                open: "minimum",
+              },
+              reason: `the bar at ${bar.toFixed(2)} m is no higher than the take-off's centre of mass at ${centre.y.toFixed(2)} m`,
+              fix: "raise the bar",
+            });
+          const vy: number = Math.sqrt(
+            2 * AutoMovieGravity.STANDARD * (bar - centre.y),
+          );
+          if (vy > RISE)
+            throw new HumanRefusal({
+              kind: "parameter",
+              axis: "bar",
+              value: bar,
+              feasible: {
+                kind: "range",
+                minimum: centre.y,
+                maximum:
+                  centre.y + (RISE * RISE) / (2 * AutoMovieGravity.STANDARD),
+                unit: "m",
+              },
+              reason: `a bar at ${bar.toFixed(2)} m needs a vertical take-off speed of ${vy.toFixed(2)} m/s, past ${RISE}`,
+              fix: "lower the bar",
+            });
+          const time: number = GymnasticsFlight.fall(centre.y, vy, lying)!;
+          return {
+            x: (p.to.x - centre.x) / time,
+            y: vy,
+            z: (p.to.z - centre.z) / time,
+          };
+        },
+        p.takeoffFoot,
+      );
     const off: number = takeoff.seconds;
     // The flight leaves from the take-off posture's own centre, so the body
     // does not step at the take-off where the push-off's flight, which the
     // launch is read from, does not meet its take-off pose; its vertical
     // speed is the one that peaks that centre at the bar.
-    const launchFrame: { posture: IAutoMovieMotionHumanPosture; centre: IAutoMovieVector3 } = ((): { posture: IAutoMovieMotionHumanPosture; centre: IAutoMovieVector3 } => {
-      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      const frozen: ReturnType<typeof GymnasticsFlight.freeze> = GymnasticsFlight.freeze(body, takeoff.plan.posture(off, undefined, read, projection), read, projection);
-      return { posture: frozen.posture, centre: resolveAutoMovieCenterOfMass.place(model,
-        body.colliderBones.map(frozen.pose, read())) };
+    const launchFrame: {
+      posture: IAutoMovieMotionHumanPosture;
+      centre: IAutoMovieVector3;
+    } = ((): {
+      posture: IAutoMovieMotionHumanPosture;
+      centre: IAutoMovieVector3;
+    } => {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const projection: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      const frozen: ReturnType<typeof GymnasticsFlight.freeze> =
+        GymnasticsFlight.freeze(
+          body,
+          takeoff.plan.posture(off, undefined, read, projection),
+          read,
+          projection,
+        );
+      return {
+        posture: frozen.posture,
+        centre: resolveAutoMovieCenterOfMass.place(
+          model,
+          body.colliderBones.map(frozen.pose, read()),
+        ),
+      };
     })();
     const from: IAutoMovieMotionHumanPosture = launchFrame.posture;
     const c0: IAutoMovieVector3 = launchFrame.centre;
@@ -326,72 +379,18 @@ export namespace highJump {
     };
     const rising: number = v.y / AutoMovieGravity.STANDARD;
 
-    // The flight posture at seconds since the take-off: the joints keyed,
-    // the half turn over the rise and the somersault through the flight
-    // at constant rates from the take-off, the centre on its parabola.
-    const start: IAutoMovieMotionHumanExerciseKey.IKey = {
-      pitch: 0,
-      roll: 0,
-      yaw: 0,
-      lift: 0,
-      joints: from.joints,
-    };
-    const ease: (x: number) => number = (x: number): number => {
-      const u: number = Math.min(1, Math.max(0, x));
-      return u * u * (3 - 2 * u);
-    };
-    // The somersault eases in over the first half of the rise, as the turn
-    // a take-off starts is not at full rate in its first instant, then runs
-    // at the constant rate that lays the body level at the apex.
-    const ramp: number = 0.5 * rising;
-    const spin: number = 90 / (rising - ramp / 2);
-    const somersault: (t: number) => number = (t: number): number =>
-      t < ramp ? (spin * t * t) / (2 * ramp) : spin * (t - ramp / 2);
-    const arch: IAutoMovieMotionHumanExerciseKey.IKey = arched(body);
-    const pike: IAutoMovieMotionHumanExerciseKey.IKey = piked(body);
-    const arching: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(start, arch);
-    const piking: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(arch, pike);
-    const frameAt: (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]) => IPreparedGymnasticsFrame =
-      (t: number, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IPreparedGymnasticsFrame => {
-      const risingShare: number = ease(t / rising);
-      const key: IAutoMovieMotionHumanExerciseKey.IKey =
-        t <= rising
-          ? arching(risingShare)
-          : piking(ease((t - rising) / rising));
-      return prepareFrame(
-        {
-          ...from,
-          joints: key.joints,
-          yaw: from.yaw + 180 * risingShare,
-          pitch: -somersault(t),
-        },
-        GymnasticsFlight.at(c0, v, t),
-        resolution,
-        projection,
-      );
-    };
-    const flying: (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]) => IAutoMovieMotionHumanPosture = (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => frameAt(t, resolution, projection).posture;
-
-    // The touchdown: the lowest shape meets the surface on the way down.
-    const down: number = ((): number => {
-      const floorResolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const floorProjection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      const lowest: (t: number) => number = (t: number): number => {
-        const frame: IPreparedGymnasticsFrame = frameAt(t, floorResolution, floorProjection);
-        return frame.posture.root.y - frame.floor();
-      };
-      const apexLowest: number = lowest(rising);
-      if (!(apexLowest > surface))
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "bar",
-          value: bar,
-          reason: `at the apex the body's lowest point is at ${apexLowest.toFixed(2)} m, no higher than the landing surface at ${surface.toFixed(2)} m`,
-          fix: "raise the bar, or land on a lower surface",
-        });
-      const fallen: number = GymnasticsFlight.fall(c0.y, v.y, surface)!;
-      return GymnasticsFlight.touchdown(rising, fallen, lowest, surface);
-    })();
+    const { flying, down }: ReturnType<typeof highJumpFlight> = highJumpFlight({
+      body,
+      from,
+      arch: arched(body),
+      pike: piked(body),
+      prepareFrame,
+      c0,
+      v,
+      rising,
+      surface,
+      bar,
+    });
     const landing: ReturnType<typeof GymnasticsMat.lie> = GymnasticsMat.lie({
       body,
       model,
@@ -403,7 +402,8 @@ export namespace highJump {
     const touchdown: number = off + down;
     const settled: number = touchdown + GymnasticsMat.SETTLE;
     const duration: number = settled + GymnasticsMat.HOLD;
-    const pushed: IAutoMovieMotionHumanContactWindow = takeoff.plan.contacts[0]!;
+    const pushed: IAutoMovieMotionHumanContactWindow =
+      takeoff.plan.contacts[0]!;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       {
         ...pushed,
@@ -430,16 +430,30 @@ export namespace highJump {
     ];
     // A ballistic flight has constant horizontal velocity, so the plane
     // time is exact even when the authored apex falls before or after it.
-    const normal: IAutoMovieVector3 = { x: -cross.axis.z, y: 0, z: cross.axis.x };
+    const normal: IAutoMovieVector3 = {
+      x: -cross.axis.z,
+      y: 0,
+      z: cross.axis.x,
+    };
     const speed: number = Vector3.dot(v, normal);
     if (cross.length !== undefined && Math.abs(speed) > 1e-6) {
       const away: IAutoMovieVector3 = Vector3.subtract(cross.point, c0);
       const seconds: number = Vector3.dot(away, normal) / speed;
       const axis: IAutoMovieVector3 = { ...cross.axis, y: 0 };
-      const along: number = Vector3.dot(Vector3.subtract(Vector3.scale(v, seconds), away), axis);
-      if (seconds > 0 && off + seconds < touchdown && Math.abs(along) <= cross.length * Vector3.dot(axis, axis) / 2) {
+      const along: number = Vector3.dot(
+        Vector3.subtract(Vector3.scale(v, seconds), away),
+        axis,
+      );
+      if (
+        seconds > 0 &&
+        off + seconds < touchdown &&
+        Math.abs(along) <= (cross.length * Vector3.dot(axis, axis)) / 2
+      ) {
         events.push({ name: "barCrossing", share: (off + seconds) / duration });
-        events.sort((a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number => a.share - b.share);
+        events.sort(
+          (a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number =>
+            a.share - b.share,
+        );
       }
     }
     return {
@@ -448,9 +462,15 @@ export namespace highJump {
       contacts,
       contact: off + rising,
       base: { kind: "lying" },
-      posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t <= off) return takeoff.plan.posture(t, channels, resolution, projection);
+        if (t <= off)
+          return takeoff.plan.posture(t, channels, resolution, projection);
         if (t < touchdown) return flying(t - off, resolution, projection);
         return landing(t - touchdown, resolution, projection);
       },

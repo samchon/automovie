@@ -33,7 +33,12 @@ export function createShuttlecock(
   seed?: number | string,
 ): Archetype<createShuttlecock.Affordance, createShuttlecock.Dimension> {
   const draw: ArchetypeDrawSession<createShuttlecock.Dimension> =
-    new ArchetypeDrawSession("shuttlecock", createShuttlecock.UNITS, seed, params);
+    new ArchetypeDrawSession(
+      "shuttlecock",
+      createShuttlecock.UNITS,
+      seed,
+      params,
+    );
   const dimensions: Record<createShuttlecock.Dimension, number> =
     draw.dimensions(createShuttlecock.BANDS);
   const builder: ArchetypeBuilder<
@@ -57,12 +62,20 @@ export function createShuttlecock(
   // root width are provisional mesh dimensions.
   for (let i: number = 0; i < createShuttlecock.FEATHERS; ++i) {
     const angle: number = (2 * Math.PI * i) / createShuttlecock.FEATHERS;
-    const radial: IAutoMovieVector3 = Vector3.create(Math.cos(angle), 0, Math.sin(angle));
+    const radial: IAutoMovieVector3 = Vector3.create(
+      Math.cos(angle),
+      0,
+      Math.sin(angle),
+    );
     const tangent: IAutoMovieVector3 = Vector3.create(-radial.z, 0, radial.x);
     const corners: IAutoMovieVector3[] = [];
     for (const [radius, y, width] of [
       [mount, r * 1.55, 0.0012],
-      [tip, height, tip * Math.sin(Math.PI / createShuttlecock.FEATHERS) * 0.96],
+      [
+        tip,
+        height,
+        tip * Math.sin(Math.PI / createShuttlecock.FEATHERS) * 0.96,
+      ],
     ] as const)
       for (const edge of [-1, 1] as const)
         for (const layer of [-1, 1] as const)
@@ -123,7 +136,11 @@ export namespace createShuttlecock {
   }
 
   /** Cork and feather dimensions in metres, and whole-shuttle mass in kilograms. */
-  export type Dimension = "corkDiameter" | "featherLength" | "skirtDiameter" | "mass";
+  export type Dimension =
+    | "corkDiameter"
+    | "featherLength"
+    | "skirtDiameter"
+    | "mass";
 
   /** The cork-centre grip and outward strike surface on the rounded nose. */
   export type Affordance = "grip" | "strike";
@@ -146,8 +163,8 @@ export namespace createShuttlecock {
   /** BWF Law 2.2's dimensions and mass limits. */
   export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
     corkDiameter: ArchetypeBand.metres(0.025, 0.028, BWF),
-    featherLength: ArchetypeBand.metres(0.062, 0.070, BWF),
+    featherLength: ArchetypeBand.metres(0.062, 0.07, BWF),
     skirtDiameter: ArchetypeBand.metres(0.058, 0.068, BWF),
-    mass: ArchetypeBand.of("kg", 0.00474, 0.00550, BWF),
+    mass: ArchetypeBand.of("kg", 0.00474, 0.0055, BWF),
   };
 }

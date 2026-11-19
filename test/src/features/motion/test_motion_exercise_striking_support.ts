@@ -4,7 +4,12 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanFoot, HumanPerformance, poseBones } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanFoot,
+  HumanPerformance,
+  poseBones,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -46,10 +51,14 @@ export function test_motion_exercise_striking_support(): void {
   ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const rear: "left" | "right" = lead === "left" ? "right" : "left";
-    const stance: "orthodox" | "southpaw" = lead === "left" ? "orthodox" : "southpaw";
-    const pivot: ITake = take(body, HumanChain.subject("actor")
-      .guard({ seconds: 0.8, stance, style: "boxing" })
-      .step({ direction: "forward", turn, guard: "boxing" }));
+    const stance: "orthodox" | "southpaw" =
+      lead === "left" ? "orthodox" : "southpaw";
+    const pivot: ITake = take(
+      body,
+      HumanChain.subject("actor")
+        .guard({ seconds: 0.8, stance, style: "boxing" })
+        .step({ direction: "forward", turn, guard: "boxing" }),
+    );
     const ball: IAutoMovieVector3 = pivot.sole(0, lead, "ball");
     const heel: IAutoMovieVector3 = pivot.sole(0, lead, "heel");
     for (const share of [0.125, 0.5, 0.875, 1])
@@ -71,17 +80,28 @@ export function test_motion_exercise_striking_support(): void {
         pivot.sole(0.5, rear, "ball").y > pivot.sole(0, rear, "ball").y,
     );
 
-    const exchange: ITake = take(body, HumanChain.subject("actor")
-      .guard({ seconds: 0.8, stance, style: "kickboxing" })
-      .step({ direction: "forward", lead: rear, guard: "kickboxing" }));
+    const exchange: ITake = take(
+      body,
+      HumanChain.subject("actor")
+        .guard({ seconds: 0.8, stance, style: "kickboxing" })
+        .step({ direction: "forward", lead: rear, guard: "kickboxing" }),
+    );
     TestValidator.predicate(
       `${name} old lead stays while rear foot travels`,
-      vclose(exchange.sole(0.25, lead, "ball"), exchange.sole(0, lead, "ball"), CONTACT) &&
+      vclose(
+        exchange.sole(0.25, lead, "ball"),
+        exchange.sole(0, lead, "ball"),
+        CONTACT,
+      ) &&
         exchange.sole(0.25, rear, "ball").y > exchange.sole(0, rear, "ball").y,
     );
     TestValidator.predicate(
       `${name} new lead stays after landing`,
-      vclose(exchange.sole(0.75, rear, "ball"), exchange.sole(1, rear, "ball"), CONTACT),
+      vclose(
+        exchange.sole(0.75, rear, "ball"),
+        exchange.sole(1, rear, "ball"),
+        CONTACT,
+      ),
     );
     TestValidator.predicate(
       `${name} reversed foot order along film forward`,
@@ -93,8 +113,7 @@ export function test_motion_exercise_striking_support(): void {
     const taiChi = form(body, lead, "taiChiTransfer");
     TestValidator.predicate(
       `${name} karate turns while tai chi maintains heading`,
-      karate.yawChange > taiChi.yawChange &&
-        nclose(taiChi.yawChange, 0, 1e-6),
+      karate.yawChange > taiChi.yawChange && nclose(taiChi.yawChange, 0, 1e-6),
     );
     TestValidator.predicate(
       `${name} tai chi uses a longer transfer window`,
@@ -104,25 +123,37 @@ export function test_motion_exercise_striking_support(): void {
 }
 
 /** Build one actual performance at world forward and read its last action. */
-function take(body: IAutoMovieMotionHumanBody, chain: ReturnType<typeof HumanChain.subject>): ITake {
+function take(
+  body: IAutoMovieMotionHumanBody,
+  chain: ReturnType<typeof HumanChain.subject>,
+): ITake {
   const film: HumanPerformance = new HumanPerformance({
     seed: "exercise-striking-support",
-    performers: [{
-      subject: "actor",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" },
-    }],
+    performers: [
+      {
+        subject: "actor",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
     composition: chain.node,
   });
   const segment: IAutoMovieMotionHumanSegment = film.segments("actor").at(-1)!;
   const bones = (share: number): ReturnType<typeof poseBones> =>
-    poseBones(body, film.pose("actor", segment.start + segment.plan.duration * share));
+    poseBones(
+      body,
+      film.pose("actor", segment.start + segment.plan.duration * share),
+    );
   return {
     segment,
     bones,
-    sole: (share: number, side: "left" | "right", socket: Sole): IAutoMovieVector3 => {
+    sole: (
+      share: number,
+      side: "left" | "right",
+      socket: Sole,
+    ): IAutoMovieVector3 => {
       const foot = bones(share).get(`${side}Foot`)!;
       const placement: IAutoMovieMotionHumanFoot.IPlacement = {
         ankle: foot.worldPosition,
@@ -139,13 +170,22 @@ function form(
   lead: "left" | "right",
   kind: "karateStanceTransfer" | "taiChiTransfer",
 ): { yawChange: number; duration: number } {
-  const scene: ITake = take(body, HumanChain.subject("actor").martialArt({ kind, lead }));
+  const scene: ITake = take(
+    body,
+    HumanChain.subject("actor").martialArt({ kind, lead }),
+  );
   const at = (name: string): number =>
     scene.segment.plan.events.find((event) => event.name === name)!.share;
   const ready: number = at("ready");
   const fore: number = at("stroke");
   const back: number = at("strokeEnd");
-  const positions: number[] = [ready, (ready + fore) / 2, fore, (fore + back) / 2, back];
+  const positions: number[] = [
+    ready,
+    (ready + fore) / 2,
+    fore,
+    (fore + back) / 2,
+    back,
+  ];
   for (const side of ["left", "right"] as const) {
     const ball: IAutoMovieVector3 = scene.sole(ready, side, "ball");
     for (const share of positions)
@@ -168,13 +208,18 @@ function form(
     TestValidator.predicate(
       `${kind} ${lead} lead moves the ${side} wrist relative to the torso`,
       !nclose(
-        front.get(`${side}Hand`)!.worldPosition.z - front.get("chest")!.worldPosition.z,
-        rear.get(`${side}Hand`)!.worldPosition.z - rear.get("chest")!.worldPosition.z,
+        front.get(`${side}Hand`)!.worldPosition.z -
+          front.get("chest")!.worldPosition.z,
+        rear.get(`${side}Hand`)!.worldPosition.z -
+          rear.get("chest")!.worldPosition.z,
         CONTACT,
       ),
     );
   return {
-    yawChange: Math.abs(HumanFoot.heading(hipsFront.worldRotation) - HumanFoot.heading(hipsBack.worldRotation)),
+    yawChange: Math.abs(
+      HumanFoot.heading(hipsFront.worldRotation) -
+        HumanFoot.heading(hipsBack.worldRotation),
+    ),
     duration: (back - ready) * scene.segment.plan.duration,
   };
 }

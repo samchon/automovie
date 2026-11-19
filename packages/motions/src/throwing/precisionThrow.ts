@@ -34,13 +34,28 @@ export namespace precisionThrow {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing body frame and entry blend curve.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function windmill(frame: IAutoMovieMotionHumanFrame, arm: number, chamber: IAutoMovieVector3, rest: IAutoMovieVector3, progress: number): IAutoMovieVector3 {
+  export function windmill(
+    frame: IAutoMovieMotionHumanFrame,
+    arm: number,
+    chamber: IAutoMovieVector3,
+    rest: IAutoMovieVector3,
+    progress: number,
+  ): IAutoMovieVector3 {
     const angle: number = 2 * Math.PI * progress;
     const radius: number = 0.8 * arm;
-    const offset: IAutoMovieVector3 = HumanFrame.point({ ...frame, origin: chamber }, {
-      x: 0, y: radius * (1 - Math.cos(angle)), z: radius * Math.sin(angle),
-    });
-    return Vector3.lerp(rest, offset, minimumJerk.share(Math.min(progress * 5, 1)));
+    const offset: IAutoMovieVector3 = HumanFrame.point(
+      { ...frame, origin: chamber },
+      {
+        x: 0,
+        y: radius * (1 - Math.cos(angle)),
+        z: radius * Math.sin(angle),
+      },
+    );
+    return Vector3.lerp(
+      rest,
+      offset,
+      minimumJerk.share(Math.min(progress * 5, 1)),
+    );
   }
 
   /**
@@ -58,16 +73,35 @@ export namespace precisionThrow {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one depth and at most two prepared foot goal readers for the action lifetime.
    */
   export function stance(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "carrier" | "entry">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "carrier" | "entry"
+    >,
     style: IAutoMovieMotionHumanThrowObjectForm.Style,
-  ): ((posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture) | undefined {
+  ):
+    | ((
+        posture: IAutoMovieMotionHumanPosture,
+        share: number,
+      ) => IAutoMovieMotionHumanPosture)
+    | undefined {
     if (style !== "bowling" || context.carrier !== undefined) return undefined;
     const { body, entry } = context;
     const depth: number = 0.2 * (body.measure.thigh + body.measure.shank);
     const planted: ReturnType<typeof AutoMovieMotionHumanTrunk.preparePlanted> =
-      AutoMovieMotionHumanTrunk.preparePlanted(body, AutoMovieMotionHumanTrunk.footing(body, entry.posture));
-    return (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
-      share === 0 ? posture : planted({ ...posture, root: { ...posture.root, y: posture.root.y - depth * share } });
+      AutoMovieMotionHumanTrunk.preparePlanted(
+        body,
+        AutoMovieMotionHumanTrunk.footing(body, entry.posture),
+      );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+    ): IAutoMovieMotionHumanPosture =>
+      share === 0
+        ? posture
+        : planted({
+            ...posture,
+            root: { ...posture.root, y: posture.root.y - depth * share },
+          });
   }
 
   /**
@@ -81,14 +115,35 @@ export namespace precisionThrow {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the canonical published launch and its sphere input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned array.
    */
-  export function launches(context: Pick<IAutoMovieMotionHumanActionContext, "prop">, style: IAutoMovieMotionHumanThrowObjectForm.Style, launches: IAutoMovieMotionPropLaunch[]): IAutoMovieMotionPropLaunch[] {
-    if (style !== "windmill" && style !== "cricket" && style !== "bowling") return launches;
-    return launches.map((launch: IAutoMovieMotionPropLaunch): IAutoMovieMotionPropLaunch => {
-      if (launch.attitude !== undefined && launch.attitude.kind !== "fixed") return launch;
-      const grip: IAutoMovieAffordance | undefined = context.prop(launch.prop).prop.affordances?.find((affordance: IAutoMovieAffordance): boolean => affordance.id === "grip");
-      const diameter: number | undefined = grip?.aperture;
-      if (diameter === undefined || !Number.isFinite(diameter) || diameter <= 0) return launch;
-      return { ...launch, sphere: { radius: diameter / 2, centre: grip!.frame.translation } };
-    });
+  export function launches(
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
+    style: IAutoMovieMotionHumanThrowObjectForm.Style,
+    launches: IAutoMovieMotionPropLaunch[],
+  ): IAutoMovieMotionPropLaunch[] {
+    if (style !== "windmill" && style !== "cricket" && style !== "bowling")
+      return launches;
+    return launches.map(
+      (launch: IAutoMovieMotionPropLaunch): IAutoMovieMotionPropLaunch => {
+        if (launch.attitude !== undefined && launch.attitude.kind !== "fixed")
+          return launch;
+        const grip: IAutoMovieAffordance | undefined = context
+          .prop(launch.prop)
+          .prop.affordances?.find(
+            (affordance: IAutoMovieAffordance): boolean =>
+              affordance.id === "grip",
+          );
+        const diameter: number | undefined = grip?.aperture;
+        if (
+          diameter === undefined ||
+          !Number.isFinite(diameter) ||
+          diameter <= 0
+        )
+          return launch;
+        return {
+          ...launch,
+          sphere: { radius: diameter / 2, centre: grip!.frame.translation },
+        };
+      },
+    );
   }
 }

@@ -8,7 +8,6 @@ import type {
 
 import { getUp } from "../floor/getUp";
 import { lieDown } from "../floor/lieDown";
-
 import { clinch } from "./clinch";
 
 /**
@@ -146,12 +145,16 @@ export namespace grappleStances {
   ];
 
   /** Both feet bearing, with one optionally set down anew by the support law. */
-  function feet(step?: AutoMovieHumanSide): readonly IAutoMovieMotionHumanSupport.IContact[] {
-    return ["left", "right"].map((side: string): IAutoMovieMotionHumanSupport.IContact => ({
-      part: side === "left" ? "leftFoot" : "rightFoot",
-      kind: "bear",
-      ...(side === step ? { step: true } : {}),
-    }));
+  function feet(
+    step?: AutoMovieHumanSide,
+  ): readonly IAutoMovieMotionHumanSupport.IContact[] {
+    return ["left", "right"].map(
+      (side: string): IAutoMovieMotionHumanSupport.IContact => ({
+        part: side === "left" ? "leftFoot" : "rightFoot",
+        kind: "bear",
+        ...(side === step ? { step: true } : {}),
+      }),
+    );
   }
 
   /** Switch an authored lead side. */
@@ -160,7 +163,11 @@ export namespace grappleStances {
   }
 
   /** Standing stance which lets the pelvis and trunk turn separately. */
-  function stance(entry: IEntry, direction: number, share: number): IAutoMovieMotionHumanLieDown.IPose {
+  function stance(
+    entry: IEntry,
+    direction: number,
+    share: number,
+  ): IAutoMovieMotionHumanLieDown.IPose {
     const depth: number = entry.depth * share;
     return {
       pitch: entry.pitch * share,
@@ -214,17 +221,24 @@ export namespace grappleStances {
     const grip: IRow["grip"] = rows[kind].grip;
     switch (grip) {
       case "collarSleeve": {
-        const paired: ReturnType<typeof clinch.regions> = clinch.regions("collarSleeve", side);
+        const paired: ReturnType<typeof clinch.regions> = clinch.regions(
+          "collarSleeve",
+          side,
+        );
         return { left: paired.left.region, right: paired.right.region };
       }
       case "oneLeg":
-        return { [side]: side === "right" ? "thighFrontLeft" : "thighFrontRight" };
+        return {
+          [side]: side === "right" ? "thighFrontLeft" : "thighFrontRight",
+        };
       case "bothLegs":
         return { left: "thighFrontRight", right: "thighFrontLeft" };
       case "shoulders":
         return { left: "shoulderRight", right: "shoulderLeft" };
       case "mat":
-        return { [opposite]: opposite === "right" ? "shoulderLeft" : "shoulderRight" };
+        return {
+          [opposite]: opposite === "right" ? "shoulderLeft" : "shoulderRight",
+        };
     }
   }
 
@@ -280,16 +294,44 @@ export namespace grappleStances {
     ];
 
     const stances: readonly IAutoMovieMotionHumanSupport.IStance[] = [
-      { event: "ready", contacts: feet(), prefer: stance(entry, direction, 0.3) },
-      { event: "entry", contacts: feet(step), prefer: stance(entry, direction, 1), turn },
+      {
+        event: "ready",
+        contacts: feet(),
+        prefer: stance(entry, direction, 0.3),
+      },
+      {
+        event: "entry",
+        contacts: feet(step),
+        prefer: stance(entry, direction, 1),
+        turn,
+      },
       down
-        ? { event: "matTransfer", contacts: sitting, prefer: lieDown.POSES.sit, turn }
-        : { event: complete ? "transfer" : "interrupted", contacts: feet(other(step)), prefer: stance(entry, direction, 0.7), turn: turn * 0.6 },
+        ? {
+            event: "matTransfer",
+            contacts: sitting,
+            prefer: lieDown.POSES.sit,
+            turn,
+          }
+        : {
+            event: complete ? "transfer" : "interrupted",
+            contacts: feet(other(step)),
+            prefer: stance(entry, direction, 0.7),
+            turn: turn * 0.6,
+          },
       down
         ? { event: "settled", contacts: back, prefer: floorPose, turn }
         : kneeling
-          ? { event: "settled", contacts: low, prefer: lieDown.POSES.kneel, turn: turn * 0.6 }
-          : { event: "supportRegained", contacts: feet(step), prefer: stance(entry, direction, 0.12) },
+          ? {
+              event: "settled",
+              contacts: low,
+              prefer: lieDown.POSES.kneel,
+              turn: turn * 0.6,
+            }
+          : {
+              event: "supportRegained",
+              contacts: feet(step),
+              prefer: stance(entry, direction, 0.12),
+            },
       down || kneeling
         ? {
             event: "recoveredOnMat",
@@ -298,14 +340,20 @@ export namespace grappleStances {
             turn: down ? turn : turn * 0.6,
           }
         : {
-            event: result === "mmaReset" && complete ? "separated" : "recovered",
+            event:
+              result === "mmaReset" && complete ? "separated" : "recovered",
             contacts: feet(other(step)),
             prefer: getUp.POSES.stood,
           },
     ];
-    return stances.map((key: IAutoMovieMotionHumanSupport.IStance, index: number): IAutoMovieMotionHumanSupport.IStance => ({
-      ...key,
-      seconds: duration * (shares[index]! - (shares[index - 1] ?? 0)),
-    }));
+    return stances.map(
+      (
+        key: IAutoMovieMotionHumanSupport.IStance,
+        index: number,
+      ): IAutoMovieMotionHumanSupport.IStance => ({
+        ...key,
+        seconds: duration * (shares[index]! - (shares[index - 1] ?? 0)),
+      }),
+    );
   }
 }

@@ -75,10 +75,18 @@ export namespace HumanSurfaceGlide {
     const seconds: number = HumanBound.above("seconds", params.seconds, 0, "s");
     const speed: number = HumanBound.above("speed", params.speed, 0, "m/s");
     const turn: number = HumanBound.within(
-      "turn", params.turn ?? 0, -180, 180, "deg",
+      "turn",
+      params.turn ?? 0,
+      -180,
+      180,
+      "deg",
     );
     const grade: number = HumanBound.within(
-      "grade", params.grade ?? 0, -20, 20, "deg",
+      "grade",
+      params.grade ?? 0,
+      -20,
+      20,
+      "deg",
     );
     if (
       entry.base.kind !== "standing" ||
@@ -116,15 +124,24 @@ export namespace HumanSurfaceGlide {
       ),
     };
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(origin.rotation, FORWARD);
-    const enteredSpeed: number = Math.max(0, Vector3.dot(entry.velocity.linear, forward));
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+      origin.rotation,
+      FORWARD,
+    );
+    const enteredSpeed: number = Math.max(
+      0,
+      Vector3.dot(entry.velocity.linear, forward),
+    );
     const acquire: number = seconds * ACQUIRE;
     const braking: number = params.stop === true ? seconds * BRAKE : 0;
     const travel: number =
-      speed * (seconds - braking / 2) + (enteredSpeed - speed) * acquire / 2;
+      speed * (seconds - braking / 2) + ((enteredSpeed - speed) * acquire) / 2;
     const curvature: number = (turn * Quaternion.DEG2RAD) / travel;
     const foot = (side: "left" | "right"): IAutoMovieVector3 =>
-      Quaternion.rotateVector(inverse, Vector3.subtract(ankle[side], origin.position));
+      Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(ankle[side], origin.position),
+      );
     const local: Record<"left" | "right", IAutoMovieVector3> = {
       left: foot("left"),
       right: foot("right"),
@@ -141,7 +158,8 @@ export namespace HumanSurfaceGlide {
         axis: "turn",
         value: turn,
         feasible: null,
-        reason: "the glide arc must be finite and turn outside both skate or ski paths",
+        reason:
+          "the glide arc must be finite and turn outside both skate or ski paths",
         fix: "use a gentler turn, a longer duration or a higher travel speed",
       });
 
@@ -156,7 +174,11 @@ export namespace HumanSurfaceGlide {
       right: tangent("right"),
     };
     const knees: IAutoMovieMotionHumanPosture["limbs"] = standingLegs(
-      body, start.root, start.yaw, ankle, 0,
+      body,
+      start.root,
+      start.yaw,
+      ankle,
+      0,
     );
     const contacts: IAutoMovieMotionHumanContactWindow[] = SIDES.map(
       (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
@@ -176,23 +198,29 @@ export namespace HumanSurfaceGlide {
         { name: "glide", share: ACQUIRE },
         ...(braking === 0
           ? []
-          : [{ name: "brake", share: 1 - BRAKE }, { name: "stop", share: 1 }]),
+          : [
+              { name: "brake", share: 1 - BRAKE },
+              { name: "stop", share: 1 },
+            ]),
       ],
       contacts,
       physicalWindow: null,
       posture: (at: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(seconds, Math.max(0, at));
         const u: number = Math.min(1, t / acquire);
-        const b: number = braking === 0
-          ? 0
-          : Math.min(1, Math.max(0, (t - (seconds - braking)) / braking));
+        const b: number =
+          braking === 0
+            ? 0
+            : Math.min(1, Math.max(0, (t - (seconds - braking)) / braking));
         const distance: number =
           enteredSpeed * t +
-          (speed - enteredSpeed) * (acquire * rampIntegral(u) + Math.max(0, t - acquire)) -
+          (speed - enteredSpeed) *
+            (acquire * rampIntegral(u) + Math.max(0, t - acquire)) -
           speed * braking * rampIntegral(b);
         const angle: number = distance * curvature;
         const half: number = angle / 2;
-        const chord: number = half === 0 ? distance : distance * Math.sin(half) / half;
+        const chord: number =
+          half === 0 ? distance : (distance * Math.sin(half)) / half;
         const frame: IAutoMovieRigidTransform = {
           position: Vector3.add(
             origin.position,
@@ -203,37 +231,57 @@ export namespace HumanSurfaceGlide {
             }),
           ),
           rotation: Quaternion.multiply(
-            origin.rotation, Quaternion.fromAxisAngle(UP, angle / Quaternion.DEG2RAD),
+            origin.rotation,
+            Quaternion.fromAxisAngle(UP, angle / Quaternion.DEG2RAD),
           ),
         };
         const set: number = minimumJerk.share(u);
         const finish: number = minimumJerk.share(b);
-        const turnLean: number = Math.min(7, Math.max(-7, speed * speed * curvature * 3));
-        const drop: number = 0.09 * (body.measure.thigh + body.measure.shank) * set *
-          (1 - finish);
+        const turnLean: number = Math.min(
+          7,
+          Math.max(-7, speed * speed * curvature * 3),
+        );
+        const drop: number =
+          0.09 * (body.measure.thigh + body.measure.shank) * set * (1 - finish);
         const carried: IAutoMovieMotionHumanPosture = carryHumanPosture(
-          start, origin, {
+          start,
+          origin,
+          {
             ...frame,
             position: Vector3.add(frame.position, { x: 0, y: -drop, z: 0 }),
           },
         );
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...carried.limbs };
-        const delta: IAutoMovieQuaternion = Quaternion.multiply(frame.rotation, inverse);
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...carried.limbs,
+        };
+        const delta: IAutoMovieQuaternion = Quaternion.multiply(
+          frame.rotation,
+          inverse,
+        );
         for (const side of SIDES) {
           const part: "leftLeg" | "rightLeg" = `${side}Leg`;
           const knee: IAutoMovieHumanLimbGoal = knees[part]!;
           const before: IAutoMovieQuaternion = Quaternion.multiply(
-            delta, entry.feet[side].rotation,
+            delta,
+            entry.feet[side].rotation,
           );
           limbs[part] = {
             ...knee,
-            point: Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local[side])),
+            point: Vector3.add(
+              frame.position,
+              Quaternion.rotateVector(frame.rotation, local[side]),
+            ),
             bend: Vector3.add(
               frame.position,
-              Quaternion.rotateVector(delta, Vector3.subtract(knee.bend, origin.position)),
+              Quaternion.rotateVector(
+                delta,
+                Vector3.subtract(knee.bend, origin.position),
+              ),
             ),
             rotation: Quaternion.slerp(
-              before, Quaternion.multiply(frame.rotation, toe[side]), set,
+              before,
+              Quaternion.multiply(frame.rotation, toe[side]),
+              set,
             ),
           };
         }

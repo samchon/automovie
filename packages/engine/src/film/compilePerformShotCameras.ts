@@ -61,8 +61,7 @@ export function compilePerformShotCameras(
   const frame: (
     on: IAutoMovieActionTarget,
     start?: number,
-  ) => IAutoMovieFramedSubject =
-    createPerformShotSubjectFramer(context, props);
+  ) => IAutoMovieFramedSubject = createPerformShotSubjectFramer(context, props);
   const cameraMotion: IAutoMovieClip | null = compileCameraMove({
     clipId: `cam:${props.scope}`,
     camera: hero,

@@ -47,16 +47,19 @@ export namespace HumanSportThrow {
   });
 
   /** A fastpitch softball delivery with an underhand windmill. */
-  export const softballWindmill: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportThrow"]["softballWindmill"]> =
-    HumanActionRow.of("softballWindmill", throwObject, { style: "windmill" });
+  export const softballWindmill: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["softballWindmill"]
+  > = HumanActionRow.of("softballWindmill", throwObject, { style: "windmill" });
 
   /** A high cricket release directed toward the authored pitch bounce. */
-  export const cricketBowl: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportThrow"]["cricketBowl"]> =
-    HumanActionRow.of("cricketBowl", throwObject, { style: "cricket" });
+  export const cricketBowl: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["cricketBowl"]
+  > = HumanActionRow.of("cricketBowl", throwObject, { style: "cricket" });
 
   /** The low delivery of a one-handed ten-pin bowling approach. */
-  export const bowlingDelivery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingDelivery"]> =
-    HumanActionRow.of("bowlingDelivery", throwObject, { style: "bowling" });
+  export const bowlingDelivery: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingDelivery"]
+  > = HumanActionRow.of("bowlingDelivery", throwObject, { style: "bowling" });
 
   /** A chest or bounce pass, a free throw or a shot put: a push from before the chest. The leap of a jump shot and the glide of a shot put are not planned. */
   export const pushPass: IAutoMovieMotionHumanActionLaw<

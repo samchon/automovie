@@ -19,7 +19,11 @@ export namespace IAutoMovieMotionHumanStickBall {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The sport planner reads this one choice to select the working affordance and effect.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Leaves timing, placement and geometry to the planner and the named model affordances.
    */
-  export type Kind = "fieldHockey" | "iceHockey" | "lacrosseScoop" | "lacrossePass";
+  export type Kind =
+    | "fieldHockey"
+    | "iceHockey"
+    | "lacrosseScoop"
+    | "lacrossePass";
 
   /**
    * The timing, identity and intended direction of a stick action.

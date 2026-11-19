@@ -1,4 +1,8 @@
-import { createHighJump, createLandingMat, createPlyoBox } from "@automovie/archetypes";
+import {
+  createHighJump,
+  createLandingMat,
+  createPlyoBox,
+} from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -8,7 +12,14 @@ import type {
   IAutoMovieMotionHumanSignature,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanGymnastics, HumanObject, HumanPerformance, HumanSignature, HumanSport } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanGymnastics,
+  HumanObject,
+  HumanPerformance,
+  HumanSignature,
+  HumanSport,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,7 +46,10 @@ export function test_motion_exercise_track_field(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   const athlete = {
-    subject: "a", body, at: origin, yaw: 0,
+    subject: "a",
+    body,
+    at: origin,
+    yaw: 0,
     proficiency: { level: "trained" as const },
   };
   const driveSeconds: number = 0.3;
@@ -45,7 +59,11 @@ export function test_motion_exercise_track_field(): void {
     performers: [athlete],
     composition: HumanChain.subject("a")
       .stand({ seconds: 0.3, sway: 0 })
-      .registered("sprintStart", { seconds: 0.4, drive: driveSeconds, front: "left" }).node,
+      .registered("sprintStart", {
+        seconds: 0.4,
+        drive: driveSeconds,
+        front: "left",
+      }).node,
   });
   const start: IAutoMovieMotionHumanSegment = sprint.segments("a")[1]!;
   const set: number = when(start, "set");
@@ -54,7 +72,10 @@ export function test_motion_exercise_track_field(): void {
   const exit: number = when(start, "blockExit");
   TestValidator.predicate(
     "the authored block drive runs beyond the held set",
-    set < gun && gun < rear && rear < exit && Math.abs(exit - gun - driveSeconds) <= 1e-6,
+    set < gun &&
+      gun < rear &&
+      rear < exit &&
+      Math.abs(exit - gun - driveSeconds) <= 1e-6,
   );
   for (const [part, expected] of [
     ["leftHand", gun],
@@ -65,7 +86,8 @@ export function test_motion_exercise_track_field(): void {
     const bearing: IAutoMovieMotionHumanContactWindow = contact(start, part);
     TestValidator.predicate(
       part + " persists to its own block-drive release",
-      Math.abs(start.start + bearing.to * start.plan.duration - expected) <= 1e-6,
+      Math.abs(start.start + bearing.to * start.plan.duration - expected) <=
+        1e-6,
     );
   }
   const hipsInSet: IAutoMovieVector3 = joint(sprint, gun, "hips");
@@ -76,11 +98,20 @@ export function test_motion_exercise_track_field(): void {
   );
   TestValidator.predicate(
     "the front ankle stays on its block while the rear ankle rises",
-    Vector3.distance(joint(sprint, gun, "leftFoot"), joint(sprint, exit - 1e-4, "leftFoot")) <= 0.01 &&
-      joint(sprint, exit - 1e-4, "rightFoot").y - joint(sprint, rear, "rightFoot").y >= 0.04,
+    Vector3.distance(
+      joint(sprint, gun, "leftFoot"),
+      joint(sprint, exit - 1e-4, "leftFoot"),
+    ) <= 0.01 &&
+      joint(sprint, exit - 1e-4, "rightFoot").y -
+        joint(sprint, rear, "rightFoot").y >=
+        0.04,
   );
 
-  const crossbar = createHighJump({ kind: "highJump", height: 1.415, diameter: 0.03 });
+  const crossbar = createHighJump({
+    kind: "highJump",
+    height: 1.415,
+    diameter: 0.03,
+  });
   const barZ: number = 1.25;
   const matHeight: number = 0.762;
   for (const side of ["left", "right"] as const) {
@@ -90,15 +121,22 @@ export function test_motion_exercise_track_field(): void {
       laws: [HumanGymnastics.fosburyFlop],
       performers: [athlete],
       props: [
-        HumanObject.prop("bar", crossbar, { at: { x: 0, y: 0, z: barZ }, yaw: barYaw }),
+        HumanObject.prop("bar", crossbar, {
+          at: { x: 0, y: 0, z: barZ },
+          yaw: barYaw,
+        }),
         HumanObject.prop("mat", createPlyoBox({ height: matHeight }), {
-          at: { x: 0, y: 0, z: 2.5 }, yaw: 0,
+          at: { x: 0, y: 0, z: 2.5 },
+          yaw: 0,
         }),
       ],
       composition: HumanChain.subject("a")
         .stand({ seconds: 0.3, sway: 0 })
         .registered("fosburyFlop", {
-          bar: "bar", on: "mat", to: { x: 0, y: matHeight, z: 2.5 }, takeoffFoot: side,
+          bar: "bar",
+          on: "mat",
+          to: { x: 0, y: matHeight, z: 2.5 },
+          takeoffFoot: side,
         }).node,
     });
     const leap: IAutoMovieMotionHumanSegment = jump.segments("a")[1]!;
@@ -106,18 +144,29 @@ export function test_motion_exercise_track_field(): void {
     const apex: number = when(leap, "apex");
     const crossing: number = when(leap, "barCrossing");
     const touchdown: number = when(leap, "touchdown");
-    const support: IAutoMovieMotionHumanContactWindow = contact(leap, side + "Foot" as "leftFoot" | "rightFoot");
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(jump, "a", body, 0);
+    const support: IAutoMovieMotionHumanContactWindow = contact(
+      leap,
+      (side + "Foot") as "leftFoot" | "rightFoot",
+    );
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      jump,
+      "a",
+      body,
+      0,
+    );
     const centre: IAutoMovieVector3 = HumanSignature.centre(reader, crossing);
-    const angle: number = barYaw * Math.PI / 180;
-    const planeDistance: number = centre.x * Math.sin(angle) + (centre.z - barZ) * Math.cos(angle);
+    const angle: number = (barYaw * Math.PI) / 180;
+    const planeDistance: number =
+      centre.x * Math.sin(angle) + (centre.z - barZ) * Math.cos(angle);
     TestValidator.predicate(
       side + " leg remains the takeoff support",
       Math.abs(leap.start + support.to * leap.plan.duration - takeoff) <= 1e-6,
     );
     TestValidator.predicate(
       side + " takeoff crosses the actual bar plane in flight",
-      takeoff < crossing && crossing < touchdown && Math.abs(planeDistance) <= 0.01,
+      takeoff < crossing &&
+        crossing < touchdown &&
+        Math.abs(planeDistance) <= 0.01,
     );
     TestValidator.predicate(
       side + " takeoff peaks at the authored crossbar height",
@@ -127,7 +176,12 @@ export function test_motion_exercise_track_field(): void {
 
   const gymnast: IAutoMovieMotionHumanBody = motionHumanBody("f-average");
   const pad = createLandingMat({ kind: "highJump" });
-  const box = createPlyoBox({ kind: "wood", height: 0.762, width: 0.762, depth: 0.762 });
+  const box = createPlyoBox({
+    kind: "wood",
+    height: 0.762,
+    width: 0.762,
+    depth: 0.762,
+  });
   // At this entry the hands reach x = -1.27 m. Give them 30 mm of
   // platform behind that mark, keeping the box face ahead of the gymnast.
   const boxAt: IAutoMovieVector3 = {
@@ -136,18 +190,26 @@ export function test_motion_exercise_track_field(): void {
     z: 1,
   };
   /** Vault from the marked box, optionally adding the landing mat. */
-  const vault = (mat?: IAutoMovieVector3): HumanPerformance => new HumanPerformance({
-    seed: "exercise-vault",
-    laws: [HumanGymnastics.handspringVault],
-    performers: [{ ...athlete, body: gymnast, at: { x: -1.5, y: 0, z: 1 }, yaw: 90 }],
-    props: [
-      HumanObject.prop("box", box, { at: boxAt, yaw: 90 }),
-      ...(mat === undefined ? [] : [HumanObject.prop("pad", pad, { at: mat, yaw: 0 })]),
-    ],
-    composition: HumanChain.subject("a")
-      .stand({ seconds: 0.5, sway: 0 })
-      .registered("handspringVault", { on: "box", ...(mat === undefined ? {} : { landOn: "pad" }) }).node,
-  });
+  const vault = (mat?: IAutoMovieVector3): HumanPerformance =>
+    new HumanPerformance({
+      seed: "exercise-vault",
+      laws: [HumanGymnastics.handspringVault],
+      performers: [
+        { ...athlete, body: gymnast, at: { x: -1.5, y: 0, z: 1 }, yaw: 90 },
+      ],
+      props: [
+        HumanObject.prop("box", box, { at: boxAt, yaw: 90 }),
+        ...(mat === undefined
+          ? []
+          : [HumanObject.prop("pad", pad, { at: mat, yaw: 0 })]),
+      ],
+      composition: HumanChain.subject("a")
+        .stand({ seconds: 0.5, sway: 0 })
+        .registered("handspringVault", {
+          on: "box",
+          ...(mat === undefined ? {} : { landOn: "pad" }),
+        }).node,
+    });
   const floor: HumanPerformance = vault();
   const floorLanding: number = when(floor.segments("a")[1]!, "touchdown");
   const mid: IAutoMovieVector3 = Vector3.lerp(
@@ -157,29 +219,42 @@ export function test_motion_exercise_track_field(): void {
   );
   const lift: number = 0.05;
   const matOrigin: IAutoMovieVector3 = Vector3.subtract(
-    { ...mid, y: lift }, pad.affordance("surface").frame.translation,
+    { ...mid, y: lift },
+    pad.affordance("surface").frame.translation,
   );
   const matted: HumanPerformance = vault(matOrigin);
   const action: IAutoMovieMotionHumanSegment = matted.segments("a")[1]!;
   const matLanding: number = when(action, "touchdown");
   TestValidator.predicate(
     "table support comes before the separate flight to the mat",
-    when(action, "handsDown") < when(action, "release") && when(action, "release") < matLanding,
+    when(action, "handsDown") < when(action, "release") &&
+      when(action, "release") < matLanding,
   );
   for (const foot of ["leftFoot", "rightFoot"] as const) {
-    const bearing: IAutoMovieMotionHumanContactWindow = contact(action, foot, "prop");
-    const rise: number = joint(matted, matLanding + 1e-4, foot).y - joint(floor, floorLanding + 1e-4, foot).y;
+    const bearing: IAutoMovieMotionHumanContactWindow = contact(
+      action,
+      foot,
+      "prop",
+    );
+    const rise: number =
+      joint(matted, matLanding + 1e-4, foot).y -
+      joint(floor, floorLanding + 1e-4, foot).y;
     TestValidator.predicate(
       foot + " lands at the named mat height and retains that support",
-      bearing.support?.kind === "prop" && bearing.support.subject === "pad" && Math.abs(rise - lift) <= 0.01,
+      bearing.support?.kind === "prop" &&
+        bearing.support.subject === "pad" &&
+        Math.abs(rise - lift) <= 0.01,
     );
   }
 }
 
 /** The absolute film second of a required event. */
 function when(segment: IAutoMovieMotionHumanSegment, name: string): number {
-  const event = segment.plan.events.find((candidate): boolean => candidate.name === name);
-  if (event === undefined) throw new Error(segment.name + " has no " + name + " event");
+  const event = segment.plan.events.find(
+    (candidate): boolean => candidate.name === name,
+  );
+  if (event === undefined)
+    throw new Error(segment.name + " has no " + name + " event");
   return segment.start + event.share * segment.plan.duration;
 }
 
@@ -189,15 +264,22 @@ function contact(
   part: IAutoMovieMotionHumanContactWindow["part"],
   kind?: string,
 ): IAutoMovieMotionHumanContactWindow {
-  const found: IAutoMovieMotionHumanContactWindow | undefined = segment.plan.contacts.find(
-    (window: IAutoMovieMotionHumanContactWindow): boolean =>
-      window.part === part && (kind === undefined || window.support?.kind === kind),
-  );
-  if (found === undefined) throw new Error(segment.name + " has no contact for " + part);
+  const found: IAutoMovieMotionHumanContactWindow | undefined =
+    segment.plan.contacts.find(
+      (window: IAutoMovieMotionHumanContactWindow): boolean =>
+        window.part === part &&
+        (kind === undefined || window.support?.kind === kind),
+    );
+  if (found === undefined)
+    throw new Error(segment.name + " has no contact for " + part);
   return found;
 }
 
 /** One actual resolved joint position at the requested film second. */
-function joint(film: HumanPerformance, time: number, bone: AutoMovieHumanoidBone): IAutoMovieVector3 {
+function joint(
+  film: HumanPerformance,
+  time: number,
+  bone: AutoMovieHumanoidBone,
+): IAutoMovieVector3 {
   return film.bones("a", time).get(bone)!.worldPosition;
 }

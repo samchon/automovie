@@ -8,7 +8,13 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanFrame, HumanObject, HumanPerformance, aquatic } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanFrame,
+  HumanObject,
+  HumanPerformance,
+  aquatic,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -32,15 +38,28 @@ import { vclose } from "../internal/vclose";
  */
 export function test_motion_exercise_aquatic_craft(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const boat: ReturnType<typeof createBoat> = createBoat({ kind: "rowboat", model: "thamesSkiff" });
-  const carrier: ReturnType<typeof rowBoat> = rowBoat(boat, {
-    start: { x: 1.6, z: -2, heading: 35 },
-    legs: [{ kind: "straight", length: 18 }],
-    cruise: 1.5, acceleration: 0.5, deceleration: 0.5,
-  }, { sea: { height: 0.7, seed: 7 } });
+  const boat: ReturnType<typeof createBoat> = createBoat({
+    kind: "rowboat",
+    model: "thamesSkiff",
+  });
+  const carrier: ReturnType<typeof rowBoat> = rowBoat(
+    boat,
+    {
+      start: { x: 1.6, z: -2, heading: 35 },
+      legs: [{ kind: "straight", length: 18 }],
+      cruise: 1.5,
+      acceleration: 0.5,
+      deceleration: 0.5,
+    },
+    { sea: { height: 0.7, seed: 7 } },
+  );
   const track: ReturnType<typeof rowBoat.bind> = rowBoat.bind(carrier, 1.4);
   const initial: IAutoMovieRigidTransform = track.motion(0);
-  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(boat, initial, "thwart0");
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    boat,
+    initial,
+    "thwart0",
+  );
   const floor: IAutoMovieVector3 = track.point("floor", 0).translation;
   const at: IAutoMovieVector3 = HumanFrame.point(
     { origin: { ...seat.at, y: floor.y }, yaw: seat.yaw },
@@ -49,7 +68,15 @@ export function test_motion_exercise_aquatic_craft(): void {
   const sculler: HumanPerformance = new HumanPerformance({
     seed: "aquatic-craft-scull",
     laws: [aquatic],
-    performers: [{ subject: "crew", body, at, yaw: seat.yaw, proficiency: { level: "trained" } }],
+    performers: [
+      {
+        subject: "crew",
+        body,
+        at,
+        yaw: seat.yaw,
+        proficiency: { level: "trained" },
+      },
+    ],
     props: [HumanObject.prop("hull", boat, initial, track.motion, track.point)],
     composition: HumanChain.subject("crew")
       .stand({ seconds: 0.3, on: { prop: "hull" } })
@@ -63,29 +90,46 @@ export function test_motion_exercise_aquatic_craft(): void {
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 => {
     const hull: IAutoMovieRigidTransform = performance.prop("hull", seconds);
-    const displayed: IAutoMovieVector3 = performance.bones("crew", seconds).get(bone)!.worldPosition;
-    return Quaternion.rotateVector(Quaternion.inverse(hull.rotation), Vector3.subtract(displayed, hull.position));
+    const displayed: IAutoMovieVector3 = performance
+      .bones("crew", seconds)
+      .get(bone)!.worldPosition;
+    return Quaternion.rotateVector(
+      Quaternion.inverse(hull.rotation),
+      Vector3.subtract(displayed, hull.position),
+    );
   };
   const catchTime: number = motionHumanLaw.event(scull, "catch2", "crew");
   const finish: number = motionHumanLaw.event(scull, "extract2", "crew");
   const catchAgain: number = motionHumanLaw.event(scull, "catch3", "crew");
   TestValidator.predicate(
     "the hull moves appreciably over a stroke",
-    Vector3.length(Vector3.subtract(sculler.prop("hull", finish).position, sculler.prop("hull", catchTime).position)) > 0.25,
+    Vector3.length(
+      Vector3.subtract(
+        sculler.prop("hull", finish).position,
+        sculler.prop("hull", catchTime).position,
+      ),
+    ) > 0.25,
   );
   const pelvis: IAutoMovieVector3 = local(sculler, catchTime, "hips");
   const extension: IAutoMovieVector3 = local(sculler, finish, "hips");
   TestValidator.predicate(
     "the pelvis travels along its hull between comparable catch poses",
-    Math.abs(extension.z - pelvis.z) > 0.05 && vclose(local(sculler, catchAgain, "hips"), pelvis, 0.01),
+    Math.abs(extension.z - pelvis.z) > 0.05 &&
+      vclose(local(sculler, catchAgain, "hips"), pelvis, 0.01),
   );
   for (const foot of ["leftFoot", "rightFoot"] as const) {
     const brace: IAutoMovieVector3 = local(sculler, catchTime, foot);
-    const ankleReads: IAutoMovieVector3[] = [finish, catchAgain].map((t: number): IAutoMovieVector3 => local(sculler, t, foot));
-    const drift: number[] = ankleReads.map((ankle: IAutoMovieVector3): number => Vector3.length(Vector3.subtract(ankle, brace)));
+    const ankleReads: IAutoMovieVector3[] = [finish, catchAgain].map(
+      (t: number): IAutoMovieVector3 => local(sculler, t, foot),
+    );
+    const drift: number[] = ankleReads.map((ankle: IAutoMovieVector3): number =>
+      Vector3.length(Vector3.subtract(ankle, brace)),
+    );
     TestValidator.predicate(
       `${foot} remains at the brace through extension and recovery (measured ${drift.map((value: number): string => value.toFixed(4)).join(", ")} m)`,
-      ankleReads.every((ankle: IAutoMovieVector3): boolean => vclose(ankle, brace, 0.01)),
+      ankleReads.every((ankle: IAutoMovieVector3): boolean =>
+        vclose(ankle, brace, 0.01),
+      ),
     );
   }
 
@@ -95,7 +139,9 @@ export function test_motion_exercise_aquatic_craft(): void {
     const complete: boolean = kind === "sailTack";
     const motion = (seconds: number): IAutoMovieRigidTransform => {
       const u: number = Math.min(1, Math.max(0, seconds / 3.5));
-      const heading: number = complete ? 32 - 64 * u : 32 - 15 * Math.sin(Math.PI * u);
+      const heading: number = complete
+        ? 32 - 64 * u
+        : 32 - 15 * Math.sin(Math.PI * u);
       const heel: number = 6 * Math.sin(Math.PI * u);
       return {
         position: { x: 1 + 0.4 * u, y: 0.1 * Math.sin(Math.PI * u), z: 2 * u },
@@ -108,15 +154,29 @@ export function test_motion_exercise_aquatic_craft(): void {
     const origin: IAutoMovieRigidTransform = motion(0);
     const deck: IAutoMovieVector3 = boat.affordance("floor").frame.translation;
     const placement: IAutoMovieVector3 = Vector3.add(
-      origin.position, Quaternion.rotateVector(origin.rotation, { ...deck, x: 0.33 }),
+      origin.position,
+      Quaternion.rotateVector(origin.rotation, { ...deck, x: 0.33 }),
     );
-    const params: IAutoMovieMotionHumanAquatic.IParams = { kind, support: "hull", role: "helm" };
+    const params: IAutoMovieMotionHumanAquatic.IParams = {
+      kind,
+      support: "hull",
+      role: "helm",
+    };
     const sailor: HumanPerformance = new HumanPerformance({
       seed: "aquatic-craft-sail",
       laws: [aquatic],
-      performers: [{ subject: "crew", body, at: placement, yaw: 32, proficiency: { level: "trained" } }],
+      performers: [
+        {
+          subject: "crew",
+          body,
+          at: placement,
+          yaw: 32,
+          proficiency: { level: "trained" },
+        },
+      ],
       props: [HumanObject.prop("hull", boat, origin, motion)],
-      composition: HumanChain.subject("crew").registered("aquatic", params).node,
+      composition: HumanChain.subject("crew").registered("aquatic", params)
+        .node,
     });
     const film: motionHumanLaw.IFilm = motionHumanLaw.film(sailor);
     const lift: number = motionHumanLaw.event(film, "leadLift", "crew");
@@ -129,7 +189,11 @@ export function test_motion_exercise_aquatic_craft(): void {
     );
     const entry: IAutoMovieVector3 = local(sailor, 0, "hips");
     const end: IAutoMovieVector3 = local(sailor, settled, "hips");
-    const relaxed: IAutoMovieVector3 = local(sailor, motionHumanLaw.event(film, "relax", "crew"), "hips");
+    const relaxed: IAutoMovieVector3 = local(
+      sailor,
+      motionHumanLaw.event(film, "relax", "crew"),
+      "hips",
+    );
     const side: number = complete ? -1 : 1;
     TestValidator.predicate(
       `${kind} settles on the authored side of the centerline (entry ${entry.x.toFixed(4)} m, settled ${end.x.toFixed(4)} m, relaxed ${relaxed.x.toFixed(4)} m)`,

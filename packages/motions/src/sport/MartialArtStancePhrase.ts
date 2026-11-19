@@ -71,18 +71,28 @@ export function MartialArtStancePhrase(
   const form: (typeof FORM)[Kind] = FORM[kind];
   const lead: "left" | "right" = params.lead ?? "left";
   const rear: "left" | "right" = StrikingStance.rear({ lead });
-  const feet: ReturnType<typeof StrikingTarget.feet> = StrikingTarget.feet(entry);
+  const feet: ReturnType<typeof StrikingTarget.feet> =
+    StrikingTarget.feet(entry);
   const sole: Record<"left" | "right", IAutoMovieVector3> = {
     left: HumanFoot.offset(body, "left", "ball"),
     right: HumanFoot.offset(body, "right", "ball"),
   };
   const start: IAutoMovieMotionHumanPosture = entry.posture;
-  const axis: IAutoMovieMotionHumanFrame = { origin: feet[rear].ankle, yaw: start.yaw };
+  const axis: IAutoMovieMotionHumanFrame = {
+    origin: feet[rear].ankle,
+    yaw: start.yaw,
+  };
   const oldLead: IAutoMovieVector3 = HumanFrame.local(axis, feet[lead].ankle);
-  const stride: number = Math.max(oldLead.z, form.stride * m.stature * manner.extent);
+  const stride: number = Math.max(
+    oldLead.z,
+    form.stride * m.stature * manner.extent,
+  );
   const finish: IAutoMovieMotionHumanFoot.IPlacement = {
     ankle: HumanFrame.point(axis, { ...oldLead, z: stride }),
-    rotation: HumanFoot.rotation(start.yaw, HumanFoot.pitch(feet[lead].rotation)),
+    rotation: HumanFoot.rotation(
+      start.yaw,
+      HumanFoot.pitch(feet[lead].rotation),
+    ),
   };
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({
@@ -94,11 +104,16 @@ export function MartialArtStancePhrase(
     }),
     manner,
   );
-  const open: (seconds: number) => number = AutoMovieMotionClock.prepareEnvelope(
-    clock, ["start", "ready"], ["relax", "end"],
-  );
-  const fore: ReturnType<typeof AutoMovieMotionClock.prepare> = AutoMovieMotionClock.prepare(clock, "strokeStart", "stroke");
-  const back: ReturnType<typeof AutoMovieMotionClock.prepare> = AutoMovieMotionClock.prepare(clock, "stroke", "strokeEnd");
+  const open: (seconds: number) => number =
+    AutoMovieMotionClock.prepareEnvelope(
+      clock,
+      ["start", "ready"],
+      ["relax", "end"],
+    );
+  const fore: ReturnType<typeof AutoMovieMotionClock.prepare> =
+    AutoMovieMotionClock.prepare(clock, "strokeStart", "stroke");
+  const back: ReturnType<typeof AutoMovieMotionClock.prepare> =
+    AutoMovieMotionClock.prepare(clock, "stroke", "strokeEnd");
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: clock.at("start"),
     ready: clock.at("ready"),
@@ -106,8 +121,20 @@ export function MartialArtStancePhrase(
     end: clock.at("end"),
   };
   const contact: IAutoMovieMotionHumanContactWindow[] = [
-    { part: `${rear}Foot`, kind: "plant", from: 0, to: 1, support: { kind: "ground" } },
-    { part: `${lead}Foot`, kind: "plant", from: span.ready / clock.duration, to: span.relax / clock.duration, support: { kind: "ground" } },
+    {
+      part: `${rear}Foot`,
+      kind: "plant",
+      from: 0,
+      to: 1,
+      support: { kind: "ground" },
+    },
+    {
+      part: `${lead}Foot`,
+      kind: "plant",
+      from: span.ready / clock.duration,
+      to: span.relax / clock.duration,
+      support: { kind: "ground" },
+    },
   ];
   const legs: IAutoMovieMotionHumanPrimitive = {
     channels: ["root", "trunk", "leftLeg", "rightLeg"],
@@ -127,22 +154,47 @@ export function MartialArtStancePhrase(
         : 0.43 + 0.23 * advance - 0.32 * recover;
       const ankles: ReturnType<typeof StrikingTarget.feet> = {
         ...feet,
-        [lead]: AutoMovieMotionHumanLeg.arc(feet[lead], finish, 0.025 * m.stature, shown),
+        [lead]: AutoMovieMotionHumanLeg.arc(
+          feet[lead],
+          finish,
+          0.025 * m.stature,
+          shown,
+        ),
       };
-      const centre: IAutoMovieVector3 = Vector3.lerp(feet[rear].ankle, finish.ankle, transfer);
-      const yaw: number = start.yaw + (karate ? (lead === "left" ? -1 : 1) * (5 + 20 * recover) * shown : 0);
-      const horizontal: IAutoMovieVector3 = Vector3.lerp(posture.root, { ...centre, y: posture.root.y }, shown);
-      const sink: number = StrikingStance.sink(body, centre, yaw,
-        { left: feet.left.ankle, right: feet.right.ankle, [lead]: finish.ankle },
-        form.knee);
-      const joints: IAutoMovieMotionHumanPosture["joints"] = StrikingStance.facing(
-        posture.joints,
-        yaw - start.yaw,
+      const centre: IAutoMovieVector3 = Vector3.lerp(
+        feet[rear].ankle,
+        finish.ankle,
+        transfer,
       );
-      const goals: ReturnType<typeof StrikingStance.legs> = StrikingStance.legs(body, ankles, {
-        left: rear === "left" || shown === 0 || shown === 1,
-        right: rear === "right" || shown === 0 || shown === 1,
-      });
+      const yaw: number =
+        start.yaw +
+        (karate ? (lead === "left" ? -1 : 1) * (5 + 20 * recover) * shown : 0);
+      const horizontal: IAutoMovieVector3 = Vector3.lerp(
+        posture.root,
+        { ...centre, y: posture.root.y },
+        shown,
+      );
+      const sink: number = StrikingStance.sink(
+        body,
+        centre,
+        yaw,
+        {
+          left: feet.left.ankle,
+          right: feet.right.ankle,
+          [lead]: finish.ankle,
+        },
+        form.knee,
+      );
+      const joints: IAutoMovieMotionHumanPosture["joints"] =
+        StrikingStance.facing(posture.joints, yaw - start.yaw);
+      const goals: ReturnType<typeof StrikingStance.legs> = StrikingStance.legs(
+        body,
+        ankles,
+        {
+          left: rear === "left" || shown === 0 || shown === 1,
+          right: rear === "right" || shown === 0 || shown === 1,
+        },
+      );
 
       // These forms bear on the visible sole. The generic striking goals
       // lock the MTP joint above it, so an ankle rotated by the range fit
@@ -152,67 +204,93 @@ export function MartialArtStancePhrase(
         const goal = goals[key];
         if (goal?.planted) goals[key] = { ...goal, contact: sole[side] };
       }
-      const minimumKnee: number = resolveHumanPosture.KNEE + shown * (form.knee - resolveHumanPosture.KNEE);
-      return resolveHumanPosture.lower(body, {
-        ...posture,
-        root: { ...horizontal, y: horizontal.y + Math.min(0, sink - start.root.y) * shown },
-        yaw,
-        joints,
-        limbs: { ...posture.limbs, ...goals },
-      }, minimumKnee, resolution);
+      const minimumKnee: number =
+        resolveHumanPosture.KNEE +
+        shown * (form.knee - resolveHumanPosture.KNEE);
+      return resolveHumanPosture.lower(
+        body,
+        {
+          ...posture,
+          root: {
+            ...horizontal,
+            y: horizontal.y + Math.min(0, sink - start.root.y) * shown,
+          },
+          yaw,
+          joints,
+          limbs: { ...posture.limbs, ...goals },
+        },
+        minimumKnee,
+        resolution,
+      );
     },
   };
   const primitives: IAutoMovieMotionHumanPrimitive[] = [legs];
   for (const side of ["left", "right"] as const)
-    primitives.push(...AutoMovieMotionHumanPlaced.arm({
-      body,
-      side,
-      from: 0,
-      to: clock.duration,
-      span,
-      rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
-      weight: open,
-      surface: karate ? "fist" : "palm",
-      shape: karate ? "fist" : "flat",
-      bend: karate ? "tucked" : "front",
-      place: (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
-        // Hand sites ride the lowering torso. The shared grid's standing
-        // heights would lift the hands relative to the shoulders as the
-        // stance sinks, especially when the fist leaves the waist chamber.
-        const frame: IAutoMovieMotionHumanFrame = {
-          origin: AutoMovieMotionHumanPlaced.joint(body, posture, `${side}UpperArm`, resolution),
-          yaw: posture.yaw,
-        };
-        const arm: number = m.upperArm + m.forearm;
-        const outward: number = side === "left" ? 1 : -1;
-        const near: IAutoMovieVector3 = {
-          x: (karate ? 0.75 : -0.5) * outward * m.forearmRadius,
-          y: (karate ? -0.72 : -0.34) * m.upperArm,
-          z: (karate ? 0.25 : 0.32) * arm,
-        };
-        const far: IAutoMovieVector3 = {
-          x: (karate ? -0.5 : 0) * outward * m.forearmRadius,
-          y: -0.22 * m.upperArm,
-          z: (karate ? 0.62 : 0.65) * arm,
-        };
-        const advance: number = fore.progress(seconds);
-        const recover: number = back.progress(seconds);
-        const swing: number = karate
-          ? side === lead ? 1 - recover : recover
-          : advance * (1 - recover);
-        const rollBack: number = karate ? 0 : outward * 4 * recover * (1 - recover) * m.forearmRadius;
-        const site: IAutoMovieVector3 = Vector3.lerp(near, far, swing);
-        return {
-          point: HumanFrame.point(frame, { ...site, x: site.x + rollBack }),
-          facing: HumanFrame.point({ ...frame, origin: { x: 0, y: 0, z: 0 } }, { x: 0, y: 0, z: 1 }),
-          ...(karate ? {} : { forward: { x: 0, y: 1, z: 0 } }),
-        };
-      },
-    }));
+    primitives.push(
+      ...AutoMovieMotionHumanPlaced.arm({
+        body,
+        side,
+        from: 0,
+        to: clock.duration,
+        span,
+        rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
+        weight: open,
+        surface: karate ? "fist" : "palm",
+        shape: karate ? "fist" : "flat",
+        bend: karate ? "tucked" : "front",
+        place: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+        ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => {
+          // Hand sites ride the lowering torso. The shared grid's standing
+          // heights would lift the hands relative to the shoulders as the
+          // stance sinks, especially when the fist leaves the waist chamber.
+          const frame: IAutoMovieMotionHumanFrame = {
+            origin: AutoMovieMotionHumanPlaced.joint(
+              body,
+              posture,
+              `${side}UpperArm`,
+              resolution,
+            ),
+            yaw: posture.yaw,
+          };
+          const arm: number = m.upperArm + m.forearm;
+          const outward: number = side === "left" ? 1 : -1;
+          const near: IAutoMovieVector3 = {
+            x: (karate ? 0.75 : -0.5) * outward * m.forearmRadius,
+            y: (karate ? -0.72 : -0.34) * m.upperArm,
+            z: (karate ? 0.25 : 0.32) * arm,
+          };
+          const far: IAutoMovieVector3 = {
+            x: (karate ? -0.5 : 0) * outward * m.forearmRadius,
+            y: -0.22 * m.upperArm,
+            z: (karate ? 0.62 : 0.65) * arm,
+          };
+          const advance: number = fore.progress(seconds);
+          const recover: number = back.progress(seconds);
+          const swing: number = karate
+            ? side === lead
+              ? 1 - recover
+              : recover
+            : advance * (1 - recover);
+          const rollBack: number = karate
+            ? 0
+            : outward * 4 * recover * (1 - recover) * m.forearmRadius;
+          const site: IAutoMovieVector3 = Vector3.lerp(near, far, swing);
+          return {
+            point: HumanFrame.point(frame, { ...site, x: site.x + rollBack }),
+            facing: HumanFrame.point(
+              { ...frame, origin: { x: 0, y: 0, z: 0 } },
+              { x: 0, y: 0, z: 1 },
+            ),
+            ...(karate ? {} : { forward: { x: 0, y: 1, z: 0 } }),
+          };
+        },
+      }),
+    );
   return composeAutoMovieMotionHumanAction({
     base: AutoMovieMotionHumanBase.still(clock.duration, start, contact),
     clock,

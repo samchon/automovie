@@ -65,11 +65,12 @@ export function test_motion_exercise_surface_glide(): void {
       } satisfies IAutoMovieMotionHumanSurface.ISkateParams).node,
     }),
   );
-  const segment: IAutoMovieMotionHumanSegment = ice.performance.segments("a")[0]!;
+  const segment: IAutoMovieMotionHumanSegment =
+    ice.performance.segments("a")[0]!;
   TestValidator.predicate(
     "two gliding feet bear throughout the skate without world-space plants on the arc",
-    (["leftFoot", "rightFoot"] as const).every(
-      (part): boolean => segment.plan.contacts.some(
+    (["leftFoot", "rightFoot"] as const).every((part): boolean =>
+      segment.plan.contacts.some(
         (window: IAutoMovieMotionHumanContactWindow): boolean =>
           window.part === part &&
           window.kind === "bear" &&
@@ -77,10 +78,11 @@ export function test_motion_exercise_surface_glide(): void {
           window.from === 0 &&
           window.to === 1,
       ),
-    ) && !segment.plan.contacts.some(
-      (window: IAutoMovieMotionHumanContactWindow): boolean =>
-        window.kind === "plant" && window.from < window.to,
-    ),
+    ) &&
+      !segment.plan.contacts.some(
+        (window: IAutoMovieMotionHumanContactWindow): boolean =>
+          window.kind === "plant" && window.from < window.to,
+      ),
   );
   const plane: IAutoMovieMotionHumanSurface.IGlidePlane = {
     point: { x: 0, y: 0, z: 0 },
@@ -91,31 +93,36 @@ export function test_motion_exercise_surface_glide(): void {
     const to: motionHumanLaw.Bones = ice.bones("a", ice.duration * 0.45);
     const before: IAutoMovieResolvedBone = from.get(`${side}Foot`)!;
     const after: IAutoMovieResolvedBone = to.get(`${side}Foot`)!;
-    const measured: IAutoMovieMotionHumanSurface.IGlideMeasure = HumanSurface.measureGlide(
-      {
-        point: before.worldPosition,
-        forward: Quaternion.rotateVector(before.worldRotation, FORWARD),
-      },
-      {
-        point: after.worldPosition,
-        forward: Quaternion.rotateVector(after.worldRotation, FORWARD),
-      },
-      plane,
-    );
+    const measured: IAutoMovieMotionHumanSurface.IGlideMeasure =
+      HumanSurface.measureGlide(
+        {
+          point: before.worldPosition,
+          forward: Quaternion.rotateVector(before.worldRotation, FORWARD),
+        },
+        {
+          point: after.worldPosition,
+          forward: Quaternion.rotateVector(after.worldRotation, FORWARD),
+        },
+        plane,
+      );
     TestValidator.predicate(
       `${side} skate travels forward along its own displayed heading`,
       measured.along > 0.2 && nclose(measured.across, 0, CONTACT),
     );
     const height: number = Math.min(
-      ...HumanFoot.sockets(body, to, side).map((socket): number => socket.point.y),
+      ...HumanFoot.sockets(body, to, side).map(
+        (socket): number => socket.point.y,
+      ),
     );
     TestValidator.predicate(
       `${side} sole stays within 10 mm of the ice plane`,
       nclose(height, 0, CONTACT),
     );
-    const last: IAutoMovieVector3 = ice.bones("a", ice.duration)
+    const last: IAutoMovieVector3 = ice
+      .bones("a", ice.duration)
       .get(`${side}Foot`)!.worldPosition;
-    const near: IAutoMovieVector3 = ice.bones("a", ice.duration - 0.05)
+    const near: IAutoMovieVector3 = ice
+      .bones("a", ice.duration - 0.05)
       .get(`${side}Foot`)!.worldPosition;
     TestValidator.predicate(
       `${side} skate travels no more than 10 mm in the last 50 ms of the stop`,
@@ -136,20 +143,25 @@ export function test_motion_exercise_surface_glide(): void {
         },
       ],
       laws: [HumanSurface.snowGlide],
-      composition: HumanChain.subject("a").registered(HumanSurface.snowGlide.name, {
-        seconds: 2,
-        speed: 2,
-        grade: 8,
-      } satisfies IAutoMovieMotionHumanSurface.ISnowGlideParams).node,
+      composition: HumanChain.subject("a").registered(
+        HumanSurface.snowGlide.name,
+        {
+          seconds: 2,
+          speed: 2,
+          grade: 8,
+        } satisfies IAutoMovieMotionHumanSurface.ISnowGlideParams,
+      ).node,
     }),
   );
   for (const foot of ["leftFoot", "rightFoot"] as const) {
-    const before: IAutoMovieVector3 = snow.bones("a", snow.duration * 0.4)
+    const before: IAutoMovieVector3 = snow
+      .bones("a", snow.duration * 0.4)
       .get(foot)!.worldPosition;
-    const after: IAutoMovieVector3 = snow.bones("a", snow.duration * 0.8)
+    const after: IAutoMovieVector3 = snow
+      .bones("a", snow.duration * 0.8)
       .get(foot)!.worldPosition;
     const displacement: IAutoMovieVector3 = Vector3.subtract(after, before);
-    const fall: number = -Math.tan(8 * Math.PI / 180) * displacement.z;
+    const fall: number = -Math.tan((8 * Math.PI) / 180) * displacement.z;
     TestValidator.predicate(
       `${foot} moves downhill with the authored grade and no transverse travel`,
       displacement.z > 0.5 &&
@@ -158,13 +170,16 @@ export function test_motion_exercise_surface_glide(): void {
     );
   }
 
-  const drift: IAutoMovieMotionHumanSurface.IGlideMeasure = HumanSurface.measureGlide(
-    { point: plane.point, forward: FORWARD },
-    { point: { x: 0.05, y: 0.02, z: 0.4 }, forward: FORWARD },
-    plane,
-  );
+  const drift: IAutoMovieMotionHumanSurface.IGlideMeasure =
+    HumanSurface.measureGlide(
+      { point: plane.point, forward: FORWARD },
+      { point: { x: 0.05, y: 0.02, z: 0.4 }, forward: FORWARD },
+      plane,
+    );
   TestValidator.predicate(
     "the glide reader distinguishes advance, side drift and normal clearance",
-    nclose(drift.along, 0.4) && nclose(drift.across, 0.05) && nclose(drift.gap, 0.02),
+    nclose(drift.along, 0.4) &&
+      nclose(drift.across, 0.05) &&
+      nclose(drift.gap, 0.02),
   );
 }

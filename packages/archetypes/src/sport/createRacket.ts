@@ -361,9 +361,24 @@ export namespace createRacket {
     },
     padel: {
       length: m(0.455, 0.455, `${FIP}: maximum racket length 455 mm`),
-      headWidth: m(0.205, 0.23, `${FIP}: provisional head width within the overall limit`, true),
-      headLength: m(0.255, 0.28, "provisional head length for the round paddle profile", true),
-      handleLength: m(0.12, 0.145, `${FIP}: provisional handle length within the limit`, true),
+      headWidth: m(
+        0.205,
+        0.23,
+        `${FIP}: provisional head width within the overall limit`,
+        true,
+      ),
+      headLength: m(
+        0.255,
+        0.28,
+        "provisional head length for the round paddle profile",
+        true,
+      ),
+      handleLength: m(
+        0.12,
+        0.145,
+        `${FIP}: provisional handle length within the limit`,
+        true,
+      ),
       gripDiameter: m(0.03, 0.034, "provisional adult grip diameter", true),
       mass: kg(0.36, 0.36, HEAD),
     },

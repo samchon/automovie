@@ -90,13 +90,23 @@ export function test_motion_exercise_board_support(): void {
       laws: [HumanSurface.boardRide],
       composition: HumanChain.subject("a")
         .support({
-          stances: [{
-            seconds: 0.5,
-            contacts: [
-              { part: "leftFoot", kind: "bear", target: { kind: "prop", subject: "board", point: "left" } },
-              { part: "rightFoot", kind: "bear", target: { kind: "prop", subject: "board", point: "right" } },
-            ],
-          }],
+          stances: [
+            {
+              seconds: 0.5,
+              contacts: [
+                {
+                  part: "leftFoot",
+                  kind: "bear",
+                  target: { kind: "prop", subject: "board", point: "left" },
+                },
+                {
+                  part: "rightFoot",
+                  kind: "bear",
+                  target: { kind: "prop", subject: "board", point: "right" },
+                },
+              ],
+            },
+          ],
         })
         .registered(HumanSurface.boardRide.name, {
           on: "board",
@@ -104,15 +114,16 @@ export function test_motion_exercise_board_support(): void {
         } satisfies IAutoMovieMotionHumanSurface.IBoardRideParams).node,
     }),
   );
-  const riding: IAutoMovieMotionHumanSegment = film.performance.segments("a")
+  const riding: IAutoMovieMotionHumanSegment = film.performance
+    .segments("a")
     .find(
       (segment: IAutoMovieMotionHumanSegment): boolean =>
         segment.name === HumanSurface.boardRide.name,
     )!;
   TestValidator.predicate(
     "both feet stay planted in the board's own frame",
-    (["leftFoot", "rightFoot"] as const).every(
-      (part): boolean => riding.plan.contacts.some(
+    (["leftFoot", "rightFoot"] as const).every((part): boolean =>
+      riding.plan.contacts.some(
         (contact: IAutoMovieMotionHumanContactWindow): boolean =>
           contact.part === part &&
           contact.kind === "plant" &&
@@ -128,14 +139,22 @@ export function test_motion_exercise_board_support(): void {
   const before: motionHumanLaw.Bones = film.bones("a", start);
   const after: motionHumanLaw.Bones = film.bones("a", end);
   /** Resolve a displayed world point in the prescribed board's local frame. */
-  const local = (point: IAutoMovieVector3, seconds: number): IAutoMovieVector3 => {
+  const local = (
+    point: IAutoMovieVector3,
+    seconds: number,
+  ): IAutoMovieVector3 => {
     const frame: IAutoMovieRigidTransform = rideFrame(seconds);
     return Quaternion.rotateVector(
       Quaternion.inverse(frame.rotation),
       Vector3.subtract(point, frame.position),
     );
   };
-  for (const bone of ["leftToes", "rightToes", "leftFoot", "rightFoot"] as const) {
+  for (const bone of [
+    "leftToes",
+    "rightToes",
+    "leftFoot",
+    "rightFoot",
+  ] as const) {
     const initial: IAutoMovieVector3 = before.get(bone)!.worldPosition;
     const final: IAutoMovieVector3 = after.get(bone)!.worldPosition;
     TestValidator.predicate(
@@ -172,9 +191,25 @@ export function test_motion_exercise_board_support(): void {
   );
   TestValidator.predicate(
     "the other terrain props expose their lower contacts at the placed geometry",
-    nclose(ski.affordance("base").frame.translation.y, archetypeExtent(ski, "y").low, GEOMETRY) &&
-      nclose(surfboard.affordance("leftRail").frame.translation.x, archetypeExtent(surfboard, "x").high, GEOMETRY) &&
-      nclose(skateboard.affordance("wheel-front-left").frame.translation.y, archetypeExtent(skateboard, "y", ["wheel-front-left"]).low, GEOMETRY) &&
-      nclose(skateboard.affordance("tailStrike").frame.translation.y, archetypeExtent(skateboard, "y", ["deck"]).low, GEOMETRY),
+    nclose(
+      ski.affordance("base").frame.translation.y,
+      archetypeExtent(ski, "y").low,
+      GEOMETRY,
+    ) &&
+      nclose(
+        surfboard.affordance("leftRail").frame.translation.x,
+        archetypeExtent(surfboard, "x").high,
+        GEOMETRY,
+      ) &&
+      nclose(
+        skateboard.affordance("wheel-front-left").frame.translation.y,
+        archetypeExtent(skateboard, "y", ["wheel-front-left"]).low,
+        GEOMETRY,
+      ) &&
+      nclose(
+        skateboard.affordance("tailStrike").frame.translation.y,
+        archetypeExtent(skateboard, "y", ["deck"]).low,
+        GEOMETRY,
+      ),
   );
 }

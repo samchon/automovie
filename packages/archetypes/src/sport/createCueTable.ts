@@ -18,12 +18,15 @@ const WPA: string =
 const BALL: number = 2.25 * ArchetypeUnits.INCH;
 
 /** Mouth widths at the lower end of WPA §9, metres. */
-const MOUTH = { corner: 4.5 * ArchetypeUnits.INCH, side: 5 * ArchetypeUnits.INCH } as const;
+const MOUTH = {
+  corner: 4.5 * ArchetypeUnits.INCH,
+  side: 5 * ArchetypeUnits.INCH,
+} as const;
 
 /**
  * A 9 ft pool table: its bed, the cushions' nose line round it and the rails outside.
  *
- * The table stands on the floor at the origin, its length along `Z` and its width along `X`. `bed` is the playing surface and `headRail`, `footRail`, `leftRail` and `rightRail` are the cushion nose lines at the `-Z`, `+Z`, `+X` and `-X` ends. The four corner and two side pockets have open mouths in the rail and bed and a named target at each mouth. Pocket shelves, liners and returns use a coarse open recess.
+ * The table stands on the floor at the origin, its length along `Z` and its width along `X`. `bed` is the playing surface and the four named rail sites lie on the cushion noses. The left and right sites mark their head-side sections. The four corner and two side pockets have open mouths in the rail and bed and a named target at each mouth. Pocket shelves, liners and returns use a coarse open recess.
  *
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -73,16 +76,41 @@ export function createCueTable(
   const edge: number = length / 2 - corner;
   const sideSpan: number = edge - MOUTH.side / 2;
   const sideCenter: number = (edge + MOUTH.side / 2) / 2;
-  builder.box("cabinet", v(width + 2 * rail, tray, length + 2 * rail), v(0, tray / 2, 0), { color: "#28352b" });
-  builder.box("bed-center", v(width - 2 * corner, drop, length), v(0, bed - drop / 2, 0), { color: "#3b6e3b" });
+  builder.box(
+    "cabinet",
+    v(width + 2 * rail, tray, length + 2 * rail),
+    v(0, tray / 2, 0),
+    { color: "#28352b" },
+  );
+  builder.box(
+    "bed-center",
+    v(width - 2 * corner, drop, length),
+    v(0, bed - drop / 2, 0),
+    { color: "#3b6e3b" },
+  );
   for (const sx of [-1, 1])
     for (const sz of [-1, 1]) {
-      builder.box(`bed-side-${sx}-${sz}`, v(corner, drop, sideSpan), v(sx * (width - corner) / 2, bed - drop / 2, sz * sideCenter), { color: "#3b6e3b" });
+      builder.box(
+        `bed-side-${sx}-${sz}`,
+        v(corner, drop, sideSpan),
+        v((sx * (width - corner)) / 2, bed - drop / 2, sz * sideCenter),
+        { color: "#3b6e3b" },
+      );
       const railId: string = sx === 1 ? "rail-left" : "rail-right";
-      builder.box(sz === -1 ? railId : `${railId}-foot`, v(rail, nose - tray, sideSpan), v(sx * (width + rail) / 2, (nose + tray) / 2, sz * sideCenter), { color: "#5a3a22" });
+      builder.box(
+        sz === -1 ? railId : `${railId}-foot`,
+        v(rail, nose - tray, sideSpan),
+        v((sx * (width + rail)) / 2, (nose + tray) / 2, sz * sideCenter),
+        { color: "#5a3a22" },
+      );
     }
   for (const sz of [-1, 1])
-    builder.box(sz === -1 ? "rail-head" : "rail-foot", v(width - 2 * corner, nose - tray, rail), v(0, (nose + tray) / 2, sz * (length + rail) / 2), { color: "#5a3a22" });
+    builder.box(
+      sz === -1 ? "rail-head" : "rail-foot",
+      v(width - 2 * corner, nose - tray, rail),
+      v(0, (nose + tray) / 2, (sz * (length + rail)) / 2),
+      { color: "#5a3a22" },
+    );
 
   for (const [id, x, z] of [
     ["headLeftPocket", (width - corner) / 2, -(length - corner) / 2],
@@ -92,7 +120,12 @@ export function createCueTable(
     ["footLeftPocket", (width - corner) / 2, (length - corner) / 2],
     ["footRightPocket", -(width - corner) / 2, (length - corner) / 2],
   ] as const)
-    builder.affordance({ id, kind: "socket", frame: ArchetypeFrame.upright(v(x, bed, z)), extent: null });
+    builder.affordance({
+      id,
+      kind: "socket",
+      frame: ArchetypeFrame.upright(v(x, bed, z)),
+      extent: null,
+    });
   builder.affordance({
     id: "bed",
     kind: "surface",
@@ -101,17 +134,17 @@ export function createCueTable(
     width,
     depth: length,
   });
-  for (const [id, x, z, span] of [
-    ["leftRail", 1, 0, length],
-    ["rightRail", -1, 0, length],
-    ["headRail", 0, -1, width],
-    ["footRail", 0, 1, width],
+  for (const [id, x, z, center, span] of [
+    ["leftRail", 1, 0, -sideCenter, sideSpan],
+    ["rightRail", -1, 0, -sideCenter, sideSpan],
+    ["headRail", 0, -1, -length / 2, width - 2 * corner],
+    ["footRail", 0, 1, length / 2, width - 2 * corner],
   ] as const)
     builder.affordance({
       id,
       kind: "ledge",
       frame: ArchetypeFrame.facing(
-        v((x * width) / 2, nose, (z * length) / 2),
+        v((x * width) / 2, nose, center),
         v(0, 1, 0),
         v(z, 0, -x),
       ),
@@ -134,7 +167,7 @@ export namespace createCueTable {
    * The affordance ids:
    *
    * - `bed`: the playing surface.
-   * - `headRail`, `footRail`, `leftRail`, `rightRail`: the cushions' nose lines on `-Z`, `+Z`, `+X` and `-X`, ledges, each `+Z` out from the bed.
+   * - `headRail`, `footRail`, `leftRail`, `rightRail`: the cushions' nose lines on `-Z`, `+Z`, `+X` and `-X`, ledges, each `+Z` out from the bed. The side sites cover the sections nearest the head rail.
    * - The six `Pocket` points are the open mouth centres at the bed's height.
    */
   export type Affordance =

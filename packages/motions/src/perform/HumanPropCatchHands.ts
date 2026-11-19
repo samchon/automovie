@@ -63,14 +63,14 @@ export namespace HumanPropCatchHands {
     capturedAt: number | undefined,
   ): readonly IApproach[] {
     if (capturedAt === undefined || launch.sphere === undefined) return [];
-    return grips.flatMap(
-      (grip): IApproach[] => {
-        const from: number | undefined = grip.capture?.handContactFrom;
-        return grip.from === capturedAt && grip.capture?.launch === launch && from !== undefined
-          ? [{ subject: grip.subject, side: grip.side, from, until: capturedAt }]
-          : [];
-      },
-    );
+    return grips.flatMap((grip): IApproach[] => {
+      const from: number | undefined = grip.capture?.handContactFrom;
+      return grip.from === capturedAt &&
+        grip.capture?.launch === launch &&
+        from !== undefined
+        ? [{ subject: grip.subject, side: grip.side, from, until: capturedAt }]
+        : [];
+    });
   }
 
   /**
@@ -94,7 +94,8 @@ export namespace HumanPropCatchHands {
       for (const bone of bones.keys())
         if (
           bone.startsWith(grip.side) &&
-          (bone === `${grip.side}Hand` || /Thumb|Index|Middle|Ring|Little/.test(bone))
+          (bone === `${grip.side}Hand` ||
+            /Thumb|Index|Middle|Ring|Little/.test(bone))
         )
           bones.delete(bone);
     }
@@ -119,20 +120,32 @@ export namespace HumanPropCatchHands {
   ): boolean {
     const capture: typeof grip.capture = grip.capture;
     const sphere: IAutoMovieMotionPropLaunch["sphere"] = capture?.launch.sphere;
-    if (sphere === undefined || capture?.handContactFrom === undefined) return true;
+    if (sphere === undefined || capture?.handContactFrom === undefined)
+      return true;
 
-    const body: ReturnType<typeof HumanPerformanceRead.person>["performer"]["body"] =
-      HumanPerformanceRead.person(self, grip.subject).performer.body;
+    const body: ReturnType<
+      typeof HumanPerformanceRead.person
+    >["performer"]["body"] = HumanPerformanceRead.person(self, grip.subject)
+      .performer.body;
     const hand: AutoMovieHumanoidBone = `${grip.side}Hand`;
     const fitted: IAutoMovieResolvedBone | undefined =
-      HumanPerformanceRead.bones(self, grip.subject, grip.from, new Set([hand])).get(hand);
-    if (fitted === undefined || !HumanColliders.bones(body).has(hand)) return false;
+      HumanPerformanceRead.bones(
+        self,
+        grip.subject,
+        grip.from,
+        new Set([hand]),
+      ).get(hand);
+    if (fitted === undefined || !HumanColliders.bones(body).has(hand))
+      return false;
 
     const centre: IAutoMovieVector3 = Vector3.add(
       frame.position,
       Quaternion.rotateVector(frame.rotation, sphere.centre),
     );
-    return HumanColliders.distance(body, new Map([[hand, fitted]]), centre).distance
-      <= sphere.radius + 1e-6;
+    return (
+      HumanColliders.distance(body, new Map([[hand, fitted]]), centre)
+        .distance <=
+      sphere.radius + 1e-6
+    );
   }
 }

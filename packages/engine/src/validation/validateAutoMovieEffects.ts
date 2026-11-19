@@ -41,10 +41,9 @@ export const validateAutoMovieEffects: (
   const ids: Set<string> = new Set<string>();
   const streams: Map<string, IAutoMovieCompiledEffect> = new Map(
     value.effects.map(
-      (effect: IAutoMovieCompiledEffect): [string, IAutoMovieCompiledEffect] => [
-        effect.id,
-        effect,
-      ],
+      (
+        effect: IAutoMovieCompiledEffect,
+      ): [string, IAutoMovieCompiledEffect] => [effect.id, effect],
     ),
   );
   const priorByZone: Map<string, IAutoMovieShotEffectCue> = new Map<

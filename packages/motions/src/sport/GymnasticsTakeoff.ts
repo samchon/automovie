@@ -58,8 +58,11 @@ export namespace GymnasticsTakeoff {
     aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
     foot?: "left" | "right",
   ): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(context.body);
-    const launch: ReturnType<typeof prepareGymnasticsLaunch> = prepareGymnasticsLaunch(context.body, model);
+    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(
+      context.body,
+    );
+    const launch: ReturnType<typeof prepareGymnasticsLaunch> =
+      prepareGymnasticsLaunch(context.body, model);
     const root: IAutoMovieVector3 = context.entry.posture.root;
 
     // The first aim reads a centre over the root at the share of the stature
@@ -70,7 +73,9 @@ export namespace GymnasticsTakeoff {
       y: root.y + 0.55 * context.body.measure.stature,
       z: root.z,
     });
-    const apexOf: (velocity: IAutoMovieVector3) => number = (velocity: IAutoMovieVector3): number => {
+    const apexOf: (velocity: IAutoMovieVector3) => number = (
+      velocity: IAutoMovieVector3,
+    ): number => {
       if (!(velocity.y > 0))
         throw new HumanRefusal({
           kind: "parameter",
@@ -88,16 +93,25 @@ export namespace GymnasticsTakeoff {
       y: 0,
       z: root.z + first.z * guess,
     };
-    const at: (plan: IAutoMovieMotionHumanActionPlan, event: string) => number = (plan: IAutoMovieMotionHumanActionPlan, event: string): number =>
+    const at: (
+      plan: IAutoMovieMotionHumanActionPlan,
+      event: string,
+    ) => number = (
+      plan: IAutoMovieMotionHumanActionPlan,
+      event: string,
+    ): number =>
       (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === event)
         ?.share ?? 0) * plan.duration;
 
     let taken: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff | undefined;
     for (let pass: number = 0; pass <= PASSES; pass++) {
-      const plan: IAutoMovieMotionHumanActionPlan = jump.plan({
-        ...context,
-        params: { to, apex },
-      }, foot);
+      const plan: IAutoMovieMotionHumanActionPlan = jump.plan(
+        {
+          ...context,
+          params: { to, apex },
+        },
+        foot,
+      );
       const seconds: number = at(plan, "takeoff");
       const read: { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } =
         launch(plan, seconds);

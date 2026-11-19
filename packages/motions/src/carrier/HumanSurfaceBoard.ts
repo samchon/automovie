@@ -67,7 +67,10 @@ export function HumanSurfaceBoard(
   };
   const placed: IAutoMovieMotionHumanPosture = entry.posture;
   const knee: IAutoMovieMotionHumanPosture["limbs"] = stand.legs(
-    body, placed.root, placed.yaw, ankles,
+    body,
+    placed.root,
+    placed.yaw,
+    ankles,
   );
   const posture: IAutoMovieMotionHumanPosture = {
     ...placed,
@@ -86,11 +89,15 @@ export function HumanSurfaceBoard(
       support: { kind: "ground" },
     }),
   );
-  return HumanSupportCarry.on(context, {
-    duration,
-    events: [{ name: "ride", share: 0 }],
-    contacts,
-    physicalWindow: null,
-    posture: (): IAutoMovieMotionHumanPosture => posture,
-  }, params.on);
+  return HumanSupportCarry.on(
+    context,
+    {
+      duration,
+      events: [{ name: "ride", share: 0 }],
+      contacts,
+      physicalWindow: null,
+      posture: (): IAutoMovieMotionHumanPosture => posture,
+    },
+    params.on,
+  );
 }

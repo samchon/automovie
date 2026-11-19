@@ -57,28 +57,38 @@ interface IBlade {
 const BLADES: Readonly<Partial<Record<createStageWeaponProp.Kind, IBlade>>> = {
   longBlade: {
     sections: [
-      [0.62, -0.018, 0.018], [0.72, -0.032, 0.032],
-      [0.90, -0.027, 0.027], [1, -0.007, 0.007],
+      [0.62, -0.018, 0.018],
+      [0.72, -0.032, 0.032],
+      [0.9, -0.027, 0.027],
+      [1, -0.007, 0.007],
     ],
     edge: 1,
   },
   crescentBlade: {
     sections: [
-      [0.62, -0.020, 0.021], [0.75, -0.035, 0.057], [0.88, -0.015, 0.083],
-      [0.96, 0.031, 0.082], [1, 0.062, 0.075],
+      [0.62, -0.02, 0.021],
+      [0.75, -0.035, 0.057],
+      [0.88, -0.015, 0.083],
+      [0.96, 0.031, 0.082],
+      [1, 0.062, 0.075],
     ],
     edge: 1,
   },
   sideBlade: {
     sections: [
-      [0.69, -0.020, 0.020], [0.855, -0.021, 0.021], [1, -0.007, 0.007],
+      [0.69, -0.02, 0.02],
+      [0.855, -0.021, 0.021],
+      [1, -0.007, 0.007],
     ],
     edge: 0,
   },
   serpentBlade: {
     sections: [
-      [0.62, -0.016, 0.016], [0.72, -0.042, -0.007], [0.82, -0.014, 0.019],
-      [0.91, 0.007, 0.039], [1, -0.005, 0.008],
+      [0.62, -0.016, 0.016],
+      [0.72, -0.042, -0.007],
+      [0.82, -0.014, 0.019],
+      [0.91, 0.007, 0.039],
+      [1, -0.005, 0.008],
     ],
     edge: 2,
   },
@@ -86,9 +96,9 @@ const BLADES: Readonly<Partial<Record<createStageWeaponProp.Kind, IBlade>>> = {
 
 /** Side ornament sharing a narrow overlap with the axial blade. */
 const SIDE_BLADE: readonly Section[] = [
-  [0.69, 0.010, 0.090],
+  [0.69, 0.01, 0.09],
   [0.76, 0.005, 0.102],
-  [0.855, 0.010, 0.075],
+  [0.855, 0.01, 0.075],
 ];
 
 /**
@@ -146,7 +156,8 @@ export function createStageWeaponProp(
   const v: typeof Vector3.create = Vector3.create;
   const shaftRadius: number = Math.min(0.02, 0.03 * height);
   const blade: IBlade | undefined = BLADES[kind];
-  const shaftRatio: number = kind === "linked" ? 0.5 : (blade?.sections[0]?.[0] ?? 0.8);
+  const shaftRatio: number =
+    kind === "linked" ? 0.5 : (blade?.sections[0]?.[0] ?? 0.8);
   const shaftTop: number = shaftRatio * height;
   builder.rod("shaft", shaftRadius, v(0, 0, 0), v(0, shaftTop, 0), {
     color: "#55516d",
@@ -159,10 +170,18 @@ export function createStageWeaponProp(
       id: "tip",
       kind: "surface",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(((tip[1] + tip[2]) / 2) * height, height, 0)),
+      frame: ArchetypeFrame.upright(
+        v(((tip[1] + tip[2]) / 2) * height, height, 0),
+      ),
       extent: null,
     });
-    addEdge(builder, "edge", blade.sections[blade.edge]!, blade.sections[blade.edge + 1]!, height);
+    addEdge(
+      builder,
+      "edge",
+      blade.sections[blade.edge]!,
+      blade.sections[blade.edge + 1]!,
+      height,
+    );
     if (kind === "sideBlade") {
       addOutline(builder, "sideBlade", SIDE_BLADE, height);
       addEdge(builder, "side-edge", SIDE_BLADE[0]!, SIDE_BLADE[1]!, height);
@@ -171,7 +190,11 @@ export function createStageWeaponProp(
       id: "shaft",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, shaftTop / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+      frame: ArchetypeFrame.facing(
+        v(0, shaftTop / 2, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "two-hand",
       aperture: 2 * shaftRadius,
@@ -219,7 +242,9 @@ export function createStageWeaponProp(
     const pivot: IAutoMovieVector3 = v(0, shaftTop, 0);
     const radius: number = 0.11 * height;
     const centre: IAutoMovieVector3 = v(0, height - radius, 0);
-    builder.rod("connector", 0.32 * shaftRadius, pivot, centre, { color: "#bca6df" });
+    builder.rod("connector", 0.32 * shaftRadius, pivot, centre, {
+      color: "#bca6df",
+    });
     builder.ball("ornament", radius, centre, { color: "#968ccc" });
 
     // The hinge turns about frame-local +Y, which faces out of the stage outline.
@@ -281,7 +306,10 @@ export function createStageWeaponProp(
 
 /** Extrude one small convex cell between each pair of adjacent outline sections. */
 function addOutline(
-  builder: ArchetypeBuilder<createStageWeaponProp.Affordance, createStageWeaponProp.Dimension>,
+  builder: ArchetypeBuilder<
+    createStageWeaponProp.Affordance,
+    createStageWeaponProp.Dimension
+  >,
   id: string,
   sections: readonly Section[],
   height: number,
@@ -299,7 +327,10 @@ function addOutline(
 
 /** Record the midpoint and outward normal of the right edge of a silhouette cell. */
 function addEdge(
-  builder: ArchetypeBuilder<createStageWeaponProp.Affordance, createStageWeaponProp.Dimension>,
+  builder: ArchetypeBuilder<
+    createStageWeaponProp.Affordance,
+    createStageWeaponProp.Dimension
+  >,
   id: "edge" | "side-edge",
   lower: Section,
   upper: Section,
@@ -311,7 +342,11 @@ function addEdge(
     kind: "surface",
     direction: "normal",
     frame: ArchetypeFrame.facing(
-      v(((lower[2] + upper[2]) / 2) * height, ((lower[0] + upper[0]) / 2) * height, 0),
+      v(
+        ((lower[2] + upper[2]) / 2) * height,
+        ((lower[0] + upper[0]) / 2) * height,
+        0,
+      ),
       v(upper[0] - lower[0], lower[2] - upper[2], 0),
       v(upper[2] - lower[2], upper[0] - lower[0], 0),
     ),
@@ -330,8 +365,16 @@ function addEdge(
 export namespace createStageWeaponProp {
   /** The padded silhouette variants admitted by the factory and listed in the catalogue. */
   export const KINDS = [
-    "mace", "pike", "shuo", "halberd", "longBlade", "crescentBlade",
-    "sideBlade", "serpentBlade", "offsetHammer", "linked",
+    "mace",
+    "pike",
+    "shuo",
+    "halberd",
+    "longBlade",
+    "crescentBlade",
+    "sideBlade",
+    "serpentBlade",
+    "offsetHammer",
+    "linked",
   ] as const;
 
   /**

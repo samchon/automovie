@@ -74,7 +74,12 @@ export function createShield(
     createShield.Dimension
   > = new ArchetypeBuilder({
     id: params.id,
-    name: kind === "buckler" ? "buckler" : kind === "round" ? "round shield" : "strapped stage shield",
+    name:
+      kind === "buckler"
+        ? "buckler"
+        : kind === "round"
+          ? "round shield"
+          : "strapped stage shield",
     material: kind === "strapped" ? "foam" : "composite",
     draw,
   });
@@ -89,12 +94,22 @@ export function createShield(
   builder.ball("boss", createShield.BOSS, v(0, 0, half), {
     color: "#6c7076",
   });
-  const grip: IAutoMovieVector3 = v(strapped ? radius * 0.45 : 0, 0, -half - bar);
+  const grip: IAutoMovieVector3 = v(
+    strapped ? radius * 0.45 : 0,
+    0,
+    -half - bar,
+  );
   const along: IAutoMovieVector3 = strapped ? v(0, 1, 0) : v(1, 0, 0);
   const halfGrip: IAutoMovieVector3 = Vector3.scale(along, createShield.BOSS);
-  builder.rod("grip", bar, Vector3.subtract(grip, halfGrip), Vector3.add(grip, halfGrip), {
-    color: "#4a3324",
-  });
+  builder.rod(
+    "grip",
+    bar,
+    Vector3.subtract(grip, halfGrip),
+    Vector3.add(grip, halfGrip),
+    {
+      color: "#4a3324",
+    },
+  );
   builder.affordance({
     id: "grip",
     kind: "handle",
@@ -139,21 +154,36 @@ export function createShield(
     const low: IAutoMovieVector3 = v(strapX, -strapHalf, strapBack);
     const high: IAutoMovieVector3 = v(strapX, strapHalf, strapBack);
     builder.rod("forearm-strap", bar, low, high, { color: "#645579" });
-    builder.rod("strap-low", bar, v(strapX, -strapHalf, -half), low, { color: "#645579" });
-    builder.rod("strap-high", bar, v(strapX, strapHalf, -half), high, { color: "#645579" });
+    builder.rod("strap-low", bar, v(strapX, -strapHalf, -half), low, {
+      color: "#645579",
+    });
+    builder.rod("strap-high", bar, v(strapX, strapHalf, -half), high, {
+      color: "#645579",
+    });
     builder.affordance({
       id: "forearm",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(strapX, 0, strapBack + bar), v(0, 0, -1), v(1, 0, 0)),
+      frame: ArchetypeFrame.facing(
+        v(strapX, 0, strapBack + bar),
+        v(0, 0, -1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
 
     // Keep the lateral frames available as visual stage marks.
-    for (const [id, sign] of [["rim-negative-x", -1], ["rim-positive-x", 1]] as const)
+    for (const [id, sign] of [
+      ["rim-negative-x", -1],
+      ["rim-positive-x", 1],
+    ] as const)
       builder.affordance({
         id,
         kind: "ledge",
-        frame: ArchetypeFrame.facing(v(sign * radius, 0, 0), v(sign, 0, 0), v(0, 1, 0)),
+        frame: ArchetypeFrame.facing(
+          v(sign * radius, 0, 0),
+          v(sign, 0, 0),
+          v(0, 1, 0),
+        ),
         extent: null,
       });
   }
@@ -212,8 +242,14 @@ export namespace createShield {
    * - `slung`: the shield's rearmost point on its axis, `+Y` toward a wearer whose back the shield hangs on (#3500).
    */
   export type Affordance =
-    | "grip" | "face" | "boss" | "rim" | "slung"
-    | "forearm" | "rim-negative-x" | "rim-positive-x";
+    | "grip"
+    | "face"
+    | "boss"
+    | "rim"
+    | "slung"
+    | "forearm"
+    | "rim-negative-x"
+    | "rim-positive-x";
 
   /**
    * The free dimensions:
@@ -281,8 +317,19 @@ export namespace createShield {
       ),
     },
     strapped: {
-      diameter: ArchetypeBand.metres(0.72, 0.92, "Authored virtual stage scale.", true),
-      mass: ArchetypeBand.of("kg", 0.35, 0.55, "Nominal foam mass for virtual staging.", true),
+      diameter: ArchetypeBand.metres(
+        0.72,
+        0.92,
+        "Authored virtual stage scale.",
+        true,
+      ),
+      mass: ArchetypeBand.of(
+        "kg",
+        0.35,
+        0.55,
+        "Nominal foam mass for virtual staging.",
+        true,
+      ),
     },
   };
 }

@@ -53,14 +53,19 @@ export function test_motion_exercise_net_strokes(): void {
         `${check.name}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
-  TestValidator.equals("displayed approaches, contacts and recoveries", complaints, []);
+  TestValidator.equals(
+    "displayed approaches, contacts and recoveries",
+    complaints,
+    [],
+  );
 }
 
 /** Read a name on the stroke segment's clock and return a film second. */
 function event(segment: IAutoMovieMotionHumanSegment, name: string): number {
   return (
     segment.start +
-    segment.plan.duration * segment.plan.events.find((instant) => instant.name === name)!.share
+    segment.plan.duration *
+      segment.plan.events.find((instant) => instant.name === name)!.share
   );
 }
 
@@ -83,9 +88,15 @@ function tennisForehand(
   complaints: string[],
 ): void {
   const height: number = body.measure.stature;
-  const racket: ReturnType<typeof createRacket> = createRacket({ kind: "tennis" });
+  const racket: ReturnType<typeof createRacket> = createRacket({
+    kind: "tennis",
+  });
   // The face passes outside and in front of the player on this forehand.
-  const mark: IAutoMovieVector3 = { x: -0.54 * height, y: 0.71 * height, z: 0.39 * height };
+  const mark: IAutoMovieVector3 = {
+    x: -0.54 * height,
+    y: 0.71 * height,
+    z: 0.39 * height,
+  };
   const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "tennis-shadow-contact",
     performers: [player(body)],
@@ -97,52 +108,87 @@ function tennisForehand(
     ],
     composition: HumanChain.subject("a")
       .stand({ seconds: 0.3 })
-      .pickUp({ prop: "racket", handle: "grip", use: { tip: "sweetSpot", line: "oblique" } })
+      .pickUp({
+        prop: "racket",
+        handle: "grip",
+        use: { tip: "sweetSpot", line: "oblique" },
+      })
       .racket({ kind: "tennisForehand", implement: "racket", contactAt: mark })
       .node,
   });
-  const segment: IAutoMovieMotionHumanSegment = film.segments("a").find(
-    (item: IAutoMovieMotionHumanSegment): boolean => item.name === "racket",
-  )!;
+  const segment: IAutoMovieMotionHumanSegment = film
+    .segments("a")
+    .find(
+      (item: IAutoMovieMotionHumanSegment): boolean => item.name === "racket",
+    )!;
   const start: number = segment.start;
   const plant: number = event(segment, "plant");
   const ready: number = event(segment, "ready");
   const strike: number = event(segment, "stroke");
   const end: number = start + segment.plan.duration;
-  const ankle = (side: AutoMovieHumanSide, seconds: number): IAutoMovieVector3 =>
-    joint(film, seconds, `${side}Foot`);
+  const ankle = (
+    side: AutoMovieHumanSide,
+    seconds: number,
+  ): IAutoMovieVector3 => joint(film, seconds, `${side}Foot`);
   const face = (seconds: number): IAutoMovieVector3 => {
     const frame: IAutoMovieRigidTransform = film.prop("racket", seconds);
     return Vector3.add(
       frame.position,
-      Quaternion.rotateVector(frame.rotation, racket.affordance("face").frame.translation),
+      Quaternion.rotateVector(
+        frame.rotation,
+        racket.affordance("face").frame.translation,
+      ),
     );
   };
   const gripToHead = (seconds: number): IAutoMovieVector3 => {
-    const hand = HumanHand.frame(body, film.bones("a", seconds), "right", "grip");
+    const hand = HumanHand.frame(
+      body,
+      film.bones("a", seconds),
+      "right",
+      "grip",
+    );
     return Quaternion.rotateVector(
-      Quaternion.inverse(film.bones("a", seconds).get("rightHand")!.worldRotation),
+      Quaternion.inverse(
+        film.bones("a", seconds).get("rightHand")!.worldRotation,
+      ),
       Vector3.subtract(face(seconds), hand.point),
     );
   };
-  const step: number = Vector3.distance(ankle("right", start), ankle("right", plant));
-  const support: number = Vector3.distance(ankle("left", start), ankle("left", strike));
+  const step: number = Vector3.distance(
+    ankle("right", start),
+    ankle("right", plant),
+  );
+  const support: number = Vector3.distance(
+    ankle("left", start),
+    ankle("left", strike),
+  );
   const miss: number = Vector3.distance(face(strike), mark);
   const travel: number = Vector3.distance(face(ready), face(strike));
   const surfaceNormal: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(film.prop("racket", strike).rotation, racket.affordance("face").frame.rotation),
+    Quaternion.multiply(
+      film.prop("racket", strike).rotation,
+      racket.affordance("face").frame.rotation,
+    ),
     { x: 0, y: 1, z: 0 },
   );
-  const returnStep: number = Vector3.distance(ankle("right", start), ankle("right", end));
-  const gripSlip: number = Vector3.distance(gripToHead(strike), gripToHead(end));
+  const returnStep: number = Vector3.distance(
+    ankle("right", start),
+    ankle("right", end),
+  );
+  const gripSlip: number = Vector3.distance(
+    gripToHead(strike),
+    gripToHead(end),
+  );
   if (!(step >= 0.12 && support <= 0.005))
     complaints.push(`forehand step ${step} m, support drift ${support} m`);
-  if (!(miss <= 0.06 && travel >= 0.10 && surfaceNormal.z > 0.75))
+  if (!(miss <= 0.06 && travel >= 0.1 && surfaceNormal.z > 0.75))
     complaints.push(
       `forehand face misses its mark by ${miss} m after ${travel} m of travel, with forward normal component ${surfaceNormal.z}`,
     );
   if (!(returnStep <= 0.02 && gripSlip <= 0.005))
-    complaints.push(`forehand return step error ${returnStep} m, grip-to-head drift ${gripSlip} m`);
+    complaints.push(
+      `forehand return step error ${returnStep} m, grip-to-head drift ${gripSlip} m`,
+    );
 }
 
 /** Check a grounded approach, aerial palm strike and two-foot recovery. */
@@ -150,38 +196,48 @@ function volleyballSpike(
   body: IAutoMovieMotionHumanBody,
   complaints: string[],
 ): void {
-  const mark: IAutoMovieVector3 = { x: -0.26, y: 1.2 * body.measure.stature, z: 0.38 };
+  const mark: IAutoMovieVector3 = {
+    x: -0.26,
+    y: 1.2 * body.measure.stature,
+    z: 0.38,
+  };
   const film: IAutoMovieMotionHumanPerformance = new HumanPerformance({
     seed: "volleyball-spike-contact",
     performers: [player(body)],
     composition: HumanChain.subject("a")
       .stand({ seconds: 0.3 })
-      .ballSport({ kind: "volleyballSpike", contactAt: mark })
-      .node,
+      .ballSport({ kind: "volleyballSpike", contactAt: mark }).node,
   });
-  const segment: IAutoMovieMotionHumanSegment = film.segments("a").find(
-    (item: IAutoMovieMotionHumanSegment): boolean => item.name === "ballSport",
-  )!;
+  const segment: IAutoMovieMotionHumanSegment = film
+    .segments("a")
+    .find(
+      (item: IAutoMovieMotionHumanSegment): boolean =>
+        item.name === "ballSport",
+    )!;
   const start: number = segment.start;
   const takeoff: number = event(segment, "takeoff");
   const strike: number = event(segment, "stroke");
   const landing: number = event(segment, "landing");
   const end: number = start + segment.plan.duration;
   const palm = (seconds: number): IAutoMovieVector3 =>
-    HumanHand.frame(body, film.bones("a", seconds), "right", "palm", "flat").point;
+    HumanHand.frame(body, film.bones("a", seconds), "right", "palm", "flat")
+      .point;
   const sole = (side: AutoMovieHumanSide, seconds: number): number =>
     Math.min(
       ...HumanFoot.sockets(body, film.bones("a", seconds), side).map(
         (socket) => socket.point.y,
       ),
     );
-  const approach: number = joint(film, takeoff, "leftFoot").z - joint(film, start, "leftFoot").z;
+  const approach: number =
+    joint(film, takeoff, "leftFoot").z - joint(film, start, "leftFoot").z;
   const miss: number = Vector3.distance(palm(strike), mark);
   const descent: number = palm(strike).y - palm(end).y;
   if (!(takeoff < strike && strike < landing && approach >= 0.12))
     complaints.push(`spike approaches ${approach} m before the aerial strike`);
   if (!(miss <= 0.06 && descent >= 0.25))
-    complaints.push(`spike palm misses its mark by ${miss} m and descends ${descent} m by recovery`);
+    complaints.push(
+      `spike palm misses its mark by ${miss} m and descends ${descent} m by recovery`,
+    );
   for (const side of ["left", "right"] as const) {
     const floor: number = sole(side, start);
     const rise: number = sole(side, strike) - floor;
@@ -190,7 +246,7 @@ function volleyballSpike(
       joint(film, start, `${side}Foot`),
       joint(film, end, `${side}Foot`),
     );
-    if (!(rise >= 0.10 && landingGap <= 0.035 && returnGap <= 0.02))
+    if (!(rise >= 0.1 && landingGap <= 0.035 && returnGap <= 0.02))
       complaints.push(
         `spike ${side} sole rises ${rise} m, lands ${landingGap} m from its floor and returns ${returnGap} m from its footprint`,
       );

@@ -123,7 +123,10 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   blade: [HumanBlade, { stageBladeFootwork }],
   firearm: [HumanFirearm],
   labour: [HumanLabour],
-  ride: [HumanRide, { HumanHandrimStroke, HumanBicycleEffort, HumanBikeTransfer }],
+  ride: [
+    HumanRide,
+    { HumanHandrimStroke, HumanBicycleEffort, HumanBikeTransfer },
+  ],
   carried: [HumanCarried, { spacecraftGlide }],
   sport: [
     HumanSport,

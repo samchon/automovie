@@ -80,8 +80,9 @@ export namespace HumanPropSweep {
         { x: 0, y: 1, z: 0 },
       ),
     ];
-    const maskedBones: Map<string, ReturnType<typeof HumanPerformanceRead.prepareBones>> | undefined =
-      captureHands.length === 0 ? undefined : new Map();
+    const maskedBones:
+      | Map<string, ReturnType<typeof HumanPerformanceRead.prepareBones>>
+      | undefined = captureHands.length === 0 ? undefined : new Map();
     for (const person of self.people.values()) {
       const subject: string = person.performer.subject;
       if (subject === launcher || `person:${subject}` === leave) continue;
@@ -93,10 +94,11 @@ export namespace HumanPropSweep {
         maskedBones === undefined
           ? undefined
           : captureHands.filter((grip): boolean => grip.subject === subject);
-      const bones: typeof allBones = reserved === undefined || reserved.length === 0
-        ? allBones
-        : (at: number): ReturnType<typeof allBones> =>
-            HumanPropCatchHands.omit(allBones(at), reserved, at);
+      const bones: typeof allBones =
+        reserved === undefined || reserved.length === 0
+          ? allBones
+          : (at: number): ReturnType<typeof allBones> =>
+              HumanPropCatchHands.omit(allBones(at), reserved, at);
       if (bones !== allBones) maskedBones?.set(subject, bones);
       /** The original root-based rejection, with its centre for a full witness. */
       const frame = (t: number): IAutoMovieVector3 =>
@@ -217,7 +219,8 @@ export namespace HumanPropSweep {
     ): AutoMovieHumanoidBone {
       return HumanColliders.nearest(
         HumanPerformanceRead.person(self, subject).performer.body,
-        maskedBones?.get(subject)?.(at) ?? HumanPerformanceRead.bones(self, subject, at),
+        maskedBones?.get(subject)?.(at) ??
+          HumanPerformanceRead.bones(self, subject, at),
         point,
         point,
       ).bone;

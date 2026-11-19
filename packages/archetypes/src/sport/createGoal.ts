@@ -9,6 +9,7 @@ import {
   type IArchetypeBand,
 } from "../core";
 import { GOAL_BANDS } from "./GOAL_BANDS";
+import { buildBasketballHoop } from "./buildBasketballHoop";
 
 /** The builder every construction fills. */
 type Builder = ArchetypeBuilder<createGoal.Affordance, createGoal.Dimension>;
@@ -18,9 +19,6 @@ type Drawn = Partial<Record<createGoal.Dimension, number>>;
 
 /** The shorthand every construction uses. */
 const v: typeof Vector3.create = Vector3.create;
-
-/** How far the backboard's bottom edge lies below the ring's top, metres: FIBA Basketball Equipment 1.1.5, the rectangle's base level with the ring's top and 150 mm above the backboard's bottom edge. */
-const BOARD_BELOW_RING: number = 0.15;
 
 /** The half side line spacing of a volleyball court, metres: the net's side bands 9 m apart (FIVB 2.2, its 9.50 m less two 25 cm). */
 const VOLLEYBALL_SIDE: number = 4.5;
@@ -36,9 +34,6 @@ const CORD: number = 0.008;
 
 /** The width of the tennis net's centre strap, metres: ITF Rule 1, at most 5 cm, the limit the model takes. */
 const STRAP: number = 0.05;
-
-/** How many rods a basketball ring is drawn with. */
-const RING_RODS: number = 16;
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `post`, a volleyball post's diameter; `mesh`, a net's thickness; `antenna`, half of FIVB's 10 mm antenna. */
 const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
@@ -99,10 +94,15 @@ export function createGoal(
         : `${net.name}'s ${createGoal.NAMES[kind]}`,
     draw,
   });
-  if (kind === "basketballHoop") hoop(builder, d);
+  if (kind === "basketballHoop") buildBasketballHoop(builder, d);
   else if (kind === "volleyballNet") volleyball(builder, d);
   else if (kind === "tennisNet") tennis(builder, d);
-  else rectangularGoal(builder, d, kind === "iceHockeyGoal" || kind === "lacrosseGoal");
+  else
+    rectangularGoal(
+      builder,
+      d,
+      kind === "iceHockeyGoal" || kind === "lacrosseGoal",
+    );
   return builder.build(d.mass!);
 }
 
@@ -158,14 +158,36 @@ function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
     ["post-right", -1],
   ] as const) {
     if (round)
-      builder.rod(id, bar / 2, v(sign * x, 0, 0), v(sign * x, height + bar / 2, 0), { color });
+      builder.rod(
+        id,
+        bar / 2,
+        v(sign * x, 0, 0),
+        v(sign * x, height + bar / 2, 0),
+        { color },
+      );
     else
-      builder.box(id, v(bar, height + bar, bar), v(sign * x, (height + bar) / 2, 0), { color });
+      builder.box(
+        id,
+        v(bar, height + bar, bar),
+        v(sign * x, (height + bar) / 2, 0),
+        { color },
+      );
   }
   if (round)
-    builder.rod("crossbar", bar / 2, v(-x, height + bar / 2, 0), v(x, height + bar / 2, 0), { color });
+    builder.rod(
+      "crossbar",
+      bar / 2,
+      v(-x, height + bar / 2, 0),
+      v(x, height + bar / 2, 0),
+      { color },
+    );
   else
-    builder.box("crossbar", v(d.width! + 2 * bar, bar, bar), v(0, height + bar / 2, 0), { color });
+    builder.box(
+      "crossbar",
+      v(d.width! + 2 * bar, bar, bar),
+      v(0, height + bar / 2, 0),
+      { color },
+    );
   builder.affordance({
     id: "crossbar",
     kind: "bar",
@@ -188,70 +210,6 @@ function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
     extent: null,
     width: d.width!,
     height,
-  });
-}
-
-/**
- * Build a basketball hoop: the backboard, the ring out from its face on a bracket, the ring's top at the rule's height; `rim` is the ring's front, a bar, and `board` the backboard's face.
- *
- * @param builder The builder to fill.
- * @param d The drawn dimensions.
- */
-function hoop(builder: Builder, d: Drawn): void {
-  const bottom: number = d.height! - BOARD_BELOW_RING;
-  const metal: number = d.bar!;
-  const y: number = d.height! - metal / 2;
-  const radius: number = d.ring! / 2 + metal / 2;
-  const centre: number = d.offset! + d.ring! / 2;
-  builder.box(
-    "backboard",
-    v(d.width!, d.board!, d.thickness!),
-    v(0, bottom + d.board! / 2, -d.thickness! / 2),
-    { color: "#e8f1f5" },
-  );
-  builder.rod("bracket", metal / 2, v(0, y, 0), v(0, y, d.offset!), {
-    color: "#d9531e",
-  });
-  // Each rod a tangent to the ring's circle at its middle, so the rods' middles lie on the circle.
-  const step: number = (2 * Math.PI) / RING_RODS;
-  const corner: number = radius / Math.cos(step / 2);
-  const at = (angle: number): ReturnType<typeof Vector3.create> =>
-    v(corner * Math.sin(angle), y, centre + corner * Math.cos(angle));
-  for (let k: number = 0; k < RING_RODS; k++)
-    builder.rod(
-      `ring-${k + 1}`,
-      metal / 2,
-      at((k - 0.5) * step),
-      at((k + 0.5) * step),
-      {
-        color: "#d9531e",
-      },
-    );
-  builder.affordance({
-    id: "rim",
-    kind: "bar",
-    symmetry: "round",
-    frame: ArchetypeFrame.facing(
-      v(0, y, centre + radius),
-      v(0, 0, 1),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    grip: "hook",
-    aperture: metal,
-    length: 2 * radius * Math.tan(step / 2),
-  });
-  builder.affordance({
-    id: "board",
-    kind: "surface",
-    frame: ArchetypeFrame.facing(
-      v(0, bottom + d.board! / 2, 0),
-      v(0, 0, 1),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    width: d.width!,
-    depth: d.board!,
   });
 }
 

@@ -12,8 +12,8 @@ import type {
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanMartialArt,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPlaced,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
   IAutoMovieVector3,
@@ -100,7 +100,8 @@ export namespace martialArt {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanMartialArt.IParams = context.params;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
+    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
+      body.measure;
     const count: number = p.count ?? 4;
     const hold: number = p.seconds ?? 1;
     HumanBound.whole("count", count);
@@ -111,7 +112,10 @@ export namespace martialArt {
       return MartialArtStancePhrase(context, p.kind, hold, modifiers);
 
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const axes: IAutoMovieMotionHumanFrame = { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw };
+    const axes: IAutoMovieMotionHumanFrame = {
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: entry.yaw,
+    };
     const forward: IAutoMovieVector3 = HumanFrame.point(axes, {
       x: 0,
       y: 0,
@@ -191,7 +195,8 @@ export namespace martialArt {
         0.03 * m.stature,
         into(s),
       );
-    const bearing: (s: number) => boolean = (s: number): boolean => into(s) <= 0 || into(s) >= 1;
+    const bearing: (s: number) => boolean = (s: number): boolean =>
+      into(s) <= 0 || into(s) >= 1;
     const stepped: (
       side: "left" | "right",
       by: IAutoMovieVector3,
@@ -266,7 +271,10 @@ export namespace martialArt {
         ready + 2 * i * PUNCH * modifiers.tempo;
       const ease: (u: number) => number = (u: number): number =>
         u * u * (3 - 2 * u);
-      const extended: (side: "left" | "right", s: number) => number = (side: "left" | "right", s: number): number => {
+      const extended: (side: "left" | "right", s: number) => number = (
+        side: "left" | "right",
+        s: number,
+      ): number => {
         const first: number = side === "right" ? 0 : 1;
         if (s < start(first)) return 0;
 
@@ -330,7 +338,9 @@ export namespace martialArt {
       const arm: number = m.upperArm + m.forearm;
       const near: number = AutoMovieMotionHumanTargetGrid.DISTANCES.near * arm;
       const far: number = AutoMovieMotionHumanTargetGrid.DISTANCES.far * arm;
-      const inside: number = (1 - AutoMovieMotionHumanTargetGrid.LATERALS.inside) * m.shoulderHalfWidth;
+      const inside: number =
+        (1 - AutoMovieMotionHumanTargetGrid.LATERALS.inside) *
+        m.shoulderHalfWidth;
       const below: number = m.chestHeight - m.shoulderHeight;
       const shift: (s: number) => number = (s: number): number =>
         clock.envelope(["strokeStart", "stroke"], ["stroke", "strokeEnd"], s);
@@ -382,13 +392,24 @@ export namespace martialArt {
             place: (
               posture: IAutoMovieMotionHumanPosture,
               s: number,
-              resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+              resolution?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[2],
             ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
               point: Vector3.add(
-                AutoMovieMotionHumanPlaced.joint(body, posture, `${side}UpperArm`, resolution),
+                AutoMovieMotionHumanPlaced.joint(
+                  body,
+                  posture,
+                  `${side}UpperArm`,
+                  resolution,
+                ),
                 HumanFrame.point(
                   { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                  { x: side === "left" ? -inside : inside, y: below, z: near + (far - near) * shift(s) },
+                  {
+                    x: side === "left" ? -inside : inside,
+                    y: below,
+                    z: near + (far - near) * shift(s),
+                  },
                 ),
               ),
               facing: HumanFrame.point(

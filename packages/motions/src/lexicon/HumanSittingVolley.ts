@@ -82,7 +82,13 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       const { body, entry, params }: typeof context = context;
       const { hand, lateral, seconds, target }: typeof params = params;
       HumanBound.above("seconds", seconds, 0, "s");
-      HumanBound.within("lateral", lateral, -SHIFT * body.measure.thigh, SHIFT * body.measure.thigh, "m");
+      HumanBound.within(
+        "lateral",
+        lateral,
+        -SHIFT * body.measure.thigh,
+        SHIFT * body.measure.thigh,
+        "m",
+      );
       for (const coordinate of [target.x, target.y, target.z])
         HumanBound.above("target", coordinate, -Number.MAX_VALUE, "m");
 
@@ -90,10 +96,11 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       if (
         entry.base.kind !== "seated" ||
         entry.base.seat !== undefined ||
-        !entry.supports.some((support): boolean =>
-          support.part === "seat" &&
-          support.kind === "seat" &&
-          support.support.kind === "ground",
+        !entry.supports.some(
+          (support): boolean =>
+            support.part === "seat" &&
+            support.kind === "seat" &&
+            support.support.kind === "ground",
         )
       )
         throw new HumanRefusal({
@@ -101,7 +108,8 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           axis: "base",
           value: entry.base.kind,
           feasible: { kind: "alternatives", values: ["seated"] },
-          reason: "the sitting-volleyball shift starts with the pelvis supported by the court",
+          reason:
+            "the sitting-volleyball shift starts with the pelvis supported by the court",
           fix: "establish a floor sitting posture first",
         });
 
@@ -109,22 +117,42 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       // anatomical anchor rather than the lowest point of the seated mesh.
       const seatPoint: IAutoMovieVector3 = seated.socket(body, low);
       const heading: IAutoMovieQuaternion = HumanFrame.turn(low.yaw);
-      const left: IAutoMovieVector3 = Quaternion.rotateVector(heading, { x: 1, y: 0, z: 0 });
-      const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, { x: 0, y: 0, z: 1 });
+      const left: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+        x: 1,
+        y: 0,
+        z: 0,
+      });
+      const forward: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+        x: 0,
+        y: 0,
+        z: 1,
+      });
       const travel: IAutoMovieVector3 = Vector3.scale(left, lateral);
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(body, entry.pose);
-      const palmFrame: ReturnType<typeof HumanHandTarget.prepareFrame> = HumanHandTarget.prepareFrame(
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, entry.pose);
+      const palmFrame: ReturnType<typeof HumanHandTarget.prepareFrame> =
+        HumanHandTarget.prepareFrame(
+          body,
+          hand,
+          { x: 0, y: 1, z: 0 },
+          { surface: "palm", shape: "flat", forward },
+        );
+      const handOffset: IAutoMovieVector3 = HumanHand.offset(
         body,
         hand,
-        { x: 0, y: 1, z: 0 },
-        { surface: "palm", shape: "flat", forward },
+        "palm",
+        "flat",
+      ).point;
+      const flat: ReturnType<typeof HumanHand.shape> = HumanHand.shape(
+        hand,
+        "flat",
       );
-      const handOffset: IAutoMovieVector3 = HumanHand.offset(body, hand, "palm", "flat").point;
-      const flat: ReturnType<typeof HumanHand.shape> = HumanHand.shape(hand, "flat");
-      const forearm: number = Vector3.length(Vector3.subtract(
-        body.rest.get("leftHand")!,
-        body.rest.get("leftLowerArm")!,
-      ));
+      const forearm: number = Vector3.length(
+        Vector3.subtract(
+          body.rest.get("leftHand")!,
+          body.rest.get("leftLowerArm")!,
+        ),
+      );
 
       /** Place the inclined torso and carry the floor-seated leg pose. */
       const torso = (
@@ -132,37 +160,56 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         reaching: number,
         platform: number,
       ): IAutoMovieMotionHumanPosture => {
-        const bodyPose: IAutoMovieMotionHumanPosture = carryHumanPosture(low, ORIGIN, {
-          ...ORIGIN,
-          position: moved,
-        });
-        const incline: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-          bodyPose.joints,
-          LEAN * (reaching + 0.4 * platform),
+        const bodyPose: IAutoMovieMotionHumanPosture = carryHumanPosture(
+          low,
+          ORIGIN,
+          {
+            ...ORIGIN,
+            position: moved,
+          },
         );
+        const incline: ReturnType<typeof HumanTrunk.incline> =
+          HumanTrunk.incline(
+            bodyPose.joints,
+            LEAN * (reaching + 0.4 * platform),
+          );
         const tilted: IAutoMovieMotionHumanPosture = {
           ...bodyPose,
           pitch: low.pitch + incline.pitch,
           joints: incline.joints,
         };
-        return { ...tilted, root: seated.root(body, Vector3.add(seatPoint, moved), tilted) };
+        return {
+          ...tilted,
+          root: seated.root(body, Vector3.add(seatPoint, moved), tilted),
+        };
       };
 
       // Read the pressing shoulder after the body inclines, at the middle
       // of its lateral travel. Set the wrist a little outboard to keep the
       // pressing arm clear of the torso as the weight moves past the palm.
       // The floor point also accounts for the actual palm-to-wrist offset.
-      const pressing: IAutoMovieMotionHumanPosture = torso(Vector3.scale(travel, 0.5), 1, 0);
-      const shoulder: IAutoMovieVector3 = poseBones(body, resolveHumanPosture(body, pressing))
-        .get(`${hand}UpperArm`)!.worldPosition;
-      const wristAtOrigin: IAutoMovieVector3 = palmFrame(pressing).place(ORIGIN.position).point;
+      const pressing: IAutoMovieMotionHumanPosture = torso(
+        Vector3.scale(travel, 0.5),
+        1,
+        0,
+      );
+      const shoulder: IAutoMovieVector3 = poseBones(
+        body,
+        resolveHumanPosture(body, pressing),
+      ).get(`${hand}UpperArm`)!.worldPosition;
+      const wristAtOrigin: IAutoMovieVector3 = palmFrame(pressing).place(
+        ORIGIN.position,
+      ).point;
       const floorPoint: IAutoMovieVector3 = {
         ...Vector3.subtract(
           Vector3.add(
             shoulder,
             Vector3.add(
               Vector3.scale(forward, PRESS_AHEAD * body.measure.hand),
-              Vector3.scale(left, (hand === "left" ? 1 : -1) * PRESS_OUT * body.measure.hand),
+              Vector3.scale(
+                left,
+                (hand === "left" ? 1 : -1) * PRESS_OUT * body.measure.hand,
+              ),
             ),
           ),
           wristAtOrigin,
@@ -174,16 +221,28 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       const posture = (at: number): IAutoMovieMotionHumanPosture => {
         const share: number = Math.min(1, Math.max(0, at / seconds));
         if (share === 0) return low;
-        const moving: number = minimumJerk.share((share - PLANT) / (RELEASE - PLANT));
+        const moving: number = minimumJerk.share(
+          (share - PLANT) / (RELEASE - PLANT),
+        );
         const moved: IAutoMovieVector3 = Vector3.scale(travel, moving);
-        const reaching: number = minimumJerk.share(share / PLANT) *
+        const reaching: number =
+          minimumJerk.share(share / PLANT) *
           (1 - minimumJerk.share((share - RELEASE) / (RECEIVE - RELEASE)));
-        const platform: number = minimumJerk.share((share - RELEASE) / (RECEIVE - RELEASE)) *
+        const platform: number =
+          minimumJerk.share((share - RELEASE) / (RECEIVE - RELEASE)) *
           (1 - minimumJerk.share((share - RECEIVE) / (1 - RECEIVE)));
-        const tilted: IAutoMovieMotionHumanPosture = torso(moved, reaching, platform);
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...tilted.joints };
+        const tilted: IAutoMovieMotionHumanPosture = torso(
+          moved,
+          reaching,
+          platform,
+        );
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...tilted.joints,
+        };
         for (const bone of Object.keys(flat) as AutoMovieHumanoidBone[]) {
-          const start: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+          const start: readonly [number, number, number] = joints[bone] ?? [
+            0, 0, 0,
+          ];
           const finish: readonly [number, number, number] = flat[bone]!;
           joints[bone] = [
             start[0] + (finish[0] - start[0]) * reaching,
@@ -195,23 +254,47 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           ...tilted,
           joints,
         };
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...supported.limbs };
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...supported.limbs,
+        };
         for (const side of SIDES) {
           const resting: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-          const restingPoint: IAutoMovieVector3 = Vector3.add(resting.worldPosition, moved);
-          const bend = AutoMovieMotionHumanBend.hang(body, supported, side, 0.2);
+          const restingPoint: IAutoMovieVector3 = Vector3.add(
+            resting.worldPosition,
+            moved,
+          );
+          const bend = AutoMovieMotionHumanBend.hang(
+            body,
+            supported,
+            side,
+            0.2,
+          );
           if (side === hand && reaching > 0 && share <= RELEASE) {
             const wrist: ReturnType<ReturnType<typeof palmFrame>["place"]> =
               palmFrame(supported).place(floorPoint);
-            const held: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanArmTarget.fromWrist(wrist, bend, handOffset);
-            const point: IAutoMovieVector3 = Vector3.lerp(restingPoint, held.point, reaching);
-            const rotation: IAutoMovieQuaternion = Quaternion.slerp(resting.worldRotation, wrist.rotation, reaching);
+            const held: IAutoMovieHumanLimbGoal =
+              AutoMovieMotionHumanArmTarget.fromWrist(wrist, bend, handOffset);
+            const point: IAutoMovieVector3 = Vector3.lerp(
+              restingPoint,
+              held.point,
+              reaching,
+            );
+            const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+              resting.worldRotation,
+              wrist.rotation,
+              reaching,
+            );
             limbs[`${side}Arm`] = {
               ...held,
               point,
               rotation,
               bend: AutoMovieMotionHumanBend.solve({
-                body, posture: supported, side, point, rotation, fallback: "hang",
+                body,
+                posture: supported,
+                side,
+                point,
+                rotation,
+                fallback: "hang",
               }),
               elbow: "placed",
               planted: share >= PLANT,
@@ -221,18 +304,32 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
 
           // Keep the wrists close and slightly beyond the platform, so the forearms meet before the hands.
           const split: number = side === "left" ? 1 : -1;
-          const beyond: IAutoMovieVector3 = Vector3.add(target, Vector3.add(
-            Vector3.scale(forward, 0.38 * forearm),
-            Vector3.scale(left, split * 0.26 * body.measure.hand),
-          ));
-          const platformRotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-            fingers: forward,
-            palm: Vector3.scale(left, -split),
-          });
-          const returningHand: boolean = side === hand && share > RELEASE && share < RECEIVE;
-          const released: ReturnType<ReturnType<typeof palmFrame>["place"]> | undefined =
-            returningHand ? palmFrame(supported).place(floorPoint) : undefined;
-          const point: IAutoMovieVector3 = Vector3.lerp(released?.point ?? restingPoint, beyond, platform);
+          const beyond: IAutoMovieVector3 = Vector3.add(
+            target,
+            Vector3.add(
+              Vector3.scale(forward, 0.38 * forearm),
+              Vector3.scale(left, split * 0.26 * body.measure.hand),
+            ),
+          );
+          const platformRotation: IAutoMovieQuaternion = HumanHand.rotation(
+            side,
+            {
+              fingers: forward,
+              palm: Vector3.scale(left, -split),
+            },
+          );
+          const returningHand: boolean =
+            side === hand && share > RELEASE && share < RECEIVE;
+          const released:
+            | ReturnType<ReturnType<typeof palmFrame>["place"]>
+            | undefined = returningHand
+            ? palmFrame(supported).place(floorPoint)
+            : undefined;
+          const point: IAutoMovieVector3 = Vector3.lerp(
+            released?.point ?? restingPoint,
+            beyond,
+            platform,
+          );
           const rotation: IAutoMovieQuaternion = Quaternion.slerp(
             released?.rotation ?? resting.worldRotation,
             platformRotation,
@@ -241,20 +338,28 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           // Start release on the planted arm's bend solution, then yield to
           // the receive bend. Crossing the event cannot change the hint
           // while the hand is still at the floor target.
-          const elbow: IAutoMovieVector3 = released === undefined
-            ? bend
-            : Vector3.lerp(
-              AutoMovieMotionHumanBend.solve({
-                body, posture: supported, side, point, rotation, fallback: "hang",
-              }),
-              bend,
-              platform,
-            );
+          const elbow: IAutoMovieVector3 =
+            released === undefined
+              ? bend
+              : Vector3.lerp(
+                  AutoMovieMotionHumanBend.solve({
+                    body,
+                    posture: supported,
+                    side,
+                    point,
+                    rotation,
+                    fallback: "hang",
+                  }),
+                  bend,
+                  platform,
+                );
           limbs[`${side}Arm`] = {
             point,
             rotation,
             bend: elbow,
-            ...(released === undefined ? {} : { contact: handOffset, elbow: "placed" as const }),
+            ...(released === undefined
+              ? {}
+              : { contact: handOffset, elbow: "placed" as const }),
             planted: false,
           };
         }
@@ -263,7 +368,8 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
 
       // Measure the distinct wrist failures together so a floor placement
       // refusal cannot hide a second problem with the receive target.
-      const misses: { phase: string; side: "left" | "right"; gap: number }[] = [];
+      const misses: { phase: string; side: "left" | "right"; gap: number }[] =
+        [];
       for (const [phase, when, sides] of [
         ["palm plant", PLANT, [hand]],
         ["palm push", (PLANT + RELEASE) / 2, [hand]],
@@ -274,21 +380,31 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         const displayed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           poseBones(body, resolveHumanPosture(body, sample));
         for (const side of sides) {
-          const handBone: IAutoMovieResolvedBone = displayed.get(`${side}Hand`)!;
+          const handBone: IAutoMovieResolvedBone = displayed.get(
+            `${side}Hand`,
+          )!;
           const goal: IAutoMovieHumanLimbGoal = sample.limbs[`${side}Arm`]!;
-          const gap: number = Vector3.distance(handBone.worldPosition, goal.point);
+          const gap: number = Vector3.distance(
+            handBone.worldPosition,
+            goal.point,
+          );
           if (!(gap <= FIT)) misses.push({ phase, side, gap });
         }
       }
       if (misses.length > 0)
         throw new HumanRefusal({
           kind: "reach",
-          axis: misses.some((miss): boolean => miss.phase !== "forearm receive") ? "lateral" : "target",
+          axis: misses.some((miss): boolean => miss.phase !== "forearm receive")
+            ? "lateral"
+            : "target",
           value: Math.max(...misses.map((miss): number => miss.gap)),
           feasible: { kind: "range", minimum: 0, maximum: FIT, unit: "m" },
-          reason: `the seated wrists miss their targets (${misses.map((miss): string =>
-            `${miss.side} ${miss.phase} ${(miss.gap * 1000).toFixed(1)} mm`,
-          ).join(", ")})`,
+          reason: `the seated wrists miss their targets (${misses
+            .map(
+              (miss): string =>
+                `${miss.side} ${miss.phase} ${(miss.gap * 1000).toFixed(1)} mm`,
+            )
+            .join(", ")})`,
           fix: "reduce the floor travel, use the nearer hand, or place the receive closer to the body",
         });
 
@@ -302,8 +418,20 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         ],
         contact: RECEIVE * seconds,
         contacts: [
-          { part: "seat", kind: "seat", from: 0, to: 1, support: { kind: "ground" } },
-          { part: `${hand}Hand`, kind: "plant", from: PLANT, to: RELEASE, support: { kind: "ground" } },
+          {
+            part: "seat",
+            kind: "seat",
+            from: 0,
+            to: 1,
+            support: { kind: "ground" },
+          },
+          {
+            part: `${hand}Hand`,
+            kind: "plant",
+            from: PLANT,
+            to: RELEASE,
+            support: { kind: "ground" },
+          },
         ],
         posture,
       };

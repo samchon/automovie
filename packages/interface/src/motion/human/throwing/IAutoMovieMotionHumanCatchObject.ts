@@ -42,9 +42,9 @@ export namespace IAutoMovieMotionHumanCatchObject {
    * Parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The source anchor, prop, hand configuration and optional positive elapsed flight time identify the catch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ordinary and staged catch share the same hand options; only stageCatch consumes intercept.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Even for a specified intercept, performance supplies the ball's actual contact point.
+   * @evidence contracts/development/design.md#principled-representation The source anchor, prop and hand configuration identify the catch.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Ordinary and staged catch share the same hand options.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The referenced throw and ball supply the ordinary approach.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
@@ -63,7 +63,17 @@ export namespace IAutoMovieMotionHumanCatchObject {
 
     /** A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent. */
     glove?: string;
+  }
 
+  /**
+   * Staged catch parameters, using the prop's actual placed trajectory.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the stage-only interception time and its placement bounds.
+   * @evidence contracts/development/design.md#principled-representation The ordinary hand parameters and optional positive elapsed time identify the capture on the anchored flight.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only stageCatch admits the explicit interception time.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Performance supplies the contact point even for a specified interception time.
+   */
+  export interface IStageParams extends IParams {
     /**
      * Seconds after the anchored prop release at which `stageCatch` reads the realized interception. Absent, use the ordinary throw's approach.
      * Exclusive minimum: 0. Unit: s. `stageCatch` admits this only inside the source action's surviving window.

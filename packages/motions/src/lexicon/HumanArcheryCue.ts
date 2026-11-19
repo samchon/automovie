@@ -37,11 +37,21 @@ export function HumanArcheryCue(
 ): IAutoMovieMotionHumanActionPlan {
   const { source, prop, onto, point } = continuation;
   if (source === prop || source === onto || prop === onto)
-    throw refusal(prop, "the source, transferable prop and animation carrier must be distinct");
+    throw refusal(
+      prop,
+      "the source, transferable prop and animation carrier must be distinct",
+    );
   const carrier: IAutoMovieMotionHumanPropReader = context.prop(onto);
-  if (!carrier.prop.affordances?.some((a: IAutoMovieAffordance): boolean =>
-    a.id === point && a.kind === "socket"))
-    throw refusal(`${onto}.${point}`, "the animation carrier must declare the selected socket");
+  if (
+    !carrier.prop.affordances?.some(
+      (a: IAutoMovieAffordance): boolean =>
+        a.id === point && a.kind === "socket",
+    )
+  )
+    throw refusal(
+      `${onto}.${point}`,
+      "the animation carrier must declare the selected socket",
+    );
 
   const beat: number = AutoMovieMotionHumanTiming.PAUSES.brief;
   const cue: string = crossbow ? "strokeStart" : "open";
@@ -52,8 +62,15 @@ export function HumanArcheryCue(
   const at: number = context.start + clock.at(cue);
   const fixture: IAutoMovieMotionHumanPropReader = context.prop(source);
   const moved: IAutoMovieMotionHumanPropReader = context.prop(prop);
-  if (moved.prop.motion !== undefined || moved.prop.fixed === true || moved.prop.soft !== undefined)
-    throw refusal(prop, "the transferable prop must allow a rigid socket mount");
+  if (
+    moved.prop.motion !== undefined ||
+    moved.prop.fixed === true ||
+    moved.prop.soft !== undefined
+  )
+    throw refusal(
+      prop,
+      "the transferable prop must allow a rigid socket mount",
+    );
   if (moved.launchAt?.(at) !== undefined)
     throw refusal(prop, "this prop already has an active continuation");
   const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
@@ -62,22 +79,44 @@ export function HumanArcheryCue(
     ),
   );
   const state: Readonly<Record<string, number>> = fixture.state?.(at) ?? {};
-  const articulation: string | null = AffordanceArticulation.leader(byId, "string");
-  const start: number | null = articulation === null
-    ? null
-    : AffordanceArticulation.travel(byId, state, articulation);
-  if (articulation === null || start === null || start <= 0 || fixture.prop.articulate === undefined)
-    throw refusal(source, "the staged string must already be held away from its rest pose");
-
-  const nock: IAutoMovieAffordance | undefined = fixture.prop.articulate(state).affordances.find(
-    (a: IAutoMovieAffordance): boolean => a.id === "nock" && a.kind === "socket",
+  const articulation: string | null = AffordanceArticulation.leader(
+    byId,
+    "string",
   );
+  const start: number | null =
+    articulation === null
+      ? null
+      : AffordanceArticulation.travel(byId, state, articulation);
+  if (
+    articulation === null ||
+    start === null ||
+    start <= 0 ||
+    fixture.prop.articulate === undefined
+  )
+    throw refusal(
+      source,
+      "the staged string must already be held away from its rest pose",
+    );
+
+  const nock: IAutoMovieAffordance | undefined = fixture.prop
+    .articulate(state)
+    .affordances.find(
+      (a: IAutoMovieAffordance): boolean =>
+        a.id === "nock" && a.kind === "socket",
+    );
   const tail: IAutoMovieVector3 | undefined = moved.prop.points.nock?.point;
-  if (nock === undefined || tail === undefined || Vector3.distance(
-    worldPoint(fixture.frame(at), nock.frame.translation),
-    worldPoint(moved.frame(at), tail),
-  ) > SEATING_TOLERANCE)
-    throw refusal(prop, `the prop must be seated at ${source}.nock when the cue occurs`);
+  if (
+    nock === undefined ||
+    tail === undefined ||
+    Vector3.distance(
+      worldPoint(fixture.frame(at), nock.frame.translation),
+      worldPoint(moved.frame(at), tail),
+    ) > SEATING_TOLERANCE
+  )
+    throw refusal(
+      prop,
+      `the prop must be seated at ${source}.nock when the cue occurs`,
+    );
 
   const from: number = clock.at(cue) / clock.duration;
   const drives: IAutoMovieMotionPropDrive[] = [
@@ -86,17 +125,24 @@ export function HumanArcheryCue(
       articulation,
       from,
       to: clock.at("relax") / clock.duration,
-      travel: (seconds: number): number => start * (1 - clock.progress(cue, "relax", seconds)),
+      travel: (seconds: number): number =>
+        start * (1 - clock.progress(cue, "relax", seconds)),
     },
   ];
   if (crossbow) {
     const trigger: IAutoMovieAffordance | undefined = byId.get("trigger");
     if (trigger?.kind !== "trigger" || trigger.travel === undefined)
-      throw refusal(source, "the depicted crossbow must declare a trigger articulation");
+      throw refusal(
+        source,
+        "the depicted crossbow must declare a trigger articulation",
+      );
     const travel: number = trigger.travel;
-    const press: (seconds: number) => number = AutoMovieMotionClock.prepareEnvelope(
-      clock, ["start", cue], ["relax", "end"],
-    );
+    const press: (seconds: number) => number =
+      AutoMovieMotionClock.prepareEnvelope(
+        clock,
+        ["start", cue],
+        ["relax", "end"],
+      );
     drives.push({
       prop: source,
       articulation: trigger.id,
@@ -122,8 +168,14 @@ export function HumanArcheryCue(
 const SEATING_TOLERANCE: number = 0.002;
 
 /** Place an authored local mark on a displayed prop frame. */
-function worldPoint(frame: IAutoMovieRigidTransform, local: IAutoMovieVector3): IAutoMovieVector3 {
-  return Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, local));
+function worldPoint(
+  frame: IAutoMovieRigidTransform,
+  local: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, local),
+  );
 }
 
 /** Report a missing or inconsistent subject in the staged transfer. */

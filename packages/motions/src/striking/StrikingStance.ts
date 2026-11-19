@@ -80,7 +80,9 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function rear(stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">): "left" | "right" {
+  export function rear(
+    stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
+  ): "left" | "right" {
     return stance.lead === "left" ? "right" : "left";
   }
 
@@ -99,7 +101,9 @@ export namespace StrikingStance {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function heading(stance: IAutoMovieMotionHumanStrikingStance.IStance): number {
+  export function heading(
+    stance: IAutoMovieMotionHumanStrikingStance.IStance,
+  ): number {
     return stance.line + (stance.lead === "left" ? -TURN : TURN);
   }
 
@@ -147,7 +151,10 @@ export namespace StrikingStance {
       yaw: stance.line,
     };
     const half: number = length(body) / 2;
-    const out = {} as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+    const out = {} as Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    >;
     for (const side of ["left", "right"] as const) {
       const lead: boolean = side === stance.lead;
       const x: number = (side === "left" ? 1 : -1) * body.measure.hipHalfWidth;
@@ -275,10 +282,27 @@ export namespace StrikingStance {
     stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
     style?: IAutoMovieMotionHumanGuard.Style,
-  ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
-    return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> =>
-      StrikingGuard(body, posture, stance, drop, trunk(posture, resolution, projection), undefined, style);
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ) => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
+    const trunk: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> =>
+      StrikingGuard(
+        body,
+        posture,
+        stance,
+        drop,
+        trunk(posture, resolution, projection),
+        undefined,
+        style,
+      );
   }
 
   /**
@@ -440,4 +464,3 @@ export namespace StrikingStance {
     };
   }
 }
-

@@ -177,10 +177,10 @@ export const HumanStageProp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  * @returns A fitted kinematic action with the `stroke` editing cue.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines entry scope, cue, body plan and held grip.
- * @evidence contracts/development/implementation.md#principled-implementation Read the actual held transform, orient the model's mark frame, then evaluate the chosen authored path with the shared clock and arm fitting. The actor's stance and turn carry the tool.
+ * @evidence contracts/development/implementation.md#principled-implementation Read the actual held transform and the selected mark's visible articulation at the stroke, then evaluate the authored path with the shared clock and arm fitting. The actor's stance and turn carry the tool.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit hold and parameters, resolve one primary frame and any established support grip, then delegate the phase plan.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The screen cue and target are authored. Grip contacts and supported feet remain available while hit metadata is omitted.
- * @evidence contracts/development/implementation.md#efficient-algorithms A fixed-size path evaluation with the existing body solver.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Read the visible articulation once during planning when either selected site rides a mechanism. The authored path does constant work per sample before the existing body solver.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The fixed mark, held offset, support and actor coordinate transform serve every pose in the beat.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns one independent closure over its clock and input frames.
  */
@@ -191,21 +191,6 @@ function plan(
   const beat: IBeat = BEATS[params.beat];
   const hand: AutoMovieHumanSide = params.hand ?? "right";
   const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(context, hand, params.prop);
-  const mark: string = params.mark ?? beat.mark;
-  const read: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.read(held, { tip: mark });
-  const marker: IAutoMovieAffordance = held.affordances.find((site: IAutoMovieAffordance): boolean => site.id === mark)!;
-  const gripToMark: ReturnType<typeof AutoMovieMotionHumanHeld.point> = AutoMovieMotionHumanHeld.point(held, mark);
-  const roll: IAutoMovieVector3 = Quaternion.rotateVector(
-    Quaternion.multiply(held.frame.rotation, marker.frame.rotation),
-    Vector3.create(1, 0, 0),
-  );
-  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = {
-    ...read,
-    axis: gripToMark.direction,
-    edge: StrikingHeldFrame.square(gripToMark.direction, roll),
-    rolls: false,
-  };
   const seconds: number = params.seconds ?? beat.seconds;
   if (!(seconds > 0 && Number.isFinite(seconds)))
     throw new HumanRefusal({
@@ -224,6 +209,39 @@ function plan(
       reason: "a screen mark must be finite",
       fix: "give the virtual set point as finite world coordinates",
     });
+  const clock: ReturnType<typeof AutoMovieMotionClock.phrase> =
+    AutoMovieMotionClock.phrase({
+      prepare: 0.19 * seconds,
+      attack: 0.57 * seconds,
+      hold: 0.06 * seconds,
+      retract: 0.18 * seconds,
+    });
+  const mark: string = params.mark ?? beat.mark;
+  const held: IAutoMovieMotionHumanHeld.IHeld = heldAtStroke(
+    context,
+    hand,
+    mark,
+    clock.at("stroke"),
+  );
+  const read: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.read(
+    held,
+    { tip: mark },
+  );
+  const marker: IAutoMovieAffordance = held.affordances.find(
+    (site: IAutoMovieAffordance): boolean => site.id === mark,
+  )!;
+  const gripToMark: ReturnType<typeof AutoMovieMotionHumanHeld.point> =
+    AutoMovieMotionHumanHeld.point(held, mark);
+  const roll: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.multiply(held.frame.rotation, marker.frame.rotation),
+    Vector3.create(1, 0, 0),
+  );
+  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = {
+    ...read,
+    axis: gripToMark.direction,
+    edge: StrikingHeldFrame.square(gripToMark.direction, roll),
+    rolls: false,
+  };
 
   const support: IAutoMovieMotionHumanStrikingBlade.ISupport | null =
     supportGrip(context, held, tool, other);
@@ -233,15 +251,16 @@ function plan(
   const world = ([x, y, z]: Vector): IAutoMovieVector3 =>
     HumanFrame.point({ origin, yaw }, Vector3.create(sign * x, y, z));
   const line: IAutoMovieVector3 = world([0, 0, 1]);
-  const advance: IAutoMovieMotionHumanStrikingAdvance.Advance = at === undefined ? beat.advance : "none";
-  const shoulder: IAutoMovieVector3 = StrikingBlade.shoulder(context, hand, advance, line);
-  const arm: number = context.body.measure.upperArm + context.body.measure.forearm;
-  const clock: ReturnType<typeof AutoMovieMotionClock.phrase> = AutoMovieMotionClock.phrase({
-    prepare: 0.19 * seconds,
-    attack: 0.57 * seconds,
-    hold: 0.06 * seconds,
-    retract: 0.18 * seconds,
-  });
+  const advance: IAutoMovieMotionHumanStrikingAdvance.Advance =
+    at === undefined ? beat.advance : "none";
+  const shoulder: IAutoMovieVector3 = StrikingBlade.shoulder(
+    context,
+    hand,
+    advance,
+    line,
+  );
+  const arm: number =
+    context.body.measure.upperArm + context.body.measure.forearm;
   const staged: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(context, {
     tool,
     clock,
@@ -255,21 +274,53 @@ function plan(
     path: (progress: number): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const share: number = Math.min(1, Math.max(0, progress));
       const pose: IPose = beat.sample(share);
-      const grip: IAutoMovieVector3 = Vector3.add(shoulder, Vector3.scale(world(pose.grip), arm));
-      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingHeld.hand(
-        tool,
-        0,
-        origin,
-        world(pose.axis),
-        world(pose.roll),
+      const grip: IAutoMovieVector3 = Vector3.add(
+        shoulder,
+        Vector3.scale(world(pose.grip), arm),
       );
+      const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
+        StrikingHeld.hand(tool, 0, origin, world(pose.axis), world(pose.roll));
       if (at === undefined) return { point: grip, rotation: frame.rotation };
       const markGrip: IAutoMovieVector3 = Vector3.add(at, frame.point);
-      return { point: Vector3.lerp(grip, markGrip, share * share), rotation: frame.rotation };
+      return {
+        point: Vector3.lerp(grip, markGrip, share * share),
+        rotation: frame.rotation,
+      };
     },
   });
   const { contact: _contact, wields: _wields, ...visual } = staged;
   return visual;
+}
+
+/** Keep the registered hold and read articulated model sites at the authored stroke accent. */
+function heldAtStroke(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageProp>,
+  hand: AutoMovieHumanSide,
+  mark: string,
+  stroke: number,
+): IAutoMovieMotionHumanHeld.IHeld {
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    context,
+    hand,
+    context.params.prop,
+  );
+  if (
+    !held.affordances.some(
+      (site: IAutoMovieAffordance): boolean =>
+        site.rides !== undefined &&
+        (site.id === mark || site.id === context.params.support),
+    )
+  )
+    return held;
+  const reader: ReturnType<typeof context.prop> = context.prop(held.prop);
+  const posed:
+    | ReturnType<NonNullable<typeof reader.prop.articulate>>
+    | undefined = reader.prop.articulate?.(
+    reader.state?.(context.start + stroke) ?? {},
+  );
+  return posed === undefined
+    ? held
+    : { ...held, affordances: posed.affordances };
 }
 
 /** Resolve a named second grip in the same held frame the primary hand uses. */
@@ -298,7 +349,10 @@ function supportGrip(
       reason: "both hands hold the prop but no support site is declared",
       fix: "name the support hand's grip on the stage prop",
     });
-  const point: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(held, site).point;
+  const point: IAutoMovieVector3 = AutoMovieMotionHumanHeld.point(
+    held,
+    site,
+  ).point;
   return {
     offset: {
       x: Vector3.dot(point, tool.axis),

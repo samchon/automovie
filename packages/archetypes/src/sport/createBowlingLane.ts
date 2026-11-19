@@ -1,6 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
-import { Archetype, ArchetypeBand, ArchetypeBuilder, ArchetypeDrawSession, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  ArchetypeUnits,
+} from "../core";
 
 /**
  * A ten-pin lane with the foul line at Z=0, the approach along −Z and the first pin 60 ft along +Z.
@@ -21,13 +28,26 @@ export function createBowlingLane(
   seed?: number | string,
 ): Archetype<createBowlingLane.Affordance, "width"> {
   const inch: number = ArchetypeUnits.INCH;
-  const draw: ArchetypeDrawSession<"width"> = new ArchetypeDrawSession("bowlingLane", { width: "m" }, seed, {});
+  const draw: ArchetypeDrawSession<"width"> = new ArchetypeDrawSession(
+    "bowlingLane",
+    { width: "m" },
+    seed,
+    {},
+  );
   const { width }: Record<"width", number> = draw.dimensions({
-    width: ArchetypeBand.metres(41 * inch, 42 * inch, "USBC Equipment Specifications, lane width 41.5 ± 0.5 in"),
+    width: ArchetypeBand.metres(
+      41 * inch,
+      42 * inch,
+      "USBC Equipment Specifications, lane width 41.5 ± 0.5 in",
+    ),
   });
-  const builder: ArchetypeBuilder<createBowlingLane.Affordance, "width"> = new ArchetypeBuilder({
-    material: "wood", id: params.id, name: "ten-pin bowling lane", draw,
-  });
+  const builder: ArchetypeBuilder<createBowlingLane.Affordance, "width"> =
+    new ArchetypeBuilder({
+      material: "wood",
+      id: params.id,
+      name: "ten-pin bowling lane",
+      draw,
+    });
   const v: typeof Vector3.create = Vector3.create;
   const spacing: number = 12 * inch;
   const head: number = 60 * spacing;
@@ -36,24 +56,81 @@ export function createBowlingLane(
   const line: number = inch;
   const thick: number = 0.08;
   const gutter: number = 9.25 * inch;
-  builder.box("approach", v(width + 2 * gutter, thick, approach - line), v(0, -thick / 2, -(approach + line) / 2), { color: "#b68b52" });
-  builder.box("foulLine", v(width + 2 * gutter, thick, line), v(0, -thick / 2, -line / 2), { color: "#24201e" });
-  builder.box("lane", v(width, thick, length), v(0, -thick / 2, length / 2), { color: "#d8ad67" });
-  for (const [id, side] of [["leftGutter", 1], ["rightGutter", -1]] as const) {
-    const x: number = side * (width + gutter) / 2;
-    builder.box(id, v(gutter, thick, length), v(x, -0.11 - thick / 2, length / 2), { color: "#51555b" });
-    builder.affordance({ id, kind: "surface", frame: ArchetypeFrame.upright(v(x, -0.11, length / 2)), extent: null, width: gutter, depth: length });
+  builder.box(
+    "approach",
+    v(width + 2 * gutter, thick, approach - line),
+    v(0, -thick / 2, -(approach + line) / 2),
+    { color: "#b68b52" },
+  );
+  builder.box(
+    "foulLine",
+    v(width + 2 * gutter, thick, line),
+    v(0, -thick / 2, -line / 2),
+    { color: "#24201e" },
+  );
+  builder.box("lane", v(width, thick, length), v(0, -thick / 2, length / 2), {
+    color: "#d8ad67",
+  });
+  for (const [id, side] of [
+    ["leftGutter", 1],
+    ["rightGutter", -1],
+  ] as const) {
+    const x: number = (side * (width + gutter)) / 2;
+    builder.box(
+      id,
+      v(gutter, thick, length),
+      v(x, -0.11 - thick / 2, length / 2),
+      { color: "#51555b" },
+    );
+    builder.affordance({
+      id,
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(x, -0.11, length / 2)),
+      extent: null,
+      width: gutter,
+      depth: length,
+    });
   }
-  builder.affordance({ id: "approach", kind: "surface", frame: ArchetypeFrame.upright(v(0, 0, -approach / 2)), extent: null, width: width + 2 * gutter, depth: approach });
-  builder.affordance({ id: "lane", kind: "surface", frame: ArchetypeFrame.upright(v(0, 0, length / 2)), extent: null, width, depth: length });
-  builder.affordance({ id: "foulLine", kind: "socket", frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, 0, 1), v(1, 0, 0)), extent: null });
+  builder.affordance({
+    id: "approach",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(v(0, 0, -approach / 2)),
+    extent: null,
+    width: width + 2 * gutter,
+    depth: approach,
+  });
+  builder.affordance({
+    id: "lane",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(v(0, 0, length / 2)),
+    extent: null,
+    width,
+    depth: length,
+  });
+  builder.affordance({
+    id: "foulLine",
+    kind: "socket",
+    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, 0, 1), v(1, 0, 0)),
+    extent: null,
+  });
   for (let row: number = 0; row < 4; ++row)
     for (let column: number = 0; column <= row; ++column) {
-      const index: number = row * (row + 1) / 2 + column;
+      const index: number = (row * (row + 1)) / 2 + column;
       const id: createBowlingLane.Pin = createBowlingLane.PINS[index]!;
-      const point: ReturnType<typeof v> = v((row / 2 - column) * spacing, 0, head + row * spacing * Math.sqrt(3) / 2);
-      builder.rod(id, 1.125 * inch, { ...point, y: -0.001 }, point, { color: "#7a5d39" });
-      builder.affordance({ id, kind: "socket", frame: ArchetypeFrame.upright(point), extent: null });
+      const point: ReturnType<typeof v> = v(
+        (row / 2 - column) * spacing,
+        0,
+        head + (row * spacing * Math.sqrt(3)) / 2,
+      );
+      builder.rod(id, 1.125 * inch, { ...point, y: -0.001 }, point, {
+        color: "#7a5d39",
+      });
+      builder.affordance({
+        id,
+        kind: "socket",
+        frame: ArchetypeFrame.upright(point),
+        extent: null,
+      });
     }
   // A fixed lane uses a nominal assembly mass, independent of pin mass.
   return builder.build(1000);
@@ -69,11 +146,28 @@ export function createBowlingLane(
  */
 export namespace createBowlingLane {
   /** Pin spots numbered in order by row from left to right as seen by the bowler. */
-  export const PINS = ["pin1", "pin2", "pin3", "pin4", "pin5", "pin6", "pin7", "pin8", "pin9", "pin10"] as const;
+  export const PINS = [
+    "pin1",
+    "pin2",
+    "pin3",
+    "pin4",
+    "pin5",
+    "pin6",
+    "pin7",
+    "pin8",
+    "pin9",
+    "pin10",
+  ] as const;
 
   /** The socket of a single pin spot. */
   export type Pin = (typeof PINS)[number];
 
   /** Named surfaces, foul-line datum and pin positions. */
-  export type Affordance = "approach" | "lane" | "leftGutter" | "rightGutter" | "foulLine" | Pin;
+  export type Affordance =
+    | "approach"
+    | "lane"
+    | "leftGutter"
+    | "rightGutter"
+    | "foulLine"
+    | Pin;
 }

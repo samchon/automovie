@@ -35,7 +35,10 @@ export function measureSurfaceGlide(
   const normalLength: number = Vector3.length(surface.normal);
   if (!Number.isFinite(normalLength) || normalLength === 0)
     throw new RangeError("a glide measurement requires a surface normal");
-  const normal: IAutoMovieVector3 = Vector3.scale(surface.normal, 1 / normalLength);
+  const normal: IAutoMovieVector3 = Vector3.scale(
+    surface.normal,
+    1 / normalLength,
+  );
   const tangent = (forward: IAutoMovieVector3): IAutoMovieVector3 => {
     const projected: IAutoMovieVector3 = Vector3.subtract(
       forward,
@@ -46,13 +49,22 @@ export function measureSurfaceGlide(
       throw new RangeError("the equipment must point along the glide plane");
     return Vector3.scale(projected, 1 / length);
   };
-  const bisector: IAutoMovieVector3 = Vector3.add(tangent(before.forward), tangent(after.forward));
+  const bisector: IAutoMovieVector3 = Vector3.add(
+    tangent(before.forward),
+    tangent(after.forward),
+  );
   const bisectorLength: number = Vector3.length(bisector);
   if (bisectorLength <= 1e-9)
     throw new RangeError("glide samples must be closer than half a turn");
-  const forward: IAutoMovieVector3 = Vector3.scale(bisector, 1 / bisectorLength);
+  const forward: IAutoMovieVector3 = Vector3.scale(
+    bisector,
+    1 / bisectorLength,
+  );
   const right: IAutoMovieVector3 = Vector3.cross(normal, forward);
-  const displacement: IAutoMovieVector3 = Vector3.subtract(after.point, before.point);
+  const displacement: IAutoMovieVector3 = Vector3.subtract(
+    after.point,
+    before.point,
+  );
   return {
     along: Vector3.dot(displacement, forward),
     across: Vector3.dot(displacement, right),

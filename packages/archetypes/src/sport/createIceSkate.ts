@@ -55,7 +55,10 @@ export function createIceSkate(
   seed?: number | string,
 ): Archetype<createIceSkate.Affordance, "mass"> {
   const draw: ArchetypeDrawSession<"mass"> = new ArchetypeDrawSession(
-    "iceSkate", { mass: "kg" }, seed, params,
+    "iceSkate",
+    { mass: "kg" },
+    seed,
+    params,
   );
   const { mass }: Record<"mass", number> = draw.dimensions({
     mass: ArchetypeBand.of("kg", 0.7, 1.1, ArchetypeBand.TYPICAL_MASS, true),
@@ -89,16 +92,22 @@ export function createIceSkate(
     v(0, d.steel / 2, 0),
     { color: "#adb8c0" },
   );
-  for (const [end, sign] of [["front", 1], ["rear", -1]] as const)
+  for (const [end, sign] of [
+    ["front", 1],
+    ["rear", -1],
+  ] as const)
     builder.box(
       `holder-${end}`,
       v(d.width / 3, d.holder, FIT.blade / 5),
-      v(0, d.steel + d.holder / 2, sign * FIT.blade / 3),
+      v(0, d.steel + d.holder / 2, (sign * FIT.blade) / 3),
       { color: "#ecf0ee" },
     );
   const boot: IAutoMovieVector3 = v(0, sole + d.sole, heel);
   builder.affordance({
-    id: "boot", kind: "socket", frame: ArchetypeFrame.upright(boot), extent: null,
+    id: "boot",
+    kind: "socket",
+    frame: ArchetypeFrame.upright(boot),
+    extent: null,
   });
   for (const [id, x] of [
     ["blade", 0],
@@ -106,7 +115,10 @@ export function createIceSkate(
     ["rightEdge", -d.thickness / 2],
   ] as const)
     builder.affordance({
-      id, kind: "socket", frame: ArchetypeFrame.upright(v(x, 0, 0)), extent: null,
+      id,
+      kind: "socket",
+      frame: ArchetypeFrame.upright(v(x, 0, 0)),
+      extent: null,
     });
   return builder.build(mass);
 }

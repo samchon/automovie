@@ -57,12 +57,14 @@ export function test_motion_exercise_archery_continuation(): void {
     subject: "track",
     frame: { position: trackOrigin, rotation: trackRotation },
     points: {},
-    affordances: [{
-      id: "mark",
-      kind: "socket",
-      frame: Transform.of(Vector3.create(0.17, 0.11, 0.05), identity),
-      extent: null,
-    }],
+    affordances: [
+      {
+        id: "mark",
+        kind: "socket",
+        frame: Transform.of(Vector3.create(0.17, 0.11, 0.05), identity),
+        extent: null,
+      },
+    ],
     motion: (seconds: number): IAutoMovieRigidTransform => ({
       position: Vector3.addScaled(trackOrigin, speed, seconds),
       rotation: trackRotation,
@@ -95,7 +97,7 @@ export function test_motion_exercise_archery_continuation(): void {
     const staged: IAutoMovieVector3 = Vector3.add(rest, {
       x: 0,
       y: 0,
-      z: (crossbow ? -1 : 1) * model.affordance("string").travel! / 3,
+      z: ((crossbow ? -1 : 1) * model.affordance("string").travel!) / 3,
     });
     const expectedStart: IAutoMovieVector3 = Vector3.add(
       fixtureFrame.position,
@@ -111,30 +113,41 @@ export function test_motion_exercise_archery_continuation(): void {
       { ...fixtureFrame, fixed: true },
       undefined,
       undefined,
-      [{
-        articulation: coordinate,
-        start: 0.1,
-        duration: 0.2,
-        travel: (): number => heldTravel,
-      }],
+      [
+        {
+          articulation: coordinate,
+          start: 0.1,
+          duration: 0.2,
+          travel: (): number => heldTravel,
+        },
+      ],
     );
     const take = (prop: string): HumanPerformance =>
       new HumanPerformance({
         seed: `exercise-${kind}-continuation`,
-        performers: [{
-          subject: "actor",
-          body,
-          at: zero,
-          yaw: 0,
-          proficiency: { level: "trained" },
-        }],
+        performers: [
+          {
+            subject: "actor",
+            body,
+            at: zero,
+            yaw: 0,
+            proficiency: { level: "trained" },
+          },
+        ],
         props: [fixture, transferred, spare, track],
         laws: [law],
         composition: HumanChain.subject("actor")
           .stand({ seconds: 0.8 })
           .registered(
             law.name,
-            { continuation: { source: "fixture", prop, onto: "track", point: "mark" } },
+            {
+              continuation: {
+                source: "fixture",
+                prop,
+                onto: "track",
+                point: "mark",
+              },
+            },
             "cue",
           )
           .stand({ seconds: 1 }).node,
@@ -142,7 +155,10 @@ export function test_motion_exercise_archery_continuation(): void {
     const film: HumanPerformance = take(transferred.subject);
     const at: number = film.instant({ of: "cue", event });
     const end: number = film.instant({ of: "cue", event: "end" });
-    TestValidator.predicate(`${kind} cue has its own nonzero film time`, at > 0.8 && end > at);
+    TestValidator.predicate(
+      `${kind} cue has its own nonzero film time`,
+      at > 0.8 && end > at,
+    );
     for (const t of [end + 0.2, at - 0.002, at, at + 0.002, end + 0.2]) {
       const frame: IAutoMovieRigidTransform = film.prop(transferred.subject, t);
       const expected: IAutoMovieVector3 = Vector3.addScaled(
@@ -152,34 +168,69 @@ export function test_motion_exercise_archery_continuation(): void {
       );
       TestValidator.predicate(
         `${kind} continues the same mounted prop at ${t} s`,
-        vclose(frame.position, expected, 0.001) && qclose(frame.rotation, expectedRotation, 1e-6),
+        vclose(frame.position, expected, 0.001) &&
+          qclose(frame.rotation, expectedRotation, 1e-6),
       );
-      TestValidator.predicate(`${kind} leaves the spare at its authored mark at ${t} s`,
-        vclose(film.prop(spare.subject, t).position, spare.frame.position, 1e-9),
+      TestValidator.predicate(
+        `${kind} leaves the spare at its authored mark at ${t} s`,
+        vclose(
+          film.prop(spare.subject, t).position,
+          spare.frame.position,
+          1e-9,
+        ),
       );
     }
-    const recovered: ReturnType<typeof createBow> = model.articulate(film.state(fixture.subject, end));
-    TestValidator.predicate(`${kind} source nock returns to its rest mark`,
+    const recovered: ReturnType<typeof createBow> = model.articulate(
+      film.state(fixture.subject, end),
+    );
+    TestValidator.predicate(
+      `${kind} source nock returns to its rest mark`,
       vclose(recovered.affordance("nock").frame.translation, rest, 1e-9),
     );
-    TestValidator.predicate(`${kind} refuses a prop staged away from the source nock`,
+    TestValidator.predicate(
+      `${kind} refuses a prop staged away from the source nock`,
       unseated((): HumanPerformance => take(spare.subject)),
     );
 
     if (crossbow) {
-      const pressed: ReturnType<typeof createBow> = model.articulate(film.state(fixture.subject, at));
-      const triggerPart = (object: ReturnType<typeof createBow>): IAutoMovieVector3 =>
-        object.parts.find((p: IAutoMovieModelPart): boolean => p.id === "trigger")!.transform!.translation;
-      const separation: number = Vector3.distance(triggerPart(pressed), triggerPart(model));
-      TestValidator.predicate("crossbow cue advances and returns the visible trigger part",
+      const pressed: ReturnType<typeof createBow> = model.articulate(
+        film.state(fixture.subject, at),
+      );
+      const triggerPart = (
+        object: ReturnType<typeof createBow>,
+      ): IAutoMovieVector3 =>
+        object.parts.find(
+          (p: IAutoMovieModelPart): boolean => p.id === "trigger",
+        )!.transform!.translation;
+      const separation: number = Vector3.distance(
+        triggerPart(pressed),
+        triggerPart(model),
+      );
+      TestValidator.predicate(
+        "crossbow cue advances and returns the visible trigger part",
         nclose(separation, model.affordance("trigger").travel!, 1e-6) &&
           vclose(triggerPart(recovered), triggerPart(model), 1e-9),
       );
-      TestValidator.predicate("crossbow stock has separate grip, support, rail, and rest marks",
-        model.affordance("foreEnd").frame.translation.z > model.affordance("grip").frame.translation.z &&
-          model.affordance("rail").frame.translation.z > model.affordance("rest").frame.translation.z &&
-          vclose(Quaternion.rotateVector(model.affordance("rail").frame.rotation, up), Vector3.create(0, 0, 1)) &&
-          vclose(Quaternion.rotateVector(model.affordance("rest").frame.rotation, up), up),
+      TestValidator.predicate(
+        "crossbow stock has separate grip, support, rail, and rest marks",
+        model.affordance("foreEnd").frame.translation.z >
+          model.affordance("grip").frame.translation.z &&
+          model.affordance("rail").frame.translation.z >
+            model.affordance("rest").frame.translation.z &&
+          vclose(
+            Quaternion.rotateVector(
+              model.affordance("rail").frame.rotation,
+              up,
+            ),
+            Vector3.create(0, 0, 1),
+          ) &&
+          vclose(
+            Quaternion.rotateVector(
+              model.affordance("rest").frame.rotation,
+              up,
+            ),
+            up,
+          ),
       );
     }
   }

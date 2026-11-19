@@ -1,4 +1,10 @@
-import { createBall, createBowlingLane, createBowlingPin, createCricketWicket, createCueTable } from "@automovie/archetypes";
+import {
+  createBall,
+  createBowlingLane,
+  createBowlingPin,
+  createCricketWicket,
+  createCueTable,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
@@ -11,7 +17,14 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanHand, HumanObject, HumanPerformance, HumanSportThrow, stand } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanSportThrow,
+  stand,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -34,59 +47,167 @@ import { nclose } from "../internal/nclose";
 export function test_motion_exercise_precision_delivery(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const start: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
-  const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [{ subject: "player", body, at: start, yaw: 0, proficiency: { level: "trained" } }];
-  const ready: HumanPerformance = new HumanPerformance({ seed: "790", performers, composition: HumanChain.subject("player").stand({ seconds: 0.2, sway: 0 }).node });
-  const grip: IAutoMovieVector3 = HumanHand.frame(body, ready.bones("player", 0), "right", "grip").point;
-  const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> = {
-    ...stand,
-    name: "deliveryFixtureHold",
-    plan: (context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>): IAutoMovieMotionHumanActionPlan => ({
-      ...stand.plan(context), holds: [{ side: "right", prop: "ball", from: 0 }],
-    }),
-  };
+  const performers: IAutoMovieMotionHumanPerformance.IInput["performers"] = [
+    {
+      subject: "player",
+      body,
+      at: start,
+      yaw: 0,
+      proficiency: { level: "trained" },
+    },
+  ];
+  const ready: HumanPerformance = new HumanPerformance({
+    seed: "790",
+    performers,
+    composition: HumanChain.subject("player").stand({ seconds: 0.2, sway: 0 })
+      .node,
+  });
+  const grip: IAutoMovieVector3 = HumanHand.frame(
+    body,
+    ready.bones("player", 0),
+    "right",
+    "grip",
+  ).point;
+  const hold: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
+    {
+      ...stand,
+      name: "deliveryFixtureHold",
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
+      ): IAutoMovieMotionHumanActionPlan => ({
+        ...stand.plan(context),
+        holds: [{ side: "right", prop: "ball", from: 0 }],
+      }),
+    };
   for (const [kind, row, to] of [
     ["softball", HumanSportThrow.softballWindmill, { x: 0, y: 0.75, z: 5 }],
     ["bowling", HumanSportThrow.bowlingDelivery, { x: 0, y: 0.11, z: 2 }],
   ] as const) {
     const ball: ReturnType<typeof createBall> = createBall({ kind });
-    const ballGrip: IAutoMovieVector3 = ball.affordance("grip").frame.translation;
+    const ballGrip: IAutoMovieVector3 =
+      ball.affordance("grip").frame.translation;
     const film: HumanPerformance = new HumanPerformance({
-      seed: kind, laws: [hold, row], performers,
-      props: [HumanObject.prop("ball", ball, { position: Vector3.subtract(grip, ballGrip), rotation: Quaternion.identity() })],
-      composition: HumanChain.subject("player").registered(hold.name, { seconds: 0.2, sway: 0 })
-        .registered(row.name, { prop: "ball", at: { kind: "point", frame: "world", at: to } }).node,
+      seed: kind,
+      laws: [hold, row],
+      performers,
+      props: [
+        HumanObject.prop("ball", ball, {
+          position: Vector3.subtract(grip, ballGrip),
+          rotation: Quaternion.identity(),
+        }),
+      ],
+      composition: HumanChain.subject("player")
+        .registered(hold.name, { seconds: 0.2, sway: 0 })
+        .registered(row.name, {
+          prop: "ball",
+          at: { kind: "point", frame: "world", at: to },
+        }).node,
     });
     const act: IAutoMovieMotionHumanSegment = film.segments("player")[1]!;
-    const release: number = act.start + act.plan.events.find((event): boolean => event.name === "release")!.share * act.plan.duration;
-    TestValidator.predicate(`${kind} leaves one flight at the release event`, film.flights("ball").length === 1 && nclose(film.flights("ball")[0]!.launch, release));
-    const before: IAutoMovieVector3 = film.prop("ball", release - 1e-4).position;
+    const release: number =
+      act.start +
+      act.plan.events.find((event): boolean => event.name === "release")!
+        .share *
+        act.plan.duration;
+    TestValidator.predicate(
+      `${kind} leaves one flight at the release event`,
+      film.flights("ball").length === 1 &&
+        nclose(film.flights("ball")[0]!.launch, release),
+    );
+    const before: IAutoMovieVector3 = film.prop(
+      "ball",
+      release - 1e-4,
+    ).position;
     const releaseFrame: IAutoMovieRigidTransform = film.prop("ball", release);
     const launched: IAutoMovieVector3 = releaseFrame.position;
     const after: IAutoMovieVector3 = film.prop("ball", release + 0.02).position;
-    TestValidator.predicate(`${kind} maintains position through release`, Vector3.distance(before, launched) < 0.015);
-    TestValidator.predicate(`${kind} departs toward the marked target`, after.z - launched.z > 0.02);
+    TestValidator.predicate(
+      `${kind} maintains position through release`,
+      Vector3.distance(before, launched) < 0.015,
+    );
+    TestValidator.predicate(
+      `${kind} departs toward the marked target`,
+      after.z - launched.z > 0.02,
+    );
     if (kind === "softball") {
-      const apex: number = act.start + act.plan.events.find((event): boolean => event.name === "windmillApex")!.share * act.plan.duration;
-      TestValidator.predicate("the carried softball rises through a distinct overhead windup", apex < release && film.prop("ball", apex).position.y - launched.y > 0.35);
+      const apex: number =
+        act.start +
+        act.plan.events.find((event): boolean => event.name === "windmillApex")!
+          .share *
+          act.plan.duration;
+      TestValidator.predicate(
+        "the carried softball rises through a distinct overhead windup",
+        apex < release &&
+          film.prop("ball", apex).position.y - launched.y > 0.35,
+      );
     } else {
-      const centre: IAutoMovieVector3 = Vector3.add(launched, Quaternion.rotateVector(releaseFrame.rotation, ballGrip));
-      TestValidator.predicate("the bowling ball leaves below the hand's standing grip height", centre.y < grip.y);
+      const centre: IAutoMovieVector3 = Vector3.add(
+        launched,
+        Quaternion.rotateVector(releaseFrame.rotation, ballGrip),
+      );
+      TestValidator.predicate(
+        "the bowling ball leaves below the hand's standing grip height",
+        centre.y < grip.y,
+      );
     }
   }
 
   const lane: ReturnType<typeof createBowlingLane> = createBowlingLane();
   const head: IAutoMovieVector3 = lane.affordance("pin1").frame.translation;
-  TestValidator.predicate("60 ft from the foul line to the head pin", nclose(head.z - lane.affordance("foulLine").frame.translation.z, 18.288));
+  TestValidator.predicate(
+    "60 ft from the foul line to the head pin",
+    nclose(head.z - lane.affordance("foulLine").frame.translation.z, 18.288),
+  );
   for (const id of ["pin2", "pin3"] as const)
-    TestValidator.predicate(`${id} is 12 in from the head pin`, nclose(Vector3.distance(lane.affordance(id).frame.translation, head), 0.3048));
+    TestValidator.predicate(
+      `${id} is 12 in from the head pin`,
+      nclose(
+        Vector3.distance(lane.affordance(id).frame.translation, head),
+        0.3048,
+      ),
+    );
   const pin: ReturnType<typeof createBowlingPin> = createBowlingPin();
-  TestValidator.predicate("the pin has its own ground origin and widest station", nclose(pin.affordance("base").frame.translation.y, 0) && nclose(pin.affordance("belly").frame.translation.y, 0.1143));
+  TestValidator.predicate(
+    "the pin has its own ground origin and widest station",
+    nclose(pin.affordance("base").frame.translation.y, 0) &&
+      nclose(pin.affordance("belly").frame.translation.y, 0.1143),
+  );
   const wicket: ReturnType<typeof createCricketWicket> = createCricketWicket();
-  const centres: number = Math.abs(wicket.affordance("rightStump").frame.translation.x - wicket.affordance("leftStump").frame.translation.x);
-  TestValidator.predicate("the stump outside width is 9 in", nclose(centres + wicket.dimensions.diameter!, 0.2286));
-  TestValidator.predicate("the bails are individually targetable", Vector3.distance(wicket.affordance("leftBail").frame.translation, wicket.affordance("rightBail").frame.translation) > 0.08);
+  const centres: number = Math.abs(
+    wicket.affordance("rightStump").frame.translation.x -
+      wicket.affordance("leftStump").frame.translation.x,
+  );
+  TestValidator.predicate(
+    "the stump outside width is 9 in",
+    nclose(centres + wicket.dimensions.diameter!, 0.2286),
+  );
+  TestValidator.predicate(
+    "the bails are individually targetable",
+    Vector3.distance(
+      wicket.affordance("leftBail").frame.translation,
+      wicket.affordance("rightBail").frame.translation,
+    ) > 0.08,
+  );
   const table: ReturnType<typeof createCueTable> = createCueTable();
-  const mouthIds = ["headLeftPocket", "headRightPocket", "leftPocket", "rightPocket", "footLeftPocket", "footRightPocket"] as const;
-  const mouths: IAutoMovieVector3[] = mouthIds.map((id: (typeof mouthIds)[number]): IAutoMovieVector3 => table.affordance(id).frame.translation);
-  TestValidator.predicate("six distinct pocket mouths share the bed height", new Set(mouths.map((mouth: IAutoMovieVector3): string => `${mouth.x},${mouth.z}`)).size === 6 && mouths.every((mouth: IAutoMovieVector3): boolean => nclose(mouth.y, table.affordance("bed").frame.translation.y)));
+  const mouthIds = [
+    "headLeftPocket",
+    "headRightPocket",
+    "leftPocket",
+    "rightPocket",
+    "footLeftPocket",
+    "footRightPocket",
+  ] as const;
+  const mouths: IAutoMovieVector3[] = mouthIds.map(
+    (id: (typeof mouthIds)[number]): IAutoMovieVector3 =>
+      table.affordance(id).frame.translation,
+  );
+  TestValidator.predicate(
+    "six distinct pocket mouths share the bed height",
+    new Set(
+      mouths.map((mouth: IAutoMovieVector3): string => `${mouth.x},${mouth.z}`),
+    ).size === 6 &&
+      mouths.every((mouth: IAutoMovieVector3): boolean =>
+        nclose(mouth.y, table.affordance("bed").frame.translation.y),
+      ),
+  );
 }

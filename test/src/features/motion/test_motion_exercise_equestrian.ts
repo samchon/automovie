@@ -145,10 +145,12 @@ export function test_motion_exercise_equestrian(): void {
       (window: IAutoMovieMotionHumanContactWindow): boolean =>
         window.part === "seat",
     );
-  TestValidator.predicate("the seat contact leaves and returns", () =>
-    seats.length === 2 &&
-    nclose(span.start + seats[0]!.to * span.plan.duration, APPROACH) &&
-    nclose(span.start + seats[1]!.from * span.plan.duration, RECOVERY),
+  TestValidator.predicate(
+    "the seat contact leaves and returns",
+    () =>
+      seats.length === 2 &&
+      nclose(span.start + seats[0]!.to * span.plan.duration, APPROACH) &&
+      nclose(span.start + seats[1]!.from * span.plan.duration, RECOVERY),
   );
   TestValidator.predicate("jump landmarks replay after later samples", () =>
     vclose(seat(FLIGHT), airborne),
@@ -248,8 +250,10 @@ function trial(
       translation: { ...base.translation, y: base.translation.y + height(at) },
     };
   };
-  const cue = (name: string, seconds: number): { name: string; seconds: number } =>
-    ({ name, seconds });
+  const cue = (
+    name: string,
+    seconds: number,
+  ): { name: string; seconds: number } => ({ name, seconds });
   const strides: readonly { name: string; seconds: number }[] = canter.instants
     .filter((event): boolean => event.label === `${lead}ForeOn`)
     .map((event) => cue(event.label, WAIT + event.seconds))
@@ -262,7 +266,9 @@ function trial(
     horse,
     place(0),
   );
-  const equestrian: NonNullable<IAutoMovieMotionHumanRide.IParams["equestrian"]> = {
+  const equestrian: NonNullable<
+    IAutoMovieMotionHumanRide.IParams["equestrian"]
+  > = {
     stride: { cue: "stride", gait: "canter", lead },
     ...(lead === "right"
       ? {}

@@ -57,7 +57,12 @@ export const GOAL_BANDS: Readonly<
   iceHockeyGoal: {
     width: ArchetypeBand.metres(1.83, 1.83, IIHF),
     height: ArchetypeBand.metres(1.22, 1.22, IIHF),
-    bar: ArchetypeBand.metres(0.05, 0.05, "Coarse pipe diameter for the visual frame", true),
+    bar: ArchetypeBand.metres(
+      0.05,
+      0.05,
+      "Coarse pipe diameter for the visual frame",
+      true,
+    ),
     mass: ArchetypeBand.of("kg", 30, 60, ArchetypeBand.TYPICAL_MASS, true),
   },
   lacrosseGoal: {
