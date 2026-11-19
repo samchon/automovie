@@ -1,5 +1,5 @@
 /* Every stylesheet of the site, in the order the cascade depends on: the
-   faces, frame and controls first, then the playground's rules they refine,
+   faces, frame and controls first, then the playground, which refines them,
    the shared pieces, the landing page, the catalogues and the scene pages.
    The order lives here, in CSS, so no import sorter can change it. */
 @import "./global.css";

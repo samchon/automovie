@@ -96,8 +96,14 @@ Colour. Every colour is a token with a light and a dark value:
 | Accent | `--am-accent`, `--am-accent-bg`, `--am-accent-fg`, `--am-accent-soft`, `--am-accent-line` |
 | Danger and success | `--am-danger`, `--am-danger-soft`, `--am-danger-border`, `--am-success`, `--am-success-soft` |
 | Focus | `--am-focus` |
-| 3D views and stills | `--am-viewport`, `--am-viewport-fg`, `--am-viewport-grid`, `--am-viewport-control`, `--am-viewport-ink`, `--am-viewport-muted`, `--am-viewport-track`, `--am-viewport-lit`, `--am-viewport-button`, `--am-viewport-tag-bg`, `--am-viewport-tag-fg` |
-| The dark band | `--am-room`, `--am-room-panel`, `--am-room-deep`, `--am-room-fg`, `--am-room-muted`, `--am-room-code`, `--am-room-line`, `--am-room-edge`, `--am-room-lit`, `--am-room-danger`, `--am-room-danger-fg`, `--am-room-success`, and the switch's `--am-room-switch-*` and `--am-room-alarm-*` |
+| 3D views and stills | `--am-viewport`, `--am-viewport-fg`, `--am-viewport-grid`, `--am-viewport-muted` |
+| Marks on a view | `--am-viewport-control`, `--am-viewport-ink`, `--am-viewport-track` |
+| Highlights on a view | `--am-viewport-lit`, `--am-viewport-button` |
+| Tags on a view | `--am-viewport-tag-bg`, `--am-viewport-tag-fg` |
+| Dark band surfaces | `--am-room`, `--am-room-panel`, `--am-room-deep`, `--am-room-line`, `--am-room-edge` |
+| Dark band text | `--am-room-fg`, `--am-room-muted`, `--am-room-code` |
+| Dark band states | `--am-room-lit`, `--am-room-danger`, `--am-room-danger-fg`, `--am-room-success` |
+| Dark band switch | `--am-room-switch-*`, and `--am-room-alarm-*` while pressed |
 | The inspector and shadows | `--am-instrument-bg`, `--am-instrument-fg`, `--am-shadow` |
 
 The ground is a warm off-white and the ink near black; the one accent is tungsten amber, the favicon's, used for what is selected, the one primary action and a motion's paths. The viewport ground is the same warm grey in both themes, because the packages' coarse colours are chosen for a light ground. `pnpm check` computes the contrast of 43 token pairs in both themes and stops the build when one is below its bound.
