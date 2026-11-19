@@ -1,0 +1,69 @@
+import { bakedTransformFromClipsAt } from "@automovie/engine";
+import type {
+  IAutoMovieModel,
+  IAutoMovieMotionHumanObject,
+  IAutoMovieMotionHumanSeated,
+  IAutoMoviePropSpec,
+  IAutoMovieStageActor,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRide,
+} from "@automovie/motions";
+
+import { locationTrackedRideFixture } from "./locationTrackedRideFixture";
+import { motionHumanBody } from "./motionHumanBody";
+
+/** The existing seated ride law consumes the same baked carrier transform as scene playback. */
+export function locationTrackedRidePassenger(
+  fixture: ReturnType<typeof locationTrackedRideFixture>,
+): {
+  film: HumanPerformance;
+  actor: Pick<IAutoMovieStageActor, "node" | "position" | "facingDeg">;
+  body: ReturnType<typeof motionHumanBody>;
+} {
+  const { environment, carrier } = fixture;
+  const car: IAutoMovieModel = environment.runtime.props.find(
+    (prop: IAutoMoviePropSpec): boolean => prop.node === carrier,
+  )!.model;
+  const placed = (time: number): IAutoMovieMotionHumanObject.Placement => {
+    const frame: IAutoMovieTransform = bakedTransformFromClipsAt(
+      environment.runtime.objectMotions,
+      carrier,
+      time,
+    )!;
+    return { position: frame.translation, rotation: frame.rotation };
+  };
+  const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
+    car,
+    placed(0),
+    "seat",
+  );
+  const body: ReturnType<typeof motionHumanBody> = motionHumanBody("m-average");
+  const actor: Pick<IAutoMovieStageActor, "node" | "position" | "facingDeg"> = {
+    node: "passenger",
+    position: { ...seat.at, y: 0.38, z: seat.at.z + 0.2 },
+    facingDeg: seat.yaw,
+  };
+  const film: HumanPerformance = new HumanPerformance({
+    seed: "tracked-ride",
+    laws: [HumanRide.ride],
+    props: [HumanObject.prop(carrier, car, placed(0), placed)],
+    performers: [
+      {
+        subject: actor.node,
+        body,
+        at: actor.position,
+        yaw: actor.facingDeg,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject(actor.node)
+      .sit({ seat })
+      .registered("ride", { on: carrier, seconds: 12 }).node,
+  });
+  return { film, actor, body };
+}

@@ -1,0 +1,10 @@
+export type { IAutoMovieEnvironment } from "./IAutoMovieEnvironment";
+export type { IAutoMovieEnvironmentContribution } from "./IAutoMovieEnvironmentContribution";
+export type { IAutoMovieEnvironmentItem } from "./IAutoMovieEnvironmentItem";
+export type { IAutoMovieEnvironmentModel } from "./IAutoMovieEnvironmentModel";
+export type { IAutoMovieEnvironmentModule } from "./IAutoMovieEnvironmentModule";
+export type { IAutoMovieEnvironmentRecipe } from "./IAutoMovieEnvironmentRecipe";
+export type { IAutoMovieFurnishingLayout } from "./IAutoMovieFurnishingLayout";
+export type { IAutoMovieTerrainRecipe } from "./IAutoMovieTerrainRecipe";
+export type { IAutoMovieTrackCourse } from "./IAutoMovieTrackCourse";
+export type { IAutoMovieTrackedRide } from "./IAutoMovieTrackedRide";

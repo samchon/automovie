@@ -10,9 +10,8 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
 /**
  * The gallery's catalogue, read from the packages.
  *
- * An archetype family is one entry of the package's `ARCHETYPE_FAMILIES`,
- * which names each subpath it exports with that subpath's module. A producer
- * is every function a family exports whose name starts with `create`. Its
+ * The package's `ARCHETYPE_FAMILIES` supplies its model-producing subpaths.
+ * A producer is every function a family exports whose name starts with `create`. Its
  * variants are the closed list it carries beside it, `KINDS` or `FRAMES`,
  * and the parameters it needs beyond its variant
  * are its `REFERENCE`, the stated instance it carries for a caller without

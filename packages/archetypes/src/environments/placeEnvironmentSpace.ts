@@ -1,0 +1,135 @@
+import { Quaternion, validateSpace } from "@automovie/engine";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieHeightRule,
+  IAutoMovieSpace,
+  IAutoMovieSurface,
+  IAutoMovieTransform,
+  IAutoMovieValidation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { ArchetypeFrame } from "../core/ArchetypeFrame";
+
+/**
+ * Place authored support patches in a scoped upright rigid world frame.
+ *
+ * @param id Scoped occurrence id prefixed to the space and surface ids.
+ * @param local A support space in metres in the model frame.
+ * @param frame The already admitted rigid world frame.
+ * @returns A world space with the same support and walkability.
+ * @throws If the authored space is invalid, the frame is tilted, or a turned lattice would need resampling.
+ *
+ * @evidence contracts/development/implementation.md#principled-implementation An upright rigid pose maps XZ rings by yaw and translation and preserves holes. Legacy ramp anchors are points under that same pose. A plane's XZ gradient rotates with its footprint, and translating the lattice and its heights retains the bilinear rule.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses validateSpace for source geometry and ArchetypeFrame for placement. The one height dispatcher owns which transform preserves each height representation.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses tilt and a yawed sampled lattice instead of discarding orientation or changing its interpolation law. The world-space contribution path can place an explicitly sampled lattice.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Aside from canonical space validation, placement visits each ring point, walkable id and retained lattice sample once. A plane case rotates one gradient and allocates no samples.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The helper produces fresh world geometry from one authored space and pose and holds no lookup cache.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned support and its arrays survive the call and no external resources are acquired.
+ * @evidence contracts/development/common.md#meaningful-documentation States the spaces, metre units, identity and rotation restrictions.
+ */
+export function placeEnvironmentSpace(
+  id: string,
+  local: IAutoMovieSpace,
+  frame: IAutoMovieTransform,
+): IAutoMovieSpace {
+  const report: IAutoMovieValidation = validateSpace({ space: local });
+  if (!report.success) {
+    const first: IAutoMovieConstraintViolation | undefined =
+      report.violations.find(
+        (violation: IAutoMovieConstraintViolation): boolean =>
+          violation.severity !== "warning",
+      );
+    throw new Error(`${id}.space ${first?.path}: ${first?.expected}`);
+  }
+  if (frame.rotation.x !== 0 || frame.rotation.z !== 0)
+    throw new Error(`${id}.space: local support requires an upright frame`);
+
+  /** Project a footprint vertex into world XZ, whose ring Y carries no height. */
+  function point(vertex: IAutoMovieVector3): IAutoMovieVector3 {
+    const placed: IAutoMovieVector3 = ArchetypeFrame.point(frame, {
+      x: vertex.x,
+      y: 0,
+      z: vertex.z,
+    });
+    return { x: placed.x, y: 0, z: placed.z };
+  }
+
+  /** Namespace every reference to a surface in the placed space. */
+  function surfaceId(key: string): string {
+    return `${id}/${local.id}/${key}`;
+  }
+
+  return {
+    id: `${id}/${local.id}`,
+    surfaces: local.surfaces.map(
+      (surface: IAutoMovieSurface): IAutoMovieSurface => ({
+        ...surface,
+        id: surfaceId(surface.id),
+        polygon: surface.polygon.map(point),
+        ...(surface.holes !== undefined
+          ? {
+              holes: surface.holes.map((ring: IAutoMovieVector3[]) =>
+                ring.map(point),
+              ),
+            }
+          : {}),
+        ...(surface.anchor !== undefined
+          ? { anchor: ArchetypeFrame.point(frame, surface.anchor) }
+          : {}),
+        ...(surface.rampTo !== undefined && surface.rampTo !== null
+          ? { rampTo: ArchetypeFrame.point(frame, surface.rampTo) }
+          : {}),
+        ...(surface.height !== undefined
+          ? {
+              height: placeHeight(surface.height, frame, surfaceId(surface.id)),
+            }
+          : {}),
+      }),
+    ),
+    walkable: local.walkable.map(surfaceId),
+  };
+}
+
+/** Re-express a model-local height rule in a world pose that preserves its kind. */
+function placeHeight(
+  rule: IAutoMovieHeightRule,
+  frame: IAutoMovieTransform,
+  id: string,
+): IAutoMovieHeightRule {
+  switch (rule.kind) {
+    case "constant":
+      return { kind: "constant", value: rule.value + frame.translation.y };
+    case "plane": {
+      // A yaw rotates the gradient. The transformed local origin supplies its height datum.
+      const slope: IAutoMovieVector3 = Quaternion.rotateVector(frame.rotation, {
+        x: rule.slopeX,
+        y: 0,
+        z: rule.slopeZ,
+      });
+      return {
+        kind: "plane",
+        originHeight:
+          rule.originHeight +
+          frame.translation.y -
+          slope.x * frame.translation.x -
+          slope.z * frame.translation.z,
+        slopeX: slope.x,
+        slopeZ: slope.z,
+      };
+    }
+    case "heightfield":
+      if (frame.rotation.y !== 0)
+        throw new Error(
+          `${id}.height: place a turned lattice in world coordinates`,
+        );
+      return {
+        ...rule,
+        originX: rule.originX + frame.translation.x,
+        originZ: rule.originZ + frame.translation.z,
+        samples: rule.samples.map(
+          (height: number): number => height + frame.translation.y,
+        ),
+      };
+  }
+}

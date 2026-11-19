@@ -1,14 +1,21 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanSupportCarry,
   IAutoMovieMotionHumanWalkFacing,
   IAutoMovieMotionHumanWalkParams,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
 import { walkPaced } from "../actions/walkPaced";
+import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
@@ -107,16 +114,19 @@ export namespace HumanTravelLeafWalk {
       y: 0,
       z: (entry.feet.left.ankle.z + entry.feet.right.ankle.z) / 2,
     };
-    const heading: (v: IAutoMovieVector3) => number = (v: IAutoMovieVector3): number =>
-      (Math.atan2(v.x, v.z) * 180) / Math.PI;
-    const turned: (from: number, to: number) => number = (from: number, to: number): number =>
-      ((((to - from) % 360) + 540) % 360) - 180;
-    const yaw: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
-    const yawY: (v: IAutoMovieVector3, degrees: number) => IAutoMovieVector3 = (v: IAutoMovieVector3, degrees: number): IAutoMovieVector3 =>
-      Quaternion.rotateVector(
-        yaw(degrees),
-        v,
-      );
+    const heading: (v: IAutoMovieVector3) => number = (
+      v: IAutoMovieVector3,
+    ): number => (Math.atan2(v.x, v.z) * 180) / Math.PI;
+    const turned: (from: number, to: number) => number = (
+      from: number,
+      to: number,
+    ): number => ((((to - from) % 360) + 540) % 360) - 180;
+    const yaw: ReturnType<typeof Quaternion.prepareAxisAngle> =
+      Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
+    const yawY: (v: IAutoMovieVector3, degrees: number) => IAutoMovieVector3 = (
+      v: IAutoMovieVector3,
+      degrees: number,
+    ): IAutoMovieVector3 => Quaternion.rotateVector(yaw(degrees), v);
     const taken: { point: IAutoMovieVector3; normal: IAutoMovieVector3 } =
       props.handle(take);
     const local: IAutoMovieVector3 = Vector3.subtract(taken.point, mid0);
@@ -173,20 +183,20 @@ export namespace HumanTravelLeafWalk {
       toward: hinge,
       turn: turned(heading(Vector3.subtract(hinge, mid0)), yaw0),
     };
-    const walked: IAutoMovieMotionHumanActionPlan = walk.plan({
-      ...context,
-      params: {
-        to: last.mid,
-        ...(way.length === 0 ? {} : { via: way }),
-        facing,
-        armSwing: 0,
-      },
-    } as IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>);
+    const walked: IAutoMovieMotionHumanActionPlan = walkOnEntryFloor(context, {
+      to: last.mid,
+      ...(way.length === 0 ? {} : { via: way }),
+      facing,
+      armSwing: 0,
+    });
     // The person drives the door, so the walk keeps pace with it, not
     // behind it: at each second the body has gone the share of its way the
     // stance it asks has gone of its own, and once the leaf rests the walk
     // closes at its own pace.
-    const travelled: (at: (t: number) => IAutoMovieVector3, to: number) => number[] = (
+    const travelled: (
+      at: (t: number) => IAutoMovieVector3,
+      to: number,
+    ) => number[] = (
       at: (t: number) => IAutoMovieVector3,
       to: number,
     ): number[] => {
@@ -205,9 +215,11 @@ export namespace HumanTravelLeafWalk {
       (t: number): IAutoMovieVector3 => asked(Math.max(take, t)).mid,
       rests,
     );
-    const walking: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const walking: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const went: number[] = travelled(
-      (t: number): IAutoMovieVector3 => walked.posture(t, ["root"], walking).root,
+      (t: number): IAutoMovieVector3 =>
+        walked.posture(t, ["root"], walking).root,
       walked.duration,
     );
     const total: number = went.at(-1)!;
@@ -240,5 +252,92 @@ export namespace HumanTravelLeafWalk {
     for (let at: number = clock.at(-1)!; at < walked.duration; )
       clock.push((at = Math.min(walked.duration, at + TICK)));
     return walkPaced(walked, TICK, clock);
+  }
+
+  /**
+   * Match the walk's level datum to the planted feet's floor and return
+   * its poses and contacts in world space. The path and obstacle check keep
+   * their XZ coordinates, and obstacle heights are already floor-relative.
+   */
+  function walkOnEntryFloor(
+    context: IAutoMovieMotionHumanActionContext<object>,
+    params: IAutoMovieMotionHumanWalkParams,
+  ): IAutoMovieMotionHumanActionPlan {
+    const entry: IAutoMovieMotionHumanEntryState = context.entry;
+    const floor: number = HumanSupportFrame.floor(context.body, entry);
+    if (floor === 0) return walk.plan({ ...context, params });
+
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({
+      origin: { x: 0, y: floor, z: 0 },
+      yaw: 0,
+    });
+    const lower: IAutoMovieMotionHumanSupportCarry.ICarry = {
+      point: frame.local,
+      turn: Quaternion.identity(),
+      yaw: 0,
+    };
+    const raise: IAutoMovieMotionHumanSupportCarry.ICarry = {
+      ...lower,
+      point: frame.point,
+    };
+    const root: IAutoMovieTransform = entry.pose.root ?? Transform.identity();
+    const walked: IAutoMovieMotionHumanActionPlan = walk.plan({
+      ...context,
+      params,
+      entry: {
+        ...entry,
+        pose: {
+          ...entry.pose,
+          root: { ...root, translation: frame.local(root.translation) },
+        },
+        posture: HumanSupportCarry.posture(lower, entry.posture),
+        feet: {
+          left: {
+            ...entry.feet.left,
+            ankle: frame.local(entry.feet.left.ankle),
+          },
+          right: {
+            ...entry.feet.right,
+            ankle: frame.local(entry.feet.right.ankle),
+          },
+        },
+        supports: entry.supports.map(
+          (
+            contact: IAutoMovieMotionHumanEntryState.ISupport,
+          ): IAutoMovieMotionHumanEntryState.ISupport =>
+            contact.support.kind === "ground" &&
+            contact.support.height !== undefined
+              ? {
+                  ...contact,
+                  support: {
+                    kind: "ground",
+                    height: contact.support.height - floor,
+                  },
+                }
+              : contact,
+        ),
+      },
+    });
+    return {
+      ...walked,
+      contacts: walked.contacts.map(
+        (
+          contact: IAutoMovieMotionHumanContactWindow,
+        ): IAutoMovieMotionHumanContactWindow =>
+          contact.support.kind === "ground"
+            ? {
+                ...contact,
+                support: {
+                  kind: "ground",
+                  height: floor + (contact.support.height ?? 0),
+                },
+              }
+            : contact,
+      ),
+      posture: (
+        ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+      ): ReturnType<IAutoMovieMotionHumanActionPlan["posture"]> =>
+        HumanSupportCarry.posture(raise, walked.posture(...args)),
+    };
   }
 }

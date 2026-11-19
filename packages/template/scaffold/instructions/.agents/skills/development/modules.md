@@ -20,6 +20,12 @@ The object shell over a functional core is the production's own style; installed
 
 Use one definition per subject or action. Vary it through parameters or a seed. Extend the definition when it lacks a required parameter.
 
+## Places
+
+Build reusable places with [the archetypes environment builders](https://github.com/samchon/automovie/tree/master/packages/archetypes#environments). In a set entity, place terrain, buildings, furnishing and moving facilities as named modules. Cite named frames for entrances, seats and other motion targets. Keep the production's dimensions and scene-specific selections in its set source.
+
+Supply the prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Actors who use overlapping floors or cross between supports cite the appropriate walkable surfaces in their staged support windows. Check the assembled scene and its contacts with the production's own capture.
+
 ## Shared modules
 
 Move modules shared by workspace productions to `packages/<name>` and import them from there. A standalone production keeps its modules in `src`.

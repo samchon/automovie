@@ -5,6 +5,7 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieFootLeg } from "./IAutoMovieFootLeg";
 import type { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
 import type { IAutoMovieMotion } from "./IAutoMovieMotion";
+import type { IAutoMovieTimedGround } from "./IAutoMovieTimedGround";
 
 /**
  * Data and callback contracts shared by the PlantStanceFeet operations.
@@ -30,8 +31,11 @@ export namespace IAutoMoviePlantStanceFeet {
     /** The humanoid gait/motion to correct. */
     motion: IAutoMovieMotion;
 
-    /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0`. */
+    /** Ground height: plane scalar or `(x, z) → y` source. Defaults to `0` when support is omitted. */
     groundY?: number | ((x: number, z: number) => number);
+
+    /** Explicit time-dependent ground. Takes precedence over the scalar or positional query. */
+    support?: IAutoMovieTimedGround;
 
     /** Contact tolerance above the plane counted as stance. Defaults to `0.02`. */
     tolerance?: number;
