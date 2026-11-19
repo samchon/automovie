@@ -8,7 +8,7 @@ Unless commissioned otherwise, follow [BBC](https://downloads.bbc.co.uk/writersr
 
 Start a new action paragraph at each change of action, response or attention, and mark off-screen speech, voiceover, overlap, screen text and time shifts wherever they would otherwise be ambiguous.
 
-The blocks run as one continuous sequence, each starting where the one before it ends. Running time comes from the performed action, speech, pauses and edit, never from the length of the text.
+Write events in the order the viewer discovers them. When attention shifts during an ongoing action, show what continues underneath. Estimate running time from the performed action, overlapping speech, pauses and edit. Name the clock for a fixed cue when screen time, story time or a replay differ.
 
 Where music is stated, name its usage: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, where visual means a source the picture shows, and `MT` main title and `ET` end title music.
 
@@ -25,7 +25,9 @@ Never reuse or renumber an anchor in any layer, or a scene file's number. Number
 
 ## Records
 
-Put the standing-state list inside the first section, before its scene heading and action. Cite owning settings or brief decisions. End each beat with its record. Include the [beat decisions](../../contracts/story/shared/principles/screenplay.md#beat-decisions):
+Put the standing-state list inside the first section, before its scene heading and action. Identify the [scene elements](../document-layout.md#scene-elements), their starting relationships and any later entrances. Establish the routes, sightlines and barriers the action uses. In subsequent beats record changes such as who now holds a prop or which entrance has closed. Keep reveals in viewing order.
+
+End each beat with its record under [beat decisions](../../contracts/story/principles/screenplay.md#beat-decisions).
 
 ```markdown
 ### Mara cues the lift {#s03-b04}

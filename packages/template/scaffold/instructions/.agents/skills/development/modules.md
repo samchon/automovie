@@ -6,7 +6,7 @@ Read the existing source and relevant installed APIs before implementing a capab
 
 Build each entity from its settings or brief facts. Compose fragments into capabilities that name what it does and to whom.
 
-Compose a person's action in the installed vocabulary using its prepared body, recorded proficiency and scene targets.
+Compose a person's action in the installed vocabulary using its prepared body, recorded proficiency and scene targets. For skilled practice, choose the action and its cue from the beat and its [performance study](../story/planning/research.md#performance-study).
 
 Compose capabilities with the installed vocabulary and engine. Use the screenplay's outcomes. Delegate alignment and contact timing to the vocabulary.
 

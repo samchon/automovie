@@ -61,14 +61,14 @@ export async function test_evidence_production_script_expression(): Promise<void
     fs.writeFileSync(
       unit,
       unitBody.replace(
-        /## @evidence shared\/naturalness\/common\.md#scope\n[\s\S]*?(?=## @evidence |$)/g,
+        /## @evidence naturalness\/common\.md#scope\n[\s\S]*?(?=## @evidence |$)/g,
         "",
       ),
     );
     fs.writeFileSync(
       population,
       populationBody.replace(
-        /## @evidence shared\/naturalness\/obligations\/common\.md#scope\n[\s\S]*?(?=## @evidence |$)/g,
+        /## @evidence naturalness\/obligations\/common\.md#scope\n[\s\S]*?(?=## @evidence |$)/g,
         "",
       ),
     );

@@ -35,7 +35,9 @@ export interface IAutoMovieDevelopmentProps {
    * `contracts/development/composition.md` and cite a screenplay scene file
    * or its sections and beats, every section and beat of which must be cited;
    * those under `src/composition/films/` answer it and cite the scene files
-   * they order, every one of which must belong to a film.
+   * they order, every one of which must belong to a film. Catalog sources
+   * answer the composition checklist alone. Submitting programmed film or
+   * scene sources requires the catalog film, case sources and acceptance record.
    */
   composition?: "disabled" | "evidence";
 }

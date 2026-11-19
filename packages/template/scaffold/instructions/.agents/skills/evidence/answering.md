@@ -1,6 +1,6 @@
 # Answering
 
-Answer [development contracts](../contracts/development/SKILL.md) in source and test doc comments. Read the declaration, callers, inputs, consumers and applicable [statements](../contracts/items.md#items-and-statements).
+Answer [development contracts](../contracts/development/SKILL.md) in source and test doc comments. Read the declaration, callers, inputs, consumers and the applicable [contract items](../contracts/items.md#item-structure).
 
 Answer from the declaration and its cited sources. Verify quotations and report gaps. Keep evaluations, unrelated counts and hashes in their owning records.
 

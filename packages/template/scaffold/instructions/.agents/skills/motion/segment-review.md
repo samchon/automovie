@@ -8,10 +8,10 @@ Capture and read each full review segment at the [specified times](../visual-deb
 
 Open the full-size stills as [stills and sheets](../visual-debugging/capture.md#stills-and-sheets) sets, add a second named view as [views](../visual-debugging/capture.md#views) sets, and use `joint` marks where the capture offers them.
 
-Judge the segment's staging, camera and timing and how its accepted cases join, under [motion judgment](judgment.md). A case that no longer convinces as the depicted practice returns to its [catalog case](catalog-cases.md).
+Follow a complete exchange in the film camera, including participants outside the focal action. Across each join check support, direction, speed and possession. Compare the duration of actions and holds with the studied exchange and inspect contact under [motion judgment](judgment.md). Return a failed module to its [catalog case](catalog-cases.md).
 
 ## Review rounds
 
-Review segments in film order. Inspect all stills, fix findings at their owners and recapture the affected interval and its seam to the next segment. Close the segment before proceeding.
+After [testing the central exchange](judgment.md#before-widening), review contiguous segments in film order. Inspect all stills, group findings by cause and recapture the affected intervals and joins. Recheck the exchange in context if its lead-in or consequence changed.
 
 Accepted segments do not establish the whole film; [video review](../review/delivery-review.md#video) reviews the assembled one.

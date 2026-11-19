@@ -17,17 +17,38 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 2. Editing a reviewed brief decision expires its native review.
  * 3. With the brief closed and turned back to disabled while the screenplay runs, the brief's recorded discovery findings still resolve and the graph passes.
  * 4. Removing the screenplay's citation of its brief decision exposes missing native coverage.
+ * 5. The first study activates research on a short. The index alone and an explicitly closed research stage leave it inactive.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public short configuration through native Evidence, changes the brief, disables the closed brief stage and removes the actual dependency annotation; checks complete reports and stale-review and missing-acknowledgement diagnostics.
  * @evidence contracts/development/testing.md#independent-expectations The authored one-scene fixture supplies its real brief dependency and current fingerprints; removing that edge or changing reviewed brief bytes must produce native errors, while a closed brief turned back to disabled must not break the running screenplay, as the evidence README promises for a finished layer.
  * @evidence contracts/development/testing.md#distinguishing-cases Complete, changed-brief, closed-brief and missing-citation cases distinguish relationship coverage, review freshness and stage independence on the short route.
  * @evidence contracts/development/testing.md#execution-ownership This exported test evaluates native Evidence in process, owns its unique temporary files and removes them in finally. It starts no installation, subprocess, browser or GPU and replaces no foreign method.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete brief and a screenplay scene file in its film folder, with construction answers and reviews, need no settings, treatment, script or outline population and pass.).
+ * @evidence contracts/development/common.md#meaningful-documentation The numbered scenarios identify the short's required layers, review freshness, source coverage and the first study that activates research.
  */
 export async function test_evidence_production_short_brief(): Promise<void> {
   const root: string = ProductionWorkflowFixture.create();
   try {
     ProductionWorkflowFixture.complete(root, "short");
+    const studies = (research?: "disabled"): boolean =>
+      createEvidenceConfig({
+        location: root,
+        narrative: { mode: "short" },
+        research,
+      }).claims.some((claim): boolean => claim.name === "research studies");
+    ProductionWorkflowFixture.write(
+      root,
+      "docs/research/index.md",
+      "# Research\n",
+    );
+    assert.equal(studies(), false);
+    ProductionWorkflowFixture.write(
+      root,
+      "docs/research/movement/steps.md",
+      "# Supporting foot\n",
+    );
+    assert.equal(studies(), true);
+    assert.equal(studies("disabled"), false);
+    fs.unlinkSync(path.join(root, "docs/research/movement/steps.md"));
     for (const relative of [
       "docs/body/settings",
       "docs/body/treatments",

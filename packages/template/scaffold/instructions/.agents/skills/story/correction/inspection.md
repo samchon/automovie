@@ -8,7 +8,7 @@ Give the classifier, a [separate context](../workflow/routes.md#separate-context
 
 Classify every script sentence against selected named failures. For a screenplay, use named failures from the production's `docs/contracts/language` and `docs/contracts/work`. Decide borderline cases by their effect on the recipient.
 
-Pair each paragraph with its parent under [parent differentiation](../../contracts/story/shared/principles/narratives.md#parent-differentiation). Compare inherited names, address, quantities, dates, places, states and certainty. Keep source checks with the [parent](../planning/research.md#sources).
+Pair each paragraph with its parent under [parent differentiation](../../contracts/story/principles/narratives.md#parent-differentiation). Compare inherited names, address, quantities, dates, places, states and certainty. Keep source checks with the [parent](../planning/research.md#sources).
 
 Record revision, coverage and tested failures once. Give each sentence a locator and failure names or `-`. Note other recipient losses. Keep the table in ignored `.cache/` and supported findings in their record.
 

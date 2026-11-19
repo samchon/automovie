@@ -16,11 +16,25 @@ Walter Murch, *In the Blink of an Eye*, supports emotion, story and rhythm befor
 
 [ScreenSkills: Script supervisor](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/technical/script-supervisor-film-and-tv-drama/) supports breakdown, timing, eyelines and prop continuity across takes. It is a role description, not a document template.
 
+Fran's route through the house in the opening of [Knives Out](https://rian-johnson.com/pdfs/knives-out.pdf#page=2) shows which spatial details carry an action and which furnishings can be grouped. [ScreenSkills](https://www.screenskills.com/skills-checklists/scripted-film-and-tv/props-department/standby-props-skills/) describes tracking props and their positions. [Movie Magic Scheduling](https://mms-docs.ep.com/Elements/ManagingElements.html) links named elements to scenes and can lock their IDs. AutoMovie uses its existing document addresses for this purpose.
+
 ## Performance and staging
 
-[DGA: Setting background](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) supports background movers with purpose and destination, crossing behind the action, and quiet at a focal moment. It is live-set practice, not a measured target.
+At [Disney Animation](https://disneyanimation.com/process/layout/), layout artists stage the characters and camera and review the shots in the edit. A production can use its central exchange to test these choices together.
+
+[Blender Studio's editorial guide](https://studio.blender.org/tools/pipeline-overview/pre-production/editorial) describes replacing rough material in a timed edit as shots mature. Its [animation guide](https://studio.blender.org/tools/artist-guide/shot-production/animation) uses blocking to get direction before polishing. A coarse sequence can answer a pacing question while poses and finish are still provisional.
+
+[Disney's crowd animators](https://cdn.disneyanimation.com/uploads/publications/SIGGRAPH_2025_The_Art_of_Crowds_Animation.pdf) describe using silhouette, grouping and contrast to direct attention while individuals pursue their own actions. The appropriate emphasis depends on the shot.
+
+[Kinovea's calibration and frame-rate definitions](https://kinovea.readthedocs.io/en/latest/userinterface/glossary.html#calibration) explain what establishes elapsed time and distance in a filmed plane. Camera motion can move a stationary subject across the image.
+
+In the WABC Level 1 coaching manual, section 2.1.1 shows how an off-ball player's cut opens space for a teammate. The drill supports checking coordinated choices. Match footage supplies the pace at the depicted level. [FIBA coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf)
+
+The [DGA's guidance on setting background](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) gives background performers purposeful movement and observable cues. A participant in a depicted practice can affect the action from outside the focal area.
 
 [RED: camera panning speed](https://www.reddigitalcinema.com/red-101/camera-panning-speed) supports judder from pan speed at a frame rate and shutter. It is a rule of thumb for 24 fps and a 180-degree shutter.
+
+Kovar, Schreiner and Gleicher describe sliding during an intended footplant as a motion-editing artifact. Their constraint applies while the foot is planted. [Footskate Cleanup for Motion Capture Editing](https://pages.cs.wisc.edu/~kovar/footskateCleanup.pdf)
 
 ## Images and forms
 
@@ -41,6 +55,8 @@ Walter Murch, *In the Blink of an Eye*, supports emotion, story and rhythm befor
 [Seedream's image API](https://docs.byteplus.com/en/docs/modelark/image-generation-api) distinguishes sequential sets from other editing features by version. [Midjourney](https://docs.midjourney.com/hc/en-us/articles/36285124473997-Omni-Reference) likewise changes its subject-reference route by version; a [style reference](https://docs.midjourney.com/hc/en-us/articles/32180011136653-Style-Reference) does not copy identity.
 
 ## Video
+
+[FFmpeg's fps filter](https://ffmpeg.org/ffmpeg-filters.html#fps-1) can drop or duplicate frames. Compare presentation times for duration and observe the action in playback to judge its pace.
 
 [Google Cloud: Veo best practices](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/best-practice) supports an unchanged character description in every prompt, motion only beside a source image, and one event per shot. Its speech marking is Veo's own.
 
@@ -63,6 +79,8 @@ The [VACE user guide](https://github.com/ali-vilab/VACE/blob/main/UserGuide.md) 
 The [Netflix timed text style guides](https://partnerhelp.netflixstudios.com/hc/en-us/articles/217350977) and [W3C WebVTT](https://www.w3.org/TR/webvtt1/) support caption length, reading speed, timing at cuts, and captions for viewers who cannot hear. Their values are one distributor's.
 
 [FFmpeg filters](https://ffmpeg.org/ffmpeg-filters.html) supports trimming, rebasing, resampling and retiming. An encoder's success proves no synchronization.
+
+[FFmpeg's codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) describe the input color range signaled to a decoder. Compare the decoded picture with its source to see the effect.
 
 The [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4) and [AudioShake](https://www.audioshake.ai/products/dialogue-music-effects-separation) support separating dialogue, music and effects stems from a film mix, effects being the hardest. They are benchmarks and one vendor, so test on the production's own takes.
 

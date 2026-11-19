@@ -33,7 +33,7 @@ Work from evidence and verify the result.
 
 - Research uncertain details the task depends on. Ask the user if the answer remains unclear or sources still conflict.
 - Finish each inspection round, then repair all its findings together by cause.
-- Judge pictures on captured stills. Ask the user for observations that require playback or listening.
+- Inspect spatial detail on captured frames. Judge a film's pace in continuous playback and record who watched or listened under [delivery review](.agents/skills/review/delivery-review.md#video).
 - Review unprompted as a critical viewer of the depicted practice. Report what you verified.
 
 Finish the commission. Pause only for a user decision or approval for a destructive or outward-facing action.

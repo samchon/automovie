@@ -19,8 +19,7 @@ Commit instructions, bodies and Evidence answers. Keep review records local. Ide
 | `docs/research/<discipline>/<topic>.md` | The studies of each practice and style |
 | `references/` | Retained research originals that are permitted copies |
 | Ignored `references/private/` | Retained research originals whose rights are unconfirmed |
-| `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contracts |
-| `docs/contracts/statements/...` | This production's own contract statements, which no evidence stage selects |
+| `docs/contracts/work/...`, `docs/contracts/language/...` | This production's own story contract items and their criteria |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance record |
 | `docs/acceptance/catalog.md` | The catalog's accepted cases |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files |
@@ -41,9 +40,15 @@ A part can be an act, a release block or another division suited to the format, 
 
 ## Canon records
 
-Give each settings or brief subject one file in its domain. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact's path and preserve its [anchor](layers/notation.md#identities).
+Give each settings or brief subject one file in its domain. Its production-relative path identifies the subject across scenes and films. Use H1 for the subject, H2 for facets and anchored H3s for facts and decisions. Cite the fact by path and [anchor](layers/notation.md#identities).
 
 For commissioned appearances on a route with no settings or brief, use `docs/instructions/appearance-<subject>.md` as the subject record. Preserve user-fixed interpretations. Embed commissioned [canon references](../image/canon-references.md) from `media/diffusion/images/<domain>/`. Report conflicting sources or instructions and resolve inconsistencies at their owner.
+
+### Scene elements
+
+Before writing a screenplay scene's action, identify its places, people, objects and groups in the [standing state](layers/notation.md#records). Link existing subjects. Give each scene-only instance the action tracks a stable name scoped to the scene file. Two keys may share one design and still be `house-key` and `spare-key`. Use natural descriptions in the action.
+
+Track an element individually when its position, use, state or identity matters to the action or continuity. Account for the rest as set dressing or a group. A change of holder, appearance or camera preserves the subject's identity. When a later scene needs a local subject, give it a shared record and point the earlier use to it. On a route without canon layers, instructions own shared definitions and implementation details of a fixed screenplay.
 
 ## Intake of existing work
 

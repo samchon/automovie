@@ -24,13 +24,13 @@ Write the complete [screenplay](../layers/screenplay.md). Repair brief decisions
 
 Skip this step for a screenplay-only commission. For a whole motion hint, direct 3D film or generated film, [program the performance](../../motion/performance.md) from the screenplay.
 
-Judge the film on captured stills, and repair each cause where it lies, in the screenplay, the brief or the code, until the film reads as intended.
+Judge each programmed segment under [segment review](../../motion/segment-review.md). Return gaps in the action to the screenplay or brief and faults in its realization to the responsible module or composition.
 
 ### 5. Evidence
 
 Read the full brief and screenplay against the selected contracts. Repair their defects and dependent code and film by cause. Skip independent classification on this route.
 
-The [Evidence answerer](../answers.md) enables the brief and screenplay construction stages and any required development stages under [Evidence configuration](../../evidence/configuration.md). The answerer writes the answers and returns gaps to the writer for repair.
+The [Evidence answerer](../answers.md) checks the studies the short uses alongside the brief, screenplay and required development stages under [Evidence configuration](../../evidence/configuration.md). Return gaps to the author of the affected work.
 
 ### 6. Review
 

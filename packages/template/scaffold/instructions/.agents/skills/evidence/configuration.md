@@ -8,13 +8,15 @@ Keep the default engineering claims: every source declaration and test answers t
 
 Enable entities, behaviors and composition when their folders get the first declaration unless the route opens them later.
 
+Submitting programmed scenes or films opens the [catalog](../motion/catalog-cases.md#record) layout check. Its case sources, film and acceptance record must exist. The director verifies registration, tested conditions and performance in the running catalog.
+
 ## Story
 
 Use the adopted [route](../story/workflow/routes.md#choosing-the-route) when it runs narrative passes. For [a screenplay without passes](../story/workflow/routes.md#who-writes-the-screenplay), use `narrative: { mode: "none" }` when configuring its film. With development composition enabled, code realizes the instructions as well as the screenplay. Omit `narrative` for a standalone asset.
 
 Open the narrative stage on a finished draft. Follow the route for when to enable and disable it. A closed layer can be disabled without affecting subsequent layers.
 
-Turn on the research stage when the first study is written, except on the short route, whose studies answer no research contract. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
+On the short narrative route, Evidence selects research when the first study appears in `docs/research/`. On other routes, enable research when the first study is written. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
 
 The `naturalness` contract folder holds questions that scripts construction answers, and chooses no stage of its own.
 

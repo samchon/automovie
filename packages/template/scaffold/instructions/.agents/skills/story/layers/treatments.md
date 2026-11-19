@@ -1,6 +1,6 @@
 # Treatments
 
-Turn completed settings into decided events another author can execute: causes, choices, exchanges, costs, results, and the state and information later events inherit, under the [treatment principles](../../contracts/story/shared/principles/treatments.md) and [population duties](../../contracts/story/shared/obligations/treatments.md).
+Turn completed settings into decided events another author can execute: causes, choices, exchanges, costs, results, and the state and information later events inherit, under the [treatment principles](../../contracts/story/principles/treatments.md) and [population duties](../../contracts/story/obligations/treatments.md).
 
 Finish [discovery](../planning/discovery.md) and [repair inherited facts](../correction/repair.md#upstream-defects) first. Design the opening promise, causes, consequences, setups, payoffs and ending. Track parallel events and when the audience learns each fact relative to the characters.
 

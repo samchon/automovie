@@ -10,11 +10,11 @@ A motion hint or direct 3D film assembles its programmed scenes. A generated fil
 
 Keep each channel's meaning as the motion skill's control channels define it, and schedule frames and check both sides of every cut under [frame evaluation](../motion/frame-evaluation.md).
 
-Realize the screenplay's scene order, cuts, transitions, pauses and titles under the [composition contract](../contracts/development/composition.md#screenplay-realization). If an assembled decision fails, [repair the screenplay](../story/correction/repair.md) and rebuild the affected output.
+Realize the screenplay's scene order, cuts, transitions, pauses and titles under the [composition contract](../contracts/development/composition.md#screenplay-realization). Trace a failed decision under [delivery repairs](../review/delivery-review.md#repairs).
 
 ## Render
 
-Before scaling a new host, run one small path through capture or take ingestion, a join and the encoded file, and inspect stills extracted from that file.
+Before scaling a new host or a changed export path, take a shot through a join and decode the result. Compare matched frames with the delivery renderer's output or the graded take supplied for assembly. If a conversion or lossy intermediate intervenes, compare on both sides of it. Check that decoded darks, highlights and colors reproduce the intended picture under the declared color range.
 
 Iterate on stills under [segment review](../motion/segment-review.md). For a motion hint or direct 3D film, use the README command for one whole-film picture render per delivery after all review segments pass. For a generated film, assemble the accepted finished takes as the picture.
 
@@ -26,7 +26,7 @@ Fix defects at their owners. Use [entity work](../development/entities.md) for f
 
 Hand off the following, without secrets, for [delivery review](../review/delivery-review.md) to accept:
 
-- the accepted output revision and its media identities;
+- the candidate revision and its media identities;
 - the fixed inputs, source entry and dependencies;
 - for a whole motion hint, a shot list of each shot's name, frame range, resolved camera and decided lens;
 - the commands that reproduce it;

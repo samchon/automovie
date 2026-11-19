@@ -6,7 +6,7 @@ Answer from the pictures. A passing check, a count of captured sheets, a hash or
 
 ## Questions
 
-Judge the complete performed action on stills captured under the [capture plan](../visual-debugging/capture.md#plan), at the [times](../visual-debugging/capture.md#times) it sets, opening full-size stills as [stills and sheets](../visual-debugging/capture.md#stills-and-sheets) sets.
+Inspect the complete action at the [planned times](../visual-debugging/capture.md#times). Open [full-size stills](../visual-debugging/capture.md#stills-and-sheets) for spatial detail. Judge experienced pace in continuous playback.
 
 ### Form
 
@@ -16,7 +16,7 @@ Are the complete forms correctly proportioned, oriented and attached beside the 
 
 Do preparation, support, body movement, contact and recovery connect into the intended action, including the counterpart's response? Deliberate stillness remains valid.
 
-At an interruption or exchange, inspect load transfer, the displayed contact surfaces and what each person carries into the next action. Check selected frames around the resolved event as well as its exact time through [frame evaluation](frame-evaluation.md).
+At an exchange, inspect the participants and object together through approach, support transfer and release. For a reaction attributed to contact, check where the depicted surfaces meet as or before the reaction begins. Check clearance along the path. Judge a planted foot or held object relative to its support, including a moving one. If perspective hides the relationship, use another view or measure the posed surfaces at the event and on either side under [frame evaluation](frame-evaluation.md).
 
 ### Staging
 
@@ -32,6 +32,8 @@ Record each finding with the cells that show it, the requirement it fails and it
 
 ## Before widening
 
-Accept one representative exchange on full-size stills before composing the rest of the film.
+Stage the passage whose failure would undermine the commission with its coarse cast, props and obstacles. Play it in the intended camera and edit at delivery speed, including the lead-in and consequence. Include a temporary line or sound cue if the timing depends on it. Use this rough cut to find where attention shifts or time drags before refining the motion.
 
-Measure that exchange's evaluation and capture cost. Plan the whole film under [stage caches](../production/stage-caches.md).
+For skilled practice, compare the cue, spacing, concurrent responses and elapsed time with the study. If the preview drops frames, check pace on a timed export. If the director cannot watch at speed, keep that judgment open until a viewer reports on the passage. Check materially different conditions as they enter the film.
+
+Measure the passage's evaluation and capture cost. Plan the whole film under [stage caches](../production/stage-caches.md).

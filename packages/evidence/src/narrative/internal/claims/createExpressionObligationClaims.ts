@@ -2,10 +2,7 @@ import type {
   IEvidenceClaim,
   IEvidenceMarkdownReference,
 } from "@wrtnlabs/evidence";
-import fs from "node:fs";
-import path from "node:path";
 
-import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import { constructionStage } from "../constructionStage";
@@ -13,8 +10,8 @@ import { createLocalContractReference } from "../references/createLocalContractR
 import { createSharedReference } from "../references/createSharedReference";
 import { layerFiles } from "../references/layerFiles";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";
-import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
+import { hasStoryContract } from "../utilities/hasStoryContract";
 
 /**
  * Creates the scripts population expression claims.
@@ -30,7 +27,7 @@ import { createUnitFiles } from "../utilities/createUnitFiles";
  * checklists never select, so a population duty cannot leak into a per-unit
  * checklist. A package whose contract predates the folder has no such claim.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Only scripts receive file-level expression obligation claims, under their construction stage; installed shared and language files are selected separately, each requiring exactly one respondent for every population item; createContractDirectory probes shared documents in the shared skills tree and language documents in the production's own `docs/contracts`.
+ * @evidence contracts/development/implementation.md#principled-implementation Only scripts receive file-level expression obligation claims, under their construction stage; installed shared and language files are selected separately, each requiring exactly one respondent for every population item; Bundled checklists are probed in the skills tree and local references in the production's `docs/contracts`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Expression population questions have their own file-level family under scripts construction without leaking whole-population duties into unit checklists.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent optional obligation document produces no claim under the supported older-contract layout; every other layer finishes its language in its own construction questions.
  * @evidence contracts/development/common.md#meaningful-documentation The prose identifies the scripts respondents, file-level population semantics, construction activation and optional older contract families.
@@ -48,7 +45,7 @@ export function createExpressionObligationClaims(
 
   const shared: IEvidenceClaim[] = layerFiles(layer)
     .filter((file: string): boolean =>
-      exists(props, "shared", `${directory}/${file}`),
+      hasStoryContract(props, `${directory}/${file}`),
     )
     .map(
       (file: string): IEvidenceClaim =>
@@ -107,19 +104,4 @@ function claim(props: {
     disabled: props.disabled,
     reference: { ...props.reference, uniqueEvidence: true },
   };
-}
-
-/** Reports whether one optional contract-family document is installed. */
-function exists(
-  contracts: IContractLocation,
-  scope: "shared" | "language",
-  file: string,
-): boolean {
-  return fs.existsSync(
-    path.join(
-      createContractDirectory(contracts, scope),
-      scope,
-      ...file.split("/"),
-    ),
-  );
 }

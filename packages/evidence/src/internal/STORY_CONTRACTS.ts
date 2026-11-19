@@ -1,7 +1,7 @@
 /**
  * Names the story contract tree inside a skills tree.
  *
- * Its `shared/` family ships with the scaffold's bundled skills. The `work/`
+ * Its checklist families ship directly in this directory. The `work/`
  * and `language/` families a production adopts live in its `docs/contracts`
  * instead; under a production's own skills tree they mark the retired layout.
  *

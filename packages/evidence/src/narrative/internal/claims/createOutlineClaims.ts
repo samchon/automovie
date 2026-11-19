@@ -5,8 +5,8 @@ import path from "node:path";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import { createSharedReference } from "../references/createSharedReference";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";
-import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createUnitFiles } from "../utilities/createUnitFiles";
+import { hasStoryContract } from "../utilities/hasStoryContract";
 import { validateSettingsOutline } from "../validateSettingsOutline";
 
 /**
@@ -42,17 +42,8 @@ export function createOutlineClaims(
   completeSubmission: boolean = false,
 ): IEvidenceClaim[] {
   const outline: string = "settings/outline/index.md";
-  const installed: (family: string) => boolean = (family: string): boolean =>
-    fs.existsSync(
-      path.join(
-        createContractDirectory(props, "shared"),
-        "shared",
-        family,
-        "index.md",
-      ),
-    );
-  const principle: boolean = installed("principles");
-  if (principle !== installed("obligations"))
+  const principle: boolean = hasStoryContract(props, "principles/index.md");
+  if (principle !== hasStoryContract(props, "obligations/index.md"))
     throw new Error("Settings outline contracts must be installed as a pair.");
 
   if (principle === false) {

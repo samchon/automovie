@@ -26,6 +26,8 @@ On long work a settings record owns both, and a link to it may replace them.
 
 Record the commissioned output and its boundary, with any authorized slice, deferred work and exclusions.
 
+When a new output will use earlier work, check the inputs it needs against the actual files. A decision to omit casting photos for a written brief covers that delivery. Before assigning a film that needs them, agree on the missing references or an alternative within the user's delegation. Any change to a required deliverable goes back to the user.
+
 ### Representation
 
 Record that people are polygon men and other subjects coarse forms, and which delivery, if any, selects which entity's detail option.

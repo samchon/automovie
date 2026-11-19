@@ -2,12 +2,10 @@ import type {
   IEvidenceMarkdownReference,
   IEvidenceReference,
 } from "@wrtnlabs/evidence";
-import fs from "node:fs";
-import path from "node:path";
 
 import type { IContractLocation } from "../../../internal/IContractLocation";
 import type { AuthoredLayer } from "../../AuthoredLayer";
-import { createContractDirectory } from "../utilities/createContractDirectory";
+import { hasStoryContract } from "../utilities/hasStoryContract";
 import { createSharedReference } from "./createSharedReference";
 import { layerFiles } from "./layerFiles";
 
@@ -40,15 +38,6 @@ export function createPrincipleReferences(props: {
   layer: AuthoredLayer;
   family: "principles" | "naturalness";
 }): IEvidenceReference[] {
-  const installed: (file: string) => boolean = (file: string): boolean =>
-    fs.existsSync(
-      path.join(
-        createContractDirectory(props.contracts, "shared"),
-        "shared",
-        props.family,
-        file,
-      ),
-    );
   // The construction family ships one document per layer scope, so a missing
   // one is a broken tree rather than an absent option and must still be
   // selected for the compiler to say so. Only the genuinely optional documents
@@ -57,7 +46,11 @@ export function createPrincipleReferences(props: {
   const optional: (file: string) => boolean = (file: string): boolean =>
     props.family === "naturalness" || file === "realized.md";
   return layerFiles(props.layer)
-    .filter((file: string): boolean => !optional(file) || installed(file))
+    .filter(
+      (file: string): boolean =>
+        !optional(file) ||
+        hasStoryContract(props.contracts, `${props.family}/${file}`),
+    )
     .map(
       (file: string): IEvidenceMarkdownReference =>
         createSharedReference({

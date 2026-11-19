@@ -36,6 +36,8 @@ export default createEvidenceConfig({
 
 The production's own contracts, `work/**` and `language/**`, hold the questions specific to that work and to its language, and live under `<location>/docs/contracts` in either layout.
 
+Bundled story citations start at `contracts/story`. When upgrading a production with the former `shared/` folder, install the matching scaffold and drop that prefix from its `@evidence` and `@evidenceExclude` citations. For example, `shared/principles/screenplay.md#beat-decisions` becomes `principles/screenplay.md#beat-decisions`. Recheck affected answers against the criteria under each heading and reopen affected reviews.
+
 ### Narrative
 
 Add `narrative` when the production writes a screenplay:
@@ -60,7 +62,9 @@ The screenplay is one folder per film with one file per scene: `docs/body/screen
 
 ### Research and development contracts
 
-Add `research` to hold each study in `docs/research/` to the research contract, and `development` when it builds the film's entities, behaviors and scenes in code:
+With `narrative.mode: "short"`, the first study under `docs/research/` activates research by default. The top-level index alone does not activate it. Set `research` explicitly on other routes or when closing a research stage. Use `development` when a production builds entities, behaviors and scenes in code.
+
+When composition Evidence opens for programmed scenes or films, it expects case sources under `src/composition/scenes/catalog/`, the film at `src/composition/films/catalog.ts` and the record at `docs/acceptance/catalog.md`. The catalog answers the composition checklist. Screenplay coverage comes from the production scenes and films. The director verifies the registered catalog plays and judges the tested conditions.
 
 ```ts
 export default createEvidenceConfig({
@@ -76,7 +80,7 @@ export default createEvidenceConfig({
 
 | Option | Checks | Against |
 | --- | --- | --- |
-| `research` | Each study in `docs/research/` | `contracts/story/shared/principles/research.md` |
+| `research` | Each study in `docs/research/` | `contracts/story/principles/research.md` |
 | `development.entities` | Exports under `src/entities/` | `contracts/development/entities.md` |
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md` |
 | `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md`, citing the screenplay scene files, sections and beats they realize |

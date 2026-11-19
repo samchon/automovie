@@ -28,7 +28,7 @@ Write what happens in the request's interval from the [beat records](../../story
 | Reaction | Each reaction the hint cannot show, such as a facial expression |
 | Camera | The depth of field and focus the screenplay decides |
 
-Identify each polygon man by screen position, and by the reference token or element name where the model binds references. Write the reactions in the order the hint performs the beats.
+Match each depicted person or prop to its [scene identity](../../story/document-layout.md#scene-elements) in the request record. In the prompt, use the model's reference token where available and describe a distinguishing feature or starting position. Track the same subject through crossings and handovers. Write reactions in beat order.
 
 State action or camera details the hint does not carry. Where supported, time prompt segments from the performed beat's frames.
 

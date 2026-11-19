@@ -20,7 +20,7 @@ A whole-work review rereads every selected body afresh and carries no unit verdi
 
 ## Findings and decisions
 
-Apply the [independent-reading statements](../contracts/story/shared/principles/review.md#independent-reading). Raise a wording finding when it violates a contract, parent or requirement, or the user directs it.
+Apply the [independent-reading criteria](../contracts/story/principles/review.md#independent-reading). Raise a wording finding when it violates a contract, parent or requirement, or the user directs it.
 
 The author records acceptance or refusal of each finding, with reasons. The reviewer withdraws or rebuts refusals. The author's decision after rebuttal stands. Reopen only with new body, parent or source evidence.
 

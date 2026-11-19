@@ -21,7 +21,7 @@ export interface IAutoMovieEvidenceConfigProps {
    * contracts, absolute or relative to `location`.
    *
    * The engineering and development checklists (`contracts/development/**`)
-   * and the shared story contracts (`contracts/story/shared/**`) resolve here.
+   * and the shared story contracts (`contracts/story/**`) resolve here.
    * The production's own `work/**` and `language/**` contracts always resolve
    * under `<location>/docs/contracts`, never here. A workspace
    * production passes the workspace root's tree; a standalone production omits
@@ -41,6 +41,6 @@ export interface IAutoMovieEvidenceConfigProps {
   /** Entity, behavior and composition development contracts; omitted stages stay disabled. */
   development?: IAutoMovieDevelopmentProps;
 
-  /** Research studies answer the story research principles when `"evidence"`; disabled by default. */
+  /** Selects research studies explicitly. When omitted, a short narrative selects them once a study other than the research index exists. Other routes default to disabled. */
   research?: "disabled" | "evidence";
 }
