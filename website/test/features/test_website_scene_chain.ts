@@ -12,6 +12,7 @@ import { PlaygroundChain } from "../../src/playground/package/PlaygroundChain";
 import { PlaygroundObjects } from "../../src/playground/package/PlaygroundObjects";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
 import { SCENES } from "../../src/scenes/SCENES";
+import { SceneTake } from "../../src/scenes/SceneTake";
 import { formatSceneChain } from "../../src/scenes/formatSceneChain";
 import { SceneChainNames } from "../../src/scenes/package/SceneChainNames";
 import { SceneStatus } from "../../src/scenes/package/SceneStatus";
@@ -26,6 +27,7 @@ import type { ISceneChainNames } from "../../src/scenes/structures/ISceneChainNa
  * 2. The code names every performer's subject.
  * 3. The shown `input` carries that composition node, each performer's subject, body, floor point, heading and skill, the same authored impulses, the laws only when there are some, and the props only when the scene places objects; its props are those `PlaygroundObjects.props` builds: the same subjects in order, the same `worn` wearer, bone and offset, and the same placed frame within a micrometre and a millionth of a quaternion component.
  * 4. Every runtime motion import exists in the package; canonical data contracts use a separate type-only import.
+ * 5. Relay's exchanged body supplies the omitted block-start category, while an authored category on the canonical `athletics` name takes precedence.
  */
 export function test_website_scene_chain(): void {
   const exported: Readonly<Record<string, unknown>> = motions as Readonly<
@@ -34,7 +36,28 @@ export function test_website_scene_chain(): void {
   const findings: string[] = [];
   let checked: number = 0;
   const LAST: string = "const performance = new HumanPerformance(input);";
-  for (const scene of SCENES) {
+  const relay: IScene = SCENES.find(
+    (scene: IScene): boolean => scene.id === "relay",
+  )!;
+  const otherBodies: IPlaygroundComposition = SceneTake.apply(
+    relay.composition!,
+    relay.takes[2]!,
+  );
+  const explicit: IPlaygroundComposition = structuredClone(otherBodies);
+  const runner: IPlaygroundComposition.IPerformer = explicit.performers.find(
+    (performer: IPlaygroundComposition.IPerformer): boolean =>
+      performer.subject === "r3",
+  )!;
+  runner.actions[0] = {
+    ...runner.actions[0]!,
+    name: "athletics",
+    params: { sex: "male" },
+  };
+  for (const scene of [
+    ...SCENES,
+    { ...relay, id: "relay-other-bodies", composition: otherBodies },
+    { ...relay, id: "relay-explicit-category", composition: explicit },
+  ]) {
     if (
       scene.composition === null ||
       !SceneStatus.computes(SceneStatus.of(scene))
@@ -43,6 +66,16 @@ export function test_website_scene_chain(): void {
     const composition: IPlaygroundComposition = scene.composition;
     const names: ISceneChainNames = SceneChainNames.read(composition);
     const code: string = formatSceneChain(composition, names);
+    if (composition === otherBodies)
+      TestValidator.predicate(
+        "exchanged runner uses female observations",
+        /\.(?:act|registered)\("sprintStart", \{ sex: "female" \}\)/.test(code),
+      );
+    if (composition === explicit)
+      TestValidator.predicate(
+        "authored category takes precedence",
+        code.includes('.act("athletics", { sex: "male" })'),
+      );
     if (!code.endsWith(`\n${LAST}`)) {
       findings.push(
         `${scene.id}: the shown code does not build the performance`,

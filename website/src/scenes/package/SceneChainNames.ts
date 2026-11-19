@@ -2,6 +2,7 @@ import * as archetypes from "@automovie/archetypes";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS } from "@automovie/motions";
 
+import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { ISceneChainNames } from "../structures/ISceneChainNames";
@@ -98,6 +99,14 @@ export namespace SceneChainNames {
             used.has(name) && !(name in HUMAN_ACTIONS),
         ),
       );
-    return { rows: pick(rows), mutuals: pick(mutuals), frames, laws };
+    const bodySex: ISceneChainNames["bodySex"] = Object.fromEntries(
+      Object.entries(PLAYGROUND_BODIES).map(
+        ([id, body]: [string, PLAYGROUND_BODIES.IEntry]): [
+          string,
+          ISceneChainNames["bodySex"][string],
+        ] => [id, body.parameters.body.anatomy.sex],
+      ),
+    );
+    return { bodySex, rows: pick(rows), mutuals: pick(mutuals), frames, laws };
   }
 }
