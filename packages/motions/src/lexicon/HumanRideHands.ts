@@ -1,9 +1,9 @@
 import {
   AutoMovieHumanoidSurfaceRays,
   Quaternion,
+  type RigidCarrierSample,
   Vector3,
 } from "@automovie/engine";
-import type { RigidCarrierSample } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
