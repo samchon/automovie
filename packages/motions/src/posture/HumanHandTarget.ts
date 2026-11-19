@@ -12,9 +12,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanFrame } from "./HumanFrame";
 import { HumanHand } from "./HumanHand";
+import { assembleHumanHandTarget } from "./assembleHumanHandTarget";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
 
 /**
@@ -49,7 +50,7 @@ export function HumanHandTarget(
     (): IAutoMovieMotionHumanHand.IFrame =>
       HumanHand.offset(body, side, surface, shape),
   );
-  return target(
+  return assembleHumanHandTarget(
     body,
     posture,
     side,
@@ -113,7 +114,7 @@ export namespace HumanHandTarget {
     ): IAutoMovieMotionHumanArmTarget.ITarget => {
       const current: ReturnType<ReturnType<typeof prepareFrame>> =
         frame(posture);
-      return target(
+      return assembleHumanHandTarget(
         body,
         posture,
         side,
@@ -230,6 +231,7 @@ export namespace HumanHandTarget {
       posture: IPosture,
       place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
       forward?: IAutoMovieVector3,
+      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
     ) => IAutoMovieMotionHumanArmTarget.ITarget;
     wrist: (
       posture: IPosture,
@@ -273,13 +275,14 @@ export namespace HumanHandTarget {
         posture: IPosture,
         place: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal">,
         forward?: IAutoMovieVector3,
+        trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
       ): IAutoMovieMotionHumanArmTarget.ITarget => {
         const current: ReturnType<typeof frame> = frame(
           posture,
           place.normal,
           forward,
         );
-        return target(
+        return assembleHumanHandTarget(
           body,
           posture,
           side,
@@ -290,6 +293,7 @@ export namespace HumanHandTarget {
           current.rotation,
           (): IAutoMovieVector3 => current.place(place.point).point,
           emit,
+          trial,
         );
       },
       wrist: (
@@ -358,7 +362,7 @@ export namespace HumanHandTarget {
           );
           return placed;
         };
-      const current: IAutoMovieMotionHumanArmTarget.ITarget = target(
+      const current: IAutoMovieMotionHumanArmTarget.ITarget = assembleHumanHandTarget(
         body,
         posture,
         side,
@@ -415,53 +419,6 @@ function fixedAlignment(
   ): IAutoMovieQuaternion => {
     align ??= HumanHand.prepareAlignment(offset());
     return align(world);
-  };
-}
-
-/** Assemble the target while evaluating only the bend branch the caller requested. */
-function target(
-  body: IAutoMovieMotionHumanBody,
-  posture: IPosture,
-  side: AutoMovieHumanSide,
-  point: IAutoMovieVector3,
-  options: IAutoMovieMotionHumanTarget.IHand,
-  surface: IAutoMovieMotionHumanHand.Surface,
-  shape: IAutoMovieMotionHumanHand.Shape,
-  rotation: IAutoMovieQuaternion,
-  wrist: () => IAutoMovieVector3,
-  emit?: ITargetEmitter,
-): IAutoMovieMotionHumanArmTarget.ITarget {
-  const bend: IAutoMovieVector3 =
-    options.bend === undefined && options.out === undefined
-      ? AutoMovieMotionHumanBend.solve({
-          body,
-          posture,
-          side,
-          point: wrist(),
-          rotation,
-          fallback: "hang",
-        })
-      : AutoMovieMotionHumanBend.arm(
-          body,
-          posture,
-          side,
-          options.bend,
-          options.out ?? 0,
-        );
-  if (emit !== undefined)
-    return emit({
-      point,
-      rotation,
-      bend,
-      ...(options.curl === undefined ? {} : { curl: options.curl }),
-    });
-  return {
-    surface,
-    shape,
-    point,
-    rotation,
-    bend,
-    ...(options.curl === undefined ? {} : { curl: options.curl }),
   };
 }
 

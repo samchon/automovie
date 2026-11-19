@@ -97,11 +97,69 @@ export namespace HumanShapeFraming {
             }
           : {}),
       };
+      if (
+        found.faces !== undefined &&
+        found.origin !== undefined &&
+        found.inverse !== undefined
+      )
+        BEND_FRAMES.set(found, {
+          centre: found.centre,
+          origin: found.origin,
+          inverse: found.inverse,
+        });
       shapes.set(shape, found);
     }
     return found;
   }
 
+  /**
+   * Return the current packed planes only if their original indexed reads are plain.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the original native plane backing and unproved fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation Requires the actual cache identity and native typed length before borrowing the array.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ownership test and the descriptor chain of length.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never inspects unknown replacement array objects.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work before the consumer reads its exact current plane words.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The room's scorer can compare live planes without reading unvisited exact hulls.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function bendPlanes(
+    points: readonly IAutoMovieVector3[],
+    frame: IFramed,
+  ): Float64Array | undefined {
+    const receipt: IAutoMovieBendFrame | undefined = BEND_FRAMES.get(frame);
+    if (
+      receipt === undefined ||
+      Object.getOwnPropertyDescriptor(frame, "centre")?.value !==
+        receipt.centre ||
+      Object.getOwnPropertyDescriptor(frame, "origin")?.value !==
+        receipt.origin ||
+      Object.getOwnPropertyDescriptor(frame, "inverse")?.value !==
+        receipt.inverse
+    )
+      return undefined;
+    const radius: PropertyDescriptor | undefined =
+      Object.getOwnPropertyDescriptor(frame, "radius");
+    const lead: PropertyDescriptor | undefined =
+      Object.getOwnPropertyDescriptor(frame, "lead");
+    if (
+      typeof radius?.value !== "number" ||
+      typeof lead?.value !== "number" ||
+      lead.writable !== true
+    )
+      return undefined;
+    const array: Float64Array | undefined = PLANES.get(points);
+    return array !== undefined &&
+      NATIVE_PLANES.has(array) &&
+      Object.getOwnPropertyDescriptor(frame, "faces")?.value === array &&
+      Object.getPrototypeOf(array) === DOUBLE.prototype &&
+      Object.getPrototypeOf(DOUBLE.prototype) === TYPED &&
+      !Object.hasOwn(array, "length") &&
+      !Object.hasOwn(DOUBLE.prototype, "length") &&
+      Object.getOwnPropertyDescriptor(TYPED, "length")?.get === LENGTH
+      ? array
+      : undefined;
+  }
   /**
    * A hull's face planes packed four numbers each, the normal then the
    * offset, in the hull's own frame: the same for every posed frame of the
@@ -112,15 +170,20 @@ export namespace HumanShapeFraming {
   function planes(points: readonly IAutoMovieVector3[]): Float64Array {
     const known: Float64Array | undefined = PLANES.get(points);
     if (known !== undefined) return known;
-    const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] = physicalHullFaces(points).faces;
-    const packed: Float64Array = new Float64Array(4 * faces.length);
-    faces.forEach((face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
-      packed[4 * index] = face.normal.x;
-      packed[4 * index + 1] = face.normal.y;
-      packed[4 * index + 2] = face.normal.z;
-      packed[4 * index + 3] = face.offset;
-    });
+    const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
+      physicalHullFaces(points).faces;
+    const ArrayType: Float64ArrayConstructor = Float64Array;
+    const packed: Float64Array = new ArrayType(4 * faces.length);
+    faces.forEach(
+      (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
+        packed[4 * index] = face.normal.x;
+        packed[4 * index + 1] = face.normal.y;
+        packed[4 * index + 2] = face.normal.z;
+        packed[4 * index + 3] = face.offset;
+      },
+    );
     PLANES.set(points, packed);
+    if (ArrayType === DOUBLE) NATIVE_PLANES.add(packed);
     return packed;
   }
 
@@ -206,7 +269,8 @@ export namespace HumanShapeFraming {
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
   ): { centre: IAutoMovieVector3; radius: number } {
-    const local: IAutoMovieMotionHumanColliders.IBall = HumanColliderBound(shape);
+    const local: IAutoMovieMotionHumanColliders.IBall =
+      HumanColliderBound(shape);
     return {
       centre: Vector3.add(
         pose.position,
@@ -224,10 +288,34 @@ export namespace HumanShapeFraming {
 }
 
 /** Each hull's packed face planes in its own frame, by its points, kept while the points live (`planes`). */
-const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> = new WeakMap();
+const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> =
+  new WeakMap();
 
 /** Each posed segment frame's shapes as `HumanShapeFraming.of` reads them, kept while the frame lives. */
 const FRAMED: WeakMap<
   IAutoMovieMotionHumanColliders.IPlaced["pose"],
-  Map<IAutoMovieMotionHumanColliders.IPlaced["shapes"][number], HumanShapeFraming.IFramed>
+  Map<
+    IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+    HumanShapeFraming.IFramed
+  >
 > = new WeakMap();
+
+/** The producer identity of the broad-phase planes. */
+const DOUBLE: Float64ArrayConstructor = Float64Array;
+const TYPED: object = Object.getPrototypeOf(DOUBLE.prototype);
+const LENGTH: (() => unknown) | undefined = Object.getOwnPropertyDescriptor(
+  TYPED,
+  "length",
+)?.get;
+const NATIVE_PLANES: WeakSet<Float64Array> = new WeakSet();
+
+/** Native broad frame vectors, checked by identity before inspection. */
+interface IAutoMovieBendFrame {
+  centre: IAutoMovieVector3;
+  origin: IAutoMovieVector3;
+  inverse: IAutoMovieQuaternion;
+}
+
+/** Original broad frame vectors retained only with their frame. */
+const BEND_FRAMES: WeakMap<HumanShapeFraming.IFramed, IAutoMovieBendFrame> =
+  new WeakMap();

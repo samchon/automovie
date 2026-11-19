@@ -12,6 +12,8 @@ import type {
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
+import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
+import { HumanBendRead } from "./HumanBendRead";
 
 /**
  * The arm's phrases on a clock's standard instants: a visit, a stroke, a
@@ -65,7 +67,10 @@ export namespace AutoMovieMotionHumanArmPhrase {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function bearing(
-    props: Pick<IAutoMovieMotionHumanArmPhrase.IPhrase, "clock" | "side" | "contact">,
+    props: Pick<
+      IAutoMovieMotionHumanArmPhrase.IPhrase,
+      "clock" | "side" | "contact"
+    >,
     from: string,
     to: string,
   ): IAutoMovieMotionHumanContactWindow[] {
@@ -145,8 +150,14 @@ export namespace AutoMovieMotionHumanArmPhrase {
    */
   export function stroke(
     props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
+    contextual?: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      progress: number,
+      trial: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+    ) => IAutoMovieMotionHumanArmTarget.ITarget,
   ): IAutoMovieMotionHumanPrimitive {
-    return strokePrimitive(props, undefined, false);
+    return strokePrimitive(props, undefined, false, contextual);
   }
 
   /**
@@ -182,49 +193,63 @@ export namespace AutoMovieMotionHumanArmPhrase {
     props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
     validateOnset: Parameters<typeof preparedStroke>[1],
     prepared: boolean,
+    contextual?: Parameters<typeof stroke>[1],
   ): IAutoMovieMotionHumanPrimitive {
-    return {
-      ...AutoMovieMotionHumanArmMove.move({
-        body: props.body,
-        side: props.side,
-        from: 0,
-        to: props.clock.duration,
-        origin: props.origin,
-        target: (
-          posture: IAutoMovieMotionHumanPosture,
-          seconds: number,
-          resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
-          projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
-        ): IAutoMovieMotionHumanArmTarget.ITarget => {
-          const progress: number = props.clock.progress(
-            "strokeStart",
-            "strokeEnd",
-            seconds,
-          );
-          const at: IAutoMovieMotionHumanArmTarget.ITarget = props.path(
-            posture,
-            seconds,
-            progress,
-            resolution,
-            projection,
-          );
-          if (progress <= 0) return at;
-          if (prepared) {
-            validateOnset?.(posture, seconds);
-            return at;
-          }
-          return extended(
-            props,
-            props.path(posture, seconds, 0, resolution, projection).point,
-            at,
-          );
+    const target = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
+      trial?: AutoMovieMotionHumanBendRepeat.IRead,
+    ): IAutoMovieMotionHumanArmTarget.ITarget => {
+      const progress: number = props.clock.progress(
+        "strokeStart",
+        "strokeEnd",
+        seconds,
+      );
+      const at: IAutoMovieMotionHumanArmTarget.ITarget =
+        trial === undefined
+          ? props.path(posture, seconds, progress, resolution, projection)
+          : contextual!(posture, seconds, progress, [trial, 0]);
+      if (progress <= 0) return at;
+      if (prepared) {
+        validateOnset?.(posture, seconds);
+        return at;
+      }
+      return extended(
+        props,
+        (trial === undefined
+          ? props.path(posture, seconds, 0, resolution, projection)
+          : contextual!(posture, seconds, 0, [trial, 1])
+        ).point,
+        at,
+      );
+    };
+    const move: IAutoMovieMotionHumanPrimitive =
+      AutoMovieMotionHumanArmMove.move(
+        {
+          body: props.body,
+          side: props.side,
+          from: 0,
+          to: props.clock.duration,
+          origin: props.origin,
+          target,
+          weight: (seconds: number): number =>
+            props.clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+          curvature: props.manner?.curvature ?? 0,
         },
-        weight: (seconds: number): number =>
-          props.clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-        curvature: props.manner?.curvature ?? 0,
-      }),
+        contextual === undefined
+          ? undefined
+          : (trial, posture, seconds, resolution, projection) =>
+              target(posture, seconds, resolution, projection, trial),
+      );
+    const primitive: IAutoMovieMotionHumanPrimitive = {
+      ...move,
       contacts: bearing(props, "strokeStart", "relax"),
     };
+    const read = HumanBendRead.writes.get(move);
+    if (read !== undefined) HumanBendRead.writes.set(primitive, read);
+    return primitive;
   }
 
   /**
@@ -319,7 +344,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
    */
   export function oscillate(
     props: IAutoMovieMotionHumanArmPhrase.IOscillateProps,
-      ): IAutoMovieMotionHumanPrimitive {
+  ): IAutoMovieMotionHumanPrimitive {
     return {
       ...AutoMovieMotionHumanArmMove.move({
         body: props.body,
@@ -373,16 +398,27 @@ export namespace AutoMovieMotionHumanArmPhrase {
     side: AutoMovieHumanSide,
     from: number,
     to: number,
-    angles: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IAutoMovieMotionHumanArmPhrase.ISwing,
+    angles: (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ) => IAutoMovieMotionHumanArmPhrase.ISwing,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${side}Arm`;
     return {
       channels: [limb],
       from,
       to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
-        const swung: IAutoMovieMotionHumanArmPhrase.ISwing = angles(posture, seconds);
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const swung: IAutoMovieMotionHumanArmPhrase.ISwing = angles(
+          posture,
+          seconds,
+        );
+        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+          ...posture.limbs,
+        };
         delete limbs[limb];
         return {
           ...posture,

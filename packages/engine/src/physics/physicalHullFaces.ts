@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { PhysicalHullScalarWitness } from "./PhysicalHullScalarWitness";
 import { physicalHullLoop } from "./physicalHullLoop";
 import { physicalHullPlanes } from "./physicalHullPlanes";
 import { physicalHullTriangles } from "./physicalHullTriangles";
@@ -39,13 +40,18 @@ import { physicalHullTriangles } from "./physicalHullTriangles";
 export function physicalHullFaces(
   points: readonly IAutoMovieVector3[],
 ): IAutoMoviePhysicalHullFaces.IHull {
-  const cached: IAutoMoviePhysicalHullFaces.IHull | undefined = HULLS.get(points);
+  const cached: IAutoMoviePhysicalHullFaces.IHull | undefined =
+    HULLS.get(points);
   if (cached !== undefined) return cached;
-  const original: readonly IAutoMovieVector3[] | undefined = REFLECTIONS.get(points);
+  const original: readonly IAutoMovieVector3[] | undefined =
+    REFLECTIONS.get(points);
   if (original !== undefined) {
     try {
       if (isMirrorX(points, original)) {
-        const hull: IAutoMoviePhysicalHullFaces.IHull = reflectedHull(points, physicalHullFaces(original));
+        const hull: IAutoMoviePhysicalHullFaces.IHull = reflectedHull(
+          points,
+          physicalHullFaces(original),
+        );
         HULLS.set(points, hull);
         return hull;
       }
@@ -78,27 +84,64 @@ export function physicalHullFaces(
   const planes: physicalHullPlanes.IResult =
     carried ??
     (Number.isFinite(tolerance)
-      ? physicalHullPlanes(points, extent, tolerance, physicalHullTriangles(points, tolerance), false)!
+      ? physicalHullPlanes(
+          points,
+          extent,
+          tolerance,
+          physicalHullTriangles(points, tolerance),
+          false,
+        )!
       : { triples: [], faces: [] });
   const used: boolean[] = points.map((): boolean => false);
+  const nativeFaces: boolean = ordinaryMap(planes.faces);
   const faces: IAutoMoviePhysicalHullFaces.IFace[] = planes.faces.map(
     (face: physicalHullPlanes.IFace): IAutoMoviePhysicalHullFaces.IFace => {
       for (const index of face.loop) used[index] = true;
       return {
         normal: face.normal,
         offset: face.offset,
-        loop: face.loop.map((index: number): IAutoMovieVector3 => points[index]!),
+        loop: face.loop.map(
+          (index: number): IAutoMovieVector3 => points[index]!,
+        ),
       };
     },
   );
   TRIPLES.set(points, planes.triples);
-  const hull: IAutoMoviePhysicalHullFaces.IHull = summarize(points, faces, used, tolerance);
+  const hull: IAutoMoviePhysicalHullFaces.IHull = summarize(
+    points,
+    faces,
+    used,
+    tolerance,
+  );
   HULLS.set(points, hull);
+  if (nativeFaces) PhysicalHullScalarWitness.topology(hull, faces);
   return hull;
 }
 
+/** Built-in face-array producer identities before any caller supplies points. */
+const ARRAY: ArrayConstructor = Array;
+const MAP: typeof Array.prototype.map = Array.prototype.map;
+const SPECIES: (() => unknown) | undefined = Object.getOwnPropertyDescriptor(
+  Array,
+  Symbol.species,
+)?.get;
+
+/** A native map over owned supporting planes allocates ordinary face objects. */
+function ordinaryMap(faces: readonly physicalHullPlanes.IFace[]): boolean {
+  return (
+    Array === ARRAY &&
+    Object.getPrototypeOf(faces) === ARRAY.prototype &&
+    !Object.hasOwn(faces, "map") &&
+    !Object.hasOwn(faces, "constructor") &&
+    Object.getOwnPropertyDescriptor(ARRAY.prototype, "constructor")?.value ===
+      ARRAY &&
+    Object.getOwnPropertyDescriptor(ARRAY.prototype, "map")?.value === MAP &&
+    Object.getOwnPropertyDescriptor(ARRAY, Symbol.species)?.get === SPECIES
+  );
+}
 /** Each searched points array's face triples, which a translation of it starts from. */
-const TRIPLES: WeakMap<readonly IAutoMovieVector3[], readonly number[]> = new WeakMap();
+const TRIPLES: WeakMap<readonly IAutoMovieVector3[], readonly number[]> =
+  new WeakMap();
 
 /** Fresh translated definitions with the source and offset they came from, until their first hull read. */
 const SHIFTS: WeakMap<
@@ -111,11 +154,18 @@ const SHIFTS: WeakMap<
  * array still is that translation coordinate for coordinate; undefined for
  * any other array, which is then searched on its own.
  */
-function shiftedTriples(points: readonly IAutoMovieVector3[]): readonly number[] | undefined {
-  const origin: { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 } | undefined = SHIFTS.get(points);
+function shiftedTriples(
+  points: readonly IAutoMovieVector3[],
+): readonly number[] | undefined {
+  const origin:
+    | { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 }
+    | undefined = SHIFTS.get(points);
   if (origin === undefined) return undefined;
   SHIFTS.delete(points);
-  const { source, by }: { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 } = origin;
+  const {
+    source,
+    by,
+  }: { source: readonly IAutoMovieVector3[]; by: IAutoMovieVector3 } = origin;
   if (
     points.length !== source.length ||
     !points.every(
@@ -137,7 +187,10 @@ const HULLS: WeakMap<
 > = new WeakMap();
 
 /** Fresh reflected definitions defer topology work until their first actual hull query. */
-const REFLECTIONS: WeakMap<readonly IAutoMovieVector3[], readonly IAutoMovieVector3[]> = new WeakMap();
+const REFLECTIONS: WeakMap<
+  readonly IAutoMovieVector3[],
+  readonly IAutoMovieVector3[]
+> = new WeakMap();
 
 /**
  * The hull record and its face.
@@ -167,9 +220,15 @@ export namespace physicalHullFaces {
    * The producer constructs all reflected coordinates, and first-use Object.is checks reconfirm the exact isometry against source geometry before deriving its planes. HumanColliderPlacement consumes the fresh points; ordinary hull readers then share the existing registered result. Changed fresh geometry runs a genuine independent search.
    * A weak fresh-points registration borrows its source only until the first attempted topology read, then releases provenance in finally on success, edit detection or failure. The existing weak cache owns the resulting numeric hull. Source/reflected vectors do not alias, and local membership/index arrays release on return or throw.
    */
-  export function mirrorX(points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] {
+  export function mirrorX(
+    points: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3[] {
     const reflected: IAutoMovieVector3[] = points.map(
-      (point: IAutoMovieVector3): IAutoMovieVector3 => ({ x: -point.x, y: point.y, z: point.z }),
+      (point: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: -point.x,
+        y: point.y,
+        z: point.z,
+      }),
     );
     REFLECTIONS.set(reflected, points);
     return reflected;
@@ -193,9 +252,16 @@ export namespace physicalHullFaces {
    * @param by The offset subtracted from every point, metres.
    * @returns The translated points, each `point - by` by component.
    */
-  export function shift(points: readonly IAutoMovieVector3[], by: IAutoMovieVector3): IAutoMovieVector3[] {
+  export function shift(
+    points: readonly IAutoMovieVector3[],
+    by: IAutoMovieVector3,
+  ): IAutoMovieVector3[] {
     const moved: IAutoMovieVector3[] = points.map(
-      (point: IAutoMovieVector3): IAutoMovieVector3 => ({ x: point.x - by.x, y: point.y - by.y, z: point.z - by.z }),
+      (point: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: point.x - by.x,
+        y: point.y - by.y,
+        z: point.z - by.z,
+      }),
     );
     SHIFTS.set(moved, { source: points, by: { x: by.x, y: by.y, z: by.z } });
     return moved;
@@ -221,25 +287,49 @@ export namespace physicalHullFaces {
 }
 
 /** Reconfirm actual fresh geometry before deriving any cached supporting plane. */
-function isMirrorX(points: readonly IAutoMovieVector3[], source: readonly IAutoMovieVector3[]): boolean {
-  return points.length === source.length && points.every(
-    (point: IAutoMovieVector3, i: number): boolean =>
-      Object.is(point.x, -source[i]!.x) && Object.is(point.y, source[i]!.y) && Object.is(point.z, source[i]!.z),
+function isMirrorX(
+  points: readonly IAutoMovieVector3[],
+  source: readonly IAutoMovieVector3[],
+): boolean {
+  return (
+    points.length === source.length &&
+    points.every(
+      (point: IAutoMovieVector3, i: number): boolean =>
+        Object.is(point.x, -source[i]!.x) &&
+        Object.is(point.y, source[i]!.y) &&
+        Object.is(point.z, source[i]!.z),
+    )
   );
 }
 
 /** Use actual reflected coordinates in the same face membership, loop and summary owners. */
-function reflectedHull(points: readonly IAutoMovieVector3[], source: IAutoMoviePhysicalHullFaces.IHull): IAutoMoviePhysicalHullFaces.IHull {
+function reflectedHull(
+  points: readonly IAutoMovieVector3[],
+  source: IAutoMoviePhysicalHullFaces.IHull,
+): IAutoMoviePhysicalHullFaces.IHull {
   const used: boolean[] = points.map((): boolean => false);
-  const faces: IAutoMoviePhysicalHullFaces.IFace[] = source.faces.map((face: IAutoMoviePhysicalHullFaces.IFace): IAutoMoviePhysicalHullFaces.IFace => {
-    const normal: IAutoMovieVector3 = { x: -face.normal.x, y: face.normal.y, z: face.normal.z };
-    const member: boolean[] = points.map(
-      (point: IAutoMovieVector3): boolean => Vector3.dot(normal, point) - face.offset >= -source.tolerance,
-    );
-    const loop: number[] = physicalHullLoop(points, member, normal);
-    for (const index of loop) used[index] = true;
-    return { normal, offset: face.offset, loop: loop.map((index: number): IAutoMovieVector3 => points[index]!) };
-  });
+  const faces: IAutoMoviePhysicalHullFaces.IFace[] = source.faces.map(
+    (
+      face: IAutoMoviePhysicalHullFaces.IFace,
+    ): IAutoMoviePhysicalHullFaces.IFace => {
+      const normal: IAutoMovieVector3 = {
+        x: -face.normal.x,
+        y: face.normal.y,
+        z: face.normal.z,
+      };
+      const member: boolean[] = points.map(
+        (point: IAutoMovieVector3): boolean =>
+          Vector3.dot(normal, point) - face.offset >= -source.tolerance,
+      );
+      const loop: number[] = physicalHullLoop(points, member, normal);
+      for (const index of loop) used[index] = true;
+      return {
+        normal,
+        offset: face.offset,
+        loop: loop.map((index: number): IAutoMovieVector3 => points[index]!),
+      };
+    },
+  );
   return summarize(points, faces, used, source.tolerance);
 }
 

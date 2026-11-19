@@ -4,6 +4,7 @@ import type {
   IAutoMovieJointConstraint,
 } from "@automovie/interface";
 
+import { BendClinicalNodes } from "../../kinematics/BendClinicalNodes";
 import { ANKLE_DORSIFLEXION } from "./ANKLE_DORSIFLEXION";
 
 const range = (min: number, max: number): IAutoMovieAngleRange => ({
@@ -269,3 +270,5 @@ export const DEFAULT_HUMANOID_ROM: Partial<
   rightLittleIntermediate: MIDDLE_JOINT,
   rightLittleDistal: END_JOINT,
 };
+
+BendClinicalNodes.record(DEFAULT_HUMANOID_ROM);

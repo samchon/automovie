@@ -17,6 +17,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
@@ -206,18 +207,40 @@ export namespace AutoMovieMotionHumanBendSearch {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned function retains the chain until released.
    */
   export function continued(
-    props: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side" | "point" | "rotation">,
-  ): (near?: IAutoMovieSwivelNear) => { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string {
+    props: Pick<
+      IAutoMovieMotionHumanBend.ISolve,
+      "body" | "posture" | "side" | "point" | "rotation"
+    >,
+  ): (
+    near?: IAutoMovieSwivelNear,
+  ) => { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
       AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
     const neutral: IAngles | null = props.body.hanging(props.side);
-    return (near?: IAutoMovieSwivelNear): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string => {
+    return (
+      near?: IAutoMovieSwivelNear,
+    ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | string => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
-      if (Vector3.length(Vector3.subtract(props.point, chain.shoulder)) > chain.span)
+      if (
+        Vector3.length(Vector3.subtract(props.point, chain.shoulder)) >
+        chain.span
+      )
         return "the wrist is beyond the arm's span";
-      return AutoMovieMotionHumanBendSweep(chain, props.body, props.side, props.point, props.rotation, neutral,
-        (candidate: ICandidate): IScore => ({ overshoot: candidate.overshoot, deviation: candidate.strain }),
-        near) ?? "the arm chain is degenerate";
+      return (
+        AutoMovieMotionHumanBendSweep(
+          chain,
+          props.body,
+          props.side,
+          props.point,
+          props.rotation,
+          neutral,
+          (candidate: ICandidate): IScore => ({
+            overshoot: candidate.overshoot,
+            deviation: candidate.strain,
+          }),
+          near,
+        ) ?? "the arm chain is degenerate"
+      );
     };
   }
 
@@ -246,7 +269,11 @@ export namespace AutoMovieMotionHumanBendSearch {
     hint: IAutoMovieVector3,
   ): IAngles | null {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(body, { root: { x: 0, y: 0, z: 0 }, yaw: 0 }, side);
+      AutoMovieMotionHumanBendChain.of(
+        body,
+        { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
+        side,
+      );
     if (chain === null) return null;
 
     // The wrist under the elbow a standing posture relaxes the arm to
@@ -256,21 +283,26 @@ export namespace AutoMovieMotionHumanBendSearch {
     const fore: number = body.measure.forearm;
     const flexion: number = (stand.ELBOW * Math.PI) / 180;
     const share: number =
-      Math.sqrt(upper * upper + fore * fore + 2 * upper * fore * Math.cos(flexion)) / (upper + fore);
+      Math.sqrt(
+        upper * upper + fore * fore + 2 * upper * fore * Math.cos(flexion),
+      ) /
+      (upper + fore);
     const point: IAutoMovieVector3 = {
       x: chain.shoulder.x,
       y: chain.shoulder.y - share * chain.span,
       z: chain.shoulder.z,
     };
-    return AutoMovieMotionHumanBendSweep(
-      chain,
-      body,
-      side,
-      point,
-      undefined,
-      null,
-      AutoMovieMotionHumanBendSide.prepare(chain.shoulder, point, hint),
-    )?.candidate.angles ?? null;
+    return (
+      AutoMovieMotionHumanBendSweep(
+        chain,
+        body,
+        side,
+        point,
+        undefined,
+        null,
+        AutoMovieMotionHumanBendSide.prepare(chain.shoulder, point, hint),
+      )?.candidate.angles ?? null
+    );
   }
 
   /**
@@ -312,11 +344,24 @@ export namespace AutoMovieMotionHumanBendSearch {
   export function prepare(
     props: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
     source?: AutoMovieMotionHumanBendChain.IPrepared,
-  ): (goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]) => ICandidate | string {
+  ): (
+    goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">,
+    rank: Parameters<typeof search>[1],
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+  ) => ICandidate | string {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side, source);
+      AutoMovieMotionHumanBendChain.of(
+        props.body,
+        props.posture,
+        props.side,
+        source,
+      );
     const neutral: IAngles | null = props.body.hanging(props.side);
-    return (goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">, rank: Parameters<typeof search>[1]): ICandidate | string => {
+    return (
+      goal: Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation">,
+      rank: Parameters<typeof search>[1],
+      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+    ): ICandidate | string => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
       const distance: number = Vector3.length(
         Vector3.subtract(goal.point, chain.shoulder),
@@ -332,6 +377,8 @@ export namespace AutoMovieMotionHumanBendSearch {
           goal.rotation,
           neutral,
           rank(chain),
+          undefined,
+          trial,
         )?.candidate ?? "the arm chain is degenerate"
       );
     };

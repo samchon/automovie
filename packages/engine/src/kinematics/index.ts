@@ -60,3 +60,4 @@ export * from "./distalEndSwivelReadings";
 export * from "./distalTwistSwivelRange";
 export * from "./immobileAxisSwivels";
 export * from "./swivelJointReadings";
+export { readPreparedBendClinical } from "./readPreparedBendClinical";

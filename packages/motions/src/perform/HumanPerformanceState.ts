@@ -33,6 +33,7 @@ import type {
 
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
 import { stand } from "../actions/stand";
+import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -414,6 +415,7 @@ export class HumanPerformanceState {
       for (const overlay of person.overlays)
         HumanPreparedPlayback.prepare(overlay.plan);
     }
+    HumanBendRead.resolved.add(this);
   }
 }
 /**

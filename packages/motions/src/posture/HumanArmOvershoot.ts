@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
+import type { HumanArmBendRoom } from "./HumanArmBendRoom";
 import { HumanArmOvershootRoom } from "./HumanArmOvershootRoom";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
@@ -93,9 +94,10 @@ export namespace HumanArmOvershoot {
     rival?: IAutoMovieVector3,
     hint?: IAutoMovieVector3,
     rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+    trial?: HumanArmBendRoom,
   ): (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3) => number {
     let room: IRoom | undefined;
-    const shared: IQueries = {};
+    const shared: IQueries = trial === undefined ? {} : { trial };
     return (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
       evaluate(
         body,
@@ -121,6 +123,9 @@ type IDistanceReader = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
 
 /** Operation-local holder, populated only when a candidate needs exact geometry. */
 interface IQueries {
+  /** Optional proof for the original ordinary elbow search. */
+  trial?: HumanArmBendRoom;
+
   /** Readers for unchanged shapes, without queried points or results. */
   readers?: Map<IShape, IDistanceReader>;
 }
@@ -143,6 +148,7 @@ function evaluate(
   shared?: IQueries,
 ): number {
   const radius: number = body.measure.forearmRadius;
+  shared?.trial?.read(room, radius);
 
   // The elbow's side: it goes no farther across the chest's median plane
   // than its goal asks, by the wrist or by the elbow's own hint, so a hand
@@ -186,7 +192,8 @@ function evaluate(
 
     // The cheap point-to-segment distance decides where it clears the bound by more than `MARGIN` either way; the exact query decides the rest, so the choice is the exact query's.
     if (bound.faces !== undefined) {
-      const gap: number = along(elbow, wrist, bound.centre) - bound.radius - radius;
+      const gap: number =
+        along(elbow, wrist, bound.centre) - bound.radius - radius;
       if (gap > MARGIN) continue;
       if (
         !(gap < -MARGIN) &&
@@ -250,9 +257,7 @@ function evaluate(
       // A shape that cannot ask more than the depth already found leaves
       // the greatest as it is: the needed clearance less the least the
       // distance can be, `grazing` only lowering it.
-      if (
-        HumanShapeFraming.beyond(at, shape.framed, needed - depth + MARGIN)
-      )
+      if (HumanShapeFraming.beyond(at, shape.framed, needed - depth + MARGIN))
         continue;
       depth = Math.max(
         depth,
@@ -292,7 +297,13 @@ function distance(
   const queries: Map<IShape, IDistanceReader> = (shared.readers ??= new Map());
   let query: IDistanceReader | undefined = queries.get(shape);
   if (query === undefined) {
-    query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
+    if (shared.trial === undefined)
+      query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
+    else {
+      const pointQuery: (point: IAutoMovieVector3) => number =
+        shared.trial.trial.prepare(shape.pose, shape.shape);
+      query = (point: IAutoMovieVector3): number => pointQuery(point);
+    }
     queries.set(shape, query);
   }
   return query(point, point);
@@ -330,7 +341,6 @@ function along(
     p.z - (a.z + ez * t),
   );
 }
-
 
 /** How far, metres, a bound must clear what it is compared with before a query is spared: far above the rounding of a body-scale distance, far below anything a forearm's room reads. */
 const MARGIN: number = 1e-9;

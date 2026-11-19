@@ -10,8 +10,10 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { bracketedMinimum } from "../math/bracketedMinimum";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
+import type { PhysicalHullScalarWitness } from "./PhysicalHullScalarWitness";
 import { physicalHullNearest } from "./physicalHullNearest";
 import { physicalHullSegment } from "./physicalHullSegment";
+import { readPhysicalHullPoint } from "./readPhysicalHullPoint";
 
 /** A shape-local proximity reading before its point and normal return to world space. */
 interface ILocal {
@@ -139,33 +141,66 @@ export namespace physicalShapeQuery {
   export function prepare(
     pose: IAutoMovieRigidTransform,
     shape: IAutoMoviePhysicalShape,
-  ): (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]) => number {
+    witness?: PhysicalHullScalarWitness,
+  ): (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    taper?: readonly [number, number],
+  ) => number {
     const prepared: IPrepared = {};
-    return (a: IAutoMovieVector3, b: IAutoMovieVector3, taper?: readonly [number, number]): number =>
-      query(pose, shape, a, b, taper, false, prepared);
+    return (
+      a: IAutoMovieVector3,
+      b: IAutoMovieVector3,
+      taper?: readonly [number, number],
+    ): number => query(pose, shape, a, b, taper, false, prepared, witness);
   }
 }
 
 /** Scalar reads share this one mathematical body with the cold full-contact entry. */
-function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
-  taper: readonly [number, number] | undefined, details: false, prepared?: IPrepared): number;
+function query(
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined,
+  details: false,
+  prepared?: IPrepared,
+  witness?: PhysicalHullScalarWitness,
+): number;
 
 /** The cold full/scalar facade retains its original union result. */
-function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
-  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): IAutoMoviePhysicalShapeNearest.IResult | number;
+function query(
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined,
+  details: boolean,
+  prepared?: IPrepared,
+  witness?: PhysicalHullScalarWitness,
+): IAutoMoviePhysicalShapeNearest.IResult | number;
 
 /** One fixed-frame acquisition and the unchanged ordered proximity calculation. */
-function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a: IAutoMovieVector3, b: IAutoMovieVector3,
-  taper: readonly [number, number] | undefined, details: boolean, prepared?: IPrepared): IAutoMoviePhysicalShapeNearest.IResult | number {
+function query(
+  pose: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  taper: readonly [number, number] | undefined,
+  details: boolean,
+  prepared?: IPrepared,
+  witness?: PhysicalHullScalarWitness,
+): IAutoMoviePhysicalShapeNearest.IResult | number {
   let frame: IFrame | undefined = prepared?.frame;
-  const centre: IAutoMovieVector3 = frame?.centre ?? Vector3.add(
-    pose.position,
-    Quaternion.rotateVector(pose.rotation, shape.transform.position),
-  );
-  const rotation: IAutoMovieQuaternion = frame?.rotation ?? Quaternion.multiply(
-    pose.rotation,
-    shape.transform.rotation,
-  );
+  const centre: IAutoMovieVector3 =
+    frame?.centre ??
+    Vector3.add(
+      pose.position,
+      Quaternion.rotateVector(pose.rotation, shape.transform.position),
+    );
+  const rotation: IAutoMovieQuaternion =
+    frame?.rotation ??
+    Quaternion.multiply(pose.rotation, shape.transform.rotation);
   if (prepared !== undefined && frame === undefined) {
     frame = { centre, rotation };
     prepared.frame = frame;
@@ -190,12 +225,7 @@ function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a
       }
     }
     const closest: ReturnType<typeof closestPointsBetweenSegments> =
-      closestPointsBetweenSegments(
-        a,
-        b,
-        start,
-        end,
-      );
+      closestPointsBetweenSegments(a, b, start, end);
     if (!details) return closest.distance - shape.radius;
     const normal: IAutoMovieVector3 =
       closest.distance > 1e-12
@@ -211,8 +241,10 @@ function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a
       at: closest.pointA,
     };
   }
-  const inverse: IAutoMovieQuaternion = frame?.inverse ?? Quaternion.inverse(rotation);
-  if (frame !== undefined && frame.inverse === undefined) frame.inverse = inverse;
+  const inverse: IAutoMovieQuaternion =
+    frame?.inverse ?? Quaternion.inverse(rotation);
+  if (frame !== undefined && frame.inverse === undefined)
+    frame.inverse = inverse;
   const la: IAutoMovieVector3 = Quaternion.rotateVector(
     inverse,
     Vector3.subtract(a, centre),
@@ -264,7 +296,10 @@ function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a
   const distance: (p: IAutoMovieVector3) => number = (
     p: IAutoMovieVector3,
   ): number => {
-    if (shape.kind === "hull") return physicalHullNearest(shape.points, p, false);
+    if (shape.kind === "hull")
+      return witness === undefined
+        ? physicalHullNearest(shape.points, p, false)
+        : readPhysicalHullPoint(shape.points, p, false, witness);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p, false);
     if (shape.kind === "sphere" || shape.kind === "capsule") {
       if (roundAxis === undefined) roundAxis = { x: 0, y: 0, z: 0 };
@@ -293,7 +328,12 @@ function query(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, a
     // low on the segment, found by Brent's method (`bracketedMinimum`) to
     // `ALONG` of the segment's length and compared with the two ends,
     // which the search does not evaluate.
-    const low: { at: number; value: number } = bracketedMinimum(gap, 0, 1, ALONG);
+    const low: { at: number; value: number } = bracketedMinimum(
+      gap,
+      0,
+      1,
+      ALONG,
+    );
     let least: number = gap(0);
     for (const [t, value] of [
       [1, gap(1)],

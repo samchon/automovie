@@ -13,7 +13,9 @@ import type {
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
+import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
+import { HumanBendRead } from "./HumanBendRead";
 
 /**
  * An arm moved between an origin and a target by a weight, and the three
@@ -43,69 +45,108 @@ export namespace AutoMovieMotionHumanArmMove {
    */
   export function move(
     props: IAutoMovieMotionHumanArmTarget.IMove,
+    contextual?: (
+      loan: AutoMovieMotionHumanBendRepeat.IRead,
+      ...args: Parameters<IAutoMovieMotionHumanArmTarget.IMove["target"]>
+    ) => IAutoMovieMotionHumanArmTarget.ITarget,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
     // The side is the move's; the shape is the target's at each second, so
     // the writer is rebuilt only when the target names another shape.
-    let shaped: { shape: IAutoMovieMotionHumanHand.Shape;
-      write: ReturnType<typeof AutoMovieMotionHumanHand.prepareFingerWriter> } | undefined;
-    const fingers: (joints: IAutoMovieMotionHumanPosture["joints"], shape: IAutoMovieMotionHumanHand.Shape, curl: number,
-      weight: number) => void =
-      (joints: IAutoMovieMotionHumanPosture["joints"], shape: IAutoMovieMotionHumanHand.Shape, curl: number,
-        weight: number): void => {
-        if (shaped === undefined || shaped.shape !== shape)
-          shaped = { shape, write: AutoMovieMotionHumanHand.prepareFingerWriter(props.side, shape) };
-        shaped.write(joints, curl, weight);
+    let shaped:
+      | {
+          shape: IAutoMovieMotionHumanHand.Shape;
+          write: ReturnType<
+            typeof AutoMovieMotionHumanHand.prepareFingerWriter
+          >;
+        }
+      | undefined;
+    const fingers: (
+      joints: IAutoMovieMotionHumanPosture["joints"],
+      shape: IAutoMovieMotionHumanHand.Shape,
+      curl: number,
+      weight: number,
+    ) => void = (
+      joints: IAutoMovieMotionHumanPosture["joints"],
+      shape: IAutoMovieMotionHumanHand.Shape,
+      curl: number,
+      weight: number,
+    ): void => {
+      if (shaped === undefined || shaped.shape !== shape)
+        shaped = {
+          shape,
+          write: AutoMovieMotionHumanHand.prepareFingerWriter(
+            props.side,
+            shape,
+          ),
+        };
+      shaped.write(joints, curl, weight);
+    };
+    const write = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      _before?: IAutoMovieMotionHumanPrimitive.Reader,
+      resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
+      projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
+      loan?: AutoMovieMotionHumanBendRepeat.IRead,
+    ): IAutoMovieMotionHumanPosture => {
+      const target: IAutoMovieMotionHumanArmTarget.ITarget =
+        loan === undefined
+          ? props.target(posture, seconds, resolution, projection)
+          : contextual!(loan, posture, seconds, resolution, projection);
+      const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
+      const placed: IAutoMovieMotionHumanArmTarget.ITarget =
+        s >= 1
+          ? target
+          : {
+              ...target,
+              point: bowed(
+                posture,
+                props.side,
+                AutoMovieMotionHumanArmTarget.point(posture, props.origin),
+                target.point,
+                s,
+                props.curvature ?? 0,
+              ),
+              rotation: Quaternion.slerp(
+                Quaternion.multiply(
+                  HumanFrame.turn(posture.yaw),
+                  props.origin.rotation,
+                ),
+                target.rotation,
+                s,
+              ),
+            };
+      const joints: IAutoMovieMotionHumanPosture["joints"] = {
+        ...posture.joints,
       };
-    return {
+      fingers(joints, target.shape, target.curl ?? 0, s);
+      return {
+        ...posture,
+        joints,
+        limbs: {
+          ...posture.limbs,
+          [limb]: AutoMovieMotionHumanArmTarget.goal(
+            props.body,
+            props.side,
+            placed,
+          ),
+        },
+      };
+    };
+    const primitive: IAutoMovieMotionHumanPrimitive = {
       channels: [limb, `${props.side}Hand`],
       from: props.from,
       to: props.to,
-      write: (posture: IAutoMovieMotionHumanPosture, seconds: number,
-        _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
-        projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3]): IAutoMovieMotionHumanPosture => {
-        const target: IAutoMovieMotionHumanArmTarget.ITarget = props.target(
-          posture,
-          seconds,
-          resolution,
-          projection,
-        );
-        const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
-        const placed: IAutoMovieMotionHumanArmTarget.ITarget =
-          s >= 1
-            ? target
-            : {
-                ...target,
-                point: bowed(
-                  posture,
-                  props.side,
-                  AutoMovieMotionHumanArmTarget.point(posture, props.origin),
-                  target.point,
-                  s,
-                  props.curvature ?? 0,
-                ),
-                rotation: Quaternion.slerp(
-                  Quaternion.multiply(
-                    HumanFrame.turn(posture.yaw),
-                    props.origin.rotation,
-                  ),
-                  target.rotation,
-                  s,
-                ),
-              };
-        const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
-        fingers(joints, target.shape, target.curl ?? 0, s);
-        return {
-          ...posture,
-          joints,
-          limbs: {
-            ...posture.limbs,
-            [limb]: AutoMovieMotionHumanArmTarget.goal(props.body, props.side, placed),
-          },
-        };
-      },
+      write,
     };
+    if (contextual !== undefined)
+      HumanBendRead.writes.set(primitive, {
+        original: write,
+        invoke: (loan, posture, seconds, before, source, projection) =>
+          write(posture, seconds, before, source, projection, loan),
+      });
+    return primitive;
   }
 
   /**
@@ -260,15 +301,17 @@ export namespace AutoMovieMotionHumanArmMove {
       to: clock.at(window[1]),
       origin: to,
       target,
-      weight: (seconds: number): number =>
-        1 - progress(seconds),
+      weight: (seconds: number): number => 1 - progress(seconds),
     });
   }
 }
 
 /** The window's minimum-jerk progress, its two instants resolved once (`AutoMovieMotionClock.prepare`). */
-function progressOn(clock: IAutoMovieMotionClock, window: readonly [string, string]):
-  (seconds: number) => number {
-  const read: ReturnType<typeof AutoMovieMotionClock.prepare> = AutoMovieMotionClock.prepare(clock, window[0], window[1]);
+function progressOn(
+  clock: IAutoMovieMotionClock,
+  window: readonly [string, string],
+): (seconds: number) => number {
+  const read: ReturnType<typeof AutoMovieMotionClock.prepare> =
+    AutoMovieMotionClock.prepare(clock, window[0], window[1]);
   return (seconds: number): number => read.progress(seconds);
 }

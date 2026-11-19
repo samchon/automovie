@@ -26,6 +26,7 @@ import type {
 
 import { HumanArmOvershoot } from "../posture/HumanArmOvershoot";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
@@ -62,8 +63,10 @@ export function AutoMovieMotionHumanBendSweep(
   neutral: IAutoMovieResolvedJointAngles | null,
   score: (candidate: ICandidate) => IScore,
   near?: IAutoMovieSwivelNear,
+  repeat?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
 ): { candidate: ICandidate; seed: IAutoMovieSwivelSeed } | null {
-  const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] = chain.prepared;
+  const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =
+    chain.prepared;
   const upperBone: AutoMovieHumanoidBone = prepared.chain.upper;
   const lowerBone: AutoMovieHumanoidBone = prepared.chain.lower;
   const lowerAxes: IAutoMovieJointAxes | undefined = chain.axes[lowerBone];
@@ -74,6 +77,8 @@ export function AutoMovieMotionHumanBendSweep(
     chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
     "AutoMovieMotionHumanBendSearch axes",
   );
+  let hand: IAutoMovieJointConstraint | null = null;
+  let handAxes: IAutoMovieJointAxes | undefined;
   const strained: (
     u: IAutoMovieResolvedJointAngles,
     lowerWorld: () => IAutoMovieQuaternion,
@@ -84,9 +89,16 @@ export function AutoMovieMotionHumanBendSweep(
     rotation,
     neutral,
     lowerAxes,
+    repeat === undefined
+      ? undefined
+      : (
+          range: IAutoMovieJointConstraint | null,
+          axes: IAutoMovieJointAxes | undefined,
+        ): void => {
+          hand = range;
+          handAxes = axes;
+        },
   );
-  const clear: ReturnType<typeof HumanArmOvershoot.prepare> =
-    HumanArmOvershoot.prepare(body, chain.shapes, side);
 
   // The two joints' bases and ranges are the rig's, fixed over the search:
   // admitted and resolved once, as the engine's own candidate scoring
@@ -100,11 +112,55 @@ export function AutoMovieMotionHumanBendSweep(
   const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
     jointRomOvershoot.prepare(lowerBone, prepared.lowerDomain.constraint);
 
+  const trial =
+    repeat !== undefined &&
+    near === undefined &&
+    rotation !== undefined &&
+    neutral !== null &&
+    handAxes !== undefined
+      ? repeat[0].start(repeat[1], {
+          chain,
+          body,
+          side,
+          point,
+          rotation,
+          neutral,
+          clinical: {
+            upperBone,
+            lowerBone,
+            handBone: `${side}Hand`,
+            upperBasis,
+            lowerBasis,
+            lowerAxes,
+            handAxes,
+            upperRange,
+            lowerRange: prepared.lowerDomain.constraint,
+            handRange: hand,
+          },
+        })
+      : undefined;
+  const clear: ReturnType<typeof HumanArmOvershoot.prepare> =
+    trial === undefined
+      ? HumanArmOvershoot.prepare(body, chain.shapes, side)
+      : HumanArmOvershoot.prepare(
+          body,
+          chain.shapes,
+          side,
+          [],
+          true,
+          undefined,
+          undefined,
+          [],
+          trial.room,
+        );
+
   // A branch's candidates share one lower rotation, the same record, and
   // differ only in the swivel of the upper arm, so the lower joint's
   // overshoot is read once per record: the same value, read once.
   let mid: { rotation: IAutoMovieQuaternion; overshoot: number } | undefined;
-  const midOf: (lower: IAutoMovieQuaternion) => number = (lower: IAutoMovieQuaternion): number => {
+  const midOf: (lower: IAutoMovieQuaternion) => number = (
+    lower: IAutoMovieQuaternion,
+  ): number => {
     if (mid !== undefined && mid.rotation === lower) return mid.overshoot;
     const l: IAutoMovieResolvedJointAngles = decomposeJointRotationOnBasis(
       lower,
@@ -118,7 +174,10 @@ export function AutoMovieMotionHumanBendSweep(
     };
     return mid.overshoot;
   };
-  const read: (upper: IAutoMovieQuaternion, lower: IAutoMovieQuaternion) => ICandidate = (
+  const read: (
+    upper: IAutoMovieQuaternion,
+    lower: IAutoMovieQuaternion,
+  ) => ICandidate = (
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): ICandidate => {
@@ -154,7 +213,7 @@ export function AutoMovieMotionHumanBendSweep(
       strain,
     };
   };
-  const solved: ReturnType<typeof hingedArmArticulation> =
+  const solve = () =>
     hingedArmArticulation({
       upper: prepared.upper,
       midOffset: prepared.lowerOffset,
@@ -179,16 +238,26 @@ export function AutoMovieMotionHumanBendSweep(
       score: (
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
-      ): IScore => score(read(upper, lower)),
+      ): IScore => {
+        const ranked: IScore = score(read(upper, lower));
+        trial?.score(ranked);
+        return ranked;
+      },
 
       // A solve continued from a nearby one refines that one's swivel on
       // its branch, with no sweep (`IAutoMovieSwivelNear`).
       ...(near === undefined ? {} : { near }),
     });
-  return solved === null ? null : {
-    candidate: read(solved.upper, solved.lower),
-    seed: { swivel: solved.swivel, branch: solved.branch },
+  const complete = () => {
+    const solved: ReturnType<typeof hingedArmArticulation> = solve();
+    return solved === null
+      ? null
+      : {
+          candidate: read(solved.upper, solved.lower),
+          seed: { swivel: solved.swivel, branch: solved.branch },
+        };
   };
+  return trial === undefined ? complete() : trial.complete(complete);
 }
 
 /** A place on the swivel circle, the search's. */

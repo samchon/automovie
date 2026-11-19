@@ -12,14 +12,15 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
-import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentShown } from "./HumanSegmentShown";
+import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
@@ -88,7 +89,7 @@ export namespace HumanPerformanceRead {
   ): IAutoMovieMotionHumanPosture {
     const person: IAutoMovieMotionHumanSegment.IPerson = axis === undefined
       ? HumanPerformanceRead.person(self, subject) : available(self, subject, seconds, axis);
-    return placedPosture(person, seconds, channels);
+    return readPlacedHumanPosture(person, seconds, channels);
   }
 
   /**
@@ -331,7 +332,7 @@ export namespace HumanPerformanceRead {
     axis: string | (() => string),
   ): IAutoMovieMotionHumanActionContext.IRoot {
     const person: IAutoMovieMotionHumanSegment.IPerson = available(self, subject, seconds, axis);
-    const posture: IAutoMovieMotionHumanPosture = placedPosture(person, seconds, ["root"]);
+    const posture: IAutoMovieMotionHumanPosture = readPlacedHumanPosture(person, seconds, ["root"]);
     return { position: posture.root, yaw: posture.yaw };
   }
 
@@ -446,22 +447,30 @@ export namespace HumanPerformanceRead {
     });
   }
 
-  /** The raw active posture of an already resolved person, before layers. */
-  function placedPosture(
-    person: IAutoMovieMotionHumanSegment.IPerson,
+  /**
+   * Read the same raw root for projectile broad-phase rejection.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the raw root, film second and projectile-scoped numeric loan.
+   * @evidence contracts/development/implementation.md#principled-implementation Exact selected native writer uses its normal full posture and ordinary Bend numeric trial. Unknown and changed readers keep their original raw dispatch.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shares person selection and the single raw placed reader.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves posture receiver, explicit undefined argument and original fallback property order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The raw root still reads its original posture. Only repeated proven elbow search arithmetic is shared.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work An explicit sweep loan is supplied only to the genuine current native writer.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no borrowed state.
+   */
+  export function projectileRoot(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
     seconds: number,
-    channels?: readonly AutoMovieMotionHumanChannel[],
-  ): IAutoMovieMotionHumanPosture {
-    const active: IAutoMovieMotionHumanSegment | undefined =
-      HumanSegmentSelection.last(person.segments, seconds);
-    return active === undefined
-      ? person.initial
-      : active.plan.posture(
-          Math.min(active.plan.duration, Math.max(0, seconds - active.start)),
-          channels,
-        );
+    sweep: AutoMovieMotionHumanBendRepeat,
+  ): IAutoMovieMotionHumanPosture["root"] {
+    return readPlacedHumanPosture(
+      HumanPerformanceRead.person(self, subject),
+      seconds,
+      undefined,
+      [self, sweep],
+    ).root;
   }
-
   /** Fresh demanded bones of an already resolved person's displayed pose (`HumanSegmentShown.bones`); never stores a bone map. */
   function placedBones(
     person: IAutoMovieMotionHumanSegment.IPerson,

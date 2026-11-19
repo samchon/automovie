@@ -18,6 +18,26 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No input is normalized, repaired, branded admitted or specialized to a body. Actual own-data reads preserve inherited numerical properties and callable structural records instead of assuming enumerable plain-object layout.
  */
 export namespace PoseResolutionSnapshot {
+  /** The actual frozen records this owner allocated, including their owned vectors. */
+  const OWNED_AXES: WeakSet<IAutoMovieJointAxes> = new WeakSet();
+
+  /**
+   * Authenticate a frozen axes record and its three frozen direction vectors.
+   *
+   * @param input The current axes record of a prepared rig.
+   * @returns Whether the record came from this snapshot owner with copies of every object-valued direction.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Authenticates only this owner's exact axes and vector identities.
+   * @evidence contracts/development/implementation.md#principled-implementation Tests the exact outer identity; this allocation owner copies every object-valued direction into a fresh frozen own-data vector.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Uses the single allocation receipt written by axes.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads no foreign axes properties and certifies no range or normalization.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One constant-time weak identity check.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A numeric reader can certify live values of a snapshot without traversing foreign axes.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak identity set retains neither a rig nor a query result.
+   */
+  export function ownsAxes(input: IAutoMovieJointAxes): boolean {
+    return OWNED_AXES.has(input);
+  }
   /**
    * Read effective string-keyed mappings, including non-enumerable own fields
    * and custom-prototype fields. The built-in Object prototype declares no
@@ -62,10 +82,17 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Only actual current and previous numerical values are compared; owners retain their own unchanged-source and admission contracts.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean and retains no operands or resource.
    */
-  export function sameQuaternion(left: IAutoMovieQuaternion, right: IAutoMovieQuaternion): boolean {
+  export function sameQuaternion(
+    left: IAutoMovieQuaternion,
+    right: IAutoMovieQuaternion,
+  ): boolean {
     if (left === right) return true;
-    return Object.is(left.x, right.x) && Object.is(left.y, right.y) &&
-      Object.is(left.z, right.z) && Object.is(left.w, right.w);
+    return (
+      Object.is(left.x, right.x) &&
+      Object.is(left.y, right.y) &&
+      Object.is(left.z, right.z) &&
+      Object.is(left.w, right.w)
+    );
   }
 
   /**
@@ -79,10 +106,16 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Equality is recomputed from actual operands on every call; only the owning producer may reuse its private unchanged value afterward.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a boolean without retaining either operand or any resource.
    */
-  export function sameVector(left: IAutoMovieVector3, right: IAutoMovieVector3): boolean {
+  export function sameVector(
+    left: IAutoMovieVector3,
+    right: IAutoMovieVector3,
+  ): boolean {
     if (left === right) return true;
-    return Object.is(left.x, right.x) && Object.is(left.y, right.y) &&
-      Object.is(left.z, right.z);
+    return (
+      Object.is(left.x, right.x) &&
+      Object.is(left.y, right.y) &&
+      Object.is(left.z, right.z)
+    );
   }
 
   /**
@@ -98,13 +131,19 @@ export namespace PoseResolutionSnapshot {
    */
   export function axes(input: IAutoMovieJointAxes): IAutoMovieJointAxes {
     if (!hasProperties(input)) return input;
-    return Object.freeze({
+    const snapshot: IAutoMovieJointAxes = Object.freeze({
       flexion: vector(input.flexion),
       abduction: vector(input.abduction),
       twist: vector(input.twist),
-      ...(input.twistPlacement === undefined ? {} : { twistPlacement: input.twistPlacement }),
-      ...(input.rotationOrder === undefined ? {} : { rotationOrder: input.rotationOrder }),
+      ...(input.twistPlacement === undefined
+        ? {}
+        : { twistPlacement: input.twistPlacement }),
+      ...(input.rotationOrder === undefined
+        ? {}
+        : { rotationOrder: input.rotationOrder }),
     });
+    OWNED_AXES.add(snapshot);
+    return snapshot;
   }
 
   /**
@@ -119,7 +158,8 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns only three copied scalars, without retaining a source record or external handle.
    */
   export function vector(input: IAutoMovieVector3): IAutoMovieVector3 {
-    return !hasProperties(input) ? input
+    return !hasProperties(input)
+      ? input
       : Object.freeze({ x: input.x, y: input.y, z: input.z });
   }
 
@@ -134,8 +174,11 @@ export namespace PoseResolutionSnapshot {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The prepared owner copies static rest once, isolating source edits and preserving its immutable operand identity through that snapshot's lifetime.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns four owned scalars and retains no input, history or handle.
    */
-  export function quaternion(input: IAutoMovieQuaternion): IAutoMovieQuaternion {
-    return !hasProperties(input) ? input
+  export function quaternion(
+    input: IAutoMovieQuaternion,
+  ): IAutoMovieQuaternion {
+    return !hasProperties(input)
+      ? input
       : Object.freeze({ x: input.x, y: input.y, z: input.z, w: input.w });
   }
 
@@ -153,8 +196,10 @@ export namespace PoseResolutionSnapshot {
   export function frame(input: IAutoMovieRestFrame): IAutoMovieRestFrame {
     if (!hasProperties(input)) return input;
     const snapshot: IAutoMovieRestFrame = {};
-    if (input.flexion !== undefined) snapshot.flexion = axisFrame(input.flexion);
-    if (input.abduction !== undefined) snapshot.abduction = axisFrame(input.abduction);
+    if (input.flexion !== undefined)
+      snapshot.flexion = axisFrame(input.flexion);
+    if (input.abduction !== undefined)
+      snapshot.abduction = axisFrame(input.abduction);
     if (input.twist !== undefined) snapshot.twist = axisFrame(input.twist);
     return Object.freeze(snapshot);
   }
@@ -162,11 +207,14 @@ export namespace PoseResolutionSnapshot {
 
 /** Preserve malformed scalar/non-record entries for their ordinary toRigAngle refusal. */
 function axisFrame(input: IAutoMovieAxisFrame): IAutoMovieAxisFrame {
-  return !hasProperties(input) ? input
+  return !hasProperties(input)
+    ? input
     : Object.freeze({ sign: input.sign, neutral: input.neutral });
 }
 
 /** Structural numerical records can be ordinary objects or callables with properties. */
 function hasProperties(input: unknown): boolean {
-  return (typeof input === "object" && input !== null) || typeof input === "function";
+  return (
+    (typeof input === "object" && input !== null) || typeof input === "function"
+  );
 }

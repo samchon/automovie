@@ -7,6 +7,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
+import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 
@@ -27,7 +28,10 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * @evidence contracts/development/design.md#minimal-and-owned-surface solve reads every field, while strain retains its existing rule of ignoring fallback.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No goal is clamped, widened or changed; source geometry must stay unchanged for the operation's lifetime.
    */
-  export type IGoal = Pick<IAutoMovieMotionHumanBend.ISolve, "point" | "rotation" | "fallback">;
+  export type IGoal = Pick<
+    IAutoMovieMotionHumanBend.ISolve,
+    "point" | "rotation" | "fallback"
+  >;
 
   /**
    * Two original numerical queries on one fixed body/trunk/side geometry.
@@ -79,33 +83,86 @@ export namespace AutoMovieMotionHumanBendPreparation {
   export function of(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
     source?: AutoMovieMotionHumanBendChain.IPrepared,
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
   ): IPrepared {
     const search: ReturnType<typeof AutoMovieMotionHumanBendSearch.prepare> =
       AutoMovieMotionHumanBendSearch.prepare(fixed, source);
     return {
       solve: (goal: IGoal): IAutoMovieVector3 => {
-        const found: AutoMovieMotionHumanBendSearch.ICandidate | string = search(goal,
-          (): (candidate: AutoMovieMotionHumanBendSearch.ICandidate) => AutoMovieMotionHumanBendSearch.IScore =>
-            (candidate: AutoMovieMotionHumanBendSearch.ICandidate): AutoMovieMotionHumanBendSearch.IScore =>
-              ({ overshoot: candidate.overshoot, deviation: candidate.strain }));
-        if (typeof found !== "string" && found.overshoot === 0) return found.elbow;
+        const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
+          search(
+            goal,
+            (): ((
+              candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+            ) => AutoMovieMotionHumanBendSearch.IScore) =>
+              (
+                candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+              ): AutoMovieMotionHumanBendSearch.IScore => ({
+                overshoot: candidate.overshoot,
+                deviation: candidate.strain,
+              }),
+            trial,
+          );
+        if (typeof found !== "string" && found.overshoot === 0)
+          return found.elbow;
         if (goal.fallback !== undefined)
-          return AutoMovieMotionHumanBend.arm(fixed.body, fixed.posture, fixed.side, goal.fallback);
+          return AutoMovieMotionHumanBend.arm(
+            fixed.body,
+            fixed.posture,
+            fixed.side,
+            goal.fallback,
+          );
         throw new HumanRefusal({
-          kind: "reach", axis: "target", value: fixed.side,
+          kind: "reach",
+          axis: "target",
+          value: fixed.side,
           reason: `AutoMovieMotionHumanBend.solve found no elbow place for the ${fixed.side} hand: ${typeof found === "string" ? found : "every place leaves a joint out of range or the forearm inside the body"}`,
           fix: "move the target to where the arm can bend to it: nearer the shoulder's side and off the body",
         });
       },
       strain: (goal: IGoal, bend: IAutoMovieVector3): number => {
-        const found: AutoMovieMotionHumanBendSearch.ICandidate | string = search(goal,
-          (chain: Parameters<Parameters<typeof AutoMovieMotionHumanBendSearch.search>[1]>[0]): (candidate: AutoMovieMotionHumanBendSearch.ICandidate) => AutoMovieMotionHumanBendSearch.IScore =>
-            AutoMovieMotionHumanBendSide.prepare(chain.shoulder, goal.point, bend));
-        return typeof found === "string" || found.overshoot !== 0 ? Infinity : found.strain;
+        const found: AutoMovieMotionHumanBendSearch.ICandidate | string =
+          search(
+            goal,
+            (
+              chain: Parameters<
+                Parameters<typeof AutoMovieMotionHumanBendSearch.search>[1]
+              >[0],
+            ): ((
+              candidate: AutoMovieMotionHumanBendSearch.ICandidate,
+            ) => AutoMovieMotionHumanBendSearch.IScore) =>
+              AutoMovieMotionHumanBendSide.prepare(
+                chain.shoulder,
+                goal.point,
+                bend,
+              ),
+          );
+        return typeof found === "string" || found.overshoot !== 0
+          ? Infinity
+          : found.strain;
       },
     };
   }
 
+  /**
+   * Select the original default elbow ranking for a current moving hand.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Uses the full current Bend goal and its original fallback to return a world elbow.
+   * @evidence contracts/development/implementation.md#principled-implementation Ordinary callers retain the original Bend entry. A proved loan reaches only this preparation's ordinary numerical rank.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects one original solver route; ranking and policy stay here.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No target, input admission, throwing path or hand record is skipped.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Ordinary queries keep the original cost; a matched loan reuses only the proved deterministic numerical search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work One current numerical search uses the actual loan only during its caller's sweep.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned elbow keeps its own record.
+   */
+  export function defaultBend(
+    goal: IAutoMovieMotionHumanBend.ISolve,
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
+  ): IAutoMovieVector3 {
+    return trial === undefined
+      ? AutoMovieMotionHumanBend.solve(goal)
+      : of(goal, undefined, trial).solve(goal);
+  }
   /**
    * Prepare actual sides of one fixed trunk within one synchronous person operation.
    *
@@ -117,15 +174,20 @@ export namespace AutoMovieMotionHumanBendPreparation {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual crawl/load call sites fix this exact body/trunk frame while requesting left/right in original order; the one source is made from that same body and posture, and changed goals/ranks remain actual.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous caller releases this reader, its source/optional FK loan and at-most-two contexts before returning the person evaluation. No plan, output goal or returned posture retains them, and no current target/result/time history or external handle is stored.
    */
-  export function both(fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
-    resolution?: Parameters<typeof AutoMovieMotionHumanBendChain.prepare>[2]):
-      (side: AutoMovieHumanSide) => IPrepared {
+  export function both(
+    fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,
+    resolution?: Parameters<typeof AutoMovieMotionHumanBendChain.prepare>[2],
+  ): (side: AutoMovieHumanSide) => IPrepared {
     let source: AutoMovieMotionHumanBendChain.IPrepared | undefined;
     const sides: Partial<Record<AutoMovieHumanSide, IPrepared>> = {};
     return (side: AutoMovieHumanSide): IPrepared => {
       let current: IPrepared | undefined = sides[side];
       if (current === undefined) {
-        source ??= AutoMovieMotionHumanBendChain.prepare(fixed.body, fixed.posture, resolution);
+        source ??= AutoMovieMotionHumanBendChain.prepare(
+          fixed.body,
+          fixed.posture,
+          resolution,
+        );
         current = of({ ...fixed, side }, source);
         sides[side] = current;
       }

@@ -14,6 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropCatchHands } from "./HumanPropCatchHands";
@@ -73,6 +74,8 @@ export namespace HumanPropSweep {
     radius?: number,
     captureHands: readonly HumanPropCatchHands.IApproach[] = [],
   ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
+    const bend: AutoMovieMotionHumanBendRepeat =
+      new AutoMovieMotionHumanBendRepeat();
     const colliders: IAutoMovieProjectileFirstContact.ICollider[] = [
       projectileFirstContact.plane(
         "ground",
@@ -102,7 +105,7 @@ export namespace HumanPropSweep {
       if (bones !== allBones) maskedBones?.set(subject, bones);
       /** The original root-based rejection, with its centre for a full witness. */
       const frame = (t: number): IAutoMovieVector3 =>
-        HumanPerformanceRead.posture(self, subject, seconds + t).root;
+        HumanPerformanceRead.projectileRoot(self, subject, seconds + t, bend);
       /** The original signed lower bound before querying the collider union. */
       const distanceFromRoot = (
         a: IAutoMovieVector3,

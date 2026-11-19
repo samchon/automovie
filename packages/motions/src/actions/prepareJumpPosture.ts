@@ -10,6 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -198,7 +199,7 @@ export namespace prepareJumpPosture {
     source: IAutoMovieMotionHumanActionPlan["posture"],
     where: IAutoMovieMotionHumanRefusal.IWhere,
   ): IAutoMovieMotionHumanActionPlan["posture"] {
-    return (
+    const placed: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds: number,
       channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -210,5 +211,19 @@ export namespace prepareJumpPosture {
         throw error instanceof HumanRefusal ? error.locate(where) : error;
       }
     };
+    const raw: HumanBendRead.Posture | undefined =
+      HumanBendRead.postures.get(source);
+    if (raw !== undefined)
+      HumanBendRead.postures.set(
+        placed,
+        (read, seconds): IAutoMovieMotionHumanPosture => {
+          try {
+            return raw(read, seconds);
+          } catch (error) {
+            throw error instanceof HumanRefusal ? error.locate(where) : error;
+          }
+        },
+      );
+    return placed;
   }
 }
