@@ -35,6 +35,7 @@ export type { IAutoMovieMotionClipBridge } from "./IAutoMovieMotionClipBridge";
 export type { IAutoMovieMotionEvent } from "./IAutoMovieMotionEvent";
 export type { IAutoMovieMotionPlayback } from "./IAutoMovieMotionPlayback";
 export type { IAutoMovieMotionSample } from "./IAutoMovieMotionSample";
+export type { IAutoMovieTimedGround } from "./IAutoMovieTimedGround";
 export type { IAutoMovieMotionTarget } from "./IAutoMovieMotionTarget";
 export type { IAutoMovieMotionToClip } from "./IAutoMovieMotionToClip";
 export type { IAutoMovieMotionTrajectoryInterval } from "./IAutoMovieMotionTrajectoryInterval";

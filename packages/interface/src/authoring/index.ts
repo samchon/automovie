@@ -13,6 +13,7 @@ export type { IAutoMovieShotDefinition } from "./IAutoMovieShotDefinition";
 export type { IAutoMovieShotProgram } from "./IAutoMovieShotProgram";
 export type { IAutoMovieStage } from "./IAutoMovieStage";
 export type { IAutoMovieStageActor } from "./IAutoMovieStageActor";
+export type { IAutoMovieStageSupportWindow } from "./IAutoMovieStageSupportWindow";
 export type { IAutoMovieStageCamera } from "./IAutoMovieStageCamera";
 export type { IAutoMovieStageLight } from "./IAutoMovieStageLight";
 export type { IAutoMovieStageSetPiece } from "./IAutoMovieStageSetPiece";

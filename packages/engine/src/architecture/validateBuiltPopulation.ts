@@ -226,6 +226,13 @@ const validateLayout: (
       "population scatter radius",
       collector,
     );
+    if (layout.ground !== undefined)
+      collector.push(
+        "type",
+        `${path}.ground`,
+        "a terrain-grounded scatter belongs to the production world; a building scatter uses its level anchor",
+        layout.ground.kind,
+      );
     return;
   }
   if (layout.kind === "explicit") {

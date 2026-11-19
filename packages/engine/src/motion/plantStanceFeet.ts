@@ -22,9 +22,7 @@ import { pinStanceTargets } from "./pinStanceTargets";
 import { rekeyPlantedFeet } from "./rekeyPlantedFeet";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { sampleMotion } from "./sampleMotion";
-import { sampleTimes } from "./sampleTimes";
-
-const DEFAULT_SAMPLE_RATE: number = 24;
+import { sampleStanceTimes } from "./sampleStanceTimes";
 
 const DEFAULT_GROUND_Y: number = 0;
 
@@ -43,9 +41,9 @@ const DEFAULT_LEGS: readonly IAutoMovieFootLeg[] = HUMANOID_LEG_CHAINS.map(
 );
 
 /**
- * Sample admitted motion on a fixed clock, detect finite model-frame stance contacts, pin each run and fit targeted leg chains under the same clinical mappings and rig ROM. Unreachable/constrained pins retain the best allowed pose and may leave residual; the result does not guarantee exact no-skate contact. Opening plants resume authoritative targets only for opening stance.
+ * Sample admitted motion on a fixed clock plus any authored support boundaries. Detect finite model-frame stance contacts, pin each run and fit targeted leg chains under the same clinical mappings and rig ROM. Unreachable or constrained pins retain the best allowed pose and may leave residual contact error. Opening plants resume authoritative targets during opening stance.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Shares one unchanged skeleton topology across detection and re-keying, uses inclusive ground+tolerance masks and maximal-run pins, then scores ROM-clamped chain FK through fitChainToTarget. Sample times include clip endpoints; ground/tolerance inputs are finite and tolerance nonnegative.
+ * @evidence contracts/development/implementation.md#principled-implementation Shares one unchanged skeleton topology across detection and re-keying, uses inclusive ground+tolerance contact, then scores ROM-clamped chain FK through fitChainToTarget. The sampling clock includes clip endpoints and every admitted support boundary.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The coordinator separates dense sampling, run pinning, chain correction and result assembly through existing single-purpose helpers, all using identical topology and clinical axes/rest frames.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid sample rate, scalar ground or tolerance and nonfinite sampled/carried targets throw; absent/degenerate/unimprovable chains keep articulation rather than inventing contact success. Default legs and zero ground are explicit API defaults.
  * @evidence contracts/development/common.md#meaningful-documentation States model frame, dense clock, shared clinical semantics, opening pin precedence, input failure and residual limitations instead of promising exact contact for arbitrary rig constraints.
@@ -63,14 +61,16 @@ export const plantStanceFeet: (
   );
   const tolerance: number = props.tolerance ?? DEFAULT_TOLERANCE;
   const legs: readonly IAutoMovieFootLeg[] = props.legs ?? DEFAULT_LEGS;
-  const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
   if (!Number.isFinite(tolerance) || tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
   if (typeof props.groundY === "number" && !Number.isFinite(props.groundY))
     throw new Error("source ground height must be finite");
-  if (!Number.isFinite(sampleRate) || sampleRate <= 0)
+  if (
+    props.sampleRate !== undefined &&
+    (!Number.isFinite(props.sampleRate) || props.sampleRate <= 0)
+  )
     throw new Error(
-      `sampleRate must be a finite number > 0, but was ${sampleRate}`,
+      `sampleRate must be a finite number > 0, but was ${props.sampleRate}`,
     );
 
   const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(
@@ -84,10 +84,23 @@ export const plantStanceFeet: (
         legs.map((leg: IAutoMovieFootLeg): AutoMovieHumanoidBone => leg.foot),
       ),
     );
-  const times: number[] = sampleTimes(props.motion.duration, sampleRate);
+  const support: typeof props.support = props.support;
+  const times: number[] = sampleStanceTimes(
+    props.motion.duration,
+    props.sampleRate,
+    support?.boundaries,
+  );
   const poses: IAutoMovieMotionSample[] = times.map(
     (time: number): IAutoMovieMotionSample => sampleMotion(props.motion, time),
   );
+  if (support !== undefined)
+    poses.forEach((sampled: IAutoMovieMotionSample, i: number): void => {
+      support.at(
+        times[i]!,
+        sampled.pose.root?.translation ?? { x: 0, y: 0, z: 0 },
+        "root",
+      );
+    });
   const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>[] =
     poses.map(
       (
@@ -113,6 +126,7 @@ export const plantStanceFeet: (
       resolved,
       times,
       groundAt,
+      support,
       tolerance,
       openingTargets: new Map(
         (props.openingPlants ?? []).map(

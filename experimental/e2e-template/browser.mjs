@@ -101,8 +101,24 @@ const host = await AutoMovieCaptureHost.open({
 });
 try {
   const session = await host.session({ subject: "starter", props: null });
-  await session.close();
-  console.log("draw page: installed SDK initialized");
+  try {
+    const frames = await session.frame(1, ["beauty", "depth"]);
+    for (const { pass, picture } of frames) {
+      assert.deepEqual([picture.width, picture.height], [640, 360]);
+      assert.ok(
+        picture.pixels.some(
+          (value, index, pixels) =>
+            index % 4 !== 3 && value !== pixels[index % 4],
+        ),
+        `the compiled installed room draws visible geometry in ${pass}`,
+      );
+    }
+  } finally {
+    await session.close();
+  }
+  console.log(
+    "draw page: compiled installed room rendered in beauty and depth",
+  );
 } finally {
   await host.close();
 }

@@ -11,6 +11,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { seededValue } from "../math/seededValue";
+import { surfaceHeightAt } from "../space/surfaceHeightAt";
 import { selectInstancePrototype } from "./selectInstancePrototype";
 
 /**
@@ -20,6 +21,8 @@ import { selectInstancePrototype } from "./selectInstancePrototype";
  * frame and turned by the set's heading about its anchor. A route member takes
  * its ground-plan point from the route snapshot, spaced by arc length and
  * pushed sideways by its seeded jitter, and stands at the anchor's height.
+ * A scatter disk with a ground rule reads the placed world's height at each
+ * slot and adds the authored anchor Y offset.
  * Scale, palette, traits, prototype, rotation and visibility are drawn from the
  * set seed and the slot, each under its own salt, and an explicit block
  * overrides what it states. A set that declares no prototype table, no lattice
@@ -41,7 +44,7 @@ import { selectInstancePrototype } from "./selectInstancePrototype";
  * preserving the compiled laws and route snapshot reproduce that admitted state.
  * Route placement uses temporary storage proportional to waypoint count.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Use independent seed salts for layout jitter, prototype, palette, traits and transform variation, then compose placement laws into one deterministic member. Along-route uses arc-length slot midpoints and earlier-segment ties; validated weights/dimensions and representable arithmetic are premises.
+ * @evidence contracts/development/implementation.md#principled-implementation Use independent seed salts for layout jitter, prototype, palette, traits and transform variation, then compose placement laws into one deterministic member. Along-route uses arc-length slot midpoints and earlier-segment ties. An explicitly grounded scatter adds the shared world height at the resolved plan point. Validated weights and dimensions and representable arithmetic are premises.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One regenerator serves compact compilation and playback, with prototype choice delegated to selectInstancePrototype and route coordinates kept world-relative.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The legacy output shape is preserved for simple scalar placements without extended fields; explicit overrides are authored law, and malformed slots/routes or nonfinite generated values throw rather than yield a sample-specific fallback.
  * @evidence contracts/development/common.md#meaningful-documentation Docs give safe slot address, default-first prototype convention, metre placement, degree facing and deterministic salts; extended rotation/scale fields depend on upstream design admission.
@@ -96,6 +99,15 @@ export const instanceSlot: (
           y: instanceSet.anchor.y + point.y,
           z: instanceSet.anchor.z - point.x * sine + point.z * cosine,
         };
+  if (
+    instanceSet.layout.kind === "scatter" &&
+    instanceSet.layout.ground !== undefined
+  )
+    position.y += surfaceHeightAt(
+      { height: instanceSet.layout.ground },
+      position.x,
+      position.z,
+    );
   const traits: { [k: string]: number } = Object.fromEntries(
     instanceSet.variation.traits.map(
       (
