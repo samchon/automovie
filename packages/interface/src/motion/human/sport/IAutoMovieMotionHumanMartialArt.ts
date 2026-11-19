@@ -21,10 +21,10 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  *   ahead, then shifts back over 3 s, and the foot returns over 3 s: the
  *   slow, continuous form of tai chi (Wu and Hitt 2005).
  *
- * Forms are authored as ordered technique lists; no named form's content is
- * shipped. Not drafted: front and back stances as their own rows, blocks,
- * taekwondo's back and turning kicks, judo and wrestling (the grappling
- * owner's) and the tai chi gait.
+ * Karate and tai chi also have separate linked stance phrases. The karate
+ * phrase moves between front and back stances with paired chamber and arm
+ * placement. The tai chi phrase carries both open hands through gradual
+ * forward and backward weight transfers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -56,6 +56,9 @@ export namespace IAutoMovieMotionHumanMartialArt {
      */
     seconds?: number;
 
+    /** Leading foot of either linked stance phrase. Left when absent. */
+    lead?: "left" | "right";
+
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
   }
@@ -64,9 +67,14 @@ export namespace IAutoMovieMotionHumanMartialArt {
    * Capture cases of the martial-art techniques (#3252) from quiet standing. The techniques.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the martial-art techniques (#3252) from quiet standing. The techniques.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "horseStance", "chokuZuki", "taiChiPush" distinguish the admitted cases.
+   * @evidence contracts/development/design.md#principled-representation Closed choices distinguish the admitted held techniques and the linked stance phrases.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/martialArtCases.ts (martialArtCases).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in martialArtCases.
    */
-  export type Kind = "horseStance" | "chokuZuki" | "taiChiPush";
+  export type Kind =
+    | "horseStance"
+    | "chokuZuki"
+    | "taiChiPush"
+    | "karateStanceTransfer"
+    | "taiChiTransfer";
 }

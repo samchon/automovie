@@ -21,11 +21,11 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * The crouch takes 1.5 s (provisional): the front foot steps back to its
  * block over the first half, the rear foot over the second, while the hips
  * travel and the trunk pitches down; the set is held, and the action ends
- * at the gun. Events: `onYourMarks` (the crouch's start), `set`, `gun`.
+ * at the gun by default. With `drive`, the hands leave at the gun and the
+ * rear foot leaves before the front foot. The final contact is `blockExit`.
  *
- * Not drafted: the on-your-marks kneel with the rear knee down, the drive
- * out of the blocks (the run law's), hurdles, relays, jumps and throws (the
- * jump and throw laws' rows).
+ * The knee-down marks posture, the first free sprint stride, hurdles and
+ * relay exchanges are outside this block-start action.
  *
  * @evidence contracts/development/common.md#meaningful-documentation front: The front foot; `left` when absent. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. seconds: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation front: The front foot; `left` when absent. sex: The sprinter's sex, the stratum whose measured centre-of-mass distance the set takes (`CENTRE`); `male` when absent. seconds: Seconds held in the set; 1.5 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -54,6 +54,9 @@ export namespace IAutoMovieMotionHumanAthletics {
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;
+
+    /** Optional drive from the gun to front-block exit, in seconds. Omitted ends the action at the gun. Exclusive minimum: 0. Unit: "s". */
+    drive?: number;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

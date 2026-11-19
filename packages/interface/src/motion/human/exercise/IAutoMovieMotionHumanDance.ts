@@ -1,3 +1,4 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
@@ -34,9 +35,9 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  *   side level with it, the other closed. The square's side is a shoulder
  *   width (provisional); the feet and the hips move as in the step-touch.
  *
- * First pass: the box step has no rise and fall and no turn, and its three
- * counts are even beats, not a waltz's bar. Not drafted here: turns with
- * spotting; the partner figures are rows of other laws.
+ * The optional waltz box adds a three-beat change in height and a turn
+ * around a world-space pivot. A pair can share that pivot and a cue track,
+ * with one dancer beginning backward. This action owns foot contacts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation bpm: Beats per minute; `BPM` when absent. Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. beats: How many beats; 8 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. lock: A cue track to lock the beats to (#3340, #3378): beat `k` falls on the track's `k`-th instant named `event` (`beat` when absent) at or after the action's start, and the tempo is the mean interval of those instants, so `bpm` is not read. The track is the performance's input, never audio. Unlocked, the beats follow `bpm` from one period after the start.
  * @evidence contracts/development/design.md#principled-representation bpm: Beats per minute; `BPM` when absent. Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. beats: How many beats; 8 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. lock: A cue track to lock the beats to (#3340, #3378): beat `k` falls on the track's `k`-th instant named `event` (`beat` when absent) at or after the action's start, and the tempo is the mean interval of those instants, so `bpm` is not read. The track is the performance's input, never audio. Unlocked, the beats follow `bpm` from one period after the start.
@@ -84,6 +85,16 @@ export namespace IAutoMovieMotionHumanDance {
 
     /** The foot that steps first; `right` when absent. */
     side?: "left" | "right";
+
+    /** Waltz timing and travel for the box step. Omitted keeps the basic square. */
+    waltz?: {
+      /** Signed rotation through the last beat, in degrees. Defaults to zero. */
+      turn?: number;
+      /** Shared pivot in world metres. Omitted uses this performer's starting origin. */
+      pivot?: IAutoMovieVector3;
+      /** Step back on beat one, for the dancer facing the forward-stepping role. */
+      reverse?: boolean;
+    };
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

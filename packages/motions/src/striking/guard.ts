@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  minimumJerk,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -102,9 +107,13 @@ export namespace guard {
         channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieMotionHumanPosture => geometry().posture(
-        Math.min(duration, Math.max(0, seconds)), channels, resolution, projection,
-      ),
+      ): IAutoMovieMotionHumanPosture =>
+        geometry().posture(
+          Math.min(duration, Math.max(0, seconds)),
+          channels,
+          resolution,
+          projection,
+        ),
       settle: (): void => {
         built = undefined;
       },
@@ -125,7 +134,10 @@ export namespace guard {
     duration: number,
   ): IGeometry {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...entry.joints,
+      ...StrikingStance.joints(entry.joints),
+    };
     const lead: "left" | "right" =
       context.params.stance === undefined
         ? StrikingTarget.lead(context.entry)
@@ -169,7 +181,14 @@ export namespace guard {
 
     // The stance laid back along the line from a faced person's guard it
     // would enter (`StrikingGuardYield`).
-    const laid: IGeometry = lay(context, duration, joints, stance, from, centre);
+    const laid: IGeometry = lay(
+      context,
+      duration,
+      joints,
+      stance,
+      from,
+      centre,
+    );
     const back: IAutoMovieVector3 | null = StrikingGuardYield.back(
       context,
       laid.posture(SET),
@@ -229,8 +248,13 @@ export namespace guard {
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
-    const rotations: Partial<Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>>> = {};
-    const foot = (side: "left" | "right", t: number): IAutoMovieMotionHumanFoot.IPlacement => {
+    const rotations: Partial<
+      Record<"left" | "right", ReturnType<typeof Quaternion.prepareSlerp>>
+    > = {};
+    const foot = (
+      side: "left" | "right",
+      t: number,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       if (!moving[side]) return from[side];
       const [a, b] = window[side];
       const s: number = minimumJerk.share((t - a) / (b - a));
@@ -239,8 +263,9 @@ export namespace guard {
         to[side].ankle,
         s,
       );
-      const rotation: ReturnType<typeof Quaternion.prepareSlerp> = rotations[side] ??=
-        Quaternion.prepareSlerp(from[side].rotation, to[side].rotation);
+      const rotation: ReturnType<typeof Quaternion.prepareSlerp> = (rotations[
+        side
+      ] ??= Quaternion.prepareSlerp(from[side].rotation, to[side].rotation));
       return {
         ankle: { ...ankle, y: ankle.y + lift * 4 * s * (1 - s) },
         rotation: rotation(s),
@@ -278,7 +303,8 @@ export namespace guard {
       ];
     });
     const bounce: number = Math.abs(sunk) / 3;
-    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead });
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> =
+      StrikingStance.prepareGuard(body, { lead }, {}, context.params.style);
     return {
       contacts,
       posture: (
@@ -287,7 +313,8 @@ export namespace guard {
         source?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
+        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution(source);
         const s: number = minimumJerk.share(t / SET);
         const fade: number =
           s * (1 - minimumJerk.share((t - (duration - 0.2)) / 0.2));
@@ -312,7 +339,10 @@ export namespace guard {
           },
           limbs: {},
         };
-        const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+        const feet: Record<
+          "left" | "right",
+          IAutoMovieMotionHumanFoot.IPlacement
+        > = {
           left: foot("left", t),
           right: foot("right", t),
         };
@@ -331,7 +361,11 @@ export namespace guard {
           resolveHumanPosture.KNEE,
           resolution,
         );
-        const hands: ReturnType<typeof StrikingStance.guard> = guardAt(lowered, resolution, projection);
+        const hands: ReturnType<typeof StrikingStance.guard> = guardAt(
+          lowered,
+          resolution,
+          projection,
+        );
         return {
           ...lowered,
           limbs: { ...lowered.limbs, ...blendArms(context, hands, s) },
@@ -346,7 +380,10 @@ export namespace guard {
     hands: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm">,
     s: number,
   ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
-    const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
+    const out: Pick<
+      IAutoMovieMotionHumanPosture["limbs"],
+      "leftArm" | "rightArm"
+    > = {};
     for (const arm of ["leftArm", "rightArm"] as const) {
       const to: IAutoMovieHumanLimbGoal = hands[arm]!;
       const from: IAutoMovieHumanLimbGoal | undefined =

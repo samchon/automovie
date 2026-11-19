@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanGuard,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingStance,
   IAutoMovieResolvedBone,
@@ -26,6 +27,8 @@ import { StrikingStance } from "./StrikingStance";
  * @param drop Each glove's downward displacement, metres.
  * @param posed Optional trunk frames already read from this exact body/posture.
  * @param resolution Optional exact FK reader borrowed only by this synchronous evaluation.
+ * @param style The authored sporting guard. When absent, use the original open guard.
+ * @param leadBlend From the named lead (zero) to the other lead (one).
  * @returns The two actual world-metre glove goals.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States current-body ownership, lead/rear placement, metre units and exact borrowed-frame/reader premises.
@@ -43,22 +46,39 @@ export function StrikingGuard(
   drop: Partial<Record<"left" | "right", number>>,
   posed?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  style?: IAutoMovieMotionHumanGuard.Style,
+  leadBlend: number = 0,
 ): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
-  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = posed ?? StrikingBody.trunk(
-    body, posture, resolution, StrikingGuardBones(body),
-  );
+  const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    posed ??
+    StrikingBody.trunk(body, posture, resolution, StrikingGuardBones(body));
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-  const faceFrame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, "face");
-  const forward: IAutoMovieVector3 = horizontal(resolveAutoMovieHumanoidSurfaces.normal(faceFrame, bones.get(faceFrame.bone)!));
+  const faceFrame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(
+    body,
+    "face",
+  );
+  const forward: IAutoMovieVector3 = horizontal(
+    resolveAutoMovieHumanoidSurfaces.normal(
+      faceFrame,
+      bones.get(faceFrame.bone)!,
+    ),
+  );
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const out: Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> = {};
+  const out: Pick<
+    IAutoMovieMotionHumanPosture["limbs"],
+    "leftArm" | "rightArm"
+  > = {};
   for (const side of ["left", "right"] as const) {
     const lead: boolean = side === stance.lead;
     const jaw: ReturnType<typeof StrikingBody.region> = StrikingBody.region(
-      body, bones, side === "left" ? "jawLeft" : "jawRight",
+      body,
+      bones,
+      side === "left" ? "jawLeft" : "jawRight",
     );
     const outward: IAutoMovieVector3 = horizontal(jaw.normal);
-    const shoulder: IAutoMovieVector3 = bones.get(`${side}UpperArm`)!.worldPosition;
+    const shoulder: IAutoMovieVector3 = bones.get(
+      `${side}UpperArm`,
+    )!.worldPosition;
 
     // The guard of a striker who faces kicks as well as punches: the rear
     // hand "as if holding a phone to your ear and then pushed forward just in
@@ -87,19 +107,50 @@ export function StrikingGuard(
     //   inside each other at the kick's range.
     const near: number = 2 * m.forearmRadius + 0.25 * m.forearm;
     const ear: IAutoMovieVector3 = StrikingBody.region(
-      body, bones, side === "left" ? "earLeft" : "earRight",
+      body,
+      bones,
+      side === "left" ? "earLeft" : "earRight",
     ).point;
-    const beside: number = lead
-      ? Vector3.dot(Vector3.subtract(shoulder, jaw.point), outward)
-      : Math.max(0, Vector3.dot(Vector3.subtract(ear, jaw.point), outward)) + m.forearmRadius;
+    // A close boxing guard brings the gloves toward the jaw. Half a radius
+    // of clearance is a provisional visual choice in body-relative units.
+    const boxing: boolean = style === "boxing";
+    const leading: number = lead ? 1 - leadBlend : leadBlend;
+    const outsideEar: number =
+      boxing || leading < 1
+        ? Math.max(0, Vector3.dot(Vector3.subtract(ear, jaw.point), outward))
+        : 0;
+    const inFrontOfShoulder: number =
+      !boxing && leading > 0
+        ? Vector3.dot(Vector3.subtract(shoulder, jaw.point), outward)
+        : 0;
+    const beside: number = boxing
+      ? outsideEar + m.forearmRadius * (0.5 - leading)
+      : inFrontOfShoulder * leading +
+        (outsideEar + m.forearmRadius) * (1 - leading);
     const fistAt: IAutoMovieVector3 = Vector3.add(
-      Vector3.add({ ...jaw.point, y: ear.y }, Vector3.scale(outward, beside)),
-      Vector3.scale(forward, near),
+      Vector3.add(
+        { ...jaw.point, y: boxing ? 0.5 * (ear.y + jaw.point.y) : ear.y },
+        Vector3.scale(outward, beside),
+      ),
+      Vector3.scale(forward, boxing ? near - 0.5 * m.forearmRadius : near),
     );
-    const sag: IAutoMovieVector3 = { ...fistAt, y: fistAt.y - (drop[side] ?? 0) };
-    const bend: IAutoMovieVector3 = Vector3.add(shoulder,
-      Vector3.add(Vector3.scale(up, -0.8 * m.upperArm), Vector3.scale(forward, 0.5 * m.upperArm)));
-    out[side === "left" ? "leftArm" : "rightArm"] = StrikingStance.glove(body, side, sag, bend);
+    const sag: IAutoMovieVector3 = {
+      ...fistAt,
+      y: fistAt.y - (drop[side] ?? 0),
+    };
+    const bend: IAutoMovieVector3 = Vector3.add(
+      shoulder,
+      Vector3.add(
+        Vector3.scale(up, -0.8 * m.upperArm),
+        Vector3.scale(forward, 0.5 * m.upperArm),
+      ),
+    );
+    out[side === "left" ? "leftArm" : "rightArm"] = StrikingStance.glove(
+      body,
+      side,
+      sag,
+      bend,
+    );
   }
   return out;
 }

@@ -13,16 +13,16 @@ import {
 /**
  * A shortboard lying flat on the ground, its length along `Z` and its nose toward `-Z`.
  *
- * It is one of the maker's three boards read, whole: the model given, or one drawn from the seed. `deck` is its top, the surface the feet stand on and the chest lies on; `rail` its `+X` edge at its middle and half its thickness, where a hand carries it under the arm. Riding it is balance on a moving support, which no motion law covers yet (#3468 N11), so it is built for static use and carrying.
+ * It is one of the maker's three boards read, whole: the model given, or one drawn from the seed. `deck` is its top, the surface the feet stand on and the chest lies on. `frontStance` and `rearStance` mark provisional foot sites at one fifth of the board's length to either side of the middle. `rail` is the carry grip on the `+X` edge. Both lower rail lines can be sampled on a moving prop.
  *
  * @param params The board and any dimension the author fixes.
  * @param seed The seed that draws the board when it is not given and every dimension left free inside its band; absent, the first board and the middle of each band.
  * @returns The board.
  * @throws {ArchetypeRefusal} For a board the chart does not list, or a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the board lies, how its model is chosen, its contacts and its static use with the missing law.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the board lies, how its model is chosen and what each contact represents.
  * @evidence contracts/development/implementation.md#principled-implementation One of the chart's three boards whole, its length, width and thickness as the chart gives them; the deck on top and the rail at the board's widest point.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the board, draw the mass, one part, two contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the board, draw the mass, then place the deck, stance and rail readings from its dimensions.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No board between the chart's rows is made; the board is a box: no outline, rocker or fins.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One part.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -89,6 +89,33 @@ export function createSurfboard(
     grip: "power",
     aperture: thickness,
   });
+  for (const [id, sign] of [
+    ["frontStance", -1],
+    ["rearStance", 1],
+  ] as const)
+    builder.affordance({
+      id,
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, thickness, (sign * length) / 5)),
+      extent: null,
+      width,
+      depth: length / 5,
+    });
+  for (const [id, sign] of [
+    ["leftRail", 1],
+    ["rightRail", -1],
+  ] as const)
+    builder.affordance({
+      id,
+      kind: "ledge",
+      frame: ArchetypeFrame.facing(
+        v((sign * width) / 2, 0, 0),
+        v(0, 1, 0),
+        v(0, 0, -sign),
+      ),
+      extent: null,
+      length,
+    });
   return builder.build(d.mass!);
 }
 
@@ -146,8 +173,16 @@ export namespace createSurfboard {
    *
    * - `deck`: the top, the surface the feet and the chest meet.
    * - `rail`: the `+X` edge at the board's middle and half its thickness, a handle whose `+X` runs along the edge and whose aperture is the thickness.
+   * - `frontStance`, `rearStance`: provisional deck sites for the feet.
+   * - `leftRail`, `rightRail`: the lower long edges for pose readings.
    */
-  export type Affordance = "deck" | "rail";
+  export type Affordance =
+    | "deck"
+    | "rail"
+    | "frontStance"
+    | "rearStance"
+    | "leftRail"
+    | "rightRail";
 
   /** The parameters: the board, and the mass fixed to a value inside its band. */
   export interface IParams extends Partial<Record<"mass", number>> {

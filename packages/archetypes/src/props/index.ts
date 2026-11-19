@@ -13,6 +13,7 @@ export * from "./createPourVessel";
 export * from "./createScenicContainer";
 export * from "./createScenicParadeBanner";
 export * from "./createScenicStandard";
+export * from "./createStageBladeProp";
 export * from "./createStageWeaponProp";
 export * from "./createSmoking";
 export * from "./createStationery";

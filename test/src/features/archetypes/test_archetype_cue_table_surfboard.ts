@@ -1,8 +1,13 @@
 import {
+  ArchetypeFrame,
   ArchetypeUnits,
   createCueTable,
   createSurfboard,
 } from "@automovie/archetypes";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -15,8 +20,8 @@ const MM: number = 1e-3;
  * A pool table is the WPA's 9 ft table and a surfboard is one of the maker's 5'10, 6'0 and 6'2 boards, whole.
  *
  * Scenarios:
- * 1. A pool table's bed is 100 by 50 in within the rule's 1/8 in, 29 1/4 to 31 in up; its cushions' nose lines stand 62 1/2 to 64 1/2% of a 2 1/4 in ball over the bed along the bed's four edges, each facing out; its rails are 4 to 7 1/2 in wide.
- * 2. Each surfboard given is its chart row, 5'10 x 18.75 x 2.36, 6'0 x 19.18 x 2.40 or 6'2 x 19.50 x 2.50 in, its deck its top and its rail on its `+X` edge; over 200 seeds every board drawn is one of the three exactly, and all three are drawn.
+ * 1. A pool table's bed is 100 by 50 in within the rule's 1/8 in, 29 1/4 to 31 in up; its cushions' nose lines stand 62 1/2 to 64 1/2% of a 2 1/4 in ball over the bed. Each named rail ledge spans the length of its own cushion segment next to the pockets.
+ * 2. Each surfboard given is its chart row, 5'10 x 18.75 x 2.36, 6'0 x 19.18 x 2.40 or 6'2 x 19.50 x 2.50 in, its deck its top and its rail on its `+X` edge. Both lower rail lines reach from nose to tail. Over 200 seeds every board drawn is one of the three exactly, and all three are drawn.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts; a table or board off its source is caught with the numbers.
  * @evidence contracts/development/testing.md#independent-expectations Every figure is the WPA's or the maker's restated here.
@@ -98,6 +103,25 @@ export function test_archetype_cue_table_surfboard(): void {
       (axis === "x" ? width : length) / 2,
     );
   }
+  for (const [id, part, axis] of [
+    ["leftRail", "rail-left", "z"],
+    ["rightRail", "rail-right", "z"],
+    ["headRail", "rail-head", "x"],
+    ["footRail", "rail-foot", "x"],
+  ] as const) {
+    const rail: IAutoMovieAffordance = table.affordance(id);
+    const drawn: ReturnType<typeof archetypeExtent> = archetypeExtent(
+      table,
+      axis,
+      [part],
+    );
+    near(
+      `${id} is centred on its drawn cushion`,
+      rail.frame.translation[axis],
+      (drawn.low + drawn.high) / 2,
+    );
+    near(`${id} stops at the cushion ends`, rail.length!, drawn.size);
+  }
 
   // 2. The surfboard.
   const chart: readonly (readonly [
@@ -146,6 +170,23 @@ export function test_archetype_cue_table_surfboard(): void {
       board.affordance("rail").frame.translation.x,
       width / 2,
     );
+    for (const [id, sign] of [
+      ["leftRail", 1],
+      ["rightRail", -1],
+    ] as const) {
+      const edge: IAutoMovieAffordance = board.affordance(id);
+      const tangent: IAutoMovieVector3 = ArchetypeFrame.axis(edge.frame, "x");
+      near(
+        `board ${size}: ${id} lies on the board side`,
+        edge.frame.translation.x,
+        (sign * width) / 2,
+      );
+      near(
+        `board ${size}: ${id} runs from nose to tail`,
+        Math.abs(tangent.z) * edge.length!,
+        length,
+      );
+    }
   }
   const drawn: Set<string> = new Set();
   for (let seed: number = 0; seed < 200; seed++) {

@@ -21,7 +21,9 @@ import { catchObject } from "./catchObject";
  * anchored launch first through the proposed catch time, then use
  * `registered("stageCatch", { from, ball })` on the catcher. A portable
  * drag-free prop must reach the base law's interception point on its
- * actual flight before this law gives its grip custody of the prop.
+ * actual flight before this law gives its grip custody of the prop. An
+ * authored `intercept` reads that flight at release plus its seconds,
+ * including any intervening rebound, and uses the same arm planner.
  * The source window supplies the provisional planning horizon. Final flight
  * admission checks that the launch survives and its frame matches the grip.
  *
@@ -30,15 +32,15 @@ import { catchObject } from "./catchObject";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the catch's parameter and plan types plus the prop reader's public placement. The film and hand carry still belong to the performance.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No second catch trajectory, grip proxy or special body model. The opt-in law admits a staged capture only where its existing arm plan and the authoritative prop trajectory agree.
  */
-export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCatchObject.IParams> =
+export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCatchObject.IStageParams> =
   {
     ...catchObject,
     name: "stageCatch",
     family: catchObject.name,
     plan: (
-      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
+      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,
     ): IAutoMovieMotionHumanCatchObject.IPlan => {
-      const { ball, from }: IAutoMovieMotionHumanCatchObject.IParams =
+      const { ball, from }: IAutoMovieMotionHumanCatchObject.IStageParams =
         context.params;
       const source: IAutoMovieMotionHumanPlacedAction = context.action(from);
       const launches: readonly IAutoMovieMotionPropLaunch[] =
@@ -71,10 +73,69 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
           fix: "use a prop whose motion is driven by its launch",
         });
 
-      const plan: IAutoMovieMotionHumanCatchObject.IPlan =
-        catchObject.plan(context);
-      const contact: number | undefined = plan.contact;
       const released: number = source.start + launch.seconds;
+      const specified: number | undefined = context.params.intercept;
+      const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
+      const centre = (frame: IAutoMovieRigidTransform): IAutoMovieVector3 =>
+        HumanBall.placed(model, (): IAutoMovieRigidTransform => frame, "ball")
+          .centre;
+      let interception: catchObject.IInterception | undefined;
+      let approach: IAutoMovieMotionHumanPropReader.IFlightApproach | undefined;
+      if (specified !== undefined) {
+        const at: number = released + specified;
+        if (
+          !Number.isFinite(at) ||
+          !(specified > 0) ||
+          at > source.end ||
+          !(at > context.start)
+        )
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "intercept",
+            value: specified,
+            reason:
+              "the prop must be on the anchored launch during the placed interception",
+            fix: "give positive seconds after release within the source and catcher windows",
+          });
+        const previous: number = at - Math.min((at - released) / 2, 1e-4);
+        approach = reader.flightApproach?.(at, previous);
+        if (approach?.launch !== launch)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "from",
+            value: from,
+            reason: "the anchored launch must own the prop at interception",
+            fix: "place the catch before another grip or launch takes the prop",
+          });
+        const expected: IAutoMovieVector3 = centre(approach.frame);
+        const movement: IAutoMovieVector3 = Vector3.subtract(
+          expected,
+          centre(approach.before),
+        );
+        if (!(Vector3.length(movement) > 0))
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "intercept",
+            value: specified,
+            reason: "the ball has already come to rest at interception",
+            fix: "intercept the ball in motion, or pick it up after it settles",
+          });
+        interception = {
+          contact: at - context.start,
+          speed: Vector3.scale(movement, 1 / (at - previous)),
+          before: (seconds: number): IAutoMovieVector3 =>
+            seconds >= at - context.start
+              ? expected
+              : centre(
+                  reader.frame(Math.max(released, context.start + seconds)),
+                ),
+        };
+      }
+      const plan: IAutoMovieMotionHumanCatchObject.IPlan = catchObject.plan(
+        context,
+        interception,
+      );
+      const contact: number | undefined = plan.contact;
       if (
         contact === undefined ||
         released < source.entryTime ||
@@ -90,7 +151,13 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
           fix: "extend the anchored launch action through the proposed catch",
         });
 
-      if (reader.launchAt?.(context.start + contact) !== launch)
+      const placedAt: number = context.start + contact;
+      approach ??= reader.flightApproach?.(placedAt, placedAt);
+      if (
+        (approach === undefined
+          ? reader.launchAt?.(placedAt)
+          : approach.launch) !== launch
+      )
         throw new HumanRefusal({
           kind: "reach",
           axis: "from",
@@ -103,22 +170,23 @@ export const stageCatch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCat
       // The projectile campaign's parity contract bounds this difference in metres.
       const flightParity: number = 1e-6;
       const expected: IAutoMovieVector3 = plan.object(contact);
-      const model: IAutoMovieMotionHumanPropReader["prop"] = reader.prop;
+      const prepare: number | undefined =
+        specified !== undefined &&
+        launch.sphere !== undefined &&
+        context.params.glove === undefined
+          ? plan.events.find((event): boolean => event.name === "prepare")
+              ?.share
+          : undefined;
       const capture: NonNullable<IAutoMovieMotionPropHold["capture"]> = {
         launch,
+        ...(prepare === undefined
+          ? {}
+          : { handContactFrom: context.start + prepare * plan.duration }),
         matches: (frame: IAutoMovieRigidTransform): boolean =>
-          Vector3.length(
-            Vector3.subtract(
-              HumanBall.placed(
-                model,
-                (): IAutoMovieRigidTransform => frame,
-                "ball",
-              ).centre,
-              expected,
-            ),
-          ) <= flightParity,
+          Vector3.length(Vector3.subtract(centre(frame), expected)) <=
+          flightParity,
       };
-      if (!capture.matches(reader.frame(context.start + contact)))
+      if (!capture.matches(approach?.frame ?? reader.frame(placedAt)))
         throw new HumanRefusal({
           kind: "reach",
           axis: "ball",

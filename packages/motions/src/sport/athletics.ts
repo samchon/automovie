@@ -24,6 +24,7 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
+import { HumanFrame } from "../posture/HumanFrame";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { sprintStartSet } from "./sprintStartSet";
@@ -48,12 +49,15 @@ import { sprintStartSet } from "./sprintStartSet";
  *
  * The crouch takes 1.5 s (provisional): the front foot steps back to its
  * block over the first half, the rear foot over the second, while the hips
- * travel and the trunk pitches down; the set is held, and the action ends
- * at the gun. Events: `onYourMarks` (the crouch's start), `set`, `gun`.
+ * travel and the trunk pitches down. With an authored drive, the hands
+ * leave at the gun, the rear foot leaves next, and the front foot pushes
+ * to block exit. Slawinski et al. (2010, PMID 19935105) separate these
+ * phases; this pass stages the hip acceleration and rear-foot recovery
+ * while the front foot still bears. The drive's shape shares are
+ * provisional. The first airborne stride belongs to the subsequent act.
  *
- * Not drafted: the on-your-marks kneel with the rear knee down, the drive
- * out of the blocks (the run law's), hurdles, relays, jumps and throws (the
- * jump and throw laws' rows).
+ * Events: `onYourMarks`, `set`, `gun`, and when driving, `rearBlockOff`
+ * and `blockExit`. The knee-down marks posture is a separate phase.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the posture with its source, how each place derives from the body, the timing, the events and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record composed of root, leg and arm rows over one phrase.
@@ -94,7 +98,6 @@ export namespace athletics {
    */
   export const CENTRE: Readonly<Record<"female" | "male", number>> =
     sprintStartSet.CENTRE;
-
 
   /** The front block's face from the floor, degrees (provisional, within a competition block's adjustment). */
   export const FRONT_BLOCK: number = sprintStartSet.FRONT_BLOCK;
@@ -138,7 +141,7 @@ export namespace athletics {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * @throws {HumanRefusal} When the hold is negative or the optional drive is not positive.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The set position solved once; the root, the feet and the hands carried into it on one phrase.
@@ -155,6 +158,7 @@ export namespace athletics {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const hold: number = p.seconds ?? 1.5;
     HumanBound.least("seconds", hold, 0, "s");
+    if (p.drive !== undefined) HumanBound.above("drive", p.drive, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const front: "left" | "right" = p.front ?? "left";
@@ -171,27 +175,43 @@ export namespace athletics {
         prepare: CROUCH,
         attack: 0,
         hold,
-        retract: 0.001,
+        retract: p.drive ?? 0.001,
       }),
       modifiers,
     );
+    const gun: number = timed.at("relax");
+    const end: number = timed.duration;
+    const rearOff: number = gun + (end - gun) / 2;
+    const drive: (seconds: number) => number = (seconds: number): number =>
+      p.drive === undefined
+        ? 0
+        : Math.max(0, Math.min(1, (seconds - gun) / (end - gun)));
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
       timed.duration,
       [
         ...timed.instants,
         { name: "onYourMarks", seconds: 0 },
         { name: "set", seconds: timed.at("ready") },
-        { name: "gun", seconds: timed.at("relax") },
+        { name: "gun", seconds: gun },
+        ...(p.drive === undefined
+          ? []
+          : [
+              { name: "rearBlockOff", seconds: rearOff },
+              { name: "blockExit", seconds: end },
+            ]),
       ],
     );
     const ready: number = clock.at("ready");
-    const into: (seconds: number) => number =
-      AutoMovieMotionClock.prepare(clock, "start", "ready").progress;
-    // The span the arms are planned over: the reach to the place, held to the end.
+    const into: (seconds: number) => number = AutoMovieMotionClock.prepare(
+      clock,
+      "start",
+      "ready",
+    ).progress;
+    // The hands release the track at the gun and open into the drive.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
       start: clock.at("start"),
       ready: clock.at("ready"),
-      relax: clock.at("end"),
+      relax: p.drive === undefined ? end : gun,
       end: clock.at("end"),
     };
     const hipsRest: IAutoMovieVector3 = body.rest.get("hips")!;
@@ -199,14 +219,28 @@ export namespace athletics {
       entry.root,
       Quaternion.rotateVector(resolveHumanPosture.heading(entry), hipsRest),
     );
-    const hipsAt: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(standingHips, target.hips);
+    const hipsAt: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+      standingHips,
+      target.hips,
+    );
+    const ahead: IAutoMovieVector3 = HumanFrame.forward(entry.yaw);
+    const push: IAutoMovieVector3 = {
+      ...Vector3.scale(ahead, 0.12 * body.measure.stature),
+      y: 0.04 * body.measure.stature,
+    };
     const flexions: Record<"spine" | "chest", number> = {
       spine: (target.joints.spine?.[0] ?? 0) - (entry.joints.spine?.[0] ?? 0),
       chest: (target.joints.chest?.[0] ?? 0) - (entry.joints.chest?.[0] ?? 0),
     };
     const pitchDelta: number = target.pitch - entry.pitch;
-    const flexed: (joints: IAutoMovieMotionHumanPosture["joints"], bone: "spine" | "chest", share: number) => readonly [number, number, number] = (
-      joints: IAutoMovieMotionHumanPosture["joints"], bone: "spine" | "chest", share: number,
+    const flexed: (
+      joints: IAutoMovieMotionHumanPosture["joints"],
+      bone: "spine" | "chest",
+      share: number,
+    ) => readonly [number, number, number] = (
+      joints: IAutoMovieMotionHumanPosture["joints"],
+      bone: "spine" | "chest",
+      share: number,
     ): readonly [number, number, number] => {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
       return [was[0] + flexions[bone] * share, was[1], was[2]];
@@ -217,19 +251,26 @@ export namespace athletics {
         reads: ["root", "trunk"],
         from: 0,
         to: clock.duration,
-        write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
           const w: number = into(seconds);
+          const t: number = drive(seconds);
           // The spine's share of the trunk's tilt comes in with the pelvis's.
           const pitched: IAutoMovieMotionHumanPosture = {
             ...posture,
-            pitch: posture.pitch + pitchDelta * w,
+            pitch: posture.pitch + pitchDelta * w - 0.25 * target.pitch * t * t,
             joints: {
               ...posture.joints,
-              spine: flexed(posture.joints, "spine", w),
-              chest: flexed(posture.joints, "chest", w),
+              spine: flexed(posture.joints, "spine", w - 0.2 * t * t),
+              chest: flexed(posture.joints, "chest", w - 0.2 * t * t),
             },
           };
-          const hips: IAutoMovieVector3 = hipsAt(w);
+          const hips: IAutoMovieVector3 = Vector3.add(
+            hipsAt(w),
+            Vector3.scale(push, t * t),
+          );
           return {
             ...pitched,
             root: Vector3.subtract(
@@ -252,14 +293,36 @@ export namespace athletics {
         rotation: context.entry.feet[side].rotation,
       };
       const block: IAutoMovieMotionHumanFoot.IPlacement = target.feet[side];
-      const trajectory: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> = AutoMovieMotionHumanLeg.prepareArc(stance, block, 0.05 * body.measure.stature);
+      const trajectory: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
+        AutoMovieMotionHumanLeg.prepareArc(
+          stance,
+          block,
+          0.05 * body.measure.stature,
+        );
+      const recovery:
+        | ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>
+        | undefined =
+        p.drive === undefined || side === front
+          ? undefined
+          : AutoMovieMotionHumanLeg.prepareArc(
+              block,
+              {
+                ankle: Vector3.add(block.ankle, {
+                  ...Vector3.scale(ahead, 0.24 * body.measure.stature),
+                  y: 0.11 * body.measure.stature,
+                }),
+                rotation: stance.rotation,
+              },
+              0.04 * body.measure.stature,
+            );
       const half: number = ready / 2;
       const a: number = from === "start" ? 0 : half;
       const b: number = to === "half" ? half : ready;
       const share: (seconds: number) => number = (seconds: number): number => {
         return Math.min(1, Math.max(0, (seconds - a) / (b - a)));
       };
-      const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place({
+      const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place(
+        {
           body,
           side,
           from: 0,
@@ -268,26 +331,48 @@ export namespace athletics {
             _: IAutoMovieMotionHumanPosture,
             seconds: number,
           ): IAutoMovieMotionHumanFoot.IPlacement =>
-            trajectory(share(seconds)),
+            recovery !== undefined && seconds > rearOff
+              ? recovery((seconds - rearOff) / (end - rearOff))
+              : trajectory(share(seconds)),
           planted: (seconds: number): boolean => {
+            if (recovery !== undefined && seconds > rearOff) return false;
             const at: number = share(seconds);
             return at <= 0 || at >= 1;
           },
-        });
-      const toes: AutoMovieHumanoidBone = `${side}Toes`;
-      const articulated: ReturnType<typeof blendHumanJoint.between> = blendHumanJoint.between(
-        body, toes, entry.joints[toes] ?? [0, 0, 0], target.joints[toes] ?? [0, 0, 0],
+        },
       );
+      const toes: AutoMovieHumanoidBone = `${side}Toes`;
+      const articulated: ReturnType<typeof blendHumanJoint.between> =
+        blendHumanJoint.between(
+          body,
+          toes,
+          entry.joints[toes] ?? [0, 0, 0],
+          target.joints[toes] ?? [0, 0, 0],
+        );
       primitives.push({
         ...leg,
         reads: ["root", `${side}Leg`],
-        write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanPosture => {
           // The block fit placed both the rigid foot and the toe hinge.
           // Preserve that hinge as the foot lands and through its hold.
-          const moved: IAutoMovieMotionHumanPosture = leg.write(posture, seconds);
+          const moved: IAutoMovieMotionHumanPosture = leg.write(
+            posture,
+            seconds,
+          );
           return {
             ...moved,
-            joints: { ...moved.joints, [toes]: articulated(into(seconds)) },
+            joints: {
+              ...moved.joints,
+              [toes]: articulated(
+                into(seconds) *
+                  (recovery === undefined
+                    ? 1
+                    : 1 - Math.max(0, 2 * drive(seconds) - 1)),
+              ),
+            },
           };
         },
       });
@@ -300,7 +385,8 @@ export namespace athletics {
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          weight: into,
+          weight: (seconds: number): number =>
+            into(seconds) * (1 - drive(seconds)),
           span,
           place: () => target.palms[side],
           bend: "front",
@@ -312,28 +398,28 @@ export namespace athletics {
           part: "leftFoot",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
+          to: p.drive !== undefined && rear === "left" ? rearOff / end : 1,
           support: { kind: "ground" },
         },
         {
           part: "rightFoot",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
+          to: p.drive !== undefined && rear === "right" ? rearOff / end : 1,
           support: { kind: "ground" },
         },
         {
           part: "leftHand",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
+          to: p.drive === undefined ? 1 : gun / end,
           support: { kind: "ground" },
         },
         {
           part: "rightHand",
           kind: "plant",
           from: clock.at("ready") / clock.duration,
-          to: 1,
+          to: p.drive === undefined ? 1 : gun / end,
           support: { kind: "ground" },
         },
       ]),
