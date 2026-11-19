@@ -13,6 +13,7 @@ Separate speech from the mix before replacing lines or beds. Change the required
 - supports the film's sample rate and channels.
 
 Test it on the production's own takes, shouts and breaths included, and have the user listen to the separated speech.
+<!-- @source [Sound Demixing Challenge 2023](https://arxiv.org/html/2308.06981v4) evaluates film stems. [AudioShake](https://www.audioshake.ai/products/dialogue-music-effects-separation) is a commercial implementation. -->
 
 ## One bed and one score per scene
 

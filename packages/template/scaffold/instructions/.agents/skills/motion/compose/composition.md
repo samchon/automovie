@@ -25,6 +25,7 @@ For each thing a person does in the beat, settle these axes from the beat record
 Author those axes through the installed operators. Leave joint fitting and contact response to their package owners. Use the module's defaults for unspecified mechanical parameters. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
 
 Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
+<!-- @source [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
 
 Match travel to the visible steps. Carry speed through an intermediate mark on a continuing run. Give a stop or turn the support and weight transfer it needs.
 

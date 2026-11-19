@@ -2,7 +2,7 @@
 // ignores and the package publishes:
 //
 // - `generated/skills`: the repository skill items the scaffold's `$<name>`
-//   placeholders name, so a production inherits them verbatim;
+//   placeholders name, ready for expansion by the scaffold reader;
 // - `generated/pnpm-workspace.json`: the ranges of every `catalog:` reference
 //   in the scaffold's package.json files, read from the repository's own
 //   pnpm-workspace.yaml, with its build policy. The `automovie` catalog lists

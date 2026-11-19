@@ -32,10 +32,12 @@ Repair a take by its cause:
 | Drifting motion or camera | Set a stricter adherence or shorten the request |
 
 Preserve action, identity and causality through cuts. Repair framing in the hint's camera within the screenplay entry.
+<!-- @source [fal’s clay-render case study](https://blog.fal.ai/from-clay-3d-render-to-a-real-action-short-a-3d-to-ai-pipeline-with-total-control/) describes correcting the framing in the source camera. -->
 
 ### Placement in time
 
 Place takes by decoded timestamps and time base. Keep trims, retimes and rebases distinct. Preserve required material when aligning streams. Avoid truncation or silent padding that hides loss.
+<!-- @source The [FFmpeg filter guide](https://ffmpeg.org/ffmpeg-filters.html) covers trim, setpts and fps. -->
 
 Where an extension returns its input joined to the new part, place only the new part. An edit can return slightly shorter than its input, so measure it, and recheck a new take, trim or speed change against its neighbors.
 

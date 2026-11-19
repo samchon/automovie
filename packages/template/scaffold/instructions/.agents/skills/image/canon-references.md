@@ -13,6 +13,7 @@ Where the guide sets none, give each character these views, one person in each, 
 - a front full-body view, standing with the arms relaxed at the sides;
 - a face close-up with a neutral expression;
 - three-quarter, profile or back views as the shots need.
+<!-- @source [Runway’s Gen-4 reference guide](https://help.runwayml.com/hc/en-us/articles/40042718905875-Gen-4-Image-References-Guide) recommends even lighting and a neutral expression. -->
 
 Give each prop a plain-background image and each scene lighting state an empty location plate. Save each view separately.
 

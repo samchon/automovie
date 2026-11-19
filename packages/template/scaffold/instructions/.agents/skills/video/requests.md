@@ -9,6 +9,7 @@ End requests at screenplay cuts unless the model handles several shots. Disable 
 Split a long shot at a beat boundary or held pose only when the model's length requires it. Avoid splits during contact or dialogue. Time beats from the rendered hint frames.
 
 Keep requests below maximum length where possible to reduce end drift. Add and record handles at least as long as planned transitions under [project context](../production/project-context.md). Fit commissioned speech to the request under [generated sound](../audio/generated-sound.md).
+<!-- @source The [OpenTimelineIO time range guide](https://opentimelineio.readthedocs.io/en/latest/tutorials/time-ranges.html) distinguishes trimmed media from the frames a transition needs. -->
 
 ## Adherence
 

@@ -12,3 +12,4 @@ When the premise is delegated, compare materially different directions, distingu
 Record why the direction serves the work among the creative requirements.
 
 If duration is delegated, estimate from playable events and revise after performance. If fixed, choose events, people and places that fit without summarizing the intended action.
+<!-- @source [AFTRS, Screenwriting](https://medialab.aftrs.edu.au/wp-content/uploads/2021/07/AFTRS16_Screenwriting.pdf) on choosing a short film's scope to fit the production. -->

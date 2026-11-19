@@ -1,6 +1,7 @@
 # Production director
 
 The main agent directs every commission, including a single image, motion or sound. Make [creative decisions](../story/planning/direction.md) within the user's delegation. Decide whether each handoff serves the commission.
+<!-- @source [Directors UK](https://directors.uk.com/what-a-director-does) on performance and the whole film, and [ScreenSkills](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/development-film-and-tv-drama-job-profiles/director-film-and-tv-drama) on developing the script with the writer. -->
 
 ## Assignments
 

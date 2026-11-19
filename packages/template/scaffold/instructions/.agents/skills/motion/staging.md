@@ -13,6 +13,7 @@ Stage in the set's zones and landmarks, never in coordinates: each beat's spatia
 Compose each person's actions, reactions, pauses and outcomes with the installed operators. Use the action's preparation and follow-through. Add anticipation only where the screenplay decides it.
 
 Follow [living scene](../contracts/development/composition.md#living-scene) for every presence. Stage participants whose choices affect the exchange even while the camera follows someone else. Give background activity a purpose and let it settle when the scene calls for stillness. Return a missing action or response to the writer under [upstream defects](../story/correction/repair.md#upstream-defects).
+<!-- @source [DGA](https://www.dga.org/the-guild/councils/west/western-adupm-council/committees-of-the-adupm-west/standing-ad-upm-committees/first-ad-committee/setting-background) on cueing background performers. [Disney Animation](https://cdn.disneyanimation.com/uploads/publications/SIGGRAPH_2025_The_Art_of_Crowds_Animation.pdf) on directing attention within a crowd. -->
 
 Each entity has one transform owner, so a clip, an attachment and a procedural driver never fight for the same state. A reach or scale mismatch is fixed at its owner, never by changing the outcome.
 

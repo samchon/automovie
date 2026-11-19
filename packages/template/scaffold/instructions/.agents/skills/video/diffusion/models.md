@@ -19,6 +19,7 @@ Read each model's terms and usage policy before adopting it: territory limits, r
 [Gemini Omni](https://aistudio.google.com/docs/omni) edits video with reference images and a first or last frame. Wording sets adherence, and further turns extend the take.
 
 [Luma Ray](https://docs.agents.lumalabs.ai/guides/videos/editing) edits one video with keyframes, strength presets and per-signal controls for pose, depth, normals, trajectory and face. Continue from a chain frame used as the first keyframe.
+<!-- @source [Ray 3.2 video-to-video guide](https://lumalabs.ai/learning-center/articles/ray-3-2-video-to-video) documents its motion and structure controls. -->
 
 ### Layout and structural control
 

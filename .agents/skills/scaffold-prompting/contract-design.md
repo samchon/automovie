@@ -6,4 +6,4 @@ Follow [contract items](../../../packages/template/scaffold/instructions/.agents
 
 Keep H2 anchors stable. When an item or source folder moves, update callers, selectors and respondents together. Verify changed obligations afresh within the production's [closed-pass rules](../../../packages/template/scaffold/instructions/.agents/skills/story/correction/repair.md#closed-passes).
 
-Record production criteria's sources and limits in [research routes](research-routes.md). Keep project-specific criteria local. Record unverified quality claims as candidates.
+Keep project-specific criteria local. Record unverified quality claims as candidates.

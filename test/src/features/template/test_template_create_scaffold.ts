@@ -33,13 +33,14 @@ const ROOT: string = repositoryRoot();
  *    resolves through the generated catalogs: `automovie` at the template's own
  *    version, every other catalog at the repository's range.
  * 2. Only `production` and `workspace` carry the instructions and a
- *    `pnpm-workspace.yaml`, which lists packages only for `workspace`.
+ *    `pnpm-workspace.yaml`, which lists packages only for `workspace`. Both
+ *    install a cited instruction with its source note removed.
  * 3. Only `production` and `workspace-production` carry `evidence.config.ts`,
  *    which names a skills root only inside a workspace.
  * 4. A refused name throws.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public `createAutoMovieScaffold` for every kind and asserts what the function decides — the selected layers, the generated files, the name and the catalog ranges — catching a wrong kind branch, an unresolved or stale catalog entry or an unrendered name, without asserting the static scaffold text the function copies.
- * @evidence contracts/development/testing.md#independent-expectations Ranges are read from the repository's `pnpm-workspace.yaml` and the automovie range from the template's `package.json`, not from the build output the function reads.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public generator for every kind and checks the selected files, name, catalog ranges and installed guide. Leaking a citation or dropping part of the guide changes the expected output.
+ * @evidence contracts/development/testing.md#independent-expectations Ranges come from the repository catalogs and template manifest. The expected guide is the authored Markdown with its reserved source lines omitted, so its rules, links and paragraph breaks must survive installation.
  * @evidence contracts/development/testing.md#distinguishing-cases The three kinds differ in instructions, workspace file, packages and evidence configuration, and the refused name pins admission.
  * @evidence contracts/development/testing.md#execution-ownership A unit test discovered by the `test_` prefix that reads the installed template in-process and writes nothing.
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the behavior under test and lists each scenario with the property it pins.
@@ -110,6 +111,18 @@ export function test_template_create_scaffold(): void {
     "pnpm-workspace.yaml" in member,
     false,
   );
+
+  const guide: string = ".agents/skills/story/layers/notation.md";
+  const manuscript: string = fs.readFileSync(
+    path.join(ROOT, "packages/template/scaffold/instructions", guide),
+    "utf8",
+  );
+  const installed: string = manuscript
+    .split(/\r?\n/u)
+    .filter((line: string): boolean => !line.startsWith("<!-- @source "))
+    .join("\n");
+  TestValidator.equals("production guide", production[guide], installed);
+  TestValidator.equals("workspace guide", workspace[guide], installed);
 
   // 3. Evidence configuration.
   TestValidator.equals(
