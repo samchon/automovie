@@ -1,7 +1,10 @@
 import {
   Quaternion,
   decomposeJointRotation,
+  decomposeJointRotationOnBasis,
   jointToQuaternion,
+  jointToQuaternionOnBasis,
+  normalizeJointAxes,
 } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
@@ -12,9 +15,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { decomposeJointRotationOnBasis } from "../../../../packages/engine/src/kinematics/decomposeJointRotationOnBasis";
-import { jointToQuaternionOnBasis } from "../../../../packages/engine/src/kinematics/jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "../../../../packages/engine/src/kinematics/normalizeJointAxes";
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
 
@@ -32,7 +32,7 @@ import { qclose } from "../internal/qclose";
  *
  * @see https://www.isbweb.org/standards/hip.pdf
  * @evidence contracts/development/common.md#meaningful-documentation Defines the axes, analogous ISB order, signs, alias domain and scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public wrappers and internal basis readers, comparing actual products and reported angles and reconstructing the gimbal and folded attitudes.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the engine package's public wrappers and basis readers, comparing actual products and reported angles and reconstructing the gimbal and folded attitudes.
  * @evidence contracts/development/testing.md#independent-expectations Three independent principal-axis quaternions composed in the declared order supply orientation. The authored signed frame supplies exact chart coordinates and the folded interval excludes the principal reading.
  * @evidence contracts/development/testing.md#distinguishing-cases Cartesian and dense axes, both handednesses, mutable frame reads, both abduction gimbals, a near-gimbal, a folded principal angle and both legacy defaults.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable CPU-only feature uses fixed axes and an in-memory angle grid.
