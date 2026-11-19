@@ -1,6 +1,5 @@
 import { Quaternion, Vector3, prepareArticulatedRig } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
   IAutoMovieArticulatedRig,
   IAutoMovieArticulatedRigReader,
   IAutoMovieJointPose,
@@ -9,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { type Archetype, ArchetypeFrame } from "../core";
+import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
 import { QuadrupedBody } from "./QuadrupedBody";
-import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
 /** Local degree rotations without borrowing a humanoid bone slot. */
 type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
@@ -210,43 +209,6 @@ export namespace QuadrupedSkeleton {
     parts: Readonly<Record<string, QuadrupedBody.Bone>>,
     contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
   ): Archetype<Id, Dimension> {
-    const deltas: ReadonlyMap<QuadrupedBody.Bone, ArchetypeFrame.IMotion> =
-      QuadrupedRigDelta.between(rest, posed);
-    const identities: Map<string, QuadrupedBody.Bone> = new Map(
-      [...deltas.keys()].map(
-        (bone: QuadrupedBody.Bone): [string, QuadrupedBody.Bone] => [
-          bone,
-          bone,
-        ],
-      ),
-    );
-    const moved: IAutoMovieModelPart[] = animal.parts.map(
-      (part: IAutoMovieModelPart): IAutoMovieModelPart => {
-        const bone: QuadrupedBody.Bone | undefined =
-          identities.get(part.id) ?? parts[part.id];
-        const frame: IAutoMovieTransform =
-          part.transform ?? ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
-        return {
-          ...structuredClone(part),
-          transform: QuadrupedRigDelta.move(frame, bone, deltas, part.id),
-        };
-      },
-    );
-    const frames: Map<string, IAutoMovieTransform> = new Map(
-      animal.affordances.map(
-        (contact: IAutoMovieAffordance): [string, IAutoMovieTransform] => {
-          return [
-            contact.id,
-            QuadrupedRigDelta.move(
-              contact.frame,
-              contacts[contact.id],
-              deltas,
-              contact.id,
-            ),
-          ];
-        },
-      ),
-    );
-    return animal.reposed(moved, frames);
+    return ApplyQuadrupedCarrierPose.emit(animal, rest, posed, parts, contacts);
   }
 }

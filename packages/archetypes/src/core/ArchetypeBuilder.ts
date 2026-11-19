@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Archetype } from "./Archetype";
+import type { Archetype } from "./Archetype";
 import { ArchetypeBuilderParts } from "./ArchetypeBuilderParts";
 import type { ArchetypeBuilderTypes } from "./ArchetypeBuilderTypes";
 import { ArchetypeConvexCell } from "./ArchetypeConvexCell";
@@ -21,6 +21,7 @@ import { ArchetypeMass } from "./ArchetypeMass";
 import { ArchetypeMaterial } from "./ArchetypeMaterial";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import { archetypeSpanAnchor } from "./archetypeSpanAnchor";
+import { buildNativeArchetype } from "./buildNativeArchetype";
 
 /**
  * What every producer assembles an archetype with: dimensioned primitives, actual convex cells or visual meshes, the affordances an act reads, and the total mass.
@@ -417,7 +418,7 @@ export class ArchetypeBuilder<Id extends string, Dimension extends string> {
             contact.ground ?? ArchetypeFriction.GROUND,
             this.#props.draw.archetype,
           );
-    return new Archetype<Id, Dimension>({
+    return buildNativeArchetype<Id, Dimension>({
       archetype: this.#props.draw.archetype,
       id: this.#props.id ?? this.#props.draw.archetype,
       name: this.#props.name,

@@ -9,6 +9,7 @@ import {
   ArchetypeRefusal,
   ArchetypeRide,
 } from "../core";
+import { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
@@ -19,6 +20,9 @@ import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
 import { createQuadruped } from "./createQuadruped";
+
+/** An altered public course producer retains its original opaque route. */
+const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
 
 /**
  * A quadruped going along a course: its root on the path, its trunk rising and falling and its head nodding with the stride, its four limbs stepping in the gait's order, and its gait and lead changing with the speed or as the course's legs name them. Every kind is ridden by this one function, from its species' data (`createQuadruped.species`).
@@ -100,6 +104,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const rig: ReturnType<typeof QuadrupedJoints.read> = QuadrupedJoints.read(
     animal.parts,
   );
+  const nativeCourse: boolean =
+    Object.getOwnPropertyDescriptor(ArchetypeCourse, "plan")?.value ===
+    NATIVE_PLAN;
   const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan(
     species.archetype,
     course,
@@ -329,92 +336,100 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const pose: QuadrupedRidePose.IPrepared<
     Affordance,
     D | QuadrupedBody.Dimension
-  > = QuadrupedRidePose.prepare(animal, species, rig);
-  return ArchetypeRide.along(
-    animal,
-    plan,
-    (
-      state: ArchetypeCourse.IState,
-    ): ArchetypeRide.IPose<Affordance, D | QuadrupedBody.Dimension> => {
-      const phase: number = phaseAt(plan.when(state.distance));
-      const now: QuadrupedGait.Gait = strideOf(Math.floor(phase)).gait;
-      const going: number = Math.min(
-        1,
-        state.speed / QuadrupedGait.range(species, now, withers).minimum,
+  > = QuadrupedRidePose.prepare(animal, species, rig, nativeCourse);
+  /** Read the actual course and derive the four current footprint demands before any geometry sharing. */
+  const posed = (
+    state: ArchetypeCourse.IState,
+    witness?: ArchetypeRideWitness.Witness,
+  ): ArchetypeRide.IPose<Affordance, D | QuadrupedBody.Dimension> => {
+    const phase: number = phaseAt(plan.when(state.distance));
+    const now: QuadrupedGait.Gait = strideOf(Math.floor(phase)).gait;
+    const going: number = Math.min(
+      1,
+      state.speed / QuadrupedGait.range(species, now, withers).minimum,
+    );
+
+    // The trunk sinks as many times a stride as the gait has beats.
+    const sink: number =
+      ((going * QuadrupedGait.of(species, now).bob * withers) / 2) *
+      (1 - Math.cos(2 * Math.PI * QuadrupedGait.BEATS[now] * phase));
+    const goals: Map<QuadrupedBody.Limb, QuadrupedRidePose.IGoal> = new Map();
+    for (const limb of QuadrupedBody.LIMBS) {
+      const fore: boolean = limb.endsWith("Fore");
+      const end: "fore" | "hind" = fore ? "fore" : "hind";
+      const rest: readonly IAutoMovieVector3[] = rig.limbs[limb];
+
+      // The stance this foot is in or has just left, and the next one it swings to.
+      let m: number = Math.floor(phase);
+      if (landing(limb, m) > phase) m--;
+      const landed: number = landing(limb, m);
+      const coming: number = landing(limb, m + 1);
+      const which: QuadrupedGait.IGait = QuadrupedGait.of(
+        species,
+        strideOf(m).gait,
       );
+      const local: number = phase - landed;
+      const current: { duty: number; from: number; travel: number } = stance(
+        landed,
+        strideOf(m).gait,
+        fore,
+      );
+      const planted: boolean = local < current.duty;
+      const swing: number = planted
+        ? 0
+        : (local - current.duty) / (coming - landed - current.duty);
+      const path: { along: number; rise: number } =
+        QuadrupedMotion.swing(swing);
 
-      // The trunk sinks as many times a stride as the gait has beats.
-      const sink: number =
-        ((going * QuadrupedGait.of(species, now).bob * withers) / 2) *
-        (1 - Math.cos(2 * Math.PI * QuadrupedGait.BEATS[now] * phase));
-      const goals: Map<QuadrupedBody.Limb, QuadrupedRidePose.IGoal> = new Map();
-      for (const limb of QuadrupedBody.LIMBS) {
-        const fore: boolean = limb.endsWith("Fore");
-        const end: "fore" | "hind" = fore ? "fore" : "hind";
-        const rest: readonly IAutoMovieVector3[] = rig.limbs[limb];
+      // Planted, the foot goes back through the model by what the body has travelled since it landed, half the stance's travel ahead of its rest place at the landing; swinging, it is brought from where it lifted to where it lands next by the minimum-jerk path, clearing the ground by the swing's lift at the middle.
+      const ahead: number = planted
+        ? current.travel / 2 - (state.distance - current.from)
+        : -current.travel / 2 +
+          ((current.travel +
+            stance(coming, strideOf(m + 1).gait, fore).travel) /
+            2) *
+            path.along;
+      goals.set(limb, {
+        z: rest[4]!.z + ahead,
+        lift: going * which.lift[end] * withers * path.rise,
+        fold: going * which.fold[end] * path.rise,
+      });
+    }
 
-        // The stance this foot is in or has just left, and the next one it swings to.
-        let m: number = Math.floor(phase);
-        if (landing(limb, m) > phase) m--;
-        const landed: number = landing(limb, m);
-        const coming: number = landing(limb, m + 1);
-        const which: QuadrupedGait.IGait = QuadrupedGait.of(
-          species,
-          strideOf(m).gait,
-        );
-        const local: number = phase - landed;
-        const current: { duty: number; from: number; travel: number } = stance(
-          landed,
-          strideOf(m).gait,
-          fore,
-        );
-        const planted: boolean = local < current.duty;
-        const swing: number = planted
-          ? 0
-          : (local - current.duty) / (coming - landed - current.duty);
-        const path: { along: number; rise: number } =
-          QuadrupedMotion.swing(swing);
-
-        // Planted, the foot goes back through the model by what the body has travelled since it landed, half the stance's travel ahead of its rest place at the landing; swinging, it is brought from where it lifted to where it lands next by the minimum-jerk path, clearing the ground by the swing's lift at the middle.
-        const ahead: number = planted
-          ? current.travel / 2 - (state.distance - current.from)
-          : -current.travel / 2 +
-            ((current.travel +
-              stance(coming, strideOf(m + 1).gait, fore).travel) /
-              2) *
-              path.along;
-        goals.set(limb, {
-          z: rest[4]!.z + ahead,
-          lift: going * which.lift[end] * withers * path.rise,
-          fold: going * which.fold[end] * path.rise,
-        });
-      }
-
-      // The neck and the head, with the tack the species names as riding them, pitch about the neck's root, timed to the footfalls as declared.
-      const nod: number =
-        going *
-        QuadrupedMotion.nod(
-          species,
-          strideOf(Math.floor(phase)),
-          phase,
-          clock.timing(now, plan.when(state.distance)).duty,
-        );
-      return {
-        archetype: pose.sample(
-          {
-            leftFore: goals.get("leftFore")!,
-            rightFore: goals.get("rightFore")!,
-            leftHind: goals.get("leftHind")!,
-            rightHind: goals.get("rightHind")!,
-          },
-          nod,
-          -sink,
-        ),
-        placement: copied(state.placement),
-      };
-    },
-    instants,
-  );
+    // The neck and the head, with the tack the species names as riding them, pitch about the neck's root, timed to the footfalls as declared.
+    const nod: number =
+      going *
+      QuadrupedMotion.nod(
+        species,
+        strideOf(Math.floor(phase)),
+        phase,
+        clock.timing(now, plan.when(state.distance)).duty,
+      );
+    return {
+      archetype: pose.sample(
+        {
+          leftFore: goals.get("leftFore")!,
+          rightFore: goals.get("rightFore")!,
+          leftHind: goals.get("leftHind")!,
+          rightHind: goals.get("rightHind")!,
+        },
+        nod,
+        -sink,
+        witness,
+      ),
+      placement: copied(state.placement),
+    };
+  };
+  if (nativeCourse)
+    ArchetypeRideWitness.authorize(
+      posed,
+      plan,
+      (seconds: number, witness: ArchetypeRideWitness.Witness) => {
+        const state: ArchetypeCourse.IState = plan.at(seconds);
+        return { ...posed(state, witness), course: state };
+      },
+    );
+  return ArchetypeRide.along(animal, plan, posed, instants);
 }
 
 /**

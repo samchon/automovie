@@ -11,10 +11,10 @@ import type { Archetype } from "./Archetype";
 import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { ArchetypeRideWitness } from "./ArchetypeRideWitness";
 import { ArchetypeSpan } from "./ArchetypeSpan";
 import type { ArchetypeTowedGeometry } from "./ArchetypeTowedGeometry";
 import { ArchetypeTowing } from "./ArchetypeTowing";
-import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
  * A moving support in time: an archetype following a course, with whatever of it moves as it goes.
@@ -218,7 +218,7 @@ export namespace ArchetypeRide {
         course: state,
       };
     };
-    return {
+    const ride: IRide<Id, Dimension> = {
       plan,
       duration: plan.duration,
       instants: [...plan.instants, ...instants].sort(
@@ -234,6 +234,8 @@ export namespace ArchetypeRide {
         );
       },
     };
+    if (pose !== undefined) ArchetypeRideWitness.constructed(ride, pose);
+    return ride;
   }
 
   /**
@@ -281,9 +283,22 @@ export namespace ArchetypeRide {
       options,
     );
     const front: ArchetypeTowing.IFront<Id> | null = geometry.front;
-    const hitchAt: (seconds: number) => IAutoMovieVector3 = (
+    const hitchAt = (
       seconds: number,
-    ): IAutoMovieVector3 => leader.frame(hitch, seconds).translation;
+      witness?: ArchetypeRideWitness.Witness,
+    ): IAutoMovieVector3 => {
+      const read:
+        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
+        | undefined =
+        witness === undefined ? undefined : ArchetypeRideWitness.of(leader);
+      if (read === undefined || witness === undefined)
+        return leader.frame(hitch, seconds).translation;
+      const sample: ISample<LeaderId, LeaderDimension> = read(seconds, witness);
+      return ArchetypeFrame.compose(
+        sample.placement,
+        sample.archetype.affordance(hitch).frame,
+      ).translation;
+    };
     const groundAt: (seconds: number) => number = (seconds: number): number =>
       leader.plan.at(seconds).placement.translation.y;
     const end: number = Math.max(leader.duration, 1e-3);
@@ -294,19 +309,21 @@ export namespace ArchetypeRide {
     const yaw: number = Math.atan2(start.x, start.z);
 
     // The headings, radians about +Y: the first link's turning toward the hitch at its sideways speed over its reach; a second link's toward the pivot at the pivot's sideways speed over the body's length.
-    const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
-      integrateMotionTrajectory({
+    const heading: IAutoMovieIntegrateMotionTrajectory.ITrajectory = (() => {
+      const stage = ArchetypeRideWitness.stages(leader);
+      return integrateMotionTrajectory({
         f: (
           t: number,
           x: readonly number[],
         ): IAutoMovieIntegrateMotionTrajectory.IRate => {
-          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4);
-          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4);
+          const probes = stage(t);
+          const ahead: IAutoMovieVector3 = hitchAt(t + 5e-4, probes?.ahead);
+          const behind: IAutoMovieVector3 = hitchAt(t - 5e-4, probes?.behind);
           const vx: number = (ahead.x - behind.x) / 1e-3;
           const vz: number = (ahead.z - behind.z) / 1e-3;
           const theta: number = x[0]!;
           const reach: number = geometry.height(
-            hitchAt(t).y,
+            hitchAt(t, probes?.centre).y,
             groundAt(t),
           ).reach;
           const rate: number =
@@ -332,36 +349,9 @@ export namespace ArchetypeRide {
         t0: 0,
         t1: end,
       });
+    })();
 
-    // A front axle turned past its lock at any knot refuses the course, naming the most it needed.
-    if (front !== null) {
-      const lock: number = trailer.affordance(front.turn).travel ?? 0;
-      let most: number = 0;
-      for (let k: number = 0; k < heading.knots; k++) {
-        const x: readonly number[] = heading.at(
-          Math.min(heading.t0 + k * heading.h, heading.t1),
-        ).x;
-        most = Math.max(
-          most,
-          Math.abs((x[0]! - x[1]!) / ArchetypeUnits.DEGREE),
-        );
-      }
-      if (most > lock)
-        throw new ArchetypeRefusal({
-          kind: "parameter",
-          archetype: trailer.archetype,
-          axis: "front",
-          value: most,
-          feasible: {
-            kind: "range",
-            minimum: 0,
-            maximum: lock,
-            unit: "degrees",
-          },
-          reason: `the leader's path turns the front axle ${most} degrees, past its ${lock} degree lock`,
-          fix: "lead the trailer on wider turns",
-        });
-    }
+    ArchetypeTowing.checkSteering(trailer, front, heading);
     for (const line of options.lines ?? [])
       if (line.points.length < 2)
         throw new ArchetypeRefusal({
@@ -397,11 +387,19 @@ export namespace ArchetypeRide {
     const read = (
       seconds: number,
     ): ITowedSample<Id> & { full(): ISample<Id, Dimension> } => {
-      const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
+      const native:
+        | ArchetypeRideWitness.Reader<LeaderId, LeaderDimension>
+        | undefined = ArchetypeRideWitness.of(leader);
+      const witness: ArchetypeRideWitness.Witness | undefined =
+        native === undefined ? undefined : new ArchetypeRideWitness.Witness();
+      const sample: ISample<LeaderId, LeaderDimension> =
+        native === undefined || witness === undefined
+          ? leader.at(seconds)
+          : native(seconds, witness);
       const state: readonly number[] = heading.at(seconds).x;
       const theta: number = state[0]!;
       const phi: number = front === null ? theta : state[1]!;
-      const point: IAutoMovieVector3 = hitchAt(seconds);
+      const point: IAutoMovieVector3 = hitchAt(seconds, witness);
       const posed: Archetype<Id, Dimension> =
         options.pose?.(sample.course) ?? trailer;
       const solved: ReturnType<typeof geometry.pose> = geometry.pose(
