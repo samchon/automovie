@@ -14,7 +14,7 @@ import { nclose, vclose } from "../internal/predicates";
  * The tennis equipment's optical holes and original physical contact are independently observable.
  *
  * Scenarios:
- * 1. The racket has an oval rim, strands and real holes. A ray crosses an empty string cell, hits a string on the contact plane and hits the rim at its equator. The old head shape, grip, face and sweet spot remain at the authored positions and the equipment retains its prior centre of mass.
+ * 1. The racket has an oval rim, strands and a split throat. Rays cross an empty string cell and the throat opening, hit a string on the contact plane and hit the frame at its equator and shoulder. The old head and throat shapes, grip, face and sweet spot retain their prior dimensions, frames and mass centre.
  * 2. The net has a clear cell at the bottom, a strand next to it and a tape band higher at the posts than at the centre. The panel and cord colliders and conserved mass remain in place.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the racket and net scenarios and the independent optical and physical observations.
@@ -42,6 +42,9 @@ export function test_archetype_tennis_equipment(): void {
     [0, 0.52, 0.012],
     [0.126, 0.52, true],
     [0.125, 0.68, false],
+    [0, 0.28, false],
+    [-0.05, 0.3, true],
+    [0.05, 0.3, true],
   ]);
   checkRays(net, [
     [0.067, 0.025, false],
@@ -83,6 +86,7 @@ export function test_archetype_tennis_equipment(): void {
       panel?.kind === "box" &&
       vclose(panel.halfExtents, { x: 3.1995, y: 0.457, z: 0.0025 }) &&
       transparent(racket, "head") &&
+      transparent(racket, "throat") &&
       transparent(net, "net-left") &&
       transparent(net, "net-right") &&
       vclose(racket.affordance("grip").frame.translation, {
