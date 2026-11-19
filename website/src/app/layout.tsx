@@ -10,14 +10,7 @@ import { Head } from "nextra/components";
 import type { ReactElement, ReactNode } from "react";
 
 import { SITE_BASE } from "../SITE_BASE";
-import "./catalogue.css";
-import "./global.css";
-import "./landing-band.css";
-import "./landing.css";
-import "./motions.css";
-import "./playground.css";
-import "./scenes.css";
-import "./shared.css";
+import "./site.css";
 
 const title: string = "AutoMovie";
 const description: string =

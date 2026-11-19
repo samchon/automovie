@@ -1,6 +1,6 @@
 # Design
 
-How the site's pages are laid out and styled, and why. The [website skill](../.agents/skills/website/SKILL.md) sets what the site says and how a change is verified; this note owns how each page looks and is arranged, and the visual rules a change keeps. The tokens are in `src/app/tokens.css`; `global.css` holds the faces, the footer and the application frame, `playground.css` the playground and an archetype's page, `shared.css` the buttons and pieces every page shares, `landing.css` and `landing-band.css` the landing page, `catalogue.css` and `motions.css` the catalogues and a motion's page, and `scenes.css` the scene pages and the player.
+How the site's pages are laid out and styled, and why. The [website skill](../.agents/skills/website/SKILL.md) sets what the site says and how a change is verified; this note owns how each page looks and is arranged, and the visual rules a change keeps. `src/app/site.css` imports every stylesheet in the order the cascade depends on, and the root layout imports it alone, so an import sorter cannot reorder them. The tokens are in `src/app/tokens.css`; `global.css` holds the faces, the footer and the application frame, `playground.css` the playground and an archetype's page, `shared.css` the buttons and pieces every page shares, `landing.css` and `landing-band.css` the landing page, `catalogue.css` and `motions.css` the catalogues and a motion's page, and `scenes.css` the scene pages and the player.
 
 Two readers come. A visitor comes to learn what AutoMovie does, so the landing page follows one scene from the decision it rests on to the frames it computes. A developer or a coding agent comes to look up what the vocabulary holds, so the catalogues and the docs are dense, plain and exact, with ids, values and messages in monospace.
 
@@ -97,7 +97,8 @@ Colour. Every colour is a token with a light and a dark value:
 | Danger and success | `--am-danger`, `--am-danger-soft`, `--am-danger-border`, `--am-success`, `--am-success-soft` |
 | Focus | `--am-focus` |
 | 3D views and stills | `--am-viewport`, `--am-viewport-fg`, `--am-viewport-grid`, `--am-viewport-control`, `--am-viewport-ink`, `--am-viewport-muted`, `--am-viewport-track`, `--am-viewport-lit`, `--am-viewport-button`, `--am-viewport-tag-bg`, `--am-viewport-tag-fg` |
-| The dark band | `--am-room`, `--am-room-panel`, `--am-room-fg`, `--am-room-muted`, `--am-room-line` |
+| The dark band | `--am-room`, `--am-room-panel`, `--am-room-deep`, `--am-room-fg`, `--am-room-muted`, `--am-room-code`, `--am-room-line`, `--am-room-edge`, `--am-room-lit`, `--am-room-danger`, `--am-room-danger-fg`, `--am-room-success`, and the switch's `--am-room-switch-*` and `--am-room-alarm-*` |
+| The inspector and shadows | `--am-instrument-bg`, `--am-instrument-fg`, `--am-shadow` |
 
 The ground is a warm off-white and the ink near black; the one accent is tungsten amber, the favicon's, used for what is selected, the one primary action and a motion's paths. The viewport ground is the same warm grey in both themes, because the packages' coarse colours are chosen for a light ground. `pnpm check` computes the contrast of 43 token pairs in both themes and stops the build when one is below its bound.
 
