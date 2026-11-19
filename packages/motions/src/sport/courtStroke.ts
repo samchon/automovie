@@ -49,6 +49,9 @@ interface IOptions {
 /** Reference stature for the profile's film-time values, metres. */
 const REFERENCE_STATURE: number = 1.75;
 
+/** Half of the provisional racket contact window, in film seconds. */
+const RACKET_CONTACT_HALF: number = 0.018;
+
 /**
  * Plan the court athlete from entry stance through support, load, strike
  * and recovery. The planted foot targets stay fixed. A jump carries the
@@ -308,7 +311,6 @@ export function courtStroke(
     ["stroke", "relax"],
   );
   const stow: (s: number) => number = AutoMovieMotionClock.prepare(clock, "stroke", "relax").progress;
-  const approach: (s: number) => number = AutoMovieMotionClock.prepare(clock, "start", "ready").progress;
   const zero: IAutoMovieVector3 = Vector3.create(0, 0, 0);
 
   // Convert the proposed wrist line to the actual racket face line using
@@ -375,9 +377,20 @@ export function courtStroke(
     const strikes: boolean = hand === side || profile.paired === true;
     const place: IAutoMovieVector3 = hand === side ? dominant : partner;
     if (hand === side && racket !== undefined) {
-      // The held goal already includes recovery, and the grip stays pinned
-      // through the action end. Keep the common planner on that moving site
-      // instead of requesting a second hold-to-rest bridge at `relax`.
+      // The tool stays in the hand throughout. Only the face needs a
+      // precise world site at impact. The arm planner connects that narrow
+      // window to the available entry and recovery configurations.
+      const half: number = Math.min(
+        RACKET_CONTACT_HALF,
+        (strike - span.ready) / 2,
+        (span.relax - strike) / 2,
+      );
+      const contactStart: number = strike - half;
+      const contactEnd: number = strike + half;
+      const gripClock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+        { name: "contactStart", seconds: contactStart },
+        { name: "contactEnd", seconds: contactEnd },
+      ]);
       primitives.push(
         AutoMovieMotionHumanArm.carried({
           body,
@@ -385,8 +398,12 @@ export function courtStroke(
           from: 0,
           to: duration,
           rest,
-          weight: approach,
-          span: { ...span, relax: span.end },
+          weight: AutoMovieMotionClock.prepareEnvelope(
+            gripClock,
+            ["start", "contactStart"],
+            ["contactEnd", "end"],
+          ),
+          span: { ...span, ready: contactStart, relax: contactEnd },
           goal: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieHumanLimbGoal =>
             racket.goal(posture, handPoint(posture, s, place), aim(s), stow(s)),
         }),
