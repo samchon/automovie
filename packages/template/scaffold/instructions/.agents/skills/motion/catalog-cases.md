@@ -4,7 +4,7 @@ Before using an entity or reusable motion module in a film, inspect its capabili
 
 ## Capture and review
 
-Play the complete case with the relevant body, load, support, surface and partner. When contact causes a consequence, include a miss that should leave it absent. Capture with the README command and use joint marks where available. Apply [motion judgment](judgment.md) against the subject record and, for skilled practice, the observed exchange.
+Play the complete case with the relevant body, load, support, surface and partner. When the action can miss, test that its contact-dependent effects occur only on contact. Capture with the README command and use joint marks where available. Apply [motion judgment](judgment.md) against the subject record and, for skilled practice, the observed exchange.
 
 Resolve a case once on load. Audit it separately from loading, playback and capture. Reuse its report only with the same inputs and package versions.
 

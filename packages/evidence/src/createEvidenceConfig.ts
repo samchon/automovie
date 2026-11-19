@@ -9,6 +9,7 @@ import { createResearchClaims } from "./createResearchClaims";
 import { assertFilmCatalogLayout } from "./internal/assertFilmCatalogLayout";
 import { assertProductionContractLayout } from "./internal/assertProductionContractLayout";
 import { createReferenceRoot } from "./internal/createReferenceRoot";
+import { hasMatchingFile } from "./internal/hasMatchingFile";
 import { resolveSkillsDirectory } from "./internal/resolveSkillsDirectory";
 import { createProductionConfig } from "./narrative/createProductionConfig";
 
@@ -61,10 +62,9 @@ export function createEvidenceConfig(
     props.research === "evidence" ||
     (props.research === undefined &&
       props.narrative?.mode === "short" &&
-      fs.globSync("docs/research/**/*.md", {
-        cwd: props.location,
-        exclude: ["docs/research/index.md"],
-      }).length > 0)
+      hasMatchingFile(props.location, "docs/research/**/*.md", [
+        "docs/research/index.md",
+      ]))
   )
     claims.push(...createResearchClaims({ skills: root }));
   if (props.narrative === undefined) return { severity: "error", claims };

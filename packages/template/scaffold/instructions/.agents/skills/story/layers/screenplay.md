@@ -22,4 +22,4 @@ Plan each section's density, pressure and recurring motifs. For skilled practice
 
 Write one beat per exchange, ending when intent or initiative changes. Give speakers an aim and let reactions follow the cue the participant can see or hear. Record consequential departures from default listening or breathing in the [beat record](notation.md#records).
 
-Use actions the installed vocabulary can compose or cite the law that supports the action. Return an unstageable decision to its [earliest owner](../correction/repair.md#upstream-defects) before programming it. Read the whole screenplay in viewing order and finish any required inspection and repairs before enabling Evidence.
+For a programmed performance, return an unstageable decision to its [earliest owner](../correction/repair.md#upstream-defects). Read the whole screenplay in viewing order and finish any required inspection and repairs before enabling Evidence.

@@ -325,8 +325,8 @@ export async function test_evidence_package(): Promise<void> {
       JSON.stringify(running.report.diagnostics),
     );
 
-    // A study answers the story research principles; a law answers the
-    // behaviors contract and owes no study citation.
+    // The study answers the research principles. The law cites its study
+    // inside the behaviors checklist answer.
     for (const file of [
       "development/behaviors.md",
       "development/composition.md",

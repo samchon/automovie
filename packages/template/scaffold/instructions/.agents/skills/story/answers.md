@@ -10,7 +10,7 @@ Read the full respondent and required parents. Answer the [complete items](../co
 
 Answer only what the item asks from the current body and parents. Check exact quotations and owner addresses. Verify claimed counts, order, causes, places and states across the scope. Cite a shared cause once.
 
-Update affected answers after repairs while the stage is enabled. Follow [closed passes](correction/repair.md#closed-passes) otherwise. Return the body and answers to the director. The director sends the reviewer the annotation-free body in [independent reading order](../review/independent-reading.md). [Narrative rounds](../review/narrative-rounds.md) owns review records and fingerprints.
+During an open Evidence pass, update affected answers after repairs. Once the pass closes, follow [closed passes](correction/repair.md#closed-passes), even if the stage stays enabled. Return the body and answers to the director. The director sends the reviewer the annotation-free body in [independent reading order](../review/independent-reading.md). [Narrative rounds](../review/narrative-rounds.md) owns review records and fingerprints.
 
 ## Answer placement
 

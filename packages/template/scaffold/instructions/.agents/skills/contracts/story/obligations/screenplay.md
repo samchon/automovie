@@ -10,9 +10,7 @@ Trace the long-route script into the final scenes and back. On a short, trace th
 
 Locate the passage that delivers each promise and estimate its playing time. Follow the choices, consequences, reveals and image-sound transitions. A cut from setup to aftermath may skip the promised event. Account for an agreed delay or off-screen event.
 
-At construction or a text-only handoff, give the basis for timing estimates and any justified duration ceiling. Identify placeholders and outstanding work. Distinguish missing material from redundant repetition and preserve functional refrains.
-
-At film delivery, compare the [measured release units and assembled cut](../../../review/delivery-review.md#measurement-and-comparison) with the plan. Use recorded speech, performed action and edit timing to trace a shortfall to its scene, event or partition. Identify any commissioned material still missing.
+Give the basis for timing estimates and any justified duration ceiling. Identify placeholders and outstanding work. Distinguish missing material from redundant repetition and preserve functional refrains.
 
 ## Recurrent frames
 

@@ -20,7 +20,7 @@ Can the next author stage the exchange from its cue through its outcome?
 
 Establish opening light, camera and sound. Identify the places, people and objects the action tracks by subject record or scene-local name. Give starting positions, possessions, entrances and consequential routes, barriers and sightlines. Group other dressing and crowds.
 
-Follow the exchange from cue to response. Show who acts, why and what changes, including participants whose movement or held position affects someone else's choice and objects that support or obstruct it. Track position, gaze, possession and state across cuts. For skilled practice, identify the observation supporting the action, spacing, pace and response. Use a combination the installed vocabulary can express or a research law supports.
+Follow the exchange from cue to response. Show who acts, why and what changes, including participants whose movement or held position affects someone else's choice and objects that support or obstruct it. Track position, gaze, possession and state across cuts. For skilled practice, identify the observation supporting the action, spacing, pace and response. For a programmed performance, choose actions the installed vocabulary can express or a studied motion law supports.
 
 Record changes to the view and sound. A new shot gives its size and subject under [beat records](../../../story/layers/notation.md#records). Choose expressions the representation can show and identify any reaction reserved for a generation prompt. Specify exact synchronization where a line, lyric, count or edit depends on it. Code derives coordinates, offsets and other exact timings.
 

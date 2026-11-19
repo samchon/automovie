@@ -16,11 +16,9 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * tree at `props.skills`, by default the production's own `.agents/skills`.
  * Entities answer with their types, classes, functions and methods, because an
  * entity is a class whose methods are its capabilities. Behaviors (laws,
- * interactions and consequences) answer their checklist alone: most only
- * compose installed actions and follow no study, and a study can serve the
- * screenplay without any code, so neither direction of a study relation
- * holds for every production. A law names the study it follows in its
- * answer, which review judges.
+ * interactions and consequences) answer the behaviors checklist. For skilled
+ * practice, the studied laws answer cites the observations used to coordinate
+ * even installed actions. A study can also serve the screenplay alone.
  * Scenes cite the screenplay scene file, or the sections and beats of it they
  * realize, and every H2 section and H3 beat must be realized; films cite each
  * scene file they order, and every scene file must belong to a film. Catalog

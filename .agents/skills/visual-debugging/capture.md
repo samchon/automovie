@@ -49,7 +49,7 @@ Capture consecutive output frames around contacts, cuts, joins and decisive inst
 
 Sample the encoded or generated file at the same times as its source.
 
-Report playback coverage as stills only.
+Record the sampled times as still-image coverage. Report any continuous viewing separately.
 
 ## Stills and sheets
 

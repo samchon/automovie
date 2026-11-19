@@ -25,8 +25,8 @@ export interface IAutoMovieDevelopmentProps {
 
   /**
    * Functions and methods under `src/laws/`, `src/interactions/` and
-   * `src/consequences/` answer `contracts/development/behaviors.md`. A law
-   * names the study it follows in its answer; no study citation is required.
+   * `src/consequences/` answer `contracts/development/behaviors.md`. Cite a
+   * skilled behavior's study passage in its studied laws answer.
    */
   behaviors?: "disabled" | "evidence";
 

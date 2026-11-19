@@ -20,6 +20,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *    section answers alone still leaves the whole-film comparisons outstanding.
  * 3. Local language and work questions bind the adopted screenplay respondents.
  * 4. Construction accepts only the supported stage values.
+ * 5. A missing bundled screenplay obligation file is diagnosed even when none of its answers remain.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Installs the scaffold's actual screenplay questions in a native graph and checks the verdict before and after restoring the two sets of answers. The long script has no expression answers throughout.
  * @evidence contracts/development/testing.md#independent-expectations The four wording, fidelity, exchange and rhythm items need section evidence. The three comparisons each need one file respondent. The fixture answers the screenplay's other items independently.
@@ -141,6 +142,24 @@ export async function test_evidence_production_screenplay_expression(): Promise<
       await check(...film);
       fs.appendFileSync(whole, answers("obligations/screenplay.md", film));
       await check();
+      const obligations: string =
+        ".agents/skills/contracts/story/obligations/screenplay.md";
+      const previous: string = fs.readFileSync(whole, "utf8");
+      fs.unlinkSync(path.join(root, obligations));
+      const otherAnswers: string[] = previous
+        .split(/(?=^## )/mu)
+        .filter(
+          (section: string): boolean =>
+            !section.startsWith("## @evidence obligations/screenplay.md#"),
+        );
+      fs.writeFileSync(whole, otherAnswers.join(""));
+      await check("obligations/screenplay.md");
+      ProductionWorkflowFixture.write(
+        root,
+        obligations,
+        scaffold[obligations]!,
+      );
+      fs.writeFileSync(whole, previous);
       if (mode === "long") {
         for (const scope of ["language", "work"]) {
           ProductionWorkflowFixture.write(

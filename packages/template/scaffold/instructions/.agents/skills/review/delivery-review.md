@@ -24,6 +24,8 @@ Use the README's capture commands to compare source and delivered frames across 
 
 Follow participants, props and contacts through the edit under [motion judgment](../motion/judgment.md). For a pace finding, time the interval from cue to outcome in the staging and the delivered cut. For skilled practice, compare it with the observed exchange. Account for holds, cuts and replays.
 
+Compare each release unit and the assembled running time with the commission. Trace a shortfall to the performed action, recorded speech or edit. Locate any promised event missing from the cut.
+
 Verify the [delivery profile](../production/project-context.md#the-delivery-profile) on the assembled file, including raster, frame count, presentation times and commissioned audio levels. Measure picture targets on output frames and sound targets on decoded audio. Compare revisions at [matching times](../visual-debugging/comparison.md). Keep accepted sheets and measurements under [media records](../production/media-records.md#files). Repair regressions or obtain the owner's acceptance.
 
 ### Assets
@@ -34,7 +36,7 @@ Test visual assets in their [commissioned use](../development/entities.md#inspec
 
 ## Narrative records
 
-Verify [closure](../story/workflow/routes.md#completion) from current bodies, contracts and answers for active stages. For closed stages, use their reviews and available validation results under [closed-pass rules](../story/correction/repair.md#closed-passes). Read required reports unfiltered after the independent reading. Limit a pilot verdict to its inspected slice.
+For open passes, check current bodies, contracts and answers under [route completion](../story/workflow/routes.md#completion). For closed passes, report the revision covered by their reviews and available validation results under [closed-pass rules](../story/correction/repair.md#closed-passes). Read required reports unfiltered after the independent reading. Limit a pilot verdict to its inspected slice.
 
 ## Acceptance record
 

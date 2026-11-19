@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { hasMatchingFile } from "./hasMatchingFile";
+
 /**
  * Check the catalog inputs when a production submits a programmed film or
  * scene to composition Evidence. A starter or an isolated catalog can be
@@ -24,20 +26,20 @@ export function assertFilmCatalogLayout(location: string): void {
   const catalog: string = `${films}/catalog.ts`;
   const cases: string = `${scenes}/catalog/**/*.ts`;
   const declarations: string = "**/*.d.ts";
-  const sources: string[] = fs.globSync(
-    [`${scenes}/**/*.ts`, `${films}/*.ts`],
-    {
-      cwd: location,
-      exclude: [
+  if (
+    !hasMatchingFile(
+      location,
+      [`${scenes}/**/*.ts`, `${films}/**/*.ts`],
+      [
         `${scenes}/catalog/**`,
         catalog,
         `${films}/index.ts`,
         `${films}/starter.ts`,
         declarations,
       ],
-    },
-  );
-  if (sources.length === 0) return;
+    )
+  )
+    return;
 
   const missing: string[] = [catalog, "docs/acceptance/catalog.md"].filter(
     (file: string): boolean =>
@@ -45,10 +47,7 @@ export function assertFilmCatalogLayout(location: string): void {
         .statSync(path.join(location, file), { throwIfNoEntry: false })
         ?.isFile(),
   );
-  if (
-    fs.globSync(cases, { cwd: location, exclude: [declarations] }).length === 0
-  )
-    missing.push(cases);
+  if (!hasMatchingFile(location, cases, [declarations])) missing.push(cases);
   if (missing.length)
     throw new Error(
       `Film composition requires its review catalog. Missing: ${missing.join(", ")}`,
