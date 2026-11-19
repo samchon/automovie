@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
@@ -22,13 +23,18 @@ import { HumanBall } from "../ballStrike/HumanBall";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPropFrame } from "../perform/HumanPropFrame";
+import { HumanPropHold } from "../perform/HumanPropHold";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { throwObjectCurve } from "../throwing/throwObjectCurve";
 
 /** The producer's shaft axis in its model frame. */
@@ -39,6 +45,8 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 const SIDE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /** Stationary endpoint for the stroke's prepared curves. */
 const REST: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+/** Ball-strike contact allowance reused from the 15 mm instep verification. */
+const PUCK_CONTACT_ALLOWANCE: number = 0.015;
 
 /**
  * A hockey blade push or a lacrosse pocket exchange. The carrier owns
@@ -77,13 +85,13 @@ export namespace stickBall {
    *
    * @param context The body, authored props and optional support carrier.
    * @returns A sampled two-hand plan with a prop launch or pocket mount.
-   * @throws {HumanRefusal} If a required affordance is absent, a duration or speed is invalid, or a grip is out of reach.
+   * @throws {HumanRefusal} If a required affordance is absent, a duration or speed is invalid, a grip is out of reach, or the fitted ice blade misses the puck rim.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the data, result and refusals.
    * @evidence contracts/development/implementation.md#principled-implementation A world cue determines the placed working frame, and each shaft grip remains local to that frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the cue and frame path before composing two arm goals and publishing custody.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ball and stick are named props with declared dimensions. Outside an arm-length bound the working position is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One read of each prop and one two-arm admission at the working cue, plus sampling of a short frame path.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Named props supply their dimensions. An arm-length bound admits the requested grip positions, and an ice puck launches only after the fitted grips put the finite blade face within the contact allowance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One sizing read per prop, two local observations of the hockey arm fit at grip closure and contact, and no repeated fit admission during playback.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared clock, posture carrier, placed arm and prop trajectory owners.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only prepared frames, clock and the arm goals. Retains no past sampled frames.
    */
@@ -256,6 +264,7 @@ export namespace stickBall {
       contact: "stroke",
       primitives,
     });
+    if (ice) admitPuckContact(context, action, initial, working, strokePoint, line, seconds);
     const contacts: IAutoMovieMotionHumanContactWindow[] = [...action.contacts, ...grips];
     if (scoop)
       return {
@@ -279,6 +288,80 @@ export namespace stickBall {
     };
     return { ...action, contacts, launches: [launch] };
   }
+}
+
+/**
+ * Reconstruct the finite ice blade face from the fitted grip sockets at
+ * closure and impact. The nominal shaft frame can remain inside both arm
+ * lengths even though the body cannot put its wrists there.
+ *
+ * @param context The actor's body and any held entry grips.
+ * @param action The composed stroke on its own support or carrier.
+ * @param initial The stick's world frame before the new grips close.
+ * @param blade The stick model's blade face, with local X across, Y out and Z up its face.
+ * @param rim The world point on the puck's rim that the blade must meet.
+ * @param direction The authored puck's horizontal departure direction.
+ * @param seconds The action-local contact second.
+ * @throws {HumanRefusal} If the achieved finite face cannot make the authored contact.
+ */
+function admitPuckContact(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,
+  action: IAutoMovieMotionHumanActionPlan,
+  initial: IAutoMovieRigidTransform,
+  blade: IAutoMovieAffordance,
+  rim: IAutoMovieVector3,
+  direction: IAutoMovieVector3,
+  seconds: number,
+): void {
+  const body: typeof context.body = context.body;
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
+    body.surfaces.sockets.gripLeft.bone,
+    body.surfaces.sockets.gripRight.bone,
+  ]);
+  const fittedHands = (at: number): ReturnType<typeof poseBones> =>
+    poseBones(body, resolveHumanPosture.seeded(
+      body, action.posture(at), undefined, {}, undefined, requested,
+    ).pose, undefined, requested);
+  const entry: ReturnType<typeof poseBones> = fittedHands(0);
+  const impact: ReturnType<typeof poseBones> = fittedHands(seconds);
+  const grip = (side: AutoMovieHumanSide): HumanPropHold.IHand => ({
+    hand: HumanPropHold.frame(body, impact, { side }),
+    offset: context.entry.holds[side] === context.params.stick
+      ? AutoMovieMotionHumanHeld.of(context, side, context.params.stick).frame
+      : HumanPropFrame.relative(HumanPropHold.frame(body, entry, { side }), initial),
+  });
+  const fitted: IAutoMovieRigidTransform = HumanPropHold.fit(grip("left"), grip("right"));
+  const face: IAutoMovieRigidTransform = HumanPropFrame.compose(fitted, {
+    position: blade.frame.translation,
+    rotation: blade.frame.rotation,
+  });
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(face.rotation),
+    Vector3.subtract(rim, face.position),
+  );
+  const miss: number = Math.hypot(
+    Math.max(0, Math.abs(local.x) - (blade.width ?? 0) / 2),
+    local.y,
+    Math.max(0, Math.abs(local.z) - (blade.depth ?? 0) / 2),
+  );
+  if (miss > PUCK_CONTACT_ALLOWANCE)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "stick",
+      value: miss,
+      feasible: { kind: "range", minimum: 0, maximum: PUCK_CONTACT_ALLOWANCE, unit: "m" },
+      reason: `the fitted blade face misses the puck rim by ${(miss * 1000).toFixed(1)} mm`,
+      fix: "place the performer and stick so both fitted hands can keep the blade at the puck",
+    });
+  const facing: number = Vector3.dot(Quaternion.rotateVector(face.rotation, UP), direction);
+  if (facing <= 0)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "stick",
+      value: facing,
+      reason: "the fitted blade face points away from the puck's departure",
+      fix: "place the performer and stick so the blade's working face points along the pass",
+    });
 }
 
 /** Get a working point from the authored model, or report the missing point. */

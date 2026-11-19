@@ -1,6 +1,7 @@
 import { createBall, createStick } from "@automovie/archetypes";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMovieRigidTransform,
@@ -12,6 +13,7 @@ import {
   HumanFoot,
   HumanObject,
   HumanPerformance,
+  HumanRefusal,
   HumanSignature,
   HumanSportThrow,
   stickBall,
@@ -31,13 +33,13 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  *
  * Scenarios:
  * 1. A standing football kick makes instep contact and launches the ball.
- * 2. A player pushes a real puck with a two-handed ice hockey stick from a low base.
+ * 2. A side-on player pushes a real puck from a low base. A square stance that cannot fit the blade refuses the same puck release.
  * 3. A rugby lateral and the two gridiron deliveries release across distinct lanes and heights.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each authored fixture and the inspected contact or release.
  * @evidence contracts/development/testing.md#behavioral-verification Samples FK, displayed prop frames and published flights from three registered action families.
  * @evidence contracts/development/testing.md#independent-expectations Computes the football's ballistic position from authored speed and gravity and reads stick contact from the model plane and disc radius. Pass checks use authored lanes and the lower snap pose relative to the quarterback.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples the football before and after departure, distinguishes the puck's rim from a sphere, and contrasts side, forward and rear delivery.
+ * @evidence contracts/development/testing.md#distinguishing-cases Samples the football before and after departure, contrasts a fitted ice blade with a square stance that misses despite nominal arm reach, and contrasts side, forward and rear delivery.
  * @evidence contracts/development/testing.md#execution-ownership Constructs in-memory performances using production archetypes, registered laws and a canonical Human body.
  */
 export function test_motion_exercise_field_games(): void {
@@ -107,37 +109,32 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
     position: { x: -0.16, y: 0, z: 0.51 },
     rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -35),
   };
-  const performance: HumanPerformance = new HumanPerformance({
-    seed: "exercise-hockey-puck",
-    // In the side-on crouch the left hand is low on the shaft and both
-    // grips stay in front of the torso during the push.
-    performers: [{
-      subject: "player",
-      body,
-      at: { x: 0.3, y: 0, z: 0.18 },
-      yaw: -90,
-      proficiency: { level: "trained" },
-    }],
-    laws: [stickBall],
-    props: [
-      HumanObject.prop("puck", puck, { at: puckPosition, yaw: 0 }),
-      HumanObject.prop("stick", stick, stickFrame),
-    ],
-    composition: HumanChain.subject("player")
-      .crouch({ depth: "full", hold: 1 }, "low")
-      .over((upper) =>
-        upper.registered("stickBall", {
-          kind: "iceHockey",
-          stick: "stick",
-          ball: "puck",
-          speed: 3,
-          hand: "left",
-          toward: { kind: "point", frame: "world", at: { x: 0, y: 0.0125, z: 4 } },
-        })
-          .sync({ of: "low", event: "lowest" }),
-      ).node,
-  });
+  const play = (at: IAutoMovieVector3, yaw: number, hand: AutoMovieHumanSide): HumanPerformance =>
+    new HumanPerformance({
+      seed: "exercise-hockey-puck",
+      performers: [{ subject: "player", body, at, yaw, proficiency: { level: "trained" } }],
+      laws: [stickBall],
+      props: [
+        HumanObject.prop("puck", puck, { at: puckPosition, yaw: 0 }),
+        HumanObject.prop("stick", stick, stickFrame),
+      ],
+      composition: HumanChain.subject("player")
+        .crouch({ depth: "full", hold: 1 }, "low")
+        .over((upper) =>
+          upper.registered("stickBall", {
+            kind: "iceHockey",
+            stick: "stick",
+            ball: "puck",
+            speed: 3,
+            hand,
+            toward: { kind: "point", frame: "world", at: { x: 0, y: 0.0125, z: 4 } },
+          })
+            .sync({ of: "low", event: "lowest" }),
+        ).node,
+    });
 
+  // In this side-on crouch both grips stay in front of the torso.
+  const performance: HumanPerformance = play({ x: 0.3, y: 0, z: 0.18 }, -90, "left");
   const stroke: number = instant(performance.overlays("player")[0]!, "stroke");
   const releasedStick: IAutoMovieRigidTransform = performance.prop("stick", stroke);
   const face: IAutoMovieTransform = stick.placed("blade", Transform.of(releasedStick.position, releasedStick.rotation));
@@ -153,7 +150,8 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
     `blade face meets the radial puck rim (normal gap ${(gap * 1000).toFixed(1)} mm, rim minus blade ${JSON.stringify(delta)} m, face coordinates ${across} m and ${vertical} m)`,
     gap <= 0.015 &&
       Math.abs(across) <= blade.width! / 2 &&
-      Math.abs(vertical) <= blade.depth! / 2,
+      Math.abs(vertical) <= blade.depth! / 2 &&
+      normal.z > 0,
   );
   const flights = performance.flights("puck");
   TestValidator.equals("one named puck flight", flights.length, 1);
@@ -161,6 +159,25 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
   TestValidator.predicate(
     "the displayed puck moves down the play lane",
     performance.prop("puck", stroke + 0.035).position.z > puckPosition.z + 0.07,
+  );
+
+  // The square stance cleared the old arm-length check but swung the displayed
+  // blade well clear of the puck while publishing a launch.
+  let refusal: unknown;
+  try {
+    play(ORIGIN, 0, "right");
+  } catch (error) {
+    refusal = error;
+  }
+  TestValidator.predicate(
+    "the square grip's fitted miss refuses the puck launch",
+    refusal instanceof HumanRefusal &&
+      refusal.kind === "reach" &&
+      refusal.axis === "stick" &&
+      typeof refusal.value === "number" &&
+      refusal.value > 0.015 &&
+      refusal.feasible?.kind === "range" &&
+      refusal.feasible.maximum === 0.015,
   );
 }
 

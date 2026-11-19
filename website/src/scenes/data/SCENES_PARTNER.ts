@@ -197,6 +197,34 @@ export const SCENES_PARTNER: readonly IScene[] = [
   ),
   scene(
     {
+      id: "wrestling-reset",
+      title: "Wrestling reset",
+      summary:
+        "Two wrestlers rehearse a low entry, a brief grip and a return to their upright stances.",
+      setting: "partner",
+      roles: { red: "initiator", blue: "defender" },
+      needs: [],
+    },
+    "exercise-grapple-singleLeg",
+    [
+      person("red", "m1", 0, -0.21, 0, [
+        act("stand", { seconds: 0.3, sway: 0 }),
+      ]),
+      person("blue", "m2", -0.46, 0.82, 165, [
+        act("stand", { seconds: 0.3, sway: 0 }),
+      ]),
+    ],
+    [],
+    [
+      mutual(
+        "grappling",
+        { initiator: "red", receiver: "blue" },
+        { kind: "singleLeg", outcome: "denied" },
+      ),
+    ],
+  ),
+  scene(
+    {
       id: "rescue",
       title: "Rescue",
       summary:
