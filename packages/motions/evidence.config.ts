@@ -86,6 +86,7 @@ const files: string[] = [
   "src/lexicon/HumanAirborneShape.ts",
   "src/lexicon/HumanTravelLeaf.ts",
   "src/lexicon/HumanTravelLeafWalk.ts",
+  "src/perform/compileHumanPerformanceContinuation.ts",
   "src/perform/HumanPerformanceAhead.ts",
   "src/perform/HumanPerformanceAim.ts",
   "src/perform/HumanPerformanceContacts.ts",
