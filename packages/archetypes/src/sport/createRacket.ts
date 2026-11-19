@@ -12,7 +12,7 @@ import {
 } from "../core";
 
 /**
- * A racket or a bat of a racket sport: a tennis racket, a badminton racket, a squash racket or a table tennis bat.
+ * A tennis, badminton, squash or padel racket, or a table tennis bat.
  *
  * It stands along `+Y` from the butt of its handle at the origin to the top of its head, the strung face toward `+Z`. `grip` is the handle a hand closes on, `face` the strung surface that meets the ball, its `+Y` out of the strings, and `sweetSpot` the head's centre on the racket's axis, its `+Y` running along the racket toward the head's top: a swing carries `sweetSpot` through the ball as its working point (`tip`) with `face` leading as its edge (`edge`).
  *
@@ -22,7 +22,7 @@ import {
  * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the racket stands and its three contacts and what reads them.
- * @evidence contracts/development/implementation.md#principled-implementation A handle rod of the drawn length and diameter, a throat rod up to the head, and the head as a flat box of the drawn width and length whose top is the racket's length; the face is the head's `+Z` side.
+ * @evidence contracts/development/implementation.md#principled-implementation A handle rod, throat rod and dimensioned flat head at the racket's top; the padel head has a faceted oval rim, and the face is on the head's `+Z` side.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, handle, throat and head, then the three contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The head is a flat box, not an oval frame and strings; its thickness is a named estimate.
  * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
@@ -74,12 +74,22 @@ export function createRacket(
     builder.rod("throat", thick / 2, v(0, d.handleLength, 0), v(0, base, 0), {
       color: "#8a8d91",
     });
-  builder.box(
-    "head",
-    v(d.headWidth, d.headLength, thick),
-    v(0, base + d.headLength / 2, 0),
-    { color: kind === "tableTennis" ? "#b22222" : "#c9ccd1", density: 0.3 },
-  );
+  const head: ReturnType<typeof v> = v(0, base + d.headLength / 2, 0);
+  const material: { color: string; density: number } = {
+    color: createRacket.HEAD_COLORS[kind],
+    density: 0.3,
+  };
+  if (kind === "padel") {
+    const contour: ReturnType<typeof v>[] = [];
+    for (let i: number = 0; i < createRacket.PADEL_RIM_SEGMENTS; ++i) {
+      const angle: number = (2 * Math.PI * i) / createRacket.PADEL_RIM_SEGMENTS;
+      const x: number = (Math.cos(angle) * d.headWidth) / 2;
+      const y: number = (Math.sin(angle) * d.headLength) / 2;
+      contour.push(v(x, y, -thick / 2), v(x, y, thick / 2));
+    }
+    builder.convex("head", contour, head, material);
+  } else
+    builder.box("head", v(d.headWidth, d.headLength, thick), head, material);
   builder.affordance({
     id: "grip",
     kind: "handle",
@@ -131,7 +141,12 @@ export function createRacket(
  */
 export namespace createRacket {
   /** The kinds. */
-  export type Kind = "tennis" | "badminton" | "squash" | "tableTennis";
+  export type Kind =
+    | "tennis"
+    | "badminton"
+    | "squash"
+    | "tableTennis"
+    | "padel";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
@@ -139,6 +154,7 @@ export namespace createRacket {
     "badminton",
     "squash",
     "tableTennis",
+    "padel",
   ];
 
   /** The readable name of each kind. */
@@ -147,21 +163,35 @@ export namespace createRacket {
     badminton: "badminton racket",
     squash: "squash racket",
     tableTennis: "table tennis bat",
+    padel: "padel racket",
   };
 
-  /** The head's thickness, metres, by kind: estimates, not read at a source. */
+  /** Head thickness in metres. Padel uses the FIP overall limit. Other values are provisional. */
   export const THICKNESS: Readonly<Record<Kind, number>> = {
     tennis: 0.024,
     badminton: 0.008,
     squash: 0.02,
     tableTennis: 0.012,
+    padel: 0.038,
+  };
+
+  /** Facets around the provisional padel head outline. */
+  export const PADEL_RIM_SEGMENTS: number = 20;
+
+  /** Flat head colour by kind in sRGB. */
+  export const HEAD_COLORS: Readonly<Record<Kind, string>> = {
+    tennis: "#c9ccd1",
+    badminton: "#c9ccd1",
+    squash: "#c9ccd1",
+    tableTennis: "#b22222",
+    padel: "#383f4e",
   };
 
   /**
    * The affordance ids:
    *
    * - `grip`: the handle, taken from `-Z`, its length along the racket.
-   * - `face`: the strung face toward `+Z`, as wide and as long as the head, its `+X` across the head.
+   * - `face`: the hitting face toward `+Z`, as wide and as long as the head, its `+X` across the head.
    * - `sweetSpot`: the head's centre on the racket's axis, its `+Y` along the racket.
    */
   export type Affordance = "grip" | "face" | "sweetSpot";
@@ -239,6 +269,14 @@ export namespace createRacket {
   /** The squash specification as third-party pages give it. */
   const WSF: string =
     "the World Squash Federation racket limits of 686 mm, 215 mm and 255 g as third-party pages give them; the WSF's own specification was searched for and could not be opened";
+
+  /** FIP, Rules of Padel, The Racket. */
+  const FIP: string =
+    "FIP Rules of Padel, The Racket (https://www.padelfip.com/documents/)";
+
+  /** Manufacturer mass for the padel model. */
+  const HEAD: string =
+    "HEAD Gravity Motion 2027, 360 g (https://www.head.com/en_US/product/gravity-motion-2027-224027)";
 
   /** What no source read gives. */
   const UNREAD: string =
@@ -320,6 +358,14 @@ export namespace createRacket {
         `${BUTTERFLY} for the blade alone; the two rubbers' mass ${UNREAD}`,
         true,
       ),
+    },
+    padel: {
+      length: m(0.455, 0.455, `${FIP}: maximum racket length 455 mm`),
+      headWidth: m(0.205, 0.23, `${FIP}: provisional head width within the overall limit`, true),
+      headLength: m(0.255, 0.28, "provisional head length for the round paddle profile", true),
+      handleLength: m(0.12, 0.145, `${FIP}: provisional handle length within the limit`, true),
+      gripDiameter: m(0.03, 0.034, "provisional adult grip diameter", true),
+      mass: kg(0.36, 0.36, HEAD),
     },
   };
 }

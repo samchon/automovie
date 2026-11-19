@@ -2,6 +2,7 @@ import {
   AutoMovieGravity,
   Quaternion,
   resolveAutoMovieCenterOfMass,
+  Vector3,
 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
@@ -40,6 +41,8 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * A high jump in the Fosbury flop (#3377): a one-foot take-off, a half turn
  * that puts the back to the bar, a backward lay-out over it with the back
  * arched, the legs lifted after the hips pass, and a landing on the back.
+ * The author may name the final support foot of an incoming approach
+ * (World Athletics TR27). The foot must already be planted.
  *
  * The take-off is the jump's push-off (`GymnasticsTakeoff`), aimed so the
  * centre of mass peaks at the bar's height and comes down at the landing
@@ -72,12 +75,14 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * First pass: no curved run-up and no lean into the take-off; the arms do
  * not lead; the angular momentum appears at the take-off instead of being
  * built over the push; the apex falls where the landing place puts it, the
- * crossbar's place along the run unchecked. The push-off's own flight, which
+ * crossbar's plane can be reached before or after that apex. The
+ * `barCrossing` event records the centre's passage within the physical
+ * span, when present. The push-off's own flight, which
  * aims the take-off, leaves 20 to 24 mm from its take-off pose, so the flight
  * starts from that pose's centre with the vertical speed that peaks it at the
  * bar, and the body does not step at the take-off.
  *
- * Events: `takeoff`, `apex` (the bar), `touchdown`, `settled`, `relax`.
+ * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`, `relax`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the figure, the take-off's aim, the flight's physics, the one-axis turns and the follow-up, the keyed arch, the landing, the bar's place, the refusals and the first pass.
  * @evidence contracts/development/design.md#principled-representation The jump's push-off, a parabola from it and a posture of joints turned and placed on it; the rates follow from the flight time.
@@ -166,14 +171,22 @@ export namespace highJump {
    * @evidence contracts/development/implementation.md#principled-implementation The affordance's translation carried into the world by the prop's frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and the demanded Y component of the same rigid transform.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bar is refused with the prop's contacts, never replaced by a number.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original first-match affordance scan remains linear; its final height uses the engine's exact rotateVectorY expression without unused X/Z output arithmetic or two discarded vector records. Speedup is unmeasured.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
+   * @evidence contracts/development/implementation.md#efficient-algorithms A first-match affordance scan and one world frame read resolve the bar.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the same bar reader as the flight's plane-crossing query.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function crossbar(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): number {
+    return placedCrossbar(context, subject).point.y;
+  }
+
+  /** Read the named crossbar's centre, axial direction and span in the scene. */
+  function placedCrossbar(
+    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
+    subject: string,
+  ): { point: IAutoMovieVector3; axis: IAutoMovieVector3; length: number | undefined } {
     const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
     const found: IAutoMovieAffordance | undefined = (
       read.prop.affordances ?? []
@@ -193,9 +206,12 @@ export namespace highJump {
         fix: "give the high jump's crossbar the id bar, as createHighJump does",
       });
     const frame: IAutoMovieRigidTransform = read.frame(context.start);
-    const position: IAutoMovieVector3 = frame.position;
-    const offset: number = Quaternion.rotateVectorY(frame.rotation, found.frame.translation);
-    return position.y + offset;
+    return {
+      point: Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, found.frame.translation)),
+      // A bar affordance's length runs along its local +X.
+      axis: Quaternion.rotateVector(Quaternion.multiply(frame.rotation, found.frame.rotation), { x: 1, y: 0, z: 0 }),
+      length: found.length ?? undefined,
+    };
   }
 
   /**
@@ -221,7 +237,8 @@ export namespace highJump {
     const prepareFrame: ReturnType<typeof prepareGymnasticsFrame> = prepareGymnasticsFrame(body, model);
     const p: IAutoMovieMotionHumanHighJump.IParams = context.params;
     const surface: number = p.to.y;
-    const bar: number = crossbar(context, p.bar);
+    const cross: ReturnType<typeof placedCrossbar> = placedCrossbar(context, p.bar);
+    const bar: number = cross.point.y;
 
     // The centre's height lying on the back on the surface.
     const supine: IAutoMovieMotionHumanPosture = {
@@ -286,6 +303,7 @@ export namespace highJump {
           z: (p.to.z - centre.z) / time,
         };
       },
+      p.takeoffFoot,
     );
     const off: number = takeoff.seconds;
     // The flight leaves from the take-off posture's own centre, so the body
@@ -410,6 +428,20 @@ export namespace highJump {
       { name: "settled", share: settled / duration },
       { name: "relax", share: settled / duration },
     ];
+    // A ballistic flight has constant horizontal velocity, so the plane
+    // time is exact even when the authored apex falls before or after it.
+    const normal: IAutoMovieVector3 = { x: -cross.axis.z, y: 0, z: cross.axis.x };
+    const speed: number = Vector3.dot(v, normal);
+    if (cross.length !== undefined && Math.abs(speed) > 1e-6) {
+      const away: IAutoMovieVector3 = Vector3.subtract(cross.point, c0);
+      const seconds: number = Vector3.dot(away, normal) / speed;
+      const axis: IAutoMovieVector3 = { ...cross.axis, y: 0 };
+      const along: number = Vector3.dot(Vector3.subtract(Vector3.scale(v, seconds), away), axis);
+      if (seconds > 0 && off + seconds < touchdown && Math.abs(along) <= cross.length * Vector3.dot(axis, axis) / 2) {
+        events.push({ name: "barCrossing", share: (off + seconds) / duration });
+        events.sort((a: IAutoMovieMotionEvent, b: IAutoMovieMotionEvent): number => a.share - b.share);
+      }
+    }
     return {
       duration,
       events,

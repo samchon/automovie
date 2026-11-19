@@ -442,6 +442,39 @@
     }
   },
   "rows": {
+    "grapple": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
+    "aquatic": {},
+    "baseballHit": {},
+    "bicycleEffort": {},
+    "bikeTransfer": {},
+    "boardRide": {},
+    "bowlingDelivery": {},
+    "cricketBowl": {},
+    "cricketDrive": {},
+    "cueStroke": {},
+    "golfChip": {},
+    "golfDrive": {},
+    "golfPutt": {},
+    "gridironPass": {},
+    "gridironSnap": {},
+    "rugbyPass": {},
+    "sittingVolley": {},
+    "skate": {},
+    "snowGlide": {},
+    "softballWindmill": {},
+    "stageBladeFootwork": {},
+    "stageProp": {},
+    "stickBall": {},
     "bowViolin": {
       "properties": {
         "seconds": {

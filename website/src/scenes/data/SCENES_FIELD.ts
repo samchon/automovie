@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, object, person, scene }: typeof SceneBuild = SceneBuild;
+const { act, object, person, scene }: typeof SceneBuild = SceneBuild;
 
 /** The sport scenes of the lexicon's football, basketball, gymnastics and swimming rows. */
 export const SCENES_FIELD: readonly IScene[] = [
@@ -43,7 +43,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "shoot-around",
       title: "Shoot-around",
       summary:
-        "Two basketball players: one dribbles on the spot and throws a chest pass, the other catches it in both hands and slides across in defence.",
+        "Two basketball players exchange a chest pass. The receiver catches the ball and the passer slides across and raises both hands.",
       setting: "sport",
       roles: { eli: "guard", fen: "forward" },
       needs: [],
@@ -51,18 +51,36 @@ export const SCENES_FIELD: readonly IScene[] = [
     "shoot-around",
     [
       person("eli", "f2", 0, 0, 0, [
-        act("dribble", { count: 4 }),
-        act("pushPass", { at: at("fen", "sternum") }, { anchor: "chest" }),
+        act("pickUp", { prop: "ball", handle: "grip", lift: 0.15 }),
+        act(
+          "ballSport",
+          {
+            kind: "chestPass",
+            prop: "ball",
+            at: { x: 0, y: 1.3, z: 3.45 },
+            flightSeconds: 0.42,
+          },
+          { anchor: "chest" },
+        ),
+        act("defensiveSlide"),
+        act("ballSport", {
+          kind: "highHandContest",
+          at: { x: 0, y: 1.4, z: 4 },
+        }),
       ]),
       person("fen", "m1", 0, 4, 180, [
         act("stand", { seconds: 1 }),
-        act("twoHandCatch", { from: "chest", ball: "ball" }),
-        act("defensiveSlide"),
+        act(
+          "stageCatch",
+          { from: "chest", ball: "ball", intercept: 0.42 },
+          { sync: { of: "chest" } },
+        ),
       ]),
     ],
-    // The ball caught lies at the passer's feet, as the dribble and the pass
-    // are mimed.
-    [object("ball", "createBall", "basketball", 0.3, 0.3)],
+    [
+      object("counter", "createTable", "counter", 0, 0.72, 180),
+      object("ball", "createBall", "basketball", 0, 0.49, 0, 0.914),
+    ],
   ),
   scene(
     {

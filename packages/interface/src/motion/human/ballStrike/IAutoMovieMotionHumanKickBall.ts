@@ -22,9 +22,8 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * `ready` (`backswing`), `strokeStart`, `stroke` (`contact`), `strokeEnd`
  * (`followThrough`), `relax`.
  *
- * Not yet: the approach run-up at 30 to 45 degrees and the support foot's
- * plant step beside the ball, the side-foot and toe kicks, the ball's launch
- * (A4), a moving ball, and striking a ball with a held implement.
+ * Supply speed to meet the ball at the stroke's film instant and launch it
+ * with the authored velocity. The support foot remains planted.
  *
  * @evidence contracts/development/common.md#meaningful-documentation foot: The kicking foot; `right` when absent. toward: Where the ball is kicked toward; along the heading when absent.
  * @evidence contracts/development/design.md#principled-representation foot: The kicking foot; `right` when absent. toward: Where the ball is kicked toward; along the heading when absent.
@@ -37,7 +36,7 @@ export namespace IAutoMovieMotionHumanKickBall {
    *
    * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
    * @evidence contracts/development/design.md#principled-representation The ball, the kicking foot and the direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The planner reads the two release components only for an explicitly launched ball.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the scene's prop; its size is its own.
    *
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
@@ -51,6 +50,12 @@ export namespace IAutoMovieMotionHumanKickBall {
 
     /** Where the ball is kicked toward; along the heading when absent. */
     toward?: IAutoMovieMotionTarget;
+
+    /** Horizontal launch speed in m/s. Omit for a contact-only kick. */
+    speed?: number;
+
+    /** Upward launch speed in m/s. With a launch, defaults to a small positive departure. */
+    lift?: number;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;

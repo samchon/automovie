@@ -4,6 +4,7 @@ import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
 import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
+import type { IAutoMovieMotionHumanAquatic } from "../sport/IAutoMovieMotionHumanAquatic";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanAthletics } from "../sport/IAutoMovieMotionHumanAthletics";
 import type { IAutoMovieMotionHumanBallSport } from "../sport/IAutoMovieMotionHumanBallSport";
@@ -11,9 +12,12 @@ import type { IAutoMovieMotionHumanBaseball } from "../sport/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanGymnastics } from "../sport/IAutoMovieMotionHumanGymnastics";
 import type { IAutoMovieMotionHumanMartialArt } from "../sport/IAutoMovieMotionHumanMartialArt";
 import type { IAutoMovieMotionHumanRacket } from "../sport/IAutoMovieMotionHumanRacket";
+import type { IAutoMovieMotionHumanStickBall } from "../sport/IAutoMovieMotionHumanStickBall";
 import type { IAutoMovieMotionHumanSwim } from "../sport/IAutoMovieMotionHumanSwim";
 import type { IAutoMovieMotionHumanSwimImmersed } from "../sport/IAutoMovieMotionHumanSwimImmersed";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
+import type { IAutoMovieMotionHumanSittingVolley } from "./IAutoMovieMotionHumanSittingVolley";
+import type { IAutoMovieMotionHumanLexiconSurfaceParams } from "./IAutoMovieMotionHumanLexiconSurfaceParams";
 
 /**
  * Open parameters of the sport lexicon family, keyed by each runtime export name.
@@ -25,7 +29,17 @@ import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHuma
  * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the sport row parameter map used by the family registry and schema generator.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
-export interface IAutoMovieMotionHumanLexiconSportParams {
+export interface IAutoMovieMotionHumanLexiconSportParams
+  extends IAutoMovieMotionHumanLexiconSurfaceParams {
+  /** A phase of a water sport with its named support or prop. */
+  aquatic: IAutoMovieMotionHumanAquatic.IParams;
+
+  /** Play a ball or puck with the named field, ice or lacrosse stick. */
+  stickBall: IAutoMovieMotionHumanStickBall.IParams;
+
+  /** Move into a floor-seated volleyball receive. */
+  HumanSittingVolley: IAutoMovieMotionHumanSittingVolley;
+
   /** Walking-free lunges in place. */
   lunges: Omit<IAutoMovieMotionHumanExercise.IParams, "kind">;
 

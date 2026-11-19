@@ -11,13 +11,13 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
- * Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering.
+ * Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering. Each source cue must match its unique materialized stream's envelope and event binding. Event times must be finite and inside the cue's half-open shot interval.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Shot-local maps index events/samples while deterministic zone/start/id sorting exposes interval checks.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Shot-local maps index streams, events and samples while deterministic zone/start/id sorting exposes interval checks.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 128-cue policy reports excess without truncating; stream existence is metadata admission, not provider simulation.
  * @evidence contracts/development/common.md#meaningful-documentation Diagnostic field addresses identify source cues and preserve half-open event membership.
- * @evidence contracts/development/implementation.md#efficient-algorithms C sorting costs O(C log C); repeated compiled-effect find costs O(CF), plus event/sample indexing and id text.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Sorting C cues costs O(C log C), with one linear indexing pass over each compiled stream, event and sample array.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Event/sample maps are request-local; prior-zone records are shared only within this validation.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Maps, sorted wrappers and diagnostics grow with the supplied shot; only diagnostics return and no native stream is created.
  */
@@ -39,6 +39,14 @@ export const validateAutoMovieEffects: (
   if (cues.length > 128)
     fail("effectCues", "must contain at most 128 bounded zone activations");
   const ids: Set<string> = new Set<string>();
+  const streams: Map<string, IAutoMovieCompiledEffect> = new Map(
+    value.effects.map(
+      (effect: IAutoMovieCompiledEffect): [string, IAutoMovieCompiledEffect] => [
+        effect.id,
+        effect,
+      ],
+    ),
+  );
   const priorByZone: Map<string, IAutoMovieShotEffectCue> = new Map<
     string,
     (typeof cues)[number]
@@ -68,13 +76,23 @@ export const validateAutoMovieEffects: (
     if (cue.id.trim().length === 0 || ids.has(cue.id))
       fail(field, "must have one non-blank id unique inside the shot");
     ids.add(cue.id);
-    const compiled: IAutoMovieCompiledEffect | undefined = value.effects.find(
-      (effect: IAutoMovieCompiledEffect): boolean => effect.id === cue.id,
-    );
+    const compiled: IAutoMovieCompiledEffect | undefined = streams.get(cue.id);
     if (compiled === undefined || compiled.zone !== cue.zone)
       fail(
         `${field}.zone`,
         `must reference one current builder-materialized world zone "${cue.zone}"`,
+      );
+    if (
+      compiled !== undefined &&
+      (compiled.start !== cue.start ||
+        compiled.end !== cue.end ||
+        compiled.intensity.from !== cue.intensity.from ||
+        compiled.intensity.to !== cue.intensity.to ||
+        compiled.event !== cue.event)
+    )
+      fail(
+        `${field}.stream`,
+        "must have the same interval, intensity envelope and event as its compiled stream",
       );
     if (
       Number.isFinite(cue.start) === false ||
@@ -104,6 +122,7 @@ export const validateAutoMovieEffects: (
       if (
         event === undefined ||
         sample === undefined ||
+        Number.isFinite(sample) === false ||
         sample < cue.start ||
         sample >= cue.end
       )
@@ -124,6 +143,7 @@ export const validateAutoMovieEffects: (
   }
   if (
     value.effects.length !== cues.length ||
+    streams.size !== value.effects.length ||
     value.effects.some(
       (effect: IAutoMovieCompiledEffect): boolean =>
         ids.has(effect.id) === false,

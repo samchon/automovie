@@ -13,9 +13,11 @@ import { mixSeed } from "./math/mixSeed";
  * Spawn identity depends only on compiled bytes and particle index. Call
  * scheduling, wall time, worker count and GPU randomness cannot change it.
  * Inputs must be admitted compiled recipes and finite sampling coordinates.
- * Time is floored to the effect's absolute step with a 1e-9 quotient allowance;
- * the cue is half-open. Far LOD retains indexes divisible by four, and the
- * output caps live particles rather than all candidate allocations.
+ * The requested time owns membership in the cue's half-open interval. Within
+ * the cue, the state uses the absolute fixed step with a 1e-9 quotient
+ * allowance, or the first cue instant if the absolute step precedes it. A
+ * rounded step that reaches the cue's exclusive end uses the requested time.
+ * Far LOD retains indexes divisible by four and the output caps live particles.
  *
  * For a localized plume, a wide outline develops as surrounding air mixes into
  * the flow. Crapper (1977), Forced plume characteristics, describes linear
@@ -24,7 +26,7 @@ import { mixSeed } from "./math/mixSeed";
  * proportional to travel distance. The optional linear billboard growth
  * depicts that widening without calculating air or droplet motion.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Absolute-step spawn times and the preserved seed/index/domain stream determine ballistic drift, lifetime, optional airborne growth with a landing cutoff, and sinusoidal opacity independently of evaluation order; admitted positive step and recipe ranges are required.
+ * @evidence contracts/development/implementation.md#principled-implementation Exact cue membership matches film-frame projection. Sampling the opening state from the inclusive cue start preserves an off-grid burst. Absolute-step state and the preserved seed/index/domain stream determine particle motion, lifetime, size and opacity independently of evaluation order; admitted positive step and recipe ranges are required.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Viewer instanced effects and shot runtime sampling share one compiled v1 sampler while recipe compilation owns validation and source-derived budgets.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Fixed-step quotient allowance and index-quarter thinning are stated clock and LOD conventions, not fixture-specific recovery; invalid direct inputs are not silently admitted here.
  * @evidence contracts/development/common.md#meaningful-documentation Documents scheduling independence, half-open cue time, admitted-input premise, plume approximation and its source, quotient allowance, LOD thinning and the distinction between candidate storage and output budget.
@@ -42,10 +44,14 @@ export const sampleCompiledEffect: (
   cameraDistance: number = 0,
 ): IAutoMovieEffectSample => {
   const step: number = effect.fixedStepSeconds;
-  const sampledTime: number =
+  const stepTime: number =
     Math.floor(Math.max(0, time) / step + 1e-9) * step;
-  if (sampledTime < effect.start || sampledTime >= effect.end)
-    return { time: sampledTime, active: false, intensity: 0, particles: [] };
+  if (time < effect.start || time >= effect.end)
+    return { time: stepTime, active: false, intensity: 0, particles: [] };
+  const sampledTime: number = Math.max(
+    effect.start,
+    stepTime < effect.end ? stepTime : time,
+  );
   const cueProgress: number =
     (sampledTime - effect.start) / Math.max(step, effect.end - effect.start);
   const intensity: number =

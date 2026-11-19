@@ -1,10 +1,12 @@
 import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHumanCrouch";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
+import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
 import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanTouch";
+import type { IAutoMovieMotionHumanStageProp } from "./IAutoMovieMotionHumanStageProp";
 
 /**
  * Open parameters of the stageFight lexicon family, keyed by each runtime export name.
@@ -17,6 +19,12 @@ import type { IAutoMovieMotionHumanTouch } from "../touch/IAutoMovieMotionHumanT
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconStageFightParams {
+  /** Perform a preauthored blocking, flourish or contact cue with an inert prop. */
+  HumanStageProp: IAutoMovieMotionHumanStageProp;
+
+  /** Perform a role in a staged grappling exchange. */
+  grapple: IAutoMovieMotionHumanGrapple.IParams;
+
   /** A forehand slap: one tap of the open palm. The composition gives the cheek as the target. */
   slap: Omit<
     IAutoMovieMotionHumanTouch.IParams,

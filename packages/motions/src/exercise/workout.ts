@@ -353,7 +353,7 @@ export namespace workout {
     const load: IAutoMovieMotionHumanWorkoutLoad.ILoad | null =
       p.load === undefined
         ? null
-        : WorkoutLoad.of(context, p.load, kind.midfoot === true);
+        : WorkoutLoad.of(context, p.load, kind.midfoot === true, p.kind === "cleanAndJerk");
 
     /** The time-only keyed contribution, including any load owned by the exercise. */
     const write: IAutoMovieMotionHumanPrimitive["write"] = (

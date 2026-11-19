@@ -40,6 +40,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { precisionThrow } from "./precisionThrow";
 import { throwObjectCurve } from "./throwObjectCurve";
 import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
@@ -173,9 +174,10 @@ export namespace throwObject {
     const arm: number = m.upperArm + m.forearm;
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
-    const probe: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
-      .posture(0);
+    const probe: IAutoMovieMotionHumanPosture =
+      style === "gridironSnap"
+        ? context.carrier?.posture(0) ?? context.entry.posture
+        : stand.plan({ ...context, params: { seconds: 1 } }).posture(0);
     const yaw: number = probe.yaw;
     const frame: IAutoMovieMotionHumanFrame = { origin: probe.root, yaw };
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
@@ -213,15 +215,16 @@ export namespace throwObject {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const held: IAutoMovieQuaternion = HumanHand.rotation(
       side,
-      style === "overarm"
+      style === "overarm" || style === "gridironPass" || style === "cricket"
         ? { fingers: up, palm: toward }
         : { fingers: Vector3.scale(up, -1), palm: toward },
     );
+    const stance: ReturnType<typeof precisionThrow.stance> = precisionThrow.stance(context, style);
     const release: IAutoMovieVector3 = throwObjectRelease.point({
       body,
       side,
       style,
-      standing: probe,
+      standing: stance?.(probe, 1) ?? probe,
       held,
     });
 
@@ -331,7 +334,7 @@ export namespace throwObject {
         const rest: GripFrame = restAt(posture);
         const u: number = clock.progress("windup", "cocked", seconds);
         return {
-          point: Vector3.lerp(rest.point, chamber, u),
+          point: style === "windmill" ? precisionThrow.windmill(frame, arm, chamber, rest.point, u) : Vector3.lerp(rest.point, chamber, u),
           rotation: Quaternion.slerp(rest.rotation, cocking, u),
         };
       }
@@ -421,7 +424,7 @@ export namespace throwObject {
     // and rises again in the recovery.
     const turn: number = outward * throwObjectForm.TURN[style];
     const trunk: IAutoMovieMotionHumanPrimitive = {
-      channels: ["trunk"],
+      channels: stance === undefined ? ["trunk"] : ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
       to: duration,
       write: (posture: IAutoMovieMotionHumanPosture, seconds: number): IAutoMovieMotionHumanPosture => {
@@ -439,12 +442,11 @@ export namespace throwObject {
               ["recover", "end"],
               seconds,
             );
-        const tilt: number =
-          throwObjectForm.TILT[style] *
-          clock.envelope(["cocked", "release"], ["recover", "end"], seconds);
+        const inclined: number = clock.envelope(["cocked", "release"], ["recover", "end"], seconds);
+        const sunk: IAutoMovieMotionHumanPosture = stance?.(posture, inclined) ?? posture;
         return {
-          ...posture,
-          joints: throwObjectRelease.trunk(posture.joints, degrees, tilt),
+          ...sunk,
+          joints: throwObjectRelease.trunk(sunk.joints, degrees, throwObjectForm.TILT[style] * inclined),
         };
       },
     };
@@ -464,6 +466,9 @@ export namespace throwObject {
     });
     return {
       ...composed,
+      ...(style === "windmill" ? {
+        events: [...composed.events, { name: "windmillApex", share: cockedAt / (2 * duration) }].sort((a, b): number => a.share - b.share),
+      } : {}),
       physicalWindow: { from: cockedAt, to: releasedAt + throwObjectForm.CARRY },
       launch: {
         point: lever.point,
@@ -473,7 +478,7 @@ export namespace throwObject {
       },
       // The prop leaves the lever's end with the support's velocity added
       // (#3491), turning as asked or at the act's chosen spin.
-      launches: throwObjectLaunch.launches(prop, attitude, {
+      launches: precisionThrow.launches(context, style, throwObjectLaunch.launches(prop, attitude, {
         point: lever.point,
         velocity: Vector3.add(
           lever.velocity,
@@ -482,7 +487,7 @@ export namespace throwObject {
         ),
         seconds: releasedAt,
         target,
-      }),
+      })),
     };
   }
 }

@@ -278,7 +278,9 @@ export namespace guard {
       ];
     });
     const bounce: number = Math.abs(sunk) / 3;
-    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead });
+    const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(
+      body, { lead }, {}, context.params.style,
+    );
     return {
       contacts,
       posture: (

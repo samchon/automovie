@@ -48,6 +48,9 @@ export namespace IAutoMovieMotionPropHold {
     /** Launch identity in its placed action's publish list. */
     launch: IAutoMovieMotionPropLaunch;
 
+    /** First film second of this bare hand's fitted spherical reception. The receiving hand and fingers belong to that grip through closure and must physically meet the sphere at closure. */
+    handContactFrom?: number;
+
     /**
      * Check the displayed world frame at grip closure against the planned interception.
      *

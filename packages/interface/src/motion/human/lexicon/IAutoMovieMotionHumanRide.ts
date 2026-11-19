@@ -94,5 +94,49 @@ export namespace IAutoMovieMotionHumanRide {
      * point and closes on it (`HumanMountRider.hold`).
      */
     hands?: Partial<Record<"left" | "right", string>>;
+
+    /**
+     * Optional saddle-relative movement on the named seat point. Cue ids
+     * refer to tracks in the performance and their instants are film seconds.
+     * At least one of stride, jump and lookBack must be set.
+     */
+    equestrian?: {
+      /** Use consecutive touchdowns of the same hoof (or diagonal) as the stride clock. Split the ride at gait or lead changes. */
+      stride?: {
+        /** The track for the same hoof on successive strides. Use a hind-hoof touchdown for walk and one diagonal's touchdown for trot. */
+        cue: string;
+        /** The gait whose rider response is sampled. */
+        gait: "walk" | "trot" | "canter";
+        /** The active canter lead. Defaults to left. */
+        lead?: "left" | "right";
+      };
+
+      /**
+       * Follow an authored jumping support from approach through recovery.
+       * Each track must publish exactly one instant within the ride, in the
+       * order below. Both feet must enter on their named stirrups. Compose
+       * a jump in a ride without rising trot.
+       */
+      jump?: {
+        /** The beginning of the rider's approach posture. */
+        approach: string;
+        /** The horse's last hind-hoof liftoff. */
+        takeoff: string;
+        /** The horse's first forehoof landing. */
+        landing: string;
+        /** The end of the rider's recovery. */
+        recovery: string;
+      };
+
+      /** An over-shoulder film pose centred on a single cue. The pelvis remains with the saddle. */
+      lookBack?: {
+        /** The track with one instant inside the ride, at the fullest turn. */
+        cue: string;
+        /** Which shoulder the rider looks over. */
+        side: "left" | "right";
+        /** Total seconds of the turn and return, within the ride. Greater than zero. */
+        seconds: number;
+      };
+    };
   }
 }

@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   Archetype,
@@ -18,6 +19,10 @@ const IIHF: string =
 const FIH: string =
   "FIH Rules of Hockey 2026, stick specifications 2.17 and 2.18: at most 105 cm from the top of the handle to the bottom of the head, at most 737 g, passing through a ring of 51 mm inside diameter; the head's open end limited by line C, 100 mm above line X (2.2, 2.8) (https://www.fih.hockey/static-assets/pdf/fih-Rules-of-hockey-2026-final.pdf)";
 
+/** World Lacrosse Sixes stick lengths and head opening. */
+const SIXES: string =
+  "World Lacrosse Sixes Rules 2026–28, §2.2.1 (https://worldlacrosse.sport/wp-content/uploads/2026/05/26-28-Sixes-Rule-Book_v2_0526.pdf)";
+
 /** The cricket bat read. */
 const MCC: string =
   "MCC Laws of Cricket, 2017 Code 3rd Edition 2022, Law 5, bat size limits: overall length at most 38 in (96.52 cm), width 4.25 in (10.8 cm), depth 2.64 in (6.7 cm), edges 1.56 in (4.0 cm), the handle at most 52% of the overall length (https://www.lords.org/getmedia/81bd1d01-c7e7-42f6-ac70-80473a050c32/Laws-of-Cricket-2017-Code-3rd-Edition-2022_1.docx)";
@@ -33,11 +38,12 @@ const ESTIMATES: Readonly<{ blade: number; toe: number; handle: number }> = {
 const NAMES: Readonly<Record<createStick.Kind, string>> = {
   iceHockey: "ice hockey stick",
   fieldHockey: "field hockey stick",
+  lacrosse: "lacrosse crosse",
   cricketBat: "cricket bat",
 };
 
 /**
- * A stick or a bat of a game: an ice hockey stick, a field hockey stick or a cricket bat.
+ * A stick or bat for ice hockey, field hockey, lacrosse or cricket.
  *
  * It stands upright on its striking end at the origin, its shaft straight up along `+Y` and its striking face toward `+Z`: an ice hockey blade runs from the heel at the origin along `+X` on the floor, a field hockey head sits under the shaft, a cricket bat's blade stands on its toe. `grip` is where both hands hold it: an ice hockey or field hockey stick's whole shaft above its blade or head, a cricket bat's handle. `blade` is the striking face, its `+Y` out of it.
  *
@@ -49,7 +55,7 @@ const NAMES: Readonly<Record<createStick.Kind, string>> = {
  * @evidence contracts/development/common.md#meaningful-documentation States how the stick stands, its two contacts and where each kind strikes.
  * @evidence contracts/development/implementation.md#principled-implementation Each kind at its rule's limits: the IIHF stick's length, blade and shaft section, the FIH stick's length, head height and ring diameter, the MCC bat's length, blade section and handle share.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, then the kind's striking end and shaft, then the two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft stands square on the blade or head, with no lie angle or curve; the field hockey head is a block, not a J; the blade's thickness, the head's toe and the bat handle's diameter are construction estimates.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shaft stands square on the working end. Mesh cords and the field toe outline use coarse construction geometry, with the head and playing face separately declared.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -116,16 +122,69 @@ export function createStick(
     gripLength = length - head;
     aperture = depth;
   } else if (kind === "fieldHockey") {
-    builder.box("head", v(E.toe, head, width), v(0, head / 2, 0), {
-      color: "#2b5797",
+    const color: string = "#2b5797";
+    const toeDepth: number = width / 2;
+    builder.box("head", v(E.toe, toeDepth, width), v(E.toe / 4, toeDepth / 2, 0), {
+      color,
+    });
+    builder.box("toe", v(toeDepth, head / 2, width), v(3 * E.toe / 4 - toeDepth / 2, head / 4, 0), {
+      color,
+    });
+    builder.rod("heel", width / 2, v(0, toeDepth, 0), v(0, head, 0), {
+      color,
     });
     builder.rod("shaft", width / 2, v(0, head, 0), v(0, length, 0), {
-      color: "#2b5797",
+      color,
     });
-    face = v(0, head / 2, width / 2);
+    face = v(E.toe / 4, toeDepth / 2, width / 2);
     faceWidth = E.toe;
     gripLength = length - head;
     aperture = width;
+  } else if (kind === "lacrosse") {
+    const section: number = 0.007;
+    const pocketDepth: number = 0.045;
+    const net: IAutoMovieVector3 = v(0, head / 2, -pocketDepth);
+    const rim = (step: number): IAutoMovieVector3 => {
+      const angle: number = (2 * Math.PI * step) / 12;
+      return v(
+        (width / 2 + section) * Math.sin(angle),
+        section + ((head - section) * (1 + Math.cos(angle))) / 2,
+        0,
+      );
+    };
+    builder.rod("shaft", depth / 2, v(0, head, 0), v(0, length, 0), {
+      color: "#28323d",
+    });
+    for (let step: number = 0; step < 12; ++step) {
+      builder.rod(`rim-${step}`, section, rim(step), rim(step + 1), {
+        color: "#d2d2cb",
+      });
+      if (step % 2 === 0)
+        builder.rod(`mesh-${step}`, 0.0015, rim(step), net, {
+          color: "#aeb2b0",
+        });
+    }
+    // A nominal Sixes ball has about a 32 mm radius and an origin at
+    // its bottom. Its centre sits inside the pocket behind the face.
+    builder.affordance({
+      id: "pocket",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, head / 2 - 0.032, -0.018)),
+      extent: null,
+    });
+    builder.affordance({
+      id: "scoop",
+      kind: "surface",
+      direction: "normal",
+      frame: ArchetypeFrame.facing(v(0, section, section), v(0, 0, 1), v(1, 0, 0)),
+      extent: null,
+      width,
+      depth: section * 2,
+    });
+    face = v(0, head / 2, 0);
+    faceWidth = width;
+    gripLength = length - head;
+    aperture = depth;
   } else {
     builder.box("blade", v(width, head, depth), v(0, head / 2, 0), {
       color: "#e8d3a1",
@@ -174,12 +233,13 @@ export function createStick(
  */
 export namespace createStick {
   /** The kinds of stick. */
-  export type Kind = "iceHockey" | "fieldHockey" | "cricketBat";
+  export type Kind = "iceHockey" | "fieldHockey" | "lacrosse" | "cricketBat";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "iceHockey",
     "fieldHockey",
+    "lacrosse",
     "cricketBat",
   ];
 
@@ -188,8 +248,9 @@ export namespace createStick {
    *
    * - `grip`: where both hands hold the stick.
    * - `blade`: the striking face, its `+Y` out of it.
+   * - `pocket`, `scoop`: the lacrosse ball's rest socket and the front edge of the head.
    */
-  export type Affordance = "grip" | "blade";
+  export type Affordance = "grip" | "blade" | "pocket" | "scoop";
 
   /**
    * The free dimensions, metres unless stated:
@@ -274,6 +335,13 @@ export namespace createStick {
         `${FIH}: at most 737 g; the lower end is ${ArchetypeBand.TYPICAL_MASS}`,
         true,
       ),
+    },
+    lacrosse: {
+      length: ArchetypeBand.metres(0.9, 1.1, SIXES),
+      head: ArchetypeBand.metres(0.254, 0.254, SIXES),
+      width: ArchetypeBand.metres(0.15, 0.15, SIXES),
+      depth: ArchetypeBand.metres(0.025, 0.03, "Coarse shaft diameter for grip placement", true),
+      mass: ArchetypeBand.of("kg", 0.28, 0.45, ArchetypeBand.TYPICAL_MASS, true),
     },
     cricketBat: {
       length: ArchetypeBand.metres(

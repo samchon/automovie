@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
+  IAutoMovieMotionHumanGuard,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingStance,
   IAutoMovieResolvedBone,
@@ -258,6 +259,7 @@ export namespace StrikingStance {
    * @param body The unchanged canonical body.
    * @param stance The captured leading-side reader inputs.
    * @param drop The captured per-side glove sag inputs, metres; empty by default.
+   * @param style The authored sporting carriage. Absent uses the original open guard.
    * @returns The guard at an actual posture and optional operation-local FK source.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines body-owned fixed FK demand, captured guard inputs, actual changing posture and optional synchronous source.
@@ -272,10 +274,11 @@ export namespace StrikingStance {
     body: IAutoMovieMotionHumanBody,
     stance: Pick<IAutoMovieMotionHumanStrikingStance.IStance, "lead">,
     drop: Partial<Record<"left" | "right", number>> = {},
+    style?: IAutoMovieMotionHumanGuard.Style,
   ): (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>) => Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> {
     const trunk: ReturnType<typeof StrikingBody.prepareTrunk> = StrikingBody.prepareTrunk(body, StrikingGuardBones(body));
     return (posture: IAutoMovieMotionHumanPosture, resolution?: Parameters<typeof prepareHumanPoseResolution>[0], projection?: ReturnType<typeof prepareHumanPostureProjection>): Pick<IAutoMovieMotionHumanPosture["limbs"], "leftArm" | "rightArm"> =>
-      StrikingGuard(body, posture, stance, drop, trunk(posture, resolution, projection));
+      StrikingGuard(body, posture, stance, drop, trunk(posture, resolution, projection), undefined, style);
   }
 
   /**

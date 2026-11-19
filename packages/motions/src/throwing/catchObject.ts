@@ -87,6 +87,9 @@ export namespace catchObject {
 
   /** Cancel table: a secured catch is thrown back, stood with, or walked with. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
+    ballSport: [
+      { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.2 },
+    ],
     throwObject: [
       { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.2 },
     ],
@@ -114,10 +117,23 @@ export namespace catchObject {
 
   /** How long the give takes, seconds (provisional). */
   export const GIVE_TIME: number = 0.15;
+
+  /** A staged intercept read from the canonical prop at one authored second. */
+  export interface IInterception {
+    /** The contact's action-local second. */
+    contact: number;
+
+    /** World velocity immediately before contact, in metres per second. */
+    speed: IAutoMovieVector3;
+
+    /** The ball's world centre on the action clock up to contact. */
+    before(seconds: number): IAutoMovieVector3;
+  }
   /**
    * Plan a catch.
    *
    * @param context The action's context.
+   * @param interception An optional realized interception supplied by `stageCatch`.
    * @returns The plan.
    * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no size, the glove is not worn on the one catching hand or has no pocket, the path never comes within reach, or the catch would start before the action.
    *
@@ -129,7 +145,10 @@ export namespace catchObject {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed rank geometry and final hand-surface metadata are shared without answers; each roll/current target remains actual. Runtime Frame FK loans reach only actual raw sternum reads, and a public object call lends one local getter through its original full composition and final centre observation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Rank-loop geometry releases before its hand primitive returns; the plan owns original launch/clock and constant-size hand/path metadata. Each runtime loan/local object getter releases per synchronous call; no candidate fit, sampled pose or query history is retained.
    */
-  export function plan(context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>): IAutoMovieMotionHumanCatchObject.IPlan {
+  export function plan(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
+    interception?: IInterception,
+  ): IAutoMovieMotionHumanCatchObject.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const arm: number = m.upperArm + m.forearm;
@@ -139,21 +158,6 @@ export namespace catchObject {
       context.start,
       "ball",
     ).radius;
-    const placed: IAutoMovieMotionHumanPlacedAction = context.action(context.params.from);
-    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined = throwObject.of(placed.plan);
-    if (launch === undefined)
-      throw new HumanRefusal({
-        kind: "participant",
-        axis: "from",
-        value: context.params.from,
-        feasible: {
-          kind: "alternatives",
-          values: ["the anchor of a throwObject action"],
-        },
-        reason: `${context.params.from} is a ${placed.name}, not a throw`,
-        fix: "give the throw an anchor and name that anchor in from",
-      });
-    const released: number = placed.start + launch.seconds - context.start;
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
@@ -162,42 +166,10 @@ export namespace catchObject {
       yaw: standing.yaw,
     };
 
-    // The interception: where the path first comes REACH arms ahead. A
-    // drag-free flight keeps its horizontal velocity, so the path's distance
-    // ahead of the catcher falls linearly with the flight's time, at the
-    // closing speed along the catcher's heading, and meets REACH arms at
-    // that line's root.
-    const ahead: number =
-      HumanFrame.local(frame, launch.point).z - REACH * arm;
-    const closing: number = -HumanFrame.local(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
-      launch.velocity,
-    ).z;
-    if (ahead <= 0)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "from",
-        value: context.params.from,
-        reason: `the throw starts within the reach`,
-        fix: "stand farther from the thrower, beyond the arms' reach of the release",
-      });
-    if (!(closing > 0))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "from",
-        value: context.params.from,
-        reason: `the throw never comes within reach`,
-        fix: "stand on the throw's path, or aim the throw at the catcher",
-      });
-    const flight: number = ahead / closing;
-    const meet: IAutoMovieVector3 = throwObject.path(launch, flight);
-    const contact: number = released + flight;
-    const speed: IAutoMovieVector3 = {
-      x: launch.velocity.x,
-      y: launch.velocity.y - AutoMovieGravity.STANDARD * flight,
-      z: launch.velocity.z,
-    };
-    const along: IAutoMovieVector3 = Vector3.normalize(speed);
+    const timing: IInterception = interception ?? approach(context, frame, arm);
+    const contact: number = timing.contact;
+    const meet: IAutoMovieVector3 = timing.before(contact);
+    const along: IAutoMovieVector3 = Vector3.normalize(timing.speed);
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
     const bones: ReturnType<typeof poseBones> = poseBones(body,
       resolveHumanPosture.seeded(body, standing, undefined, {}, undefined, shoulderBones).pose,
@@ -260,8 +232,8 @@ export namespace catchObject {
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ): IAutoMovieVector3 => {
-      if (seconds <= contact)
-        return throwObject.path(launch, Math.max(0, seconds - released));
+      if (seconds < contact) return timing.before(seconds);
+      if (seconds === contact) return meet;
       if (seconds <= secured)
         return Vector3.lerp(
           meet,
@@ -426,6 +398,51 @@ export namespace catchObject {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
         return object(seconds, composed.posture(seconds, undefined, resolution), resolution);
       },
+    };
+  }
+
+  /** Find where the ordinary drag-free throw first reaches the catcher's reach line. */
+  function approach(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
+    frame: IAutoMovieMotionHumanFrame,
+    arm: number,
+  ): IInterception {
+    const placed: IAutoMovieMotionHumanPlacedAction = context.action(context.params.from);
+    const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined = throwObject.of(placed.plan);
+    if (launch === undefined)
+      throw new HumanRefusal({
+        kind: "participant",
+        axis: "from",
+        value: context.params.from,
+        feasible: {
+          kind: "alternatives",
+          values: ["the anchor of a throwObject action"],
+        },
+        reason: `${context.params.from} is a ${placed.name}, not a throw`,
+        fix: "give the throw an anchor and name that anchor in from",
+      });
+    const ahead: number = HumanFrame.local(frame, launch.point).z - REACH * arm;
+    const closing: number = -HumanFrame.local(
+      { origin: { x: 0, y: 0, z: 0 }, yaw: frame.yaw },
+      launch.velocity,
+    ).z;
+    if (ahead <= 0 || !(closing > 0))
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "from",
+        value: context.params.from,
+        reason: ahead <= 0 ? "the throw starts within the reach" : "the throw never comes within reach",
+        fix: ahead <= 0
+          ? "stand farther from the thrower, beyond the arms' reach of the release"
+          : "stand on the throw's path, or aim the throw at the catcher",
+      });
+    const released: number = placed.start + launch.seconds - context.start;
+    const flight: number = ahead / closing;
+    return {
+      contact: released + flight,
+      speed: { ...launch.velocity, y: launch.velocity.y - AutoMovieGravity.STANDARD * flight },
+      before: (seconds: number): IAutoMovieVector3 =>
+        throwObject.path(launch, Math.max(0, seconds - released)),
     };
   }
 }

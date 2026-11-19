@@ -23,8 +23,26 @@ export interface IAutoMovieMotionHumanLexiconSportThrowParams {
   /** A softball pitch or a bowling delivery: underarm. The windmill is not planned. */
   underarmPitch: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
 
+  /** A continuous fastpitch softball arm circle and below-hip delivery. */
+  softballWindmill: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** A high-arm cricket delivery toward the bounce point after the composed run-up. */
+  cricketBowl: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** A low underhand bowling delivery toward the lane after the composed approach. */
+  bowlingDelivery: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
   /** A chest or bounce pass, a free throw or a shot put: a push from before the chest. The leap of a jump shot and the glide of a shot put are not planned. */
   pushPass: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** Release a staged rugby pass to the side or rear. */
+  rugbyPass: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** Release a staged overarm gridiron pass. */
+  gridironPass: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
+
+  /** Send a staged gridiron snap to the receiver. */
+  gridironSnap: Omit<IAutoMovieMotionHumanThrowObjectParams, "style">;
 
   /** A catch of a fly ball or a thrown ball in one hand. */
   gloveCatch: Omit<IAutoMovieMotionHumanCatchObject.IParams, "hands">;

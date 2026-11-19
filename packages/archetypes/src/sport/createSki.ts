@@ -31,14 +31,14 @@ const STANCE: number = 0.02;
 /**
  * An alpine ski lying flat on the snow, its tip toward `-Z`.
  *
- * Its length is one of LINE Blend's four, given or drawn from the seed, and its outline is LINE Blend's shape at that length, as a forebody from the tip's width to the waist's and an afterbody from the waist's to the tail's, at the thickness Rossignol's patent claims for an alpine ski's middle. `stance` is the top at the maker's stance mark, the surface the boot stands on; the binding is not built. Skiing is balance on a sliding support, which no motion law covers yet (#3468 N11), so the ski is built for static use and carrying.
+ * Its length is one of LINE Blend's four, given or drawn from the seed, and its outline is LINE Blend's shape at that length, as a forebody from the tip's width to the waist's and an afterbody from the waist's to the tail's, at the thickness Rossignol's patent claims for an alpine ski's middle. `stance` marks the top under the boot. `base` marks the underside at the stance with the two local edge positions, for a staged snow contact. The binding is represented by its stance anchor.
  *
  * @param params The length LINE lists and any dimension the author fixes.
  * @param seed The seed that draws the length when it is not given and every dimension left free inside its band; absent, the first length and the middle of each band.
  * @returns The ski.
  * @throws {ArchetypeRefusal} For a length LINE does not list or a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the ski lies, its outline, its contact and its static use with the missing law.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the ski lies, its outline, boot anchor and lower contact readings.
  * @evidence contracts/development/implementation.md#principled-implementation LINE's widths and one of its lengths whole, with the stance behind the centre by its 20 mm, Rossignol's patented thickness range for the middle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the length, draw the dimensions, the two halves, then the contact.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each half is a box at its two ends' mean width; no sidecut curve, rocker, camber or binding.
@@ -94,6 +94,26 @@ export function createSki(
     extent: null,
     width: WIDTH.waist,
   });
+  builder.affordance({
+    id: "base",
+    kind: "surface",
+    frame: ArchetypeFrame.upright(v(0, 0, STANCE)),
+    extent: null,
+    width: (WIDTH.waist + WIDTH.tail) / 2,
+    depth: half,
+  });
+  for (const [id, sign] of [["leftEdge", 1], ["rightEdge", -1]] as const)
+    builder.affordance({
+      id,
+      kind: "ledge",
+      frame: ArchetypeFrame.facing(
+        v(sign * (WIDTH.waist + WIDTH.tail) / 4, 0, STANCE),
+        v(0, 1, 0),
+        v(sign, 0, 0),
+      ),
+      extent: null,
+      length: half,
+    });
   return builder.build(d.mass!);
 }
 
@@ -106,8 +126,8 @@ export function createSki(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The thickness is a patent's claimed range, not one model's, and says so.
  */
 export namespace createSki {
-  /** The affordance id: `stance`, the top at the stance mark, where the boot stands. */
-  export type Affordance = "stance";
+  /** The boot stance, lower contact strip and its left and right boundaries near the stance. */
+  export type Affordance = "stance" | "base" | "leftEdge" | "rightEdge";
 
   /**
    * The free dimensions:

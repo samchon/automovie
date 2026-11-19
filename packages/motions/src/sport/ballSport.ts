@@ -31,17 +31,20 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
+import { ballCourt } from "./ballCourt";
+import { courtStroke } from "./courtStroke";
 
 /**
- * Team ball skills performed with an implied ball (#3247): the stationary
- * basketball dribble, the volleyball forearm pass (dig) and overhead pass
- * (set), and the football throw-in. The ball is implied, the hands moving
- * where it would make them, except a throw-in given a held ball (`prop`):
- * both hands grip it to the release, where it is launched on the path that
- * rises at the release angle through `at` (`throwObjectLaunch.aimed`, the
- * throw's own range equation), and flies from there (#3377). The launch
- * point is the ball's centre between the hands, as the throw's is its grip
- * point, not the prop's own origin.
+ * Team ball skills. The original stationary dribble, volleyball dig and
+ * set, and football throw-in retain their implied-ball poses (#3247). With
+ * a held prop the throw-in releases it through `at` at the specified
+ * elevation. Performance reads the actual held frame at release (#3377).
+ * Basketball dribble release, chest pass, bounce pass and set shot, and
+ * the grounded handball throw use `ballCourt`. It publishes the spherical
+ * collision shape and keeps one prop through release and flight (#3698,
+ * #3721, #3727). A planted basketball contest raises and waves both hands
+ * and can follow a separate movement phrase (#3720). The volleyball
+ * serve, spike, block, receive and set use `courtStroke`.
  *
  * - Dribble: the knees give a twentieth of the stature (provisional), the
  *   palm faces down at the hand's side ahead of the hip, pushes down a
@@ -59,12 +62,9 @@ import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
  *   and Everett 2006), to where it meets the arms' reach about the flexed
  *   shoulders.
  *
- * Every skill is a phrase: `ready` in the skill's set position after 0.5 s
- * (provisional), the stroke, and back to standing in 0.5 s.
- *
- * Not drafted: shots, passes, layups, rebounds, the spike, the block, the
- * serve, ball kicks, headers and the goalkeeper (they need the throw and the
- * ball-strike owners, #3232 and #3244, and the jump law).
+ * The original implied skills share a ready position, stroke and return.
+ * The court and volleyball families define their own phase durations and
+ * use the same action clock and composing primitives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each skill's geometry, timing and sources, the provisional values and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of crouch, lean and placed-arm rows over one phrase.
@@ -118,7 +118,7 @@ export namespace ballSport {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number; a `parameter` refusal on `at` when a throw-in's ball has no target, and a `reach` refusal on `at` when the release angle's path cannot pass through it.
+   * @throws {HumanRefusal} When the count is invalid or a modeled release lacks its required reachable aim or prop.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation One phrase; each skill's crouch, lean and arm places on its envelope and its stroke.
@@ -132,6 +132,30 @@ export namespace ballSport {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanBallSport.IParams = context.params;
+    switch (p.kind) {
+      case "dribbleRelease":
+      case "chestPass":
+      case "bouncePass":
+      case "setShot":
+      case "handballThrow":
+      case "highHandContest":
+        return ballCourt(context, p.kind);
+      case "volleyballServe":
+      case "volleyballSpike":
+      case "volleyballBlock":
+      case "volleyballReceive":
+      case "volleyballSet":
+        return courtStroke(
+          context,
+          p.kind,
+          p.contactAt === undefined ? {} : { contact: p.contactAt },
+        );
+      case "dribble":
+      case "dig":
+      case "set":
+      case "throwIn":
+        break;
+    }
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
     const count: number = p.count ?? 4;

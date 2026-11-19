@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   Archetype,
@@ -16,9 +17,15 @@ const ROUND: string =
   "Viking Age round shields, 75 to 90 cm across by far the most common (Wikipedia, Viking Age arms and armour, https://en.wikipedia.org/wiki/Viking_Age_arms_and_armour)";
 
 /**
- * A shield held by a grip behind its boss: a buckler or a round shield.
+ * A buckler, round shield or strapped digital stage shield.
  *
- * The shield stands upright with its centre at the origin and its face toward `+Z`. It is a disc with a domed boss on the face and a bar across the back, behind the boss, that the fist closes on. `face` is the whole front that meets a blow, `boss` the dome's top that a punch leads with, and `rim` the top of the edge. `slung` is where the shield hangs on a wearer's back: on its axis at its rearmost point, the back of the grip bar or of the boss ball, which reaches behind the board, `+Y` toward the wearer and `+X` across the shield, so a worn prop placed with that frame on the back of the chest bone carries the shield face out; the strap that holds it there is not drawn.
+ * The board stands on its centre with its face toward `+Z`. The centre-grip
+ * variants place the grip behind the boss. The virtual foam variant uses a
+ * lateral grip and a rear loop with a separate forearm socket, using the
+ * distinction photographed in The Met's Highland Targe (1996.83) and
+ * documented by the Pitt Rivers Museum under enarmes. Its lateral rim marks
+ * sit on the board's profile. `slung` goes on the model axis at the
+ * rearmost depth, with `+Y` toward the wearer and `+X` across the shield.
  *
  * @param params The kind, a buckler's model and any dimension the author fixes.
  * @param seed The seed that picks the model left free and draws every dimension left free inside its band; absent, the first model and the middle of each band.
@@ -26,10 +33,10 @@ const ROUND: string =
  * @throws {ArchetypeRefusal} For a model not of the kind, a fixed dimension outside its band, or one the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the shield stands, what it is built of and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation A short cylinder for the board, a ball for the boss and a rod for the grip, of one density, so the centre of mass sits at the disc's centre a little toward the boss and the inertia is a disc's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the other dimensions, three parts, five contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No arm strap, no rim binding and no guige strap for slinging; the board's thickness and the boss's size are estimates named on their constants.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three parts.
+ * @evidence contracts/development/implementation.md#principled-implementation The disc, boss and grip record the existing mass geometry. The foam variant sizes the arm loop and lateral rim marks from the same radius and thickness as the board.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the model's dimensions, then place its rigid parts and marks relative to the board.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stage loop is fixed foam geometry with a contact frame for authoring. It carries no cloth, tension or implied humanoid constraint.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of parts and affordances.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -67,32 +74,32 @@ export function createShield(
     createShield.Dimension
   > = new ArchetypeBuilder({
     id: params.id,
-    name: kind === "buckler" ? "buckler" : "round shield",
-    material: "composite",
+    name: kind === "buckler" ? "buckler" : kind === "round" ? "round shield" : "strapped stage shield",
+    material: kind === "strapped" ? "foam" : "composite",
     draw,
   });
   const v: typeof Vector3.create = Vector3.create;
   const radius: number = d.diameter! / 2;
   const half: number = createShield.BOARD[kind] / 2;
   const bar: number = createShield.GRIP / 2;
+  const strapped: boolean = kind === "strapped";
   builder.rod("board", radius, v(0, 0, -half), v(0, 0, half), {
     color: kind === "buckler" ? "#8a8d91" : "#a9825a",
   });
   builder.ball("boss", createShield.BOSS, v(0, 0, half), {
     color: "#6c7076",
   });
-  builder.rod(
-    "grip",
-    bar,
-    v(-createShield.BOSS, 0, -half - bar),
-    v(createShield.BOSS, 0, -half - bar),
-    { color: "#4a3324" },
-  );
+  const grip: IAutoMovieVector3 = v(strapped ? radius * 0.45 : 0, 0, -half - bar);
+  const along: IAutoMovieVector3 = strapped ? v(0, 1, 0) : v(1, 0, 0);
+  const halfGrip: IAutoMovieVector3 = Vector3.scale(along, createShield.BOSS);
+  builder.rod("grip", bar, Vector3.subtract(grip, halfGrip), Vector3.add(grip, halfGrip), {
+    color: "#4a3324",
+  });
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(v(0, 0, -half - bar), v(0, 0, -1), v(1, 0, 0)),
+    frame: ArchetypeFrame.facing(grip, v(0, 0, -1), along),
     extent: null,
     grip: "power",
     aperture: createShield.GRIP,
@@ -125,10 +132,35 @@ export function createShield(
     frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
   });
+  if (strapped) {
+    const strapX: number = -radius * 0.38;
+    const strapHalf: number = radius * 0.19;
+    const strapBack: number = -half - 3 * bar;
+    const low: IAutoMovieVector3 = v(strapX, -strapHalf, strapBack);
+    const high: IAutoMovieVector3 = v(strapX, strapHalf, strapBack);
+    builder.rod("forearm-strap", bar, low, high, { color: "#645579" });
+    builder.rod("strap-low", bar, v(strapX, -strapHalf, -half), low, { color: "#645579" });
+    builder.rod("strap-high", bar, v(strapX, strapHalf, -half), high, { color: "#645579" });
+    builder.affordance({
+      id: "forearm",
+      kind: "socket",
+      frame: ArchetypeFrame.facing(v(strapX, 0, strapBack + bar), v(0, 0, -1), v(1, 0, 0)),
+      extent: null,
+    });
 
-  // Slung on the back, the shield's rearmost point lies against the wearer, its face outward: the back of the grip bar or of the boss ball, which reaches behind the board, whichever is farther back.
+    // Keep the lateral frames available as visual stage marks.
+    for (const [id, sign] of [["rim-negative-x", -1], ["rim-positive-x", 1]] as const)
+      builder.affordance({
+        id,
+        kind: "ledge",
+        frame: ArchetypeFrame.facing(v(sign * radius, 0, 0), v(sign, 0, 0), v(0, 1, 0)),
+        extent: null,
+      });
+  }
+
+  // Use the backmost depth of the loop, grip or boss to clear the wearer's back.
   const rear: number = Math.min(
-    -half - createShield.GRIP,
+    -half - (strapped ? 4 * bar : createShield.GRIP),
     half - createShield.BOSS,
   );
   builder.affordance({
@@ -150,15 +182,16 @@ export function createShield(
  */
 export namespace createShield {
   /** The kinds of shield. */
-  export type Kind = "buckler" | "round";
+  export type Kind = "buckler" | "round" | "strapped";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["buckler", "round"];
+  export const KINDS: readonly Kind[] = ["buckler", "round", "strapped"];
 
   /** The board's thickness, metres, by kind: a steel plate and a plank board. Estimates, not read at a source. */
   export const BOARD: Readonly<Record<Kind, number>> = {
     buckler: 0.003,
     round: 0.008,
+    strapped: 0.035,
   };
 
   /** The boss's radius, metres, which is also half the grip bar's length behind it. An estimate, not read at a source. */
@@ -174,9 +207,13 @@ export namespace createShield {
    * - `face`: the whole front, facing `+Z`, as wide and as high as the diameter.
    * - `boss`: the top of the boss's dome, facing `+Z`.
    * - `rim`: the top of the edge, facing up.
+   * - `forearm`: the rear loop's interior on the strapped stage shield.
+   * - `rim-negative-x` and `rim-positive-x`: lateral marks on the strapped stage shield.
    * - `slung`: the shield's rearmost point on its axis, `+Y` toward a wearer whose back the shield hangs on (#3500).
    */
-  export type Affordance = "grip" | "face" | "boss" | "rim" | "slung";
+  export type Affordance =
+    | "grip" | "face" | "boss" | "rim" | "slung"
+    | "forearm" | "rim-negative-x" | "rim-positive-x";
 
   /**
    * The free dimensions:
@@ -242,6 +279,10 @@ export namespace createShield {
         "a plank round shield with its boss, not read at a source",
         true,
       ),
+    },
+    strapped: {
+      diameter: ArchetypeBand.metres(0.72, 0.92, "Authored virtual stage scale.", true),
+      mass: ArchetypeBand.of("kg", 0.35, 0.55, "Nominal foam mass for virtual staging.", true),
     },
   };
 }

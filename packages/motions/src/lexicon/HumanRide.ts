@@ -29,6 +29,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
+import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
 
 /**
  * Riding: a seated person carried by a support that moves by itself, such
@@ -48,17 +49,13 @@ import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
  * strides of a cue track; with `feet` each foot stays on a part that moves
  * within the support, a pedal on its crank or a stirrup; with `hands` each
  * hand holds a grip, a rein or a wheel's rim and follows it the same way,
- * the trunk leaning forward at each instant as far as the hands need to
- * reach what they hold (`HumanMountReach.reach`), as a fixed-seat rower
- * leans to the catch the oar's handle comes to. First pass: the rider
- * leans exactly as the support does and absorbs no bump, a pedalling foot
- * keeps its pitch to the frame except where the leg would run short and it
- * points down about its ball (`HumanMountRider`), and mounting and dismounting are the
- * sitting actions. The ride passes on the seat it was entered on as its
- * base, so `rise` after it gets off a saddle to the left unasked.
+ * the trunk leaning to keep the grips in reach. With `equestrian` the
+ * rider can articulate relative to the saddle on the horse's touchdown
+ * clock, ride an authored jump, or turn over one shoulder on a film cue.
+ * The ride passes its original seat on as its base for dismounting.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what riding is here, how it is composed, what it yields and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A law record whose posture is the entry's seated posture moved by the support's rigid motion, with contact windows that name the support as their frame.
+ * @evidence contracts/development/common.md#meaningful-documentation States the seated entry, yields, ordinary and equestrian composition, and retained base.
+ * @evidence contracts/development/design.md#principled-representation Carry the entry's seated posture with the support, then apply optional cue-driven articulation before fitting hand and foot goals. Contact windows name the support as their frame.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law and its parameters.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The support's motion is read from the performance's prop, never from parameters of the rider's own.
  */
@@ -152,9 +149,8 @@ export namespace HumanRide {
             });
         }
 
-        // A foot bears on the support only where it bore when the ride began: a foot that hangs from a saddle keeps hanging. The seat bears throughout unless the rider rises from it.
-        const contacts: IAutoMovieMotionHumanContactWindow[] =
-          rising === undefined ? [bears("seat", "seat")] : [];
+        // A foot that hung when the ride began keeps hanging.
+        const contacts: IAutoMovieMotionHumanContactWindow[] = [];
         for (const side of ["left", "right"] as const)
           if (context.entry.feet[side].planted)
             contacts.push(bears(`${side}Foot`, "plant"));
@@ -235,6 +231,15 @@ export namespace HumanRide {
           saddle === undefined
             ? undefined
             : support.prop.point?.(saddle, context.start)?.point;
+        const equestrian: ReturnType<typeof prepareHumanEquestrianRide> =
+          prepareHumanEquestrianRide(context, origin, sat);
+        if (equestrian?.offSeat !== undefined) {
+          const [lift, settle]: readonly [number, number] = equestrian.offSeat;
+          contacts.unshift(
+            { ...bears("seat", "seat"), to: lift / seconds },
+            { ...bears("seat", "seat"), from: settle / seconds },
+          );
+        } else if (rising === undefined) contacts.unshift(bears("seat", "seat"));
 
         // How far a part of the support has left the place the support alone would have carried it to from where it was when the ride began.
         const strayed = (
@@ -351,6 +356,7 @@ export namespace HumanRide {
             pitch: tipped.pitch,
             roll: tipped.roll,
           };
+          equestrian?.at(film - context.start, out, now, seat, up);
 
           // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
           const grasp: IAutoMovieMotionHumanPosture["joints"] = {};
@@ -434,9 +440,11 @@ export namespace HumanRide {
         if (alternatives === undefined) return plan;
 
         // Roots, the seat and both grips share an authored stationary domain only
-        // after acquisition. A posting stride or moving pedals still change the rider.
+        // after acquisition. A posting stride, an equestrian response or moving pedals still change the rider.
         const domains: readonly RigidCarrierSample.IHold[] | undefined =
-          rising === undefined && pedals.length === 0
+          rising === undefined &&
+          equestrian === undefined &&
+          pedals.length === 0
             ? RigidCarrierSample.holds(support.prop)
             : undefined;
         const nativeFrame: typeof support.prop.motion =

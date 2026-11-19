@@ -34,7 +34,7 @@ const GEOMETRY: string =
  * @evidence contracts/development/common.md#meaningful-documentation States the bicycle's origin and front, the crank's zero and turning sense, and how the saddle height is measured.
  * @evidence contracts/development/implementation.md#principled-implementation Rods for the frame's tubes from the bottom bracket, the two axles and the saddle; the saddle's top lies `saddleHeight` up the seat tube from the bottom bracket's centre, the point LeMond's 0.883 of the inseam is measured to (Bini, Hume and Croft 2011, Sports Med 41:463, section 3.1.1). The crank's frame points out of the left side so that a right-handed turn about it carries the top of the stroke forward.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, place the five points of the frame, then the parts and the affordances on them.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No chain, gears or brakes; the wheels do not spin.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The round wheel forms carry visible spin markers. Chain, gears and brakes are not modeled.
  * @evidence contracts/development/implementation.md#efficient-algorithms About fifteen parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -85,15 +85,29 @@ export function createBicycle(
   const bars: IAutoMovieVector3 = v(0, saddle.y, saddle.z + d.reach);
   const head: IAutoMovieVector3 = v(0, saddle.y - 0.08, bars.z - 0.06);
 
-  for (const [name, at] of [
-    ["wheel-rear", rear],
-    ["wheel-front", fore],
-  ] as const)
-    builder.rod(name, radius, v(-0.012, at.y, at.z), v(0.012, at.y, at.z), {
+  for (const [end, at] of [
+    ["rear", rear],
+    ["front", fore],
+  ] as const) {
+    const wheel: string = `wheel-${end}`;
+    const marker: string = `wheel-${end}-marker`;
+    builder.rod(wheel, radius, v(-0.012, at.y, at.z), v(0.012, at.y, at.z), {
       color: "#22262b",
       density: 0.2,
       surface: "rubber",
     });
+    builder.box(marker, v(0.028, radius * 0.76, 0.008), v(0, at.y + radius * 0.45, at.z), {
+      color: "#8a8d91",
+    });
+    builder.affordance({
+      id: `${end}Spin`,
+      kind: "knob",
+      frame: ArchetypeFrame.facing(at, v(1, 0, 0), v(0, 1, 0)),
+      extent: null,
+      travel: 360,
+      parts: [wheel, marker],
+    });
+  }
   for (const [name, from, to] of [
     ["seat-tube", bracket, v(0, saddle.y - 0.03, saddle.z)],
     ["down-tube", bracket, head],
@@ -229,12 +243,15 @@ export namespace createBicycle {
    * - `leftGrip`, `rightGrip`: the handlebar's grips on `+X` and `-X`, taken from above.
    * - `crank`: the crank's axle, out of the left side; its travel turns both arms, positive pedalling forward from the left arm's top dead centre.
    * - `leftPedal`, `rightPedal`: the pedals, riding the crank and staying level.
+   * - `frontSpin`, `rearSpin`: wheel travel about their axles, positive rolling forward.
    */
   export type Affordance =
     | "saddle"
     | "leftGrip"
     | "rightGrip"
     | "crank"
+    | "frontSpin"
+    | "rearSpin"
     | "leftPedal"
     | "rightPedal";
 

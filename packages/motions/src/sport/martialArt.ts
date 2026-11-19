@@ -31,6 +31,7 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
 
 /**
  * Martial-art forms other than kickboxing (#3252): the karate horse stance
@@ -53,10 +54,9 @@ import { HumanFrame } from "../posture/HumanFrame";
  *   ahead, then shifts back over 3 s, and the foot returns over 3 s: the
  *   slow, continuous form of tai chi (Wu and Hitt 2005).
  *
- * Forms are authored as ordered technique lists; no named form's content is
- * shipped. Not drafted: front and back stances as their own rows, blocks,
- * taekwondo's back and turning kicks, judo and wrestling (the grappling
- * owner's) and the tai chi gait.
+ * The karate and tai chi stance phrases link their own support transfers
+ * and arm carriage on a single clock. Forms can combine these phrases with
+ * other named techniques.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each technique's geometry, timing with its source, provisional values and what is not drafted.
  * @evidence contracts/development/design.md#principled-representation A law record of root, leg and placed-arm rows on one clock.
@@ -107,6 +107,9 @@ export namespace martialArt {
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
+    if (p.kind === "karateStanceTransfer" || p.kind === "taiChiTransfer")
+      return MartialArtStancePhrase(context, p.kind, hold, modifiers);
+
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const axes: IAutoMovieMotionHumanFrame = { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw };
     const forward: IAutoMovieVector3 = HumanFrame.point(axes, {

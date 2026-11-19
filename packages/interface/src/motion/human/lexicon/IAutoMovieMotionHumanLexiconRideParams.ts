@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionHumanBicycleEffort } from "./IAutoMovieMotionHumanBicycleEffort";
+import type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanBikeTransfer";
 import type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
@@ -17,4 +19,10 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Push a wheelchair through its handrims. */
   HumanHandrimStroke: IAutoMovieMotionHumanHandrimStroke;
+
+  /** Rise to the pedals, then return to the bicycle saddle. */
+  HumanBicycleEffort: IAutoMovieMotionHumanBicycleEffort;
+
+  /** Transfer between ground support and a staged bicycle. */
+  HumanBikeTransfer: IAutoMovieMotionHumanBikeTransfer;
 }

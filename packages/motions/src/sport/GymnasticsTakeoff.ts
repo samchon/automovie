@@ -41,6 +41,7 @@ export namespace GymnasticsTakeoff {
    *
    * @param context The action's context.
    * @param aim The launch velocity asked, m/s, given the take-off centre, world metres; its vertical part positive.
+   * @param foot The optional authored support foot for the push-off.
    * @returns The take-off.
    * @throws {HumanRefusal} When the velocity asked does not rise, or the jump refuses its push-off.
    *
@@ -55,6 +56,7 @@ export namespace GymnasticsTakeoff {
   export function of(
     context: IAutoMovieMotionHumanActionContext<object>,
     aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
+    foot?: "left" | "right",
   ): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
     const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(context.body);
     const launch: ReturnType<typeof prepareGymnasticsLaunch> = prepareGymnasticsLaunch(context.body, model);
@@ -95,7 +97,7 @@ export namespace GymnasticsTakeoff {
       const plan: IAutoMovieMotionHumanActionPlan = jump.plan({
         ...context,
         params: { to, apex },
-      });
+      }, foot);
       const seconds: number = at(plan, "takeoff");
       const read: { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 } =
         launch(plan, seconds);

@@ -14,7 +14,9 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
+import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**
@@ -82,7 +84,7 @@ export namespace step {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the step count is not a whole number of at least one, or the length leaves (0, one stance length].
+   * @throws {HumanRefusal} When count, travel or turn exceeds its documented range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
    * @evidence contracts/development/implementation.md#principled-implementation The coached foot order in the stance's line frame, each foot on a lifted minimum-jerk path in its half step, the root on its own minimum-jerk profile, the legs and guard solved by the shared fit.
@@ -99,20 +101,32 @@ export namespace step {
     const count: number = p.steps ?? 1;
     HumanBound.whole("steps", count);
     const body = context.body;
-    const length: number = p.length ?? STEP_SHARE * StrikingStance.length(body);
+    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const turn: number = p.turn ?? 0;
+    HumanBound.within("turn", turn, -90 * count, 90 * count, "deg");
+    const transition: boolean = turn !== 0 || (p.lead !== undefined && p.lead !== lead);
+    const length: number = p.length ?? (transition ? 0 : STEP_SHARE * StrikingStance.length(body));
     HumanBound.within(
       "length",
       length,
       0,
       StrikingStance.length(body),
       "m",
-      "minimum",
+      transition ? undefined : "minimum",
     );
     const stride: number = period(body);
+    if (transition)
+      return StrikingStepTransition.plan(context, {
+        count,
+        stride,
+        length,
+        turn,
+        lead,
+      });
+
     const duration: number = count * stride;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const joints: IAutoMovieMotionHumanPosture["joints"] = { ...entry.joints, ...StrikingStance.joints(entry.joints) };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const rear: "left" | "right" = StrikingStance.rear({ lead });
 
     // The line frame: the stance's line is the heading turned back by the
@@ -227,7 +241,7 @@ export namespace step {
           ...posture,
           limbs: {
             ...posture.limbs,
-            ...StrikingStance.guard(body, posture, { lead }),
+            ...StrikingGuard(body, posture, { lead }, {}, undefined, undefined, p.guard),
           },
         };
       },

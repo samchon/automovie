@@ -78,6 +78,7 @@ export namespace WorkoutLoad {
    * @param context The action's context.
    * @param load The load's parameters.
    * @param midfoot Whether a bar in both hands travels over the middle of the feet.
+   * @param turnover Whether to preserve the keyed shoulder-to-bar direction through turnover and the overhead receive.
    * @returns What the plan needs of it.
    * @throws {HumanRefusal} When the hand does not hold the prop, or the prop lacks the other handle.
    *
@@ -93,6 +94,7 @@ export namespace WorkoutLoad {
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "subject">,
     load: IAutoMovieMotionHumanWorkoutLoad.IParams,
     midfoot: boolean = false,
+    turnover: boolean = false,
   ): IAutoMovieMotionHumanWorkoutLoad.ILoad {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const side: AutoMovieHumanSide = load.hand ?? "right";
@@ -279,11 +281,16 @@ export namespace WorkoutLoad {
         // Beyond the keyed circle the shortest extension to the centred
         // handle is purely lateral. The native arm fit owns its articulation.
         const radius: number = remaining > 0 ? Math.sqrt(remaining) : 0;
-        const forth: number = Math.max(
+        const keyedForth: number = Vector3.dot(reach, ahead);
+        // Keep turnover on its continuous vertical/forward route when the
+        // bar moves from below the shoulders into the rack and overhead.
+        const radial: number = Math.hypot(keyedForth, reach.y);
+        const fit: number = radial === 0 ? 0 : Math.min(1, radius / radial);
+        const forth: number = turnover ? keyedForth * fit : Math.max(
           -radius,
           Math.min(
             radius,
-            Vector3.dot(reach, ahead) + (balance === undefined ? 0 : Vector3.dot(off, ahead)),
+            keyedForth + (balance === undefined ? 0 : Vector3.dot(off, ahead)),
           ),
         );
         const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
@@ -292,7 +299,7 @@ export namespace WorkoutLoad {
             Vector3.add(shoulder, Vector3.scale(across, aside)),
             Vector3.add(Vector3.scale(ahead, forth), {
               x: 0,
-              y:
+              y: turnover ? reach.y * fit :
                 (reach.y > 0 ? 1 : -1) *
                 Math.sqrt(radius * radius - forth * forth),
               z: 0,

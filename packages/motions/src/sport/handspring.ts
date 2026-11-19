@@ -147,6 +147,7 @@ export namespace handspring {
    *
    * @param context The action's context.
    * @param surface What the hands land on.
+   * @param landingSurface Where the feet land. Omitted uses the entry's ground height.
    * @returns The plan.
    * @throws {HumanRefusal} When the hands do not come down before the release, come down off the surface, or no rate up to the bound lands the body.
    *
@@ -161,6 +162,7 @@ export namespace handspring {
   export function over(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandspring.IParams>,
     surface: IAutoMovieMotionHumanHandspring.ISurface,
+    landingSurface?: IAutoMovieMotionHumanHandspring.ISurface,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
@@ -199,6 +201,9 @@ export namespace handspring {
         entered.get("rightFoot")!.worldPosition.y) /
       2;
     const ground: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };
+    const riseOfMat: number = landingSurface === undefined
+      ? 0
+      : landingSurface.height - (ankle - body.measure.ankleHeight);
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
       { bones: ["leftFoot", "rightFoot"], height: ankle, support: ground },
       {
@@ -275,7 +280,7 @@ export namespace handspring {
     ]);
     const standingOn: IAutoMovieMotionHumanPosture = {
       ...landing,
-      root: { x: 0, y: ankle - feet.y, z: 0 },
+      root: { x: 0, y: ankle + riseOfMat - feet.y, z: 0 },
     };
     const height: number = GymnasticsFlight.centre(body, model, standingOn).y;
 
@@ -357,6 +362,10 @@ export namespace handspring {
       left: shown.get("leftFoot")!.worldPosition,
       right: shown.get("rightFoot")!.worldPosition,
     };
+    if (landingSurface !== undefined) {
+      landingSurface.within(landed.left);
+      landingSurface.within(landed.right);
+    }
     const rootDown: IAutoMovieVector3 = touched.root;
     const rootSpeed: IAutoMovieVector3 = Vector3.scale(
       Vector3.subtract(rootDown, flying(flight - 1e-3).root),
@@ -372,7 +381,7 @@ export namespace handspring {
         Vector3.lerp(landed.left, landed.right, 0.5),
         Vector3.subtract(standing.root, stoodFeet),
       ),
-      y: standing.root.y,
+      y: standing.root.y + riseOfMat,
     };
     const forward: IAutoMovieVector3 = {
       x: Math.sin((yaw * Math.PI) / 180),
@@ -420,7 +429,7 @@ export namespace handspring {
           kind: "plant",
           from: touchdown / duration,
           to: 1,
-          support: ground,
+          support: landingSurface?.support ?? ground,
         }),
       ),
     ];

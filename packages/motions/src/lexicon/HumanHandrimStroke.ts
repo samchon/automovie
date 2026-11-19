@@ -106,7 +106,7 @@ const refuseRim = (on: string, rim: string, side: "left" | "right"): never => {
 };
 
 /**
- * One bilateral handrim engagement over an ordinary seated ride.
+ * One single-handed or bilateral handrim engagement over a seated ride.
  * Register the law and give the chair a circumferential contact reader,
  * such as `wheelchairHandrimFrame`. The hands approach, follow the
  * rotating rim points until release, and recover outward to the carried
@@ -116,11 +116,13 @@ const refuseRim = (on: string, rim: string, side: "left" | "right"): never => {
  * Slowik et al. (2015), Figure 1 and Table 1,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC4631660/#T1 . The recovery
  * clearance is a staging dimension of one rider hand length. The law
- * checks seat alignment, wheel sides and solved wrists at nine points
+ * checks seat alignment, active wheel sides and solved wrists at nine points
  * through the push before publishing contact windows.
+ * Chénier et al. (2022), https://pubmed.ncbi.nlm.nih.gov/34915435/,
+ * also measured asymmetric propulsion during wheelchair basketball dribbles.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry, prop reader, push and recovery phases, and the source of the wheel travel.
- * @evidence contracts/development/design.md#principled-representation The plan composes the ride's support path with a phase-clocked arm target and bilateral grip windows.
+ * @evidence contracts/development/design.md#principled-representation The plan composes the ride's support path with a phase-clocked arm target and a grip window for each active hand.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered action over the reusable HumanRide base and HumanMountRider hand fit.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The prop reader owns the handrim material trajectory. The law computes stage poses and leaves wheel dynamics to the authored course.
  */
@@ -135,6 +137,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       const {
         on,
         rims,
+        side,
         approach,
         push,
         recovery,
@@ -188,8 +191,11 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         ...context,
         params: { on, seconds: duration },
       });
-      if (rims?.left === rims?.right) refuseRim(on, rims?.right ?? "", "right");
-      const wheels: IRim[] = SIDES.map((side: "left" | "right"): IRim => {
+      const active: readonly ("left" | "right")[] =
+        side === undefined ? SIDES : [side];
+      if (side === undefined && rims?.left === rims?.right)
+        refuseRim(on, rims?.right ?? "", "right");
+      const wheels: IRim[] = active.map((side: "left" | "right"): IRim => {
         const rim: string = rims?.[side];
         const geometry: IAutoMovieAffordance | undefined =
           chair.prop.affordances?.find(
@@ -312,7 +318,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         },
       );
 
-      const windows: IAutoMovieMotionHumanContactWindow[] = SIDES.map(
+      const windows: IAutoMovieMotionHumanContactWindow[] = active.map(
         (side: "left" | "right"): IAutoMovieMotionHumanContactWindow => ({
           part: `${side}Hand`,
           kind: "grip",
@@ -321,7 +327,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           support: { kind: "prop", subject: on },
         }),
       );
-      /** Compose the carried seated posture and the paired wrist targets. */
+      /** Compose the carried seated posture and the selected wrist targets. */
       const posture = (seconds: number): IAutoMovieMotionHumanPosture => {
         const at: number = Math.max(0, Math.min(duration, seconds));
         const seated: IAutoMovieMotionHumanPosture = base.posture(at);
@@ -391,7 +397,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         const posed: IAutoMovieMotionHumanPosture = posture(at);
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           poseBones(context.body, resolveHumanPosture(context.body, posed));
-        for (const side of SIDES) {
+        for (const side of active) {
           const wrist: IAutoMovieVector3 = bones.get(
             `${side}Hand`,
           )!.worldPosition;
@@ -415,7 +421,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       }
       return {
         ...base,
-        hands: SIDES,
+        hands: active,
         contact: approach,
         events: [
           { name: "catch", share: approach / duration },

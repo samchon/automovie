@@ -13,7 +13,7 @@ import {
 } from "../core";
 
 /**
- * A ball of a game: a football, a basketball, a volleyball, a handball, a tennis ball, a baseball, a softball, a golf ball, a cricket ball, a bowling ball, a rugby ball, an American football, or an ice hockey puck.
+ * A ball or puck sized for its game, with its playing centre and top ready for motion.
  *
  * The ball rests on the floor, its lowest point at the origin and its centre a radius above it. `grip` is the ball itself as a hand or two hands take it, at its centre with its diameter as the aperture: a kick, a throw or a catch reads the ball's centre and size from it. `top` is its highest point, facing up, where a head or a palm meets it from above. A rugby ball and an American football lie on their side with their long axis along `X`, a capsule of the rule's length and short diameter; a puck lies flat, a disc whose thickness is its `length` and its aperture. A bowling ball's finger holes are not drawn, since no source read places them.
  *
@@ -102,7 +102,27 @@ export function createBall(
     frame: ArchetypeFrame.upright(Vector3.create(0, high, 0)),
     extent: null,
   });
-  return builder.build(d.mass!);
+  if (kind === "puck")
+    builder.affordance({
+      id: "rim",
+      kind: "surface",
+      direction: "normal",
+      frame: ArchetypeFrame.facing(
+        Vector3.create(0, high / 2, radius),
+        Vector3.create(0, 0, 1),
+        Vector3.create(1, 0, 0),
+      ),
+      extent: null,
+      width: diameter,
+      depth: high,
+    });
+  // FIBA 2.4 drops the ball's underside from about 1.8 m and measures
+  // 1.035–1.085 m after rebound. Use the interval midpoint for the
+  // drag-free rigid floor fixture. Other flooring can differ.
+  return builder.build(
+    d.mass!,
+    kind === "basketball" ? { restitution: Math.sqrt(1.06 / 1.8) } : undefined,
+  );
 }
 
 /**
@@ -111,39 +131,53 @@ export function createBall(
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
  * @evidence contracts/development/design.md#principled-representation A closed union of the games and one band per dimension per kind, each a rule's limits; a rule's circumference becomes a diameter by dividing by pi.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The size and mass a kick, a throw or a catch reads, and the two contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the oval balls and the puck have a length; each band is its rule as read, the rule's own limit where it states only one; the softball's bands, its rule book not opened, and the golf ball's mass, whose least the rule leaves open, are provisional.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the oval balls and the puck have a length; each band uses its rule or identified estimate.
  */
 export namespace createBall {
   /** The kinds of ball. */
   export type Kind =
     | "football"
+    | "futsal"
     | "basketball"
     | "volleyball"
     | "handball"
     | "tennis"
+    | "tableTennis"
+    | "padel"
+    | "squash"
     | "baseball"
     | "softball"
     | "golf"
     | "cricket"
     | "bowling"
+    | "pool"
     | "rugby"
     | "americanFootball"
+    | "fieldHockey"
+    | "lacrosse"
     | "puck";
 
   /** Every kind, for a caller that reads one at run time. */
   export const KINDS: readonly Kind[] = [
     "football",
+    "futsal",
     "basketball",
     "volleyball",
     "handball",
     "tennis",
+    "tableTennis",
+    "padel",
+    "squash",
     "baseball",
     "softball",
     "golf",
     "cricket",
     "bowling",
+    "pool",
     "rugby",
     "americanFootball",
+    "fieldHockey",
+    "lacrosse",
     "puck",
   ];
 
@@ -153,17 +187,24 @@ export namespace createBall {
   /** Each kind's flat colour, sRGB. */
   export const COLORS: Readonly<Record<Kind, string>> = {
     football: "#f2f2f2",
+    futsal: "#f0e7ce",
     basketball: "#d2691e",
     volleyball: "#f5e6a8",
     handball: "#3a7bd5",
     tennis: "#d4e157",
+    tableTennis: "#fafafa",
+    padel: "#d4e157",
+    squash: "#202020",
     baseball: "#f5f5f0",
     softball: "#f0e68c",
     golf: "#fafafa",
     cricket: "#9b1c1c",
     bowling: "#1f3a93",
+    pool: "#faf5e8",
     rugby: "#f2efe6",
     americanFootball: "#7a3e1d",
+    fieldHockey: "#f5f5ec",
+    lacrosse: "#fafafa",
     puck: "#111111",
   };
 
@@ -172,8 +213,9 @@ export namespace createBall {
    *
    * - `grip`: the ball as a hand or two take it, at its centre, its height off the floor the aperture: the diameter, a puck's thickness.
    * - `top`: its highest point, facing up.
+   * - `rim`: a puck's radial side surface, with the disc diameter and thickness.
    */
-  export type Affordance = "grip" | "top";
+  export type Affordance = "grip" | "top" | "rim";
 
   /**
    * The free dimensions:
@@ -227,6 +269,10 @@ export namespace createBall {
   const IFAB: string =
     "IFAB Laws of the Game, Law 2 (https://www.theifab.com/laws/latest/the-ball/)";
 
+  /** FIFA Futsal, size and mass range. */
+  const FUTSAL: string =
+    "FIFA Futsal Laws of the Game 2025–26, Law 2 (https://www.stxref.org/wp-content/uploads/2025-26-FIFA-Futsal-LOTG.pdf)";
+
   /** FIBA, Official Basketball Rules 2026, Basketball Equipment, Table 1. */
   const FIBA: string =
     "FIBA Official Basketball Rules 2026, Basketball Equipment, 2.4 and Table 1, size 7 (https://assets.fiba.basketball/image/upload/documents-corporate-fiba-official-rules-2026-equipment-v1-0.pdf)";
@@ -242,6 +288,22 @@ export namespace createBall {
   /** ITF, Rules of Tennis 2026, Appendix I, Types 1 and 2. */
   const ITF: string =
     "ITF Rules of Tennis 2026, Appendix I, Types 1 and 2 (https://www.world.tennis/media/7221/2026-rules-of-tennis-english.pdf)";
+
+  /** ITTF 2026 Statutes, Law 2.3. */
+  const ITTF: string =
+    "ITTF Statutes 2026, 2.3 (https://documents.ittf.sport/sites/default/files/public/2026-02/2026_Statutes_v1_consolidated_clean.pdf)";
+
+  /** ITTF acceptance mass interval for one ball, distinct from batch means. */
+  const ITTF_MASS: string =
+    "ITTF Technical Leaflet T3, §B.1, individual ball mass (https://nttc.nl/wp-content/uploads/2015/05/ITTF_T3.pdf)";
+
+  /** FIP padel rules, ball specifications. */
+  const FIP: string =
+    "FIP Rules of Padel, The Ball (https://www.padelfip.com/documents/)";
+
+  /** World Squash singles rules, double yellow dot ball. */
+  const WSF: string =
+    "World Squash Singles Rules, Appendix 7 (https://worldsquashofficiating.com/rules-of-squash/)";
 
   /** Official Baseball Rules 2024, rule 3.01. */
   const OBR: string =
@@ -270,6 +332,22 @@ export namespace createBall {
   /** IIHF Rule Book 2026/27, Rule 13.1, the puck. */
   const PUCK: string =
     "IIHF Official Rule Book 2026/27, Rule 13.1: 2.5 cm thick, 7.6 cm in diameter, 156 to 170 g (https://test.rulebook.iihf.com/documents/rule-book-2026-27/13)";
+
+  /** FIH Rules of Hockey 2026, equipment specification 3.1. */
+  const FIH: string =
+    "FIH Rules of Hockey 2026, equipment §3.1 (https://www.fih.hockey/static-assets/pdf/fih-Rules-of-hockey-2026-final.pdf)";
+
+  /** World Lacrosse Sixes 2026–28, ball specifications. */
+  const SIXES: string =
+    "World Lacrosse Sixes Rules 2026–28, §2.1.1 (https://worldlacrosse.sport/wp-content/uploads/2026/05/26-28-Sixes-Rule-Book_v2_0526.pdf)";
+
+  /** WPA equipment specifications for standard pool balls. */
+  const WPA: string =
+    "WPA Recommended Equipment Specifications, Balls (https://www.wpapool.com/wp-content/uploads/2024/01/RECOMMENDED-EQUIPMENT-SPECIFICATIONS.pdf)";
+
+  /** WBSC Fast Pitch Rules, completed 12-inch ball. */
+  const WBSC: string =
+    "WBSC Official Rules of Softball, Fast Pitch 2026–2029, Appendix 3 B.1 (https://static.wbsc.org/uploads/federations/0/cms/documents/c4423d39-179f-04ec-9054-99f919b1f85b.pdf)";
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
@@ -312,18 +390,8 @@ export namespace createBall {
       ),
     },
     softball: {
-      diameter: round(
-        11.88 * ArchetypeUnits.INCH,
-        12.13 * ArchetypeUnits.INCH,
-        "the 12 in fastpitch softball, 11.88 to 12.13 in round, as recalled; the WBSC rule book was searched for and not opened",
-        true,
-      ),
-      mass: kg(
-        6.25 * ArchetypeUnits.OUNCE,
-        7 * ArchetypeUnits.OUNCE,
-        "the 12 in fastpitch softball, 6.25 to 7 oz, as recalled; the WBSC rule book was searched for and not opened",
-        true,
-      ),
+      diameter: round(0.302, 0.308, WBSC),
+      mass: kg(0.178, 0.1984, WBSC),
     },
     golf: {
       diameter: ArchetypeBand.metres(
@@ -371,6 +439,38 @@ export namespace createBall {
         NFL,
       ),
       mass: kg(14 * ArchetypeUnits.OUNCE, 15 * ArchetypeUnits.OUNCE, NFL),
+    },
+    futsal: {
+      diameter: round(0.62, 0.64, FUTSAL),
+      mass: kg(0.4, 0.44, FUTSAL),
+    },
+    tableTennis: {
+      diameter: ArchetypeBand.metres(0.04, 0.04, ITTF),
+      mass: kg(0.00267, 0.00277, ITTF_MASS),
+    },
+    padel: {
+      diameter: ArchetypeBand.metres(0.0635, 0.0677, FIP),
+      mass: kg(0.056, 0.0594, FIP),
+    },
+    squash: {
+      diameter: ArchetypeBand.metres(0.0395, 0.0405, WSF),
+      mass: kg(0.023, 0.025, WSF),
+    },
+    pool: {
+      diameter: ArchetypeBand.metres(
+        2.25 * ArchetypeUnits.INCH,
+        2.255 * ArchetypeUnits.INCH,
+        WPA,
+      ),
+      mass: kg(5.5 * ArchetypeUnits.OUNCE, 6 * ArchetypeUnits.OUNCE, WPA),
+    },
+    fieldHockey: {
+      diameter: round(0.224, 0.235, FIH),
+      mass: kg(0.156, 0.163, FIH),
+    },
+    lacrosse: {
+      diameter: round(0.197, 0.203, SIXES),
+      mass: kg(0.14175, 0.14883, SIXES),
     },
     puck: {
       diameter: ArchetypeBand.metres(0.076, 0.076, PUCK),

@@ -35,16 +35,16 @@ const ESTIMATES: Readonly<{ wheel: number; baseplate: number }> = {
 /**
  * A skateboard standing on its wheels, its nose toward `-Z`.
  *
- * Its deck is one of the maker's two decks read, whole: the model given, or one drawn from the seed, as thick as seven of the supplier's maple veneers, the ply count the maker states. Each truck holds its axle the truck's read height under the deck at the deck's wheelbase, and each axle carries two wheels of the read diameter. `deck` is the deck's top, the surface the feet stand on; `nose` and `tail` its ends, ledges a foot presses. Riding it is balance on a rolling support, which no motion law covers yet (#3468 N11), so it is built for static use and carrying.
+ * Its deck is one of the maker's two decks read, whole: the model given, or one drawn from the seed, as thick as seven of the supplier's maple veneers, the ply count the maker states. Each truck holds its axle the truck's read height under the deck at the deck's wheelbase, and each axle carries two wheels of the read diameter. `deck` is the deck's top and the stance anchors sit above the axles. Each wheel has its lowest local line marked. `tailStrike` marks the rear underside for comparing the board's pose to the ground.
  *
  * @param params The deck and any dimension the author fixes.
  * @param seed The seed that draws the deck when it is not given and every dimension left free inside its band; absent, the first deck and the middle of each band.
  * @returns The skateboard.
  * @throws {ArchetypeRefusal} For a deck the maker's pages do not list, or a fixed dimension outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States how the board stands, how its deck is chosen, its contacts and its static use with the missing law.
+ * @evidence contracts/development/common.md#meaningful-documentation States how the board stands, how its deck is chosen and where the contact readings are.
  * @evidence contracts/development/implementation.md#principled-implementation One of Powell Peralta's two decks whole, its width, length and wheelbase as the maker's page gives them; its thickness seven 1/16 in veneers, Powell Peralta's ply count times Roarockit's veneer; the deck's underside the Independent truck's 55 mm over the axle, the axle a 52 mm wheel's radius off the ground.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the deck, draw the dimensions, then the deck, the trucks and wheels, and the three contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the deck, trucks and wheels, then derive their contact readings from the same dimensions.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No deck between the two read is made; the deck is flat, with no concave or kicked nose and tail; the wheels' width and the trucks' blocks are construction estimates.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Nine parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -114,7 +114,7 @@ export function createSkateboard(
     for (const [side, x] of [
       ["left", 1],
       ["right", -1],
-    ] as const)
+    ] as const) {
       builder.rod(
         `wheel-${end}-${side}`,
         radius,
@@ -122,6 +122,22 @@ export function createSkateboard(
         v(x * (width / 2), radius, z),
         { color: "#f2efe6" },
       );
+      builder.affordance({
+        id: `wheel-${end}-${side}`,
+        kind: "ledge",
+        frame: ArchetypeFrame.upright(v(x * (width / 2 - E.wheel / 2), 0, z)),
+        extent: null,
+        length: E.wheel,
+      });
+    }
+    builder.affordance({
+      id: end === "front" ? "frontStance" : "rearStance",
+      kind: "surface",
+      frame: ArchetypeFrame.upright(v(0, top, z)),
+      extent: null,
+      width,
+      depth: E.baseplate,
+    });
   }
   builder.affordance({
     id: "deck",
@@ -146,6 +162,13 @@ export function createSkateboard(
       extent: null,
       length: width,
     });
+  builder.affordance({
+    id: "tailStrike",
+    kind: "ledge",
+    frame: ArchetypeFrame.upright(v(0, under, length / 2)),
+    extent: null,
+    length: width,
+  });
   return builder.build(d.mass);
 }
 
@@ -182,8 +205,18 @@ export namespace createSkateboard {
    *
    * - `deck`: the deck's top.
    * - `nose`, `tail`: its ends on `-Z` and `+Z`, ledges along `X` with `+Z` out from the deck.
+   * - `frontStance`, `rearStance`: the deck sites over the trucks.
+   * - `tailStrike`: the underside rear edge.
+   * - `wheel-front-left`, `wheel-front-right`, `wheel-back-left`, `wheel-back-right`: the local low lines across the wheels at rest.
    */
-  export type Affordance = "deck" | "nose" | "tail";
+  export type Affordance =
+    | "deck"
+    | "nose"
+    | "tail"
+    | "frontStance"
+    | "rearStance"
+    | "tailStrike"
+    | `wheel-${"front" | "back"}-${"left" | "right"}`;
 
   /**
    * The dimensions:
