@@ -20,30 +20,35 @@ export const LANDING_FILM: ILandingFilm = {
       anchor: "s01-b01",
       title: "Ren tests the range",
       text: "Ren steps in behind a jab and a cross. Kai parries the jab and slips the cross.",
+      cites: ["ren.md#stance", "kai.md#guard"],
       spans: { red: [1, 3], blu: [1, 2] },
     },
     {
       anchor: "s01-b02",
       title: "The low kick",
       text: "Ren chops at the thigh. Kai lifts his shin into it.",
+      cites: ["ren.md#stance", "kai.md#guard"],
       spans: { red: [4, 4], blu: [3, 3] },
     },
     {
       anchor: "s01-b03",
       title: "Kai answers",
       text: "Kai's jab lands on Ren's gloves; his hook whistles past as Ren leans away.",
+      cites: ["kai.md#guard", "ren.md#temper"],
       spans: { red: [5, 6], blu: [4, 5] },
     },
     {
       anchor: "s01-b04",
       title: "Ren closes in",
       text: "A hook and an uppercut into Kai's cover, then the clinch and a knee.",
+      cites: ["ren.md#temper", "kai.md#guard"],
       spans: { red: [7, 10], blu: [6, 9] },
     },
     {
       anchor: "s01-b05",
       title: "The teep",
       text: "Kai's teep drives Ren back a step, and both circle off.",
+      cites: ["kai.md#guard", "gym.md#ring"],
       spans: { red: [12, 15], blu: [10, 12] },
     },
   ],
@@ -61,6 +66,17 @@ export const LANDING_FILM: ILandingFilm = {
       "Presses forward and takes a hit to land one.",
     ],
   },
+  decisions: ["ren.md#stance", "ren.md#temper", "kai.md#guard", "gym.md#ring"],
+  modules: [
+    {
+      file: "src/composition/scenes/round/firstExchange.ts",
+      beats: ["s01-b01", "s01-b02"],
+    },
+    {
+      file: "src/composition/scenes/round/secondExchange.ts",
+      beats: ["s01-b03", "s01-b04", "s01-b05"],
+    },
+  ],
   record: [
     "### Ren tests the range {#s01-b01}",
     "- Cast: [Ren](../../brief/cast/ren.md#stance), [Kai](../../brief/cast/kai.md#guard)",
@@ -69,7 +85,6 @@ export const LANDING_FILM: ILandingFilm = {
     "- Camera: side, full shot, both fighters in frame.",
   ],
   code: {
-    file: "src/composition/scenes/round/firstExchange.ts",
     text: [
       "const Chain = HumanChain.extend({",
       "  jab, cross, roundKick, handParry, slip, checkKick,",
@@ -99,15 +114,18 @@ export const LANDING_FILM: ILandingFilm = {
   report: {
     failing: [
       "$ pnpm run evidence",
+      "…",
       "Coverage: 41/42 units covered, 1 missing.",
       "Diagnostics: 1 errors, 0 warnings.",
       "",
-      "ERROR [graph-missing-acknowledgement]",
+      "ERROR [graph-missing-acknowledgement] …",
+      "…",
       "Missing acknowledgement for",
       "'docs/body/screenplay/round/010-first-exchange.md#s01-b05'.",
     ],
     passing: [
       "$ pnpm run evidence",
+      "…",
       "Coverage: 42/42 units covered, 0 missing.",
       "Diagnostics: 0 errors, 0 warnings.",
     ],

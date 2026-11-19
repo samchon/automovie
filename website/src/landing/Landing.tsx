@@ -161,7 +161,7 @@ export function Landing(): ReactElement {
               </p>
             </div>
             <div className="am-chain-panel">
-              <p className="am-panel-file">{LANDING_FILM.code.file}</p>
+              <p className="am-panel-file">{LANDING_FILM.modules[0]!.file}</p>
               <pre className="am-doc am-doc-code">{lines(LANDING_FILM.code.text)}</pre>
             </div>
           </Reveal>
@@ -170,9 +170,10 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">4</span>
               <h3>Check</h3>
               <p>
-                The evidence check counts every beat, section and scene file
-                and fails the run when one is not realized, so an agent cannot
-                report a scene done while a beat is missing.
+                With the composition check on, <code>pnpm run evidence</code>{" "}
+                counts every beat, section and scene file and fails while one
+                is not realized, so an agent cannot report a scene done while a
+                beat is missing.
               </p>
             </div>
             <div className="am-chain-panel am-chain-panel-dark">
@@ -180,8 +181,8 @@ export function Landing(): ReactElement {
                 {LANDING_FILM.report.failing.join("\n")}
               </pre>
               <p className="am-panel-note">
-                The report as <code>@wrtnlabs/evidence</code> prints it; the
-                counts are this example production&apos;s.
+                An abridged report in the format <code>@wrtnlabs/evidence</code>{" "}
+                prints; the counts are this example production&apos;s.
               </p>
             </div>
           </Reveal>
@@ -220,29 +221,38 @@ export function Landing(): ReactElement {
         <div className="am-room-inner">
           <header className="am-room-head">
             <h2 id="am-room-title" className="am-section-title">
-              The evidence graph keeps the agent honest.
+              The evidence graph checks every link.
             </h2>
             <p>
-              Every citation is an obligation the build counts, one beat at a
-              time, so one reference never covers another. Point at a node to
-              see what it rests on and what rests on it. Then delete a
-              citation.
+              Every citation is an obligation <code>pnpm run evidence</code>{" "}
+              counts on its own, so one reference never covers another. Point
+              at a node to see what it rests on and what rests on it. Then
+              delete a citation.
             </p>
           </header>
           <EvidenceGraph film={LANDING_FILM} />
           <ul className="am-room-facts">
             <li>
-              <strong>Separate reviewers.</strong> The author, the answerer
-              and the reviewer work in separate contexts, and the reviewer
-              reads the screenplay without its answers.
+              <h3>Separate reviewers</h3>
+              <p>
+                The author, the answerer and the reviewer work in separate
+                contexts, and the reviewer reads the screenplay without its
+                answers.
+              </p>
             </li>
             <li>
-              <strong>Reviews expire.</strong> A review is tied to the text it
-              read; edit a beat and its review is stale until read again.
+              <h3>Reviews expire</h3>
+              <p>
+                A review is tied to the text it read; edit a beat and its
+                review is stale until it is read again.
+              </p>
             </li>
             <li>
-              <strong>Honest handoff.</strong> The acceptance record says what
-              the agent verified on stills and what only you watched.
+              <h3>Verified or watched</h3>
+              <p>
+                The acceptance record says what the agent verified on stills
+                and what only you watched.
+              </p>
             </li>
           </ul>
           <Link className="am-button am-button-light" href="/docs/screenplay/evidence-graph/">
@@ -296,7 +306,7 @@ export function Landing(): ReactElement {
           {rail.map(
             (name: string): ReactElement => (
               <li key={name}>
-                <a href={`${SITE_BASE}/motions/#${name}`}>
+                <a href={`${SITE_BASE}/motions/${name}/`}>
                   <img
                     src={BakedClient.address("motion", name, "svg")}
                     alt=""

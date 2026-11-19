@@ -56,8 +56,12 @@ const SOURCES: readonly string[] = [
   "src/takes/package",
   "src/playground/package",
   "src/playground/data",
+  "src/scenes/package/SceneArchetype.ts",
   "src/scenes/SceneTrack.ts",
   "src/baked/BakedTake.ts",
+
+  // The installed versions, such as the physics engine a take may run.
+  "../pnpm-lock.yaml",
 ];
 
 /** Bump to recompute every take when what is stored changes. */
@@ -75,8 +79,17 @@ interface IChildJob {
   composition: IBakeJob["composition"];
 }
 
+/** A job with the cache key its take is kept under. */
+interface IKeyed {
+  /** The job. */
+  job: IBakeJob;
+
+  /** The cache key. */
+  key: string;
+}
+
 /** Hash every file under the sources, in a stable order. */
-const fingerprint = (): string => {
+const fingerprint: () => string = (): string => {
   const hash: crypto.Hash = crypto.createHash("sha256");
   hash.update(VERSION);
   for (const source of SOURCES) {
@@ -97,7 +110,7 @@ const fingerprint = (): string => {
 };
 
 /** Compute the jobs of one child and store each take or refusal in the cache. */
-const child = (file: string): void => {
+const child: (file: string) => void = (file: string): void => {
   const jobs: IChildJob[] = JSON.parse(fs.readFileSync(file, "utf8"));
   for (const job of jobs) {
     const made: ReturnType<typeof TakeCompute.take> = TakeCompute.take(
@@ -119,8 +132,8 @@ const child = (file: string): void => {
 };
 
 /** Run one child process over a share of the jobs. */
-const run = (jobs: IChildJob[], index: number): Promise<void> =>
-  new Promise((resolve, reject): void => {
+const run: (jobs: IChildJob[], index: number) => Promise<void> = (jobs: IChildJob[], index: number): Promise<void> =>
+  new Promise((resolve: () => void, reject: (error: Error) => void): void => {
     const file: string = path.join(CACHE, `jobs-${index}.json`);
     fs.writeFileSync(file, JSON.stringify(jobs));
     const process_: ChildProcess = spawn(
@@ -135,21 +148,23 @@ const run = (jobs: IChildJob[], index: number): Promise<void> =>
     });
   });
 
-const main = async (): Promise<void> => {
+/** Bake every job, or as a child its share, then write the site's files and report refusals. */
+const main: () => Promise<void> = async (): Promise<void> => {
   const argv: string[] = process.argv.slice(2);
   if (argv[0] === "--child") return child(argv[1]!);
   const at: number = argv.indexOf("--jobs");
-  const parallel: number = Math.max(
-    1,
-    at === -1 ? os.availableParallelism() - 1 : Number(argv[at + 1]),
-  );
+  const asked: number =
+    at === -1 ? Math.max(1, os.availableParallelism() - 1) : Number(argv[at + 1]);
+  if (!Number.isInteger(asked) || asked < 1)
+    throw new Error(`--jobs takes a whole number of processes, not ${argv[at + 1]}`);
+  const parallel: number = asked;
 
   fs.mkdirSync(CACHE, { recursive: true });
   const started: number = Date.now();
   const sources: string = fingerprint();
   const jobs: IBakeJob[] = BakeJobs.list();
-  const keyed: { job: IBakeJob; key: string }[] = jobs.map(
-    (job: IBakeJob): { job: IBakeJob; key: string } => ({
+  const keyed: IKeyed[] = jobs.map(
+    (job: IBakeJob): IKeyed => ({
       job,
       key: crypto
         .createHash("sha256")
@@ -160,14 +175,14 @@ const main = async (): Promise<void> => {
         .slice(0, 24),
     }),
   );
-  const cached = (key: string): boolean =>
+  const cached: (key: string) => boolean = (key: string): boolean =>
     fs.existsSync(path.join(CACHE, `${key}.take`)) ||
     fs.existsSync(path.join(CACHE, `${key}.refusal.json`));
 
   // Compute what the cache lacks, spread round-robin over the children.
   const missing: IChildJob[] = keyed
-    .filter(({ key }): boolean => !cached(key))
-    .map(({ job, key }): IChildJob => ({
+    .filter(({ key }: IKeyed): boolean => !cached(key))
+    .map(({ job, key }: IKeyed): IChildJob => ({
       key,
       id: `${job.kind} ${job.id}`,
       composition: job.composition,
@@ -226,7 +241,7 @@ const main = async (): Promise<void> => {
 
   // Drop what no job of this run used, so a cache carried between runs
   // holds the current takes alone.
-  const used: Set<string> = new Set(keyed.map(({ key }): string => key));
+  const used: Set<string> = new Set(keyed.map(({ key }: IKeyed): string => key));
   for (const file of fs.readdirSync(CACHE))
     if (!used.has(file.split(".")[0]!)) fs.rmSync(path.join(CACHE, file), { force: true });
   console.log(

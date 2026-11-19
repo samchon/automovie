@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import GalleryRedirect from "../../../movies/GalleryRedirect";
+import ForwardMovie from "../../../movies/ForwardMovie";
 
 export const metadata: Metadata = {
   title: "Objects",
@@ -15,5 +15,5 @@ export const metadata: Metadata = {
  * @returns The page.
  */
 export default function GalleryPage(): ReactElement {
-  return <GalleryRedirect />;
+  return <ForwardMovie to="/archetypes/" label="Archetypes" query />;
 }

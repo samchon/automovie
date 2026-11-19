@@ -2,7 +2,9 @@
 
 import {
   type ChangeEvent,
+  type Dispatch,
   type ReactElement,
+  type SetStateAction,
   useEffect,
   useState,
 } from "react";
@@ -11,9 +13,6 @@ import { SITE_BASE } from "../../SITE_BASE";
 import { BakedClient } from "../../baked/BakedClient";
 import type { MotionIndex } from "../../motions/package/MotionIndex";
 import { FigureCanvas } from "../figure/FigureCanvas";
-
-/** Seconds a motion tried alone stands before it starts, which a card's loop skips. */
-const OPENING: number = 0.5;
 
 /**
  * The motion catalogue: an index of categories and families beside a
@@ -30,12 +29,16 @@ const OPENING: number = 0.5;
  * @returns The page's body.
  */
 export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElement {
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
 
   useEffect((): void => {
     const hash: string = decodeURIComponent(window.location.hash.slice(1));
-    const known: boolean = props.index.categories.some((c) =>
-      c.families.some((f) => f.motions.some((m) => m.name === hash)),
+    const known: boolean = props.index.categories.some(
+      (c: MotionIndex.ICategory): boolean =>
+        c.families.some((f: MotionIndex.IFamily): boolean =>
+          f.motions.some((m: MotionIndex.IEntry): boolean => m.name === hash),
+        ),
     );
     if (known) {
       window.location.replace(`${SITE_BASE}/motions/${hash}/`);
@@ -44,7 +47,7 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
     setQuery(new URLSearchParams(window.location.search).get("q") ?? "");
   }, [props.index]);
 
-  const change = (value: string): void => {
+  const change: (value: string) => void = (value: string): void => {
     setQuery(value);
     window.history.replaceState(
       window.history.state,
@@ -53,14 +56,27 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
     );
   };
   const words: string[] = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const matches = (entry: MotionIndex.IEntry, family: MotionIndex.IFamily): boolean =>
+  const matches: (entry: MotionIndex.IEntry, family: MotionIndex.IFamily) => boolean = (
+    entry: MotionIndex.IEntry,
+    family: MotionIndex.IFamily,
+  ): boolean =>
     words.every(
       (w: string): boolean =>
         entry.name.toLowerCase().includes(w) || family.label.toLowerCase().includes(w),
     );
+
+  // A family's motions the search keeps.
+  const kept: (family: MotionIndex.IFamily) => MotionIndex.IEntry[] = (
+    family: MotionIndex.IFamily,
+  ): MotionIndex.IEntry[] =>
+    family.motions.filter((m: MotionIndex.IEntry): boolean => matches(m, family));
   const shown: number = props.index.categories.reduce(
-    (sum, c) =>
-      sum + c.families.reduce((s, f) => s + f.motions.filter((m) => matches(m, f)).length, 0),
+    (sum: number, c: MotionIndex.ICategory): number =>
+      sum +
+      c.families.reduce(
+        (s: number, f: MotionIndex.IFamily): number => s + kept(f).length,
+        0,
+      ),
     0,
   );
 
@@ -92,7 +108,7 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
                       <li key={family.name}>
                         <a href={`#family-${family.name}`}>
                           {family.label}
-                          <span>{family.motions.filter((m) => matches(m, family)).length}</span>
+                          <span>{kept(family).length}</span>
                         </a>
                       </li>
                     ),
@@ -106,7 +122,9 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
 
       <div className="am-indexed-body">
         {props.index.categories.map((category: MotionIndex.ICategory): ReactElement | null => {
-          const families = category.families.filter((f) => f.motions.some((m) => matches(m, f)));
+          const families: MotionIndex.IFamily[] = category.families.filter(
+            (f: MotionIndex.IFamily): boolean => kept(f).length !== 0,
+          );
           if (families.length === 0) return null;
           return (
             <section key={category.id} id={category.id} className="am-index-category">
@@ -128,15 +146,13 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
                     >
                       {family.label}
                       <span className="am-catalogue-count">
-                        {family.motions.filter((m) => matches(m, family)).length}
+                        {kept(family).length}
                       </span>
                     </h3>
                     <ul className="am-motion-grid">
-                      {family.motions
-                        .filter((m) => matches(m, family))
-                        .map(
+                      {kept(family).map(
                           (entry: MotionIndex.IEntry): ReactElement => (
-                            <MotionCard key={entry.name} entry={entry} />
+                            <MotionCard key={entry.name} entry={entry} opening={props.index.opening} />
                           ),
                         )}
                     </ul>
@@ -153,9 +169,9 @@ export function MotionCatalogue(props: { index: MotionIndex.IIndex }): ReactElem
 }
 
 /** One motion's card: its still, and the motion playing flat while pointed at. */
-function MotionCard(props: { entry: MotionIndex.IEntry }): ReactElement {
-  const { entry } = props;
-  const [live, setLive] = useState<boolean>(false);
+function MotionCard(props: { entry: MotionIndex.IEntry; opening: number }): ReactElement {
+  const { entry }: { entry: MotionIndex.IEntry } = props;
+  const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
   const playable: boolean = entry.poster?.kind === "motion";
   return (
     <li
@@ -185,7 +201,7 @@ function MotionCard(props: { entry: MotionIndex.IEntry }): ReactElement {
               id={entry.name}
               view="three-quarter"
               label=""
-              from={OPENING}
+              from={props.opening}
             />
           ) : null}
         </span>

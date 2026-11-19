@@ -1,3 +1,4 @@
+import type { SceneTrack } from "../scenes/SceneTrack";
 import type { IScene } from "../scenes/structures/IScene";
 import type { ITake } from "../takes/structures/ITake";
 import { FigureProjection } from "./FigureProjection";
@@ -68,9 +69,16 @@ export namespace FigurePoster {
 
   /** A box on the screen. */
   interface IBox {
+    /** Left edge, screen metres. */
     x0: number;
+
+    /** Bottom edge. */
     y0: number;
+
+    /** Right edge. */
     x1: number;
+
+    /** Top edge. */
     y1: number;
   }
 
@@ -191,6 +199,15 @@ export namespace FigurePoster {
     return [...out].sort((a: number, b: number): number => a - b);
   }
 
+  /** One drawn piece of a frame, a prop's mesh or a whole figure, with its depth toward the viewer. */
+  interface IDrawn {
+    /** Metres toward the viewer; larger is drawn later. */
+    depth: number;
+
+    /** Its SVG text. */
+    text: string;
+  }
+
   /** One outlined mesh of a prop on the screen. */
   interface IOutline {
     /** Its colour. */
@@ -214,7 +231,7 @@ export namespace FigurePoster {
   ): IOutline[] {
     const out: IOutline[] = [];
     shapes.forEach((shape: PropShapes.IShape, i: number): void => {
-      const placed = frame.props[i];
+      const placed: SceneTrack.IPlacement | undefined = frame.props[i];
       if (placed === undefined) return;
       for (const part of shape.parts) {
         const projected: FigureProjection.IPoint[] = [];
@@ -245,9 +262,13 @@ export namespace FigurePoster {
   /** The convex hull of points on the screen, by the monotone chain. */
   function hull(points: FigureProjection.IPoint[]): FigureProjection.IPoint[] {
     const sorted: FigureProjection.IPoint[] = [...points].sort(
-      (a, b): number => a.x - b.x || a.y - b.y,
+      (a: FigureProjection.IPoint, b: FigureProjection.IPoint): number => a.x - b.x || a.y - b.y,
     );
-    const cross = (
+    const cross: (
+      o: FigureProjection.IPoint,
+      a: FigureProjection.IPoint,
+      b: FigureProjection.IPoint,
+    ) => number = (
       o: FigureProjection.IPoint,
       a: FigureProjection.IPoint,
       b: FigureProjection.IPoint,
@@ -275,23 +296,23 @@ export namespace FigurePoster {
     px: (p: FigureProjection.IPoint) => [string, string],
     scale: number,
   ): string {
-    const drawn: { depth: number; text: string }[] = [
+    const drawn: IDrawn[] = [
       ...outlines(frame, shapes, camera).map(
-        (outline: IOutline): { depth: number; text: string } => ({
+        (outline: IOutline): IDrawn => ({
           depth: outline.depth,
-          text: `<path d="M${outline.points.map((p): string => px(p).join(" ")).join("L")}Z" fill="${outline.colour}" stroke="${outline.colour}" stroke-width="1.5" stroke-linejoin="round"${outline.opacity < 1 ? ` opacity="${round(outline.opacity, 2)}"` : ""}/>`,
+          text: `<path d="M${outline.points.map((p: FigureProjection.IPoint): string => px(p).join(" ")).join("L")}Z" fill="${outline.colour}" stroke="${outline.colour}" stroke-width="1.5" stroke-linejoin="round"${outline.opacity < 1 ? ` opacity="${round(outline.opacity, 2)}"` : ""}/>`,
         }),
       ),
       ...figures(frame, px, scale).map(
-        (text: string, f: number): { depth: number; text: string } => ({
+        (text: string, f: number): IDrawn => ({
           depth: frame.figures[f]?.["hips"]?.depth ?? 0,
           text,
         }),
       ),
     ];
     return drawn
-      .sort((a, b): number => a.depth - b.depth)
-      .map((d): string => d.text)
+      .sort((a: IDrawn, b: IDrawn): number => a.depth - b.depth)
+      .map((d: IDrawn): string => d.text)
       .join("");
   }
 
@@ -351,13 +372,13 @@ export namespace FigurePoster {
     camera: FigureProjection.ICamera,
     px: (p: FigureProjection.IPoint) => [string, string],
   ): string {
-    const xs: number[] = frame.hips.map((p): number => p[0]);
-    const zs: number[] = frame.hips.map((p): number => p[2]);
+    const xs: number[] = frame.hips.map((p: [number, number, number]): number => p[0]);
+    const zs: number[] = frame.hips.map((p: [number, number, number]): number => p[2]);
     const x0: number = Math.floor(Math.min(...xs)) - 2;
     const x1: number = Math.ceil(Math.max(...xs)) + 2;
     const z0: number = Math.floor(Math.min(...zs)) - 2;
     const z1: number = Math.ceil(Math.max(...zs)) + 2;
-    const at = (x: number, z: number): string =>
+    const at: (x: number, z: number) => string = (x: number, z: number): string =>
       px(FigureProjection.project([x, 0, z], camera)).join(" ");
     const lines: string[] = [];
     for (let x: number = x0; x <= x1; x++)

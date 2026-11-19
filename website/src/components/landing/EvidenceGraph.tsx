@@ -1,74 +1,111 @@
 "use client";
 
-import { type ReactElement, useState } from "react";
+import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
 
 import type { ILandingFilm } from "../../landing/ILandingFilm";
 
 /**
- * The landing page's evidence graph: the brief's decisions, the screenplay's
- * beats, the code's modules and the film, joined by the citations a
- * production writes. Pointing at a node lights everything it depends on and
- * everything that depends on it. A switch removes one module's citation of
- * the last beat, and the report beside the graph turns to the check's
- * failure, as `pnpm run evidence` reports it.
+ * The landing page's evidence graph, built from the film's own citations:
+ * the brief decisions each beat cites, the beats each module cites, and the
+ * film that orders the modules. Pointing at a node lights everything it
+ * rests on and everything that rests on it. A switch deletes the last
+ * module's citation of the last beat, and the report beside the graph turns
+ * to the check's failure.
+ *
+ * The drawing is an image described in words, so its nodes take no focus;
+ * the switch is the graph's one control.
  *
  * @param props The film whose documents the graph joins.
  * @returns The figure.
  */
 export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
   const { film }: { film: ILandingFilm } = props;
-  const [broken, setBroken] = useState<boolean>(false);
-  const [focus, setFocus] = useState<string | null>(null);
+  const [broken, setBroken]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
+  const [focus, setFocus]: [string | null, Dispatch<SetStateAction<string | null>>] =
+    useState<string | null>(null);
   const last: string = film.beats.at(-1)!.anchor;
+  const owner: ILandingFilm["modules"][number] | undefined = film.modules.find(
+    (m: ILandingFilm["modules"][number]): boolean => m.beats.includes(last),
+  );
 
-  // The first module realizes the first half of the beats, the second the rest.
-  const half: number = Math.ceil(film.beats.length / 2);
-
+  // Columns of rows, each row's middle at an even spacing.
+  const rows: number = Math.max(film.beats.length, film.decisions.length);
+  const middle: (index: number, count: number) => number = (index: number, count: number): number =>
+    (rows - 1) / 2 + index - (count - 1) / 2;
   const nodes: INode[] = [
-    { id: "brief-ren", column: 0, row: 0.5, label: "ren.md#stance" },
-    { id: "brief-kai", column: 0, row: 1.5, label: "kai.md#guard" },
-    { id: "brief-ring", column: 0, row: 2.5, label: "gym.md#ring" },
+    ...film.decisions.map(
+      (label: string, i: number): INode => ({
+        id: `brief:${label}`,
+        column: 0,
+        row: middle(i, film.decisions.length),
+        label,
+      }),
+    ),
     ...film.beats.map(
-      (beat: ILandingFilm.IBeat, row: number): INode => ({
+      (beat: ILandingFilm.IBeat, i: number): INode => ({
         id: beat.anchor,
         column: 1,
-        row,
+        row: middle(i, film.beats.length),
         label: `#${beat.anchor}`,
       }),
     ),
-    { id: "code-first", column: 2, row: (half - 1) / 2, label: "firstExchange.ts" },
-    {
-      id: "code-second",
-      column: 2,
-      row: (half + film.beats.length - 1) / 2,
-      label: "secondExchange.ts",
-    },
-    { id: "film", column: 3, row: (film.beats.length - 1) / 2, label: "film.ts" },
+    ...film.modules.map(
+      (module: ILandingFilm["modules"][number], i: number): INode => ({
+        id: `code:${module.file}`,
+        column: 2,
+        row: middle(i * 2, film.modules.length * 2 - 1),
+        label: module.file.split("/").at(-1)!,
+      }),
+    ),
+    { id: "film", column: 3, row: (rows - 1) / 2, label: "film.ts" },
   ];
   const edges: IEdge[] = [
-    ...film.beats.flatMap((beat: ILandingFilm.IBeat, i: number): IEdge[] => [
-      { from: beat.anchor, to: i % 2 === 0 ? "brief-ren" : "brief-kai" },
-      { from: beat.anchor, to: "brief-ring" },
-      ...(broken && beat.anchor === last
-        ? []
-        : [{ from: i < half ? "code-first" : "code-second", to: beat.anchor }]),
-    ]),
-    { from: "film", to: "code-first" },
-    { from: "film", to: "code-second" },
+    ...film.beats.flatMap((beat: ILandingFilm.IBeat): IEdge[] =>
+      beat.cites.map((label: string): IEdge => ({ from: beat.anchor, to: `brief:${label}` })),
+    ),
+    ...film.modules.flatMap((module: ILandingFilm["modules"][number]): IEdge[] =>
+      module.beats
+        .filter((anchor: string): boolean => !(broken && module === owner && anchor === last))
+        .map((anchor: string): IEdge => ({ from: `code:${module.file}`, to: anchor })),
+    ),
+    ...film.modules.map(
+      (module: ILandingFilm["modules"][number]): IEdge => ({
+        from: "film",
+        to: `code:${module.file}`,
+      }),
+    ),
   ];
-  const lit: Set<string> = focus === null ? new Set() : reach(focus, edges);
-  const x = (column: number): number => 24 + column * 196;
-  const y = (row: number): number => 48 + row * 62;
-  const find = (id: string): INode => nodes.find((n: INode): boolean => n.id === id)!;
+  const lit: Set<string> = focus === null ? new Set<string>() : reach(focus, edges);
+  const x: (column: number) => number = (column: number): number => 24 + column * 196;
+  const y: (row: number) => number = (row: number): number => 48 + row * 56;
+  const find: (id: string) => INode = (id: string): INode =>
+    nodes.find((n: INode): boolean => n.id === id)!;
 
   return (
     <div className="am-graph">
       <figure className="am-graph-figure">
-        <svg viewBox={`0 0 760 ${y(Math.max(2, film.beats.length - 1)) + 28}`} role="img" aria-labelledby="am-graph-title am-graph-desc">
+        <svg
+          viewBox={`0 0 760 ${y(rows - 1) + 28}`}
+          role="img"
+          aria-labelledby="am-graph-title am-graph-desc"
+        >
           <title id="am-graph-title">The evidence graph of one scene</title>
           <desc id="am-graph-desc">
-            Each beat cites the brief decisions it uses, each module cites the
-            beats it realizes, and the film orders the modules.
+            {film.beats
+              .map(
+                (beat: ILandingFilm.IBeat): string =>
+                  `Beat ${beat.anchor} cites ${beat.cites.join(" and ")}.`,
+              )
+              .join(" ")}{" "}
+            {film.modules
+              .map(
+                (module: ILandingFilm["modules"][number]): string =>
+                  `${module.file} cites ${module.beats
+                    .filter((a: string): boolean => !(broken && module === owner && a === last))
+                    .join(", ")}.`,
+              )
+              .join(" ")}{" "}
+            The film orders the modules.
             {broken ? ` The beat ${last} is cited by no module.` : ""}
           </desc>
           {["Brief", "Screenplay", "Code", "Film"].map(
@@ -81,39 +118,32 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
           {edges.map((edge: IEdge): ReactElement => {
             const a: INode = find(edge.from);
             const b: INode = find(edge.to);
-            const on: boolean = lit.has(edge.from) && lit.has(edge.to);
             return (
               <path
                 key={`${edge.from}-${edge.to}`}
                 d={`M${x(a.column) - 6} ${y(a.row)} C ${x(a.column) - 90} ${y(a.row)}, ${x(b.column) + 90} ${y(b.row)}, ${x(b.column) + 6} ${y(b.row)}`}
                 className="am-graph-edge"
-                data-on={on}
+                data-on={lit.has(edge.from) && lit.has(edge.to)}
               />
             );
           })}
-          {nodes.map((node: INode): ReactElement => {
-            const missing: boolean = broken && node.id === last;
-            return (
+          {nodes.map(
+            (node: INode): ReactElement => (
               <g
                 key={node.id}
                 className="am-graph-node"
                 data-on={lit.has(node.id)}
-                data-missing={missing}
-                tabIndex={0}
-                role="button"
-                aria-label={`${node.label}${missing ? ", cited by no module" : ""}`}
+                data-missing={broken && node.id === last}
                 onMouseEnter={(): void => setFocus(node.id)}
                 onMouseLeave={(): void => setFocus(null)}
-                onFocus={(): void => setFocus(node.id)}
-                onBlur={(): void => setFocus(null)}
               >
                 <circle cx={x(node.column)} cy={y(node.row)} r={7} />
                 <text x={x(node.column) + 12} y={y(node.row) + 4}>
                   {node.label}
                 </text>
               </g>
-            );
-          })}
+            ),
+          )}
         </svg>
       </figure>
       <div className="am-graph-side">
@@ -123,9 +153,7 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
           aria-pressed={broken}
           onClick={(): void => setBroken(!broken)}
         >
-          {broken
-            ? `Restore the citation of #${last}`
-            : `Delete the citation of #${last}`}
+          {broken ? `Restore the citation of #${last}` : `Delete the citation of #${last}`}
         </button>
         <pre className="am-terminal" data-failed={broken} aria-live="polite">
           {(broken ? film.report.failing : film.report.passing).join("\n")}
@@ -133,8 +161,8 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
           <span className="am-terminal-exit">exit {broken ? 1 : 0}</span>
         </pre>
         <p className="am-graph-note">
-          The report as <code>@wrtnlabs/evidence</code> prints it; the counts
-          are this example production&apos;s.
+          An abridged report in the format <code>@wrtnlabs/evidence</code>{" "}
+          prints; the counts are this example production&apos;s.
         </p>
       </div>
     </div>
@@ -143,15 +171,25 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
 
 /** One node of the graph. */
 interface INode {
+  /** Its key among the nodes and edges. */
   id: string;
+
+  /** Its column: brief, screenplay, code or film. */
   column: number;
+
+  /** Its row, from the top; a fraction centres it. */
   row: number;
+
+  /** What it shows. */
   label: string;
 }
 
 /** One citation: the citing node and the cited one. */
 interface IEdge {
+  /** The citing node's id. */
   from: string;
+
+  /** The cited node's id. */
   to: string;
 }
 

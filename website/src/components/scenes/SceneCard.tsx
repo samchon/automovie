@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactElement, useState } from "react";
+import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
 
 import { BakedClient } from "../../baked/BakedClient";
+import type { SceneClock } from "../../scenes/SceneClock";
 import { SceneFacts } from "../../scenes/SceneFacts";
 import type { IScene } from "../../scenes/structures/IScene";
 import type { IScenePlayer } from "../../scenes/structures/IScenePlayer";
@@ -27,7 +28,7 @@ export function SceneCard(props: {
   baked: boolean;
 }): ReactElement {
   const { scene }: typeof props = props;
-  const [live, setLive] = useState<boolean>(false);
+  const [live, setLive]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
   const poster: string = BakedClient.address("scene", scene.id, "svg");
   return (
     <li
@@ -60,7 +61,7 @@ function LiveTake(props: {
   baked: boolean;
   poster: string;
 }): ReactElement {
-  const clock = useSceneClock();
+  const clock: SceneClock = useSceneClock();
   return (
     <span className="am-scene-card-live">
       <SceneView

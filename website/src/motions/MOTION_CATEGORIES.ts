@@ -1,3 +1,5 @@
+import type { IMotionCategory } from "./IMotionCategory";
+
 /**
  * How the motion catalogue arranges the vocabulary: the core actions first,
  * then the lexicon's families under a few categories a reader looks for,
@@ -106,18 +108,3 @@ export const MOTION_CATEGORIES: readonly IMotionCategory[] = [
     },
   },
 ];
-
-/** One category of the catalogue. */
-export interface IMotionCategory {
-  /** Its anchor on the catalogue page. */
-  id: string;
-
-  /** Its heading. */
-  title: string;
-
-  /** One sentence saying what it holds. */
-  summary: string;
-
-  /** Its families by the lexicon's name, in order, with each section's label; `actions` names the core vocabulary. */
-  families: Readonly<Record<string, string>>;
-}

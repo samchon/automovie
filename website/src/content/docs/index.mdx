@@ -14,7 +14,7 @@ AutoMovie is a set of npm packages and a scaffold for a production, the project 
 
 The screenplay is written through a chain of layers. A short runs brief → screenplay. A series runs settings → treatments → scripts → screenplay. Each layer cites the decisions of the layer above it by anchor, and the code cites the screenplay the same way.
 
-The production's evidence check, `pnpm run evidence`, reads those citations as a graph. It fails while any brief decision, treatment event, script scene, screenplay section or beat is left unrealized, or a checklist question is left unanswered. A reviewer in a separate context then reads each layer, and a review expires when the text it read changes. [Authoring chain](/docs/screenplay/authoring-chain) explains the layers and [Evidence graph](/docs/screenplay/evidence-graph) explains the check.
+The production's evidence check, `pnpm run evidence`, reads those citations as a graph. With a layer's check turned on in `evidence.config.ts`, it fails while any brief decision, treatment event, script scene, screenplay section or beat is left unrealized, or a checklist question is left unanswered. A reviewer in a separate context then reads each layer, and a review expires when the text it read changes. [Authoring chain](/docs/screenplay/authoring-chain) explains the layers and [Evidence graph](/docs/screenplay/evidence-graph) explains the check.
 
 ## Coarse models, detailed motion
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactElement, useState } from "react";
+import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
 
 import { BakedClient } from "../baked/BakedClient";
 import { SceneView } from "../components/scenes/SceneView";
@@ -22,9 +22,9 @@ import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
  * @returns The page.
  */
 export default function MotionMovie(props: { detail: MotionIndex.IDetail }): ReactElement {
-  const { detail } = props;
+  const { detail }: { detail: MotionIndex.IDetail } = props;
   const clock: SceneClock = useSceneClock();
-  const [ready, setReady] = useState<boolean>(false);
+  const [ready, setReady]: [boolean, Dispatch<SetStateAction<boolean>>] = useState<boolean>(false);
   return (
     <main className="am-app am-scene-page am-motion-page" data-pagefind-body>
       <header className="am-scene-head">

@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
 import { BakedManifest } from "../../../../baked/BakedManifest";
+import { MotionIndex } from "../../../../motions/package/MotionIndex";
 import SceneMovie from "../../../../movies/SceneMovie";
 import { SCENES } from "../../../../scenes/SCENES";
+import { SceneFacts } from "../../../../scenes/SceneFacts";
 import { SceneChainNames } from "../../../../scenes/package/SceneChainNames";
 import { SceneStatus } from "../../../../scenes/package/SceneStatus";
 import type { IScene } from "../../../../scenes/structures/IScene";
@@ -46,7 +48,8 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
 
 /**
  * One scene's route: its record, whether the installed packages compute its
- * takes, and whether the build baked its first take.
+ * takes, whether the build baked its first take, and which of its actions
+ * have a motion page.
  *
  * @param props The route's parameters.
  * @returns The page.
@@ -62,6 +65,7 @@ export default async function ScenePage(
       scene={scene}
       computes={SceneStatus.computes(SceneStatus.of(scene))}
       baked={BakedManifest.read().scenes[scene.id] !== undefined}
+      motions={SceneFacts.actions(scene).filter((name: string): boolean => MotionIndex.has(name))}
       names={
         scene.composition === null
           ? null

@@ -26,8 +26,7 @@ const APPLICATION: {
  * The index is the landing page, which the logo links to. The motion and
  * archetype catalogues and the playground are the kit a film is composed
  * with, so they sit under one Library menu after the documentation and the
- * scenes. The old addresses of the archetypes stay as hidden pages that
- * forward.
+ * scenes. Former addresses stay as hidden pages that forward.
  */
 const meta: MetaRecord = {
   index: {
@@ -80,6 +79,12 @@ const meta: MetaRecord = {
   },
   gallery: {
     title: "Archetypes",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  human: {
+    title: "AutoMovie",
     type: "page",
     display: "hidden",
     theme: APPLICATION,

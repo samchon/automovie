@@ -58,12 +58,19 @@ export namespace ScenePlayer {
   ): Promise<IScenePlayer> {
     // A take the build computed plays at once; the worker computes it only
     // when the site was served without a bake.
-    if (baked !== undefined && take === 0)
+    if (baked !== undefined && take === 0) {
+      let read: ITake | null = null;
       try {
-        return build(scene, await BakedClient.take(baked, scene.id));
-      } catch {
-        if (signal?.aborted === true) throw new Error("aborted");
+        read = await BakedClient.take(baked, scene.id);
+      } catch (error) {
+        // Only a take that was never baked falls back; a broken one fails.
+        if (!(error instanceof Error) || error.name !== BakedClient.MISSING)
+          throw error;
       }
+      if (signal?.aborted === true)
+        throw new DOMException("The view stopped waiting.", "AbortError");
+      if (read !== null) return build(scene, read);
+    }
     const result: TakeClient.Result = await computeSceneTake(
       scene,
       take,
@@ -235,9 +242,10 @@ export namespace ScenePlayer {
     });
 
     // The camera stands where the record's view looks from, just far enough
-    // for the action's box to fit the 16:9 frame: the box's corners are
-    // measured along the view's own right and up, so a tall single figure
-    // and a wide pair are both framed closely, with a tenth to spare.
+    // for the action's box to fit the frame at the camera's aspect, which a
+    // view sets to its canvas's shape: the box's corners are measured along
+    // the view's own right and up, so a tall single figure and a wide pair
+    // are both framed closely, with a tenth to spare.
     const bounds: THREE.Sphere = box.getBoundingSphere(new THREE.Sphere());
     const fieldOfView: number = 35;
     const aspect: number = 16 / 9;
@@ -250,7 +258,7 @@ export namespace ScenePlayer {
           i & 4 ? box.max.z : box.min.z,
         ).sub(centre),
     );
-    const fit = (toward: THREE.Vector3): number => {
+    const fit = (toward: THREE.Vector3, ratio: number): number => {
       if (record.camera.distance !== undefined) return record.camera.distance;
       const right: THREE.Vector3 = new THREE.Vector3(0, 1, 0)
         .cross(toward)
@@ -263,7 +271,7 @@ export namespace ScenePlayer {
         needed = Math.max(
           needed,
           Math.abs(corner.dot(up)) / tangent + near,
-          Math.abs(corner.dot(right)) / (tangent * aspect) + near,
+          Math.abs(corner.dot(right)) / (tangent * ratio) + near,
         );
       }
       return needed * 1.1;
@@ -272,12 +280,14 @@ export namespace ScenePlayer {
       fieldOfView,
       aspect,
       0.05,
-      fit(VIEWS["top"]) + fit(VIEWS["side"]) + bounds.radius * 4,
+      fit(VIEWS["top"], aspect) + fit(VIEWS["side"], aspect) + bounds.radius * 4,
     );
     const frame: (view: IScene.ICamera["view"]) => void = (
       view: IScene.ICamera["view"],
     ): void => {
-      camera.position.copy(centre).addScaledVector(VIEWS[view], fit(VIEWS[view]));
+      camera.position
+        .copy(centre)
+        .addScaledVector(VIEWS[view], fit(VIEWS[view], camera.aspect));
       camera.lookAt(centre);
     };
     frame(record.camera.view);

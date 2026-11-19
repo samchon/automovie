@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactElement, useEffect, useState } from "react";
+import { type Dispatch, type KeyboardEvent, type ReactElement, type SetStateAction, useEffect, useState } from "react";
 
 import { SITE_BASE } from "../SITE_BASE";
 import { BakedClient } from "../baked/BakedClient";
@@ -22,6 +22,9 @@ import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
 
 /** The panels under the player. */
 type Panel = "code" | "timeline" | "takes";
+
+/** The panels in their tabs' order. */
+const PANELS: readonly Panel[] = ["code", "timeline", "takes"];
 
 /** The player's loaded take, and what redraws its view after the toolbar moves the camera. */
 interface ILoaded {
@@ -50,7 +53,7 @@ const VIEWS: readonly IScene.ICamera["view"][] = [
  * installed packages cannot compute shows what it will compose and the
  * issues it waits on.
  *
- * @param props The scene's record, whether the installed packages compute its takes, whether its first take was baked, and the exported names its code refers to.
+ * @param props The scene's record, whether the installed packages compute its takes, whether its first take was baked, the exported names its code refers to, and which of its actions have a motion page.
  * @returns The page.
  */
 export default function SceneMovie(props: {
@@ -58,12 +61,14 @@ export default function SceneMovie(props: {
   computes: boolean;
   baked: boolean;
   names: ISceneChainNames | null;
+  motions: string[];
 }): ReactElement {
   const { scene, computes }: typeof props = props;
   const clock: SceneClock = useSceneClock();
-  const [panel, setPanel] = useState<Panel>("code");
-  const [player, setPlayer] = useState<ILoaded | null>(null);
-  const [notice, setNotice] = useState<string>("");
+  const [panel, setPanel]: [Panel, Dispatch<SetStateAction<Panel>>] = useState<Panel>("code");
+  const [player, setPlayer]: [ILoaded | null, Dispatch<SetStateAction<ILoaded | null>>] =
+    useState<ILoaded | null>(null);
+  const [notice, setNotice]: [string, Dispatch<SetStateAction<string>>] = useState<string>("");
 
   // An address ending in #timeline or #takes opens on that panel.
   useEffect((): void => {
@@ -148,7 +153,7 @@ export default function SceneMovie(props: {
   const roles: Record<string, string> = Object.fromEntries(
     scene.cast.map((c: IScene.ICast): [string, string] => [c.subject, c.role]),
   );
-  const copy = async (): Promise<void> => {
+  const copy: () => Promise<void> = async (): Promise<void> => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setNotice("The page's address was copied.");
@@ -255,7 +260,11 @@ export default function SceneMovie(props: {
             {SceneFacts.actions(scene).map(
               (name: string): ReactElement => (
                 <li key={name}>
-                  <a href={`${SITE_BASE}/motions/#${name}`}>{name}</a>
+                  {props.motions.includes(name) ? (
+                    <Link href={`/motions/${name}/`}>{name}</Link>
+                  ) : (
+                    <span>{name}</span>
+                  )}
                 </li>
               ),
             )}
@@ -280,15 +289,32 @@ export default function SceneMovie(props: {
         </aside>
       </div>
 
-      <div className="am-tabs" role="tablist" aria-label="This scene">
-        {(
-          [
-            ["code", "Code"],
-            ["timeline", "Timeline"],
-            ["takes", `Takes (${scene.takes.length})`],
-          ] as const
-        ).map(
-          ([id, label]): ReactElement => (
+      {/* The tabs take one stop in the tab order; the arrow keys, Home and
+          End move between them, as the WAI-ARIA tabs pattern sets. */}
+      <div
+        className="am-tabs"
+        role="tablist"
+        aria-label="This scene"
+        onKeyDown={(event: KeyboardEvent<HTMLDivElement>): void => {
+          const at: number = PANELS.indexOf(panel);
+          const next: number | null =
+            event.key === "ArrowRight"
+              ? (at + 1) % PANELS.length
+              : event.key === "ArrowLeft"
+                ? (at + PANELS.length - 1) % PANELS.length
+                : event.key === "Home"
+                  ? 0
+                  : event.key === "End"
+                    ? PANELS.length - 1
+                    : null;
+          if (next === null) return;
+          event.preventDefault();
+          setPanel(PANELS[next]!);
+          document.getElementById(`am-tab-${PANELS[next]!}`)?.focus();
+        }}
+      >
+        {PANELS.map(
+          (id: Panel): ReactElement => (
             <button
               key={id}
               type="button"
@@ -296,9 +322,10 @@ export default function SceneMovie(props: {
               id={`am-tab-${id}`}
               aria-selected={panel === id}
               aria-controls={`am-panel-${id}`}
+              tabIndex={panel === id ? 0 : -1}
               onClick={(): void => setPanel(id)}
             >
-              {label}
+              {id === "code" ? "Code" : id === "timeline" ? "Timeline" : `Takes (${scene.takes.length})`}
             </button>
           ),
         )}

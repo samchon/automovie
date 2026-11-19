@@ -75,13 +75,31 @@ export function SceneView(props: SceneView.IProps): ReactElement {
       setPhase("computing");
       loadScenePlayer(scene, take, controller.signal, baked)
         .then((loaded: IScenePlayer): void => {
-          request = null;
-          if (!alive || canvas.current === null) {
+          // A request the view abandoned, by scrolling past or leaving,
+          // releases what it built rather than replacing a later one.
+          const current: boolean = request === controller;
+          if (current) request = null;
+          if (
+            !alive ||
+            !current ||
+            controller.signal.aborted ||
+            canvas.current === null
+          ) {
             loaded.dispose();
             return;
           }
           unwatch();
           player = loaded;
+
+          // Frame the action for the canvas's own shape, which the shared
+          // stage gives the camera when it draws.
+          const width: number = canvas.current.clientWidth;
+          const height: number = canvas.current.clientHeight;
+          if (width > 0 && height > 0) {
+            loaded.camera.aspect = width / height;
+            loaded.camera.updateProjectionMatrix();
+            loaded.frame(scene.camera.view);
+          }
           let shown: number = -1;
           const registered: SharedStage.IRegistration = SharedStage.register({
             canvas: canvas.current,

@@ -283,6 +283,20 @@ const CASES: readonly ICase[] = [
     lacks: [],
   },
   {
+    name: "a family's former page arrives at its section of the catalogue",
+    path: "motions/stageFight/",
+    arrives: "motions/#family-stageFight",
+    shows: ["#family-stageFight"],
+    lacks: [],
+  },
+  {
+    name: "the former Human address arrives at the landing page",
+    path: "human/",
+    arrives: "",
+    shows: [".am-hero h1"],
+    lacks: [],
+  },
+  {
     name: "the docs open",
     path: "docs/screenplay/evidence-graph/",
     shows: ["article h1", "nav"],

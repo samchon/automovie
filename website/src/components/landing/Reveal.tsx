@@ -31,7 +31,7 @@ export function Reveal(props: {
     element.dataset.reveal = "hidden";
     const observer: IntersectionObserver = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]): void => {
-        if (!entries.some((e): boolean => e.isIntersecting)) return;
+        if (!entries.some((e: IntersectionObserverEntry): boolean => e.isIntersecting)) return;
         element.dataset.reveal = "shown";
         observer.disconnect();
       },

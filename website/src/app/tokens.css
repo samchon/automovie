@@ -47,13 +47,39 @@
   --am-viewport-grid: #c9c4b8;
   --am-viewport-tag-bg: #17181c;
   --am-viewport-tag-fg: #ffffff;
+  --am-viewport-ink: #17181c;
+  --am-viewport-muted: #55514a;
+  --am-viewport-track: #dcd8cf;
+  --am-viewport-lit: #e3a24a;
+  --am-viewport-button: #f7f6f2;
 
-  /* The screening room: the one dark band the landing page sets. */
+  /* The screening room: the one dark band the landing page sets, the same
+     in both themes. */
   --am-room: #121316;
   --am-room-panel: #1b1c21;
+  --am-room-deep: #0b0c0e;
   --am-room-fg: #ecebe6;
   --am-room-muted: #a9abb2;
+  --am-room-code: #d9d7cf;
   --am-room-line: #2c2e35;
+  --am-room-edge: #3a3d45;
+  --am-room-lit: #f2a93b;
+  --am-room-danger: #e5675b;
+  --am-room-danger-fg: #ff9a8f;
+  --am-room-success: #6cc18b;
+  --am-room-switch-bg: #2a1f0e;
+  --am-room-switch-line: #5c4320;
+  --am-room-switch-fg: #f2c27a;
+  --am-room-alarm-bg: #2b1513;
+  --am-room-alarm-line: #6b3a35;
+  --am-room-alarm-fg: #ffb3aa;
+
+  /* The inspector of `@automovie/viewer` keeps its own light surface. */
+  --am-instrument-bg: #ffffff;
+  --am-instrument-fg: #1b1f26;
+
+  /* The lift of a panel off the page. */
+  --am-shadow: 0 30px 60px -40px rgb(23 24 28 / 0.35);
 
   /* Space, on a 4px step. */
   --am-space-1: 0.25rem;

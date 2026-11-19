@@ -1,8 +1,9 @@
 "use client";
 
-import { type ReactElement, useState } from "react";
+import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
 
 import { BakedClient } from "../../baked/BakedClient";
+import type { SceneClock } from "../../scenes/SceneClock";
 import type { IScene } from "../../scenes/structures/IScene";
 import type { IScenePlayer } from "../../scenes/structures/IScenePlayer";
 import { SceneView } from "../scenes/SceneView";
@@ -18,8 +19,8 @@ import { useSceneClock } from "../scenes/useSceneClock";
  * @returns The bench.
  */
 export function TakeBench(props: { scene: IScene; baked: boolean }): ReactElement {
-  const clock = useSceneClock();
-  const [take, setTake] = useState<number>(0);
+  const clock: SceneClock = useSceneClock();
+  const [take, setTake]: [number, Dispatch<SetStateAction<number>>] = useState<number>(0);
   return (
     <div className="am-bench">
       <div className="am-bench-view">

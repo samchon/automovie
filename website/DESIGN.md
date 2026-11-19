@@ -1,6 +1,6 @@
 # Design
 
-How the site's pages are laid out and styled, and why. The [website skill](../.agents/skills/website/SKILL.md) sets what the site says and how a change is verified; this note fixes how each page looks and is arranged. The tokens are in `src/app/tokens.css`, the shared pieces and the landing page in `src/app/landing.css`, the catalogues in `src/app/library.css`, the scene pages and the player in `src/app/scenes.css`, and the playground and the archetype pages in `src/app/global.css`.
+How the site's pages are laid out and styled, and why. The [website skill](../.agents/skills/website/SKILL.md) sets what the site says and how a change is verified; this note owns how each page looks and is arranged, and the visual rules a change keeps. The tokens are in `src/app/tokens.css`; `global.css` holds the faces, the footer and the application frame, `playground.css` the playground and an archetype's page, `shared.css` the buttons and pieces every page shares, `landing.css` and `landing-band.css` the landing page, `catalogue.css` and `motions.css` the catalogues and a motion's page, and `scenes.css` the scene pages and the player.
 
 Two readers come. A visitor comes to learn what AutoMovie does, so the landing page follows one scene from the decision it rests on to the frames it computes. A developer or a coding agent comes to look up what the vocabulary holds, so the catalogues and the docs are dense, plain and exact, with ids, values and messages in monospace.
 
@@ -103,13 +103,24 @@ The ground is a warm off-white and the ink near black; the one accent is tungste
 
 Shape and space. Steps on a 4 px grid; a radius of 6 px for controls and 12 px for panels and views; pill-shaped buttons and chips.
 
-Motion. One ease-out curve and 180 ms for interface responses; a block rises 14 px into place the first time it comes into the window; the canvases animate only while seen. Under `prefers-reduced-motion` nothing rises, the landing take holds a frame with a Play button, and the players wait to be played.
+Motion. One ease-out curve and 180 ms for interface responses; a block rises 14 px into place the first time it comes into the window; the canvases draw only while playing and seen. Under `prefers-reduced-motion` nothing eases, rises or animates, the landing take holds a frame with a Play button, and the players wait to be played.
+
+## Rules a change keeps
+
+- Every colour is a token in `tokens.css` with its light and dark value, or one value for the viewport and the dark band, which keep theirs in both themes; a colour text sits on has its pair in `build/contrast.ts`.
+- The display serif sets headings, the typewriter face screenplay text, the mono face code, ids and values, and the sans face the rest.
+- The amber accent marks what is selected, the one primary action and a motion's paths, and nothing else.
+- A page has at most one dark band, and the landing page one engineered moment, the evidence graph.
+- Things move only through `transform` and `opacity`; a colour may fade.
+- Every image and canvas has its size before it loads, and an image below the first screen loads lazily.
+- A card shows a baked still and plays only while pointed at or focused.
 
 ## Accessibility
 
 - Every region is a labelled landmark or a section with a heading; the catalogues' indexes are navigation landmarks.
 - Every control has a visible label, and focus is a 2 px ring in `--am-focus`.
 - A card's still and view are decoration inside a link named by its title.
-- The evidence graph's nodes take focus and light their chain as pointing does; its switch is a toggle button, and its report is a polite live region.
-- A refusal and a load failure use `role="alert"`; progress uses `role="status"`.
+- The evidence graph is an image described in words, its citations listed in its description; pointing at a node lights its chain, the switch is its one control, a toggle button, and its report is a polite live region.
+- A refusal and a load failure use `role="alert"`; progress and a copied command use `role="status"`.
+- The scene page's tabs follow the WAI-ARIA tabs pattern: one stop in the tab order, the arrow keys, Home and End between them.
 - What a canvas shows is also text: a scene's code and timeline, a motion's parameters, an archetype's dimensions.

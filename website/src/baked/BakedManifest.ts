@@ -9,6 +9,7 @@ import type { IBakedManifest } from "./IBakedManifest";
  * manifest, and its pages draw placeholders and compute in the worker.
  */
 export namespace BakedManifest {
+  /** The manifest read once per export. */
   let cached: IBakedManifest | null = null;
 
   /**

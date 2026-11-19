@@ -64,7 +64,7 @@ pnpm --filter @automovie/website run posters            # the baked stills on on
 | Path | Holds |
 | --- | --- |
 | `src/content/` | The MDX pages and `_meta.ts`, which lists the navigation bar. Add a documentation page under `docs/`. |
-| `src/app/` | The Next routes, the root layout and the stylesheets: `tokens.css`, `global.css`, `landing.css`, `library.css` and `scenes.css`. |
+| `src/app/` | The Next routes, the root layout and the stylesheets over `tokens.css`, one per part of the site, as [DESIGN.md](./DESIGN.md) lists them. |
 | `src/landing/` | The landing page and the scene, documents and rail it shows. |
 | `src/baked/` | The baked take's format, the stills, the manifest reader, the jobs and the page's client. |
 | `src/movies/` | One component per page. |

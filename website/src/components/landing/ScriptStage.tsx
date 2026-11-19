@@ -1,8 +1,9 @@
 "use client";
 
-import { type ReactElement, useState } from "react";
+import { type Dispatch, type ReactElement, type SetStateAction, useState } from "react";
 
 import type { ILandingFilm } from "../../landing/ILandingFilm";
+import type { IPlaygroundTimeline } from "../../playground/structures/IPlaygroundTimeline";
 import type { ITake } from "../../takes/structures/ITake";
 import { FigureCanvas } from "../figure/FigureCanvas";
 
@@ -18,8 +19,11 @@ import { FigureCanvas } from "../figure/FigureCanvas";
  */
 export function ScriptStage(props: { film: ILandingFilm }): ReactElement {
   const { film }: { film: ILandingFilm } = props;
-  const [windows, setWindows] = useState<[number, number][] | null>(null);
-  const [now, setNow] = useState<{ seconds: number; duration: number }>({
+  const [windows, setWindows]: [
+    [number, number][] | null,
+    Dispatch<SetStateAction<[number, number][] | null>>,
+  ] = useState<[number, number][] | null>(null);
+  const [now, setNow]: [IClock, Dispatch<SetStateAction<IClock>>] = useState<IClock>({
     seconds: 0,
     duration: 1,
   });
@@ -61,7 +65,7 @@ export function ScriptStage(props: { film: ILandingFilm }): ReactElement {
           onLoad={(take: ITake): void => setWindows(windowsOf(film, take))}
           onTime={(seconds: number, duration: number): void => {
             // Re-render only when the shown tenth of a second changes.
-            setNow((before) =>
+            setNow((before: IClock): IClock =>
               Math.abs(before.seconds - seconds) < 0.1
                 ? before
                 : { seconds, duration },
@@ -100,15 +104,24 @@ function windowsOf(film: ILandingFilm, take: ITake): [number, number][] {
     let from: number = Infinity;
     let to: number = -Infinity;
     for (const [subject, [first, last]] of Object.entries(beat.spans)) {
-      const spans = take.timeline.tracks
-        .find((t): boolean => t.subject === subject)
-        ?.spans.filter((s): boolean => !s.overlay);
+      const spans: IPlaygroundTimeline.ISpan[] | undefined = take.timeline.tracks
+        .find((t: IPlaygroundTimeline.ITrack): boolean => t.subject === subject)
+        ?.spans.filter((s: IPlaygroundTimeline.ISpan): boolean => !s.overlay);
       if (spans === undefined) continue;
-      const a = spans[first];
-      const b = spans[last];
+      const a: IPlaygroundTimeline.ISpan | undefined = spans[first];
+      const b: IPlaygroundTimeline.ISpan | undefined = spans[last];
       if (a !== undefined) from = Math.min(from, a.from);
       if (b !== undefined) to = Math.max(to, b.to);
     }
     return Number.isFinite(from) && Number.isFinite(to) ? [from, to] : [0, 0];
   });
+}
+
+/** The second shown and the take's length, which light a beat and place the playhead. */
+interface IClock {
+  /** The second shown. */
+  seconds: number;
+
+  /** The take's length, seconds. */
+  duration: number;
 }

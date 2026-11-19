@@ -6,8 +6,12 @@ import type { ReactElement, ReactNode } from "react";
 
 import { SITE_BASE } from "../SITE_BASE";
 import "./global.css";
+import "./playground.css";
+import "./shared.css";
 import "./landing.css";
-import "./library.css";
+import "./landing-band.css";
+import "./catalogue.css";
+import "./motions.css";
 import "./scenes.css";
 
 const title: string = "AutoMovie";

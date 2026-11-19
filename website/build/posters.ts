@@ -9,10 +9,12 @@
 // must have run first.
 import fs from "node:fs";
 import path from "node:path";
-import { type Browser, chromium } from "playwright-core";
+import { type Browser, type Page, chromium } from "playwright-core";
 
 const argv: string[] = process.argv.slice(2);
-const option = (name: string, fallback: string): string => {
+
+/** The value after a named option, removed from the arguments, or the fallback. */
+const option: (name: string, fallback: string) => string = (name: string, fallback: string): string => {
   const at: number = argv.indexOf(name);
   if (at === -1) return fallback;
   const value: string = argv[at + 1]!;
@@ -23,7 +25,8 @@ const kind: string = option("--kind", "scenes");
 const columns: number = Number(option("--columns", "6"));
 const width: number = Number(option("--width", "1800"));
 
-const main = async (): Promise<void> => {
+/** Draw the contact sheet. */
+const main: () => Promise<void> = async (): Promise<void> => {
   const folder: string = path.resolve(__dirname, "..", "public", "baked", kind);
   const ids: string[] =
     argv.length !== 0
@@ -45,7 +48,7 @@ const main = async (): Promise<void> => {
   fs.mkdirSync(out, { recursive: true });
   const browser: Browser = await chromium.launch();
   try {
-    const page = await browser.newPage({ viewport: { width, height: 800 } });
+    const page: Page = await browser.newPage({ viewport: { width, height: 800 } });
     await page.setContent(
       `<style>body{margin:8px;font:12px monospace;display:grid;grid-template-columns:repeat(${columns},1fr);gap:8px}figure{margin:0}img{width:100%;display:block}</style>${cells}`,
     );

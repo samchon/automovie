@@ -3,7 +3,8 @@ import type { IBakedManifest } from "../../baked/IBakedManifest";
 import { PlaygroundAddress } from "../../playground/PlaygroundAddress";
 import { SCENES } from "../../scenes/SCENES";
 import type { IScene } from "../../scenes/structures/IScene";
-import { MOTION_CATEGORIES, type IMotionCategory } from "../MOTION_CATEGORIES";
+import type { IMotionCategory } from "../IMotionCategory";
+import { MOTION_CATEGORIES } from "../MOTION_CATEGORIES";
 import { MotionUsage } from "../MotionUsage";
 import type { IMotionReference } from "../structures/IMotionReference";
 import { MotionReference } from "./MotionReference";
@@ -22,13 +23,23 @@ export namespace MotionIndex {
 
     /** How many motions there are. */
     total: number;
+
+    /** Seconds a motion tried alone stands before it starts, which a card's loop skips. */
+    opening: number;
   }
 
   /** One category of the catalogue. */
   export interface ICategory {
+    /** Its anchor on the catalogue page. */
     id: string;
+
+    /** Its heading. */
     title: string;
+
+    /** One sentence saying what it holds. */
     summary: string;
+
+    /** Its families, in order. */
     families: IFamily[];
   }
 
@@ -52,16 +63,25 @@ export namespace MotionIndex {
     /** The still a card shows: the motion's own, a scene's that performs it, or none. */
     poster: { kind: "motion" | "scene"; id: string } | null;
 
-    /** Its parameters, and how many of them are required. */
+    /** How many parameters it takes. */
     parameters: number;
+
+    /** How many of them are required. */
     required: number;
   }
 
   /** One motion's page. */
   export interface IDetail {
+    /** The name a chain appends it by. */
     name: string;
+
+    /** Its family's name and label. */
     family: { name: string; label: string };
+
+    /** Its category's anchor and heading. */
     category: { id: string; title: string };
+
+    /** Its parameters from its schema; null when the release ships no schema for it. */
     parameters: IMotionReference.IParameter[] | null;
 
     /** The scenes that compose it. */
@@ -73,11 +93,14 @@ export namespace MotionIndex {
     /** The playground's address of its trial; null when none would play. */
     playground: string | null;
 
-    /** The motions before and after it in its family. */
+    /** The motion before it in its family; null for the first. */
     previous: string | null;
+
+    /** The motion after it in its family; null for the last. */
     next: string | null;
   }
 
+  /** The catalogue and the pages, read once per export. */
   let cached: { index: IIndex; details: Map<string, IDetail> } | null = null;
 
   /**
@@ -99,6 +122,29 @@ export namespace MotionIndex {
   }
 
   /**
+   * The families whose name no motion has, for the pages that forward a
+   * family's former address to its section of the catalogue.
+   *
+   * @returns The family names.
+   */
+  export function families(): string[] {
+    const { index, details }: { index: IIndex; details: Map<string, IDetail> } = build();
+    return index.categories
+      .flatMap((c: ICategory): string[] => c.families.map((f: IFamily): string => f.name))
+      .filter((name: string): boolean => !details.has(name));
+  }
+
+  /**
+   * Whether a name is a motion's.
+   *
+   * @param name The name.
+   * @returns Whether the vocabulary has a motion of that name.
+   */
+  export function has(name: string): boolean {
+    return build().details.has(name);
+  }
+
+  /**
    * One motion's page.
    *
    * @param name The motion's name.
@@ -111,6 +157,7 @@ export namespace MotionIndex {
     return found;
   }
 
+  /** Arrange the installed vocabulary by the categories, once, with each motion's page. */
   function build(): { index: IIndex; details: Map<string, IDetail> } {
     if (cached !== null) return cached;
     const reference: IMotionReference = MotionReference.read();
@@ -194,7 +241,10 @@ export namespace MotionIndex {
           }),
       }),
     );
-    cached = { index: { categories: out, total: details.size }, details };
+    cached = {
+      index: { categories: out, total: details.size, opening: MotionUsage.OPENING },
+      details,
+    };
     return cached;
   }
 

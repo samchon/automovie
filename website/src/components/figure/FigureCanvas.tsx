@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  type Dispatch,
   type ReactElement,
   type RefObject,
+  type SetStateAction,
   useEffect,
   useRef,
   useState,
@@ -29,7 +31,7 @@ import type { ITake } from "../../takes/structures/ITake";
  */
 export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
   const canvas: RefObject<HTMLCanvasElement | null> = useRef(null);
-  const [state, setState] = useState<"loading" | "playing" | "paused" | "failed">(
+  const [state, setState]: [State, Dispatch<SetStateAction<State>>] = useState<State>(
     "loading",
   );
   const playing: RefObject<boolean> = useRef(true);
@@ -37,6 +39,9 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
   onTime.current = props.onTime;
   const onLoad: RefObject<FigureCanvas.IProps["onLoad"]> = useRef(props.onLoad);
   onLoad.current = props.onLoad;
+
+  // Draws again after the play state changes; set by the effect.
+  const wake: RefObject<() => void> = useRef((): void => undefined);
 
   useEffect((): (() => void) => {
     const element: HTMLCanvasElement | null = canvas.current;
@@ -54,13 +59,12 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
     playing.current = !reduced;
     const camera: FigureProjection.ICamera = FigureProjection.camera(props.view);
 
-    const draw = (now: number): void => {
-      if (!alive) return;
-      frame = requestAnimationFrame(draw);
-      if (take === null || fit === null || !visible) {
-        last = now;
-        return;
-      }
+    // One frame: advance the clock while playing, paint, and ask for the
+    // next frame only while playing and seen, so a paused or hidden canvas
+    // costs nothing.
+    const draw: (now: number) => void = (now: number): void => {
+      frame = 0;
+      if (!alive || take === null || fit === null) return;
       if (playing.current) clock += ((now - last) / 1000) * (props.speed ?? 1);
       last = now;
       const from: number = props.from ?? 0;
@@ -68,7 +72,14 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
       const seconds: number = from + (clock % length);
       paint(element, take, fit, camera, seconds, from);
       onTime.current?.(seconds, take.duration);
+      if (playing.current && visible) frame = requestAnimationFrame(draw);
     };
+    const kick: () => void = (): void => {
+      if (!alive || frame !== 0) return;
+      last = performance.now();
+      frame = requestAnimationFrame(draw);
+    };
+    wake.current = kick;
 
     BakedClient.take(props.kind, props.id)
       .then((loaded: ITake): void => {
@@ -78,6 +89,7 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
         onLoad.current?.(loaded);
         clock = reduced ? (props.still ?? 0) : 0;
         setState(reduced ? "paused" : "playing");
+        kick();
       })
       .catch((): void => {
         if (alive) setState("failed");
@@ -85,14 +97,19 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
     const observer: IntersectionObserver = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]): void => {
         visible = entries.some((e: IntersectionObserverEntry): boolean => e.isIntersecting);
+        if (visible) kick();
       },
     );
     observer.observe(element);
-    frame = requestAnimationFrame(draw);
+
+    // A held picture is painted again when the canvas changes size.
+    const resized: ResizeObserver = new ResizeObserver(kick);
+    resized.observe(element);
     return (): void => {
       alive = false;
       cancelAnimationFrame(frame);
       observer.disconnect();
+      resized.disconnect();
     };
   }, [props.kind, props.id, props.view, props.from, props.speed, props.still]);
 
@@ -106,7 +123,11 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
           aria-hidden="true"
         />
       ) : null}
-      <canvas ref={canvas} role="img" aria-label={props.label} />
+      {props.label === "" ? (
+        <canvas ref={canvas} aria-hidden="true" />
+      ) : (
+        <canvas ref={canvas} role="img" aria-label={props.label} />
+      )}
       {state === "playing" || state === "paused" ? (
         <button
           type="button"
@@ -114,6 +135,7 @@ export function FigureCanvas(props: FigureCanvas.IProps): ReactElement {
           onClick={(): void => {
             playing.current = !playing.current;
             setState(playing.current ? "playing" : "paused");
+            wake.current();
           }}
         >
           {state === "playing" ? "Pause" : "Play"}
@@ -134,7 +156,7 @@ export namespace FigureCanvas {
     /** The view it is seen from. */
     view: IScene.ICamera["view"];
 
-    /** What the canvas shows, for assistive technology. */
+    /** What the canvas shows, for assistive technology; empty when it is decoration beside its own visible name. */
     label: string;
 
     /** Seconds the loop starts from, such as after a trial's opening stand. */
@@ -154,10 +176,18 @@ export namespace FigureCanvas {
   }
 }
 
+/** Where a figure canvas is: loading its take, playing, paused, or failed to load. */
+type State = "loading" | "playing" | "paused" | "failed";
+
 /** The drawing's fixed framing: the centre and scale every frame is drawn at. */
 interface IFit {
+  /** The screen point drawn at the middle, metres right. */
   cx: number;
+
+  /** The screen point drawn at the middle, metres up. */
   cy: number;
+
+  /** Metres the drawing's width spans. */
   span: number;
 }
 
@@ -206,7 +236,9 @@ function paint(
   const g: CanvasRenderingContext2D | null = canvas.getContext("2d");
   if (g === null || width === 0 || height === 0) return;
   const scale: number = Math.min(width, height * 1.3) / fit.span;
-  const at = (p: FigureProjection.IPoint): [number, number] => [
+  const at: (p: FigureProjection.IPoint) => [number, number] = (
+    p: FigureProjection.IPoint,
+  ): [number, number] => [
     width / 2 + (p.x - fit.cx) * scale,
     height / 2 - (p.y - fit.cy) * scale,
   ];
@@ -218,8 +250,8 @@ function paint(
   g.strokeStyle = FigurePoster.COLOUR.grid;
   g.lineWidth = ratio;
   g.beginPath();
-  const xs: number[] = now.hips.map((h): number => h[0]);
-  const zs: number[] = now.hips.map((h): number => h[2]);
+  const xs: number[] = now.hips.map((h: [number, number, number]): number => h[0]);
+  const zs: number[] = now.hips.map((h: [number, number, number]): number => h[2]);
   const gx: number = Math.round((Math.min(...xs) + Math.max(...xs)) / 2);
   const gz: number = Math.round((Math.min(...zs) + Math.max(...zs)) / 2);
   for (let k: number = -4; k <= 4; k++) {
@@ -227,8 +259,8 @@ function paint(
       [[gx + k, 0, gz - 4], [gx + k, 0, gz + 4]],
       [[gx - 4, 0, gz + k], [gx + 4, 0, gz + k]],
     ] as [number, number, number][][]) {
-      const [ax, ay] = at(FigureProjection.project(a!, camera));
-      const [bx, by] = at(FigureProjection.project(b!, camera));
+      const [ax, ay]: [number, number] = at(FigureProjection.project(a!, camera));
+      const [bx, by]: [number, number] = at(FigureProjection.project(b!, camera));
       g.moveTo(ax, ay);
       g.lineTo(bx, by);
     }
@@ -285,7 +317,7 @@ function figures(
     for (const capsule of FigureProjection.capsules(figure)) {
       g.globalAlpha =
         alpha * (capsule.nearness >= 0.5 ? 1 : 0.72 + 0.56 * capsule.nearness);
-      const [ax, ay] = at(capsule.a);
+      const [ax, ay]: [number, number] = at(capsule.a);
       if (capsule.a === capsule.b) {
         g.fillStyle = colour;
         g.beginPath();
@@ -293,7 +325,7 @@ function figures(
         g.fill();
         continue;
       }
-      const [bx, by] = at(capsule.b);
+      const [bx, by]: [number, number] = at(capsule.b);
       g.strokeStyle = colour;
       g.lineWidth = capsule.radius * 2 * scale;
       g.beginPath();

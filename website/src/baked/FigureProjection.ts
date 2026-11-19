@@ -236,7 +236,7 @@ export namespace FigureProjection {
         nearness: 0,
         depth: crown.depth,
       });
-    out.sort((l, r): number => l.depth - r.depth);
+    out.sort((l: ICapsule & { depth: number }, r: ICapsule & { depth: number }): number => l.depth - r.depth);
     const near: number = out.at(-1)?.depth ?? 0;
     const far: number = out[0]?.depth ?? 0;
     return out.map(
@@ -265,10 +265,12 @@ export namespace FigureProjection {
     };
   }
 
+  /** The dot product of two 3-vectors. */
   function dot(a: readonly number[], b: readonly number[]): number {
     return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
   }
 
+  /** The cross product of two 3-vectors. */
   function cross(
     a: [number, number, number],
     b: [number, number, number],
@@ -280,6 +282,7 @@ export namespace FigureProjection {
     ];
   }
 
+  /** A 3-vector scaled to unit length; a zero vector stays zero. */
   function normalize(v: [number, number, number]): [number, number, number] {
     const length: number = Math.hypot(...v) || 1;
     return [v[0] / length, v[1] / length, v[2] / length];

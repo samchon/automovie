@@ -1,0 +1,327 @@
+/* The indexed layout the motion and archetype catalogues share, the motion
+   cards and a motion's page. DESIGN.md states each page's layout. */
+
+/* The motion catalogue: an index beside a section per family */
+.am-indexed {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.am-index-nav {
+  position: sticky;
+  top: calc(var(--am-navbar) + 1rem);
+  max-height: calc(100dvh - var(--am-navbar) - 2rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  font-size: 0.875rem;
+  scrollbar-width: thin;
+}
+
+.am-index-nav .am-search {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.am-index-shown {
+  margin: 0.5rem 0 1rem;
+  color: var(--am-fg-muted);
+  font: 0.75rem var(--am-font-mono);
+}
+
+.am-index-nav ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-index-nav > ol > li:has(> ol) + li {
+  margin-top: 0.9rem;
+}
+
+.am-index-nav a {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--am-radius);
+  color: var(--am-fg-muted);
+  text-decoration: none;
+}
+
+.am-index-nav a:hover {
+  background: var(--am-bg-hover);
+  color: var(--am-fg);
+}
+
+.am-index-nav a span {
+  font: 0.75rem var(--am-font-mono);
+}
+
+.am-index-nav .am-index-category-link {
+  color: var(--am-fg);
+  font-weight: 600;
+}
+
+.am-index-category {
+  scroll-margin-top: calc(var(--am-navbar) + 1rem);
+}
+
+.am-index-category + .am-index-category {
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--am-border);
+}
+
+.am-index-category > header {
+  max-width: 44rem;
+  margin-bottom: 1.5rem;
+}
+
+.am-app .am-index-category h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--am-font-display);
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.am-index-category > header p {
+  color: var(--am-fg-muted);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.am-index-family {
+  scroll-margin-top: calc(var(--am-navbar) + 1rem);
+}
+
+.am-index-family + .am-index-family {
+  margin-top: 2rem;
+}
+
+.am-app .am-index-family h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.am-motion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  gap: 1rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-motion-card a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--am-fg);
+  text-decoration: none;
+  scroll-margin-top: calc(var(--am-navbar) + 2rem);
+}
+
+.am-motion-card-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+  transition: box-shadow var(--am-fast) var(--am-ease);
+}
+
+.am-motion-card-view img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.am-motion-card-view[data-scene="true"] img {
+  opacity: 0.75;
+  filter: saturate(0.6);
+}
+
+.am-motion-card-view .am-figure-canvas {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.am-motion-card-view .am-figure-canvas-toggle {
+  display: none;
+}
+
+.am-motion-card-none {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--am-viewport-muted);
+  font: 0.75rem var(--am-font-mono);
+}
+
+.am-motion-card a:hover .am-motion-card-view,
+.am-motion-card a:focus-visible .am-motion-card-view {
+  box-shadow: 0 0 0 2px var(--am-fg);
+}
+
+.am-motion-card a:focus-visible {
+  outline: none;
+}
+
+.am-motion-card-name {
+  overflow: hidden;
+  font: 500 0.8125rem var(--am-font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.am-motion-card-facts {
+  color: var(--am-fg-muted);
+  font-size: 0.75rem;
+}
+
+/* A motion's page */
+.am-app .am-motion-name {
+  font-family: var(--am-font-mono);
+  font-size: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+  letter-spacing: -0.02em;
+}
+
+.am-motion-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  padding: 2rem;
+  border-radius: var(--am-radius-lg);
+  background: var(--am-viewport);
+  color: var(--am-viewport-fg);
+  text-align: center;
+}
+
+.am-motion-snippet {
+  margin-bottom: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.75rem !important;
+  white-space: pre;
+}
+
+.am-motion-step {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--am-border);
+}
+
+.am-motion-step a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow-wrap: anywhere;
+  font: 0.8125rem var(--am-font-mono);
+}
+
+.am-motion-step a[rel="next"] {
+  grid-column: 2;
+  text-align: right;
+}
+
+.am-motion-step a span {
+  color: var(--am-fg-muted);
+  font: 0.75rem var(--am-font-sans);
+}
+
+.am-app .am-motion-h2 {
+  margin: 2.5rem 0 0;
+  font-family: var(--am-font-display);
+  font-size: 1.875rem;
+  font-weight: 400;
+}
+
+.am-table-wrap {
+  overflow-x: auto;
+}
+
+.am-params {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.am-params th {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--am-border-control);
+  color: var(--am-fg-muted);
+  font-weight: 600;
+  text-align: left;
+}
+
+.am-params td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--am-border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.am-params td:first-child {
+  white-space: nowrap;
+}
+
+.am-param-type {
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.am-required {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--am-accent-soft);
+  color: var(--am-accent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .am-indexed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-index-nav {
+    position: static;
+    max-height: none;
+  }
+
+  .am-index-nav > ol {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .am-index-nav > ol > li + li,
+  .am-index-nav > ol > li:has(> ol) + li {
+    margin-top: 0;
+  }
+
+  .am-index-nav > ol > li > ol {
+    display: none;
+  }
+
+  .am-index-nav .am-index-category-link {
+    white-space: nowrap;
+    border: 1px solid var(--am-border);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+  }
+}

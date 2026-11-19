@@ -35,6 +35,14 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["room-muted", "room", 4.5],
   ["room-fg", "room-panel", 4.5],
   ["room-muted", "room-panel", 4.5],
+  ["room-code", "room-deep", 4.5],
+  ["room-danger-fg", "room-panel", 4.5],
+  ["room-switch-fg", "room-switch-bg", 4.5],
+  ["room-alarm-fg", "room-alarm-bg", 4.5],
+  ["viewport-fg", "viewport-grid", 4.5],
+  ["viewport-muted", "viewport", 4.5],
+  ["viewport-ink", "viewport-button", 4.5],
+  ["instrument-fg", "instrument-bg", 4.5],
 
   // What is not text but must be seen: control borders and the focus ring.
   ["border-control", "bg", 3],

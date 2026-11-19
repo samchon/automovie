@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { type ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import type { ChangeEvent, ReactElement } from "react";
 
 import { ObjectCard } from "../components/objects/ObjectCard";
@@ -9,13 +9,30 @@ import { ARCHETYPE_FAMILY_NOTES } from "../gallery/ARCHETYPE_FAMILY_NOTES";
 import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
 import GalleryMovie from "./GalleryMovie";
 
+/** What the archetypes page is given. */
 interface IObjectsProps {
+  /** Every producer by family. */
   catalogue: IGalleryCatalogue;
+
+  /** The listed scenes that place each producer, by its export name. */
   uses: Record<string, ISceneLink[]>;
 }
 
+/** A family with the archetypes the search keeps. */
+interface IShownGroup {
+  /** The family. */
+  group: IGalleryCatalogue.IGroup;
+
+  /** Its archetypes that match the search. */
+  shown: IGalleryCatalogue.ISubject[];
+}
+
+/** A scene an archetype's page links to. */
 interface ISceneLink {
+  /** The scene's id. */
   id: string;
+
+  /** Its title. */
   title: string;
 }
 
@@ -31,11 +48,11 @@ interface ISceneLink {
  * @returns The page.
  */
 export default function ObjectsMovie(props: IObjectsProps): ReactElement {
-  const params = useSearchParams();
+  const params: ReadonlyURLSearchParams = useSearchParams();
   const query: string = params.get("q") ?? "";
   if (params.has("subject")) return <GalleryMovie uses={props.uses} />;
 
-  const change = (next: string): void => {
+  const change: (next: string) => void = (next: string): void => {
     const address: URL = new URL(window.location.href);
     if (next === "") address.searchParams.delete("q");
     else address.searchParams.set("q", next);
@@ -45,7 +62,9 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
     .toLowerCase()
     .split(/\s+/)
     .filter((w: string): boolean => w !== "");
-  const matches = (subject: IGalleryCatalogue.ISubject): boolean => {
+  const matches: (subject: IGalleryCatalogue.ISubject) => boolean = (
+    subject: IGalleryCatalogue.ISubject,
+  ): boolean => {
     const text: string = [
       subject.label,
       subject.group,
@@ -55,15 +74,22 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
       .toLowerCase();
     return words.every((w: string): boolean => text.includes(w));
   };
-  const groups = props.catalogue.groups.map(
-    (group: IGalleryCatalogue.IGroup) => ({ group, shown: group.subjects.filter(matches) }),
+  const groups: IShownGroup[] = props.catalogue.groups.map(
+    (group: IGalleryCatalogue.IGroup): IShownGroup => ({
+      group,
+      shown: group.subjects.filter(matches),
+    }),
   );
   const total: number = props.catalogue.groups.reduce(
     (sum: number, g: IGalleryCatalogue.IGroup): number => sum + g.subjects.length,
     0,
   );
-  const shown: number = groups.reduce((sum, g) => sum + g.shown.length, 0);
-  const title = (name: string): string => name[0]!.toUpperCase() + name.slice(1);
+  const shown: number = groups.reduce(
+    (sum: number, g: IShownGroup): number => sum + g.shown.length,
+    0,
+  );
+  const title: (name: string) => string = (name: string): string =>
+    name[0]!.toUpperCase() + name.slice(1);
 
   return (
     <main className="am-app am-catalogue">
@@ -85,7 +111,7 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
             {words.length === 0 ? `${total} archetypes` : `${shown} of ${total} archetypes`}
           </p>
           <ol>
-            {groups.map(({ group, shown: kept }) => (
+            {groups.map(({ group, shown: kept }: IShownGroup): ReactElement => (
               <li key={group.name}>
                 <a href={`#family-${group.name}`}>
                   {title(group.name)}
@@ -96,7 +122,7 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
           </ol>
         </nav>
         <div className="am-indexed-body">
-          {groups.map(({ group, shown: kept }): ReactElement | null =>
+          {groups.map(({ group, shown: kept }: IShownGroup): ReactElement | null =>
             kept.length === 0 ? null : (
               <section
                 key={group.name}
