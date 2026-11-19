@@ -52,4 +52,8 @@ A retake verdict covers the interval checked. Promote only a cut with current wh
 
 ## Repairs
 
-Trace a failed beat from the cut through staging and the module to its screenplay and study. Return it to the writer if faithful staging would reproduce the defect. Repair the earliest cause, recheck affected intervals and joins, and review the rebuilt candidate.
+From the first playable draft through delivery, give the director the failed beat, its film time and what the viewer saw or heard. Compare the performance with the current screenplay. Where they differ, correct the production step that introduced the difference and replay the beat.
+
+If the beat plays as written and still fails, the director returns it to the writer for revision with the observed loss and any relevant study. Changes to [user-fixed text](../story/workflow/routes.md#fixed-screenplay) go to the user. If a missing story decision prevents staging, follow [concretization](../story/correction/repair.md#concretization).
+
+Stage the revised beat, recheck affected intervals and joins, and review the rebuilt candidate before approval.

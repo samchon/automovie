@@ -8,7 +8,7 @@ Keep the default engineering claims: every source declaration and test answers t
 
 Enable entities, behaviors and composition when their folders get the first declaration unless the route opens them later.
 
-With composition enabled, Evidence checks for the [catalog sources, film and acceptance record](../motion/catalog-cases.md). The director judges what the registered film plays.
+With composition enabled, Evidence checks for the [catalog sources, film and acceptance record](../motion/catalog-cases.md). Check playable scenes when [answering for composition](answering.md#film-composition). The director judges what the registered film plays.
 
 ## Story
 
