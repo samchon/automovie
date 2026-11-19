@@ -157,9 +157,11 @@ export function prepareJointRotationProjection(props: {
       })
     : [];
   const order: readonly ClinicalAxis[] =
-    props.basis.twistPlacement === "distal"
-      ? ["abduction", "flexion", "twist"]
-      : ["twist", "abduction", "flexion"];
+    props.basis.rotationOrder === "flexion-abduction-twist"
+      ? ["flexion", "abduction", "twist"]
+      : props.basis.twistPlacement === "distal"
+        ? ["abduction", "flexion", "twist"]
+        : ["twist", "abduction", "flexion"];
   const coefficientDots: ReturnType<typeof prepareJointRotationCoefficientDots> | null =
     box && mobile.length > 0 ? prepareJointRotationCoefficientDots({
       basis: props.basis, frame: props.frame,
@@ -458,9 +460,9 @@ export function prepareJointRotationProjection(props: {
 /**
  * Same-query access to the selected joint's already completed composition.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines original callable/paired output, raw-quaternion ownership and explicit degree-valued two-axis circle proposals with independent physical acceptance obligations.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines paired output ownership, degree-valued circle proposals, and the squared-radian wrist chord's genuine callback and unsupported fallback.
  * @evidence contracts/development/design.md#principled-representation A selected articulation/raw quaternion pair describes one completed projection. The separate half-angle-circle proposal uses the same fixed coefficient basis but returns only geometric roots, never an admitted pose or global score.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Pose authoring uses callable projection, distal/final scoring uses withQuaternion, and explicit owned continuation uses optional swivelCandidates. No coefficient state, last-result getter, pose cache or target history is exposed.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Pose authoring uses callable projection, distal scoring uses withQuaternion and its optional registered chord, and owned continuation uses swivelCandidates. No coefficient state, last-result getter or target history is exposed.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Both projection reads retain original clamp/candidate/tie policy. Native-only root proposals retain no query and certify no constraint; foreign/coupled/non-two-axis cases decline and actual curve checks/fallback remain mandatory.
  */
 export namespace prepareJointRotationProjection {
@@ -475,13 +477,8 @@ export namespace prepareJointRotationProjection {
    * Native box ownership, zero rig twist and cardinal arcs are checked at
    * construction. A foreign, wrapped or unsupported callback has no bound.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines squared angle units, callback provenance and unsupported fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation The producer's exact constraint identity and fixed rotation factors admit the chord proof before registering it by callback identity.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup retrieves the original proof reader without invoking the callback.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Opaque projectors and nonzero rig twist are never assumed to obey either prescribed arc; no accepted projection is synthesized.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A constant-time weak lookup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The registered arcs depend only on the fixed projector metadata and run anew for each candidate quaternion.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak registration releases both fixed arc readers with the callback and holds no candidates or results.
+   * A constant-time weak lookup borrows the original proof reader without
+   * invoking the callback. The fixed arc metadata releases with that callback.
    */
   export function wristChord(
     projector: IProjector["withQuaternion"] | undefined,

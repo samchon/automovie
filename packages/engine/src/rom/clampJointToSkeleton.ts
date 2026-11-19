@@ -28,10 +28,10 @@ const BORROWABLE: WeakMap<IClamp, IAutoMovieJointConstraint | null | undefined> 
  * @evidence contracts/development/implementation.md#principled-implementation Find the first matching skeleton bone and prefer a nonnull override over the humanoid table, returning the original unconstrained joint or a clamped record; swing-twist uses the skeleton's current axis precedence and canonical rest frame.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-joint seam permits selective correction; operation factories share the private constraint gate. borrow recognizes only those actual factory callables for query-owned scratch inputs, keeping arbitrary callbacks on their original fresh-input path.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bones retain named-default fallback; this does not establish skeleton membership, identity or physical convergence.
- * @evidence contracts/development/common.md#meaningful-documentation States precedence, borrowed unconstrained result and targeted use. Companion prose defines fixed-source factory scopes and genuine callable borrowing, including input/output nonretention, possible output aliasing and unknown/wrapped callback fallback.
+ * @evidence contracts/development/common.md#meaningful-documentation States precedence, borrowed unconstrained result and targeted use. Companion prose defines genuine callable borrowing, output aliasing and fixed one-joint provenance. ownsConstraint recognizes the borrowed constraint of a genuine one-joint clamp and declines multi-joint or opaque callbacks.
  * @evidence contracts/development/implementation.md#efficient-algorithms First-bone lookup is O(B); only swing-twist needs an O(B) current-axis merge. Full-pose callers share their operation's index/axes before unchanged projection. Factory provenance registration and borrow lookup are constant-time; actual query scratch reuse belongs to the projector, with no measured speedup.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work All consumers share getConstraint precedence; standalone lookup remains live. Exact factory-callable provenance proves only that its closure stores source metadata, never input/output joints: projection still executes per call. Wrappers/proxies/bound/foreign callables have no registration and receive no borrowing capability.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Factory closures own only their existing constraint/frame/index metadata, never incoming or returned joints. A weak callable set adds no strong population/lifetime; source state releases with its caller-owned function. Unconstrained results may alias the input, so a scratch consumer must copy any retained answer before its next edit. No handle or task is retained.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak callable map borrows the same constraint already bound by each one-joint clamp without retaining inputs or results. Closure metadata releases with the caller-owned function. Unconstrained results can alias scratch inputs. No handle or task is retained.
  */
 export function clampJointToSkeleton(
   joint: IAutoMovieJointPose,
@@ -46,7 +46,7 @@ export function clampJointToSkeleton(
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the standalone, resolved-bone and multi-joint preparation entries, their shared constraint/frame semantics and the fixed-input operation scope described on each member.
  * @evidence contracts/development/design.md#principled-representation A one-bone clamp closure holds the effective constraint and any needed clinical frame for one unchanged solve; indexed operations retain the actual first-bone lookup without storing projected answers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Standalone/multi-joint callers share constraint/projection owners; borrow gives the actual projector the same factory callable only when private producer provenance proves no candidate retention.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Standalone and multi-joint callers share projection owners. borrow lends a genuine callback without candidate retention, and ownsConstraint supplies only a fixed domain identity to projector proofs.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No user flag, new ROM representation, global skeleton cache or cached joint answer is introduced. Only actual factory functions are weakly registered, unknown/wrapped callables remain unsupported by borrow, and missing bones retain named-default constraints.
  */
 export namespace clampJointToSkeleton {
@@ -227,13 +227,9 @@ export namespace clampJointToSkeleton {
    * Test whether a genuine one-joint clamp owns the exact borrowed constraint.
    * All-bone clamps and opaque callbacks have no one-joint constraint identity.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines one-joint provenance, the constraint identity and the two unsupported callback classes.
-   * @evidence contracts/development/implementation.md#principled-implementation A constraint is registered by the same private constructor that binds it to the actual clamp, so identity proves the domain without making a probe joint.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison with the constructor's weak registration.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither a wrapper, another constraint record, nor a multi-joint dispatcher certifies a fixed domain.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One weak lookup and one identity comparison.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only genuine clamp and unchanged domain provenance, independent of joint or projection results.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak entry borrows metadata already owned by the clamp and releases with its callable.
+   * The same private constructor binds and weakly registers the constraint.
+   * Identity proves the fixed domain without constructing a joint, invoking
+   * the clamp or retaining an input or projection result.
    */
   export function ownsConstraint(clamp: IClamp, constraint: IAutoMovieJointConstraint): boolean {
     return BORROWABLE.get(clamp) === constraint;
