@@ -12,6 +12,7 @@ import { ArchetypeCourse } from "./ArchetypeCourse";
 import { ArchetypeFrame } from "./ArchetypeFrame";
 import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeSpan } from "./ArchetypeSpan";
+import type { ArchetypeTowedGeometry } from "./ArchetypeTowedGeometry";
 import { ArchetypeTowing } from "./ArchetypeTowing";
 import { ArchetypeUnits } from "./ArchetypeUnits";
 
@@ -157,6 +158,30 @@ export namespace ArchetypeRide {
   }
 
   /**
+   * The world placement and selected contact frames at one tow instant.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Refers to the selected tow observation at one film second.
+   * @evidence contracts/development/design.md#principled-representation Shares the contact query and its current posed geometry contract.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the canonical snapshot through the existing ride namespace.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alias leaves all field types and query behavior to the tow geometry owner.
+   */
+  export type ITowedSample<Id extends string> =
+    ArchetypeTowedGeometry.ITowedSample<Id>;
+
+  /**
+   * A ride with an exact arbitrary-time contact query for the towed support.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the extended ride and the use of its query.
+   * @evidence contracts/development/design.md#principled-representation The canonical tow-specific extension of a general ride.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the tow return type accessible from the ride namespace.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alias adds no alternative query representation.
+   */
+  export type ITowedRide<
+    Id extends string,
+    Dimension extends string,
+  > = ArchetypeTowedGeometry.ITowedRide<Id, Dimension>;
+
+  /**
    * A ride of an archetype along a course.
    *
    * @param archetype The support at rest.
@@ -249,7 +274,7 @@ export namespace ArchetypeRide {
       support?: ArchetypeTowing.Support<Id>;
       lines?: readonly ILine[];
     } = {},
-  ): IRide<Id, Dimension> {
+  ): ITowedRide<Id, Dimension> {
     const geometry: ArchetypeTowing.IPrepared<Id> = ArchetypeTowing.prepare(
       trailer,
       coupling,
@@ -349,52 +374,29 @@ export namespace ArchetypeRide {
           fix: "give the line its two ends at least",
         });
 
-    /** Every line reads actual endpoints after both independent source poses. */
-    function lay(
-      lead: ISample<LeaderId, LeaderDimension>,
-      posed: Archetype<Id, Dimension>,
-      placement: IAutoMovieTransform,
-    ): { lines?: readonly ILineState[] } {
-      if (options.lines === undefined) return {};
-
-      /** The shared span owner resolves an actual endpoint before placement. */
-      function world(
-        model: Readonly<{
-          archetype: string;
-          parts: readonly IAutoMovieModelPart[];
-          affordances: readonly IAutoMovieAffordance[];
-        }>,
-        where: IAutoMovieTransform,
-        end: ArchetypeSpan.End,
-      ): IAutoMovieVector3 {
-        return ArchetypeFrame.point(
-          where,
-          ArchetypeSpan.locate(
-            model.archetype,
-            end,
-            model.parts,
-            model.affordances,
-          ),
-        );
-      }
-      return {
-        lines: options.lines.map(
-          (line: ILine): ILineState => ({
-            id: line.id,
-            radius: line.radius,
-            points: line.points.map(
-              (point: ILinePoint): IAutoMovieVector3 =>
-                point.leader !== undefined
-                  ? world(lead.archetype, lead.placement, point.leader)
-                  : world(posed, placement, point.trailer),
-            ),
-          }),
+    /** The span owner resolves the actual posed endpoint before world placement. */
+    const world = (
+      model: Readonly<{
+        archetype: string;
+        parts: readonly IAutoMovieModelPart[];
+        affordances: readonly IAutoMovieAffordance[];
+      }>,
+      where: IAutoMovieTransform,
+      end: ArchetypeSpan.End,
+    ): IAutoMovieVector3 =>
+      ArchetypeFrame.point(
+        where,
+        ArchetypeSpan.locate(
+          model.archetype,
+          end,
+          model.parts,
+          model.affordances,
         ),
-      };
-    }
-    const at: (seconds: number) => ISample<Id, Dimension> = (
+      );
+    /** Solve the current support once. Only a demanded frame or line lays its geometry. */
+    const read = (
       seconds: number,
-    ): ISample<Id, Dimension> => {
+    ): ITowedSample<Id> & { full(): ISample<Id, Dimension> } => {
       const sample: ISample<LeaderId, LeaderDimension> = leader.at(seconds);
       const state: readonly number[] = heading.at(seconds).x;
       const theta: number = state[0]!;
@@ -444,18 +446,48 @@ export namespace ArchetypeRide {
             "The posed source coupling does not close on its declared supported geometry",
           fix: "Keep the source coupling on its declared axle/drawbar and preserve those frames in pose.",
         });
+      const pointAt = (part: ILinePoint): IAutoMovieVector3 =>
+        part.leader !== undefined
+          ? world(sample.archetype, sample.placement, part.leader)
+          : world(steered, placement, part.trailer);
       return {
-        archetype: steered,
         placement,
-        course: { ...sample.course, placement },
-        ...lay(sample, steered, placement),
+        frame: (id: Id): IAutoMovieTransform =>
+          ArchetypeFrame.compose(placement, steered.affordance(id).frame),
+        tail: (id: string): ReturnType<ITowedSample<Id>["tail"]> => {
+          const line: ILine | undefined = options.lines?.find(
+            (candidate: ILine): boolean => candidate.id === id,
+          );
+          return line === undefined
+            ? undefined
+            : [pointAt(line.points.at(-2)!), pointAt(line.points.at(-1)!)];
+        },
+        full: (): ISample<Id, Dimension> => ({
+          archetype: steered,
+          placement,
+          course: { ...sample.course, placement },
+          ...(options.lines === undefined
+            ? {}
+            : {
+                lines: options.lines.map(
+                  (line: ILine): ILineState => ({
+                    id: line.id,
+                    radius: line.radius,
+                    points: line.points.map(pointAt),
+                  }),
+                ),
+              }),
+        }),
       };
     };
+    const at = (seconds: number): ISample<Id, Dimension> =>
+      read(seconds).full();
     return {
       plan: leader.plan,
       duration: leader.duration,
       instants: leader.instants,
       at,
+      geometry: read,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
         const sample: ISample<Id, Dimension> = at(seconds);
         return ArchetypeFrame.compose(

@@ -3,10 +3,12 @@ import {
   ArchetypeRide,
   createCart,
   createHorse,
+  prepareTowedCartDriver,
   rideHorse,
 } from "@automovie/archetypes";
 import {
   Quaternion,
+  RigidCarrierSample,
   Vector3,
   pointSegmentDistance,
   resolveAutoMovieHumanoidSurfaces,
@@ -79,16 +81,22 @@ export function test_human_motion_ride_towed_driver(): void {
     acceleration: 0.5,
     deceleration: 0.5,
   });
-  const ride: ArchetypeRide.IRide<createCart.Affordance, createCart.Dimension> =
-    ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
-      lines: createCart.lines(cart),
-      support: createCart.towing(cart),
-    });
+  const ride: ArchetypeRide.ITowedRide<
+    createCart.Affordance,
+    createCart.Dimension
+  > = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
+    lines: createCart.lines(cart),
+    support: createCart.towing(cart),
+  });
   const placement = (seconds: number): IAutoMovieRigidTransform => {
     const frame: IAutoMovieTransform = ride.at(seconds).placement;
     return { position: frame.translation, rotation: frame.rotation };
   };
   const initial: IAutoMovieRigidTransform = placement(0);
+  const binding: RigidCarrierSample.IBinding = prepareTowedCartDriver(
+    cart,
+    ride,
+  );
   const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
     cart,
     initial,
@@ -139,6 +147,84 @@ export function test_human_motion_ride_towed_driver(): void {
     );
   };
   const findings: string[] = [];
+  const samePoint = (a: IAutoMovieVector3, b: IAutoMovieVector3): boolean =>
+    Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z);
+  const sameRigid = (
+    a: IAutoMovieRigidTransform,
+    b: IAutoMovieRigidTransform,
+  ): boolean =>
+    samePoint(a.position, b.position) &&
+    samePoint(a.rotation, b.rotation) &&
+    Object.is(a.rotation.w, b.rotation.w);
+
+  // Compare off-grid, backward and repeated native reads against the renderer path.
+  for (const seconds of [
+    instants[1]! + 0.013,
+    instants[0]!,
+    instants[2]!,
+    instants[1]! + 0.013,
+  ]) {
+    TestValidator.predicate(
+      "native root matches the rendered cart exactly",
+      sameRigid(placement(seconds), binding.motion(seconds)),
+    );
+    for (const id of ["leftLineGrip", "rightLineGrip", "seat"] as const) {
+      const a: IAutoMovieTransform = contact(id, seconds);
+      const b: IAutoMovieTransform = binding.point(id, seconds);
+      TestValidator.predicate(
+        `native ${id} matches the full scene exactly`,
+        sameRigid(
+          { position: a.translation, rotation: a.rotation },
+          { position: b.translation, rotation: b.rotation },
+        ) && samePoint(a.scale, b.scale),
+      );
+    }
+  }
+
+  let reads: number = 0;
+  const probe: RigidCarrierSample.IBinding = prepareTowedCartDriver(cart, {
+    ...ride,
+    geometry: (seconds: number): ReturnType<typeof ride.geometry> => {
+      ++reads;
+      return ride.geometry(seconds);
+    },
+  });
+  const bound = HumanObject.prop(
+    "bound",
+    cart,
+    initial,
+    probe.motion,
+    probe.point,
+  );
+  const current: RigidCarrierSample.IRead = RigidCarrierSample.playback(
+    bound,
+  )!.sample(instants[1]!);
+  for (const id of ["leftLineGrip", "rightLineGrip", "seat"]) current.point(id);
+  TestValidator.equals(
+    "paired material reads take one current tow sample",
+    reads,
+    1,
+  );
+
+  const opaque = HumanObject.prop(
+    "opaque",
+    cart,
+    initial,
+    (seconds) => probe.motion(seconds),
+    (id, seconds) => probe.point(id, seconds),
+  );
+  TestValidator.equals(
+    "rewrapped readers receive no paired playback",
+    RigidCarrierSample.playback(opaque),
+    undefined,
+  );
+  for (const id of ["leftLineGrip", "rightLineGrip", "seat"])
+    opaque.point!(id, instants[1]!);
+  TestValidator.equals(
+    "foreign readers still take each authored call",
+    reads,
+    4,
+  );
 
   /** Report the missed contact in millimetres without interrupting the sweep. */
   const check = (label: string, gap: number): void => {
@@ -164,7 +250,15 @@ export function test_human_motion_ride_towed_driver(): void {
       performance = new HumanPerformance({
         seed: "towed-driver",
         laws: [HumanRide.ride],
-        props: [HumanObject.prop("cart", cart, initial, placement, contact)],
+        props: [
+          HumanObject.prop(
+            "cart",
+            cart,
+            initial,
+            binding.motion,
+            binding.point,
+          ),
+        ],
         performers: [
           {
             subject: "driver",
