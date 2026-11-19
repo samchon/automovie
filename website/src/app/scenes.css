@@ -51,25 +51,6 @@
   line-height: 1.5;
 }
 
-.am-app a.am-button {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--am-control-height);
-  border: 1px solid var(--am-accent-bg);
-  border-radius: var(--am-radius);
-  background: var(--am-accent-bg);
-  padding: 0 var(--am-space-3);
-  color: var(--am-accent-fg);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.am-app a.am-button-quiet {
-  border-color: var(--am-border-control);
-  background: var(--am-bg-inset);
-  color: var(--am-fg);
-}
-
 /* A 3D view drawn by the page's shared renderer. */
 .am-scene-view {
   position: relative;
@@ -90,120 +71,33 @@
 .am-scene-view-note {
   position: absolute;
   inset: auto var(--am-space-2) var(--am-space-2);
-  color: var(--am-fg-muted);
+  color: var(--am-viewport-fg);
   font-size: var(--am-text-xs);
+}
+
+/* The take's still, under the canvas until the take is drawn. */
+.am-scene-view-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.am-scene-view canvas {
+  position: relative;
 }
 
 /* A take the packages refuse today shows their refusal over the empty view. */
 .am-scene-view-refusal {
   inset: var(--am-space-2);
   overflow: auto;
-  color: var(--am-fg);
+  color: var(--am-viewport-fg);
 }
 
 .am-scene-refused {
   max-width: 60rem;
   color: var(--am-fg-muted);
-}
-
-/* The gallery */
-.am-filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--am-space-3);
-  margin-bottom: var(--am-space-5);
-}
-
-.am-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--am-space-2);
-}
-
-.am-app button.am-chip {
-  border-radius: 999px;
-}
-
-.am-app button.am-chip[aria-pressed="true"] {
-  border-color: var(--am-accent-bg);
-  background: var(--am-accent-soft);
-  color: var(--am-fg);
-  font-weight: 700;
-}
-
-.am-search {
-  flex: 1 1 14rem;
-  max-width: 22rem;
-}
-
-/* The groups of a catalogue page (the scenes, the objects) stand apart;
-   other pages space their sections themselves. */
-.am-catalogue > :is(section, .am-status) + section {
-  margin-top: var(--am-space-6);
-}
-
-.am-scene-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: var(--am-space-4);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.am-scene-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--am-space-1);
-}
-
-.am-scene-card-link {
-  display: flex;
-  flex-direction: column;
-  gap: var(--am-space-2);
-  color: inherit;
-  text-decoration: none;
-}
-
-.am-scene-card-link:hover .am-scene-card-title {
-  text-decoration: underline;
-}
-
-.am-scene-card-title {
-  font-size: var(--am-text-lg);
-  font-weight: 700;
-}
-
-.am-scene-card-facts {
-  font-size: var(--am-text-xs);
-}
-
-.am-roadmap-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-  gap: var(--am-space-3);
-  margin: var(--am-space-3) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.am-roadmap-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--am-space-1);
-  border: 1px solid var(--am-border);
-  border-radius: var(--am-radius);
-  background: var(--am-bg-panel);
-  padding: var(--am-space-3);
-}
-
-.am-roadmap-item .am-badge {
-  align-self: flex-start;
-}
-
-.am-issues {
-  font-size: var(--am-text-xs);
 }
 
 /* A scene's page */
@@ -353,4 +247,205 @@
   top: 50%;
   line-height: 0.75rem;
   opacity: 0.75;
+}
+
+/* A scene's page: the heading, the player beside the aside, the panels */
+.am-scene-page {
+  max-width: 88rem;
+  margin-inline: auto;
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) 5rem;
+  font-family: var(--am-font-sans);
+}
+
+.am-scene-head {
+  max-width: 52rem;
+  margin-bottom: 1.5rem;
+}
+
+.am-crumbs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--am-fg-muted);
+  font-size: 0.875rem;
+}
+
+.am-crumbs a {
+  color: inherit;
+}
+
+.am-crumbs a:hover {
+  color: var(--am-fg);
+}
+
+.am-app .am-scene-head h1 {
+  margin: 0 0 0.6rem;
+  font-family: var(--am-font-display);
+  font-size: var(--am-text-title);
+  font-weight: 400;
+  line-height: 1.02;
+}
+
+.am-scene-head > p {
+  margin: 0;
+  color: var(--am-fg-muted);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.am-scene-page .am-scene-layout {
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 1.5rem;
+}
+
+.am-scene-page .am-scene-view {
+  border-radius: var(--am-radius-lg);
+}
+
+.am-scene-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.6rem;
+}
+
+.am-scene-controls .am-transport {
+  flex: 1 1 28rem;
+}
+
+.am-scene-page .am-scene-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem;
+  border-radius: var(--am-radius-lg);
+  background: var(--am-bg-panel);
+}
+
+.am-app .am-scene-aside h2 {
+  margin: 0.75rem 0 0.4rem;
+  color: var(--am-fg-muted);
+  font: 600 0.75rem var(--am-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.am-app .am-scene-aside h2:first-child {
+  margin-top: 0;
+}
+
+.am-scene-aside .am-plain {
+  margin-bottom: 0.25rem;
+  font-size: 0.9375rem;
+}
+
+.am-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-tags a {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--am-border);
+  border-radius: 999px;
+  background: var(--am-bg-inset);
+  color: var(--am-fg);
+  font: 0.75rem var(--am-font-mono);
+  text-decoration: none;
+}
+
+.am-tags a:hover {
+  border-color: var(--am-accent-line);
+  color: var(--am-accent);
+}
+
+.am-scene-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.am-app .am-scene-links .am-button {
+  min-height: 2.5rem;
+  height: auto;
+  border-radius: 999px;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+
+.am-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin: 2.5rem 0 0;
+  border-bottom: 1px solid var(--am-border);
+}
+
+.am-app .am-tabs button {
+  height: auto;
+  min-height: 2.75rem;
+  margin-bottom: -1px;
+  padding: 0 1rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--am-fg-muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.am-app .am-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--am-fg);
+  color: var(--am-fg);
+}
+
+.am-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1.25rem;
+}
+
+.am-panel-body > p {
+  max-width: 48rem;
+}
+
+.am-scene-page .am-code {
+  border-radius: var(--am-radius-lg);
+  padding: 1rem 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.am-scene-waiting {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 60rem;
+}
+
+@media (max-width: 1023px) {
+  .am-scene-page .am-scene-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.am-scene-aside .am-plain a {
+  color: var(--am-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--am-border-control);
+  text-underline-offset: 3px;
+}
+
+.am-scene-aside .am-plain a:hover {
+  color: var(--am-accent);
+  text-decoration-color: var(--am-accent-line);
 }

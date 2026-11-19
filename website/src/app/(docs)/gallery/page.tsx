@@ -9,9 +9,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * The gallery's old address. The objects moved to `/objects/`, and the
- * polygon man to `/human/`; a link to this page arrives at the same subject
- * there.
+ * The archetypes' oldest address, which forwards to `/archetypes/` with its
+ * query.
  *
  * @returns The page.
  */

@@ -3,27 +3,30 @@
    one. `build/contrast.ts` reads this file and checks the pairs DESIGN.md
    lists, so keep one `--am-*: #rrggbb;` per line for colours.
 
-   Nextra puts the class `dark` on <html> for the dark theme. */
+   Nextra puts the class `dark` on <html> for the dark theme. The faces come
+   from `next/font` in the root layout as `--font-*` variables. */
 :root {
   /* Surfaces, from the page outwards. */
-  --am-bg: #ffffff;
-  --am-bg-panel: #f6f7f9;
+  --am-bg: #fbfaf7;
+  --am-bg-panel: #f3f1ec;
   --am-bg-inset: #ffffff;
-  --am-bg-hover: #e9ecf1;
+  --am-bg-hover: #ebe8e1;
 
   /* Lines. A control's border must be seen against every surface. */
-  --am-border: #d5d9e0;
-  --am-border-control: #7c8594;
+  --am-border: #e2ded5;
+  --am-border-control: #847f74;
 
   /* Text. */
-  --am-fg: #1b1f26;
-  --am-fg-muted: #57606d;
+  --am-fg: #17181c;
+  --am-fg-muted: #595d66;
 
-  /* The accent marks what is selected and the one primary action. */
-  --am-accent: #8a5a00;
-  --am-accent-bg: #8a5a00;
+  /* The accent is tungsten amber: what is selected, the one primary action,
+     and the paths a poster draws. */
+  --am-accent: #8a4f00;
+  --am-accent-bg: #8a4f00;
   --am-accent-fg: #ffffff;
-  --am-accent-soft: #fbf1dc;
+  --am-accent-soft: #f6e8d3;
+  --am-accent-line: #b0690c;
 
   /* A refusal, an error and a broken bound. */
   --am-danger: #a4261b;
@@ -37,11 +40,20 @@
   /* The keyboard focus ring. */
   --am-focus: #1d5fd1;
 
-  /* The 3D viewports: a neutral ground that neither theme's models vanish on. */
-  --am-viewport: #e9ebef;
-  --am-viewport-grid: #bfc5ce;
-  --am-viewport-tag-bg: #1b1f26;
+  /* The 3D views and the posters share one warm grey ground in both themes,
+     because the packages' coarse colours are chosen for a light ground. */
+  --am-viewport: #e9e7e1;
+  --am-viewport-fg: #2a2c31;
+  --am-viewport-grid: #c9c4b8;
+  --am-viewport-tag-bg: #17181c;
   --am-viewport-tag-fg: #ffffff;
+
+  /* The screening room: the one dark band the landing page sets. */
+  --am-room: #121316;
+  --am-room-panel: #1b1c21;
+  --am-room-fg: #ecebe6;
+  --am-room-muted: #a9abb2;
+  --am-room-line: #2c2e35;
 
   /* Space, on a 4px step. */
   --am-space-1: 0.25rem;
@@ -50,43 +62,59 @@
   --am-space-4: 1rem;
   --am-space-5: 1.5rem;
   --am-space-6: 2rem;
+  --am-space-7: 3rem;
+  --am-space-8: 5rem;
 
   /* Shape. */
   --am-radius: 0.375rem;
+  --am-radius-lg: 0.75rem;
   --am-control-height: 2rem;
 
-  /* Type. The text face is Nextra's; values and ids are monospaced. */
-  --am-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  /* Type. Display is the serif of the headlines, script the screenplay's
+     typewriter face, mono the code's, and sans everything else. */
+  --am-font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --am-font-display: var(--font-instrument), "Iowan Old Style", Georgia, serif;
+  --am-font-script: var(--font-courier), "Courier New", Courier, monospace;
+  --am-font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --am-text-xs: 0.75rem;
   --am-text-sm: 0.8125rem;
   --am-text-md: 0.875rem;
   --am-text-lg: 1rem;
   --am-text-xl: 1.25rem;
+  --am-text-2xl: 1.625rem;
+  --am-text-display: clamp(2.75rem, 1.6rem + 4.6vw, 5.75rem);
+  --am-text-title: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+
+  /* Motion: one ease-out curve and short UI transitions. */
+  --am-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --am-fast: 180ms;
 
   /* Layout. */
   --am-navbar: var(--nextra-navbar-height, 4rem);
   --am-side: 22rem;
+  --am-measure: 72rem;
 
   /* The height kept for a page's heading row and the padding around it. */
   --am-head: 7rem;
 }
 
 :root.dark {
-  --am-bg: #111317;
-  --am-bg-panel: #191c22;
-  --am-bg-inset: #0d0f12;
-  --am-bg-hover: #262a33;
+  --am-bg: #0f1013;
+  --am-bg-panel: #17181c;
+  --am-bg-inset: #0b0c0e;
+  --am-bg-hover: #24262c;
 
-  --am-border: #2e333d;
-  --am-border-control: #7a8493;
+  --am-border: #2a2c33;
+  --am-border-control: #7d828d;
 
-  --am-fg: #e8eaee;
-  --am-fg-muted: #a3acb9;
+  --am-fg: #ecebe6;
+  --am-fg-muted: #a6a9b1;
 
-  --am-accent: #f0b94a;
-  --am-accent-bg: #f0b94a;
-  --am-accent-fg: #1b1300;
-  --am-accent-soft: #33280f;
+  --am-accent: #f2a93b;
+  --am-accent-bg: #f2a93b;
+  --am-accent-fg: #1a1200;
+  --am-accent-soft: #33270f;
+  --am-accent-line: #f2a93b;
 
   --am-danger: #ff9a8f;
   --am-danger-soft: #3a1714;
@@ -95,10 +123,12 @@
   --am-success: #7fd49b;
   --am-success-soft: #12301d;
 
-  --am-focus: #8ab4ff;
+  --am-focus: #3d7be0;
 
-  --am-viewport: #23262d;
-  --am-viewport-grid: #474d59;
-  --am-viewport-tag-bg: #e8eaee;
-  --am-viewport-tag-fg: #111317;
+  --am-viewport-tag-bg: #17181c;
+  --am-viewport-tag-fg: #ffffff;
+
+  --am-room: #08090b;
+  --am-room-panel: #131418;
+  --am-room-line: #25272d;
 }

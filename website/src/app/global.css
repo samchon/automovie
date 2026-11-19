@@ -4,31 +4,88 @@
    draws the navigation bar and the theme switch, and everything below it is
    laid out here from the tokens. DESIGN.md states the layout in words. */
 
-.automovie-site-logo {
+/* The faces everywhere, Nextra's chrome included. */
+html {
+  font-family: var(--am-font-sans);
+}
+
+body {
+  background: var(--am-bg);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--am-font-mono);
+}
+
+/* The docs read in the display face for their headings. */
+.nextra-content h1,
+article h1 {
+  font-family: var(--am-font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.am-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  font-weight: 800;
-  font-size: 1.1rem;
+  gap: 0.55rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
 }
 
-/* The footer's lines, stacked and centred at every width. */
-.automovie-site-footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  text-align: center;
+/* The footer: the brand, then a column per group of links. */
+.am-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  width: 100%;
+  font-size: 0.875rem;
 }
 
-.automovie-site-footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.25rem;
-  font-weight: 600;
+.am-footer-brand p {
+  margin: 0.75rem 0 0;
+  max-width: 22rem;
+  color: var(--am-fg-muted);
+  line-height: 1.55;
 }
 
+.am-footer-legal a {
+  text-decoration: underline;
+}
+
+.am-footer-column h2 {
+  margin: 0 0 0.75rem;
+  color: var(--am-fg-muted);
+  font: 600 0.75rem var(--am-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.am-footer-column ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-footer-column a:hover {
+  color: var(--am-accent);
+}
+
+@media (max-width: 760px) {
+  .am-footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .am-footer-brand {
+    grid-column: 1 / -1;
+  }
+}
 /* The application frame */
 .am-app {
   box-sizing: border-box;
@@ -186,16 +243,19 @@
   opacity: 0.55;
 }
 
+/* The one primary action reads as the site's primary buttons do: ink, and
+   amber while pointed at. */
 .am-app button.am-primary {
-  border-color: var(--am-accent-bg);
-  background: var(--am-accent-bg);
-  color: var(--am-accent-fg);
-  font-weight: 700;
+  border-color: var(--am-fg);
+  background: var(--am-fg);
+  color: var(--am-bg);
+  font-weight: 600;
 }
 
 .am-app button.am-primary:hover:not(:disabled) {
+  border-color: var(--am-accent-bg);
   background: var(--am-accent-bg);
-  filter: brightness(1.08);
+  color: var(--am-accent-fg);
 }
 
 .am-app :is(input, select, textarea, button, canvas, summary, a):focus-visible {
@@ -722,4 +782,18 @@
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Nextra's footer and its theme switch, on the site's panel ground. */
+div:has(> footer) {
+  border-top: 1px solid var(--am-border);
+  background: var(--am-bg-panel) !important;
+}
+
+/* The heading row of an application page: the playground and an archetype. */
+.am-app .am-app-head h1 {
+  font-family: var(--am-font-display);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }

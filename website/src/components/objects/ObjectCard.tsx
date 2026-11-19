@@ -115,7 +115,7 @@ export function ObjectCard(props: {
       {/* A full navigation: an archetype's page reads its request from the
           address once, when it mounts. */}
       <a
-        href={`${SITE_BASE}/objects/?subject=${subject.id}${subject.variants[0] === undefined ? "" : `&variant=${subject.variants[0].id}`}`}
+        href={`${SITE_BASE}/archetypes/?subject=${subject.id}${subject.variants[0] === undefined ? "" : `&variant=${subject.variants[0].id}`}`}
         className="am-scene-card-link"
       >
         <span className="am-object-view">

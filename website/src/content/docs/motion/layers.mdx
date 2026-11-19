@@ -1,0 +1,52 @@
+---
+title: Layers
+---
+
+# Layers
+
+A layer adds to whatever a person does and takes no part of the body from an action. Breathing, gaze, a sigh and a mood are layers. The screenplay uses them for what runs under the action: a listener's gaze, ongoing breathing, a reaction that colors a beat.
+
+## Giving a performance its layers
+
+The performance takes each person's layers, for the whole film or in a window between two instants:
+
+```ts
+import { HumanAffect, HumanBreath, HumanGaze, HumanPerformance } from "@automovie/motions";
+
+new HumanPerformance({
+  seed,
+  performers,
+  composition,
+  layers: {
+    a: [
+      HumanBreath.layer(), // the whole film
+      { layer: HumanGaze.layer([...]), from: 2, to: { of: "dialogue", event: "lineEnd" } },
+      // Built from the window's seconds: she sighs when his wave ends.
+      { from: { of: "bye", event: "end" }, layer: (w) => HumanAffect.layer([{ kind: "sigh", at: w.from }]) },
+    ],
+  },
+});
+```
+
+`HumanBreath` gives breathing. `HumanGaze` brings the line of sight onto a target, recruiting the head and neck and then the trunk as the target lies farther from where the body faces. `HumanAffect` gives short displays such as a laugh, a sigh, a yawn, a cough, a sneeze or a shiver, as patterns of trunk, shoulder, head and jaw angles that leave contacts and held objects where they are.
+
+## Instants and windows
+
+An instant is a film second, or an event of an anchored action or of a cue track, as `sync` names it. A window runs between two instants, and a windowed layer comes in and goes out over its `fade`.
+
+A layer given an `anchor` has instants of its own: `onset`, `full`, `offset` and `end`. A later layer's window can name them. An action can also be synced to them or cut on them, when the layer's own window waits for no action.
+
+## Layers and contacts
+
+A layer that declares `channels` is refused in a window where one of the person's actions holds such a channel by a contact. A layer's `apply` can read the action under it through `context.action()`, so a layer can adapt to what the body is doing.
+
+## Layers or overlays
+
+A layer and an overlay answer different needs:
+
+| Use | When |
+| --- | --- |
+| A layer | Something runs under everything the person does and claims no part of the body, such as breathing |
+| An overlay with `over` | A second action takes parts the carrying action yields, such as reading while walking |
+
+[Composing actions](/docs/motion/composing) describes overlays.

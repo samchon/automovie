@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import { MotionReference } from "../../../../motions/package/MotionReference";
-import type { IMotionReference } from "../../../../motions/structures/IMotionReference";
+import { BakedManifest } from "../../../../baked/BakedManifest";
 import SceneMovie from "../../../../movies/SceneMovie";
 import { SCENES } from "../../../../scenes/SCENES";
 import { SceneChainNames } from "../../../../scenes/package/SceneChainNames";
@@ -46,8 +45,8 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
 }
 
 /**
- * One scene's route: its record and whether the installed packages compute
- * its takes, which the page then computes in the browser.
+ * One scene's route: its record, whether the installed packages compute its
+ * takes, and whether the build baked its first take.
  *
  * @param props The route's parameters.
  * @returns The page.
@@ -58,26 +57,11 @@ export default async function ScenePage(
   const { id }: { id: string } = await props.params;
   const scene: IScene = SCENES.find((s: IScene): boolean => s.id === id)!;
 
-  // Each action links to its page of the motion reference.
-  const reference: IMotionReference = MotionReference.read();
-  const pages: Record<string, string> = Object.fromEntries([
-    ...reference.actions.map((a: IMotionReference.IRow): [string, string] => [
-      a.name,
-      "actions",
-    ]),
-    ...reference.families.flatMap(
-      (f: IMotionReference.IFamily): [string, string][] =>
-        f.rows.map((r: IMotionReference.IRow): [string, string] => [
-          r.name,
-          f.name,
-        ]),
-    ),
-  ]);
   return (
     <SceneMovie
       scene={scene}
       computes={SceneStatus.computes(SceneStatus.of(scene))}
-      pages={pages}
+      baked={BakedManifest.read().scenes[scene.id] !== undefined}
       names={
         scene.composition === null
           ? null

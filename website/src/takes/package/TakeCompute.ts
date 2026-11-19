@@ -8,9 +8,6 @@ import type {
 import { HumanRefusal, HumanVerdicts } from "@automovie/motions";
 import { AutoMovieFrameGrid } from "@automovie/render";
 
-import type { IHumanEntry } from "../../human/structures/IHumanEntry";
-import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
-import { PlaygroundBodies } from "../../playground/package/PlaygroundBodies";
 import { PlaygroundPerformance } from "../../playground/package/PlaygroundPerformance";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IPlaygroundRefusal } from "../../playground/structures/IPlaygroundRefusal";
@@ -22,9 +19,9 @@ import type { ITakeRequest } from "../structures/ITakeRequest";
 import type { ITakeResponse } from "../structures/ITakeResponse";
 
 /**
- * What the take worker computes with the packages: a composition's take, its
- * verdicts and a body's measures. The scene views and the playground both
- * reach the packages only through here, so a scene shows the performance the
+ * What the take worker computes with the packages: a composition's take and
+ * its verdicts. The scene views, the playground and the build's bake reach
+ * the packages only through here, so a scene shows the performance the
  * playground shows for the same composition.
  *
  * Nothing here touches the page or the worker's scope, so a Node test calls
@@ -55,11 +52,6 @@ export namespace TakeCompute {
     transfer: ArrayBuffer[];
   } {
     try {
-      if (request.kind === "body")
-        return {
-          response: { kind: "body", id: request.id, body: body(request.body) },
-          transfer: [],
-        };
       if (request.kind === "verdicts")
         return {
           response: {
@@ -222,28 +214,6 @@ export namespace TakeCompute {
         ): IPlaygroundVerdicts.IFinding => ({
           ...finding,
         }),
-      ),
-    };
-  }
-
-  /**
-   * One of the site's bodies with its measures. Preparing a body takes about
-   * two seconds the first time in a worker.
-   *
-   * @param id A key of `PLAYGROUND_BODIES`.
-   * @returns Its id, label and every numeric measure.
-   * @throws {Error} When no body has that id.
-   */
-  export function body(id: string): IHumanEntry {
-    const prepared: PlaygroundBodies.IPrepared = PlaygroundBodies.get(id);
-    return {
-      id,
-      label: PLAYGROUND_BODIES[id]!.label,
-      measures: Object.fromEntries(
-        Object.entries(prepared.body.measure).filter(
-          (entry: [string, unknown]): entry is [string, number] =>
-            typeof entry[1] === "number",
-        ),
       ),
     };
   }

@@ -1,0 +1,78 @@
+---
+title: Setup
+---
+
+# Setup
+
+A production needs Node.js 22.23.2 or later and pnpm. Older Node 22 releases can expose an unevaluated ES module in a graph that mixes CommonJS and ES modules, so the scaffold sets that floor in `engines`.
+
+## A single production
+
+`create` writes one production into a new directory:
+
+```bash
+npx automovie create <directory>
+cd <directory>
+pnpm install
+```
+
+The package name is `--name` when given and otherwise comes from the directory name. When the target is the current directory, `create` asks for a name. A non-empty target is refused unless `--force` is given, which replaces files at the same paths and keeps every other file.
+
+The new production holds the instructions, the contracts, the configuration and an inspector page over an empty starter film. It holds no film.
+
+## A workspace
+
+A workspace keeps several productions under one `AGENTS.md`, `CLAUDE.md` and `.agents/skills`, with packages of its own for code they share:
+
+```bash
+npx automovie create <directory> --workspace
+cd <directory>
+pnpm install
+pnpm automovie add shorts/<name>
+pnpm install
+```
+
+`add` runs at the workspace root. It writes a production into `movies/shorts/<name>` or `movies/series/<name>`, and the folder fixes the writing route: a short runs brief → screenplay and a series runs settings → treatments → scripts → screenplay. It fills missing dependency entries in `pnpm-workspace.yaml` and keeps existing pins and overrides. Run `pnpm install` again to link the new production.
+
+The workspace layout has these locations:
+
+| Path | Holds |
+| --- | --- |
+| `AGENTS.md`, `CLAUDE.md`, `.agents/skills` | The skills and contracts every production follows |
+| `movies/shorts/<name>` | A short production |
+| `movies/series/<name>` | A series production |
+| `packages/<name>` | The workspace's own libraries that several productions import |
+| `pnpm-workspace.yaml` | Workspace members and the catalogs of versions every production uses |
+
+A production's commands run in its own directory. At the root, `pnpm lint`, `pnpm evidence` and `pnpm test` run every member's script, and `pnpm --filter <name> <script>` runs one member's.
+
+## First checks
+
+Run these in the production's directory, or run `pnpm install` once at the workspace root instead:
+
+```bash
+pnpm install
+pnpm run lint
+pnpm run evidence
+pnpm test
+```
+
+`lint` checks TypeScript and source correctness. `evidence` checks that the source, its tests and, once enabled, the screenplay answer their checklists. `test` runs the exported `test_*` functions under `test/features`. Passing checks on the empty scaffold do not complete a production.
+
+## The browser for capture and render
+
+Capture and render draw in headless Chromium, and playback review records with Playwright's FFmpeg. Install both once per production:
+
+```bash
+pnpm run review:setup
+```
+
+The script runs `playwright-core install ffmpeg chromium-headless-shell`. `CHROME_PATH` selects another browser and `FFMPEG_PATH` another FFmpeg for render. Capture uses SwiftShader, a software renderer, unless `--backend gpu` is given, so it needs no GPU.
+
+## The inspector page
+
+`pnpm run dev` serves the inspector on `http://127.0.0.1:5173/` over the films that `src/subjects.ts` lists. Play, pause and seek run the same performance the export uses. The page's address carries one capture request, such as `?subject=starter&at=2&views=front`, and the page shows the `automovie capture` command that repeats the picture.
+
+## Open it in your coding agent
+
+Open the production's directory in any coding agent that reads `AGENTS.md` or `CLAUDE.md`, and tell it what to make. [Your first film](/docs/first-film) describes that conversation and what the agent writes.

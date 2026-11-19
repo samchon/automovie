@@ -13,7 +13,7 @@ const APPLICATION: {
 } = {
   copyPage: false,
   layout: "full",
-  footer: false,
+  footer: true,
   sidebar: false,
   toc: false,
   breadcrumb: false,
@@ -23,43 +23,15 @@ const APPLICATION: {
 
 /**
  * The site's top-level pages, in the order the navigation bar lists them.
- * The index is the landing page, which the logo links to, so it is hidden
- * from the list.
+ * The index is the landing page, which the logo links to. The motion and
+ * archetype catalogues and the playground are the kit a film is composed
+ * with, so they sit under one Library menu after the documentation and the
+ * scenes. The old addresses of the archetypes stay as hidden pages that
+ * forward.
  */
 const meta: MetaRecord = {
   index: {
     title: "AutoMovie",
-    type: "page",
-    display: "hidden",
-    theme: { ...APPLICATION, footer: true },
-  },
-  scenes: {
-    title: "Scenes",
-    type: "page",
-    theme: APPLICATION,
-  },
-  motions: {
-    title: "Motions",
-    type: "page",
-    theme: APPLICATION,
-  },
-  objects: {
-    title: "Archetypes",
-    type: "page",
-    theme: APPLICATION,
-  },
-  human: {
-    title: "Human",
-    type: "page",
-    theme: APPLICATION,
-  },
-  playground: {
-    title: "Playground",
-    type: "page",
-    theme: APPLICATION,
-  },
-  gallery: {
-    title: "Gallery",
     type: "page",
     display: "hidden",
     theme: APPLICATION,
@@ -67,6 +39,50 @@ const meta: MetaRecord = {
   docs: {
     title: "Docs",
     type: "page",
+  },
+  scenes: {
+    title: "Scenes",
+    type: "page",
+    theme: APPLICATION,
+  },
+  library: {
+    title: "Library",
+    type: "menu",
+    items: {
+      motions: { title: "Motions", href: "/motions/" },
+      archetypes: { title: "Archetypes", href: "/archetypes/" },
+      playground: { title: "Playground", href: "/playground/" },
+    },
+  },
+  motions: {
+    title: "Motions",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  archetypes: {
+    title: "Archetypes",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  playground: {
+    title: "Playground",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  objects: {
+    title: "Archetypes",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
+  },
+  gallery: {
+    title: "Archetypes",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
   },
 };
 export default meta;

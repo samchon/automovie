@@ -21,7 +21,7 @@ const FPS: number = 1;
  * Scenarios:
  * 1. The dance circle's take has frames from 0 s at the given cadence and a final frame at its fractional end. The track has exactly frames × every entry × `SceneTrack.STRIDE` values, one figure per performer in the composition's order with its body and rest bones, each figure's track group in the order of its posed bones, no prop, a column-major 4 × 4 reflection, and a timeline whose spans are each performer's actions in order over the take's length.
  * 2. An action the vocabulary lacks gives the packages' refusal, not a throw: the axis `act` with `stand` among its alternatives.
- * 3. A take request is answered with its id and moves its track's buffer instead of copying it; a request for a body no one has is answered with its id as an error naming the bodies that exist.
+ * 3. A take request is answered with its id and moves its track's buffer instead of copying it; a take whose performer has a body no one has is answered with its id as a refusal naming the bodies that exist.
  * 4. The impulse scene and an otherwise identical zero-impulse control have the same pre-impact position; only the authored forward impulse produces a forward hip displacement at one second, through the actual take worker and encoded track.
  */
 export function test_website_take_compute(): void {
@@ -138,15 +138,23 @@ export function test_website_take_compute(): void {
       answered.transfer[0] === answered.response.take.track.values.buffer,
   );
   const unknown: ITakeResponse = TakeCompute.answer({
-    kind: "body",
+    kind: "take",
     id: 8,
-    body: "nobody",
+    composition: {
+      ...composition,
+      performers: composition.performers.map(
+        (
+          performer: IPlaygroundComposition.IPerformer,
+        ): IPlaygroundComposition.IPerformer => ({ ...performer, body: "nobody" }),
+      ),
+    },
+    fps: FPS,
   }).response;
   TestValidator.predicate(
-    "an unknown body is an error with its id naming the bodies",
-    unknown.kind === "error" &&
+    "an unknown body is refused with its id, naming the bodies",
+    unknown.kind === "refusal" &&
       unknown.id === 8 &&
-      unknown.message.includes("m1"),
+      unknown.refusal.message.includes("m1"),
   );
 
   // 4. Forwarded force has an effect that dropping the force cannot pass.

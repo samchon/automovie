@@ -7,10 +7,12 @@
 // `out/`, opens each page below, waits for what it must show, and fails on a
 // missing element, a page error, a console error, a failed request, a page
 // that creates more WebGL contexts than it may, or an address that does not
-// arrive where it should. The scene gallery's case also scrolls its last
-// card into view and checks that its take was computed only then. Each
-// page's time to show what it must is logged, and with `--shots` each page
-// is saved once checked as `.shots/smoke-<n>.png`, which git ignores.
+// arrive where it should. The cases check that the cards show the baked
+// stills, that a card pointed at plays its take, and that a scene's and a
+// motion's page play their baked takes. Each page's time to show what it
+// must is logged, and with `--shots` each page is saved once checked as
+// `.shots/smoke-<n>.png`, which git ignores. `pnpm run bake` must have run
+// before the build.
 import { compressToEncodedURIComponent } from "lz-string";
 import fs from "node:fs";
 import type http from "node:http";
@@ -48,7 +50,7 @@ interface ICase {
   /** The path, under the site's root, the page must end on. */
   arrives?: string;
 
-  /** Whether the browser asks for reduced motion; a landing page's stage must then stay on its first scene. */
+  /** Whether the browser asks for reduced motion. */
   reduced?: boolean;
 
   /** A further check once the selectors match, adding what it finds to problems. */
@@ -93,93 +95,85 @@ const REFUSED_SCENE: IScene | undefined = SCENES.find(
     scene.hidden !== true && SceneStatus.of(scene).kind === "refused",
 );
 
+/** A baked still on a card. */
+const STILL = (kind: "scenes" | "motions"): string =>
+  `img[src*="/automovie/baked/${kind}/"]`;
+
 /**
- * The gallery's last card is not computed before it is scrolled into view,
- * and is computed and drawn once it is; the time from the scroll to the
- * drawing is logged.
+ * Pointing at the gallery's first card plays its baked take in place of
+ * its still; the time from pointing to drawing is logged.
  */
-const lazyCard: (page: Page, problems: string[]) => Promise<void> = async (
-  page: Page,
-  problems: string[],
-): Promise<void> => {
-  const view: Locator = page.locator(".am-scene-card .am-scene-view").last();
-  const title: string =
-    (await page
-      .locator(".am-scene-card .am-scene-card-title")
-      .last()
-      .textContent()) ?? "";
-  const before: string | null = await view.getAttribute("data-take");
-  if (before !== "waiting")
-    problems.push(
-      `the last card's take was ${before} before it was scrolled into view`,
-    );
+const hoverCard = async (page: Page, problems: string[]): Promise<void> => {
+  const card: Locator = page.locator(".am-scene-card").first();
   const started: number = Date.now();
-  await view.scrollIntoViewIfNeeded();
+  await card.hover();
   try {
-    await page.waitForFunction(
-      (): boolean => {
-        const views: NodeListOf<Element> = document.querySelectorAll(
-          ".am-scene-card .am-scene-view",
-        );
-        const phase: string | null =
-          views[views.length - 1]?.getAttribute("data-take") ?? null;
-        return phase !== "waiting" && phase !== "computing";
-      },
-      undefined,
-      { timeout: COMPUTE_LIMIT, polling: 100 },
+    await card.locator(DRAWN).waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
+    console.log(
+      `  the first card drew its take ${((Date.now() - started) / 1000).toFixed(1)} s after it was pointed at`,
     );
   } catch {
-    problems.push(
-      "the last card's take was not computed after it was scrolled into view",
-    );
-    return;
+    problems.push("the first card did not play its take when pointed at");
   }
-  const after: string | null = await view.getAttribute("data-take");
-  if (after !== "ready")
-    problems.push(`the last card's take ended ${after}, not ready`);
-  else
-    console.log(
-      `  the last card, ${title}, computed and drew its take ${((Date.now() - started) / 1000).toFixed(1)} s after it was scrolled into view`,
-    );
+};
+
+/** The landing page's bench draws its scene once scrolled to. */
+const benchDraws = async (page: Page, problems: string[]): Promise<void> => {
+  await page.locator(".am-bench").scrollIntoViewIfNeeded();
+  try {
+    await page.locator(`.am-bench ${DRAWN}`).waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
+  } catch {
+    problems.push("the landing page's bench did not draw its scene");
+  }
 };
 
 const CASES: readonly ICase[] = [
   {
-    name: "landing plays its hero",
+    name: "landing plays its screenplay beside its take",
     path: "",
     shows: [
       ".am-hero h1",
-      `.am-hero-stage ${DRAWN}`,
+      '.am-script-stage .am-figure-canvas[data-state="playing"] canvas',
+      '.am-script-beats li[data-active="true"]',
+      ".am-graph svg",
       'a[href="/automovie/scenes/"]',
     ],
     lacks: [".am-scene-view-note.am-danger-text"],
     contexts: 1,
+    check: benchDraws,
   },
   {
-    name: "landing under reduced motion holds its frames",
+    name: "landing under reduced motion holds its figures",
     path: "",
-    shows: [`.am-hero-stage ${DRAWN}`],
-    lacks: [],
+    shows: ['.am-script-stage .am-figure-canvas[data-state="paused"] canvas'],
+    lacks: ['.am-figure-canvas[data-state="playing"]'],
     reduced: true,
   },
   {
-    name: "scenes gallery plays its cards",
+    name: "scenes gallery shows baked stills and plays a card pointed at",
     path: "scenes/",
-    shows: [`.am-scene-card ${DRAWN}`, "#am-roadmap"],
-    lacks: [".am-scene-view-note.am-danger-text"],
+    shows: [`.am-scene-card ${STILL("scenes")}`, ".am-chips"],
+    lacks: [".am-scene-view-refusal", ".am-scene-view-note.am-danger-text"],
     contexts: 1,
-    check: lazyCard,
+    check: hoverCard,
   },
   {
-    name: "a scene page plays with its takes and chain",
+    name: "a scene page plays its baked take, its code and its takes",
     path: "scenes/meeting/",
-    shows: [
-      `.am-player ${DRAWN}`,
-      ".am-take-grid .am-take canvas",
-      ".am-transport",
-    ],
+    shows: [`.am-scene-page ${DRAWN}`, ".am-transport", ".am-code"],
     lacks: [".am-scene-view-note.am-danger-text"],
     contexts: 1,
+    check: async (page: Page, problems: string[]): Promise<void> => {
+      await page.getByRole("tab", { name: /^Takes/ }).click();
+      try {
+        await page
+          .locator(`.am-take-grid .am-take ${DRAWN}`)
+          .nth(1)
+          .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
+      } catch {
+        problems.push("the second take was not computed when the takes were opened");
+      }
+    },
   },
   ...(REFUSED_SCENE === undefined
     ? []
@@ -195,7 +189,7 @@ const CASES: readonly ICase[] = [
   {
     name: "a scene page under reduced motion renders as the server did",
     path: "scenes/meeting/",
-    shows: [`.am-player ${DRAWN}`, ".am-transport"],
+    shows: [`.am-scene-page ${DRAWN}`, ".am-transport"],
     lacks: [".am-scene-view-note.am-danger-text"],
     reduced: true,
   },
@@ -203,21 +197,21 @@ const CASES: readonly ICase[] = [
     name: "a scene that waits shows what it waits on",
     path: "scenes/line-volley/",
     shows: [
-      ".am-badge",
+      ".am-scene-waiting",
       'a[href^="https://github.com/samchon/automovie/issues/"]',
     ],
-    lacks: [".am-player"],
+    lacks: [".am-scene-view"],
   },
   {
-    name: "objects gallery draws its cards",
-    path: "objects/",
-    shows: [".am-object-card .am-object-view canvas", ".am-chips"],
+    name: "archetypes draw their cards",
+    path: "archetypes/",
+    shows: [".am-object-card .am-object-view canvas", ".am-index-nav"],
     lacks: [".am-alert"],
     contexts: 1,
   },
   {
     name: "the transit bus opens with its seeded dimensions",
-    path: "objects/?subject=createTransitBus&seed=7",
+    path: "archetypes/?subject=createTransitBus&seed=7",
     shows: [
       '.am-viewport[aria-busy="false"] canvas',
       'aside[aria-label="Details"] td:text-is("aisleWidth")',
@@ -227,7 +221,7 @@ const CASES: readonly ICase[] = [
   },
   {
     name: "a derived archetype dimension shows as a single value",
-    path: "objects/?subject=createStageWeaponProp&variant=mace",
+    path: "archetypes/?subject=createStageWeaponProp&variant=mace",
     shows: [
       '.am-viewport[aria-busy="false"] canvas',
       'aside[aria-label="Details"] tr:has(td:text-is("height")) .am-band-text:text-is("Single value")',
@@ -236,9 +230,9 @@ const CASES: readonly ICase[] = [
     contexts: 1,
   },
   {
-    name: "the old gallery address arrives at the opened door",
+    name: "the oldest archetype address arrives at the opened door",
     path: "gallery/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
-    arrives: "objects/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
+    arrives: "archetypes/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
     shows: [
       '.am-viewport[aria-busy="false"] canvas',
       ".am-viewport-tag",
@@ -247,35 +241,21 @@ const CASES: readonly ICase[] = [
     lacks: [".am-viewport-error"],
   },
   {
-    name: "the Human page stands every body",
-    path: "human/",
-    shows: [`.am-player ${DRAWN}`, "details.am-measures table tbody tr"],
-    lacks: [".am-scene-view-note.am-danger-text"],
-    contexts: 1,
+    name: "the former archetype address arrives with its query",
+    path: "objects/?subject=createSeat",
+    arrives: "archetypes/?subject=createSeat",
+    shows: ['.am-viewport[aria-busy="false"] canvas'],
+    lacks: [".am-viewport-error"],
   },
   {
-    name: "the motion reference lists the actions",
-    path: "motions/actions/",
-    shows: [
-      ".am-motion-nav",
-      "section#walk",
-      'a[href^="/automovie/playground/#c="]',
-    ],
-    lacks: [],
-  },
-  {
-    name: "the motion catalogue opens a walking head tilt in the playground",
+    name: "the motion catalogue shows its stills and opens a motion's page",
     path: "motions/",
-    shows: ['input[placeholder="Search motions and families"]'],
+    shows: [`.am-motion-card ${STILL("motions")}`, ".am-index-nav"],
     lacks: [],
     check: async (page: Page, problems: string[]): Promise<void> => {
-      await page
-        .getByRole("searchbox", { name: "Search motions and families" })
-        .fill("headTilt");
-      await page.getByRole("link", { name: "headTilt", exact: true }).click();
-      await page
-        .getByRole("link", { name: "Try it in Rehearsing reactions" })
-        .click();
+      await page.getByRole("searchbox", { name: "Search motions" }).fill("headTilt");
+      await page.getByRole("link", { name: /^headTilt/ }).click();
+      await page.getByRole("link", { name: "Open in the playground" }).click();
       await Promise.all([
         page.waitForSelector("#am-pane-result .am-instrument canvas", {
           timeout: COMPUTE_LIMIT,
@@ -289,8 +269,22 @@ const CASES: readonly ICase[] = [
     },
   },
   {
+    name: "a motion's page plays its baked take with its parameters",
+    path: "motions/cartwheelLeft/",
+    shows: [`.am-scene-page ${DRAWN}`, ".am-params"],
+    lacks: [".am-scene-view-note.am-danger-text"],
+    contexts: 1,
+  },
+  {
+    name: "a motion named in the catalogue's fragment arrives at its page",
+    path: "motions/#jab",
+    arrives: "motions/jab/",
+    shows: [".am-motion-name"],
+    lacks: [],
+  },
+  {
     name: "the docs open",
-    path: "docs/composing-motion/",
+    path: "docs/screenplay/evidence-graph/",
     shows: ["article h1", "nav"],
     lacks: [],
   },
@@ -315,7 +309,6 @@ const CASES: readonly ICase[] = [
     lacks: [".am-instrument"],
   },
 ];
-
 /** Counts the WebGL contexts a page creates, installed before any of its scripts run. */
 const COUNTERS: string = `
   window.__amContexts = 0;
@@ -401,25 +394,7 @@ const main = async (): Promise<void> => {
             `created ${made} WebGL contexts, more than ${each.contexts}`,
           );
       }
-      if (
-        each.reduced === true &&
-        (await page.locator(".am-hero-caption").count()) !== 0
-      ) {
-        // A held stage draws its first picture and stays on its scene.
-        const time: string = await page
-          .locator(".am-hero-caption")
-          .first()
-          .textContent()
-          .then((text: string | null): string => text ?? "");
-        await page.waitForTimeout(1500);
-        const later: string = await page
-          .locator(".am-hero-caption")
-          .first()
-          .textContent()
-          .then((text: string | null): string => text ?? "");
-        if (time !== later)
-          problems.push("the hero moved on under reduced motion");
-      }
+
       if (SHOTS) {
         const out: string = path.resolve(__dirname, "..", ".shots");
         fs.mkdirSync(out, { recursive: true });

@@ -1,4 +1,3 @@
-import type { IHumanEntry } from "../../human/structures/IHumanEntry";
 import type { IPlaygroundRefusal } from "../../playground/structures/IPlaygroundRefusal";
 import type { IPlaygroundVerdicts } from "../../playground/structures/IPlaygroundVerdicts";
 import type { ITake } from "./ITake";
@@ -34,16 +33,6 @@ export type ITakeResponse =
 
       /** The report. */
       verdicts: IPlaygroundVerdicts;
-    }
-  | {
-      /** A prepared body. */
-      kind: "body";
-
-      /** The request's id. */
-      id: number;
-
-      /** Its id, label and measures. */
-      body: IHumanEntry;
     }
   | {
       /** The request failed outside the packages' refusals. */

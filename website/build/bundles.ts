@@ -3,14 +3,14 @@
 //
 //   pnpm run bundles     (after `next build`; `build` runs it)
 //
-// The landing page, the scene gallery, a scene's page and the object
-// gallery compute every take in the take worker, so neither
-// `@automovie/motions` nor `@automovie/human` belongs in what the page itself
-// loads: its initial chunks, and the chunk that draws a computed take, which
-// it loads on demand. Only the take worker's chunk carries them. A string
-// literal only each package holds marks it, since minifying keeps string
-// literals. The playground, the Human page's inspector and the motion
-// reference may load them; they are not checked.
+// The landing page, the docs, the scene gallery and a scene's page, the
+// motion catalogue and a motion's page, and the archetypes read baked takes
+// or compute them in the take worker, so neither `@automovie/motions` nor
+// `@automovie/human` belongs in what the page itself loads: its initial
+// chunks, and the chunk that draws a take, which it loads on demand. Only
+// the take worker's chunk carries them. A string literal only each package
+// holds marks it, since minifying keeps string literals. The playground may
+// load them; it is not checked.
 import fs from "node:fs";
 import path from "node:path";
 
@@ -19,7 +19,9 @@ const ROUTES: readonly string[] = [
   "/(docs)/[[...mdxPath]]/page",
   "/(docs)/scenes/page",
   "/(docs)/scenes/[id]/page",
-  "/(docs)/objects/page",
+  "/(docs)/motions/page",
+  "/(docs)/motions/[name]/page",
+  "/(docs)/archetypes/page",
 ];
 
 /** A string literal only each package holds, from an error it throws. */

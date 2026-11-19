@@ -1,0 +1,659 @@
+/* The motion, archetype and scene catalogues: the kit a film is composed
+   with. DESIGN.md states each page's layout; the tokens are in tokens.css. */
+
+/* An archetype's view */
+.am-object-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+}
+
+.am-object-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.am-app .am-gallery.am-gallery-detail {
+  grid-template-columns: minmax(0, 1fr) var(--am-side);
+  grid-template-areas: "view facts";
+}
+
+@media (max-width: 1023px) {
+  .am-app .am-gallery.am-gallery-detail {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "view"
+      "facts";
+  }
+}
+
+.am-app summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding-block: var(--am-space-2);
+}
+/* A catalogue page: its heading, its sticky bar of filters, and its groups */
+.am-catalogue {
+  max-width: 88rem;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem) 5rem;
+  font-family: var(--am-font-sans);
+}
+
+.am-catalogue-head {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 36rem);
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.am-app .am-catalogue-head h1 {
+  margin: 0;
+  font-family: var(--am-font-display);
+  font-size: var(--am-text-title);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.am-catalogue-head p {
+  margin: 0;
+  color: var(--am-fg-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.am-catalogue-bar {
+  position: sticky;
+  top: var(--am-navbar);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--am-border);
+  background: var(--am-bg);
+}
+
+.am-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.am-app button.am-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  height: auto;
+  padding: 0 0.85rem;
+  border: 1px solid var(--am-border);
+  border-radius: 999px;
+  background: var(--am-bg-inset);
+  color: var(--am-fg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.am-app button.am-chip:hover {
+  border-color: var(--am-border-control);
+}
+
+.am-app button.am-chip[aria-pressed="true"] {
+  border-color: var(--am-fg);
+  background: var(--am-fg);
+  color: var(--am-bg);
+}
+
+.am-chip-count,
+.am-catalogue-count {
+  color: inherit;
+  font: 0.75rem var(--am-font-mono);
+  opacity: 0.65;
+}
+
+.am-catalogue-count {
+  margin-left: 0.6rem;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.am-search {
+  flex: 1 1 14rem;
+  max-width: 22rem;
+  margin-left: auto;
+}
+
+.am-app .am-search input {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--am-border-control);
+  border-radius: 999px;
+  background: var(--am-bg-inset);
+}
+
+.am-catalogue-group + .am-catalogue-group {
+  margin-top: 3rem;
+}
+
+.am-app .am-catalogue-group h2 {
+  margin: 0 0 1rem;
+  font-family: var(--am-font-display);
+  font-size: 1.875rem;
+  font-weight: 400;
+}
+
+/* A scene's card: its still, and its take playing while pointed at */
+.am-scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+  gap: 1.75rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-scene-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.am-scene-card-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.am-scene-card-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--am-radius-lg);
+  background: var(--am-viewport);
+  transition: box-shadow var(--am-fast) var(--am-ease);
+}
+
+.am-scene-card-view > img,
+.am-scene-card-blank {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.am-scene-card-live {
+  position: absolute;
+  inset: 0;
+}
+
+.am-scene-card-live .am-scene-view {
+  height: 100%;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.am-scene-card-link:hover .am-scene-card-view,
+.am-scene-card-link:focus-visible .am-scene-card-view {
+  box-shadow: 0 0 0 2px var(--am-fg);
+}
+
+.am-scene-card-link:focus-visible {
+  outline: none;
+}
+
+.am-scene-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.am-scene-card-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--am-fg-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.am-scene-card-facts {
+  color: var(--am-fg-muted);
+  font: 0.75rem var(--am-font-mono);
+}
+
+/* What is still in the works, folded */
+.am-roadmap {
+  margin-top: 4rem;
+  border-top: 1px solid var(--am-border);
+  padding-top: 1rem;
+}
+
+.am-app .am-roadmap summary {
+  font-family: var(--am-font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.am-roadmap-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  gap: 0.75rem 2rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-roadmap-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.875rem;
+}
+
+.am-roadmap-list li span {
+  color: var(--am-fg-muted);
+}
+
+@media (max-width: 760px) {
+  .am-catalogue-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-catalogue-bar {
+    position: static;
+  }
+
+  .am-search {
+    max-width: none;
+    margin-left: 0;
+  }
+}
+/* The motion catalogue: an index beside a section per family */
+.am-indexed {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.am-index-nav {
+  position: sticky;
+  top: calc(var(--am-navbar) + 1rem);
+  max-height: calc(100dvh - var(--am-navbar) - 2rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  font-size: 0.875rem;
+  scrollbar-width: thin;
+}
+
+.am-index-nav .am-search {
+  display: block;
+  max-width: none;
+  margin: 0;
+}
+
+.am-index-shown {
+  margin: 0.5rem 0 1rem;
+  color: var(--am-fg-muted);
+  font: 0.75rem var(--am-font-mono);
+}
+
+.am-index-nav ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-index-nav > ol > li:has(> ol) + li {
+  margin-top: 0.9rem;
+}
+
+.am-index-nav a {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--am-radius);
+  color: var(--am-fg-muted);
+  text-decoration: none;
+}
+
+.am-index-nav a:hover {
+  background: var(--am-bg-hover);
+  color: var(--am-fg);
+}
+
+.am-index-nav a span {
+  font: 0.75rem var(--am-font-mono);
+}
+
+.am-index-nav .am-index-category-link {
+  color: var(--am-fg);
+  font-weight: 600;
+}
+
+.am-index-category {
+  scroll-margin-top: calc(var(--am-navbar) + 1rem);
+}
+
+.am-index-category + .am-index-category {
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--am-border);
+}
+
+.am-index-category > header {
+  max-width: 44rem;
+  margin-bottom: 1.5rem;
+}
+
+.am-app .am-index-category h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--am-font-display);
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.am-index-category > header p {
+  color: var(--am-fg-muted);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.am-index-family {
+  scroll-margin-top: calc(var(--am-navbar) + 1rem);
+}
+
+.am-index-family + .am-index-family {
+  margin-top: 2rem;
+}
+
+.am-app .am-index-family h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.am-motion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  gap: 1rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-motion-card a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--am-fg);
+  text-decoration: none;
+  scroll-margin-top: calc(var(--am-navbar) + 2rem);
+}
+
+.am-motion-card-view {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+  transition: box-shadow var(--am-fast) var(--am-ease);
+}
+
+.am-motion-card-view img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.am-motion-card-view[data-scene="true"] img {
+  opacity: 0.75;
+  filter: saturate(0.6);
+}
+
+.am-motion-card-view .am-figure-canvas {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.am-motion-card-view .am-figure-canvas-toggle {
+  display: none;
+}
+
+.am-motion-card-none {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6f6b62;
+  font: 0.75rem var(--am-font-mono);
+}
+
+.am-motion-card a:hover .am-motion-card-view,
+.am-motion-card a:focus-visible .am-motion-card-view {
+  box-shadow: 0 0 0 2px var(--am-fg);
+}
+
+.am-motion-card a:focus-visible {
+  outline: none;
+}
+
+.am-motion-card-name {
+  overflow: hidden;
+  font: 500 0.8125rem var(--am-font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.am-motion-card-facts {
+  color: var(--am-fg-muted);
+  font-size: 0.75rem;
+}
+
+/* A motion's page */
+.am-app .am-motion-name {
+  font-family: var(--am-font-mono);
+  font-size: clamp(1.75rem, 1.3rem + 2vw, 2.75rem);
+  letter-spacing: -0.02em;
+}
+
+.am-motion-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  padding: 2rem;
+  border-radius: var(--am-radius-lg);
+  background: var(--am-viewport);
+  color: var(--am-viewport-fg);
+  text-align: center;
+}
+
+.am-motion-snippet {
+  margin-bottom: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.75rem !important;
+  white-space: pre;
+}
+
+.am-motion-step {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--am-border);
+}
+
+.am-motion-step a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow-wrap: anywhere;
+  font: 0.8125rem var(--am-font-mono);
+}
+
+.am-motion-step a[rel="next"] {
+  grid-column: 2;
+  text-align: right;
+}
+
+.am-motion-step a span {
+  color: var(--am-fg-muted);
+  font: 0.75rem var(--am-font-sans);
+}
+
+.am-app .am-motion-h2 {
+  margin: 2.5rem 0 0;
+  font-family: var(--am-font-display);
+  font-size: 1.875rem;
+  font-weight: 400;
+}
+
+.am-table-wrap {
+  overflow-x: auto;
+}
+
+.am-params {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.am-params th {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--am-border-control);
+  color: var(--am-fg-muted);
+  font-weight: 600;
+  text-align: left;
+}
+
+.am-params td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--am-border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.am-params td:first-child {
+  white-space: nowrap;
+}
+
+.am-param-type {
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.am-required {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--am-accent-soft);
+  color: var(--am-accent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .am-indexed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-index-nav {
+    position: static;
+    max-height: none;
+  }
+
+  .am-index-nav > ol {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .am-index-nav > ol > li + li,
+  .am-index-nav > ol > li:has(> ol) + li {
+    margin-top: 0;
+  }
+
+  .am-index-nav > ol > li > ol {
+    display: none;
+  }
+
+  .am-index-nav .am-index-category-link {
+    white-space: nowrap;
+    border: 1px solid var(--am-border);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+  }
+}
+/* The archetype cards */
+.am-object-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 1rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.am-object-card .am-scene-card-link {
+  gap: 0.4rem;
+}
+
+.am-object-card .am-object-view {
+  transition: box-shadow var(--am-fast) var(--am-ease);
+}
+
+.am-object-card .am-scene-card-link:hover .am-object-view,
+.am-object-card .am-scene-card-link:focus-visible .am-object-view {
+  box-shadow: 0 0 0 2px var(--am-fg);
+}
+
+.am-object-card .am-scene-card-title {
+  font-size: 0.9375rem;
+}
+
+.am-object-card > .am-muted,
+.am-object-card > span:not(.am-scene-card-title) {
+  color: var(--am-fg-muted);
+  font-size: 0.75rem;
+}
+/* An archetype's heading: the breadcrumb over the title */
+.am-archetype-head {
+  margin-bottom: 1rem;
+}
+
+.am-app .am-archetype-head h1 {
+  margin: 0;
+  font-family: var(--am-font-display);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 400;
+}
+
+.am-archetype-head .am-crumbs {
+  margin-bottom: 0.25rem;
+}

@@ -7,6 +7,7 @@ import {
 } from "@automovie/render";
 import * as THREE from "three";
 
+import { BakedClient } from "../../baked/BakedClient";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { TakeClient } from "../../takes/TakeClient";
 import type { ITake } from "../../takes/structures/ITake";
@@ -53,7 +54,16 @@ export namespace ScenePlayer {
     scene: IScene,
     take: number,
     signal?: AbortSignal,
+    baked?: BakedClient.Kind,
   ): Promise<IScenePlayer> {
+    // A take the build computed plays at once; the worker computes it only
+    // when the site was served without a bake.
+    if (baked !== undefined && take === 0)
+      try {
+        return build(scene, await BakedClient.take(baked, scene.id));
+      } catch {
+        if (signal?.aborted === true) throw new Error("aborted");
+      }
     const result: TakeClient.Result = await computeSceneTake(
       scene,
       take,
@@ -224,23 +234,50 @@ export namespace ScenePlayer {
       (grid.material as THREE.Material).dispose();
     });
 
-    // The camera stands where the record's view looks from, far enough for
-    // the whole action to fit.
+    // The camera stands where the record's view looks from, just far enough
+    // for the action's box to fit the 16:9 frame: the box's corners are
+    // measured along the view's own right and up, so a tall single figure
+    // and a wide pair are both framed closely, with a tenth to spare.
     const bounds: THREE.Sphere = box.getBoundingSphere(new THREE.Sphere());
     const fieldOfView: number = 35;
-    const distance: number =
-      record.camera.distance ??
-      bounds.radius / Math.sin(THREE.MathUtils.degToRad(fieldOfView / 2));
+    const aspect: number = 16 / 9;
+    const tangent: number = Math.tan(THREE.MathUtils.degToRad(fieldOfView / 2));
+    const corners: THREE.Vector3[] = [0, 1, 2, 3, 4, 5, 6, 7].map(
+      (i: number): THREE.Vector3 =>
+        new THREE.Vector3(
+          i & 1 ? box.max.x : box.min.x,
+          i & 2 ? box.max.y : box.min.y,
+          i & 4 ? box.max.z : box.min.z,
+        ).sub(centre),
+    );
+    const fit = (toward: THREE.Vector3): number => {
+      if (record.camera.distance !== undefined) return record.camera.distance;
+      const right: THREE.Vector3 = new THREE.Vector3(0, 1, 0)
+        .cross(toward)
+        .normalize();
+      if (right.lengthSq() < 1e-6) right.set(1, 0, 0);
+      const up: THREE.Vector3 = toward.clone().cross(right).normalize();
+      let needed: number = 0;
+      for (const corner of corners) {
+        const near: number = corner.dot(toward);
+        needed = Math.max(
+          needed,
+          Math.abs(corner.dot(up)) / tangent + near,
+          Math.abs(corner.dot(right)) / (tangent * aspect) + near,
+        );
+      }
+      return needed * 1.1;
+    };
     const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
       fieldOfView,
-      16 / 9,
+      aspect,
       0.05,
-      distance + bounds.radius * 2,
+      fit(VIEWS["top"]) + fit(VIEWS["side"]) + bounds.radius * 4,
     );
     const frame: (view: IScene.ICamera["view"]) => void = (
       view: IScene.ICamera["view"],
     ): void => {
-      camera.position.copy(centre).addScaledVector(VIEWS[view], distance);
+      camera.position.copy(centre).addScaledVector(VIEWS[view], fit(VIEWS[view]));
       camera.lookAt(centre);
     };
     frame(record.camera.view);

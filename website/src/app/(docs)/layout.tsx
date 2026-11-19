@@ -5,39 +5,78 @@ import type { ReactElement, ReactNode } from "react";
 
 import { SITE_BASE } from "../../SITE_BASE";
 
+/** The footer's link columns: the site's sections and the project's places. */
+const COLUMNS: readonly {
+  title: string;
+  links: readonly { label: string; href: string; external?: boolean }[];
+}[] = [
+  {
+    title: "Learn",
+    links: [
+      { label: "Introduction", href: `${SITE_BASE}/docs/` },
+      { label: "Setup", href: `${SITE_BASE}/docs/setup/` },
+      { label: "Evidence graph", href: `${SITE_BASE}/docs/screenplay/evidence-graph/` },
+      { label: "Composing motion", href: `${SITE_BASE}/docs/motion/composing/` },
+    ],
+  },
+  {
+    title: "Library",
+    links: [
+      { label: "Scenes", href: `${SITE_BASE}/scenes/` },
+      { label: "Motions", href: `${SITE_BASE}/motions/` },
+      { label: "Archetypes", href: `${SITE_BASE}/archetypes/` },
+      { label: "Playground", href: `${SITE_BASE}/playground/` },
+    ],
+  },
+  {
+    title: "Project",
+    links: [
+      { label: "GitHub", href: "https://github.com/samchon/automovie", external: true },
+      { label: "npm", href: "https://www.npmjs.com/package/automovie", external: true },
+      { label: "Examples", href: "https://github.com/samchon/automovie-examples", external: true },
+      { label: "Issues", href: "https://github.com/samchon/automovie/issues", external: true },
+    ],
+  },
+];
+
 const footer: ReactElement = (
   <Footer>
-    <div className="automovie-site-footer">
-      <nav aria-label="Footer" className="automovie-site-footer-links">
-        <a href={`${SITE_BASE}/docs/`}>Docs</a>
-        <a
-          href="https://github.com/samchon/automovie"
-          target="_blank"
-          rel="noreferrer"
-        >
-          GitHub
-        </a>
-        <a
-          href="https://www.npmjs.com/package/automovie"
-          target="_blank"
-          rel="noreferrer"
-        >
-          npm
-        </a>
-      </nav>
-      <p>Released under the MIT License.</p>
-      <p>
-        Copyright {new Date().getFullYear()}{" "}
-        <a
-          href="https://github.com/samchon"
-          target="_blank"
-          rel="noreferrer"
-          style={{ color: "initial" }}
-        >
-          <u>Samchon</u>
-        </a>{" "}
-        & Contributors
-      </p>
+    <div className="am-footer">
+      <div className="am-footer-brand">
+        <span className="am-logo">
+          <img src={`${SITE_BASE}/favicon.svg`} width={24} height={24} alt="" aria-hidden="true" />
+          <span>AutoMovie</span>
+        </span>
+        <p>Write the film. Program the motion. Get the same frames every time.</p>
+        <p className="am-footer-legal">
+          MIT License. Copyright {new Date().getFullYear()}{" "}
+          <a href="https://github.com/samchon" target="_blank" rel="noreferrer">
+            Samchon
+          </a>{" "}
+          and contributors.
+        </p>
+      </div>
+      {COLUMNS.map(
+        (column): ReactElement => (
+          <nav key={column.title} aria-label={column.title} className="am-footer-column">
+            <h2>{column.title}</h2>
+            <ul>
+              {column.links.map(
+                (link): ReactElement => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      {...(link.external === true ? { target: "_blank", rel: "noreferrer" } : {})}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ),
+              )}
+            </ul>
+          </nav>
+        ),
+      )}
     </div>
   </Footer>
 );
@@ -57,14 +96,8 @@ export default async function DocsLayout(props: {
       navbar={
         <Navbar
           logo={
-            <span className="automovie-site-logo">
-              <img
-                src={`${SITE_BASE}/favicon.svg`}
-                width={28}
-                height={28}
-                alt=""
-                aria-hidden="true"
-              />
+            <span className="am-logo">
+              <img src={`${SITE_BASE}/favicon.svg`} width={26} height={26} alt="" aria-hidden="true" />
               <span>AutoMovie</span>
             </span>
           }
@@ -74,7 +107,7 @@ export default async function DocsLayout(props: {
       pageMap={await getPageMap()}
       docsRepositoryBase="https://github.com/samchon/automovie/tree/master/website"
       editLink="Edit this page on GitHub"
-      sidebar={{ autoCollapse: false }}
+      sidebar={{ autoCollapse: false, defaultMenuCollapseLevel: 1 }}
       footer={footer}
     >
       {props.children}

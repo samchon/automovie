@@ -5,6 +5,7 @@ import type { ChangeEvent, ReactElement } from "react";
 
 import { ObjectCard } from "../components/objects/ObjectCard";
 import { ObjectsHead } from "../components/objects/ObjectsHead";
+import { ARCHETYPE_FAMILY_NOTES } from "../gallery/ARCHETYPE_FAMILY_NOTES";
 import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
 import GalleryMovie from "./GalleryMovie";
 
@@ -19,36 +20,32 @@ interface ISceneLink {
 }
 
 /**
- * The object gallery: every archetype the packages export as a card,
- * grouped by family, with family chips and a filter kept in the address.
- * An address naming a subject opens that archetype's page instead; the
- * address is read on every navigation, so a link back to the grid shows it.
- * A search that keeps no object says so.
+ * The archetypes: an index of the families beside a section per family,
+ * each a grid of cards drawing the producer's first kind. The search keeps
+ * the producers whose name, family or kinds hold every word typed, and lives
+ * in the address. An address naming a subject opens that archetype's page
+ * instead; the address is read on every navigation, so a link back to the
+ * grid shows it.
  *
- * @param props The listed scenes that place each producer, by producer's export name, which an archetype's page lists.
+ * @param props The catalogue, and the listed scenes that place each producer by its export name, which an archetype's page lists.
  * @returns The page.
  */
 export default function ObjectsMovie(props: IObjectsProps): ReactElement {
   const params = useSearchParams();
-  const family: string | null = params.get("family");
   const query: string = params.get("q") ?? "";
   if (params.has("subject")) return <GalleryMovie uses={props.uses} />;
 
-  const change = (nextFamily: string | null, nextQuery: string): void => {
+  const change = (next: string): void => {
     const address: URL = new URL(window.location.href);
-    if (nextFamily === null) address.searchParams.delete("family");
-    else address.searchParams.set("family", nextFamily);
-    if (nextQuery === "") address.searchParams.delete("q");
-    else address.searchParams.set("q", nextQuery);
+    if (next === "") address.searchParams.delete("q");
+    else address.searchParams.set("q", next);
     window.history.replaceState(null, "", address);
   };
   const words: string[] = query
     .toLowerCase()
     .split(/\s+/)
     .filter((w: string): boolean => w !== "");
-  const matches: (subject: IGalleryCatalogue.ISubject) => boolean = (
-    subject: IGalleryCatalogue.ISubject,
-  ): boolean => {
+  const matches = (subject: IGalleryCatalogue.ISubject): boolean => {
     const text: string = [
       subject.label,
       subject.group,
@@ -58,97 +55,79 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
       .toLowerCase();
     return words.every((w: string): boolean => text.includes(w));
   };
-
-  // The groups the chips select, each with the subjects the search keeps.
-  const groups: {
-    group: IGalleryCatalogue.IGroup;
-    shown: IGalleryCatalogue.ISubject[];
-  }[] = props.catalogue.groups
-    .filter(
-      (g: IGalleryCatalogue.IGroup): boolean =>
-        family === null || g.name === family,
-    )
-    .map(
-      (
-        group: IGalleryCatalogue.IGroup,
-      ): {
-        group: IGalleryCatalogue.IGroup;
-        shown: IGalleryCatalogue.ISubject[];
-      } => ({ group, shown: group.subjects.filter(matches) }),
-    );
+  const groups = props.catalogue.groups.map(
+    (group: IGalleryCatalogue.IGroup) => ({ group, shown: group.subjects.filter(matches) }),
+  );
+  const total: number = props.catalogue.groups.reduce(
+    (sum: number, g: IGalleryCatalogue.IGroup): number => sum + g.subjects.length,
+    0,
+  );
+  const shown: number = groups.reduce((sum, g) => sum + g.shown.length, 0);
+  const title = (name: string): string => name[0]!.toUpperCase() + name.slice(1);
 
   return (
-    <main className="am-app am-catalogue am-library">
+    <main className="am-app am-catalogue">
       <ObjectsHead />
-      <div className="am-filters" role="search">
-        <div className="am-chips" role="group" aria-label="Family">
-          {[
-            null,
-            ...props.catalogue.groups.map(
-              (g: IGalleryCatalogue.IGroup): string => g.name,
-            ),
-          ].map(
-            (name: string | null): ReactElement => (
-              <button
-                key={name ?? "all"}
-                type="button"
-                className="am-chip"
-                aria-pressed={family === name}
-                onClick={(): void => change(name, query)}
+      <div className="am-indexed">
+        <nav className="am-index-nav" aria-label="Families">
+          <label className="am-search">
+            <span className="am-visually-hidden">Search archetypes</span>
+            <input
+              type="search"
+              placeholder="Search: chair, sword, cup"
+              value={query}
+              onChange={(event: ChangeEvent<HTMLInputElement>): void =>
+                change(event.target.value)
+              }
+            />
+          </label>
+          <p className="am-index-shown" role="status">
+            {words.length === 0 ? `${total} archetypes` : `${shown} of ${total} archetypes`}
+          </p>
+          <ol>
+            {groups.map(({ group, shown: kept }) => (
+              <li key={group.name}>
+                <a href={`#family-${group.name}`}>
+                  {title(group.name)}
+                  <span>{kept.length}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <div className="am-indexed-body">
+          {groups.map(({ group, shown: kept }): ReactElement | null =>
+            kept.length === 0 ? null : (
+              <section
+                key={group.name}
+                id={`family-${group.name}`}
+                className="am-index-category"
+                aria-labelledby={`am-family-${group.name}`}
               >
-                {name === null ? "All" : name[0]!.toUpperCase() + name.slice(1)}
-              </button>
+                <header>
+                  <h2 id={`am-family-${group.name}`}>
+                    {title(group.name)}
+                    <span className="am-catalogue-count">{kept.length}</span>
+                  </h2>
+                  {ARCHETYPE_FAMILY_NOTES[group.name] === undefined ? null : (
+                    <p>{ARCHETYPE_FAMILY_NOTES[group.name]}</p>
+                  )}
+                </header>
+                <ul className="am-object-grid">
+                  {kept.map(
+                    (subject: IGalleryCatalogue.ISubject): ReactElement => (
+                      <ObjectCard key={subject.id} subject={subject} />
+                    ),
+                  )}
+                </ul>
+              </section>
             ),
           )}
+          {shown === 0 ? (
+            <p className="am-status">No archetype matches this search.</p>
+          ) : null}
         </div>
-        <label className="am-search">
-          <span className="am-visually-hidden">Search objects</span>
-          <input
-            type="search"
-            placeholder="Search models and variants"
-            value={query}
-            onChange={(event: ChangeEvent<HTMLInputElement>): void =>
-              change(family, event.target.value)
-            }
-          />
-        </label>
       </div>
-      {groups.map(
-        ({
-          group,
-          shown,
-        }: {
-          group: IGalleryCatalogue.IGroup;
-          shown: IGalleryCatalogue.ISubject[];
-        }): ReactElement | null => {
-          if (shown.length === 0) return null;
-          return (
-            <section
-              key={group.name}
-              aria-labelledby={`am-family-${group.name}`}
-            >
-              <h2 id={`am-family-${group.name}`}>
-                {group.name[0]!.toUpperCase() + group.name.slice(1)}
-              </h2>
-              <ul className="am-object-grid">
-                {shown.map(
-                  (subject: IGalleryCatalogue.ISubject): ReactElement => (
-                    <ObjectCard key={subject.id} subject={subject} />
-                  ),
-                )}
-              </ul>
-            </section>
-          );
-        },
-      )}
-      {groups.every(
-        (g: { shown: IGalleryCatalogue.ISubject[] }): boolean =>
-          g.shown.length === 0,
-      ) ? (
-        <p className="am-status" role="status">
-          No object matches this selection.
-        </p>
-      ) : null}
     </main>
   );
 }

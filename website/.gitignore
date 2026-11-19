@@ -3,3 +3,5 @@ _pagefind/
 node_modules/
 out/
 tsconfig.tsbuildinfo
+.bake-cache/
+public/baked/

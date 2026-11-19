@@ -53,3 +53,4 @@ Open a skill when the work reaches the task its trigger names. Open only the pag
 | [review](.agents/skills/review/SKILL.md) | Doing any review or self-review |
 | [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Editing `packages/template` or its shipped skills, or reading, authoring or reviewing production content |
 | [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging anything on screen, before claiming a visual change works, or changing a viewer or capture |
+| [website](.agents/skills/website/SKILL.md) | Changing the public website: its pages, design, docs or baked takes |

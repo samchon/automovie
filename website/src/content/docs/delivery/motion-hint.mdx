@@ -1,0 +1,72 @@
+---
+title: The motion hint
+---
+
+# The motion hint
+
+The motion hint is the best guidance a video model can be given of who is where, what they do, what they touch and when. It is a hint video and the control channels the chosen model takes, rendered from the same performance and aligned frame for frame. The model supplies the surfaces, so the hint draws people as the polygon man and objects as coarse forms.
+
+## When the hint is complete
+
+A film-generation hint is complete when every main scene's staging and motion is programmed and the whole video is assembled. Stills and pilot clips establish only their own coverage.
+
+The agent builds one film per screenplay film folder. Before rendering, it checks that the compositions cite and realize each required scene, section and beat once, and the evidence graph enforces the same rule. The film plays the scenes in the screenplay's order, with its cuts, transitions, pauses and titles.
+
+## Control channels
+
+A channel is a pass drawn from the same performance and camera as the picture. `@automovie/render` names the passes a motion hint is captured in:
+
+| Pass | Carries |
+| --- | --- |
+| `beauty` | The picture itself, the hint video |
+| `pose` | The figure's joints, for pose-conditioned models, with pose keypoints written beside the frames |
+| `depth` | Distance from the camera |
+| `normal` | Surface orientation |
+| `outline` | Edges, for edge-conditioned models |
+| `mask` | A semantic mask, rendered from the scene rather than estimated from pictures |
+
+The production renders only the channels its receiver requires, and records them in `PROJECT.md`. Each channel is read for its limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities. A structural channel's values stay free of exposure, tone mapping and overlays, and viewing encodes are kept separate so depth values and mask colors survive. The channels, their mappings, palettes, sidecars and digests are kept as media records.
+
+A capture draws any pass at any second, sharing the view's camera across passes:
+
+```bash
+pnpm run capture --subject <film> --from 12 --to 14 --passes beauty,pose,depth,outline
+```
+
+## How a model takes the hint
+
+Each video model takes the hint its own way, and each way preserves different information:
+
+| Method | Preserves |
+| --- | --- |
+| Editing or restyling the hint video | Positions, timing and camera, while the surfaces change |
+| A reference video | Loose placement, motion and camera |
+| A gray-layout adapter | The camera path and placement, with coarse forms replaced by detailed ones |
+| Control adapters | Precise placements and contacts, at a strength each request sets |
+
+Dense channels carry both placement and shape, and a higher adherence preserves more of the coarse geometry. The agent chooses the method with you, records it with its default adherence in `PROJECT.md`, and tests it on takes.
+
+## Inspecting generated takes
+
+An accurate hint does not decide what the model makes of it. Generated takes are inspected against the hint at matched frames: stills extracted from the take beside stills drawn from the source at the same seconds. Contacts and outcomes are checked first, then identity, placement, camera and motion.
+
+`automovie capture --file` draws an encoded or generated file's own frames, around every cut and event:
+
+```bash
+pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from 60 --to 70
+```
+
+Compared against a capture round of the source, the file's cells pair by second, and a second the file lacks stays as an unmatched cell with its cause. A take that loses the action, the identity or the causality is repaired at the source, the request or the selection, never accepted for its look. The agent's report says what it verified and what only you watched.
+
+## The handoff
+
+A whole motion hint is handed off with these records:
+
+- the accepted output revision and its media identities;
+- the fixed inputs, source entry and dependencies;
+- a shot list of each shot's name, frame range, resolved camera and decided lens;
+- the commands that reproduce it;
+- the checks observed, by whom, and what only you watched;
+- the remaining limits.
+
+[Capture, render and review](/docs/delivery/capture-render-review) describes the commands, and [A finished film](/docs/delivery/finished-film) describes the next step.

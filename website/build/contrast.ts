@@ -30,7 +30,11 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["fg-muted", "danger-soft", 4.5],
   ["success", "success-soft", 4.5],
   ["viewport-tag-fg", "viewport-tag-bg", 4.5],
-  ["fg", "viewport", 4.5],
+  ["viewport-fg", "viewport", 4.5],
+  ["room-fg", "room", 4.5],
+  ["room-muted", "room", 4.5],
+  ["room-fg", "room-panel", 4.5],
+  ["room-muted", "room-panel", 4.5],
 
   // What is not text but must be seen: control borders and the focus ring.
   ["border-control", "bg", 3],
@@ -39,6 +43,7 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["focus", "bg", 3],
   ["focus", "bg-panel", 3],
   ["focus", "viewport", 3],
+  ["accent-line", "bg", 3],
 ];
 
 /** The relative luminance of an sRGB colour written `#rrggbb`. */
