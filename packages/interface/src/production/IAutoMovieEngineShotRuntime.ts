@@ -14,6 +14,7 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
+import type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
 import type { IAutoMovieProductionDesign } from "./IAutoMovieProductionDesign";
 import type { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
 import type { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
@@ -116,6 +117,13 @@ export interface IAutoMovieEngineShotRuntime {
    * checks every other reference the source makes.
    */
   lightMotions?: readonly IAutoMovieClip[];
+
+  /**
+   * Practical lights bound to staged prop emitters. Compiled from the final
+   * object clips, using the corresponding prop model in models, and appended
+   * to lightMotions. Omit when no practical source follows a prop.
+   */
+  practicalLights?: readonly IAutoMoviePracticalLightBinding[];
 
   /**
    * The shot's own object clips, carried onto the compiled shot's

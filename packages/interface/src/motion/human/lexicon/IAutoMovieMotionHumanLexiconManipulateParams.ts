@@ -1,12 +1,26 @@
+import type { IAutoMovieMotionHumanPour } from "../affordance/IAutoMovieMotionHumanPour";
+import type { IAutoMovieMotionHumanPlayWindInstrument } from "../daily/IAutoMovieMotionHumanPlayWindInstrument";
+import type { IAutoMovieMotionHumanSwipeTouchscreen } from "../everyday/IAutoMovieMotionHumanSwipeTouchscreen";
+import type { IAutoMovieMotionHumanGuitarChord } from "../handling/IAutoMovieMotionHumanGuitarChord";
+import type { IAutoMovieMotionHumanGuitarNote } from "../handling/IAutoMovieMotionHumanGuitarNote";
 import type { IAutoMovieMotionHumanManipulate } from "../handling/IAutoMovieMotionHumanManipulate";
+import type { IAutoMovieMotionHumanPianoPedal } from "../handling/IAutoMovieMotionHumanPianoPedal";
+import type { IAutoMovieMotionHumanPianoPerformance } from "../handling/IAutoMovieMotionHumanPianoPerformance";
+import type { IAutoMovieMotionHumanPianoScore } from "../handling/IAutoMovieMotionHumanPianoScore";
+import type { IAutoMovieMotionHumanPickUpMoving } from "../handling/IAutoMovieMotionHumanPickUpMoving";
+import type { IAutoMovieMotionHumanPutDownAperture } from "../handling/IAutoMovieMotionHumanPutDownAperture";
+import type { IAutoMovieMotionHumanWrite } from "../handling/IAutoMovieMotionHumanWrite";
+import type { IAutoMovieMotionHumanBowViolinParams } from "../music/IAutoMovieMotionHumanBowViolinParams";
+import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotionHumanCymbalStrike";
+import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
 
 /**
  * Open parameters of the manipulate lexicon family, keyed by each runtime export name.
  * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before HumanActionRow resolves fixed values.
+ * HumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The manipulate family is a closed export-name map with the exact Omit projection of each source law.
+ * @evidence contracts/development/design.md#principled-representation The manipulate family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the manipulate row parameter map used by the family registry and schema generator.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
@@ -37,4 +51,46 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
 
   /** Texting with a thumb: the right thumb on each key of the held phone's screen. */
   thumbText: Omit<IAutoMovieMotionHumanManipulate.IParams, "side" | "digit">;
+
+  /** Write on a staged surface with a held tool. */
+  write: IAutoMovieMotionHumanWrite;
+
+  /** Swipe a finger across a touchscreen. */
+  swipeTouchscreen: IAutoMovieMotionHumanSwipeTouchscreen;
+
+  /** Tilt a vessel and pour into a staged receiver. */
+  pour: IAutoMovieMotionHumanPour.IParams;
+
+  /** Pick up a prop whose support moves. */
+  pickUpMoving: IAutoMovieMotionHumanPickUpMoving;
+
+  /** Place a held prop through an aperture. */
+  putDownAperture: IAutoMovieMotionHumanPutDownAperture;
+
+  /** Draw a held violin bow across a string. */
+  bowViolin: IAutoMovieMotionHumanBowViolinParams;
+
+  /** Raise and play a wind instrument. */
+  playWindInstrument: IAutoMovieMotionHumanPlayWindInstrument.IParams;
+
+  /** Fret and play a guitar note. */
+  guitarNote: IAutoMovieMotionHumanGuitarNote;
+
+  /** Fret and play a guitar chord. */
+  guitarChord: IAutoMovieMotionHumanGuitarChord;
+
+  /** Play a staged piano score. */
+  pianoScore: IAutoMovieMotionHumanPianoScore;
+
+  /** Work a staged piano pedal. */
+  pianoPedal: IAutoMovieMotionHumanPianoPedal;
+
+  /** Play piano keys and pedals in one performance. */
+  pianoPerformance: IAutoMovieMotionHumanPianoPerformance;
+
+  /** Strike a side drum with a held stick. */
+  sideDrumStrike: IAutoMovieMotionHumanSideDrumStrike;
+
+  /** Strike a staged cymbal with a held stick. */
+  cymbalStrike: IAutoMovieMotionHumanCymbalStrike;
 }

@@ -206,7 +206,12 @@ export namespace HumanPerformanceFlight {
       };
     });
     segment.plan.airborne!(HumanPerformanceStagedFlightRotation({
-      ...data, start: segment.start, t0, t1, turns,
+      ...data,
+      start: segment.start,
+      t0,
+      t1,
+      turns,
+      turnedLanding: jumpAirborne.hasTurnedLanding(declared),
     }));
   }
 

@@ -1,0 +1,143 @@
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+} from "@automovie/interface";
+
+import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+
+/** The actual anchoring and flight phases available to the stroke's feet. */
+interface ISupport {
+  /** Body used to fit both leg goals. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** Both feet's world placements at entry. */
+  stance: Readonly<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
+  >;
+
+  /** World placements at plant or jump landing. */
+  landings: Readonly<
+    Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
+  >;
+
+  /** The traveling foot, when the profile calls for a step. */
+  stepFoot: AutoMovieHumanSide | undefined;
+
+  /** Full local action clock in seconds. */
+  clock: IAutoMovieMotionClock;
+
+  /** Swing clearance in metres. */
+  clearance: number;
+
+  /** Optional jump phase and shared ballistic displacement. */
+  flight: {
+    /** Whether the profile calls for flight. */
+    enabled: boolean;
+
+    /** Local second of liftoff. */
+    takeoff: number;
+
+    /** Local second of touchdown. */
+    landing: number;
+
+    /** Whether the given action-local second is strictly inside flight. */
+    airborne: (seconds: number) => boolean;
+
+    /** Current flight height in metres, zero outside flight. */
+    lift: (seconds: number) => number;
+  };
+}
+
+/**
+ * Prepare the two court stroke foot placements and the corresponding
+ * ground-support windows. Use the vertical flight curve shared with the pelvis.
+ *
+ * @param support Entry and landing anchors, local clock and flight state.
+ * @returns Leg rows and their ground contacts in left-to-right order.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the phase clock, foot anchors, displacement and published support.
+ * @evidence contracts/development/implementation.md#principled-implementation Each foot reads its authored in-place support or planned swing while airborne displacement removes both plants.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare a placement row and its ground windows for each foot.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both the bearing predicate and windows use the step and flight times from the shared clock.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Prepares only two legs, each with a fixed count of windows.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the existing leg arc and placement owners and consumes the same lift as the pelvis.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains two prepared placements and their shared action clock. Samples add no history.
+ */
+export function courtStrokeFeet({
+  body,
+  stance,
+  landings,
+  stepFoot,
+  clock,
+  clearance,
+  flight,
+}: ISupport): {
+  /** The two leg placement rows. */
+  primitives: IAutoMovieMotionHumanPrimitive[];
+
+  /** Their ordered plant windows. */
+  contacts: IAutoMovieMotionHumanContactWindow[];
+} {
+  const duration: number = clock.duration;
+  const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+  for (const foot of ["left", "right"] as const) {
+    const from: IAutoMovieMotionHumanFoot.IPlacement = stance[foot];
+    const stepping: boolean = foot === stepFoot;
+    const to: IAutoMovieMotionHumanFoot.IPlacement = landings[foot];
+    const move: (progress: number) => IAutoMovieMotionHumanFoot.IPlacement =
+      AutoMovieMotionHumanLeg.prepareArc(from, to, clearance);
+    const leave: number = stepping ? clock.at("stepStart") : 0;
+    const plant: number = stepping ? clock.at("plant") : 0;
+    const relax: number = clock.at("relax");
+    const planted = (s: number): boolean =>
+      !flight.airborne(s) &&
+      (!stepping || s <= leave || (s >= plant && s <= relax) || s >= duration);
+    primitives.push(
+      AutoMovieMotionHumanLeg.place({
+        body,
+        side: foot,
+        from: 0,
+        to: duration,
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement => {
+          const progress: number =
+            s <= relax
+              ? clock.progress("stepStart", "plant", s)
+              : 1 - clock.progress("relax", "end", s);
+          const at: IAutoMovieMotionHumanFoot.IPlacement = stepping
+            ? move(progress)
+            : from;
+          return {
+            ...at,
+            ankle: { ...at.ankle, y: at.ankle.y + flight.lift(s) },
+          };
+        },
+        planted,
+      }),
+    );
+    const contact = (a: number, b: number): void => {
+      if (a < b)
+        contacts.push({
+          part: `${foot}Foot`,
+          kind: "plant",
+          from: a / duration,
+          to: b / duration,
+          support: { kind: "ground" },
+        });
+    };
+    if (stepping) contact(0, leave);
+    if (flight.enabled) {
+      contact(plant, flight.takeoff);
+      contact(flight.landing, stepping ? relax : duration);
+    } else contact(plant, stepping ? relax : duration);
+  }
+  return { primitives, contacts };
+}

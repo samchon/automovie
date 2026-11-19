@@ -17,7 +17,7 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * Scenarios:
  * 1. The actions are the keys of `HUMAN_ACTIONS`, in the package's order, and each action and row with a schema in `HUMAN_LEXICON_SCHEMAS` lists that schema's parameters, so the actions' parameters show too.
  * 2. Every row of the installed `HUMAN_LEXICON` is on exactly one family page.
- * 3. For every action and row, the scenes listed are exactly the listed scenes whose composition names it. A trial alone needs complete independent parameters and no authored forces in its first scene; other trials preserve the first playing scene's entire context and round trip through its address.
+ * 3. For every action and row, the scenes listed are exactly the listed scenes whose composition names it. A trial alone needs a primary action, complete independent parameters and no authored forces in its first scene. Other trials preserve the first playing scene's entire context and round trip through its address.
  * 4. At least one first use has empty parameters, no required schema parameter and authored forces. It must keep its full scene rather than silently turn a force-driven action into its zero-input solo.
  */
 export function test_website_motion_reference(): void {
@@ -153,6 +153,13 @@ export function test_website_motion_reference(): void {
         findings.push(
           `${name}: tried alone, though ${first.id} names it only as a mutual action`,
         );
+      if (
+        use !== undefined &&
+        first?.composition?.performers.every(
+          (performer): boolean => !performer.actions.includes(use),
+        )
+      )
+        findings.push(`${name}: the solo drops its carrier action`);
       if ((first?.composition?.forces?.length ?? 0) !== 0)
         findings.push(
           `${name}: the solo drops its first scene's authored forces`,
@@ -196,6 +203,16 @@ export function test_website_motion_reference(): void {
   TestValidator.predicate(
     "a force-only first use distinguishes context from solo parameters",
     forceOnlyContexts > 0,
+  );
+  const headTilt: IMotionReference.IRow | undefined = entries.find(
+    (entry: IMotionReference.IRow): boolean => entry.name === "headTilt",
+  );
+  TestValidator.equals(
+    "the walking head tilt opens its rehearsal",
+    headTilt === undefined
+      ? null
+      : MotionUsage.trial(headTilt.name, headTilt.parameters)?.label,
+    "Try it in Rehearsing reactions",
   );
 }
 

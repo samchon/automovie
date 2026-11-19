@@ -69,6 +69,7 @@ export type { IAutoMovieRenderReassembly } from "./IAutoMovieRenderReassembly";
 export type { IAutoMovieRenderReport } from "./IAutoMovieRenderReport";
 export type { IAutoMovieRenderResult } from "./IAutoMovieRenderResult";
 export type { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
+export type { IAutoMovieRenderSoftPropFrame } from "./IAutoMovieRenderSoftPropFrame";
 export type { IAutoMovieRenderSubject } from "./IAutoMovieRenderSubject";
 export type { IAutoMovieRenderSubjectOfCompiledShot } from "./IAutoMovieRenderSubjectOfCompiledShot";
 export type { IAutoMovieRenderSubjectOfShot } from "./IAutoMovieRenderSubjectOfShot";

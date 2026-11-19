@@ -1,9 +1,10 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 
 /**
- * Racket and golf positions without the stroke itself (#3249): the tennis
- * ready position, the split step, and the golf address with its waggle. No
- * racket or club is held; the hands stand on the implied handle.
+ * Racket-sport strokes (#3725 and #3726) and the solo ready position, split
+ * step and golf address (#3249). A named implement stays in the racket hand
+ * through preparation, impact and recovery.
  *
  * - Ready position: the feet step apart to two shoulder widths, the knees
  *   give 4 % of the stature and the trunk leans 15 degrees, the racket hand
@@ -20,11 +21,6 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  *
  * Each is a phrase: into the position in 0.6 s, the stroke (the hop or the
  * waggle), held, and back in 0.6 s.
- *
- * Not drafted: groundstrokes, volleys, serves, smashes, badminton and table
- * tennis strokes, the golf swing, chip and putt. They are implement strikes
- * of the ball-strike owner (#3244), whose implement file does not exist
- * yet; the lunge to the net is the exercise lunge's row.
  *
  * @evidence contracts/development/common.md#meaningful-documentation side: The racket or lead hand; `right` when absent. seconds: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation side: The racket or lead hand; `right` when absent. seconds: Seconds held; 0.6 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -43,28 +39,63 @@ export namespace IAutoMovieMotionHumanRacket {
    * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** The position. */
+    /** The position or stroke. */
     kind: IAutoMovieMotionHumanRacket.Kind;
 
     /** The racket or lead hand; `right` when absent. */
     side?: "left" | "right";
 
-    /** Seconds held; 0.6 when absent.
+    /** Seconds held for a solo position; 0.6 when absent.
      * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     seconds?: number;
+
+    /** The held racket subject for a stroke. Omit for a solo stroke. */
+    implement?: string;
+
+    /** The desired centre of the striking face at the stroke, in world metres. Omit for a body-relative rehearsal. */
+    contactAt?: IAutoMovieVector3;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
   }
 
   /**
-   * Capture cases of the racket and golf positions (#3249) from quiet standing. The positions.
+   * Solo racket and golf positions and court strokes.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the racket and golf positions (#3249) from quiet standing. The positions.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "readyPosition", "splitStep", "golfAddress" distinguish the admitted cases.
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the original solo positions and the named sport-specific stroke set.
+   * @evidence contracts/development/design.md#principled-representation Position and Stroke are separate closed unions routed to their respective planners.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/racketCases.ts (racketCases).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in racketCases.
    */
-  export type Kind = "readyPosition" | "splitStep" | "golfAddress";
+  export type Kind = Position | Stroke;
+
+  /**
+   * The original solo ready, split-step and golf actions.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation The cases are the stance, the preparatory hop and the golf address.
+   * @evidence contracts/development/design.md#principled-representation Three named parameter cases dispatch through racket.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the original position choices.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts One case per supported position.
+   */
+  export type Position = "readyPosition" | "splitStep" | "golfAddress";
+
+  /**
+   * Court strokes with sport-specific support, approach and recovery.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each stroke by its sport and action.
+   * @evidence contracts/development/design.md#principled-representation The closed set defines the supported court stroke profiles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One value per implemented stroke.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Court stroke dimensions and paths remain in the owning law.
+   */
+  export type Stroke =
+    | "tennisServe"
+    | "tennisForehand"
+    | "tennisBackhand"
+    | "tennisVolley"
+    | "badmintonLunge"
+    | "badmintonClear"
+    | "tableTennisTopspin"
+    | "squashDrive"
+    | "padelGlassReturn";
 }

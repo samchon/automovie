@@ -6,6 +6,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { vclose } from "../internal/vclose";
+
 /**
  * The engine's crowd steering pass keeps agents apart by anticipation,
  * brings each to its goal, does not depend on the order agents are listed
@@ -30,12 +32,14 @@ import { TestValidator } from "@nestia/e2e";
  *    enters the box at any 1/24 s sample, and the walker arrives.
  * 6. Moving and turning the whole of scenario 1 by 3 m and 37 degrees moves
  *    every course rigidly, within 1e-6 m.
+ * 7. Course reads at the same off-grid time and after a seek own their
+ *    position and velocity, even after the caller mutates an earlier read.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the pass and reads its courses at every step: overlap, a wrong side, an agent that never arrives, an order-dependent sum, a moving obstacle entered, or a frame-dependent law is caught.
  * @evidence contracts/development/testing.md#independent-expectations Non-penetration and arrival are the requirement; the head-on side change and the order and frame invariances follow from the law's symmetry; the close-call comparison is the paper's qualitative finding against a non-interacting control, since the force scale is uncalibrated.
  * @evidence contracts/development/testing.md#distinguishing-cases Two agents, two flows, a random crowd with its control, a reversed listing, a moving obstacle and a moved frame; the human crowd built on it belongs to `test_human_motion_crowd_parting`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test of a pure engine function, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the steering cases and the ownership and seek obligations of a course read.
  */
 export function test_engine_steer_crowd(): void {
   const findings: string[] = [];
@@ -86,6 +90,24 @@ export function test_engine_steer_crowd(): void {
     findings.push("head-on: the agents did not pass each other");
   for (const [i, c] of headOn.courses.entries())
     if (c.arrival === null) findings.push(`head-on: agent ${i} did not arrive`);
+
+  const seek: number = 3.153;
+  const first = headOn.courses[0]!.at(seek);
+  const position: IAutoMovieVector3 = { ...first.position };
+  const velocity: IAutoMovieVector3 = { ...first.velocity };
+  first.position.x += 100;
+  first.velocity.z += 100;
+  headOn.courses[1]!.at(seek);
+  const shared = headOn.courses[0]!.at(seek);
+  headOn.courses[1]!.at(8);
+  const returned = headOn.courses[0]!.at(seek);
+  TestValidator.predicate(
+    "same-time projection and seek return caller-owned course samples",
+    vclose(shared.position, position, 1e-12) &&
+      vclose(shared.velocity, velocity, 1e-12) &&
+      vclose(returned.position, position, 1e-12) &&
+      vclose(returned.velocity, velocity, 1e-12),
+  );
 
   // 2. Crossing flows, each agent going 20 m along its flow to a place of its own: two people cannot stand on one goal.
   const flows: IAutoMovieCrowdAgent[] = [];

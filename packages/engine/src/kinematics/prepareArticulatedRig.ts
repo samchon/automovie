@@ -77,6 +77,9 @@ export function prepareArticulatedRig<Bone extends string>(
         ...(raw.axes.twistPlacement === undefined
           ? {}
           : { twistPlacement: raw.axes.twistPlacement }),
+        ...(raw.axes.rotationOrder === undefined
+          ? {}
+          : { rotationOrder: raw.axes.rotationOrder }),
       },
       `${rig.id}/${bone}.axes`,
     );

@@ -1,3 +1,5 @@
+import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
+import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieScript } from "../harness/IAutoMovieScript";
 import type { IAutoMovieBlocking } from "./IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "./IAutoMoviePerformance";
@@ -31,8 +33,14 @@ export interface IAutoMovieShotProgram {
   /** Checked plan that the action program must realize. */
   blocking: IAutoMovieBlocking;
 
-  /** Thin verb program compiled by the engine. */
+  /** Thin verb program compiled by the engine, including any shot-local editorial markers. */
   performance: IAutoMoviePerformance;
+
+  /** Shot-local material changes on staged prop parts, admitted by performShot. */
+  practicalSurfaces?: readonly IAutoMoviePracticalSurfaceTrack[];
+
+  /** Polygon body changes at source-shot times, admitted by performShot against the staged subjects. */
+  polygonBodyCues?: readonly IAutoMoviePolygonBodyCue[];
 
   /**
    * One authoritative sample time for every event the contract declares, inside that event's window; undeclared or repeated ids are refused.

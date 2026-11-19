@@ -52,10 +52,11 @@ export namespace jumpLanding {
    * @param heading The jump's heading, degrees about +Y.
    * @param rise The landing surface's height, metres.
    * @param lean The upright stand's forward lean, metres.
+   * @param turned Whether the footprints receive the flight's fractional yaw.
    * @returns The places.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input, its unit and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The footprints are offsets in the heading's frame at the destination, lifted by the surface's height; the stood root is the standing law's root over them (`stand.root`), and touchdown and absorption are heading-frame offsets from it with its lean removed.
+   * @evidence contracts/development/implementation.md#principled-implementation The footprints are offsets in the heading's frame at the destination, lifted by the surface's height; the turned absorption root centers over the stance, and the stood root is the standing law's root over them (`stand.root`), and touchdown and absorption are heading-frame offsets from it with its lean removed.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two footprints, the standing root over them, then two offsets from it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The footprints keep the body's rest separation and the final root is stand's, so the landing ends in the quiet stance a following stand holds.
    * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size work: two prepared heading frames serve the two footprints and two root offsets; speedup is unmeasured.
@@ -68,12 +69,23 @@ export namespace jumpLanding {
     heading: number,
     rise: number,
     lean: number,
+    turned: boolean = false,
   ): ILanding {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
-    const frame: HumanFrame.IPrepared = HumanFrame.prepare({ origin: { ...to, y: 0 }, yaw: heading });
-    const turn: HumanFrame.IPrepared = HumanFrame.prepare({ origin: { x: 0, y: 0, z: 0 }, yaw: heading });
-    const footprint: (s: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (s: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => ({
+    const frame: HumanFrame.IPrepared = HumanFrame.prepare({
+      origin: { ...to, y: 0 },
+      yaw: heading,
+    });
+    const turn: HumanFrame.IPrepared = HumanFrame.prepare({
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: heading,
+    });
+    const footprint: (
+      s: "left" | "right",
+    ) => IAutoMovieMotionHumanFoot.IPlacement = (
+      s: "left" | "right",
+    ): IAutoMovieMotionHumanFoot.IPlacement => ({
       ankle: frame.point({
         x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
         y: m.ankleHeight + rise,
@@ -84,10 +96,11 @@ export namespace jumpLanding {
         0,
       ),
     });
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
-      left: footprint("left"),
-      right: footprint("right"),
-    };
+    const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
+      {
+        left: footprint("left"),
+        right: footprint("right"),
+      };
 
     // The landing ends in the quiet stance over these feet, so it ends at
     // the root the standing law places there; touchdown and absorption are
@@ -110,7 +123,7 @@ export namespace jumpLanding {
       absorbed: offset({
         x: 0,
         y: -ABSORB_DROP * l,
-        z: (ABSORB_LEAN - 1) * lean,
+        z: turned ? -lean : (ABSORB_LEAN - 1) * lean,
       }),
     };
   }
@@ -125,5 +138,5 @@ const TOUCH_BACK: number = 0.1;
 /** How far below the standing root the absorption bottoms out, hip heights (provisional). */
 const ABSORB_DROP: number = 0.12;
 
-/** The share of the standing lean the root has reached at the absorption's bottom (provisional). */
+/** Share of upright lean reached at the ordinary landing's absorption bottom (provisional). */
 const ABSORB_LEAN: number = 0.3;

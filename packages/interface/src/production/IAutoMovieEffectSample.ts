@@ -3,24 +3,24 @@ import type { IAutoMovieEffectParticle } from "./IAutoMovieEffectParticle";
 /**
  * One bounded deterministic effect sample.
  *
- * `sampleCompiledEffect` snaps the requested time down to the effect's fixed
- * step, so two requests inside one step return the same sample. Outside the
- * cue's `[start, end)` window the sample is inactive, with zero intensity and no
- * particles.
+ * `sampleCompiledEffect` uses the requested time to decide membership in the
+ * cue's `[start, end)` window. The active state uses its fixed-step clock with
+ * a separate opening sample for cues that start between steps. Inactive samples
+ * have zero intensity and no particles.
  *
- * @evidence contracts/development/design.md#principled-representation A fixed-step sample: the time is floored to a step multiple with a 1e-9 tolerance, so every request inside one step maps to one deterministic sample and replay does not depend on the caller's frame rate.
+ * @evidence contracts/development/design.md#principled-representation Requested time decides exact interval membership, and fixed-step state uses an opening bound and a guard against rounding into the exclusive end. The result depends on the compiled stream and explicit sampling coordinates.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields: the snapped time, the active flag, the interpolated intensity and the particle list, so a renderer needs nothing beyond this record to draw the effect at that instant.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts An inactive window yields an explicit inactive sample with zero intensity rather than an absent value a caller would have to guess at, and the LOD thinning rule is the recipe's own distance, not a per-camera exception.
  * @evidence contracts/development/common.md#meaningful-documentation States how the time is snapped, the half-open active window, the linear intensity law and its zero when inactive, and the order, thinning rule and budget cap of the particle list.
  */
 export interface IAutoMovieEffectSample {
   /**
-   * Fixed-step shot time actually sampled, in seconds: the request floored to a
-   * multiple of the step and never negative.
+   * State time in seconds. It ordinarily uses the fixed-step clock, with the
+   * active state's first and last instants bounded by the cue.
    */
   time: number;
 
-  /** Whether the sampled time falls inside the cue's `[start, end)` window. */
+  /** Whether the requested time falls inside the cue's `[start, end)` window. */
   active: boolean;
 
   /**

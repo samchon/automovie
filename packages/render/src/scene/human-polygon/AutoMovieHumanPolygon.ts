@@ -1,4 +1,8 @@
-import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieHumanSkeleton,
+  IAutoMoviePolygonBodyCue,
+  IAutoMovieRigidTransform,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -16,6 +20,48 @@ import type * as THREE from "three";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; the native drawing handle borrows canonical Human placements rather than restating their shape.
  */
 export namespace AutoMovieHumanPolygon {
+  /**
+   * Source-clock readers and authored cues for one actor's visible drawing.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the subject filter, source clock and body-to-world frame convention.
+   * @evidence contracts/development/design.md#principled-representation Shares canonical authored cues, placements and rigid transforms at the drawing boundary.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Render receives the existing source pose and optional staging reader without owning either timeline.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Actor staging remains caller-owned and the pose contains the original evaluated bones.
+   */
+  export interface IPresentation {
+    /** Exact staged actor identity. Only matching cues apply to this drawing. */
+    subject: string;
+
+    /** Cues in shot-local source seconds. Selected bone subtrees must be disjoint. */
+    cues: readonly IAutoMoviePolygonBodyCue[];
+
+    /**
+     * Read the complete deterministic pose in Human body coordinates at shot-local source seconds.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Reads evaluated bone placements for an arbitrary source second. Source errors propagate to the builder or drawing.
+     * @evidence contracts/development/implementation.md#principled-implementation Preparation samples detach boundaries once and the prepared sampler reads the requested pose per seek. The drawing admits resulting placements before writing groups.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The callback owns source pose evaluation and the presentation adapter owns cue deltas.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the complete source pose even when a cue replaces some of it. A release admits replaced live placements before writing its own values.
+     * @evidence contracts/development/implementation.md#efficient-algorithms One source pose read per seek plus one per detach cue at preparation. The host determines the cost of each read.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Captured release placements serve later seeks. Arbitrary live poses are read at the requested time.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The sampler borrows the reader for the drawing lifetime and keeps only selected release frames. Disposal drops its sampler reference.
+     */
+    poseAt: (seconds: number) => Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
+
+    /**
+     * Read the actor-local to shot-world rigid frame at shot-local source seconds. Omission means identity. The host applies this frame through the drawing's parent.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Returns metre translation and an x-y-z-w unit rotation synchronously. Invalid frames and reader errors propagate.
+     * @evidence contracts/development/implementation.md#principled-implementation Preparation moves detached source joints into the release world frame. Active samples cancel the current actor frame so the parent transform applies once.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The host owns the source and parent placement. The presentation adapter admits and converts the returned rigid transform.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Finite translation and squared quaternion norm within 1e-6 are checked before use. Identity is the specified behavior for an omitted reader.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Calls once per detach cue at preparation and at most once per seek. The host determines the cost of each read.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The first active detach cue per seek reads the live frame and its inverse for reuse by all active detach cues.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The drawing drops its borrowed reader with the sampler at disposal. Converted live frames are local to each seek.
+     */
+    actorFrameAt?: (seconds: number) => IAutoMovieRigidTransform;
+  }
+
   /**
    * Actual rigid polygon drawing and its owned resource lifetime.
    *
@@ -70,6 +116,20 @@ export namespace AutoMovieHumanPolygon {
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary placement references expire after the call; drawing resources retain their existing owner and no clock or task is acquired.
      */
     setPose: (output: Pick<IAutoMovieHumanSkeleton.IOutput, "posed">) => void;
+
+    /**
+     * Draw the source pose with authored polygon cues at the given shot-local seconds.
+     * Present when the drawing was built with a presentation.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Specifies availability, units and source clock.
+     * @evidence contracts/development/implementation.md#principled-implementation Samples visual poses from the requested time and applies them through setPose.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The prepared sampler owns cue arithmetic and setPose owns graphics updates.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The source pose and graphics inventory are reused for each seek.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Sampling and applying a complete pose are both linear in the skeletal drawing size.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Release frames are captured once and reused by any ordering of seeks.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The drawing releases its sampler at disposal and refuses drawing after retirement.
+     */
+    drawAt?: (seconds: number) => void;
 
     /**
      * Replace emitted-part RGB overrides; undefined restores the borrowed clay material.

@@ -11,6 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanObjectCord } from "./HumanObjectCord";
 
 /**
  * Attach actions to an object: an object says where a person meets it
@@ -72,7 +73,7 @@ export namespace HumanObject {
    * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
    * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
    * @param tracks The object's own movements after a trigger, each an articulation's travel from its start (`IHumanProp.tracks`); none when absent.
-   * @returns The prop, posed by its drives and tracks when the object articulates (`IHumanProp.articulate`).
+   * @returns The prop with any declared articulation capability, and with its pose reader for drives and tracks when the model supplies one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the prop offers the actions and how a contact becomes a target.
    * @evidence contracts/development/implementation.md#principled-implementation A contact frame's translation is its point and its rotated `+Y` its outward normal, the affordance record's own convention.
@@ -122,6 +123,9 @@ export namespace HumanObject {
         ? {}
         : { body: model.body }),
 
+      ...(model.hasArticulations === undefined
+        ? {}
+        : { hasArticulations: model.hasArticulations }),
       // An object whose parts move is posed by the performance's state.
       ...(model.articulate === undefined
         ? {}
@@ -136,6 +140,9 @@ export namespace HumanObject {
               return {
                 affordances: posed.affordances ?? [],
                 ...(moved === undefined ? {} : { shapes: moved }),
+                ...(posed.span === undefined
+                  ? {}
+                  : { span: posed.span.bind(posed) }),
               };
             },
           }),
@@ -168,6 +175,26 @@ export namespace HumanObject {
     };
     RigidCarrierSample.adapt(prop, model, motion, contact);
     return prop;
+  }
+
+  /**
+   * Create a soft cord on a model span's own endpoints and rest length.
+   * The owning prop and returned cord both belong in the performance props.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents the model and line identity and how to supply the result.
+   * @evidence contracts/development/implementation.md#principled-implementation HumanObjectCord discretizes the existing model line in world metres and binds both endpoints to the owning prop.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure This is the object authoring entry. The cord's domain construction belongs to HumanObjectCord.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The author supplies no second endpoint declaration. The cord constructor refuses invalid span and domain inputs.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One call to the linear cord discretization and domain validator.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the provider's public span reader and the existing soft solver settings.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a soft prop and its finite domain. Film-state ownership stays with the performance.
+   */
+  export function cord(
+    model: IAutoMovieMotionHumanObject.ISpanModel,
+    span: string,
+    props: IAutoMovieMotionHumanObject.ICord,
+  ): IAutoMovieMotionHumanProp {
+    return HumanObjectCord(model, span, props);
   }
 
   /**

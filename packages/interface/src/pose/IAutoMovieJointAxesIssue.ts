@@ -4,7 +4,8 @@
  *
  * `validateJointAxesBasis` returns these in order: per axis, each non-finite
  * component or else a zero length; then each non-orthogonal pair; then an
- * unknown twist placement. Motion retargeting forwards each as a range violation, and
+ * unknown twist placement or rotation order, or a proximal placement that conflicts
+ * with the explicit order. Motion retargeting forwards each as a range violation, and
  * `normalizeJointAxes` throws the first as `<path> <expected>`.
  *
  * @evidence contracts/development/design.md#principled-representation A located violation record in the same path, expectation and value form the engine's violation collector uses, so a retargeting caller forwards it field for field without rewording.
@@ -16,7 +17,7 @@ export interface IAutoMovieJointAxesIssue {
   /**
    * The caller's base path followed by the field, such as
    * `$input.targetJointAxes.leftLowerArm.flexion.x` for a component or
-   * `...twistPlacement` for the placement.
+   * `...twistPlacement` or `...rotationOrder` for the rotation convention.
    */
   path: string;
 
@@ -26,7 +27,7 @@ export interface IAutoMovieJointAxesIssue {
   /**
    * The offending input: a number for a component, the axis vector for a zero
    * length, an object holding both axes for an orthogonality failure, or the
-   * unknown placement value.
+   * invalid placement or rotation order value.
    */
   value: unknown;
 }

@@ -58,17 +58,38 @@ const use = (kind: string): Record<string, string> => ({
  * @param kind The tool's kind.
  * @returns The pick-up.
  */
-const taken = (
-  subject: string,
-  kind: string,
-): ReturnType<typeof act> =>
+const taken = (subject: string, kind: string): ReturnType<typeof act> =>
   act("pickUp", { prop: subject, handle: "grip", use: use(kind) });
 
 /** Where the first carpenter's hammer lies on the bench and is put back, floor metres. */
 const HAMMER_A: { x: number; z: number } = { x: -1.13, z: 0.42 };
 
+/** The residential rise and tread of `createKerb`'s step, in metres. */
+const GOODNIGHT_STEP: { height: number; depth: number } = {
+  height: 0.196,
+  depth: 0.254,
+};
+
 /** The partner, riding and work scenes composed from the lexicon of #3392. */
 export const SCENES_PARTNER: readonly IScene[] = [
+  scene(
+    {
+      id: "shoulder-greeting",
+      title: "A shoulder greeting",
+      summary:
+        "Two people face each other and rest a hand on each other's shoulder before letting go.",
+      setting: "partner",
+      roles: { a: "guest", b: "guest" },
+      needs: [],
+    },
+    "shoulder-greeting",
+    [
+      person("a", "m1", 0, 0, 0, [act("stand", { seconds: 0.3 })]),
+      person("b", "m1", 0, 0.45, 180, [act("stand", { seconds: 0.3 })]),
+    ],
+    [],
+    [mutual("shoulderClasp", { one: "a", other: "b" }, { hold: 0.8 })],
+  ),
   scene(
     {
       id: "partner-dance",
@@ -108,7 +129,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "goodnight",
       title: "Goodnight",
       summary:
-        "At night a parent kisses a grown child on the forehead, and the child flicks a speck off the parent's shoulder.",
+        "At night a parent steps up onto a doorstep and kisses a grown child on the forehead. The parent turns, and the child flicks a speck off their shoulder.",
       setting: "partner",
       roles: { par: "parent", kid: "grown child" },
       needs: [],
@@ -116,14 +137,40 @@ export const SCENES_PARTNER: readonly IScene[] = [
     "goodnight",
     [
       person("par", "m1", 0, 0, 0, [
+        act("climbStairs", {
+          count: 1,
+          riser: GOODNIGHT_STEP.height,
+          tread: GOODNIGHT_STEP.depth,
+          start: 0.05,
+          on: "entryStep",
+        }),
         act("foreheadKiss", { partner: "kid" }),
-        act("stand", { seconds: 1.5 }),
+        act(
+          "look",
+          {
+            with: "trunk",
+            cue: "seen",
+            target: {
+              kind: "point",
+              frame: "world",
+              at: { x: 0.8, y: 1.75, z: 0.54 },
+            },
+          },
+          { anchor: "goodnight-turned" },
+        ),
       ]),
-      person("kid", "f2", 0, 0.45, 180, [
-        act("stand", { seconds: 1.5 }),
-        act("flickOff", { target: at("par", "shoulderLeft") }),
+      person("kid", "f2", 0, 0.9, 180, [
+        act("stand", { seconds: 3, sway: 0 }),
+        act(
+          "flickOff",
+          { target: at("par", "shoulderLeft") },
+          {
+            sync: { of: "goodnight-turned", event: "end" },
+          },
+        ),
       ]),
     ],
+    [object("entryStep", "createKerb", "step", 0, 0.31, 0, 0, GOODNIGHT_STEP)],
   ),
   scene(
     {
@@ -161,18 +208,55 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "judo-randori",
       title: "Judo randori",
       summary:
-        "The first half of a judo throw: tori takes the collar-and-sleeve grip as uke is drawn off balance forward over the toes.",
+        "Two judoka enter a staged shoulder throw, land on the mat and settle into the next beat.",
       setting: "partner",
       roles: { tor: "tori", uke: "uke" },
       needs: [],
     },
     "judo",
     [
-      person("tor", "m2", 0, 0, 0, [act("stand", { seconds: 0.5 })]),
-      person("uke", "m1", 0, 0.7, 180, [act("stand", { seconds: 0.5 })]),
+      person("tor", "m2", 0, -0.25, 0, [act("stand", { seconds: 0.5 })]),
+      person("uke", "m1", 0, 0.25, 180, [act("stand", { seconds: 0.5 })]),
     ],
     [],
-    [mutual("judoThrow", { tori: "tor", uke: "uke" })],
+    [
+      mutual(
+        "grappling",
+        { initiator: "tor", receiver: "uke" },
+        { kind: "seoiNage", outcome: "complete", side: "right" },
+      ),
+    ],
+  ),
+  scene(
+    {
+      id: "wrestling-reset",
+      title: "Wrestling reset",
+      summary:
+        "Two wrestlers rehearse a low entry, a brief grip and a return to their upright stances.",
+      setting: "partner",
+      roles: { red: "initiator", blue: "defender" },
+      needs: [],
+
+      // The alternate cast cannot reach the staged grip at these marks.
+      bodySwap: false,
+    },
+    "exercise-grapple-singleLeg",
+    [
+      person("red", "m1", 0, -0.21, 0, [
+        act("stand", { seconds: 0.3, sway: 0 }),
+      ]),
+      person("blue", "m2", -0.46, 0.82, 165, [
+        act("stand", { seconds: 0.3, sway: 0 }),
+      ]),
+    ],
+    [],
+    [
+      mutual(
+        "grappling",
+        { initiator: "red", receiver: "blue" },
+        { kind: "singleLeg", outcome: "denied" },
+      ),
+    ],
   ),
   scene(
     {

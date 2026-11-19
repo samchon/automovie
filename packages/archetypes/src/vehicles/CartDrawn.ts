@@ -152,6 +152,10 @@ export namespace CartDrawn {
       const along: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(rest, terret),
       );
+      const up: IAutoMovieVector3 = Vector3.subtract(
+        v(0, 1, 0),
+        Vector3.scale(along, along.y),
+      );
       builder.affordance({
         id: `${side}Line`,
         kind: "rein",
@@ -159,13 +163,58 @@ export namespace CartDrawn {
         // `+X` runs forward along the run to the terret, `+Y` up, square to it.
         frame: ArchetypeFrame.facing(
           Vector3.add(terret, Vector3.scale(along, run / 2)),
-          Vector3.subtract(v(0, 1, 0), Vector3.scale(along, along.y)),
+          up,
           Vector3.scale(along, -1),
         ),
         extent: null,
         grip: "power",
         aperture: createCart.LINE,
         length: run,
+      });
+
+      // A driver holds the line ahead of the seat, with the two lines kept
+      // apart by their terret spacing. The rest of the measured run continues
+      // behind the hand. The hand station is provisional for this cart.
+      const station: number = edge + (tree - edge) / 3;
+      const toHand: IAutoMovieVector3 = Vector3.subtract(
+        v(
+          terret.x,
+          terret.y + ((station - terret.z) / along.z) * along.y,
+          station,
+        ),
+        terret,
+      );
+      const reach: number = Vector3.length(toHand);
+      const toward: IAutoMovieVector3 =
+        reach === 0 ? along : Vector3.scale(toHand, 1 / reach);
+      const grip: IAutoMovieVector3 = Vector3.addScaled(
+        terret,
+        toward,
+        Math.min(run, reach),
+      );
+      const handUp: IAutoMovieVector3 = Vector3.subtract(
+        v(0, 1, 0),
+        Vector3.scale(toward, toward.y),
+      );
+      builder.affordance({
+        id: `${side}LineGrip`,
+        kind: "rein",
+        symmetry: "round",
+        frame: ArchetypeFrame.facing(grip, handUp, Vector3.scale(toward, -1)),
+        extent: null,
+        grip: "power",
+        aperture: createCart.LINE,
+      });
+      builder.affordance({
+        id: `${side}LineEnd`,
+        kind: "rein",
+        symmetry: "round",
+        frame: ArchetypeFrame.facing(
+          Vector3.addScaled(terret, toward, run),
+          handUp,
+          Vector3.scale(toward, -1),
+        ),
+        extent: null,
       });
     }
     CartWheel.pair(builder, {

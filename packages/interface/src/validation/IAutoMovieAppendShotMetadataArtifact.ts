@@ -8,7 +8,7 @@
  */
 export namespace IAutoMovieAppendShotMetadataArtifact {
   /**
-   * Borrowed optional fields passed to appendShotMetadataArtifact after the caller has established a shot object. Present metadata dispatches in events, cameraIntent, coverage, cameraClearance order and appends to the caller's violations array; no field is repaired. Missing fields are skipped, while present null or malformed fields reach their validators.
+   * Borrowed optional fields passed to appendShotMetadataArtifact after the caller has established a shot object. Present metadata dispatches in events, editorialMarkers, cameraIntent, coverage, cameraClearance order and appends to the caller's violations array; no field is repaired. Missing fields are skipped, while present null or malformed fields reach their validators.
    *
    * Nested admission errors are accumulated, but exceptions from delegated work or pathological input access propagate with earlier findings intact. Findings may retain offending values. This surface accepts unknown because it is an ingress contract, not a trusted shot type.
    *
@@ -26,6 +26,9 @@ export namespace IAutoMovieAppendShotMetadataArtifact {
 
     /** Optional event-array artifact; event times are checked against the supplied shot clock. */
     events?: unknown;
+
+    /** Optional marker array whose ids and source endpoints are checked on the shot clock. */
+    editorialMarkers?: unknown;
 
     /** Optional camera-intent evidence inspected using the same duration. */
     cameraIntent?: unknown;

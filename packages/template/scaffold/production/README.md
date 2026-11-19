@@ -52,6 +52,33 @@ With `pnpm run dev` running, `pnpm run review --url <inspector-address> --second
 
 Supply `IFilmProduction.performance` from the displayed state: `src/markFilmProduction.ts` hands it to the inspection in every host, and `marks=joint,bone,contact` draws its skeleton and contact forces. The starter's empty scene supplies none.
 
+### Save and branch a Human take
+
+Register a take in a project-relative TypeScript module that exports `createMotionTakeSource()`. Return the [source inputs](src/executable/motionTake/IMotionTakeSource.ts), including the normal edit plan and built shots, the Human owner input for the selected shot, and any data files read outside the module graph. Register each callback used by the owner under a stable ID and version with its rebuilt function value. Keep referenced source and data files available when moving the project.
+
+Run these commands from the production directory after choosing unused artifact paths with an existing parent directory.
+
+```sh
+pnpm run motion:take save src/takes/rehearsal.ts rehearsal.take.json 0.55
+pnpm run motion:take open src/takes/rehearsal.ts rehearsal.take.json
+pnpm run motion:take branch src/takes/alternate.ts alternate.take.json
+pnpm run motion:take open src/takes/alternate.ts alternate.take.json
+```
+
+Save time is in edited-sequence seconds. The artifact carries the exact source-shot second, zero-based edit entry and seam side. Give an explicit entry after the seconds during a transition overlap. At a hard cut the default `after` selects the incoming occurrence. Use `before` after the outgoing entry number to save its exact endpoint. The Human owner uses its normal exact-time evaluation at that source instant.
+
+Open verifies source bytes, data dependencies, provider versions, seeds and placement before returning the saved instant's poses. [The Node API](src/executable/motionTake/openMotionTake.ts) also returns a prepared performance for repeated exact source-time reads. Keep both the prepared replay and the film's editorial mapping for the duration of a preview or render. Start a fresh process after changing source modules or installed packages. Register any runtime-loaded code or data the static import graph cannot discover as project-relative dependencies.
+
+For an alternate, register a separate take and a `branch` with the saved original's artifact and trusted source module, a count of leading outer sequence groups to retain and the new suffix composition. The save point can lie within a group. The supported join is the start of a replaceable later group. The owner preserves the active group through that join and checks the shared prefix. The original source and artifact remain available to reopen both alternatives. Edit placement and event ownership must agree through the join.
+
+To draw an admitted take in the browser, use a trusted project subject module that admits the artifact props with `admitMotionTake` and calls [the replay adapter](src/executable/motionTake/replayMotionTake.ts) with its explicitly imported source recipe and, for a branch, the original recipe. Use the returned `performanceAt(sourceSeconds, entry)` in the draw scene's seek, with the film's normal mapping from edited to source time. Passing the entry keeps occurrences before the save's selected entry on the original take. Run `motion:take open` to verify current files, then capture or render the same verified artifact and source in a separate output directory for each alternative.
+
+```sh
+pnpm exec automovie capture --module src/takeSubjects.ts --props rehearsal.take.json --subject rehearsal --from 0.5 --to 0.75 --out media/capture/rehearsal
+```
+
+Version 1 reconstructs authored Human performance, including its supported prop, articulation, contact and event evaluation. It refuses opaque owner callbacks or missing inputs. Native solver snapshot restore and partial raster export resume use separate workflows.
+
 ## Commands
 
 | Command | Purpose |
@@ -64,6 +91,7 @@ Supply `IFilmProduction.performance` from the displayed state: `src/markFilmProd
 | `pnpm run dev` | The inspector page on `127.0.0.1:5173` |
 | `pnpm run build` | Bundle the inspector page |
 | `pnpm run physics <input-module.ts> <output.amphys> [maximum-bytes]` | Precompute an adopted physical performance outside the browser |
+| `pnpm run motion:take save`, `open` or `branch` | Persist, verify or branch a registered Human take |
 | `pnpm run render --subject <film>` | Export one film as a picture-only video |
 | `pnpm run review --url <address> --seconds <s>` | Record real-time playback of the running inspector page |
 | `pnpm run capture --subject <film> [request]` | Stills, sheets and a record of a film, with views, passes, marks and round comparison |

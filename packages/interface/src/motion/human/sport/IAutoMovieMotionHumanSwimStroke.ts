@@ -70,10 +70,10 @@ export namespace IAutoMovieMotionHumanSwimStroke {
   }
 
   /**
-   * Plan a keyed stroke. Input props of SwimStroke.plan. The body, the entry posture, the stroke, the plane's height, the cycles and the tempo factor.
+   * Plan a keyed stroke using the body's entry, water height, cycle count and tempo. The hip target may be held for an external translation model.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation body: Borrowed swimmer body measurements and constraints. water: Water-surface height on world +Y, metres.
-   * @evidence contracts/development/design.md#principled-representation body: Borrowed swimmer body measurements and constraints. water: Water-surface height on world +Y, metres.
+   * @evidence contracts/development/common.md#meaningful-documentation The named keys and tempo prescribe joint movement, while the water level and stationary choice set the moving or fixed hip target.
+   * @evidence contracts/development/design.md#principled-representation The stationary flag holds the original staged hip target without supplying an alternative arbitrary speed.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/SwimStroke.ts (SwimStroke.plan, props).
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanSwimStroke.Name identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
@@ -88,6 +88,8 @@ export namespace IAutoMovieMotionHumanSwimStroke {
     water: number;
     /** Number of stroke cycles in the sequence. */
     cycles: number;
+    /** Hold the hip target horizontally while using the same keyed motion. */
+    stationary?: boolean;
     /** Dimensionless multiplier applied to every authored stroke-key duration. */
     tempo: number;
   };

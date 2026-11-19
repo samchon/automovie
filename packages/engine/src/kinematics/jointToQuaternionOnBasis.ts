@@ -103,7 +103,7 @@ const readAngle: (
  *
  * A solver that composes hundreds of candidate joints through one basis
  * normalizes it once and calls this for each, as
- * `decomposeJointRotationOnBasis` serves the inverse. The axes, the two
+ * `decomposeJointRotationOnBasis` serves the inverse. The axes, the declared
  * composition orders, the `null` rest and the frame map are
  * `jointToQuaternion`'s, which documents them and is this function behind
  * one normalization.
@@ -152,6 +152,11 @@ export function jointToQuaternionOnBasis(
           readAngle(joint, "twist", frame?.twist),
         )
       : readers.twist(readAngle(joint, "twist", frame?.twist));
+  if (basis.rotationOrder === "flexion-abduction-twist")
+    return Quaternion.multiply(
+      qFlexion,
+      Quaternion.multiply(qAbduction, qTwist),
+    );
   return basis.twistPlacement === "distal"
     ? Quaternion.multiply(qAbduction, Quaternion.multiply(qFlexion, qTwist))
     : Quaternion.multiply(qTwist, Quaternion.multiply(qAbduction, qFlexion));
@@ -343,14 +348,28 @@ function scalarComposition(
       actualFrame?.twist,
       joint.twist,
     );
-    const distal: boolean = basis.twistPlacement === "distal";
+    const flexionFirst: boolean =
+      basis.rotationOrder === "flexion-abduction-twist";
+    const distal: boolean = !flexionFirst && basis.twistPlacement === "distal";
+    const innerLeftAxis: AutoMovieClinicalAxis = distal
+      ? "flexion"
+      : "abduction";
+    const innerRightAxis: AutoMovieClinicalAxis =
+      distal || flexionFirst ? "twist" : "flexion";
     const left: IAutoMovieQuaternion = distal ? qFlexion : qAbduction;
-    const right: IAutoMovieQuaternion = distal ? qTwist : qFlexion;
+    const right: IAutoMovieQuaternion =
+      distal || flexionFirst ? qTwist : qFlexion;
     if (innerLeft !== left || innerRight !== right) {
       const shared: IAutoMovieQuaternion | undefined =
         fixedOperation === undefined
           ? undefined
-          : fixedInnerProduct(fixedOperation, distal, left, right);
+          : fixedInnerProduct(
+              fixedOperation,
+              innerLeftAxis,
+              innerRightAxis,
+              left,
+              right,
+            );
       if (shared !== undefined) inner = shared;
       else {
         if (dynamicInner === undefined)
@@ -361,8 +380,8 @@ function scalarComposition(
               operation?.innerWriter ??
               (normalizeJointAxes.owns(basis)
                 ? multiplyQuaternionInto.prepareCardinal(
-                    distal ? basis.flexion : basis.abduction,
-                    distal ? basis.twist : basis.flexion,
+                    basis[innerLeftAxis],
+                    basis[innerRightAxis],
                   )
                 : multiplyQuaternionInto);
             if (operation !== undefined && operation.innerWriter === undefined)
@@ -375,12 +394,20 @@ function scalarComposition(
       innerLeft = left;
       innerRight = right;
     }
-    const outer: IAutoMovieQuaternion = distal ? qAbduction : qTwist;
+    const outer: IAutoMovieQuaternion = flexionFirst
+      ? qFlexion
+      : distal
+        ? qAbduction
+        : qTwist;
     const product: IAutoMovieQuaternion = inner!;
 
     // Identity's signed-zero terms leave nonzero finite components unchanged.
     // Zero components retain those exact terms/order to keep their zero sign.
-    const outerAxis: AutoMovieClinicalAxis = distal ? "abduction" : "twist";
+    const outerAxis: AutoMovieClinicalAxis = flexionFirst
+      ? "flexion"
+      : distal
+        ? "abduction"
+        : "twist";
     const identities: number = operation?.identityMasks?.[outerAxis] ?? 0;
     const constants: IFixedReadings | undefined =
       identities === 0 ? undefined : operation?.fixedFactors?.[outerAxis];
@@ -424,9 +451,7 @@ function scalarComposition(
       readOuter =
         operation?.outerReader ??
         (normalizeJointAxes.owns(basis)
-          ? multiplyQuaternionInto.prepareCardinalLeft(
-              distal ? basis.abduction : basis.twist,
-            )
+          ? multiplyQuaternionInto.prepareCardinalLeft(basis[outerAxis])
           : multiplyQuaternionInto.read);
       if (operation !== undefined && operation.outerReader === undefined)
         operation.outerReader = readOuter;
@@ -438,14 +463,15 @@ function scalarComposition(
 /** Share the original product only when both actual factors are rig constants. */
 function fixedInnerProduct(
   operation: IOperationState,
-  distal: boolean,
+  leftAxis: AutoMovieClinicalAxis,
+  rightAxis: AutoMovieClinicalAxis,
   left: IAutoMovieQuaternion,
   right: IAutoMovieQuaternion,
 ): IAutoMovieQuaternion | undefined {
   const leftFactors: IFixedReadings | undefined =
-    operation.fixedFactors?.[distal ? "flexion" : "abduction"];
+    operation.fixedFactors?.[leftAxis];
   const rightFactors: IFixedReadings | undefined =
-    operation.fixedFactors?.[distal ? "twist" : "flexion"];
+    operation.fixedFactors?.[rightAxis];
   const leftIndex: number =
     leftFactors === undefined
       ? -1

@@ -187,9 +187,11 @@ export namespace HumanJacobian {
         const parent: IAutoMovieQuaternion =
           def.parent === null ? heading : bones.get(def.parent)!.worldRotation;
         const order: readonly Name[] =
-          basis.twistPlacement === "distal"
-            ? ["abduction", "flexion", "twist"]
-            : ["twist", "abduction", "flexion"];
+          basis.rotationOrder === "flexion-abduction-twist"
+            ? ["flexion", "abduction", "twist"]
+            : basis.twistPlacement === "distal"
+              ? ["abduction", "flexion", "twist"]
+              : ["twist", "abduction", "flexion"];
         reading = {
           joint,
           basis,
@@ -338,7 +340,7 @@ export namespace HumanJacobian {
     /** Canonical clinical affine map, absent when identity applies. */
     frame: IAutoMovieRestFrame | undefined;
 
-    /** Intrinsic composition order selected by twist placement. */
+    /** Intrinsic composition order from the explicit chart or legacy twist placement. */
     order: readonly Name[];
 
     /** Parent/rest base followed by only the earlier factors actually requested. */

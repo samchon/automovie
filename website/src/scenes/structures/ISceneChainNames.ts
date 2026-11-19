@@ -1,8 +1,13 @@
+import type { AutoMovieHumanSex } from "@automovie/interface";
+
 /**
  * The exported names the code a scene's page shows refers to, read from
  * the installed packages when the site is built.
  */
 export interface ISceneChainNames {
+  /** The reference anatomy category each site body declares, for body-dependent action parameters. */
+  bodySex: Record<string, AutoMovieHumanSex | undefined>;
+
   /** Each lexicon row and exported law by name, as the expression that names its law, such as `HumanHabit.ashTap`; a vocabulary action is not listed. */
   rows: Record<string, string>;
 

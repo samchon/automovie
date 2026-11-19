@@ -216,6 +216,26 @@ const CASES: readonly ICase[] = [
     contexts: 1,
   },
   {
+    name: "the transit bus opens with its seeded dimensions",
+    path: "objects/?subject=createTransitBus&seed=7",
+    shows: [
+      '.am-viewport[aria-busy="false"] canvas',
+      'aside[aria-label="Details"] td:text-is("aisleWidth")',
+    ],
+    lacks: [".am-viewport-error"],
+    contexts: 1,
+  },
+  {
+    name: "a derived archetype dimension shows as a single value",
+    path: "objects/?subject=createStageWeaponProp&variant=mace",
+    shows: [
+      '.am-viewport[aria-busy="false"] canvas',
+      'aside[aria-label="Details"] tr:has(td:text-is("height")) .am-band-text:text-is("Single value")',
+    ],
+    lacks: [".am-viewport-error"],
+    contexts: 1,
+  },
+  {
     name: "the old gallery address arrives at the opened door",
     path: "gallery/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
     arrives: "objects/?subject=createDoor&variant=hinged&seed=7&move.hinge=70",
@@ -242,6 +262,31 @@ const CASES: readonly ICase[] = [
       'a[href^="/automovie/playground/#c="]',
     ],
     lacks: [],
+  },
+  {
+    name: "the motion catalogue opens a walking head tilt in the playground",
+    path: "motions/",
+    shows: ['input[placeholder="Search motions and families"]'],
+    lacks: [],
+    check: async (page: Page, problems: string[]): Promise<void> => {
+      await page
+        .getByRole("searchbox", { name: "Search motions and families" })
+        .fill("headTilt");
+      await page.getByRole("link", { name: "headTilt", exact: true }).click();
+      await page
+        .getByRole("link", { name: "Try it in Rehearsing reactions" })
+        .click();
+      await Promise.all([
+        page.waitForSelector("#am-pane-result .am-instrument canvas", {
+          timeout: COMPUTE_LIMIT,
+        }),
+        page.waitForSelector('.am-span-overlay[title^="headTilt "]', {
+          timeout: COMPUTE_LIMIT,
+        }),
+      ]);
+      if ((await page.locator("#am-pane-result .am-alert").count()) !== 0)
+        problems.push("the head tilt rehearsal did not perform");
+    },
   },
   {
     name: "the docs open",
@@ -335,7 +380,12 @@ const main = async (): Promise<void> => {
       console.log(
         `  shown in ${((Date.now() - opened) / 1000).toFixed(1)} s after it was opened`,
       );
-      if (each.check !== undefined) await each.check(page, problems);
+      if (each.check !== undefined)
+        try {
+          await each.check(page, problems);
+        } catch (error) {
+          problems.push(error instanceof Error ? error.message : String(error));
+        }
       for (const selector of each.lacks)
         if ((await page.locator(selector).count()) !== 0)
           problems.push(

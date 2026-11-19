@@ -1,4 +1,4 @@
-import { Vector3, carriedRate, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
@@ -13,7 +13,6 @@ import type {
   IAutoMovieMotionHumanHandspring,
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -25,15 +24,14 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 import { handspringKeys } from "./handspringKeys";
+import { handspringLanding } from "./handspringLanding";
 import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 import { salto } from "./salto";
 
@@ -147,6 +145,7 @@ export namespace handspring {
    *
    * @param context The action's context.
    * @param surface What the hands land on.
+   * @param landingSurface Where the feet land. Omitted uses the entry's ground height.
    * @returns The plan.
    * @throws {HumanRefusal} When the hands do not come down before the release, come down off the surface, or no rate up to the bound lands the body.
    *
@@ -161,26 +160,35 @@ export namespace handspring {
   export function over(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandspring.IParams>,
     surface: IAutoMovieMotionHumanHandspring.ISurface,
+    landingSurface?: IAutoMovieMotionHumanHandspring.ISurface,
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(body);
+    const model: IAutoMovieResolveCenterOfMass.IModel =
+      GymnasticsFlight.model(body);
     const left: boolean = context.params.lead !== "right";
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { seconds: 1 } })
       .posture(0);
     const yaw: number = standing.yaw;
-    const ease: (x: number) => number = (x: number): number => minimumJerk.share(x);
+    const ease: (x: number) => number = (x: number): number =>
+      minimumJerk.share(x);
     const reached: IAutoMovieMotionHumanExerciseKey.IKey = left
       ? lunged(body)
       : ExerciseKey.mirror(lunged(body));
     const line: IAutoMovieMotionHumanExerciseKey.IKey = arched(body);
-    const stood: IAutoMovieMotionHumanExerciseKey.IKey = ExerciseKey.standing(body);
-    const entering: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(stood, reached);
-    const arching: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(reached, line);
-    const rising: ReturnType<typeof ExerciseKey.prepareBlend> = ExerciseKey.prepareBlend(line, stood);
+    const stood: IAutoMovieMotionHumanExerciseKey.IKey =
+      ExerciseKey.standing(body);
+    const entering: ReturnType<typeof ExerciseKey.prepareBlend> =
+      ExerciseKey.prepareBlend(stood, reached);
+    const arching: ReturnType<typeof ExerciseKey.prepareBlend> =
+      ExerciseKey.prepareBlend(reached, line);
+    const rising: ReturnType<typeof ExerciseKey.prepareBlend> =
+      ExerciseKey.prepareBlend(line, stood);
 
     // The shape at an angle of forward tip.
-    const shaped: (angle: number) => IAutoMovieMotionHumanPosture = (angle: number): IAutoMovieMotionHumanPosture => ({
+    const shaped: (angle: number) => IAutoMovieMotionHumanPosture = (
+      angle: number,
+    ): IAutoMovieMotionHumanPosture => ({
       ...ExerciseKey.posed(
         angle <= REACH
           ? entering(ease(angle / REACH))
@@ -191,14 +199,23 @@ export namespace handspring {
     });
 
     // The spokes: both feet, the leading foot, the other, both hands.
-    const footBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftFoot", "rightFoot"]);
+    const footBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+      "leftFoot",
+      "rightFoot",
+    ]);
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(body, context.entry.pose, undefined, footBones);
     const ankle: number =
       (entered.get("leftFoot")!.worldPosition.y +
         entered.get("rightFoot")!.worldPosition.y) /
       2;
-    const ground: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };
+    const ground: IAutoMovieMotionHumanContactWindow.Support = {
+      kind: "ground",
+    };
+    const riseOfMat: number =
+      landingSurface === undefined
+        ? 0
+        : landingSurface.height - (ankle - body.measure.ankleHeight);
     const spokes: IAutoMovieMotionHumanGymnasticsWheel.ISpoke[] = [
       { bones: ["leftFoot", "rightFoot"], height: ankle, support: ground },
       {
@@ -218,23 +235,28 @@ export namespace handspring {
       },
     ];
     const hands: number = 3;
-    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel = GymnasticsWheel.roll({
-      body,
-      shaped,
-      spokes,
-      start: standing.root,
-      until: RELEASE,
-      step: STEP,
-    });
-    const placedAt: (angle: number) => IAutoMovieMotionHumanPosture = (angle: number): IAutoMovieMotionHumanPosture => ({
+    const wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel =
+      GymnasticsWheel.roll({
+        body,
+        shaped,
+        spokes,
+        start: standing.root,
+        until: RELEASE,
+        step: STEP,
+      });
+    const placedAt: (angle: number) => IAutoMovieMotionHumanPosture = (
+      angle: number,
+    ): IAutoMovieMotionHumanPosture => ({
       ...shaped(angle),
       root: wheel.root(angle),
     });
 
     // The hands must bear by the release, on the surface.
-    const down: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined = wheel.rows.find(
-      (row: IAutoMovieMotionHumanGymnasticsWheel.IRow): boolean => row.bears === hands,
-    );
+    const down: IAutoMovieMotionHumanGymnasticsWheel.IRow | undefined =
+      wheel.rows.find(
+        (row: IAutoMovieMotionHumanGymnasticsWheel.IRow): boolean =>
+          row.bears === hands,
+      );
     if (down === undefined || wheel.rows.at(-1)!.bears !== hands)
       throw new HumanRefusal({
         kind: "reach",
@@ -244,7 +266,12 @@ export namespace handspring {
         fix: "lower the surface, or place the hands' support where the lunge reaches",
       });
     const placing: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      StrikingBody.trunk(body, placedAt(down.angle), undefined, new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]));
+      StrikingBody.trunk(
+        body,
+        placedAt(down.angle),
+        undefined,
+        new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]),
+      );
     surface.within(
       Vector3.lerp(
         placing.get("leftHand")!.worldPosition,
@@ -254,12 +281,33 @@ export namespace handspring {
     );
 
     // The release: the centre and its change with the angle, per degree.
-    const launch: { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } = ((): { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } => {
-      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
-      const centre: IAutoMovieVector3 = GymnasticsFlight.centre(body, model, placedAt(RELEASE), read, projection);
-      return { centre, slope: Vector3.subtract(centre, GymnasticsFlight.centre(body, model, placedAt(RELEASE - 1), read, projection)) };
-    })();
+    const launch: { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } =
+      ((): { centre: IAutoMovieVector3; slope: IAutoMovieVector3 } => {
+        const read: ReturnType<typeof prepareHumanPoseResolution> =
+          prepareHumanPoseResolution();
+        const projection: ReturnType<typeof prepareHumanPostureProjection> =
+          prepareHumanPostureProjection(body);
+        const centre: IAutoMovieVector3 = GymnasticsFlight.centre(
+          body,
+          model,
+          placedAt(RELEASE),
+          read,
+          projection,
+        );
+        return {
+          centre,
+          slope: Vector3.subtract(
+            centre,
+            GymnasticsFlight.centre(
+              body,
+              model,
+              placedAt(RELEASE - 1),
+              read,
+              projection,
+            ),
+          ),
+        };
+      })();
     const cr: IAutoMovieVector3 = launch.centre;
     const slope: IAutoMovieVector3 = launch.slope;
 
@@ -275,7 +323,7 @@ export namespace handspring {
     ]);
     const standingOn: IAutoMovieMotionHumanPosture = {
       ...landing,
-      root: { x: 0, y: ankle - feet.y, z: 0 },
+      root: { x: 0, y: ankle + riseOfMat - feet.y, z: 0 },
     };
     const height: number = GymnasticsFlight.centre(body, model, standingOn).y;
 
@@ -342,85 +390,40 @@ export namespace handspring {
     // The flight posture at seconds since the release.
     const placeFlight: ReturnType<typeof prepareGymnasticsPlacement> =
       prepareGymnasticsPlacement(body, model, ExerciseKey.posed(line, yaw));
-    const flying: (t: number) => IAutoMovieMotionHumanPosture = (t: number): IAutoMovieMotionHumanPosture =>
+    const flying: (t: number) => IAutoMovieMotionHumanPosture = (
+      t: number,
+    ): IAutoMovieMotionHumanPosture =>
       placeFlight(
         { yaw: yaw + line.yaw, pitch: RELEASE + rate * t, roll: line.roll },
         GymnasticsFlight.at(cr, velocity, t),
       );
 
-    // The landing: feet where they came down, the root carrying the
-    // touchdown's velocity out to the standing place over them.
-    const touched: IAutoMovieMotionHumanPosture = flying(flight);
-    const shown: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      StrikingBody.trunk(body, touched, undefined, footBones);
-    const landed: Record<"left" | "right", IAutoMovieVector3> = {
-      left: shown.get("leftFoot")!.worldPosition,
-      right: shown.get("rightFoot")!.worldPosition,
-    };
-    const rootDown: IAutoMovieVector3 = touched.root;
-    const rootSpeed: IAutoMovieVector3 = Vector3.scale(
-      Vector3.subtract(rootDown, flying(flight - 1e-3).root),
-      1e3,
-    );
-    const stoodFeet: IAutoMovieVector3 = Vector3.lerp(
-      entered.get("leftFoot")!.worldPosition,
-      entered.get("rightFoot")!.worldPosition,
-      0.5,
-    );
-    const rootUp: IAutoMovieVector3 = {
-      ...Vector3.add(
-        Vector3.lerp(landed.left, landed.right, 0.5),
-        Vector3.subtract(standing.root, stoodFeet),
-      ),
-      y: standing.root.y,
-    };
-    const forward: IAutoMovieVector3 = {
-      x: Math.sin((yaw * Math.PI) / 180),
-      y: 0,
-      z: Math.cos((yaw * Math.PI) / 180),
-    };
-    const footRotations: Record<"left" | "right", IAutoMovieQuaternion> = {
-      left: HumanFoot.rotation(yaw + stand.TOE_OUT, 0),
-      right: HumanFoot.rotation(yaw - stand.TOE_OUT, 0),
-    };
-    const bends: Record<"left" | "right", IAutoMovieVector3> = {
-      left: Vector3.add(landed.left, { x: forward.x, y: body.measure.hipHeight / 2, z: forward.z }),
-      right: Vector3.add(landed.right, { x: forward.x, y: body.measure.hipHeight / 2, z: forward.z }),
-    };
-    const span: number = jump.ABSORB + jump.RISE;
-    const after: (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieMotionHumanPosture = (t: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanPosture => {
-      const u: number = ease(t / span);
-      const root: IAutoMovieVector3 = Vector3.add(
-        Vector3.lerp(rootDown, rootUp, u),
-        Vector3.scale(rootSpeed, carriedRate(span, t)),
-      );
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-      for (const side of ["left", "right"] as const)
-        limbs[`${side}Leg`] = {
-          point: landed[side],
-          rotation: { ...footRotations[side] },
-          bend: { ...bends[side] },
-          planted: true,
-        };
-      return resolveHumanPosture.lower(body, {
-        ...ExerciseKey.posed(rising(u), yaw),
-        // The same tip as the flight's, written below a whole turn so the
-        // landing ends at 0 and the next action does not unwind a turn.
-        pitch: (LAND - 360) * (1 - u),
-        root,
-        limbs,
-      }, undefined, resolution);
-    };
+    const after: ReturnType<typeof handspringLanding> = handspringLanding({
+      body,
+      standing,
+      entered,
+      footBones,
+      landingSurface,
+      riseOfMat,
+      yaw,
+      flying,
+      flight,
+      rising,
+      ease,
+      land: LAND,
+    });
 
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...GymnasticsWheel.contacts(wheel, spokes, share),
       ...(["leftFoot", "rightFoot"] as const).map(
-        (part: "leftFoot" | "rightFoot"): IAutoMovieMotionHumanContactWindow => ({
+        (
+          part: "leftFoot" | "rightFoot",
+        ): IAutoMovieMotionHumanContactWindow => ({
           part,
           kind: "plant",
           from: touchdown / duration,
           to: 1,
-          support: ground,
+          support: landingSurface?.support ?? ground,
         }),
       ),
     ];
@@ -436,7 +439,11 @@ export namespace handspring {
       events,
       contacts,
       contact: touchdown,
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]): IAutoMovieMotionHumanPosture => {
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         if (t < support) return placedAt(angleAt(t));
         if (t < touchdown) return flying(t - support);
@@ -453,8 +460,12 @@ export namespace handspring {
           to: duration,
           sample: (
             seconds: number,
-            _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-            resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+            _channels?: Parameters<
+              IAutoMovieMotionHumanActionPlan["posture"]
+            >[1],
+            resolution?: Parameters<
+              IAutoMovieMotionHumanActionPlan["posture"]
+            >[2],
           ): IAutoMovieMotionHumanPlayback.ISample => ({
             posture: after(seconds - touchdown, resolution),
           }),

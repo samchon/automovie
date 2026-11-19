@@ -78,6 +78,18 @@ export namespace walkSteps {
     yaw: number;
   }
 
+  /** The chosen opening foot and any setup turn before forward travel. */
+  export interface IOpening {
+    /** The foot that takes the first step. */
+    lead: AutoMovieHumanSide;
+
+    /** Number of opening steps taken before forward travel. */
+    turning: number;
+
+    /** Time spent in the opening turn, on the stepping clock. */
+    seconds: number;
+  }
+
   /**
    * The stream a take's tempo is drawn from: one per performer and per
    * occurrence of the action in their chain, keyed as a walk whatever the
@@ -112,6 +124,7 @@ export namespace walkSteps {
    * Plan the footsteps of a walk.
    *
    * @param input The body, its entry state, the destination, the speed, the longest step and the period law.
+   * @param opening The fixed opening of a timed course when refitting its arrival.
    * @returns The plan.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The namespace defines measured footprint geometry, timing and turning; input members name their body/path/time units and the returned plan exposes root/foot/phase readers.
@@ -122,7 +135,10 @@ export namespace walkSteps {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work One take fixes its measured rest body, private floor path and step timing; fixed scalar geometry is shared without sharing a later queried posture or resampling a numerical result.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Construction-local width/heading work releases on return or throw; the plan owns its step/path/schedule/root geometry, linear in footfalls and corners, without an arbitrary-time pose history or external handle.
    */
-  export function plan(input: IAutoMovieMotionHumanWalkSteps.IInput): IAutoMovieMotionHumanWalkSteps.IPlan {
+  export function plan(
+    input: IAutoMovieMotionHumanWalkSteps.IInput,
+    opening?: IOpening,
+  ): IAutoMovieMotionHumanWalkSteps.IPlan & { opening: IOpening } {
     const body: IAutoMovieMotionHumanBody = input.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
@@ -229,9 +245,15 @@ export namespace walkSteps {
     const frame: IAutoMovieMotionHumanFrame = { origin: S, yaw: heading };
     const along: (side: "left" | "right") => number = (side: "left" | "right"): number =>
       HumanFrame.local(frame, start[side].ankle).z;
-    const lead: AutoMovieHumanSide = inPlace
-      ? ending >= yaw0 ? "left" : "right"
-      : along("left") < along("right") - 1e-6 ? "left" : "right";
+    const lead: AutoMovieHumanSide =
+      opening?.lead ??
+      (inPlace
+        ? ending >= yaw0
+          ? "left"
+          : "right"
+        : along("left") < along("right") - 1e-6
+          ? "left"
+          : "right");
     const half: number = 0.05 * l;
     const restWidth: Record<"left" | "right", number> = {
       left: Math.abs(body.rest.get("leftFoot")!.x), right: Math.abs(body.rest.get("rightFoot")!.x),
@@ -249,9 +271,10 @@ export namespace walkSteps {
       right: HumanFoot.heading(start.right.rotation) + stand.TOE_OUT,
     };
     const turning: number =
-      facing === undefined
+      opening?.turning ??
+      (facing === undefined
         ? walkHeading.opening(heading, lead, facings, yaw0, walkReach.TWIST)
-        : 0;
+        : 0);
     // In a step turn the turning foot moves first, then the other replaces
     // it at the new heading (Hase and Stein 1999). Adjacent flat footprints
     // differ by at most one hip's usable twist after both feet's toe-out,
@@ -447,6 +470,7 @@ export namespace walkSteps {
     });
     return {
       duration,
+      opening: { lead, turning, seconds: lag },
       events,
       stances,
       root,

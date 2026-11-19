@@ -31,17 +31,16 @@ import type {
  * start (`integrateMotionTrajectory`), so it decays as quadratic drag does,
  * `v0 / (1 + k v0 t)` with `k = Σ ½ ρ C_d A / m`.
  *
- * First pass: the strokes do not yet drive the root; a swimmer's speed from
- * its strokes and its roll from its arms are the next pass, on the same
- * forces. The float holds the posture's orientation and moves the root only
- * vertically. These calculations are exported and unit-tested; the swim law
- * and the performance do not yet consume them.
+ * The registered swimImmersed law uses the same segment model for a held
+ * supine shape and for an opt-in breaststroke. The stroke uses each segment's
+ * own motion relative to still water and constrains travel to the heading at
+ * its initial buoyant trim. Free heave and rotation remain outside this model.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three readings, the laws behind them and the first pass's limits.
  * @evidence contracts/development/implementation.md#principled-implementation Archimedes' principle summed over the segments for the float, solved by bisection on a monotone function; Newton's second law under the summed quadratic drag for the glide, integrated by the engine's fixed-step integrator.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The segments' volumes once per body, one sum of forces, one bisection and one integration.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One segment-force sum for each posed evaluation. The stroke samples centre paths and volumes before integration.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A body denser than the water is reported as sinking, never floated by a clamp.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation; the bisection halves its bracket to a micrometre, or to adjacent heights where the surface lies so high that they are spaced wider, so it ends at any finite surface.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Linear in segments per evaluation. Float bisects to a micrometre or adjacent representable heights, whichever is coarser. The stroke samples one bounded phase grid.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pure functions of their inputs.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned trajectory.
  */
@@ -75,10 +74,7 @@ export namespace HumanWater {
         const force: IAutoMovieResolveHydrodynamicForce.IForce =
           resolveHydrodynamicForce({
             volume: v,
-            centre: Vector3.add(
-              bone.worldPosition,
-              Quaternion.rotateVector(bone.worldRotation, s.point),
-            ),
+            centre: centre(bone, s.point),
             velocity,
             surface: water.surface,
             density: water.density,
@@ -177,6 +173,138 @@ export namespace HumanWater {
   }
 
   /**
+   * Integrate the longitudinal travel of one keyed stroke from rest.
+   *
+   * Positions on a uniformly sampled stroke phase are differentiated at the
+   * knots. Interpolate those derivatives and the submerged drag coefficients
+   * during integration. With quadratic drag in still water, changing the
+   * duration scales all velocities by its inverse and accelerations by its
+   * inverse square. The trajectory therefore stores metres and metres per
+   * unit phase. The model uses the body mass for the translating hip target
+   * and omits longitudinal momentum redistribution from the posed limbs.
+   *
+   * @param body The swimming body.
+   * @param bonesAt The resolved stroke skeleton on [0,1], with the hip target fixed and prescribed movement at rest at both endpoints.
+   * @param direction World horizontal heading, unit.
+   * @param water The horizontal surface and medium density.
+   * @returns Longitudinal trajectory with state [distance, phase velocity].
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate system, initial conditions, sample inputs, duration scaling and returned state.
+   * @evidence contracts/development/implementation.md#principled-implementation Samples collider-equivalent centres and unit-flow drag through the existing segment model, then integrates the heading projection of the sum of quadratic drag under common translation plus each segment's local velocity.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepares uniformly timed centres and local derivatives before running one scalar trajectory.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stroke's keyed poses supply the local movement and the medium supplies the force. Only heading translation is free; no preset thrust or cruise speed is applied.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Uses one skeleton per phase sample and one volume per segment. Integration stages interpolate the cached samples without recalculating poses or volumes.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The integration uses the same centre transform, drag primitive and trajectory integrator as the passive operations.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Sampled centres and coefficients are local to planning. The returned trajectory retains only its own knots.
+   */
+  export function stroke(
+    body: IAutoMovieMotionHumanBody,
+    bonesAt: (
+      phase: number,
+    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    direction: IAutoMovieVector3,
+    water: IAutoMovieMotionHumanWater,
+  ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
+    const intervals: number = 120;
+    const volumes: readonly number[] = body.profile.segments.map(
+      resolveHydrodynamicForce.volume,
+    );
+    const segments: readonly IAutoMovieResolveCenterOfMass.ISegment[] =
+      body.massModel.segments;
+    const centres: (readonly IAutoMovieVector3[])[] = [];
+    const coefficients: (readonly number[])[] = [];
+    for (let index: number = 0; index <= intervals; ++index) {
+      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        bonesAt(index / intervals);
+      const positions: readonly IAutoMovieVector3[] = segments.map(
+        (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 =>
+          centre(bones.get(segment.bone)!, segment.point),
+      );
+      centres.push(positions);
+      coefficients.push(
+        positions.map((position: IAutoMovieVector3, i: number): number => {
+          const volume: number = volumes[i]!;
+          if (!(volume > 0)) return 0;
+          const force: IAutoMovieResolveHydrodynamicForce.IForce =
+            resolveHydrodynamicForce({
+              volume,
+              centre: position,
+              velocity: direction,
+              surface: water.surface,
+              density: water.density,
+            });
+          return -Vector3.dot(force.drag, direction);
+        }),
+      );
+    }
+
+    // Minimum-jerk keys start and finish this cycle at rest in the held frame.
+    const local: (readonly IAutoMovieVector3[])[] = centres.map(
+      (
+        positions: readonly IAutoMovieVector3[],
+        index: number,
+      ): readonly IAutoMovieVector3[] =>
+        positions.map(
+          (_position: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
+            index === 0 || index === intervals
+              ? { x: 0, y: 0, z: 0 }
+              : Vector3.scale(
+                  Vector3.subtract(
+                    centres[index + 1]![i]!,
+                    centres[index - 1]![i]!,
+                  ),
+                  intervals / 2,
+                ),
+        ),
+    );
+    return integrateMotionTrajectory({
+      x0: [0, 0],
+      t0: 0,
+      t1: 1,
+      h: 1 / intervals,
+      f: (
+        phase: number,
+        x: readonly number[],
+      ): IAutoMovieIntegrateMotionTrajectory.IRate => {
+        const speed: number = x[1]!;
+        const travel: IAutoMovieVector3 = Vector3.scale(direction, speed);
+        const position: number = Math.min(1, Math.max(0, phase)) * intervals;
+        const index: number = Math.min(intervals - 1, Math.floor(position));
+        const share: number = position - index;
+        let drag: number = 0;
+        for (let i: number = 0; i < segments.length; ++i) {
+          const a: number = coefficients[index]![i]!;
+          const b: number = coefficients[index + 1]![i]!;
+          const coefficient: number = a + (b - a) * share;
+          const relative: IAutoMovieVector3 = Vector3.add(
+            travel,
+            Vector3.add(
+              Vector3.scale(local[index]![i]!, 1 - share),
+              Vector3.scale(local[index + 1]![i]!, share),
+            ),
+          );
+          drag -=
+            coefficient *
+            Vector3.length(relative) *
+            Vector3.dot(relative, direction);
+        }
+        return { dx: [speed, drag / body.profile.mass] };
+      },
+    });
+  }
+
+  /** Place a segment's bone-local centre of mass in the world. */
+  function centre(
+    bone: IAutoMovieResolvedBone,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return Vector3.add(
+      bone.worldPosition,
+      Quaternion.rotateVector(bone.worldRotation, point),
+    );
+  }
+
+  /**
    * Bones moved vertically.
    *
    * @param bones The bones.
@@ -196,4 +324,3 @@ export namespace HumanWater {
     return out;
   }
 }
-

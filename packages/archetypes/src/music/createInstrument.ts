@@ -13,8 +13,8 @@ import { StringedConstruction } from "./StringedConstruction";
 /**
  * A musical instrument: an upright piano, a steel-string guitar, a violin, a side drum or a bugle, with the keys, frets and strings a hand plays numbered as contacts.
  *
- * - An upright piano stands with its back at the origin's `Z` and its keyboard toward `+Z`, the bass at `-X`. `key1` to `key88` are its keys from the bottom A, each a `button` pressed down by its dip and moving its own key; `keybed` the keyboard's top, a surface; `lid` the fallboard's hinge, the fallboard standing open at rest and laid over the keys by its travel. A production seats a player on a `createSeat` bench.
- * - A guitar and a violin lie on their backs with the neck toward `+X`, the body's neck end at the origin's `X`. `string1` to `string6` (four on a violin) run from the nut to the saddle or bridge, `string1` the highest on the `-Z` edge; a guitar's `fret1` to `fret20` are the places a fingertip stops the strings behind each fret, each a bar across the fingerboard whose sites run across the strings; `neck` is the neck the fretting hand grips; a guitar's `body` is where the strumming hand meets the strings. A violin's chinrest and its bow are not built: no source read places the one or sizes the other's hold.
+ * - An upright piano stands with its back at the origin's `Z` and its keyboard toward `+Z`, the bass at `-X`. `key1` to `key88` are its keys from the bottom A and each is a `button` pressed down by its dip. `keybed` is the keyboard's top. `lid` hinges the fallboard from upright at rest to flat over the keys. The right foot meets the `damperPedal` plate on the moving `damperPedalHinge`. A production seats a player on a `createSeat` bench.
+ * - A guitar and a violin lie on their backs with the neck toward `+X`, the body's neck end at the origin's `X`. `string1` to `string6` (four on a violin) run from the nut to the saddle or bridge, `string1` the highest on the `-Z` edge; a guitar's `fret1` to `fret20` are the places a fingertip stops the strings behind each fret, each a bar across the fingerboard whose sites run across the strings; `neck` is the neck the fretting hand grips; a guitar's `body` is where the strumming hand meets the strings. A violin's chinrest is absent. The bow is a separate model from createViolinBow.
  * - A side drum stands on its bottom head: `head` the batter head the sticks strike, `sling` the hook a sling or a carrier holds it by.
  * - A bugle lies on its side, its bell toward `+X`: `grip` where a hand holds it, `mouthpiece` the socket the lips meet.
  *
@@ -97,7 +97,7 @@ export namespace createInstrument {
   /**
    * The affordance ids, by kind:
    *
-   * - uprightPiano: `key1` to `key88` (buttons), `keybed` (surface), `lid` (hinge);
+   * - uprightPiano: `key1` to `key88` (buttons), `keybed` (surface), `lid` and `damperPedalHinge` (hinges), `damperPedal` (pedal);
    * - guitar: `fret1` to `fret20` and `string1` to `string6` (bars), `neck` (bar), `body` (surface);
    * - violin: `string1` to `string4` (bars), `neck` (bar);
    * - sideDrum: `head` (surface), `sling` (hook);
@@ -107,6 +107,8 @@ export namespace createInstrument {
     | `key${number}`
     | "keybed"
     | "lid"
+    | "damperPedal"
+    | "damperPedalHinge"
     | `fret${number}`
     | `string${number}`
     | "neck"

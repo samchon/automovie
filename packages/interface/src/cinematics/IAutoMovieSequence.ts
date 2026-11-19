@@ -8,10 +8,10 @@ import type { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
  *
  * The sequence stores no global timestamps. Each shot keeps its own local time
  * origin, and `sequenceTimeline` derives the output clock by accumulating each
- * entry's played span minus its incoming transition, so reordering or retiming
+ * entry's retained source duration divided by its playback rate minus its incoming transition, so reordering or retiming
  * a shot edits one entry and never a stored downstream time.
  *
- * `cutSequence` admits the edit plan's ids, references, finite positive spans and rate, trim containment and transition fit, and refuses a nonfinite accumulated runtime. `sequenceTimeline` expects that admission; it still refuses empty cuts, missing referenced shots, duplicate supplied shot ids and a first-entry transition.
+ * `cutSequence` admits the edit plan's ids, references, finite positive spans, frame rate and entry rates, trim containment and transition fit, and refuses a nonfinite accumulated runtime. `sequenceTimeline` expects that admission; it still refuses empty cuts, missing referenced shots, duplicate supplied shot ids a first-entry transition and a playback rate that cannot produce a representable output span.
  *
  * @evidence contracts/development/design.md#principled-representation Each entry adds its played span minus incoming overlap to the output clock. Random-access and forward playback share sample construction and the last-start-at-or-before tie rule; agreement requires an admitted timeline and nondecreasing queries for the stateful cursor.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The sequence is an id, a name, one ordered entry list and a nominal rate; timing is derived on demand rather than stored, so there is no second copy of the timeline to keep consistent.

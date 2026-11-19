@@ -112,7 +112,7 @@ export namespace CartFit {
    * @throws {ArchetypeRefusal} When the cart is not a horse's two-wheeled cart.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the four lines, where each runs and when it refuses.
-   * @evidence contracts/development/implementation.md#principled-implementation Each trace from the collar's point of draft to the single tree at the horse's draft spread; each driving line through the bit ring, the neck strap's ring and the terret to the driver's held run, the path the harness passes give.
+   * @evidence contracts/development/implementation.md#principled-implementation Each trace goes from the collar's point of draft to the single tree at the horse's draft spread. Each driving line runs through the bit ring, the neck strap's ring and the terret to the material end behind the modeled hand station.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Refuse a cart without lines, then the traces, then the driving lines.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The lines are straight runs between their points, the ride's to lay.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four lines of a few points.
@@ -167,7 +167,7 @@ export namespace CartFit {
           { leader: ball(HorseHarness.ENDS.bit[side]) },
           { leader: ball(HorseHarness.ENDS.ring[side]) },
           { leader: ball(HorseHarness.ENDS.terret[side]) },
-          { trailer: { affordance: `${side}Line` } },
+          { trailer: { affordance: `${side}LineEnd` } },
         ],
       }),
     );

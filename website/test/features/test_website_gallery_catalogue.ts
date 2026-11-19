@@ -15,7 +15,7 @@ import type { IGalleryCatalogue } from "../../src/gallery/structures/IGalleryCat
  * Scenarios:
  * 1. The archetype subjects of the catalogue are exactly the package's `create*` function exports, so none is missing and none is invented.
  * 2. Each subject's variants are exactly its producer's `KINDS` or `FRAMES`, in the package's order; a producer with neither has no variant.
- * 3. Every subject in every variant builds through the gallery's own path into a model with at least one part, so each is reachable and not only listed.
+ * 3. Every subject in every variant builds through the gallery's own path into a model with a string identifier and at least one part.
  * 4. The catalogue's groups are the package's families, in its order, so a family a release adds is a group with no change to the site.
  */
 export function test_website_gallery_catalogue(): void {
@@ -78,6 +78,8 @@ export function test_website_gallery_catalogue(): void {
         });
         if (built.archetype.parts.length === 0)
           unbuilt.push(`${subject.id} ${variant}: no part`);
+        if (typeof built.archetype.id !== "string" || built.archetype.id === "")
+          unbuilt.push(`${subject.id} ${variant}: invalid model identifier`);
       } catch (error) {
         unbuilt.push(
           `${subject.id} ${variant}: ${error instanceof Error ? error.message : String(error)}`,

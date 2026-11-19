@@ -1,5 +1,6 @@
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieMotionHumanProp } from "../perform/IAutoMovieMotionHumanProp";
+import type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";
 
 /**
  * A capability for reading a performance prop and its world frame at film instants, with optional articulation state. Action planning reads this view instead of owning prop placement.
@@ -30,6 +31,54 @@ export interface IAutoMovieMotionHumanPropReader {
   frame(seconds: number): IAutoMovieRigidTransform;
 
   /**
+   * The original launch publication displaying the prop at a film second, if the reader tracks flights and one still owns the prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Returns the borrowed publication identity for the prop's active flight on the film clock.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The performance reader owns flight selection.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The performance reader supplies the implementation.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature contains no computation.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The reader owns traversal and allocation costs.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The reader owns any cache and its equivalence rules.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration owns no retained state.
+   */
+  launchAt?(seconds: number): IAutoMovieMotionPropLaunch | undefined;
+
+  /**
+   * The selected launch and two displayed frames from one collision search bounded by the later film second.
+   *
+   * @param seconds The later film second, at interception.
+   * @param before An earlier film second on the same launch to read for its approach.
+   * @returns The launch identity and both world frames, if this flight owns both samples.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two film clocks, window, and launch identity and world frame outputs.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The performance reader supplies selection and sampling.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Interface only.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Interface only.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Interface only.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Interface only.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Interface only.
+   */
+  flightApproach?(
+    seconds: number,
+    before: number,
+  ): IAutoMovieMotionHumanPropReader.IFlightApproach | undefined;
+
+  /**
+   * The prop socket currently carrying this prop, if a socket is its displayed carrier at these film seconds.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Declares film seconds and the identity of the active carrier and socket.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The performance reader supplies selection.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Interface only.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Interface only.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Interface only.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Interface only.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Interface only.
+   */
+  mountAt?(
+    seconds: number,
+  ): Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point"> | undefined;
+
+  /**
    * The travel of each of its articulations an act or its own track has moved by a film second (`HumanPerformance.state`); an articulation absent from the record is at rest. Read at plan time like `frame`, so an act that operates a part starts from where the part is. Absent from a context that tracks no state, where every articulation is at rest.
    *
    * @param seconds Film seconds.
@@ -44,4 +93,24 @@ export interface IAutoMovieMotionHumanPropReader {
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPropReader.state is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   state?(seconds: number): Readonly<Record<string, number>>;
+}
+
+/** The data returned by a prop reader that observes the same approaching launch twice. */
+export namespace IAutoMovieMotionHumanPropReader {
+  /**
+   * Two world frames of the same placed launch before and at interception.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the borrowed publication and the ordering and frames of the samples.
+   * @evidence contracts/development/design.md#principled-representation One launch identity pairs two world frames selected by the same collision horizon.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the samples needed by the catch law without the sweep or continuation data.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries the published identity rather than reconstructing a launch.
+   */
+  export interface IFlightApproach {
+    /** The borrowed, original publication. */
+    launch: IAutoMovieMotionPropLaunch;
+    /** The prop's displayed world frame at the later time. */
+    frame: IAutoMovieRigidTransform;
+    /** The prop's displayed world frame at the earlier time. */
+    before: IAutoMovieRigidTransform;
+  }
 }

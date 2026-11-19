@@ -1,0 +1,191 @@
+import { Vector3 } from "@automovie/engine";
+
+import {
+  Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDraw,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  type IArchetypeBand,
+} from "../core";
+
+/** The size bands describe plausible set props rather than measured artifacts. */
+const SCENIC: string =
+  "Authored set size. Staff and panel silhouettes draw on the Met standard bearer (https://www.metmuseum.org/art/collection/search/546175) and the British Museum textile banner (https://islamicworld.britishmuseum.org/collection/RRM186437).";
+
+/**
+ * A carried processional standard with a banner panel or a round sign.
+ * The staff starts at local ground and points up. The scene can mount a hand
+ * on `grip` along the exposed shaft and use `face` as a framing point.
+ * The panel keeps a fixed silhouette through the authored carry.
+ *
+ * @param params The silhouette and any fixed set dimensions.
+ * @param seed The seed for the remaining dimensions.
+ * @returns A scenic prop with a shaft grip and a front-facing marker.
+ * @throws {ArchetypeRefusal} For an unsupported silhouette or dimension.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the two silhouettes, local resting frame, seed and contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation A single staff and independently declared head size determine both the shape and its graspable clear shaft.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw admitted dimensions, lay out the pole and face, and publish their two motion sites.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The museum objects inform only the coarse visual form. The authored bands are set dimensions and do not purport to reconstruct the historical objects.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Builds two or three primitive parts and two affordances.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds a model per call.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no evaluation state.
+ */
+export function createScenicStandard(
+  params: createScenicStandard.IParams,
+  seed?: string | number,
+): Archetype<createScenicStandard.Affordance, createScenicStandard.Dimension> {
+  const draw: ArchetypeDrawSession<createScenicStandard.Dimension> =
+    new ArchetypeDrawSession(
+      "scenicStandard",
+      createScenicStandard.UNITS,
+      seed,
+      params,
+    );
+  const kind: createScenicStandard.Kind = ArchetypeDraw.choice(
+    "scenicStandard",
+    "kind",
+    params.kind,
+    createScenicStandard.KINDS,
+  );
+  const dimensions: Record<createScenicStandard.Dimension, number> =
+    draw.dimensions(createScenicStandard.BANDS);
+  const builder: ArchetypeBuilder<
+    createScenicStandard.Affordance,
+    createScenicStandard.Dimension
+  > = new ArchetypeBuilder({
+    material: "wood",
+    id: params.id,
+    name: kind === "banner" ? "scenic banner" : "scenic roundel",
+    draw,
+  });
+  const vector: typeof Vector3.create = Vector3.create;
+  const shaftRadius: number = dimensions.shaftDiameter / 2;
+  const faceRadius: number = dimensions.headSpan / 2;
+  const faceTop: number = dimensions.length - shaftRadius;
+  const faceCenter: number = faceTop - faceRadius;
+  const clearShaft: number = faceTop - dimensions.headSpan;
+  const front: number = dimensions.faceDepth / 2;
+  builder.rod(
+    "shaft",
+    shaftRadius,
+    vector(0, 0, 0),
+    vector(0, dimensions.length, 0),
+  );
+  if (kind === "banner") {
+    builder.rod(
+      "crossbar",
+      shaftRadius,
+      vector(-faceRadius, faceTop, 0),
+      vector(faceRadius, faceTop, 0),
+    );
+    builder.box(
+      "panel",
+      vector(dimensions.headSpan, dimensions.headSpan, dimensions.faceDepth),
+      vector(0, faceCenter, 0),
+      { color: "#885149" },
+    );
+  } else
+    builder.rod(
+      "panel",
+      faceRadius,
+      vector(0, faceCenter, -front),
+      vector(0, faceCenter, front),
+      { color: "#a77649" },
+    );
+  builder.affordance({
+    id: "grip",
+    kind: "handle",
+    frame: ArchetypeFrame.facing(
+      vector(0, clearShaft / 2, 0),
+      vector(0, 0, -1),
+      vector(0, 1, 0),
+    ),
+    extent: null,
+    grip: "power",
+    symmetry: "round",
+    aperture: dimensions.shaftDiameter,
+    length: clearShaft,
+  });
+  builder.affordance({
+    id: "face",
+    kind: "surface",
+    frame: ArchetypeFrame.facing(
+      vector(0, faceCenter, front),
+      vector(0, 0, 1),
+      vector(1, 0, 0),
+    ),
+    extent: null,
+  });
+  return builder.build(dimensions.mass);
+}
+
+/**
+ * Author controls for a carried scenic standard.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two forms, contacts, units and free set dimensions.
+ * @evidence contracts/development/design.md#principled-representation One closed silhouette choice shares a shaft and physically located head.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Publishes dimension bands and two sites on the geometry.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Bands give full positive dimensions and a rigid silhouette for film staging.
+ */
+export namespace createScenicStandard {
+  /**
+   * A carried textile-shaped panel or a circular emblem.
+   */
+  export type Kind = "banner" | "roundel";
+
+  /**
+   * The recognized silhouette choices.
+   */
+  export const KINDS: readonly Kind[] = ["banner", "roundel"];
+
+  /**
+   * The clear shaft handle and the front of the displayed head.
+   */
+  export type Affordance = "grip" | "face";
+
+  /**
+   * The overall shaft height, diameter, head width, head depth and model mass.
+   */
+  export type Dimension =
+    | "length"
+    | "shaftDiameter"
+    | "headSpan"
+    | "faceDepth"
+    | "mass";
+
+  /**
+   * Each dimension uses metres or kilograms.
+   */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    shaftDiameter: "m",
+    headSpan: "m",
+    faceDepth: "m",
+    mass: "kg",
+  };
+
+  /**
+   * Set dimensions sized for a hand-carried silhouette with an exposed shaft.
+   */
+  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+    length: ArchetypeBand.metres(1.2, 2.1, SCENIC, true),
+    shaftDiameter: ArchetypeBand.metres(0.026, 0.048, SCENIC, true),
+    headSpan: ArchetypeBand.metres(0.3, 0.7, SCENIC, true),
+    faceDepth: ArchetypeBand.metres(0.008, 0.028, SCENIC, true),
+    mass: ArchetypeBand.of("kg", 0.3, 1.5, SCENIC, true),
+  };
+
+  /**
+   * The named silhouette and optional fixed dimensions of the standard.
+   */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** The principal outline. */
+    kind: Kind;
+
+    /** Scene-unique id. */
+    id?: string;
+  }
+}

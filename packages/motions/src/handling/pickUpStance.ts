@@ -1,9 +1,11 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanGrasp,
   IAutoMovieMotionHumanPickUp,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -57,6 +59,8 @@ export namespace pickUpStance {
    * @param side The reaching arm.
    * @param lift The asked lift, metres.
    * @param authored The grip as the archetype declares it.
+   * @param carried World displacement accumulated before lifting a moving prop, metres.
+   * @param closure The prop's world frame at moving grasp closure, or omitted for ordinary pickup.
    * @returns The grasp, the stance and the raise.
    * @throws {HumanRefusal} When the entry neither stands nor sits and the grip is beyond the arm, or the lowering refuses a body that does not stand.
    *
@@ -73,9 +77,11 @@ export namespace pickUpStance {
     side: AutoMovieHumanSide,
     lift: number,
     authored: IAutoMovieMotionHumanGrasp.ITarget,
+    carried?: IAutoMovieVector3,
+    closure?: IAutoMovieRigidTransform,
   ): IChosen {
     const search: (stance: pickUpPosture.IStance) => pickUpSearch.ISearched =
-      (stance: pickUpPosture.IStance): pickUpSearch.ISearched => pickUpSearch.of(context, side, lift, authored, stance);
+      (stance: pickUpPosture.IStance): pickUpSearch.ISearched => pickUpSearch.of(context, side, lift, authored, stance, carried, closure);
     const missed: (found: pickUpSearch.ISearched) => boolean = (found: pickUpSearch.ISearched): boolean =>
       !pickUpPosture.reaches(
         context,
@@ -144,10 +150,12 @@ export namespace pickUpStance {
       if (taken !== null) ({ found, lowered } = taken);
     }
     if (lift <= 0) return { found, lowered, raise: pickUpLift.ARM };
-    const place: (searched: pickUpSearch.ISearched) => IAutoMovieVector3 = (searched: pickUpSearch.ISearched): IAutoMovieVector3 => ({
-      ...searched.chosen.wrist.point,
-      y: searched.chosen.wrist.point.y + lift,
-    });
+    /** The lifted wrist goal after the load phase's travel. */
+    const place = (searched: pickUpSearch.ISearched): IAutoMovieVector3 => {
+      const { point } = searched.chosen.wrist;
+      const raised: IAutoMovieVector3 = { ...point, y: point.y + lift };
+      return carried === undefined ? raised : Vector3.add(raised, carried);
+    };
     const raise: pickUpLift.IRaise | null = pickUpLift.raise(
       context,
       side,

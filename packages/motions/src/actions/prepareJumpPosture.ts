@@ -1,5 +1,6 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type {
+  IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanJumpAirborne,
@@ -27,6 +28,7 @@ import { prepareJumpFlight } from "./prepareJumpFlight";
  * @param phase The original local phase times, seconds, and ballistic metre coefficients.
  * @param rotation Actual requested turns, delegated unchanged to jumpAirborne.
  * @param ground Original push and landing writers and their native bare-display fit producers.
+ * @param admitTouchdown The optional returned-rotation check for a turned landing.
  * @returns The public posture dispatcher, the turning declarations and the event-prepared display source.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines actual owned open-flight phase, original clock/ballistic units, outside-phase callbacks and the known refusal wrapper.
@@ -44,6 +46,7 @@ export function prepareJumpPosture(
   phase: prepareJumpPosture.IFlight,
   rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
   ground: prepareJumpPosture.IGround,
+  admitTouchdown?: (rotation: IAutoMovieHumanPostureRotation) => void,
 ): prepareJumpPosture.IConstruction {
   const flight: ReturnType<typeof prepareJumpFlight> = prepareJumpFlight(
     body,
@@ -57,6 +60,7 @@ export function prepareJumpPosture(
     phase.to,
     phase.duration,
     phase.settled,
+    admitTouchdown,
   );
   const fixed: prepareJumpPosture.IPhase = {
     from: turning.from,
@@ -195,7 +199,8 @@ export namespace prepareJumpPosture {
     where: IAutoMovieMotionHumanRefusal.IWhere,
   ): IAutoMovieMotionHumanActionPlan["posture"] {
     return (
-      seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
     ): IAutoMovieMotionHumanPosture => {

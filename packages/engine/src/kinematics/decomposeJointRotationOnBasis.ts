@@ -155,6 +155,42 @@ function extract(
   rotateInto(q, twistAxis, columns, 6);
 
   // Entries of R' = Mᵀ R M (M = [flex|abd|twist]): R'[i][j] = axisᵢ · (R axisⱼ).
+  if (basis.rotationOrder === "flexion-abduction-twist") {
+    // R = Rx(f)·Ry(a)·Rz(h*t) in the same right-handed basis.
+    const m02: number = columnDot(basis.flexion, columns, 6);
+    const m12: number = columnDot(basis.abduction, columns, 6);
+    const m22: number = columnDot(twistAxis, columns, 6);
+    const cosine: number = Math.hypot(m12, m22);
+    return lift(
+      cosine <= GIMBAL_COSINE_EPSILON
+        ? {
+            // With the last angle pinned, the rotated abduction axis gives flexion.
+            flexion:
+              Math.atan2(
+                columnDot(twistAxis, columns, 3),
+                columnDot(basis.abduction, columns, 3),
+              ) * RAD2DEG,
+            abduction: m02 > 0 ? 90 : -90,
+            twist: 0,
+          }
+        : {
+            flexion: Math.atan2(-m12, m22) * RAD2DEG,
+            abduction: Math.atan2(m02, cosine) * RAD2DEG,
+            twist:
+              handed *
+              Math.atan2(
+                -columnDot(basis.flexion, columns, 3),
+                columnDot(basis.flexion, columns, 0),
+              ) *
+              RAD2DEG,
+          },
+      basis,
+      handed,
+      frame,
+      domain,
+      readers,
+    );
+  }
   if (basis.twistPlacement === "distal") {
     // R = Ry(a)·Rx(f)·Rz(t): R12 = −sin f, R02 = sin a cos f, R22 = cos a cos f,
     // R10 = cos f sin t, R11 = cos f cos t (row i: basis axis i, column j:
@@ -364,11 +400,18 @@ function lift(
   // has just admitted, can neither fail nor improve on it: it is read only
   // where the principal overshoots.
   if (overshoot === 0) {
-    if (scoring !== undefined && constraint === domain.constraint) scoring.overshoot = 0;
+    if (scoring !== undefined && constraint === domain.constraint)
+      scoring.overshoot = 0;
     return selected;
   }
   const alternate: IAutoMovieResolvedJointAngles = clinical(
-    alternateRigJointAngles(rig, basis.twistPlacement, handed),
+    alternateRigJointAngles(
+      rig,
+      basis.rotationOrder === "flexion-abduction-twist"
+        ? undefined
+        : basis.twistPlacement,
+      handed,
+    ),
     frame,
     readers,
   );
@@ -398,7 +441,8 @@ function lift(
       overshoot = next;
     }
   }
-  if (scoring !== undefined && constraint === domain.constraint) scoring.overshoot = overshoot;
+  if (scoring !== undefined && constraint === domain.constraint)
+    scoring.overshoot = overshoot;
   return selected;
 }
 

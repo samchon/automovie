@@ -58,7 +58,7 @@ const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
  * @evidence contracts/development/implementation.md#principled-implementation The original world-space goals enter the ordinary ordered/mirrored refit. Both original sole offsets are transformed by their realised bone frames. A candidate is accepted only on the complete existing pair predicate.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only this native plan with its original reader issues a private single-use sample. A changed or composed raw posture never consumes it. No previous sample, frame key, prepared flag on user data or global result history is involved.
  */
-export class WorkingSeatRidePlan implements Plan {
+export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
   /** Duration of the original ride. */
   readonly duration: Plan["duration"];
   /** The carrier law's named events. */
@@ -69,6 +69,8 @@ export class WorkingSeatRidePlan implements Plan {
   readonly base?: Plan["base"];
   /** The native ride reader; a direct observation owns a fresh, mutable posture. */
   readonly posture: Reader;
+  /** The same selected posture and carrier frame for a composed ride action. */
+  readonly postureWithFrame: Frame;
   readonly #body: IAutoMovieMotionHumanBody;
   readonly #design: Design;
   readonly #frame: Frame;
@@ -89,6 +91,15 @@ export class WorkingSeatRidePlan implements Plan {
     this.#frame = frame;
     this.posture = (...args: Parameters<Reader>): Posture =>
       this.#sample(this.#frame(args[0]), WorkingSeatRidePlan.postureOnly, args);
+    this.postureWithFrame = (at: number): WorkingSeatRidePlan.IWritten => {
+      const written: WorkingSeatRidePlan.IWritten = this.#frame(at);
+      return this.#sample(
+        written,
+        (posture: Posture): WorkingSeatRidePlan.IWritten =>
+          WorkingSeatRidePlan.withFrame(posture, written.frame),
+        [at],
+      );
+    };
     const terminal: WorkingSeatTerminal | undefined =
       held === undefined ? undefined : new WorkingSeatTerminal(body);
     HumanPreparedPlayback.attach(this, body, {
@@ -280,6 +291,12 @@ export class WorkingSeatRidePlan implements Plan {
 }
 
 export namespace WorkingSeatRidePlan {
+  /** A ride plan whose composition can sample posture and carrier together. */
+  export interface IPlan extends Plan {
+    /** Select a posture with the carrier frame that placed it. */
+    postureWithFrame: Frame;
+  }
+
   /** The actual acquired or terminal fixed carrier domains for this ride. */
   export interface IHeld {
     /** Local seconds representing the authored acquisition and end events. */

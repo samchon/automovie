@@ -41,7 +41,9 @@ const AXIS_PAIRS: readonly (readonly [
  * check. When all three axes have a direction, each pair must be orthogonal
  * within an absolute cosine of `1e-6`, so the clinical angles form a real basis
  * instead of silently skewing forward or inverse kinematics. A declared
- * `twistPlacement` must be `"proximal"` or `"distal"`. Issues are listed in
+ * `twistPlacement` must be `"proximal"` or `"distal"`. The only explicit
+ * `rotationOrder` is `"flexion-abduction-twist"`, which permits omitted or
+ * distal twist placement. Issues are listed in
  * that order, each with a path under `path` such as `<path>.twist.y`.
  *
  * @param axes Basis to check; read, never modified.
@@ -112,6 +114,25 @@ export const validateJointAxesBasis: (
     issues.push({
       path: `${path}.twistPlacement`,
       expected: `must be "proximal" or "distal", but was ${String(axes.twistPlacement)}`,
+      value: axes.twistPlacement,
+    });
+
+  if (
+    axes.rotationOrder !== undefined &&
+    axes.rotationOrder !== "flexion-abduction-twist"
+  )
+    issues.push({
+      path: `${path}.rotationOrder`,
+      expected: `must be "flexion-abduction-twist", but was ${String(axes.rotationOrder)}`,
+      value: axes.rotationOrder,
+    });
+  else if (
+    axes.rotationOrder === "flexion-abduction-twist" &&
+    axes.twistPlacement === "proximal"
+  )
+    issues.push({
+      path: `${path}.twistPlacement`,
+      expected: 'must be "distal" or omitted for flexion-abduction-twist',
       value: axes.twistPlacement,
     });
 

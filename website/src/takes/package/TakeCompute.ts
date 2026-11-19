@@ -6,6 +6,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { HumanRefusal, HumanVerdicts } from "@automovie/motions";
+import { AutoMovieFrameGrid } from "@automovie/render";
 
 import type { IHumanEntry } from "../../human/structures/IHumanEntry";
 import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
@@ -95,7 +96,7 @@ export namespace TakeCompute {
 
   /**
    * Compute a composition's take: plan it, then pose every figure and place
-   * every prop at each frame of the rate.
+   * every prop at each frame of the rate and at the exact end.
    *
    * Planning costs seconds and each pose tens of milliseconds, which is why
    * this runs in a worker and the rate is a parameter.
@@ -122,9 +123,10 @@ export namespace TakeCompute {
         key: JSON.stringify(composition),
         performance: built.performance,
       };
-      const count: number = Math.floor(built.performance.duration * fps) + 1;
-      for (let k: number = 0; k < count; k++) {
-        const seconds: number = k / fps;
+      const duration: number = built.performance.duration;
+      const lastFrame: number = AutoMovieFrameGrid.last(duration, fps);
+      for (let k: number = 0; k <= lastFrame; k++) {
+        const seconds: number = AutoMovieFrameGrid.time(k, duration, fps);
         frames.push([
           ...built.figures.map(
             (figure: PlaygroundPerformance.IFigure): SceneTrack.IPlacement[] =>
@@ -181,6 +183,7 @@ export namespace TakeCompute {
       track: {
         fps,
         frames: frames.length,
+        duration: built.performance.duration,
         orders,
         values: SceneTrack.encode(frames, orders),
       },

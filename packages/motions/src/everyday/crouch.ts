@@ -98,7 +98,14 @@ export namespace crouch {
 
   /** Cancel table: a crouch stands up at any time, and kneels or handles a low thing from its lowest pose. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
+    stand: [
+      {
+        window: [0, 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
     crouch: [{ window: ["ascend", 1], kind: "inertialize", entry: 0 }],
     kneel: [
       {
@@ -127,7 +134,9 @@ export namespace crouch {
   };
 
   /** Knee flexion at the lowest pose by depth, degrees (Escamilla 2001; the range table's end for `full`). */
-  export const KNEE: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
+  export const KNEE: Readonly<
+    Record<IAutoMovieMotionHumanCrouch.Depth, number>
+  > = {
     partial: 100,
     full: 150,
   };
@@ -167,7 +176,9 @@ export namespace crouch {
    * growing with the square root of its amplitude (peak acceleration
    * `5.77 D / T^2`, Flash and Hogan 1985).
    */
-  export const DESCENT: Readonly<Record<IAutoMovieMotionHumanCrouch.Depth, number>> = {
+  export const DESCENT: Readonly<
+    Record<IAutoMovieMotionHumanCrouch.Depth, number>
+  > = {
     partial: 1.0,
     full: 1.0 * Math.sqrt(KNEE.full / KNEE.partial),
   };
@@ -195,7 +206,8 @@ export namespace crouch {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const depth: IAutoMovieMotionHumanCrouch.Depth = context.params.depth ?? "partial";
+    const depth: IAutoMovieMotionHumanCrouch.Depth =
+      context.params.depth ?? "partial";
     const heels: IAutoMovieMotionHumanCrouch.Heels =
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
@@ -232,7 +244,8 @@ export namespace crouch {
       });
 
     // The clock: descent, hold, rise.
-    const down: number = DESCENT[depth] * Math.sqrt(m.hipHeight / REFERENCE_HIP);
+    const down: number =
+      DESCENT[depth] * Math.sqrt(m.hipHeight / REFERENCE_HIP);
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence([
         { name: "descend", seconds: down },
@@ -244,14 +257,19 @@ export namespace crouch {
     );
     const duration: number = clock.duration;
     const window: HumanPhysics.Window = HumanPhysics.prepare(
-      context.params, crouch, context.start, { duration, events: clock.events() }, context.instant,
+      context.params,
+      crouch,
+      context.start,
+      { duration, events: clock.events() },
+      context.instant,
     );
     if (window !== null && window.by !== "trunk")
       throw new HumanRefusal({
         kind: "parameter",
         axis: "balance.by",
         value: window.by,
-        reason: "a crouch corrects its centre through the lumbar joint above its planted legs",
+        reason:
+          "a crouch corrects its centre through the lumbar joint above its planted legs",
         fix: "give trunk for balance.by",
       });
     const base: IAutoMovieMotionHumanActionPlan = stand.plan({
@@ -283,7 +301,9 @@ export namespace crouch {
       posture: IAutoMovieMotionHumanPosture,
       s: number,
     ): Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> => {
-      const foot: (side: "left" | "right") => IAutoMovieMotionHumanFoot.IPlacement = (
+      const foot: (
+        side: "left" | "right",
+      ) => IAutoMovieMotionHumanFoot.IPlacement = (
         side: "left" | "right",
       ): IAutoMovieMotionHumanFoot.IPlacement => {
         const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
@@ -332,17 +352,22 @@ export namespace crouch {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const rad: (deg: number) => number = (deg: number): number => (deg * Math.PI) / 180;
-    const joints: ReturnType<typeof hipJoints> = hipJoints(body, standing.root, HumanFrame.turn(yaw));
+    const rad: (deg: number) => number = (deg: number): number =>
+      (deg * Math.PI) / 180;
+    const joints: ReturnType<typeof hipJoints> = hipJoints(
+      body,
+      standing.root,
+      HumanFrame.turn(yaw),
+    );
     const over: (
       s: number,
       placed?: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
     ) => IAutoMovieVector3 = (
       s: number,
-      placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = placements(
-        standing,
-        s,
-      ),
+      placed: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanFoot.IPlacement
+      > = placements(standing, s),
     ): IAutoMovieVector3 => {
       let out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const side of ["left", "right"] as const) {
@@ -390,10 +415,10 @@ export namespace crouch {
     ) => IAutoMovieMotionHumanPosture {
       // Moving and tipping the root leave these raw leg goals unchanged.
       // Share only their current placements, rebuilding the actual knees below.
-      const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = placements(
-        posture,
-        s,
-      );
+      const placed: Record<
+        "left" | "right",
+        IAutoMovieMotionHumanFoot.IPlacement
+      > = placements(posture, s);
       const moved: IAutoMovieMotionHumanPosture = {
         ...posture,
         root: Vector3.add(
@@ -411,18 +436,26 @@ export namespace crouch {
       ): IAutoMovieMotionHumanPosture => {
         const inclined: ReturnType<typeof HumanTrunk.incline> =
           HumanTrunk.incline(moved.joints, inclination, limit);
-        const tipped: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.tip(
-          body,
-          { ...moved, joints: inclined.joints },
-          inclined.pitch,
+        const tipped: IAutoMovieMotionHumanPosture =
+          AutoMovieMotionHumanLean.tip(
+            body,
+            { ...moved, joints: inclined.joints },
+            inclined.pitch,
+            0,
+          );
+        const toes: readonly [number, number, number] = [
+          heel === 0 ? 0 : lift(s),
           0,
-        );
-        const toes: readonly [number, number, number] = [heel === 0 ? 0 : lift(s), 0, 0];
+          0,
+        ];
         return resolveHumanPosture.lower(
           body,
           {
             ...tipped,
-            joints: heel === 0 ? tipped.joints : { ...tipped.joints, leftToes: toes, rightToes: [...toes] },
+            joints:
+              heel === 0
+                ? tipped.joints
+                : { ...tipped.joints, leftToes: toes, rightToes: [...toes] },
             limbs: feet(tipped, placed),
           },
           undefined,
@@ -456,9 +489,19 @@ export namespace crouch {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         const s: number = share(seconds);
-        const placed: IAutoMovieMotionHumanPosture = atShare(posture, s)(key * s, read);
+        const placed: IAutoMovieMotionHumanPosture = atShare(posture, s)(
+          key * s,
+          read,
+        );
         const weight: number = HumanPhysics.weightAt(window, seconds);
-        return weight === 0 ? placed : (correct ??= prepareHumanTrunkBalance(body))(placed, weight, read, projection);
+        return weight === 0
+          ? placed
+          : (correct ??= prepareHumanTrunkBalance(body))(
+              placed,
+              weight,
+              read,
+              projection,
+            );
       },
     };
     const armSpan: IAutoMovieMotionHumanArmPlanned.ISpan = {
@@ -467,7 +510,8 @@ export namespace crouch {
       relax: clock.at("ascend"),
       end: duration,
     };
-    const arms: IAutoMovieMotionHumanArmPlanned.ITogether = AutoMovieMotionHumanArm.together();
+    const arms: IAutoMovieMotionHumanArmPlanned.ITogether =
+      AutoMovieMotionHumanArm.together();
     const rest = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
       braceOnThigh(
         body,
@@ -483,17 +527,31 @@ export namespace crouch {
     // hand lies on the thigh where the standing hand's curled thumb and
     // fingers went into it.
     const open = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive =>
-      AutoMovieMotionHumanHand.shape({ side, shape: "flat", from: 0, to: duration, weight: share });
+      AutoMovieMotionHumanHand.shape({
+        side,
+        shape: "flat",
+        from: 0,
+        to: duration,
+        weight: share,
+      });
 
     return {
       ...composeAutoMovieMotionHumanAction({
         base,
         clock,
         contact: "lowest",
-        primitives: [sink, rest("left"), rest("right"), open("left"), open("right")],
+        primitives: [
+          sink,
+          rest("left"),
+          rest("right"),
+          open("left"),
+          open("right"),
+        ],
       }),
       ...HumanPhysics.declared(context.params, window),
       base: { kind: "standing" },
+      // The feet carry the body, leaving the resting arms and head to overlays.
+      yields: ["head", "leftHand", "rightHand", "leftArm", "rightArm"],
     };
   }
 }

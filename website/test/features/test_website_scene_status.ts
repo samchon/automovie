@@ -1,4 +1,4 @@
-import { HUMAN_ACTIONS } from "@automovie/motions";
+import { HUMAN_ACTIONS, hug, shoulderClasp } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { PlaygroundChain } from "../../src/playground/package/PlaygroundChain";
@@ -17,6 +17,7 @@ import type { IScene } from "../../src/scenes/structures/IScene";
  * 4. An action performed over another plays exactly when the chain has `over`.
  * 5. A scene without a composition is planned.
  * 6. A scene of installed pieces whose record marks `refusedUntil` is refused until that issue, and a page computes it as it computes one that plays; the same mark on a scene with a missing piece still waits, and neither a waiting nor a planned scene is computed.
+ * 7. Directly exported mutual actions are available with their declared roles.
  */
 export function test_website_scene_status(): void {
   const names: string[] = Object.keys(HUMAN_ACTIONS);
@@ -159,4 +160,14 @@ export function test_website_scene_status(): void {
     !SceneStatus.computes(marked) &&
       !SceneStatus.computes(SceneStatus.of(scene(null))),
   );
+
+  // 7. Direct mutual exports.
+  const mutuals: ReturnType<typeof PlaygroundChain.mutuals> =
+    PlaygroundChain.mutuals();
+  for (const record of [hug, shoulderClasp])
+    TestValidator.equals(
+      `${record.name} is available as a directly exported mutual`,
+      mutuals[record.name]?.roles,
+      record.roles,
+    );
 }

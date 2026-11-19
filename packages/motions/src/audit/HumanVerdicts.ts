@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanAuditRange,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformer,
+  IAutoMovieMotionHumanPropOutcome,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
 
@@ -252,8 +253,16 @@ export namespace HumanVerdicts {
         for (const l of s.plan.launches ?? []) launched.add(l.prop);
     const unended: string[] = [];
     for (const prop of launched)
-      for (const f of performance.flights(prop))
-        if (f.end === Infinity) unended.push(`${prop}@${f.launch.toFixed(3)}`);
+      for (const f of performance.flights(prop)) {
+        const last: IAutoMovieMotionHumanPropOutcome.ILeg | undefined =
+          f.legs?.at(-1);
+        if (
+          f.supersededAt === undefined &&
+          (f.end === Infinity ||
+            (last?.segment.kind === "flight" && last.end === Infinity))
+        )
+          unended.push(`${prop}@${f.launch.toFixed(3)}`);
+      }
     return { clean: findings.length === 0, findings, unended };
   }
 

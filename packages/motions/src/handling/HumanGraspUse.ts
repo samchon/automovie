@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -121,6 +122,7 @@ export namespace HumanGraspUse {
    * the plane the body faces.
    *
    * @param props The action's context, the prop and its handle, the hand, the hand the arm shows for the candidate grasp, the use, and how far the closed hand at a wrist keeps out of the body's other parts, metres, negative inside (every roll alike when absent).
+   * @param closure The prop's world frame at grasp closure, or the entry frame when omitted.
    * @returns The key pose.
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop declares no such working point, listing its contacts; a `parameter` refusal on `use` for an `along` line ahead of the body, listing the other lines.
    *
@@ -132,15 +134,16 @@ export namespace HumanGraspUse {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the entry pose's needed bones once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The roll-score map lives for the call and is cleared before return; the key's judge holds its tool or contact geometry only.
    */
-  export function presented(props: IAutoMovieMotionHumanGraspUse.IPresentedProps ): IAutoMovieMotionHumanGrasp.IKey {
-    const { context, held, tip, at, site, laid, ahead, socket, roll: rollAt }: HumanGraspUsePreparation.IPrepared =
-      HumanGraspUsePreparation.of(props);
+  export function presented(props: IAutoMovieMotionHumanGraspUse.IPresentedProps, closure?: IAutoMovieRigidTransform): IAutoMovieMotionHumanGrasp.IKey {
+    const { context, held, world, tip, at, site, laid, ahead, socket, roll: rollAt }: HumanGraspUsePreparation.IPrepared =
+      HumanGraspUsePreparation.of(props, closure);
 
     // Worn: the key is the thing on the place it is worn (`HumanGraspWorn`).
     if (props.use.line === "worn")
       return HumanGraspWorn.key({
         context,
         held,
+        world,
         tip,
         at: at!,
         site: site!,
@@ -153,11 +156,8 @@ export namespace HumanGraspUse {
       Quaternion.inverse(props.wrist.rotation),
       Vector3.subtract(
         Vector3.add(
-          held.frame(context.start).position,
-          Quaternion.rotateVector(
-            held.frame(context.start).rotation,
-            tip.frame.translation,
-          ),
+          world.position,
+          Quaternion.rotateVector(world.rotation, tip.frame.translation),
         ),
         props.wrist.point,
       ),
@@ -170,7 +170,7 @@ export namespace HumanGraspUse {
               context.body,
               props.side,
               props.prop,
-              held.frame(context.start),
+              world,
               held.prop.affordances ?? [],
               props.wrist,
             ),

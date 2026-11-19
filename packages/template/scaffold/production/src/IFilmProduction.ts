@@ -3,6 +3,7 @@ import type {
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalProfile,
+  IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -11,7 +12,7 @@ import type * as THREE from "three";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer and draw-only pages read to draw, seek and release a film, plus the three optional review sources: the physical performance whose skeleton and contacts `markFilmProduction` marks, the named views, and the film's own marks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces, and the review sources: physical marks, named views, and film marks.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged.
  */
 export interface IFilmProduction {
@@ -20,6 +21,20 @@ export interface IFilmProduction {
 
   /** Camera the Viewer renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
+
+  /**
+   * Soft prop surfaces for an exact film second, read after the film's own
+   * seek. Absent leaves all object placement with the film.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the film timebase, placement order and absent behavior.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the surface producer; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns the surface producer; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature maintains producer-owned surface data without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film owns the evaluation and its already planned solve.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the film and the draw scene own their lifetimes.
+   */
+  softPropsAt?: (seconds: number) => readonly IAutoMovieRenderSoftPropFrame[];
 
   /** Inspection mark kinds that may first appear after second zero; `marks` still supplies their actual geometry at the drawn second. */
   markKinds?: readonly string[];

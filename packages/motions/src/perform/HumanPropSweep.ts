@@ -1,5 +1,6 @@
 import { Vector3, projectileFirstContact } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieHit,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
@@ -15,6 +16,7 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
+import { HumanPropCatchHands } from "./HumanPropCatchHands";
 
 /**
  * The one sweep of a flying prop (`HumanPropFlight`): its flight from a
@@ -46,11 +48,13 @@ export namespace HumanPropSweep {
    * @param projectile The flight.
    * @param horizon Seconds after its zero the film still runs.
    * @param leave A collider's id to leave out: the body a pass goes through.
-   * @param departing A separately resolved bounce collider; only the engine's supported physical departure certificate can defer its initial contact, never its later entry.
+   * @param departing The collider whose existing support or rebound contact the projectile is leaving. Only the engine's certificate can defer its initial contact and it continues to check later entry.
+   * @param radius An opt-in spherical radius in metres. Its supplied projectile travels by its centre. Absent, use the prop's point or tip.
+   * @param captureHands Gripping hands owned by a staged capture during their final approach. The remaining body surfaces continue to participate.
    * @returns The first meeting, or null when it meets nothing before the horizon.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States film/flight clocks, the launcher and pass exclusions, separate resolved-bounce opt-in, physical certificate scope, first meeting and finite-horizon sweep.
-   * @evidence contracts/development/implementation.md#principled-implementation Builds the ground plane, displayed person/prop nearest-point queries and the existing stature rejection, then delegates point-or-tip-capsule contact timing to the engine. Only its supported fixed-plane/constant-tail departure proof defers a resolved bounce pair; other colliders and later entries remain eligible.
+   * @evidence contracts/development/common.md#meaningful-documentation States film/flight clocks, the launcher and pass exclusions, support departure and rebound opt-in, physical certificate scope, first meeting and finite-horizon sweep.
+   * @evidence contracts/development/implementation.md#principled-implementation Builds the ground plane and displayed person/prop nearest queries, including the spherical radius in the stature rejection. A staged receive excludes only its assigned hand and fingers during its fitted approach, with actual closure checked separately. The engine still resolves all other surface contacts.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure This bridge owns performance-to-collider projection and target identity; closest geometry, departure proof, scan and TOI bisections remain with their owning engine modules.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no bounce blacklist, time epsilon or fabricated gap. The existing policy omits every prop with any published launch and ignores finger thickness; the stature rejection assumes the body fits that bound, and the scan's stated thin-contact blind spot remains.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preparing P props repeats their action-segment/launch scans and scans profile shapes; C collider closures feed the engine's contact queries, whose cost also includes dynamic FK/nearest-body reads. The engine owns step/bisection cost; this method claims no measured speedup.
@@ -66,6 +70,8 @@ export namespace HumanPropSweep {
     horizon: number,
     leave: string | undefined,
     departing?: string,
+    radius?: number,
+    captureHands: readonly HumanPropCatchHands.IApproach[] = [],
   ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
     const colliders: IAutoMovieProjectileFirstContact.ICollider[] = [
       projectileFirstContact.plane(
@@ -74,13 +80,26 @@ export namespace HumanPropSweep {
         { x: 0, y: 1, z: 0 },
       ),
     ];
+    const maskedBones:
+      | Map<string, ReturnType<typeof HumanPerformanceRead.prepareBones>>
+      | undefined = captureHands.length === 0 ? undefined : new Map();
     for (const person of self.people.values()) {
       const subject: string = person.performer.subject;
       if (subject === launcher || `person:${subject}` === leave) continue;
       const body: typeof person.performer.body = person.performer.body;
       const reach: number = body.measure.stature;
-      const bones: ReturnType<typeof HumanPerformanceRead.prepareBones> =
+      const allBones: ReturnType<typeof HumanPerformanceRead.prepareBones> =
         HumanPerformanceRead.prepareBones(self, subject);
+      const reserved: readonly HumanPropCatchHands.IApproach[] | undefined =
+        maskedBones === undefined
+          ? undefined
+          : captureHands.filter((grip): boolean => grip.subject === subject);
+      const bones: typeof allBones =
+        reserved === undefined || reserved.length === 0
+          ? allBones
+          : (at: number): ReturnType<typeof allBones> =>
+              HumanPropCatchHands.omit(allBones(at), reserved, at);
+      if (bones !== allBones) maskedBones?.set(subject, bones);
       /** The original root-based rejection, with its centre for a full witness. */
       const frame = (t: number): IAutoMovieVector3 =>
         HumanPerformanceRead.posture(self, subject, seconds + t).root;
@@ -98,7 +117,7 @@ export namespace HumanPropSweep {
         id: `person:${subject}`,
         distance: (a, b, t): number => {
           const bound: number = distanceFromRoot(a, b, frame(t));
-          if (bound > 0) return bound;
+          if (bound > (radius ?? 0)) return bound;
           return HumanColliders.distanceToSegment(
             body,
             bones(seconds + t),
@@ -113,7 +132,7 @@ export namespace HumanPropSweep {
         ): IAutoMovieProjectileFirstContact.INearest => {
           const root: IAutoMovieVector3 = frame(t);
           const bound: number = distanceFromRoot(a, b, root);
-          if (bound > 0)
+          if (bound > (radius ?? 0))
             return {
               distance: bound,
               point: root,
@@ -161,13 +180,14 @@ export namespace HumanPropSweep {
         },
       );
     }
-    const tip: IAutoMovieVector3 | undefined = prop.points["tip"]?.point;
+    const tip: IAutoMovieVector3 | undefined =
+      radius === undefined ? prop.points["tip"]?.point : undefined;
     const hit: IAutoMovieHit | null = projectileFirstContact(
       projectile,
       colliders,
       { from: 0, to: horizon },
       {
-        radius: 0,
+        radius: radius ?? 0,
         ...(tip === undefined ? {} : { tail: tip }),
         ...(departing === undefined ? {} : { departing }),
         thickness: thinnest(self, launcher, solid),
@@ -182,13 +202,7 @@ export namespace HumanPropSweep {
       ? {
           kind: "person",
           subject: id.slice("person:".length),
-          bone: HumanColliders.nearest(
-            HumanPerformanceRead.person(self, id.slice("person:".length))
-              .performer.body,
-            HumanPerformanceRead.bones(self, id.slice("person:".length), at),
-            hit.point,
-            hit.point,
-          ).bone,
+          bone: personBone(id.slice("person:".length), hit.point),
         }
       : id.startsWith("prop:")
         ? {
@@ -197,6 +211,20 @@ export namespace HumanPropSweep {
           }
         : { kind: "ground" };
     return { hit, struck, collider: id };
+
+    /** Resolve the struck bone with the same receiving-hand filter as the sweep. */
+    function personBone(
+      subject: string,
+      point: IAutoMovieVector3,
+    ): AutoMovieHumanoidBone {
+      return HumanColliders.nearest(
+        HumanPerformanceRead.person(self, subject).performer.body,
+        maskedBones?.get(subject)?.(at) ??
+          HumanPerformanceRead.bones(self, subject, at),
+        point,
+        point,
+      ).bone;
+    }
   }
 
   /** Whether any action launches a prop. */

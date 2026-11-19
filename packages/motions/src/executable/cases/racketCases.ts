@@ -64,7 +64,7 @@ export function racketCases(
       "readyPosition",
       "splitStep",
       "golfAddress",
-    ] as IAutoMovieMotionHumanRacket.Kind[]) {
+    ] as const satisfies readonly IAutoMovieMotionHumanRacket.Position[]) {
       const name: string = `racket-${kind}${suffix}`;
       let performance: IAutoMovieMotionHumanPerformance;
       try {

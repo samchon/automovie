@@ -18,9 +18,11 @@ export type { IAutoMovieMotionHumanPlayback } from "./IAutoMovieMotionHumanPlayb
 export type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
 export type { IAutoMovieMotionHumanPropDynamics } from "./IAutoMovieMotionHumanPropDynamics";
 export type { IAutoMovieMotionHumanPropFlight } from "./IAutoMovieMotionHumanPropFlight";
+export type { IAutoMovieMotionHumanPropFracture } from "./IAutoMovieMotionHumanPropFracture";
 export type { IAutoMovieMotionHumanPropFrame } from "./IAutoMovieMotionHumanPropFrame";
 export type { IAutoMovieMotionHumanPropOutcome } from "./IAutoMovieMotionHumanPropOutcome";
 export type { IAutoMovieMotionHumanSegment } from "./IAutoMovieMotionHumanSegment";
+export type { IAutoMovieMotionHumanSharedCarry } from "./IAutoMovieMotionHumanSharedCarry";
 export type { IAutoMovieMotionHumanSustainedForce } from "./IAutoMovieMotionHumanSustainedForce";
 export type { IAutoMovieMotionHumanWater } from "./IAutoMovieMotionHumanWater";
 export type { IAutoMovieMotionObstacleAperture } from "./IAutoMovieMotionObstacleAperture";

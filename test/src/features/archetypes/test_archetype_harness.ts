@@ -374,7 +374,7 @@ export function test_archetype_harness(): void {
         world(lead, `bit-${side}`),
         world(lead, `ring-${side}`),
         world(lead, `terret-${side}`),
-        towedRide.frame(`${side}Line`, seconds).translation,
+        towedRide.frame(`${side}LineEnd`, seconds).translation,
       ];
       if (
         line.points.length !== 4 ||
@@ -384,8 +384,16 @@ export function test_archetype_harness(): void {
         )
       )
         findings.push(
-          `${seconds} s: the ${side} driving line leaves the bit, the ring, the terret or the driver's hands`,
+          `${seconds} s: the ${side} driving line leaves the bit, ring, terret or material end`,
         );
+      if (seconds === 0 && line.points.length === 4) {
+        const stock: number = cart.affordance(`${side}Line`).length!;
+        const laidRun: number = gap(line.points[2]!, line.points[3]!);
+        if (!close(laidRun, stock, 1e-9))
+          findings.push(
+            `the ${side} laid run behind the terret is ${laidRun} m, expected ${stock} m`,
+          );
+      }
     }
     relative.push(world(lead, "bit-left").y - world(lead, "pad").y);
   }

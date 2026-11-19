@@ -1,4 +1,5 @@
 import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHumanStep";
+import type { IAutoMovieMotionHumanStageBladeFootwork } from "./IAutoMovieMotionHumanStageBladeFootwork";
 import type { IAutoMovieMotionHumanSword } from "./IAutoMovieMotionHumanSword";
 import type { IAutoMovieMotionHumanSwordGuard } from "./IAutoMovieMotionHumanSwordGuard";
 import type { IAutoMovieMotionHumanSwordParry } from "./IAutoMovieMotionHumanSwordParry";
@@ -14,6 +15,9 @@ import type { IAutoMovieMotionHumanSwordParry } from "./IAutoMovieMotionHumanSwo
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconBladeParams {
+  /** Move to a stage mark in the chosen blade sport's stance. */
+  stageBladeFootwork: IAutoMovieMotionHumanStageBladeFootwork.IParams;
+
   /** The guard a fencer waits in: the hilt low in front, the point at the opponent. */
   enGarde: Omit<IAutoMovieMotionHumanSwordGuard.IParams, "guard">;
 

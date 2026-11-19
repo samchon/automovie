@@ -2,6 +2,7 @@ import * as archetypes from "@automovie/archetypes";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS } from "@automovie/motions";
 
+import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { ISceneChainNames } from "../structures/ISceneChainNames";
@@ -26,7 +27,11 @@ export namespace SceneChainNames {
    */
   export function read(composition: IPlaygroundComposition): ISceneChainNames {
     const rows: Record<string, string> = {};
-    const mutuals: Record<string, string> = {};
+    const mutuals: Record<string, string> = Object.fromEntries(
+      Object.entries(PlaygroundChain.mutualExports()).map(
+        ([name, { expression }]): [string, string] => [name, expression],
+      ),
+    );
     for (const [key, value] of Object.entries(MOTIONS)) {
       if (typeof value !== "object" || value === null) continue;
 
@@ -39,7 +44,7 @@ export namespace SceneChainNames {
         continue;
       }
 
-      // A namespace of rows or mutual records, such as `HumanSocial`.
+      // A namespace of rows, such as `HumanSocial`.
       for (const [member, inner] of Object.entries(
         value as Record<string, unknown>,
       )) {
@@ -48,8 +53,6 @@ export namespace SceneChainNames {
         if (typeof name !== "string") continue;
         if (typeof (inner as { plan?: unknown }).plan === "function")
           rows[name] ??= `${key}.${member}`;
-        else if (typeof (inner as { act?: unknown }).act === "function")
-          mutuals[name] ??= `${key}.${member}`;
       }
     }
     const frames: string[] = Object.entries(
@@ -65,7 +68,8 @@ export namespace SceneChainNames {
     try {
       laws = PlaygroundChain.build(composition).laws.map(
         (law: unknown): string =>
-          rows[(law as { name: string }).name] ?? (law as { name: string }).name,
+          rows[(law as { name: string }).name] ??
+          (law as { name: string }).name,
       );
     } catch {
       laws = [];
@@ -95,6 +99,14 @@ export namespace SceneChainNames {
             used.has(name) && !(name in HUMAN_ACTIONS),
         ),
       );
-    return { rows: pick(rows), mutuals: pick(mutuals), frames, laws };
+    const bodySex: ISceneChainNames["bodySex"] = Object.fromEntries(
+      Object.entries(PLAYGROUND_BODIES).map(
+        ([id, body]: [string, PLAYGROUND_BODIES.IEntry]): [
+          string,
+          ISceneChainNames["bodySex"][string],
+        ] => [id, body.parameters.body.anatomy.sex],
+      ),
+    );
+    return { bodySex, rows: pick(rows), mutuals: pick(mutuals), frames, laws };
   }
 }

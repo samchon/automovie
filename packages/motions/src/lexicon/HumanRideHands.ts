@@ -1,28 +1,36 @@
-import { AutoMovieHumanoidSurfaceRays, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  AutoMovieHumanoidSurfaceRays,
+  Quaternion,
+  type RigidCarrierSample,
+  Vector3,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieHumanoidSurfaces,
-  IAutoMovieResolvedBone,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRide,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { seated as seatSocket } from "../everyday/seated";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
-import { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
-import { fixedSeatGripReach } from "./fixedSeatGripReach";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
+import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
+import { fixedSeatGripReach } from "./fixedSeatGripReach";
+import { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
 
 /**
  * The hands of a ride (`HumanRide`): the support's points they are told to
@@ -39,10 +47,13 @@ export namespace HumanRideHands {
   /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1), degrees. */
   const ROWING: readonly [number, number] = [-28, 49];
 
-  /** A moving round handle carries its measured skin distance from the wrist. */
-  export interface IMaterialGrip extends IAutoMovieMotionHumanMountRider.IHoldGrip {
+  /** Material-aware round handles and rein contacts over the ride's ordinary hold geometry. */
+  export interface IMaterialGrip
+    extends IAutoMovieMotionHumanMountRider.IHoldGrip {
     /** Metres from the palm centreline to its skin at the authored holding station. */
     palmDepth?: number;
+    /** A rein meets the body's actual wrist-relative palm surface. */
+    reinPalm?: IAutoMovieMotionHumanHand.IFrame;
   }
 
   /** Each hand's current, complete support-relative hold. */
@@ -53,6 +64,8 @@ export namespace HumanRideHands {
     /** The holding hand and its measured depth after a full articulated frame is observed. */
     side: AutoMovieHumanSide;
     palmDepth?: number;
+    /** The canonical palm frame retained for a rein over all pose reads. */
+    reinPalm?: IAutoMovieMotionHumanHand.IFrame;
     /** The named point within the support. */
     id: string;
 
@@ -80,19 +93,24 @@ export namespace HumanRideHands {
      * frame then, degrees: the grips are followed as they move, as a rower
      * leans to the catch the oar's handle comes to (`HumanMountReach.reach`).
      */
-    posture(grips: Grips, frame: IAutoMovieRigidTransform, taken: number, heldAt?: number): IAutoMovieMotionHumanPosture;
+    posture(
+      grips: Grips,
+      frame: IAutoMovieRigidTransform,
+      taken: number,
+      heldAt?: number,
+    ): IAutoMovieMotionHumanPosture;
 
     /** What each holding hand holds, where the support has it at a film second in its frame then. */
     gripsAt: (
       film: number,
       frame: IAutoMovieRigidTransform,
+      sample?: RigidCarrierSample.IRead,
     ) => Grips;
 
     /** Each holding hand's fingers, closed on the support's colliders. */
     closures: Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
     >;
-
   }
 
   /**
@@ -137,26 +155,36 @@ export namespace HumanRideHands {
           reason: `${on} has no point ${id} for the ${side} hand`,
           fix: "name one of the support's points",
         });
-      if (id !== undefined)
+      if (id !== undefined) {
+        const affordance: IAutoMovieAffordance | undefined =
+          support.prop.affordances?.find(
+            (a: IAutoMovieAffordance): boolean => a.id === id,
+          );
         handles[side] = {
           id,
           side,
           rest: support.prop.points[id]!,
-          affordance: support.prop.affordances?.find(
-            (a: IAutoMovieAffordance): boolean => a.id === id,
-          ),
+          affordance,
+          ...(affordance?.kind === "rein"
+            ? { reinPalm: HumanHand.offset(context.body, side, "palm") }
+            : {}),
         };
+      }
     }
 
     const base = context.entry.base;
-    const fixedSeat: boolean = base.kind === "seated" && base.seat?.workingSeat === true;
+    const fixedSeat: boolean =
+      base.kind === "seated" && base.seat?.workingSeat === true;
     // In fixed-seat rowing most thorax inclination comes from the pelvic
     // swing (Agius et al. 2023, §4.1), about the seat that stays planted.
     let bearing: IAutoMovieVector3 | undefined;
     const bow = (degrees: number): IAutoMovieMotionHumanPosture => {
       if (degrees === 0) return seated;
       if (!fixedSeat) return HumanMountRider.leant(seated, degrees);
-      const angles: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+      const angles: Pick<
+        IAutoMovieMotionHumanPosture,
+        "yaw" | "pitch" | "roll"
+      > = {
         yaw: seated.yaw,
         pitch: seated.pitch + degrees,
         roll: seated.roll,
@@ -166,7 +194,7 @@ export namespace HumanRideHands {
         ...angles,
         root: seatSocket.root(
           context.body,
-          bearing ??= seatSocket.socket(context.body, seated),
+          (bearing ??= seatSocket.socket(context.body, seated)),
           angles,
         ),
       };
@@ -176,45 +204,98 @@ export namespace HumanRideHands {
     );
     const reach: (
       points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
-    ) => number = HumanMountReach.reach(context.body, seated, holding, bow, fixedSeat ? ROWING : undefined);
+    ) => number = HumanMountReach.reach(
+      context.body,
+      seated,
+      holding,
+      bow,
+      fixedSeat ? ROWING : undefined,
+    );
 
-    const seat: IAutoMovieAffordance | undefined = fixedSeat && holding.length === 2
-      ? support.prop.affordances?.find((a: IAutoMovieAffordance): boolean => a.id === context.params.seat)
-      : undefined;
-    const check: ReturnType<typeof fixedSeatGripReach> = seat === undefined
-      ? undefined
-      : fixedSeatGripReach(context.body, seated, seat, origin);
+    const seat: IAutoMovieAffordance | undefined =
+      fixedSeat && holding.length === 2
+        ? support.prop.affordances?.find(
+            (a: IAutoMovieAffordance): boolean => a.id === context.params.seat,
+          )
+        : undefined;
+    const check: ReturnType<typeof fixedSeatGripReach> =
+      seat === undefined
+        ? undefined
+        : fixedSeatGripReach(context.body, seated, seat, origin);
 
     // What a hand holds, where the support has it at a film second: the point and its normal, and the axis a handle is wrapped about, its frame's +X, carried with the support.
-    let surfaces: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> | undefined;
+    let surfaces:
+      | ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools>
+      | undefined;
     const gripAt = (
       held: IHandle,
       film: number,
       frame: IAutoMovieRigidTransform,
+      sample?: RigidCarrierSample.IRead,
     ): IMaterialGrip => {
-      const {id, rest, affordance} = held;
-      const part: IAutoMovieMotionHumanProp.IPlacedPoint | undefined = support.prop.point?.(id, film);
-      const handle: IAutoMovieQuaternion | undefined = part?.rotation ??
-        (affordance === undefined ? undefined : Quaternion.multiply(frame.rotation, affordance.frame.rotation));
-      const material: boolean = fixedSeat && part?.rotation !== undefined &&
-        affordance?.kind === "handle" && affordance.rides !== undefined &&
-        affordance.symmetry === "round" && affordance.aperture !== undefined;
+      const { id, rest, affordance } = held;
+      const placed: IAutoMovieTransform | undefined = sample?.point(id);
+      const part: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+        placed === undefined
+          ? support.prop.point?.(id, film)
+          : {
+              point: placed.translation,
+              rotation: placed.rotation,
+              normal: Quaternion.rotateVector(placed.rotation, {
+                x: 0,
+                y: 1,
+                z: 0,
+              }),
+            };
+      const handle: IAutoMovieQuaternion | undefined =
+        part?.rotation ??
+        (affordance === undefined
+          ? undefined
+          : Quaternion.multiply(frame.rotation, affordance.frame.rotation));
+      const material: boolean =
+        fixedSeat &&
+        part?.rotation !== undefined &&
+        affordance?.kind === "handle" &&
+        affordance.rides !== undefined &&
+        affordance.symmetry === "round" &&
+        affordance.aperture !== undefined;
       if (material && held.palmDepth === undefined) {
         // Measure the same longitudinal station the holding law authors, at the
         // skin of this hand. The shape stays in its rest frame throughout a ride.
-        surfaces ??= AutoMovieHumanoidSurfaceRays.tools(context.body.skeleton, context.body.profile);
+        surfaces ??= AutoMovieHumanoidSurfaceRays.tools(
+          context.body.skeleton,
+          context.body.profile,
+        );
         const palm: IAutoMovieHumanoidSurfaces.IFrame =
-          context.body.surfaces.sockets[held.side === "left" ? "palmLeft" : "palmRight"];
+          context.body.surfaces.sockets[
+            held.side === "left" ? "palmLeft" : "palmRight"
+          ];
         const bone: IAutoMovieResolvedBone = surfaces.at(palm.bone);
-        const normal: IAutoMovieVector3 = Quaternion.rotateVector(bone.worldRotation, palm.normal);
-        const fingers: IAutoMovieVector3 = Quaternion.rotateVector(bone.worldRotation, palm.forward!);
-        const station: IAutoMovieVector3 = Vector3.add(bone.worldPosition,
-          Vector3.scale(fingers, HumanMountRider.CENTRE * context.body.measure.hand));
-        const skin: IAutoMovieVector3 = surfaces.exit(palm.bone, station, normal);
+        const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+          bone.worldRotation,
+          palm.normal,
+        );
+        const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
+          bone.worldRotation,
+          palm.forward!,
+        );
+        const station: IAutoMovieVector3 = Vector3.add(
+          bone.worldPosition,
+          Vector3.scale(
+            fingers,
+            HumanMountRider.CENTRE * context.body.measure.hand,
+          ),
+        );
+        const skin: IAutoMovieVector3 = surfaces.exit(
+          palm.bone,
+          station,
+          normal,
+        );
         held.palmDepth = Vector3.dot(Vector3.subtract(skin, station), normal);
       }
       return {
         ...(material ? { palmDepth: held.palmDepth } : {}),
+        ...(held.reinPalm === undefined ? {} : { reinPalm: held.reinPalm }),
         point:
           part?.point ??
           Vector3.add(
@@ -231,62 +312,108 @@ export namespace HumanRideHands {
         ...(handle === undefined
           ? {}
           : {
-              axis: Quaternion.rotateVector(
-                handle,
-                { x: 1, y: 0, z: 0 },
-              ),
+              axis: Quaternion.rotateVector(handle, { x: 1, y: 0, z: 0 }),
             }),
       };
     };
 
     // The lean for what the hands hold at a second: carried back into the frame the rider sat down in, where the circles of `reach` were read.
     type WristPoints = Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
-    const wristPoints = (grips: Grips, frame: IAutoMovieRigidTransform, heldAt?: number): WristPoints => {
+    const wristPoints = (
+      grips: Grips,
+      frame: IAutoMovieRigidTransform,
+      heldAt?: number,
+    ): WristPoints => {
       const back: IAutoMovieQuaternion = Quaternion.multiply(
         origin.rotation,
         Quaternion.inverse(frame.rotation),
       );
       const points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
       for (const side of holding) {
-        const grip: IAutoMovieMotionHumanMountRider.IHoldGrip | undefined =
-          grips[side];
+        const grip: IMaterialGrip | undefined = grips[side];
         if (grip === undefined) continue;
-        const point: IAutoMovieVector3 = Vector3.add(origin.position, Quaternion.rotateVector(back, Vector3.subtract(grip.point, frame.position)));
-        points[side] = fixedSeat
-          ? HumanMountRider.wrist(context.body, seated, {
-              ...grip,
-              point,
-              normal: Quaternion.rotateVector(back, grip.normal),
-              axis: grip.axis === undefined ? undefined : Quaternion.rotateVector(back, grip.axis),
-            }).point
-          : point;
+        const point: IAutoMovieVector3 = Vector3.add(
+          origin.position,
+          Quaternion.rotateVector(
+            back,
+            Vector3.subtract(grip.point, frame.position),
+          ),
+        );
+        points[side] =
+          fixedSeat || grip.reinPalm !== undefined
+            ? HumanMountRider.wrist(context.body, seated, {
+                ...grip,
+                point,
+                normal: Quaternion.rotateVector(back, grip.normal),
+                axis:
+                  grip.axis === undefined
+                    ? undefined
+                    : Quaternion.rotateVector(back, grip.axis),
+              }).point
+            : point;
       }
-      if (heldAt !== undefined && check !== undefined && seat !== undefined && points.left !== undefined && points.right !== undefined)
-        check(points.left, points.right, support.prop.point === undefined ? undefined : (): IAutoMovieRigidTransform | undefined => {
-          const current: IAutoMovieMotionHumanProp.IPlacedPoint | undefined = support.prop.point!(seat.id, heldAt);
-          if (current?.rotation === undefined) return undefined;
-          return {
-            position: Vector3.add(origin.position, Quaternion.rotateVector(back, Vector3.subtract(current.point, frame.position))),
-            rotation: Quaternion.multiply(back, current.rotation),
-          };
-        });
+      if (
+        heldAt !== undefined &&
+        check !== undefined &&
+        seat !== undefined &&
+        points.left !== undefined &&
+        points.right !== undefined
+      )
+        check(
+          points.left,
+          points.right,
+          support.prop.point === undefined
+            ? undefined
+            : (): IAutoMovieRigidTransform | undefined => {
+                const current:
+                  | IAutoMovieMotionHumanProp.IPlacedPoint
+                  | undefined = support.prop.point!(seat.id, heldAt);
+                if (current?.rotation === undefined) return undefined;
+                return {
+                  position: Vector3.add(
+                    origin.position,
+                    Quaternion.rotateVector(
+                      back,
+                      Vector3.subtract(current.point, frame.position),
+                    ),
+                  ),
+                  rotation: Quaternion.multiply(back, current.rotation),
+                };
+              },
+        );
       return points;
     };
 
-    const lean = (grips: Grips, frame: IAutoMovieRigidTransform, heldAt?: number): number =>
+    const lean = (
+      grips: Grips,
+      frame: IAutoMovieRigidTransform,
+      heldAt?: number,
+    ): number =>
       holding.length === 0 ? 0 : reach(wristPoints(grips, frame, heldAt));
 
     // Each grip keeps the side the fingers closed over when taken. A
     // world-forward sign test at every stroke could flip the hand on an oar.
-    const across: Partial<Record<AutoMovieHumanSide, NonNullable<IAutoMovieMotionHumanMountRider.IHoldGrip["across"]>>> = {};
+    const across: Partial<
+      Record<
+        AutoMovieHumanSide,
+        NonNullable<IAutoMovieMotionHumanMountRider.IHoldGrip["across"]>
+      >
+    > = {};
     const gripsAt = (
       film: number,
       frame: IAutoMovieRigidTransform,
+      sample?: RigidCarrierSample.IRead,
     ): Grips => {
       const grips: Grips = {};
       for (const side of holding) {
-        const grip: IAutoMovieMotionHumanMountRider.IHoldGrip = gripAt(handles[side]!, film, frame);
-        const handed: IAutoMovieMotionHumanMountRider.IHoldGrip["across"] = across[side];
+        const grip: IAutoMovieMotionHumanMountRider.IHoldGrip = gripAt(
+          handles[side]!,
+          film,
+          frame,
+          sample,
+        );
+        const handed: IAutoMovieMotionHumanMountRider.IHoldGrip["across"] =
+          across[side];
         grips[side] = handed === undefined ? grip : { ...grip, across: handed };
       }
       return grips;
@@ -305,44 +432,98 @@ export namespace HumanRideHands {
       for (const side of holding) {
         const grip: IAutoMovieMotionHumanMountRider.IHoldGrip = begun[side]!;
         if (grip.axis === undefined) continue;
-        const handed: NonNullable<IAutoMovieMotionHumanMountRider.IHoldGrip["across"]> = Vector3.dot(Vector3.cross(grip.axis, grip.normal), forward) < 0 ? -1 : 1;
+        const handed: NonNullable<
+          IAutoMovieMotionHumanMountRider.IHoldGrip["across"]
+        > =
+          Vector3.dot(Vector3.cross(grip.axis, grip.normal), forward) < 0
+            ? -1
+            : 1;
         across[side] = handed;
         begun[side] = { ...grip, across: handed };
       }
     }
     let working: ReturnType<typeof fixedSeatGripPosture>;
     let alternatives: ReturnType<typeof fixedSeatWorkingPostures>;
-    if (check !== undefined && seat !== undefined && context.params.seconds >= take) {
+    if (
+      check !== undefined &&
+      seat !== undefined &&
+      context.params.seconds >= take
+    ) {
       const heldAt: number = context.start + take;
       const heldFrame: IAutoMovieRigidTransform = support.frame(heldAt);
-      const points: WristPoints = wristPoints(gripsAt(heldAt, heldFrame), heldFrame, heldAt);
+      const points: WristPoints = wristPoints(
+        gripsAt(heldAt, heldFrame),
+        heldFrame,
+        heldAt,
+      );
       const seatFrame: IAutoMovieRigidTransform = {
-        position: Vector3.add(origin.position, Quaternion.rotateVector(origin.rotation, seat.frame.translation)),
+        position: Vector3.add(
+          origin.position,
+          Quaternion.rotateVector(origin.rotation, seat.frame.translation),
+        ),
         rotation: Quaternion.multiply(origin.rotation, seat.frame.rotation),
       };
-      working = fixedSeatGripPosture(context.body, seated, bearing ??= seatSocket.socket(context.body, seated), seatFrame, reach(points), points);
+      working = fixedSeatGripPosture(
+        context.body,
+        seated,
+        (bearing ??= seatSocket.socket(context.body, seated)),
+        seatFrame,
+        reach(points),
+        points,
+      );
       const design: typeof working = working;
-      if (design !== undefined && points.left && points.right && !context.params.feet) {
-        const wrists: Record<AutoMovieHumanSide, IAutoMovieVector3> = { left: points.left, right: points.right };
+      if (
+        design !== undefined &&
+        points.left &&
+        points.right &&
+        !context.params.feet
+      ) {
+        const wrists: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+          left: points.left,
+          right: points.right,
+        };
         const shifted: number = reach({
           left: Vector3.subtract(wrists.left, design.shift),
           right: Vector3.subtract(wrists.right, design.shift),
         });
-        alternatives = fixedSeatWorkingPostures(context.body, (degree: number): IAutoMovieMotionHumanPosture => {
-          const base: IAutoMovieMotionHumanPosture = bow(degree);
-          return { ...base, root: Vector3.add(base.root, design.shift),
-            joints: { ...base.joints, ...design.joints(degree, 1, wrists) } };
-        }, origin, shifted, wrists);
+        alternatives = fixedSeatWorkingPostures(
+          context.body,
+          (degree: number): IAutoMovieMotionHumanPosture => {
+            const base: IAutoMovieMotionHumanPosture = bow(degree);
+            return {
+              ...base,
+              root: Vector3.add(base.root, design.shift),
+              joints: { ...base.joints, ...design.joints(degree, 1, wrists) },
+            };
+          },
+          origin,
+          shifted,
+          wrists,
+        );
       }
     }
-    function posture(grips: Grips, frame: IAutoMovieRigidTransform, taken: number, heldAt?: number): IAutoMovieMotionHumanPosture {
-      if (working === undefined) return bow(lean(grips,frame,heldAt)*taken);
-      const points: WristPoints = wristPoints(grips,frame,heldAt);
-      if (points.left === undefined || points.right === undefined) return bow(reach(points)*taken);
-      const shift: IAutoMovieVector3 = Vector3.scale(working.shift,taken);
-      const degrees: number = reach({left:Vector3.subtract(points.left,shift),right:Vector3.subtract(points.right,shift)})*taken;
+    function posture(
+      grips: Grips,
+      frame: IAutoMovieRigidTransform,
+      taken: number,
+      heldAt?: number,
+    ): IAutoMovieMotionHumanPosture {
+      if (working === undefined) return bow(lean(grips, frame, heldAt) * taken);
+      const points: WristPoints = wristPoints(grips, frame, heldAt);
+      if (points.left === undefined || points.right === undefined)
+        return bow(reach(points) * taken);
+      const shift: IAutoMovieVector3 = Vector3.scale(working.shift, taken);
+      const degrees: number =
+        reach({
+          left: Vector3.subtract(points.left, shift),
+          right: Vector3.subtract(points.right, shift),
+        }) * taken;
       const at: IAutoMovieMotionHumanPosture = bow(degrees);
-      return {...at,root:Vector3.add(at.root,shift),joints:{...at.joints,...working.joints(degrees,taken,points)}};
+      return {
+        ...at,
+        root: Vector3.add(at.root, shift),
+        joints: { ...at.joints, ...working.joints(degrees, taken, points) },
+      };
     }
     const set: IAutoMovieMotionHumanPosture = bow(lean(begun, origin));
     for (const side of holding) {
@@ -357,15 +538,22 @@ export namespace HumanRideHands {
           fix: "give the support the shapes the fingers close on, or leave the hands free",
         });
       const grip: IMaterialGrip = begun[side]!;
-      const handle: IAutoMovieAffordance | undefined = handles[side]!.affordance;
+      const handle: IAutoMovieAffordance | undefined =
+        handles[side]!.affordance;
       let closureGrip: IMaterialGrip = grip;
       if (grip.palmDepth !== undefined && handle !== undefined) {
         // Rest shapes and the moving hand describe one rigid grasp. Bring the
         // grip back to those shapes before selecting and closing on its material.
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(origin.rotation, handle.frame.rotation);
+        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+          origin.rotation,
+          handle.frame.rotation,
+        );
         closureGrip = {
           ...grip,
-          point: Vector3.add(origin.position, Quaternion.rotateVector(origin.rotation, handle.frame.translation)),
+          point: Vector3.add(
+            origin.position,
+            Quaternion.rotateVector(origin.rotation, handle.frame.translation),
+          ),
           normal: Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
           axis: Quaternion.rotateVector(rotation, { x: 1, y: 0, z: 0 }),
         };
@@ -379,6 +567,11 @@ export namespace HumanRideHands {
         origin,
       );
     }
-    return { posture, gripsAt, closures, ...(alternatives === undefined ? {} : { alternatives }) };
+    return {
+      posture,
+      gripsAt,
+      closures,
+      ...(alternatives === undefined ? {} : { alternatives }),
+    };
   }
 }

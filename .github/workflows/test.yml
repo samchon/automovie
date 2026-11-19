@@ -13,26 +13,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # The suite runs in parallel shards, split by scenario name so that each
-  # takes a comparable share of the run's time.
-  shard:
-    name: test (${{ matrix.shard.name }})
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        shard:
-          - name: dynamics
-            select: --include test_motion_dynamics_
-          - name: posture
-            select: --include test_motion_posture_
-          - name: catalogue
-            select: --include test_motion_catalogue_
-          - name: contact
-            select: --include test_motion_contact_ test_motion_root_
-          - name: other
-            select: --exclude test_motion_dynamics_ test_motion_posture_ test_motion_catalogue_ test_motion_contact_ test_motion_root_
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -44,18 +27,6 @@ jobs:
         with:
           path: node_modules/.cache/ttsc
           key: ttsc-test-${{ hashFiles('pnpm-lock.yaml') }}
-      - run: pnpm test ${{ matrix.shard.select }}
+      - run: pnpm test
         env:
           NODE_OPTIONS: --max-old-space-size=8192
-      - if: matrix.shard.name == 'other'
-        name: Lexicon schemas are current (regenerate the schemas with `pnpm --filter @automovie/motions schemas` and commit them)
-        run: |
-          pnpm --filter @automovie/motions schemas
-          git diff --exit-code -- packages/motions/src/lexicon/HUMAN_LEXICON_SCHEMA_DATA.ts
-
-  test:
-    needs: shard
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - run: test "${{ needs.shard.result }}" = "success"

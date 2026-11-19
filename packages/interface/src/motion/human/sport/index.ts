@@ -1,3 +1,4 @@
+export type { IAutoMovieMotionHumanAquatic } from "./IAutoMovieMotionHumanAquatic";
 export type { IAutoMovieMotionHumanAthletics } from "./IAutoMovieMotionHumanAthletics";
 export type { IAutoMovieMotionHumanBallSport } from "./IAutoMovieMotionHumanBallSport";
 export type { IAutoMovieMotionHumanBaseball } from "./IAutoMovieMotionHumanBaseball";
@@ -12,10 +13,12 @@ export type { IAutoMovieMotionHumanHighJump } from "./IAutoMovieMotionHumanHighJ
 export type { IAutoMovieMotionHumanMartialArt } from "./IAutoMovieMotionHumanMartialArt";
 export type { IAutoMovieMotionHumanPoleVault } from "./IAutoMovieMotionHumanPoleVault";
 export type { IAutoMovieMotionHumanRacket } from "./IAutoMovieMotionHumanRacket";
+export type { IAutoMovieMotionHumanStickBall } from "./IAutoMovieMotionHumanStickBall";
 export type { IAutoMovieMotionHumanRoundOff } from "./IAutoMovieMotionHumanRoundOff";
 export type { IAutoMovieMotionHumanSalto } from "./IAutoMovieMotionHumanSalto";
 export type { IAutoMovieMotionHumanSquatVault } from "./IAutoMovieMotionHumanSquatVault";
 export type { IAutoMovieMotionHumanSwim } from "./IAutoMovieMotionHumanSwim";
+export type { IAutoMovieMotionHumanSwimImmersed } from "./IAutoMovieMotionHumanSwimImmersed";
 export type { IAutoMovieMotionHumanSwimStroke } from "./IAutoMovieMotionHumanSwimStroke";
 export type { IAutoMovieMotionHumanVault } from "./IAutoMovieMotionHumanVault";
 export type * from "./kickboxing";

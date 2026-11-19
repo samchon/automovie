@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieInteractionEvent,
+  IAutoMovieMotionHumanObject,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformanceAim,
   IAutoMovieMotionHumanPerformanceState,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
+  IAutoMovieMotionHumanPropFracture,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionTarget,
   IAutoMoviePose,
@@ -27,6 +29,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPropFlight } from "./HumanPropFlight";
+import { HumanPropFracture } from "./HumanPropFracture";
 import { HumanSegment } from "./HumanSegment";
 
 /**
@@ -188,14 +191,47 @@ export class HumanPerformance {
 
   /**
    * Every hit of the performance in time order, or those on one person or
-   * prop (`HumanPerformanceHits`): melee stops, blasts and flights' first
-   * contacts, each as the one shared interaction record.
+   * prop (`HumanPerformanceHits`): melee stops, blasts and flight contacts,
+   * each as the one shared interaction record.
    *
    * @param subject The struck person or prop; every hit when absent.
    * @returns The hits.
    */
   public hits(subject?: string): readonly IAutoMovieInteractionEvent[] {
     return HumanPerformanceHits.hits(this.resolved, subject);
+  }
+
+  /**
+   * Stage the model's replacement at a recorded hit on the placed prop.
+   *
+   * @param request The recorded hit, placed prop, its model and the authored split budget.
+   * @returns The replacement plan, or null for a missing hit or an intact model.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the exact hit and when the model stays intact.
+   * @evidence contracts/development/implementation.md#principled-implementation Looks up a recorded hit on the chosen subject and passes its film clock and this performance's prop reader to the breakaway planner.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The performance supplies its existing event and prop placement. HumanPropFracture owns the split's staging.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No derived strike strength or fabricated hit. The named model owns acceptance of the authored budget.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Selects the hit in one pass over the subject's records, then prepares one replacement.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the performance hit and frame readers. Call once and sample the returned plan during playback.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The performance retains no fracture plans. A returned plan with a remainder borrows the performance's prop reader for its lifetime.
+   */
+  public fracture<Piece extends IAutoMovieMotionHumanObject.IModel>(
+    request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
+  ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null {
+    const subject: string = request.subject;
+    if (!this.resolved.props.has(subject)) return null;
+    const hit: IAutoMovieInteractionEvent | undefined = this.hits(subject).find(
+      (event: IAutoMovieInteractionEvent): boolean =>
+        event.kind === "hit" && event.id === request.hit,
+    );
+    return hit === undefined
+      ? null
+      : HumanPropFracture(
+          request,
+          hit,
+          (seconds: number): IAutoMovieRigidTransform =>
+            this.prop(subject, seconds),
+        );
   }
 
   /**

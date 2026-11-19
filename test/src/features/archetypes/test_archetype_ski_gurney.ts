@@ -1,4 +1,13 @@
-import { ArchetypeUnits, createBed, createSki } from "@automovie/archetypes";
+import {
+  ArchetypeFrame,
+  ArchetypeUnits,
+  createBed,
+  createSki,
+} from "@automovie/archetypes";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -12,7 +21,7 @@ const MM: number = 1e-3;
  * A ski is LINE Blend's shape at Rossignol's patented thickness, and a stretcher Stryker's Prime with its ComfortGel mattress.
  *
  * Scenarios:
- * 1. Over 200 seeds a ski is exactly one of LINE's 163, 169, 175 and 180 cm, each drawn, and 15 to 30 mm thick, its forebody and afterbody at the mean of LINE's 129-98-120 mm widths, its `stance` on its top 20 mm behind its centre.
+ * 1. Over 200 seeds a ski is exactly one of LINE's 163, 169, 175 and 180 cm, each drawn, and 15 to 30 mm thick, its forebody and afterbody at the mean of LINE's 129-98-120 mm widths, its `stance` on its top 20 mm behind its centre. The two lower contacts lie along the drawn afterbody beside the boot.
  * 2. A stretcher's surface lies the ComfortGel's 5.5 in over a litter in the Prime's 20.75 to 34 in, its patient surface 26 x 75.25 in and its frame 85 in long, its 8 in casters at the corners of its 85 x 26 in overall size.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures the produced colliders and contacts over the seeds; a ski or a stretcher off its sources is caught with the numbers.
@@ -72,6 +81,23 @@ export function test_archetype_ski_gurney(): void {
     ski.affordance("stance").frame.translation.y,
     archetypeExtent(ski, "y").high,
   );
+  for (const [id, sign] of [
+    ["leftEdge", 1],
+    ["rightEdge", -1],
+  ] as const) {
+    const edge: IAutoMovieAffordance = ski.affordance(id);
+    const tangent: IAutoMovieVector3 = ArchetypeFrame.axis(edge.frame, "x");
+    near(
+      `${id} lies across from the boot on the afterbody boundary`,
+      edge.frame.translation.x,
+      (sign * (0.098 + 0.12)) / 4,
+    );
+    near(`${id} runs along the ski`, Math.abs(tangent.z), 1);
+    const low: number = edge.frame.translation.z - edge.length! / 2;
+    const high: number = edge.frame.translation.z + edge.length! / 2;
+    if (low < -MM || high > archetypeExtent(ski, "z", ["afterbody"]).high + MM)
+      findings.push(`${id} crosses an afterbody end: ${low}–${high}`);
+  }
 
   // 2. The stretcher.
   findings.push(

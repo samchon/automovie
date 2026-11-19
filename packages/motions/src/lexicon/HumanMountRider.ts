@@ -27,6 +27,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
 import type { HumanRideHands } from "./HumanRideHands";
+import { placeRideReinPalm } from "./placeRideReinPalm";
 
 /**
  * What a seated rider's own body gives to stay on a mount's parts: the
@@ -43,6 +44,10 @@ export namespace HumanMountRider {
   interface IWrist {
     point: IAutoMovieVector3;
     fingers: IAutoMovieVector3;
+    /** The material-aligned wrist rotation, if the point came from a rein. */
+    rotation?: IAutoMovieQuaternion;
+    /** The rein's actual palm offset, preserved by the arm fit. */
+    contact?: IAutoMovieVector3;
   }
 
   /** The knee flexion a pedalling leg keeps at the bottom of the stroke, degrees: the low end of the 25 to 35 a saddle is set for (Bini, Hume and Croft 2011, Sports Med 41:463, as the bicycle archetype cites it; not re-read here, so provisional). */
@@ -164,6 +169,8 @@ export namespace HumanMountRider {
         grip.across ?? (Vector3.dot(across, forward(posture)) < 0 ? -1 : 1);
       fingers = Vector3.scale(Vector3.normalize(across), side);
     }
+    if (material.reinPalm !== undefined)
+      return { ...placeRideReinPalm(material.reinPalm, grip, fingers), fingers, contact: material.reinPalm.point };
     return {
       point: Vector3.add(
         grip.point,
@@ -281,8 +288,8 @@ export namespace HumanMountRider {
     free: () => IAutoMovieResolvedBone,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
-    const { point: target, fingers }: IWrist = wrist(body, posture, grip);
-    const turned: IAutoMovieQuaternion = HumanHand.rotation(side, {
+    const { point: target, fingers, contact, rotation: rein }: IWrist = wrist(body, posture, grip);
+    const turned: IAutoMovieQuaternion = rein ?? HumanHand.rotation(side, {
       fingers,
       palm: Vector3.scale(grip.normal, -1),
     });
@@ -314,6 +321,7 @@ export namespace HumanMountRider {
         point,
         rotation,
         bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+        ...(contact === undefined ? {} : { contact }),
         planted: s >= 1,
       },
       fingers: closing,

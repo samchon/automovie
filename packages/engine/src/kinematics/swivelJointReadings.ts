@@ -61,7 +61,7 @@ export namespace swivelJointReadings {
    * @returns Each axis's reading.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the premise on the rotation and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The entries `axis_i · (R axis_j)` are exact sinusoids of the swivel, fitted from three rotations; a distal twist composes Ry(a)·Rx(f)·Rz(t), with flexion in the middle, and a proximal one Rz(t)·Ry(a)·Rx(f), with abduction in the middle, as `decomposeJointRotationOnBasis` reads them.
+   * @evidence contracts/development/implementation.md#principled-implementation The entries `axis_i · (R axis_j)` are exact sinusoids of the swivel, fitted from three rotations; a distal twist composes Ry(a)·Rx(f)·Rz(t), with flexion in the middle, a proximal one Rz(t)·Ry(a)·Rx(f), and an explicit flexion-first one Rx(f)·Ry(a)·Rz(t), both with abduction in the middle, as `decomposeJointRotationOnBasis` reads them.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The entries are sampled once and each axis names the entries it reads.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sampling beyond the three rotations that determine a sinusoid; the handedness correction is the decomposition's.
    * @evidence contracts/development/implementation.md#efficient-algorithms Three rotations and nine dot products each.
@@ -103,6 +103,13 @@ export namespace swivelJointReadings {
       ) as [number, number, number];
       return swivelArcs.fitted(zero, quarter, half);
     };
+    // On the handed clinical basis, F·A·T is Rx(f)·Ry(a)·Rz(t).
+    if (basis.rotationOrder === "flexion-abduction-twist")
+      return {
+        flexion: { y: swivelArcs.scaled(entry(1, 2), -1), x: entry(2, 2), turn: 1 },
+        abduction: { sine: entry(0, 2) },
+        twist: { y: swivelArcs.scaled(entry(0, 1), -1), x: entry(0, 0), turn: handed },
+      };
     return basis.twistPlacement === "distal"
       ? {
           flexion: { sine: swivelArcs.scaled(entry(1, 2), -1) },
