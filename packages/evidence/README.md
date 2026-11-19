@@ -36,7 +36,7 @@ export default createEvidenceConfig({
 
 The production's own contracts, `work/**` and `language/**`, hold the questions specific to that work and to its language, and live under `<location>/docs/contracts` in either layout.
 
-Bundled story citations start at `contracts/story`. When upgrading a production with the former `shared/` folder, install the matching scaffold and drop that prefix from its `@evidence` and `@evidenceExclude` citations. For example, `shared/principles/screenplay.md#beat-decisions` becomes `principles/screenplay.md#beat-decisions`. Recheck affected answers against the criteria under each heading and reopen affected reviews.
+Bundled story citations start at `contracts/story`. When upgrading a production with the former `shared/` folder, install the matching scaffold and drop that prefix from its `@evidence` and `@evidenceExclude` citations. For example, `shared/principles/screenplay.md#beat-decisions` becomes `principles/screenplay.md#beat-decisions`. Check active answers against the revised criteria. Preserve closed passes and identify the revision their reviews cover.
 
 ### Narrative
 

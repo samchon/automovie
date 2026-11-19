@@ -6,9 +6,7 @@ Read the whole requested change with its callers, inputs, consumers, error paths
 
 ## Truth of answers
 
-Each answer states what the code does and claims no behavior, measurement or limit the code lacks. It cites what its [entities](../contracts/development/entities.md), [behaviors](../contracts/development/behaviors.md) or [composition](../contracts/development/composition.md) contract names for its respondent.
-
-Verify each answer against the [item's criteria](../contracts/items.md#item-structure).
+Verify each answer against its [contract item](../contracts/items.md#item-structure), the implementation and the sources it cites. Report any behavior, measurement or limit it claims without support.
 
 ## The actual consumer
 

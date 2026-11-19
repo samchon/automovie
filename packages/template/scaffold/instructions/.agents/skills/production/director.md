@@ -10,10 +10,10 @@ At a narrative pass's Evidence step, start a separate [Evidence answerer](../sto
 
 ## Judgment and revision
 
-Inspect the handoff against the commission and the stage's skill. Read a screenplay in viewing order. Follow the participants and objects from their starting positions. Can the required outcome happen in the time and space given, and does what the viewer sees or hears achieve the intended effect? Test an asset in its [commissioned use](../review/delivery-review.md#assets).
+Read the screenplay in viewing order. Follow people and props from their starting positions. Can the scene happen in the time and space given, and will it produce the intended effect? Test a standalone asset in its [commissioned use](../review/delivery-review.md#assets).
 
 Return work that falls short, even after passing validation or independent review. Show the responsible worker the passage or artifact, the loss it causes and what the revision must preserve. Send findings together and inspect the repair before advancing. Accept a deliberate choice that achieves the intended effect.
 
 Respect [closed passes](../story/correction/repair.md#closed-passes). Revisiting a settled finding requires new evidence. Refer changes to a [fixed screenplay](../story/workflow/routes.md#fixed-screenplay) or another user-reserved choice to the user.
 
-For a film, trace the commissioned performance through its study, [catalog cases](../motion/catalog-cases.md#record) and [staged segments](../motion/segment-review.md). Inspect the cases in their registered film before widening production. At handoff, report the exact revision, scope and verdict from [delivery review](../review/delivery-review.md#acceptance-record).
+For a film, inspect the [registered catalog cases](../motion/catalog-cases.md#record) and [staged performance](../motion/performance.md). At handoff, report the revision and the scope of its [delivery verdict](../review/delivery-review.md#acceptance-record).

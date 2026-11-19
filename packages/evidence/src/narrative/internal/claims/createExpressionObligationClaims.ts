@@ -27,7 +27,7 @@ import { hasStoryContract } from "../utilities/hasStoryContract";
  * checklists never select, so a population duty cannot leak into a per-unit
  * checklist. A package whose contract predates the folder has no such claim.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Only scripts receive file-level expression obligation claims, under their construction stage; installed shared and language files are selected separately, each requiring exactly one respondent for every population item; Bundled checklists are probed in the skills tree and local references in the production's `docs/contracts`.
+ * @evidence contracts/development/implementation.md#principled-implementation Scripts construction selects each installed expression obligation from the bundled skills or local language contracts. Each item has one file respondent across the script population.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Expression population questions have their own file-level family under scripts construction without leaking whole-population duties into unit checklists.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent optional obligation document produces no claim under the supported older-contract layout; every other layer finishes its language in its own construction questions.
  * @evidence contracts/development/common.md#meaningful-documentation The prose identifies the scripts respondents, file-level population semantics, construction activation and optional older contract families.

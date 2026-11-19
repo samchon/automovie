@@ -1,18 +1,18 @@
-# Final screenplay population obligations
+# Screenplay population obligations
 
-Answer once for the complete population at its current stage. In construction, judge the plan and provisional material and timing. At delivery, also judge complete realization.
+Answer once across the screenplay at the stage reached by the commission.
 
 ## Complete realization
 
-Does every parent decision reach a final unit, and does the whole match its declared duration and format, as a plan at construction and as the measured film at delivery? Code references and source checks cannot prove output realization.
+Where does the screenplay deliver each central promise, and can the whole fit its commissioned format and duration?
 
-- Map long-route script executions to final units and back. On a short map brief and screenplay-owned decisions. Follow recurring subjects across cuts and scenes. Account for changes in location, possession, state, relationships and knowledge, including changes revealed later. Judge choices, consequences, reveal order, attention, duration, image-sound relations and transitions across the film.
-- Locate the passage that delivers each central promise of the commission. How does it unfold, and how much screen time does it receive? A setup and aftermath can leave the promised event missing. Preserve an intentional delay or off-screen event when it serves the agreed form.
-- At construction, record timing estimates and their basis, placeholders, planned performance, source, sound, edit and output work, and outstanding measurements. Add observations as descendants exist. Missing commissioned parts remain gaps at delivery.
-- At delivery, measure release units and the assembled file against the declared format and duration. Distinguish estimates, recorded speech, performed action and edit timing. State justified ceilings and the effect of removing redundant repetitions. Preserve functional refrains. Trace shortfalls to missing experience, event assignment or partition before changing the work.
+- Trace the long-route script into the final scenes and back. On a short, trace the brief and the screenplay's own decisions. Follow recurring subjects across cuts for changes in place, possession, relationships and knowledge.
+- Locate the passage that delivers each promise and estimate how long it plays. Check choices, consequences, reveals and image-sound transitions. A setup followed by its aftermath can leave the promised event missing. Allow an agreed delay or off-screen event.
+- At construction or a text-only handoff, identify the basis for timing estimates, any justified duration ceiling, placeholders and outstanding production work. Distinguish missing material from redundant repetition and preserve functional refrains.
+- At film delivery, compare the [measured release units and assembled cut](../../../review/delivery-review.md#measurement-and-comparison) with the plan. Use recorded speech, performed action and edit timing to trace shortfalls to their scene, event or partition. Identify any commissioned material still missing.
 
 ## Published version
 
-Is every change to an existing public release identified and handled across the release population? A changed goal, relationship or result needs accountable handling, not unnoticed replacement.
+Can the recipient identify what changed in an existing public release and what notice it requires?
 
-For a public release, identify the version, changed scope, reason, effect and required notices. Distinguish spelling or metadata, rendering, factual, semantic and delivery-required corrections. Follow applicable platform requirements and align canon, narrative, source, media, edit and review. Audience reaction alone does not authorize a canon change. For an unpublished work, record its status and complete pre-delivery review.
+Give the version, scope, reason and effect of each correction, whether editorial, technical, factual or story-changing. Align affected text, source, media and review and follow applicable platform requirements. A change to canon needs authority. For an unpublished work, state its status.

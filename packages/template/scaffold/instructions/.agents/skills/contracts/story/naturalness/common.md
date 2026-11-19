@@ -1,25 +1,23 @@
 # Common expression principles
 
-Compare each script construction H2 with its parent treatments. Inspect the whole respondent and locate each candidate, its repair or grounds for retention. If there are none, name the inspected scope.
+Compare each script section with its treatments. Locate each finding and its repair or grounds for retention. If none, name the scope inspected.
 
 ## Reads as written
 
 Does each instruction, line, image and detail serve its moment in the adopted language and register? Keep the people, causes and voice legible through the work's chosen means.
 
-Only the following failures and exceptions govern this item.
+Apply only the following failure cases and exceptions.
 
-- **Padding.** Identify action explained twice, closing aphorisms or balanced summaries, background that delays entry, research that stops the scene, lists of absences used to manufacture stillness, delivery labels that echo a line, and imagined misunderstandings immediately denied. Modifiers, contrasts and formatting must change information, access or pressure.
-- **Recognition.** Establish appearance and rank on entry or through scene-used costume, action, address or an identifying trait. Flag empty links, arbitrary patterns, jargon and habitual gestures. Reusing a name, a word or script framing alone proves no habit. Recall, a shared goal, useful speaker cues and [performance directions](../principles/scripts.md#executable-scene) may be necessary.
-- **Thought and idiom.** Flag thoughts that repeat visible emotion or conclusions. A calculation, memory or expectation may reveal new understanding or burden. Wording must identify actor, action and target in the adopted variety, period, register and relationship. Preserve functional dialect, quotation, institutional language, fragments, passives, inversion and repetition. A repair adds no event, cause or opposition.
-- **Concrete action.** Locate viewpoint, gaze, movement, object use and bodily limits. Flag unlocated inventories, vague substitutes for needed material, scale, color or position, interchangeable metaphors and physical limits expressed only as labels or numbers. Respect inherited values and access. Check both missing detail and detail that obscures the present choice. Selective or documentary restraint can serve the scene.
-- **Connections.** Keep actor, speaker, reaction target, causal links and spatial relations legible across paragraphs. Preserve the occasion for emotion, voice, humor and changing pressure. Recoverable omitted subjects and deliberate summary are valid. A performed exchange reduced to a progress report needs its experience restored within the inherited events. Scripts decide playable conditions and leave final emphasis to the screenplay.
-- **Judgment.** Apply [independent classification](../../../story/correction/inspection.md#independent-classification) to each sentence and its context. The classifier resolves ambiguous candidates, the [author decides findings](../../../review/narrative-rounds.md#findings-and-decisions), and [inspection](../../../story/correction/inspection.md#changed-work) covers revisions. Retain a named failure only when the passage demonstrates an applicable exception, including meaningful silence, execution directions, adopted narration or form, functional lies, refrains, speech habits and formal regularity. Narration must earn its place through wording, placement or image and sound.
+- **Padding.** Look for repeated action or delivery, closing aphorisms, balanced summaries, delayed entry, research digressions, lists of absences and denials of imagined misunderstandings. Keep modifiers, contrasts and formatting that change information, access or pressure.
+- **Recognition.** Establish appearance and rank on entry or through costume, action, address or a distinguishing trait. Locate empty links, jargon, arbitrary patterns and habitual gestures. A repeated name, word or framing alone proves no habit. Recall, shared goals, speaker cues and [performance directions](../principles/scripts.md#executable-scene) can serve the scene.
+- **Thought and idiom.** Cut thoughts that repeat a visible emotion or conclusion. Keep calculations, memories or expectations that reveal something new. Make actor, action and target clear in the adopted variety, period and register. Preserve functional dialect, quotation, institutional language, fragments, passives, inversion and repetition.
+- **Concrete action.** Locate gaze, movement and object use from the chosen viewpoint. Flag unlocated inventories, missing material, scale, color or position, interchangeable metaphors and bodily limits conveyed only by labels or numbers. Preserve inherited values and access. Check for missing detail and detail that obscures a choice. Selective or documentary restraint may serve the scene.
+- **Connections.** Follow speakers, actions, reaction targets, causes and spatial relationships across paragraphs. Preserve the occasion for emotion, voice, humor or changing pressure. Allow recoverable subjects and deliberate summary. Restore a consequential exchange reduced to a report without inventing events, causes or opposition.
+- **Judgment.** [Classify each sentence](../../../story/correction/inspection.md#independent-classification) in context. Retain a named failure only where the passage earns its exception, including purposeful silence, execution directions, narration, lies, refrains, speech habits or formal regularity. Judge narration by its wording, placement and relation to the image and sound. The [author decides review findings](../../../review/narrative-rounds.md#findings-and-decisions).
 
 ## Expression fidelity
 
 Would downstream authors derive the same world, events, people, knowledge, values and certainty from the script and its treatments? Judge differences by their effect on facts and scenes.
-
-Fidelity and natural reception are separate judgments: a faithful passage can still fail to read as written, and a natural one can still have changed the story.
 
 - Compare world facts, event causality, relationships, motives, choices, consequences, knowledge and reveal order, names, quantities, dimensions, colors and certainty with the treatments. Preserve setups, payoffs, motivating speech, narrator voice and humor in their function. Recompose a failed expression without losing that function.
 - Locate any loss in the passage. Carry what the audience needs for a choice, outcome or promised experience, and hand production-only measurements and constraints to their consumer. Preserve meaning without importing source register, negations, disclaimers or annotations.

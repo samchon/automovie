@@ -10,14 +10,9 @@ Keep conditions together when the same respondent can establish them with the sa
 
 ## Answers
 
-1. Check the work against the complete item.
-2. Repair what fails.
-3. Write an answer true against all of them, without reciting the list.
-4. Name in it each criterion that does not apply, with its reason.
+Check the respondent against the complete item. Return gaps to the author for repair and answer from the corrected work. Explain any inapplicable criterion once, grouping those with the same reason.
 
-Source reviewers verify source answers. The evidence answerer verifies story answers. Report any proven loss under the question unless the item expressly limits its scope.
-
-Treat enumerations as comparison criteria. Keep research citations in their owning records.
+Source reviewers verify declaration answers. The Evidence answerer verifies story answers. Report any demonstrated loss within the question's scope unless the item expressly limits its failure cases. Cite research from its owning record.
 
 ## Outside the graph
 

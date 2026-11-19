@@ -8,7 +8,7 @@ Did the round cover the scope its review requires and locate every member of eac
 
 - Identify the revision, pass, layer, files, H2s, relationships, descendants and observations actually reviewed. Reconcile the inventory and measurements with the reading required by [narrative rounds](../../../review/narrative-rounds.md). For carries, identify the source, reader and grounds in the current tree. State partial or unavailable coverage and respect [closed passes](../../../story/correction/repair.md#closed-passes).
 - Where [classification](../../../story/correction/inspection.md#changed-work) ran, stable sentences can retain their classifications. They still need the applicable whole reading and unit verdict.
-- For every finding class, give a reproducible search, all members, quotations, locators, failed obligation, owner and affected relations. Check completeness and settings navigation where relevant. Test whole-population claims of silence, refrain or other regularity against their function. Repeated syntax, lengths and annotation ratios prompt reading. Every class finding needs support in an inspected unit.
+- Reconcile each finding class with its cited unit findings and reproducible search. Identify missing members or affected relations. Check completeness and settings navigation where relevant. Test whole-population claims of silence, refrain or other regularity against their function. Repeated syntax, lengths and annotation ratios prompt reading. Every class finding needs support in an inspected unit.
 
 ## Round accountability
 

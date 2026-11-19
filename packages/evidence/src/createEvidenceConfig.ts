@@ -19,8 +19,8 @@ import { createProductionConfig } from "./narrative/createProductionConfig";
  * narrative factories, which keep production-owned work and language contracts
  * under `<location>/docs/contracts`, and its root relative to `location` goes to the default
  * engineering, development and research claims. Caller-supplied `claims` are
- * added after the defaults as written, so they name their own root. Short
- * narratives select their first study unless research was explicitly set.
+ * added after the defaults as written, so they name their own root. A short
+ * narrative includes its studies by default once one exists.
  * Film composition validates its catalog inputs before building claims.
  *
  * @evidence contracts/development/implementation.md#principled-implementation An absolute project location and a resolved absolute shared skills tree anchor the native engineering defaults and optional narrative selectors; native Evidence resolves the relative root against the configuration directory, the location, and caller-supplied claims are cloned before composition.

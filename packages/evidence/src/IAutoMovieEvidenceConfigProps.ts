@@ -41,6 +41,6 @@ export interface IAutoMovieEvidenceConfigProps {
   /** Entity, behavior and composition development contracts; omitted stages stay disabled. */
   development?: IAutoMovieDevelopmentProps;
 
-  /** Selects research studies explicitly. When omitted, a short narrative selects them once a study other than the research index exists. Other routes default to disabled. */
+  /** Overrides research selection. By default a short selects all studies once one exists beyond the index. Other routes leave research disabled. */
   research?: "disabled" | "evidence";
 }

@@ -8,7 +8,7 @@ Keep the default engineering claims: every source declaration and test answers t
 
 Enable entities, behaviors and composition when their folders get the first declaration unless the route opens them later.
 
-Submitting programmed scenes or films opens the [catalog](../motion/catalog-cases.md#record) layout check. Its case sources, film and acceptance record must exist. The director verifies registration, tested conditions and performance in the running catalog.
+With composition enabled, Evidence checks for the [catalog sources, film and acceptance record](../motion/catalog-cases.md). The director judges what the registered film plays.
 
 ## Story
 

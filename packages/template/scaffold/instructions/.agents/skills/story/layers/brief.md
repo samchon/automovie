@@ -10,4 +10,4 @@ Include shared places, recurring props and subjects with commissioned appearance
 
 ## Growth
 
-The brief grows as the screenplay is written. After the pass closes, a decision of a kind the brief holds that one scene makes and another must keep is added under [concretization](../correction/repair.md#concretization).
+When a screenplay establishes a brief fact another scene or film needs, add it under [concretization](../correction/repair.md#concretization), including after the pass closes.

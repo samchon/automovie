@@ -1,28 +1,29 @@
-# Final screenplay principles
+# Screenplay principles
 
-Each screenplay H2 answers for its specified audiovisual experience. A long work realizes executable scripts. A short realizes its brief and research and decides events and scene execution.
+Each screenplay section answers for what its audience can see and hear.
 
 ## Audiovisual realization
 
-Do image, sound, attention, timing, juxtaposition and transitions realize the established performance so the audience can follow and feel it?
+Can the audience follow and feel the action through image, sound, timing and transitions?
 
-- **What plays.** In a long work, realize the script. On a short, decide the events and execution the [brief delegates](../../../story/layers/brief.md#what-it-holds). Preserve settled facts, capabilities, choices, relationships, causes, outcomes and reveal order. Leave unresolved relationships open. Return a parent that leaves nothing to realize to its owner.
-- **Performance.** Play consequential choices, exchanges and sustained tension, humor or loss in full. A concise connection, deliberate summary or complete short utterance can stand. Write observable preparation, action, response and resulting state, including support, weight transfer, contact or separation and recovery where they matter. A technique name or key pose alone cannot carry an exchange.
-- **Practice and form.** For skilled practice, identify the observation that supports the beat's choice of action, spacing, pace and response. Vary and interleave recurring motifs. Decide performance, expressions and sound within the commissioned representation. The screenplay establishes the plan and delivery review verifies its realization.
-- **Orientation.** Establish people or forces, place, time, conditions and access when needed. Across joins preserve or show changes in position, direction, gaze, objects, bodily state, sound source and timing. Distinguish on-screen speech, off-screen speech, narration, text and overlap where meaning depends on them. Characters learn through what reaches them. Give a reason for withholding and legible boundaries for deliberate ambiguity.
-- **Emphasis and language.** Choose concrete details that change action, understanding, relationship, atmosphere or theme. Give inward meaning an observable form or an adopted voice or caption. Preserve purposeful restraint, silence and gaps. An appearance inventory, mood label or later explanation cannot supply the experience. Use idiomatic speech and text for the period, variety and register. Judge action lines by who does what, where and with what result.
+- Realize the long-route script or the decisions the short's [brief](../../../story/layers/brief.md#what-it-holds) delegates. Preserve established choices, relationships, outcomes and reveal order. Keep unresolved relationships open. Return an overdetermined parent to its author.
+- Give consequential choices, tension, humor and loss enough time to play. A held look, short reply or deliberate summary may carry the moment. Show preparation, effort and recovery where the action depends on them.
+- Use image, speech, text, silence and recurring motifs within the commissioned form. Make on-screen, off-screen and overlapping sources distinguishable when meaning depends on them.
+- Choose details that change what the audience notices, understands or feels. Ground each character's knowledge in what reaches them. Preserve intentional ambiguity and give inward meaning a perceptible form.
+- Write action with a clear actor, target and result. Use speech and text idiomatic to the period, variety and register.
 
 ## Beat decisions
 
-Can the production follow how each beat unfolds, from what prompts an action through the participants' responses to its outcome? Leave derived values to code.
+Can the next author stage the exchange from its cue through its outcome?
 
-- Open the scene with its standing state, including light, camera and sound. Identify each place, person and object the action tracks by its subject record or a distinct scene-local name. Establish starting positions, possessions and entrances. Group dressing and crowds until an individual matters. A route, barrier or sightline on which a beat depends must work from those positions.
-- Show the acting participant's intent and cue, how the action develops, what changes and who responds. Follow people whose movement or held position changes the exchange, even when attention shifts. Show how objects support, obstruct or carry the action. A group may act together until an individual's choice changes the result.
-- State changes from the inherited spatial, camera and sound state, including consequential stillness. A new shot gives its size and subject under [records](../../../story/layers/notation.md#records). Name actions the installed vocabulary can perform together or a cited research law supports. Test the chosen outcome against the practice, performers and their intents.
-- Use camera actions and expressions the representation can deliver. Carry required generated-film reactions in the prompt. Code derives coordinates, offsets and exact timing. State a synchronization anchor exactly when a line, lyric, music event, perceptible count or edit depends on it.
+- Establish the opening light, camera and sound. Name the places, people and objects the action tracks by subject record or scene-local name. Give starting positions, possessions, entrances and consequential routes, barriers and sightlines. Group other dressing and crowds.
+- Show who acts, why, who responds and what changes. Include participants whose movement or held position affects someone else's choice and objects that support or obstruct it. Follow changes in position, gaze, possession and state across cuts.
+- For skilled practice, identify the observation supporting the action, spacing, pace and response. Choose actions the installed vocabulary can compose together or a research law supports.
+- Record changes to the view and sound. A new shot gives its size and subject under [beat records](../../../story/layers/notation.md#records). Choose expressions the representation can show and identify any reaction reserved for a generation prompt.
+- Specify exact synchronization for a line, lyric, count or edit that depends on it. Code derives coordinates, offsets and other exact timings.
 
 ## Performance timing
 
-Can the written action, speech and holds occupy the intended screen time at the depicted pace?
+Can the action, speech and holds occupy the intended screen time at the depicted pace?
 
-Estimate screen time from the duration of the performed actions, speech and purposeful holds. Count simultaneous actions once. If the action finishes well before its allotted interval, revise the material or the edit. Account for cuts, replays and deliberate changes of speed. Beat times remain provisional until performance and the measured edit establish them.
+Estimate from the performance, counting concurrent action once. Account for cuts, replays and deliberate changes of speed. When an interval outlasts its material, revise the beat or the edit. Its timing stays provisional until measured in performance.

@@ -25,7 +25,7 @@ Never reuse or renumber an anchor in any layer, or a scene file's number. Number
 
 ## Records
 
-Put the standing-state list inside the first section, before its scene heading and action. Identify the [scene elements](../document-layout.md#scene-elements), their starting relationships and any later entrances. Establish the routes, sightlines and barriers the action uses. In subsequent beats record changes such as who now holds a prop or which entrance has closed. Keep reveals in viewing order.
+Inside the first section, before its scene heading and action, establish the [scene elements](../document-layout.md#scene-elements), their starting relationships, routes and sightlines. Note expected entrances there and record changes of state as they occur. Preserve the intended reveal order.
 
 End each beat with its record under [beat decisions](../../contracts/story/principles/screenplay.md#beat-decisions).
 

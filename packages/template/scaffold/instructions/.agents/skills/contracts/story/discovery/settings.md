@@ -4,7 +4,7 @@ The discovery result covers all instructions, adopted promises, references, asse
 
 ## Instructions and backcast
 
-Before bulk settings writing, was every instruction broken into its consequential elements and given an owner, and was the planned narrative read for what it would otherwise invent? An instruction nobody took apart is kept only by luck.
+Before drafting settings, did discovery assign an owner to each consequential instruction and identify facts later authors would otherwise have to invent?
 
 - Assign premises, people and titles, genre rewards, audience information load, asset and source boundaries, sensitive subjects and form dependencies to owners. Record open choices, later discoveries and instruction conflicts. Verify external claims under the declared [factual basis](../../../story/planning/requirements.md#factual-basis).
 - Read the planned narrative for authority, causes, resources, knowledge boundaries, relationships, spaces, appearance and voice it would have to invent. Identify the fact, limit or uncertainty that supplies each. Leave events, outcomes, setups, payoffs and reveals to the narrative.

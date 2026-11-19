@@ -9,7 +9,7 @@ Each exported function and method under `src/composition/` answers these items i
 | A catalog case in `src/composition/scenes/catalog/<module>/` | What it exhibits, named in prose |
 | The catalog film | What each of its cases exhibits, named in prose |
 
-Cite a beat or section as `@evidence docs/body/screenplay/<film folder>/<scene file>#<anchor> <what it realizes>`. Omit the anchor for a whole file. In a catalog answer, cite the exhibited fact or study section in prose.
+Cite a beat or section as `@evidence docs/body/screenplay/<film folder>/<scene file>#<anchor> <what it realizes>`. Omit the anchor for a whole file.
 
 Without narrative passes, scenes and films also cite the instructions they realize. Ask the user to add missing scene files or section or beat headings to a fixed screenplay before citing it.
 
@@ -21,8 +21,7 @@ Does each scene realize every cited beat as written, and does the film play ever
 
 - Bind the staged instances to the subjects in the standing state. Follow the same instances through movement, handovers and cuts, including when they leave view. Realize changes in camera and sound. For commissioned generation, carry reactions beyond the representation in the prompt.
 - Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time, and the screenplay and profile for grade and control channels.
-- If staging the beat as timed requires inventing an exchange, outcome, response or pause, [return it to the writer](../../story/correction/repair.md#upstream-defects) before composing it. Ask the user about a [fixed screenplay](../../story/workflow/routes.md#fixed-screenplay).
-- Open the scene comment with its screenplay citation and action. In its `Concretization:` paragraph, identify the staging choices that realize the beat. Put any newly decided story fact at its [written owner](../../story/correction/repair.md#concretization).
+- Open the scene comment with its screenplay citation, action and relevant staging choices. If realizing it requires inventing an exchange, response or pause, return the decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 - For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
 ## Composition only
@@ -31,8 +30,7 @@ Does the declaration compose only accepted module capabilities using installed o
 
 - Resolve the film once from one seed. Place absolute time only at screenplay anchors. Combine entity capabilities, interactions and consequences with installed operators. Give calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections to their capability owner.
 - Cast and crowd entities perform their actions through the vocabulary. A supplied or user-chosen clip must be [retargeted](../../motion/retargeting.md) to its performer. Fix package [refusals](../../motion/compose/refusals.md) at the named axis.
-- Use the same capabilities in the film and catalog. Before use, identify an accepted case for the scene's body, load, support and partner conditions. Add a case for a new condition.
-- Trace a [film review](../../review/delivery-review.md#repairs) finding to the screenplay decision, staging or module that caused it. A repaired module passes its catalog case again before reuse.
+- Use the same capabilities in the film and catalog. Use a [catalog case](../../motion/catalog-cases.md#record) accepted for the scene's body, load, support and partner conditions. Recheck affected capabilities after a repair or change of conditions.
 
 ## Living scene
 

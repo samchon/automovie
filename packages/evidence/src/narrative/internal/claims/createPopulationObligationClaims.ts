@@ -28,7 +28,7 @@ import { hasStoryContract } from "../utilities/hasStoryContract";
  * Unit duties use checklists. Script expression population comparisons have
  * separate expression obligation claims rather than repeating their question per unit.
  *
- * @evidence contracts/development/implementation.md#principled-implementation Construction stage controls whole-layer file-level obligation coverage, with one answering document per shared/language population item and no per-H2 repetition of the same comparison; Bundled checklists are probed in the skills tree and local references in the production's `docs/contracts`.
+ * @evidence contracts/development/implementation.md#principled-implementation Each enabled layer selects one file respondent per bundled or language population item. Bundled items come from the skills tree and language items from the production contracts.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The exported factory delegates one family build while keeping population scope distinct from principle checklists and expression obligations.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required shared common/narrative files stay selected even when missing so the compiler reports a broken tree; only realized and layer-specific optional documents are conditionally selected.
  * @evidence contracts/development/common.md#meaningful-documentation The prose explains whole-layer respondents, unique evidence and the boundary with per-unit and script expression families; the helper comment identifies optional-file compatibility.

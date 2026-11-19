@@ -12,9 +12,9 @@ Does the unit create a recognizable change in events, understanding, relationshi
 
 ## Parent differentiation
 
-Does the treatment decide events and reveal order, the script stage the action, dialogue and view, and the screenplay finish image, sound, timing, emphasis and transitions for its audience?
+Does the unit do the work its parent leaves to it? In long work, treatments decide events and reveal order, scripts stage action and dialogue, and the screenplay finishes image, sound, timing and transitions. On a short, the screenplay develops the brief directly.
 
-- For each downstream paragraph, identify its parent passages and record a yes or no for copied wording or imagery, explanatory labels, design or narrator statements and a borrowed opening or execution sequence. Changed vocabulary, search matches and creative work elsewhere cannot settle the comparison.
+- Compare the unit with its actual parent decisions. Where the route requires [independent classification](../../../story/correction/inspection.md#independent-classification), record for each paragraph whether it borrows wording, imagery, explanatory labels or its opening and execution from the parent. A change of vocabulary alone can leave the execution copied.
 - Check inherited names, address, quantity, time, place and consequential state. Shared event order, concise connection or an already complete artifact may carry unchanged. Preserve needed values without an inventory. A paragraph need not add a sensation or decision.
 - Treat an unresolved first judgment as a repair candidate. Recreate a copied passage from the parent decisions. After such a rewrite, fail it again only for clear copying.
 - Separately return a parent that consumes the next layer's work, forces a failure, blocks a promise or leaves a necessary decision open to the corresponding upstream item for [treatments](../upstream/treatments.md#settings-repair), [scripts](../upstream/scripts.md#script-upstream-repair) or [screenplay](../upstream/screenplay.md#screenplay-upstream-repair) and repair its affected descendants.

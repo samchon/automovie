@@ -46,9 +46,9 @@ For commissioned appearances on a route with no settings or brief, use `docs/ins
 
 ### Scene elements
 
-Before writing a screenplay scene's action, identify its places, people, objects and groups in the [standing state](layers/notation.md#records). Link existing subjects. Give each scene-only instance the action tracks a stable name scoped to the scene file. Two keys may share one design and still be `house-key` and `spare-key`. Use natural descriptions in the action.
+Identify places, people, props and groups in the scene's [standing state](layers/notation.md#records). Link shared subjects by record. Give a scene-local instance a stable name only when the action tracks it. A house key and a spare key may share a design but change hands separately. Describe other dressing and crowds collectively.
 
-Track an element individually when its position, use, state or identity matters to the action or continuity. Account for the rest as set dressing or a group. A change of holder, appearance or camera preserves the subject's identity. When a later scene needs a local subject, give it a shared record and point the earlier use to it. On a route without canon layers, instructions own shared definitions and implementation details of a fixed screenplay.
+Keep the identity through changes of holder, appearance or camera. If a later scene needs the instance, promote it to a shared subject and link the earlier use. Instructions own shared subjects on routes without canon layers.
 
 ## Intake of existing work
 
