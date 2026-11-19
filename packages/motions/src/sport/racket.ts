@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanRacket,
@@ -18,9 +18,8 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
-import { AutoMovieMotionHumanLegPhrase } from "../compose/AutoMovieMotionHumanLegPhrase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -28,13 +27,14 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { courtStroke } from "./courtStroke";
+import { racketStance } from "./racketStance";
 
 /**
  * Racket stroke dispatch (#3725, #3726) and the original solo racket or
  * golf positions (#3249). The following positions use an implied handle.
  *
- * - Ready position: the feet step apart to two shoulder widths, the knees
- *   give 4 % of the stature and the trunk leans 15 degrees, the racket hand
+ * - Ready position: the feet step in sequence to two shoulder widths, the pelvis
+ *   lowers by 4 % of stature and the trunk leans 15 degrees, the racket hand
  *   on the handle at waist height before the body and the other hand a hand
  *   ahead on the throat (provisional places).
  * - Split step: from the ready position's width, a small hop of 3 % of the
@@ -143,6 +143,7 @@ export namespace racket {
     const leftward: IAutoMovieVector3 = local(entry, { x: 1, y: 0, z: 0 });
     const arm: number = m.upperArm + m.forearm;
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    let held: IAutoMovieMotionHumanHeld.IHeld | undefined;
     let contacts: IAutoMovieMotionHumanContactWindow[] =
       AutoMovieMotionHumanBase.plants();
     const grip: (
@@ -179,97 +180,19 @@ export namespace racket {
       });
 
     if (p.kind === "readyPosition" || p.kind === "splitStep") {
-      const apart: number = Vector3.dot(
-        Vector3.subtract(
-          context.entry.feet.left.ankle,
-          context.entry.feet.right.ankle,
-        ),
+      const stance: ReturnType<typeof racketStance> = racketStance(
+        context,
+        clock,
+        side,
         leftward,
+        p.kind === "splitStep",
+        modifiers.extent,
       );
-      const half: number = Math.max(0, (4 * m.shoulderHalfWidth - apart) / 2);
-      const wider: number =
-        p.kind === "splitStep" ? 0.5 * m.shoulderHalfWidth : 0;
-      // The hop's rise, metres: the root and both feet leave the floor by
-      // the same height, so the legs keep their length through the hop.
-      const height: number = 0.03 * m.stature * modifiers.extent;
-      const hop: (s: number) => number = (s: number): number => {
-        if (p.kind !== "splitStep") return 0;
-        const u: number = clock.linear("strokeStart", "stroke", s);
-        return u > 0 && u < 1 ? height * 4 * u * (1 - u) : 0;
-      };
-      const landed: (s: number) => number = (s: number): number =>
-        clock.linear("strokeStart", "stroke", s);
-      for (const foot of ["left", "right"] as const) {
-        const from: IAutoMovieMotionHumanFoot.IPlacement = {
-          ankle: context.entry.feet[foot].ankle,
-          rotation: context.entry.feet[foot].rotation,
-        };
-        const out: (by: number) => IAutoMovieMotionHumanFoot.IPlacement = (
-          by: number,
-        ): IAutoMovieMotionHumanFoot.IPlacement => ({
-          ankle: Vector3.add(
-            from.ankle,
-            Vector3.scale(leftward, (foot === "left" ? 1 : -1) * by),
-          ),
-          rotation: from.rotation,
-        });
-        primitives.push(
-          AutoMovieMotionHumanLeg.place({
-            body,
-            side: foot,
-            from: 0,
-            to: clock.duration,
-            placement: (
-              _: IAutoMovieMotionHumanPosture,
-              s: number,
-            ): IAutoMovieMotionHumanFoot.IPlacement => {
-              const placed: IAutoMovieMotionHumanFoot.IPlacement =
-                AutoMovieMotionHumanLegPhrase.between(
-                  from,
-                  out(half + wider * landed(s)),
-                  into(s),
-                );
-              return {
-                ...placed,
-                ankle: {
-                  ...placed.ankle,
-                  y: placed.ankle.y + hop(s),
-                },
-              };
-            },
-            planted: (s: number): boolean =>
-              (into(s) <= 0 || into(s) >= 1) && hop(s) === 0,
-          }),
-        );
-      }
+      contacts = stance.contacts;
+      if (p.implement !== undefined)
+        held = AutoMovieMotionHumanHeld.of(context, side, p.implement);
       primitives.push(
-        {
-          channels: ["root"],
-          from: 0,
-          to: clock.duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            s: number,
-          ): IAutoMovieMotionHumanPosture => ({
-            ...posture,
-            root: {
-              ...posture.root,
-              y: posture.root.y + hop(s),
-            },
-          }),
-        },
-        {
-          channels: ["trunk"],
-          from: 0,
-          to: clock.duration,
-          write: (
-            posture: IAutoMovieMotionHumanPosture,
-            s: number,
-          ): IAutoMovieMotionHumanPosture => ({
-            ...posture,
-            pitch: posture.pitch + 15 * into(s),
-          }),
-        },
+        ...stance.primitives,
         ...grip(
           side,
           (posture: IAutoMovieMotionHumanPosture) =>
@@ -295,26 +218,6 @@ export namespace racket {
           "front",
         ),
       );
-      // Each foot bears where it is planted: from the step out to the step
-      // back, the split step's hop excepted.
-      const share: (instant: string) => number = (instant: string): number =>
-        clock.at(instant) / clock.duration;
-      const bearing: [number, number][] =
-        p.kind === "splitStep"
-          ? [
-              [share("ready"), share("strokeStart")],
-              [share("stroke"), share("relax")],
-            ]
-          : [[share("ready"), share("relax")]];
-      contacts = bearing
-        .filter(([from, to]: [number, number]): boolean => to > from)
-        .flatMap(
-          ([from, to]: [
-            number,
-            number,
-          ]): IAutoMovieMotionHumanContactWindow[] =>
-            AutoMovieMotionHumanBase.plants(from, to),
-        );
     } else {
       primitives.push(
         AutoMovieMotionHumanTrunk.crouch({
@@ -355,11 +258,19 @@ export namespace racket {
           ),
         );
     }
-    return composeAutoMovieMotionHumanAction({
-      base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
-      clock,
-      primitives,
-      contact: "stroke",
-    });
+    const plan: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
+        base: AutoMovieMotionHumanBase.still(clock.duration, entry, contacts),
+        clock,
+        primitives,
+        contact: "stroke",
+      });
+    return held === undefined
+      ? plan
+      : {
+          ...plan,
+          contacts: [...plan.contacts, AutoMovieMotionHumanHeld.grip(held)],
+          holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+        };
   }
 }
