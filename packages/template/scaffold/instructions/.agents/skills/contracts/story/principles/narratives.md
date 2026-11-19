@@ -1,6 +1,6 @@
 # Narrative unit principles
 
-Each treatment, script and final screenplay H2 answers for its own progression. Treatments decide it in an event document; scripts and the screenplay realize it. Settings does not answer these questions.
+Each treatment event, script scene and screenplay section answers for its own progression and what it inherits.
 
 ## Unit progression
 
@@ -12,7 +12,7 @@ Does the unit create a recognizable change in events, understanding, relationshi
 
 ## Parent differentiation
 
-Does the unit do the work its parent leaves to it? In long work, treatments decide events and reveal order, scripts stage action and dialogue, and the screenplay finishes image, sound, timing and transitions. On a short, the screenplay develops the brief directly.
+Does the unit do the work its parent leaves to it? In long work, treatments decide events and reveal order, scripts shape them into first-draft scenes and exchanges, and the screenplay writes the finished dialogue, action, sound and cuts. On a short, the screenplay develops the brief directly.
 
 - Compare the unit with its actual parent decisions. Where the route requires [independent classification](../../../story/correction/inspection.md#independent-classification), record for each paragraph whether it borrows wording, imagery, explanatory labels or its opening and execution from the parent. A change of vocabulary alone can leave the execution copied.
 - Check inherited names, address, quantity, time, place and consequential state. Shared event order, concise connection or an already complete artifact may carry unchanged. Preserve needed values without an inventory. A paragraph need not add a sensation or decision.

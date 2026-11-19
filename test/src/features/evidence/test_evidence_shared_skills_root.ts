@@ -334,7 +334,6 @@ function collectStoryRoots(config: IEvidenceConfig): Map<string, string[]> {
         if (
           ![
             "discovery",
-            "naturalness",
             "obligations",
             "principles",
             "upstream",

@@ -22,6 +22,6 @@ A work- or language-specific question is adopted through [adoption](../evidence/
 
 ## Grounds for retaining a candidate
 
-Apply the [decision and exception rule](../contracts/story/naturalness/common.md#reads-as-written) to named failures. For other candidates, compare a variant that preserves information, access and pressure without the disputed form. Keep gains and losses in ignored notes and the decision in its record.
+For screenplay expression, apply the [decision and exception rule](../contracts/story/principles/screenplay.md#reads-as-written) to named failures. For other candidates, compare a variant that preserves information, access and pressure without the disputed form. Keep gains and losses in ignored notes and the decision in its record.
 
 Demonstrate the form's effect in the text. Use comparisons to repair independently found failures. Preserve the function in a rewrite and send inherited defects to their [earliest owner](correction/repair.md#upstream-defects).

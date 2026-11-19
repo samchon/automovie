@@ -5,8 +5,6 @@ import type {
 
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { NarrativeScope } from "../../NarrativeScope";
-import type { ProductionStage } from "../../ProductionStage";
 import { constructionStage } from "../constructionStage";
 import { createLocalContractReference } from "../references/createLocalContractReference";
 import { createSharedReference } from "../references/createSharedReference";
@@ -25,14 +23,13 @@ import { hasStoryContract } from "../utilities/hasStoryContract";
  * repeating a population question on every unit turns one comparison into a
  * restatement per unit.
  *
- * Unit duties use checklists. Script expression population comparisons have
- * separate expression obligation claims rather than repeating their question per unit.
+ * Screenplay expression is answered here alongside the other screenplay duties.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Each enabled layer selects one file respondent per bundled or language population item. Bundled items come from the skills tree and language items from the production contracts.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The exported factory delegates one family build while keeping population scope distinct from principle checklists and expression obligations.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required shared common/narrative files stay selected even when missing so the compiler reports a broken tree; only realized and layer-specific optional documents are conditionally selected.
- * @evidence contracts/development/common.md#meaningful-documentation The prose explains whole-layer respondents, unique evidence and the boundary with per-unit and script expression families; the helper comment identifies optional-file compatibility.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most four candidates per scope are filtered and mapped, with a bounded number of synchronous existence probes and selector constructions; this factory never scans the manuscript population.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One factory selects shared and local obligations by layer, including screenplay expression. Each item has one respondent.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Required shared common/narrative files stay selected even when missing so the compiler reports a broken tree; realized and layer-specific documents are selected when installed.
+ * @evidence contracts/development/common.md#meaningful-documentation The prose explains whole-layer respondents, unique evidence and screenplay coverage; the helper comment identifies optional-file compatibility.
+ * @evidence contracts/development/implementation.md#efficient-algorithms At most four candidates per directory and scope are filtered and mapped, with a bounded number of synchronous existence probes and selector constructions; this factory never scans the manuscript population.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared/language selection reuses layerFiles and reference builders; optional installed files are observed per config build, so changes in the contract tree invalidate naturally without a retained cache.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Intermediate and returned arrays have a fixed family bound; returned claim/reference objects belong to the config owner and existence probes retain no exposed handles.
  */
@@ -40,22 +37,13 @@ export function createPopulationObligationClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  return family(props, layer, constructionStage(props, layer));
-}
-
-/** Creates the obligation claims for one layer's shared and language duties. */
-function family(
-  props: IProductionConfigProps,
-  layer: AuthoredLayer,
-  stage: ProductionStage,
-): IEvidenceClaim[] {
   const directory: string = "obligations";
-  const disabled: boolean = stage === "disabled";
+  const disabled: boolean = constructionStage(props, layer) === "disabled";
+
   // The shared tree ships `common.md`, and every non-canon layer its
   // `narratives.md`, so a missing one is a broken tree that must still be
-  // selected for the compiler to say so. Only the optional documents are
-  // filtered: `realized.md`, which older trees predate, and the layer file,
-  // which exists only where that layer owes a duty of its own.
+  // selected for the compiler to say so. Realized supplements and layer files
+  // can be absent from an installed tree.
   const optional: (file: string) => boolean = (file: string): boolean =>
     file === "realized.md" || file === `${layer}.md`;
   const shared: IEvidenceClaim[] = layerFiles(layer)
@@ -102,7 +90,7 @@ function claim(props: {
   disabled: boolean;
   layer: AuthoredLayer;
   reference: IEvidenceMarkdownReference;
-  scope: NarrativeScope;
+  scope: IProductionConfigProps["narrativeScope"];
 }): IEvidenceClaim {
   return {
     name: `${props.layer} documents answer each ${props.reference.files[0]} item once`,

@@ -54,6 +54,8 @@ export default createEvidenceConfig({
 
 `construction` checks how each layer is built from the one before it. Setting a layer to `"evidence"` turns its check on, and setting a finished layer back to `"disabled"` leaves the layers still running unaffected.
 
+Long-route scripts answer for scene progression, draft exchanges and event coverage. On both routes, final wording is checked during screenplay construction. Each section answers `principles/screenplay.md`. Each comparison across the film in `obligations/screenplay.md` takes one file answer.
+
 `short` is a brief under `docs/body/brief` followed by the screenplay, and `long`, the mode of a series, has four layers: settings, treatments, scripts and screenplay. A layer you leave out stays a disabled draft. The checks cover the complete work unless `scope` names the first part that a pilot covers.
 
 The screenplay is one folder per film with one file per scene: `docs/body/screenplay/<film>/NNN-<scene>.md` for a short, and `docs/body/screenplay/NNN-part/NNN-episode/NNN-<scene>.md` for a series, where each scene file realizes one scene of its episode's script. Both depths are selected on either route.

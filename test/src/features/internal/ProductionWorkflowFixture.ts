@@ -166,16 +166,6 @@ export class ProductionWorkflowFixture {
       );
     ProductionWorkflowFixture.write(
       root,
-      ".agents/skills/contracts/story/naturalness/common.md",
-      "# Expression\n\n## Scope {#scope}\n\nPreserve the scene decision.\n",
-    );
-    ProductionWorkflowFixture.write(
-      root,
-      ".agents/skills/contracts/story/naturalness/obligations/common.md",
-      "# Expression population\n\n## Scope {#scope}\n\nCompare expression across all selected scenes.\n",
-    );
-    ProductionWorkflowFixture.write(
-      root,
       "docs/instructions/001-brief.md",
       "# Brief\n\n## Door {#door}\n\nThe guest opens the door.\n",
     );
@@ -248,10 +238,6 @@ export class ProductionWorkflowFixture {
       // A long screenplay scene file realizes exactly one script scene.
       if (mode === "long" && layer === "screenplay")
         files.push("scripts/001-part/001-scene.md#arrival");
-      if (layer === "scripts") {
-        units.push("naturalness/common.md#scope");
-        files.push("naturalness/obligations/common.md#scope");
-      }
       ProductionWorkflowFixture.write(
         root,
         `docs/evidence/construction/units/${layer}/${file}`,

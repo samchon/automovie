@@ -15,7 +15,7 @@ Read each layer as its recipient:
 | Settings | Treatment writer and designer |
 | Brief | Screenplay writer and designer |
 | Treatments | Script writer |
-| Scripts | Screenplay writer and performer |
+| Scripts | Screenplay writer following the story from scene to scene |
 | Screenplay | Audience, then filmmaker |
 
 A recipient's loss stays a finding even when upstream knowledge explains it, and a defective parent is reported with its earliest owner under [upstream defects](../story/correction/repair.md#upstream-defects).
@@ -28,6 +28,6 @@ Where the route runs [independent classification](../story/correction/inspection
 
 ## Expression
 
-Scripts receive content and expression together under their expression questions. The screenplay's speech is judged under [speaker plausibility](../contracts/story/principles/realized.md#speaker-plausibility), and its idiom and action lines under the language criteria of [audiovisual realization](../contracts/story/principles/screenplay.md#audiovisual-realization).
+Read the screenplay's dialogue and action in context under [its expression criteria](../contracts/story/principles/screenplay.md#reads-as-written). Compare [recurring forms and voices](../contracts/story/obligations/screenplay.md#recurrent-frames) across the film.
 
 Scene headings, useful parentheticals, first-entry appearance and the screenplay's standing state and [beat records](../story/layers/notation.md#records) are notation, not expression failures. Treatment prescriptions are judged under their [completion question](../contracts/story/principles/treatments.md#decided-event).

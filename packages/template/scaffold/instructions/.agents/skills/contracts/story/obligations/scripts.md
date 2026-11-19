@@ -1,6 +1,6 @@
 # Script population obligations
 
-The completed script population answers each question once, for its partition, titles, material allocation and executable handoff.
+The completed script population answers each question once, for its partition, titles, event coverage and handoff.
 
 ## Partition and titles
 
@@ -10,10 +10,8 @@ Place act, part, sequence, episode or season boundaries at an earned point to st
 
 Compare each title with the unit and prior viewing. A poetic, ambiguous, numbered, repeated or spoiler-free title may earn its meaning in the work. Report absent promises and interchangeable titles. Preserve user-fixed wording and repair semantic mismatches at scripts, which own title and identity.
 
-## Complete execution
+## Scene coverage {#complete-execution}
 
-Can a filmmaker stage every assigned event from the scripts without inventing a decision or losing it among directions?
+Can the screenplay writer follow the story from the first scene draft to the last, including where each event lands?
 
-Map treatments and scripts both ways, allowing many-to-many relations. Locate omitted, orphaned or duplicated progressions. Check that the assigned events can sustain the declared scale. Repair boundary, assignment or delivery promise at its owner.
-
-Each scene must supply essential action, exchanges, transitions and consequences, appearance, blocking, light, in-scene sound, atmosphere, viewing position and meaning-changing delivery. A report of elapsed action or dialogue buried in explanation leaves execution missing. Leave lens choice, composition and incidental performance open only where the filmmaker can stage the scene faithfully.
+Map treatments and scene drafts both ways, allowing one event to span scenes or several events to share one. Locate an omitted event, a repeated progression, a reveal that arrives out of order or an outcome that has lost its cause. Check that scene and episode boundaries leave the next writer a coherent starting point.

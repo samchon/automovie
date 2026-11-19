@@ -13,7 +13,7 @@ Commit instructions, bodies and Evidence answers. Keep review records local. Ide
 | `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
 | `docs/body/brief/<domain>/<subject>.md` | A short's brief, one subject per file in a settings domain |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
-| `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
+| `docs/body/scripts/NNN-part/NNN-episode.md` | First-draft scenes, dialogue and release partition, with part indexes |
 | `docs/body/screenplay/<film>/NNN-<scene>.md` | Complete final audiovisual text, one file per scene |
 | `docs/research/index.md` | The source index |
 | `docs/research/<discipline>/<topic>.md` | The studies of each practice and style |

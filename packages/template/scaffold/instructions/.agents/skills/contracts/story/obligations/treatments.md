@@ -12,8 +12,8 @@ Decide the first perception and event. Give choices their needed context. Trace 
 
 ## Material and handoff
 
-Can the script author follow the core progression at the declared scale without rebuilding settings? Do the treatments leave execution choices to scripts?
+Can the script author follow the core progression at the declared scale without rebuilding settings? Can the events be arranged into scenes and episodes?
 
-Place canonical facts where the script author needs them. Leave dialogue, blocking and release partition to scripts. Map ordered events and processes to the delivery scale, including turns capable of closing a major unit.
+Place canonical facts where the script author needs them. Scripts decide scene and release boundaries. The screenplay writes the dialogue and blocking. Map ordered events and processes to the delivery scale, including turns capable of closing a major unit.
 
 Identify promised intervals with insufficient material, repetition presented as progression and decisions deferred to the script. Concise treatment prose can support extensive action. Repair event material at its treatment owner or return an unsupported promise to its authorized settings owner.

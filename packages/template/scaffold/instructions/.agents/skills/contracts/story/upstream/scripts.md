@@ -1,9 +1,9 @@
 # Upstream questions for scripts
 
-Each script H2 answers about its treatment parents and, through them, settings causes. Repair follows the story skill's closed passes rule.
+Each scene draft answers from its treatment parents and, through them, the settings.
 
 ## Script upstream repair
 
-Which treatment decisions did executing this scene prove missing, contradictory, overdetermined or impossible to execute, and where were they repaired? Covering a defect downstream leaves its cause in place.
+Which inherited event, cause or reveal proved missing, contradictory or overdetermined when the events were arranged into scenes?
 
-Trace a missing fact or event, blocked promise, forced failure or prescription that consumes scene execution to the treatment and any underlying settings cause. Repair the actual parent before executing the scene and cite the corrected passage. For sound parents, name tested decisions and how execution bore them out.
+Identify the affected scene and the treatment decision it depends on. Trace a world-fact defect back to settings. Cite the repaired passage under the [closed-pass rules](../../../story/correction/repair.md#closed-passes). Where the parent holds up, name the decision and how the scene uses it.

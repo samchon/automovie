@@ -1,10 +1,10 @@
 # Notation
 
-How scripts and the screenplay are written down: their blocks, their headings and anchors, and the screenplay's records.
+Scripts and screenplay share stable [heading identities](#identities). Screenplay blocks and beat records describe the finished performance.
 
 ## Blocks
 
-Unless commissioned otherwise, follow [BBC](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) or [Final Draft](https://www.finaldraft.com/learn/screenplay-formatting-elements/) screenplay blocks. Use a scene heading such as `INT. LOCATION - DAY`, short present-tense paragraphs of visible or audible action, and an uppercase speaker cue on its own line.
+For the screenplay, unless commissioned otherwise, follow [BBC](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) or [Final Draft](https://www.finaldraft.com/learn/screenplay-formatting-elements/) screenplay blocks. Use a scene heading such as `INT. LOCATION - DAY`, short present-tense paragraphs of visible or audible action, and an uppercase speaker cue on its own line.
 
 Start a new action paragraph at each change of action, response or attention, and mark off-screen speech, voiceover, overlap, screen text and time shifts wherever they would otherwise be ambiguous.
 

@@ -1,6 +1,6 @@
 # Screenplay
 
-Write the experience in viewing order. Use the [screenplay criteria](../../contracts/story/principles/screenplay.md) to decide what the audience sees, hears and learns. Write it in [screenplay blocks](notation.md) with the intended [shots and cuts](shots.md).
+Write the experience in viewing order. Use the [screenplay criteria](../../contracts/story/principles/screenplay.md) to decide what the audience sees, hears and learns. Write it in [screenplay blocks](notation.md) with the intended [shots and cuts](shots.md). Compare [recurring forms, voices and rhythm](../../contracts/story/obligations/screenplay.md#recurrent-frames) across the film.
 
 ## Scenes
 
@@ -8,7 +8,7 @@ Use one file per continuous place and time. With long-route narrative passes, ma
 
 ## Realization
 
-With long-route narrative passes, extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts. Draft from those notes, requirements and fixed quotations in a [separate context](../workflow/routes.md#separate-contexts). Check the actual parents. Preserve event order and [compose the realization afresh](../../contracts/story/principles/narratives.md#parent-differentiation).
+With long-route narrative passes, extract required identities, decisions, states, chronology, space and audience knowledge from treatments and scripts. Draft from those notes, requirements and fixed quotations in a [separate context](../workflow/routes.md#separate-contexts). Write the dialogue from each exchange’s intent, information and outcome. Check the result against the actual parents. Preserve event order and [compose the realization afresh](../../contracts/story/principles/narratives.md#parent-differentiation).
 
 With short-route narrative passes, decide events, consequences, setups, payoffs and the ending from the instructions. Set when the audience learns dangers and secrets relative to the characters. Cite the [brief](brief.md) and complete assigned [research](../planning/research.md#when-to-study).
 

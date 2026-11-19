@@ -3,7 +3,6 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 import type { AuthoredLayer } from "../AuthoredLayer";
 import type { IProductionConfigProps } from "../IProductionConfigProps";
 import { createDiscoveryClaim } from "./claims/createDiscoveryClaim";
-import { createExpressionObligationClaims } from "./claims/createExpressionObligationClaims";
 import { createInstructionCoverageClaim } from "./claims/createInstructionCoverageClaim";
 import { createLayerClaims } from "./claims/createLayerClaims";
 import { createOutlineClaims } from "./claims/createOutlineClaims";
@@ -54,7 +53,6 @@ export function collectProductionClaims(
       .flatMap((layer: AuthoredLayer): IEvidenceClaim[] => [
         ...createLayerClaims(props, layer),
         ...createPopulationObligationClaims(props, layer),
-        ...createExpressionObligationClaims(props, layer),
         createDiscoveryClaim(props, layer),
       ])
       .filter((claim: IEvidenceClaim): boolean =>

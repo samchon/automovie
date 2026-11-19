@@ -7,21 +7,17 @@ description: Finds story checklists for the layer and kind of work under review.
 
 ## Writing or checking a unit
 
-Shared entries for body units are [scope](principles/common.md), [progression and parent differentiation](principles/narratives.md) for narrative layers, and [speaker plausibility](principles/realized.md) for scripts and screenplay. See also [parent checks](#testing-the-parents) for units with parents.
+Shared entries for body units are [scope](principles/common.md) and, for narrative layers, [progression and parent differentiation](principles/narratives.md). See also [parent checks](#testing-the-parents) for units with parents.
 
 | Unit | Open for its own content |
 | --- | --- |
 | Short brief facet | [Needed decisions](principles/brief.md) |
 | Long settings facet | [Usable facts](principles/settings.md) |
 | Treatment event | [Decided event and information design](principles/treatments.md) |
-| Script scene | [Executable scene](principles/scripts.md) and [script expression](#script-expression) |
-| Screenplay section | [Audiovisual realization, beat decisions and performance timing](principles/screenplay.md) |
+| Script scene | [First-draft scene progression](principles/scripts.md) |
+| Screenplay section | [Performance, beat decisions, dialogue and expression](principles/screenplay.md) |
 
 If checking a settings index group, use its [group purpose](principles/index.md) question.
-
-### Script expression
-
-Script construction entries are [wording and fidelity](naturalness/common.md), [speech yield](naturalness/realized.md) and [execution rhythm](naturalness/scripts.md). For the screenplay, see [audiovisual realization](principles/screenplay.md#audiovisual-realization) and [speaker plausibility](principles/realized.md).
 
 ## Checking a complete layer
 
@@ -32,8 +28,8 @@ Shared entries for complete layers are [scope and ownership](obligations/common.
 | Short brief | [Coherent brief](obligations/brief.md) |
 | Long settings | [World and scope](obligations/settings.md) |
 | Treatments | [Event design and handoff](obligations/treatments.md) |
-| Scripts | [Partition and execution](obligations/scripts.md), [recurring forms](naturalness/obligations/common.md), [voice distribution](naturalness/obligations/realized.md) and [execution distribution](naturalness/obligations/scripts.md) |
-| Screenplay | [Complete realization and version](obligations/screenplay.md) |
+| Scripts | [Partition and scene coverage](obligations/scripts.md) |
+| Screenplay | [Complete realization, recurring forms, voices, rhythms and version](obligations/screenplay.md) |
 
 If checking the settings index as a whole, use [canonical navigation](obligations/index.md).
 

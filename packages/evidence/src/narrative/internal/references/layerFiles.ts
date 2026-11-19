@@ -1,5 +1,4 @@
 import type { AuthoredLayer } from "../../AuthoredLayer";
-import { REALIZED_LAYERS } from "../REALIZED_LAYERS";
 import { isCanonLayer } from "../isCanonLayer";
 
 /**
@@ -7,23 +6,22 @@ import { isCanonLayer } from "../isCanonLayer";
  *
  * Placement is decided by who can truthfully answer an item, so the axis is
  * the same wherever it appears: everyone, then the layers that inherit a unit,
- * then the layers holding literal text, then one layer. The principles and
- * expression families and both scopes reuse it, because the question of who
- * can answer does not depend on which family asks it.
+ * then the screenplay for realized text, then the exact layer. Shared and
+ * local contracts use the same respondent scope.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The fixed candidate order is common, optional inherited-narrative, optional literal-text and exact layer, matching the respondent populations declared by the four-layer pipeline.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One shared axis serves discovery/principle/obligation selection without duplicating layer eligibility decisions across families or language scopes.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Canon layers omit inherited narrative duties and only REALIZED_LAYERS receives literal-text duties, both explicit semantic differences of the supported pipeline.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Canon layers omit inherited narrative duties and only the final screenplay receives realized-text duties, both explicit semantic differences of the supported pipeline.
  * @evidence contracts/development/common.md#meaningful-documentation The prose explains narrowest-last order and why eligibility depends on the respondent rather than the asking family.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most four filenames and one constant-time Set membership check are produced, giving constant work and space independent of manuscript length.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work REALIZED_LAYERS is the shared eligibility set, while the returned array is fresh so filtering or mutation by one family cannot alter another family selection.
+ * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of layer comparisons produces at most four filenames, independent of manuscript length.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work All families reuse this layer selection. Each call owns its array, so filtering for one family preserves the others.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The at-most-four-element result is caller-owned and no cache or resource handle is retained.
  */
 export function layerFiles(layer: AuthoredLayer): string[] {
   return [
     "common.md",
     ...(isCanonLayer(layer) ? [] : ["narratives.md"]),
-    ...(REALIZED_LAYERS.has(layer) ? ["realized.md"] : []),
+    ...(layer === "screenplay" ? ["realized.md"] : []),
     `${layer}.md`,
   ];
 }
