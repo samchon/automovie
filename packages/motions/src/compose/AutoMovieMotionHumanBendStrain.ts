@@ -59,11 +59,16 @@ export namespace AutoMovieMotionHumanBendStrain {
     rotation: IAutoMovieQuaternion | undefined,
     neutral: AutoMovieMotionHumanBendSearch.IAngles | null,
     lowerAxes: IAutoMovieJointAxes,
+    clinical?: (
+      hand: IAutoMovieJointConstraint | null,
+      axes: IAutoMovieJointAxes | undefined,
+    ) => void,
   ): (
     u: AutoMovieMotionHumanBendSearch.IAngles,
     lowerWorld: () => IAutoMovieQuaternion,
   ) => number {
-    const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] = chain.prepared;
+    const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =
+      chain.prepared;
     const upperRange: IAutoMovieJointConstraint | null =
       prepared.upperDomain.constraint;
     const halves: [number | null, number | null, number | null] = [
@@ -80,6 +85,7 @@ export namespace AutoMovieMotionHumanBendStrain {
     );
     const wrist: number | null = half(hand?.flexion ?? null);
     const handAxes: IAutoMovieJointAxes | undefined = chain.axes[`${side}Hand`];
+    clinical?.(hand, handAxes);
     return (
       u: AutoMovieMotionHumanBendSearch.IAngles,
       lowerWorld: () => IAutoMovieQuaternion,
@@ -96,7 +102,10 @@ export namespace AutoMovieMotionHumanBendStrain {
         const needed: IAutoMovieQuaternion = Quaternion.normalize(
           Quaternion.multiply(Quaternion.inverse(lowerWorld()), rotation),
         );
-        const split: ReturnType<typeof swingTwist> = swingTwist(needed, lowerAxes.twist);
+        const split: ReturnType<typeof swingTwist> = swingTwist(
+          needed,
+          lowerAxes.twist,
+        );
         strain +=
           share(degrees(split.twist), forearm) +
           share(degrees(split.swing), wrist);
@@ -160,23 +169,37 @@ export namespace AutoMovieMotionHumanBendStrain {
 
   /** Original shortest normalized quaternion angle from rest, in degrees. */
   function degrees(q: IAutoMovieQuaternion): number {
-    return (Quaternion.angle(Quaternion.normalize(q), Quaternion.identity()) * 180) / Math.PI;
+    return (
+      (Quaternion.angle(Quaternion.normalize(q), Quaternion.identity()) * 180) /
+      Math.PI
+    );
   }
 
   /** Original signed turn about the rig axis, preserving the near-zero branch. */
-  function about(q: IAutoMovieQuaternion, axis: IAutoMovieVector3 | undefined): number {
+  function about(
+    q: IAutoMovieQuaternion,
+    axis: IAutoMovieVector3 | undefined,
+  ): number {
     const n: IAutoMovieQuaternion = Quaternion.normalize(q);
     const sign: number = n.w < 0 ? -1 : 1;
     const sine: number = Math.hypot(n.x, n.y, n.z);
-    return axis === undefined || sine < 1e-9 ? 0
+    return axis === undefined || sine < 1e-9
+      ? 0
       : ((Vector3.dot({ x: n.x, y: n.y, z: n.z }, axis) * sign) / sine) *
           ((2 * Math.atan2(sine, Math.abs(n.w)) * 180) / Math.PI);
   }
 
   /** Original degree excess beyond the clinical range's reserved interior. */
-  function past(value: number, range: { min: number; max: number } | null | undefined): number {
-    return range === null || range === undefined ? 0
-      : Math.max(0, range.min + RESERVE * (range.max - range.min) - value,
-          value - range.max + RESERVE * (range.max - range.min));
+  function past(
+    value: number,
+    range: { min: number; max: number } | null | undefined,
+  ): number {
+    return range === null || range === undefined
+      ? 0
+      : Math.max(
+          0,
+          range.min + RESERVE * (range.max - range.min) - value,
+          value - range.max + RESERVE * (range.max - range.min),
+        );
   }
 }

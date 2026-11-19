@@ -180,12 +180,18 @@ export function createHumanBody(
     }
   }
   NATIVE_READERS.set(body, readers);
+  BEND_MEASURE.set(body, measure);
   return body;
 }
 
 /** Reader identities supplied at construction, owned by the body itself. */
 const NATIVE_READERS: WeakMap<IAutoMovieMotionHumanBody, readonly IReader[]> =
   new WeakMap();
+/** The factory's original measurement object for pure Bend scoring. */
+const BEND_MEASURE: WeakMap<
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBody["measure"]
+> = new WeakMap();
 /** One original own property read by the native actor. */
 interface IReader {
   source: object;
@@ -212,5 +218,36 @@ export namespace createHumanBody {
           reader.value,
       )
     );
+  }
+
+  /**
+   * Read the two current scalar measures the ordinary Bend candidate scorer uses.
+   *
+   */
+  export function bendMeasure(
+    body: IAutoMovieMotionHumanBody,
+  ): readonly [number, number] | undefined {
+    if (!owns(body)) return undefined;
+    const original: IAutoMovieMotionHumanBody["measure"] | undefined =
+      BEND_MEASURE.get(body);
+    if (
+      original === undefined ||
+      Object.getOwnPropertyDescriptor(body, "measure")?.value !== original
+    )
+      return undefined;
+    const length: unknown = Object.getOwnPropertyDescriptor(
+      original,
+      "upperArm",
+    )?.value;
+    const radius: unknown = Object.getOwnPropertyDescriptor(
+      original,
+      "forearmRadius",
+    )?.value;
+    return typeof length === "number" &&
+      Number.isFinite(length) &&
+      typeof radius === "number" &&
+      Number.isFinite(radius)
+      ? [length, radius]
+      : undefined;
   }
 }

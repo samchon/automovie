@@ -1,12 +1,14 @@
 import {
   Quaternion,
   Vector3,
+  createPhysicalHullShape,
   physicalHullErode,
   physicalHullFaces,
   physicalHullMass,
   physicalShapeBounds,
   physicalShapeNearest,
   physicalShapePairDistance,
+  physicalShapeSegmentDistance,
   physicalShapeSpan,
 } from "@automovie/engine";
 import type {
@@ -49,7 +51,7 @@ import assert from "node:assert/strict";
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public hull owners and the shape queries and reads their results; a missing face, a wrong moment, a wrong contact point or normal, a loose bound or a pair distance read from vertices only fails.
  * @evidence contracts/development/testing.md#independent-expectations Face and vertex counts, the cuboid and tetrahedron mass properties, the point distances, the spans and the pair distances are closed forms written here; the 200 segments compare two separately written branches of the query, the box's clamp and the hull's planes.
  * @evidence contracts/development/testing.md#distinguishing-cases Surface and buried extra points, a moved box and a tetrahedron, outside, inside and corner points, composed turns, all four kinds for the span, an erosion that leaves a volume and one that does not, and a skew edge pair whose nearest vertices are 0.5 m off the true nearest points.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI. Its local hull normal is replaced after a real scalar read, exercising fallback without any shared test mutation.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
 export function test_physical_hull_shape(): void {
@@ -117,6 +119,50 @@ export function test_physical_hull_shape(): void {
       physicalHullFaces(corners(half)).buried <= faces.tolerance,
   );
 
+  // A real scalar hull read proves only the actual selected face. Changing
+  // that public face to a getter must decline before observing the getter.
+  const factory: ReturnType<typeof createPhysicalHullShape> =
+    createPhysicalHullShape();
+  const points: IAutoMovieVector3[] = corners(half);
+  const native: IAutoMoviePhysicalShape = factory.shape(
+    "native",
+    "solid",
+    factory.offset(
+      () => still.position,
+      () => still.position,
+    ),
+    points,
+  );
+  const trial: ReturnType<typeof physicalShapeSegmentDistance.pointTrial> =
+    physicalShapeSegmentDistance.pointTrial();
+  const scalar: (point: IAutoMovieVector3) => number = trial.prepare(
+    still,
+    native,
+  );
+  const inward: IAutoMovieVector3 = { x: 0, y: 0, z: 0.07 };
+  assert.equal(native.transform.rotation, factory.rotation);
+  assert.equal(trial.status(), "untouched");
+  assert(Math.abs(scalar(inward) + 0.03) < 1e-12);
+  assert.equal(trial.status(), "current");
+  const reached: IAutoMoviePhysicalHullFaces.IFace = physicalHullFaces(
+    points,
+  ).faces.find(
+    (face: IAutoMoviePhysicalHullFaces.IFace): boolean => face.normal.z > 0.9,
+  )!;
+  const normal: IAutoMovieVector3 = reached.normal;
+  let observations: number = 0;
+  Object.defineProperty(reached, "normal", {
+    configurable: true,
+    get(): IAutoMovieVector3 {
+      assert.equal(this, reached);
+      ++observations;
+      return normal;
+    },
+  });
+  assert.equal(trial.status(), "unsupported");
+  assert.equal(observations, 0);
+  assert(Math.abs(scalar(inward) + 0.03) < 1e-12);
+  assert.equal(observations, 1);
   // 2. Mass properties.
   const moved: IAutoMovieVector3[] = corners(half).map(
     (p: IAutoMovieVector3): IAutoMovieVector3 =>

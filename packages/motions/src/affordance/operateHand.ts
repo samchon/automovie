@@ -11,6 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { operateInsert } from "./operateInsert";
@@ -47,6 +48,7 @@ export function operateHand(
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
+    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
   wrist: (
     posture: IAutoMovieMotionHumanPosture,
@@ -174,13 +176,16 @@ export function operateHand(
       posture: IAutoMovieMotionHumanPosture,
       progress: number,
       seconds?: number,
+      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
     ): IAutoMovieMotionHumanArmTarget.ITarget => {
       const current: ReturnType<typeof frame> = frame(
         posture,
         progress,
         seconds,
       );
-      return hand.target(posture, current.place, current.forward);
+      return trial === undefined
+        ? hand.target(posture, current.place, current.forward)
+        : hand.target(posture, current.place, current.forward, trial);
     },
     wrist: (
       posture: IAutoMovieMotionHumanPosture,

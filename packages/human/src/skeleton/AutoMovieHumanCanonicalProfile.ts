@@ -3,9 +3,9 @@ import {
   DEFAULT_JOINT_AXES,
   HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
-  Quaternion,
   Vector3,
   combinePhysicalMassProperties,
+  createPhysicalHullShape,
   rotationBetween,
   toRigAngle,
 } from "@automovie/engine";
@@ -79,7 +79,9 @@ export namespace AutoMovieHumanCanonicalProfile {
         throw new Error(`The polygon profile needs the joint ${name}`);
       return found;
     };
-    const identity: IAutoMovieQuaternion = Quaternion.identity();
+    const hulls: ReturnType<typeof createPhysicalHullShape> =
+      createPhysicalHullShape();
+    const identity: IAutoMovieQuaternion = hulls.rotation;
     const at = (name: string): IAutoMovieVector3 => j(name).position;
     // A rig bone's origin is its joint; the toes bone sits at the hallux's root.
     const origin = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
@@ -90,16 +92,15 @@ export namespace AutoMovieHumanCanonicalProfile {
     };
     for (const solid of Solids.build(joints))
       put(solid.carrier, {
-        shape: {
-          id: solid.id,
-          material: "skin",
-          transform: {
-            position: Vector3.subtract(solid.centre, origin(solid.carrier)),
-            rotation: identity,
-          },
-          kind: "hull",
-          points: solid.points,
-        },
+        shape: hulls.shape(
+          solid.id,
+          "skin",
+          hulls.offset(
+            (): IAutoMovieVector3 => solid.centre,
+            (): IAutoMovieVector3 => origin(solid.carrier),
+          ),
+          solid.points,
+        ),
         volume: solid.volume,
         inertia: solid.inertia,
         inertiaRotation: solid.inertiaRotation,

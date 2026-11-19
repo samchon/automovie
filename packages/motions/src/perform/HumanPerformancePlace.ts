@@ -29,6 +29,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareJumpPosture } from "../actions/prepareJumpPosture";
+import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -594,6 +595,7 @@ export namespace HumanPerformancePlace {
               cut: start,
             },
     };
+    HumanBendRead.placed(segment);
     HumanPerformanceContacts.hold(person, segment, false);
     person.segments.push(segment);
     HumanSegment.placed(self.people.values());

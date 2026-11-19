@@ -32,6 +32,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanLeanInto } from "../compose/AutoMovieMotionHumanLeanInto";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { HumanBendRead } from "../compose/HumanBendRead";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBalance } from "../everyday/HumanBalance";
 import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
@@ -421,8 +422,22 @@ export namespace operate {
           arm,
         ],
       });
+    const contextual: boolean =
+      grounded &&
+      window === null &&
+      mechanism.kind === "button" &&
+      part !== undefined &&
+      createHumanBody.owns(body);
     const plan: IAutoMovieMotionHumanActionPlan = {
-      ...compose(AutoMovieMotionHumanArm.stroke(stroke)),
+      ...compose(
+        contextual
+          ? AutoMovieMotionHumanArmPhrase.stroke(
+              stroke,
+              (posture, seconds, progress, trial) =>
+                target(posture, progress, seconds, trial),
+            )
+          : AutoMovieMotionHumanArm.stroke(stroke),
+      ),
       ...HumanPhysics.declared(context.params, window),
       ...(part === undefined
         ? {}
@@ -461,6 +476,7 @@ export namespace operate {
         ],
       });
     }
+    if (contextual) HumanBendRead.starts.set(plan, clock.at("relax"));
     return plan;
   }
 }
