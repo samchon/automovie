@@ -28,14 +28,10 @@ Judge each programmed segment under [segment review](../../motion/segment-review
 
 ### 5. Evidence
 
-Read the full brief and screenplay against the selected contracts. Repair their defects and dependent code and film by cause. Skip independent classification on this route.
-
-The [Evidence answerer](../answers.md) checks the studies the short uses alongside the brief, screenplay and required development stages under [Evidence configuration](../../evidence/configuration.md). Return gaps to the author of the affected work.
+The [Evidence answerer](../answers.md) enables the brief and screenplay stages, checks both manuscripts and their studies, and returns gaps to the writer. For a commissioned film, check the applicable development stages too. The film author repairs and replays affected scenes and updates their [development answers](../../evidence/answering.md#film-composition). This route skips independent sentence classification.
 
 ### 6. Review
 
-One independent reviewer reads the brief and screenplay under [narrative rounds](../../review/narrative-rounds.md).
+One independent reviewer reads the screenplay first and locks the audience reading. The reviewer then reads the brief as input for writing and design, compares the screenplay with it and records findings for both under [narrative rounds](../../review/narrative-rounds.md).
 
-Once the reviewer's findings reach the author, the brief and screenplay stages go back to disabled, so the repairs that follow owe no story answers and later edits reopen none.
-
-The author decides each finding and repairs the accepted ones, in the code and film too, keeping the code's development answers current. That closes the pass. Hand off the reviewed text and any commissioned programmed draft.
+At the findings handoff, check the [active Evidence report](routes.md#completion) and the review records before disabling the two narrative stages. The writer decides the findings and makes the accepted repairs. Update affected film code and its answers. The director inspects the revision before handoff. Later edits follow [closed passes](../correction/repair.md#closed-passes).

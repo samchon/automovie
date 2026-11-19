@@ -18,7 +18,7 @@ Update dependent text, quotations and values together. Update answers for open E
 
 ### Concretization
 
-If staging requires deciding who acts or responds, what changes hands, what fills an interval or when the audience learns the result, return the beat to the writer. Put the decision in the beat or its standing state. Add a fact to settings or the brief when another scene or film must preserve it.
+If staging requires deciding who acts or responds, what changes hands, what fills an interval or when the audience learns the result, return the beat to the writer. Put the decision in the beat or its standing state. On a short, send newly identified subjects and facts through [brief growth](../layers/brief.md#growth). On long work, add the baseline facts to their settings records.
 
 Keep derived coordinates, joint fitting and interpolation in the implementing module. For a user-fixed screenplay, put delegated staging decisions in the instructions and refer a missing story decision to the user.
 

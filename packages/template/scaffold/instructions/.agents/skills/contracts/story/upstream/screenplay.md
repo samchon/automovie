@@ -8,4 +8,4 @@ Which inherited decisions proved missing, contradictory, too prescriptive or imp
 
 Identify the corrected passage at its earliest owner. Trace a script defect through treatment or settings when necessary. Preserve genuine constraints. Where the parent holds up, name the decision and how staging tested it.
 
-On a short, test the brief and screenplay-owned decisions. Move a durable decision another scene or film requires to the [brief](../../../story/layers/brief.md#what-it-holds) when it belongs there. Mark output or performance claims pending until observed.
+On a short, identify where the brief or the beat was repaired, including [subjects discovered during staging](../../../story/layers/brief.md#growth). Mark output or performance claims pending until observed.

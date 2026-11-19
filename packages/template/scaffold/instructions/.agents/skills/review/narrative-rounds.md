@@ -18,6 +18,6 @@ Record the revision, inputs, scope, findings with literal support, causes, prote
 
 Apply the [independent-reading criteria](../contracts/story/principles/review.md#independent-reading). Raise a wording finding when it violates a contract, parent or requirement, or the user directs it.
 
-The author records acceptance or refusal of each finding, with reasons. The reviewer withdraws or rebuts refusals. The author's decision after rebuttal stands. Reopen only with new body, parent or source evidence.
+The author records each decision and its grounds. The reviewer withdraws or rebuts a disputed finding. The author's final response closes that exchange. Carry an unresolved loss into the verdict for the [director's handoff decision](../production/director.md#judgment-and-revision). Reopen a settled finding only with new body, parent or source evidence.
 
 The author repairs only accepted findings under [cause rounds](../story/correction/repair.md#cause-rounds). Close the round on the repaired result.

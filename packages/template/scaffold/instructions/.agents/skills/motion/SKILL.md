@@ -12,6 +12,7 @@ description: Composes and verifies performance through the installed motion voca
 | [Refusals](compose/refusals.md) | Diagnosing a refused composition |
 | [Catalog cases](catalog-cases.md) | Accepting a module before composing it |
 | [Staging](staging.md) | Planning blocking and camera |
+| [Motion judgment](judgment.md) | Judging form, contact, pace and the central passage before widening |
 | [Segment review](segment-review.md) | Reviewing staged intervals and joins |
 | [Frame evaluation](frame-evaluation.md) | Mapping clocks, seeking or splitting renders |
 | [Control channels](control-channels.md) | Preparing the commissioned motion inputs |

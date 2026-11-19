@@ -6,7 +6,7 @@ Estimation is a read-only quality assessment, made only on request. Do not edit 
 
 Fix the requested scope and artifact role; without a narrower request, assess every selected layer body where the [document layout](../story/document-layout.md#documents) keeps it.
 
-Assess a motion hint for its visible action, staging and conditioning information, not as an uncommissioned generated film. Inspect media in scope as stills of the complete file, at the [times](../visual-debugging/capture.md#times) capture sets.
+Assess a motion hint for its action, staging and conditioning information. Sample [stills across the file](../visual-debugging/capture.md#times) for spatial detail. Score pace and rhythm only from [continuous viewing](delivery-review.md#video).
 
 Before judging the screenplay or video, choose at most two central experience axes from the intended experience [project context](../production/project-context.md) records or links, or state that none was declared.
 

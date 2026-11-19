@@ -12,10 +12,12 @@ At a narrative pass's Evidence step, start a separate [Evidence answerer](../sto
 
 ## Judgment and revision
 
+At each handoff, check the studies, subject records, source and independent verdicts due at that stage against the commission. An inactive Evidence claim has checked no respondent. Open commissioned [reference images](../review/delivery-review.md#assets) from their records.
+
 Read the screenplay in viewing order. Follow people and props from their starting positions. Can the scene happen in the time and space given, and will it produce the intended effect? Test a standalone asset in its [commissioned use](../review/delivery-review.md#assets).
 
 Return work that falls short, even after passing validation or independent review. Show the responsible worker the passage or artifact, the loss it causes and what the revision must preserve. Send findings together and inspect the repair before advancing. Accept a deliberate choice that achieves the intended effect.
 
 Respect [closed passes](../story/correction/repair.md#closed-passes). Revisiting a settled finding requires new evidence. Refer changes to a [fixed screenplay](../story/workflow/routes.md#fixed-screenplay) or another user-reserved choice to the user.
 
-For a film, inspect the [registered catalog cases](../motion/catalog-cases.md#record) and [staged performance](../motion/performance.md). At handoff, report the revision and the scope of its [delivery verdict](../review/delivery-review.md#acceptance-record).
+For a programmed film, inspect the [registered cases](../motion/catalog-cases.md#record) and have the [source reviewer](../review/source-review.md) trace the staged performance to its modules. Give the [independent viewer](../review/delivery-review.md#video) the complete candidate. Record your [decision on that cut](../review/delivery-review.md#acceptance-record).

@@ -36,7 +36,9 @@ export default createEvidenceConfig({
 
 The production's own contracts, `work/**` and `language/**`, hold the questions specific to that work and to its language, and live under `<location>/docs/contracts` in either layout.
 
-Bundled story citations start at `contracts/story`. When upgrading a production with the former `shared/` folder, install the matching scaffold and drop that prefix from its `@evidence` and `@evidenceExclude` citations. For example, `shared/principles/screenplay.md#beat-decisions` becomes `principles/screenplay.md#beat-decisions`. Check active answers against the revised criteria. Preserve closed passes and identify the revision their reviews cover.
+Bundled story citations start at `contracts/story`. When upgrading, install the matching scaffold. For active answers to checklists that kept their names, drop the former `shared/` prefix. Final-expression questions moved into `principles/screenplay.md` for sections and `obligations/screenplay.md` for whole-film comparisons. For example, `shared/naturalness/realized.md#speech-yield` is now `principles/screenplay.md#speech-yield`.
+
+If the production supplied its own `docs/contracts/language/naturalness/` questions, merge the ones it still uses into the corresponding screenplay files under `docs/contracts/language/`. Reconcile active answers with their current questions and respondents. Preserve the revision a closed review covered.
 
 ### Narrative
 

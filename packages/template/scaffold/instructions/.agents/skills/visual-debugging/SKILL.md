@@ -5,7 +5,7 @@ description: Captures, compares and corrects a production's pictures.
 
 # Visual debugging
 
-Readiness or numerical success proves no appearance; only an observed picture does. You read every picture as stills, so each judgment starts from a planned capture. The skill of each subject owns what to look for in its picture.
+Use planned stills to inspect form, placement and contact. Judge pace from [continuous playback](../review/delivery-review.md#video). Each subject's skill sets what to look for.
 
 The installed renderer drives both the inspector and capture from one request. Read the production README for commands and the renderer README for request keys. Report missing views, passes or selections before judging.
 

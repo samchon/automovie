@@ -6,20 +6,13 @@ Each study answers for its own subject. The research index points readers to its
 
 <!-- @source [Kinovea](https://kinovea.readthedocs.io/en/latest/userinterface/glossary.html#calibration) defines frame rate and spatial calibration. -->
 
-Can the writer or maker use this study to depict the practice at the required level?
+Which production decision does the study support, and under what conditions? For a subject's appearance or another static fact, identify the feature the production can rely on.
 
-Ground frequency, tempo and spacing in observed passages or measurements. Distinguish what the rules permit from what practitioners do. Identify deliberate stylization. For an invented practice, give the real analogue and where it differs.
+For skilled performance, trace a continuous passage at the depicted level from cue to outcome, including simultaneous choices, waits, recovery, supports and obstacles. Ground frequency, tempo and spacing in observations or measurements, including for actions supplied by installed modules. Distinguish what rules allow from what practitioners do. Identify deliberate stylization or where an invented practice differs from its real analogue.
 
-Trace a continuous exchange from cue to outcome, including simultaneous choices, waits, recovery, supports and obstacles that affect it. A skilled performance needs this study even when installed modules supply every movement.
+For a timing measurement, establish the replay's time scale. For a distance, establish scale in the plane of movement and account for camera motion. An uncalibrated view may still establish event order. Identify what a cut or occlusion leaves unobserved.
 
-Use only the measurements a view supports.
-
-- For timing, establish the replay's time scale.
-- For distance, establish scale in the plane of movement and account for camera motion.
-
-An uncalibrated view may still establish event order. Identify what a cut or occlusion leaves unobserved.
-
-For action beyond the installed vocabulary, describe the law in the performer's frame. Include the starting distance, phases, key poses, reach, contact, weight transfer and timing it needs. Where the commission calls for particular filming or sound practice, give targets the output can verify.
+For action beyond the installed vocabulary, describe the law in the performer's frame. Include the starting distance, phases, key poses, reach, contact, weight transfer and timing it needs. For a study of camera or sound practice, give targets the output can verify.
 
 ## Traceable sources
 

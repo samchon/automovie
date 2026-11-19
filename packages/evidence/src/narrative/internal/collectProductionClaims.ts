@@ -29,8 +29,7 @@ export function collectProductionClaims(
 ): IEvidenceClaim[] {
   assertProductionEvidenceSources(props);
 
-  // A short's brief holds only what the commission does not fix, so its
-  // screenplay alone realizes the instructions.
+  // The short screenplay realizes the commission using the brief's subject facts.
   const instructions: IEvidenceClaim[] = (
     props.mode === "long"
       ? (["settings", "treatments"] as const)

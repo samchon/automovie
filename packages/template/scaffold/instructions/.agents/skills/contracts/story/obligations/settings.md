@@ -16,7 +16,7 @@ Give the release count, duration range and relation to any larger work. Ground d
 
 Give each consequential rule, power, institution, person, relationship, place and object one record that later authors can find. Establish recurring characters' situations, drives, values, fears, abilities and limits. Include what they know or misunderstand and how their behavior, appearance and voice distinguish them.
 
-Establish what each participant, including an official or a crowd, does throughout their appearance. Describe relationships from both sides and identify what could change them. For a nonhuman force, give its inputs, operation and thresholds. Use places, props, costume, materials, image and sound to distinguish locations, eras and groups where a scene depends on that distinction.
+Establish the customary role and limits of a participant, official or crowd when they shape later action. Describe relationships from both sides and identify what could change them. For a nonhuman force, give its inputs, operation and thresholds. Use places, props, costume, materials, image and sound to distinguish locations, eras and groups where a scene depends on that distinction.
 
 ### Coherence
 
