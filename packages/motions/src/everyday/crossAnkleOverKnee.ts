@@ -14,10 +14,7 @@ import type {
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMount } from "../lexicon/HumanMount";
-import {
-  fitSeatedAnkleCross,
-  interpolateSeatedAnkleCross,
-} from "./fitSeatedAnkleCross";
+import { fitSeatedAnkleCross } from "./fitSeatedAnkleCross";
 
 /** Provisional seconds for lifting or returning the leg. */
 const TRAVEL: number = 0.85;
@@ -205,7 +202,7 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
             Math.floor(share * (path.length - 1)),
           );
           const amount = minimumJerk(share * (path.length - 1) - phase).s;
-          const posed = interpolateSeatedAnkleCross(
+          const posed = fitSeatedAnkleCross.interpolate(
             path[phase]!,
             path[phase + 1]!,
             amount,

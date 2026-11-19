@@ -89,7 +89,7 @@ export function fitSeatedAnkleCross(
     !hinge ||
     range.swingTwist ||
     chain.lowerDomain.constraint?.swingTwist ||
-    chain.lowerDomain.constraint?.swingDeg != null ||
+    typeof chain.lowerDomain.constraint?.swingDeg === "number" ||
     [range.flexion, range.abduction].some(
       ({ min, max }) => min <= -180 || max >= 180,
     )
@@ -104,7 +104,12 @@ export function fitSeatedAnkleCross(
   };
   const carry = readShapes(
     body,
-    new Set([otherUpper, otherLower, `${carried}Foot`, `${carried}Toes`]),
+    new Set<AutoMovieHumanoidBone>([
+      otherUpper,
+      otherLower,
+      `${carried}Foot`,
+      `${carried}Toes`,
+    ]),
   )(before);
   const surface = upperSurface(
     carry.filter(
@@ -114,7 +119,7 @@ export function fitSeatedAnkleCross(
   );
   const readMoving = readShapes(
     body,
-    new Set([upper, lower, foot, `${side}Toes`]),
+    new Set<AutoMovieHumanoidBone>([upper, lower, foot, `${side}Toes`]),
   );
   const standingFoot = readMoving(before).filter(({ bone }) => bone === foot);
   if (!surface || standingFoot.length === 0) return undefined;
@@ -340,7 +345,7 @@ function angleTravel(a: IAutoMovieJointPose, b: IAutoMovieJointPose): number {
 }
 
 /** Timing is a separate concern from the certified segment's angle curve. */
-export function interpolateSeatedAnkleCross(
+function interpolateSeatedAnkleCross(
   a: ILegPose,
   b: ILegPose,
   t: number,
@@ -357,6 +362,12 @@ export function interpolateSeatedAnkleCross(
     twist: angle(from.twist, to.twist),
   });
   return { hip: between(a.hip, b.hip), knee: between(a.knee, b.knee) };
+}
+
+/** Interpolate the exact joint-space curve admitted by the fit. */
+export namespace fitSeatedAnkleCross {
+  /** Sample one fitted segment independently of its downstream timing. */
+  export const interpolate = interpolateSeatedAnkleCross;
 }
 
 function readShapes(

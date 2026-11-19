@@ -151,7 +151,11 @@ export function test_human_motion_cross_ankle_over_knee(): void {
               initialFoot,
               bones.get(`${other}Foot`)!.worldPosition,
             ),
-          ) < 0.01,
+          ) < 0.01 &&
+          Quaternion.angleAfterNormalize(
+            before.get(`${other}Foot`)!.worldRotation,
+            bones.get(`${other}Foot`)!.worldRotation,
+          ) < 1e-6,
       );
     }
     for (const share of [
