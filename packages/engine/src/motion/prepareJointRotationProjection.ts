@@ -16,6 +16,7 @@ import { readNormalizedQuaternion } from "../math/readNormalizedQuaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
+import { prepareCardinalWristChord } from "./prepareCardinalWristChord";
 import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
 import { prepareJointProjectionScores } from "./prepareJointProjectionScores";
 import { prepareJointRotationCoefficientDots } from "./prepareJointRotationCoefficientDots";
@@ -40,6 +41,12 @@ interface IComposed {
 
 /** Direct joint output, or the explicitly requested joint/raw-quaternion pair. */
 type IEvaluation = IAutoMovieJointPose | prepareJointRotationProjection.IProjection;
+
+/** A private bound belongs only to the exact paired callback that owns it. */
+const WRIST_CHORDS: WeakMap<
+  prepareJointRotationProjection.IProjector["withQuaternion"],
+  NonNullable<ReturnType<typeof prepareCardinalWristChord>>
+> = new WeakMap();
 
 /** Exact composition key; null and signed zero remain different coordinates. */
 function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
@@ -414,12 +421,26 @@ export function prepareJointRotationProjection(props: {
 
     return scoreBox!(local, reference, pairs, clamp, requested);
   };
+  /** The original paired projection and its independently admitted bound. */
+  const withQuaternion: prepareJointRotationProjection.IProjector["withQuaternion"] =
+    (rotation: IAutoMovieQuaternion): prepareJointRotationProjection.IProjection =>
+      evaluate(rotation, true) as prepareJointRotationProjection.IProjection;
+  if (
+    box && constraint !== null && constraint.twist === null &&
+    mobile.length === 2 && mobile[0] === "flexion" && mobile[1] === "abduction" &&
+    (props.frame?.twist?.neutral ?? 0) === 0 &&
+    clampJointToSkeleton.ownsConstraint(props.clamp, constraint)
+  ) {
+    const chord: ReturnType<typeof prepareCardinalWristChord> = prepareCardinalWristChord(
+      props.basis, ranges[0]!, ranges[1]!,
+    );
+    if (chord !== undefined) WRIST_CHORDS.set(withQuaternion, chord);
+  }
   return Object.assign(
     (rotation: IAutoMovieQuaternion): IAutoMovieJointPose =>
       evaluate(rotation, false) as IAutoMovieJointPose,
     {
-      withQuaternion: (rotation: IAutoMovieQuaternion): prepareJointRotationProjection.IProjection =>
-        evaluate(rotation, true) as prepareJointRotationProjection.IProjection,
+      withQuaternion,
       swivelCandidates: (cosine: IAutoMovieQuaternion,
         sine: IAutoMovieQuaternion): ReturnType<prepareJointRotationCoefficientDots.IReader["swivels"]> => {
         if (!box || mobile.length !== 2 ||
@@ -448,4 +469,23 @@ export namespace prepareJointRotationProjection {
 
   /** The interface contract (`IAutoMoviePrepareJointRotationProjection.IProjection`). */
   export type IProjection = IAutoMoviePrepareJointRotationProjection.IProjection;
+
+  /**
+   * Read a squared angular lower bound owned by the exact paired callback.
+   * Native box ownership, zero rig twist and cardinal arcs are checked at
+   * construction. A foreign, wrapped or unsupported callback has no bound.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines squared angle units, callback provenance and unsupported fallback.
+   * @evidence contracts/development/implementation.md#principled-implementation The producer's exact constraint identity and fixed rotation factors admit the chord proof before registering it by callback identity.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup retrieves the original proof reader without invoking the callback.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Opaque projectors and nonzero rig twist are never assumed to obey either prescribed arc; no accepted projection is synthesized.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A constant-time weak lookup.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The registered arcs depend only on the fixed projector metadata and run anew for each candidate quaternion.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak registration releases both fixed arc readers with the callback and holds no candidates or results.
+   */
+  export function wristChord(
+    projector: IProjector["withQuaternion"] | undefined,
+  ): ReturnType<typeof prepareCardinalWristChord> {
+    return projector === undefined ? undefined : WRIST_CHORDS.get(projector);
+  }
 }

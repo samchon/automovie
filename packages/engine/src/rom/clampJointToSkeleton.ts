@@ -20,7 +20,7 @@ import { getConstraint } from "./getConstraint";
 type IClamp = (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
 
 /** Only this owner's actual factory callables have no candidate-retaining closure. */
-const BORROWABLE: WeakSet<IClamp> = new WeakSet();
+const BORROWABLE: WeakMap<IClamp, IAutoMovieJointConstraint | null | undefined> = new WeakMap();
 
 /**
  * Clamp one joint using its skeleton override, otherwise the humanoid default table. Unconstrained joints return by identity. This targeted seam lets derived contact/retarget corrections leave authored neighboring joints alone.
@@ -223,6 +223,22 @@ export namespace clampJointToSkeleton {
     return BORROWABLE.has(clamp) ? clamp : undefined;
   }
 
+  /**
+   * Test whether a genuine one-joint clamp owns the exact borrowed constraint.
+   * All-bone clamps and opaque callbacks have no one-joint constraint identity.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Defines one-joint provenance, the constraint identity and the two unsupported callback classes.
+   * @evidence contracts/development/implementation.md#principled-implementation A constraint is registered by the same private constructor that binds it to the actual clamp, so identity proves the domain without making a probe joint.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison with the constructor's weak registration.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither a wrapper, another constraint record, nor a multi-joint dispatcher certifies a fixed domain.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One weak lookup and one identity comparison.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only genuine clamp and unchanged domain provenance, independent of joint or projection results.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The weak entry borrows metadata already owned by the clamp and releases with its callable.
+   */
+  export function ownsConstraint(clamp: IClamp, constraint: IAutoMovieJointConstraint): boolean {
+    return BORROWABLE.get(clamp) === constraint;
+  }
+
   /** The interface contract (`IAutoMovieClampPose.IJoints`): the record clamp with its angle-taking form as its own member, carried by the pose projection `clampPose.prepare` builds. */
   export type IPrepared = IAutoMovieClampPose.IJoints;
 }
@@ -236,7 +252,7 @@ function prepareConstraintClamp(
   constraint: IAutoMovieJointConstraint | null,
   readRig: () => IAutoMovieJointRotationFrame | undefined,
 ): (joint: IAutoMovieJointPose) => IAutoMovieJointPose {
-  return ownClamp(prepareConstraintPair(constraint, readRig).joint);
+  return ownClamp(prepareConstraintPair(constraint, readRig).joint, constraint);
 }
 
 /** One bone's record clamp and its angle-taking form, sharing one constraint and one prepared frame read once. */
@@ -292,7 +308,7 @@ interface IPair {
 }
 
 /** Register only actual source-only factory closures, without wrapping their calls. */
-function ownClamp(clamp: IClamp): IClamp {
-  BORROWABLE.add(clamp);
+function ownClamp(clamp: IClamp, constraint?: IAutoMovieJointConstraint | null): IClamp {
+  BORROWABLE.set(clamp, constraint);
   return clamp;
 }

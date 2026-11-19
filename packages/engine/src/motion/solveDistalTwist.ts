@@ -171,9 +171,14 @@ function solve(
   };
 
   // How far the effector, clamped to its range, shows its asked rotation.
+  const chord: ReturnType<typeof prepareJointRotationProjection.wristChord> =
+    prepareJointRotationProjection.wristChord(projectWithQuaternion);
   let latestProjection: solveDistalTwist.IProjection | undefined;
-  const missed: (twist: number) => number = (twist: number): number => {
-    const local: IAutoMovieQuaternion = effectorOf(at(twist));
+  const missed: (twist: number, demand?: IAutoMovieQuaternion) => number = (
+    twist: number,
+    demand?: IAutoMovieQuaternion,
+  ): number => {
+    const local: IAutoMovieQuaternion = demand ?? effectorOf(at(twist));
     let effector: IAutoMovieJointPose;
     let shown: IAutoMovieQuaternion;
     if (projectWithQuaternion === undefined) {
@@ -320,7 +325,17 @@ function solve(
     const clamped: number = at(t).twist ?? 0;
     if (read.has(clamped)) continue;
     read.add(clamped);
-    const m: number = missed(t);
+    let demand: IAutoMovieQuaternion | undefined;
+    if (chord !== undefined) {
+      demand = effectorOf(at(t));
+
+      // A candidate beyond even the nearest-start tie cannot win. Reserve
+      // a second tie width for the original normalized Hamilton/atan2 score's
+      // rounding. The lower bound is squared, so this needs no angle read.
+      const outside: number = least + 2 * TIE;
+      if (chord(demand) > outside * outside) continue;
+    }
+    const m: number = missed(t, demand);
     if (
       m < least - TIE ||
       (Math.abs(m - least) <= TIE &&
