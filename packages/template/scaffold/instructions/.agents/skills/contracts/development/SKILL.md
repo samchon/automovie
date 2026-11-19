@@ -17,4 +17,4 @@ Every respondent here is an exported declaration that answers in its own doc com
 | [Behaviors](behaviors.md) | Each function and method under `src/laws/`, `src/interactions/` and `src/consequences/` |
 | [Composition](composition.md) | Each function and method under `src/composition/` |
 
-Use `@evidence` for selected contract items, screenplay sections or instructions. Cite other documents by path and anchor in the answer text.
+Use `@evidence` for selected contract items, subject records, screenplay sections or instructions. Cite other documents by path and anchor in the answer text.

@@ -35,7 +35,7 @@ For a catalog case, name the fact it exhibits and use the case parameters. For s
 
 Does the declaration compose only accepted module capabilities using installed operators and the screenplay's decisions?
 
-Resolve the film once from one seed. Place absolute time only at screenplay anchors. Compose entity capabilities, interactions and consequences with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections.
+Resolve the film once from one seed. Place absolute time only at screenplay anchors. Compose the [production entity's capabilities](entities.md#settings-realization), interactions and consequences with installed operators. Their capability owners handle calculations, constants, coordinates, direct law imports, URL parameters, archive loads and runtime selections.
 
 Cast and crowds perform through the vocabulary. [Retarget](../../motion/retargeting.md) a supplied or user-chosen clip to its performer. Fix package [refusals](../../motion/compose/refusals.md) at the named axis.
 

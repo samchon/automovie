@@ -19,7 +19,8 @@
 export interface IAutoMovieDevelopmentProps {
   /**
    * Types, classes, functions and methods under `src/entities/` answer
-   * `contracts/development/entities.md`.
+   * `contracts/development/entities.md`. Submitting entities or composition
+   * on a narrative route also connects entity types to its subject records.
    */
   entities?: "disabled" | "evidence";
 

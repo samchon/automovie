@@ -25,9 +25,8 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * scenes and the catalog film answer the composition checklist alone. With
  * `instructions`, the composition and entities must also realize every
  * instruction section, which no narrative layer then cites, with no
- * exclusion. Entities answer their checklist alone too, because their
- * settings citations are judged by review rather than required for every
- * settings heading.
+ * exclusion. The public configuration adds coverage of the route's subject
+ * records when entities or composition are submitted.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Native TypeScript claims carry the checklist, and a second Markdown reference uses native target coverage to make the screenplay-section-and-beat-to-scene and scene-file-to-film relations mechanical, while entities and behaviors carry the checklist alone; `instructions` adds the instruction-to-code relation with the same coverage, no checklist and no exclusion, because a user requirement cannot be waived by its realizer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One table maps each checklist population to its stage, folders, symbol kinds and cited population, and the one instruction relation, which has no checklist, follows it; disabled stages produce no claim, and the one props object carries the stages, the instruction switch and where the checklists are read.

@@ -2,8 +2,6 @@
 
 Each exported declaration under `src/entities/` answers these items in its doc comment, beside [common](common.md), [design](design.md) and [implementation](implementation.md). An entity is one cast member, crowd, prop, set, camera or light.
 
-Its settings realization answer names each fact it realizes as `docs/body/settings/<domain>/<subject>.md#<fact>` or `docs/body/brief/<domain>/<subject>.md#<fact>`, and each measurement's study as `docs/research/<discipline>/<topic>.md` with the section it uses.
-
 For a short's screenplay decision, cite its scene file and anchor. With no narrative pass, name the screenplay or instruction section and tag each instruction as `@evidence docs/instructions/<topic>.md#<anchor> <how>`.
 
 ## Settings realization
@@ -12,7 +10,9 @@ Does the entity realize the cited facts and measurements and stay identifiable a
 
 ### Facts and instances
 
-Cite the subject record and its facts, or the scene section and local name for a scene-only instance. Show where each fact is realized, including appearance that needs the commissioned detail option. When several instances share a model, preserve their distinct positions, holders and histories across cuts and detail settings.
+For a cast member, crowd, prop or set, cite its [subject file](../../story/document-layout.md#canon-records) once on the production entity type, including when it uses a shared class or installed motion. State what it realizes, for example `@evidence docs/body/brief/props/ball.md The ball uses the brief's red panels.` For a record outside the filmed scope, give the reason with `@evidenceExclude`.
+
+Identify a scene-only instance by its scene section and local name. Show where the cited facts are realized, including appearance that needs the commissioned detail option. When several instances share a model, preserve their distinct positions, holders and histories across cuts and detail settings.
 
 Derive a cast body from its record and an incidental body from the standing state. Without a cast layer, use the commissioned appearance, screenplay or asset instructions. Use the same prepared body for the polygon man and its motion.
 
