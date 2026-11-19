@@ -1,7 +1,16 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  getConstraint,
+  physicalShapeBounds,
+  physicalShapePairDistance,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanParameters,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSeated,
@@ -11,13 +20,16 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanColliders,
   HumanPerformance,
   HumanRefusal,
+  createHumanBody,
   crossAnkleOverKnee,
   seated,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import PEOPLE from "../internal/MOTION_HUMAN_PEOPLE.json";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
@@ -32,7 +44,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/testing.md#execution-ownership Performs a registered action through the public chain over an in-memory polygon man.
  */
 export function test_human_motion_cross_ankle_over_knee(): void {
-  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const body: IAutoMovieMotionHumanBody = calibratedBody();
   const subject: string = "actor";
   const performer: ConstructorParameters<
     typeof HumanPerformance
@@ -46,7 +58,7 @@ export function test_human_motion_cross_ankle_over_knee(): void {
   const chair: IAutoMovieMotionHumanSeated.ISeat = {
     at: {
       x: 0,
-      y: seated.popliteal(body),
+      y: seated.popliteal(body) * 1.195,
       z: body.rest.get("leftFoot")!.z - 0.1,
     },
     yaw: 0,
@@ -61,7 +73,7 @@ export function test_human_motion_cross_ankle_over_knee(): void {
       seed: "chair crossing",
       performers: [performer],
       composition: start()
-        .sit({ seat: chair })
+        .sit({ seat: chair, back: "slump" })
         .registered("crossAnkleOverKnee", { side, seconds: 1 }).node,
       laws: [crossAnkleOverKnee],
     });
@@ -142,6 +154,55 @@ export function test_human_motion_cross_ankle_over_knee(): void {
           ) < 0.01,
       );
     }
+    for (const share of [
+      contact / 6,
+      contact / 2,
+      contact * (5 / 6),
+      contact,
+      middle,
+      release,
+      1,
+    ]) {
+      const frames = sample(share);
+      const shapes = HumanColliders.placed(body, frames);
+      const carrying = shapes.filter(
+        ({ bone }) =>
+          bone === `${other}UpperLeg` || bone === `${other}LowerLeg`,
+      );
+      const swinging = shapes.filter(
+        ({ bone }) => bone === `${side}LowerLeg` || bone === `${side}Foot`,
+      );
+      const gap = Math.min(
+        ...carrying.flatMap((fixed) =>
+          fixed.shapes.flatMap((fixedShape) =>
+            swinging.flatMap((moving) =>
+              moving.shapes.map((movingShape) =>
+                physicalShapePairDistance(
+                  fixed.pose,
+                  fixedShape,
+                  moving.pose,
+                  movingShape,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      const floor = Math.min(
+        ...swinging.flatMap(({ pose, shapes }) =>
+          shapes.map((shape) => physicalShapeBounds(pose, shape).min.y),
+        ),
+      );
+      TestValidator.predicate(
+        `${side}: the displayed shin and foot clear the other leg and floor at ${share}`,
+        gap >= 0 && floor >= 0,
+      );
+      if (contact <= share && share <= release)
+        TestValidator.predicate(
+          `${side}: the bearing ankle meets the carrying leg's actual material surface at ${share}`,
+          gap <= 0.001,
+        );
+    }
     for (const share of [contact, middle, release]) {
       const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         sample(share);
@@ -169,6 +230,30 @@ export function test_human_motion_cross_ankle_over_knee(): void {
     );
   }
 
+  const standard = motionHumanBody("m-average");
+  let uncalibrated: unknown;
+  try {
+    new HumanPerformance({
+      seed: "chair crossing outside the standard hip range",
+      performers: [{ ...performer, body: standard }],
+      composition: start()
+        .sit({
+          seat: {
+            ...chair,
+            at: { ...chair.at, y: seated.popliteal(standard) },
+          },
+        })
+        .registered("crossAnkleOverKnee", { side: "right", seconds: 1 }).node,
+      laws: [crossAnkleOverKnee],
+    });
+  } catch (error) {
+    uncalibrated = error;
+  }
+  TestValidator.predicate(
+    "the standard seated hip admits no figure-four contact",
+    uncalibrated instanceof HumanRefusal && uncalibrated.axis === "side",
+  );
+
   let refusal: unknown;
   try {
     new HumanPerformance({
@@ -183,5 +268,38 @@ export function test_human_motion_cross_ankle_over_knee(): void {
   TestValidator.predicate(
     "ankle-over-knee crossing refuses a standing entry",
     refusal instanceof HumanRefusal && refusal.axis === "base",
+  );
+}
+
+/** Calibrate the polygon fixture's paired hip axes and external rotation. */
+function calibratedBody(): IAutoMovieMotionHumanBody {
+  const sample = PEOPLE["m-average"];
+  const prepared = AutoMovieHumanCanonicalBody.prepare(
+    sample.params as IAutoMovieHumanParameters,
+    { mass: sample.mass, id: "m-average-figure-four" },
+  );
+  return createHumanBody(
+    {
+      ...prepared.skeleton,
+      bones: prepared.skeleton.bones.map((bone) => {
+        if (bone.bone !== "leftUpperLeg" && bone.bone !== "rightUpperLeg")
+          return bone;
+        // The canonical clinical frame already reflects right abduction and twist.
+        const constraint = getConstraint(bone.bone, bone.constraint ?? null)!;
+        return {
+          ...bone,
+          axes: {
+            flexion: { x: -1, y: 0, z: 0 },
+            abduction: { x: 0, y: 0, z: 1 },
+            twist: { x: 0, y: 1, z: 0 },
+            rotationOrder: "flexion-abduction-twist",
+          },
+          // Ganokroj et al. report this external rotation in the male
+          // figure-four sample. The ordinary fixture keeps its original range.
+          constraint: { ...constraint, twist: { min: -45, max: 68.6 } },
+        };
+      }),
+    },
+    prepared.profile,
   );
 }

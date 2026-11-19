@@ -1,27 +1,23 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanCrossAnkleOverKnee,
   IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
-  IAutoMoviePose,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMount } from "../lexicon/HumanMount";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import {
+  fitSeatedAnkleCross,
+  interpolateSeatedAnkleCross,
+} from "./fitSeatedAnkleCross";
 
 /** Provisional seconds for lifting or returning the leg. */
 const TRAVEL: number = 0.85;
@@ -46,22 +42,17 @@ const continueContact = (
  * Yu and An (2015), https://pmc.ncbi.nlm.nih.gov/articles/PMC4483391/,
  * studied the latter. Turley et al. (2013),
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC3589629/, identify coupled hip
- * range limits during activities such as chair leg crossing. The held ankle
- * target uses the fitted carrying knee and the performer's lower-leg
- * dimensions. The pose is a rigid, first-draft approximation of that contact.
- *
- * Ganokroj et al. (2021), https://doi.org/10.1186/s12891-021-04487-z,
- * distinguish the chair figure-four by its coupled hip flexion, abduction,
- * and external rotation. The current rig measures hip twist about the
- * pelvis axis. The canonical chair fixture reaches the refusal. A separate
- * fit allowing the carrying knee to swivel with its sole planted also
- * missed the contact. Qualification calls for a calibrated thigh-axis hip
- * model and a contact fit that preserves the seat and grounded sole.
+ * range limits during activities such as chair leg crossing. Ganokroj et al.
+ * (2021), https://doi.org/10.1186/s12891-021-04487-z, distinguish the chair
+ * figure-four by its hip flexion, abduction and external rotation. The moving
+ * hip needs a calibrated thigh-axis rotation order. The planner fits the
+ * seated leg's actual bearing surface and checks the sweep outside and above
+ * the carrying leg before settling the ankle. The return retraces that fit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the entry, staged contact, source, provisional timing and return.
  * @evidence contracts/development/design.md#principled-representation A reversible ankle placement on a seated base with authored hold and explicit support windows.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered action consumes the existing seat and grounds the other foot.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reads knee and ankle geometry from the posed skeleton and fits through the shared posture solver.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reads posed body colliders, uses the shared hinged-chain fit and verifies ROM and swept clearance before returning the plan.
  */
 export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrossAnkleOverKnee> =
   {
@@ -150,93 +141,31 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           fix: "specify a finite hold that leaves time to return the foot",
         });
       const posture: IAutoMovieMotionHumanPosture = entry.posture;
-      const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, entry.pose);
-      const bearingKnee: IAutoMovieVector3 = bones.get(knee)!.worldPosition;
-      const start: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[side];
-      const footGoal: IAutoMovieHumanLimbGoal = posture.limbs[swing]!;
-      const kneeAtStart: IAutoMovieVector3 = bones.get(
-        `${side}LowerLeg`,
-      )!.worldPosition;
       const outward: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, posture.yaw),
         { x: side === "left" ? 1 : -1, y: 0, z: 0 },
       );
-
-      // Keep the knees on opposite sides while turning the raised shin in.
-      // The knee region supplies the carrying knee's radius. The standing
-      // ankle height bounds the raised ankle's outer radius at the contact.
-      const region =
-        body.surfaces.regions[carried === "left" ? "kneeLeft" : "kneeRight"];
-      const kneeRadius: number = Vector3.length(region.point);
-      const ankleRadius: number = Math.min(
-        body.measure.shankRadius,
-        body.measure.ankleHeight,
-      );
-      const target: IAutoMovieVector3 = {
-        ...bearingKnee,
-        y: bearingKnee.y + kneeRadius + ankleRadius,
-      };
-      const pole: IAutoMovieVector3 = Vector3.add(
-        kneeAtStart,
-        Vector3.scale(outward, body.measure.thigh),
-      );
-      const fit: IAutoMoviePose = resolveHumanPosture.limb(
-        body,
-        entry.pose,
-        swing,
-        {
-          point: target,
-          bend: pole,
-        },
-      );
-      const end: IAutoMovieMotionHumanFoot.IPlacement = {
-        ankle: target,
-        rotation: poseBones(body, fit).get(lifted)!.worldRotation,
-      };
-
-      // Raise the ankle early on the arc so that it is above the shank as
-      // it moves inward. A quarter-rise arc makes height level at contact.
-      const clearance: number = (target.y - start.ankle.y) / 4;
-      const goalAt = (share: number): IAutoMovieHumanLimbGoal => ({
-        ...AutoMovieMotionHumanLeg.goal(
-          body,
-          posture,
-          side,
-          AutoMovieMotionHumanLeg.arc(start, end, clearance, share),
-          false,
-        ),
-        bend: Vector3.lerp(kneeAtStart, pole, share),
-      });
-      for (const share of [0.25, 0.5, 0.75, 1]) {
-        const goal: IAutoMovieHumanLimbGoal = goalAt(share);
-        const sample: ReadonlyMap<
-          AutoMovieHumanoidBone,
-          IAutoMovieResolvedBone
-        > = poseBones(
-          body,
-          resolveHumanPosture.limb(body, entry.pose, swing, goal),
-        );
-        const gap: number = Vector3.length(
-          Vector3.subtract(sample.get(lifted)!.worldPosition, goal.point),
-        );
-        const kneeOrder: number = Vector3.dot(
-          Vector3.subtract(
-            sample.get(`${side}LowerLeg`)!.worldPosition,
-            bearingKnee,
-          ),
-          outward,
-        );
-        if (gap > FIT_GAP || kneeOrder <= 0)
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "side",
-            value: side,
-            feasible: null,
-            reason: `the raised leg cannot reach across with its knee outside the carrying knee (ankle gap ${gap.toFixed(3)} m, lateral knee separation ${kneeOrder.toFixed(3)} m)`,
-            fix: "sit with the knees in a different position, or choose the other raised leg",
-          });
-      }
+      const path = fitSeatedAnkleCross(body, entry, side, outward, FIT_GAP);
+      if (path === undefined)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "side",
+          value: side,
+          feasible: null,
+          reason:
+            "the raised leg needs a calibrated hip and must clear the carrying leg before resting on its knee",
+          fix: "use a seated stance and calibrated hip range that reach the other knee, or choose the other raised leg",
+        });
+      const limbs = { ...posture.limbs };
+      delete limbs[swing];
+      const joints = { ...posture.joints };
+      for (const joint of entry.pose.joints)
+        if (joint.bone === lifted || joint.bone === `${side}Toes`)
+          joints[joint.bone] = [
+            joint.flexion ?? 0,
+            joint.abduction ?? 0,
+            joint.twist ?? 0,
+          ];
 
       const contacts: IAutoMovieMotionHumanContactWindow[] = entry.supports
         .filter((item) => item.part !== lifted)
@@ -266,14 +195,36 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         ],
         contacts,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
-          const share: number = minimumJerk(
+          const share = Math.max(
+            0,
             Math.min(seconds, duration - seconds) / travel,
-          ).s;
+          );
+          if (share === 0) return posture;
+          const phase = Math.min(
+            path.length - 2,
+            Math.floor(share * (path.length - 1)),
+          );
+          const amount = minimumJerk(share * (path.length - 1) - phase).s;
+          const posed = interpolateSeatedAnkleCross(
+            path[phase]!,
+            path[phase + 1]!,
+            amount,
+          );
           return {
             ...posture,
-            limbs: {
-              ...posture.limbs,
-              [swing]: share === 0 ? footGoal : goalAt(share),
+            limbs,
+            joints: {
+              ...joints,
+              [posed.hip.bone]: [
+                posed.hip.flexion ?? 0,
+                posed.hip.abduction ?? 0,
+                posed.hip.twist ?? 0,
+              ],
+              [posed.knee.bone]: [
+                posed.knee.flexion ?? 0,
+                posed.knee.abduction ?? 0,
+                posed.knee.twist ?? 0,
+              ],
             },
           };
         },
