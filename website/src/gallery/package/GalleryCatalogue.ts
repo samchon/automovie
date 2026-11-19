@@ -1,4 +1,8 @@
-import { ARCHETYPE_FAMILIES, type Archetype } from "@automovie/archetypes";
+import {
+  ARCHETYPE_FAMILIES,
+  type Archetype,
+  type ArchetypeMass,
+} from "@automovie/archetypes";
 
 import { formatArchetypeLabel } from "../formatArchetypeLabel";
 import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
@@ -16,13 +20,17 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
  * without a change to the site.
  */
 export namespace GalleryCatalogue {
+  /** A displayed archetype with optional physical mass properties. */
+  export type Model = Archetype<
+    string,
+    string,
+    ArchetypeMass.IProperties | null
+  >;
+
   /** A producer as the gallery calls it: the function with the tables it carries. */
   export interface IProducer {
     /** Build the archetype from its parameters and a seed. */
-    (
-      params: Record<string, unknown>,
-      seed?: number | string,
-    ): Archetype<string, string>;
+    (params: Record<string, unknown>, seed?: number | string): Model;
 
     /** The kinds, where the producer has kinds. */
     KINDS?: readonly string[];

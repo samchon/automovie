@@ -1,0 +1,274 @@
+import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+
+/** Absolute action-local endpoints of a phase in seconds. */
+type Window = readonly [from: number, to: number];
+
+/** A prepared pair of foot swings and the accompanying lateral pelvis movement. */
+interface ITransfer {
+  /** The first and second foot's separate swing windows. */
+  swings: readonly [Window, Window];
+
+  /** World metres along the local left axis from the entry pelvis. */
+  offset(seconds: number): number;
+}
+
+/** Fractions of stance entry or recovery at which each foot leaves and lands. */
+const SWING_SHARES: readonly [Window, Window] = [
+  [0.17, 0.43],
+  [0.57, 0.83],
+];
+
+/** The portion of horizontal distance to the bearing ankle the authored pelvis shift covers. */
+const SUPPORT_SHARE: number = 0.65;
+
+/** The height of each ready or recovery step above its ground baseline as a fraction of stature. */
+const CLEARANCE: number = 0.025;
+
+/** Prepare the support intervals and knee loading for ready and split-step racket phrases.
+ *
+ * @param context Entry posture and feet of the performer.
+ * @param clock The existing phrase clock, with its existing public events.
+ * @param lead The first foot out, on the racket side.
+ * @param leftward The local left direction in world space.
+ * @param split Whether to add a simultaneous hop between outward and recovery steps.
+ * @param extent The authored movement extent multiplier for the jump.
+ * @returns Pelvis and leg primitives, with their ground contacts.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the entry state, phase clock, direction, and support output.
+ * @evidence contracts/development/implementation.md#principled-implementation Successive ankle arcs widen the stance. The pelvis moves toward the loaded foot before each departure. A split phase alone raises both feet and the pelvis together.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the two stance transfers, publish the pelvis row, then publish a placement and matching plant windows per foot.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stance transfer, clearance and shift proportions are authored defaults. Feet return to their own entry anchors.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Each foot has at most three departures and two prepared swing curves. No sampled history is consulted.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared leg arc and sampling law for curved steps. Each prepared departure serves both the plant windows and the leg's bearing predicate.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds fixed preparation for the two legs and pelvis for the lifetime of the action.
+ */
+export function racketStance(
+  context: IAutoMovieMotionHumanActionContext,
+  clock: IAutoMovieMotionClock,
+  lead: AutoMovieHumanSide,
+  leftward: IAutoMovieVector3,
+  split: boolean,
+  extent: number,
+): {
+  primitives: IAutoMovieMotionHumanPrimitive[];
+  contacts: IAutoMovieMotionHumanContactWindow[];
+} {
+  const { body, entry }: IAutoMovieMotionHumanActionContext = context;
+  const follow: AutoMovieHumanSide = lead === "left" ? "right" : "left";
+  const ready: number = clock.at("ready");
+  const relax: number = clock.at("relax");
+  const flight: Window = [clock.at("strokeStart"), clock.at("stroke")];
+  const width: number = Vector3.dot(
+    Vector3.subtract(entry.feet.left.ankle, entry.feet.right.ankle),
+    leftward,
+  );
+  const widening: number = Math.max(
+    0,
+    (4 * body.measure.shoulderHalfWidth - width) / 2,
+  );
+  const spread: number = split ? body.measure.shoulderHalfWidth / 2 : 0;
+  const clearance: number = CLEARANCE * body.measure.stature;
+  const height: number = 0.03 * body.measure.stature * extent;
+  const load: (seconds: number) => number =
+    AutoMovieMotionClock.prepareEnvelope(
+      clock,
+      ["start", "ready"],
+      ["relax", "end"],
+    );
+  const offset = (foot: AutoMovieHumanSide, distance: number): number =>
+    Vector3.dot(
+      Vector3.subtract(entry.feet[foot].ankle, entry.posture.root),
+      leftward,
+    ) + (foot === "left" ? distance : -distance);
+  const approach: ITransfer = transfer(
+    0,
+    ready,
+    offset(follow, 0),
+    offset(lead, widening),
+  );
+  const recovery: ITransfer = transfer(
+    relax,
+    clock.duration,
+    offset(lead, widening + spread),
+    offset(follow, 0),
+  );
+  const airborne = (seconds: number): boolean =>
+    split && inside(flight, seconds);
+  const progress = (seconds: number): number => share(flight, seconds);
+  const lift = (seconds: number): number => {
+    if (!airborne(seconds)) return 0;
+    const t: number = progress(seconds);
+    return 4 * height * t * (1 - t);
+  };
+  const primitives: IAutoMovieMotionHumanPrimitive[] = [
+    {
+      channels: ["root", "trunk"],
+      from: 0,
+      to: clock.duration,
+      write: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const loaded: number = load(seconds);
+        const shift: number =
+          seconds < ready && widening > 0
+            ? approach.offset(seconds)
+            : seconds > relax && widening + spread > 0
+              ? recovery.offset(seconds)
+              : 0;
+        const root: IAutoMovieVector3 = Vector3.addScaled(
+          posture.root,
+          leftward,
+          shift,
+        );
+        return {
+          ...posture,
+          root: {
+            ...root,
+            y: root.y - 0.04 * body.measure.stature * loaded + lift(seconds),
+          },
+          pitch: posture.pitch + 15 * loaded,
+        };
+      },
+    },
+  ];
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+  for (const foot of ["left", "right"] as const) {
+    const rest: IAutoMovieMotionHumanFoot.IPlacement = {
+      ankle: entry.feet[foot].ankle,
+      rotation: entry.feet[foot].rotation,
+    };
+    const side: number = foot === "left" ? 1 : -1;
+    const open: IAutoMovieMotionHumanFoot.IPlacement = {
+      ...rest,
+      ankle: Vector3.addScaled(rest.ankle, leftward, side * widening),
+    };
+    const landed: IAutoMovieMotionHumanFoot.IPlacement = {
+      ...rest,
+      ankle: Vector3.addScaled(open.ankle, leftward, side * spread),
+    };
+    const outward: Window = approach.swings[foot === lead ? 0 : 1];
+    const inward: Window = recovery.swings[foot === follow ? 0 : 1];
+    const stepOut: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
+      AutoMovieMotionHumanLeg.prepareArc(
+        rest,
+        open,
+        widening > 0 ? clearance : 0,
+      );
+    const stepBack: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
+      AutoMovieMotionHumanLeg.prepareArc(
+        landed,
+        rest,
+        widening + spread > 0 ? clearance : 0,
+      );
+    const departures: Window[] = [];
+    if (widening > 0) departures.push(outward);
+    if (split) departures.push(flight);
+    if (widening + spread > 0) departures.push(inward);
+    primitives.push(
+      AutoMovieMotionHumanLeg.place({
+        body,
+        side: foot,
+        from: 0,
+        to: clock.duration,
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          seconds: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement => {
+          if (seconds <= outward[0] || seconds >= inward[1]) return rest;
+          if (seconds < outward[1]) return stepOut(ease(outward, seconds));
+          if (seconds > inward[0]) return stepBack(ease(inward, seconds));
+          if (!split || seconds <= flight[0]) return open;
+          if (seconds >= flight[1]) return landed;
+          const ankle: IAutoMovieVector3 = Vector3.addScaled(
+            open.ankle,
+            leftward,
+            side * spread * ease(flight, seconds),
+          );
+          return {
+            ankle: { ...ankle, y: ankle.y + lift(seconds) },
+            rotation: rest.rotation,
+          };
+        },
+        planted: (seconds: number): boolean =>
+          !departures.some((window: Window): boolean =>
+            inside(window, seconds),
+          ),
+      }),
+    );
+    let bearing: number = 0;
+    for (const [from, to] of [
+      ...departures,
+      [clock.duration, clock.duration] as const,
+    ]) {
+      if (bearing < from)
+        contacts.push({
+          part: `${foot}Foot`,
+          kind: "plant",
+          from: bearing / clock.duration,
+          to: from / clock.duration,
+          support: { kind: "ground" },
+        });
+      bearing = to;
+    }
+  }
+  return { primitives, contacts };
+}
+
+/** The two foot swings use separate intervals, leaving transfer time with both feet down. */
+function transfer(
+  from: number,
+  to: number,
+  first: number,
+  second: number,
+): ITransfer {
+  const span: number = to - from;
+  const swings: readonly [Window, Window] = [
+    [from + SWING_SHARES[0][0] * span, from + SWING_SHARES[0][1] * span],
+    [from + SWING_SHARES[1][0] * span, from + SWING_SHARES[1][1] * span],
+  ];
+  const firstShift: Window = [from, swings[0][0]];
+  const secondShift: Window = [swings[0][1], swings[1][0]];
+  const recenter: Window = [swings[1][1], to];
+  return {
+    swings,
+    offset: (seconds: number): number => {
+      const towardFirst: number = ease(firstShift, seconds);
+      const towardSecond: number = ease(secondShift, seconds);
+      const settle: number = ease(recenter, seconds);
+      return (
+        SUPPORT_SHARE *
+        (first * (towardFirst - towardSecond) +
+          second * (towardSecond - settle))
+      );
+    },
+  };
+}
+
+/** Endpoints belong to the adjacent bearing phases. */
+function inside([from, to]: Window, seconds: number): boolean {
+  return seconds > from && seconds < to;
+}
+
+/** The clamped linear fraction of a positive-length interval. */
+function share([from, to]: Window, seconds: number): number {
+  return Math.min(1, Math.max(0, (seconds - from) / (to - from)));
+}
+
+/** A zero-velocity turnaround at both boundaries of a placement or transfer. */
+function ease(window: Window, seconds: number): number {
+  return minimumJerk.share(share(window, seconds));
+}

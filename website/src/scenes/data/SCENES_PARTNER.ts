@@ -212,13 +212,38 @@ export const SCENES_PARTNER: readonly IScene[] = [
       setting: "partner",
       roles: { tor: "tori", uke: "uke" },
       needs: [],
+
+      // The alternate cast cannot maintain the sleeve contact at these marks.
+      bodySwap: false,
     },
     "judo",
     [
-      person("tor", "m2", 0, -0.25, 0, [act("stand", { seconds: 0.5 })]),
-      person("uke", "m1", 0, 0.25, 180, [act("stand", { seconds: 0.5 })]),
+      person("tor", "m2", 0, -0.27, 8, [
+        act("stand", { seconds: 0.5, sway: 0 }),
+      ]),
+      person("uke", "m1", 0.09, 0.27, 188, [
+        act("stand", { seconds: 0.5, sway: 0 }),
+      ]),
     ],
-    [],
+    // The tiles' tops are flush with the exchange's ground support plane.
+    [-0.6096, 0, 0.6096].flatMap((x: number, column: number) =>
+      [-0.65, 1.22].map((z: number, row: number) => ({
+        ...object(
+          `mat-${column}-${row}`,
+          "createExerciseMat",
+          "gym",
+          x,
+          z,
+          0,
+          -0.0127,
+          {
+            length: 1.87,
+            width: 0.6096,
+          },
+        ),
+        fixed: true,
+      })),
+    ),
     [
       mutual(
         "grappling",

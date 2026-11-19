@@ -10,29 +10,126 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "tennis-rally",
       title: "Tennis rally",
       summary:
-        "Two players, one at the baseline and one at the net: ready positions and split steps; a forehand, a two-handed backhand and a topspin stroke answered by a volley, an overhead smash and a backhand drive.",
+        "Two players take their rackets and set their feet by the net. A hand-fed ball comes across the court for a forehand return.",
       setting: "sport",
-      roles: { ana: "baseline", bea: "net" },
+      roles: { ana: "receiver", bea: "feeder" },
       needs: [],
-      view: "side",
+      view: "three-quarter",
+      distance: 13.7,
     },
     "tennis",
     [
-      person("ana", "f1", 0, 0, 0, [
-        act("readyPosition"),
-        act("splitStep"),
-        act("forehand"),
-        act("splitStep"),
-        act("twoHandBackhand"),
-        act("topspin"),
-      ]),
       person("bea", "f2", 0, 6, 180, [
-        act("readyPosition"),
-        act("volley"),
-        act("splitStep"),
-        act("overheadSmash"),
-        act("backhandDrive"),
+        act("pickUp", {
+          prop: "bea-racket",
+          handle: "grip",
+          lift: 0.1,
+          use: { tip: "sweetSpot", line: "oblique" },
+        }),
+        act("pickUp", {
+          prop: "tennis-ball",
+          hand: "left",
+          handle: "grip",
+          lift: 0.14,
+        }),
+        act("stand", { seconds: 2 }),
+        act(
+          "ballSport",
+          {
+            kind: "handballThrow",
+            side: "left",
+            prop: "tennis-ball",
+            at: { x: -0.81, y: 1.28, z: 0.55 },
+            flightSeconds: 0.85,
+          },
+          { anchor: "tennis-feed" },
+        ),
+        act("racket", {
+          kind: "readyPosition",
+          seconds: 0.4,
+          implement: "bea-racket",
+        }),
       ]),
+      person("ana", "f1", 0, 0, 0, [
+        act("pickUp", {
+          prop: "ana-racket",
+          handle: "grip",
+          lift: 0.11,
+          use: { tip: "sweetSpot", line: "oblique" },
+        }),
+        act("racket", {
+          kind: "readyPosition",
+          seconds: 0.25,
+          implement: "ana-racket",
+        }),
+        act(
+          "tennisForehandReturn",
+          {
+            tool: "ana-racket",
+            ball: "tennis-ball",
+            toward: {
+              kind: "point",
+              frame: "world",
+              at: { x: 0.8, y: 0, z: 5.6 },
+            },
+            impact: 0.55,
+            speed: 8.9,
+          },
+          {
+            anchor: "tennis-return",
+            sync: { of: "tennis-feed", event: "stroke", offset: 0.85 - 0.55 },
+          },
+        ),
+        act("racket", {
+          kind: "splitStep",
+          seconds: 0.2,
+          implement: "ana-racket",
+        }),
+      ]),
+    ],
+    [
+      {
+        ...object("ana-bench", "createTable", "workbench", -0.64, 0.7, 0, 0, {
+          height: 0.902,
+        }),
+        fixed: true,
+      },
+      {
+        ...object("bea-bench", "createTable", "workbench", 0.405, 5.405, 0, 0, {
+          height: 0.9,
+        }),
+        fixed: true,
+      },
+      {
+        ...object(
+          "ball-rest",
+          "createTableware",
+          "saucer",
+          -0.13,
+          5.66,
+          0,
+          0.9,
+        ),
+        fixed: true,
+      },
+      {
+        ...object(
+          "ana-racket",
+          "createRacket",
+          "tennis",
+          -0.36,
+          0.19,
+          0,
+          0.914,
+        ),
+        rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
+      },
+      {
+        ...object("bea-racket", "createRacket", "tennis", 0.35, 5.76, 0, 0.914),
+        rotation: { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
+      },
+      object("tennis-ball", "createBall", "tennis", -0.13, 5.66, 0, 0.914),
+      { ...object("court-net", "createGoal", "tennisNet", 0, 3), fixed: true },
     ],
   ),
   scene(
@@ -171,36 +268,33 @@ export const SCENES_GAMES: readonly IScene[] = [
   scene(
     {
       id: "high-jump",
-      title: "Jump drills",
+      title: "High jump and sprint",
       summary:
-        "Two athletes drill their run-up: A-skips and B-skips, butt kicks and high knees, strides into a Fosbury flop, a leap and a dash.",
+        "A jumper takes a short approach and lands from a Fosbury flop on a raised mat while a sprinter runs in a separate lane.",
       setting: "sport",
       roles: { hj: "high jumper", pv: "sprinter" },
       needs: [],
-      view: "side",
+      view: "three-quarter",
     },
     "jumps",
     [
       person("hj", "f1", -4, 0, 90, [
-        act("aSkip"),
-        act("buttKicks"),
         act("strides", { to: to(-1.5, 0) }),
-        act("fosburyFlop", { to: to(0, 0), bar: "bar" }),
+        act("fosburyFlop", {
+          to: { x: 1.2, y: 0.7, z: 0 },
+          bar: "bar",
+          on: "mat",
+          apexReserve: 0.35,
+        }),
       ]),
-      person("pv", "m1", -6, 3, 90, [
-        act("bSkip"),
-        act("highKnees"),
-        act("stand", { seconds: 0.3 }),
-        act("leap", { to: to(-4, 3) }),
-        act("dash", { to: to(-1, 3) }),
-      ]),
+      person("pv", "m1", -4, 4, 90, [act("dash", { to: to(-1, 4) })]),
     ],
-    // The uprights across the jumper's run along +X, the crossbar at the
-    // 1.2 m the scene jumped before, between the take-off and the landing.
+    // The +X flight reaches the crossbar near its apex, just ahead of the mat.
     [
-      object("bar", "createHighJump", "highJump", -0.6, 0, 90, 0, {
-        height: 1.2,
+      object("bar", "createHighJump", "highJump", 0, 0, 90, 0, {
+        height: 1.4,
       }),
+      object("mat", "createLandingMat", "highJump", 2.2, 0, 90),
     ],
   ),
   scene(
@@ -312,7 +406,6 @@ export const SCENES_GAMES: readonly IScene[] = [
       setting: "sport",
       roles: { k1: "student", k2: "student", k3: "student" },
       needs: [],
-      refusedUntil: 3552,
     },
     "forms",
     [

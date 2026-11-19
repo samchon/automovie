@@ -26,8 +26,9 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  *
  * Scenarios:
  * 1. Pick up a tennis racket and cross a stage mark with its hitting face.
+ *    The ready stance lifts one foot at a time with lateral pelvis transfer.
  *    Read the stepping and supporting foot from displayed bones and check
- *    that the racket remains fixed in its hand through recovery.
+ *    that the racket stays in the hand through recovery and an airborne split step.
  * 2. Strike a separate overhead mark with the volleyball palm. Read the
  *    approach, both soles off the floor and the landing and recovery.
  *
@@ -39,7 +40,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the stroke cases, independent stage marks, support and contact bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the displayed racket and palm, hand frames, foot bones and sole sockets on a performance.
  * @evidence contracts/development/testing.md#independent-expectations The two contact marks are given in world metres and read from neither action nor profile. A fixed racket-to-hand transform and stable foot support are tested as relations.
- * @evidence contracts/development/testing.md#distinguishing-cases A planted forehand with a held object and an airborne single-palm spike are checked separately through impact and recovery.
+ * @evidence contracts/development/testing.md#distinguishing-cases The supported ready steps each have one fixed foot before a two-foot airborne split step. The held forehand and the airborne single-palm spike retain their distinct contact checks.
  * @evidence contracts/development/testing.md#execution-ownership Uses one standard polygon body and two short deterministic public performances in memory.
  */
 export function test_motion_exercise_net_strokes(): void {
@@ -113,14 +114,19 @@ function tennisForehand(
         handle: "grip",
         use: { tip: "sweetSpot", line: "oblique" },
       })
+      .racket({ kind: "readyPosition", implement: "racket" })
       .racket({ kind: "tennisForehand", implement: "racket", contactAt: mark })
-      .node,
+      .racket({ kind: "splitStep", implement: "racket" }).node,
   });
-  const segment: IAutoMovieMotionHumanSegment = film
+  const [stance, segment, split]: IAutoMovieMotionHumanSegment[] = film
     .segments("a")
-    .find(
+    .filter(
       (item: IAutoMovieMotionHumanSegment): boolean => item.name === "racket",
-    )!;
+    );
+  if (stance === undefined || segment === undefined || split === undefined)
+    throw new Error(
+      "The ready, forehand and split phases must all be present.",
+    );
   const start: number = segment.start;
   const plant: number = event(segment, "plant");
   const ready: number = event(segment, "ready");
@@ -130,6 +136,47 @@ function tennisForehand(
     side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieVector3 => joint(film, seconds, `${side}Foot`);
+  const readySpan: number = event(stance, "ready") - stance.start;
+  const first: number = stance.start + 0.3 * readySpan;
+  const transfer: number = stance.start + 0.5 * readySpan;
+  const second: number = stance.start + 0.7 * readySpan;
+  const standing: IAutoMovieVector3 = joint(film, stance.start, "hips");
+  const leftLock: number = Vector3.distance(
+    ankle("left", stance.start),
+    ankle("left", first),
+  );
+  const rightLock: number = Vector3.distance(
+    ankle("right", transfer),
+    ankle("right", second),
+  );
+  const sole = (side: AutoMovieHumanSide, seconds: number): number =>
+    Math.min(
+      ...HumanFoot.sockets(body, film.bones("a", seconds), side).map(
+        (site) => site.point.y,
+      ),
+    );
+  if (
+    !(
+      leftLock <= 0.005 &&
+      rightLock <= 0.005 &&
+      sole("right", first) > 0.02 &&
+      sole("left", second) > 0.02
+    )
+  )
+    complaints.push(
+      `ready foot drift ${leftLock}/${rightLock} m, swing clearance ${sole("right", first)}/${sole("left", second)} m`,
+    );
+  const firstLoad: number = joint(film, first, "hips").x - standing.x;
+  const secondLoad: number = joint(film, second, "hips").x - standing.x;
+  if (!(firstLoad > 0.015 && secondLoad < -0.015))
+    complaints.push(`ready pelvis loads ${firstLoad}/${secondLoad} m`);
+  const apex: number =
+    (event(split, "strokeStart") + event(split, "stroke")) / 2;
+  if (!(sole("left", apex) > 0.005 && sole("right", apex) > 0.005))
+    complaints.push(
+      `split soles at hop apex ${sole("left", apex)}/${sole("right", apex)} m`,
+    );
+
   const face = (seconds: number): IAutoMovieVector3 => {
     const frame: IAutoMovieRigidTransform = film.prop("racket", seconds);
     return Vector3.add(

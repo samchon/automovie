@@ -15,7 +15,7 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The lookup retains nothing.
  */
 export function archetypeAffordance(
-  model: Archetype,
+  model: Pick<Archetype, "id" | "name" | "affordances">,
   id: string,
   archetype: string,
 ): IAutoMovieAffordance {
