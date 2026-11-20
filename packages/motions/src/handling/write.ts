@@ -121,7 +121,7 @@ function planWrite(
     tool.prop.motion !== undefined ||
     support.prop.fixed !== true ||
     support.prop.motion !== undefined ||
-    support.prop.articulate !== undefined
+    (support.prop.hasArticulations ?? support.prop.articulate !== undefined)
   )
     throw new HumanRefusal({
       kind: "affordance",

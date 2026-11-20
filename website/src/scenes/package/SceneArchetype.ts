@@ -13,6 +13,7 @@ export namespace SceneArchetype {
     seed?: string,
   ) => object) & {
     FRAMES?: readonly string[];
+    FORMATS?: readonly string[];
   };
 
   /**
@@ -31,9 +32,13 @@ export namespace SceneArchetype {
         `The installed @automovie/archetypes has no producer named ${object.producer}`,
       );
 
-    // A producer names its variants `kind`, or `frame` where they are frames.
+    // Saved compositions store the selector under `kind`.
     const made: Producer = producer as Producer;
-    const key: string = Array.isArray(made.FRAMES) ? "frame" : "kind";
+    const key: string = Array.isArray(made.FRAMES)
+      ? "frame"
+      : Array.isArray(made.FORMATS)
+        ? "format"
+        : "kind";
     return made(
       {
         ...(object.params ?? {}),

@@ -252,7 +252,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       ]),
       person("zed", "f1", 1, -2, 0, [act("farmersWalk", { to: to(1, 2) })]),
     ],
-    [object("barrow", "createCart", "wheelbarrow", -1, -1.2)],
+    [object("barrow", "createWheelbarrow", undefined, -1, -1.2)],
   ),
   scene(
     {

@@ -1,325 +1,44 @@
-import { Vector3 } from "@automovie/engine";
-import type { IAutoMovieMesh } from "@automovie/interface";
-
-import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
-} from "../core";
-import { GOAL_BANDS } from "./GOAL_BANDS";
-import { buildBasketballHoop } from "./buildBasketballHoop";
-import { buildTennisNet } from "./buildTennisNet";
-
-/** The builder every construction fills. */
-type Builder = ArchetypeBuilder<createGoal.Affordance, createGoal.Dimension>;
-
-/** The drawn dimensions. */
-type Drawn = Partial<Record<createGoal.Dimension, number>>;
-
-/** The shorthand every construction uses. */
-const v: typeof Vector3.create = Vector3.create;
-
-/** The half side line spacing of a volleyball court, metres: the net's side bands 9 m apart (FIVB 2.2, its 9.50 m less two 25 cm). */
-const VOLLEYBALL_SIDE: number = 4.5;
-
-/** How far a volleyball antenna stands above the net, metres: FIVB 2.4, its top 80 cm; it reaches the net's lower edge below. */
-const ANTENNA_ABOVE: number = 0.8;
-
-/** How far a tennis post may stand above the net cord, metres: ITF Rule 1, 2.5 cm, the limit the model takes. */
-const POST_ABOVE: number = 0.025;
-
-/** The tennis net cord's diameter, metres: ITF Rule 1, at most 0.8 cm, the limit the model takes. */
-const CORD: number = 0.008;
-
-/** The width of the tennis net's centre strap, metres: ITF Rule 1, at most 5 cm, the limit the model takes. */
-const STRAP: number = 0.05;
-
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `post`, a volleyball post's diameter; `mesh`, a net's thickness; `antenna`, half of FIVB's 10 mm antenna. */
-const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
-  post: 0.1,
-  mesh: 0.005,
-  antenna: 0.005,
-};
+import { type Archetype, ArchetypeDraw } from "../core";
+import { GoalBuild } from "./GoalBuild";
+import { createBasketballHoop } from "./createBasketballHoop";
+import { createFieldGoal } from "./createFieldGoal";
+import { createTennisNet } from "./createTennisNet";
+import { createVolleyballNet } from "./createVolleyballNet";
 
 /**
- * A goal, hoop or net sized for its game, with its scoring aperture or playing surface ready for motion.
+ * Reads a saved goal recipe using its canonical producer.
  *
- * Each stands in the `XY` plane through the origin on the ground, its span along `X` and the field toward `+Z`; a basketball hoop's backboard faces `+Z` from that plane with its ring out over the court, and is mounted by the production on a wall or a stand. Each kind's construction says what it declares.
+ * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
+ * @param seed The seed used by the selected producer.
+ * @returns The original model and its contacts.
+ * @throws {ArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
  *
- * @param params The kind, a volleyball net's class and any dimension the author fixes.
- * @param seed The seed that draws a volleyball net's class when it is not given and every dimension left free inside its band; absent, the men's net and the middle of each band.
- * @returns The goal or net.
- * @throws {ArchetypeRefusal} For a class FIVB does not set or one named for another kind, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the shared frame and where each kind is described.
- * @evidence contracts/development/implementation.md#principled-implementation Picks a volleyball net's class whole, draws the kind's bands and builds its construction from them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the class, draw the dimensions, then one construction per kind.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No goal net, stand or padding; the constructions name their estimates.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most twenty parts. Tennis emits its bound lattice and tape once per model.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
+ * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the kind and call the corresponding public producer.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected producer still validates the original dimensions and choices.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed kind table selects the producer.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The saved and named calls use the same construction.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createGoal(
   params: createGoal.IParams,
   seed?: number | string,
 ): Archetype<createGoal.Affordance, createGoal.Dimension> {
-  const draw: ArchetypeDrawSession<createGoal.Dimension> =
-    new ArchetypeDrawSession<createGoal.Dimension>(
-      "goal",
-      createGoal.UNITS,
-      seed,
-      params,
-    );
   const kind: createGoal.Kind = ArchetypeDraw.choice(
     "goal",
     "kind",
     params.kind,
     createGoal.KINDS,
   );
-  const net: {
-    name: createGoal.Net | undefined;
-    figures: Readonly<Partial<Record<createGoal.Dimension, number>>>;
-  } = draw.model<createGoal.Net>("net", params.net, createGoal.NETS[kind]);
-  const d: Drawn = {
-    ...draw.dimensions(createGoal.BANDS[kind], createGoal.BANDS),
-    ...net.figures,
-  };
-  const builder: Builder = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name:
-      net.name === undefined
-        ? createGoal.NAMES[kind]
-        : `${net.name}'s ${createGoal.NAMES[kind]}`,
-    draw,
-  });
-  if (kind === "basketballHoop") buildBasketballHoop(builder, d);
-  else if (kind === "volleyballNet") volleyball(builder, d);
-  else if (kind === "tennisNet") tennis(builder, d);
-  else
-    rectangularGoal(
-      builder,
-      d,
-      kind === "iceHockeyGoal" || kind === "lacrosseGoal",
-    );
-  return builder.build(d.mass!);
-}
 
-/**
- * Declare an upright post as a bar on `+X` or `-X`.
- *
- * @param builder The builder to fill.
- * @param x The post's centre along `X`, metres.
- * @param height Its height, metres.
- * @param aperture Its section, metres, when a source gives it.
- */
-function posts(
-  builder: Builder,
-  x: number,
-  height: number,
-  aperture?: number,
-): void {
-  for (const [id, sign] of [
-    ["leftPost", 1],
-    ["rightPost", -1],
-  ] as const)
-    builder.affordance({
-      id,
-      kind: "bar",
-      symmetry: aperture === undefined ? "round" : "half",
-      frame: ArchetypeFrame.facing(
-        v(sign * x, height / 2, 0),
-        v(0, 0, 1),
-        v(0, 1, 0),
-      ),
-      extent: null,
-      grip: "power",
-      ...(aperture === undefined ? {} : { aperture }),
-      length: height,
-    });
-}
-
-/**
- * Build two posts and a crossbar around the scoring opening. Field goals and handball use square sections, while ice hockey and lacrosse use pipes. The mouth lies in the goal plane.
- *
- * @param builder The builder to fill.
- * @param d The drawn dimensions.
- * @param round Whether the frame uses pipes.
- */
-function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
-  const half: number = d.width! / 2;
-  const height: number = d.height!;
-  const bar: number = d.bar!;
-  const x: number = half + bar / 2;
-  const color: string = round ? "#d53635" : "#f7f7f7";
-  for (const [id, sign] of [
-    ["post-left", 1],
-    ["post-right", -1],
-  ] as const) {
-    if (round)
-      builder.rod(
-        id,
-        bar / 2,
-        v(sign * x, 0, 0),
-        v(sign * x, height + bar / 2, 0),
-        { color },
-      );
-    else
-      builder.box(
-        id,
-        v(bar, height + bar, bar),
-        v(sign * x, (height + bar) / 2, 0),
-        { color },
-      );
-  }
-  if (round)
-    builder.rod(
-      "crossbar",
-      bar / 2,
-      v(-x, height + bar / 2, 0),
-      v(x, height + bar / 2, 0),
-      { color },
-    );
-  else
-    builder.box(
-      "crossbar",
-      v(d.width! + 2 * bar, bar, bar),
-      v(0, height + bar / 2, 0),
-      { color },
-    );
-  builder.affordance({
-    id: "crossbar",
-    kind: "bar",
-    symmetry: round ? "round" : "half",
-    frame: ArchetypeFrame.facing(
-      v(0, height + bar / 2, 0),
-      v(0, 0, 1),
-      v(1, 0, 0),
-    ),
-    extent: null,
-    grip: "power",
-    aperture: bar,
-    length: d.width! + 2 * bar,
-  });
-  posts(builder, x, height, bar);
-  builder.affordance({
-    id: "mouth",
-    kind: "aperture",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
-    extent: null,
-    width: d.width!,
-    height,
-  });
-}
-
-/**
- * Build a volleyball net: the posts outside the side lines, the net hung from its top at the drawn height with its top band, and an antenna over each side line; `top` is the net's top, a ledge along `X`, and the posts are bars.
- *
- * @param builder The builder to fill.
- * @param d The drawn dimensions.
- */
-function volleyball(builder: Builder, d: Drawn): void {
-  const top: number = d.height!;
-  const depth: number = d.board!;
-  const x: number = VOLLEYBALL_SIDE + d.offset!;
-  for (const [id, sign] of [
-    ["post-left", 1],
-    ["post-right", -1],
-  ] as const)
-    builder.rod(
-      id,
-      ESTIMATES.post / 2,
-      v(sign * x, 0, 0),
-      v(sign * x, d.post!, 0),
-      {
-        color: "#d0d4d8",
-      },
-    );
-  builder.box(
-    "net",
-    v(d.width!, depth, ESTIMATES.mesh),
-    v(0, top - depth / 2, 0),
-    {
-      color: "#1d1d1d",
-      density: 0.05,
-    },
-  );
-  for (const [id, sign] of [
-    ["antenna-left", 1],
-    ["antenna-right", -1],
-  ] as const)
-    builder.rod(
-      id,
-      ESTIMATES.antenna,
-      v(sign * VOLLEYBALL_SIDE, top - depth, 0),
-      v(sign * VOLLEYBALL_SIDE, top + ANTENNA_ABOVE, 0),
-      { color: "#e53935" },
-    );
-  builder.affordance({
-    id: "top",
-    kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
-    extent: null,
-    length: d.width!,
-  });
-  posts(builder, x, d.post!);
-}
-
-/**
- * Build a tennis net: square posts outside the doubles court, the cord sagging from the posts' height to the centre's, and the net under it; `top` is the net's lowest point at the centre strap, a ledge along `X`, and the posts are bars.
- *
- * @param builder The builder to fill.
- * @param d The drawn dimensions.
- */
-function tennis(builder: Builder, d: Drawn): void {
-  const x: number = d.width! / 2 + d.offset!;
-  const bar: number = d.bar!;
-  const tall: number = d.post! + POST_ABOVE;
-  const centre: number = d.height!;
-  const post: number = d.post!;
-  for (const [id, sign] of [
-    ["post-left", 1],
-    ["post-right", -1],
-  ] as const) {
-    builder.box(id, v(bar, tall, bar), v(sign * x, tall / 2, 0), {
-      color: "#2e5d3a",
-    });
-    builder.rod(
-      `cord-${id === "post-left" ? "left" : "right"}`,
-      CORD / 2,
-      v(sign * x, post, 0),
-      v(0, centre, 0),
-      { color: "#f7f7f7" },
-    );
-    // These original solid panels retain ball collision and mass behind the open lattice.
-    builder.box(
-      `net-${id === "post-left" ? "left" : "right"}`,
-      v(x, centre, ESTIMATES.mesh),
-      v((sign * x) / 2, centre / 2, 0),
-      { color: "#1d1d1d", density: 0.05, opacity: 0 },
-    );
-  }
-  const net: { twine: IAutoMovieMesh; tape: IAutoMovieMesh } = buildTennisNet(
-    x,
-    centre,
-    post,
-    CORD,
-    STRAP,
-  );
-  const origin: ReturnType<typeof v> = v(0, 0, 0);
-  builder.visualMesh("net-twine", net.twine, origin, { color: "#1d1d1d" });
-  builder.visualMesh("net-tape", net.tape, origin, { color: "#f7f7f7" });
-  builder.affordance({
-    id: "top",
-    kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, centre, 0), v(0, 1, 0), v(1, 0, 0)),
-    extent: null,
-    length: STRAP,
-  });
-  posts(builder, x, tall, bar);
+  // The stored input can carry any former choice. The selected draw admits only its own profile.
+  const produce: (
+    params: createGoal.IParams,
+    seed?: number | string,
+  ) => Archetype<createGoal.Affordance, createGoal.Dimension> = createGoal
+    .PRODUCERS[kind] as typeof produce;
+  return produce(params, seed);
 }
 
 /**
@@ -355,16 +74,7 @@ export namespace createGoal {
   ];
 
   /** The readable name of each kind. */
-  export const NAMES: Readonly<Record<Kind, string>> = {
-    footballGoal: "football goal",
-    fieldHockeyGoal: "field hockey goal",
-    iceHockeyGoal: "ice hockey goal",
-    lacrosseGoal: "lacrosse goal",
-    handballGoal: "handball goal",
-    basketballHoop: "basketball hoop",
-    volleyballNet: "volleyball net",
-    tennisNet: "tennis net",
-  };
+  export const NAMES: typeof GoalBuild.NAMES = GoalBuild.NAMES;
 
   /**
    * The affordance ids:
@@ -407,32 +117,13 @@ export namespace createGoal {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    width: "m",
-    height: "m",
-    bar: "m",
-    board: "m",
-    thickness: "m",
-    ring: "m",
-    offset: "m",
-    post: "m",
-    mass: "kg",
-  };
+  export const UNITS: typeof GoalBuild.UNITS = GoalBuild.UNITS;
 
   /** A volleyball net's classes, FIVB 2.1.1's. */
   export type Net = "men" | "women";
 
   /** The figures each class fixes, by kind, the default first: a volleyball net's top, FIVB Official Volleyball Rules 2025-2028, 2.1.1, "2.43 m for men and 2.24 m for women" (https://www.fivb.com/wp-content/uploads/2025/01/FIVB-Volleyball_Rules2025_2028-EN-v05.pdf). */
-  export const NETS: Readonly<
-    Partial<
-      Record<
-        Kind,
-        Readonly<Record<Net, Readonly<Partial<Record<Dimension, number>>>>>
-      >
-    >
-  > = {
-    volleyballNet: { men: { height: 2.43 }, women: { height: 2.24 } },
-  };
+  export const NETS: typeof GoalBuild.NETS = GoalBuild.NETS;
 
   /** The parameters: the kind, a volleyball net's class, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -447,7 +138,26 @@ export namespace createGoal {
   }
 
   /** The band of each free dimension, by kind. */
-  export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
-  > = GOAL_BANDS;
+  export const BANDS: typeof GoalBuild.BANDS = GoalBuild.BANDS;
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<{
+    footballGoal: typeof createFieldGoal;
+    fieldHockeyGoal: typeof createFieldGoal;
+    iceHockeyGoal: typeof createFieldGoal;
+    lacrosseGoal: typeof createFieldGoal;
+    handballGoal: typeof createFieldGoal;
+    basketballHoop: typeof createBasketballHoop;
+    volleyballNet: typeof createVolleyballNet;
+    tennisNet: typeof createTennisNet;
+  }> = {
+    footballGoal: createFieldGoal,
+    fieldHockeyGoal: createFieldGoal,
+    iceHockeyGoal: createFieldGoal,
+    lacrosseGoal: createFieldGoal,
+    handballGoal: createFieldGoal,
+    basketballHoop: createBasketballHoop,
+    volleyballNet: createVolleyballNet,
+    tennisNet: createTennisNet,
+  };
 }

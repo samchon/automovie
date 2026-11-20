@@ -1,134 +1,65 @@
-import { Vector3 } from "@automovie/engine";
-
 import {
   Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeDrawSession,
-  ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
 import { BED_BANDS } from "./BED_BANDS";
-import { CareBedConstruction } from "./CareBedConstruction";
-import { MATTRESS_SIZES } from "./MATTRESS_SIZES";
+import { BedConstruction } from "./BedConstruction";
+import { createBunkBed } from "./createBunkBed";
+import { createCrib } from "./createCrib";
+import { createGurney } from "./createGurney";
+import { createHospitalBed } from "./createHospitalBed";
+import { createMattress } from "./createMattress";
+import { createPlatformBed } from "./createPlatformBed";
+
+/** The canonical constructions for persisted bed selectors. */
+const PRODUCERS: Readonly<
+  Record<
+    createBed.Kind,
+    (
+      params: createBed.IParams,
+      seed?: number | string,
+    ) => Archetype<createBed.Affordance, createBed.Dimension>
+  >
+> = {
+  single: (params, seed) => BedConstruction.platform("single", params, seed),
+  double: (params, seed) => BedConstruction.platform("double", params, seed),
+  mattress: (params, seed) =>
+    BedConstruction.platform("mattress", params, seed),
+  hospital: (params, seed) => BedConstruction.hospital(params, seed),
+  gurney: (params, seed) => BedConstruction.gurney(params, seed),
+  crib: (params, seed) => BedConstruction.crib(params, seed),
+  bunk: (params, seed) => BedConstruction.bunk(params, seed),
+};
 
 /**
- * A bed: a single or a double bed, a mattress on the floor, a hospital bed, a hospital stretcher, a crib or a bunk bed.
+ * Replay a saved bed variant with the original dimensions, identifier and model choices.
  *
- * The lying surface is centred over the origin, the head toward `-Z`. A single or a double bed is a mattress on a base with a headboard, a mattress on the floor the mattress alone; each long side is also a seat, facing out, for sitting on the edge and rising from the bed. A hospital bed, a stretcher, a crib and a bunk bed are built by `CareBedConstruction`, whose functions say what each adds: a hospital bed's siderails, a crib's top rails, a bunk's upper bed and guardrail.
+ * @param params The historic selector and optional fixed settings in the original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @returns The original generated model and its local contacts.
+ * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
- * A bunk bed rests on its pine posts: wood on concrete (`ArchetypeFriction`).
- *
- * @param params The kind, a loose mattress's size and any dimension the author fixes.
- * @param seed The seed that draws a loose mattress's size when it is not given and every dimension left free inside its band; absent, the single size and the middle of each band.
- * @returns The bed.
- * @throws {ArchetypeRefusal} For a size named for a bed that has none, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the head is, that the sides are seats, and where the care and children's beds are described.
- * @evidence contracts/development/implementation.md#principled-implementation Two boxes and a headboard from the drawn width, length and surface height; the side seats follow the `seat` convention with their front edge on the mattress's long edge; the other kinds are their construction's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick a loose mattress's size, draw the dimensions with its width and length over them, then the plain bed here or the kind's construction.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No pillow or bedding: the head end is a coordinate of the surface.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts for a plain bed, about sixty for a crib's slats.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Replay a saved bed variant with the original dimensions, identifier and model choices.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and run its original shape construction in the bed draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the table. Each construction owns its named geometry and contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected construction.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each construction and its seed data with the named producer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createBed(
   params: createBed.IParams,
   seed?: number | string,
 ): Archetype<createBed.Affordance, createBed.Dimension> {
-  const draw: ArchetypeDrawSession<createBed.Dimension> =
-    new ArchetypeDrawSession<createBed.Dimension>(
-      "bed",
-      createBed.UNITS,
-      seed,
-      params,
-    );
   const kind: createBed.Kind = ArchetypeDraw.choice(
     "bed",
     "kind",
     params.kind,
     createBed.KINDS,
   );
-  const size: Readonly<Partial<Record<createBed.Dimension, number>>> =
-    draw.model<createBed.Mattress>(
-      "size",
-      params.size,
-      MATTRESS_SIZES[kind],
-    ).figures;
-  const d: Partial<Record<createBed.Dimension, number>> = {
-    ...draw.dimensions(createBed.BANDS[kind], createBed.BANDS),
-    ...size,
-  };
-  const builder: ArchetypeBuilder<createBed.Affordance, createBed.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name:
-        kind === "mattress"
-          ? "mattress"
-          : kind === "gurney"
-            ? "stretcher"
-            : `${kind} bed`,
-      draw,
-    });
-  if (
-    kind === "hospital" ||
-    kind === "gurney" ||
-    kind === "crib" ||
-    kind === "bunk"
-  ) {
-    CareBedConstruction[kind](builder, d);
-    return builder.build(d.mass!, kind === "bunk" ? { rests: "wood" } : {});
-  }
-  const width: number = d.width!;
-  const length: number = d.length!;
-  const thick: number = d.thickness!;
-  const height: number = d.height ?? thick;
-  builder.box(
-    "mattress",
-    Vector3.create(width, thick, length),
-    Vector3.create(0, height - thick / 2, 0),
-    { color: "#e7e3da", density: 0.3 },
-  );
-  if (kind !== "mattress") {
-    builder.box(
-      "base",
-      Vector3.create(width, height - thick, length),
-      Vector3.create(0, (height - thick) / 2, 0),
-      { color: "#8a6a4a", density: 0.3 },
-    );
-    builder.box(
-      "headboard",
-      Vector3.create(width, height + 0.4, 0.04),
-      Vector3.create(0, (height + 0.4) / 2, -length / 2 - 0.02),
-      { color: "#8a6a4a" },
-    );
-  }
-  builder.affordance({
-    id: "surface",
-    kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
-    extent: null,
-    width,
-    depth: length,
-  });
-  for (const [id, sign] of [
-    ["leftSide", 1],
-    ["rightSide", -1],
-  ] as const)
-    builder.affordance({
-      id,
-      kind: "seat",
-      frame: ArchetypeFrame.facing(
-        Vector3.create((sign * width) / 2, height, 0),
-        Vector3.create(0, 1, 0),
-        Vector3.create(0, 0, -sign),
-      ),
-      extent: null,
-      width: length,
-      depth: width / 2,
-    });
-  return builder.build(d.mass!);
+  return PRODUCERS[kind](params, seed);
 }
 
 /**
@@ -140,6 +71,39 @@ export function createBed(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A mattress on the floor has no height of its own: its surface is its thickness.
  */
 export namespace createBed {
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<{
+    single: typeof createPlatformBed;
+    double: typeof createPlatformBed;
+    mattress: typeof createMattress;
+    hospital: typeof createHospitalBed;
+    gurney: typeof createGurney;
+    crib: typeof createCrib;
+    bunk: typeof createBunkBed;
+  }> = {
+    get single(): typeof createPlatformBed {
+      return createPlatformBed;
+    },
+    get double(): typeof createPlatformBed {
+      return createPlatformBed;
+    },
+    get mattress(): typeof createMattress {
+      return createMattress;
+    },
+    get hospital(): typeof createHospitalBed {
+      return createHospitalBed;
+    },
+    get gurney(): typeof createGurney {
+      return createGurney;
+    },
+    get crib(): typeof createCrib {
+      return createCrib;
+    },
+    get bunk(): typeof createBunkBed {
+      return createBunkBed;
+    },
+  };
+
   /** The kinds of bed. */
   export type Kind =
     | "single"

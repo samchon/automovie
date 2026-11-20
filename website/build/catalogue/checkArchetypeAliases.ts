@@ -17,7 +17,9 @@ import { GalleryCatalogue } from "../../src/gallery/package/GalleryCatalogue";
 import { PlaygroundAddress } from "../../src/playground/PlaygroundAddress";
 import { PlaygroundObjects } from "../../src/playground/package/PlaygroundObjects";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
+import { formatSceneChain } from "../../src/scenes/formatSceneChain";
 import { SceneArchetype } from "../../src/scenes/package/SceneArchetype";
+import { SceneChainNames } from "../../src/scenes/package/SceneChainNames";
 
 /** A version-two composition encoded by the original lz-string writer. */
 const SAVED_LINK: string =
@@ -89,6 +91,151 @@ export function checkArchetypeAliases(): void {
   assert(
     Object.is(GalleryCatalogue.producer("createQuadruped"), createQuadruped),
   );
+
+  for (const legacy of [
+    "createInstrument",
+    "createGoal",
+    "createStick",
+    "createClub",
+    "createBall",
+    "createTool",
+    "createLongTool",
+    "createCareItem",
+    "createStationery",
+    "createWearable",
+    "createSmoking",
+    "createAppliance",
+    "createMachine",
+    "createSanitary",
+    "createStreetFixture",
+    "createObstacle",
+    "createMobilityAid",
+    "createBed",
+    "createStorage",
+    "createVessel",
+    "createTray",
+    "createLight",
+    "createScenicContainer",
+    "createCart",
+    "createBoat",
+    "createStageWeaponProp",
+    "createStageBladeProp",
+    "createBow",
+    "createHolster",
+    "createProjectile",
+    "createArmour",
+  ]) {
+    const alias = catalogue.aliases?.find((item) => item.id === legacy);
+    assert(alias, `${legacy} has a gallery alias`);
+    assert(
+      !listed.includes(legacy),
+      `${legacy} is represented by its named forms`,
+    );
+    assert.deepEqual(
+      alias.variants.map((item) => item.id),
+      GalleryCatalogue.variants(GalleryCatalogue.producer(legacy)!).list,
+    );
+    for (const replacement of alias.variants) {
+      const request = GalleryAddress.decode(
+        `?subject=${legacy}&variant=${replacement.id}&seed=7&affordances=0`,
+        catalogue,
+      );
+      assert.equal(request.subject, replacement.subject);
+      assert.equal(request.variant, replacement.variant);
+      assert.equal(request.seed, "7");
+      assert.equal(request.affordances, false);
+      const original = GalleryArchetype.build({
+        ...request,
+        subject: legacy,
+        variant: replacement.id,
+      }).archetype;
+      const named = GalleryArchetype.build(request).archetype;
+      const label = `${legacy}/${replacement.id}`;
+      if (legacy === "createScenicContainer" && replacement.id === "cargoPod") {
+        const { affordances, ...model } = named;
+        const { affordances: originalContacts, ...originalModel } = original;
+        assert.deepEqual(model, originalModel, `${label} retains its geometry`);
+        assert.deepEqual(
+          affordances.map((contact) => contact.id),
+          ["top", "mount"],
+        );
+        assert.deepEqual(affordances[0], originalContacts[0]);
+      } else assert.deepEqual(named, original, `${label} retains its geometry`);
+      assert.deepEqual(
+        named.dimensions,
+        original.dimensions,
+        `${label} seeded dimensions`,
+      );
+    }
+  }
+
+  for (const [legacy, kind, subject, variant] of [
+    ["createClub", "bat", "createBaseballBat", ""],
+    ["createGoal", "iceHockeyGoal", "createFieldGoal", "iceHockeyGoal"],
+    ["createBall", "americanFootball", "createOvalBall", "americanFootball"],
+    ["createStationery", "paper", "createPaper", "sheet"],
+    ["createStationery", "map", "createPaper", "foldedMap"],
+  ] as const) {
+    const oldRequest = {
+      subject: legacy,
+      variant: kind,
+      seed: "7",
+      state: {},
+      affordances: true,
+    };
+    const request = GalleryAddress.decode(
+      GalleryAddress.encode(oldRequest),
+      catalogue,
+    );
+    assert.deepEqual(request, { ...oldRequest, subject, variant });
+    assert.deepEqual(
+      GalleryArchetype.build(request).archetype,
+      GalleryArchetype.build(oldRequest).archetype,
+      `${legacy}/${kind} retains its displayed geometry`,
+    );
+  }
+  assert(
+    catalogue.groups
+      .find((group) => group.name === "sport")!
+      .subjects.some((subject) => subject.id === "createBaseballBat"),
+  );
+  const paper = {
+    subject: "map",
+    producer: "createPaper",
+    kind: "foldedMap",
+    seed: "7",
+    x: 0,
+    z: 0,
+    yaw: 0,
+  };
+  assert.deepEqual(
+    SceneArchetype.model(paper),
+    SceneArchetype.model({
+      ...paper,
+      producer: "createStationery",
+      kind: "map",
+    }),
+  );
+  const mapScene: IPlaygroundComposition = {
+    version: 3,
+    seed: "map",
+    performers: [],
+    mutuals: [],
+    objects: [paper],
+  };
+  assert.match(
+    formatSceneChain(mapScene, SceneChainNames.read(mapScene)),
+    /archetypes\.createPaper\(\{\s*format:\s*"foldedMap"/,
+    "the emitted scene uses the producer's actual format parameter",
+  );
+  const fitted = GalleryArchetype.build(
+    GalleryAddress.decode(
+      "?subject=createStageFittedCarrier&seed=7",
+      catalogue,
+    ),
+  ).archetype;
+  assert(fitted.affordance("mouth"));
+  assert(fitted.affordance("seated"));
 
   for (const [kind, gait, speed] of [
     ["horse", "trot", 3.5],
@@ -180,7 +327,11 @@ export function checkArchetypeAliases(): void {
   assert.deepEqual(newLead, oldLead, "the named dog's lead retains its frame");
 
   const restored = PlaygroundAddress.decode(SAVED_LINK)!;
-  assert.equal(PlaygroundAddress.encode(restored), SAVED_LINK);
+  assert.equal(restored.version, 2);
+  assert.deepEqual(
+    PlaygroundAddress.decode(PlaygroundAddress.encode(restored)),
+    restored,
+  );
   const savedObjects = restored.objects!;
   const names = ["createCamera", "createLaptop", "createPhone"] as const;
   const canonical: IPlaygroundComposition = {

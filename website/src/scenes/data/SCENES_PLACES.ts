@@ -142,8 +142,8 @@ export const SCENES_PLACES: readonly IScene[] = [
       object("counter", "createTable", "counter", 0.6, 0.53, 180),
       object(
         "hat",
-        "createWearable",
-        "hat",
+        "createHat",
+        undefined,
         0.18,
         0.3,
         0,

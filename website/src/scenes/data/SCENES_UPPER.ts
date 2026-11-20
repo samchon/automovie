@@ -99,8 +99,8 @@ export const SCENES_UPPER: readonly IScene[] = [
       object("counter", "createTable", "counter", 0.6, 0.53, 180),
       object(
         "hat",
-        "createWearable",
-        "hat",
+        "createHat",
+        undefined,
         0.18,
         0.3,
         0,
@@ -142,12 +142,12 @@ export const SCENES_UPPER: readonly IScene[] = [
     [
       object("bench", "createTable", "counter", 0, 0.65, 180),
 
-      // createTool's +Y working line lies forward on the bench.
+      // The hammer's +Y working line lies forward on the bench.
       {
         ...object(
           "hammer",
-          "createTool",
-          "hammer",
+          "createHammer",
+          undefined,
           -0.18,
           0.42,
           0,

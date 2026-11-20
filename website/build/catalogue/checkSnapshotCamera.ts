@@ -3,6 +3,7 @@ import {
   Vector3,
   physicalShapePairDistance,
 } from "@automovie/engine";
+import type { IAutoMoviePhysicalShape } from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
   HumanColliders,
@@ -72,21 +73,47 @@ export function checkSnapshotCamera(): void {
   const hands = HumanColliders.placed(body, bones).filter((part) =>
     fingers.test(part.bone),
   );
-  for (const side of ["left", "right"] as const) {
-    const gap = Math.min(
+  const rod = camera.shapes!.find((shape) => shape.id === "grip");
+  const shell = camera.shapes!.find((shape) => shape.id === "body");
+  assert(rod && shell?.kind === "box" && shell.transform);
+  const half = shell.halfExtents;
+  const centre = shell.transform.position;
+  // The supporting hand meets the outer lower front corner of the case.
+  const support: IAutoMoviePhysicalShape = {
+    ...shell,
+    transform: {
+      ...shell.transform,
+      position: {
+        x: centre.x + (3 * half.x) / 4,
+        y: centre.y - (3 * half.y) / 4,
+        z: centre.z + half.z / 2,
+      },
+    },
+    halfExtents: { x: half.x / 4, y: half.y / 4, z: half.z / 2 },
+  };
+  const gap = (
+    side: "left" | "right",
+    target: IAutoMoviePhysicalShape,
+  ): number =>
+    Math.min(
       ...hands
         .filter((part) => part.bone.startsWith(side))
         .flatMap((part) =>
-          part.shapes.flatMap((shape) =>
-            camera.shapes!.map((other) =>
-              physicalShapePairDistance(part.pose, shape, prop, other),
-            ),
+          part.shapes.map((shape) =>
+            physicalShapePairDistance(part.pose, shape, prop, target),
           ),
         ),
     );
-    assert(
-      Math.abs(gap) <= skin,
-      `${side} hand closes on the camera within the contact skin`,
-    );
-  }
+  assert(
+    Math.abs(gap("right", rod)) <= skin,
+    "the right hand closes on the grip rod",
+  );
+  assert(
+    Math.abs(gap("left", support)) <= skin,
+    "the left hand braces the outer underside",
+  );
+  assert(
+    gap("left", rod) > skin && gap("right", support) > skin,
+    "both hands miss the opposite contact site",
+  );
 }

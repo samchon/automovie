@@ -1,13 +1,12 @@
 /**
- * Everything the object gallery can show: every producer of
- * `@automovie/archetypes` with its kinds, grouped by the families the
- * package's `ARCHETYPE_FAMILIES` names.
+ * The displayed producers of `@automovie/archetypes` and their variants,
+ * grouped by the families the package's `ARCHETYPE_FAMILIES` names.
  */
 export interface IGalleryCatalogue {
   /** The groups, the archetype families in the package's order. */
   groups: IGalleryCatalogue.IGroup[];
 
-  /** Saved dispatchers whose variants each have their own displayed producer. */
+  /** Saved dispatchers whose variants resolve to displayed subjects. */
   aliases?: IGalleryCatalogue.IAlias[];
 }
 export namespace IGalleryCatalogue {
@@ -16,8 +15,8 @@ export namespace IGalleryCatalogue {
     /** The producer name used by the saved address. */
     id: string;
 
-    /** Each earlier variant and the producer that now represents it. */
-    variants: { id: string; subject: string }[];
+    /** Each earlier variant and the displayed subject and variant it opens. */
+    variants: { id: string; subject: string; variant: string }[];
   }
 
   /** One group of subjects. */
@@ -40,7 +39,7 @@ export namespace IGalleryCatalogue {
     /** The group it belongs to. */
     group: string;
 
-    /** The word for its variants, `kind` or `frame`; empty when it has one form only. */
+    /** The parameter name for its variants, or empty for one form. */
     variantKey: string;
 
     /** Its variants, each with the id an address names it by and what a picker shows; empty when it has one form only. */

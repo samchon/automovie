@@ -232,8 +232,8 @@ export const SCENES_DAILY: readonly IScene[] = [
       object("counter", "createTable", "counter", 0, 0.65, 180),
       object(
         "cig",
-        "createSmoking",
-        "cigarette",
+        "createCigarette",
+        undefined,
         -0.18,
         0.42,
         90,

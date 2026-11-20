@@ -1,83 +1,61 @@
 import {
   Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
   ArchetypeDrawSession,
   type IArchetypeBand,
 } from "../core";
 import { STORAGE_BANDS } from "./STORAGE_BANDS";
-import { STORAGE_MODELS } from "./STORAGE_MODELS";
-import { StorageConstruction } from "./StorageConstruction";
+import { StorageMechanisms } from "./StorageMechanisms";
+import { createBookcase } from "./createBookcase";
+import { createDrawerUnit } from "./createDrawerUnit";
+import { createHingedCabinet } from "./createHingedCabinet";
 
-/** The name each kind's model carries. */
-const NAMES: Readonly<Record<createStorage.Kind, string>> = {
-  wardrobe: "wardrobe",
-  chest: "chest of drawers",
-  filingCabinet: "filing cabinet",
-  locker: "locker",
-  bookcase: "bookcase",
+/** The canonical constructions for persisted storage selectors. */
+const PRODUCERS: Readonly<
+  Record<
+    createStorage.Kind,
+    (
+      params: createStorage.IParams,
+      seed?: number | string,
+    ) => Archetype<createStorage.Affordance, createStorage.Dimension>
+  >
+> = {
+  wardrobe: (params, seed) =>
+    StorageMechanisms.hinged("wardrobe", params, seed),
+  chest: (params, seed) => StorageMechanisms.sliding("chest", params, seed),
+  filingCabinet: (params, seed) =>
+    StorageMechanisms.sliding("filingCabinet", params, seed),
+  locker: (params, seed) => StorageMechanisms.hinged("locker", params, seed),
+  bookcase: (params, seed) => StorageMechanisms.bookcase(params, seed),
 };
 
 /**
- * A storage cabinet: a wardrobe with two hinged doors, a chest of three drawers, a four-drawer filing cabinet, a steel locker or an open bookcase.
+ * Replay a saved storage variant with the original dimensions, identifier and model choices.
  *
- * The cabinet stands on the floor at the origin with its front toward `+Z`. Its doors and drawers are parts on their articulations: a wardrobe door turns out about its outer edge, a drawer slides out toward `+Z` with the box behind its front, and each carries its pull. The `push` face on the `+X` side is where the cabinet is pushed when it is moved. `StorageConstruction` builds each kind and says what the locker and the bookcase add.
+ * @param params The historic selector and optional fixed settings in the original units.
+ * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
+ * @returns The original generated model and its local contacts.
+ * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
- * A locker rests on its steel legs: steel on concrete (`ArchetypeFriction`).
- *
- * @param params The kind, its read model where it has several, and any dimension the author fixes.
- * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the kind's first model and the middle of each band.
- * @returns The cabinet.
- * @throws {ArchetypeRefusal} For a model the kind does not list, a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, what moves, where the cabinet is pushed and where each kind is described.
- * @evidence contracts/development/implementation.md#principled-implementation Draws the kind's bands and hands the dimensions to its construction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Pick the model, draw the dimensions with its figures over them, then the kind's construction.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The constructions own every shape.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the construction's.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Replay a saved storage variant with the original dimensions, identifier and model choices.
+ * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and run its original shape construction in the storage draw namespace.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Dispatch one checked selector through the table. Each construction owns its named geometry and contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass author inputs through to the same dimension and model checks.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One table lookup followed by the selected construction.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares each construction and its seed data with the named producer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
  */
 export function createStorage(
   params: createStorage.IParams,
   seed?: number | string,
 ): Archetype<createStorage.Affordance, createStorage.Dimension> {
-  const draw: ArchetypeDrawSession<createStorage.Dimension> =
-    new ArchetypeDrawSession<createStorage.Dimension>(
-      "storage",
-      createStorage.UNITS,
-      seed,
-      params,
-    );
   const kind: createStorage.Kind = ArchetypeDraw.choice(
     "storage",
     "kind",
     params.kind,
     createStorage.KINDS,
   );
-  const model: Readonly<Partial<Record<createStorage.Dimension, number>>> =
-    draw.model<createStorage.Model>(
-      "model",
-      params.model,
-      STORAGE_MODELS[kind],
-    ).figures;
-  const d: Partial<Record<createStorage.Dimension, number>> = {
-    ...draw.dimensions(createStorage.BANDS[kind], createStorage.BANDS),
-    ...model,
-  };
-  const builder: ArchetypeBuilder<
-    createStorage.Affordance,
-    createStorage.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  if (kind === "chest" || kind === "filingCabinet")
-    StorageConstruction.drawers(builder, d, StorageConstruction.DRAWERS[kind]);
-  else StorageConstruction[kind](builder, d);
-  return builder.build(d.mass!, kind === "locker" ? { rests: "steel" } : {});
+  return PRODUCERS[kind](params, seed);
 }
 
 /**
@@ -89,6 +67,31 @@ export function createStorage(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances and neither frame is bent to serve both.
  */
 export namespace createStorage {
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<{
+    wardrobe: typeof createHingedCabinet;
+    chest: typeof createDrawerUnit;
+    filingCabinet: typeof createDrawerUnit;
+    locker: typeof createHingedCabinet;
+    bookcase: typeof createBookcase;
+  }> = {
+    get wardrobe(): typeof createHingedCabinet {
+      return createHingedCabinet;
+    },
+    get chest(): typeof createDrawerUnit {
+      return createDrawerUnit;
+    },
+    get filingCabinet(): typeof createDrawerUnit {
+      return createDrawerUnit;
+    },
+    get locker(): typeof createHingedCabinet {
+      return createHingedCabinet;
+    },
+    get bookcase(): typeof createBookcase {
+      return createBookcase;
+    },
+  };
+
   /** The kinds of cabinet. */
   export type Kind =
     | "wardrobe"

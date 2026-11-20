@@ -46,7 +46,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       ]),
     ],
     // The ball at the striker's feet, ahead of where the support foot plants.
-    [object("ball", "createBall", "football", 0, 3.3)],
+    [object("ball", "createSphericalBall", "football", 0, 3.3)],
   ),
   scene(
     {
@@ -117,9 +117,9 @@ export const SCENES_FIELD: readonly IScene[] = [
       ]),
     ],
     [
-      object("ball", "createBall", "basketball", 0, 1.69),
+      object("ball", "createSphericalBall", "basketball", 0, 1.69),
       {
-        ...object("hoop", "createGoal", "basketballHoop", 0, -0.85, 0, 0, {
+        ...object("hoop", "createBasketballHoop", undefined, 0, -0.85, 0, 0, {
           ring: 0.45,
           thickness: 0.013,
         }),

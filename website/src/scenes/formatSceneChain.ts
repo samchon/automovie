@@ -78,7 +78,11 @@ export function formatSceneChain(
     });
 
   for (const o of objects) {
-    const key: string = names.frames.includes(o.producer) ? "frame" : "kind";
+    const key: string = names.frames.includes(o.producer)
+      ? "frame"
+      : names.formats?.includes(o.producer)
+        ? "format"
+        : "kind";
     body.push(
       `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
       o.rotation === undefined

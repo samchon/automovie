@@ -19,7 +19,7 @@ export namespace SceneChainNames {
   >;
 
   /**
-   * The names a scene's code needs: every row, law, mutual and frame
+   * The names a scene's code needs: every row, law, mutual and variant
    * producer the packages export, and the laws its performance registers.
    *
    * @param composition The scene's composition.
@@ -55,15 +55,14 @@ export namespace SceneChainNames {
           rows[name] ??= `${key}.${member}`;
       }
     }
-    const frames: string[] = Object.entries(
-      archetypes as Readonly<Record<string, unknown>>,
-    )
-      .filter(
-        ([, producer]: [string, unknown]): boolean =>
-          typeof producer === "function" &&
-          Array.isArray((producer as { FRAMES?: unknown }).FRAMES),
-      )
-      .map(([key]: [string, unknown]): string => key);
+    const frames: string[] = [];
+    const formats: string[] = [];
+    for (const [name, producer] of Object.entries(archetypes)) {
+      if (typeof producer !== "function") continue;
+      const variants = producer as { FRAMES?: unknown; FORMATS?: unknown };
+      if (Array.isArray(variants.FRAMES)) frames.push(name);
+      else if (Array.isArray(variants.FORMATS)) formats.push(name);
+    }
     let laws: string[] = [];
     try {
       laws = PlaygroundChain.build(composition).laws.map(
@@ -107,6 +106,13 @@ export namespace SceneChainNames {
         ] => [id, body.parameters.body.anatomy.sex],
       ),
     );
-    return { bodySex, rows: pick(rows), mutuals: pick(mutuals), frames, laws };
+    return {
+      bodySex,
+      rows: pick(rows),
+      mutuals: pick(mutuals),
+      frames,
+      formats,
+      laws,
+    };
   }
 }

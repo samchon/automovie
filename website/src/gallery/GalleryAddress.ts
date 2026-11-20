@@ -72,7 +72,7 @@ export namespace GalleryAddress {
   }
 
   /**
-   * Resolve a saved dispatcher and variant to their one displayed producer.
+   * Resolve a saved dispatcher and variant to their displayed producer and variant.
    * Missing and unknown variants keep the dispatcher's former first choice.
    */
   export function canonical(
@@ -88,7 +88,7 @@ export namespace GalleryAddress {
       alias?.variants[0];
     return selected === undefined
       ? { subject, variant }
-      : { subject: selected.subject, variant: "" };
+      : { subject: selected.subject, variant: selected.variant };
   }
 
   /**

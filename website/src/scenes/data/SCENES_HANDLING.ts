@@ -181,7 +181,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
     ],
     [
       ...counter("counter", "bottle", "createDrinkware", "waterBottle", 0, 0),
-      object("basket", "createTray", "basket", 0, 1),
+      object("basket", "createCarryBasket", undefined, 0, 1),
     ],
   ),
 ];

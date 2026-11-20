@@ -14,8 +14,11 @@ export interface ISceneChainNames {
   /** Each mutual record by name, as the expression that names it, such as `HumanSocial.toast`. */
   mutuals: Record<string, string>;
 
-  /** The archetype producers whose variants are frames, so they take `frame` where the others take `kind`. */
+  /** The archetype producers that take `frame`. */
   frames: string[];
+
+  /** The archetype producers that take `format`. */
+  formats?: string[];
 
   /** The laws the performance registers for the scene, as the expressions that name them, in the order the chain meets them. */
   laws: string[];
