@@ -24,9 +24,9 @@ const COLUMNS: readonly {
     ],
   },
   {
-    title: "Library",
+    title: "Catalogues",
     links: [
-      { label: "Scenes", href: `${SITE_BASE}/scenes/` },
+      { label: "Scene studies", href: `${SITE_BASE}/scenes/` },
       { label: "Motions", href: `${SITE_BASE}/motions/` },
       { label: "Archetypes", href: `${SITE_BASE}/archetypes/` },
       { label: "Playground", href: `${SITE_BASE}/playground/` },

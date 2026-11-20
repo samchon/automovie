@@ -337,7 +337,7 @@ export function Landing(): ReactElement {
         </ul>
         <nav className="am-library-links" aria-label="Library">
           <Link href="/scenes/">
-            <strong>Scenes</strong>
+            <strong>Scene studies</strong>
             <span>Whole performances, each with its takes and its code.</span>
           </Link>
           <Link href="/motions/">

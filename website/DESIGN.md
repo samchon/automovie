@@ -25,7 +25,7 @@ Rejected:
 
 ## The frame
 
-Nextra draws the navigation bar: the logo, Docs, Reference, API, Scenes and a Library menu holding Motions, Archetypes and Playground, then the search, the repository link and the theme switch. The screenplay and the docs come first because they are the product; the catalogues are the kit a production composes with. The documentation is two trees with a sidebar each: the guide at `/docs/` for the person who makes a film, and the reference at `/reference/` for whoever writes against the packages, so neither reader wades through the other's pages; the search covers both. Every page but the docs is listed in `src/content/_meta.ts` with `layout: "full"` and the documentation chrome switched off, and the article Nextra wraps it in loses its padding, so the page runs edge to edge.
+Nextra draws the navigation bar: the logo, Docs, Reference and Playground, then the search, the repository link and the theme switch, as typia.io and ttsc.dev keep theirs. The guide at `/docs/` serves the person who makes a film and the reference at `/reference/` whoever writes against the packages, each with its own sidebar; the search covers both. The reference's sidebar lists the catalogues a film is composed from (Motions, Archetypes, Scene studies) after its pages, and an Appendix with the TypeDoc API and the example productions; the guide's sidebar ends with the same Appendix. The scenes on this site are studies of what the motion grammar composes, not films, so a showcase of finished films gets a place of its own when there are films to show.
 
 The footer holds the brand line and three columns of links: Learn, Library and Project.
 

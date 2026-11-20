@@ -8,7 +8,7 @@ import { SceneStatus } from "../../../scenes/package/SceneStatus";
 import type { IScene } from "../../../scenes/structures/IScene";
 
 export const metadata: Metadata = {
-  title: "Scenes",
+  title: "Scene studies",
   description:
     "Whole performances composed from the motion vocabulary and the archetypes, each with its takes, its timeline and its code.",
 };

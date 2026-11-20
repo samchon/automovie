@@ -23,11 +23,11 @@ const APPLICATION: {
 
 /**
  * The site's top-level pages, in the order the navigation bar lists them.
- * The index is the landing page, which the logo links to. The API is the
- * TypeDoc reference `pnpm run typedoc` writes into `public/api/`. The motion and
- * archetype catalogues and the playground are the kit a film is composed
- * with, so they sit under one Library menu after the documentation and the
- * scenes. Former addresses stay as hidden pages that forward.
+ * The index is the landing page, which the logo links to. The guide, the
+ * reference and the playground are in the bar; the catalogues a film is
+ * composed with (motions, archetypes, scene studies) and the TypeDoc API are
+ * listed in the reference's sidebar, as typia and ttsc list theirs. Former
+ * addresses stay as hidden pages that forward.
  */
 const meta: MetaRecord = {
   index: {
@@ -44,26 +44,18 @@ const meta: MetaRecord = {
     title: "Reference",
     type: "page",
   },
-  // The API is static TypeDoc pages, not a route of this app, so the bar
-  // links it by its full address, which Next does not prefetch as a route.
-  api: {
-    title: "API",
-    type: "page",
-    href: "https://samchon.github.io/automovie/api/",
-  },
-  scenes: {
-    title: "Scenes",
+  playground: {
+    title: "Playground",
     type: "page",
     theme: APPLICATION,
   },
-  library: {
-    title: "Library",
-    type: "menu",
-    items: {
-      motions: { title: "Motions", href: "/motions/" },
-      archetypes: { title: "Archetypes", href: "/archetypes/" },
-      playground: { title: "Playground", href: "/playground/" },
-    },
+  // The catalogues and the API are listed in the reference's sidebar, the
+  // former Scenes and Library addresses kept as hidden pages.
+  scenes: {
+    title: "Scene studies",
+    type: "page",
+    display: "hidden",
+    theme: APPLICATION,
   },
   motions: {
     title: "Motions",
@@ -73,12 +65,6 @@ const meta: MetaRecord = {
   },
   archetypes: {
     title: "Archetypes",
-    type: "page",
-    display: "hidden",
-    theme: APPLICATION,
-  },
-  playground: {
-    title: "Playground",
     type: "page",
     display: "hidden",
     theme: APPLICATION,

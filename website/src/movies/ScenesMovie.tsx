@@ -103,11 +103,11 @@ export default function ScenesMovie(props: {
   return (
     <main className="am-app am-catalogue" data-pagefind-body>
       <header className="am-catalogue-head">
-        <h1>Scenes</h1>
+        <h1>Scene studies</h1>
         <p>
-          Whole performances composed from the motion vocabulary and the
-          archetypes. Point at one to play it; open it for its takes, its
-          timeline and the code an agent writes for it.
+          Short studies of what the motion grammar composes: a bout, a rally, a
+          class, a crowd. Point at one to play it; open it for its takes, its
+          timeline and the code that writes it.
         </p>
       </header>
 
