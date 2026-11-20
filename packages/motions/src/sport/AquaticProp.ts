@@ -35,7 +35,9 @@ export namespace AquaticProp {
 
   /** One named affordance and its frame in world space. */
   export interface IContact {
+    /** The named contact in the provider's current model frame. */
     affordance: IAutoMovieAffordance;
+    /** The same contact placed in world metres and its current world rotation. */
     world: Pick<IAutoMovieTransform, "translation" | "rotation">;
   }
 
