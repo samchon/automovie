@@ -43,8 +43,32 @@ const SPARRING: SceneBuild.Composition = {
             leg: "rear",
             at: at("blue", "ribsLeft"),
           },
+          anchor: "body",
         },
-        { name: "guard", params: { seconds: 0.6, facing: at("blue", "face") } },
+        {
+          name: "guard",
+          params: { seconds: 1.4, facing: at("blue", "face") },
+          anchor: "shell",
+        },
+        { name: "step", params: { direction: "left", steps: 1 } },
+        {
+          name: "punch",
+          params: {
+            technique: "straight",
+            hand: "lead",
+            at: at("blue", "face"),
+            feint: 0.5,
+          },
+        },
+        {
+          name: "kick",
+          params: {
+            technique: "round",
+            leg: "rear",
+            at: at("blue", "thighOuterLeft"),
+          },
+          anchor: "low",
+        },
         {
           name: "punch",
           params: {
@@ -52,10 +76,31 @@ const SPARRING: SceneBuild.Composition = {
             hand: "lead",
             at: at("blue", "jawRight"),
           },
+          anchor: "hook",
         },
-        { name: "clinch", params: { partner: "blue" } },
-        { name: "knee", params: { at: at("blue", "abdomen") } },
+        {
+          name: "punch",
+          params: {
+            technique: "uppercut",
+            hand: "rear",
+            at: at("blue", "chin"),
+          },
+          anchor: "upper",
+        },
+        { name: "clinch", params: { partner: "blue", hold: 0.3 } },
+        {
+          name: "knee",
+          params: { at: at("blue", "abdomen") },
+          anchor: "knee",
+        },
+        { name: "guard", params: { seconds: 1, facing: at("blue", "face") } },
+        {
+          name: "pushed",
+          params: { from: at("blue", "soleRight") },
+          anchor: "teeped",
+        },
         { name: "step", params: { direction: "back", steps: 1 } },
+        { name: "step", params: { direction: "right", steps: 2 } },
         { name: "guard", params: { seconds: 1, facing: at("blue", "face") } },
       ],
     },
@@ -70,11 +115,7 @@ const SPARRING: SceneBuild.Composition = {
         { name: "guard", params: { seconds: 1.2, facing: at("red", "face") } },
         { name: "defend", params: { kind: "parry", against: "jab" } },
         { name: "defend", params: { kind: "slip", against: "cross" } },
-        {
-          name: "flinch",
-          params: { from: at("red", "sternum"), intensity: 0.6 },
-        },
-        { name: "guard", params: { seconds: 0.4, facing: at("red", "face") } },
+        { name: "defend", params: { kind: "elbowBlock", against: "body" } },
         {
           name: "punch",
           params: {
@@ -82,8 +123,33 @@ const SPARRING: SceneBuild.Composition = {
             hand: "rear",
             at: at("red", "face"),
           },
+          sync: { of: "shell", event: "set", offset: 0.2, align: "impact" },
         },
-        { name: "step", params: { direction: "left", steps: 1 } },
+        {
+          name: "punch",
+          params: {
+            technique: "hook",
+            hand: "lead",
+            at: at("red", "jawRight"),
+          },
+          sync: { of: "shell", event: "set", offset: 0.75, align: "impact" },
+        },
+        { name: "step", params: { direction: "right", steps: 1 } },
+        { name: "defend", params: { kind: "check", against: "low" } },
+        { name: "defend", params: { kind: "roll", against: "hook" } },
+        { name: "defend", params: { kind: "cover", against: "upper" } },
+        { name: "defend", params: { kind: "check", against: "knee" } },
+        { name: "step", params: { direction: "back", steps: 1 } },
+        {
+          name: "kick",
+          params: {
+            technique: "push",
+            leg: "lead",
+            at: at("red", "abdomen"),
+          },
+          sync: { of: "teeped", event: "start", align: "impact" },
+        },
+        { name: "step", params: { direction: "left", steps: 2 } },
         { name: "guard", params: { seconds: 1, facing: at("red", "face") } },
       ],
     },
@@ -102,12 +168,7 @@ const DOJO: SceneBuild.Composition = {
       z: 2.2,
       yaw: 180,
       proficiency: "elite",
-      actions: [
-        { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
-        { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
-        { name: "gesture", params: { kind: "bow" } },
-        { name: "martialArt", params: { kind: "taiChiPush" } },
-      ],
+      actions: lesson(),
     },
     {
       subject: "student",
@@ -116,12 +177,7 @@ const DOJO: SceneBuild.Composition = {
       z: 0,
       yaw: 0,
       proficiency: "amateur",
-      actions: [
-        { name: "gesture", params: { kind: "bow" } },
-        { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
-        { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
-        { name: "martialArt", params: { kind: "taiChiPush" } },
-      ],
+      actions: lesson(),
     },
     {
       subject: "beginner",
@@ -130,16 +186,30 @@ const DOJO: SceneBuild.Composition = {
       z: 0,
       yaw: 0,
       proficiency: "novice",
-      actions: [
-        { name: "gesture", params: { kind: "bow" } },
-        { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
-        { name: "martialArt", params: { kind: "chokuZuki", count: 2 } },
-        { name: "martialArt", params: { kind: "taiChiPush" } },
-      ],
+      actions: lesson(),
     },
   ],
   mutuals: [],
 };
+
+/**
+ * One class as the teacher and each student run it together: the bow in,
+ * the horse stance, three straight punches, the tai chi push and the bow
+ * out. The push runs at 2.1 times its natural rate, which keeps it slow
+ * (about six seconds) and lets the class end with the bow.
+ */
+function lesson(): SceneBuild.Action[] {
+  return [
+    { name: "gesture", params: { kind: "bow" } },
+    { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },
+    { name: "martialArt", params: { kind: "chokuZuki", count: 3 } },
+    {
+      name: "martialArt",
+      params: { kind: "taiChiPush", manner: { pace: 2.1 } },
+    },
+    { name: "gesture", params: { kind: "bow" } },
+  ];
+}
 
 /** The combat scenes master's vocabulary plays. */
 export const SCENES_COMBAT: readonly IScene[] = [
@@ -147,7 +217,7 @@ export const SCENES_COMBAT: readonly IScene[] = [
     id: "sparring",
     title: "Sparring",
     summary:
-      "Two kickboxers: one steps in with a jab, a cross and a round kick, a lead hook, a clinch and a knee, and steps back; the other parries the jab, slips the cross, flinches, answers with a straight and steps aside.",
+      "Two kickboxers trade punches and kicks with parries, checks and counters, then circle off.",
     setting: "combat",
     cast: [
       { subject: "red", role: "kickboxer" },
@@ -163,7 +233,7 @@ export const SCENES_COMBAT: readonly IScene[] = [
     id: "dojo",
     title: "Dojo",
     summary:
-      "A teacher and two students of different skill run a horse stance, straight punches and a tai chi push, each at their own skill: the students bow first, the teacher bows before the push.",
+      "A teacher and two students bow in, hold a horse stance, punch, push and bow out.",
     setting: "combat",
     cast: [
       { subject: "sensei", role: "teacher" },
@@ -174,6 +244,5 @@ export const SCENES_COMBAT: readonly IScene[] = [
     takes: SceneTakes.of(DOJO, "elite"),
     camera: { view: "three-quarter" },
     needs: [],
-    refusedUntil: 3552,
   },
 ];

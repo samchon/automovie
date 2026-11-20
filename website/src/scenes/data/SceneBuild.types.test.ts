@@ -12,16 +12,16 @@ export function checkSceneActionInputs(): void {
   });
   SceneBuild.mutual("shoulderClasp", { one: "a", other: "b" }, { hold: 0.8 });
 
-  // @ts-expect-error Text entry names the keyboard prop.
   SceneBuild.act("typeText", {
+    // @ts-expect-error Text entry names the keyboard prop.
     keyboard: { at: { x: 0, y: 1, z: 0 }, yaw: 0 },
     text: "hello",
   });
   // @ts-expect-error Dressing requires the garment prop.
   SceneBuild.act("dress", { item: "hat" });
-  // @ts-expect-error The high jump names the bar prop.
   SceneBuild.act("fosburyFlop", {
     to: { x: 1, y: 0.7, z: 0 },
+    // @ts-expect-error The high jump names the bar prop.
     bar: 1.2,
     on: "mat",
   });

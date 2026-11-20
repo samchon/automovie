@@ -1,4 +1,4 @@
-// Generates the API reference of every package into `public/api/`, which the
+// Generates the API reference of the library packages into `public/api/`, which the
 // export serves at `/api/`. The options live in `typedoc.config.mjs`.
 //
 //   pnpm run typedoc

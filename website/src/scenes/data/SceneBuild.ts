@@ -36,6 +36,9 @@ export namespace SceneBuild {
   /** A plain composition with law-checked action inputs. */
   export type Composition = IAuthoredComposition;
 
+  /** A point targeted by a law, with its declared coordinate frame. */
+  export type PointTarget = Extract<IAutoMovieMotionTarget, { kind: "point" }>;
+
   /**
    * A floor point, world metres.
    *
@@ -69,14 +72,14 @@ export namespace SceneBuild {
    * @param more Its anchor, cut, timing or overlays.
    * @returns The action.
    */
-  export function act<N extends ActionName>(
-    name: N,
-    params: ActionParams<NoInfer<N>>,
-    more?: IActionOptions,
-  ): Action;
   export function act(
     name: OptionalActionName,
     params?: undefined,
+    more?: IActionOptions,
+  ): Action;
+  export function act<N extends ActionName>(
+    name: N,
+    params: ActionParams<NoInfer<N>>,
     more?: IActionOptions,
   ): Action;
   export function act(
