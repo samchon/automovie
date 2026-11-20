@@ -71,7 +71,6 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       setting: "everyday",
       roles: { ola: "prankster", pip: "friend" },
       needs: [],
-      refusedUntil: 3552,
     },
     "snap-and-flinch",
     [

@@ -342,7 +342,6 @@ export const SCENES_GAMES: readonly IScene[] = [
       setting: "sport",
       roles: { w1: "winner", w2: "runner-up", w3: "third" },
       needs: [],
-      refusedUntil: 3553,
     },
     "victory",
     [
@@ -351,12 +350,12 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("victory"),
         act("lowFive", { partner: "w2" }),
       ]),
-      person("w2", "f1", 0.8, 0.3, 300, [
+      person("w2", "f1", 0.72, 0.3, 300, [
         act("handsOnHips"),
         act("lowFive", { partner: "w1" }),
         act("thumbsUp"),
       ]),
-      person("w3", "m2", -0.45, 0.05, 90, [
+      person("w3", "m2", -0.55, 0.05, 90, [
         act("handsBehindHead"),
         act("firmPress", { target: at("w1", "shoulderRight") }),
       ]),

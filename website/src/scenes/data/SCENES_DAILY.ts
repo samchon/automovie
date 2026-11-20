@@ -382,7 +382,6 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { wes: "friend", xan: "friend", yui: "friend" },
       needs: [],
-      refusedUntil: 3552,
     },
     "charades",
     [

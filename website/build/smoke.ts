@@ -34,6 +34,7 @@ import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
 import { TakeCompute } from "../src/takes/package/TakeCompute";
 import { checkEverydayScenes } from "./checkEverydayScenes";
+import { checkVictoryLap } from "./checkVictoryLap";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -420,6 +421,7 @@ const COUNTERS: string = `
 
 const main: () => Promise<void> = async (): Promise<void> => {
   checkEverydayScenes();
+  checkVictoryLap();
   const served: { server: http.Server; address: string } = await serveExport(0);
   const browser: Browser = await chromium.launch({
     headless: true,
