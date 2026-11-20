@@ -16,6 +16,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
+import type { IStrikingStepSupport } from "./StrikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 
@@ -47,6 +48,7 @@ interface IBeat {
   nextLead: Side;
   windows: Record<Side, Window | undefined>;
   pivot: IPivot | undefined;
+  airborne: IStrikingStepSupport["landings"] | undefined;
 }
 
 /** Resolved controls from the step law, in seconds, degrees and metres. */
@@ -56,6 +58,7 @@ interface IProps {
   length: number;
   turn: number;
   lead: Side;
+  support: IStrikingStepSupport | undefined;
 }
 
 /** Each moving foot gets its own support interval, with both down between lifts. */
@@ -73,6 +76,8 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * that anchor. A traveling turn takes two steps on a new line. A lead exchange
  * lets the old rear foot move first on its own lane and finishes in the new
  * lead. The AIBA coaching illustrations distinguish these support patterns.
+ * A cut keeps the inherited bearing shoe as the first support or pivot, and
+ * lands the airborne shoe within the incoming beat.
  * The beat windows, vertical load, heel rise and trunk lag are provisional
  * choreography, expressed as beat shares or relative to the body.
  * @see https://www.iba.sport/wp-content/uploads/2018/07/AIBA-Coach-Regulations-Manual_WEB.pdf
@@ -100,7 +105,7 @@ export namespace StrikingStepTransition {
     props: IProps,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const { count, stride, turn, length, lead } = props;
+    const { count, stride, turn, length, lead, support } = props;
     const duration: number = count * stride;
     const exitLead: Side = params.lead ?? lead;
     const entryTurn: number = StrikingStance.heading({ line: 0, lead });
@@ -121,12 +126,16 @@ export namespace StrikingStepTransition {
       const swap: boolean = nextLead !== lead;
       const line: number = baseLine + index * turnPerBeat;
       const still: boolean = length === 0 && turnPerBeat === 0 && !swap;
+      const carried: IStrikingStepSupport | undefined =
+        index === 0 ? support : undefined;
+      const pivotSide: Side | undefined =
+        carried === undefined ? lead : carried.bearing;
       const pivot: IPivot | undefined =
-        length === 0 && turnPerBeat !== 0 && !swap
+        length === 0 && turnPerBeat !== 0 && !swap && pivotSide !== undefined
           ? {
-              side: lead,
-              ball: HumanFoot.point(body, lead, "ball", feet[lead]),
-              pitch: HumanFoot.pitch(feet[lead].rotation),
+              side: pivotSide,
+              ball: HumanFoot.point(body, pivotSide, "ball", feet[pivotSide]),
+              pitch: HumanFoot.pitch(feet[pivotSide].rotation),
             }
           : undefined;
       const destination: IAutoMovieVector3 = pivot
@@ -141,29 +150,47 @@ export namespace StrikingStepTransition {
             destination,
           )
         : {
-            left: moved(feet.left, fromOrigin, toOrigin, turnPerBeat),
-            right: moved(feet.right, fromOrigin, toOrigin, turnPerBeat),
+            left: moved(
+              carried?.landings.left ?? feet.left,
+              fromOrigin,
+              toOrigin,
+              turnPerBeat,
+            ),
+            right: moved(
+              carried?.landings.right ?? feet.right,
+              fromOrigin,
+              toOrigin,
+              turnPerBeat,
+            ),
           };
       if (pivot)
-        next[lead] = HumanFoot.pivot(
+        next[pivot.side] = HumanFoot.pivot(
           body,
-          lead,
+          pivot.side,
           "ball",
           pivot.ball,
-          HumanFoot.heading(feet[lead].rotation) + turnPerBeat,
+          HumanFoot.heading(feet[pivot.side].rotation) + turnPerBeat,
           pivot.pitch,
         );
 
-      const first: Side = swap
-        ? StrikingStance.rear({ lead })
-        : firstSide(params.direction, lead);
+      const first: Side =
+        carried?.bearing !== undefined
+          ? StrikingStance.rear({ lead: carried.bearing })
+          : swap
+            ? StrikingStance.rear({ lead })
+            : firstSide(params.direction, lead);
+      const follow: Window =
+        carried !== undefined && carried.bearing === undefined ? PIVOT : SECOND;
       const windows: IBeat["windows"] = still
-        ? { left: undefined, right: undefined }
+        ? {
+            left: carried?.landings.left === undefined ? undefined : FIRST,
+            right: carried?.landings.right === undefined ? undefined : FIRST,
+          }
         : pivot
           ? { left: PIVOT, right: PIVOT }
           : {
-              left: first === "left" ? FIRST : SECOND,
-              right: first === "right" ? FIRST : SECOND,
+              left: first === "left" ? FIRST : follow,
+              right: first === "right" ? FIRST : follow,
             };
       const beat: IBeat = {
         from: feet,
@@ -176,6 +203,7 @@ export namespace StrikingStepTransition {
         nextLead,
         windows,
         pivot,
+        airborne: carried?.landings,
       };
       for (const side of ["left", "right"] as const)
         book(contacts, beat, side, index, count);
@@ -211,7 +239,8 @@ export namespace StrikingStepTransition {
         });
         const bodyTurn: number =
           leadAngle + (nextAngle - leadAngle) * swap - line;
-        const active: boolean = beat.windows.left !== undefined;
+        const active: boolean =
+          beat.windows.left !== undefined || beat.windows.right !== undefined;
         const trunkLag: number = active
           ? -0.1 * (beat.delta + nextAngle - leadAngle) * load
           : 0;
@@ -328,7 +357,7 @@ function bearingAt(beat: IBeat, side: Side, local: number): boolean {
   return (
     beat.pivot?.side === side ||
     window === undefined ||
-    local <= window[0] ||
+    (local <= window[0] && beat.airborne?.[side] === undefined) ||
     local >= window[1]
   );
 }
@@ -384,7 +413,7 @@ function book(
   const window: Window | undefined = beat.windows[side];
   if (window === undefined) add("plant", 0, 1);
   else {
-    add("plant", 0, window[0]);
+    if (beat.airborne?.[side] === undefined) add("plant", 0, window[0]);
     if (beat.pivot?.side === side) add("pivot", window[0], window[1]);
     add("plant", window[1], 1);
   }

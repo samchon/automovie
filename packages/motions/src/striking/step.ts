@@ -16,6 +16,7 @@ import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
+import { strikingStepSupport } from "./StrikingStepSupport";
 import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
 
@@ -35,6 +36,10 @@ import { StrikingTarget } from "./StrikingTarget";
  * scales with the leg by dynamic similarity (`PERIOD`, Alexander 1984): 0.35 s
  * on a 0.93 m hip, about three steps a second, inside the 2 to 3.5 steps a
  * second of the ring-movement reading (provisional).
+ *
+ * An interrupted step hands its bearing foot and airborne placements to the
+ * next one. The inherited swing lands before the bearing foot lifts, using
+ * the next step's own clock.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the foot order with its coaching source, the paths, the defaults and which are provisional.
  * @evidence contracts/development/design.md#principled-representation A law record of the action-law core: a name, a closed cancel table, parameters with a closed direction union, and a pure plan of postures in world metres and seconds with plant windows.
@@ -92,7 +97,7 @@ export namespace step {
    * @throws {HumanRefusal} When count, travel or turn exceeds its documented range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its input, its plan and its refusals; the namespace states the method.
-   * @evidence contracts/development/implementation.md#principled-implementation The coached foot order in the stance's line frame, each foot on a lifted minimum-jerk path in its half step, the root on its own minimum-jerk profile, the legs and guard solved by the shared fit.
+   * @evidence contracts/development/implementation.md#principled-implementation The coached foot order and lifted minimum-jerk paths use the stance's line frame. On a cut the first swing closes the inherited transfer before the bearing foot leaves. The root keeps its own profile, with both feet and the guard solved by the shared fit.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Validation, the line frame and the feet's schedule once, then each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid counts and lengths throw; the period is a named provisional value.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per posture beyond the limb fits.
@@ -122,6 +127,8 @@ export namespace step {
       transition ? undefined : "minimum",
     );
     const stride: number = period(body);
+    const support: ReturnType<typeof strikingStepSupport> =
+      strikingStepSupport(context);
     if (transition)
       return StrikingStepTransition.plan(context, {
         count,
@@ -129,6 +136,7 @@ export namespace step {
         length,
         turn,
         lead,
+        support,
       });
 
     const duration: number = count * stride;
@@ -170,34 +178,61 @@ export namespace step {
       first === "left"
         ? { left: [0, 0.5], right: [0.45, 0.95] }
         : { left: [0.45, 0.95], right: [0, 0.5] };
+    // Finish an inherited swing before the old bearing foot lifts. A cut in
+    // the overlap of two swings continues that already unsupported interval.
+    const cutFirst: "left" | "right" =
+      support?.bearing === undefined
+        ? first
+        : StrikingStance.rear({ lead: support.bearing });
+    const cutFollow: readonly [number, number] = [
+      support?.bearing === undefined ? 0 : 0.5,
+      0.95,
+    ];
+    const opening: typeof windows =
+      support === undefined
+        ? windows
+        : cutFirst === "left"
+          ? { left: [0, 0.5], right: cutFollow }
+          : { left: cutFollow, right: [0, 0.5] };
 
     // A foot's progress: whole steps done plus the current step's share.
     const progress = (
       side: "left" | "right",
       t: number,
-    ): { travelled: number; swinging: boolean; s: number } => {
+    ): {
+      travelled: number;
+      swinging: boolean;
+      share: number;
+      first: boolean;
+    } => {
       const k: number = Math.min(count - 1, Math.floor(t / stride));
       const local: number = (t - k * stride) / stride;
-      const [a, b] = windows[side];
+      const [a, b] = (k === 0 ? opening : windows)[side];
       const s: number = minimumJerk.share((local - a) / (b - a));
       return {
         travelled: (k + s) * length,
-        swinging: local > a && local < b,
-        s,
+        swinging:
+          local < b &&
+          (local > a || (k === 0 && support?.landings[side] !== undefined)),
+        share: s,
+        first: k === 0,
       };
     };
     const contacts: IAutoMovieMotionHumanContactWindow[] = [];
     for (let k: number = 0; k < count; k++)
       for (const side of ["left", "right"] as const) {
-        const [a, b] = windows[side];
-        const start: number = k === 0 ? 0 : (k - 1 + windows[side][1]) / count;
-        contacts.push({
-          part: `${side}Foot`,
-          kind: "plant",
-          from: start,
-          to: (k + a) / count,
-          support: { kind: "ground" },
-        });
+        const [a, b] = (k === 0 ? opening : windows)[side];
+        if (k !== 0 || support?.landings[side] === undefined)
+          contacts.push({
+            part: `${side}Foot`,
+            kind: "plant",
+            from:
+              k === 0
+                ? 0
+                : (k - 1 + (k === 1 ? opening : windows)[side][1]) / count,
+            to: (k + a) / count,
+            support: { kind: "ground" },
+          });
         if (k === count - 1)
           contacts.push({
             part: `${side}Foot`,
@@ -227,10 +262,16 @@ export namespace step {
         const down = {} as Record<"left" | "right", boolean>;
         for (const side of ["left", "right"] as const) {
           const g = progress(side, t);
+          const fromY: number = feet[side].ankle.y;
+          const toY: number = support?.landings[side]?.ankle.y ?? fromY;
+          const landing: number = g.first
+            ? (toY - fromY) * g.share
+            : toY - fromY;
           placed[side] = {
             ankle: Vector3.add(feet[side].ankle, {
               x: unit.x * g.travelled,
-              y: g.swinging ? lift * 4 * g.s * (1 - g.s) : 0,
+              y:
+                landing + (g.swinging ? lift * 4 * g.share * (1 - g.share) : 0),
               z: unit.z * g.travelled,
             }),
             rotation: feet[side].rotation,
