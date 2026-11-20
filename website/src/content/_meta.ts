@@ -26,8 +26,8 @@ const APPLICATION: {
  * The index is the landing page, which the logo links to. The guide, the
  * reference and the playground are in the bar; the catalogues a film is
  * composed with (motions, archetypes, scene studies) and the TypeDoc API are
- * listed in the reference's sidebar, as typia and ttsc list theirs. Former
- * addresses stay as hidden pages that forward.
+ * listed in the reference's sidebar. Former addresses stay as hidden pages
+ * that forward.
  */
 const meta: MetaRecord = {
   index: {
@@ -49,8 +49,9 @@ const meta: MetaRecord = {
     type: "page",
     theme: APPLICATION,
   },
-  // The catalogues and the API are listed in the reference's sidebar, the
-  // former Scenes and Library addresses kept as hidden pages.
+  // The catalogues are pages of their own, hidden from the bar because the
+  // reference's sidebar lists them; objects, gallery and human are former
+  // addresses that forward.
   scenes: {
     title: "Scene studies",
     type: "page",

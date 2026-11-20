@@ -2,7 +2,7 @@
 //
 //   pnpm run smoke [--shots]
 //
-// The type check and the Node tests cannot see what only the browser bundle
+// The type check cannot see what only the browser bundle
 // does, such as a package source the bundler compiled wrongly. This serves
 // `out/`, opens each page below, waits for what it must show, and fails on a
 // missing element, a page error, a console error, a failed request, a page

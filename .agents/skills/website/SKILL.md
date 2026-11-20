@@ -9,7 +9,7 @@ The site in `website/` tells a visitor what AutoMovie does and lets a developer 
 
 ## What the site says
 
-Lead with the product's strongest claim: the coding agent writes the screenplay through the authoring chain, the evidence graph checks that every decision is realized, and the engine computes the motion hint from code into the same frames every time. Present the motions, the archetypes and the scenes as the kit a production composes with, after that claim: any action is a typed call over the engine's primitives, and calls compose. Never lead with how many there are, since the count changes with every release.
+Lead with the product's strongest claim: the coding agent writes the screenplay through the authoring chain, the evidence graph makes every principle and decision an obligation the screenplay and the code answer in writing, so the screenplay and the film never drift, and the engine computes the motion hint from code into the same frames every time. Present the motions, the archetypes and the scene studies as the kit a production composes with, after that claim: any action is a typed call over the engine's primitives, and calls compose. Never lead with how many there are, since the count changes with every release.
 
 State only what the repository does. Take a command, a file path, an option, a diagnostic or a number from the source or a run. Show real output, or mark an excerpt as abridged and say whose numbers it shows. Leave out what a release does not ship, and describe people only as the polygon man.
 

@@ -25,20 +25,20 @@ Rejected:
 
 ## The frame
 
-Nextra draws the navigation bar: the logo, Docs, Reference and Playground, then the search, the repository link and the theme switch, as typia.io and ttsc.dev keep theirs. The guide at `/docs/` serves the person who makes a film and the reference at `/reference/` whoever writes against the packages, each with its own sidebar; the search covers both. The reference's sidebar lists the catalogues a film is composed from (Motions, Archetypes, Scene studies) after its pages, and an Appendix with the TypeDoc API and the example productions; the guide's sidebar ends with the same Appendix. The scenes on this site are studies of what the motion grammar composes, not films, so a showcase of finished films gets a place of its own when there are films to show.
+Nextra draws the navigation bar: the logo, Docs, Reference and Playground, then the search, the repository link and the theme switch. The guide at `/docs/` serves the person who makes a film and the reference at `/reference/` whoever writes against the packages, each with its own sidebar; the search covers both. The reference's sidebar lists the catalogues a film is composed from (Motions, Archetypes, Scene studies) after its pages, and an Appendix with the TypeDoc API and the example productions; the guide's sidebar ends with an Appendix linking the Reference and the API. The scenes on this site are studies of what the motion grammar composes, not films, so a showcase of finished films gets a place of its own when there are films to show.
 
-The footer holds the brand line and three columns of links: Learn, Library and Project.
+The footer holds the brand line and three columns of links: Learn, Catalogues and Project.
 
 ## Landing
 
 The page follows one scene, the kickboxing round, from its brief to its frames. Sections in order:
 
-1. Hero. The headline "Write the film. Program the motion." in the display serif on the left; on the right one sentence, Read the docs and See the scenes, and the copyable `npx automovie create my-film`. Under them, across the width, the screenplay scene file in the typewriter face beside the scene's baked take drawn flat; the beat whose actions are playing is lit, and a timeline of the beats runs under the take.
+1. Hero. The headline "Write the film. Program the motion." in the display serif on the left; on the right one sentence, Read the docs and Scene studies, and the copyable `npx automovie create my-film`. Under them, across the width, the screenplay scene file in the typewriter face beside the scene's baked take drawn flat; the beat whose actions are playing is lit, and a timeline of the beats runs under the take.
 2. Why. Two columns: what a prompt cannot fix about motion, and what a motion hint gives a model.
-3. The chain. Five steps, Decide, Write, Program, Check and Render, each a text beside the document it produces: a brief file, a beat record, the scene module citing its beats, the evidence report failing on an unrealized beat, and the take's still with the channels a hint delivers. On a wide screen the text and the panel stick while the step scrolls past.
-4. The evidence graph, the page's one dark band and its peak. The brief's anchors, the beats, the modules and the film joined by their citations; pointing at a node lights what it rests on and what rests on it, and a switch deletes one citation and turns the report beside it to the failure. Three facts about review follow.
-5. Simple bodies, precise motion. The second module of the hero's scene, the code from the clinch on, its key lines marked. The hero already plays the motion, so the page shows the code behind it rather than the same take again in 3D; the landing page creates no WebGL context.
-6. The library. How any action is composed from the engine's primitives, a rail of motion stills, and links to the four catalogues. No page states how many motions, rows or archetypes there are: the number changes with every release, and the claim is the composition, not the size.
+3. The chain. Five steps, Decide, Write, Program, Answer and Render, each a text beside the document it produces: a brief file, a beat record, the scene module stating how it plays its beats, a beat's answer file stating how it keeps each principle and decision, and the take's still with the channels a hint delivers.
+4. The evidence graph, the page's one dark band and its peak. The brief's decisions, the beats, the modules and the film; pointing at a node lights what it answers to and what answers to it and shows the written statement, and a switch deletes one statement so the report beside the graph fails.
+5. The library. How any action is composed from the engine's primitives, a rail of motion stills, and links to the scene studies, the motions, the archetypes and the playground. No page states how many motions, rows or archetypes there are: the number changes with every release, and the claim is the composition, not the size.
+6. Simple bodies, precise motion. The second module of the hero's scene, from Kai's answer to the knockdown, its key lines marked. The hero already plays the motion, so the page shows the code behind it rather than the same take again in 3D; the landing page creates no WebGL context.
 7. Start. The commands, the kind of sentence to say to the agent, and links to Setup and Your first film.
 
 Below 960 px every pair of columns stacks and nothing sticks.
@@ -106,7 +106,7 @@ Colour. Every colour is a token with a light and a dark value:
 | Dark band switch | `--am-room-switch-*`, and `--am-room-alarm-*` while pressed |
 | The inspector and shadows | `--am-instrument-bg`, `--am-instrument-fg`, `--am-shadow` |
 
-The ground is a warm off-white and the ink near black; the one accent is tungsten amber, the favicon's, used for what is selected, the one primary action and a motion's paths. The viewport ground is the same warm grey in both themes, because the packages' coarse colours are chosen for a light ground. `pnpm check` computes the contrast of 43 token pairs in both themes and stops the build when one is below its bound.
+The ground is a warm off-white and the ink near black; the one accent is tungsten amber, the favicon's, used for what is selected, the one primary action and a motion's paths. The viewport ground is the same warm grey in both themes, because the packages' coarse colours are chosen for a light ground. `pnpm check` computes the contrast of every token pair in `build/contrast.ts` in both themes and stops the build when one is below its bound.
 
 Shape and space. Steps on a 4 px grid; a radius of 6 px for controls and 12 px for panels and views; pill-shaped buttons and chips.
 

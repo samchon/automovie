@@ -8,11 +8,12 @@ The public site at [samchon.github.io/automovie](https://samchon.github.io/autom
 | `/docs/` | The guide, for the person who makes a film: setup, the screenplay and its evidence graph, motion as code and delivery |
 | `/reference/` | The reference, for a developer or a coding agent: the packages, the CLI, the evidence configuration and the motion API |
 | `/api/` | The API reference of every library package (the `automovie` CLI is a program and is left out), which `pnpm run typedoc` generates with TypeDoc into `public/api/` before each build |
-| `/scenes/`, `/scenes/<id>/` | The scene gallery, and each scene with its player, code, timeline and takes |
-| `/motions/`, `/motions/<name>/` | The motion catalogue by category and family, and each motion with its take and parameters |
+| `/scenes/`, `/scenes/<id>/` | The scene studies, and each study with its player, code, timeline and takes |
+| `/motions/`, `/motions/<name>/` | The motion catalogue by category and family, and each motion with its take, the code that writes it and its API entry |
 | `/archetypes/` | Every archetype of `@automovie/archetypes`, and one archetype's page with its specs and controls |
 | `/playground/` | A composition with every parameter, performed in the page |
 | `/objects/`, `/gallery/` | The archetypes' former addresses, which forward with their query |
+| `/human/` | A former address, which forwards to the landing page |
 
 The package is private and is never published.
 
@@ -32,7 +33,7 @@ pnpm --filter @automovie/website run deploy   # build, then publish out/ to gh-p
 
 Next loads the compiler API from the `typescript` package, which the native TypeScript 7 package does not export, so `typescript` is 5.9 in this package alone, which TypeDoc also reads, and `ttsc` finds the native compiler under the alias `typescript-native`. `typecheck` runs on the native compiler like the rest of the workspace.
 
-`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound. It then runs `typedoc`, which writes the API reference through a queue of open files so a reference this large does not exhaust them, and `bake`. After the export, `build/bundles.ts` refuses a page whose own chunks carry `@automovie/motions` or `@automovie/human`.
+`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound. It then runs `typedoc`, which writes the API reference through a queue of open files so a reference this large does not exhaust them, and `bake`. After the export, `build/bundles.ts` refuses a page whose own chunks carry `@automovie/motions` or `@automovie/human`, and `pagefind` indexes the export for the search.
 
 ## Baked takes
 
