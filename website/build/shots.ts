@@ -1,13 +1,14 @@
 // Take screenshots of pages with a headless browser, for looking at the site.
 //
 //   pnpm run shots [--width 1440] [--height 900] [--dark] [--wait 4000]
-//     [--full] [--expect <css>]... name=url [name=url ...]
+//     [--full] [--scroll] [--reduced] [--expect <css>]... name=url [name=url ...]
 //
 // Each page is opened headless, left `--wait` milliseconds after its load
 // event so the 3D view has drawn, and saved as `.shots/<name>.png`, which git
 // ignores. Console errors, failed requests and `--expect` selectors that
 // match nothing are printed per page, and the process exits 1 when any page
-// had one.
+// had one. `--scroll` scrolls each page to its end and back first, so what
+// a page reveals on scrolling is drawn in a `--full` screenshot.
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -34,6 +35,12 @@ interface IOptions {
   /** Whether the whole scrolled page is saved, not the viewport alone. */
   full: boolean;
 
+  /** Whether each page is scrolled to its end and back before the screenshot. */
+  scroll: boolean;
+
+  /** Whether the browser asks for reduced motion. */
+  reduced: boolean;
+
   /** Selectors each page must match at least once. */
   expect: string[];
 }
@@ -44,6 +51,8 @@ const options: IOptions = {
   dark: false,
   wait: 4000,
   full: false,
+  scroll: false,
+  reduced: false,
   expect: [],
 };
 const pages: { name: string; url: string }[] = [];
@@ -52,6 +61,8 @@ for (let i: number = 0; i < argv.length; i++) {
   const arg: string = argv[i]!;
   if (arg === "--dark") options.dark = true;
   else if (arg === "--full") options.full = true;
+  else if (arg === "--scroll") options.scroll = true;
+  else if (arg === "--reduced") options.reduced = true;
   else if (arg === "--width") options.width = Number(argv[++i]);
   else if (arg === "--height") options.height = Number(argv[++i]);
   else if (arg === "--wait") options.wait = Number(argv[++i]);
@@ -77,6 +88,7 @@ const main = async (): Promise<void> => {
       const context: BrowserContext = await browser.newContext({
         viewport: { width: options.width, height: options.height },
         colorScheme: options.dark ? "dark" : "light",
+        reducedMotion: options.reduced ? "reduce" : "no-preference",
       });
       const page: Page = await context.newPage();
       const problems: string[] = [];
@@ -98,6 +110,20 @@ const main = async (): Promise<void> => {
       });
       await page.goto(url, { waitUntil: "load", timeout: 120000 });
       await page.waitForTimeout(options.wait);
+      if (options.scroll) {
+        const height: number = await page.evaluate(
+          (): number => document.documentElement.scrollHeight,
+        );
+        for (let y: number = 0; y < height; y += options.height / 2) {
+          await page.evaluate(
+            (top: number): void => window.scrollTo(0, top),
+            y,
+          );
+          await page.waitForTimeout(250);
+        }
+        await page.evaluate((): void => window.scrollTo(0, 0));
+        await page.waitForTimeout(500);
+      }
       for (const selector of options.expect)
         if ((await page.locator(selector).count()) === 0)
           problems.push(`missing: ${selector}`);

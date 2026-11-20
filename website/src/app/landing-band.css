@@ -1,0 +1,391 @@
+/* The landing page's second half: the evidence graph's dark band, the
+   bench of takes, the library and how to start. DESIGN.md states the
+   layout in words. */
+
+/* The screening room: the evidence graph */
+.am-room {
+  padding-block: clamp(4rem, 9vw, 7rem);
+  background: var(--am-room);
+  color: var(--am-room-fg);
+}
+
+.am-room-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 1rem 3rem;
+  margin-bottom: 2rem;
+}
+
+.am-room-head p {
+  margin: 0 0 1.25rem;
+  color: var(--am-room-muted);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.am-graph {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.am-graph-figure {
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--am-room-line);
+  border-radius: var(--am-radius-lg);
+  background: var(--am-room-panel);
+}
+
+.am-graph-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.am-graph-column {
+  fill: var(--am-room-muted);
+  font: 600 12px var(--am-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.am-graph-edge {
+  fill: none;
+  stroke: var(--am-room-edge);
+  stroke-width: 1.5;
+  transition: stroke var(--am-fast) var(--am-ease);
+}
+
+.am-graph-edge[data-on="true"] {
+  stroke: var(--am-room-lit);
+  stroke-width: 2;
+}
+
+.am-graph-node {
+  cursor: default;
+}
+
+.am-graph-node circle {
+  fill: var(--am-room-fg);
+  transition: fill var(--am-fast) var(--am-ease);
+}
+
+.am-graph-node text {
+  fill: var(--am-room-fg);
+  font: 13px var(--am-font-mono);
+}
+
+.am-graph-node[data-on="true"] circle {
+  fill: var(--am-room-lit);
+}
+
+.am-graph-node[data-missing="true"] circle {
+  fill: var(--am-room-danger);
+}
+
+.am-graph-node[data-missing="true"] text {
+  fill: var(--am-room-danger-fg);
+}
+
+.am-graph-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.am-graph-switch {
+  align-self: start;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  border: 1px solid var(--am-room-switch-line);
+  border-radius: 999px;
+  background: var(--am-room-switch-bg);
+  color: var(--am-room-switch-fg);
+  font: 600 0.875rem var(--am-font-sans);
+  cursor: pointer;
+}
+
+.am-graph-switch[aria-pressed="true"] {
+  border-color: var(--am-room-alarm-line);
+  background: var(--am-room-alarm-bg);
+  color: var(--am-room-alarm-fg);
+}
+
+.am-graph-note {
+  margin: 0;
+  color: var(--am-room-muted);
+  font-size: 0.8125rem;
+}
+
+.am-graph-note code {
+  font-family: var(--am-font-mono);
+}
+
+.am-graph-side .am-terminal {
+  border: 1px solid var(--am-room-line);
+  background: var(--am-room-deep);
+  white-space: pre-wrap;
+}
+
+.am-room-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem 2.5rem;
+  margin: 3rem 0 2.5rem;
+  padding: 0;
+  list-style: none;
+  color: var(--am-room-muted);
+  line-height: 1.6;
+}
+
+.am-room-facts h3 {
+  margin: 0 0 0.25rem;
+  color: var(--am-room-fg);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.am-room-facts p {
+  margin: 0;
+}
+
+/* Simple bodies, precise motion */
+.am-motion {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 2.5rem 3.5rem;
+  padding-block: clamp(4rem, 9vw, 7rem);
+}
+
+.am-motion-copy p {
+  margin: 0 0 1rem;
+  color: var(--am-fg-muted);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.am-bench {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.am-bench-view .am-scene-view {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--am-radius-lg);
+}
+
+.am-bench-takes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.am-bench-takes button {
+  min-height: 2.25rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--am-border-control);
+  border-radius: 999px;
+  background: var(--am-bg-inset);
+  color: var(--am-fg);
+  font: 500 0.875rem var(--am-font-sans);
+  cursor: pointer;
+}
+
+.am-bench-takes button[aria-pressed="true"] {
+  border-color: var(--am-fg);
+  background: var(--am-fg);
+  color: var(--am-bg);
+}
+
+/* The library */
+.am-library {
+  padding-block: clamp(4rem, 8vw, 6rem);
+  border-top: 1px solid var(--am-border);
+}
+
+.am-library-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 1rem 3rem;
+}
+
+.am-library-head p {
+  margin: 0 0 1.25rem;
+  color: var(--am-fg-muted);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.am-rail {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.5rem 0 2.5rem;
+  padding: 0 0 0.75rem;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+
+.am-rail li {
+  flex: 0 0 13.5rem;
+  scroll-snap-align: start;
+}
+
+.am-rail a {
+  display: block;
+  color: var(--am-fg);
+  text-decoration: none;
+}
+
+.am-rail img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+  transition: transform var(--am-fast) var(--am-ease);
+}
+
+.am-rail a:hover img {
+  transform: translateY(-2px);
+}
+
+.am-rail span {
+  display: block;
+  margin-top: 0.4rem;
+  font: 0.8125rem var(--am-font-mono);
+}
+
+.am-library-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--am-border);
+}
+
+.am-library-links a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.25rem 1.25rem 1.25rem 0;
+  color: var(--am-fg);
+  text-decoration: none;
+}
+
+.am-library-links a + a {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--am-border);
+}
+
+.am-library-links strong {
+  font-family: var(--am-font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.am-library-links span {
+  color: var(--am-fg-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.am-library-links a:hover strong {
+  color: var(--am-accent);
+}
+
+/* Start */
+.am-start {
+  padding-block: clamp(4rem, 8vw, 6rem) clamp(5rem, 9vw, 8rem);
+  border-top: 1px solid var(--am-border);
+}
+
+.am-start-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.am-start-steps li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--am-fg);
+  counter-increment: step;
+}
+
+.am-start-steps li::before {
+  content: counter(step);
+  color: var(--am-accent);
+  font: 600 0.875rem var(--am-font-mono);
+}
+
+.am-start-steps p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.am-prompt {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-left: 3px solid var(--am-accent-line);
+  border-radius: 0 var(--am-radius) var(--am-radius) 0;
+  background: var(--am-bg-panel);
+  font: 0.9375rem/1.55 var(--am-font-script);
+}
+
+/* In the dark theme the band is set off from the page by its edges. */
+:root.dark .am-room {
+  border-block: 1px solid var(--am-room-line);
+}
+
+@media (max-width: 960px) {
+  .am-room-head,
+  .am-graph,
+  .am-motion,
+  .am-library-head,
+  .am-room-facts,
+  .am-start-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The graph keeps a readable size and scrolls inside its frame. */
+  .am-graph-figure {
+    overflow-x: auto;
+  }
+
+  .am-graph-figure svg {
+    min-width: 40rem;
+  }
+
+  .am-library-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .am-library-links a:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .am-library-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .am-library-links a + a {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--am-border);
+  }
+}

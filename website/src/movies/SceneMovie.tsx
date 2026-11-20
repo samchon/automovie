@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   type Dispatch,
+  type KeyboardEvent,
   type ReactElement,
   type SetStateAction,
   useEffect,
@@ -10,6 +11,7 @@ import {
 } from "react";
 
 import { SITE_BASE } from "../SITE_BASE";
+import { BakedClient } from "../baked/BakedClient";
 import { SceneTimeline } from "../components/scenes/SceneTimeline";
 import { SceneView } from "../components/scenes/SceneView";
 import { useSceneClock } from "../components/scenes/useSceneClock";
@@ -18,18 +20,18 @@ import { TransportKeys } from "../components/stage/TransportKeys";
 import { formatArchetypeLabel } from "../gallery/formatArchetypeLabel";
 import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
-import type { IPlaygroundTimeline } from "../playground/structures/IPlaygroundTimeline";
 import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
-import { computeSceneTake } from "../scenes/computeSceneTake";
 import { formatSceneChain } from "../scenes/formatSceneChain";
-import type { IScene } from "../scenes/structures/IScene";
+import { IScene } from "../scenes/structures/IScene";
 import type { ISceneChainNames } from "../scenes/structures/ISceneChainNames";
 import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
-import type { TakeClient } from "../takes/TakeClient";
 
 /** The panels under the player. */
-type Panel = "variations" | "made";
+type Panel = "code" | "timeline" | "takes";
+
+/** The panels in their tabs' order. */
+const PANELS: readonly Panel[] = ["code", "timeline", "takes"];
 
 /** The player's loaded take, and what redraws its view after the toolbar moves the camera. */
 interface ILoaded {
@@ -49,104 +51,72 @@ const VIEWS: readonly IScene.ICamera["view"][] = [
 ];
 
 /**
- * One scene: the player with its transport and named views, then the takes
- * side by side on the same clock, or how the scene is made. Customise opens
- * the scene's composition in the playground, with every parameter.
+ * One scene: the player with its named views and transport beside the cast,
+ * the objects and the actions, then three panels: the code an agent writes
+ * for it, the timeline of the take, and the takes that vary one choice.
  *
- * Every take is computed in the page when its view comes into the window,
- * and the clock runs as long as the longest take computed so far; the
- * transport appears with the first take that plays, and How is this made?
- * computes the takes in order until one plays to show its timeline. A scene
- * the installed packages cannot compute, because it waits on a release or is
- * planned, shows what it will compose and the issues it waits on. A scene
- * whose every take the packages refuse shows each refusal in place of its
- * take, with no transport and no timeline, since nothing plays.
+ * The first take plays from its baked bytes at once; the takes panel
+ * computes the other takes in the page only when it is opened. A scene the
+ * installed packages cannot compute shows what it will compose and the
+ * issues it waits on.
  *
- * @param props The scene's record, whether the installed packages compute its takes, the reference page of each action by name, and the exported names its code refers to.
+ * @param props The scene's record, whether the installed packages compute its takes, whether its first take was baked, the exported names its code refers to, and which of its actions have a motion page.
  * @returns The page.
  */
 export default function SceneMovie(props: {
   scene: IScene;
   computes: boolean;
-  pages: Record<string, string>;
+  baked: boolean;
   names: ISceneChainNames | null;
+  motions: string[];
 }): ReactElement {
   const { scene, computes }: typeof props = props;
   const clock: SceneClock = useSceneClock();
   const [panel, setPanel]: [Panel, Dispatch<SetStateAction<Panel>>] =
-    useState<Panel>("variations");
+    useState<Panel>("code");
   const [player, setPlayer]: [
     ILoaded | null,
     Dispatch<SetStateAction<ILoaded | null>>,
   ] = useState<ILoaded | null>(null);
-  const [notice, setNotice]: [
-    string | null,
-    Dispatch<SetStateAction<string | null>>,
-  ] = useState<string | null>(null);
+  const [notice, setNotice]: [string, Dispatch<SetStateAction<string>>] =
+    useState<string>("");
 
-  // An address ending in #made opens on how the scene is made.
-  useEffect((): void => {
-    if (window.location.hash === "#made") setPanel("made");
-  }, []);
-
-  const [plays, setPlays]: [boolean, Dispatch<SetStateAction<boolean>>] =
+  // The takes are computed from the first time their tab opens, and kept,
+  // so choosing a panel records that in the same render.
+  const [opened, setOpened]: [boolean, Dispatch<SetStateAction<boolean>>] =
     useState<boolean>(false);
-  const [timeline, setTimeline]: [
-    IPlaygroundTimeline | null | "none",
-    Dispatch<SetStateAction<IPlaygroundTimeline | null | "none">>,
-  ] = useState<IPlaygroundTimeline | null | "none">(null);
-
-  // The clock runs as long as the longest take computed so far.
-  const extend: (take: IScenePlayer) => void = (take: IScenePlayer): void => {
-    clock.duration = Math.max(clock.duration, take.duration);
-    clock.fps = take.fps;
-
-    // A seek tells the transport, which reads the film's length from the clock.
-    clock.seek(clock.time);
-    setPlays(true);
+  const choose: (next: Panel) => void = (next: Panel): void => {
+    setPanel(next);
+    if (next === "takes") setOpened(true);
   };
 
-  // How is this made? shows the timeline of the first take that plays; the
-  // takes are asked in order, and one the player computed is read from the
-  // page's cache.
-  useEffect((): (() => void) | undefined => {
-    if (panel !== "made" || !computes || timeline !== null) return undefined;
-    let alive: boolean = true;
-    const find: () => Promise<IPlaygroundTimeline | "none"> = async (): Promise<
-      IPlaygroundTimeline | "none"
-    > => {
-      for (let index: number = 0; index < scene.takes.length; index++) {
-        const result: TakeClient.Result = await computeSceneTake(scene, index);
-        if (result.kind === "take") return result.take.timeline;
-      }
-      return "none";
-    };
-    find()
-      .then((found: IPlaygroundTimeline | "none"): void => {
-        if (alive) setTimeline(found);
-      })
-      .catch((): void => {
-        if (alive) setTimeline("none");
-      });
-    return (): void => {
-      alive = false;
-    };
-  }, [panel, computes, scene, timeline]);
+  // An address ending in #timeline or #takes opens on that panel.
+  useEffect((): void => {
+    const hash: string = window.location.hash.slice(1);
+    if (hash === "timeline" || hash === "takes") choose(hash);
+  }, []);
 
   const head: ReactElement = (
-    <header className="am-app-head">
+    <header className="am-scene-head">
+      <nav aria-label="Breadcrumb" className="am-crumbs">
+        <Link href="/scenes/">Scenes</Link>
+        <span aria-hidden="true">/</span>
+        <Link href={`/scenes/?setting=${scene.setting}`}>
+          {IScene.SETTING_LABELS[scene.setting]}
+        </Link>
+      </nav>
       <h1>{scene.title}</h1>
-      <p className="am-lede">{scene.summary}</p>
+      <p>{scene.summary}</p>
       {scene.refusedUntil === undefined ? null : (
         <p className="am-scene-refused" role="note">
-          The packages refuse this scene today, in their own words on each take
-          below;{" "}
+          The packages refuse this scene today, in their own words on the view
+          below.{" "}
           <a
             href={`https://github.com/samchon/automovie/issues/${scene.refusedUntil}`}
           >
             #{scene.refusedUntil}
           </a>{" "}
-          fixes it, and the scene plays once that lands.
+          fixes it.
         </p>
       )}
     </header>
@@ -154,14 +124,9 @@ export default function SceneMovie(props: {
 
   if (!computes || scene.composition === null)
     return (
-      <main className="am-app" data-pagefind-body>
+      <main className="am-app am-scene-page" data-pagefind-body>
         {head}
-        <section className="am-panel am-stack" aria-label="Status">
-          <p>
-            <span className="am-badge">
-              {scene.composition === null ? "Planned" : "Waits on a release"}
-            </span>
-          </p>
+        <section className="am-scene-waiting" aria-label="Status">
           <p>
             {scene.composition === null
               ? "The packages cannot compose this scene yet."
@@ -198,16 +163,10 @@ export default function SceneMovie(props: {
             </dl>
           )}
           {scene.composition === null ? null : (
-            <>
-              <h2>What it composes</h2>
-              <pre className="am-code">
-                <code>{formatSceneChain(scene.composition, props.names!)}</code>
-              </pre>
-            </>
+            <pre className="am-code">
+              <code>{formatSceneChain(scene.composition, props.names!)}</code>
+            </pre>
           )}
-          <p>
-            <Link href="/scenes/">Back to the scenes</Link>
-          </p>
         </section>
       </main>
     );
@@ -226,41 +185,51 @@ export default function SceneMovie(props: {
   };
 
   return (
-    <main className="am-app" data-pagefind-body>
+    <main className="am-app am-scene-page" data-pagefind-body>
       {head}
       <div className="am-scene-layout">
         <TransportKeys clock={clock} label="Scene player">
-          <div className="am-toolbar" role="group" aria-label="View">
-            {VIEWS.map(
-              (view: IScene.ICamera["view"]): ReactElement => (
-                <button
-                  key={view}
-                  type="button"
-                  disabled={player === null}
-                  onClick={(): void => {
-                    if (player === null) return;
-                    player.take.frame(view);
-                    player.redraw();
-                  }}
-                >
-                  {view === "three-quarter"
-                    ? "Three-quarter"
-                    : view[0]!.toUpperCase() + view.slice(1)}
-                </button>
-              ),
-            )}
-          </div>
           <SceneView
             scene={scene}
             take={0}
             clock={clock}
             orbit
+            baked={props.baked ? "scene" : undefined}
+            poster={
+              props.baked
+                ? BakedClient.address("scene", scene.id, "svg")
+                : undefined
+            }
             onLoad={(take: IScenePlayer, redraw: () => void): void => {
-              extend(take);
+              clock.duration = take.duration;
+              clock.fps = take.fps;
+              clock.seek(clock.time);
               setPlayer({ take, redraw });
             }}
           />
-          {plays ? <Transport clock={clock} /> : null}
+          <div className="am-scene-controls">
+            {player === null ? null : <Transport clock={clock} />}
+            <div className="am-toolbar" role="group" aria-label="View">
+              {VIEWS.map(
+                (view: IScene.ICamera["view"]): ReactElement => (
+                  <button
+                    key={view}
+                    type="button"
+                    disabled={player === null}
+                    onClick={(): void => {
+                      if (player === null) return;
+                      player.take.frame(view);
+                      player.redraw();
+                    }}
+                  >
+                    {view === "three-quarter"
+                      ? "Three-quarter"
+                      : view[0]!.toUpperCase() + view.slice(1)}
+                  </button>
+                ),
+              )}
+            </div>
+          </div>
         </TransportKeys>
 
         <aside className="am-scene-aside" aria-label="About the scene">
@@ -269,11 +238,11 @@ export default function SceneMovie(props: {
             {composition.performers.map(
               (p: IPlaygroundComposition.IPerformer): ReactElement => (
                 <li key={p.subject}>
-                  <span className="am-mono">{p.subject}</span>,{" "}
+                  <span className="am-mono">{p.subject}</span>{" "}
                   {roles[p.subject]}
                   <span className="am-muted">
                     {" "}
-                    ({p.body}, {p.proficiency})
+                    {p.body}, {p.proficiency}
                   </span>
                 </li>
               ),
@@ -286,15 +255,19 @@ export default function SceneMovie(props: {
                 {(composition.objects ?? []).map(
                   (o: IPlaygroundComposition.IObject): ReactElement => (
                     <li key={o.subject}>
-                      <span className="am-mono">{o.subject}</span>,{" "}
+                      <span className="am-mono">{o.subject}</span>{" "}
                       {/* A full navigation: an archetype's page reads its
                           request from the address once, when it mounts. */}
                       <a
-                        href={`${SITE_BASE}/objects/?subject=${o.producer}${o.kind === undefined ? "" : `&variant=${o.kind}`}`}
+                        href={`${SITE_BASE}/archetypes/?subject=${o.producer}${o.kind === undefined ? "" : `&variant=${o.kind}`}`}
                       >
                         {formatArchetypeLabel(o.producer)}
                       </a>
-                      {o.kind === undefined ? "" : ` (${o.kind})`}
+                      {o.kind === undefined ? (
+                        ""
+                      ) : (
+                        <span className="am-muted"> {o.kind}</span>
+                      )}
                     </li>
                   ),
                 )}
@@ -303,7 +276,7 @@ export default function SceneMovie(props: {
           )}
           {SceneFacts.features(scene).length === 0 ? null : (
             <>
-              <h2>Composed</h2>
+              <h2>Composed with</h2>
               <ul className="am-plain">
                 {SceneFacts.features(scene).map(
                   (feature: string): ReactElement => (
@@ -314,67 +287,140 @@ export default function SceneMovie(props: {
             </>
           )}
           <h2>Actions</h2>
-          <p className="am-mono am-small">
+          <ul className="am-tags">
             {SceneFacts.actions(scene).map(
-              (name: string, i: number): ReactElement => (
-                <span key={name}>
-                  {i === 0 ? "" : ", "}
-                  {props.pages[name] === undefined ? (
-                    name
+              (name: string): ReactElement => (
+                <li key={name}>
+                  {props.motions.includes(name) ? (
+                    <Link href={`/motions/${name}/`}>{name}</Link>
                   ) : (
-                    <Link href={`/motions/${props.pages[name]}/#${name}`}>
-                      {name}
-                    </Link>
+                    <span>{name}</span>
                   )}
-                </span>
+                </li>
               ),
             )}
-          </p>
+          </ul>
+          <div className="am-scene-links">
+            <Link
+              className="am-button am-button-primary"
+              href={`/playground/${PlaygroundAddress.encode({
+                ...composition,
+                version: PlaygroundAddress.VERSION,
+              })}`}
+            >
+              Open in the playground
+            </Link>
+            <button
+              type="button"
+              className="am-button"
+              onClick={(): void => void copy()}
+            >
+              Copy link
+            </button>
+            <span className="am-muted am-small" role="status">
+              {notice}
+            </span>
+          </div>
         </aside>
       </div>
 
-      <div className="am-actions" role="group" aria-label="This scene">
-        <div className="am-tabs-inline" role="group" aria-label="Panel">
-          <button
-            type="button"
-            aria-pressed={panel === "variations"}
-            onClick={(): void => setPanel("variations")}
-          >
-            Variations
-          </button>
-          <button
-            type="button"
-            aria-pressed={panel === "made"}
-            onClick={(): void => setPanel("made")}
-          >
-            How is this made?
-          </button>
-        </div>
-        <Link
-          className="am-button"
-          href={`/playground/${PlaygroundAddress.encode({
-            ...composition,
-            version: PlaygroundAddress.VERSION,
-          })}`}
-        >
-          Customise
-        </Link>
-        <button type="button" onClick={(): void => void copy()}>
-          Copy link
-        </button>
-        {/* The live region stays mounted and only its text changes, so the
-            copy is announced. */}
-        <span className="am-muted" role="status">
-          {notice ?? ""}
-        </span>
+      {/* The tabs take one stop in the tab order; the arrow keys, Home and
+          End move between them, as the WAI-ARIA tabs pattern sets. */}
+      <div
+        className="am-tabs"
+        role="tablist"
+        aria-label="This scene"
+        onKeyDown={(event: KeyboardEvent<HTMLDivElement>): void => {
+          const at: number = PANELS.indexOf(panel);
+          const next: number | null =
+            event.key === "ArrowRight"
+              ? (at + 1) % PANELS.length
+              : event.key === "ArrowLeft"
+                ? (at + PANELS.length - 1) % PANELS.length
+                : event.key === "Home"
+                  ? 0
+                  : event.key === "End"
+                    ? PANELS.length - 1
+                    : null;
+          if (next === null) return;
+          event.preventDefault();
+          choose(PANELS[next]!);
+          document.getElementById(`am-tab-${PANELS[next]!}`)?.focus();
+        }}
+      >
+        {PANELS.map(
+          (id: Panel): ReactElement => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              id={`am-tab-${id}`}
+              aria-selected={panel === id}
+              aria-controls={`am-panel-${id}`}
+              tabIndex={panel === id ? 0 : -1}
+              onClick={(): void => choose(id)}
+            >
+              {id === "code"
+                ? "Code"
+                : id === "timeline"
+                  ? "Timeline"
+                  : `Takes (${scene.takes.length})`}
+            </button>
+          ),
+        )}
       </div>
 
-      {panel === "variations" ? (
-        <section aria-label="Variations" className="am-stack">
-          <p className="am-muted">
-            The same composition in {scene.takes.length} takes, played on the
-            player&apos;s clock: each changes one choice and keeps the rest.
+      <section
+        role="tabpanel"
+        id="am-panel-code"
+        aria-labelledby="am-tab-code"
+        className="am-panel-body"
+        hidden={panel !== "code"}
+      >
+        <p className="am-muted">
+          Each person is a chain of typed actions from{" "}
+          <code>@automovie/motions</code>. This is what an agent writes for the
+          scene;{" "}
+          <Link href="/reference/motion/composing/">Composing motion</Link>{" "}
+          explains the parts.
+        </p>
+        <pre className="am-code">
+          <code>{formatSceneChain(composition, props.names!)}</code>
+        </pre>
+      </section>
+      <section
+        role="tabpanel"
+        id="am-panel-timeline"
+        aria-labelledby="am-tab-timeline"
+        className="am-panel-body"
+        hidden={panel !== "timeline"}
+      >
+        <p className="am-muted">
+          Each person&apos;s actions on the film clock, with their named
+          instants, as the engine placed them.
+        </p>
+        {player === null ? (
+          <p className="am-status" role="status">
+            The timeline appears when the take is drawn.
           </p>
+        ) : (
+          <SceneTimeline timeline={player.take.timeline} roles={roles} />
+        )}
+      </section>
+      <section
+        role="tabpanel"
+        id="am-panel-takes"
+        aria-labelledby="am-tab-takes"
+        className="am-panel-body"
+        hidden={panel !== "takes"}
+      >
+        <p className="am-muted">
+          The same composition in {scene.takes.length} takes on the
+          player&apos;s clock. Each changes one choice and keeps the rest; the
+          other takes are computed in this page, which takes a few seconds.
+        </p>
+        {/* The takes are computed only once their tab has been opened. */}
+        {opened ? (
           <ul className="am-take-grid">
             {scene.takes.map(
               (take: IScene.ITake, index: number): ReactElement => (
@@ -384,40 +430,27 @@ export default function SceneMovie(props: {
                     take={index}
                     clock={clock}
                     label={take.label}
-                    onLoad={extend}
+                    baked={props.baked && index === 0 ? "scene" : undefined}
+                    poster={
+                      props.baked && index === 0
+                        ? BakedClient.address("scene", scene.id, "svg")
+                        : undefined
+                    }
+                    onLoad={(loaded: IScenePlayer): void => {
+                      clock.duration = Math.max(
+                        clock.duration,
+                        loaded.duration,
+                      );
+                      clock.seek(clock.time);
+                    }}
                   />
                   <span className="am-take-label">{take.label}</span>
                 </li>
               ),
             )}
           </ul>
-        </section>
-      ) : (
-        <section aria-label="How is this made?" className="am-stack">
-          <p>
-            Each person is a chain of actions from{" "}
-            <code>@automovie/motions</code>. This is the code an agent writes
-            for this scene; the{" "}
-            <Link href="/docs/composing-motion/">guide</Link> explains the
-            parts.
-          </p>
-          <pre className="am-code">
-            <code>{formatSceneChain(composition, props.names!)}</code>
-          </pre>
-          {timeline === "none" ? null : (
-            <>
-              <h2>Timeline</h2>
-              {timeline === null ? (
-                <p className="am-status" role="status">
-                  Computing the timeline.
-                </p>
-              ) : (
-                <SceneTimeline timeline={timeline} roles={roles} />
-              )}
-            </>
-          )}
-        </section>
-      )}
+        ) : null}
+      </section>
     </main>
   );
 }

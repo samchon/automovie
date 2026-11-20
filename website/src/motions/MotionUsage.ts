@@ -70,10 +70,19 @@ export namespace MotionUsage {
     return { scenes, first };
   }
 
+  /** Seconds a trial of one motion alone stands before the motion starts. */
+  export const OPENING: number = 0.5;
+
   /** What a "Try it" link opens, and what it says. */
   export interface ITrial {
     /** The link's text. */
     label: string;
+
+    /** Whether the motion is tried by one person alone, rather than in the first scene that performs it. */
+    alone: boolean;
+
+    /** The scene it is tried in; null when it is tried alone. */
+    scene: string | null;
 
     /** The playground composition it opens. */
     composition: IPlaygroundComposition;
@@ -115,6 +124,8 @@ export namespace MotionUsage {
     )
       return {
         label: "Try it alone",
+        alone: true,
+        scene: null,
         composition: {
           version: 1,
           seed: "try",
@@ -127,7 +138,7 @@ export namespace MotionUsage {
               yaw: 0,
               proficiency: "trained",
               actions: [
-                { name: "stand", params: { seconds: 0.5 } },
+                { name: "stand", params: { seconds: OPENING } },
                 { name, params },
               ],
             },
@@ -146,6 +157,8 @@ export namespace MotionUsage {
     if (playing === undefined || playing.composition === null) return null;
     return {
       label: `Try it in ${playing.title}`,
+      alone: false,
+      scene: playing.id,
       composition: {
         ...playing.composition,
         version: PlaygroundAddress.VERSION,

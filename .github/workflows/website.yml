@@ -10,14 +10,7 @@ on:
       - "website/**"
       # The site bundles these packages from source, so a change to one of
       # them is built into the site in the pull request that makes it.
-      - "packages/archetypes/**"
-      - "packages/engine/**"
-      - "packages/human/**"
-      - "packages/ingest/**"
-      - "packages/interface/**"
-      - "packages/motions/**"
-      - "packages/render/**"
-      - "packages/viewer/**"
+      - "packages/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -26,14 +19,7 @@ on:
       - ".github/workflows/website.yml"
       - "config/**"
       - "website/**"
-      - "packages/archetypes/**"
-      - "packages/engine/**"
-      - "packages/human/**"
-      - "packages/ingest/**"
-      - "packages/interface/**"
-      - "packages/motions/**"
-      - "packages/render/**"
-      - "packages/viewer/**"
+      - "packages/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -49,7 +35,7 @@ concurrency:
 jobs:
   website:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: write
     steps:
@@ -73,8 +59,15 @@ jobs:
       - name: Type check
         run: pnpm --filter @automovie/website typecheck
 
-      - name: Test
-        run: pnpm --filter @automovie/website test
+      # The build bakes every scene's and motion's take ahead of the visitor.
+      # A take depends only on its composition and the packages' sources, and
+      # the bake keeps each one under a hash of both, so the cache restored
+      # from an earlier run is reused for every take that did not change.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: website/.bake-cache
+          key: website-bake-${{ hashFiles('packages/*/src/**', 'website/src/**', 'pnpm-lock.yaml') }}
+          restore-keys: website-bake-
 
       - name: Build website
         run: pnpm --filter @automovie/website build

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import { MotionReference } from "../../../../motions/package/MotionReference";
-import type { IMotionReference } from "../../../../motions/structures/IMotionReference";
+import { BakedManifest } from "../../../../baked/BakedManifest";
+import { MotionIndex } from "../../../../motions/package/MotionIndex";
 import SceneMovie from "../../../../movies/SceneMovie";
 import { SCENES } from "../../../../scenes/SCENES";
+import { SceneFacts } from "../../../../scenes/SceneFacts";
 import { SceneChainNames } from "../../../../scenes/package/SceneChainNames";
 import { SceneStatus } from "../../../../scenes/package/SceneStatus";
 import type { IScene } from "../../../../scenes/structures/IScene";
@@ -46,8 +47,9 @@ export async function generateMetadata(props: IPageProps): Promise<Metadata> {
 }
 
 /**
- * One scene's route: its record and whether the installed packages compute
- * its takes, which the page then computes in the browser.
+ * One scene's route: its record, whether the installed packages compute its
+ * takes, whether the build baked its first take, and which of its actions
+ * have a motion page.
  *
  * @param props The route's parameters.
  * @returns The page.
@@ -58,26 +60,14 @@ export default async function ScenePage(
   const { id }: { id: string } = await props.params;
   const scene: IScene = SCENES.find((s: IScene): boolean => s.id === id)!;
 
-  // Each action links to its page of the motion reference.
-  const reference: IMotionReference = MotionReference.read();
-  const pages: Record<string, string> = Object.fromEntries([
-    ...reference.actions.map((a: IMotionReference.IRow): [string, string] => [
-      a.name,
-      "actions",
-    ]),
-    ...reference.families.flatMap(
-      (f: IMotionReference.IFamily): [string, string][] =>
-        f.rows.map((r: IMotionReference.IRow): [string, string] => [
-          r.name,
-          f.name,
-        ]),
-    ),
-  ]);
   return (
     <SceneMovie
       scene={scene}
       computes={SceneStatus.computes(SceneStatus.of(scene))}
-      pages={pages}
+      baked={BakedManifest.read().scenes[scene.id] !== undefined}
+      motions={SceneFacts.actions(scene).filter((name: string): boolean =>
+        MotionIndex.has(name),
+      )}
       names={
         scene.composition === null
           ? null

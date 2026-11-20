@@ -1,0 +1,128 @@
+---
+title: Evidence configuration
+---
+
+# Evidence configuration
+
+This page is the evidence check's configuration and formats. [Evidence graph](/docs/screenplay/evidence-graph) in the guide explains what the check is for and what it holds a production to.
+
+## Configuration
+
+A production created by `automovie create` already has `evidence.config.ts`. With nothing else set, the engineering defaults apply: every exported source declaration and test answers the shared development checklists, and the narrative checks are off.
+
+```ts
+import { createEvidenceConfig } from "@automovie/evidence";
+
+export default createEvidenceConfig({ location: import.meta.dirname });
+```
+
+A production that writes a screenplay adds `narrative`. `construction` turns each layer's check on with `"evidence"` and off with `"disabled"`:
+
+```ts
+export default createEvidenceConfig({
+  location: import.meta.dirname,
+  narrative: {
+    mode: "short",
+    construction: { brief: "evidence", screenplay: "evidence" },
+  },
+});
+```
+
+`short` is a brief followed by the screenplay. `long` has four layers: settings, treatments, scripts and screenplay. `none` checks no narrative layer and serves a screenplay that no narrative pass writes. A layer left out of `construction` stays a disabled draft, and setting a finished layer back to `"disabled"` leaves the layers still running unaffected. `scope` limits the checks to the first part a pilot covers; the default is the complete work.
+
+The code joins the graph through `development`, and the studies through `research`:
+
+```ts
+export default createEvidenceConfig({
+  location: import.meta.dirname,
+  research: "evidence",
+  development: {
+    entities: "evidence",
+    behaviors: "evidence",
+    composition: "evidence",
+  },
+});
+```
+
+These options select these respondents:
+
+| Option | Respondents |
+| --- | --- |
+| `research` | Each study in `docs/research/` |
+| `development.entities` | Exports under `src/entities/` |
+| `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` |
+| `development.composition` | Exports under `src/composition/`, which also cite the screenplay |
+
+With `development.composition`, every screenplay section and beat must be realized by some scene composition, and every scene file by the film that plays it. Under `narrative: { mode: "none" }`, the composition and entities must also realize every section of `docs/instructions/`, with no exclusion allowed, because no narrative layer cites them.
+
+## Writing an answer
+
+### In source
+
+A source declaration answers in its doc comment, with one `@evidence <target> <reason>` tag per item or citation:
+
+```ts
+/**
+ * Mara cues the lift and Jun reads it a beat late.
+ *
+ * @evidence docs/body/screenplay/rehearsal/030-lift.md#s03-b04 Realizes Mara's press, Jun's late read and the short landing.
+ * @evidence contracts/development/composition.md#screenplay-realization Realizes beat s03-b04 as written; the beat record left no decision to the code.
+ * @evidence contracts/development/composition.md#composition-only Composes the accepted press and lift modules; places absolute time at the section start.
+ */
+```
+
+### In a narrative layer
+
+The Evidence answerer writes a narrative unit's answers in a separate file, so the body stays readable. Unit answers live under `docs/evidence/construction/units/<layer>/`, mirroring the body's path, and whole-file answers under `docs/evidence/construction/files/<layer>/`. The H1 names the exact file and anchor, and each H2 is one `@evidence` heading followed by its answer:
+
+```markdown
+# docs/body/screenplay/rehearsal/030-lift.md#s03
+
+## @evidence shared/principles/screenplay.md#beat-decisions
+
+Each beat decides intent, outcome and reaction; the late read and the short landing are performable by the lift law the study describes.
+
+## @evidence brief/cast/mara.md#lead-hand
+
+The section keeps Mara's leading hand in the press that cues the lift.
+```
+
+The answerer changes no body. A question it cannot answer truthfully goes back to the writer as a gap, with the passage and the statement it fails.
+
+## Exclusions
+
+An item that does not apply is declined with `@evidenceExclude <target> <reason>`, and the reason names the concrete cause. A missing output or a failure is never inapplicability. In a narrative body, the writer records the exclusion in an HTML comment below the respondent's H2, or above the file's first heading. An `OMITTED` beat is covered by an exclusion on the scene composition that would have realized it:
+
+```ts
+/**
+ * @evidenceExclude docs/body/screenplay/rehearsal/030-lift.md#s03-b05 The beat is OMITTED; the lift no longer has a second attempt.
+ */
+```
+
+## Diagnostics
+
+Each failure is a diagnostic with a code:
+
+| Code | Cause |
+| --- | --- |
+| `graph-missing-acknowledgement` | A parent unit that no respondent cites, such as a brief decision the screenplay no longer cites |
+| `graph-checklist-missing` | A respondent that leaves a checklist item unanswered |
+| `graph-single-evidence-per-symbol` | A respondent that cites more parents than its relation allows, such as a scene file claiming two script scenes |
+| `graph-missing-review` | A unit whose review carries no current fingerprint |
+| `graph-stale-review` | A review whose unit text changed after it was read |
+
+The review codes are described in [Independent review](/docs/screenplay/review).
+
+## Running the check
+
+`pnpm run evidence` runs the check in a production. The exit code is 0 for a complete analysis without errors, 1 for violations and 2 for an invalid configuration or an incomplete analysis.
+
+These commands narrow the check:
+
+```bash
+npx evidence list
+npx evidence inspect <target>
+npm run evidence -- --only <targets...>
+```
+
+`list` prints the configured targets, `inspect` explains one, and `--only`, optionally with `--shallow`, checks only those targets.

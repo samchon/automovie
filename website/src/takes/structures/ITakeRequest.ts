@@ -24,14 +24,4 @@ export type ITakeRequest =
 
       /** The composition, which the worker builds again unless it built it last. */
       composition: IPlaygroundComposition;
-    }
-  | {
-      /** Prepare one of the site's bodies and give its measures. */
-      kind: "body";
-
-      /** The pairing id. */
-      id: number;
-
-      /** The body's id, a key of `PLAYGROUND_BODIES`. */
-      body: string;
     };

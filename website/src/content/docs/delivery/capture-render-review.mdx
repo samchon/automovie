@@ -1,0 +1,76 @@
+---
+title: Capture, render and review
+---
+
+# Capture, render and review
+
+Three commands turn a production's films into pictures. Capture draws stills for the agent to judge, render exports the film, and review records playback for you to watch. Capture and render draw through one function in headless Chromium, so a still and an exported frame show the same picture; review records the inspector page the production's Viewer serves.
+
+Install the browser and the recorder once per production:
+
+```bash
+pnpm run review:setup
+```
+
+## Capture
+
+`pnpm run capture` runs `automovie capture --module src/subjects.ts`. It draws each planned still of a film and writes the stills, contact sheets and `record.json` into `media/capture/<film>/`, or into `--out <dir>`:
+
+```bash
+pnpm run capture --subject catalog --from 12 --to 14 --events 13.1 --views "right;three-quarter@ortho"
+```
+
+Every other option is a key of the capture request, written with `--` before it. The inspector page's address carries the same keys, so a picture found on the page repeats on the command line. These keys are used most:
+
+| Key | Asks for |
+| --- | --- |
+| `subject` | The film to draw, the module's only one by default |
+| `from`, `to`, `rate` | An even sampling, five stills per second by default |
+| `at` | Exact seconds separated by commas, instead of an even sampling |
+| `events`, `window` | Every frame within `window` frames, three by default, of each listed second |
+| `views` | View texts separated by `;`, such as `front`, `right@ortho` or `three-quarter@focus=<pattern>` |
+| `passes` | Several shades sharing each view's camera, such as `beauty,pose,depth` |
+| `marks` | Marks such as `joint`, `bone` and `contact` drawn over the picture |
+| `round`, `compare` | Keeping the capture as a named round, and comparing it cell by cell with an earlier round |
+
+The [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every key with the requirement it serves. A request the subject cannot give, such as an unknown view or a time outside the film, is refused before anything is drawn.
+
+The record keeps the revision, the request as text, one row per planned cell with its hash, backend and resolved camera, or the cause it was not drawn. Capture exits 1 when a cell could not be drawn.
+
+### Capturing a video file
+
+`--file` captures an encoded or generated file's own frames instead of a drawn film. It finds the cuts with FFmpeg's `scdet` and draws frame-exact stills around every cut and event:
+
+```bash
+pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from 60 --to 70
+```
+
+FFmpeg comes from `FFMPEG_PATH` or `ffmpeg-static`.
+
+## Render
+
+`pnpm run render` runs `automovie render --module src/subjects.ts`. It draws every frame of one film through the capture's draw function and encodes them once with FFmpeg:
+
+```bash
+pnpm run render --subject <film>
+```
+
+`--subject` may be omitted while only one film exists. The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it, whose hashes describe the drawn frames. Export requires a whole number of frames. The scaffold's render produces picture only; commissioned sound and caption tracks are added with a documented assembly command or a production tool you approve.
+
+A finished render says only that capture and encoding ran. The film is still judged on stills from the source and from the encoded file, and by you on playback.
+
+## Review
+
+`pnpm run review` runs `automovie review`. With `pnpm run dev` running, it presses the inspector's Play button and records real-time playback as a video, with `playback.json` of the time readout and the page's errors:
+
+```bash
+pnpm run review --url "http://127.0.0.1:5173/?subject=<film>" --seconds 20
+```
+
+The recording goes into `media/automovie/review/`, or into `--out <dir>`, for you to watch. Review exits 1 when the page reported a script error.
+
+## Backends
+
+Capture and render use SwiftShader through ANGLE, a software renderer, by default, so they need no GPU. `--backend gpu` uses the machine's GPU instead. Every still's record names the backend, the Chromium version and the WebGL renderer, and pixels are compared only between stills of one backend. `CHROME_PATH` selects another browser.
+
+[CLI](/reference/cli) lists every command and option.

@@ -1,0 +1,103 @@
+---
+title: Objects and archetypes
+---
+
+# Objects and archetypes
+
+An object says where a person meets it through its affordances: a seat, a handle, a surface, a bar, an articulation or an opening. The motion laws read those affordances, so no coordinate of the object is written by hand. Any model that declares affordances works, and `@automovie/archetypes` supplies coarse ones for the things people hold, use, sit on, ride and fight with.
+
+## Objects in a performance
+
+`HumanObject` gives the actions what they read of an object, placed where the scene puts it. `HumanObject.seat` makes a seat, and `HumanObject.prop` a prop a hand can take:
+
+```ts
+import { createDrinkware, createSeat } from "@automovie/archetypes";
+import { HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+
+const chair = createSeat({ kind: "dining" }, "scene-3/chair-1");
+const glass = createDrinkware({ kind: "glass" });
+
+new HumanPerformance({
+  seed,
+  performers,
+  props: [HumanObject.prop("glass", glass, { at: { x: 0.2, y: 0.74, z: 0.4 }, yaw: 0 })],
+  composition: HumanChain.subject("a")
+    .sit({ seat: HumanObject.seat(chair, { at: { x: 0, y: 0, z: -0.5 }, yaw: 0 }) })
+    .pickUp({ prop: "glass", handle: "body" }).node,
+});
+```
+
+A prop's affordance ids are also its named points, so `{ kind: "prop", subject: "glass", point: "lip" }` is a target. An affordance the object lacks is refused with the ones it has.
+
+### Held objects
+
+A hand keeps what it picked up until an action puts it down or hands it over. An action that works with the held object names it, and the object's own point meets the target instead of the bare hand:
+
+```ts
+chain.pickUp({ prop: "glass", handle: "body" }).handToFace({ task: "drink", prop: "glass" });
+```
+
+Any other use of a holding hand is refused, naming the free hand.
+
+### Seats
+
+A seat too low to sit down on from standing is refused with the least height that fits. A seat higher than the feet reach the floor from is not refused: the body gets onto it, and the feet take its rests or hang. `HumanObject.seat` reads those rests from the object, such as a stool's bar, a bicycle's pedals or a horse's stirrups, together with whether the seat is sat astride and the side it is mounted from.
+
+## Archetypes
+
+An archetype is a coarse model made by a typed producer function from parameters and a seed. It is as plain as recognising the thing allows: a chair is a seat, a back and four legs. What a person's act reads is exact. Seat heights, handle heights, risers and treads, grip diameters and a saddle's height each come from a cited standard or measurement, and a seed varies them only inside the cited band.
+
+```ts
+import { createDoor, createSeat } from "@automovie/archetypes";
+
+const chair = createSeat({ kind: "dining" }, "scene-3/chair-1"); // every free dimension drawn in its band
+const stool = createSeat({ kind: "barStool", seatHeight: 0.78 }); // one dimension fixed, the rest at mid-band
+
+const door = createDoor({ hinge: "left", hardware: "lever" }, 7);
+const open = door.articulate({ hinge: 70 }); // the leaf, its lever and their contacts moved
+open.affordance("pull").frame; // the lever's grip on the open leaf
+```
+
+With the source revision, dependencies and runtime fixed, the same parameters and seed give the same model. A producer's affordance ids and dimension names are closed types, so a misspelt one fails the type check. A request a producer cannot honour throws an `ArchetypeRefusal` that names the axis at fault and what would have been accepted.
+
+The producers are grouped in families, each also a subpath such as `@automovie/archetypes/furniture`:
+
+| Subpath | Covers |
+| --- | --- |
+| `/props` | Drinkware, devices, bags, boxes, tools, tableware, food, lights and other hand-held things |
+| `/furniture` | Seats, beds, tables, storage and other furniture |
+| `/architecture` | Doors, windows, stairs, ramps, walls, ladders, fixtures and machines |
+| `/vehicles` | Cars, bicycles, motorcycles, carts, wheelchairs and boats, with their rides |
+| `/animals` | Quadrupeds such as horses, dogs and oxen, with their rides and gait tables |
+| `/weapons` | Handguns, long guns, swords, shields, bows and other weapons |
+| `/gym` | Barbells, dumbbells, benches, bars, racks and other gym equipment |
+| `/sport` | Balls, rackets, clubs, poles, mats and other sport equipment |
+| `/music` | Instruments and microphones |
+| `/nature` | Fire rings, rocks, tents and trees |
+| `/environments` | Place builders that compose a set from placed items |
+
+Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands, such as `createSeat.BANDS`. [Archetypes](/archetypes/) shows the families drawn.
+
+## Articulations and rides
+
+A door's leaf, a drawer, a lever and a bicycle's crank are parts bound to an articulation affordance. `archetype.articulate({ id: travel })` returns the archetype with those parts, and every contact that rides them, moved. A travel outside the articulation's range is refused.
+
+A ride moves an archetype along a course of straight legs and turns, from rest to a cruising speed and back to rest:
+
+```ts
+import { createCar, driveCar } from "@automovie/archetypes";
+
+const car = createCar({ kind: "sedan" }, 3);
+const ride = driveCar(car, {
+  start: { x: 0, z: 0, heading: 0 },
+  legs: [{ kind: "straight", length: 30 }, { kind: "turn", radius: 12, angle: 90 }],
+  cruise: 8,
+  acceleration: 2,
+  deceleration: 3,
+});
+ride.frame("driverSeat", 6.5); // the seat's world frame, to keep a driver on
+```
+
+## Beyond archetypes
+
+By default a person is the polygon man, an object comes from `@automovie/archetypes`, and anything else is a coarse form the production builds. An object the hint does not need stays a description in the screenplay. Detail for a direct 3D film is an option added to the same entity, after the motion is accepted on the coarse form.

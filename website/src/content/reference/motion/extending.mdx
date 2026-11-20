@@ -1,0 +1,116 @@
+---
+title: Extending the vocabulary
+---
+
+# Extending the vocabulary
+
+A beat can name an action the installed vocabulary lacks. The production then registers the action with the vocabulary, and the vocabulary composes, cuts, refuses and checks it like its own actions. A registered name never replaces a vocabulary name, and registering changes no other action's motion.
+
+## Choosing the route
+
+Take the first route that fits:
+
+1. Compose again: try the closest action's other parameters, another target, effector, object, manner or seed, or join actions with an overlay or a mutual action.
+2. Register a row: a shipped action under a name of its own, with some parameters fixed.
+3. Register a law: a new action that owns what no shipped action plans.
+
+An installed action that fails under documented use is a package defect. The agent reports it with the composition and the refusal, keeps the case visible and continues independent work.
+
+## The lexicon
+
+Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. `HUMAN_LEXICON` lists every family's rows as data, and `HUMAN_LEXICON_SCHEMAS` gives each row's parameters as a JSON schema:
+
+```ts
+import { HumanChain, HumanEmblem, HumanPerformance, HumanStageFight } from "@automovie/motions";
+
+const { salute } = HumanEmblem;
+const { slap } = HumanStageFight;
+const Chain = HumanChain.extend({ salute, slap });
+
+new HumanPerformance({
+  seed,
+  performers,
+  laws: [salute, slap],
+  composition: Chain.subject("a").salute().slap({ target: { kind: "person", subject: "b", region: "jawLeft" } }).node,
+});
+```
+
+A lexicon row leaves open only what the scene decides: a target, a partner, a destination.
+
+## A row
+
+A row writes no motion. The action it is a row of plans it, so it is fitted, refused and checked as that action is, cuts like it and is carried over a walk where that action can be. `HumanActionRow.of` names the row and fixes its parameters:
+
+```ts
+import { HumanActionRow, HumanChain, HumanPerformance, touch } from "@automovie/motions";
+
+// A touch with its target, effector, kind, hand and elbow fixed.
+const salute = HumanActionRow.of("salute", touch, {
+  target: { kind: "self", region: "templeRight" },
+  with: "forefinger", // the hand continues the forearm, palm down
+  kind: "hold",
+  side: "right",
+  elbow: "level", // the upper arm horizontal
+});
+
+const Chain = HumanChain.extend({ salute });
+new HumanPerformance({
+  seed,
+  performers,
+  laws: [salute],
+  composition: Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand().node,
+});
+```
+
+The chain method takes the parameters the row leaves open, here `hold`.
+
+### A table entry
+
+Some actions plan from a table of entries, such as the tasks of `handToFace`. An entry the table lacks is a row too, given as the table's own row type:
+
+```ts
+const shave = HumanActionRow.of("shave", handToFace, {
+  task: { region: "jawRight", effector, kind: "rub", count: 3, hold: 0.2, tangent: "up", head: 0, at: "atJaw" },
+});
+```
+
+A row takes only its study's values.
+
+## A law
+
+A law is for an action that owns what no shipped action plans:
+
+- a change of base, such as a way onto or off a support;
+- an outcome rule between performers;
+- a planner of its own, for a path, a pattern of steps or a sequence no shipped planner lays out.
+
+A law is a record satisfying `IHumanActionLaw<Params>`: a `name`, the cuts it allows, `interrupts` and `accepts` for what may be cut into it, and a `plan`. The plan is composed from the kernel the vocabulary uses, a clock, a base and part primitives passed to `composeAutoMovieMotionHumanAction`. A law is registered the same way as a row, through `laws` and `HumanChain.extend`.
+
+## What an extension owes
+
+An extension starts from its research. The study under `docs/research/<discipline>/<topic>.md` supplies the laws, limits and measurable targets the extension follows, because a law written without a study invents the practice.
+
+The extension then owes these in the production:
+
+- its source in `src/laws/<discipline>/`, answering the behaviors contract in its doc comments;
+- unit tests against its study, which evaluate the resolved plan at its event times and assert each bound on the result across bodies;
+- a clean `HumanVerdicts` report for its case;
+- an accepted catalog case, judged on stills, recorded in `docs/acceptance/catalog.md`.
+
+A row or law other productions would need goes into a shared workspace package. The production keeps its registered copy until `@automovie/motions` ships the action.
+
+## Refusals and their fixes
+
+A `HumanRefusal` names the performer, the action and its occurrence, the axis at fault, the value given, what the axis accepts and one sentence saying what to change. Its fields carry the same values:
+
+```ts
+import { HumanRefusal } from "@automovie/motions";
+
+try {
+  new HumanPerformance(input);
+} catch (error) {
+  if (error instanceof HumanRefusal) console.log(error.kind, error.axis, error.value, error.feasible, error.fix);
+}
+```
+
+A refusal is repaired at the axis it names, adjusting the preceding actions where needed. `HumanRefusal.KINDS` lists the classes with the place each is repaired. Among the feasible repairs, the agent chooses the one that realizes the beat. A feasible beat outside the vocabulary goes through the routes above. A physically infeasible beat returns to the screenplay, to the layer that owns the decision.

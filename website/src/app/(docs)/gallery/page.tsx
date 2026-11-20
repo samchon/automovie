@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import GalleryRedirect from "../../../movies/GalleryRedirect";
+import ForwardMovie from "../../../movies/ForwardMovie";
 
 export const metadata: Metadata = {
   title: "Objects",
@@ -9,12 +9,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * The gallery's old address. The objects moved to `/objects/`, and the
- * polygon man to `/human/`; a link to this page arrives at the same subject
- * there.
+ * The archetypes' oldest address, which forwards to `/archetypes/` with its
+ * query.
  *
  * @returns The page.
  */
 export default function GalleryPage(): ReactElement {
-  return <GalleryRedirect />;
+  return <ForwardMovie to="/archetypes/" label="Archetypes" query />;
 }

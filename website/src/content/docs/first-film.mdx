@@ -1,0 +1,92 @@
+---
+title: Your first film
+---
+
+import { Steps } from "nextra/components";
+
+# Your first film
+
+You direct the production in natural language. The agent asks what it cannot decide, records your answers, writes the screenplay and the code, and reports what it verified. This page follows a short from the first request to the handoff.
+
+## What you tell the agent
+
+Start with what you want to make and where the work should stop. The agent is the director of every commission, and its first task is intake.
+
+At intake it confirms these points with you:
+
+- the deliverables: a screenplay, a film-generation hint or a finished video;
+- which creative decisions you make yourself and which you delegate, such as events, characters, ending, tone, runtime and frame;
+- the writing route for the screenplay.
+
+The writing route decides how the screenplay is produced:
+
+| Route | What happens |
+| --- | --- |
+| This workflow, recommended | A writer develops the screenplay through the route's layers, Evidence and review |
+| Without this workflow | A writer drafts the screenplay directly from your instructions |
+| Your screenplay, refined | Your text enters as material and goes through the route's layers |
+| Your screenplay, fixed | Your text is used exactly as given |
+
+The agent records your answers before it assigns a writer. After that it asks only when a decision you kept blocks the work, or when two fixed conditions conflict. A delegated choice is made by the agent and recorded with its reason, without another round of permission.
+
+## Where your decisions are kept
+
+Two files hold what you decided:
+
+- `PROJECT.md` holds the commission, its scope, the representation, the adopted approach, the tools and models, and what you fixed, delegated or left open;
+- `docs/instructions/*.md` holds the creative requirements, one H1 per topic and an anchored H2 per requirement, each marked as your direction, a quotation or a delegated choice.
+
+Later layers cite the instruction sections they realize, so a requirement that no layer realizes fails the evidence check.
+
+## What the agent writes
+
+A short with the recommended workflow and a film-generation hint follows these steps.
+
+<Steps>
+
+### Discovery and research
+
+The agent assigns each instruction and delegated choice to the layer that owns it. It studies each practice the film shows, such as a sport, a craft or a camera style, under `docs/research/<discipline>/<topic>.md`, and keeps permitted source copies under `references/`.
+
+### The brief
+
+A writer subagent writes the brief under `docs/body/brief/<domain>/<subject>.md`: only the decisions about people, places and recurring props that several scenes must keep true, one file per subject, with an anchor per decision.
+
+### The screenplay
+
+The writer writes one file per scene under `docs/body/screenplay/<film>/NNN-<scene>.md`. Each beat ends with a record that decides intent, outcome, reaction, space, camera and sound, and cites the brief. [Writing scenes](/docs/screenplay/writing-scenes) shows the format.
+
+### The programmed draft
+
+The agent builds the cast and sets as coarse entities under `src/entities/`, accepts each motion module in the catalog film, and composes each scene under `src/composition/scenes/<film>/<scene>/`. It judges the film on captured stills and repairs each cause where it lies: in the screenplay, the brief or the code.
+
+### Evidence
+
+A separate Evidence answerer reads the brief and screenplay against the selected contracts and writes the answers under `docs/evidence/construction/`. A question it cannot answer truthfully goes back to the writer as a gap.
+
+### Independent review
+
+A fresh reviewer reads the annotation-free brief and screenplay as their audience, then compares them with their parents and contracts. The writer accepts or refuses each finding with reasons and repairs the accepted ones, in the code too.
+
+### Assembly and acceptance
+
+The agent assembles every main scene into the whole video, inspects stills from the source and from the encoded file, and records the result in `docs/acceptance/<film>.md`.
+
+</Steps>
+
+A series runs the same idea in four layers, and each layer closes its own Evidence and review before the next starts. [Authoring chain](/docs/screenplay/authoring-chain) describes both routes.
+
+## What you review
+
+The agent judges pictures on stills and cannot watch or listen. These checks are yours:
+
+- the decisions the agent brings to you at intake and when a fixed condition conflicts;
+- the screenplay text, if you want to read it before it is programmed;
+- the playback, which `pnpm run dev` plays and `pnpm run review` records as a video for you to watch;
+- the sound, when the commission has sound.
+
+Report what you saw against its film time, so the repair can find the frames. The acceptance record lists what you watched or heard and what nobody did.
+
+## The handoff
+
+The agent hands off the accepted output revision, the fixed inputs, the commands that reproduce it, the checks observed and by whom, and the remaining limits. For a whole motion hint it also hands off a shot list with each shot's frame range, resolved camera and lens. [The motion hint](/docs/delivery/motion-hint) describes what that output contains.
