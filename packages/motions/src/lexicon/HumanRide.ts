@@ -28,11 +28,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
-import {
-  acquireRideFoot,
-  admitPlacedRideFeet,
-  prepareRideFootSupports,
-} from "./placeRideFeet";
+import { placeRideFeet } from "./placeRideFeet";
 import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
 
 /**
@@ -173,7 +169,7 @@ export namespace HumanRide {
         return undefined;
       };
 
-      const { pedals, placed } = prepareRideFootSupports(context, support);
+      const { pedals, placed } = placeRideFeet.supports(context, support);
       for (const foot of placed)
         contacts.push({
           ...bears(foot.side === "left" ? "leftFoot" : "rightFoot", "plant"),
@@ -367,7 +363,7 @@ export namespace HumanRide {
           out.joints = { ...out.joints, ...grasp };
         for (const foot of placed)
           limbs[foot.side === "left" ? "leftLeg" : "rightLeg"] =
-            acquireRideFoot(foot, out, film, taken);
+            placeRideFeet.acquire(foot, out, film, taken);
         if (pedals.length === 0) return publish(out, now);
 
         // Where a pedal is further than the leg reaches with its knee still bent, the foot points down about its ball, as a cyclist's ankle does through the bottom of the stroke.
@@ -419,7 +415,7 @@ export namespace HumanRide {
           written(at, WorkingSeatRidePlan.withFrame),
       };
       if (placed.length !== 0)
-        admitPlacedRideFeet(context, placed, (at) => plan.posture(at), TAKE);
+        placeRideFeet.admit(context, placed, (at) => plan.posture(at), TAKE);
       if (alternatives === undefined) return plan;
 
       // Roots, the seat and both grips share an authored stationary domain only

@@ -35,7 +35,13 @@ export function playgroundVehicleCourse(
       tracks: IAutoMovieMotionHumanProp.ITrack[];
     }
   | undefined {
-  if (object.course === undefined) return undefined;
+  if (object.course === undefined) {
+    if (object.joints !== undefined)
+      throw new Error(
+        "Native joint keys need a vehicle course on " + object.subject + ".",
+      );
+    return undefined;
+  }
   if (
     object.worn !== undefined ||
     object.fixed === true ||

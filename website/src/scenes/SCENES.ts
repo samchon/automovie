@@ -11,6 +11,7 @@ import { SCENES_GAMES } from "./data/SCENES_GAMES";
 import { SCENES_GESTURES } from "./data/SCENES_GESTURES";
 import { SCENES_GYM } from "./data/SCENES_GYM";
 import { SCENES_HANDLING } from "./data/SCENES_HANDLING";
+import { SCENES_HOUSEHOLD } from "./data/SCENES_HOUSEHOLD";
 import { SCENES_INTERACTION } from "./data/SCENES_INTERACTION";
 import { SCENES_LABOUR } from "./data/SCENES_LABOUR";
 import { SCENES_PARTNER } from "./data/SCENES_PARTNER";
@@ -40,6 +41,7 @@ export const SCENES: readonly IScene[] = [
   ...SCENES_DAILY,
   ...SCENES_ASSISTANCE,
   ...SCENES_WARDROBE,
+  ...SCENES_HOUSEHOLD,
   ...SCENES_PLACES,
   ...SCENES_GESTURES,
   ...SCENES_STREET,

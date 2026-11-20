@@ -19,7 +19,12 @@ export function playgroundAidWalkAction(
   const action = performers.find(
     ({ subject }) => subject === object.aidWalk!.subject,
   )?.actions[0];
-  if (action?.name !== "aidWalk" || action.params.prop !== object.subject)
+  if (
+    action?.name !== "aidWalk" ||
+    action.params.prop !== object.subject ||
+    action.sync !== undefined ||
+    action.until !== undefined
+  )
     throw new Error(
       "The performer for " +
         object.subject +
