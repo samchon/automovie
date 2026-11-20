@@ -1,3 +1,9 @@
+import { AutoMovieGravity, projectileAt } from "@automovie/engine";
+import type {
+  IAutoMovieProjectile,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+
 import {
   type Archetype,
   ArchetypeCourse,
@@ -137,14 +143,137 @@ export function rideBicycle(
 }
 
 /**
- * Companion constant of {@link rideBicycle}.
+ * The bicycle lean limit and an airborne take over a grounded ride.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the limit, that no bicycle figure was read and what stands in for it.
- * @evidence contracts/development/design.md#principled-representation One named angle in degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The one limit the ride checks.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A named, marked constant, not a number inside the check.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the provisional lean limit and the hop composed over the grounded ride.
+ * @evidence contracts/development/design.md#principled-representation A named lean angle and a flight interval on the same clock as the course and contacts.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The bicycle owns the lean limit and the optional jump over its own ride.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the authored wheel and rider contact clock throughout the hop.
  */
 export namespace rideBicycle {
   /** The greatest lean, degrees: provisional. No figure for a bicycle was read at a source; the road motorcycle's limit of `rideMotorcycle.LEAN` is taken as the bound a narrower tyre does not exceed. */
   export const LEAN: number = 50;
+
+  /**
+   * Carry a bicycle through one level hop over a straight approach.
+   * The ground course gives horizontal motion and wheel phase. The bicycle
+   * and every named contact gain the same vertical ballistic displacement.
+   * At touchdown the grounded course continues with its original pose and
+   * forward speed.
+   *
+   * @param ride The bicycle's grounded ride.
+   * @param interval Takeoff and touchdown film seconds on one level,
+   * forward straight leg travelled at constant positive speed.
+   * @returns The same ride clock and drive with takeoff and touchdown instants.
+   * @throws {ArchetypeRefusal} When the interval lies outside the ride or the
+   * approach cannot supply one level straight at unchanged positive speed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the source of horizontal motion, vertical flight, the two support events and the refused approach.
+   * @evidence contracts/development/implementation.md#principled-implementation At standard gravity the vertical launch speed is half gravity times the flight time, so the ballistic path returns to the same floor at touchdown. The whole jump stays within one level forward straight at constant speed.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the interval and the existing course, then apply one lift function to both samplers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Grounded poses keep their original positions, and the arc is shared by the machine and its real contact frames. A grade, turn, reverse, or changing approach speed is refused.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The leg admission scans once and each sample adds one closed-form trajectory read during flight.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the ride's own samplers and the engine's gravitational trajectory.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps the ride, a flight parameter record and two additional instants for the life of the result.
+   */
+  export function hop(
+    ride: ReturnType<typeof rideBicycle>,
+    interval: readonly [number, number],
+  ): ReturnType<typeof rideBicycle> {
+    const [takeoff, touchdown]: typeof interval = interval;
+    if (
+      !Number.isFinite(takeoff) ||
+      !Number.isFinite(touchdown) ||
+      takeoff < 0 ||
+      touchdown <= takeoff ||
+      touchdown > ride.duration
+    )
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "bicycle",
+        axis: "hop.interval",
+        value: interval,
+        feasible: null,
+        reason:
+          "takeoff and touchdown must be increasing seconds within the ride",
+        fix: "give two ordered instants on the bicycle's ride",
+      });
+
+    const plan: ArchetypeCourse.IPlan = ride.plan;
+    const entry: ArchetypeCourse.IState = plan.at(takeoff);
+    const exit: ArchetypeCourse.IState = plan.at(touchdown);
+    const seconds: number = touchdown - takeoff;
+    const legIndex: number = plan.legSpans.findIndex(
+      (span: ArchetypeCourse.ILegSpan): boolean =>
+        entry.distance >= span.from && exit.distance <= span.from + span.span,
+    );
+    const leg: ArchetypeCourse.Leg | undefined =
+      plan.course.kind === "timed" ? undefined : plan.course.legs[legIndex];
+    if (
+      leg?.kind !== "straight" ||
+      leg.reverse === true ||
+      (leg.grade ?? 0) !== 0 ||
+      entry.speed <= 0 ||
+      Math.abs(exit.speed - entry.speed) > 1e-8 ||
+      Math.abs(exit.distance - entry.distance - entry.speed * seconds) > 1e-8
+    )
+      throw new ArchetypeRefusal({
+        kind: "parameter",
+        archetype: "bicycle",
+        axis: "hop.approach",
+        value: interval,
+        feasible: null,
+        reason:
+          "a level hop needs a straight approach at constant forward speed",
+        fix: "stage the complete hop within one level straight leg at cruising speed",
+      });
+
+    const gravity: number = AutoMovieGravity.STANDARD;
+    const flight: IAutoMovieProjectile = {
+      origin: { x: 0, y: 0, z: 0 },
+      velocity: { x: 0, y: (gravity * seconds) / 2, z: 0 },
+      gravity: { x: 0, y: -gravity, z: 0 },
+    };
+
+    /** Add the shared flight height while leaving the supported pose intact. */
+    const lift = (
+      placement: IAutoMovieTransform,
+      film: number,
+    ): IAutoMovieTransform => {
+      if (film <= takeoff || film >= touchdown) return placement;
+      const height: number = projectileAt(flight, film - takeoff).position.y;
+      return {
+        ...placement,
+        translation: {
+          ...placement.translation,
+          y: placement.translation.y + height,
+        },
+      };
+    };
+
+    return {
+      ...ride,
+      instants: [
+        ...ride.instants,
+        { seconds: takeoff, label: "takeoff" },
+        { seconds: touchdown, label: "touchdown" },
+      ].sort(
+        (
+          left: (typeof ride.instants)[number],
+          right: (typeof ride.instants)[number],
+        ): number => left.seconds - right.seconds,
+      ),
+      at: (film: number): ReturnType<typeof ride.at> => {
+        const sample: ReturnType<typeof ride.at> = ride.at(film);
+        const placement: IAutoMovieTransform = lift(sample.placement, film);
+        return placement === sample.placement
+          ? sample
+          : { ...sample, placement };
+      },
+      frame: (
+        id: createBicycle.Affordance,
+        film: number,
+      ): IAutoMovieTransform => lift(ride.frame(id, film), film),
+    };
+  }
 }
