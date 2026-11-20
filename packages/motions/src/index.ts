@@ -368,6 +368,7 @@ export * from "./lexicon/HumanPrecisionSport";
 export * from "./lexicon/HumanSurface";
 export * from "./lexicon/composeHumanStageProp";
 export * from "./lexicon/stageBladeFootwork";
+export * from "./lexicon/HumanStagePiste";
 export * from "./sport/aquatic";
 export * from "./sport/stickBall";
 export * from "./reaction/give";
