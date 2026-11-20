@@ -167,9 +167,14 @@
 .am-motion {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-  align-items: center;
+  align-items: start;
   gap: 2.5rem 3.5rem;
   padding-block: clamp(4rem, 9vw, 7rem);
+}
+
+.am-motion-copy {
+  position: sticky;
+  top: calc(var(--am-navbar) + 3rem);
 }
 
 .am-motion-copy p {
@@ -182,7 +187,7 @@
 /* The hero's own code from the clinch on, beside the copy */
 .am-motion-code {
   position: static;
-  align-self: center;
+  align-self: start;
   margin: 0;
 }
 
@@ -351,6 +356,11 @@
   .am-room-facts,
   .am-start-steps {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* In one column the copy scrolls with the page above the code. */
+  .am-motion-copy {
+    position: static;
   }
 
   /* The graph keeps a readable size and scrolls inside its frame. */
