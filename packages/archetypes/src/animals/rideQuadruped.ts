@@ -11,6 +11,7 @@ import { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
 import { EquineFootwork } from "./EquineFootwork";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
+import { QuadrupedFooting } from "./QuadrupedFooting";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import { QuadrupedJoints } from "./QuadrupedJoints";
@@ -209,6 +210,11 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     plan,
     gait,
   );
+  const ground: QuadrupedFooting.IPlan | undefined = QuadrupedFooting.prepare(
+    species.archetype,
+    course.footing,
+    footwork.slide !== undefined,
+  );
   /** Choose the next stride from the current route state or explicit footwork. */
   function decide(state: ArchetypeCourse.IState, from: Stride): Stride {
     const index: number = legIndex(state.distance);
@@ -332,26 +338,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       });
   }
 
-  /** Sample a foot's landing and its signed stance travel up to its own lift. */
-  function stance(
-    at: number,
-    stride: Stride,
-    fore: boolean,
-  ): QuadrupedHoofTrack.IStance {
-    const seconds: number = secondsAt(at);
-    const landed: ArchetypeCourse.IState = plan.at(seconds);
-    const timing: QuadrupedGait.ITiming = clock.timing(stride.gait, seconds);
-    const observed: number = fore
-      ? timing.duty
-      : (timing.hindDuty ?? timing.duty);
-    const duty: number = stride.reinBack ? Math.max(0.5, observed) : observed;
-    return {
-      duty,
-      landed,
-      travel: plan.at(secondsAt(at + duty)).progress - landed.progress,
-    };
-  }
-
+  const stance = QuadrupedHoofTrack.stances(plan, clock, secondsAt);
   const worldAnchors: boolean =
     plan.bends.length > 0 || departure !== undefined;
   /** Keep the source dimensions and the solver's actual quadruped size. */
@@ -408,8 +395,11 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           following,
           step.along,
           worldAnchors,
+          ground,
         ),
-        lift: going * which.lift[end] * withers * step.rise,
+        lift:
+          (going * which.lift[end] * withers + (ground?.swingLift ?? 0)) *
+          step.rise,
         fold: going * which.fold[end] * step.rise,
       };
       goals.set(
@@ -429,20 +419,19 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         phase,
         clock.timing(now, seconds).duty,
       );
-    return {
-      archetype: pose.sample(
-        {
-          leftFore: goals.get("leftFore")!,
-          rightFore: goals.get("rightFore")!,
-          leftHind: goals.get("leftHind")!,
-          rightHind: goals.get("rightHind")!,
-        },
-        nod,
-        -sink,
-        witness,
-      ),
-      placement: ArchetypeFrame.copy(state.placement),
-    };
+    const archetype: Archetype<Affordance, Dimension> = pose.sample(
+      {
+        leftFore: goals.get("leftFore")!,
+        rightFore: goals.get("rightFore")!,
+        leftHind: goals.get("leftHind")!,
+        rightHind: goals.get("rightHind")!,
+      },
+      nod,
+      -sink,
+      witness,
+    );
+    ground?.verify(archetype, state.placement);
+    return { archetype, placement: ArchetypeFrame.copy(state.placement) };
   };
   if (nativeCourse)
     ArchetypeRideWitness.authorize(
@@ -489,6 +478,8 @@ export namespace rideQuadruped {
   export interface ICourse extends Omit<ArchetypeCourse.ICourse, "legs"> {
     /** Begin a zero-speed course with all four actual neutral hoof anchors. */
     startFromStanding?: true;
+    /** Independently authored world landing surfaces and optional pole obstacles. */
+    footing?: QuadrupedFooting.IScene;
     /** The legs in order, at least one. */
     legs: readonly ILeg[];
   }

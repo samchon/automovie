@@ -1,4 +1,4 @@
-import { Quaternion } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -11,6 +11,7 @@ import type { ArchetypeRideWitness } from "../core/ArchetypeRideWitness";
 import { PrepareQuadrupedPose } from "./PrepareQuadrupedPose";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
+import type { QuadrupedFooting } from "./QuadrupedFooting";
 import type { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedLimb } from "./QuadrupedLimb";
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
@@ -63,7 +64,9 @@ export namespace QuadrupedRidePose {
     z: number;
     /** Model-space rotation of the terminal's neutral axis. Defaults to its neutral model-space direction. */
     orientation?: IAutoMovieQuaternion;
-    /** Exact terminal solid clearance above the local floor, nonnegative metres. */
+    /** Optional actual local landing plane. Defaults to the nominal model floor. */
+    surface?: QuadrupedFooting.ISurface;
+    /** Exact terminal solid clearance normal to its support surface, nonnegative metres. */
     lift: number;
     /** Relative carpus/hock fold beyond the actual neutral angle, degrees. */
     fold: number;
@@ -107,7 +110,7 @@ export namespace QuadrupedRidePose {
    * @throws {RangeError} For unsupported terminal solids, malformed neutral chains/carriers or physically incompatible current goals.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States actual-source identity, one-time preparation, fixed terminal orientation, exact cylinder/capsule support and root-included independent output.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserve each actual terminal axis, derive its exact lowest-surface endpoint offset and prepare the oriented four-link solve. The same source geometry supplies neutral parent frames and shared rigid FK.
+   * @evidence contracts/development/implementation.md#principled-implementation Preserve each actual terminal axis and derive its exact lowest-surface endpoint offset along the support normal before the oriented four-link solve. The same source geometry supplies neutral parent frames and shared rigid FK.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare complete carriage, actual pose state and four terminal solvers, then close over only that immutable source context.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Source geometry is never reconstructed from a species table, terminal radius is not ignored and the gait's bob is explicitly a soft whole-body preference rather than a hidden hard-path clamp.
    * @evidence contracts/development/implementation.md#efficient-algorithms Preparation indexes P actual parts, reads twenty limb points and prepares the B-bone rig once; each sample has linear actual-model work and four fixed-size closed-form solves.
@@ -141,7 +144,11 @@ export namespace QuadrupedRidePose {
     const ends: Readonly<
       Record<
         QuadrupedBody.Limb,
-        (orientation: IAutoMovieQuaternion | undefined, lateral: boolean) => End
+        (
+          orientation: IAutoMovieQuaternion | undefined,
+          lateral: boolean,
+          normal?: IAutoMovieVector3,
+        ) => End
       >
     > = {
       leftFore: end("leftFore"),
@@ -176,6 +183,7 @@ export namespace QuadrupedRidePose {
     ): (
       orientation: IAutoMovieQuaternion | undefined,
       lateral: boolean,
+      normal?: IAutoMovieVector3,
     ) => End {
       const chain: readonly IAutoMovieVector3[] = source.limbs[limb];
       const terminal: IAutoMovieModelPart | undefined = parts.get(
@@ -205,24 +213,34 @@ export namespace QuadrupedRidePose {
       return (
         orientation: IAutoMovieQuaternion | undefined,
         lateral: boolean,
+        normal?: IAutoMovieVector3,
       ): End =>
-        orientation === undefined && !lateral
+        orientation === undefined && !lateral && normal === undefined
           ? defaultSupport
           : support(
               orientation === undefined
                 ? axis
                 : Quaternion.rotateVector(orientation, axis),
               true,
+              normal,
             );
 
       /** Bind the exact support of the current terminal bar in model space. */
-      function support(direction: IAutoMovieVector3, lateral: boolean): End {
+      function support(
+        direction: IAutoMovieVector3,
+        lateral: boolean,
+        normal?: IAutoMovieVector3,
+      ): End {
         const radial: number =
           shape.type === "capsule"
             ? shape.radius
-            : shape.radius * Math.hypot(direction.x, direction.z);
-        const clearance: number =
-          Math.max(0, direction.y) * shape.height + radial;
+            : shape.radius *
+              (normal === undefined
+                ? Math.hypot(direction.x, direction.z)
+                : Vector3.length(Vector3.cross(direction, normal)));
+        const vertical: number =
+          normal === undefined ? direction.y : Vector3.dot(normal, direction);
+        const clearance: number = Math.max(0, vertical) * shape.height + radial;
         if (!(Number.isFinite(clearance) && clearance >= 0))
           throw new RangeError(
             `The ${limb} sole clearance is not representable`,
@@ -323,7 +341,9 @@ export namespace QuadrupedRidePose {
                       : 1,
                     targets.get(limb)!.endpoint.x,
                     goals[limb].z,
-                    goals[limb].lift,
+                    goals[limb].surface === undefined
+                      ? goals[limb].lift
+                      : targets.get(limb)!.endpoint.y,
                     goals[limb].fold,
                     goals[limb].orientation?.x ?? 0,
                     goals[limb].orientation?.y ?? 0,
@@ -342,7 +362,7 @@ export namespace QuadrupedRidePose {
       // below the same floor. Verify those actual solids after exact FK.
       const roundoff: number = 256 * Number.EPSILON * coordinateScale;
       for (const part of result.parts)
-        if (limbBones.has(part.id)) {
+        if (goals.leftFore.surface === undefined && limbBones.has(part.id)) {
           const lowest: number = QuadrupedRestFloor(part);
           if (!Number.isFinite(lowest) || lowest < -roundoff)
             throw new RangeError(
@@ -368,12 +388,27 @@ export namespace QuadrupedRidePose {
         const attachment: IAutoMovieVector3 = preview.frames.get(
           QuadrupedBody.BONES[limb][0]!,
         )!.translation;
-        const support: End = ends[limb](goal.orientation, goal.x !== undefined);
-        const endpoint: IAutoMovieVector3 = {
-          x: goal.x ?? attachment.x,
-          y: goal.lift + support.clearance,
-          z: goal.z,
-        };
+        const surface: QuadrupedFooting.ISurface | undefined = goal.surface;
+        const normal: IAutoMovieVector3 | undefined = surface?.normal;
+        const support: End = ends[limb](
+          goal.orientation,
+          goal.x !== undefined,
+          normal,
+        );
+        const x: number = goal.x ?? attachment.x;
+        let y: number = goal.lift + support.clearance;
+        if (surface !== undefined) {
+          const { normal, point } = surface;
+          if (!(normal.y > 0 && Number.isFinite(point.y)))
+            throw new RangeError(
+              `The ${limb} support plane does not face the actual body up axis`,
+            );
+          y =
+            point.y +
+            (y - normal.x * (x - point.x) - normal.z * (goal.z - point.z)) /
+              normal.y;
+        }
+        const endpoint: IAutoMovieVector3 = { x, y, z: goal.z };
         targets.set(limb, {
           endpoint,
           fold: goal.fold,

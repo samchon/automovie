@@ -239,7 +239,7 @@ function support(
   let body: number = Infinity;
   const bounds: { id: string; height: number }[] = [];
   for (const part of animal.parts) {
-    if (part.transform == null)
+    if (part.transform === null || part.transform === undefined)
       throw new RangeError(`Lateral rest requires a posed part ${part.id}`);
     const posed: IAutoMovieModelPart = {
       ...part,

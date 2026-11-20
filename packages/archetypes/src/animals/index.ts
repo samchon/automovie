@@ -32,6 +32,7 @@ export * from "./QuadrupedRestPlan";
 export * from "./QuadrupedRootRange";
 export * from "./QuadrupedSkeleton";
 export * from "./QuadrupedChange";
+export * from "./QuadrupedFooting";
 export * from "./QuadrupedGait";
 export * from "./QuadrupedJoints";
 export * from "./QuadrupedPose";

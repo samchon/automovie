@@ -9,7 +9,10 @@ import {
   ArchetypeFrame,
   ArchetypeRefusal,
 } from "../core";
+import type { QuadrupedFooting } from "./QuadrupedFooting";
+import type { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedMotion } from "./QuadrupedMotion";
+import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 
 /**
@@ -36,6 +39,46 @@ export namespace QuadrupedHoofTrack {
     landed: ArchetypeCourse.IState;
     /** Signed metres the body travels over the entire stance. */
     travel: number;
+  }
+
+  /**
+   * Read a stance from the admitted course and its gait clock.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Connects actual touchdown phase and hoof duty to the route's signed stance advance.
+   * @evidence contracts/development/implementation.md#principled-implementation Read native body states at touchdown and separately at release. A rein-back keeps at least one diagonal down.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reusable query combines phase-to-time, course distance and this gait's fore or hind duty.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Forward motion and signed reverse progress read the same route instead of synthesizing stance travel from speed.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two existing course reads and one gait timing read per queried stance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing route and resolved gait supply all geometry and timing.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the tiered course and clock readers stay with the returned sampler until the ride is released.
+   */
+  export function stances(
+    plan: ArchetypeCourse.IPlan,
+    clock: QuadrupedRideClock.IClock,
+    secondsAt: (phase: number) => number,
+  ): (
+    at: number,
+    stride: QuadrupedGait.IStride & { reinBack?: true },
+    fore: boolean,
+  ) => IStance {
+    return (
+      at: number,
+      stride: QuadrupedGait.IStride & { reinBack?: true },
+      fore: boolean,
+    ): IStance => {
+      const seconds: number = secondsAt(at);
+      const landed: ArchetypeCourse.IState = plan.at(seconds);
+      const timing: QuadrupedGait.ITiming = clock.timing(stride.gait, seconds);
+      const observed: number = fore
+        ? timing.duty
+        : (timing.hindDuty ?? timing.duty);
+      const duty: number = stride.reinBack ? Math.max(0.5, observed) : observed;
+      return {
+        duty,
+        landed,
+        travel: plan.at(secondsAt(at + duty)).progress - landed.progress,
+      };
+    };
   }
 
   /**
@@ -122,11 +165,12 @@ export namespace QuadrupedHoofTrack {
    * @param from Last committed stance.
    * @param to The next committed stance during swing. Omitted during stance.
    * @param amount The smooth swing progression from zero to one.
-   * @param worldAnchors Whether turns or an explicit standing start require world anchoring.
+   * @param worldAnchors Whether turns or a standing start require world anchoring.
+   * @param footing Optional independently placed world surfaces and authored obstacles.
    * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines frames, units and the optional next stance.
-   * @evidence contracts/development/implementation.md#principled-implementation Straight signed progress gives the same distance from the half-stance-centred landing in a common basis. A curved route anchors world-space points and frames and converts them to current model space. Swing interpolates the two adjacent landings.
+   * @evidence contracts/development/implementation.md#principled-implementation Straight signed progress gives the same distance from the half-stance-centred landing in a common basis. World-space points and frames anchor through turns, departures and terrain, then convert to current model space. A terrain landing also retains its support plane. Swing interpolates both adjacent landings.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan world points from landed states, optionally blend one next point/rotation, and apply the inverse current body placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The current yaw establishes only the relative readback and cannot reorient a planted sole in the world.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work over at most two admitted stances.
@@ -140,8 +184,9 @@ export namespace QuadrupedHoofTrack {
     to: IStance | undefined,
     amount: number,
     worldAnchors: boolean,
-  ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation"> {
-    if (!worldAnchors)
+    footing?: QuadrupedFooting.IPlan,
+  ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation" | "surface"> {
+    if (!worldAnchors && footing === undefined)
       return {
         z:
           rest.z +
@@ -151,11 +196,24 @@ export namespace QuadrupedHoofTrack {
       };
     const foot: IAutoMovieVector3 = anchor(rest, from);
     const landed: IAutoMovieQuaternion = from.landed.placement.rotation;
+    const oldGround: QuadrupedFooting.ILanding | undefined = footing?.landing(
+      foot,
+      landed,
+    );
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       state.placement.rotation,
     );
+    const nextFoot: IAutoMovieVector3 | undefined =
+      to === undefined ? undefined : anchor(rest, to);
+    const nextGround: QuadrupedFooting.ILanding | undefined =
+      nextFoot === undefined
+        ? undefined
+        : footing?.landing(nextFoot, to!.landed.placement.rotation);
+    const beginning: IAutoMovieVector3 = oldGround?.point ?? foot;
     const world: IAutoMovieVector3 =
-      to === undefined ? foot : Vector3.lerp(foot, anchor(rest, to), amount);
+      nextFoot === undefined
+        ? beginning
+        : Vector3.lerp(beginning, nextGround?.point ?? nextFoot, amount);
     const local: IAutoMovieVector3 = Quaternion.rotateVector(
       inverse,
       Vector3.subtract(world, state.placement.translation),
@@ -166,9 +224,28 @@ export namespace QuadrupedHoofTrack {
       orientation: Quaternion.multiply(
         inverse,
         to === undefined
-          ? landed
-          : Quaternion.slerp(landed, to.landed.placement.rotation, amount),
+          ? (oldGround?.rotation ?? landed)
+          : Quaternion.slerp(
+              oldGround?.rotation ?? landed,
+              nextGround?.rotation ?? to.landed.placement.rotation,
+              amount,
+            ),
       ),
+      ...(oldGround === undefined
+        ? {}
+        : {
+            surface: {
+              point: local,
+              normal: Quaternion.rotateVector(
+                inverse,
+                nextGround === undefined
+                  ? oldGround.normal
+                  : Vector3.normalize(
+                      Vector3.lerp(oldGround.normal, nextGround.normal, amount),
+                    ),
+              ),
+            },
+          }),
     };
   }
 
