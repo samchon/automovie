@@ -420,24 +420,33 @@ export namespace HumanSegmentPose {
    */
   export type IContinued = HumanSegmentPoseSeeds.IContinued;
   /**
-   * A posture with the person's layers added in order.
+   * The posture a following action carries. Native breathing is evaluated
+   * on the film clock when the pose is shown.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States ordered layer application; HumanSegmentLayer owns windows, contexts, ownership and cost details.
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same person, posture and film seconds to the shared ordered layer owner.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call preserves this entry point for displayed poses and entry-state construction.
+   * @evidence contracts/development/common.md#meaningful-documentation Describes the carried posture and the native breath evaluated separately by the displayed-pose path.
+   * @evidence contracts/development/implementation.md#principled-implementation Delegates the same person, posture and film seconds through the shared layer owner's entry evaluation.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One forwarding call selects entry evaluation for the layer owner.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No field, contact goal, random key or returned posture reference is transformed by the wrapper.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant wrapper work plus HumanSegmentLayer.apply's window scan and active layer/mix costs.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Displayed and entry-state evaluations use the same layer implementation while retaining separate input postures.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The wrapper retains nothing and returns the delegated posture reference unchanged.
    */
-  export function layered(
+  export function entryPosture(
     person: IAutoMovieMotionHumanSegment.IPerson,
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
     resolution?: prepareHumanSegmentPose.IPrepared["resolution"],
     projection?: prepareHumanSegmentPose.IPrepared["clamp"],
   ): IAutoMovieMotionHumanPosture {
-    return HumanSegmentLayer.apply(person, posture, seconds, resolution, projection);
+    return HumanSegmentLayer.apply(
+      person,
+      posture,
+      seconds,
+      resolution,
+      projection,
+      undefined,
+      "entry",
+    );
   }
 
   /**

@@ -8,6 +8,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
+import { HumanBreath } from "../everyday/HumanBreath";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
@@ -19,8 +20,8 @@ import { HumanSegmentSelection } from "./HumanSegmentSelection";
  *
  * @evidence contracts/development/common.md#meaningful-documentation Owns layer windows, weights and query contexts; the displayed-pose owner retains contacts, transitions and final fitting.
  * @evidence contracts/development/design.md#principled-representation Reads the existing placed-layer and person records and returns the existing posture representation, in world metres and clinical degrees at film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One apply operation serves HumanSegmentPose.layered and its displayed-pose and entry-state consumers; no new authored layer or fit representation is introduced.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Window ramps, random-stream keys and layer mixing retain their original owners and constants; no layer, action or scene receives a special path.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface One apply operation serves the displayed-pose and carried-entry consumers, using the same authored layer contract.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Display evaluation retains layer order, window ramps and stream keys. Entry evaluation skips only the native respiratory contribution identified by its producer.
  */
 export namespace HumanSegmentLayer {
   /**
@@ -34,12 +35,13 @@ export namespace HumanSegmentLayer {
    * @param seconds Film seconds.
    * @param resolution Optional same-body exact FK getter borrowed for this call; each layer receives a revocable synchronous loan.
    * @param projection Optional genuine same-body ROM projection, lent only through a revocable lazy layer getter.
+   * @param phase Display evaluates all active layers. Entry leaves native breath for that display evaluation.
    * @returns The mixed posture, preserving the existing endpoint identities.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States ordered windows, film seconds, the no-layer identity and the ownership and freshness of action-query results.
    * @evidence contracts/development/implementation.md#principled-implementation Each active window scales its layer's additive contribution by the same minimum-jerk edge ramp and mixHumanPosture; a layer's draw streams remain keyed by performer, layer name and channel.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Return immediately for an empty layer list; otherwise one action reader and one ordered reduction keep context construction with the layer that consumes it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Applies every active layer with its actual preceding posture and original window weight; random streams, action records and event arrays are not memoized or shared between queries.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Display applies every active layer at its actual weight and with its actual preceding posture. Entry skips only native breath before mixing the other layers in order. Caller-authored layers keep their existing behavior.
    * @evidence contracts/development/implementation.md#efficient-algorithms An empty list costs a length read and no context closure. For L layers, scan L windows and pay each active apply and posture mix; each action query reads R entries backward to its last match, at most S placed segments, and maps its E events in O(R+E) time and O(E) output space.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual posture/time, original draws and every apply remain current. A same-body parent may lend FK prerequisites and genuine direct-ROM metadata through separate lazy context getters during apply. Mixed raw postures receive ordinary native admission/fitting, without a partial-leg reuse assertion or cached layer/random/action answer.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each layer clears both borrowed sources in finally, and outer source parameters clear on return/throw. Retained context getters then create fresh independent preparations; the layer contract forbids retaining an obtained reader/projector. No result map or parent workspace enters output postures, and retained action callbacks keep only their original person/second state.
@@ -51,6 +53,7 @@ export namespace HumanSegmentLayer {
     resolution?: Resolution,
     projection?: Projection,
     assembly?: HumanAirborneShape.Assembly,
+    phase: "display" | "entry" = "display",
   ): IAutoMovieMotionHumanPosture {
     if (person.layers.length === 0) return posture;
 
@@ -86,7 +89,8 @@ export namespace HumanSegmentLayer {
           { layer, from, to, fade }: IAutoMovieMotionHumanSegment.ILayered,
         ): IAutoMovieMotionHumanPosture => {
           const edge: number = Math.min(seconds - from, to - seconds);
-          if (!(edge > 0)) return current;
+          if (!(edge > 0) || (phase === "entry" && HumanBreath.isNative(layer)))
+            return current;
           const weight: number = edge >= fade ? 1 : minimumJerk.share(edge / fade);
           const borrowed: ReturnType<typeof borrowResolution> | undefined =
             resolution === undefined ? undefined : borrowResolution(resolution);
