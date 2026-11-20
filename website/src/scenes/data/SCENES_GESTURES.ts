@@ -79,7 +79,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
     ],
     [
       object("counter", "createTable", "counter", 0, 0.65, 180),
-      object("camera", "createDevice", "camera", -0.18, 0.42, 0, 0.914),
+      object("camera", "createCamera", undefined, -0.18, 0.42, 0, 0.914),
     ],
   ),
   scene(

@@ -177,7 +177,11 @@ const addSdkConsumer = (directory) => {
   fs.writeFileSync(
     path.join(nested, "test_installed_sdk.ts"),
     `import assert from "node:assert/strict";
-import { createRing } from "@automovie/archetypes";
+import {
+  createCamera, createDesktopKeyboard, createLaptop, createPhone,
+  createRadio, createRemote, createRing, createTablet,
+} from "@automovie/archetypes";
+import * as props from "@automovie/archetypes/props";
 import { HumanChain } from "@automovie/motions";
 
 import type { IFilmProduction } from "../../../src/IFilmProduction";
@@ -186,17 +190,26 @@ import { starter } from "../../../src/composition/films/starter";
 /**
  * Execute installed SDK consumers through the generated nested test project.
  *
- * Scenarios: a real archetype, typed motion chain, and the generated film's
+ * Scenarios: whole archetypes, a typed motion chain and the generated film's
  * compiled furnished room are constructed after dynamic test discovery.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the nested runtime integration and actual installed SDK consumers.
- * @evidence contracts/development/testing.md#behavioral-verification Test discovery executes the public producers, including the environment subpath through the packed exports. A missing inherited lint configuration prevents discovery.
+ * @evidence contracts/development/testing.md#behavioral-verification Test discovery executes the root, props and environment exports from the installed package. A missing inherited lint configuration prevents discovery.
  * @evidence contracts/development/testing.md#independent-expectations A nonempty model, a composition node and the explicitly named bench follow from the authored fixture.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises root and environment subpath imports in a nested discovered module.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises identity across the two electronics entry points and tests both a measured model and an independent contact surface.
  * @evidence contracts/development/testing.md#execution-ownership Runs through the generated pnpm test command and its actual dynamic loader, without a browser or patched dependency.
  */
 export async function test_installed_sdk(): Promise<void> {
   assert.ok(createRing({ id: "sdk-consumer" }).parts.length > 0);
+  assert.equal(createCamera, props.createCamera);
+  assert.equal(createDesktopKeyboard, props.createDesktopKeyboard);
+  assert.equal(createLaptop, props.createLaptop);
+  assert.equal(createPhone, props.createPhone);
+  assert.equal(createRadio, props.createRadio);
+  assert.equal(createRemote, props.createRemote);
+  assert.equal(createTablet, props.createTablet);
+  assert.equal(createCamera({ model: "grIII" }).dimensions.width, 0.1094);
+  assert.equal(createPhone().affordance("screen").kind, "surface");
   assert.ok(HumanChain.subject("sdk-consumer").stand({ seconds: 1 }).node);
   const room: IFilmProduction = await starter().create();
   try {

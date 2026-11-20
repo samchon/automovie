@@ -6,8 +6,20 @@
 export interface IGalleryCatalogue {
   /** The groups, the archetype families in the package's order. */
   groups: IGalleryCatalogue.IGroup[];
+
+  /** Saved dispatchers whose variants each have their own displayed producer. */
+  aliases?: IGalleryCatalogue.IAlias[];
 }
 export namespace IGalleryCatalogue {
+  /** An earlier subject and its variants, in the earlier default order. */
+  export interface IAlias {
+    /** The producer name used by the saved address. */
+    id: string;
+
+    /** Each earlier variant and the producer that now represents it. */
+    variants: { id: string; subject: string }[];
+  }
+
   /** One group of subjects. */
   export interface IGroup {
     /** The group's name: an archetype family, such as `furniture`. */

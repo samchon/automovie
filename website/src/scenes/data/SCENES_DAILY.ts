@@ -151,8 +151,8 @@ export const SCENES_DAILY: readonly IScene[] = [
       // Turned half round, so its typist's +Z side faces the chair.
       object(
         "keyboard",
-        "createKeyboard",
-        "keyboard",
+        "createDesktopKeyboard",
+        undefined,
         -1.2,
         0.48,
         180,
@@ -277,7 +277,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
     ],
     [
-      worn("camera", "createDevice", "camera", "ivy", "chest", {
+      worn("camera", "createCamera", undefined, "ivy", "chest", {
         x: 0,
         y: 0,
         z: 0.14,

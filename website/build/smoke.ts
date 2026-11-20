@@ -30,6 +30,7 @@ import {
 import { SCENES } from "../src/scenes/SCENES";
 import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
+import "./catalogue/check";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -262,6 +263,29 @@ const CASES: readonly ICase[] = [
     arrives: "archetypes/?subject=createSeat",
     shows: ['.am-viewport[aria-busy="false"] canvas'],
     lacks: [".am-viewport-error"],
+  },
+  {
+    name: "the old camera variant opens the named camera and keeps its seed",
+    path: "archetypes/?subject=createDevice&variant=camera&seed=7",
+    arrives: "archetypes/?subject=createCamera&seed=7",
+    shows: [
+      '.am-viewport[aria-busy="false"] canvas',
+      'aside[aria-label="Details"] td:text-is("thickness")',
+      'a[href$="/scenes/snapshot/"]:text-is("Snapshot")',
+    ],
+    lacks: [".am-viewport-error"],
+    contexts: 1,
+  },
+  {
+    name: "the old quadruped address opens the horse and keeps its seed",
+    path: "archetypes/?subject=createQuadruped&variant=horse&seed=7",
+    arrives: "archetypes/?subject=createHorse&seed=7",
+    shows: [
+      '.am-viewport[aria-busy="false"] canvas',
+      'aside[aria-label="Details"] td:text-is("withersHeight")',
+    ],
+    lacks: [".am-viewport-error"],
+    contexts: 1,
   },
   {
     name: "the motion catalogue shows its stills and opens a motion's page",

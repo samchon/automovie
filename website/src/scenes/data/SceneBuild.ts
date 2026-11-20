@@ -138,7 +138,7 @@ export namespace SceneBuild {
     stand: string,
     thing: string,
     producer: string,
-    kind: string,
+    kind: string | undefined,
     x: number,
     z: number,
   ): IPlaygroundComposition.IObject[] {
@@ -199,7 +199,7 @@ export namespace SceneBuild {
   export function worn(
     thing: string,
     producer: string,
-    kind: string,
+    kind: string | undefined,
     wearer: string,
     bone: string,
     position: { x: number; y: number; z: number },
@@ -207,7 +207,7 @@ export namespace SceneBuild {
     return {
       subject: thing,
       producer,
-      kind,
+      ...(kind === undefined ? {} : { kind }),
       x: 0,
       z: 0,
       yaw: 0,

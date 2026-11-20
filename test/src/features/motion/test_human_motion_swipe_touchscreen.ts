@@ -1,4 +1,4 @@
-import { createDevice } from "@automovie/archetypes";
+import { createPhone, createTablet } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
@@ -31,6 +31,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
  * 2. Reversing the authored endpoints reverses the visible path.
  * 3. The law refuses an off-screen endpoint, an unrepresentable stroke,
  *    an approach from behind the glass and a cut while contact is active.
+ * 4. The same stroke works on a smartphone's narrower screen.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the displayed pose, contact phases, bidirectional screen path and invalid endpoint case.
  * @evidence contracts/development/testing.md#behavioral-verification Checks displayed index bones through HumanHand, film events, the registered plan's unloaded contact window, and the public refusal.
@@ -64,8 +65,7 @@ export function test_human_motion_swipe_touchscreen(): void {
     y: (0.2486 * Math.cos(tilt)) / 2,
     z: -0.007 / 2,
   };
-  const model: ReturnType<typeof createDevice> = createDevice({
-    kind: "tablet",
+  const model: ReturnType<typeof createTablet> = createTablet({
     model: "wifi",
   });
   const tablet: IAutoMovieMotionHumanProp = HumanObject.prop("tablet", model, {
@@ -73,6 +73,19 @@ export function test_human_motion_swipe_touchscreen(): void {
     rotation,
     fixed: true,
   });
+  const phone: IAutoMovieMotionHumanProp = HumanObject.prop(
+    "phone",
+    createPhone({ width: 0.07, height: 0.15, thickness: 0.008 }),
+    {
+      position: Vector3.subtract(center, {
+        x: (-0.15 * Math.sin(tilt)) / 2,
+        y: (0.15 * Math.cos(tilt)) / 2,
+        z: -0.008 / 2,
+      }),
+      rotation,
+      fixed: true,
+    },
+  );
   const perform = (
     from: number,
     to: number,
@@ -80,7 +93,13 @@ export function test_human_motion_swipe_touchscreen(): void {
     fixture: IAutoMovieMotionHumanProp = tablet,
     cut?: "relax" | 1,
   ): HumanPerformance => {
-    const intent = { prop: "tablet", screen: "screen", from, to, seconds };
+    const intent = {
+      prop: fixture.subject,
+      screen: "screen",
+      from,
+      to,
+      seconds,
+    };
     const chain = Chain.subject("a")
       .stand({ seconds: 0.6, sway: 0 })
       .swipeTouchscreen(intent);
@@ -106,8 +125,17 @@ export function test_human_motion_swipe_touchscreen(): void {
     });
   };
 
-  for (const sign of [1, -1]) {
-    const performance: HumanPerformance = perform(-sign / 4, sign / 4);
+  for (const [fixture, glassWidth, sign] of [
+    [tablet, 0.1795, 1],
+    [tablet, 0.1795, -1],
+    [phone, 0.07 * 0.94, 1],
+  ] as const) {
+    const performance: HumanPerformance = perform(
+      -sign / 4,
+      sign / 4,
+      undefined,
+      fixture,
+    );
     const segment: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
     const event = (name: string): number =>
       segment.plan.events.find(
@@ -131,14 +159,14 @@ export function test_human_motion_swipe_touchscreen(): void {
       );
     const hand: IAutoMovieMotionHumanContactWindow | undefined = hands[0];
     TestValidator.predicate(
-      "only the acting index fingertip contacts the tablet during the swipe",
+      `only the acting index fingertip contacts the ${fixture.subject} during the swipe`,
       hands.length === 1 &&
         hand !== undefined &&
         hand.part === "rightHand" &&
         hand.region === "indexTipRight" &&
         hand.load === 0 &&
         hand.support.kind === "prop" &&
-        hand.support.subject === "tablet" &&
+        hand.support.subject === fixture.subject &&
         Math.abs(hand.from - start) < 1e-6 &&
         Math.abs(hand.to - end) < 1e-6,
     );
@@ -147,9 +175,9 @@ export function test_human_motion_swipe_touchscreen(): void {
       Math.abs((end - start) * duration - 0.285) < 0.005,
     );
     for (const [share, along] of [
-      [start, -0.1795 / 4],
+      [start, -glassWidth / 4],
       [(start + end) / 2, 0],
-      [end, 0.1795 / 4],
+      [end, glassWidth / 4],
     ] as const) {
       const expected: IAutoMovieVector3 = Vector3.add(
         center,

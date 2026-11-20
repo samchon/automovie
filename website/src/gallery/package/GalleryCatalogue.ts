@@ -15,9 +15,8 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
  * variants are the closed list it carries beside it, `KINDS` or `FRAMES`,
  * and the parameters it needs beyond its variant
  * are its `REFERENCE`, the stated instance it carries for a caller without
- * a site. Nothing here names a producer or a kind, so
- * one a package adds, in a family it already has or a new one, appears
- * without a change to the site.
+ * a site. A dispatcher whose variants already have distinct single-form
+ * exports supplies aliases for its old addresses.
  */
 export namespace GalleryCatalogue {
   /** A displayed archetype with optional physical mass properties. */
@@ -41,8 +40,8 @@ export namespace GalleryCatalogue {
     /** The parameters a producer needs beyond its variant, as the stated reference instance it carries, such as a cell front's narrowest width. */
     REFERENCE?: Readonly<Record<string, unknown>>;
 
-    /** A dispatcher's public variant factories; only the selected child's stated reference parameters are read, so one variant's required inputs never alter its siblings. */
-    PRODUCERS?: Readonly<Record<string, Pick<IProducer, "REFERENCE">>>;
+    /** A dispatcher's public variant factories, each with its own reference parameters. */
+    PRODUCERS?: Readonly<Record<string, IProducer>>;
   }
 
   /** The archetype families, by subpath, in the package's order. */
@@ -99,18 +98,32 @@ export namespace GalleryCatalogue {
   /**
    * Everything the gallery can show.
    *
-   * @returns The catalogue: every family's producers with their variants.
+   * @returns The displayed producers and aliases for dispatchers they represent.
    */
   export function catalogue(): IGalleryCatalogue {
-    return {
-      groups: [
-        ...Object.entries(FAMILIES).map(
-          ([name, family]): IGalleryCatalogue.IGroup => ({
-            name,
-            subjects: Object.entries(producers(family)).map(
-              ([id, made]): IGalleryCatalogue.ISubject => {
-                const { key, list } = variants(made);
-                return {
+    const aliases: IGalleryCatalogue.IAlias[] = [];
+    const groups: IGalleryCatalogue.IGroup[] = Object.entries(FAMILIES).map(
+      ([name, family]): IGalleryCatalogue.IGroup => {
+        const entries: [string, IProducer][] = Object.entries(
+          producers(family),
+        );
+        const subjects: Map<IProducer, string> = new Map(
+          entries.map(([id, made]): [IProducer, string] => [made, id]),
+        );
+        return {
+          name,
+          subjects: entries.flatMap(
+            ([id, made]): IGalleryCatalogue.ISubject[] => {
+              const { key, list }: ReturnType<typeof variants> = variants(made);
+              const replacements:
+                | IGalleryCatalogue.IAlias["variants"]
+                | undefined = replacementsOf(subjects, made, list);
+              if (replacements !== undefined) {
+                aliases.push({ id, variants: replacements });
+                return [];
+              }
+              return [
+                {
                   id,
                   label: formatArchetypeLabel(id),
                   group: name,
@@ -121,12 +134,38 @@ export namespace GalleryCatalogue {
                       label: variant,
                     }),
                   ),
-                };
-              },
-            ),
-          }),
-        ),
-      ],
-    };
+                },
+              ];
+            },
+          ),
+        };
+      },
+    );
+    return { groups, aliases };
+  }
+
+  /** Finds a separate single-form export for every variant of a dispatcher. */
+  function replacementsOf(
+    subjects: ReadonlyMap<IProducer, string>,
+    made: IProducer,
+    list: readonly string[],
+  ): IGalleryCatalogue.IAlias["variants"] | undefined {
+    if (made.PRODUCERS === undefined || list.length === 0) return undefined;
+    const replacements: IGalleryCatalogue.IAlias["variants"] = [];
+    const used: Set<string> = new Set();
+    for (const id of list) {
+      const selected: IProducer | undefined = made.PRODUCERS[id];
+      if (
+        selected === undefined ||
+        selected === made ||
+        variants(selected).list.length > 0
+      )
+        return undefined;
+      const subject: string | undefined = subjects.get(selected);
+      if (subject === undefined || used.has(subject)) return undefined;
+      used.add(subject);
+      replacements.push({ id, subject });
+    }
+    return replacements;
   }
 }
