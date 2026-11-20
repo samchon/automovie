@@ -65,6 +65,9 @@ export namespace IAutoMovieMotionHumanAquatic {
     /** Start offset as a fraction of a stroke or figure for crew contrast, in [0, 1]. */
     phase?: number;
 
+    /** Bow or stroke station on an articulated racing shell for double scull. */
+    station?: "bow" | "stroke";
+
     /** Polo attack or defense, artistic figure role, or dinghy crew role. */
     role?:
       | "attack"

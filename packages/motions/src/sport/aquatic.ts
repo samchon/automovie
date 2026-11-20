@@ -12,6 +12,7 @@ import { AquaticPaddle } from "./AquaticPaddle";
 import { AquaticPolo } from "./AquaticPolo";
 import { AquaticPool } from "./AquaticPool";
 import { AquaticSail } from "./AquaticSail";
+import { AquaticScull } from "./AquaticScull";
 import { AquaticTeam } from "./AquaticTeam";
 
 /**
@@ -49,6 +50,9 @@ export namespace aquatic {
       case "artisticSwim":
         return AquaticTeam.artistic(context, water);
       case "doubleScull":
+        return context.params.station === undefined
+          ? AquaticPaddle.plan(context, context.params.kind)
+          : AquaticScull.plan(context, context.params.station);
       case "canoeStroke":
       case "kayakStroke":
         return AquaticPaddle.plan(context, context.params.kind);
