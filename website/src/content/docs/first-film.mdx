@@ -36,7 +36,7 @@ Two files hold what you decided:
 - `PROJECT.md` holds the commission, its scope, the representation, the adopted approach, the tools and models, and what you fixed, delegated or left open;
 - `docs/instructions/*.md` holds the creative requirements, one H1 per topic and an anchored H2 per requirement, each marked as your direction, a quotation or a delegated choice.
 
-Later layers cite the instruction sections they realize, so a requirement that no layer realizes fails the evidence check.
+Later layers cite the instruction sections they realize, so the evidence graph reports a requirement that no layer realizes.
 
 ## What the agent writes
 
@@ -50,7 +50,7 @@ The agent assigns each instruction and delegated choice to the layer that owns i
 
 ### The brief
 
-A writer subagent writes the brief under `docs/body/brief/<domain>/<subject>.md`: only the decisions about people, places and recurring props that several scenes must keep true, one file per subject, with an anchor per decision.
+A writer subagent writes the brief under `docs/body/brief/<domain>/<subject>.md`: a record for each cast character, location and recurring or plot-driving prop, and every rule the premise depends on, one file per subject, with an anchor per decision.
 
 ### The screenplay
 
@@ -66,7 +66,7 @@ A separate Evidence answerer reads the brief and screenplay against the selected
 
 ### Independent review
 
-A fresh reviewer reads the annotation-free brief and screenplay as their audience, then compares them with their parents and contracts. The writer accepts or refuses each finding with reasons and repairs the accepted ones, in the code too.
+A fresh reviewer reads the annotation-free screenplay as its audience, then the brief as its writer and designer, and compares them. The writer accepts or refuses each finding with reasons and repairs the accepted ones, in the code too.
 
 ### Assembly and acceptance
 

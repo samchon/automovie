@@ -26,15 +26,22 @@ const MEETING: IPlaygroundComposition = {
       actions: [
         { name: "walk", params: { to: to(0, 1.25) } },
         { name: "stand", params: { seconds: 0.6 } },
-        { name: "handshake", params: { partner: "ben" } },
+        {
+          name: "handshake",
+          params: { partner: "ben" },
+          anchor: "mt-shake",
+        },
         { name: "gesture", params: { kind: "palmsUp" } },
         { name: "highFive", params: { partner: "ben" } },
         {
           name: "look",
           params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
+          anchor: "mt-look",
         },
         { name: "gesture", params: { kind: "wave" } },
-        { name: "stand", params: { seconds: 1 } },
+        { name: "gesture", params: { kind: "nod" } },
+        { name: "gesture", params: { kind: "palmsUp" } },
+        { name: "stand", params: { seconds: 0.6 } },
       ],
     },
     {
@@ -45,8 +52,14 @@ const MEETING: IPlaygroundComposition = {
       yaw: 180,
       proficiency: "trained",
       actions: [
-        { name: "look", params: { target: at("ana", "face"), seconds: 2.4 } },
-        { name: "handshake", params: { partner: "ana" } },
+        { name: "look", params: { target: at("ana", "face"), seconds: 0.8 } },
+        { name: "gesture", params: { kind: "nod" } },
+        { name: "stand", params: { seconds: 2 } },
+        {
+          name: "handshake",
+          params: { partner: "ana" },
+          sync: { of: "mt-shake", event: "clasp", align: "clasp" },
+        },
         { name: "gesture", params: { kind: "nod" } },
         { name: "highFive", params: { partner: "ana" } },
         { name: "gesture", params: { kind: "shrug" } },
@@ -54,7 +67,9 @@ const MEETING: IPlaygroundComposition = {
           name: "look",
           params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
         },
-        { name: "stand", params: { seconds: 1 } },
+        { name: "gesture", params: { kind: "raiseHand" } },
+        { name: "gesture", params: { kind: "nod" } },
+        { name: "gesture", params: { kind: "shrug" } },
       ],
     },
     {
@@ -65,12 +80,28 @@ const MEETING: IPlaygroundComposition = {
       yaw: 0,
       proficiency: "trained",
       actions: [
+        { name: "checkPhone", params: { seconds: 1.5 } },
         {
           name: "approach",
           params: { target: at("ben", "face"), at: "social" },
         },
-        { name: "gesture", params: { kind: "wave" } },
-        { name: "rest", params: { left: "pocket", right: "hip", seconds: 2 } },
+        { name: "stand", params: { seconds: 3 } },
+        {
+          name: "gesture",
+          params: { kind: "wave" },
+          sync: {
+            of: "mt-look",
+            event: "start",
+            align: "strokeStart",
+            offset: -0.2,
+          },
+        },
+        {
+          name: "rest",
+          params: { left: "pocket", right: "hip", seconds: 1.4 },
+        },
+        { name: "gesture", params: { kind: "palmsUp" } },
+        { name: "gesture", params: { kind: "nod" } },
       ],
     },
   ],
@@ -159,7 +190,7 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     id: "meeting",
     title: "Meeting in a square",
     summary:
-      "One person walks up to another; they shake hands, high-five and talk with their hands; a third walks up, waves and rests a hand in a pocket and one on the hip.",
+      "Two friends shake hands and high-five; a third walks over, waves and joins the chat.",
     setting: "everyday",
     cast: [
       { subject: "ana", role: "friend" },

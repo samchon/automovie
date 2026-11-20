@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, object, person, scene }: typeof SceneBuild = SceneBuild;
+const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
 
 /** World-space centre and dimensions of the Swim Strokes pool, in metres. */
 const SWIM_POOL: Readonly<{
@@ -18,9 +18,9 @@ export const SCENES_FIELD: readonly IScene[] = [
   scene(
     {
       id: "five-a-side",
-      title: "Five-a-side",
+      title: "Throw-in and goal",
       summary:
-        "A small-sided game: a throw-in, a header, a chest and a thigh trap, and a left-footed shot the keeper dives right for at the instant it is struck.",
+        "A throw-in is headed on and chest-trapped, and the striker scores past a diving keeper.",
       setting: "sport",
       roles: {
         ali: "winger",
@@ -32,16 +32,66 @@ export const SCENES_FIELD: readonly IScene[] = [
     },
     "five-a-side",
     [
-      person("ali", "m1", -3, 0, 90, [act("throwIn")]),
-      person("bea", "f1", 0, 0, 270, [act("header")]),
-      person("cyr", "m2", 0, 3, 0, [
-        act("chestTrap"),
+      person("ali", "m1", -3, -5.4, 0, [
+        act("jog", { to: to(-3, 0), face: 90 }),
+        act("look", { with: "trunk", target: at("bea", "face") }),
+        act("gesture", { kind: "point", target: at("cyr", "face") }),
+        act("throwIn", {}, { anchor: "fs-throw" }),
+        act("jog", { to: to(-1.5, 1.5) }),
+        act("gesture", { kind: "cheer" }),
+      ]),
+      person("bea", "f1", 2.5, -2, 270, [
+        act("jog", { to: to(0.5, -3) }),
+        act("jog", { to: to(0, 0), face: 270 }),
+        act("gesture", { kind: "raiseHand", side: "left" }),
+        act(
+          "header",
+          {},
+          {
+            anchor: "fs-header",
+            sync: {
+              of: "fs-throw",
+              event: "stroke",
+              align: "contact1",
+              offset: 0.6,
+            },
+          },
+        ),
+        act("jog", { to: to(0.9, 2.6) }),
+        act("gesture", { kind: "cheer" }),
+      ]),
+      person("cyr", "m2", 2, 1, 0, [
+        act("jog", { to: to(2.3, 4) }),
+        act("jog", { to: to(0, 3), face: 0 }),
+        act("gesture", { kind: "raiseHand", side: "left" }),
+        act(
+          "chestTrap",
+          {},
+          {
+            sync: {
+              of: "fs-header",
+              event: "contact1",
+              align: "contact1",
+              offset: 0.5,
+            },
+          },
+        ),
         act("thighTrap"),
         act("kickLeft", { ball: "ball" }, { anchor: "shot" }),
+        act("fistPump"),
       ]),
       person("dag", "m1", 0, 11, 180, [
-        act("stand", { seconds: 6 }),
+        act("gesture", { kind: "clap", count: 2 }),
+        act("gesture", { kind: "point", target: at("bea", "face") }),
+        act("step", { direction: "left", steps: 1 }),
+        act("step", { direction: "right", steps: 2 }),
+        act("step", { direction: "left", steps: 1 }),
+        act("gesture", { kind: "clap", count: 2 }),
+        act("gesture", { kind: "stopPalm" }),
+        act("step", { direction: "right", steps: 1 }),
+        act("step", { direction: "left", steps: 1 }),
         act("goalkeeperDiveRight", {}, { sync: { of: "shot" } }),
+        act("getUp"),
       ]),
     ],
     // The ball at the striker's feet, ahead of where the support foot plants.
@@ -52,15 +102,18 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "shoot-around",
       title: "Shoot-around",
       summary:
-        "The guard picks up the ball from the court and chest-passes to the forward. The guard slides and raises both hands as the forward shoots at the rim.",
+        "A guard passes to a forward, contests his shot at the rim and shakes her head.",
       setting: "sport",
       roles: { eli: "guard", fen: "forward" },
       needs: [],
     },
     "shoot-around",
     [
-      person("eli", "f2", 0, 1.2, 0, [
+      person("eli", "f2", 0, -0.6, 0, [
+        act("gesture", { kind: "clap", count: 3 }),
+        act("jog", { to: to(0, 1.2), face: 0 }),
         act("pickUp", { prop: "ball", handle: "grip", lift: 0.15 }),
+        act("look", { with: "trunk", target: at("fen", "face") }),
         act(
           "ballSport",
           {
@@ -85,9 +138,21 @@ export const SCENES_FIELD: readonly IScene[] = [
             },
           },
         ),
+        act("look", {
+          with: "trunk",
+          cue: "seen",
+          target: {
+            kind: "point",
+            frame: "world",
+            at: { x: 0, y: 3.05, z: -0.474 },
+          },
+        }),
+        act("gesture", { kind: "shakeHead" }),
       ]),
-      person("fen", "m1", 0, 4, 180, [
-        act("stand", { seconds: 1 }),
+      person("fen", "m1", 2.4, 5.2, 270, [
+        act("jog", { to: to(1.6, 6.6) }),
+        act("jog", { to: to(0, 4), face: 180 }),
+        act("gesture", { kind: "raiseHand", side: "left" }),
         act(
           "stageCatch",
           { from: "chest", ball: "ball", intercept: 0.42 },
@@ -113,6 +178,7 @@ export const SCENES_FIELD: readonly IScene[] = [
             },
           },
         ),
+        act("fistPump"),
       ]),
     ],
     [
@@ -141,7 +207,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "vault-hall",
       title: "Vault hall",
       summary:
-        "One gymnast practices a cartwheel and a round-off. The other performs a standing handspring vault with hands on the box and feet landing on a mat.",
+        "One gymnast tumbles a floor line; the other vaults the box twice onto a mat.",
       setting: "sport",
       roles: { eun: "gymnast", flo: "gymnast" },
       needs: [],
@@ -150,12 +216,21 @@ export const SCENES_FIELD: readonly IScene[] = [
     "vault-hall",
     [
       person("eun", "f1", -3, -3.5, 90, [
+        act("gesture", { kind: "raiseHand" }),
         act("cartwheelRight"),
         act("roundOffRight"),
+        act("stand", { seconds: 0.3 }),
+        act("frontHandspring"),
+        act("handstand"),
+        act("gesture", { kind: "cheer" }),
       ]),
       person("flo", "f2", -1.5, 1, 90, [
-        act("stand", { seconds: 0.5 }),
+        act("gesture", { kind: "raiseHand" }),
         act("handspringVault", { on: "box", landOn: "mat" }),
+        act("jog", { to: to(-0.3, 2.2) }),
+        act("jog", { to: to(-1.5, 1), face: 90 }),
+        act("handspringVault", { on: "box", landOn: "mat" }),
+        act("gesture", { kind: "raiseHand" }),
       ]),
     ],
     [
@@ -168,7 +243,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "swim-strokes",
       title: "Swim strokes",
       summary:
-        "Five swimmers: breaststroke, backstroke, floating on the back, four cycles of front crawl, and treading water.",
+        "Five swimmers switch between breaststroke, backstroke, crawl, treading water and floating.",
       setting: "sport",
       roles: {
         hed: "swimmer",
@@ -181,20 +256,31 @@ export const SCENES_FIELD: readonly IScene[] = [
     },
     "swim-strokes",
     [
-      person("hed", "f1", -1.2, 0, 0, [
-        act("breaststroke", { water: SWIM_POOL.water }),
+      person("hed", "f1", -1.2, -4.5, 0, [
+        act("breaststroke", { cycles: 6, water: SWIM_POOL.water }),
+        act("treadWater", { cycles: 3, water: SWIM_POOL.water }),
+        act("backstroke", { cycles: 3, water: SWIM_POOL.water }),
       ]),
-      person("ivo", "m1", 0, 0, 0, [
-        act("backstroke", { water: SWIM_POOL.water }),
+      person("ivo", "m1", 0, 4.5, 0, [
+        act("backstroke", { cycles: 6, water: SWIM_POOL.water }),
+        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
+        act("frontCrawl", { cycles: 3, water: SWIM_POOL.water }),
       ]),
-      person("jul", "f2", 1.2, 0, 0, [
-        act("floating", { water: SWIM_POOL.water }),
+      person("jul", "f2", 1.2, -4.5, 0, [
+        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
+        act("floating", { cycles: 3, water: SWIM_POOL.water }),
+        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
+        act("breaststroke", { cycles: 4, water: SWIM_POOL.water }),
       ]),
-      person("kip", "m2", 2.4, 0, 0, [
-        act("frontCrawl", { cycles: 4, water: SWIM_POOL.water }),
+      person("kip", "m2", 2.4, -4.5, 0, [
+        act("frontCrawl", { cycles: 6, water: SWIM_POOL.water }),
+        act("treadWater", { cycles: 2, water: SWIM_POOL.water }),
+        act("backstroke", { cycles: 3, water: SWIM_POOL.water }),
       ]),
-      person("lum", "f1", 3.6, 0, 0, [
-        act("treadWater", { water: SWIM_POOL.water }),
+      person("lum", "f1", 3.6, -4.5, 0, [
+        act("treadWater", { cycles: 3, water: SWIM_POOL.water }),
+        act("frontCrawl", { cycles: 5, water: SWIM_POOL.water }),
+        act("treadWater", { cycles: 5, water: SWIM_POOL.water }),
       ]),
     ],
     [
