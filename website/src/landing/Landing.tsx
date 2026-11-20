@@ -9,10 +9,6 @@ import { CopyCommand } from "../components/landing/CopyCommand";
 import { EvidenceGraph } from "../components/landing/EvidenceGraph";
 import { Reveal } from "../components/landing/Reveal";
 import { ScriptStage } from "../components/landing/ScriptStage";
-import { GalleryCatalogue } from "../gallery/package/GalleryCatalogue";
-import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
-import { MotionReference } from "../motions/package/MotionReference";
-import type { IMotionReference } from "../motions/structures/IMotionReference";
 import { SCENES } from "../scenes/SCENES";
 import type { IScene } from "../scenes/structures/IScene";
 import { LANDING_FILM } from "./LANDING_FILM";
@@ -22,28 +18,15 @@ import { LANDING_RAIL } from "./LANDING_RAIL";
  * The landing page. It follows one scene from the decisions it rests on to
  * the frames it computes: the screenplay beside its take, the chain of
  * documents and code, the evidence graph that checks the chain, the takes
- * that vary one choice, the vocabulary it is composed from, and how to
- * start. The counts are read from the installed packages while the site is
- * exported.
+ * that vary one choice, how any action is composed, and how to start.
  *
  * @returns The page.
  */
 export function Landing(): ReactElement {
   const manifest: IBakedManifest = BakedManifest.read();
-  const reference: IMotionReference = MotionReference.read();
-  const rows: number = reference.families.reduce(
-    (sum: number, f: IMotionReference.IFamily): number => sum + f.rows.length,
-    0,
-  );
-  const archetypes: number = GalleryCatalogue.catalogue().groups.reduce(
-    (sum: number, group: IGalleryCatalogue.IGroup): number =>
-      sum + group.subjects.length,
-    0,
-  );
   const scene: IScene = SCENES.find(
     (s: IScene): boolean => s.id === LANDING_FILM.scene,
   )!;
-  const playing: number = Object.keys(manifest.scenes).length;
   const rail: string[] = LANDING_RAIL.filter(
     (name: string): boolean => manifest.motions[name] !== undefined,
   );
@@ -305,9 +288,9 @@ export function Landing(): ReactElement {
             {lines(LANDING_FILM.second.text, LANDING_FILM.second.marked)}
           </pre>
           <figcaption className="am-panel-note">
-            The code of the round at the top of this page from the clinch on:
-            the knee lands at once, Kai checks it with his shin and steps out.
-            Every instant is computed from these lines.{" "}
+            The code of the round at the top of this page from Kai&apos;s answer
+            on: he rolls under Ren&apos;s hook, and a feint, a liver hook and a
+            head kick put him down. Every instant is computed from these lines.{" "}
             <Link className="am-text-link" href={`/scenes/${scene.id}/`}>
               The whole scene
             </Link>
@@ -319,14 +302,15 @@ export function Landing(): ReactElement {
       <section className="am-library" aria-labelledby="am-library-title">
         <header className="am-library-head">
           <h2 id="am-library-title" className="am-section-title">
-            A vocabulary to compose from.
+            Any human action, the same few lines.
           </h2>
           <p>
-            {reference.actions.length} actions and {rows} named rows in{" "}
-            {reference.families.length} families, {archetypes} archetypes of
-            things people hold, sit on, ride and fight with, and {playing}{" "}
-            scenes composed from them. A production writes a law of its own only
-            for what the vocabulary lacks.
+            The engine solves the primitives: a hand reaching its target, a foot
+            planted, a grip closed, the balance kept, an instant timed to
+            another body. Every action is a typed call over them, and actions
+            chain, overlay and sync into a performance, so a jab, a handshake
+            and a cartwheel are written the same way. What the library lacks, a
+            production adds as one more action of its own.
           </p>
         </header>
         <ul className="am-rail" aria-label="Some motions">

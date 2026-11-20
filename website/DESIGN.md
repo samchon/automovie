@@ -38,7 +38,7 @@ The page follows one scene, the kickboxing round, from its brief to its frames. 
 3. The chain. Five steps, Decide, Write, Program, Check and Render, each a text beside the document it produces: a brief file, a beat record, the scene module citing its beats, the evidence report failing on an unrealized beat, and the take's still with the channels a hint delivers. On a wide screen the text and the panel stick while the step scrolls past.
 4. The evidence graph, the page's one dark band and its peak. The brief's anchors, the beats, the modules and the film joined by their citations; pointing at a node lights what it rests on and what rests on it, and a switch deletes one citation and turns the report beside it to the failure. Three facts about review follow.
 5. Simple bodies, precise motion. The second module of the hero's scene, the code from the clinch on, its key lines marked. The hero already plays the motion, so the page shows the code behind it rather than the same take again in 3D; the landing page creates no WebGL context.
-6. The library. The vocabulary's counts read from the installed packages, a rail of motion stills, and links to the four catalogues.
+6. The library. How any action is composed from the engine's primitives, a rail of motion stills, and links to the four catalogues. No page states how many motions, rows or archetypes there are: the number changes with every release, and the claim is the composition, not the size.
 7. Start. The commands, the kind of sentence to say to the agent, and links to Setup and Your first film.
 
 Below 960 px every pair of columns stacks and nothing sticks.

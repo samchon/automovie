@@ -38,7 +38,7 @@ export interface ILandingFilm {
   /** The first module's source, which cites its beats. */
   code: { text: string[] };
 
-  /** The second module's source, the code of the motion the hero plays from the clinch on, with the fragments of the lines to mark. */
+  /** The second module's source, the code of the motion the hero plays from Kai's answer on, with the fragments of the lines to mark. */
   second: { file: string; text: string[]; marked: string[] };
 
   /** The check's report with one beat left unrealized, and with it realized. */
