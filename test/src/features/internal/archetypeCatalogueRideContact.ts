@@ -1,12 +1,16 @@
 import { createCar } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSignature,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,7 +21,6 @@ import {
   HumanPerformance,
   HumanRefusal,
   HumanRide,
-  HumanSignature,
   poseBones,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -35,7 +38,7 @@ type Sedan = ReturnType<typeof createCar>;
  * @param first First model seed.
  * @param last Exclusive end of the model seed interval.
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the model, seed interval, support and expected seat refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Measures the real cushion, compares the displayed contact and heading, and verifies predicted refusals.
+ * @evidence contracts/development/implementation.md#principled-implementation Compares the displayed sedan to the course and reads the displayed pelvis and seat region against the actual carrier. Verifies predicted seat refusals.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Construct one model and film for each seed, then record the worst admitted gap and rejected seeds.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cushion boundary comes from its collider. The seat cutoff starts at the actual standing sole plane and uses the surveyed popliteal dimensions. Refusal values and bounds are in world metres.
  * @evidence contracts/development/implementation.md#efficient-algorithms Reads the requested seed interval once and retains a bounded observation per case.
@@ -47,6 +50,10 @@ export function archetypeCatalogueRideContact(
   last: number,
 ): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const seatRegion: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions.seat;
+  const front: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+  const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   // Knee height minus thigh radius is the contact plane of the thigh.
   const poplitealHeight: number =
     body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius;
@@ -128,12 +135,6 @@ export function archetypeCatalogueRideContact(
           `sedan seed ${seed} admitted ${y.high} m below ${minimumSeat} m`,
         );
       ++admitted;
-      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
-        film,
-        "a",
-        body,
-        0,
-      );
       const riding: IAutoMovieMotionHumanSegment = film.segments("a")[1]!;
       const samples: readonly number[] = [
         riding.entryTime,
@@ -150,12 +151,37 @@ export function archetypeCatalogueRideContact(
         riding.end,
       ];
       for (const seconds of samples) {
-        const frame: IAutoMovieRigidTransform = placed(seconds);
-        const actual: IAutoMovieVector3 = HumanSignature.region(
-          reader,
-          "seat",
-          seconds,
+        const frame: IAutoMovieRigidTransform = film.prop("sedan", seconds);
+        const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+          frame.rotation,
+          front,
         );
+        const fraction: number = (Math.min(7, Math.max(3, seconds)) - 3) / 4;
+        const radians: number = (Math.PI / 2) * fraction;
+        if (
+          !(
+            Vector3.distance(frame.position, { x: 0, y: 0, z: fraction }) <=
+              1e-9 &&
+            Vector3.distance(forward, {
+              x: Math.sin(radians),
+              y: 0,
+              z: Math.cos(radians),
+            }) <= 1e-9 &&
+            Vector3.distance(Quaternion.rotateVector(frame.rotation, up), up) <=
+              1e-9
+          )
+        )
+          record(
+            failures,
+            "carrier course",
+            `sedan seed ${seed} left its authored course at ${seconds} s`,
+          );
+        const bones: ReturnType<typeof poseBones> = film.bones("a", seconds);
+        const actual: IAutoMovieVector3 =
+          resolveAutoMovieHumanoidSurfaces.place(
+            seatRegion,
+            bones.get(seatRegion.bone)!,
+          ).point;
         const local: IAutoMovieVector3 = Quaternion.rotateVector(
           Quaternion.inverse(frame.rotation),
           Vector3.subtract(actual, frame.position),
@@ -170,13 +196,17 @@ export function archetypeCatalogueRideContact(
           worstTime = seconds;
           worstSeed = seed;
         }
-        const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-          frame.rotation,
-          { x: 0, y: 0, z: 1 },
+        const pelvis: IAutoMovieVector3 = Quaternion.rotateVector(
+          bones.get("hips")!.worldRotation,
+          front,
         );
-        const yaw: number = (Math.atan2(forward.x, forward.z) * 180) / Math.PI;
         const error: number = Math.abs(
-          ((film.posture("a", seconds).yaw - yaw + 540) % 360) - 180,
+          (Math.atan2(
+            pelvis.x * forward.z - pelvis.z * forward.x,
+            pelvis.x * forward.x + pelvis.z * forward.z,
+          ) *
+            180) /
+            Math.PI,
         );
         if (!(error <= 1))
           record(
