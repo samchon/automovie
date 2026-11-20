@@ -29,13 +29,74 @@ import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 
 /** The linked phrases offered by the martial-art law. */
-type Kind = "karateStanceTransfer" | "taiChiTransfer";
+type Kind = Extract<
+  IAutoMovieMotionHumanMartialArt.Kind,
+  `${string}${"Transfer" | "StanceReset"}`
+>;
 
-/** Provisional stance and cadence dimensions for a readable form take. */
-const FORM = {
-  karateStanceTransfer: { stride: 0.3, knee: 35, step: 0.55, shift: 0.42 },
-  taiChiTransfer: { stride: 0.35, knee: 23, step: 2, shift: 2.5 },
-} as const;
+/** Provisional blocking values for the shared entry, transfer and reset. */
+interface IForm {
+  /** Lead mark ahead of the rear foot in statures. */
+  stride: number;
+
+  /** Minimum knee bend under the fully opened pose, in degrees. */
+  knee: number;
+
+  /** Entry and reset duration in seconds, before manner scaling. */
+  step: number;
+
+  /** Forward and return transfer durations in seconds. */
+  shift: readonly [forward: number, back: number];
+
+  /** Initial share of the stance span, then forward and backward changes. */
+  weight: readonly [ready: number, forward: number, back: number];
+
+  /** Opening pelvis heading offset and further turn toward the second mark, in degrees. */
+  turn: readonly [ready: number, back: number];
+
+  /** A staged upper body path, or the entry's quiet carriage. */
+  arms: "karate" | "taiChi" | "rest";
+}
+
+/** The four screen forms share a clock and sole fit, with independent blocking. */
+const FORM: Record<Kind, IForm> = {
+  karateStanceTransfer: {
+    stride: 0.3,
+    knee: 35,
+    step: 0.55,
+    shift: [0.42, 0.42],
+    weight: [0.66, 0.06, 0.4],
+    turn: [5, 20],
+    arms: "karate",
+  },
+  taiChiTransfer: {
+    stride: 0.35,
+    knee: 23,
+    step: 2,
+    shift: [2.5, 2.5],
+    weight: [0.43, 0.23, 0.32],
+    turn: [0, 0],
+    arms: "taiChi",
+  },
+  taekwondoStanceReset: {
+    stride: 0.26,
+    knee: 16,
+    step: 0.64,
+    shift: [0.48, 0.72],
+    weight: [0.48, 0.1, 0.18],
+    turn: [2, 16],
+    arms: "rest",
+  },
+  muayThaiStanceReset: {
+    stride: 0.28,
+    knee: 41,
+    step: 0.72,
+    shift: [0.7, 0.6],
+    weight: [0.46, 0.12, 0.25],
+    turn: [2, 0],
+    arms: "rest",
+  },
+};
 
 /**
  * A lead step into two linked planted weight shifts and a return to entry.
@@ -43,7 +104,9 @@ const FORM = {
  * a switching arm path. Tai chi links a forward shift and a rollback
  * with open palms and comparatively quiet torso carriage. The Shotokan
  * stepping study and the tai chi push case study distinguish the movement
- * families. Duration and geometry use provisional scene choices.
+ * families. The two quiet-arm screen resets contrast higher turning
+ * carriage with a lower forward-facing transfer. All blocking values
+ * are provisional choices for the take.
  * @see https://pubmed.ncbi.nlm.nih.gov/34269821/
  * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC1724683/
  *
@@ -54,7 +117,7 @@ const FORM = {
  * @returns The support and arm phrase on a single timeline.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the actual subject, support and upper body paths, time, units and provisional geometry.
- * @evidence contracts/development/implementation.md#principled-implementation Each style drives one plant clock, a support-relative carriage and hand sites relative to the displayed shoulders.
+ * @evidence contracts/development/implementation.md#principled-implementation Each style drives one plant clock and support-relative carriage. The two linked transfer phrases place hands relative to the displayed shoulders while the two resets keep the entry arm joints.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Schedule, support geometry, body carriage and arm placements use the same fixed phrase.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the existing leg arc, placements, clock, body lowering and arm composition.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fixed geometry of the action remains with its returned plan.
@@ -67,8 +130,8 @@ export function MartialArtStancePhrase(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params } = context;
   const m: typeof body.measure = body.measure;
-  const karate: boolean = kind === "karateStanceTransfer";
-  const form: (typeof FORM)[Kind] = FORM[kind];
+  const form: IForm = FORM[kind];
+  const karate: boolean = form.arms === "karate";
   const lead: "left" | "right" = params.lead ?? "left";
   const rear: "left" | "right" = StrikingStance.rear({ lead });
   const feet: ReturnType<typeof StrikingTarget.feet> =
@@ -97,8 +160,8 @@ export function MartialArtStancePhrase(
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({
       prepare: form.step,
-      attack: form.shift,
-      follow: form.shift,
+      attack: form.shift[0],
+      follow: form.shift[1],
       hold,
       retract: form.step,
     }),
@@ -149,9 +212,8 @@ export function MartialArtStancePhrase(
       const shown: number = open(seconds);
       const advance: number = fore.progress(seconds);
       const recover: number = back.progress(seconds);
-      const transfer: number = karate
-        ? 0.66 + 0.06 * advance - 0.4 * recover
-        : 0.43 + 0.23 * advance - 0.32 * recover;
+      const transfer: number =
+        form.weight[0] + form.weight[1] * advance - form.weight[2] * recover;
       const ankles: ReturnType<typeof StrikingTarget.feet> = {
         ...feet,
         [lead]: AutoMovieMotionHumanLeg.arc(
@@ -168,7 +230,9 @@ export function MartialArtStancePhrase(
       );
       const yaw: number =
         start.yaw +
-        (karate ? (lead === "left" ? -1 : 1) * (5 + 20 * recover) * shown : 0);
+        (lead === "left" ? -1 : 1) *
+          (form.turn[0] + form.turn[1] * recover) *
+          shown;
       const horizontal: IAutoMovieVector3 = Vector3.lerp(
         posture.root,
         { ...centre, y: posture.root.y },
@@ -225,7 +289,9 @@ export function MartialArtStancePhrase(
     },
   };
   const primitives: IAutoMovieMotionHumanPrimitive[] = [legs];
-  for (const side of ["left", "right"] as const)
+  const armSides: readonly ("left" | "right")[] =
+    form.arms === "rest" ? [] : ["left", "right"];
+  for (const side of armSides)
     primitives.push(
       ...AutoMovieMotionHumanPlaced.arm({
         body,
