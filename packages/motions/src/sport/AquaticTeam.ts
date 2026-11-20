@@ -1,26 +1,37 @@
 import {
+  Quaternion,
   Vector3,
   minimumJerk,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
+import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
  * follow the form distinctions measured by Homma et al. (PMID 31718520).
+ * The supported figure uses the separate support and featured roles of the
+ * World Aquatics Artistic Swimming Manual, Group B. The timing and contact
+ * depths here are authored for this film figure.
+ *
+ * @see https://resources.fina.org/fina/document/2026/02/26/e04faca7-a6bd-4b2b-ba86-0354ee34dd82/AQUA-AS_MANUAL_February-2026.pdf
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the researched support shapes and the ensemble variation.
  * @evidence contracts/development/design.md#principled-representation One figure clock governs joint shape and the support blend.
@@ -28,7 +39,23 @@ import { AquaticPosture } from "./AquaticPosture";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each foot borrows its own named base's displayed palm over the actual contact interval.
  */
 export namespace AquaticTeam {
-  /** A flat-layout-to-vertical artistic phrase with optional ensemble role and beat offset. */
+  /**
+   * Prepare a flat layout, sculling rise, figure and recovery.
+   *
+   * @param context The performer, role, beat and the named swimmers.
+   * @param water The shared world water height in metres.
+   * @returns The plan with named support and release events for assisted roles.
+   * @throws {HumanRefusal} For absent or repeated bases, or when a named
+   * support is not an upward submerged palm during the bearing interval.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Identifies the shared water, performer roles, lifted stage and refusals.
+   * @evidence contracts/development/implementation.md#principled-implementation A base prepares a palm-up target on the same clock as the rising figure. The flyer transfers each actual forefoot surface to a named base's current palm, then returns to the sculling posture.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare nominal figure keys, the optional supporter and the borrowed palm readers once. Sample the nominal figure and apply its timed contact phase.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Contact is an offset anatomical surface on both performers. The law refuses missing or repeated bases and downward or emerged contact offers during declared support.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed participant lookup and anatomy preparation. The support interval requests only each partner hand bone and the required current own bones.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each role shares its prepared posture blends and contact timing across queries. Hand and sole datums reuse the canonical frame owners.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns its fixed posture blends and partner frame readers. Current FK and kinematic target records are released after each query.
+   */
   export function artistic(
     context: AquaticPosture.Context,
     water: number,
@@ -40,13 +67,15 @@ export namespace AquaticTeam {
       ? params.bases
       : undefined;
     if (
-      bases !== undefined &&
-      (bases[0] === bases[1] || bases.includes(context.subject))
+      lifted &&
+      (bases === undefined ||
+        bases[0] === bases[1] ||
+        bases.includes(context.subject))
     )
       throw new HumanRefusal({
         kind: "participant",
         axis: "bases",
-        value: bases,
+        value: bases ?? null,
         reason: "an assisted flyer needs two distinct supporting swimmers",
         fix: "name two other performers as the flyer's left and right bases",
       });
@@ -151,6 +180,14 @@ export namespace AquaticTeam {
           ]);
     const gripStart: number = tHigh - 0.14;
     const gripEnd: number = tHigh + 0.14;
+    const support: ReturnType<typeof prepareBase> | undefined = base
+      ? prepareBase(context, water, tHigh)
+      : undefined;
+    const contact: Readonly<Record<"left" | "right", IAutoMovieVector3>> = {
+      left: HumanFoot.offset(body, "left", "ball"),
+      right: HumanFoot.offset(body, "right", "ball"),
+    };
+    const flat: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, high.yaw);
     const hands:
       | readonly [
           ReadonlySet<AutoMovieHumanoidBone>,
@@ -188,7 +225,13 @@ export namespace AquaticTeam {
       events: [
         { name: "flatScull", share: 0 },
         { name: "supportScull", share: tVertical / duration },
+        ...(base || lifted
+          ? [{ name: "supportAcquire", share: gripStart / duration }]
+          : []),
         { name: "figure", share: tHigh / duration },
+        ...(base || lifted
+          ? [{ name: "supportRelease", share: gripEnd / duration }]
+          : []),
         { name: "return", share: tReturn / duration },
         { name: "relax", share: 1 },
       ],
@@ -229,27 +272,30 @@ export namespace AquaticTeam {
             rightHand: joint("rightHand", 18),
           },
         };
+        const blendContact: number = minimumJerk.share(
+          Math.max(
+            0,
+            Math.min(
+              1,
+              (t - gripStart + 0.22) / 0.22,
+              (gripEnd + 0.22 - t) / 0.22,
+            ),
+          ),
+        );
+        if (blendContact === 0) return shaped;
+        if (support !== undefined) return support(shaped, t, blendContact);
         if (
           partners === undefined ||
           hands === undefined ||
-          legsAt === undefined ||
-          t < gripStart - 0.22 ||
-          t > gripEnd + 0.22
+          legsAt === undefined
         )
           return shaped;
-        const w: number = minimumJerk.share(
-          Math.min(
-            1,
-            (t - gripStart + 0.22) / 0.22,
-            (gripEnd + 0.22 - t) / 0.22,
-          ),
-        );
         const legs: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           legsAt(shaped);
         const limb = (
           side: "left" | "right",
           index: 0 | 1,
-        ): { point: IAutoMovieVector3; bend: IAutoMovieVector3 } => {
+        ): IAutoMovieHumanLimbGoal => {
           const base: IAutoMovieMotionHumanPerformerReader = partners[index];
           const region: IAutoMovieHumanoidSurfaces.IFrame =
             base.body.surfaces.regions[
@@ -258,15 +304,34 @@ export namespace AquaticTeam {
           const bone: IAutoMovieResolvedBone = base
             .bones(context.start + t, hands[index])
             .get(region.bone)!;
-          const palm: IAutoMovieVector3 =
-            resolveAutoMovieHumanoidSurfaces.place(region, bone).point;
-          const ankle: IAutoMovieVector3 = legs.get(
-            `${side}Foot`,
-          )!.worldPosition;
+          const palm: ReturnType<
+            typeof resolveAutoMovieHumanoidSurfaces.place
+          > = resolveAutoMovieHumanoidSurfaces.place(region, bone);
+          if (
+            t >= gripStart &&
+            t <= gripEnd &&
+            (palm.normal.y < UPWARD || palm.point.y >= water)
+          )
+            throw new HumanRefusal({
+              kind: "participant",
+              axis: "bases",
+              value: bases?.[index],
+              reason: "the named base does not offer an upward submerged palm",
+              fix: "compose the base's facing and support beat before the flyer",
+            });
+
+          const foot: IAutoMovieResolvedBone = legs.get(`${side}Foot`)!;
           const knee: IAutoMovieVector3 = legs.get(
             `${side}LowerLeg`,
           )!.worldPosition;
-          return { point: Vector3.lerp(ankle, palm, w), bend: knee };
+          return transfer(
+            foot,
+            knee,
+            contact[side],
+            palm.point,
+            flat,
+            blendContact,
+          );
         };
         return {
           ...shaped,
@@ -275,4 +340,125 @@ export namespace AquaticTeam {
       },
     };
   }
+}
+
+/** The shared upward direction of the figure's hand and sole frames. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** A provisional cos(36.9°) minimum for a submerged palm bearing upward. */
+const UPWARD: number = 0.8;
+
+/** Fixed plan-time placement and pose offer of one supporting hand. */
+interface IPalmOffer {
+  /** The supporting hand's anatomical side. */
+  side: "left" | "right";
+
+  /** Its bearing palm offset in hand coordinates, metres. */
+  contact: IAutoMovieVector3;
+
+  /** Its horizontal set position on the beat, world metres. */
+  at: IAutoMovieVector3;
+
+  /** Its bearing orientation, with the palm facing up. */
+  rotation: IAutoMovieQuaternion;
+}
+
+/**
+ * Prepare the base swimmer's independent palm offer.
+ *
+ * @param context The base performer and selected supporting side.
+ * @param water The common world water surface, metres.
+ * @param peak The timed figure apex, in action seconds.
+ * @returns A pose writer for the supporting part of the figure.
+ */
+function prepareBase(
+  context: AquaticPosture.Context,
+  water: number,
+  peak: number,
+): (
+  shaped: IAutoMovieMotionHumanPosture,
+  seconds: number,
+  weight: number,
+) => IAutoMovieMotionHumanPosture {
+  const { body, entry, params }: AquaticPosture.Context = context;
+  const sides: readonly ("left" | "right")[] =
+    params.side === undefined ? ["left", "right"] : [params.side];
+  const markers: ReturnType<typeof AquaticPosture.markers> =
+    AquaticPosture.markers(
+      body,
+      sides.flatMap((side: "left" | "right"): AutoMovieHumanoidBone[] => [
+        `${side}Hand`,
+        `${side}LowerArm`,
+      ]),
+    );
+  const frame: { origin: IAutoMovieVector3; yaw: number } = {
+    origin: entry.posture.root,
+    yaw: entry.posture.yaw,
+  };
+  const fingers: IAutoMovieVector3 = HumanFrame.forward(frame.yaw);
+  const palms: readonly IPalmOffer[] = sides.map(
+    (side: "left" | "right"): IPalmOffer => ({
+      side,
+      contact: HumanHand.offset(body, side, "palm").point,
+      at: HumanFrame.point(frame, {
+        x: (side === "left" ? 1 : -1) * body.measure.shoulderHalfWidth * 1.25,
+        y: 0,
+        z: body.measure.forearm * 0.95,
+      }),
+      rotation: HumanHand.rotation(side, { fingers, palm: UP }),
+    }),
+  );
+  return (
+    shaped: IAutoMovieMotionHumanPosture,
+    seconds: number,
+    weight: number,
+  ): IAutoMovieMotionHumanPosture => {
+    const bones: ReturnType<typeof markers> = markers(shaped);
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...shaped.limbs };
+
+    // The base's palm rises slightly but stays submerged at the figure apex.
+    const near: number = minimumJerk.share(
+      Math.max(0, 1 - Math.abs(seconds - peak) / 0.36),
+    );
+    const y: number = water - body.measure.stature * (0.275 - 0.04 * near);
+    for (const { side, contact, at, rotation } of palms)
+      limbs[`${side}Arm`] = transfer(
+        bones.get(`${side}Hand`)!,
+        bones.get(`${side}LowerArm`)!.worldPosition,
+        contact,
+        { x: at.x, y, z: at.z },
+        rotation,
+        weight,
+      );
+    return { ...shaped, limbs };
+  };
+}
+
+/** Turn a limb around the actual palm or sole point as it takes or leaves support. */
+function transfer(
+  end: IAutoMovieResolvedBone,
+  bend: IAutoMovieVector3,
+  contact: IAutoMovieVector3,
+  target: IAutoMovieVector3,
+  facing: IAutoMovieQuaternion,
+  weight: number,
+): IAutoMovieHumanLimbGoal {
+  const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+    end.worldRotation,
+    facing,
+    weight,
+  );
+  const original: IAutoMovieVector3 = Vector3.add(
+    end.worldPosition,
+    Quaternion.rotateVector(end.worldRotation, contact),
+  );
+  return {
+    point: Vector3.subtract(
+      Vector3.lerp(original, target, weight),
+      Quaternion.rotateVector(rotation, contact),
+    ),
+    bend,
+    rotation,
+    contact,
+  };
 }

@@ -59,7 +59,7 @@ export namespace IAutoMovieMotionHumanAquatic {
     /** World point in metres through which a held ball should pass after release. */
     at?: IAutoMovieVector3;
 
-    /** Working side for single-blade canoe and water polo, or initial side of the dinghy. */
+    /** Working side for single-blade canoe and water polo, the support hand of an artistic base, or the initial side of a dinghy. */
     side?: "left" | "right";
 
     /** Start offset as a fraction of a stroke or figure for crew contrast, in [0, 1]. */
