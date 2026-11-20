@@ -206,6 +206,7 @@ export namespace grapple {
           : { contact: landing.share * floor.duration }),
       };
 
+    const stagedShoulders: boolean = p.kind === "grecoRoman";
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
@@ -280,7 +281,14 @@ export namespace grapple {
             posture,
             side,
             contact,
-            { surface: "palm", shape: "relaxed", bend: "forward" },
+            {
+              surface: "palm",
+              shape: stagedShoulders ? "flat" : "relaxed",
+              bend: "forward",
+              // The shoulder marks use a visible open palm. Relaxed finger
+              // curl folds the tips around the placed palm into the chest.
+              ...(stagedShoulders ? { forward: { x: 0, y: 1, z: 0 } } : {}),
+            },
           );
         },
       });
