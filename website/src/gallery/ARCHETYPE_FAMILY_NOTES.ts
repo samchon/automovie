@@ -13,7 +13,7 @@ export const ARCHETYPE_FAMILY_NOTES: Readonly<Record<string, string>> = {
   vehicles:
     "What a person rides, drives, pushes or climbs into: bicycles, cars, boats, carts, buses and wheelchairs.",
   animals:
-    "Animals a person rides, leads or works beside: horses, donkeys, mules, oxen, dogs and cats.",
+    "Animals a person rides, leads or works beside: horses, ponies, donkeys, mules, camels, oxen, deer, dogs and cats.",
   weapons:
     "Swords, polearms, bows, firearms, cannons, shields and armour, with their holsters and racks.",
   gym: "Barbells, dumbbells, benches, bars, bags, mats and machines.",

@@ -166,6 +166,24 @@ export const LANDING_FILM: ILandingFilm = {
     ],
     marked: ["rollUnder(", '"liver"', '"templeLeft"', "knockdown("],
   },
+  answer: {
+    file: "docs/evidence/construction/units/screenplay/round/010-round-one.md",
+    text: [
+      "# docs/body/screenplay/round/010-round-one.md#s01-b02",
+      "",
+      "## @evidence contracts/story/principles/screenplay.md#beat-decisions",
+      "",
+      "The beat decides its intent and outcome: Ren commits to the whole combination, and Kai defends every strike of it.",
+      "",
+      "## @evidence brief/cast/ren.md#temper",
+      "",
+      "Ren presses in behind the feint and throws all four strikes into Kai's guard, as his temper decides.",
+      "",
+      "## @evidence brief/cast/kai.md#guard",
+      "",
+      "Kai answers each strike with a defence his guard allows: a parry, a shell and a check.",
+    ],
+  },
   report: {
     failing: [
       "$ pnpm run evidence",

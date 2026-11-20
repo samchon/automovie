@@ -41,6 +41,9 @@ export interface ILandingFilm {
   /** The second module's source, the code of the motion the hero plays from Kai's answer on, with the fragments of the lines to mark. */
   second: { file: string; text: string[]; marked: string[] };
 
+  /** A beat's written answers, as the Evidence pass files them: one heading per principle or decision the beat keeps. */
+  answer: { file: string; text: string[] };
+
   /** The check's report with one beat left unrealized, and with it realized. */
   report: { failing: string[]; passing: string[] };
 }

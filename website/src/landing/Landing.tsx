@@ -165,22 +165,17 @@ export function Landing(): ReactElement {
           <Reveal as="li" className="am-chain-step">
             <div className="am-chain-text">
               <span className="am-chain-number">4</span>
-              <h3>Check</h3>
+              <h3>Answer</h3>
               <p>
-                <code>pnpm run evidence</code> fails while any decision, beat or
-                principle is left without its statement. The error list is the
-                agent&apos;s list of work, so it cannot report a scene done
-                while one is unanswered.
+                Every beat answers in writing for each principle and decision it
+                keeps. <code>pnpm run evidence</code> fails while one is left
+                without its answer, and the error list is the agent&apos;s list
+                of work, so it cannot report a scene done while one is open.
               </p>
             </div>
-            <div className="am-chain-panel am-chain-panel-dark">
-              <pre className="am-terminal" data-failed="true">
-                {LANDING_FILM.report.failing.join("\n")}
-              </pre>
-              <p className="am-panel-note">
-                An abridged report in the format <code>@wrtnlabs/evidence</code>{" "}
-                prints, for this example.
-              </p>
+            <div className="am-chain-panel">
+              <p className="am-panel-file">{LANDING_FILM.answer.file}</p>
+              <pre className="am-doc">{lines(LANDING_FILM.answer.text)}</pre>
             </div>
           </Reveal>
           <Reveal as="li" className="am-chain-step">
@@ -274,46 +269,6 @@ export function Landing(): ReactElement {
         </div>
       </section>
 
-      {/* Coarse models, detailed motion */}
-      <section className="am-motion" aria-labelledby="am-motion-title">
-        <div className="am-motion-copy">
-          <h2 id="am-motion-title" className="am-section-title">
-            Simple bodies.
-            <br />
-            Precise motion.
-          </h2>
-          <p>
-            People are a polygon man and sets are coarse models, on purpose: a
-            video model supplies the surfaces. The accuracy goes into the
-            performance. A fist meets the struck region, each foot lands on the
-            floor at its step, both hands close on a grip, all scaled to the
-            body that performs it.
-          </p>
-          <p>
-            One composition plays the same way every time. A seed changes how
-            and when, never what. Change the bodies or the skill and the same
-            code fits them.
-          </p>
-          <Link className="am-text-link" href="/docs/motion-as-code/">
-            Motion as code
-          </Link>
-        </div>
-        <figure className="am-chain-panel am-motion-code">
-          <p className="am-panel-file">{LANDING_FILM.second.file}</p>
-          <pre className="am-doc am-doc-code">
-            {lines(LANDING_FILM.second.text, LANDING_FILM.second.marked)}
-          </pre>
-          <figcaption className="am-panel-note">
-            The code of the round at the top of this page from Kai&apos;s answer
-            on: he rolls under Ren&apos;s hook, and a feint, a liver hook and a
-            head kick put him down. Every instant is computed from these lines.{" "}
-            <Link className="am-text-link" href={`/scenes/${scene.id}/`}>
-              The whole scene
-            </Link>
-          </figcaption>
-        </figure>
-      </section>
-
       {/* Library */}
       <section className="am-library" aria-labelledby="am-library-title">
         <header className="am-library-head">
@@ -365,6 +320,46 @@ export function Landing(): ReactElement {
             <span>Compose a performance and watch it computed.</span>
           </Link>
         </nav>
+      </section>
+
+      {/* Coarse models, detailed motion */}
+      <section className="am-motion" aria-labelledby="am-motion-title">
+        <div className="am-motion-copy">
+          <h2 id="am-motion-title" className="am-section-title">
+            Simple bodies.
+            <br />
+            Precise motion.
+          </h2>
+          <p>
+            People are a polygon man and sets are coarse models, on purpose: a
+            video model supplies the surfaces. The accuracy goes into the
+            performance. A fist meets the struck region, each foot lands on the
+            floor at its step, both hands close on a grip, all scaled to the
+            body that performs it.
+          </p>
+          <p>
+            One composition plays the same way every time. A seed changes how
+            and when, never what. Change the bodies or the skill and the same
+            code fits them.
+          </p>
+          <Link className="am-text-link" href="/docs/motion-as-code/">
+            Motion as code
+          </Link>
+        </div>
+        <figure className="am-chain-panel am-motion-code">
+          <p className="am-panel-file">{LANDING_FILM.second.file}</p>
+          <pre className="am-doc am-doc-code">
+            {lines(LANDING_FILM.second.text, LANDING_FILM.second.marked)}
+          </pre>
+          <figcaption className="am-panel-note">
+            The code of the round at the top of this page from Kai&apos;s answer
+            on: he rolls under Ren&apos;s hook, and a feint, a liver hook and a
+            head kick put him down. Every instant is computed from these lines.{" "}
+            <Link className="am-text-link" href={`/scenes/${scene.id}/`}>
+              The whole scene
+            </Link>
+          </figcaption>
+        </figure>
       </section>
 
       {/* Start */}
@@ -423,7 +418,9 @@ function lines(
       <span
         key={index}
         className={
-          line.includes("@evidence") || line.startsWith(" *   ")
+          line.includes("@evidence") ||
+          line.startsWith(" *   ") ||
+          line.startsWith("## @")
             ? "am-line-evidence"
             : marked.some((m: string): boolean => line.includes(m))
               ? "am-line-mark"

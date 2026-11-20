@@ -14,8 +14,6 @@ const meta: MetaRecord = {
   screenplay: "Screenplay",
   "motion-as-code": "Motion as code",
   delivery: "Delivery",
-
-  "-- more": { type: "separator", title: "More" },
   faq: "FAQ",
 
   "-- appendix": { type: "separator", title: "Appendix" },
