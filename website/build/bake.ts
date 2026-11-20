@@ -23,6 +23,7 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 import { BakeJobs } from "../src/baked/BakeJobs";
+import { BakedManifest } from "../src/baked/BakedManifest";
 import { BakedTake } from "../src/baked/BakedTake";
 import { FigurePoster } from "../src/baked/FigurePoster";
 import type { IBakeJob } from "../src/baked/IBakeJob";
@@ -248,6 +249,7 @@ const main: () => Promise<void> = async (): Promise<void> => {
     manifest[`${job.kind}s`][job.id] = {
       duration: take.duration,
       bytes: bytes.byteLength,
+      composition: BakedManifest.hash(job.composition),
     };
   }
   fs.writeFileSync(path.join(OUT, "manifest.json"), JSON.stringify(manifest));

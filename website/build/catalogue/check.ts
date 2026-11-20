@@ -6,4 +6,4 @@ console.log(
   "Checked archetype aliases, seeded gaits and saved Playground props.",
 );
 checkSnapshotCamera();
-console.log("Checked both camera contacts at Snapshot's exposure.");
+console.log("Checked both camera contacts during both Snapshot photographs.");

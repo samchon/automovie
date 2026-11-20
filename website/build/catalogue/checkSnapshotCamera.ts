@@ -3,7 +3,10 @@ import {
   Vector3,
   physicalShapePairDistance,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalShape } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanSegment,
+  IAutoMoviePhysicalShape,
+} from "@automovie/interface";
 import {
   AutoMovieMotionHumanAuditTangle,
   HumanColliders,
@@ -16,7 +19,7 @@ import { SceneTake } from "../../src/scenes/SceneTake";
 import { SCENES_GESTURES } from "../../src/scenes/data/SCENES_GESTURES";
 
 /**
- * Read both hands at the exposure of the maintained Snapshot take. The
+ * Read both hands during both photographs of the maintained Snapshot take. The
  * contact skin and the landmarks retain the physical checks from #3755.
  */
 export function checkSnapshotCamera(): void {
@@ -29,23 +32,43 @@ export function checkSnapshotCamera(): void {
     "Snapshot uses the named camera",
   );
   const { performance } = PlaygroundPerformance.build(composition);
-  const photo = performance.segments("fay")[1]!;
-  assert.equal(photo.name, "photograph");
-  const grip = photo.plan.contacts.find(
-    (contact) =>
-      contact.part === "leftHand" &&
-      contact.kind === "grip" &&
-      contact.support.kind === "prop" &&
-      contact.support.subject === "camera",
-  );
-  const exposure = photo.plan.events.find(
-    (event) => event.name === "strokeStart",
-  )!.share;
-  assert(
-    grip !== undefined && grip.from === exposure && grip.to > exposure,
-    "the support closes at exposure and persists through the hold",
-  );
-  const seconds = photo.start + exposure * photo.plan.duration;
+  const photos = performance
+    .segments("fay")
+    .filter((segment) => segment.name === "photograph");
+  assert.equal(photos.length, 2);
+  for (const photo of photos) {
+    const grip = photo.plan.contacts.find(
+      (contact) =>
+        contact.part === "leftHand" &&
+        contact.kind === "grip" &&
+        contact.support.kind === "prop" &&
+        contact.support.subject === "camera",
+    );
+    const supported = photo.plan.events.find(
+      (event) => event.name === "strokeStart",
+    )!.share;
+    const shutter = photo.plan.events.find(
+      (event) => event.name === "stroke",
+    )!.share;
+    assert(
+      grip !== undefined && grip.from === supported && grip.to > shutter,
+      "the support closes before the shutter and persists through the hold",
+    );
+    for (const share of [supported, shutter, (grip.from + grip.to) / 2])
+      checkGripAt(
+        performance,
+        photo,
+        photo.start + share * photo.plan.duration,
+      );
+  }
+}
+
+/** Measure the named grip sites on the emitted camera and displayed hand surfaces. */
+function checkGripAt(
+  performance: ReturnType<typeof PlaygroundPerformance.build>["performance"],
+  photo: IAutoMovieMotionHumanSegment,
+  seconds: number,
+): void {
   const camera = photo.context.prop("camera").prop;
   const prop = performance.prop("camera", seconds);
   const body = photo.context.body;

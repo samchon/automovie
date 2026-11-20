@@ -12,7 +12,7 @@ import { SCENES } from "../../../scenes/SCENES";
 export const metadata: Metadata = {
   title: "Archetypes",
   description:
-    "Every archetype of @automovie/archetypes: the things people hold, use, sit on, ride and fight with, with their dimensions and affordances.",
+    "Every archetype of @automovie/archetypes: the things people hold, use, sit on, ride and fight with, with their dimensions and contact points.",
 };
 
 /**

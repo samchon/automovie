@@ -8,9 +8,9 @@ export const SCENES_GAMES: readonly IScene[] = [
   scene(
     {
       id: "tennis-rally",
-      title: "Tennis rally",
+      title: "Tennis feed",
       summary:
-        "Two players take their rackets from the benches beside them. The feeder bends for a ball on her bench and hand-feeds it across the net for a forehand return.",
+        "A feeder hand-feeds a ball over the net and the receiver drives it back with a forehand.",
       setting: "sport",
       roles: { ana: "receiver", bea: "feeder" },
       needs: [],
@@ -36,7 +36,7 @@ export const SCENES_GAMES: readonly IScene[] = [
           lift: 0.1,
           use: { tip: "sweetSpot", line: "oblique" },
         }),
-        act("stand", { seconds: 2 }),
+        act("stand", { seconds: 1.5 }),
         act(
           "ballSport",
           {
@@ -48,6 +48,20 @@ export const SCENES_GAMES: readonly IScene[] = [
           },
           { anchor: "tennis-feed" },
         ),
+        act("racket", {
+          kind: "readyPosition",
+          seconds: 0.4,
+          implement: "bea-racket",
+        }),
+        act("step", { direction: "left", steps: 1 }),
+        act("step", { direction: "right", steps: 1 }),
+        act("racket", {
+          kind: "readyPosition",
+          seconds: 0.4,
+          implement: "bea-racket",
+        }),
+        act("step", { direction: "right", steps: 1 }),
+        act("step", { direction: "left", steps: 1 }),
         act("racket", {
           kind: "readyPosition",
           seconds: 0.4,
@@ -66,6 +80,9 @@ export const SCENES_GAMES: readonly IScene[] = [
           seconds: 0.25,
           implement: "ana-racket",
         }),
+        act("step", { direction: "right", steps: 1 }),
+        act("step", { direction: "left", steps: 1 }),
+        act("bounce", { beats: 4 }),
         act(
           "tennisForehandReturn",
           {
@@ -89,6 +106,20 @@ export const SCENES_GAMES: readonly IScene[] = [
           seconds: 0.2,
           implement: "ana-racket",
         }),
+        act("step", { direction: "right", steps: 1 }),
+        act("step", { direction: "left", steps: 1 }),
+        act("racket", {
+          kind: "readyPosition",
+          seconds: 0.4,
+          implement: "ana-racket",
+        }),
+        act("racket", {
+          kind: "splitStep",
+          seconds: 0.2,
+          implement: "ana-racket",
+        }),
+        act("step", { direction: "left", steps: 1 }),
+        act("step", { direction: "right", steps: 1 }),
       ]),
     ],
     [
@@ -178,21 +209,119 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "volleyball",
       title: "Volleyball",
       summary:
-        "Four players: a forearm dig, an overhead set, a hitter who bounces on the spot and spikes, and a blocker who bounces and jumps toward the net.",
+        "Three times over, a dig, a set and a spike, each met by a jumping blocker.",
       setting: "sport",
       roles: { v1: "libero", v2: "setter", v3: "hitter", v4: "blocker" },
       needs: [],
-      refusedUntil: 3550,
     },
     "volleyball",
     [
-      person("v1", "f1", -1, -1, 0, [act("volleyDig")]),
-      person("v2", "f2", 0, 0, 0, [act("volleySet")]),
-      person("v3", "m1", 1, 0.2, 0, [act("bounce"), act("spike")]),
+      person("v1", "f1", -1, -1, 0, [
+        act("readyPosition", { seconds: 0.3 }),
+        act("volleyDig", {}, { anchor: "vb-dig1" }),
+        act("readyPosition", { seconds: 0.35 }),
+        act("volleyDig", {}, { anchor: "vb-dig2" }),
+        act("readyPosition", { seconds: 0.35 }),
+        act("volleyDig", {}, { anchor: "vb-dig3" }),
+        act("readyPosition", { seconds: 0.9 }),
+        act("fistPump", { count: 2 }),
+      ]),
+      person("v2", "f2", 0, 0, 0, [
+        act("readyPosition", { seconds: 0.3 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "volleySet",
+          {},
+          {
+            anchor: "vb-set1",
+            sync: { of: "vb-dig1", event: "stroke", offset: 0.15 },
+          },
+        ),
+        act("bounce", { beats: 1 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "volleySet",
+          {},
+          {
+            anchor: "vb-set2",
+            sync: { of: "vb-dig2", event: "stroke", offset: 0.15 },
+          },
+        ),
+        act("bounce", { beats: 1 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "volleySet",
+          {},
+          {
+            anchor: "vb-set3",
+            sync: { of: "vb-dig3", event: "stroke", offset: 0.15 },
+          },
+        ),
+        act("readyPosition", { seconds: 0.2 }),
+        act("victory"),
+      ]),
+      person("v3", "m1", 1, 0.2, 0, [
+        act("bounce", { beats: 5 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "spike",
+          {},
+          {
+            anchor: "vb-spike1",
+            sync: { of: "vb-set1", event: "stroke", offset: 0.65 },
+          },
+        ),
+        act("step", { direction: "back", steps: 1 }),
+        act("bounce", { beats: 2 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "spike",
+          {},
+          {
+            anchor: "vb-spike2",
+            sync: { of: "vb-set2", event: "stroke", offset: 0.65 },
+          },
+        ),
+        act("step", { direction: "back", steps: 1 }),
+        act("bounce", { beats: 2 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "spike",
+          {},
+          {
+            anchor: "vb-spike3",
+            sync: { of: "vb-set3", event: "stroke", offset: 0.65 },
+          },
+        ),
+        act("step", { direction: "back", steps: 1 }),
+        act("fistPump", { count: 3 }),
+      ]),
       person("v4", "m2", 1.5, 2.6, 180, [
-        act("bounce"),
-        act("stand", { seconds: 0.3 }),
-        act("jump", { to: to(1.5, 2.4) }),
+        act("bounce", { beats: 5 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "jump",
+          { to: to(1.5, 2.4) },
+          { sync: { of: "vb-spike1", event: "stroke", offset: -0.44 } },
+        ),
+        act("step", { direction: "back", steps: 1 }),
+        act("bounce", { beats: 1 }),
+        act("stand", { seconds: 1 }),
+        act(
+          "jump",
+          { to: to(1.5, 2.4) },
+          { sync: { of: "vb-spike2", event: "stroke", offset: -0.44 } },
+        ),
+        act("step", { direction: "back", steps: 1 }),
+        act("bounce", { beats: 1 }),
+        act("stand", { seconds: 1 }),
+        act(
+          "jump",
+          { to: to(1.5, 2.4) },
+          { sync: { of: "vb-spike3", event: "stroke", offset: -0.44 } },
+        ),
+        act("handsOnHips", { seconds: 1 }),
+        act("dontKnow"),
       ]),
     ],
   ),
@@ -201,7 +330,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "penalty",
       title: "Penalty",
       summary:
-        "A kicker runs up and strikes the ball with the right foot, the goalkeeper dives to the left, and a defender slides in.",
+        "A kicker scores high past a keeper diving the wrong way; a defender slides in late.",
       setting: "sport",
       roles: { kic: "kicker", kee: "goalkeeper", def: "defender" },
       needs: [],
@@ -209,16 +338,53 @@ export const SCENES_GAMES: readonly IScene[] = [
     "penalty",
     [
       person("kic", "m1", 0, 0, 0, [
+        act("walk", { to: to(0, -1), face: 0 }),
+        act("handsOnHips", { seconds: 1.8 }),
+        act("look", { target: at("kee", "face"), seconds: 1.2 }),
+        act("bounce", { beats: 4 }),
+        act("stand", { seconds: 0.9 }),
         act("dash", { to: to(0, 1) }),
-        act("kickRight", { ball: "ball" }),
+        act(
+          "kickRight",
+          {
+            ball: "ball",
+            toward: {
+              kind: "point",
+              frame: "world",
+              at: { x: 1.7, y: 0.9, z: 11.4 },
+            },
+            speed: 22,
+            lift: 4,
+          },
+          { anchor: "pen-kick" },
+        ),
+        act("fistPump", { count: 1 }),
       ]),
       person("kee", "m2", 0, 11, 180, [
-        act("crouch", { hold: 0.5 }),
-        act("stand", { seconds: 0.3 }),
-        act("goalkeeperDiveLeft"),
+        act("bounce", { beats: 6 }),
+        act("step", { direction: "left", steps: 1 }),
+        act("step", { direction: "right", steps: 1 }),
+        act("bounce", { beats: 6 }),
+        act("step", { direction: "right", steps: 1 }),
+        act("step", { direction: "left", steps: 1 }),
+        act("crouch", { hold: 0.3 }),
+        act("stand", { seconds: 1.9 }),
+        act(
+          "goalkeeperDiveLeft",
+          {},
+          { sync: { of: "pen-kick", event: "stroke", offset: 0.3 } },
+        ),
       ]),
       person("def", "f1", 3, 3, 240, [
-        act("stand", { seconds: 0.3 }),
+        act("bounce", { beats: 8 }),
+        act("handsOnHips", { seconds: 1.5 }),
+        act("bounce", { beats: 6 }),
+        act("stand", { seconds: 1.9 }),
+        act(
+          "dash",
+          { to: to(2.6, 5) },
+          { sync: { of: "pen-kick", event: "start" } },
+        ),
         act("slidingTackle"),
       ]),
     ],
@@ -230,15 +396,37 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "golf",
       title: "Golf",
       summary:
-        "Two golfers with their clubs mimed: an address and a full swing, an address and a putt.",
+        "One golfer tees off; another reads the green, putts and takes the ball from the cup.",
       setting: "sport",
       roles: { g1: "golfer", g2: "golfer" },
       needs: [],
     },
     "golf",
     [
-      person("g1", "m1", -1, 0, 90, [act("golfAddress"), act("golfSwing")]),
-      person("g2", "f1", 1, 1, 90, [act("golfAddress"), act("putt")]),
+      person("g1", "m1", -1, -1.4, 90, [
+        act("walk", { to: to(-1, 0), face: 90 }),
+        act("crouch", { hold: 0.3 }),
+        act("golfAddress"),
+        act("golfSwing"),
+        act("look", {
+          target: { kind: "point", frame: "world", at: { x: 30, y: 12, z: 0 } },
+          seconds: 1.4,
+        }),
+        act("crouch", { hold: 0.3 }),
+        act("walk", { to: to(-1, -1) }),
+      ]),
+      person("g2", "f1", 1, 1, 90, [
+        act("crouch", { depth: "full", hold: 0.8 }),
+        act("golfAddress"),
+        act("putt"),
+        act("look", {
+          target: { kind: "point", frame: "world", at: { x: 3.5, y: 0, z: 1 } },
+          seconds: 1,
+        }),
+        act("walk", { to: to(3.2, 1) }),
+        act("crouch", { depth: "full", hold: 0.2 }),
+        act("walk", { to: to(2.8, 2.1) }),
+      ]),
     ],
   ),
   scene(
@@ -246,7 +434,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "gymnastics-hall",
       title: "Gymnastics hall",
       summary:
-        "Three gymnasts: a cartwheel, a round-off and a front handspring; a forward and a backward roll and a handstand; a leap, a back salto and a front salto.",
+        "Three gymnasts tumble: cartwheels and handsprings, rolls and a handstand, leaps and saltos.",
       setting: "sport",
       roles: { g1: "gymnast", g2: "gymnast", g3: "gymnast" },
       needs: [],
@@ -258,16 +446,31 @@ export const SCENES_GAMES: readonly IScene[] = [
         act("cartwheelLeft"),
         act("roundOffLeft"),
         act("frontHandspring"),
+        act("victory"),
+        act("cartwheelRight"),
+        act("roundOffRight"),
+        act("frontHandspring"),
+        act("victory"),
       ]),
       person("g2", "f2", -3, 1, 90, [
         act("forwardRoll"),
         act("backwardRoll"),
-        act("handstand"),
+        act("handstand", { seconds: 0.5 }),
+        act("stand", { seconds: 0.3 }),
+        act("forwardRoll"),
+        act("cartwheelRight"),
+        act("victory"),
       ]),
       person("g3", "m1", -3, 4, 90, [
         act("leap", { to: to(-1.5, 4) }),
         act("backSalto", { to: to(-2.2, 4) }),
         act("frontSalto", { to: to(0, 4) }),
+        act("leap", { to: to(1.5, 4) }),
+        act("frontSalto", { to: to(3.2, 4) }),
+        act("backSalto", { to: to(2.5, 4) }),
+        act("cartwheelRight"),
+        act("roundOffRight"),
+        act("victory"),
       ]),
     ],
   ),
@@ -276,7 +479,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "high-jump",
       title: "High jump and sprint",
       summary:
-        "A jumper takes a short approach and lands from a Fosbury flop on a raised mat while a sprinter runs in a separate lane.",
+        "A jumper warms up and clears the bar with a Fosbury flop; a sprinter dashes and cheers.",
       setting: "sport",
       roles: { hj: "high jumper", pv: "sprinter" },
       needs: [],
@@ -285,15 +488,35 @@ export const SCENES_GAMES: readonly IScene[] = [
     "jumps",
     [
       person("hj", "f1", -4, 0, 90, [
+        act("legSwings", { reps: 4 }),
+        act("armCircles", { reps: 1 }),
+        act("stand", { seconds: 1 }),
+        act("gestureClap", {}, { anchor: "hj-clap" }),
         act("strides", { to: to(-1.5, 0) }),
-        act("fosburyFlop", {
-          to: { x: 1.2, y: 0.7, z: 0 },
-          bar: "bar",
-          on: "mat",
-          apexReserve: 0.35,
-        }),
+        act(
+          "fosburyFlop",
+          {
+            to: { x: 1.2, y: 0.7, z: 0 },
+            bar: "bar",
+            on: "mat",
+            apexReserve: 0.35,
+          },
+          { anchor: "hj-flop" },
+        ),
       ]),
-      person("pv", "m1", -4, 4, 90, [act("dash", { to: to(-1, 4) })]),
+      person("pv", "m1", -4, 4, 90, [
+        act("armCircles", { reps: 2 }),
+        act("sprintStart", { seconds: 1 }),
+        act("dash", { to: to(1, 4) }),
+        act("stand", { seconds: 2 }),
+        act("gestureClap", {}, { sync: { of: "hj-clap" } }),
+        act("look", { target: at("hj", "face"), cue: "seen", seconds: 2 }),
+        act(
+          "fistPump",
+          { count: 2 },
+          { sync: { of: "hj-flop", event: "touchdown" } },
+        ),
+      ]),
     ],
     // The +X flight reaches the crossbar near its apex, just ahead of the mat.
     [
@@ -308,7 +531,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "relay",
       title: "Relay",
       summary:
-        "Four runners: the first leg sprints in and passes a mimed baton to the second running a step ahead, the third starts from a crouch and dashes off, the anchor waits and pumps a fist.",
+        "Four runners pass a mimed baton down the track, and the anchor runs it in and celebrates.",
       setting: "sport",
       roles: {
         r1: "first leg",
@@ -321,27 +544,85 @@ export const SCENES_GAMES: readonly IScene[] = [
     },
     "relay",
     [
+      // Each pass is run as both runners sprint off together, the outgoing
+      // one a metre ahead in the next lane, so the hands meet at `at`, film
+      // seconds about 1.5 s into both sprints.
       person("r1", "m1", -7, 0, 90, [
+        act("sprintStart", { seconds: 1.3 }),
         act(
           "sprint",
-          { to: to(3, 0) },
-          { over: [act("relayIncoming", { partner: "r2", at: 1.5 })] },
+          { to: to(1, 0) },
+          {
+            anchor: "rl-leg1",
+            over: [act("relayIncoming", { partner: "r2", at: 4.3 })],
+          },
         ),
+        act("jog", { to: to(2.5, -1.4), face: 90 }),
+        act("handsOnHips", { seconds: 1.8 }),
+        act("walk", { to: to(6, -1.4), face: 90 }),
+        act("fistPump", { count: 2 }),
       ]),
       person("r2", "f1", -6, 0.6, 90, [
+        act("legSwings", { reps: 2 }),
+        act("stand", { seconds: 1 }),
         act(
           "sprint",
-          { to: to(4, 0.6) },
-          { over: [act("relayOutgoing", { partner: "r1", at: 1.5 })] },
+          { to: to(2, 0.6) },
+          {
+            sync: { of: "rl-leg1", event: "start" },
+            over: [act("relayOutgoing", { partner: "r1", at: 4.3 })],
+          },
         ),
+        act(
+          "sprint",
+          { to: to(10, 0.6) },
+          {
+            anchor: "rl-leg2",
+            over: [act("relayIncoming", { partner: "r3", at: 6.5 })],
+          },
+        ),
+        act("jog", { to: to(11.5, 2), face: 90 }),
+        act("handsOnHips", { seconds: 1.8 }),
+        act("walk", { to: to(15.3, 2), face: 90 }),
       ]),
-      person("r3", "m2", 5.5, 0.6, 90, [
-        act("sprintStart"),
-        act("dash", { to: to(8, 0.6) }),
+      person("r3", "m2", 3, 0, 90, [
+        act("armCircles", { reps: 2 }),
+        act("legSwings", { reps: 1 }),
+        act("stand", { seconds: 1.5 }),
+        act(
+          "sprint",
+          { to: to(11, 0) },
+          {
+            sync: { of: "rl-leg2", event: "start" },
+            over: [act("relayOutgoing", { partner: "r2", at: 6.5 })],
+          },
+        ),
+        act(
+          "sprint",
+          { to: to(19, 0) },
+          {
+            anchor: "rl-leg3",
+            over: [act("relayIncoming", { partner: "r4", at: 8.7 })],
+          },
+        ),
+        act("jog", { to: to(20.5, -1.4), face: 90 }),
+        act("handsOnHips", { seconds: 1.8 }),
+        act("walk", { to: to(21.8, -1.4), face: 90 }),
       ]),
-      person("r4", "f2", 9, 0.9, 90, [
+      person("r4", "f2", 12, 0.6, 90, [
+        act("armCircles", { reps: 2 }),
+        act("legSwings", { reps: 2 }),
         act("stand", { seconds: 2 }),
-        act("fistPump"),
+        act(
+          "sprint",
+          { to: to(26, 0.6) },
+          {
+            sync: { of: "rl-leg3", event: "start" },
+            over: [act("relayOutgoing", { partner: "r3", at: 8.7 })],
+          },
+        ),
+        act("fistPump", { count: 2 }),
+        act("victory"),
       ]),
     ],
   ),
@@ -350,27 +631,43 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "victory-lap",
       title: "Victory lap",
       summary:
-        "Three athletes celebrate: a fist pump, a victory pose and a low five, hands on the hips and a thumbs up, hands behind the head and a firm hand on the winner's shoulder.",
+        "The winner celebrates and bumps fists with the runner-up; the third grips his shoulder.",
       setting: "sport",
       roles: { w1: "winner", w2: "runner-up", w3: "third" },
       needs: [],
-      refusedUntil: 3553,
     },
     "victory",
     [
-      person("w1", "m1", 0, 0, 0, [
+      person("w1", "m1", 0, -5, 0, [
+        act("jog", { to: to(0, 0), face: 0 }),
         act("fistPump"),
         act("victory"),
-        act("lowFive", { partner: "w2" }),
+        act("fistBump", { partner: "w2" }),
+        act("gestureWave", { count: 3 }),
+        act("fistPump", { count: 2 }),
       ]),
+      // The third keeps his distance until he comes in for the hand on the
+      // shoulder.
       person("w2", "f1", 0.8, 0.3, 300, [
-        act("handsOnHips"),
-        act("lowFive", { partner: "w1" }),
+        act("handsOnHips", { seconds: 1.6 }),
+        act("gestureClap"),
+        act("handsOnHips", { seconds: 1.6 }),
+        act("gestureClap"),
+        act("handsOnHips", { seconds: 1.2 }),
+        act("fistBump", { partner: "w1" }),
         act("thumbsUp"),
+        act("handsOnHips", { seconds: 1.6 }),
+        act("gestureClap"),
       ]),
-      person("w3", "m2", -0.45, 0.05, 90, [
+      person("w3", "m2", -1.6, 0.05, 90, [
         act("handsBehindHead"),
+        act("walk", { to: to(-0.45, 0.05), face: 90 }),
         act("firmPress", { target: at("w1", "shoulderRight") }),
+        act("step", { direction: "back", steps: 2 }),
+        act("gestureClap"),
+        act("handsOnHips", { seconds: 1.2 }),
+        act("thumbsUp"),
+        act("gestureClap"),
       ]),
     ],
   ),
@@ -379,7 +676,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "ball-yard",
       title: "Ball yard",
       summary:
-        "Three players throw, catch and kick in a yard, then run and jump.",
+        "A catcher takes a throw and passes it to a kicker, who catches it and kicks two balls.",
       setting: "sport",
       roles: { th: "thrower", ca: "catcher", ki: "kicker" },
       needs: [],
@@ -388,19 +685,42 @@ export const SCENES_GAMES: readonly IScene[] = [
     [
       person("th", "m1", 0, 0, 0, [
         act("throwObject", { at: at("ca", "sternum") }, { anchor: "th" }),
-        act("run", { to: to(0, 3), pace: "jog" }),
+        act("run", { to: to(0, 1.6), pace: "jog" }),
+        act("gestureBeckon"),
+        act("jump", { to: to(0, 1.8) }),
+        act("jog", { to: to(-1.5, 2.6), face: 45 }),
+        act("fistPump"),
+        act("walk", { to: to(-0.4, 1.8), face: 0 }),
       ]),
       person("ca", "f1", 0, 5, 180, [
         act("catchObject", { from: "th", hands: "two", ball: "handball" }),
+        act(
+          "throwObject",
+          { at: at("ki", "sternum"), prop: "handball", style: "underarm" },
+          { anchor: "by-pass" },
+        ),
+        act("gestureClap"),
         act("jump", { to: to(0, 4.6) }),
+        act("jog", { to: to(-0.8, 5.4), face: 180 }),
+        act("fistPump"),
+        act("handsOnHips", { seconds: 1.6 }),
       ]),
-      person("ki", "m2", 2, 2, 270, [act("kickBall", { ball: "football" })]),
+      person("ki", "m2", 2, 2, 270, [
+        act("kickBall", { ball: "football" }),
+        act("gestureBeckon"),
+        act("catchObject", { from: "by-pass", hands: "two", ball: "handball" }),
+        act("walk", { to: to(2, 1.3), face: 270 }),
+        act("kickLeft", { ball: "football2" }),
+        act("gestureCheer"),
+        act("jog", { to: to(0.8, 1.6), face: 270 }),
+      ]),
     ],
     // The ball caught lies at the thrower's feet, as the throw is mimed; the
-    // ball kicked lies ahead of the kicker.
+    // footballs kicked lie ahead of the kicker, the second where he steps to.
     [
       object("handball", "createSphericalBall", "handball", 0, 0.3),
       object("football", "createSphericalBall", "football", 1.7, 2),
+      object("football2", "createSphericalBall", "football", 1.7, 1.3),
     ],
   ),
   scene(
@@ -408,7 +728,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "martial-forms",
       title: "Martial arts forms",
       summary:
-        "Three students run their forms: a horse stance, karate punches, a front stance with a low and a rising block, a tai chi push.",
+        "Three students run punches, blocks and stances in different orders, then bow together.",
       setting: "sport",
       roles: { k1: "student", k2: "student", k3: "student" },
       needs: [],
@@ -416,15 +736,32 @@ export const SCENES_GAMES: readonly IScene[] = [
     "forms",
     [
       person("k1", "m1", -1.2, 0, 0, [
-        act("horseStance", { seconds: 1.5 }),
-        act("karatePunches"),
+        act("horseStance", { seconds: 1 }),
+        act("karatePunches", { count: 4 }),
+        act("frontStance", { hold: 0.5 }),
+        act("lowBlock", { reps: 2 }),
+        act("risingBlock", { reps: 2 }),
+        act("gesture", { kind: "bow" }, { anchor: "mf-bow" }),
       ]),
       person("k2", "f1", 0, 0, 0, [
-        act("frontStance"),
-        act("lowBlock"),
-        act("risingBlock"),
+        act("frontStance", { hold: 0.5 }),
+        act("lowBlock", { reps: 2 }),
+        act("risingBlock", { reps: 2 }),
+        act("horseStance", { seconds: 1 }),
+        act("karatePunches", { count: 4 }),
+        act("stand", { seconds: 0.5 }),
+        act("gesture", { kind: "bow" }, { sync: { of: "mf-bow" } }),
       ]),
-      person("k3", "m2", 1.2, 0, 0, [act("taiChiPush")]),
+      person("k3", "m2", 1.2, 0, 0, [
+        act("martialArt", { kind: "taiChiTransfer" }, { anchor: "mf-tai" }),
+        act(
+          "horseStance",
+          { seconds: 1.5 },
+          { sync: { of: "mf-tai", event: "relax" } },
+        ),
+        act("stand", { seconds: 3 }),
+        act("gesture", { kind: "bow" }, { sync: { of: "mf-bow" } }),
+      ]),
     ],
   ),
   scene(
@@ -432,12 +769,25 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "throwing-circle",
       title: "Throwing circle",
       summary:
-        "A hammer thrower in the circle turns twice, pivoting on the left foot.",
+        "A hammer thrower rehearses two turns, throws with three and watches the mimed hammer.",
       setting: "sport",
       roles: { thr: "hammer thrower" },
       needs: [],
     },
     "throwing-circle",
-    [person("thr", "m2", 0, 0, 0, [act("hammerTurn"), act("hammerTurn")])],
+    [
+      person("thr", "m2", 0, -2.2, 0, [
+        act("walk", { to: to(0, 0), face: 0 }),
+        act("armCircles", { reps: 2 }),
+        act("hammerTurn", { reps: 2 }),
+        act("stand", { seconds: 0.6 }),
+        act("hammerTurn", { reps: 3 }),
+        act("look", {
+          target: { kind: "point", frame: "world", at: { x: 0, y: 3, z: 30 } },
+          seconds: 1.2,
+        }),
+        act("fistPump"),
+      ]),
+    ],
   ),
 ];

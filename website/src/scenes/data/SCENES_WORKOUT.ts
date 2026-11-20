@@ -22,7 +22,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "dumbbell-corner",
       title: "Dumbbell corner",
       summary:
-        "Three people work through dumbbell exercises with the weights mimed: curls and triceps extensions, lateral and front raises, shrugs and a bent-over row.",
+        "Three people work mimed dumbbells: curls and extensions, raises, shrugs and rows.",
       setting: "gym",
       roles: { ann: "member", bud: "member", cid: "member" },
       needs: [],
@@ -30,16 +30,19 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "dumbbell-corner",
     [
       person("ann", "f1", -1.8, 0, 0, [
-        act("curl", { reps: 3 }),
-        act("tricepsExtension", { reps: 3 }),
+        act("curl", { reps: 2 }),
+        act("fanSelf"),
+        act("tricepsExtension", { reps: 2 }),
       ]),
       person("bud", "m1", 0, 0, 0, [
-        act("lateralRaise", { reps: 3 }),
-        act("frontRaise", { reps: 3 }),
+        act("lateralRaise", { reps: 2 }),
+        act("selfAction", { kind: "shoulderRoll" }),
+        act("frontRaise", { reps: 2 }),
       ]),
       person("cid", "m2", 1.8, 0, 0, [
         act("shrug", { reps: 3 }),
-        act("bentOverRow", { reps: 3 }),
+        act("bentOverRow", { reps: 2 }),
+        act("selfAction", { kind: "neckRoll" }),
       ]),
     ],
   ),
@@ -48,7 +51,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "barbell-platform",
       title: "Barbell platform",
       summary:
-        "Four lifters: a front squat and a goblet squat, a Romanian deadlift and a good morning, a power clean and a snatch, an overhead press and a bench press.",
+        "Four lifters run squats, hinges, a clean and a snatch, and presses.",
       setting: "gym",
       roles: { dax: "lifter", eva: "lifter", fox: "lifter", gia: "lifter" },
       needs: [],
@@ -66,7 +69,9 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       ]),
       person("fox", "m1", 0.8, 0, 0, [
         act("powerClean", { reps: 1 }),
+        act("selfAction", { kind: "shoulderRoll", count: 1 }),
         act("snatch", { reps: 1 }),
+        act("selfAction", { kind: "fistPump", count: 1 }),
       ]),
       person("gia", "f2", 2.4, 0, 0, [
         act("overheadPress", { reps: 2 }),
@@ -83,7 +88,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "leg-day",
       title: "Leg day",
       summary:
-        "Leg day for four: split squats and a sit against the wall, calf raises and squats, step-ups onto a plyo box and a jump onto its top, hip thrusts off a bench and lunges.",
+        "Four people train legs: squats, a wall sit, step-ups, a box jump, hip thrusts and lunges.",
       setting: "gym",
       roles: { hap: "member", ike: "member", jem: "member", kai: "member" },
       needs: [],
@@ -92,17 +97,19 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     [
       person("hap", "m1", -2.4, 0, 0, [
         act("splitSquat", { reps: 2 }),
-        act("wallSit", { hold: 2, on: { prop: "wall", affordance: "face" } }),
+        act("wallSit", { hold: 1.5, on: { prop: "wall", affordance: "face" } }),
+        act("quadStretch", { seconds: 0.5 }),
       ]),
       person("ike", "f2", -0.8, 0, 0, [
         act("calfRaise", { reps: 3 }),
-        act("squats", { reps: 2 }),
+        act("squats", { reps: 3 }),
       ]),
       person("jem", "m2", 0.8, 0, 0, [
         act("stepUp", {
-          reps: 2,
+          reps: 3,
           on: { prop: "box", affordance: "surface" },
         }),
+        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
         act("stand", { seconds: 0.3 }),
         act("boxJump", {
           to: { x: BOX.x, y: BOX.height, z: BOX.z },
@@ -114,7 +121,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
           reps: 2,
           on: { prop: "bench", affordance: "edge" },
         }),
-        act("lunges", { reps: 2 }),
+        act("lunges", { reps: 2, tempo: [1.5, 0, 1] }),
       ]),
     ],
     [
@@ -130,9 +137,9 @@ export const SCENES_WORKOUT: readonly IScene[] = [
   scene(
     {
       id: "push-up-ladder",
-      title: "Push-up ladder",
+      title: "Body-weight circuit",
       summary:
-        "Four people train with their body weight: push-ups and wide push-ups, incline and decline push-ups on a bench, pike push-ups and a plank, and burpees.",
+        "Four people train with body weight: push-up variations, a plank, burpees and high knees.",
       setting: "gym",
       roles: { lia: "member", mo: "member", nat: "member", oz: "member" },
       needs: [],
@@ -141,7 +148,8 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     [
       person("lia", "f1", -2.4, 0, 0, [
         act("pushUp", { reps: 2 }),
-        act("widePushUp", { reps: 2 }),
+        act("widePushUp", { reps: 1 }),
+        act("selfAction", { kind: "shoulderRoll" }),
       ]),
       person("mo", "m1", -0.8, 0, 0, [
         act("inclinePushUp", {
@@ -149,15 +157,22 @@ export const SCENES_WORKOUT: readonly IScene[] = [
           on: { prop: "bench", affordance: "surface" },
         }),
         act("declinePushUp", {
-          reps: 2,
+          reps: 1,
           on: { prop: "bench", affordance: "surface" },
         }),
+        act("shoulderStretch", { seconds: 0.3 }),
       ]),
       person("nat", "f2", 0.8, 0, 0, [
-        act("pikePushUp", { reps: 2 }),
+        act("pikePushUp", { reps: 1 }),
         act("plank", { hold: 2 }),
+        act("selfAction", { kind: "neckRoll", count: 3 }),
       ]),
-      person("oz", "m2", 2.4, 0, 0, [act("burpee", { reps: 2 })]),
+      person("oz", "m2", 2.4, 0, 0, [
+        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
+        act("burpee", { reps: 4 }),
+        act("handsOnHips", { seconds: 1.2 }),
+        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
+      ]),
     ],
     [object("bench", "createBench", "flat", -0.8, 1.1, 90)],
   ),
@@ -166,7 +181,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "mat-work",
       title: "Mat work",
       summary:
-        "Three people on the mats: sit-ups and lying leg raises, bicycle crunches, a bear crawl and an inchworm.",
+        "Three people work the floor: sit-ups, crunches and twists, a bear crawl and an inchworm.",
       setting: "gym",
       roles: { pam: "member", quin: "member", rio: "member" },
       needs: [],
@@ -174,11 +189,17 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "mat-work",
     [
       person("pam", "f1", -1.5, 0, 0, [
-        act("sitUp", { reps: 2 }),
-        act("lyingLegRaise", { reps: 2 }),
+        act("sitUp", { reps: 2, manner: { pace: 1.1 } }),
+        act("lyingLegRaise", { reps: 1, manner: { pace: 1.1 } }),
       ]),
-      person("quin", "m1", 0, 0, 0, [act("bicycleCrunch", { reps: 3 })]),
-      person("rio", "m2", 1.5, -1, 0, [act("bearCrawl"), act("inchworm")]),
+      person("quin", "m1", 0, 0, 0, [
+        act("bicycleCrunch", { reps: 4 }),
+        act("russianTwist", { reps: 2, hold: 0.2 }),
+      ]),
+      person("rio", "m2", 1.5, -1, 0, [
+        act("bearCrawl", { cycles: 2 }),
+        act("inchworm", { cycles: 1 }),
+      ]),
     ],
   ),
   scene(
@@ -186,7 +207,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "bar-work",
       title: "Bar work",
       summary:
-        "Two people at the pull-up bars: a dead hang and chin-ups, hanging knee raises and a kip swing.",
+        "Two people at the pull-up bars: a dead hang and chin-ups, hanging knee raises and swings.",
       setting: "gym",
       roles: { sol: "member", tai: "member" },
       needs: [],
@@ -194,12 +215,21 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "bar-work",
     [
       person("sol", "m1", -0.8, 0, 0, [
-        act("deadHang", { hold: 1.5, on: { prop: "barS", affordance: "bar" } }),
-        act("chinUp", { reps: 2, on: { prop: "barS", affordance: "bar" } }),
+        act("deadHang", { hold: 1, on: { prop: "barS", affordance: "bar" } }),
+        act("chinUp", { reps: 3, on: { prop: "barS", affordance: "bar" } }),
+        act("selfAction", { kind: "shoulderRoll" }),
       ]),
       person("tai", "f1", 0.8, 0, 0, [
-        act("kneeRaise", { reps: 2, on: { prop: "barT", affordance: "bar" } }),
-        act("barSwing", { reps: 2, on: { prop: "barT", affordance: "bar" } }),
+        act("kneeRaise", {
+          reps: 4,
+          on: { prop: "barT", affordance: "bar" },
+          manner: { pace: 1.05 },
+        }),
+        act("barSwing", {
+          reps: 2,
+          on: { prop: "barT", affordance: "bar" },
+          manner: { pace: 1.05 },
+        }),
       ]),
     ],
     [
@@ -212,7 +242,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "cardio-corner",
       title: "Cardio corner",
       summary:
-        "Warming up: one rows on a mimed machine and then pedals a bicycle, one skips a mimed rope, one steps touch and box steps, and one runs strides down the hall.",
+        "Four people warm up: rowing and cycling, skipping rope, dance steps and strides.",
       setting: "gym",
       roles: { uli: "member", val: "member", wil: "member", xen: "member" },
       needs: [],
@@ -220,21 +250,37 @@ export const SCENES_WORKOUT: readonly IScene[] = [
     "cardio-corner",
     [
       person("uli", "m1", -2.4, 0, 0, [
-        act("rowing"),
-        act("cycling", { on: { prop: "bike", affordance: "saddle" } }),
+        act("rowing", { reps: 2 }),
+        act("cycling", {
+          reps: 3,
+          on: { prop: "bike", affordance: "saddle" },
+        }),
       ]),
-      person("val", "f2", -0.8, 0, 0, [act("jumpRope", { reps: 6 })]),
-      person("wil", "f1", 0.8, 0, 0, [act("stepTouch"), act("boxStep")]),
-      person("xen", "m2", 2.4, -3, 0, [act("strides", { to: to(2.4, 4) })]),
+      person("val", "f2", -0.8, 0, 0, [
+        act("jumpRope", { reps: 16 }),
+        act("highKnees", { reps: 4, tempo: [0.35, 0, 0.35] }),
+        act("jumpRope", { reps: 16 }),
+      ]),
+      person("wil", "f1", 0.8, 0, 0, [
+        act("stepTouch"),
+        act("boxStep", { beats: 12 }),
+        act("stepTouch", { beats: 7, side: "left" }),
+      ]),
+      person("xen", "m2", 2.4, -3, 0, [
+        act("strides", { to: to(2.4, 4) }),
+        act("buttKicks", { reps: 4 }),
+        act("strides", { to: to(2.4, -3) }),
+        act("aSkip", { reps: 6, tempo: [0.35, 0, 0.35] }),
+      ]),
     ],
     [object("bike", "createBicycle", undefined, -2.4, 0.9)],
   ),
   scene(
     {
       id: "sled-and-carry",
-      title: "Sled and carry",
+      title: "Barrow and carry",
       summary:
-        "Two athletes finish with carries: one pushes a barrow down the lane by its two handles, leaning into it; the other does a farmer's walk with the weights mimed, the arms hanging still.",
+        "One athlete pushes a wheelbarrow up the lane; another carries mimed weights up and back.",
       setting: "gym",
       roles: { yul: "athlete", zed: "athlete" },
       needs: [],
@@ -249,8 +295,15 @@ export const SCENES_WORKOUT: readonly IScene[] = [
           left: "leftHandle",
           right: "rightHandle",
         }),
+        act("selfAction", { kind: "shoulderRoll" }),
+        act("walk", { to: to(-1, -2) }),
+        act("handsOnHips", { seconds: 1 }),
       ]),
-      person("zed", "f1", 1, -2, 0, [act("farmersWalk", { to: to(1, 2) })]),
+      person("zed", "f1", 1, -2, 0, [
+        act("farmersWalk", { to: to(1, 2) }),
+        act("farmersWalk", { to: to(1, -2) }),
+        act("selfAction", { kind: "shoulderRoll" }),
+      ]),
     ],
     [object("barrow", "createWheelbarrow", undefined, -1, -1.2)],
   ),
@@ -292,34 +345,33 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "cool-down",
       title: "Cool-down",
       summary:
-        "Four people cool down: a chair pose, a child's pose and a corpse pose, a sun salutation and a triangle, a cobra and a hip-flexor stretch, toe touches and a neck stretch, chest and triceps stretches and a lunge twist, a seated fold and a hurdler's stretch.",
+        "Four people cool down with yoga poses, a sun salutation and seated and standing stretches.",
       setting: "gym",
       roles: { ama: "member", bex: "member", cas: "member", dov: "member" },
       needs: [],
     },
     "cool-down",
     [
+      // The yoga rows fix holds of ten and twenty seconds, so the poses are
+      // their own laws with a cool-down's short holds.
       person("ama", "f1", -3.6, 0, 0, [
-        act("chairPose"),
-        act("childsPose"),
-        act("corpsePose"),
+        act("crouch", { depth: "partial", hold: 1 }),
+        act("kneel", { kind: "sitBack", hold: 2.5 }),
+        act("lieDown", { position: "supine", hold: 1 }),
       ]),
       person("bex", "m1", -1.2, 0, 0, [
         act("sunSalutation"),
-        act("triangle"),
-        act("cobra"),
-        act("hipFlexorStretch"),
+        act("triangle", { hold: 1.5 }),
       ]),
       person("cas", "f2", 1.2, 0, 0, [
-        act("toeTouch"),
-        act("neckStretch"),
-        act("chestStretch"),
-        act("tricepsStretch"),
-        act("lungeTwist"),
+        act("quadStretch", { seconds: 0.5 }),
+        act("neckStretch", { seconds: 0.5 }),
+        act("chestStretch", { hold: 0.3 }),
+        act("lungeTwist", { reps: 2 }),
       ]),
       person("dov", "m2", 3.6, 0, 0, [
-        act("seatedFold"),
-        act("hurdlerStretch"),
+        act("seatedFold", { hold: 1.5, manner: { pace: 1.15 } }),
+        act("hurdlerStretch", { hold: 1.5, manner: { pace: 1.15 } }),
       ]),
     ],
   ),
