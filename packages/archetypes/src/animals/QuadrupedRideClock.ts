@@ -207,7 +207,7 @@ export namespace QuadrupedRideClock {
         const index: number = order.indexOf(gait);
 
         // Keep unsupported-gait refusals owned by the strict table reader.
-        if (index < 0)
+        if (index < 0 && species.table.gaits[gait] === undefined)
           return QuadrupedGait.timing(
             species,
             gait,
@@ -215,7 +215,8 @@ export namespace QuadrupedRideClock {
             tempo,
             withers,
           );
-        const limits: { minimum: number; maximum: number } = ranges[index]!;
+        const limits: { minimum: number; maximum: number } =
+          ranges[index] ?? QuadrupedGait.range(species, gait, withers);
         let speed: number = state.speed;
         if (speed < limits.minimum) {
           const departing: boolean =
@@ -236,7 +237,7 @@ export namespace QuadrupedRideClock {
             );
           if (departing || stopping) speed = limits.minimum;
         }
-        if (speed < limits.minimum || speed > limits.maximum) {
+        if (index >= 0 && (speed < limits.minimum || speed > limits.maximum)) {
           const adjacent: number =
             speed < limits.minimum ? index - 1 : index + 1;
           const neighbour: { minimum: number; maximum: number } | undefined =

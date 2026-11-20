@@ -9,6 +9,7 @@ import { DogBody } from "./DogBody";
 import { DogGait } from "./DogGait";
 import { HorseGait } from "./HorseGait";
 import { HorseHarness } from "./HorseHarness";
+import { IcelandicHorseProfile } from "./IcelandicHorseProfile";
 import { OxBody } from "./OxBody";
 import { OxGait } from "./OxGait";
 import type { QuadrupedBody } from "./QuadrupedBody";
@@ -58,6 +59,7 @@ export function createQuadruped(
   if (params.kind === "ox") return createOx(params, seed);
   if (params.kind === "camel") return createCamel(params, seed);
   if (params.kind === "deer") return createDeer(params, seed);
+  if (params.kind === "horse") return createHorse(params, seed);
   return createQuadruped.PRODUCERS[params.kind](params, seed);
 }
 
@@ -113,7 +115,8 @@ export namespace createQuadruped {
 
   /** The parameters: the kind, and the kind's own parameters. */
   export type IParams =
-    | ({ kind: "horse" | "pony" | "donkey" | "mule" } & createPony.IParams &
+    | ({ kind: "horse" } & createHorse.IParams)
+    | ({ kind: "pony" | "donkey" | "mule" } & createPony.IParams &
         createMule.IParams)
     | ({ kind: "dog" } & createDog.IParams)
     | ({ kind: "cat" } & createCat.IParams)
@@ -298,6 +301,8 @@ export namespace createQuadruped {
       if (cohort === "pet" || cohort === "show" || cohort === "sled")
         return { ...SPECIES.dog, stance: DogBody(cohort).stance };
     }
+    if (kind === "horse" && animal.provenance?.models.breed === "icelandic")
+      return { ...SPECIES.horse, table: IcelandicHorseProfile.TABLE };
     return SPECIES[kind];
   }
 }

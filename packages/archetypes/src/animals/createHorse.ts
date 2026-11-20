@@ -13,6 +13,7 @@ import { HORSE_BANDS } from "./HORSE_BANDS";
 import { HorseHarness } from "./HorseHarness";
 import { HorsePack } from "./HorsePack";
 import { HorseSaddle } from "./HorseSaddle";
+import { IcelandicHorseProfile } from "./IcelandicHorseProfile";
 import { QuadrupedBody } from "./QuadrupedBody";
 
 /**
@@ -22,7 +23,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  *
  * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`.
  *
- * Its height at the withers is drawn from the warmbloods' range; its heart girth and its mass follow that height, the girth in their mean proportion and the mass by the girth-squared-times-length law anchored on their means (`mass`), so a horse's three measures agree. The seat and the reins are each one of their read sizes.
+ * The default horse draws from the warmblood height band. Its girth follows the cohort's mean proportion and its mass follows the girth-squared-times-length law anchored on that cohort's mean (`mass`). An explicit Icelandic horse uses its own sourced profile and enables the two alternate gaits. The seat and reins are selected from their read sizes.
  *
  * @param params The tack, the seat and reins by their read sizes, and any free dimension the author fixes.
  * @param seed The seed that draws every free dimension inside its band and the seat and the reins among their read sizes; absent, each dimension takes the middle of its band and each size the first listed.
@@ -41,16 +42,23 @@ export function createHorse(
   params: createHorse.IParams = {},
   seed?: number | string,
 ): Archetype<createHorse.Affordance, createHorse.Dimension> {
-  return createHorse.equid(
-    createHorse.PROFILE,
-    params,
-    new ArchetypeDrawSession<createHorse.Dimension>(
+  const draw: ArchetypeDrawSession<createHorse.Dimension> =
+    new ArchetypeDrawSession(
       createHorse.PROFILE.archetype,
       createHorse.UNITS,
       seed,
       params,
-    ),
-  );
+    );
+  const breed: createHorse.IParams["breed"] =
+    params.breed === undefined
+      ? undefined
+      : draw.model("breed", params.breed, { warmblood: {}, icelandic: {} })
+          .name;
+  const profile: createHorse.IProfile =
+    breed === "icelandic"
+      ? IcelandicHorseProfile.shape(createHorse.PROFILE)
+      : createHorse.PROFILE;
+  return createHorse.equid(profile, params, draw);
 }
 
 /**
@@ -142,6 +150,9 @@ export namespace createHorse {
 
   /** The parameters: the tack, the saddle's seat and the reins by their read sizes, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Free, number>> {
+    /** Explicit horse cohort. Icelandic admits tölt and flying pace. The ordinary warmblood profile is used when absent. */
+    breed?: "warmblood" | "icelandic";
+
     /** The saddle's seat size; drawn from the seed when absent. */
     seat?: Seat;
 
@@ -282,7 +293,7 @@ export namespace createHorse {
    */
   export function equid(
     profile: IProfile,
-    params: IParams,
+    params: Omit<IParams, "breed">,
     draw: ArchetypeDrawSession<Dimension>,
   ): Archetype<Affordance, Dimension> {
     const tack: createHorse.Tack = ArchetypeDraw.choice(
