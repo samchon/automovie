@@ -9,7 +9,9 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanAidWalk,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePhysicalShape,
@@ -19,9 +21,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
+import type { HumanRideHands } from "./HumanRideHands";
 
 /** Palm-to-rod stage admission in world metres. */
 const GRIP_GAP: number = 0.01;
@@ -49,6 +53,9 @@ export namespace humanAidWalkGrip {
     /** Hand approach about the grip axis, in degrees. */
     angle: number;
 
+    /** The crutch user's wrist-relative palm used to seat it on the rod. */
+    palm?: IAutoMovieMotionHumanHand.IFrame;
+
     /** Fitted closure over the actual grip collider. */
     digits: IAutoMovieMotionHumanPosture["joints"];
   }
@@ -59,7 +66,8 @@ export namespace humanAidWalkGrip {
     world: IAutoMovieRigidTransform,
     offset: number,
     angle: number,
-  ): IAutoMovieMotionHumanMountRider.IHoldGrip {
+    palm?: IAutoMovieMotionHumanHand.IFrame,
+  ): HumanRideHands.IMaterialGrip {
     const rotation: IAutoMovieQuaternion = Quaternion.multiply(
       world.rotation,
       contact.frame.rotation,
@@ -81,6 +89,9 @@ export namespace humanAidWalkGrip {
       ),
       axis: Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
       radius: (contact.aperture ?? 0) / 2,
+
+      // The existing surface-aligned hand fit reads this wrist-relative frame.
+      ...(palm === undefined ? {} : { reinPalm: palm }),
     };
   }
 
@@ -92,7 +103,7 @@ export namespace humanAidWalkGrip {
     shapes: readonly IAutoMoviePhysicalShape[],
     affordances: readonly IAutoMovieAffordance[],
     start: IAutoMovieRigidTransform,
-    walker: boolean,
+    kind: IAutoMovieMotionHumanAidWalk["kind"],
     sides: readonly AutoMovieHumanSide[],
     stations: readonly {
       frame: IAutoMovieRigidTransform;
@@ -100,6 +111,7 @@ export namespace humanAidWalkGrip {
     }[],
     refuse: (axis: string, value: string | number, reason: string) => never,
   ): readonly IHand[] {
+    const walker: boolean = kind === "walker";
     return sides.map((side: AutoMovieHumanSide): IHand => {
       const id: string = walker ? `${side}Grip` : "grip";
       const affordance: IAutoMovieAffordance | undefined = affordances.find(
@@ -117,6 +129,8 @@ export namespace humanAidWalkGrip {
         : [0];
       const palm: IAutoMovieHumanoidSurfaces.IFrame =
         body.surfaces.regions[side === "left" ? "palmLeft" : "palmRight"];
+      const measured: IAutoMovieMotionHumanHand.IFrame | undefined =
+        kind === "crutch" ? HumanHand.offset(body, side, "palm") : undefined;
       const center: IAutoMovieVector3 = target(affordance, start, 0, 0).point;
       const solid: IAutoMoviePhysicalShape | undefined = shapes.reduce<
         IAutoMoviePhysicalShape | undefined
@@ -144,6 +158,7 @@ export namespace humanAidWalkGrip {
               station.frame,
               offset,
               angle,
+              measured,
             );
             const { arm }: IAutoMovieMotionHumanMountRider.IHoldResult =
               HumanMountRider.hold(body, side, station.body, selected, 1, {});
@@ -179,11 +194,12 @@ export namespace humanAidWalkGrip {
               affordance,
               offset,
               angle,
+              ...(measured === undefined ? {} : { palm: measured }),
               digits: HumanMountRider.closed(
                 body,
                 side,
                 entry,
-                target(affordance, start, offset, angle),
+                target(affordance, start, offset, angle, measured),
                 shapes,
                 start,
               ),

@@ -13,8 +13,8 @@ const AIDS: readonly {
   height: number;
 }[] = [
   { kind: "cane", body: "m1", x: -0.29, z: 0.16, height: 0.9 },
-  { kind: "walker", body: "m1", x: 0, z: 0.12, height: 0.86 },
-  { kind: "crutch", body: "f1", x: -0.29, z: 0.16, height: 0.78 },
+  { kind: "walker", body: "m1", x: 0, z: 0.13, height: 0.9 },
+  { kind: "crutch", body: "f1", x: -0.24, z: 0.16, height: 0.9 },
 ];
 
 /** One route starts, changes heading and comes to a grounded stop. */
