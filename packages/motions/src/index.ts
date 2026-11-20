@@ -21,6 +21,7 @@ export * from "./actions/walkStation";
 export * from "./actions/walkSteps";
 export * from "./affordance/pour";
 export * from "./carrier/supportTransfer";
+export { HumanSurfaceBoard } from "./carrier/HumanSurfaceBoard";
 export * from "./gait/HUMANOID_GAITS";
 export * from "./gait/HUMANOID_PROFILE";
 export * from "./handling/HumanGrasp";

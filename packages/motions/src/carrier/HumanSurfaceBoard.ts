@@ -1,17 +1,37 @@
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
+  IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSurface,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanSupportCarry } from "./HumanSupportCarry";
+import { prepareSkateboardPhrase } from "./prepareSkateboardPhrase";
+import { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
+
+/** Vertical in the deck frame. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** Hand subsequent actions a settled stance after the board transfer. */
+const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
+  any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
+};
 
 /**
  * Carry a two-foot stance on the actual board's film-clock trajectory.
@@ -100,4 +120,234 @@ export function HumanSurfaceBoard(
     },
     params.on,
   );
+}
+
+/**
+ * Author a continuous move on a skateboard or surfboard selected from the
+ * stage. The board's animator owns its trajectory. Its actual
+ * affordances and authored phase boundaries determine the rider's plants.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States ownership of the board track and material supports.
+ * @evidence contracts/development/design.md#principled-representation The two board phrases carry distinct world, deck and free support windows. Named shares synchronize the existing prop clock.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes two registered laws and the original acquired-stance carrier.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps existing board rides and registered phrases distinct. A skateboard's floor and a surfboard's water elevation belong to the scene.
+ */
+export namespace HumanSurfaceBoard {
+  /** One skateboard push, tail pop and supported recovery. */
+  export interface ISkateboardPhraseParams {
+    /** The staged skateboard with deck, stance, tail and wheel affordances. */
+    on: string;
+    /** Duration in seconds on the actor's clock. */
+    seconds: number;
+    /** The foot that remains forward while the other foot pushes. */
+    lead: AutoMovieHumanSide;
+    /** Elevation in metres of the skateboard's horizontal ground. Defaults to zero. */
+    ground?: number;
+  }
+
+  /** A deck mount, paddle and transfer to the two-foot stance. */
+  export interface ISurfboardPhraseParams {
+    /** The staged surfboard with deck, palm and stance affordances. */
+    on: string;
+    /** Duration in seconds on the actor's clock. */
+    seconds: number;
+    /** The foot that reaches the front stance first. */
+    lead: AutoMovieHumanSide;
+    /** Whether a foot settles before both hands release or after a free interval. */
+    transfer: "overlap" | "flight";
+    /** Elevation in metres of the water surface. Defaults to zero. */
+    water?: number;
+  }
+
+  /** Establish one ground push, turn feet on the deck, and land from an authored ollie. */
+  export const skateboardPhrase: IAutoMovieMotionHumanActionLaw<ISkateboardPhraseParams> =
+    {
+      name: "skateboardPhrase",
+      interrupts: END,
+      yields: ["head"],
+      plan: prepareSkateboardPhrase,
+    };
+
+  /** Advance onto the board from water, paddle, and transfer from palms to a surfing stance. */
+  export const surfboardPhrase: IAutoMovieMotionHumanActionLaw<ISurfboardPhraseParams> =
+    {
+      name: "surfboardPhrase",
+      interrupts: END,
+      yields: ["head"],
+      plan: prepareSurfboardPhrase,
+    };
+
+  /** Phase shares for synchronizing the skateboard's authored transform. */
+  export const SKATEBOARD: typeof prepareSkateboardPhrase.SHARES =
+    prepareSkateboardPhrase.SHARES;
+
+  /** Phase shares for synchronizing the surfboard's authored transform. */
+  export const SURFBOARD: typeof prepareSurfboardPhrase.SHARES =
+    prepareSurfboardPhrase.SHARES;
+
+  /** The board frame and rectangular deck envelope admitted for one staged phrase. */
+  export interface IDeck {
+    /** Sample the board's own world frame on this action's clock. */
+    at(seconds: number): IAutoMovieRigidTransform;
+    /** Get a named contact in board-local metres. */
+    site(id: string, kind: IAutoMovieAffordance["kind"]): IAutoMovieVector3;
+    /** Verify a site lies on the board's material top and inside its extent. */
+    plant(point: IAutoMovieVector3, name: string): void;
+    /** The deck's centre in board-local metres. */
+    centre: IAutoMovieVector3;
+    /** The deck's side-to-side extent in metres. */
+    width: number;
+    /** The deck's nose-to-tail extent in metres. */
+    length: number;
+  }
+
+  /** Admit the board and use the prop's existing local affordances throughout. */
+  export function deck(
+    context: Pick<
+      IAutoMovieMotionHumanActionContext<unknown>,
+      "prop" | "start"
+    >,
+    on: string,
+  ): IDeck {
+    const prop: IAutoMovieMotionHumanPropReader = context.prop(on);
+    const contact = (
+      id: string,
+      kind: IAutoMovieAffordance["kind"],
+    ): IAutoMovieAffordance => {
+      const candidate: IAutoMovieAffordance | undefined =
+        prop.prop.affordances?.find(
+          (affordance: IAutoMovieAffordance): boolean =>
+            affordance.id === id && affordance.kind === kind,
+        );
+      if (
+        candidate === undefined ||
+        !Number.isFinite(Vector3.length(candidate.frame.translation))
+      )
+        return refuseBoard(
+          id,
+          "the prop needs a finite " + kind + " affordance",
+        );
+      return candidate;
+    };
+    const surface: IAutoMovieAffordance = contact("deck", "surface");
+    const centre: IAutoMovieVector3 = surface.frame.translation;
+    const width: number = surface.width ?? NaN;
+    const length: number = surface.depth ?? NaN;
+    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+      surface.frame.rotation,
+      UP,
+    );
+    if (
+      !(
+        Number.isFinite(width) &&
+        width > 0 &&
+        Number.isFinite(length) &&
+        length > 0
+      ) ||
+      Vector3.distance(normal, UP) > 1e-6
+    )
+      return refuseBoard(
+        on,
+        "the scene prop needs a bounded horizontal deck in its own frame",
+      );
+    return {
+      at: (seconds: number): IAutoMovieRigidTransform =>
+        prop.frame(context.start + seconds),
+      site: (
+        id: string,
+        kind: IAutoMovieAffordance["kind"],
+      ): IAutoMovieVector3 => contact(id, kind).frame.translation,
+      plant: (point: IAutoMovieVector3, name: string): void => {
+        if (
+          Math.abs(point.x - centre.x) > width / 2 ||
+          Math.abs(point.z - centre.z) > length / 2 ||
+          Math.abs(point.y - centre.y) > GAP
+        )
+          refuseBoard(name, "the contact lies outside the board's deck");
+      },
+      centre,
+      width,
+      length,
+    };
+  }
+
+  /** Format one named refusal from the indicated support affordance. */
+  export function refuseBoard(value: string, reason: string): never {
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "on",
+      value,
+      feasible: null,
+      reason,
+      fix: "stage a board with matching support geometry and phase timing",
+    });
+  }
+
+  /** The established 10 mm support tolerance, in metres. */
+  export const GAP: number = 0.01;
+
+  /** Orient a point or pose against the board's world frame. */
+  export function world(
+    frame: IAutoMovieRigidTransform,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, point),
+    );
+  }
+
+  /** Express a world point in the current board frame. */
+  export function local(
+    frame: IAutoMovieRigidTransform,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return Quaternion.rotateVector(
+      Quaternion.inverse(frame.rotation),
+      Vector3.subtract(point, frame.position),
+    );
+  }
+
+  /** A planted or unplanted sole goal whose target lies in world metres. */
+  export function ankle(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    sole: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+    planted: boolean,
+  ): Omit<IAutoMovieHumanLimbGoal, "bend"> {
+    const contact: IAutoMovieVector3 = HumanFoot.offset(body, side, "sole");
+    return {
+      point: Vector3.subtract(sole, Quaternion.rotateVector(rotation, contact)),
+      rotation,
+      contact,
+      planted,
+    };
+  }
+
+  /** A yaw in degrees measured from positive Z. */
+  export function heading(rotation: IAutoMovieQuaternion): number {
+    const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    return Math.atan2(forward.x, forward.z) / Quaternion.DEG2RAD;
+  }
+
+  /** The existing minimum-jerk ease between two phase shares. */
+  export function ease(at: number, from: number, to: number): number {
+    return minimumJerk(Math.max(0, Math.min(1, (at - from) / (to - from)))).s;
+  }
+
+  /** A declared support interval on the board or on the world floor. */
+  export function plant(
+    part: IAutoMovieMotionHumanContactWindow["part"],
+    from: number,
+    to: number,
+    support: IAutoMovieMotionHumanContactWindow.Support,
+    kind: IAutoMovieMotionHumanContactWindow["kind"] = "plant",
+  ): IAutoMovieMotionHumanContactWindow {
+    return { part, from, to, support, kind };
+  }
 }
