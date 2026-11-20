@@ -199,10 +199,16 @@ function guard(
 /** Read the displayed clinical angles at a film second. */
 function flexion(film: HumanPerformance, at: number): number[] {
   const joints: IAutoMoviePose["joints"] = film.pose("actor", at).joints;
-  return TRUNK.map(
-    (bone: (typeof TRUNK)[number]): number =>
-      joints.find((joint): boolean => joint.bone === bone)!.flexion,
-  );
+  return TRUNK.map((bone: (typeof TRUNK)[number]): number => {
+    const angle: number | null | undefined = joints.find(
+      (joint): boolean => joint.bone === bone,
+    )?.flexion;
+    if (angle == null)
+      throw new Error(
+        `The displayed ${bone} has no clinical flexion at ${at} s`,
+      );
+    return angle;
+  });
 }
 
 /** Compare all trunk angles at the same film instant. */
