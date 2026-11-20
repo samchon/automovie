@@ -3,6 +3,13 @@ import { SceneBuild } from "./SceneBuild";
 
 const { act, object, person, scene, sheathed }: typeof SceneBuild = SceneBuild;
 
+/** The range-counter shooter's mark downrange: a point at chest height ten metres ahead, world. */
+const DOWNRANGE: Record<string, unknown> = {
+  kind: "point",
+  at: { x: 0, y: 1.4, z: 10 },
+  frame: "world",
+};
+
 /** The combat scenes of the lexicon's blade, sword, melee and firearm-handling rows: two drills and a handgun drawn, reloaded and put back. */
 export const SCENES_BLADES: readonly IScene[] = [
   scene(
@@ -10,7 +17,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "sword-drill",
       title: "Sword drill",
       summary:
-        "Two fencers take their swords from the hip and drill side by side: a rising draw cut, a cut and a slash, a thrust and a stab, a backslash and a traverse; a guard, a beat and a disengage, a cut, a parry and a thrust.",
+        "Two fencers take their swords from the hip and drill side by side. The first runs a rising draw cut, a cut and a slash, a thrust and a stab, a backslash and a traverse, then rises to the roof, cuts down and slashes back, retreats and settles in the fool's guard. The second takes a guard, beats, disengages, cuts, parries and thrusts, retreats into the roof, cuts down, advances, parries and disengages, slashes, retreats and settles in the fool's guard.",
       setting: "combat",
       roles: { ari: "fencer", ben: "fencer" },
       needs: [],
@@ -30,6 +37,11 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("stab", { blade: "swordA" }),
         act("backslash", { blade: "swordA" }),
         act("traverse"),
+        act("vomTag", { blade: "swordA", seconds: 0.6 }),
+        act("cut", { blade: "swordA" }),
+        act("backslash", { blade: "swordA" }),
+        act("retreat"),
+        act("alber", { blade: "swordA", seconds: 0.6 }),
       ]),
       person("ben", "f1", 0.8, 0, 0, [
         act("pickUp", {
@@ -43,6 +55,15 @@ export const SCENES_BLADES: readonly IScene[] = [
         act("swordCut", { blade: "swordB" }),
         act("swordParry", { blade: "swordB" }),
         act("swordThrust", { blade: "swordB" }),
+        act("retreat"),
+        act("vomTag", { blade: "swordB", seconds: 0.6 }),
+        act("cut", { blade: "swordB" }),
+        act("advance"),
+        act("parry", { blade: "swordB" }),
+        act("disengage", { blade: "swordB" }),
+        act("slash", { blade: "swordB" }),
+        act("retreat"),
+        act("alber", { blade: "swordB", seconds: 0.6 }),
       ]),
     ],
     [
@@ -55,7 +76,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "knife-drill",
       title: "Knife drill",
       summary:
-        "Two trainees draw their blades from the hip: a knife slashed, slashed back and stabbed; a dagger taken point down for an overhand stab, then a club stroke with the free hand brought down from overhead, mimed.",
+        "Two trainees draw their blades from the hip and drill in combinations with footwork. The knife comes to guard, then is slashed, slashed back and stabbed; it advances on a slash and a stab, traverses on a backslash and a stab, retreats twice on slashes and stabs, advances on a backslash, a stab and a slash, and returns to guard. The dagger, taken point down, stabs overhand while the free hand's club stroke, mimed, comes down from overhead; the pair repeats on two advances, a traverse and two retreats, the free hand swinging across at the end.",
       setting: "combat",
       roles: { cal: "trainee", dee: "trainee" },
       needs: [],
@@ -68,9 +89,28 @@ export const SCENES_BLADES: readonly IScene[] = [
           handle: "grip",
           use: SceneBuild.BLADE_USE,
         }),
+        act("enGarde", { blade: "knife", seconds: 0.6 }),
         act("knifeSlash", { blade: "knife" }),
         act("knifeBackslash", { blade: "knife" }),
         act("knifeStab", { blade: "knife" }),
+        act("advance"),
+        act("knifeSlash", { blade: "knife" }),
+        act("knifeStab", { blade: "knife" }),
+        act("traverse"),
+        act("knifeBackslash", { blade: "knife" }),
+        act("knifeStab", { blade: "knife" }),
+        act("retreat"),
+        act("knifeSlash", { blade: "knife" }),
+        act("knifeBackslash", { blade: "knife" }),
+        act("knifeStab", { blade: "knife" }),
+        act("retreat"),
+        act("knifeSlash", { blade: "knife" }),
+        act("knifeStab", { blade: "knife" }),
+        act("advance"),
+        act("knifeBackslash", { blade: "knife" }),
+        act("knifeStab", { blade: "knife" }),
+        act("knifeSlash", { blade: "knife" }),
+        act("enGarde", { blade: "knife", seconds: 1 }),
       ]),
       person("dee", "f2", 0.8, 0, 0, [
         act("pickUp", {
@@ -80,6 +120,28 @@ export const SCENES_BLADES: readonly IScene[] = [
         }),
         act("stabOverhand", { blade: "dagger" }),
         act("clubStrike", { hand: "left" }),
+        act("advance"),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubStrike", { hand: "left" }),
+        act("stabOverhand", { blade: "dagger" }),
+        act("traverse"),
+        act("clubStrike", { hand: "left" }),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubStrike", { hand: "left" }),
+        act("retreat"),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubStrike", { hand: "left" }),
+        act("stabOverhand", { blade: "dagger" }),
+        act("retreat"),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubStrike", { hand: "left" }),
+        act("advance"),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubStrike", { hand: "left" }),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubStrike", { hand: "left" }),
+        act("stabOverhand", { blade: "dagger" }),
+        act("clubSwing", { hand: "left" }),
       ]),
     ],
     [
@@ -92,7 +154,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "range-counter",
       title: "At the range counter",
       summary:
-        "A shooter takes a handgun from the range counter by its grip, the bore along the forearm, and lays it back down.",
+        "A shooter takes a handgun from the range counter by its grip, the bore along the forearm, and runs a string downrange: low ready, an aim and a pair of shots, high ready, an aim and two more pairs, a scan at low ready, an aim and a last pair; then lays the gun back down.",
       setting: "combat",
       roles: { eve: "shooter" },
       needs: [],
@@ -101,7 +163,20 @@ export const SCENES_BLADES: readonly IScene[] = [
     [
       person("eve", "m2", 0, 0.12, 0, [
         act("drawFirearm", { prop: "gun" }),
-        act("stand", { seconds: 1 }),
+        act("lowReady", { gun: "gun" }),
+        act("takeAim", { gun: "gun", target: DOWNRANGE }),
+        act("recoil", { gun: "gun" }),
+        act("recoil", { gun: "gun" }),
+        act("highReady", { gun: "gun", seconds: 1 }),
+        act("takeAim", { gun: "gun", target: DOWNRANGE }),
+        act("recoil", { gun: "gun" }),
+        act("recoil", { gun: "gun" }),
+        act("recoil", { gun: "gun" }),
+        act("recoil", { gun: "gun" }),
+        act("lowReady", { gun: "gun" }),
+        act("takeAim", { gun: "gun", target: DOWNRANGE }),
+        act("recoil", { gun: "gun" }),
+        act("recoil", { gun: "gun" }),
         act("holsterFirearm", {
           prop: "gun",
           at: { x: -0.18, y: SceneBuild.COUNTER_TOP, z: 0.42 },

@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, mutual, object, person, scene, seat }: typeof SceneBuild =
+const { act, at, mutual, object, person, scene, seat, to }: typeof SceneBuild =
   SceneBuild;
 
 /** The everyday scenes of the lexicon's emblems, habits and resting poses, and of its social mutual actions: hands that talk, care for the face, a photograph, sitting low without a seat, games of the hands and toasts. */
@@ -11,7 +11,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "talking-hands",
       title: "Talking hands",
       summary:
-        "Three friends across a noisy room: palms together, fingers crossed, a thumbs down, four and five counted, a fist shaken, ears covered, a hand over the mouth and a blown kiss sent off the palm.",
+        "Three friends across a noisy room talk with their hands: one pleads with palms together and crossed fingers, the next answers thumbs down and counts four and five, the third shakes a fist and covers ears and mouth; a blown kiss is sent, a facepalm and a shrug come back, a raised hand and a thumbs up, a hush and a halt, an okay, a victory sign and a wave to come over.",
       setting: "everyday",
       roles: { amy: "friend", bob: "friend", cat: "friend" },
       needs: [],
@@ -23,16 +23,26 @@ export const SCENES_GESTURES: readonly IScene[] = [
         act("crossedFingers"),
         act("blownKiss"),
         act("blownKissSend"),
+        act("gesture", { kind: "raiseHand" }),
+        act("thumbsUp"),
+        act("okSign"),
+        act("comeHere"),
       ]),
       person("bob", "m1", 1.2, 0.4, 270, [
         act("thumbsDown"),
         act("countFour"),
         act("countFive"),
+        act("facepalm"),
+        act("dontKnow"),
+        act("okSign"),
+        act("victorySign"),
       ]),
       person("cat", "m2", 0.4, 1.2, 200, [
         act("shakeFist"),
         act("coverEars"),
         act("coverMouth"),
+        act("hush"),
+        act("halt"),
       ]),
     ],
   ),
@@ -41,15 +51,29 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "powder-room",
       title: "Powder room",
       summary:
-        "Two guests freshen up: one draws lipstick across the lips, the other blows their nose.",
+        "Two guests freshen up side by side: one draws lipstick across the lips and presses them, glances over at the other and shakes her head, smooths cream into her face and checks the time; the other blows his nose, rubs his eyes and scratches his nape, glances back and shrugs, and fans himself.",
       setting: "everyday",
       roles: { dot: "guest", eli: "guest" },
       needs: [],
     },
     "powder-room",
     [
-      person("dot", "f2", -0.5, 0, 0, [act("applyLipstick")]),
-      person("eli", "m1", 0.5, 0, 0, [act("blowNose")]),
+      person("dot", "f2", -0.5, 0, 0, [
+        act("applyLipstick"),
+        act("gesture", { kind: "touchFace" }),
+        act("look", { target: at("eli", "face"), cue: "seen" }),
+        act("gesture", { kind: "shakeHead" }),
+        act("applyCream"),
+        act("checkWatch"),
+      ]),
+      person("eli", "m1", 0.5, 0, 0, [
+        act("blowNose"),
+        act("rubEyes"),
+        act("scratchNape", { side: "left" }),
+        act("look", { target: at("dot", "face"), cue: "seen" }),
+        act("gesture", { kind: "shrug" }),
+        act("fanSelf"),
+      ]),
     ],
   ),
   scene(
@@ -57,7 +81,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "snapshot",
       title: "Snapshot",
       summary:
-        "A tourist takes a camera off a kiosk counter and photographs a friend, who poses with crossed fingers.",
+        "A tourist takes a camera off a kiosk counter and photographs a friend, who poses with crossed fingers as the shutter goes; he shakes his head at the shot and she shrugs, he shoots again as she holds up a victory sign and then a thumbs up, and he waves her over and she walks up to see the picture.",
       setting: "everyday",
       roles: { fay: "photographer", gil: "subject" },
       needs: [],
@@ -70,11 +94,39 @@ export const SCENES_GESTURES: readonly IScene[] = [
           handle: "grip",
           use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
         }),
-        act("photograph", { prop: "camera" }),
+        act("photograph", { prop: "camera" }, { anchor: "sn-shot1" }),
+        act("gesture", { kind: "shakeHead" }, { anchor: "sn-no" }),
+        act("photograph", { prop: "camera" }, { anchor: "sn-shot2" }),
+        act("comeHere", { side: "left" }, { anchor: "sn-come" }),
+        act("look", { target: at("gil", "face"), seconds: 1 }),
       ]),
       person("gil", "f1", 0, 2.5, 180, [
-        act("stand", { seconds: 1.5 }),
-        act("crossedFingers"),
+        act("stand", { seconds: 3 }),
+        act(
+          "crossedFingers",
+          {},
+          { sync: { of: "sn-shot1", event: "stroke", align: "strokeEnd" } },
+        ),
+        act("stand", { seconds: 3 }),
+        act(
+          "gesture",
+          { kind: "shrug" },
+          { sync: { of: "sn-no", event: "start", offset: 0.3 } },
+        ),
+        act("stand", { seconds: 3 }),
+        act(
+          "victorySign",
+          {},
+          { sync: { of: "sn-shot2", event: "stroke", align: "strokeEnd" } },
+        ),
+        act("thumbsUp"),
+        act("stand", { seconds: 3 }),
+        act(
+          "walk",
+          { to: to(0.2, 1.8) },
+          { sync: { of: "sn-come", event: "strokeStart" } },
+        ),
+        act("look", { target: at("fay", "face"), seconds: 0.6 }),
       ]),
     ],
     [
@@ -87,16 +139,35 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "park-rest",
       title: "Resting in the park",
       summary:
-        "Three walkers stop on the grass: one takes a knee, one sits with the legs folded to the side, one squats low on the heels.",
+        "Three walkers come onto the grass: one takes a knee for a moment, gets up, rolls his neck and nods to the second, who fans herself, nods back and sits down with her legs folded to the side to stay a while; the third squats low on his heels, rises, wipes his brow and checks his watch, and the two men walk on.",
       setting: "everyday",
       roles: { hal: "walker", ida: "walker", jon: "walker" },
       needs: [],
     },
     "park-rest",
     [
-      person("hal", "m1", -1.2, 0, 20, [act("takeAKnee")]),
-      person("ida", "f1", 0, 0.6, 180, [act("sitSideways")]),
-      person("jon", "m2", 1.8, 0, 330, [act("squatSit")]),
+      person("hal", "m1", -1.2, -2, 0, [
+        act("walk", { to: to(-1.2, 0) }),
+        act("kneel", { kind: "one", hold: 2, rise: true }),
+        act("neckRoll", { count: 1 }),
+        act("look", { target: at("ida", "face"), cue: "seen" }),
+        act("gesture", { kind: "nod" }),
+        act("walk", { to: to(-1.2, 2) }),
+      ]),
+      person("ida", "f1", 0, 2.6, 180, [
+        act("walk", { to: to(0, 0.6) }),
+        act("fanSelf"),
+        act("look", { target: at("hal", "face"), cue: "seen" }),
+        act("gesture", { kind: "nod" }),
+        act("sitSideways"),
+      ]),
+      person("jon", "m2", 2.8, -1.7, 330, [
+        act("walk", { to: to(1.8, 0) }),
+        act("crouch", { depth: "full", heels: "up", hold: 2 }),
+        act("gesture", { kind: "touchFace" }),
+        act("checkWatch"),
+        act("walk", { to: to(1.8, 2) }),
+      ]),
     ],
   ),
   scene(
@@ -205,7 +276,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "arm-wrestle",
       title: "Arm wrestle",
       summary:
-        "Two friends sit across a table, lock hands with their elbows on it, strain and one pins the other.",
+        "Two friends square up across a table: the challenger rubs his hands, shakes a fist and squares his shoulders, the champion folds his arms, lifts his chin and beckons him on; they sit, lock hands with their elbows on the table, strain and the champion pins the challenger.",
       setting: "everyday",
       roles: { tad: "challenger", uri: "champion" },
       needs: [],
@@ -213,9 +284,15 @@ export const SCENES_GESTURES: readonly IScene[] = [
     "arm-wrestle",
     [
       person("tad", "m1", 0, -0.45, 0, [
+        act("gesture", { kind: "rubHands" }),
+        act("shakeFist"),
+        act("gesture", { kind: "squareShoulders" }),
         act("sit", { seat: seat("chairT"), seconds: 1 }),
       ]),
       person("uri", "m2", 0, 0.45, 180, [
+        act("armsCrossed", { seconds: 1.5 }),
+        act("gesture", { kind: "chinLift" }),
+        act("gesture", { kind: "beckon" }),
         act("sit", { seat: seat("chairU"), seconds: 1 }),
       ]),
     ],

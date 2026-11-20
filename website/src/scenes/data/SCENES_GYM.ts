@@ -10,7 +10,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "gym-floor",
       title: "Gym floor",
       summary:
-        "Six people train side by side: a back squat, a deadlift and a kettlebell swing with the weights mimed, pull-ups on the bar, dips on the parallel bars, and a farmer's walk with the arms hanging still.",
+        "Six people train side by side with the weights mimed: back squats and an overhead press, deadlifts and a Romanian deadlift, kettlebell swings around a goblet squat, pull-ups and hanging knee raises on the bar, dips and a knee raise on the parallel bars, and a farmer's walk down the floor and back finished with calf raises.",
       setting: "gym",
       roles: {
         ada: "squat",
@@ -26,23 +26,45 @@ export const SCENES_GYM: readonly IScene[] = [
     },
     "gym",
     [
-      person("ada", "m2", -3, 0, 0, [act("backSquat", { reps: 3 })]),
-      person("bo", "f1", -1.8, 0, 0, [act("deadlift", { reps: 3 })]),
-      person("cy", "m1", -0.6, 0, 0, [act("kettlebellSwing", { reps: 5 })]),
+      person("ada", "m2", -3, 0, 0, [
+        act("backSquat", { reps: 3 }),
+        act("overheadPress", { reps: 1 }),
+      ]),
+      person("bo", "f1", -1.8, 0, 0, [
+        act("deadlift", { reps: 4 }),
+        act("romanianDeadlift", { reps: 1 }),
+      ]),
+      person("cy", "m1", -0.6, 0, 0, [
+        act("kettlebellSwing", { reps: 5 }),
+        act("gobletSquat", { reps: 1 }),
+        act("kettlebellSwing", { reps: 3 }),
+      ]),
       person("di", "f2", 0.6, 0, 0, [
         act("pullUp", {
           reps: 3,
+          stay: true,
+          on: { prop: "pullBar", affordance: "bar" },
+        }),
+        act("kneeRaise", {
+          reps: 2,
           on: { prop: "pullBar", affordance: "bar" },
         }),
       ]),
       person("ed", "m1", 1.8, 0, 0, [
         act("dip", {
           reps: 4,
+          stay: true,
+          on: { prop: "dips", affordance: "barLeft", other: "barRight" },
+        }),
+        act("kneeRaise", {
+          reps: 1,
           on: { prop: "dips", affordance: "barLeft", other: "barRight" },
         }),
       ]),
       person("fe", "m2", 3, -1, 0, [
         act("farmersWalk", { to: SceneBuild.to(3, 2) }),
+        act("farmersWalk", { to: SceneBuild.to(3, -1) }),
+        act("calfRaise", { reps: 2 }),
       ]),
     ],
     [
@@ -55,7 +77,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "yoga-class",
       title: "Yoga class",
       summary:
-        "A teacher and four students flow from mountain pose through the warriors and a tree to a downward dog.",
+        "A teacher and four students, a beat behind her, flow from a brief mountain pose into warrior one, straight on into warrior two, then a triangle and a tree.",
       setting: "gym",
       roles: {
         tea: "teacher",
@@ -69,11 +91,11 @@ export const SCENES_GYM: readonly IScene[] = [
     "yoga",
     [
       person("tea", "f1", 0, 2.4, 180, [
-        act("mountainPose"),
-        act("warriorOne", { reps: 1, hold: 1 }),
-        act("warriorTwo", { reps: 1, hold: 1 }),
-        act("treePose", { seconds: 1.5 }),
-        act("downwardDog", { reps: 1, hold: 1 }),
+        act("stand", { seconds: 0.8 }),
+        act("warriorOne", { reps: 1, hold: 0.8, stay: true }),
+        act("warriorTwo", { reps: 1, hold: 0.8, stay: true }),
+        act("triangle", { reps: 1, hold: 0.8 }),
+        act("treePose", { seconds: 1 }),
       ]),
       ...[-1.5, -0.5, 0.5, 1.5].map(
         (x: number, i: number): SceneBuild.Performer =>
@@ -84,11 +106,11 @@ export const SCENES_GYM: readonly IScene[] = [
             0,
             0,
             [
-              act("mountainPose"),
-              act("warriorOne", { reps: 1, hold: 1 }),
-              act("warriorTwo", { reps: 1, hold: 1 }),
-              act("treePose", { seconds: 1.5 }),
-              act("downwardDog", { reps: 1, hold: 1 }),
+              act("stand", { seconds: 1 }),
+              act("warriorOne", { reps: 1, hold: 0.8, stay: true }),
+              act("warriorTwo", { reps: 1, hold: 0.8, stay: true }),
+              act("triangle", { reps: 1, hold: 0.8 }),
+              act("treePose", { seconds: 1 }),
             ],
             i % 2 === 0 ? "amateur" : "novice",
           ),
@@ -100,7 +122,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "core-class",
       title: "Core class",
       summary:
-        "Four people on the mat: crunches and a dead bug, a bird dog and a superman, Russian twists and a side plank, a glute bridge and mountain climbers.",
+        "Four people work the mat without getting up between moves: crunches into bicycle crunches, bird dogs into a plank, Russian twists into a side plank, glute bridges into mountain climbers.",
       setting: "gym",
       roles: { gi: "member", ha: "member", io: "member", ju: "member" },
       needs: [],
@@ -108,20 +130,20 @@ export const SCENES_GYM: readonly IScene[] = [
     "core",
     [
       person("gi", "f1", -1.5, 0, 0, [
-        act("crunch", { reps: 2, hold: 0.3 }),
-        act("deadBug", { reps: 2, hold: 0.3 }),
+        act("crunch", { reps: 2, hold: 0.3, stay: true }),
+        act("bicycleCrunch", { reps: 4, hold: 0.2 }),
       ]),
       person("ha", "m1", -0.5, 0, 0, [
-        act("birdDog", { reps: 2, hold: 0.3 }),
-        act("superman", { reps: 1, hold: 1 }),
+        act("birdDog", { reps: 2, hold: 0.3, stay: true }),
+        act("plank", { reps: 1, hold: 3 }),
       ]),
       person("io", "f2", 0.5, 0, 0, [
-        act("russianTwist", { reps: 3, hold: 0.2 }),
+        act("russianTwist", { reps: 6, hold: 0.2, stay: true }),
         act("sidePlank", { reps: 1, hold: 1.5 }),
       ]),
       person("ju", "m2", 1.5, 0, 0, [
-        act("gluteBridge", { reps: 2, hold: 0.3 }),
-        act("mountainClimber", { reps: 3, hold: 0 }),
+        act("gluteBridge", { reps: 2, hold: 0.3, stay: true }),
+        act("mountainClimber", { reps: 6, hold: 0 }),
       ]),
     ],
   ),
@@ -130,24 +152,36 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "stretching-circle",
       title: "Stretching circle",
       summary:
-        "Four runners stretch after a run: quadriceps, shoulders, a side bend, calves, leg swings and arm circles.",
+        "Four runners cool down after a run, each through their own circuit: both quadriceps, a calf stretch and leg swings; leg swings, a chest, side and triceps stretch; both shoulders, arm circles and a neck stretch; a side bend each way, a calf stretch and arm circles.",
       setting: "gym",
       roles: { ka: "runner", lo: "runner", mi: "runner", no: "runner" },
       needs: [],
     },
     "stretch",
     [
-      person("ka", "f1", 0, 0, 0, [act("quadStretch", { seconds: 1.5 })]),
+      person("ka", "f1", 0, 0, 0, [
+        act("quadStretch", { side: "left", seconds: 1.2 }),
+        act("quadStretch", { side: "right", seconds: 1.2 }),
+        act("calfStretch", { reps: 1, hold: 1 }),
+        act("legSwings", { reps: 2, hold: 0 }),
+      ]),
       person("lo", "m1", 1.4, 1.4, 270, [
-        act("legSwings", { reps: 3, hold: 0 }),
+        act("legSwings", { reps: 2, hold: 0 }),
+        act("chestStretch", { reps: 1, hold: 1 }),
+        act("sideStretch", { side: "right", seconds: 1.2 }),
+        act("tricepsStretch", { reps: 1, hold: 1 }),
       ]),
       person("mi", "f2", 0, 2.8, 180, [
-        act("shoulderStretch", { seconds: 1.5 }),
+        act("shoulderStretch", { side: "right", seconds: 1.2 }),
+        act("shoulderStretch", { side: "left", seconds: 1.2 }),
         act("armCircles", { reps: 2, hold: 0 }),
+        act("neckStretch", { seconds: 0.6 }),
       ]),
       person("no", "m2", -1.4, 1.4, 90, [
-        act("sideStretch", { seconds: 1.5 }),
-        act("calfStretch", { reps: 1, hold: 1 }),
+        act("sideStretch", { side: "right", seconds: 1.2 }),
+        act("sideStretch", { side: "left", seconds: 1.2 }),
+        act("calfStretch", { reps: 1, hold: 0.6 }),
+        act("armCircles", { reps: 2, hold: 0 }),
       ]),
     ],
   ),
@@ -156,7 +190,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "boxing-class",
       title: "Boxing class",
       summary:
-        "A coach and three members drill against each other: the coach throws a jab and a cross, comes back to guard and front-kicks; the members throw a jab, a cross, a lead hook, an uppercut and a round kick, and finish with jumping jacks.",
+        "A coach and three members drill against each other: the coach throws a jab and a cross, comes back to guard and front-kicks; the members throw a jab, a cross, a lead hook, an uppercut and a round kick; then the whole class finishes together with jumping jacks and high knees.",
       setting: "gym",
       roles: { coa: "coach", m1: "member", m2: "member", m3: "member" },
       needs: [],
@@ -170,6 +204,13 @@ export const SCENES_GYM: readonly IScene[] = [
         act("cross", { at: at("m2", "face") }),
         act("guard"),
         act("frontKick", { at: at("m2", "abdomen") }),
+        act("guard", { seconds: 0.3 }),
+        act("exercise", {
+          kind: "jumpingJack",
+          reps: 4,
+          tempo: [0.5, 0, 0.5],
+        }),
+        act("exercise", { kind: "highKnees", reps: 4, tempo: [0.6, 0, 0.6] }),
       ]),
       ...[-40, 0, 40].map(
         (angle: number, i: number): SceneBuild.Performer =>
@@ -185,7 +226,16 @@ export const SCENES_GYM: readonly IScene[] = [
               act("hook", { at: at("coa", "jawRight") }),
               act("uppercut", { at: at("coa", "chin") }),
               act("roundKick", { at: at("coa", "ribsLeft") }),
-              act("jumpingJacks", { reps: 3 }),
+              act("exercise", {
+                kind: "jumpingJack",
+                reps: 4,
+                tempo: [0.5, 0, 0.5],
+              }),
+              act("exercise", {
+                kind: "highKnees",
+                reps: 4,
+                tempo: [0.6, 0, 0.6],
+              }),
             ],
           ),
       ),
