@@ -149,7 +149,30 @@ export namespace PlaygroundAddress {
       (k: string): boolean => typeof value[k] === "number",
     );
 
-  /** Whether a value has the members the adapter reads of a placed object. */
+  /** Admit a serialized native path before the SDK validates its geometry. */
+  function course(value: unknown): boolean {
+    return (
+      record(value) &&
+      (value.kind === undefined || value.kind === "course") &&
+      Number.isFinite(value.cruise) &&
+      Array.isArray(value.legs) &&
+      value.legs.every(
+        (leg: unknown): boolean =>
+          record(leg) &&
+          (leg.kind === "straight"
+            ? Number.isFinite(leg.length)
+            : leg.kind === "turn" &&
+              Number.isFinite(leg.radius) &&
+              Number.isFinite(leg.angle)),
+      ) &&
+      ["acceleration", "deceleration", "startSpeed", "endSpeed", "at"].every(
+        (field) => value[field] === undefined || Number.isFinite(value[field]),
+      ) &&
+      (value.speeds === undefined ||
+        (Array.isArray(value.speeds) && value.speeds.every(Number.isFinite)))
+    );
+  }
+
   const object: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     typeof value.subject === "string" &&
@@ -165,6 +188,22 @@ export namespace PlaygroundAddress {
     typeof value.z === "number" &&
     (value.y === undefined || typeof value.y === "number") &&
     (value.rotation === undefined || quaternion(value.rotation)) &&
+    (value.course === undefined || course(value.course)) &&
+    (value.aidWalk === undefined ||
+      (record(value.aidWalk) && token(value.aidWalk.subject))) &&
+    (value.joints === undefined ||
+      (value.course !== undefined &&
+        record(value.joints) &&
+        Object.values(value.joints).every(
+          (keys: unknown) =>
+            Array.isArray(keys) &&
+            keys.every(
+              (key: unknown) =>
+                record(key) &&
+                Number.isFinite(key.seconds) &&
+                Number.isFinite(key.value),
+            ),
+        ))) &&
     (value.worn === undefined ||
       (record(value.worn) &&
         typeof value.worn.subject === "string" &&

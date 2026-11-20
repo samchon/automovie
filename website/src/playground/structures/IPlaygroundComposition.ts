@@ -1,3 +1,4 @@
+import type { ArchetypeCourse } from "@automovie/archetypes";
 import type { IAutoMovieMotionHumanImpulse } from "@automovie/interface";
 
 /**
@@ -69,6 +70,21 @@ export namespace IPlaygroundComposition {
 
     /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IAutoMovieMotionHumanProp.fixed`); a free object when absent. */
     fixed?: boolean;
+
+    /** A native vehicle course starting at this placement. */
+    course?: Omit<ArchetypeCourse.ICourse, "start">;
+
+    /** Native joint states named at film seconds, interpolated between keys. */
+    joints?: Record<string, readonly IJointKey[]>;
+
+    /** The performer whose opening aidWalk action moves this floor aid. */
+    aidWalk?: { subject: string };
+  }
+
+  /** A film-time value in an articulation's own unit. */
+  export interface IJointKey {
+    seconds: number;
+    value: number;
   }
 
   /** A rotation as a unit quaternion. */

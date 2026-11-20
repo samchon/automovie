@@ -79,7 +79,10 @@ export namespace PlaygroundPerformance {
     // Props exist only where the composition places objects; lexicon rows are
     // registered only where the installed package takes registered laws.
     const props: IAutoMovieMotionHumanPerformance.IInput["props"] =
-      PlaygroundObjects.props(composition.objects ?? []);
+      PlaygroundObjects.props(
+        composition.objects ?? [],
+        composition.performers,
+      );
     const full: IAutoMovieMotionHumanPerformance.IInput = {
       ...input,
       ...(props === undefined || props.length === 0 ? {} : { props }),

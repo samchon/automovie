@@ -1,8 +1,14 @@
-import type { IAutoMovieMotionHumanProp } from "@automovie/interface";
+import type {
+  IAutoMovieMotionHumanProp,
+  IAutoMovieTransform,
+} from "@automovie/interface";
+import { HumanAidWalk, HumanObject } from "@automovie/motions";
 import * as motions from "@automovie/motions";
 
 import { SceneArchetype } from "../../scenes/package/SceneArchetype";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
+import { playgroundAidWalkAction } from "./playgroundAidWalkAction";
+import { playgroundVehicleCourse } from "./playgroundVehicleCourse";
 
 /**
  * The archetypes a composition places, as the props and seats its actions
@@ -23,6 +29,9 @@ export namespace PlaygroundObjects {
       subject: string,
       model: object,
       placement: IPlacement,
+      motion?: (seconds: number) => IPlacement,
+      contact?: (id: string, seconds: number) => IAutoMovieTransform,
+      tracks?: readonly IAutoMovieMotionHumanProp.ITrack[],
     ): IAutoMovieMotionHumanProp;
 
     /** The seat of a model placed in the world. */
@@ -56,11 +65,13 @@ export namespace PlaygroundObjects {
    * The props of a composition's objects.
    *
    * @param objects The placed objects.
+   * @param performers The performers who author floor-aid routes.
    * @returns One prop per object; undefined when there are none.
    * @throws {Error} When objects are placed but the installed package cannot place them, or a producer is not exported.
    */
   export function props(
     objects: readonly IPlaygroundComposition.IObject[],
+    performers: readonly IPlaygroundComposition.IPerformer[],
   ): IAutoMovieMotionHumanProp[] | undefined {
     if (objects.length === 0) return undefined;
     const human: IHumanObject = attach();
@@ -68,10 +79,26 @@ export namespace PlaygroundObjects {
     // draws it, as `IAutoMovieMotionHumanProp.worn` says.
     return objects.map(
       (object: IPlaygroundComposition.IObject): IAutoMovieMotionHumanProp => {
+        const rest: SceneArchetype.Model = SceneArchetype.model(object);
+        const travel = playgroundVehicleCourse(object, rest);
+        const placed = placement(object);
+        const aid = playgroundAidWalkAction(object, performers);
+        if (
+          aid !== undefined &&
+          (travel !== undefined || object.fixed || object.worn)
+        )
+          throw new Error(
+            "A floor aid must be a movable placed prop with one route.",
+          );
         const made: IAutoMovieMotionHumanProp = human.prop(
           object.subject,
-          model(object),
-          placement(object),
+          rest,
+          placed,
+          aid === undefined
+            ? travel?.placement
+            : HumanAidWalk.track(HumanObject.frame(placed), aid),
+          travel?.contact,
+          travel?.tracks,
         );
         return object.worn === undefined
           ? made

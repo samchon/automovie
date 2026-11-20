@@ -35,7 +35,9 @@ import type { IScene } from "../src/scenes/structures/IScene";
 import { TakeCompute } from "../src/takes/package/TakeCompute";
 import { checkDrivingScrew } from "./checkDrivingScrew";
 import { checkEverydayScenes } from "./checkEverydayScenes";
+import { checkFarewellScene } from "./checkFarewellScene";
 import { checkTourists } from "./checkTourists";
+import { checkVehicleScenes } from "./checkVehicleScenes";
 import { checkVictoryLap } from "./checkVictoryLap";
 import { serveExport } from "./serveExport";
 
@@ -425,6 +427,8 @@ const main: () => Promise<void> = async (): Promise<void> => {
   checkDrivingScrew();
   checkTourists();
   checkEverydayScenes();
+  checkFarewellScene();
+  checkVehicleScenes();
   checkVictoryLap();
   const served: { server: http.Server; address: string } = await serveExport(0);
   const browser: Browser = await chromium.launch({

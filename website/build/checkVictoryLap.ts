@@ -26,7 +26,9 @@ import type { IScene } from "../src/scenes/structures/IScene";
  *    stays over two planted feet. The third athlete reaches the firm press.
  */
 export function checkVictoryLap(): void {
-  const scene: IScene = SCENES.find((item) => item.id === "victory-lap")!;
+  const scene: IScene = SCENES.find(
+    (item) => item.id === "victory-lap-low-five",
+  )!;
   for (const take of [scene.takes[0]!, scene.takes[2]!]) {
     const { performance }: { performance: IAutoMovieMotionHumanPerformance } =
       PlaygroundPerformance.build(SceneTake.apply(scene.composition!, take));
@@ -80,4 +82,7 @@ export function checkVictoryLap(): void {
     assert.equal(performance.segments("w3").at(-1)!.name, "firmPress");
     performance.bones("w3", performance.duration);
   }
+  const impossible = SceneTake.apply(scene.composition!, scene.takes[0]!);
+  impossible.performers.find(({ subject }) => subject === "w2")!.x += 1.2;
+  assert.throws(() => PlaygroundPerformance.build(impossible), /lowFive/);
 }
