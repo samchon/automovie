@@ -203,7 +203,7 @@ function flexion(film: HumanPerformance, at: number): number[] {
     const angle: number | null | undefined = joints.find(
       (joint): boolean => joint.bone === bone,
     )?.flexion;
-    if (angle == null)
+    if (typeof angle !== "number")
       throw new Error(
         `The displayed ${bone} has no clinical flexion at ${at} s`,
       );

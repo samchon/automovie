@@ -87,6 +87,7 @@ export function jumpTouchdownRotation(
   };
 }
 
+/** Geometry and read-back for a planted touchdown on the native jump's clock. */
 export namespace jumpTouchdownRotation {
   /**
    * Native jump ending at a planted stance.
