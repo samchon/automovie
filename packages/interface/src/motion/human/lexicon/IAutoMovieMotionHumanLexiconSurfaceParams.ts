@@ -12,6 +12,9 @@ export interface IAutoMovieMotionHumanLexiconSurfaceParams {
   /** Travel over ice, optionally turning or coming to a stop. */
   skate: IAutoMovieMotionHumanSurface.ISkateParams;
 
+  /** Deliver from a low flat-foot slide with trailing forefoot support. */
+  curlDelivery: IAutoMovieMotionHumanSurface.ICurlDeliveryParams;
+
   /** Glide over snow on an authored grade. */
   snowGlide: IAutoMovieMotionHumanSurface.ISnowGlideParams;
 
