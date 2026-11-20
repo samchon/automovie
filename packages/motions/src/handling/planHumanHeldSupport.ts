@@ -88,7 +88,9 @@ export function planHumanHeldSupport(
   const readLead: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(context, props.side, props.prop);
   const socket: IAutoMovieVector3 = HumanHand.offset(body, props.side, "grip").point;
-  const target: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(context.prop(props.prop).prop, props.handle);
+  const prop: ReturnType<typeof context.prop>["prop"] = context.prop(props.prop).prop;
+  const target: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(prop, props.handle);
+  const length: number = prop.affordances?.find(({ id }) => id === props.handle)?.length ?? 0;
   const placed: ReturnType<typeof HumanGraspHand.prepare> = HumanGraspHand.prepare(body, other);
   const palm: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(body, other, "palm", "flat");
   const limits: IAutoMovieHumanEffectorPointLimit[] = [
@@ -116,7 +118,7 @@ export function planHumanHeldSupport(
   // Reach each candidate on the actual presented posture. Close and admit
   // only what the fitted wrist does with this handle and the leading hand.
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(body, at, other);
-  const goal = (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
+  const goal = (used: IAutoMovieMotionHumanGrasp.ITarget, turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
     placed(HumanGrasp.around(used, turn), tilt);
   const limb: "leftArm" | "rightArm" = `${other}Arm`;
   const supportBone: AutoMovieHumanoidBone = `${other}Hand`;
@@ -131,12 +133,14 @@ export function planHumanHeldSupport(
     wrist: IAutoMovieMotionHumanHand.IWrist;
     reference: IAutoMovieHumanLimbReference;
     miss: number;
+    station: number;
     reserve: number;
     digits: IAutoMovieMotionHumanPosture["joints"];
   } | undefined;
-  for (const tilt of HumanGraspUse.OBLIQUE) {
-    for (const turn of HumanGrasp.TURNS) {
-      const target: IAutoMovieMotionHumanHand.IWrist = goal(turn, tilt);
+  for (const { grip, station, tilt, turns } of supportGripStations(used, length)) {
+    if (selected !== undefined && selected.station !== station) break;
+    for (const turn of turns) {
+      const target: IAutoMovieMotionHumanHand.IWrist = goal(grip, turn, tilt);
       const pose: IAutoMoviePose = resolveHumanPosture(body, {
         ...at,
         limbs: {
@@ -156,7 +160,7 @@ export function planHumanHeldSupport(
         (Quaternion.angle(reached.rotation, target.rotation) * Math.PI / 180) * body.measure.hand;
 
       const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
-        body, other, used.grip, reached, used.colliders,
+        body, other, grip.grip, reached, grip.colliders,
       ).joints;
       const posed: IAutoMoviePose = {
         skeleton: body.skeleton.id,
@@ -213,6 +217,7 @@ export function planHumanHeldSupport(
         wrist: reached,
         reference: resolveHumanPosture.reference(pose, limb),
         miss,
+        station,
         reserve,
         digits: closed,
       };
@@ -316,6 +321,40 @@ export function planHumanHeldSupport(
       }],
     },
   ];
+}
+
+/**
+ * Try the authored station before extending the search along its measured
+ * material span. The caller admits each station with the same material and
+ * whole-arm bounds and keeps the first station with a clear grip.
+ */
+function* supportGripStations(
+  middle: IAutoMovieMotionHumanGrasp.ITarget,
+  length: number,
+): Iterable<{
+  grip: IAutoMovieMotionHumanGrasp.ITarget;
+  station: number;
+  tilt: number;
+  turns: readonly number[];
+}> {
+  for (const tilt of HumanGraspUse.OBLIQUE)
+    yield { grip: middle, station: 0, tilt, turns: HumanGrasp.TURNS };
+  if (!(length > 0)) return;
+
+  const turns = HumanGrasp.TURNS.flatMap((turn, index) =>
+    index === 0 ? [turn] : [(HumanGrasp.TURNS[index - 1]! + turn) / 2, turn],
+  );
+  for (const station of [-0.25, 0.25, -0.5, 0.5]) {
+    const grip: IAutoMovieMotionHumanGrasp.ITarget = {
+      ...middle,
+      point: Vector3.add(
+        middle.point,
+        Vector3.scale(middle.axis, station * length),
+      ),
+    };
+    for (const tilt of HumanGraspUse.OBLIQUE)
+      yield { grip, station, tilt, turns };
+  }
 }
 
 /** A physical shape and the frame of its carrying bone. */

@@ -33,7 +33,9 @@ import { SceneTake } from "../src/scenes/SceneTake";
 import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
 import { TakeCompute } from "../src/takes/package/TakeCompute";
+import { checkDrivingScrew } from "./checkDrivingScrew";
 import { checkEverydayScenes } from "./checkEverydayScenes";
+import { checkTourists } from "./checkTourists";
 import { checkVictoryLap } from "./checkVictoryLap";
 import { serveExport } from "./serveExport";
 
@@ -420,6 +422,8 @@ const COUNTERS: string = `
 `;
 
 const main: () => Promise<void> = async (): Promise<void> => {
+  checkDrivingScrew();
+  checkTourists();
   checkEverydayScenes();
   checkVictoryLap();
   const served: { server: http.Server; address: string } = await serveExport(0);

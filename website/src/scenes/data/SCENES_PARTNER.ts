@@ -427,18 +427,22 @@ export const SCENES_PARTNER: readonly IScene[] = [
       setting: "work",
       roles: { w5: "carpenter" },
       needs: [],
-      refusedUntil: 3543,
     },
     "driving-a-screw",
     [
       person("w5", "f1", 0, 0, 0, [
         taken("driver", "screwdriver"),
-        act("screw", { prop: "driver", on: work(-0.1) }),
+        act("screw", {
+          prop: "driver",
+          on: { kind: "prop", subject: "bench", point: "top" },
+        }),
       ]),
     ],
     [
-      object("bench", "createTable", "counter", 0, 0.53, 180),
-      tool("driver", "screwdriver", -0.18, 0.3),
+      object("bench", "createTable", "workbench", -0.1, 0.52, 180, 0, {
+        height: 0.9,
+      }),
+      { ...tool("driver", "screwdriver", -0.18, 0.4), y: 0.9 },
     ],
   ),
 ];
