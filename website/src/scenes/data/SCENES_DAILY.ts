@@ -115,7 +115,15 @@ export const SCENES_DAILY: readonly IScene[] = [
       setting: "everyday",
       roles: { dee: "writer", eli: "colleague" },
       needs: [],
-      refusedUntil: 3556,
+      practicalLights: [
+        {
+          prop: "lamp",
+          emitter: "light",
+          on: { subject: "eli", action: "operate", event: "stroke" },
+          color: 0xffdf9d,
+          intensity: 8,
+        },
+      ],
     },
     "office",
     [
@@ -139,6 +147,7 @@ export const SCENES_DAILY: readonly IScene[] = [
           mechanism: {
             kind: "button",
             at: { kind: "prop", subject: "switch", point: "press" },
+            travel: 0.003,
           },
         }),
       ]),
@@ -161,6 +170,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       object("deskE", "createTable", "desk", 1, 0.75),
       object("chairE", "createSeat", "office", 1, -0.15),
       object("switch", "createSwitch", "rocker", 2.2, 0, 270),
+      object("lamp", "createLight", "tableLamp", -1.45, 0.92, 0, DESK_TOP),
     ],
   ),
   scene(

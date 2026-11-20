@@ -171,7 +171,6 @@ export const SCENES_GAMES: readonly IScene[] = [
       setting: "sport",
       roles: { v1: "libero", v2: "setter", v3: "hitter", v4: "blocker" },
       needs: [],
-      refusedUntil: 3550,
     },
     "volleyball",
     [

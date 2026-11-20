@@ -29,7 +29,6 @@ export const SCENES_FIELD: readonly IScene[] = [
         dag: "goalkeeper",
       },
       needs: [],
-      refusedUntil: 3549,
     },
     "five-a-side",
     [

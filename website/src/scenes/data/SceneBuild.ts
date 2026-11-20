@@ -281,6 +281,9 @@ export namespace SceneBuild {
     /** Its place in the landing page's hero. */
     featured?: number;
 
+    /** Emitters switched on by the scene's named action events. */
+    practicalLights?: IScene.IPracticalLight[];
+
     /** The issue that fixes the refusal the installed packages give this scene today; it is written as it should play and shows that refusal until then. */
     refusedUntil?: number;
   }
@@ -336,6 +339,9 @@ export namespace SceneBuild {
         ...(about.distance === undefined ? {} : { distance: about.distance }),
       },
       needs: about.needs,
+      ...(about.practicalLights === undefined
+        ? {}
+        : { practicalLights: about.practicalLights }),
       ...(about.featured === undefined ? {} : { featured: about.featured }),
       ...(about.refusedUntil === undefined
         ? {}

@@ -19,7 +19,6 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       setting: "street",
       roles: { kim: "caller", lou: "stroller" },
       needs: [],
-      refusedUntil: 3549,
       view: "top",
     },
     "walk-and-talk",

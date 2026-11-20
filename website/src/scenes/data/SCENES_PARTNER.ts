@@ -345,7 +345,6 @@ export const SCENES_PARTNER: readonly IScene[] = [
       setting: "ride",
       roles: { drv: "driver", pas: "passenger" },
       needs: [],
-      refusedUntil: 3545,
     },
     "into-a-car",
     [

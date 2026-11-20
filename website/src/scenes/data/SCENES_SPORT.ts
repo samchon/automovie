@@ -176,7 +176,6 @@ export const SCENES_SPORT: readonly IScene[] = [
     takes: SceneTakes.of(COURT),
     camera: { view: "front" },
     needs: [],
-    refusedUntil: 3549,
   },
   {
     id: "gymnastics-floor",

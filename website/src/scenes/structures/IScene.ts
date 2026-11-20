@@ -42,6 +42,9 @@ export interface IScene {
   /** Where the camera stands when the scene opens. */
   camera: IScene.ICamera;
 
+  /** Placed emitters that switch on at named instants in the take. */
+  practicalLights?: IScene.IPracticalLight[];
+
   /**
    * The issues it waits on while the installed packages cannot play it;
    * empty for a scene written against what master exports.
@@ -67,6 +70,20 @@ export interface IScene {
   hidden?: boolean;
 }
 export namespace IScene {
+  /** A prop's fixed light affordance and the timed action that switches it on. */
+  export interface IPracticalLight {
+    /** The placed prop and its emitter affordance. */
+    prop: string;
+    emitter: string;
+
+    /** The performer's first matching action id and event in the played take. */
+    on: { subject: string; action: string; event: string };
+
+    /** The on-state point light, in sRGB and candela. */
+    color: number;
+    intensity: number;
+  }
+
   /** A setting the gallery groups scenes under. */
   export type Setting =
     | "everyday"

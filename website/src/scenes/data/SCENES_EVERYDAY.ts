@@ -112,6 +112,9 @@ const FALL: IPlaygroundComposition = {
           name: "touch",
           params: {
             target: { kind: "self", region: "hipRight" },
+            // A lower aim lets the palm close against the hip on both bodies.
+            site: { up: -0.035 },
+            side: "right",
             kind: "hold",
           },
         },
