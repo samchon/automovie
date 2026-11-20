@@ -18137,7 +18137,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "right"
               }
             ],
-            "description": "Leading foot of either linked stance phrase. Left when absent."
+            "description": "Leading foot of a linked stance phrase or reset. Left when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -35233,7 +35233,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         "properties": {
           "kind": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanMartialArt.Kind",
-            "description": "The technique."
+            "description": "The named form or unpartnered screen reset."
           },
           "count": {
             "type": "integer",
@@ -35256,7 +35256,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "right"
               }
             ],
-            "description": "Leading foot of either linked stance phrase. Left when absent."
+            "description": "Leading foot of a linked stance phrase or reset. Left when absent."
           },
           "manner": {
             "$ref": "#/components/schemas/IAutoMovieMotionManner",
@@ -35281,13 +35281,19 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "const": "karateStanceTransfer"
           },
           {
+            "const": "muayThaiStanceReset"
+          },
+          {
+            "const": "taekwondoStanceReset"
+          },
+          {
             "const": "taiChiPush"
           },
           {
             "const": "taiChiTransfer"
           }
         ],
-        "description": "Capture cases of the martial-art techniques (#3252) from quiet standing. The techniques."
+        "description": "Named techniques and linked solo forms from a quiet standing pose."
       },
       "IAutoMovieMotionHumanBallSport.IParams": {
         "type": "object",
