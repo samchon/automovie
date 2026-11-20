@@ -180,8 +180,8 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
           onClick={(): void => setBroken(!broken)}
         >
           {broken
-            ? `Restore the citation of #${last}`
-            : `Delete the citation of #${last}`}
+            ? `Restore the statement for #${last}`
+            : `Delete the statement for #${last}`}
         </button>
         <pre className="am-terminal" data-failed={broken} aria-live="polite">
           {(broken ? film.report.failing : film.report.passing).join("\n")}

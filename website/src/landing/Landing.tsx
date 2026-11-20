@@ -17,7 +17,8 @@ import { LANDING_RAIL } from "./LANDING_RAIL";
 /**
  * The landing page. It follows one scene from the decisions it rests on to
  * the frames it computes: the screenplay beside its take, the chain of
- * documents and code, the evidence graph that checks the chain, the takes
+ * documents and code, the evidence graph that makes each layer state how it
+ * keeps the decisions above it, the takes
  * that vary one choice, how any action is composed, and how to start.
  *
  * @returns The page.
@@ -91,13 +92,14 @@ export function Landing(): ReactElement {
           <h2 id="am-chain-title" className="am-section-title">
             From a decision to a frame,
             <br />
-            every link is written down.
+            nothing drifts.
           </h2>
           <p>
             A short runs brief to screenplay; a series runs settings, treatments
-            and scripts first. Each layer cites the one above it, and the code
-            cites the screenplay, so nothing in the film exists without a
-            written reason.
+            and scripts first. Each layer states in writing how it keeps the
+            world, the characters, the places and the era decided above it, and
+            the code states how it plays the screenplay, so the film keeps to
+            both.
           </p>
         </header>
         <ol className="am-chain-steps">
@@ -157,10 +159,10 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">4</span>
               <h3>Check</h3>
               <p>
-                With the composition check on, <code>pnpm run evidence</code>{" "}
-                counts every beat, section and scene file and fails while one is
-                not realized, so an agent cannot report a scene done while a
-                beat is missing.
+                <code>pnpm run evidence</code> fails while any decision, beat or
+                principle is left without its statement. The error list is the
+                agent&apos;s list of work, so it cannot report a scene done
+                while one is unanswered.
               </p>
             </div>
             <div className="am-chain-panel am-chain-panel-dark">
@@ -215,13 +217,15 @@ export function Landing(): ReactElement {
         <div className="am-room-inner">
           <header className="am-room-head">
             <h2 id="am-room-title" className="am-section-title">
-              The evidence graph checks every link.
+              Every decision, answered in writing.
             </h2>
             <p>
-              Every citation is an obligation <code>pnpm run evidence</code>{" "}
-              counts on its own, so one reference never covers another. Point at
-              a node to see what it rests on and what rests on it. Then delete a
-              citation.
+              Every principle and every decision is an obligation: the beat or
+              the code that keeps it must say how, or why it does not apply.
+              That is how a world, its people, its places and its era hold
+              without a slip from the brief to the screenplay to the frames.
+              Point at a node to see what it answers to. Then delete one
+              statement.
             </p>
           </header>
           <EvidenceGraph film={LANDING_FILM} />
