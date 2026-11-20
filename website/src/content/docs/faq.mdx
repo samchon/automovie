@@ -4,10 +4,6 @@ title: FAQ
 
 # FAQ
 
-## LLMs and servers
-
-AutoMovie contains no LLM and no server. You bring the coding agent, any image or video model a production uses, and the machine that renders.
-
 ## Coding agents
 
 Any coding agent that reads `AGENTS.md` or `CLAUDE.md` works. The scaffold writes both, and `CLAUDE.md` points to `AGENTS.md`.
@@ -16,25 +12,9 @@ Any coding agent that reads `AGENTS.md` or `CLAUDE.md` works. The scaffold write
 
 At intake you choose whether your screenplay is fixed or refined. A fixed screenplay is used exactly as given and never edited; a missing exchange or an unperformable beat goes back to you. A refined one enters as material for the route's layers.
 
-## The evidence check
+## The evidence graph
 
 The scaffold's default checks the source and tests against the development checklists. The narrative stages turn on for a route that runs narrative passes. A screenplay written directly, without passes, uses `narrative: { mode: "none" }`, and the code then cites the instructions it realizes.
-
-## What a passing check means
-
-A passing check means every selected obligation was answered and every selected decision was cited. Whether the writing and the delivered video are good is decided in independent review and in delivery review.
-
-## The polygon man
-
-The motion hint tells a video model where each person is, what they do, what they touch and when, and the model supplies the surfaces. A plain figure carries that, and the accuracy goes into the performance, its contacts and its timing. The polygon man has no drawn face, so the screenplay writes attention as the turn of the head and torso.
-
-## GPU
-
-Capture and render use SwiftShader, a software renderer, by default, so they need no GPU. `--backend gpu` uses the machine's GPU instead.
-
-## The same frames every time
-
-Poses depend only on the composition, the seed and the bodies. An archetype depends only on its parameters and seed, with the source revision, dependencies and runtime fixed. A defect is therefore found on a still, corrected at its cause and recomputed. A different seed gives another take of the same action.
 
 ## Choosing a video model
 
@@ -42,7 +22,7 @@ The agent chooses the model with you for each production and records it in `PROJ
 
 ## Example productions
 
-Example productions live in [automovie-examples](https://github.com/samchon/automovie-examples). On this site, [Scenes](/scenes/) plays composed scenes, [Motions](/motions/) shows the action vocabulary, and [Playground](/playground/) shows a refusal on the action it names, with its fix.
+Example productions live in [automovie-examples](https://github.com/samchon/automovie-examples). On this site, [Scene studies](/scenes/) plays composed scenes, [Motions](/motions/) shows the action vocabulary, and [Playground](/playground/) shows a refusal on the action it names, with its fix.
 
 ## License
 

@@ -9,7 +9,7 @@ The site in `website/` tells a visitor what AutoMovie does and lets a developer 
 
 ## What the site says
 
-Lead with the product's strongest claim: the coding agent writes the screenplay through the authoring chain, the evidence graph checks that every decision is realized, and the engine computes the motion hint from code into the same frames every time. Present the motions, the archetypes and the scenes as the kit a production composes with, after that claim.
+Lead with the product's strongest claim: the coding agent writes the screenplay through the authoring chain, the evidence graph makes every principle and decision an obligation the screenplay and the code answer in writing, so the screenplay and the film never drift, and the engine computes the motion hint from code into the same frames every time. Present the motions, the archetypes and the scene studies as the kit a production composes with, after that claim: any action is a typed call over the engine's primitives, and calls compose. Never lead with how many there are, since the count changes with every release.
 
 State only what the repository does. Take a command, a file path, an option, a diagnostic or a number from the source or a run. Show real output, or mark an excerpt as abridged and say whose numbers it shows. Leave out what a release does not ship, and describe people only as the polygon man.
 
@@ -21,7 +21,7 @@ Show a card or a player from a baked take, never by planning a take in the brows
 
 A scene that plays must bake: the bake exits 1 when the packages refuse one, so a scene record is fixed or marked `refusedUntil` in the same change.
 
-The documentation is two trees, each with a `_meta.ts` per folder. The guide in `src/content/docs/` serves the person who makes a film: what to do, what happens and why. The reference in `src/content/reference/` serves whoever writes against the packages: commands, configuration, formats and APIs. A page that mixes the two is split, the guide linking to the reference for the details. The API at `/api/` is TypeDoc's output over every package, regenerated each build; a page links an export's entry there rather than restating its type. A rule the product owns stays in its package README or skill, and the docs link to it rather than restate it.
+The documentation is two trees, each with a `_meta.ts` per folder. The guide in `src/content/docs/` serves the person who makes a film: what to do, what happens and why. The reference in `src/content/reference/` serves whoever writes against the packages: commands, configuration, formats and APIs. A page that mixes the two is split, the guide linking to the reference for the details. The API at `/api/` is TypeDoc's output over every library package, regenerated each build; a page links an export's entry there rather than restating its type. A rule the product owns stays in its package README or skill, and the docs link to it rather than restate it.
 
 ## Verifying a change
 
