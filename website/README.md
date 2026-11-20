@@ -7,12 +7,13 @@ The public site at [samchon.github.io/automovie](https://samchon.github.io/autom
 | `/` | The landing page: one scene followed from its brief to its frames |
 | `/docs/` | The guide, for the person who makes a film: setup, the screenplay and its evidence graph, motion as code and delivery |
 | `/reference/` | The reference, for a developer or a coding agent: the packages, the CLI, the evidence configuration and the motion API |
-| `/api/` | The API reference of every package, which `pnpm run typedoc` generates with TypeDoc into `public/api/` before each build |
-| `/scenes/`, `/scenes/<id>/` | The scene gallery, and each scene with its player, code, timeline and takes |
-| `/motions/`, `/motions/<name>/` | The motion catalogue by category and family, and each motion with its take and parameters |
+| `/api/` | The API reference of every library package (the `automovie` CLI is a program and is left out), which `pnpm run typedoc` generates with TypeDoc into `public/api/` before each build |
+| `/scenes/`, `/scenes/<id>/` | The scene studies, and each study with its player, code, timeline and takes |
+| `/motions/`, `/motions/<name>/` | The motion catalogue by category and family, and each motion with its take, the code that writes it and its API entry |
 | `/archetypes/` | Every archetype of `@automovie/archetypes`, and one archetype's page with its specs and controls |
 | `/playground/` | A composition with every parameter, performed in the page |
 | `/objects/`, `/gallery/` | The archetypes' former addresses, which forward with their query |
+| `/human/` | A former address, which forwards to the landing page |
 
 The package is private and is never published.
 
@@ -22,9 +23,9 @@ The site is a member of the pnpm workspace and depends on the packages as `works
 
 ```bash
 pnpm install                                  # at the repository root
-pnpm --filter @automovie/website typedoc      # the API reference of every package, into public/api/
-pnpm --filter @automovie/website bake         # the takes and stills, into public/baked/
 pnpm --filter @automovie/website dev          # Next at http://localhost:3000/automovie/
+pnpm --filter @automovie/website bake         # optional: the takes and stills, into public/baked/
+pnpm --filter @automovie/website typedoc      # optional: the API reference, into public/api/
 pnpm --filter @automovie/website build        # checks, TypeDoc, bake, then the static export into out/
 pnpm --filter @automovie/website typecheck
 pnpm --filter @automovie/website run deploy   # build, then publish out/ to gh-pages by hand
@@ -32,11 +33,11 @@ pnpm --filter @automovie/website run deploy   # build, then publish out/ to gh-p
 
 Next loads the compiler API from the `typescript` package, which the native TypeScript 7 package does not export, so `typescript` is 5.9 in this package alone, which TypeDoc also reads, and `ttsc` finds the native compiler under the alias `typescript-native`. `typecheck` runs on the native compiler like the rest of the workspace.
 
-`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound. It then runs `typedoc`, which writes the API reference through a queue of open files so a reference this large does not exhaust them, and `bake`. After the export, `build/bundles.ts` refuses a page whose own chunks carry `@automovie/motions` or `@automovie/human`.
+`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound. It then runs `typedoc`, which writes the API reference through a queue of open files so a reference this large does not exhaust them, and `bake`. After the export, `build/bundles.ts` refuses a page whose own chunks carry `@automovie/motions` or `@automovie/human`, and `pagefind` indexes the export for the search.
 
 ## Baked takes
 
-`bake` computes the first take of every listed scene that plays and every motion that can be tried alone, as the take worker would, and writes each gzipped take and its still into `public/baked/`, with `manifest.json` listing them. A page plays a baked take at once and shows its still on a card; a take that was not baked is computed in the page's take worker instead, so the dev server works before a bake.
+`bake` computes the first take of every listed scene that plays and every motion that can be tried alone, as the take worker would, and writes each gzipped take and its still into `public/baked/`, with `manifest.json` listing them. A page plays a baked take at once and shows its still on a card; a take that was not baked is computed in the page's take worker instead, and a card shows a blank still. `dev` needs neither `bake` nor `typedoc`: run `bake` to see the baked takes, and run it again after changing a scene, since a bake left from before the change still plays the old take.
 
 A take depends only on its composition and the packages' sources, so each is kept in `.bake-cache/` under a hash of both and computed again only when one changes. Missing takes are computed in parallel child processes, one per CPU less one unless `--jobs <n>` is given. The run exits 1 when the packages refuse a scene that plays. CI keeps `.bake-cache/` between runs.
 

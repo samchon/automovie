@@ -14,7 +14,7 @@ import "./site.css";
 
 const title: string = "AutoMovie";
 const description: string =
-  "Your coding agent writes the screenplay, cites every decision and programs the motion. AutoMovie computes the same frames every time, as a motion hint for video diffusion.";
+  "Your coding agent writes the screenplay, answers every decision in writing and programs the motion. AutoMovie computes the same frames every time, as a motion hint for video diffusion.";
 
 /** The text and interface face. */
 const sans: NextFontWithVariable = Geist({

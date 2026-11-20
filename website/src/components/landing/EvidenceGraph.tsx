@@ -10,12 +10,12 @@ import {
 import type { ILandingFilm } from "../../landing/ILandingFilm";
 
 /**
- * The landing page's evidence graph, built from the film's own citations:
- * the brief decisions each beat cites, the beats each module cites, and the
- * film that orders the modules. Pointing at a node lights everything it
- * rests on and everything that rests on it. A switch deletes the last
- * module's citation of the last beat, and the report beside the graph turns
- * to the check's failure.
+ * The landing page's evidence graph, built from the film's own statements:
+ * each beat answers the brief decisions it keeps, each module states how it
+ * plays its beats, and the film plays the screenplay file. Pointing at a node
+ * lights what it answers to and what answers to it, and shows the written
+ * statement. A switch deletes the last module's statement for the last beat,
+ * and the report beside the graph turns to the check's failure.
  *
  * The drawing is an image described in words, so its nodes take no focus;
  * the switch is the graph's one control.
@@ -67,7 +67,7 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
         label: module.file.split("/").at(-1)!,
       }),
     ),
-    { id: "film", column: 3, row: (rows - 1) / 2, label: "film.ts" },
+    { id: "film", column: 3, row: (rows - 1) / 2, label: "round.ts" },
   ];
   const edges: IEdge[] = [
     ...film.beats.flatMap((beat: ILandingFilm.IBeat): IEdge[] =>
@@ -89,11 +89,8 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
             }),
           ),
     ),
-    ...film.modules.map(
-      (module: ILandingFilm["modules"][number]): IEdge => ({
-        from: "film",
-        to: `code:${module.file}`,
-      }),
+    ...film.beats.map(
+      (beat: ILandingFilm.IBeat): IEdge => ({ from: "film", to: beat.anchor }),
     ),
   ];
   const lit: Set<string> =
@@ -131,7 +128,7 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
                     .join(", ")}.`,
               )
               .join(" ")}{" "}
-            The film orders the modules.
+            The film plays the screenplay file, every beat in order.
             {broken ? ` The beat ${last} is cited by no module.` : ""}
           </desc>
           {["Brief", "Screenplay", "Code", "Film"].map(
@@ -180,17 +177,20 @@ export function EvidenceGraph(props: { film: ILandingFilm }): ReactElement {
           onClick={(): void => setBroken(!broken)}
         >
           {broken
-            ? `Restore the citation of #${last}`
-            : `Delete the citation of #${last}`}
+            ? `Restore the statement for #${last}`
+            : `Delete the statement for #${last}`}
         </button>
         <pre className="am-terminal" data-failed={broken} aria-live="polite">
           {(broken ? film.report.failing : film.report.passing).join("\n")}
           {"\n"}
           <span className="am-terminal-exit">exit {broken ? 1 : 0}</span>
         </pre>
+        <p className="am-graph-statement" aria-live="polite">
+          {statement(film, focus, broken, last)}
+        </p>
         <p className="am-graph-note">
           An abridged report in the format <code>@wrtnlabs/evidence</code>{" "}
-          prints; the counts are this example production&apos;s.
+          prints, for this example.
         </p>
       </div>
     </div>
@@ -245,4 +245,47 @@ function reach(start: string, edges: IEdge[]): Set<string> {
     }
   }
   return out;
+}
+
+/**
+ * The written statement behind a node: what a decision is answered by, what
+ * a beat answers and says, the reasons a module gives for its beats, or what
+ * the film plays.
+ */
+function statement(
+  film: ILandingFilm,
+  focus: string | null,
+  broken: boolean,
+  last: string,
+): string {
+  if (focus === null)
+    return "Point at a node to read the statement that answers it.";
+  if (focus === "film")
+    return `round.ts plays ${film.file.split("/").at(-1)!}, every beat in order.`;
+  if (focus.startsWith("brief:")) {
+    const decision: string = focus.slice("brief:".length);
+    const beats: string[] = film.beats
+      .filter((b: ILandingFilm.IBeat): boolean => b.cites.includes(decision))
+      .map((b: ILandingFilm.IBeat): string => `#${b.anchor}`);
+    return `${decision} is answered by ${beats.join(", ")}.`;
+  }
+  if (focus.startsWith("code:")) {
+    const file: string = focus.slice("code:".length);
+    const text: readonly string[] =
+      file === film.second.file ? film.second.text : film.code.text;
+    const reasons: string[] = [];
+    text.forEach((line: string, i: number): void => {
+      const cited: RegExpMatchArray | null = line.match(/@evidence \S+#(\S+)/);
+      if (cited === null) return;
+      if (broken && cited[1] === last) return;
+      reasons.push(`#${cited[1]}: ${text[i + 1]!.replace(/^\s*\*\s*/, "")}`);
+    });
+    return reasons.join(" ");
+  }
+  const beat: ILandingFilm.IBeat | undefined = film.beats.find(
+    (b: ILandingFilm.IBeat): boolean => b.anchor === focus,
+  );
+  return beat === undefined
+    ? ""
+    : `#${beat.anchor} keeps ${beat.cites.join(" and ")}: ${beat.text}`;
 }

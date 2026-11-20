@@ -62,7 +62,28 @@ These options belong to the commands themselves; every other option of `capture`
 | `--url` | `review`: the running inspector page's address |
 | `--seconds` | `review`: wall-clock seconds of playback recorded |
 
-The [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every request key.
+## Request keys
+
+A request key is written with `--` before it, and the inspector page's address carries the same keys, so a picture found on the page repeats on the command line. These keys are used most:
+
+| Key | Asks for |
+| --- | --- |
+| `subject` | The film to draw, the module's only one by default |
+| `from`, `to`, `rate` | An even sampling, five stills per second by default |
+| `at` | Exact seconds separated by commas, instead of an even sampling |
+| `events`, `window` | Every frame within `window` frames, three by default, of each listed second |
+| `views` | View texts separated by `;`, such as `front`, `right@ortho` or `three-quarter@focus=<pattern>` |
+| `passes` | Several shades sharing each view's camera, such as `beauty,pose,depth` |
+| `marks` | Marks such as `joint`, `bone` and `contact` drawn over the picture |
+| `round`, `compare` | Keeping the capture as a named round, and comparing it cell by cell with an earlier round |
+
+The [render README](https://github.com/samchon/automovie/tree/master/packages/render#request-keys) lists every key with the requirement it serves. A request the subject cannot give, such as an unknown view or a time outside the film, is refused before anything is drawn.
+
+## Records and backends
+
+A capture's `record.json` keeps the revision, the request as text, and one row per planned cell with its hash, backend and resolved camera, or the cause it was not drawn.
+
+Capture and render use SwiftShader through ANGLE, a software renderer, by default, so they need no GPU; `--backend gpu` uses the machine's GPU. Every still's record names the backend, the Chromium version and the WebGL renderer, and pixels are compared only between stills of one backend.
 
 ## Environment
 
@@ -71,7 +92,7 @@ The hosts read these variables:
 | Variable | Selects |
 | --- | --- |
 | `CHROME_PATH` | Another browser than the headless Chromium `pnpm run review:setup` installs |
-| `FFMPEG_PATH` | Another FFmpeg for render and file capture |
+| `FFMPEG_PATH` | Another FFmpeg for render and file capture, which otherwise use `ffmpeg-static` |
 
 ## Production scripts
 

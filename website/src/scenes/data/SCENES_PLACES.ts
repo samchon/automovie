@@ -1,7 +1,31 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, object, person, scene, to }: typeof SceneBuild = SceneBuild;
+const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
+
+/**
+ * A point on a counter top in front of a person facing +Z, just behind its
+ * front edge.
+ *
+ * @param x Along the counter, metres.
+ * @returns The target.
+ */
+const work = (x: number): Record<string, unknown> => ({
+  kind: "point",
+  at: { x, y: SceneBuild.COUNTER_TOP, z: 0.37 },
+  frame: "world",
+});
+
+/**
+ * A knock's place on the doorway scene's door, on the face toward the
+ * host at chest height beside the lever: the door stands at z = 1.
+ */
+const KNOCK: Record<string, unknown> = {
+  kind: "point",
+  frame: "world",
+  at: { x: 0.05, y: 1.4, z: 0.97 },
+  normal: { x: 0, y: 0, z: -1 },
+};
 
 /**
  * The kerb stepped over on the stairs-and-ladder scene, across the walker's
@@ -40,7 +64,7 @@ const LADDER: {
   placed: number;
   spacing: number;
   start: number;
-} = { rungs: 6, placed: 12, spacing: 0.3, start: 0.15 };
+} = { rungs: 4, placed: 8, spacing: 0.3, start: 0.15 };
 
 /** The everyday scenes at a door, a dressing table, a counter and a flight of stairs, each placed object sized by the same record its action reads. */
 export const SCENES_PLACES: readonly IScene[] = [
@@ -49,7 +73,7 @@ export const SCENES_PLACES: readonly IScene[] = [
       id: "left-luggage",
       title: "Left luggage",
       summary:
-        "At the left-luggage counter an attendant lifts a tote by its handle and hands it over by the strap to the traveller beside him.",
+        "An attendant hands a traveller his tote over the counter, and the traveller hurries off.",
       setting: "everyday",
       roles: { att: "attendant", trv: "traveller" },
       needs: [],
@@ -57,12 +81,26 @@ export const SCENES_PLACES: readonly IScene[] = [
     "left-luggage",
     [
       person("att", "m2", 0, 0.12, 0, [
+        act("rubEyes"),
+        act("look", {
+          with: "trunk",
+          cue: "seen",
+          target: at("trv", "face"),
+          seconds: 1.5,
+        }),
+        act("gesture", { kind: "nod" }),
         act("pickUp", { prop: "bag", handle: "handle" }),
         act("handOver", { prop: "bag", to: "trv", handle: "strap" }),
+        act("gesture", { kind: "wave", count: 2 }),
+        act("wipe", { on: work(-0.15), cycles: 3 }),
       ]),
       person("trv", "m2", -0.75, 0.05, 90, [
-        act("stand", { seconds: 1 }),
+        act("checkWatch"),
+        act("gesture", { kind: "raiseHand", side: "left" }),
         act("receive", { prop: "bag", from: "att", handle: "strap" }),
+        act("gesture", { kind: "nod" }),
+        act("gesture", { kind: "wave", side: "left", count: 2 }),
+        act("hurry", { to: to(-2.2, -0.5) }),
       ]),
     ],
     [
@@ -81,22 +119,62 @@ export const SCENES_PLACES: readonly IScene[] = [
   scene(
     {
       id: "doorway",
-      title: "At a door",
+      title: "Locked door",
       summary:
-        "One person reaches for a hinged door's lever and holds it, the door staying shut, then waves over a friend, who walks up.",
+        "A woman knocks and tries a locked door, waves a friend over and tries again.",
       setting: "everyday",
       roles: { ada: "host", bea: "friend" },
       needs: [],
     },
     "doorway",
     [
-      person("ada", "f1", 0, 0.7, 0, [
+      person("ada", "f1", 0, -1.2, 0, [
+        act("walk", { to: to(0, 0.7) }),
+        act("touch", {
+          target: KNOCK,
+          kind: "tap",
+          with: "fist",
+          side: "right",
+          count: 3,
+        }),
+        act("look", {
+          with: "head",
+          target: { ...KNOCK, at: { x: 0, y: 1.9, z: 1 } },
+          seconds: 1,
+        }),
         act("openDoor", { door: "door", handle: "push", seconds: 1.5 }),
-        act("comeHere"),
+        act("dontKnow"),
+        act("look", {
+          with: "trunk",
+          cue: "seen",
+          target: at("bea", "face"),
+          seconds: 0.9,
+        }),
+        act("comeHere", {}, { anchor: "door-beckon" }),
+        act("openDoor", { door: "door", handle: "push", seconds: 1.5 }),
+        act("handsOnHips", { seconds: 1.6 }),
       ]),
       person("bea", "m1", 1.2, -1.5, 0, [
-        act("stand", { seconds: 1.5 }),
-        act("walk", { to: to(0.8, 0) }),
+        act("checkPhone"),
+        act("look", {
+          with: "head",
+          cue: "seen",
+          target: at("ada", "face"),
+          seconds: 1.2,
+        }),
+        act("checkWatch"),
+        act(
+          "walk",
+          { to: to(0.55, 0.4) },
+          {
+            sync: {
+              of: "door-beckon",
+              event: "strokeStart",
+              latency: "reaction",
+            },
+          },
+        ),
+        act("shoulderPat", { target: at("ada", "shoulderLeft") }),
       ]),
     ],
     [object("door", "createDoor", "hinged", 0, 1)],
@@ -106,7 +184,7 @@ export const SCENES_PLACES: readonly IScene[] = [
       id: "dressing-room",
       title: "Dressing room",
       summary:
-        "Someone bends to a bag, takes a hat up from the counter and puts it on, takes a knee and rises, and rolls the shoulders.",
+        "An actor puts on a hat, checks a mirror, takes a knee and squares her shoulders.",
       setting: "everyday",
       roles: { cyd: "actor" },
       needs: [],
@@ -130,8 +208,19 @@ export const SCENES_PLACES: readonly IScene[] = [
           },
         }),
         act("dress", { item: "hat", prop: "hat" }),
+        act("look", {
+          with: "head",
+          target: {
+            kind: "point",
+            frame: "performer",
+            at: { x: 0.3, y: 1.6, z: 1.5 },
+          },
+          seconds: 1,
+        }),
         act("kneel", { kind: "one", hold: 0.6 }),
         act("selfAction", { kind: "shoulderRoll" }),
+        act("handsOnHips", { seconds: 1 }),
+        act("gesture", { kind: "squareShoulders" }),
       ]),
     ],
     [
@@ -156,7 +245,7 @@ export const SCENES_PLACES: readonly IScene[] = [
       id: "stairs-and-ladder",
       title: "Stairs and ladder",
       summary:
-        "One person climbs a flight of six stairs, another climbs six rungs of a fixed ladder, and a third steps over a kerb in the way and braces.",
+        "One person climbs stairs and cheers another up a ladder, which a third holds steady.",
       setting: "everyday",
       roles: { dot: "climber", eve: "climber", fin: "walker" },
       needs: [],
@@ -171,6 +260,16 @@ export const SCENES_PLACES: readonly IScene[] = [
           tread: STAIRS.tread,
           start: STAIRS.start,
         }),
+        act("look", {
+          with: "trunk",
+          cue: "seen",
+          target: at("eve", "face"),
+          seconds: 1.5,
+        }),
+        act("gesture", { kind: "cheer" }),
+        act("gesture", { kind: "clap", count: 4 }),
+        act("handsOnHips", { seconds: 1.2 }),
+        act("gesture", { kind: "wave", count: 2 }),
       ]),
       person("eve", "m1", 0.5, 0, 0, [
         act("climbLadder", { ladder: "ladder", rungs: LADDER.rungs }),
@@ -178,7 +277,19 @@ export const SCENES_PLACES: readonly IScene[] = [
       person("fin", "m2", 2, -1, 0, [
         act("walk", { to: to(2, 0) }),
         act("stepOver", { obstacle: "kerb" }),
-        act("brace", { kind: "push", seconds: 1 }),
+        act("walk", { to: to(0.5, 0.85), face: 180 }),
+        act("touch", {
+          target: { kind: "prop", subject: "ladder", point: "leftRail" },
+          kind: "hold",
+          hold: 3,
+        }),
+        act("look", {
+          with: "head",
+          cue: "seen",
+          target: at("eve", "face"),
+          seconds: 1.5,
+        }),
+        act("thumbsUp"),
       ]),
     ],
     [
