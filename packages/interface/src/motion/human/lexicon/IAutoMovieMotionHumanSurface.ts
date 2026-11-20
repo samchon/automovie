@@ -255,4 +255,52 @@ export namespace IAutoMovieMotionHumanSurface {
     /** Duration in seconds, positive. */
     seconds: number;
   }
+
+  /**
+   * A rolling skateboard take through a ground push, stance change,
+   * tail pop, landing and supported recovery.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the support, staged phases and units.
+   * @evidence contracts/development/design.md#principled-representation One scene board and clock coordinate distinct support phases.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The board id, duration, stance and ground height used by the skateboard law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The author retains ownership of the actual board path.
+   */
+  export interface ISkateboardPhraseParams {
+    /** Scene id of the skateboard with deck, stance, tail and wheel affordances. */
+    on: string;
+
+    /** Duration in seconds on the actor's clock. */
+    seconds: number;
+
+    /** The foot that remains forward while the other foot pushes. */
+    lead: AutoMovieHumanSide;
+
+    /** Elevation in metres of the skateboard's horizontal ground. Defaults to zero. */
+    ground?: number;
+  }
+
+  /**
+   * A surfboard entry, paddle and timed transfer from palms to the stance feet.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the board and entry, both support transfer modes and units.
+   * @evidence contracts/development/design.md#principled-representation Two distinct release versus acquisition orders use the same authored board clock.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The board id, duration, lead side, transfer and waterline used by the surfing law.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts All grip and stance targets use the posed board.
+   */
+  export interface ISurfboardPhraseParams {
+    /** Scene id of the surfboard with deck, palm and stance affordances. */
+    on: string;
+
+    /** Duration in seconds on the actor's clock. */
+    seconds: number;
+
+    /** The foot that reaches the front stance first. */
+    lead: AutoMovieHumanSide;
+
+    /** Whether a foot settles before both hands release or after a free interval. */
+    transfer: "overlap" | "flight";
+
+    /** Elevation in metres of the water surface. Defaults to zero. */
+    water?: number;
+  }
 }

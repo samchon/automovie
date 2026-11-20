@@ -20,4 +20,9 @@ export interface IAutoMovieMotionHumanLexiconSurfaceParams {
 
   /** Keep a board-relative stance as the board moves. */
   boardRide: IAutoMovieMotionHumanSurface.IBoardRideParams;
+  /** The ground push, flight, landing and recovery of a skateboard. */
+  skateboardPhrase: IAutoMovieMotionHumanSurface.ISkateboardPhraseParams;
+
+  /** An entry, paddle and transfer to the surfing stance on the authored board. */
+  surfboardPhrase: IAutoMovieMotionHumanSurface.ISurfboardPhraseParams;
 }

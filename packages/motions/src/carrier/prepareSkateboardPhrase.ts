@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -47,7 +48,7 @@ const WHEELS: readonly string[] = [
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the board reader, entered posture and phase anchors.
  */
 export function prepareSkateboardPhrase(
-  context: IAutoMovieMotionHumanActionContext<HumanSurfaceBoard.ISkateboardPhraseParams>,
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params }: typeof context = context;
   const duration: number = HumanBound.above("seconds", params.seconds, 0, "s");

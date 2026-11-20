@@ -133,34 +133,8 @@ export function HumanSurfaceBoard(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps existing board rides and registered phrases distinct. A skateboard's floor and a surfboard's water elevation belong to the scene.
  */
 export namespace HumanSurfaceBoard {
-  /** One skateboard push, tail pop and supported recovery. */
-  export interface ISkateboardPhraseParams {
-    /** The staged skateboard with deck, stance, tail and wheel affordances. */
-    on: string;
-    /** Duration in seconds on the actor's clock. */
-    seconds: number;
-    /** The foot that remains forward while the other foot pushes. */
-    lead: AutoMovieHumanSide;
-    /** Elevation in metres of the skateboard's horizontal ground. Defaults to zero. */
-    ground?: number;
-  }
-
-  /** A deck mount, paddle and transfer to the two-foot stance. */
-  export interface ISurfboardPhraseParams {
-    /** The staged surfboard with deck, palm and stance affordances. */
-    on: string;
-    /** Duration in seconds on the actor's clock. */
-    seconds: number;
-    /** The foot that reaches the front stance first. */
-    lead: AutoMovieHumanSide;
-    /** Whether a foot settles before both hands release or after a free interval. */
-    transfer: "overlap" | "flight";
-    /** Elevation in metres of the water surface. Defaults to zero. */
-    water?: number;
-  }
-
   /** Establish one ground push, turn feet on the deck, and land from an authored ollie. */
-  export const skateboardPhrase: IAutoMovieMotionHumanActionLaw<ISkateboardPhraseParams> =
+  export const skateboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams> =
     {
       name: "skateboardPhrase",
       interrupts: END,
@@ -169,7 +143,7 @@ export namespace HumanSurfaceBoard {
     };
 
   /** Advance onto the board from water, paddle, and transfer from palms to a surfing stance. */
-  export const surfboardPhrase: IAutoMovieMotionHumanActionLaw<ISurfboardPhraseParams> =
+  export const surfboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams> =
     {
       name: "surfboardPhrase",
       interrupts: END,

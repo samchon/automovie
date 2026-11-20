@@ -30,7 +30,7 @@ const AT_END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the two support relationships and how to layer actions on them.
  * @evidence contracts/development/design.md#principled-representation Shares one bilateral trajectory law across level ice and graded snow and reuses the deck carrier to transport fixed roots and goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Registers skate, curlDelivery, snowGlide and boardRide.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Registers skate, curlDelivery, snowGlide, boardRide and the two board sport phrases.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinguishes surface bearing from fixed prop-local plants and leaves every law's constraints with its own planner.
  */
 export namespace HumanSurface {
@@ -72,4 +72,20 @@ export namespace HumanSurface {
       yields: YIELDS,
       plan: HumanSurfaceBoard,
     };
+
+  /** Publish the skateboard's support cues for the independently posed deck. */
+  export const SKATEBOARD: typeof HumanSurfaceBoard.SKATEBOARD =
+    HumanSurfaceBoard.SKATEBOARD;
+
+  /** Publish the surfboard's entry and transfer cues for the authored board path. */
+  export const SURFBOARD: typeof HumanSurfaceBoard.SURFBOARD =
+    HumanSurfaceBoard.SURFBOARD;
+
+  /** Push, pop, land and recover on an authored skateboard track. */
+  export const skateboardPhrase: typeof HumanSurfaceBoard.skateboardPhrase =
+    HumanSurfaceBoard.skateboardPhrase;
+
+  /** Enter, paddle and transfer from the palms to the surfboard stance. */
+  export const surfboardPhrase: typeof HumanSurfaceBoard.surfboardPhrase =
+    HumanSurfaceBoard.surfboardPhrase;
 }

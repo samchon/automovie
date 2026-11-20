@@ -10,6 +10,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanSurface,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,7 +20,7 @@ import {
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanSurfaceBoard,
+  HumanSurface,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -89,7 +90,7 @@ function skate(
     model: "8.5x33.5",
   });
   const Skate = HumanChain.extend({
-    skateboardPhrase: HumanSurfaceBoard.skateboardPhrase,
+    skateboardPhrase: HumanSurface.skateboardPhrase,
   });
   const duration: number = 2.8;
   const windup: number = 0.5;
@@ -108,8 +109,7 @@ function skate(
     });
     points[side] = { point: { ...contact, y: deck }, normal: UP };
   }
-  const line: typeof HumanSurfaceBoard.SKATEBOARD =
-    HumanSurfaceBoard.SKATEBOARD;
+  const line: typeof HumanSurface.SKATEBOARD = HumanSurface.SKATEBOARD;
   const aft: number = board.affordance("wheel-back-left").frame.translation.z;
   const tail: IAutoMovieVector3 =
     board.affordance("tailStrike").frame.translation;
@@ -152,7 +152,7 @@ function skate(
         },
       ],
       props: [{ ...prop, points, motion }],
-      laws: [HumanSurfaceBoard.skateboardPhrase],
+      laws: [HumanSurface.skateboardPhrase],
       composition: Skate.subject("rider")
         .support({
           stances: [
@@ -278,14 +278,14 @@ function skate(
 function surf(
   body: IAutoMovieMotionHumanBody,
   lead: AutoMovieHumanSide,
-  transfer: HumanSurfaceBoard.ISurfboardPhraseParams["transfer"],
+  transfer: IAutoMovieMotionHumanSurface.ISurfboardPhraseParams["transfer"],
   failures: string[],
 ): void {
   const board: ReturnType<typeof createSurfboard> = createSurfboard({
     model: "6'0",
   });
   const Surf = HumanChain.extend({
-    surfboardPhrase: HumanSurfaceBoard.surfboardPhrase,
+    surfboardPhrase: HumanSurface.surfboardPhrase,
   });
   const duration: number = 2.65;
   const swimmers = [
@@ -308,8 +308,7 @@ function surf(
     composition: swimming.node,
   });
   const entry: number = first.duration;
-  const phases: typeof HumanSurfaceBoard.SURFBOARD =
-    HumanSurfaceBoard.SURFBOARD;
+  const phases: typeof HumanSurface.SURFBOARD = HumanSurface.SURFBOARD;
   const track = (seconds: number): IAutoMovieRigidTransform => {
     const share: number = Math.max(
       0,
@@ -331,7 +330,7 @@ function surf(
       seed: "surfboard water mount and popup",
       performers: swimmers,
       props: [HumanObject.prop("board", board, { at: ZERO, yaw: 0 }, motion)],
-      laws: [HumanSurfaceBoard.surfboardPhrase],
+      laws: [HumanSurface.surfboardPhrase],
       composition: swimming.surfboardPhrase({
         on: "board",
         seconds: duration,

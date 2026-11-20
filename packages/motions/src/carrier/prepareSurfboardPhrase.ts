@@ -11,6 +11,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -48,7 +49,7 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns only the board reader, anatomical offsets and stage parameters.
  */
 export function prepareSurfboardPhrase(
-  context: IAutoMovieMotionHumanActionContext<HumanSurfaceBoard.ISurfboardPhraseParams>,
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params }: typeof context = context;
   const duration: number = HumanBound.above("seconds", params.seconds, 0, "s");
