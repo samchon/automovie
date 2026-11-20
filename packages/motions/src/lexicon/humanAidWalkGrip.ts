@@ -1,0 +1,199 @@
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeSegmentDistance,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanMountRider,
+  IAutoMovieMotionHumanPosture,
+  IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanMountRider } from "./HumanMountRider";
+
+/** Palm-to-rod stage admission in world metres. */
+const GRIP_GAP: number = 0.01;
+
+/**
+ * Fit one grip per hand for a complete staged floor-aid course.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States when the model grip and finger closure remain fixed.
+ * @evidence contracts/development/design.md#principled-representation All candidate hand points and approaches belong to the real grip rod, and the displayed palm is measured against its geometry.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The law supplies the support samples and retains the accepted grip. HumanMountRider owns native hand pose fitting.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A single sampled grip is chosen per hand for the entire course. The fitting never substitutes the wrist target for the actual material contact.
+ */
+export namespace humanAidWalkGrip {
+  /** Named hand contact and its prepared digit closure. */
+  export interface IHand {
+    /** Holding side. */
+    side: AutoMovieHumanSide;
+
+    /** Model-space grip. */
+    affordance: IAutoMovieAffordance;
+
+    /** Distance along the actual grip rod from its centre. */
+    offset: number;
+
+    /** Hand approach about the grip axis, in degrees. */
+    angle: number;
+
+    /** Fitted closure over the actual grip collider. */
+    digits: IAutoMovieMotionHumanPosture["joints"];
+  }
+
+  /** Convert a model grip into the world grip role the native holding solver expects. */
+  export function target(
+    contact: IAutoMovieAffordance,
+    world: IAutoMovieRigidTransform,
+    offset: number,
+    angle: number,
+  ): IAutoMovieMotionHumanMountRider.IHoldGrip {
+    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      world.rotation,
+      contact.frame.rotation,
+    );
+    return {
+      point: Vector3.add(
+        Vector3.add(
+          world.position,
+          Quaternion.rotateVector(world.rotation, contact.frame.translation),
+        ),
+        Quaternion.rotateVector(rotation, { x: 0, y: 0, z: offset }),
+      ),
+      normal: Quaternion.rotateVector(
+        Quaternion.multiply(
+          rotation,
+          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, angle),
+        ),
+        { x: 0, y: 1, z: 0 },
+      ),
+      axis: Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 }),
+      radius: (contact.aperture ?? 0) / 2,
+    };
+  }
+
+  /** Select a sustainable approach and close the fingers over the model solid. */
+  export function fit(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanPosture,
+    subject: string,
+    shapes: readonly IAutoMoviePhysicalShape[],
+    affordances: readonly IAutoMovieAffordance[],
+    start: IAutoMovieRigidTransform,
+    walker: boolean,
+    sides: readonly AutoMovieHumanSide[],
+    stations: readonly {
+      frame: IAutoMovieRigidTransform;
+      body: IAutoMovieMotionHumanPosture;
+    }[],
+    refuse: (axis: string, value: string | number, reason: string) => never,
+  ): readonly IHand[] {
+    return sides.map((side: AutoMovieHumanSide): IHand => {
+      const id: string = walker ? `${side}Grip` : "grip";
+      const affordance: IAutoMovieAffordance | undefined = affordances.find(
+        (value: IAutoMovieAffordance): boolean =>
+          value.id === id && value.kind === "handle",
+      );
+      if (affordance === undefined)
+        return refuse("prop", subject, `the placed aid does not declare ${id}`);
+      const length: number = affordance.length ?? 0;
+      const offsets: readonly number[] = walker
+        ? [0, -1, 1, -2, 2, -3, 3].map((step): number => (step * length) / 8)
+        : [0];
+      const angles: readonly number[] = walker
+        ? [0, -15, 15, -30, 30, -45, 45, -60, 60, -75, 75, -90, 90]
+        : [0];
+      const palm: IAutoMovieHumanoidSurfaces.IFrame =
+        body.surfaces.regions[side === "left" ? "palmLeft" : "palmRight"];
+      const center: IAutoMovieVector3 = target(affordance, start, 0, 0).point;
+      const solid: IAutoMoviePhysicalShape | undefined = shapes.reduce<
+        IAutoMoviePhysicalShape | undefined
+      >(
+        (best, shape): IAutoMoviePhysicalShape =>
+          best === undefined ||
+          physicalShapeSegmentDistance(start, shape, center, center) <
+            physicalShapeSegmentDistance(start, best, center, center)
+            ? shape
+            : best,
+        undefined,
+      );
+      if (solid === undefined)
+        return refuse(id, subject, "the grip has no physical rod");
+      const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+        palm.bone,
+      ]);
+      let miss: number = Infinity;
+      for (const offset of offsets)
+        for (const angle of angles) {
+          let worst: number = 0;
+          for (const station of stations) {
+            const selected: IAutoMovieMotionHumanMountRider.IHoldGrip = target(
+              affordance,
+              station.frame,
+              offset,
+              angle,
+            );
+            const { arm }: IAutoMovieMotionHumanMountRider.IHoldResult =
+              HumanMountRider.hold(body, side, station.body, selected, 1, {});
+            const posed: IAutoMovieMotionHumanPosture = {
+              ...station.body,
+              limbs: { ...station.body.limbs, [`${side}Arm`]: arm },
+            };
+            const wrist: IAutoMovieResolvedBone = poseBones(
+              body,
+              resolveHumanPosture(body, posed),
+              undefined,
+              requested,
+            ).get(`${side}Hand`)!;
+            const contact: IAutoMovieVector3 =
+              resolveAutoMovieHumanoidSurfaces.point(palm, wrist);
+            worst = Math.max(
+              worst,
+              Math.abs(
+                physicalShapeSegmentDistance(
+                  station.frame,
+                  solid,
+                  contact,
+                  contact,
+                ),
+              ),
+            );
+            if (worst > GRIP_GAP) break;
+          }
+          miss = Math.min(miss, worst);
+          if (worst <= GRIP_GAP)
+            return {
+              side,
+              affordance,
+              offset,
+              angle,
+              digits: HumanMountRider.closed(
+                body,
+                side,
+                entry,
+                target(affordance, start, offset, angle),
+                shapes,
+                start,
+              ),
+            };
+        }
+      return refuse(
+        id,
+        miss,
+        `the modeled grips miss by at least ${(miss * 1000).toFixed(1)} mm`,
+      );
+    });
+  }
+}
