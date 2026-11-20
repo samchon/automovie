@@ -298,7 +298,7 @@ export namespace createCart {
    * The affordance ids; a kind lacks the ids of the parts it does not have:
    *
    * - `handle`: a trolley's push bar.
-   * - `leftHandle`, `rightHandle`: a wheelbarrow's handgrips on `+X` and `-X`.
+   * - `leftHandle`, `rightHandle`: the trolley's hand stations on its bar or the wheelbarrow's handgrips on `+X` and `-X`.
    * - `load`: the floor of a trolley's basket or a wheelbarrow's tray.
    * - `coupling`: where a drawn kind is drawn from: the middle between a cart's shafts at the horse's tugs or a rickshaw's at the runner's hands, or a chariot's or limber's pole end.
    * - `leftShaft`, `rightShaft`: a rickshaw's shafts where the runner's hands hold them, on `+X` and `-X`.

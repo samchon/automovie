@@ -78,6 +78,13 @@ export namespace IAutoMovieMotionHumanRide {
     feet?: Partial<Record<"left" | "right", string>>;
 
     /**
+     * Acquire each named foot support over the first 0.6 seconds of the ride,
+     * then follow its actual material point. By default the feet keep the
+     * offset they had on the named rests when the ride began.
+     */
+    placeFeet?: boolean;
+
+    /**
      * The support's point the seat stays on, by its id, where the seat
      * itself moves within the support: a saddle on a horse's trunk, which
      * rises and falls with the stride over the course its root follows.

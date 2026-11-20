@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeUnits, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
 import { CarBody } from "./CarBody";
 import { createCar } from "./createCar";
 
@@ -201,6 +201,33 @@ export namespace CarCabin {
       travel: d.lockTurns! * 180,
       parts: ["steering-rim", "steering-spoke"],
     });
+
+    // The right grasp is on the rim and turns with the same column.
+    const rim = Vector3.add(hub, v(-d.steeringDiameter! / 2, 0, 0));
+    builder.affordance({
+      id: "rightSteeringGrip",
+      kind: "handle",
+      frame: ArchetypeFrame.facing(rim, axis, Vector3.cross(axis, v(-1, 0, 0))),
+      extent: null,
+      grip: "power",
+      aperture: 0.03,
+      rides: "wheel",
+    });
+
+    // A sole can bear on the modeled floor either side of the seat center.
+    // Share the accelerator heel's longitudinal station in the front row.
+    for (const [id, x] of [
+      ["driverLeftRest", sx + createCar.FOOT],
+      ["passengerLeftRest", -sx + createCar.FOOT],
+      ["passengerRightRest", -sx - createCar.FOOT],
+    ] as const)
+      builder.affordance({
+        id,
+        kind: "surface",
+        frame: ArchetypeFrame.upright(v(x, l.floor, l.heel.z)),
+        extent: null,
+        parts: ["floor"],
+      });
 
     // The accelerator on the pedal plane at the ball of foot under the right foot; its plate faces the sole, out of the plane toward the seat.
     const slope: number = l.pedal * ArchetypeUnits.DEGREE;

@@ -181,6 +181,17 @@ export function createMotorcycle(
       width: 0.4,
       depth: 0.4,
     });
+    for (const [id, sign] of [
+      ["leftFloorboard", 1],
+      ["rightFloorboard", -1],
+    ] as const)
+      builder.affordance({
+        id,
+        kind: "surface",
+        frame: ArchetypeFrame.upright(v(sign * 0.1, board.y, board.z)),
+        extent: null,
+        parts: ["floorboard"],
+      });
   } else
     for (const [id, sign] of [
       ["leftFootrest", 1],
@@ -237,6 +248,7 @@ export namespace createMotorcycle {
    * - `seat`: the rider's seat, facing forward.
    * - `leftGrip`, `rightGrip`: the handlebar's grips on `+X` and `-X`.
    * - `leftFootrest`, `rightFootrest`: a motorcycle's foot pegs.
+   * - `leftFloorboard`, `rightFloorboard`: two named sole contact points on the scooter's board.
    * - `floorboard`: a scooter's floor, where both feet rest, open above between the front shield and the body under the seat.
    */
   export type Affordance =
@@ -245,7 +257,9 @@ export namespace createMotorcycle {
     | "rightGrip"
     | "leftFootrest"
     | "rightFootrest"
-    | "floorboard";
+    | "floorboard"
+    | "leftFloorboard"
+    | "rightFloorboard";
 
   /**
    * The free dimensions, metres unless stated:
