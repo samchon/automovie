@@ -17652,7 +17652,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "right"
               }
             ],
-            "description": "Working side for single-blade canoe and water polo, or initial side of the dinghy."
+            "description": "Working side for single-blade canoe and water polo, the support hand of an artistic base, or the initial side of a dinghy."
           },
           "phase": {
             "type": "number",
