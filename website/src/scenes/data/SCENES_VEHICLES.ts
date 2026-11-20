@@ -118,7 +118,7 @@ function twoWheelRide(
     ...object(
       "vehicle",
       bicycle ? "createBicycle" : "createMotorcycle",
-      kind,
+      bicycle ? undefined : kind,
       0,
       0,
     ),
