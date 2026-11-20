@@ -2,36 +2,22 @@
 title: Evidence graph
 ---
 
-import { Callout } from "nextra/components";
-
 # Evidence graph
 
-The evidence graph makes every decision in the chain an obligation. A respondent, such as a screenplay section or a scene composition, cites what it realizes and answers the questions it owes, each with a written reason. `pnpm run evidence` reads those citations and fails while any selected decision is unrealized or any question is unanswered. The error list is the agent's list of remaining work.
+The evidence graph is how a screenplay keeps its world. Every principle and every decision about the setting, the characters, the places and the era becomes an obligation, and the layer that must keep it states in writing how it does, or why it does not apply. No decision is left without a written answer, so the screenplay holds to its world and the film computed from it holds to the screenplay.
 
-The idea comes from the [evidence graph of `@ttsc/evidence`](https://ttsc.dev/docs/evidence), which binds code to its specification. A production runs the same kind of check over Markdown and TypeScript through `@wrtnlabs/evidence`, configured by `@automovie/evidence`.
+A respondent, such as a screenplay section or a scene composition, cites what it realizes and answers the questions it owes, each with a written reason. `pnpm run evidence` reads those citations and fails while any selected decision is unrealized or any question is unanswered. The error list is the agent's list of remaining work.
 
-## Claims and references
-
-The graph is a set of claims. A claim selects respondents, such as every H2 of the screenplay or every exported function under `src/composition/scenes/`, and names the references they owe:
-
-- a checklist, which is a contract document whose every H2 asks one question, so each respondent answers every item;
-- a parent population, such as the brief or the treatments, so every parent unit is cited by some respondent.
-
-The second kind is what keeps the chain whole. A treatment event that no script cites, or a screenplay beat that no scene composition cites, fails the check.
+A production runs the graph over Markdown and TypeScript through [`@wrtnlabs/evidence`](https://github.com/wrtnlabs/evidence), configured by `@automovie/evidence`.
 
 ## What it holds a production to
 
 Each check is turned on per layer in the production's `evidence.config.ts`, so a production checks the layers it writes. Once a layer's check is on:
 
-- every unit of the layer above it is cited by some unit of this layer;
 - every question its checklists ask is answered in writing, or declined with the concrete reason it does not apply;
-- with the composition check on, every screenplay section and beat is realized by some scene composition, and every scene file by the film that plays it;
+- every decision of the layer above is kept by some unit of this layer, down to the film;
 - a review is tied to the text it read, so an edited beat needs reading again.
 
 The agent cannot report a layer done while one of these fails. [Evidence configuration](/reference/evidence) lists the options, the answer formats, the exclusions and the diagnostic codes.
 
-<Callout type="info">
-A passing check means every selected obligation was answered. Whether the writing and the delivered video are good is still decided in review.
-</Callout>
-
-[Independent review](/docs/screenplay/review) describes that review.
+[Independent review](/docs/screenplay/review) decides whether the answers are true and the writing works.

@@ -4,7 +4,7 @@ title: Setup
 
 # Setup
 
-A production needs Node.js 22.23.2 or later and pnpm. Older Node 22 releases can expose an unevaluated ES module in a graph that mixes CommonJS and ES modules, so the scaffold sets that floor in `engines`.
+A production needs Node.js 22.23.2 or later and pnpm.
 
 ## A single production
 
@@ -18,7 +18,7 @@ pnpm install
 
 The package name is `--name` when given and otherwise comes from the directory name. When the target is the current directory, `create` asks for a name. A non-empty target is refused unless `--force` is given, which replaces files at the same paths and keeps every other file.
 
-The new production holds the instructions, the contracts, the configuration and an inspector page over an empty starter film. It holds no film.
+The new production holds the instructions, the contracts, the configuration and an inspector page over an empty starter film. It holds no screenplay and no scene.
 
 ## A workspace
 
@@ -48,7 +48,7 @@ A production's commands run in its own directory. At the root, `pnpm lint`, `pnp
 
 ## First checks
 
-Run these in the production's directory, or run `pnpm install` once at the workspace root instead:
+Run these in the production's directory. In a workspace, run them at the root to check every production.
 
 ```bash
 pnpm install
@@ -67,7 +67,7 @@ Capture and render draw in headless Chromium, and playback review records with P
 pnpm run review:setup
 ```
 
-The script runs `playwright-core install ffmpeg chromium-headless-shell`. `CHROME_PATH` selects another browser and `FFMPEG_PATH` another FFmpeg for render. Capture uses SwiftShader, a software renderer, unless `--backend gpu` is given, so it needs no GPU.
+[CLI](/reference/cli) lists the variables that select another browser or FFmpeg.
 
 ## The inspector page
 
