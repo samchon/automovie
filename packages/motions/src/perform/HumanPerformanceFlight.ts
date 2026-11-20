@@ -380,11 +380,33 @@ export namespace HumanPerformanceFlight {
         // The momentum: given, or solved from the turns.
         let momentum: IAutoMovieVector3;
         let solvedFlight: IAutoMovieIntegrateAirborneRotation.IFlight | undefined;
+        const touchdown: ReturnType<typeof jumpAirborne.touchdown> =
+          jumpAirborne.touchdown(declared);
         if (declared.momentum.kind === "momentum")
           momentum = declared.momentum.momentum;
         else {
           const turns: IAutoMovieMotionHumanFlightTurns = declared.momentum;
           const maximum: number = turns.maximum ?? ceiling(t0);
+          const geometry: number | undefined = touchdown?.angularTolerance;
+          const tolerance: number | undefined =
+            geometry === undefined
+              ? undefined
+              : Math.min(geometry, solveAirborneTakeoff.TOLERANCE);
+
+          // The search and the momentum-judged flight use different error
+          // controls. Give both the same small-step integration budget so
+          // the terminal angle is budgeted per shape interval at the
+          // quaternion half-angle scale.
+          const integration: typeof HumanPerformanceFlight.ACCURACY =
+            tolerance === undefined
+              ? HumanPerformanceFlight.ACCURACY
+              : {
+                  relative: Math.min(
+                    HumanPerformanceFlight.ACCURACY.relative,
+                    tolerance / (2 * (knots.length - 1)),
+                  ),
+                  absolute: HumanPerformanceFlight.ACCURACY.absolute,
+                };
           const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
             history,
             t0,
@@ -394,7 +416,8 @@ export namespace HumanPerformanceFlight {
             somersault: turns.somersault,
             twist: turns.twist,
             maximum,
-            integration: HumanPerformanceFlight.ACCURACY,
+            integration,
+            tolerance,
             momentumTolerance: MOMENTUM_ACCURACY,
             errorScope,
           });
@@ -449,6 +472,8 @@ export namespace HumanPerformanceFlight {
             ...data,
             orientation: turned.orientation,
           });
+        if (touchdown?.turnedLanding === false)
+          touchdown.check(rotation(declared.to * plan.duration));
         plan.airborne!(rotation);
       } catch (error) {
         if (error instanceof MotionTrajectoryFailure && error.scope === errorScope)
