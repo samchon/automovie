@@ -46,6 +46,27 @@ export namespace ArchetypeFrame {
   };
 
   /**
+   * Copy a frame and all three mutable geometric records without transforming it.
+   *
+   * @param frame Current scale, translation and orientation in the caller\'s frame.
+   * @returns An independently owned identical frame.
+   * @evidence contracts/development/common.md#meaningful-documentation Defines the geometric records copied without rotation normalization.
+   * @evidence contracts/development/implementation.md#principled-implementation Copy the three scalar records at their existing precision and value semantics.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three independent records form one immutable-by-owner value.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No alias, normalization or scalar conversion changes the current result.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-sized copy with no input-size work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Centralizes the rigid placement copy used at public sample handoff.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the result immediately.
+   */
+  export function copy(frame: IAutoMovieTransform): IAutoMovieTransform {
+    return {
+      translation: { ...frame.translation },
+      rotation: { ...frame.rotation },
+      scale: { ...frame.scale },
+    };
+  }
+
+  /**
    * A frame at a point whose `+Y` and `+X` point along two given directions.
    *
    * @param at The frame's origin, metres.

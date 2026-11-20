@@ -38,14 +38,14 @@ const SADDLE: number = 0.45;
  * A horse in harness wears its harness on its own body, and a cart it draws is joined to it by traces and driving lines the towing ride lays at every second.
  *
  * Scenarios:
- * 1. For three seeds, under all four tacks, the hindquarters reach back to the point of buttock, 185/172 of the withers height behind the initial shoulder site (Jensen et al. 2019's horizontal L1 over the height at the withers). The buttock landmark is at the actual hindquarters capsule's rear cap-centre height and one radius behind it; this provisional body height is independent of the later connected hip attachment and is not a measured buttock height. The trunk retains its shoulder/hip sites along Z; the body's mass is the drawn mass and the tack's read weight: Wintec's 5.4 kg riding saddle, nothing for the harness, whose weight no maker states, and FM 25-7's 95 lb rigged cargo saddle scaled by the cube of the height over the manual's 59 to 62 in mule's middle.
+ * 1. For three seeds, under all four tacks and without equipment, the hindquarters reach back to the point of buttock, 185/172 of the withers height behind the initial shoulder site (Jensen et al. 2019's horizontal L1 over the height at the withers). The buttock landmark is at the actual hindquarters capsule's rear cap-centre height and one radius behind it; this provisional body height is independent of the later connected hip attachment and is not a measured buttock height. The trunk retains its shoulder/hip sites along Z; the body's mass is the drawn mass and the tack's read weight: Wintec's 5.4 kg riding saddle, nothing for the harness, whose weight no maker states, and FM 25-7's 95 lb rigged cargo saddle scaled by the cube of the height over the manual's 59 to 62 in mule's middle.
  * 2. A postilion's horse (`both`) offers the riding saddle's `seat` and the harness's `hitch` together, and carries the harness's places as the driving horse does. Under a pack saddle the horse's contacts are the `lead` and the two loads, the pads run FM 25-7's 23 in along the back scaled by the height, the croup piece's clearance is an ANSUR II hand's breadth (78.2 to 88.3 mm), and the breeching's straps clear the hindquarters' rounded end by FM 25-7's inch at their nearest. In harness the horse has a `hitch` on the trunk's axis under the saddle's middle and none of the riding saddle's contacts; the points of draft stand at the shoulder joints' height, level with the elbows; the breeching's seat lies 2 to 4 in below the point of buttock (Hammill's "a couple to a few inches", as read) on the hindquarters' surface; the model is admitted.
  * 3. A cart built for the same horse holds its coupling where the hitch is when the two are joined, its single tree's ends stand level with the points of draft, as far apart, and each held run of the driving lines starts at its terret and is the rest of IVC's 14 ft line after the run from the bit through the ring to the terret.
  * 4. Drawn behind the horse's ride through a quarter turn, at every second sampled: each trace runs from its point of draft on the posed horse to its end of the single tree on the posed cart, and each driving line from its bit ring through the neck strap's ring and the terret to the cart's held run; the bit rings move with the nodding head relative to the saddle.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces the horse under all four tacks and the cart, draws them, and reads the parts, the contacts and the laid lines; hindquarters short of the measured horizontal point of buttock, a body landmark detached from its actual capsule, a breeching off Hammill's drop, traces or lines that leave the collar, the bit, the terrets or the cart, or a bridle that does not nod is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces the horse under all four tacks, the untacked body, and the cart, draws them, and reads the parts, the contacts and the laid lines; hindquarters short of the measured horizontal point of buttock, a body landmark detached from its actual capsule, a breeching off Hammill's drop, traces or lines that leave the collar, the bit, the terrets or the cart, or a bridle that does not nod is caught.
  * @evidence contracts/development/testing.md#independent-expectations The buttock's horizontal location retains Jensen's 185 cm over 172 cm. Its body-height oracle is the actual emitted capsule's rear cap centre, obtained independently from its primitive height and actual rigid transform; subtracting that primitive's radius gives its posterior body surface, without assuming the connected hip shares the same height or calling the neutral attachment constructor. The drop's band is the 2 to 4 in read off Hammill's wording; each line's expected point is worked from the posed part's own transform and the ride's placement, not from the ride's laying.
- * @evidence contracts/development/testing.md#distinguishing-cases Four tacks, three seeds, a cart, a straight and a quarter turn; provisional body landmarks are distinguished from later connected skeletal attachment points.
+ * @evidence contracts/development/testing.md#distinguishing-cases Four tacks and the untacked horse, three seeds, a cart, a straight and a quarter turn; provisional body landmarks are distinguished from later connected skeletal attachment points.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
@@ -141,6 +141,13 @@ export function test_archetype_harness(): void {
       const ids: readonly string[] = horse.affordances.map(
         (a: { id: string }): string => a.id,
       );
+      if (tack === "bare") {
+        if (ids.length > 0)
+          findings.push(
+            `${label}: the untacked horse exposes ${ids.join(", ")}`,
+          );
+        continue;
+      }
       if (tack === "saddle") {
         if (ids.includes("hitch") || !ids.includes("seat"))
           findings.push(

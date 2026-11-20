@@ -4,11 +4,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeFrame } from "../core";
+import {
+  type ArchetypeCourse,
+  ArchetypeFrame,
+  ArchetypeRefusal,
+} from "../core";
+import { QuadrupedMotion } from "./QuadrupedMotion";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 
 /**
- * One hoof's anchored position and orientation through a curved course.
+ * One hoof's anchored position and orientation through a turn or grounded departure.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Owns the articulation goals derived from native landing frames and signed stance travel.
  * @evidence contracts/development/design.md#principled-representation A landed body frame, centre offset and interval determine a fixed hoof target. A following stance is present during swing only.
@@ -34,6 +39,82 @@ export namespace QuadrupedHoofTrack {
   }
 
   /**
+   * Admit an optional stationary departure anchor at the course start.
+   *
+   * @param plan The owned course plan with the actual initial time and body placement.
+   * @param requested The explicit flag for planting the initially neutral hooves.
+   * @param archetype Owner printed in the typed course refusal.
+   * @returns The initial course state for holding the actual neutral footprints, when requested.
+   * @throws {ArchetypeRefusal} If the explicit flag or starting speed cannot represent standing.
+   * @evidence contracts/development/common.md#meaningful-documentation Names the actual course frame and admission rule without taking ownership of route math.
+   * @evidence contracts/development/implementation.md#principled-implementation Evaluate the native course at its distance-zero time so delayed starts retain the right world placement.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure An absent request exits immediately. One initial state admits the explicit request or reports its conflict.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A moving start never silently reinterprets as a standing start or moves the route mark.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Reads one existing course point only for requested departure.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The route owns the initial time and placement through existing queries.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the requested state escapes. No viewer or external handle exists.
+   */
+  export function departure(
+    plan: ArchetypeCourse.IPlan,
+    requested: true | undefined,
+    archetype: string,
+  ): ArchetypeCourse.IState | undefined {
+    if (requested === undefined) return undefined;
+    const initial: ArchetypeCourse.IState = plan.at(plan.when(0));
+    if (requested === true && initial.speed === 0) return initial;
+    throw new ArchetypeRefusal({
+      kind: "parameter",
+      archetype,
+      axis: "startFromStanding",
+      value: requested,
+      feasible: null,
+      reason:
+        "standing departure requires a zero-speed start and the explicit true flag",
+      fix: "Specify startSpeed 0 with acceleration or omit startFromStanding.",
+    });
+  }
+
+  /**
+   * Read the current planted anchor or its independently sampled swing.
+   *
+   * @param phase Current stride coordinate, with course start at zero.
+   * @param landed Previous contact phase, which can precede course start.
+   * @param coming Next real contact phase.
+   * @param current Predicted ordinary stance and its admitted duty.
+   * @param standing Actual starting placement when the rider requests a stand.
+   * @returns Chosen anchor, contact state, and normalized swing displacement/height.
+   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes provisional earlier stance from a hooved neutral standing departure.
+   * @evidence contracts/development/implementation.md#principled-implementation Replace a pre-start stance anchor by the real start footprint with no prior advance and begin that hoof swing no earlier than phase zero.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the start anchor and lift boundary, then evaluate the existing clearance and interpolation law on the normalized interval.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Do not move the anchored hoof by authoring a virtual step before the course.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time and storage over one stance, with no temporal search.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The existing step law owns minimum jerk and the admitted stance owns ordinary phase/travel.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources No sample or handle is retained.
+   */
+  export function step(
+    phase: number,
+    landed: number,
+    coming: number,
+    current: IStance,
+    standing: ArchetypeCourse.IState | undefined,
+  ): { from: IStance; planted: boolean; along: number; rise: number } {
+    const initial: boolean = standing !== undefined && landed <= 0;
+    const local: number = phase - landed;
+    const liftOff: number = initial
+      ? Math.max(-landed, current.duty)
+      : current.duty;
+    const planted: boolean = local < liftOff;
+    const swing: number = planted
+      ? 0
+      : (local - liftOff) / (coming - landed - liftOff);
+    return {
+      from: initial ? { ...current, landed: standing!, travel: 0 } : current,
+      planted,
+      ...QuadrupedMotion.swing(swing),
+    };
+  }
+
+  /**
    * Convert the fixed world footprint or world swing to the current body frame.
    *
    * @param state Current course state, including the body's world placement.
@@ -41,8 +122,8 @@ export namespace QuadrupedHoofTrack {
    * @param from Last committed stance.
    * @param to The next committed stance during swing. Omitted during stance.
    * @param amount The smooth swing progression from zero to one.
-   * @param curved True when the route changes heading and needs a world-frame stance or swing.
-   * @returns Model-space coordinates in metres. A curved route also returns the relative terminal axis rotation.
+   * @param worldAnchors Whether turns or an explicit standing start require world anchoring.
+   * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines frames, units and the optional next stance.
    * @evidence contracts/development/implementation.md#principled-implementation Straight signed progress gives the same distance from the half-stance-centred landing in a common basis. A curved route anchors world-space points and frames and converts them to current model space. Swing interpolates the two adjacent landings.
@@ -58,9 +139,9 @@ export namespace QuadrupedHoofTrack {
     from: IStance,
     to: IStance | undefined,
     amount: number,
-    curved: boolean,
+    worldAnchors: boolean,
   ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation"> {
-    if (!curved)
+    if (!worldAnchors)
       return {
         z:
           rest.z +

@@ -17,7 +17,7 @@ import { IcelandicHorseProfile } from "./IcelandicHorseProfile";
 import { QuadrupedBody } from "./QuadrupedBody";
 
 /**
- * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, in a driving harness, or under a pack saddle with a lead rope.
+ * A horse with its tack: a coarse body of one bar per bone, under a riding saddle with stirrups, reins and a lead rope, in a driving harness, under a pack saddle with a lead rope, or without tack.
  *
  * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`QuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `QuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
  *
@@ -70,11 +70,17 @@ export function createHorse(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
  */
 export namespace createHorse {
-  /** What the horse wears: a riding saddle with its stirrups, reins and lead rope, a driving harness, both at once (a postilion's horse, ridden in harness), or a pack saddle with its lead rope. */
-  export type Tack = "saddle" | "harness" | "both" | "pack";
+  /** The riding, harness, combined, pack and untacked configurations. */
+  export type Tack = "saddle" | "harness" | "both" | "pack" | "bare";
 
-  /** Every tack, for a caller that reads one at run time. */
-  export const TACKS: readonly Tack[] = ["saddle", "harness", "both", "pack"];
+  /** Every equipment configuration admitted by the equid producer. */
+  export const TACKS: readonly Tack[] = [
+    "saddle",
+    "harness",
+    "both",
+    "pack",
+    "bare",
+  ];
 
   /**
    * The affordance ids:
@@ -331,7 +337,7 @@ export namespace createHorse {
       createHorse.Dimension
     > = new ArchetypeBuilder({
       id: params.id,
-      name: profile.names[tack],
+      name: profile.names[tack] ?? profile.archetype,
       draw,
       material: "skin",
     });
@@ -350,7 +356,7 @@ export namespace createHorse {
         rests: profile.body.foot,
       });
     } else if (tack === "harness") HorseHarness.lay(builder, d, rig);
-    else {
+    else if (tack === "pack") {
       // The rigged pack saddle's mass is its own, beside the equid's, its parts' shares percents of the equid's mass as the body's are.
       HorsePack.lay(builder, d, rig);
       HorseSaddle.lead(builder, nose, h);
@@ -370,7 +376,7 @@ export namespace createHorse {
     archetype: string;
 
     /** The model's name under each tack. */
-    names: Readonly<Record<Tack, string>>;
+    names: Readonly<Record<Exclude<Tack, "bare">, string> & { bare?: string }>;
 
     /** The band of each free dimension the read figures do not give. */
     bands: Readonly<Partial<Record<Free, IArchetypeBand>>>;
@@ -453,6 +459,7 @@ export namespace createHorse {
       harness: "driving horse",
       both: "postilion horse",
       pack: "pack horse",
+      bare: "untacked horse",
     },
     bands: BANDS,
     girth: (withers: number): number =>

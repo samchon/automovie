@@ -26,6 +26,8 @@ export * from "./QuadrupedLimb";
 export * from "./QuadrupedLocomotion";
 export * from "./QuadrupedMotion";
 export * from "./QuadrupedRest";
+export * from "./QuadrupedLateralRest";
+export * from "./QuadrupedLateralRestPlan";
 export * from "./QuadrupedRestPlan";
 export * from "./QuadrupedRootRange";
 export * from "./QuadrupedSkeleton";

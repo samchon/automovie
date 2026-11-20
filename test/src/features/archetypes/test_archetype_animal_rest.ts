@@ -1,18 +1,21 @@
 import {
   type Archetype,
+  ArchetypeFrame,
   QuadrupedBody,
+  QuadrupedLateralRest,
   QuadrupedRest,
   type QuadrupedRestPlan,
   createDog,
   createHorse,
 } from "@automovie/archetypes";
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { animalTerminalSole } from "../internal/animalTerminalSole";
 import { archetypeRestObservation } from "../internal/archetypeRestObservation";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
@@ -35,18 +38,22 @@ import { vclose } from "../internal/vclose";
  *    produce their declared support events without inventing clinical timing.
  * 4. Malformed clocks/carriage/windows, incomplete carriers, invalid sample
  *    times and an actual one-millimetre upper-bar contradiction are refused.
+ * 5. An untacked horse rolls onto each flank and rises, with mirrored actual
+ *    surface and limb support, complete floor clearance and continuous
+ *    attachment to the first grounded hoof step. Saddle collision refuses.
  *
  * Ellis et al. 2018 (doi:10.3389/fbioe.2018.00162) supports the symmetrical
  * belly-lying, fixed-footprint greyhound study condition. The two-second
  * transitions, one-second hold, horizontal resting tail and distal carriage
  * below are authored geometric choices. No measured ROM, GRF, clinical
- * hip/knee/ankle timing, no-slip material point or side roll is asserted.
+ * hip/knee/ankle timing or sternal no-slip material point is asserted.
+ * The lateral roll and inward tuck are authored in the actual equine rig.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists actual body/tack choices, all bounded successful and refusal cases, independent mesh/contact measurements and the distinction between primary-study context and authored performance.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public actual producers and rest sampler, measures their current bars, source contacts and renderer-owned primitive vertices, and requires complete successful dog/horse cycles rather than accepting an always-refusing law.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public actual producers and rest sampler, measures their current bars, source contacts and renderer-owned primitive vertices, and requires complete successful dog/horse cycles. The actual untacked roll and ride departure make their flank and hoof geometry observable.
  * @evidence contracts/development/testing.md#independent-expectations Euclidean link lengths, rigid placement invariance, fixed X/Z footprints, zero sole/trunk floor gaps and unchanged carrier-local contact coordinates follow from the declared geometry contract. Render tessellation supplies an independent vertex path; the terminal cylinder rim is also measured analytically so polygon sampling cannot hide its true sole. The 1e-9 m/rotation budget is numerical observation precision, not an allowed authored contact gap.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts dog and larger horse, lowering/hold/rise, beginning/recovered standing, current/rest contacts, translated support, nontrivial windows, unordered seeks, independent returned transforms and finite malformed/unreachable inputs. Species gait and clinical validation remain outside this geometric unit.
- * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit owns two actual in-memory models, bounded sample/vertex loops and local negative cases; it opens no viewer, renderer, process, native artifact or foreign-runtime replacement.
+ * @evidence contracts/development/testing.md#execution-ownership A portable synchronous unit owns the actual in-memory models, bounded sample/vertex loops and local negative cases.
  */
 export function test_archetype_animal_rest(): void {
   const dog: ReturnType<typeof createDog> = createDog({
@@ -141,7 +148,131 @@ export function test_archetype_animal_rest(): void {
     { name: "dog", animal: dog, params: dogParams },
     { name: "horse", animal: horse, params: horseParams },
   ];
-  for (const entry of cases) archetypeRestObservation.verify(entry.name, entry.animal, entry.params);
+  for (const entry of cases)
+    archetypeRestObservation.verify(entry.name, entry.animal, entry.params);
+
+  const bare: ReturnType<typeof createHorse> = createHorse({
+    tack: "bare",
+    withersHeight: 1.72,
+    tempo: 0,
+  });
+  const bareParams: QuadrupedRestPlan.IParams = {
+    ...horseParams,
+    parts: { withers: "trunk" },
+    contacts: {},
+  };
+  TestValidator.equals(
+    "untacked horse exposes no equipment contacts",
+    bare.affordances.length,
+    0,
+  );
+  for (const side of ["left", "right"] as const) {
+    TestValidator.error(
+      `admission refuses first contact on ${side} saddle gear`,
+      () =>
+        QuadrupedLateralRest(horse, horseParams, {
+          side,
+          rollDegrees: 90,
+          tuckDegrees: 35,
+          turnSeconds: 1,
+          holdSeconds: 0.8,
+          offset: 0.08,
+        }),
+    );
+    const roll: ReturnType<
+      typeof QuadrupedLateralRest<createHorse.Affordance, createHorse.Dimension>
+    > = QuadrupedLateralRest(bare, bareParams, {
+      side,
+      rollDegrees: 90,
+      tuckDegrees: 35,
+      turnSeconds: 1,
+      holdSeconds: 0.8,
+      offset: 0.08,
+    });
+    const seconds: number = roll.events.lateralOn + 0.4;
+    const sampled: ReturnType<typeof roll.sample> = roll.sample(seconds);
+    const returned: ReturnType<typeof roll.sample> = roll.sample(
+      roll.events.standing,
+    );
+    const target: IAutoMovieVector3 = Quaternion.rotateVector(
+      sampled.placement.rotation,
+      { x: 0, y: 1, z: 0 },
+    );
+    const body: number = Math.min(
+      ...sampled.animal.parts
+        .filter(
+          (part: IAutoMovieModelPart): boolean =>
+            part.id === "trunk" || part.id === "hindquarters",
+        )
+        .map((part: IAutoMovieModelPart): number =>
+          animalTerminalSole(part, sampled.placement),
+        ),
+    );
+    const support: Set<string> = new Set();
+    for (let step: number = 0; step <= 12; step++) {
+      const pose: ReturnType<typeof roll.sample> = roll.sample(
+        roll.events.rollStart +
+          ((roll.events.sternal - roll.events.rollStart) * step) / 12,
+      );
+      const low: number = Math.min(
+        ...pose.animal.parts.map((part: IAutoMovieModelPart): number => {
+          const shape: IAutoMovieModelPart["geometry"] = part.geometry;
+          if (shape.type === "primitive" && shape.shape.type === "sphere")
+            return (
+              ArchetypeFrame.point(pose.placement, part.transform!.translation)
+                .y - shape.shape.radius
+            );
+          return animalTerminalSole(part, pose.placement);
+        }),
+      );
+      TestValidator.predicate(
+        `${side} roll sample ${step} touches the floor without penetration`,
+        () => Math.abs(low) < 1e-9,
+      );
+      if (step > 0 && step < 12 && pose.phase !== "lateral")
+        pose.support.forEach((id: string): void => {
+          support.add(id);
+        });
+    }
+    TestValidator.predicate(
+      `${side} rolling transfers support to the side limbs`,
+      () => [...support].some((id: string): boolean => id.startsWith(side)),
+    );
+    for (const limb of QuadrupedBody.LIMBS) {
+      const id: QuadrupedBody.Bone = QuadrupedBody.BONES[limb][3];
+      const bar: IAutoMovieModelPart = returned.animal.parts.find(
+        (part: IAutoMovieModelPart): boolean => part.id === id,
+      )!;
+      const neutral: IAutoMovieModelPart = bare.parts.find(
+        (part: IAutoMovieModelPart): boolean => part.id === id,
+      )!;
+      TestValidator.predicate(
+        `${side} ${limb} restores the standing departure anchor`,
+        vclose(
+          archetypeRestObservation.endpoint(bar, 1),
+          archetypeRestObservation.endpoint(neutral, 1),
+          1e-8,
+        ),
+      );
+    }
+    TestValidator.predicate(
+      `actual ${side} flank support and independent recovery`,
+      () =>
+        sampled.phase === "lateral" &&
+        Math.sign(target.x) === (side === "left" ? 1 : -1) &&
+        Math.abs(body) < 1e-9 &&
+        sampled.support.some(
+          (part: string): boolean =>
+            part === "trunk" || part === "hindquarters",
+        ) &&
+        returned.phase === "standing" &&
+        Math.abs(returned.placement.translation.x) < 1e-12 &&
+        Math.abs(
+          roll.sample(seconds).placement.translation.y -
+            sampled.placement.translation.y,
+        ) < 1e-12,
+    );
+  }
 
   const clip: QuadrupedRestPlan.IClip<
     createDog.Affordance,

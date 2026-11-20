@@ -1,11 +1,9 @@
-import type {
-  IAutoMovieTransform,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
   type Archetype,
   ArchetypeCourse,
+  ArchetypeFrame,
   ArchetypeRefusal,
   ArchetypeRide,
 } from "../core";
@@ -43,6 +41,8 @@ const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
  * Froude/mass/overlap handovers can retain an endpoint clock only with actual
  * adjacent-gait domain support; speed-availability rules do not bridge gaps.
  * Genuine zero-speed ramps retain the minimum clock over vMin²/(2a).
+ * An explicit standing departure starts with all four actual neutral hoof anchors.
+ * Each anchor releases for the first gait swing without a virtual pre-roll touchdown.
  *
  * An optional authoring table is admitted and copied before planning. It supplies
  * only this ride's clocks and pose ranges; the animal's species identity, body
@@ -116,6 +116,12 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     species.archetype,
     course,
   );
+  const departure: ArchetypeCourse.IState | undefined =
+    QuadrupedHoofTrack.departure(
+      plan,
+      course.startFromStanding,
+      species.archetype,
+    );
   const clock: QuadrupedRideClock.IClock = QuadrupedRideClock.create(
     species,
     course,
@@ -140,15 +146,6 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     )
   )
     admitSpeed(undefined, course.cruise);
-  /** Sample ownership includes an independent rigid course placement. */
-  function copyPlacement(frame: IAutoMovieTransform): IAutoMovieTransform {
-    return {
-      translation: { ...frame.translation },
-      rotation: { ...frame.rotation },
-      scale: { ...frame.scale },
-    };
-  }
-
   /** Find the planned leg owning a distance along the course. */
   function legIndex(distance: number): number {
     let k: number = 0;
@@ -311,7 +308,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const total: number = phases[rideQuadruped.STEPS]!;
   for (const limb of QuadrupedBody.LIMBS)
     for (let m: number = 0; landing(limb, m) <= total; m++) {
-      const seconds: number = secondsAt(landing(limb, m));
+      const phase: number = landing(limb, m);
+      if (phase === 0 && departure !== undefined) continue;
+      const seconds: number = secondsAt(phase);
       if (
         !limb.endsWith("Hind") ||
         seconds < (footwork.slide?.contact ?? Infinity)
@@ -353,7 +352,8 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     };
   }
 
-  const curved: boolean = plan.bends.length > 0;
+  const worldAnchors: boolean =
+    plan.bends.length > 0 || departure !== undefined;
   /** Keep the source dimensions and the solver's actual quadruped size. */
   type Dimension = D | QuadrupedBody.Dimension;
   const pose: QuadrupedRidePose.IPrepared<Affordance, Dimension> =
@@ -390,33 +390,27 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         species,
         strideOf(m).gait,
       );
-      const local: number = phase - landed;
       const current: ReturnType<typeof stance> = stance(
         landed,
         strideOf(m),
         fore,
       );
-      const planted: boolean = local < current.duty;
-      const swing: number = planted
-        ? 0
-        : (local - current.duty) / (coming - landed - current.duty);
-      const path: { along: number; rise: number } =
-        QuadrupedMotion.swing(swing);
-
-      const following: ReturnType<typeof stance> | undefined = planted
+      const step: ReturnType<typeof QuadrupedHoofTrack.step> =
+        QuadrupedHoofTrack.step(phase, landed, coming, current, departure);
+      const following: ReturnType<typeof stance> | undefined = step.planted
         ? undefined
         : stance(coming, strideOf(m + 1), fore);
       const goal: QuadrupedRidePose.IGoal = {
         ...QuadrupedHoofTrack.target(
           state,
           rest[4]!,
-          current,
+          step.from,
           following,
-          path.along,
-          curved,
+          step.along,
+          worldAnchors,
         ),
-        lift: going * which.lift[end] * withers * path.rise,
-        fold: going * which.fold[end] * path.rise,
+        lift: going * which.lift[end] * withers * step.rise,
+        fold: going * which.fold[end] * step.rise,
       };
       goals.set(
         limb,
@@ -447,7 +441,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         -sink,
         witness,
       ),
-      placement: copyPlacement(state.placement),
+      placement: ArchetypeFrame.copy(state.placement),
     };
   };
   if (nativeCourse)
@@ -493,6 +487,8 @@ export namespace rideQuadruped {
    *
    */
   export interface ICourse extends Omit<ArchetypeCourse.ICourse, "legs"> {
+    /** Begin a zero-speed course with all four actual neutral hoof anchors. */
+    startFromStanding?: true;
     /** The legs in order, at least one. */
     legs: readonly ILeg[];
   }

@@ -38,6 +38,7 @@ export namespace IcelandicHorseProfile {
         harness: "Icelandic driving horse",
         both: "Icelandic postilion horse",
         pack: "Icelandic pack horse",
+        bare: "untacked Icelandic horse",
       },
       bands: {
         ...base.bands,
