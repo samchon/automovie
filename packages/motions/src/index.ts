@@ -461,3 +461,4 @@ export * from "./handling/guitarChord";
 export * from "./handling/pianoPedal";
 export * from "./handling/pianoPerformance";
 export * from "./tasks/cymbalStrike";
+export * from "./lexicon/HumanCarrierCustody";
