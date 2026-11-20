@@ -27,6 +27,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanObject } from "../perform/HumanObject";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HandrimMaterialTransfer } from "./HandrimMaterialTransfer";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
@@ -43,6 +44,9 @@ const SEAT_HEADING_GAP: number = 2;
 /** Intervals between the bounded grip-fit samples over the push. */
 const PUSH_INTERVALS: number = 8;
 
+/** Largest one-sided read interval in seconds for the material angular rate. */
+const RIM_RATE_INTERVAL: number = 0.001;
+
 /** The point and directions a rider uses to take the rim. */
 type Grip = Parameters<typeof HumanMountRider.hold>[3];
 
@@ -56,6 +60,10 @@ interface IHand {
   caught: Grip;
   /** Cached release grip in the chair's release placement. */
   released: Grip;
+  /** The radius of the declared rim in metres. */
+  radius: number;
+  /** Material rotation rates in radians per second at the window boundaries. */
+  rates: { catch: number; release: number };
   /** Finger joint angles fitted to the chair's coarse collider. */
   closed: IAutoMovieMotionHumanPosture["joints"];
 }
@@ -116,14 +124,16 @@ const refuseRim = (on: string, rim: string, side: "left" | "right"): never => {
  * The contact and recovery phases follow the arcing path documented in
  * Slowik et al. (2015), Figure 1 and Table 1,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC4631660/#T1 . The recovery
- * clearance is a staging dimension of one rider hand length. The law
+ * clearance is a staging dimension of one rider hand length. The wrist
+ * enters and leaves at the rim's tangential rate, estimated from the material
+ * point inside the grip window, then blends to the seated pose. The law
  * checks seat alignment, active wheel sides and solved wrists at nine points
  * through the push before publishing contact windows.
  * Chénier et al. (2022), https://pubmed.ncbi.nlm.nih.gov/34915435/,
  * also measured asymmetric propulsion during wheelchair basketball dribbles.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry, prop reader, push and recovery phases, and the source of the wheel travel.
- * @evidence contracts/development/design.md#principled-representation The plan composes the ride's support path with a phase-clocked arm target and a grip window for each active hand.
+ * @evidence contracts/development/design.md#principled-representation The plan composes the ride's support path with a phase-clocked arm target and grip window for each hand. One-sided rim angles are measured in the chair frame so approach and recovery preserve the material tangent without querying a point outside its window.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One registered action over the reusable HumanRide base and HumanMountRider hand fit.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The prop reader owns the handrim material trajectory. The law computes stage poses and leaves wheel dynamics to the authored course.
  */
@@ -261,6 +271,11 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           affordance.kind === "seat",
       )!.frame.translation.x;
       const releaseFrame: IAutoMovieRigidTransform = frameAt(release);
+      const probe: number = Math.min(RIM_RATE_INTERVAL, push);
+      const catchProbe: number = Math.min(release, approach + probe);
+      const releaseProbe: number = Math.max(approach, release - probe);
+      const catchProbeFrame: IAutoMovieRigidTransform = frameAt(catchProbe);
+      const releaseProbeFrame: IAutoMovieRigidTransform = frameAt(releaseProbe);
       const hands: IHand[] = wheels.map(
         ({ side, rim, geometry }: IRim): IHand => {
           const sideOffset: number =
@@ -310,6 +325,26 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           };
           const caught: Grip = gripAt(approach, catchFrame);
           const released: Grip = gripAt(release, releaseFrame);
+          const rates: IHand["rates"] = {
+            catch: HandrimMaterialTransfer.rate(
+              caught,
+              carry(
+                gripAt(catchProbe, catchProbeFrame),
+                catchProbeFrame,
+                catchFrame,
+              ),
+              catchProbe - approach,
+            ),
+            release: HandrimMaterialTransfer.rate(
+              released,
+              carry(
+                gripAt(releaseProbe, releaseProbeFrame),
+                releaseProbeFrame,
+                releaseFrame,
+              ),
+              releaseProbe - release,
+            ),
+          };
           const closed: IAutoMovieMotionHumanPosture["joints"] =
             HumanMountRider.closed(
               context.body,
@@ -319,7 +354,7 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
               chair.prop.shapes ?? [],
               catchFrame,
             );
-          return { side, gripAt, caught, released, closed };
+          return { side, gripAt, caught, released, radius, rates, closed };
         },
       );
 
@@ -354,10 +389,22 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         for (const hand of hands) {
           const grip: Grip =
             at < approach
-              ? carry(hand.caught, catchFrame, chairFrame)
+              ? HandrimMaterialTransfer.advance(
+                  carry(hand.caught, catchFrame, chairFrame),
+                  hand.radius,
+                  hand.rates.catch,
+                  at - approach,
+                  Math.min(approach, push),
+                )
               : at <= release
                 ? hand.gripAt(at, chairFrame)
-                : carry(hand.released, releaseFrame, chairFrame);
+                : HandrimMaterialTransfer.advance(
+                    carry(hand.released, releaseFrame, chairFrame),
+                    hand.radius,
+                    hand.rates.release,
+                    at - release,
+                    Math.min(recovery, push),
+                  );
           if (recovering > 0) {
             // Disengage outboard before returning to the rest arm pose.
             const outward: IAutoMovieVector3 = Quaternion.rotateVector(
