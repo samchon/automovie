@@ -12,7 +12,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingArrest } from "./StrikingArrest";
 import { StrikingStance } from "./StrikingStance";
-import { strikingStepSupport } from "./StrikingStepSupport";
+import { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 import type { punchGeometry } from "./punchGeometry";

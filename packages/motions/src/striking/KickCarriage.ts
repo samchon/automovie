@@ -15,7 +15,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
-import type { strikingStepSupport } from "./StrikingStepSupport";
+import type { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**

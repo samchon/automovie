@@ -23,7 +23,7 @@ import { StrikingAim } from "./StrikingAim";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
-import { strikingStepSupport } from "./StrikingStepSupport";
+import { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**

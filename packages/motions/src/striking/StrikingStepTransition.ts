@@ -16,7 +16,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
-import type { strikingStepSupport } from "./StrikingStepSupport";
+import type { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 

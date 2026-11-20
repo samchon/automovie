@@ -16,7 +16,7 @@ import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
-import { strikingStepSupport } from "./StrikingStepSupport";
+import { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
 

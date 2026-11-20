@@ -24,7 +24,7 @@ import { KickSwing } from "./KickSwing";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
-import type { strikingStepSupport } from "./StrikingStepSupport";
+import type { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
 

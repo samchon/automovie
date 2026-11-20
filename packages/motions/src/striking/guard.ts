@@ -24,7 +24,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuardYield } from "./StrikingGuardYield";
 import { StrikingStance } from "./StrikingStance";
-import { strikingStepSupport } from "./StrikingStepSupport";
+import { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**

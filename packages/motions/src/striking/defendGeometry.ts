@@ -24,7 +24,7 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
-import { strikingStepSupport } from "./StrikingStepSupport";
+import { strikingStepSupport } from "./strikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 import { defendGoals } from "./defendGoals";
 
