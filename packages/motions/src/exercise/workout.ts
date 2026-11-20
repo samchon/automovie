@@ -193,7 +193,11 @@ export namespace workout {
     };
     const stood: IAutoMovieMotionHumanExerciseKey.IKey =
       ExerciseKey.standing(body);
-    span("enter", kind.enter, stood, first.key);
+    // Even a standing first key gives the second hand time to approach
+    // before its declared grip. The 0.25 s setup is an authored stage beat.
+    const loaded: boolean = p.load?.other !== undefined;
+    const setup: number = loaded ? Math.max(0.25, kind.enter) : kind.enter;
+    span("enter", setup, stood, first.key);
     // Each repetition's span with the postures it goes between, by their
     // events, and whether it is done on the other side: what a support
     // borne only in some postures reads.
@@ -338,6 +342,8 @@ export namespace workout {
     }
 
     const work: string = spans[1]!.from;
+    const from: number = clock.at(work) / duration;
+    const to: number = stay ? 1 : clock.at("release") / duration;
     const present = (seconds: number): number =>
       stay
         ? clock.progress("enter", work, seconds)
@@ -357,7 +363,8 @@ export namespace workout {
             context,
             p.load,
             kind.midfoot === true,
-            p.kind === "cleanAndJerk",
+            p.kind === "cleanAndJerk" || p.kind === "snatch",
+            from,
           );
 
     /** The time-only keyed contribution, including any load owned by the exercise. */
@@ -379,6 +386,24 @@ export namespace workout {
       );
       return load === null ? placed : load.apply(placed, read, project);
     };
+    // The support hand must seat at every authored work key. Entry blends
+    // may approach the bar before the declared second grip begins.
+    const admit: IAutoMovieMotionHumanWorkoutLoad.ILoad["admit"] = load?.admit;
+    if (admit !== undefined) {
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      const project: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(body);
+      const tested: Set<IAutoMovieMotionHumanExerciseKey.IKey> = new Set();
+      const firstWork: number = clock.at(work);
+      spans.forEach((span: ISpan, index: number): void => {
+        const at: number = starts[index]!;
+        if (at < firstWork || at > to * duration || tested.has(span.a))
+          return;
+        tested.add(span.a);
+        admit(write(standing, at, undefined, read, project));
+      });
+    }
     const primitives: IAutoMovieMotionHumanPrimitive[] = [
       { channels, reads: [], from: 0, to: duration, write },
     ];
@@ -450,8 +475,6 @@ export namespace workout {
       }
     }
 
-    const from: number = clock.at(work) / duration;
-    const to: number = stay ? 1 : clock.at("release") / duration;
     // A support borne in every posture bears through the work; one borne in
     // some (`at`) bears in each span whose two postures it names, on the
     // other side's part in a repetition done on that side, the spans that
@@ -528,6 +551,14 @@ export namespace workout {
         : {
             ...posed,
             contacts: [...posed.contacts, ...load.contacts],
+            ...(loaded
+              ? {
+                  events: [
+                    ...posed.events,
+                    { name: "loadReady", share: from },
+                  ].sort((a, b): number => a.share - b.share),
+                }
+              : {}),
             holds: load.holds,
             hands: load.hands,
           };
