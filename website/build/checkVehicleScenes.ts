@@ -89,7 +89,7 @@ export function checkVehicleScenes(): void {
               const grip = params.hands?.[side];
               if (grip !== undefined) {
                 const hand = side === "left" ? "leftHand" : "rightHand";
-                const parts = new Map([[hand, bones.get(hand)!]]);
+                const parts = new Map([[hand, bones.get(hand)!]] as const);
                 const anchor = frame(grip, at);
                 assert(
                   HumanColliders.distance(
