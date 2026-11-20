@@ -11,7 +11,7 @@ import { archetypePlaced } from "../internal/archetypePlaced";
  *
  * Scenarios:
  * 1. A fridge-freezer, a cooker and a washing machine on the floor and a microwave on a 0.9 m counter's height, placed on a line through the public chain, each turned a different way: each rests at its placement on its support within a millimetre, and every contact is a named point of the prop.
- * 2. Each kind declares exactly its contacts with their kinds: a fridge's two hinges, the two handles riding them and four shelf stack-tops; a cooker's top and four zone stack-tops, its door, handle and knobs drawn but not contacts; a microwave's door hinge and its floor and top stack-tops; a washer's door hinge and its top.
+ * 2. Each kind declares exactly its contacts with their kinds: a fridge's two hinges, the two handles riding them and four shelf stack-tops; a cooker's top and four zone stack-tops, its door, handle and knobs drawn but not contacts; a microwave's door hinge and its floor and top stack-tops; a washer's door hinge and riding handle, physical opening, approach, insertion and seating sockets, and top.
  * 3. Over 200 seeds: the fridge 1.86 to 2.03 m high and 0.66 m deep with its handles (Bosch KGN36, KGN39), every freezer part below 1.37 m (ADA 804.6.6 asks half the freezer below 54 in); the cooker's top 0.85 to 0.92 m (Bosch's cookers); the microwave's outside 442 x 260 x 345 mm and its cavity 280 mm wide between the side wall and the panel (Bosch FFL020MS2B); the washer 845 to 848 mm high and 598 mm wide.
  * 4. The washer with its door opened square is 1049 mm deep, the maker's depth with the door open at 90 degrees, within a millimetre.
  *
@@ -62,6 +62,13 @@ export function test_archetype_appliance_placed(): void {
     },
     washingMachine: {
       door: "hinge",
+      doorHandle: "handle>door",
+      drumAperture: "aperture",
+      loadApproach: "socket",
+      loadAlign: "socket",
+      loadOpening: "socket",
+      drumEntry: "socket",
+      drumSeat: "socket",
       top: "stack-top",
     },
   };
@@ -137,7 +144,8 @@ export function test_archetype_appliance_placed(): void {
         0.85,
         0.92,
         "Bosch freestanding cookers",
-        (s: number): number => make("cooker", s).affordance("top").frame.translation.y,
+        (s: number): number =>
+          make("cooker", s).affordance("top").frame.translation.y,
       ),
       row(
         "microwave width",

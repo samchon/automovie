@@ -25,7 +25,7 @@ const SHOVEL: string =
 /**
  * A long tool: a broom, a mop or a shovel that works on the floor or the ground, a forest axe, a fishing rod, or a field gun's sponge and rammer, worm or trail handspike.
  *
- * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it; a shovel also has a D grip at its top. The `face` is the head's working side, facing down; a forest axe's `face` is its edge instead, facing `+Z` the way the swing goes, with the handle's back flush with the poll. A fishing rod stands on its butt with its tip up: one hand takes its `grip` at the butt, and its `tip` is the rod's end, `+Y` along it. Chopping with two hands has no motion law yet; the axe is built for holding, carrying and the swing rows that exist.
+ * The tool stands upright along `+Y`, its head or blade on the floor at the origin and its shaft rising to the top. Both hands hold the `shaft`, each at a site along it. A shovel also has a D grip at its top. A mop provides fixed `upperGrip` and `lowerGrip` positions along the clear shaft for two-handed floor strokes. The `face` is the head's working side, facing down; a forest axe's `face` is its edge instead, facing `+Z` the way the swing goes, with the handle's back flush with the poll. A fishing rod stands on its butt with its tip up: one hand takes its `grip` at the butt, and its `tip` is the rod's end, `+Y` along it. Chopping with two hands has no motion law yet; the axe is built for holding, carrying and the swing rows that exist.
  *
  * The 6-pdr field gun's implements follow the 1862 Ordnance Manual: a sponge and rammer stands on its rammer head, whose end is its `face`, with the sponge at the top, whose end is its `tip`, `+Y` along it; a worm stands on its iron worm, whose point is its `face`, `-Y` along it, out of the tool; a trail handspike stands on its large end, its `face`, and tapers to the small end the hands bear down on.
  *
@@ -188,6 +188,27 @@ export function createLongTool(
     length: top - head,
   });
 
+  if (kind === "mop") {
+    // An upper hand and a lower hand push in distinct places on one shaft.
+    for (const [id, share] of [
+      ["upperGrip", 0.73],
+      ["lowerGrip", 0.53],
+    ] as const)
+      builder.affordance({
+        id,
+        kind: "handle",
+        symmetry: "round",
+        frame: ArchetypeFrame.facing(
+          Vector3.create(0, head + share * (top - head), 0),
+          Vector3.create(0, 0, -1),
+          Vector3.create(0, 1, 0),
+        ),
+        extent: null,
+        grip: "power",
+        aperture: 2 * radius,
+      });
+  }
+
   if (kind === "shovel") {
     // The D grip: a cross bar held from above, joined to the shaft by its yoke.
     builder.rod(
@@ -283,7 +304,9 @@ export namespace createLongTool {
     | "tip"
     | "release"
     | "pouch"
-    | "spur";
+    | "spur"
+    | "upperGrip"
+    | "lowerGrip";
 
   /**
    * The free dimensions, metres unless stated:

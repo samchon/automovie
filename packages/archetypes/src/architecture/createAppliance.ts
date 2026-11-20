@@ -16,7 +16,7 @@ import { ApplianceConstruction } from "./ApplianceConstruction";
  * - A fridge-freezer's `fridgeDoor` and `freezerDoor` hinge on its `+X` edge (the right as one faces it) and swing out 90 degrees, each carrying its handle (`fridgeHandle`, `freezerHandle`) at the free edge. The fridge is hollow, with its four glass shelves `shelf1` to `shelf4` from the bottom up, each a `stack-top`; the freezer below is one block.
  * - A cooker's `top` is the hob, a `stack-top`, with its four zones `zone1` to `zone4`, each a `stack-top` a pan is set on, front left, front right, back left and back right as one faces it; its oven door, handle and knobs are drawn but are not contacts, since no source read places them.
  * - A microwave's `door` hinges on its `-X` edge, stating no travel since the maker gives no opening angle; `floor` is the cavity's floor and `top` its top, each a `stack-top`.
- * - A washing machine's `door` is the round door hinged on its `-X` edge, opening 90 degrees; `top` is the worktop, a `stack-top`.
+ * - The washer's round `door` opens 160 degrees and carries `doorHandle`. The body keeps `drumAperture`, the loading sockets `loadApproach`, `loadAlign`, `loadOpening` and `drumEntry` before `drumSeat`, and the `top` work surface fixed.
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
@@ -26,8 +26,8 @@ import { ApplianceConstruction } from "./ApplianceConstruction";
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, which way each door swings and what each contact is.
  * @evidence contracts/development/implementation.md#principled-implementation Draws the kind's bands, the makers' overall sizes, and hands them to the kind's construction in `ApplianceConstruction`, which places boxes and rods from them.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the kind, draw the dimensions, build the kind, state the mass.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No inside of a freezer, oven or drum is modelled; every size a sheet does not give is a named estimate (`ApplianceConstruction.ESTIMATES`).
- * @evidence contracts/development/implementation.md#efficient-algorithms At most fourteen parts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freezer and oven remain solid. The washer drum and porthole use the documented estimates in WasherDrum.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Every appliance has a bounded inventory of primitive parts or convex drum cells.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -91,7 +91,7 @@ export namespace createAppliance {
    * - refrigerator: `fridgeDoor`, `freezerDoor` (hinges), `fridgeHandle`, `freezerHandle` (handles riding them), `shelf1` to `shelf4` (stack-tops);
    * - cooker: `top` (stack-top, the hob), `zone1` to `zone4` (stack-tops);
    * - microwave: `door` (hinge without travel), `floor`, `top` (stack-tops);
-   * - washingMachine: `door` (hinge), `top` (stack-top).
+   * - washingMachine: `door` and its riding `doorHandle`, fixed `drumAperture`, `loadApproach`, `loadAlign`, `loadOpening`, `drumEntry`, and `drumSeat`, and `top` (stack-top).
    */
   export type Affordance =
     | "fridgeDoor"
@@ -102,7 +102,14 @@ export namespace createAppliance {
     | "top"
     | `zone${number}`
     | "door"
-    | "floor";
+    | "floor"
+    | "doorHandle"
+    | "drumAperture"
+    | "loadApproach"
+    | "loadAlign"
+    | "loadOpening"
+    | "drumEntry"
+    | "drumSeat";
 
   /**
    * The free dimensions, metres unless stated:

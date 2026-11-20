@@ -100,6 +100,7 @@ export namespace putDown {
    *
    * @param context The action's context.
    * @param aperture Offset from the seat to the opening, world metres, when the registered aperture law shares this planner.
+   * @param route Optional waypoint offsets in metres from the seating frame.
    * @returns The plan.
    * @throws {HumanRefusal} When no destination is named, the placing wrist lies beyond the arm's reach, or a socket placement's grasp cannot lay its socket on the receiver.
    *
@@ -114,6 +115,7 @@ export namespace putDown {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
     aperture?: IAutoMovieVector3,
+    route?: putDownTravel.IRoute,
   ): IAutoMovieMotionHumanActionPlan {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const body: IAutoMovieMotionHumanBody = context.body;
@@ -266,16 +268,24 @@ export namespace putDown {
         : StrikingHeld.goal(context, tool, frame, 0, bend);
     const mouth: IAutoMovieVector3 | undefined =
       aperture === undefined ? undefined : Vector3.add(place, aperture);
-    if (mouth !== undefined) pickUp.reachable(context, side, mouth);
-    if (aperture !== undefined && tool !== undefined)
-      StrikingRoll.reachable(
-        context,
-        tool,
-        { ...frame, point: Vector3.add(frame.point, aperture) },
-        0,
-        held,
-        "take the prop by a grasp that aligns with the aperture",
-      );
+    if (aperture !== undefined) {
+      const targets: readonly IAutoMovieVector3[] =
+        route === undefined
+          ? [aperture]
+          : [...route.approach, aperture, ...route.insertion];
+      for (const target of targets) {
+        pickUp.reachable(context, side, Vector3.add(place, target));
+        if (tool !== undefined)
+          StrikingRoll.reachable(
+            context,
+            tool,
+            { ...frame, point: Vector3.add(frame.point, target) },
+            0,
+            held,
+            "take the prop by a grasp that aligns with the aperture",
+          );
+      }
+    }
 
     // Timing: carry down, open, return.
     const hanging: IAutoMovieMotionHumanPosture["limbs"] = { ...held.limbs };
@@ -294,6 +304,7 @@ export namespace putDown {
       { position: home.worldPosition, rotation: home.worldRotation },
       SETBACK,
       mouth,
+      route,
     );
     const down: number = travel.carry.duration;
     const back: number = travel.retreat.duration;
