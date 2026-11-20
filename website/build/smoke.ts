@@ -287,9 +287,12 @@ const CASES: readonly ICase[] = [
     },
   },
   {
-    name: "a motion's page plays its baked take with its parameters",
+    name: "a motion's page plays its baked take and links its API entry",
     path: "motions/cartwheelLeft/",
-    shows: [`.am-scene-page ${DRAWN}`, ".am-params"],
+    shows: [
+      `.am-scene-page ${DRAWN}`,
+      'a[href$="/api/variables/_automovie_motions.HumanSportThrow.cartwheelLeft.html"]',
+    ],
     lacks: [".am-scene-view-note.am-danger-text"],
     contexts: 1,
   },
@@ -324,6 +327,12 @@ const CASES: readonly ICase[] = [
     name: "the reference opens",
     path: "reference/motion/composing/",
     shows: ["article h1", "nav"],
+    lacks: [],
+  },
+  {
+    name: "the API reference opens an action's entry",
+    path: "api/classes/_automovie_motions.HumanChain.html#punch",
+    shows: ["#punch"],
     lacks: [],
   },
   {

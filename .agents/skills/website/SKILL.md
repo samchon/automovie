@@ -21,13 +21,13 @@ Show a card or a player from a baked take, never by planning a take in the brows
 
 A scene that plays must bake: the bake exits 1 when the packages refuse one, so a scene record is fixed or marked `refusedUntil` in the same change.
 
-The documentation is two trees, each with a `_meta.ts` per folder. The guide in `src/content/docs/` serves the person who makes a film: what to do, what happens and why. The reference in `src/content/reference/` serves whoever writes against the packages: commands, configuration, formats and APIs. A page that mixes the two is split, the guide linking to the reference for the details. A rule the product owns stays in its package README or skill, and the docs link to it rather than restate it.
+The documentation is two trees, each with a `_meta.ts` per folder. The guide in `src/content/docs/` serves the person who makes a film: what to do, what happens and why. The reference in `src/content/reference/` serves whoever writes against the packages: commands, configuration, formats and APIs. A page that mixes the two is split, the guide linking to the reference for the details. The API at `/api/` is TypeDoc's output over every package, regenerated each build; a page links an export's entry there rather than restating its type. A rule the product owns stays in its package README or skill, and the docs link to it rather than restate it.
 
 ## Verifying a change
 
 Verify on the production build, because the dev server compiles the packages for minutes and serves what the export does not.
 
-1. Run `pnpm --filter @automovie/website typecheck` and `test`.
+1. Run `pnpm --filter @automovie/website typecheck`.
 2. Run `build`, which runs the checks and the bake before the export and the bundle check after it.
 3. Run `smoke`, which opens every case in a headless browser.
 4. Look at each changed page with `shots --full --scroll` at 1440 px and at 390 px, in both themes and under `--reduced`, and at the stills with `posters`.

@@ -81,6 +81,12 @@ export namespace MotionIndex {
     /** Its category's anchor and heading. */
     category: { id: string; title: string };
 
+    /** The exported namespace a lexicon row is taken from; null for an action. */
+    namespace: string | null;
+
+    /** Its entry in the API reference, a path under the site such as `/api/classes/_automovie_motions.HumanChain.html#walk`. */
+    api: string;
+
     /** Its parameters from its schema; null when the release ships no schema for it. */
     parameters: IMotionReference.IParameter[] | null;
 
@@ -324,6 +330,13 @@ export namespace MotionIndex {
       name: row.name,
       family,
       category: { id: category.id, title: category.title },
+      namespace: row.namespace,
+      api:
+        row.namespace === null
+          ? family.name === "actions"
+            ? `/api/classes/_automovie_motions.HumanChain.html#${row.name}`
+            : "/api/variables/_automovie_motions.HUMAN_LEXICON.html"
+          : `/api/variables/_automovie_motions.${row.namespace}.${row.name}.html`,
       parameters: row.parameters,
       uses: uses.scenes,
       play,

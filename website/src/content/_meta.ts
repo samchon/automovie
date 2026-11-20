@@ -23,7 +23,8 @@ const APPLICATION: {
 
 /**
  * The site's top-level pages, in the order the navigation bar lists them.
- * The index is the landing page, which the logo links to. The motion and
+ * The index is the landing page, which the logo links to. The API is the
+ * TypeDoc reference `pnpm run typedoc` writes into `public/api/`. The motion and
  * archetype catalogues and the playground are the kit a film is composed
  * with, so they sit under one Library menu after the documentation and the
  * scenes. Former addresses stay as hidden pages that forward.
@@ -42,6 +43,13 @@ const meta: MetaRecord = {
   reference: {
     title: "Reference",
     type: "page",
+  },
+  // The API is static TypeDoc pages, not a route of this app, so the bar
+  // links it by its full address, which Next does not prefetch as a route.
+  api: {
+    title: "API",
+    type: "page",
+    href: "https://samchon.github.io/automovie/api/",
   },
   scenes: {
     title: "Scenes",

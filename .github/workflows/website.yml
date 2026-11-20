@@ -10,14 +10,7 @@ on:
       - "website/**"
       # The site bundles these packages from source, so a change to one of
       # them is built into the site in the pull request that makes it.
-      - "packages/archetypes/**"
-      - "packages/engine/**"
-      - "packages/human/**"
-      - "packages/ingest/**"
-      - "packages/interface/**"
-      - "packages/motions/**"
-      - "packages/render/**"
-      - "packages/viewer/**"
+      - "packages/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -26,14 +19,7 @@ on:
       - ".github/workflows/website.yml"
       - "config/**"
       - "website/**"
-      - "packages/archetypes/**"
-      - "packages/engine/**"
-      - "packages/human/**"
-      - "packages/ingest/**"
-      - "packages/interface/**"
-      - "packages/motions/**"
-      - "packages/render/**"
-      - "packages/viewer/**"
+      - "packages/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
@@ -72,9 +58,6 @@ jobs:
 
       - name: Type check
         run: pnpm --filter @automovie/website typecheck
-
-      - name: Test
-        run: pnpm --filter @automovie/website test
 
       # The build bakes every scene's and motion's take ahead of the visitor.
       # A take depends only on its composition and the packages' sources, and

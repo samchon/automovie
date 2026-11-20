@@ -20,6 +20,7 @@ const COLUMNS: readonly {
         href: `${SITE_BASE}/docs/screenplay/evidence-graph/`,
       },
       { label: "Reference", href: `${SITE_BASE}/reference/` },
+      { label: "API", href: `${SITE_BASE}/api/` },
     ],
   },
   {

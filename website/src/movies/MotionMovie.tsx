@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 
+import { SITE_BASE } from "../SITE_BASE";
 import { BakedClient } from "../baked/BakedClient";
 import { SceneView } from "../components/scenes/SceneView";
 import { useSceneClock } from "../components/scenes/useSceneClock";
@@ -20,8 +21,9 @@ import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
 
 /**
  * One motion: its take in the 3D player, alone or in the first scene that
- * performs it, beside its name and family; then its parameters, the scenes
- * that use it and the motions next to it in its family.
+ * performs it, beside its name and family; how a chain writes it and where
+ * the API reference describes its parameters; the scenes that use it and the
+ * motions next to it in its family.
  *
  * @param props The motion's page data.
  * @returns The page.
@@ -50,7 +52,7 @@ export default function MotionMovie(props: {
         <h1 className="am-motion-name">{detail.name}</h1>
         <p>
           {detail.family.name === "actions"
-            ? "An action of the core vocabulary. A chain appends it by name, with the parameters below."
+            ? "An action of the core vocabulary. A chain appends it by name, with its parameters."
             : `A named row of the ${detail.family.label.toLowerCase()} family: an action with some parameters fixed, fitted, refused and checked as that action is.`}
         </p>
       </header>
@@ -155,58 +157,47 @@ export default function MotionMovie(props: {
         <h2 id="am-parameters" className="am-motion-h2">
           Parameters
         </h2>
-        {detail.parameters === null ? (
-          <p className="am-muted">This release ships no schema for it.</p>
-        ) : detail.parameters.length === 0 ? (
-          <p className="am-muted">It takes no parameters.</p>
-        ) : (
-          <div className="am-table-wrap">
-            <table className="am-params">
-              <thead>
-                <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Meaning</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.parameters.map(
-                  (p: IMotionReference.IParameter): ReactElement => (
-                    <tr key={p.name}>
-                      <td>
-                        <code>{p.name}</code>
-                        {p.required ? (
-                          <span className="am-required">required</span>
-                        ) : null}
-                      </td>
-                      <td>
-                        <code className="am-param-type">{p.type}</code>
-                      </td>
-                      <td>{p.description}</td>
-                    </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <p>
+          {detail.parameters === null || detail.parameters.length === 0
+            ? "It takes no parameters of its own. "
+            : `It takes ${detail.parameters.length} parameters, ${required(detail).length} of them required. `}
+          Their types and meanings are in the API reference, under{" "}
+          <a className="am-text-link" href={`${SITE_BASE}${detail.api}`}>
+            <code>
+              {detail.namespace === null
+                ? detail.family.name === "actions"
+                  ? `HumanChain.${detail.name}`
+                  : "HUMAN_LEXICON"
+                : `${detail.namespace}.${detail.name}`}
+            </code>
+          </a>
+          .
+        </p>{" "}
       </section>
     </main>
   );
 }
 
-/**
- * How a chain appends the motion, with its required parameters named. A
- * lexicon row extends the chain first, and the performance registers it in
- * its `laws`, as the motions README shows.
- */
-function snippet(detail: MotionIndex.IDetail): string {
-  const required: string[] = (detail.parameters ?? [])
+/** The names of the parameters the motion requires. */
+function required(detail: MotionIndex.IDetail): string[] {
+  return (detail.parameters ?? [])
     .filter((p: IMotionReference.IParameter): boolean => p.required)
     .map((p: IMotionReference.IParameter): string => p.name);
-  const args: string =
-    required.length === 0 ? "" : `{ ${required.join(", ")} }`;
-  return detail.family.name === "actions"
-    ? `HumanChain.subject("a")\n  .${detail.name}(${args})`
-    : `const Chain = HumanChain.extend({\n  ${detail.name},\n});\nChain.subject("a")\n  .${detail.name}(${args})`;
+}
+
+/**
+ * How a chain appends the motion, with its required parameters named. A
+ * lexicon row is taken from its namespace and extends the chain first, and
+ * the performance registers it in its `laws`, as the motions README shows.
+ */
+function snippet(detail: MotionIndex.IDetail): string {
+  const names: string[] = required(detail);
+  const args: string = names.length === 0 ? "" : `{ ${names.join(", ")} }`;
+  if (detail.family.name === "actions")
+    return `HumanChain.subject("a")\n  .${detail.name}(${args})`;
+  const take: string =
+    detail.namespace === null
+      ? ""
+      : `const { ${detail.name} } = ${detail.namespace};\n`;
+  return `${take}const Chain = HumanChain.extend({\n  ${detail.name},\n});\nChain.subject("a")\n  .${detail.name}(${args})`;
 }

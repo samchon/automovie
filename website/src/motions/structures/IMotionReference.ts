@@ -28,6 +28,9 @@ export namespace IMotionReference {
     /** The name a chain appends it by. */
     name: string;
 
+    /** The exported namespace a lexicon row is taken from, such as `HumanStrike`; null for an action, or a row no namespace exports. */
+    namespace: string | null;
+
     /** Its parameters from its schema; null when the release ships no schema for it. */
     parameters: IParameter[] | null;
   }

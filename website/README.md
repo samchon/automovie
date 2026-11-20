@@ -7,6 +7,7 @@ The public site at [samchon.github.io/automovie](https://samchon.github.io/autom
 | `/` | The landing page: one scene followed from its brief to its frames |
 | `/docs/` | The guide, for the person who makes a film: setup, the screenplay and its evidence graph, motion as code and delivery |
 | `/reference/` | The reference, for a developer or a coding agent: the packages, the CLI, the evidence configuration and the motion API |
+| `/api/` | The API reference of every package, which `pnpm run typedoc` generates with TypeDoc into `public/api/` before each build |
 | `/scenes/`, `/scenes/<id>/` | The scene gallery, and each scene with its player, code, timeline and takes |
 | `/motions/`, `/motions/<name>/` | The motion catalogue by category and family, and each motion with its take and parameters |
 | `/archetypes/` | Every archetype of `@automovie/archetypes`, and one archetype's page with its specs and controls |
@@ -21,17 +22,17 @@ The site is a member of the pnpm workspace and depends on the packages as `works
 
 ```bash
 pnpm install                                  # at the repository root
+pnpm --filter @automovie/website typedoc      # the API reference of every package, into public/api/
 pnpm --filter @automovie/website bake         # the takes and stills, into public/baked/
 pnpm --filter @automovie/website dev          # Next at http://localhost:3000/automovie/
-pnpm --filter @automovie/website build        # checks, bake, then the static export into out/
-pnpm --filter @automovie/website test         # the site's tests
+pnpm --filter @automovie/website build        # checks, TypeDoc, bake, then the static export into out/
 pnpm --filter @automovie/website typecheck
 pnpm --filter @automovie/website run deploy   # build, then publish out/ to gh-pages by hand
 ```
 
-Next loads the compiler API from the `typescript` package, which the native TypeScript 7 package does not export, so `typescript` is 5.9 in this package alone and `ttsc` finds the native compiler under the alias `typescript-native`. `typecheck` and `test` run on the native compiler like the rest of the workspace.
+Next loads the compiler API from the `typescript` package, which the native TypeScript 7 package does not export, so `typescript` is 5.9 in this package alone, which TypeDoc also reads, and `ttsc` finds the native compiler under the alias `typescript-native`. `typecheck` runs on the native compiler like the rest of the workspace.
 
-`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound. It then runs `bake`. After the export, `build/bundles.ts` refuses a page whose own chunks carry `@automovie/motions` or `@automovie/human`.
+`build` first runs `check`: `build/imports.ts` refuses an import that reaches inside a package past its public entry, and `build/contrast.ts` refuses a colour token below its contrast bound. It then runs `typedoc`, which writes the API reference through a queue of open files so a reference this large does not exhaust them, and `bake`. After the export, `build/bundles.ts` refuses a page whose own chunks carry `@automovie/motions` or `@automovie/human`.
 
 ## Baked takes
 
@@ -73,7 +74,6 @@ pnpm --filter @automovie/website run posters            # the baked stills on on
 | `src/scenes/`, `src/takes/` | The scene records, their status and player, and the take worker with its client. |
 | `src/motions/`, `src/gallery/`, `src/playground/` | The motion catalogue's data, the archetypes' data and the playground's addresses and adapters. |
 | `src/stage/` | The shared renderer. |
-| `test/features/` | The tests. |
 | `build/` | The checks, the bake, the bundle check, the smoke test, the screenshot tools and the manual deploy. |
 
 Only the `package/` folders, the body parameters in `src/playground/data/` and `src/baked/PropShapes.ts` load the packages at runtime; composition types may refer to their public types with erased imports. The scene, motion, archetype and landing pages run the motion code only in the take worker, never on their main thread.
@@ -82,6 +82,6 @@ Only the `package/` folders, the body parameters in `src/playground/data/` and `
 
 ## Deploy
 
-`.github/workflows/website.yml` runs one job on pull requests that touch the site or a package it bundles, and on `master`: the type check, the tests, the build and the smoke test, then on `master` the deploy of `out/`. The `gh-pages` branch holds one commit that every deploy overwrites: `single-commit: true` in the workflow and `history: false` in `build/deploy.ts`, the manual route that `pnpm run deploy` takes from the current checkout.
+`.github/workflows/website.yml` runs one job on pull requests that touch the site or a package it bundles, and on `master`: the type check, the build and the smoke test, then on `master` the deploy of `out/`. The `gh-pages` branch holds one commit that every deploy overwrites: `single-commit: true` in the workflow and `history: false` in `build/deploy.ts`, the manual route that `pnpm run deploy` takes from the current checkout.
 
 GitHub Pages serves the site under `/automovie/`, which `basePath` in `next.config.ts` sets.

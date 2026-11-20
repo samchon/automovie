@@ -10,7 +10,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "tennis-rally",
       title: "Tennis rally",
       summary:
-        "Two players pick their rackets up off the court on either side of the net. The feeder takes a ball from the court and hand-feeds it across for a forehand return.",
+        "Two players take their rackets from the benches beside them. The feeder bends for a ball on her bench and hand-feeds it across the net for a forehand return.",
       setting: "sport",
       roles: { ana: "receiver", bea: "feeder" },
       needs: [],
@@ -20,17 +20,21 @@ export const SCENES_GAMES: readonly IScene[] = [
     "tennis",
     [
       person("bea", "f2", 0, 6, 180, [
-        act("pickUp", {
-          prop: "bea-racket",
-          handle: "grip",
-          lift: 0.1,
-          use: { tip: "sweetSpot", line: "oblique" },
+        act("bend", {
+          toward: { kind: "prop", subject: "tennis-ball", point: "grip" },
+          side: "left",
         }),
         act("pickUp", {
           prop: "tennis-ball",
           hand: "left",
           handle: "grip",
           lift: 0.14,
+        }),
+        act("pickUp", {
+          prop: "bea-racket",
+          handle: "grip",
+          lift: 0.1,
+          use: { tip: "sweetSpot", line: "oblique" },
         }),
         act("stand", { seconds: 2 }),
         act(
@@ -88,23 +92,38 @@ export const SCENES_GAMES: readonly IScene[] = [
       ]),
     ],
     [
+      // A bench beside each player, its seat 0.44 m up, holds the racket
+      // lying along it, its grip toward the player; the feeder's also holds the
+      // ball beside the grip.
+      {
+        ...object("ana-bench", "createBench", "flat", -0.36, 0.75, 0, 0, {
+          height: 0.44,
+        }),
+        fixed: true,
+      },
+      {
+        ...object("bea-bench", "createBench", "flat", 0.35, 5.2, 0, 0, {
+          height: 0.44,
+        }),
+        fixed: true,
+      },
       {
         ...object(
           "ana-racket",
           "createRacket",
           "tennis",
           -0.36,
-          0.42,
+          0.19,
           0,
-          0.012,
+          0.452,
         ),
         rotation: { x: Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
       },
       {
-        ...object("bea-racket", "createRacket", "tennis", 0.35, 5.6, 0, 0.012),
+        ...object("bea-racket", "createRacket", "tennis", 0.35, 5.76, 0, 0.452),
         rotation: { x: -Math.SQRT1_2, y: 0, z: 0, w: Math.SQRT1_2 },
       },
-      object("tennis-ball", "createBall", "tennis", -0.2, 5.62, 0, 0.034),
+      object("tennis-ball", "createBall", "tennis", 0.25, 5.68, 0, 0.474),
       { ...object("court-net", "createGoal", "tennisNet", 0, 3), fixed: true },
     ],
   ),
