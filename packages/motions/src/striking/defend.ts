@@ -215,6 +215,11 @@ export namespace defend {
       duration,
       read: Math.max(context.start, decided.start),
     };
+    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const checking: "left" | "right" | undefined =
+      p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined;
+    const support: ReturnType<typeof defendGeometry.settleFeet> =
+      defendGeometry.settleFeet(context, timing, checking);
     // Before the read the defender only holds the guard, and nothing reads
     // the attacker: every read of another performer then looks back in time,
     // so two performers reading each other never recurse at one instant.
@@ -228,16 +233,16 @@ export namespace defend {
         );
       building = true;
       try {
-        built = defendGeometry.build(context, timing);
+        built = defendGeometry.build(context, timing, support);
       } finally {
         building = false;
       }
       return built;
     };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
     const contacts: IAutoMovieMotionHumanContactWindow[] = defendGeometry.windows(
-      p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
+      checking,
       timing,
+      support,
     );
     let waiting: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
     const out: IAutoMovieMotionHumanActionPlan = {
@@ -252,7 +257,12 @@ export namespace defend {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return t <= begin + 1e-9
-          ? (waiting ??= idle(context, lead))(t, channels, resolution, projection)
+          ? (waiting ??= idle(context, lead, support))(
+              t,
+              channels,
+              resolution,
+              projection,
+            )
           : geometry().posture(t, channels, resolution, projection);
       },
       settle: (): void => {
@@ -266,13 +276,14 @@ export namespace defend {
   function idle(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
     lead: "left" | "right",
+    support: ReturnType<typeof defendGeometry.settleFeet>,
   ): IAutoMovieMotionHumanActionPlan["posture"] {
     const legs: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(
       context.body, StrikingTarget.feet(context.entry),
     );
     const guard: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(context.body, { lead });
     return (
-      _seconds: number,
+      seconds: number,
       _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
@@ -281,7 +292,7 @@ export namespace defend {
       const posture: IAutoMovieMotionHumanPosture = {
         ...entry,
         joints: { ...entry.joints, ...StrikingStance.joints(entry.joints) },
-        limbs: legs(),
+        limbs: support?.legs(seconds) ?? legs(),
       };
       return {
         ...posture,

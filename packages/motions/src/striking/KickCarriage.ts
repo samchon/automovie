@@ -15,6 +15,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
+import type { strikingStepSupport } from "./StrikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**
@@ -69,6 +70,9 @@ export namespace KickCarriage {
 
     /** The skill's range share: how much of the support foot's pivot is shown. */
     amplitude: number;
+
+    /** Pending touchdowns from the cut, completed by the launch. */
+    recovery?: NonNullable<ReturnType<typeof strikingStepSupport>>;
 
     /**
      * How far the entry's support hip stands below its standing height,
@@ -149,7 +153,12 @@ export namespace KickCarriage {
     const supportFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.pivot(
       body,
       support,
-      StrikingTarget.slide(feet[support], line, stepped, 0),
+      StrikingTarget.slide(
+        feet[support],
+        line,
+        stepped,
+        props.recovery?.rise(support, seconds, timing.prep) ?? 0,
+      ),
       Math.sign(carriage.turn) *
         Math.min(
           Math.abs(carriage.turn),
@@ -182,7 +191,14 @@ export namespace KickCarriage {
           side === "left"
             ? { left: feet.left, right: supportFoot }
             : { left: supportFoot, right: feet.right },
-          { left: side !== "left", right: side !== "right" },
+          {
+            left:
+              side !== "left" &&
+              (props.recovery?.landings.left === undefined || seconds >= timing.prep),
+            right:
+              side !== "right" &&
+              (props.recovery?.landings.right === undefined || seconds >= timing.prep),
+          },
         ),
       },
       resolveHumanPosture.KNEE,

@@ -24,6 +24,7 @@ import { KickSwing } from "./KickSwing";
 import { StrikingAim } from "./StrikingAim";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
+import type { strikingStepSupport } from "./StrikingStepSupport";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
 
@@ -130,7 +131,7 @@ export namespace KickGeometry {
       leg: plans.leg,
       origin,
       back: Vector3.add(origin, Vector3.scale(line, carriage.step)),
-      contacts: windows(timing, side, support, carriage.step !== 0),
+      contacts: windows(timing, side, support, carriage.step !== 0, props.recovery),
       record: {
         limb: side === "left" ? "leftFoot" : "rightFoot",
         offset,
@@ -145,7 +146,7 @@ export namespace KickGeometry {
             ? fixed
             : undefined,
       },
-    });
+    }, props.recovery);
   }
 
   /**
@@ -167,6 +168,7 @@ export namespace KickGeometry {
    * @param timing The kick's timing.
    * @param t0 Film second of the kick's time zero.
    * @param parts The geometry's parts.
+   * @param recovery Any open touchdown inherited from the cut into this kick.
    * @returns The geometry with its posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States canonical body, original local/film clocks and the actual geometry parts combined.
@@ -182,6 +184,7 @@ export namespace KickGeometry {
     timing: IAutoMovieMotionHumanKickGeometry.ITiming,
     t0: number,
     parts: Omit<IAutoMovieMotionHumanKickGeometry, "posture">,
+    recovery?: ReturnType<typeof strikingStepSupport>,
   ): IAutoMovieMotionHumanKickGeometry {
     const ball: IAutoMovieVector3 = HumanFoot.offset(body, timing.side, "ball");
     const guardAt: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(body, { lead: timing.lead });
@@ -227,14 +230,17 @@ export namespace KickGeometry {
         const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(source);
         const held: IHeld = chain(t, resolution, projection);
         const arms: boolean = channels === undefined || channels.some((channel: AutoMovieMotionHumanChannel): boolean => channel.endsWith("Arm") || channel.endsWith("Hand"));
-        const down: boolean = t <= timing.prep || t >= timing.duration - 1e-9;
+        const down: boolean =
+          (recovery?.landings[timing.side] === undefined && t <= timing.prep) ||
+          t >= timing.duration - 1e-9;
+        const rise: number = recovery?.rise(timing.side, t, timing.prep) ?? 0;
         return {
           ...held.body,
           limbs: {
             ...held.body.limbs,
             ...(arms ? guardAt(held.body, resolution, projection) : {}),
             [timing.side === "left" ? "leftLeg" : "rightLeg"]: {
-              point: held.leg.ankle,
+              point: rise === 0 ? held.leg.ankle : { ...held.leg.ankle, y: held.leg.ankle.y + rise },
               bend: held.leg.hint,
               rotation: held.leg.rotation,
               ...(down ? { planted: true, contact: ball } : {}),
@@ -265,8 +271,11 @@ export namespace KickGeometry {
     side: "left" | "right",
     support: "left" | "right",
     stepped: boolean,
+    recovery?: ReturnType<typeof strikingStepSupport>,
   ): IAutoMovieMotionHumanContactWindow[] {
     const d: number = timing.duration;
+    const launch: number = timing.prep / d;
+    const initiallyBearing: boolean = recovery?.landings[support] === undefined;
     const pivot = (from: number, to: number): IAutoMovieMotionHumanContactWindow => ({
       part: `${support}Foot`,
       kind: "pivot",
@@ -275,13 +284,13 @@ export namespace KickGeometry {
       support: { kind: "ground" },
     });
     return [
-      {
+      ...(recovery?.landings[side] !== undefined ? [] : [{
         part: `${side}Foot`,
         kind: "plant",
         from: 0,
-        to: timing.prep / d,
+        to: launch,
         support: { kind: "ground" },
-      },
+      } satisfies IAutoMovieMotionHumanContactWindow]),
       {
         part: `${side}Foot`,
         kind: "plant",
@@ -290,8 +299,8 @@ export namespace KickGeometry {
         support: { kind: "ground" },
       },
       ...(stepped
-        ? [pivot(0, timing.prep / d), pivot(timing.chamber / d, 1)]
-        : [pivot(0, 1)]),
+        ? [...(initiallyBearing ? [pivot(0, launch)] : []), pivot(timing.chamber / d, 1)]
+        : [pivot(initiallyBearing ? 0 : launch, 1)]),
     ];
   }
 }

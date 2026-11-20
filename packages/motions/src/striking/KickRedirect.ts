@@ -132,6 +132,6 @@ export namespace KickRedirect {
       back: fresh.back,
       contacts: fresh.contacts,
       record: fresh.record,
-    });
+    }, launch.props.recovery);
   }
 }

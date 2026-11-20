@@ -1,3 +1,4 @@
+import { minimumJerk } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanFoot,
@@ -6,11 +7,15 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 
 /** The ground contact and pending touchdowns inherited from an interrupted step. */
-export interface IStrikingStepSupport {
+interface IStrikingStepSupport {
+  /** The foot on the ground at the cut, if one bears. */
   bearing: "left" | "right" | undefined;
+  /** The floor-height baseline for each foot still airborne at the cut. */
   landings: Partial<
     Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>
   >;
+  /** Height above the landing baseline at local seconds through touchdown. */
+  rise(side: "left" | "right", seconds: number, touchdown: number): number;
 }
 
 /**
@@ -27,8 +32,8 @@ export interface IStrikingStepSupport {
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional bearing side and one floor-relative baseline for each airborne foot.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the rig's own heel and ball, keeping the displayed ankle and rotation at the cut.
  * @evidence contracts/development/implementation.md#efficient-algorithms Reads at most two sole points per foot once when planning a cut.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The result is prepared once and read by the incoming beat.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only the active bearing side and at most two foot placements. No query state is retained.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Each incoming owner reads the same fixed floor and initial placement through its own landing window.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The result holds the bearing side, at most two foot placements and their initial vertical offsets. It holds no time observations.
  */
 export function strikingStepSupport(
   context: IAutoMovieMotionHumanActionContext,
@@ -60,5 +65,16 @@ export function strikingStepSupport(
       rotation: foot.rotation,
     };
   }
-  return { bearing, landings };
+  const rise = {
+    left: left.ankle.y - (landings.left?.ankle.y ?? left.ankle.y),
+    right: right.ankle.y - (landings.right?.ankle.y ?? right.ankle.y),
+  };
+  return {
+    bearing,
+    landings,
+    rise: (side, seconds, touchdown) =>
+      seconds >= touchdown
+        ? 0
+        : rise[side] * (1 - minimumJerk.share(seconds / touchdown)),
+  };
 }

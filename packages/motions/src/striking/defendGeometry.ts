@@ -24,6 +24,7 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
+import { strikingStepSupport } from "./StrikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 import { defendGoals } from "./defendGoals";
 
@@ -116,6 +117,7 @@ export namespace defendGeometry {
    *
    * @param context The action's context.
    * @param timing The defence's timing.
+   * @param footwork Any pending touchdown inherited by this defence.
    * @returns The geometry.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States its inputs and result; the namespace states the build.
@@ -129,6 +131,7 @@ export namespace defendGeometry {
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
     timing: ITiming,
+    footwork?: ReturnType<typeof settleFeet>,
   ): IGeometry {
     const p: IAutoMovieMotionHumanDefend.IParams = context.params;
     const body = context.body;
@@ -259,7 +262,7 @@ export namespace defendGeometry {
     const legs: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(body, feet, {
       left: checking !== "left", right: checking !== "right",
     });
-    const base: (k: number) => IAutoMovieMotionHumanPosture = (k: number): IAutoMovieMotionHumanPosture => {
+    const base = (k: number, seconds: number): IAutoMovieMotionHumanPosture => {
       return {
         root: Vector3.add(
           entry.root,
@@ -269,11 +272,11 @@ export namespace defendGeometry {
         pitch: entry.pitch + pitch * k,
         roll: entry.roll + roll * k,
         joints: { ...joints },
-        limbs: legs(),
+        limbs: footwork?.legs(seconds) ?? legs(),
       };
     };
     return {
-      contacts: windows(checking, timing),
+      contacts: windows(checking, timing, footwork),
       posture: (
         t: number,
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -281,7 +284,7 @@ export namespace defendGeometry {
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
         const k: number = w(t);
-        const posture: IAutoMovieMotionHumanPosture = base(k);
+        const posture: IAutoMovieMotionHumanPosture = base(k, t);
         const bones: ReturnType<typeof StrikingBody.trunk> = trunk(posture, resolution, projection);
         const guard: ReturnType<typeof StrikingStance.guard> =
           StrikingStance.guard(body, posture, { lead }, {}, bones);
@@ -307,16 +310,82 @@ export namespace defendGeometry {
           const goal: IAutoMovieHumanLimbGoal | undefined = target[limb];
           const from: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
           if (goal === undefined || from === undefined) continue;
+          const share: number =
+            limb.endsWith("Leg") && footwork !== undefined && footwork.release > timing.begin
+              ? minimumJerk.share((t - footwork.release) / (timing.begin + timing.movement - footwork.release)) -
+                minimumJerk.share((t - timing.hold) / timing.recovery)
+              : k;
           limbs[limb] = {
-            point: Vector3.lerp(from.point, goal.point, k),
-            bend: Vector3.lerp(from.bend, goal.bend, k),
+            point: Vector3.lerp(from.point, goal.point, share),
+            bend: Vector3.lerp(from.bend, goal.bend, share),
             ...(from.rotation !== undefined && goal.rotation !== undefined
-              ? { rotation: Quaternion.slerp(from.rotation, goal.rotation, k) }
+              ? { rotation: Quaternion.slerp(from.rotation, goal.rotation, share) }
               : {}),
-            ...(k <= 1e-9 && from.planted === true ? { planted: true } : {}),
+            ...(share <= 1e-9 && from.planted === true ? { planted: true, ...(from.contact === undefined ? {} : { contact: from.contact }) } : {}),
           };
         }
         return { ...posture, limbs };
+      },
+    };
+  }
+
+  /** The shared landing for the waiting and reacting poses of one defence. */
+  interface ISupport {
+    touchdown: Record<"left" | "right", number>;
+    release: number;
+    legs(seconds: number): ReturnType<typeof StrikingStance.legs>;
+  }
+
+  /**
+   * Continue an interrupted step beneath the defence's own clock. A checking
+   * leg that bears at the cut can lift once the other foot has landed.
+   *
+   * @param context The displayed cut entry.
+   * @param timing The defence's own action-relative timing.
+   * @param checking The checking foot, when the defence lifts one.
+   * @returns The shared landing, release and displayed leg goals.
+   * @evidence contracts/development/common.md#meaningful-documentation States the arrival and release constraints shared by both defence branches.
+   * @evidence contracts/development/implementation.md#principled-implementation Keeps the displayed starting sole height and grounds each pending landing before marking it planted.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared rig placements and action clock govern each foot's path and support predicate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reuses the striking support and leg goals without changing the defence reaction clock.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant preparation and sampling for two feet.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Waiting, active geometry and contact windows share the same floor and timing.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps two foot placements, the body and timing until the defence plan is released.
+   */
+  export function settleFeet(
+    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
+    timing: ITiming,
+    checking: "left" | "right" | undefined,
+  ): ISupport | undefined {
+    const recovery = strikingStepSupport(context);
+    if (recovery === undefined) return undefined;
+    const feet = { ...StrikingTarget.feet(context.entry), ...recovery.landings };
+    const arrival: number = Math.max(timing.begin, 0.5 * timing.movement);
+    const touchdown: ISupport["touchdown"] = {
+      left: recovery.landings.left === undefined ? 0 : arrival,
+      right: recovery.landings.right === undefined ? 0 : arrival,
+    };
+    const release: number =
+      checking !== undefined && checking === recovery.bearing ? arrival : timing.begin;
+    return {
+      touchdown,
+      release,
+      legs: (seconds: number): ReturnType<typeof StrikingStance.legs> => {
+        const foot = (side: "left" | "right"): IAutoMovieMotionHumanFoot.IPlacement => {
+          const placement = feet[side];
+          const rise = recovery.rise(side, seconds, touchdown[side]);
+          return rise === 0
+            ? placement
+            : { ...placement, ankle: { ...placement.ankle, y: placement.ankle.y + rise } };
+        };
+        const down = (side: "left" | "right"): boolean =>
+          seconds >= touchdown[side] &&
+          (side !== checking || seconds <= release || seconds >= timing.duration);
+        return StrikingStance.legs(
+          context.body,
+          { left: foot("left"), right: foot("right") },
+          { left: down("left"), right: down("right") },
+        );
       },
     };
   }
@@ -354,6 +423,7 @@ export namespace defendGeometry {
    *
    * @param checking The checking leg's side, undefined when both feet stay.
    * @param timing The movement's start and the whole duration, seconds.
+   * @param support The inherited touchdown and release times, when present.
    * @returns The windows.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the windows and the checking leg's exception.
@@ -367,36 +437,23 @@ export namespace defendGeometry {
   export function windows(
     checking: "left" | "right" | undefined,
     timing: Pick<ITiming, "begin" | "duration">,
+    support?: ISupport,
   ): IAutoMovieMotionHumanContactWindow[] {
-    return (["left", "right"] as const).flatMap(
-      (side): IAutoMovieMotionHumanContactWindow[] =>
-        side === checking
-          ? [
-              {
-                part: `${side}Foot`,
-                kind: "plant",
-                from: 0,
-                to: timing.begin / timing.duration,
-                support: { kind: "ground" },
-              },
-              {
-                part: `${side}Foot`,
-                kind: "plant",
-                from: 1,
-                to: 1,
-                support: { kind: "ground" },
-              },
-            ]
-          : [
-              {
-                part: `${side}Foot`,
-                kind: "plant",
-                from: 0,
-                to: 1,
-                support: { kind: "ground" },
-              },
-            ],
-    );
+    return (["left", "right"] as const).flatMap((side): IAutoMovieMotionHumanContactWindow[] => {
+      const from: number = (support?.touchdown[side] ?? 0) / timing.duration;
+      const to: number = side === checking ? (support?.release ?? timing.begin) / timing.duration : 1;
+      const plant = (from: number, to: number): IAutoMovieMotionHumanContactWindow => ({
+        part: `${side}Foot`,
+        kind: "plant",
+        from,
+        to,
+        support: { kind: "ground" },
+      });
+      return [
+        ...(from <= to ? [plant(from, to)] : []),
+        ...(side === checking ? [plant(1, 1)] : []),
+      ];
+    });
   }
 
   /** The roll sign that tips the body toward a horizontal direction: +1 when it lies on the body's right. */

@@ -23,6 +23,7 @@ import { StrikingAim } from "./StrikingAim";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
+import { strikingStepSupport } from "./StrikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**
@@ -147,8 +148,10 @@ export namespace KickLaunch {
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const round: boolean = p.technique === "round";
     const feint: boolean = p.feint === true;
+    const recovery: ReturnType<typeof strikingStepSupport> =
+      strikingStepSupport(context);
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
-      StrikingTarget.feet(context.entry);
+      { ...StrikingTarget.feet(context.entry), ...recovery?.landings };
 
     // Where the target is, and the range a standing target is read at, from
     // the stance centre: how far ahead of it the root stands over the support
@@ -258,6 +261,7 @@ export namespace KickLaunch {
       line,
       timing,
       amplitude,
+      ...(recovery === undefined ? {} : { recovery }),
       rise: Math.max(0, m.hipHeight - KickCarriage.hip(body, entry, support).y),
     };
     const origin: IAutoMovieVector3 = feet[side].ankle;

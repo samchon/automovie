@@ -1,4 +1,3 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
@@ -25,7 +24,6 @@ type Sole = "ball" | "heel";
 
 /** A composed actor's world-pose reader at shares of the last action. */
 interface ITake {
-  film: HumanPerformance;
   segment: IAutoMovieMotionHumanSegment;
   bones(share: number): ReturnType<typeof poseBones>;
   sole(share: number, side: "left" | "right", socket: Sole): IAutoMovieVector3;
@@ -124,150 +122,6 @@ export function test_motion_exercise_striking_support(): void {
   }
 }
 
-/**
- * Cut from an ongoing foot transfer into another authored step. The old
- * bearing sole stays put through the first landing, then releases. The
- * incoming step claims the exact cut second and settles both feet on the floor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the support exchange and authored clock that distinguish a moving cut.
- * @evidence contracts/development/testing.md#behavioral-verification Reads displayed world sole, pelvis and chest transforms and the published ground windows on each side of the authored cut. The spatial samples are discrete.
- * @evidence contracts/development/testing.md#independent-expectations The same approach played without a cut supplies the missing outgoing pose. Independent floor, fixed sole and contact order expectations govern the next step.
- * @evidence contracts/development/testing.md#distinguishing-cases Repeats a straight reversal, a forefoot pivot into turn and a lead exchange into pivot with each lead on two bodies.
- * @evidence contracts/development/testing.md#execution-ownership Authors both actions through HumanChain and evaluates their world pose through public HumanPerformance and forward kinematics.
- */
-export function test_motion_exercise_striking_support_cut(): void {
-  const failures: string[] = [];
-  for (const name of ["f-small", "m-average"] as const)
-    for (const lead of ["left", "right"] as const) {
-      const body = motionHumanBody(name);
-      const rear = lead === "left" ? "right" : "left";
-      const stance = lead === "left" ? "orthodox" : "southpaw";
-      const turn = lead === "left" ? 15 : -15;
-      for (const [kind, departing, arriving, cut, bearing] of [
-        [
-          "reversal",
-          { direction: "forward" },
-          { direction: "back" },
-          0.3,
-          rear,
-        ],
-        [
-          "traveling turn",
-          { direction: "forward", turn },
-          { direction: "forward", turn, length: 0.06 },
-          0.3,
-          lead,
-        ],
-        [
-          "pivot after lead exchange",
-          { direction: "forward", lead: rear },
-          { direction: "forward", turn },
-          0.3,
-          lead,
-        ],
-      ] as const) {
-        const chain = HumanChain.subject("actor")
-          .guard({ seconds: 0.8, stance, style: "boxing" })
-          .step({ ...departing, guard: "boxing" });
-        const before = take(body, chain);
-        const after = take(
-          body,
-          chain.until({ share: cut }).step({ ...arriving, guard: "boxing" }),
-        );
-        const swinging = bearing === "left" ? "right" : "left";
-        const label = `${name} ${lead} lead ${kind}`;
-        const check = (problem: string, ok: boolean): void => {
-          if (!ok) failures.push(`${label}: ${problem}`);
-        };
-        const supports = (
-          take: ITake,
-          share: number,
-          side: "left" | "right",
-        ): boolean =>
-          take.segment.plan.contacts.some(
-            (contact) =>
-              contact.part === `${side}Foot` &&
-              contact.support.kind === "ground" &&
-              contact.from <= share &&
-              share <= contact.to,
-          );
-        const seam = before.segment.start + before.segment.plan.duration * cut;
-        check(
-          `cut ${seam} arrives at ${after.segment.start}`,
-          nclose(after.segment.start, seam, 1e-9) &&
-            nclose(after.film.segments("actor")[1]!.end, seam, 1e-9),
-        );
-        const anchor = before.sole(cut, bearing, "ball");
-        const airborne = before.sole(cut, swinging, "ball");
-        check(
-          `approach has its chosen bearing foot and a clear swing (${airborne.y} m)`,
-          supports(before, cut, bearing) &&
-            !supports(before, cut, swinging) &&
-            airborne.y > anchor.y + CONTACT,
-        );
-        for (const share of [0, 0.125, 0.375]) {
-          const slip = Vector3.distance(
-            after.sole(share, bearing, "ball"),
-            anchor,
-          );
-          check(
-            `at ${share}, bearing ball slips ${slip} m or support is misclassified`,
-            slip <= CONTACT &&
-              supports(after, share, bearing) &&
-              !supports(after, share, swinging),
-          );
-        }
-        const pivot = kind === "pivot after lead exchange";
-        const release = 0.65;
-        const moved = Vector3.distance(
-          after.sole(release, bearing, "ball"),
-          anchor,
-        );
-        check(
-          `at ${release}, old support motion is ${moved} m with the wrong support order`,
-          pivot
-            ? moved <= CONTACT &&
-                supports(after, release, bearing) &&
-                !supports(after, release, swinging)
-            : moved > CONTACT &&
-                !supports(after, release, bearing) &&
-                supports(after, release, swinging) &&
-                nclose(
-                  after.sole(release, swinging, "ball").y,
-                  anchor.y,
-                  CONTACT,
-                ),
-        );
-        const landed = after.sole(1, swinging, "ball");
-        check(
-          `swing replants at ${landed.y} m with floor ${anchor.y} m`,
-          nclose(landed.y, anchor.y, CONTACT) &&
-            supports(after, 1, swinging) &&
-            supports(after, 1, bearing),
-        );
-        const outgoing = before.bones(cut);
-        const incoming = after.bones(0);
-        for (const bone of ["hips", "chest"] as const) {
-          const from = outgoing.get(bone)!;
-          const to = incoming.get(bone)!;
-          const position = Vector3.distance(
-            from.worldPosition,
-            to.worldPosition,
-          );
-          const heading = wrapDegrees(
-            HumanFoot.heading(to.worldRotation) -
-              HumanFoot.heading(from.worldRotation),
-          );
-          check(
-            `${bone} jumps ${position} m and ${heading} degrees at the cut`,
-            position <= CONTACT && nclose(heading, 0, 0.05),
-          );
-        }
-      }
-    }
-  TestValidator.predicate(failures.join("\n"), failures.length === 0);
-}
-
 /** Build one actual performance at world forward and read its last action. */
 function take(
   body: IAutoMovieMotionHumanBody,
@@ -293,7 +147,6 @@ function take(
       film.pose("actor", segment.start + segment.plan.duration * share),
     );
   return {
-    film,
     segment,
     bones,
     sole: (

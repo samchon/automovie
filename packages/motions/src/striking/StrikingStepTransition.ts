@@ -16,7 +16,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuard } from "./StrikingGuard";
 import { StrikingStance } from "./StrikingStance";
-import type { IStrikingStepSupport } from "./StrikingStepSupport";
+import type { strikingStepSupport } from "./StrikingStepSupport";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 
@@ -28,6 +28,9 @@ type Feet = Record<Side, IAutoMovieMotionHumanFoot.IPlacement>;
 
 /** A foot's normalized motion interval within one beat. */
 type Window = readonly [from: number, to: number];
+
+/** The inherited support only present at a cut with at least one airborne foot. */
+type IStrikingStepSupport = NonNullable<ReturnType<typeof strikingStepSupport>>;
 
 /** The original planted sole point and pitch of the lead foot. */
 interface IPivot {
