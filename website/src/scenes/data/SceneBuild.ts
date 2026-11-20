@@ -1,6 +1,26 @@
+import type {
+  IAutoMovieMotionHumanGraspUse,
+  IAutoMovieMotionTarget,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import type {
+  ActionName,
+  ActionParams,
+  AuthoredAction,
+  AuthoredMutual,
+  IActionOptions,
+  IAuthoredComposition,
+  IAuthoredPerformer,
+  ISeatReference,
+  MutualArguments,
+  OptionalActionName,
+} from "./SceneBuildTypes";
 import { SceneTakes } from "./SceneTakes";
+
+type PersonTarget = Extract<IAutoMovieMotionTarget, { kind: "person" }>;
 
 /**
  * Shorthands the scene records are written with, so each record reads as
@@ -8,10 +28,13 @@ import { SceneTakes } from "./SceneTakes";
  */
 export namespace SceneBuild {
   /** An action: a name, its parameters, and the optional members. */
-  export type Action = IPlaygroundComposition.IAction;
+  export type Action = AuthoredAction;
 
   /** A performer: a body at a place, with its actions. */
-  export type Performer = IPlaygroundComposition.IPerformer;
+  export type Performer = IAuthoredPerformer;
+
+  /** A plain composition with law-checked action inputs. */
+  export type Composition = IAuthoredComposition;
 
   /**
    * A floor point, world metres.
@@ -20,7 +43,7 @@ export namespace SceneBuild {
    * @param z Forward.
    * @returns The point.
    */
-  export function to(x: number, z: number): Record<string, number> {
+  export function to(x: number, z: number): IAutoMovieVector3 {
     return { x, y: 0, z };
   }
 
@@ -31,7 +54,10 @@ export namespace SceneBuild {
    * @param region The region.
    * @returns The target.
    */
-  export function at(subject: string, region: string): Record<string, unknown> {
+  export function at(
+    subject: string,
+    region: PersonTarget["region"],
+  ): PersonTarget {
     return { kind: "person", subject, region };
   }
 
@@ -43,11 +69,21 @@ export namespace SceneBuild {
    * @param more Its anchor, cut, timing or overlays.
    * @returns The action.
    */
+  export function act<N extends ActionName>(
+    name: N,
+    params: ActionParams<NoInfer<N>>,
+    more?: IActionOptions,
+  ): Action;
+  export function act(
+    name: OptionalActionName,
+    params?: undefined,
+    more?: IActionOptions,
+  ): Action;
   export function act(
     name: string,
     params: Record<string, unknown> = {},
-    more: Partial<Omit<Action, "name" | "params">> = {},
-  ): Action {
+    more: IActionOptions = {},
+  ): IPlaygroundComposition.IAction {
     return { name, params, ...more };
   }
 
@@ -71,7 +107,7 @@ export namespace SceneBuild {
     yaw: number,
     actions: Action[],
     proficiency: IPlaygroundComposition.Proficiency = "trained",
-  ): IPlaygroundComposition.IPerformer {
+  ): Performer {
     return { subject, body, x, z, yaw, proficiency, actions };
   }
 
@@ -111,7 +147,7 @@ export namespace SceneBuild {
   }
 
   /** How a blade is taken up for its use, as the package's own blade tests take it: its point the working tip, its line rising across the palm as a cutting grip holds it. */
-  export const BLADE_USE: Record<string, string> = {
+  export const BLADE_USE: IAutoMovieMotionHumanGraspUse.IUse = {
     tip: "point",
     line: "oblique",
   };
@@ -226,7 +262,7 @@ export namespace SceneBuild {
    * @param id The seat's affordance id, for an object with several seats; its only seat when absent.
    * @returns The seat reference.
    */
-  export function seat(subject: string, id?: string): Record<string, string> {
+  export function seat(subject: string, id?: string): ISeatReference {
     return id === undefined ? { $seat: subject } : { $seat: subject, id };
   }
 
@@ -238,6 +274,7 @@ export namespace SceneBuild {
    * @param params The shared parameters.
    * @returns The mutual action.
    */
+  export function mutual(...args: MutualArguments): AuthoredMutual;
   export function mutual(
     name: string,
     cast: Record<string, string>,
@@ -299,9 +336,9 @@ export namespace SceneBuild {
   export function scene(
     about: IAbout,
     seed: string,
-    performers: IPlaygroundComposition.IPerformer[],
+    performers: Performer[],
     objects: IPlaygroundComposition.IObject[] = [],
-    mutuals: IPlaygroundComposition.IMutual[] = [],
+    mutuals: AuthoredMutual[] = [],
     forces: NonNullable<IPlaygroundComposition["forces"]> = [],
   ): IScene {
     const composition: IPlaygroundComposition = {

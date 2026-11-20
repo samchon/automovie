@@ -1,3 +1,5 @@
+import type { IAutoMovieMotionTarget } from "@automovie/interface";
+
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
@@ -11,7 +13,11 @@ const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (
+  x: number,
+  y: number,
+  z: number,
+): Extract<IAutoMovieMotionTarget, { kind: "point" }> => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",

@@ -1,34 +1,18 @@
-import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import { SceneBuild } from "./SceneBuild";
 import { SceneTakes } from "./SceneTakes";
 
-/** A floor point, as a destination. */
-function to(x: number, z: number): Record<string, number> {
-  return { x, y: 0, z };
-}
-
-/** A performer with its actions, at a place and heading. */
-function person(
-  subject: string,
-  body: string,
-  x: number,
-  z: number,
-  yaw: number,
-  actions: IPlaygroundComposition.IAction[],
-  proficiency: IPlaygroundComposition.Proficiency = "trained",
-): IPlaygroundComposition.IPerformer {
-  return { subject, body, x, z, yaw, proficiency, actions };
-}
+const { person, to }: typeof SceneBuild = SceneBuild;
 
 /** A composition of people only. */
 function scene(
   seed: string,
-  performers: IPlaygroundComposition.IPerformer[],
-): IPlaygroundComposition {
+  performers: SceneBuild.Performer[],
+): SceneBuild.Composition {
   return { version: 1, seed, performers, mutuals: [] };
 }
 
-const WARM_UP: IPlaygroundComposition = scene("warm-up", [
+const WARM_UP: SceneBuild.Composition = scene("warm-up", [
   person("jo", "m1", -2.4, 0, 0, [
     { name: "run", params: { to: to(-2.4, 4), pace: "jog" } },
     { name: "stand", params: { seconds: 1 } },
@@ -67,7 +51,7 @@ const WARM_UP: IPlaygroundComposition = scene("warm-up", [
   ]),
 ]);
 
-const DANCE_CIRCLE: IPlaygroundComposition = scene("dance-circle", [
+const DANCE_CIRCLE: SceneBuild.Composition = scene("dance-circle", [
   person("ny", "f1", 0, 0, 0, [
     { name: "dance", params: { kind: "bounce", bpm: 112, beats: 6 } },
     { name: "dance", params: { kind: "stepTouch", bpm: 112, beats: 6 } },
@@ -85,7 +69,7 @@ const DANCE_CIRCLE: IPlaygroundComposition = scene("dance-circle", [
   ]),
 ]);
 
-const COURT: IPlaygroundComposition = scene("court", [
+const COURT: SceneBuild.Composition = scene("court", [
   person("quin", "m2", -2.2, 0, 0, [
     { name: "ballSport", params: { kind: "dribble", count: 8 } },
     { name: "ballSport", params: { kind: "throwIn" } },
@@ -105,7 +89,7 @@ const COURT: IPlaygroundComposition = scene("court", [
   ]),
 ]);
 
-const GYMNASTICS: IPlaygroundComposition = scene("gymnastics-floor", [
+const GYMNASTICS: SceneBuild.Composition = scene("gymnastics-floor", [
   person("uma", "f1", -1, 0, 0, [
     { name: "gymnastics", params: { seconds: 3 } },
     { name: "kneel", params: { kind: "both", hold: 1 } },
@@ -114,7 +98,7 @@ const GYMNASTICS: IPlaygroundComposition = scene("gymnastics-floor", [
   person("vic", "m1", 1, 0, 0, [{ name: "crawl", params: { cycles: 2 } }]),
 ]);
 
-const POOL: IPlaygroundComposition = scene("pool", [
+const POOL: SceneBuild.Composition = scene("pool", [
   person("wil", "m2", -0.8, 0, 0, [
     { name: "swim", params: { kind: "frontCrawl", cycles: 4 } },
   ]),

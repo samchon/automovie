@@ -1,13 +1,10 @@
-import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import { SceneBuild } from "./SceneBuild";
 import { SceneTakes } from "./SceneTakes";
 
-/** A region of another person, as a motion target. */
-function at(subject: string, region: string): Record<string, unknown> {
-  return { kind: "person", subject, region };
-}
+const { at }: typeof SceneBuild = SceneBuild;
 
-const SPARRING: IPlaygroundComposition = {
+const SPARRING: SceneBuild.Composition = {
   version: 1,
   seed: "sparring",
   performers: [
@@ -94,7 +91,7 @@ const SPARRING: IPlaygroundComposition = {
   mutuals: [],
 };
 
-const DOJO: IPlaygroundComposition = {
+const DOJO: SceneBuild.Composition = {
   version: 1,
   seed: "dojo",
   performers: [
