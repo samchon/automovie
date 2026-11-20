@@ -186,7 +186,7 @@ export namespace ArchetypeRide {
    *
    * @param archetype The support at rest.
    * @param course The course its root follows, or its plan when the caller has already planned it.
-   * @param pose What moves with the course: given the course's state, the archetype in its state there and the root's placement. Absent, the archetype goes along unchanged.
+   * @param pose The support's model and root placement at the current course state and film second. Without a poser the source model follows the course unchanged.
    * @param instants Instants the support adds to the course's.
    * @returns The ride.
    * @throws {ArchetypeRefusal} As {@link ArchetypeCourse.plan} does for a malformed course.
@@ -199,26 +199,25 @@ export namespace ArchetypeRide {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The plan is shared by every sample, and a ride that planned the course for its own instants hands that plan in; samples are not cached, since a consumer asks each second once.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The ride holds the rest archetype and the plan for as long as its caller keeps it.
    */
-  export function along<Id extends string, Dimension extends string>(
-    archetype: Archetype<Id, Dimension>,
+  export function along<Id extends string, D extends string>(
+    archetype: Archetype<Id, D>,
     course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-    pose?: (state: ArchetypeCourse.IState) => IPose<Id, Dimension>,
+    pose?: (state: ArchetypeCourse.IState, seconds: number) => IPose<Id, D>,
     instants: readonly { seconds: number; label: string }[] = [],
-  ): IRide<Id, Dimension> {
+  ): IRide<Id, D> {
     const plan: ArchetypeCourse.IPlan =
       course.kind === "plan"
         ? course
         : ArchetypeCourse.plan(archetype.archetype, course);
-    const at: (seconds: number) => ISample<Id, Dimension> = (
-      seconds: number,
-    ): ISample<Id, Dimension> => {
+    function at(seconds: number): ISample<Id, D> {
       const state: ArchetypeCourse.IState = plan.at(seconds);
-      return {
-        ...(pose?.(state) ?? { archetype, placement: state.placement }),
-        course: state,
+      const sample: IPose<Id, D> = pose?.(state, seconds) ?? {
+        archetype,
+        placement: state.placement,
       };
-    };
-    const ride: IRide<Id, Dimension> = {
+      return { ...sample, course: state };
+    }
+    const ride: IRide<Id, D> = {
       plan,
       duration: plan.duration,
       instants: [...plan.instants, ...instants].sort(
@@ -227,7 +226,7 @@ export namespace ArchetypeRide {
       ),
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, Dimension> = at(seconds);
+        const sample: ISample<Id, D> = at(seconds);
         return ArchetypeFrame.compose(
           sample.placement,
           sample.archetype.affordance(id).frame,

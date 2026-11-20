@@ -1,6 +1,7 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
+  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,6 +29,8 @@ interface End {
 
 /** One sample's unchanged endpoint, relative fold and fixed neutral attachment. */
 interface Target {
+  /** Actual chain and terminal-axis binding used for this sample. */
+  solver: QuadrupedLimb.IOriented;
   /** Actual terminal endpoint, already including its sole clearance. */
   endpoint: IAutoMovieVector3;
   /** Declared relative carpus/hock fold, degrees. */
@@ -54,8 +57,12 @@ export namespace QuadrupedRidePose {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A terminal centre is not mislabeled as its sole, and no implementation tolerance or fitted attachment is exposed as an authoring knob.
    */
   export interface IGoal {
+    /** Terminal endpoint's lateral coordinate in model space, metres. Defaults to its attachment's sagittal plane. */
+    x?: number;
     /** Terminal endpoint's forward coordinate in model space, metres. */
     z: number;
+    /** Model-space rotation of the terminal's neutral axis. Defaults to its neutral model-space direction. */
+    orientation?: IAutoMovieQuaternion;
     /** Exact terminal solid clearance above the local floor, nonnegative metres. */
     lift: number;
     /** Relative carpus/hock fold beyond the actual neutral angle, degrees. */
@@ -131,7 +138,12 @@ export namespace QuadrupedRidePose {
         ],
       ),
     );
-    const ends: Readonly<Record<QuadrupedBody.Limb, End>> = {
+    const ends: Readonly<
+      Record<
+        QuadrupedBody.Limb,
+        (orientation: IAutoMovieQuaternion | undefined, lateral: boolean) => End
+      >
+    > = {
       leftFore: end("leftFore"),
       rightFore: end("rightFore"),
       leftHind: end("leftHind"),
@@ -159,7 +171,12 @@ export namespace QuadrupedRidePose {
     return { sample };
 
     /** Read one actual foot primitive; no endpoint-only ground proxy is retained. */
-    function end(limb: QuadrupedBody.Limb): End {
+    function end(
+      limb: QuadrupedBody.Limb,
+    ): (
+      orientation: IAutoMovieQuaternion | undefined,
+      lateral: boolean,
+    ) => End {
       const chain: readonly IAutoMovieVector3[] = source.limbs[limb];
       const terminal: IAutoMovieModelPart | undefined = parts.get(
         QuadrupedBody.BONES[limb][3]!,
@@ -180,19 +197,38 @@ export namespace QuadrupedRidePose {
         z: dz / length,
       };
       const shape: typeof terminal.geometry.shape = terminal.geometry.shape;
-      const radial: number =
-        shape.type === "capsule"
-          ? shape.radius
-          : shape.radius * Math.hypot(axis.x, axis.z);
-      const clearance: number = Math.max(0, axis.y) * shape.height + radial;
-      if (!(Number.isFinite(clearance) && clearance >= 0))
-        throw new RangeError(`The ${limb} sole clearance is not representable`);
-      return {
-        solver: QuadrupedLimb.prepare(chain, limb.endsWith("Fore")).oriented(
-          axis,
-        ),
-        clearance,
-      };
+      const prepared: QuadrupedLimb.IPrepared = QuadrupedLimb.prepare(
+        chain,
+        limb.endsWith("Fore"),
+      );
+      const defaultSupport: End = support(axis, false);
+      return (
+        orientation: IAutoMovieQuaternion | undefined,
+        lateral: boolean,
+      ): End =>
+        orientation === undefined && !lateral
+          ? defaultSupport
+          : support(
+              orientation === undefined
+                ? axis
+                : Quaternion.rotateVector(orientation, axis),
+              true,
+            );
+
+      /** Bind the exact support of the current terminal bar in model space. */
+      function support(direction: IAutoMovieVector3, lateral: boolean): End {
+        const radial: number =
+          shape.type === "capsule"
+            ? shape.radius
+            : shape.radius * Math.hypot(direction.x, direction.z);
+        const clearance: number =
+          Math.max(0, direction.y) * shape.height + radial;
+        if (!(Number.isFinite(clearance) && clearance >= 0))
+          throw new RangeError(
+            `The ${limb} sole clearance is not representable`,
+          );
+        return { solver: prepared.oriented(direction, lateral), clearance };
+      }
     }
 
     /** Achieve four unchanged foot poses with one explicit whole-body trajectory. */
@@ -260,7 +296,7 @@ export namespace QuadrupedRidePose {
           const target: Target = targets.get(limb)!;
           solved.set(
             limb,
-            ends[limb].solver.solve(
+            target.solver.solve(
               { ...target.attachment, y: target.attachment.y + height },
               target.endpoint,
               target.fold,
@@ -281,9 +317,18 @@ export namespace QuadrupedRidePose {
                 coordinateScale,
                 ...QuadrupedBody.LIMBS.flatMap(
                   (limb: QuadrupedBody.Limb): number[] => [
+                    goals[limb].orientation === undefined &&
+                    goals[limb].x === undefined
+                      ? 0
+                      : 1,
+                    targets.get(limb)!.endpoint.x,
                     goals[limb].z,
                     goals[limb].lift,
                     goals[limb].fold,
+                    goals[limb].orientation?.x ?? 0,
+                    goals[limb].orientation?.y ?? 0,
+                    goals[limb].orientation?.z ?? 0,
+                    goals[limb].orientation?.w ?? 1,
                   ],
                 ),
               ],
@@ -314,7 +359,7 @@ export namespace QuadrupedRidePose {
         if (
           goal === undefined ||
           goal === null ||
-          ![goal.z, goal.lift, goal.fold].every(Number.isFinite) ||
+          ![goal.x ?? 0, goal.z, goal.lift, goal.fold].every(Number.isFinite) ||
           goal.lift < 0
         )
           throw new RangeError(
@@ -323,16 +368,22 @@ export namespace QuadrupedRidePose {
         const attachment: IAutoMovieVector3 = preview.frames.get(
           QuadrupedBody.BONES[limb][0]!,
         )!.translation;
+        const support: End = ends[limb](goal.orientation, goal.x !== undefined);
         const endpoint: IAutoMovieVector3 = {
-          x: attachment.x,
-          y: goal.lift + ends[limb].clearance,
+          x: goal.x ?? attachment.x,
+          y: goal.lift + support.clearance,
           z: goal.z,
         };
-        targets.set(limb, { endpoint, fold: goal.fold, attachment });
+        targets.set(limb, {
+          endpoint,
+          fold: goal.fold,
+          attachment,
+          solver: support.solver,
+        });
         return {
           attachment,
-          goal: ends[limb].solver.target(endpoint),
-          reach: ends[limb].solver.range(goal.fold),
+          goal: support.solver.target(endpoint),
+          reach: support.solver.range(goal.fold),
         };
       }
     }

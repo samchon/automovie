@@ -27,6 +27,32 @@ export namespace QuadrupedRideClock {
     start: number;
     /** Actual course end, film seconds. */
     end: number;
+    /** The course end on the hoof clock after removing stationary intervals. */
+    movingEnd: number;
+    /**
+     * Remove elapsed stopped time from the film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines film-to-moving seconds and a held hoof clock throughout a stop.
+     * @evidence contracts/development/implementation.md#principled-implementation Subtract the portion of every elapsed stationary interval.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pass of the admitted stops.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Running seconds and the requested path remain unchanged.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(P) for P authored pauses, with constant work when none are authored.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stops from the admitted course with the inverse reader.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fixed stop table survives preparation.
+     */
+    movingAt: (second: number) => number;
+    /**
+     * Read the first film second at which the moving clock reaches a value.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines moving-to-film seconds, returning a stop's arrival at its held clock value.
+     * @evidence contracts/development/implementation.md#principled-implementation Add the full earlier pauses before mapping back to the authored timeline.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pass of the admitted stops.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A held clock value can emit one event at arrival and cannot emit a new event inside the pause.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(P) for P authored pauses, with constant work when none are authored.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same admitted stop intervals as movingAt.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fixed stop table survives preparation.
+     */
+    filmAt: (second: number) => number;
     /**
      * Read timing context at a film second, holding the nearest course boundary.
      * Spatial placement still reads the original plan at its original second.
@@ -95,6 +121,40 @@ export namespace QuadrupedRideClock {
   ): IClock {
     const start: number = plan.when(0);
     const end: number = plan.when(plan.length);
+
+    /** Finite stopped windows paired by their original course leg. */
+    const paused: { start: number; duration: number; moving: number }[] = [];
+    let held: number = 0;
+    if (
+      course.legs.some(
+        (leg: ArchetypeCourse.Leg): boolean => leg.pause !== undefined,
+      )
+    ) {
+      const markers: ReadonlyMap<string, number> = new Map(
+        plan.instants.map(
+          (event: { label: string; seconds: number }): [string, number] => [
+            event.label,
+            event.seconds,
+          ],
+        ),
+      );
+      course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
+        if (leg.pause === undefined) return;
+        const arrival: number | undefined = markers.get(`stop${index + 1}`);
+        const departure: number | undefined = markers.get(`depart${index + 1}`);
+        if (
+          arrival === undefined ||
+          departure === undefined ||
+          !(departure > arrival)
+        )
+          throw new RangeError(
+            "A quadruped pause requires admitted stop and departure events",
+          );
+        const duration: number = departure - arrival;
+        paused.push({ start: arrival, duration, moving: arrival - held });
+        held += duration;
+      });
+    }
     const order: readonly QuadrupedGait.Gait[] = species.table.order;
     const ranges: readonly { minimum: number; maximum: number }[] = order.map(
       (gait: QuadrupedGait.Gait): { minimum: number; maximum: number } =>
@@ -121,6 +181,23 @@ export namespace QuadrupedRideClock {
     return {
       start,
       end,
+      movingEnd: end - held,
+      movingAt: (second: number): number => {
+        let elapsed: number = 0;
+        for (const pause of paused) {
+          if (second <= pause.start) break;
+          elapsed += Math.min(pause.duration, second - pause.start);
+        }
+        return second - elapsed;
+      },
+      filmAt: (second: number): number => {
+        let elapsed: number = 0;
+        for (const pause of paused) {
+          if (second <= pause.moving) break;
+          elapsed += pause.duration;
+        }
+        return second + elapsed;
+      },
       at,
       timing: (
         gait: QuadrupedGait.Gait,
