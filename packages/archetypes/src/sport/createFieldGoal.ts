@@ -1,7 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
-import type { Archetype, ArchetypeBuilder } from "../core";
-import { ArchetypeDraw, ArchetypeFrame } from "../core";
+import {
+  type Archetype,
+  type ArchetypeBuilder,
+  ArchetypeDraw,
+  ArchetypeFrame,
+} from "../core";
 import { GoalBuild } from "./GoalBuild";
 import type { createGoal } from "./createGoal";
 

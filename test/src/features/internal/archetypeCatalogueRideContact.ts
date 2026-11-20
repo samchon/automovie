@@ -3,6 +3,7 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSignature,
@@ -11,11 +12,13 @@ import type {
 } from "@automovie/interface";
 import {
   HumanChain,
+  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
   HumanRide,
   HumanSignature,
+  poseBones,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +37,7 @@ type Sedan = ReturnType<typeof createCar>;
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the model, seed interval, support and expected seat refusal.
  * @evidence contracts/development/implementation.md#principled-implementation Measures the real cushion, compares the displayed contact and heading, and verifies predicted refusals.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Construct one model and film for each seed, then record the worst admitted gap and rejected seeds.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cushion boundary is read from the collider and the cutoff follows the actor measurements and the seated admission rule.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The cushion boundary comes from its collider. The seat cutoff starts at the actual standing sole plane and uses the surveyed popliteal dimensions. Refusal values and bounds are in world metres.
  * @evidence contracts/development/implementation.md#efficient-algorithms Reads the requested seed interval once and retains a bounded observation per case.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both seed intervals share the same case and contact measurements.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A film remains local to its seed iteration.
@@ -45,9 +48,9 @@ export function archetypeCatalogueRideContact(
 ): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   // Knee height minus thigh radius is the contact plane of the thigh.
-  const minimumSeat: number =
-    0.8 *
-    (body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius);
+  const poplitealHeight: number =
+    body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius;
+  const minimumSeat: number = standingFloor(body) + 0.8 * poplitealHeight;
   const failures: Map<string, string> = new Map();
   const refused: number[] = [];
   let admitted: number = 0;
@@ -231,6 +234,37 @@ export function archetypeCatalogueRideContact(
     }
   }
   TestValidator.equals("seeded sedan ride support", [...failures.values()], []);
+}
+
+/** Measure the exposed entry soles of a separately authored standing control. */
+function standingFloor(body: IAutoMovieMotionHumanBody): number {
+  const film: HumanPerformance = new HumanPerformance({
+    seed: "catalogue/sedan/ride",
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").stand({ seconds: 0.5, sway: 0 }).node,
+  });
+  const entry: IAutoMovieMotionHumanEntryState =
+    film.segments("a")[0]!.context.entry;
+  TestValidator.predicate(
+    "the entry control has both soles planted",
+    entry.feet.left.planted && entry.feet.right.planted,
+  );
+  const bones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
+  return Math.min(
+    ...(["left", "right"] as const).flatMap((side): number[] =>
+      HumanFoot.sockets(body, bones, side).map(
+        (socket): number => socket.point.y,
+      ),
+    ),
+  );
 }
 
 /** The authored sedan runs from rest at 3 s to a quarter turn at 7 s. */

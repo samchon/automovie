@@ -20,6 +20,7 @@ const v: typeof Vector3.create = Vector3.create;
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The same draw records bands, fixed figures and model choices.
  */
 export namespace GoalBuild {
+  /** The recorded dimension units, metres for lengths and kilograms for mass. */
   export const UNITS: Readonly<
     Record<createGoal.Dimension, ArchetypeDrawSession.Unit>
   > = {
@@ -34,6 +35,7 @@ export namespace GoalBuild {
     mass: "kg",
   };
 
+  /** The display names retained from the saved goal dispatcher. */
   export const NAMES: Readonly<Record<createGoal.Kind, string>> = {
     footballGoal: "football goal",
     fieldHockeyGoal: "field hockey goal",
@@ -45,6 +47,7 @@ export namespace GoalBuild {
     tennisNet: "tennis net",
   };
 
+  /** The fixed FIVB top heights for the men's and women's volleyball nets. */
   export const NETS: Readonly<
     Partial<
       Record<

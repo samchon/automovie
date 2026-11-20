@@ -47,7 +47,8 @@ interface IVertex {
  *
  * Register the law and perform `registered("write", params)` after taking
  * the tool in the orientation used to write. The surface belongs to a fixed
- * prop without an articulation reader. The arm approaches and leaves the
+ * rigid prop. A prop that supplies a frame reader declares its rigidity with
+ * `hasArticulations: false`. The arm approaches and leaves the
  * stroke with the entry wrist attitude as its goal. The target gives each
  * edge time proportional to its length and zero speed at each vertex, using
  * Flash and Hogan's planar minimum-jerk law (1985,

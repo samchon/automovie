@@ -1,8 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import type { Archetype, ArchetypeBuilder } from "../core";
-import { ArchetypeFrame } from "../core";
+import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
 import { GoalBuild } from "./GoalBuild";
 import { buildTennisNet } from "./buildTennisNet";
 import type { createGoal } from "./createGoal";

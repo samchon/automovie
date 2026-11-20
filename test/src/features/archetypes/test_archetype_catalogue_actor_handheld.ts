@@ -30,7 +30,7 @@ export function test_archetype_catalogue_actor_handheld(): void {
     "the authored vessel cells cover every required pair",
     rows
       .map(({ vessel, action, body }): string => `${vessel}/${action}/${body}`)
-      .sort(),
+      .sort((left: string, right: string): number => left.localeCompare(right)),
     [
       "glass/carry/m-average",
       "glass/hold/m-average",

@@ -247,7 +247,7 @@ function literal(value: unknown, imports: Set<string>): string {
   return JSON.stringify(value);
 }
 
-/** A producer's options as code: the stated dimensions, then the kind under the producer's key (`kind` or `frame`); `{}` when there are none. */
+/** Emit the stated parameters and any variant under the producer's declared key, such as `kind`, `frame` or `format`. */
 function options(object: IPlaygroundComposition.IObject, key: string): string {
   const entries: [string, unknown][] = Object.entries({
     ...(object.params ?? {}),
