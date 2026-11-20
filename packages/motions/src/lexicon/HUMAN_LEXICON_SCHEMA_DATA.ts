@@ -16581,6 +16581,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/PartialRecordleftrightstring",
             "description": "The support's point each foot stays on, by its id, for a part that\nmoves within the support: a pedal on its turning crank, a stirrup on\na trotting horse (`IAutoMovieMotionHumanProp.point`). The foot keeps the place it\nhad on that point when the ride began. A foot not named, or a point\nthat only moves with the support, is carried rigidly."
           },
+          "placeFeet": {
+            "type": "boolean",
+            "description": "Acquire each named foot support over the first 0.6 seconds of the ride,\nthen follow its actual material point. By default the feet keep the\noffset they had on the named rests when the ride began."
+          },
           "seat": {
             "type": "string",
             "description": "The support's point the seat stays on, by its id, where the seat\nitself moves within the support: a saddle on a horse's trunk, which\nrises and falls with the stride over the course its root follows.\nThe body is carried with the support alone when absent."
@@ -22718,6 +22722,20 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "type": "string",
                 "description": "Affordance at the seated frame where the object mounts."
               },
+              "approach": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Fixed affordances reached in order before the opening."
+              },
+              "insertion": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Fixed affordances reached in order after the opening and before seating."
+              },
               "via": {
                 "type": "string",
                 "description": "The held object's matching affordance. Defaults to its origin."
@@ -22729,7 +22747,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               "point"
             ],
             "additionalProperties": false,
-            "description": "The receiving prop and both of its affordance ids."
+            "description": "The receptacle and its ordered placement sites."
           }
         },
         "required": [
@@ -22737,7 +22755,7 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "onto"
         ],
         "additionalProperties": false,
-        "description": "A held object placed through an authored opening into a seat.\n\nThe opening and seat are two affordances on a stationary receptacle. Their\nrotations match and their origins delimit an author-cleared straight path.\nThe selected prop socket, or its origin, reaches the opening at aperture,\nthe seat at placed, and stays mounted while the hand opens until release.\nThe motion law checks these frames and arm reach at both endpoints."
+        "description": "A held object placed through an authored opening into a seat.\n\nThe stationary receptacle's opening, seat and optional waypoints share the\nsame orientation. The approach waypoints precede the opening, and the\ninsertion waypoints follow the opening before the seat. The law retraces\nthe path when the hand leaves. The author keeps the path clear.\nThe held prop's selected socket or origin reaches the opening at\n`aperture`, the seat at `placed`, and stays mounted while the hand opens\nuntil `release`. The law checks the frames and arm reach."
       },
       "IAutoMovieMotionHumanBowViolinParams": {
         "type": "object",
