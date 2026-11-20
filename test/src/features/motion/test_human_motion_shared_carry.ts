@@ -43,14 +43,15 @@ import { vclose } from "../internal/vclose";
  *    ends and at mid-carry, read out of chronological order. The shared
  *    prop frame also follows the authored path during the carry.
  * 2. The performance sees the one prop at its authored frame before the carry
- *    and at its terminal frame after the carry.
+ *    and at its terminal frame after the carry. Exact and adjacent reads
+ *    agree with the prepared sampler. Both hands are observed at the seams.
  * 3. A duplicate grip, a minute-long planning interval and a posture read
  *    after the prepared carry are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the authored interval, the two distinct grips, the shared rigid motion and the checking bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Reads both carriers' displayed bones and the common prop frame from HumanPerformance, including the motion and the clamped endpoints. An aliased grip must throw.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads both carriers' displayed bones and the common prop frame from HumanPerformance, including exact and adjacent boundaries. Cross-reads the prepared motion and limbs on the same film seconds. An aliased grip must throw.
  * @evidence contracts/development/testing.md#independent-expectations The site bounds compare displayed hands with analytically transformed authored local coordinates, independent of the planner and prop reader.
- * @evidence contracts/development/testing.md#distinguishing-cases Both points are distinct and see different motion under yaw; a duplicated site refuses. Samples straddle both ends and read the hold out of order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Distinct points see different motion under yaw. Samples straddle both ends, repeat an off-grid hold out of order, and refuse duplicated sites.
  * @evidence contracts/development/testing.md#execution-ownership One bounded in-memory carry under test/src/features, discovered by the motion test runner.
  */
 export function test_human_motion_shared_carry(): void {
@@ -155,13 +156,25 @@ export function test_human_motion_shared_carry(): void {
     },
     props: [prepared.prop],
   });
-  for (const [seconds, share] of [
-    [to + 0.1, 1],
-    [to, 1],
-    [from - 0.1, 0],
-    [from, 0],
-    [(from + to) / 2, 0.5],
-  ] as const) {
+  const adjacent: number = 0.0001;
+  const offGrid: number = from + 0.371;
+  for (const seconds of [
+    to + 0.1,
+    to + adjacent,
+    to,
+    from - 0.1,
+    from - adjacent,
+    from,
+    offGrid,
+    to - adjacent,
+    (from + to) / 2,
+    from + adjacent,
+    offGrid,
+  ]) {
+    const share: number = Math.min(
+      1,
+      Math.max(0, (seconds - from) / (to - from)),
+    );
     const angle: number = (share * Math.PI) / 90;
     const frame: IAutoMovieRigidTransform = performance.prop(
       prop.subject,
@@ -176,8 +189,16 @@ export function test_human_motion_shared_carry(): void {
           1e-12,
         ),
     );
-    if (seconds < from || seconds > to) continue;
-    for (const owner of input.carriers) {
+    const direct: IAutoMovieRigidTransform = prepared.prop.motion!(seconds);
+    TestValidator.predicate(
+      `the prepared and placed props agree at ${seconds} s`,
+      vclose(frame.position, direct.position) &&
+        qclose(frame.rotation, direct.rotation, 1e-12),
+    );
+    if (seconds < from - adjacent || seconds > to + adjacent) continue;
+    for (const index of [0, 1] as const) {
+      const owner: IAutoMovieMotionHumanSharedCarry.ICarrier =
+        input.carriers[index];
       const local: IAutoMovieVector3 = prop.points[owner.site]!.point;
       const expected: IAutoMovieVector3 = {
         x: local.x * Math.cos(angle) + local.z * Math.sin(angle),
@@ -193,6 +214,15 @@ export function test_human_motion_shared_carry(): void {
       TestValidator.predicate(
         `${owner.site} keeps its own point at ${seconds} s`,
         nclose(Vector3.length(Vector3.subtract(actual, expected)), 0, 0.015),
+      );
+      if (seconds < from || seconds > to) continue;
+      const planned: IAutoMovieVector3 = grip(
+        owner,
+        prepared.postures[index](seconds),
+      ).point;
+      TestValidator.predicate(
+        `${owner.site} agrees between prepared and placed reads at ${seconds} s`,
+        nclose(Vector3.distance(actual, planned), 0, 0.015),
       );
     }
   }
