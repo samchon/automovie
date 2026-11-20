@@ -26,3 +26,5 @@ export * from "./createVessel";
 export * from "./createWearable";
 export * from "./createZipperPouch";
 export * from "./createCrutch";
+export * from "./createStageJacket";
+export * from "./createStageFootwear";

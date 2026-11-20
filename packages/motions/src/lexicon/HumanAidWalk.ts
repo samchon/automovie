@@ -411,7 +411,9 @@ export const HumanAidWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanA
       contacts: [
         ...plan.contacts,
         ...hands.map(
-          (hand: IHand): IAutoMovieMotionHumanContactWindow => ({
+          (
+            hand: humanAidWalkGrip.IHand,
+          ): IAutoMovieMotionHumanContactWindow => ({
             part: `${hand.side}Hand`,
             kind: "grip",
             from: ready / plan.duration,
