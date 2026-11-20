@@ -171,22 +171,40 @@ const CASES: readonly ICase[] = [
     check: hoverCard,
   },
   {
-    name: "a scene page plays its baked take, its code and its takes",
-    path: "scenes/meeting/",
-    shows: [`.am-scene-page ${DRAWN}`, ".am-transport", ".am-code"],
-    lacks: [".am-scene-view-note.am-danger-text"],
+    name: "Fall and Rise plays its baked take and three alternative takes",
+    path: "scenes/fall-and-rise/",
+    shows: [
+      '.am-scene-page .am-scene-view[data-take="ready"] canvas',
+      ".am-transport",
+      ".am-code",
+    ],
+    lacks: [
+      ".am-scene-refused",
+      ".am-scene-view-refusal",
+      ".am-scene-view-note.am-danger-text",
+    ],
     contexts: 1,
     check: async (page: Page, problems: string[]): Promise<void> => {
       await page.getByRole("tab", { name: /^Takes/ }).click();
-      try {
-        await page
-          .locator(`.am-take-grid .am-take ${DRAWN}`)
-          .nth(1)
-          .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
-      } catch {
-        problems.push(
-          "the second take was not computed when the takes were opened",
-        );
+      for (const label of [
+        "The scene",
+        "Another seed",
+        "Other bodies",
+        "Every performer novice",
+      ]) {
+        const take: Locator = page.locator(".am-take-grid .am-take").filter({
+          has: page.getByText(label, { exact: true }),
+        });
+        try {
+          await take.scrollIntoViewIfNeeded();
+          const state: string | null = await take
+            .locator('.am-scene-view[aria-busy="false"]')
+            .getAttribute("data-take", { timeout: COMPUTE_LIMIT });
+          if (state !== "ready")
+            problems.push(`the "${label}" take ended in state ${state}`);
+        } catch {
+          problems.push(`the "${label}" take did not finish drawing`);
+        }
       }
     },
   },

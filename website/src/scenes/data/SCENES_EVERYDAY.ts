@@ -90,7 +90,8 @@ const FALL: IPlaygroundComposition = {
       proficiency: "trained",
       actions: [
         { name: "walk", params: { to: to(0, 1) } },
-        { name: "stagger", params: { speed: 1.2 } },
+        // The swapped body's recovery limit on this approach is 0.85 m/s.
+        { name: "stagger", params: { speed: 0.8 } },
         { name: "knockdown", params: { seconds: 1 } },
         { name: "getUp", params: {} },
       ],
@@ -182,7 +183,6 @@ export const SCENES_EVERYDAY: readonly IScene[] = [
     takes: SceneTakes.of(FALL),
     camera: { view: "three-quarter" },
     needs: [],
-    refusedUntil: 3544,
   },
   {
     id: "lineup",
