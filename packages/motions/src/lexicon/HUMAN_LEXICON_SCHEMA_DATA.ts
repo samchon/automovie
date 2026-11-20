@@ -17658,6 +17658,17 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "number",
             "description": "Start offset as a fraction of a stroke or figure for crew contrast, in [0, 1]."
           },
+          "station": {
+            "oneOf": [
+              {
+                "const": "bow"
+              },
+              {
+                "const": "stroke"
+              }
+            ],
+            "description": "Bow or stroke station on an articulated racing shell for double scull."
+          },
           "role": {
             "oneOf": [
               {

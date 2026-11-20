@@ -1,0 +1,120 @@
+import { Vector3 } from "@automovie/engine";
+
+import {
+  type Archetype,
+  ArchetypeBand,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  type IArchetypeBand,
+} from "../core";
+import { PaddleBlade } from "./PaddleBlade";
+
+const SOURCE: string =
+  "Werner Skagit FG adjustable straight shaft: https://wernerpaddles.com/products/werner-skagit-fg-adjustable-straight-shaft-kayak-paddle";
+const v: typeof Vector3.create = Vector3.create;
+
+/**
+ * A double-bladed kayaking paddle with straight shaft and two non-feathered
+ * blades. The shaft's +X points towards the named left blade at rest. Each
+ * hand has a separate round shaft site for use across alternating strokes.
+ *
+ * @param params Optional scene identity and overall length override, metres.
+ * @param seed Draws the adjustable shaft length within its declared range.
+ * @returns The shaft, two blades and corresponding hand and tip sites.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the axes, two grips, adjustable length and reference.
+ * @evidence contracts/development/implementation.md#principled-implementation The opposed dihedral blades flank one real shaft. The rigid prop can roll and dip either end.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the published dimensions and repeat the actual blade and grip construction once per end.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Grip and blade-tip contacts are on the visible shaft and blade. The grip span and dihedral are stated staging choices.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One shaft and a fixed number of convex blade cells.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the blade panel and handle construction, reflected at its two ends.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each returned model owns its parts and input provenance.
+ */
+export function createKayakPaddle(
+  params: createKayakPaddle.IParams = {},
+  seed?: number | string,
+): Archetype<createKayakPaddle.Affordance, createKayakPaddle.Dimension> {
+  const draw: ArchetypeDrawSession<createKayakPaddle.Dimension> =
+    new ArchetypeDrawSession(
+      "kayakPaddle",
+      createKayakPaddle.UNITS,
+      seed,
+      params,
+    );
+  const d: Record<createKayakPaddle.Dimension, number> = draw.dimensions(
+    createKayakPaddle.BANDS,
+  );
+  const builder: ArchetypeBuilder<
+    createKayakPaddle.Affordance,
+    createKayakPaddle.Dimension
+  > = new ArchetypeBuilder({
+    name: "kayak paddle",
+    material: "composite",
+    id: params.id,
+    draw,
+  });
+  const half: number = d.length / 2;
+  const shoulder: number = half - d.bladeLength;
+  const diameter: number = 0.029;
+  builder.rod("shaft", diameter / 2, v(-shoulder, 0, 0), v(shoulder, 0, 0), {
+    color: "#353b40",
+  });
+  for (const [side, sign] of [
+    ["left", 1],
+    ["right", -1],
+  ] as const) {
+    PaddleBlade.draw(
+      builder,
+      `${side}-blade`,
+      sign * shoulder,
+      sign,
+      d.bladeLength,
+      d.bladeWidth,
+      0.011,
+      "#e3af2b",
+    );
+    PaddleBlade.grip(
+      builder,
+      `${side}Grip`,
+      v(sign * 0.27, 0, 0),
+      v(-sign, 0, 0),
+      diameter,
+      0.15,
+    );
+    PaddleBlade.tip(builder, `${side}Tip`, sign * half, sign, d.bladeWidth);
+  }
+  return builder.build(d.mass);
+}
+
+/**
+ * The shaft dimensions, the two palm sites and the two wet blade edges.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the source, units and contacts.
+ * @evidence contracts/development/design.md#principled-representation Hand and blade tip have distinct ids at each end.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes only the adjustable shaft input and fixed measured dimensions.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The maker's adjustable ranges and measured blade dimensions bound the model.
+ */
+export namespace createKayakPaddle {
+  /** Two real hand sites and separate blade tips. */
+  export type Affordance = "leftGrip" | "rightGrip" | "leftTip" | "rightTip";
+  /** Overall length, blade dimensions and mass. */
+  export type Dimension = "length" | "bladeLength" | "bladeWidth" | "mass";
+  /** Scene subject and selected reference figures. */
+  export interface IParams extends Partial<Record<Dimension, number>> {
+    /** Scene subject id. */
+    id?: string;
+  }
+  /** Units of the manufacturer's specifications. */
+  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+    length: "m",
+    bladeLength: "m",
+    bladeWidth: "m",
+    mass: "kg",
+  };
+  /** Manufacturer figures for the adjustable straight-shaft model. */
+  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+    length: ArchetypeBand.metres(2.2, 2.6, SOURCE),
+    bladeLength: ArchetypeBand.metres(0.49, 0.49, SOURCE),
+    bladeWidth: ArchetypeBand.metres(0.156, 0.156, SOURCE),
+    mass: ArchetypeBand.of("kg", 1.042, 1.042, SOURCE),
+  };
+}
