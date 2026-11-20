@@ -40,13 +40,13 @@ import { nclose } from "../internal/nclose";
  * 2. The displayed feet stay on the pedals and hands hold the bar. The
  *    pelvis stays lifted in flight and lowers back to its seated height
  *    after touchdown without a positional jump at either support boundary.
- * 3. A stopped launch and a launch into a turn are refused.
+ * 3. A stationary, turning or climbing approach is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the floor, marks, riding supports and adjacent invalid approaches.
  * @evidence contracts/development/testing.md#behavioral-verification Reads actual wheel parts, displayed body pose, pedal and grip frames around the two support events and through the flight.
  * @evidence contracts/development/testing.md#independent-expectations The fixed floor and marks supply support geometry. Tan et al. (2014, Table 3 and Figure 9) use the height of each tire to witness a hop (https://faculty.cc.gatech.edu/~turk/paper_pages/2014_bicycle_stunts/bicycle_stunts.pdf). Ballistics give g*T²/8 at the apex. The 5 mm wheel, 10 mm seat and 15 mm contact limits match the road take. The marked strip requires an authored 40 mm clearance.
- * @evidence contracts/development/testing.md#distinguishing-cases The same tires must be grounded before and after flight but clear the marked strip during it. A stationary or turning approach cannot admit this hop.
- * @evidence contracts/development/testing.md#execution-ownership One seeded rigid bicycle and Human performance, with two adjacent invalid courses.
+ * @evidence contracts/development/testing.md#distinguishing-cases The same tires must be grounded before and after flight but clear the marked strip during it. Stationary, turning and climbing approaches cannot admit this hop.
+ * @evidence contracts/development/testing.md#execution-ownership One seeded rigid bicycle and Human performance, with adjacent invalid courses.
  */
 export function test_motion_exercise_bicycle_hop(): void {
   const bicycle: ReturnType<typeof createBicycle> = createBicycle({}, 8);
@@ -305,7 +305,12 @@ export function test_motion_exercise_bicycle_hop(): void {
     startSpeed: 0,
     acceleration: 2,
   });
+  const climbing: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, {
+    ...course,
+    legs: [{ kind: "straight", length: 12, rise: 1 }],
+  });
   for (const [base, interval] of [
+    [climbing, [takeoff, touchdown]],
     [moving, [takeoff, touchdown]],
     [stopped, [0, flight]],
   ] as const) {
@@ -316,7 +321,7 @@ export function test_motion_exercise_bicycle_hop(): void {
       refusal = error;
     }
     check(
-      "the hop refuses a stationary or turning approach",
+      "the hop refuses a stationary, turning or climbing approach",
       refusal instanceof ArchetypeRefusal && refusal.axis === "hop.approach",
     );
   }

@@ -145,7 +145,7 @@ export function rideBicycle(
 /**
  * The bicycle lean limit and an airborne take over a grounded ride.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the provisional lean limit and the hop composed over the grounded ride.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the provisional lean limit, horizontal drive, gravitational flight, and refused approaches for the hop.
  * @evidence contracts/development/design.md#principled-representation A named lean angle and a flight interval on the same clock as the course and contacts.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The bicycle owns the lean limit and the optional jump over its own ride.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the authored wheel and rider contact clock throughout the hop.
@@ -168,13 +168,6 @@ export namespace rideBicycle {
    * @throws {ArchetypeRefusal} When the interval lies outside the ride or the
    * approach cannot supply one level straight at unchanged positive speed.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the source of horizontal motion, vertical flight, the two support events and the refused approach.
-   * @evidence contracts/development/implementation.md#principled-implementation At standard gravity the vertical launch speed is half gravity times the flight time, so the ballistic path returns to the same floor at touchdown. The whole jump stays within one level forward straight at constant speed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the interval and the existing course, then apply one lift function to both samplers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Grounded poses keep their original positions, and the arc is shared by the machine and its real contact frames. A grade, turn, reverse, or changing approach speed is refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The leg admission scans once and each sample adds one closed-form trajectory read during flight.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the ride's own samplers and the engine's gravitational trajectory.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps the ride, a flight parameter record and two additional instants for the life of the result.
    */
   export function hop(
     ride: ReturnType<typeof rideBicycle>,
@@ -212,7 +205,7 @@ export namespace rideBicycle {
     if (
       leg?.kind !== "straight" ||
       leg.reverse === true ||
-      (leg.grade ?? 0) !== 0 ||
+      (leg.rise ?? 0) !== 0 ||
       entry.speed <= 0 ||
       Math.abs(exit.speed - entry.speed) > 1e-8 ||
       Math.abs(exit.distance - entry.distance - entry.speed * seconds) > 1e-8
