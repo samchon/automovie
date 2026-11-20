@@ -110,13 +110,13 @@ export namespace martialArt {
     HumanBound.least("seconds", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
-    switch (p.kind) {
-      case "karateStanceTransfer":
-      case "taiChiTransfer":
-      case "taekwondoStanceReset":
-      case "muayThaiStanceReset":
-        return MartialArtStancePhrase(context, p.kind, hold, modifiers);
-    }
+    if (
+      p.kind === "karateStanceTransfer" ||
+      p.kind === "taiChiTransfer" ||
+      p.kind === "taekwondoStanceReset" ||
+      p.kind === "muayThaiStanceReset"
+    )
+      return MartialArtStancePhrase(context, p.kind, hold, modifiers);
 
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const axes: IAutoMovieMotionHumanFrame = {
