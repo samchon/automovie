@@ -21,7 +21,7 @@ const a = HumanChain.subject("a")
   .stand({ seconds: 2 });
 ```
 
-`HumanActionName` lists the vocabulary with one line per action, and `IHumanActionParams` maps each name to its parameters. What an action is directed at is an `AutoMovieMotionTarget`: a region of another person, a region of the performer's own body, a named point of a prop, a point in the world, or none.
+`AutoMovieMotionHumanActionName` from `@automovie/interface` lists the vocabulary with one line per action, and `IAutoMovieMotionHumanActionParams` maps each name to its parameters. What an action is directed at is an `IAutoMovieMotionTarget`: a region of another person, a region of the performer's own body, a named point of a prop, a point in the world, or none.
 
 ```ts
 HumanChain.subject("a").approach({
@@ -88,7 +88,7 @@ import { HumanChain, HumanMutual } from "@automovie/motions";
 HumanChain.mutual(HumanMutual.handOver, { giver: a, receiver: b }, { prop: "cup", handle: "body" });
 ```
 
-The meeting laws in `HumanMutual` include `handshake`, `highFive` and `handOver`, which solve a shared meeting. `HumanChain.pair(a, b)` is a shorthand for the handshake and the handover. A production can define its own `IHumanMutual` over its registered actions.
+The meeting laws in `HumanMutual` include `handshake`, `highFive` and `handOver`, which solve a shared meeting. `HumanChain.pair(a, b)` is a shorthand for the handshake and the handover. A production can define its own `IAutoMovieMotionHumanMutual` over its registered actions.
 
 ## What the composition can say
 
