@@ -45,7 +45,7 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       id: "change-of-mind",
       title: "Change of mind",
       summary:
-        "A walker turns back halfway across the street and runs the way he came, glances back at the street, checks his watch and walks off; a jogger cuts her jog short and walks to the side, gets her breath with hands on hips, rolls her neck, watches him run, checks her watch and jogs off again.",
+        "A walker turns back and runs; a jogger stops for breath, watches him and jogs on.",
       setting: "street",
       roles: { max: "walker", noa: "jogger" },
       needs: [],
@@ -103,7 +103,7 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
       id: "night-out",
       title: "Night out",
       summary:
-        "Leaving a bar: one reveller staggers drunk, cheers, stumbles and staggers on; a friend follows with a stiff limp, waves him on and shakes her head; a third steps up face to face with a stranger and crosses his arms; she puts her hands on her hips, he points at her and she shakes her head and holds up a palm to stop him; he shrugs, turns away, looks back and shakes a fist, while she sways to the music and waves him off.",
+        "Outside a bar one drunk staggers, a friend limps after, and another argues with a stranger.",
       setting: "street",
       roles: {
         rae: "reveller",

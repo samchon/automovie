@@ -51,7 +51,7 @@ export const SCENES_INTERACTION: readonly IScene[] = [
       id: "hands-down-and-up",
       title: "Hands down and up",
       summary:
-        "An athlete folds down to place both palms beside the planted feet and returns to standing, rubs his hands, folds down again onto one palm and back up, rolls his neck, goes down onto both knees and both hands and stands again, and nods, transferring weight across the declared floor contacts each time.",
+        "An athlete goes down onto both palms, one palm, then hands and knees, standing each time.",
       setting: "gym",
       roles: { ath: "athlete" },
       needs: [],
@@ -99,7 +99,7 @@ export const SCENES_INTERACTION: readonly IScene[] = [
       id: "stuck-sled",
       title: "A sled that will not move",
       summary:
-        "An athlete takes the sled's two upright handles and leans into it, but it stays where it stands; he rolls his neck and drives into it harder, shakes his head, tries pulling it instead, then puts his hands on his hips, looks the sled over and shrugs.",
+        "An athlete pushes a sled harder and harder, then pulls it, but it never moves.",
       setting: "gym",
       roles: { ath: "athlete" },
       needs: [],
@@ -149,7 +149,7 @@ export const SCENES_INTERACTION: readonly IScene[] = [
       id: "letting-go",
       title: "Letting go",
       summary:
-        "A guest takes a mug by its handle and opens the hand, lets it fall, looks down at it and shrugs; she takes the second mug in the other hand, lets that one fall too, looks down, covers her face, and crouches to look at the pieces before standing up.",
+        "A guest drops one mug, shrugs, drops a second and covers her face.",
       setting: "everyday",
       roles: { gst: "guest" },
       needs: [],
@@ -193,9 +193,9 @@ export const SCENES_INTERACTION: readonly IScene[] = [
   scene(
     {
       id: "balance-impulse",
-      title: "Absorbing an impulse",
+      title: "Three pushes",
       summary:
-        "A balance test of three pushes: a light push from behind is absorbed with the feet planted and the participant looks back at it and squares his shoulders; a firmer push from the side is absorbed too and he looks that way; a hard push from the front sends him back, and he steps forward onto his mark again and nods.",
+        "A participant takes pushes from behind, the side and the front, and steps back to his mark.",
       setting: "gym",
       roles: { bal: "participant" },
       needs: [],

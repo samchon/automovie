@@ -44,16 +44,17 @@ export function Landing(): ReactElement {
           </h1>
           <div className="am-hero-side">
             <p className="am-hero-lede">
-              Your coding agent writes the screenplay and programs every
-              performance as code. AutoMovie computes the same frames every
-              time, as a motion hint for video diffusion.
+              Your coding agent writes the screenplay, answers every decision in
+              writing so nothing drifts, and programs each performance as code.
+              AutoMovie computes the same frames every time, as a motion hint
+              for video diffusion.
             </p>
             <div className="am-hero-actions">
               <Link className="am-button am-button-primary" href="/docs/">
                 Read the docs
               </Link>
               <Link className="am-button" href="/scenes/">
-                See the scenes
+                Scene studies
               </Link>
             </div>
             <CopyCommand command="npx automovie create my-film" />
@@ -78,9 +79,9 @@ export function Landing(): ReactElement {
             </p>
             <p>
               AutoMovie gives the model who is where, what they do, what they
-              touch and when: a hint video and the control channels a model
-              takes, pose, depth, normal, outline and mask, rendered from one
-              performance and aligned frame for frame.
+              touch and when. It renders a hint video and the control channels
+              the model takes (pose, depth, normal, outline and mask) from one
+              performance, aligned frame for frame.
             </p>
           </div>
         </Reveal>
@@ -99,7 +100,13 @@ export function Landing(): ReactElement {
             and scripts first. Each layer states in writing how it keeps the
             world, the characters, the places and the era decided above it, and
             the code states how it plays the screenplay, so the film keeps to
-            both.
+            both.{" "}
+            <Link
+              className="am-text-link"
+              href="/docs/screenplay/authoring-chain/"
+            >
+              The authoring chain
+            </Link>
           </p>
         </header>
         <ol className="am-chain-steps">
@@ -108,9 +115,10 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">1</span>
               <h3>Decide</h3>
               <p>
-                The brief holds only the decisions several scenes must keep
-                true: a fighter&apos;s stance, his temper, the ring. Each has an
-                anchor a scene can cite.
+                The brief gives each character, place and recurring prop a
+                record, and settles every rule the premise depends on: a
+                fighter&apos;s stance, his temper, the ring. The screenplay must
+                answer each one.
               </p>
             </div>
             <div className="am-chain-panel">
@@ -141,10 +149,10 @@ export function Landing(): ReactElement {
               <span className="am-chain-number">3</span>
               <h3>Program</h3>
               <p>
-                The agent composes each performance from typed actions and cites
-                the beats it realizes. An action the vocabulary lacks does not
-                type-check; a placement the body cannot reach is refused with
-                the reason and a fix.
+                The agent composes each performance from typed actions and
+                states, beside the code, how it plays each beat. An action the
+                vocabulary lacks does not type-check; a placement the body
+                cannot reach is refused with the reason and a fix.
               </p>
             </div>
             <div className="am-chain-panel">
@@ -171,7 +179,7 @@ export function Landing(): ReactElement {
               </pre>
               <p className="am-panel-note">
                 An abridged report in the format <code>@wrtnlabs/evidence</code>{" "}
-                prints; the counts are this example production&apos;s.
+                prints, for this example.
               </p>
             </div>
           </Reveal>
@@ -186,13 +194,17 @@ export function Landing(): ReactElement {
               </p>
             </div>
             <div className="am-chain-panel am-chain-panel-still">
-              <img
-                src={BakedClient.address("scene", LANDING_FILM.scene, "svg")}
-                alt="A still of the kickboxing take: the key pose solid, the poses around it faint, and the hands' paths."
-                width={480}
-                height={360}
-                loading="lazy"
-              />
+              {manifest.scenes[LANDING_FILM.scene] === undefined ? (
+                <div className="am-figure-canvas" aria-hidden="true" />
+              ) : (
+                <img
+                  src={BakedClient.address("scene", LANDING_FILM.scene, "svg")}
+                  alt="A still of the kickboxing take: the key pose solid, the poses around it faint, and the hands' paths."
+                  width={480}
+                  height={360}
+                  loading="lazy"
+                />
+              )}
               <ul className="am-channels" aria-label="What a hint delivers">
                 {[
                   "hint video",
@@ -246,10 +258,10 @@ export function Landing(): ReactElement {
               </p>
             </li>
             <li>
-              <h3>Verified or watched</h3>
+              <h3>Acceptance</h3>
               <p>
-                The acceptance record says what the agent verified on stills and
-                what only you watched.
+                The acceptance record names who examined the frames and who
+                watched the film at normal speed.
               </p>
             </li>
           </ul>
@@ -342,7 +354,7 @@ export function Landing(): ReactElement {
           </Link>
           <Link href="/motions/">
             <strong>Motions</strong>
-            <span>Every action and row, by family, with its parameters.</span>
+            <span>Every action and its named variants, by family.</span>
           </Link>
           <Link href="/archetypes/">
             <strong>Archetypes</strong>
@@ -378,9 +390,9 @@ export function Landing(): ReactElement {
           </li>
           <li>
             <p>
-              The agent records your decisions in PROJECT.md, writes the
-              screenplay, programs the scenes and hands you the hint with what
-              it verified.
+              The agent asks which decisions you keep, records them in
+              PROJECT.md, writes the screenplay, programs the scenes and hands
+              you the hint with what it verified.
             </p>
             <div className="am-hero-actions">
               <Link className="am-button am-button-primary" href="/docs/setup/">

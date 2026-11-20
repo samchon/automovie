@@ -10,7 +10,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       id: "stage-slap",
       title: "Stage slap",
       summary:
-        "Two actors rehearse a slap fight, each blow sold at its instant: a stage slap and a backhand turn the second actor's head, the first actor shrugs and takes a slap back, a poke in the chest pushes the second actor, the first actor leans away from a wild hook, a second stage slap and backhand land, and both give a thumbs up.",
+        "Two actors rehearse a slap fight, each slap, poke and miss sold on its beat.",
       setting: "combat",
       roles: { vic: "actor", wyn: "actor" },
       needs: [],
@@ -98,7 +98,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       id: "chokehold",
       title: "Chokehold",
       summary:
-        "A staged strangle: the attacker pokes the victim in the chest and grabs an arm while the victim holds up a palm, then closes both hands on the neck; the victim's hands come up to the attacker's forearms and shove him off; the attacker shakes a fist and leans away from the victim's slap.",
+        "An attacker grabs and chokes a victim, who breaks the hold, shoves him off and slaps back.",
       setting: "combat",
       roles: { xia: "attacker", yan: "victim" },
       needs: [],
@@ -169,7 +169,7 @@ export const SCENES_STAGE_FIGHT: readonly IScene[] = [
       id: "scuffle",
       title: "Scuffle",
       summary:
-        "A staged scuffle: the attacker grabs the victim's arm and ties him up in a clinch while the victim, wincing, fights the forearms; the attacker takes a fistful of hair at the crown and the victim is pulled by it, then shoves him off; the attacker shakes a fist, leans away from the victim's slap and shrugs.",
+        "An attacker clinches a victim and pulls his hair until the victim shoves him off.",
       setting: "combat",
       roles: { zak: "attacker", abe: "victim" },
       needs: [],

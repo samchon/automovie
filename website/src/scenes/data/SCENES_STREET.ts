@@ -23,7 +23,7 @@ export const SCENES_STREET: readonly IScene[] = [
       id: "street-corner",
       title: "Street corner",
       summary:
-        "Eight passers-by cross a street corner, each in their own way: a stroller stops at a shop window and checks her watch; a man in a hurry checks the time and hails a cab; a jogger checks his watch and rolls his neck before jogging back; a limping woman winces, rests her hands on her hips and kneels to her ankle; a swaggering man and a proud woman pass, see each other and wave; a sad man rubs his eyes, trudges on and buries his face in his hand; and a woman reading her phone stops to take a call and walks on talking.",
+        "Eight passers-by cross a corner, each with their own gait and business.",
       setting: "street",
       roles: {
         a: "stroller",
@@ -126,7 +126,7 @@ export const SCENES_STREET: readonly IScene[] = [
       id: "pursuit",
       title: "Pursuit",
       summary:
-        "A man reading his phone looks round at an officer, who points and signals him to stop, and bolts; a second officer starts, cuts across and heads him off with a raised palm, and he throws up his hands and drops to his knees as the first officer sprints up, grabs his arm and orders him to stay down. A passer-by hurries after them and phones it in, and an escort steers a startled woman away while she looks back.",
+        "A man bolts from an officer; a second officer heads him off and he drops to his knees.",
       setting: "street",
       roles: {
         run: "fleeing",
@@ -221,7 +221,7 @@ export const SCENES_STREET: readonly IScene[] = [
       id: "sneaking-in",
       title: "Sneaking in",
       summary:
-        "Two burglars creep up, one prowling and one sneaking, and duck down behind cover to check the street; the first tiptoes out ahead, the second hushes him and beckons him on, and he looks back to her.",
+        "Two burglars creep up and take cover; one tiptoes ahead and the other hushes him.",
       setting: "street",
       roles: { ike: "burglar", joy: "burglar" },
       needs: [],
@@ -264,7 +264,7 @@ export const SCENES_STREET: readonly IScene[] = [
       id: "parade",
       title: "Parade",
       summary:
-        "Six soldiers in two ranks march, break into double time and drop back to the march, halt at attention, stand at parade rest, come back to attention and salute, each in their own step.",
+        "Six soldiers march, double-time, halt, stand at parade rest and salute.",
       setting: "troops",
       roles: {
         s1: "soldier",

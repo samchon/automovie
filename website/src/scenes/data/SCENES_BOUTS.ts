@@ -25,7 +25,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "kickboxing-round",
       title: "Kickboxing round",
       summary:
-        "Two elite kickboxers open at kicking range and circle. A jab falls short, a feint draws a lean, then a jab, cross, hook and low kick are parried, covered and checked. The counter cross and switch kick are blocked, a rear hook is rolled under, and a teep resets the range. A feinted jab, a liver hook and a head kick end it with a knockdown.",
+        "Two kickboxers trade combinations and counters until a head kick knocks one down.",
       setting: "combat",
       roles: { red: "kickboxer", blu: "kickboxer" },
       needs: [],
@@ -172,7 +172,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "boxing-counters",
       title: "Boxing counters",
       summary:
-        "Two boxers in a tight guard: a double jab parried and slipped, a cross swayed off, a hook to the body taken on the elbow and a hook upstairs rolled under; the counter jab is taken on the gloves and the rear hook leaned away from, and the leader's cross lands; after a step off the line, a jab to the body, an uppercut and a rear hook are blocked, covered and rolled, the counter jab and cross hit the gloves, the lead hook is leaned away from, and a closing cross and hook are covered before both step back.",
+        "Two boxers trade combinations; most are slipped, blocked or rolled, and one cross lands.",
       setting: "combat",
       roles: { ana: "boxer", bea: "boxer" },
       needs: [],
@@ -295,7 +295,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "wrestling-scramble",
       title: "Wrestling scramble",
       summary:
-        "Two wrestlers circle a step each way and both sink to a low level; two fake shots make the defender give ground, with a circling step between them; a single-leg shot is sprawled on and denied, both come back to their feet, and the second single leg is finished, taking the defender down to the mat.",
+        "Two wrestlers circle and fake shots; one single leg is stopped, the next takes him down.",
       setting: "combat",
       roles: { red: "wrestler", blue: "wrestler" },
       needs: [],
@@ -356,7 +356,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "sabre-bout",
       title: "Sabre bout",
       summary:
-        "Two sabreurs draw from the hip and fence two phrases: an advance, a head cut and a flank cut both parried, the riposte closed off and the counter-riposte landing; then from the ox and the roof a feint the second fencer answers by dropping from the roof into the plough, the lunge beaten aside, the riposte landing, and a void step back into the fool's guard.",
+        "Two fencers draw sabres; one lands a counter-riposte, then void-steps away from a riposte.",
       setting: "combat",
       roles: { red: "fencer", blu: "fencer" },
       needs: [],
@@ -484,7 +484,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "stage-brawl",
       title: "Stage brawl",
       summary:
-        "A choreographed brawl, every reaction on its blow: a grab the second brawler pulls back against, a slap and the backhand answer, a shove the second brawler rocks back from, a wild hook ducked and a push kick that drives the first brawler back a step, and as the first brawler comes back in, the hook that drops him; the second brawler steps back and stands over him in guard.",
+        "Two brawlers trade a grab, slaps, a shove and a push kick until a hook drops one.",
       setting: "combat",
       roles: { rex: "brawler", ned: "brawler" },
       needs: [],

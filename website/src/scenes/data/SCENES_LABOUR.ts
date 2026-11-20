@@ -31,7 +31,7 @@ export const SCENES_LABOUR: readonly IScene[] = [
       id: "kitchen-and-yard",
       title: "Kitchen and yard",
       summary:
-        "Closing time at an inn, the loads mimed: a cook takes a spoon up and stirs a pan at the stove counter, glances at the server, nods and stirs on; the server scrubs the bar, wipes his brow and wipes the bar down again; a porter carries a bag in one hand and hauls a heavy load in both, wipes his brow and raises a hand to the stable hand, who checks the time, rubs her hands, raises a hand back and hurls a throw overarm to him; he catches it, gives a thumbs up and carries it toward her, and she waves.",
+        "At an inn a cook stirs, a server wipes the bar, and a stable hand throws to a porter.",
       setting: "work",
       roles: { kat: "cook", lev: "server", mak: "porter", nel: "stable hand" },
       needs: [],

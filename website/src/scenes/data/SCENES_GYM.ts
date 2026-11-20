@@ -10,7 +10,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "gym-floor",
       title: "Gym floor",
       summary:
-        "Six people train side by side with the weights mimed: back squats and an overhead press, deadlifts and a Romanian deadlift, kettlebell swings around a goblet squat, pull-ups and hanging knee raises on the bar, dips and a knee raise on the parallel bars, and a farmer's walk down the floor and back finished with calf raises.",
+        "Six people lift mimed weights: squats, deadlifts, swings, pull-ups, dips and a carry.",
       setting: "gym",
       roles: {
         ada: "squat",
@@ -77,7 +77,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "yoga-class",
       title: "Yoga class",
       summary:
-        "A teacher and four students, a beat behind her, flow from a brief mountain pose into warrior one, straight on into warrior two, then a triangle and a tree.",
+        "Four students follow a teacher through warrior one, warrior two, triangle and tree.",
       setting: "gym",
       roles: {
         tea: "teacher",
@@ -122,7 +122,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "core-class",
       title: "Core class",
       summary:
-        "Four people work the mat without getting up between moves: crunches into bicycle crunches, bird dogs into a plank, Russian twists into a side plank, glute bridges into mountain climbers.",
+        "Four people chain two core moves each on the floor, from crunches to mountain climbers.",
       setting: "gym",
       roles: { gi: "member", ha: "member", io: "member", ju: "member" },
       needs: [],
@@ -152,7 +152,7 @@ export const SCENES_GYM: readonly IScene[] = [
       id: "stretching-circle",
       title: "Stretching circle",
       summary:
-        "Four runners cool down after a run, each through their own circuit: both quadriceps, a calf stretch and leg swings; leg swings, a chest, side and triceps stretch; both shoulders, arm circles and a neck stretch; a side bend each way, a calf stretch and arm circles.",
+        "Four runners in a circle cool down, each through their own set of stretches.",
       setting: "gym",
       roles: { ka: "runner", lo: "runner", mi: "runner", no: "runner" },
       needs: [],

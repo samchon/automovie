@@ -22,7 +22,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "dumbbell-corner",
       title: "Dumbbell corner",
       summary:
-        "Three people work through dumbbell exercises with the weights mimed: one curls, fans herself between sets and does triceps extensions; one does lateral raises, rolls the shoulders loose and does front raises; one shrugs, rows bent over and rolls the neck.",
+        "Three people work mimed dumbbells: curls and extensions, raises, shrugs and rows.",
       setting: "gym",
       roles: { ann: "member", bud: "member", cid: "member" },
       needs: [],
@@ -51,7 +51,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "barbell-platform",
       title: "Barbell platform",
       summary:
-        "Four lifters: a front squat and a goblet squat, a Romanian deadlift and a good morning, a power clean, a shoulder roll and a snatch finished with a fist pump, an overhead press and a bench press.",
+        "Four lifters run squats, hinges, a clean and a snatch, and presses.",
       setting: "gym",
       roles: { dax: "lifter", eva: "lifter", fox: "lifter", gia: "lifter" },
       needs: [],
@@ -88,7 +88,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "leg-day",
       title: "Leg day",
       summary:
-        "Leg day for four: split squats, a sit against the wall and a quadriceps stretch to shake it off; calf raises and squats; step-ups onto a plyo box, quick high knees to prime and a jump onto its top; hip thrusts off a bench and lunges.",
+        "Four people train legs: squats, a wall sit, step-ups, a box jump, hip thrusts and lunges.",
       setting: "gym",
       roles: { hap: "member", ike: "member", jem: "member", kai: "member" },
       needs: [],
@@ -137,9 +137,9 @@ export const SCENES_WORKOUT: readonly IScene[] = [
   scene(
     {
       id: "push-up-ladder",
-      title: "Push-up ladder",
+      title: "Body-weight circuit",
       summary:
-        "Four people train with their body weight: push-ups, a wide push-up and a shoulder roll; incline push-ups and a decline push-up on a bench and a shoulder stretch; a pike push-up, a plank and a neck roll; and high knees, burpees, a breather with the hands on the hips and high knees again.",
+        "Four people train with body weight: push-up variations, a plank, burpees and high knees.",
       setting: "gym",
       roles: { lia: "member", mo: "member", nat: "member", oz: "member" },
       needs: [],
@@ -181,7 +181,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "mat-work",
       title: "Mat work",
       summary:
-        "Three people on the mats: sit-ups and a lying leg raise, bicycle crunches and Russian twists, a bear crawl and an inchworm back up to standing.",
+        "Three people work the floor: sit-ups, crunches and twists, a bear crawl and an inchworm.",
       setting: "gym",
       roles: { pam: "member", quin: "member", rio: "member" },
       needs: [],
@@ -207,7 +207,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "bar-work",
       title: "Bar work",
       summary:
-        "Two people at the pull-up bars: a dead hang and three chin-ups, then a shoulder roll to shake the arms out; four hanging knee raises and a kip swing.",
+        "Two people at the pull-up bars: a dead hang and chin-ups, hanging knee raises and swings.",
       setting: "gym",
       roles: { sol: "member", tai: "member" },
       needs: [],
@@ -242,7 +242,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "cardio-corner",
       title: "Cardio corner",
       summary:
-        "Warming up: one rows on a mimed machine and then pedals a bicycle; one skips a mimed rope, runs high knees and skips again; one steps touch, box steps twice round and steps touch again; one runs a stride down the hall, does butt kicks, strides back and finishes with A-skips.",
+        "Four people warm up: rowing and cycling, skipping rope, dance steps and strides.",
       setting: "gym",
       roles: { uli: "member", val: "member", wil: "member", xen: "member" },
       needs: [],
@@ -278,9 +278,9 @@ export const SCENES_WORKOUT: readonly IScene[] = [
   scene(
     {
       id: "sled-and-carry",
-      title: "Sled and carry",
+      title: "Barrow and carry",
       summary:
-        "Two athletes finish with carries: one pushes a barrow down the lane by its two handles, leaning into it, rolls the shoulders, walks back and stands hands on hips catching breath; the other does a farmer's walk with the weights mimed, the arms hanging still, down the lane and back, and rolls the shoulders.",
+        "One athlete pushes a wheelbarrow up the lane; another carries mimed weights up and back.",
       setting: "gym",
       roles: { yul: "athlete", zed: "athlete" },
       needs: [],
@@ -345,7 +345,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
       id: "cool-down",
       title: "Cool-down",
       summary:
-        "Four people cool down: a short chair pose, a child's pose and down into a corpse pose; a sun salutation flowing into a triangle; a quadriceps stretch, a neck stretch, a chest stretch and lunge twists; a seated fold and a hurdler's stretch.",
+        "Four people cool down with yoga poses, a sun salutation and seated and standing stretches.",
       setting: "gym",
       roles: { ama: "member", bex: "member", cas: "member", dov: "member" },
       needs: [],

@@ -81,9 +81,9 @@ export const SCENES_PARTNER: readonly IScene[] = [
   scene(
     {
       id: "shoulder-greeting",
-      title: "A shoulder greeting",
+      title: "Shoulder greeting",
       summary:
-        "One guest spots a friend waiting up ahead and waves; the friend waves back and beckons as he walks up, they shake hands, chat with open palms, a shrug and a nod, and rest a hand on each other's shoulder before letting go.",
+        "Two friends wave, shake hands, chat and clasp each other's shoulder.",
       setting: "partner",
       roles: { a: "guest", b: "guest" },
       needs: [],
@@ -130,7 +130,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "partner-dance",
       title: "Partner dance",
       summary:
-        "A pair in closed hold: both spin and she turns under his raised arm, steps out to his right and they walk a promenade side by side; when they stop she closes in and lays her hand on his shoulder while he puts a hand on his heart and nods.",
+        "A couple spins, she turns under his arm, they walk a promenade and she closes in.",
       setting: "partner",
       roles: { lea: "lead", fol: "follower" },
       needs: [],
@@ -183,7 +183,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "goodnight",
       title: "Goodnight",
       summary:
-        "At night a parent walks up to the door, where a grown child spots him and waves, steps onto the doorstep and kisses her on the forehead. He turns and checks his watch while she flicks a speck off his shoulder, then he looks back and they wave goodnight.",
+        "A parent steps up to the door, kisses his grown child's forehead and they wave goodnight.",
       setting: "partner",
       roles: { par: "parent", kid: "grown child" },
       needs: [],
@@ -255,7 +255,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "carried-off",
       title: "Carried off",
       summary:
-        "A guest fans herself in the heat, puts a hand to her forehead and winces; a firefighter spots her, hurries over, steadies her by the shoulder, lifts her over his shoulder and walks out carrying her.",
+        "A guest wilts in the heat, and a firefighter hurries over and carries her off.",
       setting: "partner",
       roles: { fir: "firefighter", gst: "guest" },
       needs: [],
@@ -304,7 +304,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "judo-randori",
       title: "Judo randori",
       summary:
-        "Two judoka bow to each other, loosen their shoulders and necks and square up, then enter a staged shoulder throw, land on the mat and settle into the next beat.",
+        "Two judoka bow, loosen up and square off, and one throws the other with a shoulder throw.",
       setting: "partner",
       roles: { tor: "tori", uke: "uke" },
       needs: [],
@@ -361,7 +361,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "wrestling-reset",
       title: "Wrestling reset",
       summary:
-        "One wrestler bounces on his toes and walks to his mark while the other loosens his shoulders and neck; they shake hands, sink into a crouch, then rehearse a low entry, a brief grip and a return to their upright stances.",
+        "Two wrestlers shake hands and crouch; one shoots a single leg and is stopped.",
       setting: "partner",
       roles: { red: "initiator", blue: "defender" },
       needs: [],
@@ -400,7 +400,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "rescue",
       title: "Rescue",
       summary:
-        "A hurt person winces, holds her hip and waves for help; a rescuer spots her, hurries over and kneels while she winces again, then walks off carrying her over the shoulder.",
+        "A hurt woman waves for help; a rescuer hurries over, kneels and carries her off.",
       setting: "partner",
       roles: { res: "rescuer", hur: "the hurt" },
       needs: [],
@@ -459,7 +459,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "ride-out",
       title: "Ride out",
       summary:
-        "A rider takes the saddle of a standing horse, looks out over the field, waves, points the way ahead and cheers.",
+        "A rider mounts a standing horse, looks out, waves, points ahead and cheers.",
       setting: "ride",
       roles: { rid: "rider" },
       needs: [],
@@ -506,7 +506,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "into-a-car",
       title: "Into a car",
       summary:
-        "Two people walk up to the car, one checking a watch and the other a phone, open the front doors, step in beside the seats with their backs to them and get in, ducking under the frame; seated, both nod that they are ready.",
+        "A driver and a passenger open the front doors, duck in to sit and nod.",
       setting: "ride",
       roles: { drv: "driver", pas: "passenger" },
       needs: [],
@@ -551,7 +551,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
       id: "workshop",
       title: "Workshop",
       summary:
-        "Four workers: at the bench one takes up a hammer and hammers, lays it down and saws, then hammers again and puts the hammer back; another hammers a nail, wipes the bench, mops her brow and hammers again; a porter carries a mimed box across in both hands, pushes a mimed cart back, hauls a heavy load and nods, and another carries a load in both hands, then on the hip, tosses something to the porter, walks back, hauls a load and mops her brow.",
+        "Two carpenters hammer and saw at a bench while two porters carry and haul loads.",
       setting: "work",
       roles: { w1: "carpenter", w2: "carpenter", w3: "porter", w4: "porter" },
       needs: [],

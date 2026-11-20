@@ -220,7 +220,7 @@ export const SCENES_COMBAT: readonly IScene[] = [
     id: "sparring",
     title: "Sparring",
     summary:
-      "Two kickboxers spar: the jab is parried, the cross slipped and the body kick blocked on the elbow; the counter straight and hook land on the covering gloves; both circle a step, a feinted jab sets up a low kick that is checked, the lead hook is rolled under and the uppercut covered; a short clinch and a knee are checked, a teep drives the first fighter back, and both circle off into guard.",
+      "Two kickboxers trade punches and kicks with parries, checks and counters, then circle off.",
     setting: "combat",
     cast: [
       { subject: "red", role: "kickboxer" },
@@ -236,7 +236,7 @@ export const SCENES_COMBAT: readonly IScene[] = [
     id: "dojo",
     title: "Dojo",
     summary:
-      "A teacher and two students of different skill bow in together, run a horse stance, three straight punches and a tai chi push, each at their own skill, and bow out together.",
+      "A teacher and two students bow in, hold a horse stance, punch, push and bow out.",
     setting: "combat",
     cast: [
       { subject: "sensei", role: "teacher" },

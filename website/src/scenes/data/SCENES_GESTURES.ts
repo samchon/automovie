@@ -11,7 +11,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "talking-hands",
       title: "Talking hands",
       summary:
-        "Three friends across a noisy room talk with their hands: one pleads with palms together and crossed fingers, the next answers thumbs down and counts four and five, the third shakes a fist and covers ears and mouth; a blown kiss is sent, a facepalm and a shrug come back, a raised hand and a thumbs up, a hush and a halt, an okay, a victory sign and a wave to come over.",
+        "Three friends across a room talk only in hand signs, from pleading to a wave to come over.",
       setting: "everyday",
       roles: { amy: "friend", bob: "friend", cat: "friend" },
       needs: [],
@@ -51,7 +51,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "powder-room",
       title: "Powder room",
       summary:
-        "Two guests freshen up side by side: one draws lipstick across the lips and presses them, glances over at the other and shakes her head, smooths cream into her face and checks the time; the other blows his nose, rubs his eyes and scratches his nape, glances back and shrugs, and fans himself.",
+        "Two guests freshen up side by side: lipstick and cream, a nose blown and eyes rubbed.",
       setting: "everyday",
       roles: { dot: "guest", eli: "guest" },
       needs: [],
@@ -81,7 +81,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "snapshot",
       title: "Snapshot",
       summary:
-        "A tourist takes a camera off a kiosk counter and photographs a friend, who poses with crossed fingers as the shutter goes; he shakes his head at the shot and she shrugs, he shoots again as she holds up a victory sign and then a thumbs up, and he waves her over and she walks up to see the picture.",
+        "A tourist photographs a friend twice as she poses, then waves her over to see the shot.",
       setting: "everyday",
       roles: { fay: "photographer", gil: "subject" },
       needs: [],
@@ -139,7 +139,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "park-rest",
       title: "Resting in the park",
       summary:
-        "Three walkers come onto the grass: one takes a knee for a moment, gets up, rolls his neck and nods to the second, who fans herself, nods back and sits down with her legs folded to the side to stay a while; the third squats low on his heels, rises, wipes his brow and checks his watch, and the two men walk on.",
+        "Three walkers stop on the grass to kneel, sit and squat; she stays and the two men walk on.",
       setting: "everyday",
       roles: { hal: "walker", ida: "walker", jon: "walker" },
       needs: [],
@@ -276,7 +276,7 @@ export const SCENES_GESTURES: readonly IScene[] = [
       id: "arm-wrestle",
       title: "Arm wrestle",
       summary:
-        "Two friends square up across a table: the challenger rubs his hands, shakes a fist and squares his shoulders, the champion folds his arms, lifts his chin and beckons him on; they sit, lock hands with their elbows on the table, strain and the champion pins the challenger.",
+        "A challenger and a champion size each other up, sit and arm-wrestle; the champion wins.",
       setting: "everyday",
       roles: { tad: "challenger", uri: "champion" },
       needs: [],

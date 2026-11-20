@@ -17,7 +17,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "balance-rehearsal",
       title: "Balance rehearsal",
       summary:
-        "A performer rehearses a passenger riding out a jolt: he lowers into a wide stance and is thrown back a step, shakes his head and steps onto the mark again, braces and takes the jolt once more, nods at the take and steps clear of the rehearsal mark.",
+        "A performer braces for a jolt and stumbles back twice, then nods and steps clear.",
       setting: "everyday",
       roles: { passenger: "passenger" },
       needs: [],
@@ -41,7 +41,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "rehearsing-reactions",
       title: "Rehearsing reactions",
       summary:
-        "Two actors rehearse: one crosses the floor with a tilt of the head while the other covers her face and wipes a tear; he turns to her and nods, she looks back and covers her face in mock despair, he crosses back, and she plays the tears again while he watches, applauds and gives a thumbs up, and she bows.",
+        "One actor crosses and nods while the other rehearses tears; he applauds and she bows.",
       setting: "everyday",
       roles: { walker: "actor", partner: "actor" },
       needs: [],
@@ -212,7 +212,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "smoking-break",
       title: "Smoking break",
       summary:
-        "Two colleagues outside at a standing counter: one takes up a cigarette, smokes, taps the ash, smokes again, stubs it out and scratches the nape with the free hand; the other lights up and stands with hands in pockets, turns to him and talks with open palms, crosses his arms and nods, thinks it over, shrugs and checks his watch.",
+        "Two colleagues smoke at a counter; one stubs out, the other talks and checks his watch.",
       setting: "everyday",
       roles: { gus: "smoker", hal: "colleague" },
       needs: [],
@@ -336,7 +336,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       id: "fright",
       title: "A fright",
       summary:
-        "Four passers-by go about their business, two walking, one on her phone and one checking his watch, when something goes off and they react at once: one startles and takes cover, one winces and braces for impact, one dives flat and one stumbles and drops to a knee; then they recover, look around at one another, a hand on the heart, a hand over the mouth, a shrug, and walk on.",
+        "A bang startles four passers-by: one takes cover, one braces, one dives flat, one kneels.",
       setting: "everyday",
       roles: {
         pat: "passer-by",

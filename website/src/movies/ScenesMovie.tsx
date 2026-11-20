@@ -105,8 +105,8 @@ export default function ScenesMovie(props: {
       <header className="am-catalogue-head">
         <h1>Scene studies</h1>
         <p>
-          Short studies of what the motion grammar composes: a bout, a rally, a
-          class, a crowd. Point at one to play it; open it for its takes, its
+          Short studies of what the motion vocabulary composes: a bout, a rally,
+          a class, a crowd. Point at one to play it; open it for its takes, its
           timeline and the code that writes it.
         </p>
       </header>
@@ -190,7 +190,7 @@ export default function ScenesMovie(props: {
           </summary>
           <p className="am-muted">
             Scenes written for pieces the packages do not have yet. Each joins
-            the gallery on the release that brings its pieces.
+            the scene studies on the release that brings its pieces.
           </p>
           <ul className="am-roadmap-list">
             {coming.map(

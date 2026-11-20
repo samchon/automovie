@@ -22,9 +22,9 @@ The site is a member of the pnpm workspace and depends on the packages as `works
 
 ```bash
 pnpm install                                  # at the repository root
-pnpm --filter @automovie/website typedoc      # the API reference of the library packages, into public/api/
-pnpm --filter @automovie/website bake         # the takes and stills, into public/baked/
 pnpm --filter @automovie/website dev          # Next at http://localhost:3000/automovie/
+pnpm --filter @automovie/website bake         # optional: the takes and stills, into public/baked/
+pnpm --filter @automovie/website typedoc      # optional: the API reference, into public/api/
 pnpm --filter @automovie/website build        # checks, TypeDoc, bake, then the static export into out/
 pnpm --filter @automovie/website typecheck
 pnpm --filter @automovie/website run deploy   # build, then publish out/ to gh-pages by hand
@@ -36,7 +36,7 @@ Next loads the compiler API from the `typescript` package, which the native Type
 
 ## Baked takes
 
-`bake` computes the first take of every listed scene that plays and every motion that can be tried alone, as the take worker would, and writes each gzipped take and its still into `public/baked/`, with `manifest.json` listing them. A page plays a baked take at once and shows its still on a card; a take that was not baked is computed in the page's take worker instead, so the dev server works before a bake.
+`bake` computes the first take of every listed scene that plays and every motion that can be tried alone, as the take worker would, and writes each gzipped take and its still into `public/baked/`, with `manifest.json` listing them. A page plays a baked take at once and shows its still on a card; a take that was not baked is computed in the page's take worker instead, and a card shows a blank still. `dev` needs neither `bake` nor `typedoc`: run `bake` to see the baked takes, and run it again after changing a scene, since a bake left from before the change still plays the old take.
 
 A take depends only on its composition and the packages' sources, so each is kept in `.bake-cache/` under a hash of both and computed again only when one changes. Missing takes are computed in parallel child processes, one per CPU less one unless `--jobs <n>` is given. The run exits 1 when the packages refuse a scene that plays. CI keeps `.bake-cache/` between runs.
 

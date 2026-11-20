@@ -17,7 +17,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "sword-drill",
       title: "Sword drill",
       summary:
-        "Two fencers take their swords from the hip and drill side by side. The first runs a rising draw cut, a cut and a slash, a thrust and a stab, a backslash and a traverse, then rises to the roof, cuts down and slashes back, retreats and settles in the fool's guard. The second takes a guard, beats, disengages, cuts, parries and thrusts, retreats into the roof, cuts down, advances, parries and disengages, slashes, retreats and settles in the fool's guard.",
+        "Two fencers draw from the hip and drill cuts, thrusts and guards side by side.",
       setting: "combat",
       roles: { ari: "fencer", ben: "fencer" },
       needs: [],
@@ -76,7 +76,7 @@ export const SCENES_BLADES: readonly IScene[] = [
       id: "knife-drill",
       title: "Knife drill",
       summary:
-        "Two trainees draw their blades from the hip and drill in combinations with footwork. The knife comes to guard, then is slashed, slashed back and stabbed; it advances on a slash and a stab, traverses on a backslash and a stab, retreats twice on slashes and stabs, advances on a backslash, a stab and a slash, and returns to guard. The dagger, taken point down, stabs overhand while the free hand's club stroke, mimed, comes down from overhead; the pair repeats on two advances, a traverse and two retreats, the free hand swinging across at the end.",
+        "Two trainees draw blades and drill slashes and stabs while advancing, traversing and retreating.",
       setting: "combat",
       roles: { cal: "trainee", dee: "trainee" },
       needs: [],
@@ -152,9 +152,9 @@ export const SCENES_BLADES: readonly IScene[] = [
   scene(
     {
       id: "range-counter",
-      title: "At the range counter",
+      title: "Range drill",
       summary:
-        "A shooter takes a handgun from the range counter by its grip, the bore along the forearm, and runs a string downrange: low ready, an aim and a pair of shots, high ready, an aim and two more pairs, a scan at low ready, an aim and a last pair; then lays the gun back down.",
+        "A shooter takes a handgun from the counter, fires four pairs downrange and lays it down.",
       setting: "combat",
       roles: { eve: "shooter" },
       needs: [],

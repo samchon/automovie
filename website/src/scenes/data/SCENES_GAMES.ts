@@ -8,9 +8,9 @@ export const SCENES_GAMES: readonly IScene[] = [
   scene(
     {
       id: "tennis-rally",
-      title: "Tennis rally",
+      title: "Tennis feed",
       summary:
-        "Two players take their rackets from the benches beside them. The receiver settles into the ready position, shuffles side to side and bounces on her toes while the feeder bends for a ball on her bench. The feeder hand-feeds it across the net, and the receiver drives it back with a forehand. Both recover to the ready position and keep shuffling and split-stepping for the next ball.",
+        "A feeder hand-feeds a ball over the net and the receiver drives it back with a forehand.",
       setting: "sport",
       roles: { ana: "receiver", bea: "feeder" },
       needs: [],
@@ -198,7 +198,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "volleyball",
       title: "Volleyball",
       summary:
-        "Four players run three attacks in a row. Each time the libero digs on the forearms, the setter sets overhead and the hitter spikes. The blocker across the net jumps to meet each spike at its peak and steps back off the net. The hitter steps back and bounces between attacks, and the setter bounces on her toes. After the third spike the libero pumps a fist, the setter raises both arms and the hitter pumps a fist. The blocker puts his hands on his hips and shrugs.",
+        "Three times over, a dig, a set and a spike, each met by a jumping blocker.",
       setting: "sport",
       roles: { v1: "libero", v2: "setter", v3: "hitter", v4: "blocker" },
       needs: [],
@@ -319,7 +319,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "penalty",
       title: "Penalty",
       summary:
-        "A kicker backs off the spot, waits hands on hips, eyes the goalkeeper, bounces on his toes and waits for the whistle. Then he runs up and drives the ball with the right foot high to the goalkeeper's right, and pumps a fist. The goalkeeper bounces on the line and shuffles side to side, sets, and dives left a beat after the strike. The defender bounces on the edge of the box with her hands on her hips, sprints in as the kick starts and slides in too late.",
+        "A kicker scores high past a keeper diving the wrong way; a defender slides in late.",
       setting: "sport",
       roles: { kic: "kicker", kee: "goalkeeper", def: "defender" },
       needs: [],
@@ -385,7 +385,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "golf",
       title: "Golf",
       summary:
-        "Two golfers with their clubs mimed. The first walks up to the tee, crouches to tee the ball, addresses it and makes a full swing. He follows the drive into the sky, crouches for the tee and walks off. The second crouches behind her ball to read the green, addresses it and putts. She watches it roll, walks to the cup, crouches to take the ball out and walks off the green.",
+        "One golfer tees off; another reads the green, putts and takes the ball from the cup.",
       setting: "sport",
       roles: { g1: "golfer", g2: "golfer" },
       needs: [],
@@ -423,7 +423,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "gymnastics-hall",
       title: "Gymnastics hall",
       summary:
-        "Three gymnasts work the floor. The first tumbles a cartwheel, a round-off and a front handspring, salutes, and tumbles the same pass back the other way. The second runs a forward roll, a backward roll, a handstand, another forward roll and a cartwheel, then salutes. The third leaps into a back salto and a front salto, leaps again into a front and a back salto, finishes with a cartwheel and a round-off, then salutes.",
+        "Three gymnasts tumble: cartwheels and handsprings, rolls and a handstand, leaps and saltos.",
       setting: "sport",
       roles: { g1: "gymnast", g2: "gymnast", g3: "gymnast" },
       needs: [],
@@ -468,7 +468,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "high-jump",
       title: "High jump and sprint",
       summary:
-        "A jumper swings her legs and circles her arms to warm up, gathers herself, claps overhead to call for the crowd's rhythm, takes a short approach and lands from a Fosbury flop on a raised mat. In the next lane a sprinter circles his arms, sets in a crouch and dashes off, claps along with the jumper, watches her approach and pumps a fist as she lands.",
+        "A jumper warms up and clears the bar with a Fosbury flop; a sprinter dashes and cheers.",
       setting: "sport",
       roles: { hj: "high jumper", pv: "sprinter" },
       needs: [],
@@ -520,7 +520,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "relay",
       title: "Relay",
       summary:
-        "Four runners hand a mimed baton down the track: the first leg starts from a crouch and passes to the second, who passes to the third, who passes to the anchor, each outgoing runner warming up in the zone until the incoming one arrives. Each runner jogs out of the lane after the pass, gets their breath back and follows the race, and the anchor runs it in, pumps a fist and raises both arms.",
+        "Four runners pass a mimed baton down the track, and the anchor runs it in and celebrates.",
       setting: "sport",
       roles: {
         r1: "first leg",
@@ -620,7 +620,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "victory-lap",
       title: "Victory lap",
       summary:
-        "Three athletes celebrate after the race: the winner jogs in, pumps a fist, strikes a victory pose, bumps fists with the runner-up, waves to the stands and pumps a fist again; the runner-up gets her breath back with her hands on her hips, applauds twice, catches her breath again, bumps fists, gives a thumbs up, puts her hands back on her hips and applauds; the third puts his hands behind his head, walks over, lays a firm hand on the winner's shoulder, steps back, applauds, catches his breath, gives a thumbs up and applauds again.",
+        "The winner celebrates and bumps fists with the runner-up; the third grips his shoulder.",
       setting: "sport",
       roles: { w1: "winner", w2: "runner-up", w3: "third" },
       needs: [],
@@ -665,7 +665,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "ball-yard",
       title: "Ball yard",
       summary:
-        "Three players in a yard: the thrower throws to the catcher, jogs in, calls for the ball, jumps, runs wide and pumps a fist, and walks back in; the catcher takes it in both hands, throws it on to the kicker, applauds, jumps, jogs back, pumps a fist and gets her breath back; the kicker strikes one football with the right foot, calls for the handball, catches it, steps across, strikes a second football with the left foot, cheers and jogs after it.",
+        "A catcher takes a throw and passes it to a kicker, who catches it and kicks two balls.",
       setting: "sport",
       roles: { th: "thrower", ca: "catcher", ki: "kicker" },
       needs: [],
@@ -717,7 +717,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "martial-forms",
       title: "Martial arts forms",
       summary:
-        "Three students run their forms and bow out together: the first sinks into a horse stance, punches four times, steps into a front stance and blocks low and high twice; the second runs the same form the other way round; the third shifts his weight through a tai chi transfer and sinks into a horse stance.",
+        "Three students run punches, blocks and stances in different orders, then bow together.",
       setting: "sport",
       roles: { k1: "student", k2: "student", k3: "student" },
       needs: [],
@@ -758,7 +758,7 @@ export const SCENES_GAMES: readonly IScene[] = [
       id: "throwing-circle",
       title: "Throwing circle",
       summary:
-        "A hammer thrower walks into the circle, circles his arms, practises two turns pivoting on the left foot, sets himself, turns three times through the throw and watches the hammer out before pumping a fist.",
+        "A hammer thrower rehearses two turns, throws with three and watches the mimed hammer.",
       setting: "sport",
       roles: { thr: "hammer thrower" },
       needs: [],

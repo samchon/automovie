@@ -36,9 +36,9 @@ export const SCENES_HANDLING: readonly IScene[] = [
   scene(
     {
       id: "low-table-scramble",
-      title: "Onto a low table",
+      title: "Low table scramble",
       summary:
-        "An athlete rolls the shoulders loose and jogs up to a low table; with both palms braced on it, he brings one knee onto its edge, steps the other foot onto the top and stands up, pumps a fist, jumps down to the floor beyond it and throws both arms up.",
+        "An athlete scrambles onto a low table, pumps a fist and jumps down the far side.",
       setting: "gym",
       roles: { ath: "athlete" },
       needs: [],
@@ -64,7 +64,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
       id: "typing-at-the-counter",
       title: "Typing at the counter",
       summary:
-        "A standing receptionist touch-types a greeting on the counter's keyboard, looks up at an arriving guest and nods, types the guest's check-in, looks up again to confirm with a nod, types the room and gives an OK sign.",
+        "A receptionist types a guest's check-in, looking up to nod between entries.",
       setting: "work",
       roles: { rec: "receptionist" },
       needs: [],
@@ -103,7 +103,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
       id: "changing-a-mug-grip",
       title: "Changing a mug's grip",
       summary:
-        "A guest takes a mug by its handle, shifts it in the same hand to cup its warm body and looks into it, carries it to the window and looks out with her free hand on her hip, nods, walks back to the counter, shifts the mug back to its handle and waves to someone with her free hand.",
+        "A guest shifts her mug from handle to body, looks out a window and shifts it back.",
       setting: "everyday",
       roles: { gst: "guest" },
       needs: [],
@@ -145,7 +145,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
       id: "entry-gate",
       title: "At the entry gate",
       summary:
-        "An attendant at a turnstile looks down the queue and beckons the first visitor, presses the entry control, points them through the turnstile and nods; she halts the next one with a raised palm, then beckons, presses the control again and waves them through.",
+        "An attendant lets two visitors through a turnstile, halting the second before beckoning.",
       setting: "everyday",
       roles: { attendant: "attendant" },
       needs: [],
@@ -192,7 +192,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
       id: "drop-test",
       title: "Photographing a drop test",
       summary:
-        "Two students photograph a drop test: the photographer gives a thumbs up, fires a test shot, checks the camera and gives an OK sign while the partner glances back and nods, lifts a remote control over her counter, waves for attention, gives a thumbs up and counts down one, two, three on her free hand; as she lets it fall he presses the camera release, and she looks at where it landed and nods while he ends with a victory sign.",
+        "One student counts down and drops a remote; the other fires the shutter as it falls.",
       setting: "everyday",
       roles: { photographer: "photographer", partner: "partner" },
       needs: [],
@@ -284,7 +284,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
       id: "sorting-recycling",
       title: "Sorting recycling",
       summary:
-        "A volunteer picks up an empty water bottle from the sorting counter with the right hand and tosses it into the collection basket, picks up a second one with the left hand and tosses that one in too, and pumps a fist.",
+        "A volunteer tosses two bottles from a counter into a basket, one with each hand.",
       setting: "everyday",
       roles: { volunteer: "volunteer" },
       needs: [],

@@ -169,7 +169,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "warm-up",
     title: "Park warm-up",
     summary:
-      "Four people warm up: one jogs out and back and runs butt kicks and high knees; one squats and lunges on each leg; one does jumping jacks, a jump forward, high knees and more jacks; one stretches the quadriceps and the side and runs high knees.",
+      "Four people warm up: jogging, squats and lunges, jumping jacks, stretches and high knees.",
     setting: "sport",
     cast: [
       { subject: "jo", role: "jogger" },
@@ -187,7 +187,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "dance-circle",
     title: "Dance circle",
     summary:
-      "Three dancers face each other in a circle and bounce, sway and step-touch to one tempo, each in another order, then all box-step together.",
+      "Three dancers in a circle bounce, sway and step-touch in turn, then box-step together.",
     setting: "sport",
     cast: [
       { subject: "ny", role: "dancer" },
@@ -204,7 +204,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "court-drills",
     title: "Court drills",
     summary:
-      "Four players drill side by side in repeated sets: dribbles each ended by a throw-in, volleyball sets alternating with digs, a catcher's crouch alternating with a fielder's crouch for a ground ball, and a racket's ready position and split step twice before an athlete's set.",
+      "Four players drill side by side: dribbles, sets and digs, fielding and tennis footwork.",
     setting: "sport",
     cast: [
       { subject: "quin", role: "basketball and football" },
@@ -221,7 +221,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "gymnastics-floor",
     title: "Gymnastics floor",
     summary:
-      "Two gymnasts work the floor: one holds a handstand, cartwheels, rolls forward and kneels on both knees and rises; the other rolls forward and backward, holds a handstand and crawls on all fours.",
+      "Two gymnasts work the floor with holds, rolls, a cartwheel, a kneel and a crawl.",
     setting: "sport",
     cast: [
       { subject: "uma", role: "gymnast" },
@@ -236,7 +236,7 @@ export const SCENES_SPORT: readonly IScene[] = [
     id: "pool",
     title: "Pool lanes",
     summary:
-      "Two swimmers in neighbouring lanes: one swims front crawl, treads water for a breath and turns onto the back for backstroke; the other treads water, swims breaststroke and picks up into front crawl.",
+      "Two swimmers switch strokes: crawl to backstroke, and breaststroke to crawl.",
     setting: "sport",
     cast: [
       { subject: "wil", role: "swimmer" },

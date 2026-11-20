@@ -73,7 +73,7 @@ export const SCENES_PLACES: readonly IScene[] = [
       id: "left-luggage",
       title: "Left luggage",
       summary:
-        "At the left-luggage counter a bored attendant rubs his eyes while the traveller beside him checks his watch and raises a hand. The attendant looks over, nods, lifts a tote by its handle and hands it over by the strap; the traveller nods his thanks, waves and hurries off with it while the attendant waves back and wipes the counter.",
+        "An attendant hands a traveller his tote over the counter, and the traveller hurries off.",
       setting: "everyday",
       roles: { att: "attendant", trv: "traveller" },
       needs: [],
@@ -119,9 +119,9 @@ export const SCENES_PLACES: readonly IScene[] = [
   scene(
     {
       id: "doorway",
-      title: "At a door",
+      title: "Locked door",
       summary:
-        "A host walks up to a hinged door, knocks, waits and tries the lever, but the door stays shut. She shrugs, turns and waves over a friend who has been checking his phone and his watch; as he walks up she tries the lever once more and sets her hands on her hips, and he pats her shoulder.",
+        "A woman knocks and tries a locked door, waves a friend over and tries again.",
       setting: "everyday",
       roles: { ada: "host", bea: "friend" },
       needs: [],
@@ -184,7 +184,7 @@ export const SCENES_PLACES: readonly IScene[] = [
       id: "dressing-room",
       title: "Dressing room",
       summary:
-        "An actor gets ready to go on: she bends to her bag, takes a hat up from the counter and puts it on, checks herself in the mirror, takes a knee and rises, rolls her shoulders, sets her hands on her hips and squares her shoulders.",
+        "An actor puts on a hat, checks a mirror, takes a knee and squares her shoulders.",
       setting: "everyday",
       roles: { cyd: "actor" },
       needs: [],
@@ -245,7 +245,7 @@ export const SCENES_PLACES: readonly IScene[] = [
       id: "stairs-and-ladder",
       title: "Stairs and ladder",
       summary:
-        "One person climbs a flight of six stairs and, from the top, watches, cheers and claps a second climbing four rungs of a fixed ladder; a third steps over a kerb in the way, walks round to the ladder's back and holds a rail to steady it, then looks up at the climber and gives a thumbs up.",
+        "One person climbs stairs and cheers another up a ladder, which a third holds steady.",
       setting: "everyday",
       roles: { dot: "climber", eve: "climber", fin: "walker" },
       needs: [],

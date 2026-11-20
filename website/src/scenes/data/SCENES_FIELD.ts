@@ -18,9 +18,9 @@ export const SCENES_FIELD: readonly IScene[] = [
   scene(
     {
       id: "five-a-side",
-      title: "Five-a-side",
+      title: "Throw-in and goal",
       summary:
-        "A small-sided game builds to a shot: the winger jogs to the touchline, looks up and points the striker into space; the midfielder checks away and back and calls for the ball, the striker makes a run and comes back with a hand up, and the keeper claps, points out his marker, shuffles across his line and holds up a palm. The winger's throw-in is headed on by the midfielder, the striker chest-traps and thigh-traps it and shoots left-footed as the keeper dives right; the winger and the midfielder cheer, the striker pumps a fist and the keeper picks himself up.",
+        "A throw-in is headed on and chest-trapped, and the striker scores past a diving keeper.",
       setting: "sport",
       roles: {
         ali: "winger",
@@ -102,7 +102,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "shoot-around",
       title: "Shoot-around",
       summary:
-        "The guard claps for the ball, jogs to it, picks it up and looks for the forward, who has cut out to the wing and back with a hand up to call for it. She chest-passes to him, slides and raises both hands as he shoots at the rim, then turns to watch it and shakes her head as he pumps a fist.",
+        "A guard passes to a forward, contests his shot at the rim and shakes her head.",
       setting: "sport",
       roles: { eli: "guard", fen: "forward" },
       needs: [],
@@ -207,7 +207,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "vault-hall",
       title: "Vault hall",
       summary:
-        "One gymnast salutes and works a floor line: a cartwheel, a round-off, a front handspring and a held handstand, then lifts both arms to finish. The other salutes, performs a standing handspring vault with hands on the box and feet landing on a mat, jogs back round the box to her mark and vaults again, lifting both arms on the landing.",
+        "One gymnast tumbles a floor line; the other vaults the box twice onto a mat.",
       setting: "sport",
       roles: { eun: "gymnast", flo: "gymnast" },
       needs: [],
@@ -243,7 +243,7 @@ export const SCENES_FIELD: readonly IScene[] = [
       id: "swim-strokes",
       title: "Swim strokes",
       summary:
-        "Five swimmers work through a set: one swims breaststroke up the pool, stops to tread water and backstrokes home; one backstrokes down, treads and crawls back; one treads, floats on her back, treads again and breaststrokes off; one crawls up the pool, treads and backstrokes; and one treads water, crawls up the pool and treads again.",
+        "Five swimmers switch between breaststroke, backstroke, crawl, treading water and floating.",
       setting: "sport",
       roles: {
         hed: "swimmer",

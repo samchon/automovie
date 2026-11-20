@@ -42,7 +42,7 @@ export const SCENES_UPPER: readonly IScene[] = [
       id: "upper-explanation",
       title: "A short explanation",
       summary:
-        "A speaker waves hello, opens both palms to introduce the subject, points to a spot ahead, counts three points off on the fingers, nods twice, gives a thumbs up and lets both hands rest at the sides.",
+        "A speaker waves, opens his palms, points, counts to three, nods and gives a thumbs up.",
       setting: "everyday",
       roles: { sam: "speaker" },
       needs: [],
@@ -70,7 +70,7 @@ export const SCENES_UPPER: readonly IScene[] = [
       id: "upper-bench-break",
       title: "A pause at the bench",
       summary:
-        "A worker wipes the counter top clean with the right palm and taps it twice, wipes the mouth with the same hand, rolls the neck and the shoulders twice each, puts a hand on the hip and pats the counter as the break ends.",
+        "A worker wipes the bench, rolls her neck and shoulders and pats the bench to end her break.",
       setting: "work",
       roles: { lee: "worker" },
       needs: [],
@@ -106,7 +106,7 @@ export const SCENES_UPPER: readonly IScene[] = [
       id: "upper-hat",
       title: "Choosing a hat",
       summary:
-        "A guest looks the hat on the counter over with her chin on her fist, takes it with the left hand and puts it on, checks it in the mirror ahead, sets a hand on her hip and lifts her chin, gives a small bow and a victory sign, nods and lets the hands come down.",
+        "A guest studies a hat, puts it on, checks it in a mirror and gives a victory sign.",
       setting: "everyday",
       roles: { tai: "guest" },
       needs: [],
@@ -158,7 +158,7 @@ export const SCENES_UPPER: readonly IScene[] = [
       id: "upper-hammer",
       title: "Driving a nail",
       summary:
-        "A carpenter picks up a hammer, sets a nail in the bench with two light taps, looks at it, drives it home with seven full blows, feels the head with the left palm, finishes with two last taps, lays the hammer down and rubs the palms together.",
+        "A carpenter sets a nail with two taps, drives it with seven blows and lays the hammer down.",
       setting: "work",
       roles: { pat: "carpenter" },
       needs: [],
