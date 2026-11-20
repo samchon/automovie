@@ -9,7 +9,6 @@ import { CopyCommand } from "../components/landing/CopyCommand";
 import { EvidenceGraph } from "../components/landing/EvidenceGraph";
 import { Reveal } from "../components/landing/Reveal";
 import { ScriptStage } from "../components/landing/ScriptStage";
-import { TakeBench } from "../components/landing/TakeBench";
 import { GalleryCatalogue } from "../gallery/package/GalleryCatalogue";
 import type { IGalleryCatalogue } from "../gallery/structures/IGalleryCatalogue";
 import { MotionReference } from "../motions/package/MotionReference";
@@ -300,10 +299,20 @@ export function Landing(): ReactElement {
             Motion as code
           </Link>
         </div>
-        <TakeBench
-          scene={scene}
-          baked={manifest.scenes[scene.id] !== undefined}
-        />
+        <figure className="am-chain-panel am-motion-code">
+          <p className="am-panel-file">{LANDING_FILM.second.file}</p>
+          <pre className="am-doc am-doc-code">
+            {lines(LANDING_FILM.second.text, LANDING_FILM.second.marked)}
+          </pre>
+          <figcaption className="am-panel-note">
+            The code of the round at the top of this page from the clinch on:
+            the knee lands at once, Kai checks it with his shin and steps out.
+            Every instant is computed from these lines.{" "}
+            <Link className="am-text-link" href={`/scenes/${scene.id}/`}>
+              The whole scene
+            </Link>
+          </figcaption>
+        </figure>
       </section>
 
       {/* Library */}
@@ -400,8 +409,15 @@ export function Landing(): ReactElement {
   );
 }
 
-/** Lines of code, each `@evidence` tag and its reason marked, so the citations stand out. */
-function lines(text: readonly string[]): ReactElement[] {
+/**
+ * Lines of code, each `@evidence` tag and its reason marked so the citations
+ * stand out, and each line holding one of the given fragments marked as the
+ * line a passage points at.
+ */
+function lines(
+  text: readonly string[],
+  marked: readonly string[] = [],
+): ReactElement[] {
   return text.map(
     (line: string, index: number): ReactElement => (
       <span
@@ -409,7 +425,9 @@ function lines(text: readonly string[]): ReactElement[] {
         className={
           line.includes("@evidence") || line.startsWith(" *   ")
             ? "am-line-evidence"
-            : undefined
+            : marked.some((m: string): boolean => line.includes(m))
+              ? "am-line-mark"
+              : undefined
         }
       >
         {line}

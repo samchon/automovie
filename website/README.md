@@ -7,7 +7,7 @@ The public site at [samchon.github.io/automovie](https://samchon.github.io/autom
 | `/` | The landing page: one scene followed from its brief to its frames |
 | `/docs/` | The guide, for the person who makes a film: setup, the screenplay and its evidence graph, motion as code and delivery |
 | `/reference/` | The reference, for a developer or a coding agent: the packages, the CLI, the evidence configuration and the motion API |
-| `/api/` | The API reference of every package, which `pnpm run typedoc` generates with TypeDoc into `public/api/` before each build |
+| `/api/` | The API reference of every library package (the `automovie` CLI is a program and is left out), which `pnpm run typedoc` generates with TypeDoc into `public/api/` before each build |
 | `/scenes/`, `/scenes/<id>/` | The scene gallery, and each scene with its player, code, timeline and takes |
 | `/motions/`, `/motions/<name>/` | The motion catalogue by category and family, and each motion with its take and parameters |
 | `/archetypes/` | Every archetype of `@automovie/archetypes`, and one archetype's page with its specs and controls |
@@ -22,7 +22,7 @@ The site is a member of the pnpm workspace and depends on the packages as `works
 
 ```bash
 pnpm install                                  # at the repository root
-pnpm --filter @automovie/website typedoc      # the API reference of every package, into public/api/
+pnpm --filter @automovie/website typedoc      # the API reference of the library packages, into public/api/
 pnpm --filter @automovie/website bake         # the takes and stills, into public/baked/
 pnpm --filter @automovie/website dev          # Next at http://localhost:3000/automovie/
 pnpm --filter @automovie/website build        # checks, TypeDoc, bake, then the static export into out/

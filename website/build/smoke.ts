@@ -125,21 +125,6 @@ const hoverCard: (page: Page, problems: string[]) => Promise<void> = async (
   }
 };
 
-/** The landing page's bench draws its scene once scrolled to. */
-const benchDraws: (page: Page, problems: string[]) => Promise<void> = async (
-  page: Page,
-  problems: string[],
-): Promise<void> => {
-  await page.locator(".am-bench").scrollIntoViewIfNeeded();
-  try {
-    await page
-      .locator(`.am-bench ${DRAWN}`)
-      .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
-  } catch {
-    problems.push("the landing page's bench did not draw its scene");
-  }
-};
-
 const CASES: readonly ICase[] = [
   {
     name: "landing plays its screenplay beside its take",
@@ -150,10 +135,10 @@ const CASES: readonly ICase[] = [
       '.am-script-beats li[data-active="true"]',
       ".am-graph svg",
       'a[href="/automovie/scenes/"]',
+      ".am-motion-code .am-line-mark",
     ],
-    lacks: [".am-scene-view-note.am-danger-text"],
-    contexts: 1,
-    check: benchDraws,
+    lacks: [".am-scene-view"],
+    contexts: 0,
   },
   {
     name: "landing under reduced motion holds its figures",

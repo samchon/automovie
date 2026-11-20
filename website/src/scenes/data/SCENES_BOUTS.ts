@@ -25,7 +25,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "kickboxing-round",
       title: "Kickboxing round",
       summary:
-        "Two kickboxers trade a round: a jab parried, a cross slipped and a low kick checked; the counter jab is taken on the gloves and the rear hook leaned away from; a lead hook and an uppercut are covered, a clinch and a knee land, a teep pushes the first fighter back a step, and both circle off into guard.",
+        "Two kickboxers trade a round: a jab parried, a cross slipped and a low kick checked; the counter jab is taken on the gloves and the rear hook leaned away from; a lead hook and an uppercut are covered, the first fighter clinches and knees at once, the knee is checked and the second fighter breaks away, a teep pushes the first fighter back a step, and both circle off into guard.",
       setting: "combat",
       roles: { red: "kickboxer", blu: "kickboxer" },
       needs: [],
@@ -59,9 +59,9 @@ export const SCENES_BOUTS: readonly IScene[] = [
         ),
         act("leadHook", { at: at("blu", "jawRight") }, { anchor: "kr-hook" }),
         act("rearUppercut", { at: at("blu", "chin") }, { anchor: "kr-upper" }),
-        act("clinch", { partner: "blu" }),
+        act("clinch", { partner: "blu", hold: 0.2 }),
         act("rearKnee", { at: at("blu", "abdomen") }, { anchor: "kr-knee" }),
-        act("guard", { seconds: 0.8, style: "kickboxing" }),
+        act("guard", { seconds: 0.5, style: "kickboxing" }),
         act(
           "pushed",
           { from: at("blu", "soleRight") },
@@ -100,11 +100,8 @@ export const SCENES_BOUTS: readonly IScene[] = [
         act("step", { direction: "back", steps: 1 }),
         act("cover", { against: "kr-hook" }),
         act("cover", { against: "kr-upper" }),
-        act(
-          "flinch",
-          { from: at("red", "kneeRight"), intensity: 0.7 },
-          { sync: { of: "kr-knee" } },
-        ),
+        act("checkKick", { against: "kr-knee" }),
+        act("step", { direction: "back", steps: 1 }),
         act(
           "teep",
           { at: at("red", "abdomen") },
