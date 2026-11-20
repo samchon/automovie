@@ -5,6 +5,7 @@ export * from "./createBeerTap";
 export * from "./createBin";
 export * from "./createBoard";
 export * from "./createCellFront";
+export * from "./createClimbingHold";
 export * from "./createControl";
 export * from "./createDoor";
 export * from "./createElevator";
