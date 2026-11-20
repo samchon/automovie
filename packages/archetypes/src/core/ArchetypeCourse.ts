@@ -461,12 +461,14 @@ export namespace ArchetypeCourse {
   }
 
   /**
-   * A course read from a timed path: the support passes through each sample's point at its second, with continuous speed and heading.
+   * A timed course passes through every position at its film second, with continuous speed and heading.
+   * Equal consecutive positions hold at zero speed. An interior hold requires
+   * a common arrival and departure direction to preserve its standing pose.
    *
    * @param archetype The name a refusal carries.
    * @param samples The samples, at least two, their seconds strictly increasing.
    * @returns The plan; the rides read it like any course, and refuse it where it bends or goes faster than they allow, naming the second.
-   * @throws {ArchetypeRefusal} When there are fewer than two samples, a value is not finite, or the seconds do not increase.
+   * @throws {ArchetypeRefusal} When there are fewer than two samples, a value is not finite, seconds do not increase, or an interior hold cannot preserve its facing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the plan does with the samples and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation `ArchetypeCourseTimed.plan`: a C1 cubic Hermite interpolation of each coordinate in time.
