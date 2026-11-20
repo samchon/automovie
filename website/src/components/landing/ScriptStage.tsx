@@ -94,7 +94,7 @@ export function ScriptStage(props: { film: ILandingFilm }): ReactElement {
                   width: `${((to - from) / now.duration) * 100}%`,
                 }}
               >
-                {film.beats[index]!.anchor}
+                {film.beats[index]!.anchor.replace(/^s\d+-/, "")}
               </span>
             ),
           )}

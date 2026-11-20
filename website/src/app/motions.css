@@ -293,6 +293,35 @@
   font-weight: 600;
 }
 
+/* On a phone a parameter is a block: its name and type on one line, its
+   meaning below, so no column is squeezed to a few letters. */
+@media (max-width: 640px) {
+  .am-params thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .am-params tr {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.35rem 0.75rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--am-border);
+  }
+
+  .am-params td {
+    padding: 0;
+    border: 0;
+  }
+
+  .am-params td:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 900px) {
   .am-indexed {
     grid-template-columns: minmax(0, 1fr);

@@ -167,6 +167,11 @@ article h1 {
   margin-top: var(--am-space-3);
 }
 
+/* A label heading a stack sits on its own line, above what it labels. */
+.am-stack > .am-label {
+  display: block;
+}
+
 /* A live region stays mounted while it has nothing to say, taking no room. */
 .am-stack > [role="status"]:empty {
   margin-top: 0;
@@ -472,4 +477,11 @@ div:has(> footer) {
   font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
   font-weight: 400;
   letter-spacing: -0.01em;
+}
+
+/* The title over a table a docs page draws from a package, as a caption
+   would be, outside the table so the table can scroll on its own. */
+.am-table-title {
+  margin: 1.25em 0 0.5em;
+  font-weight: 600;
 }

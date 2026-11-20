@@ -183,6 +183,7 @@
 .am-app .am-transport-scrub {
   flex: 1 1 10rem;
   width: auto;
+  min-height: 1.5rem;
 }
 
 .am-transport-time {
@@ -350,7 +351,9 @@
 }
 
 .am-tags a {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
   padding: 0.1rem 0.5rem;
   border: 1px solid var(--am-border);
   border-radius: 999px;

@@ -368,6 +368,11 @@ article:has(> main > .am-app) {
   padding: 1rem 1.15rem 1.25rem;
   overflow-x: auto;
   font: 0.8125rem/1.65 var(--am-font-mono);
+  white-space: pre-wrap;
+}
+
+/* Code keeps its lines and scrolls; a Markdown document wraps like prose. */
+.am-doc-code {
   white-space: pre;
 }
 
