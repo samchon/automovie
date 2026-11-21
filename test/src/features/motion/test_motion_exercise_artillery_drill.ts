@@ -10,7 +10,6 @@ import {
   Vector3,
 } from "@automovie/engine";
 import type {
-  IAutoMovieAffordance,
   IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGunCrew,
@@ -220,26 +219,12 @@ export function test_motion_exercise_artillery_drill(): void {
   checks.assert("artillery drill");
 }
 
-/** The field sponge and rammer, its heads named as the drill inserts them: `sponge` the wool head, `rammer` the wooden one. */
+/** The field sponge and rammer, its `sponge` and `rammer` heads as the drill inserts them. */
 function rammer(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
-  const model: ReturnType<typeof createLongTool> = createLongTool({
-    kind: "spongeRammer",
-  });
-  const placed: IAutoMovieMotionHumanProp = HumanObject.prop("rammer", model, {
+  return HumanObject.prop("rammer", createLongTool({ kind: "spongeRammer" }), {
     position: at,
     rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
   });
-  const heads: IAutoMovieAffordance[] = (placed.affordances ?? [])
-    .filter(
-      (a: IAutoMovieAffordance): boolean => a.id === "tip" || a.id === "face",
-    )
-    .map(
-      (a: IAutoMovieAffordance): IAutoMovieAffordance => ({
-        ...a,
-        id: a.id === "tip" ? "sponge" : "rammer",
-      }),
-    );
-  return { ...placed, affordances: [...(placed.affordances ?? []), ...heads] };
 }
 
 /** A small hand-held stage piece with a `grip` and a `tip`: the priming wire or the friction primer. */

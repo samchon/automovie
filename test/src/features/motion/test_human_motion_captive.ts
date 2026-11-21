@@ -197,7 +197,7 @@ export function test_human_motion_captive(): void {
   checks.assert("captive");
 }
 
-/** One binding laid on a stand beside the chair, held by its `hold`. */
+/** One binding coiled at the captor's belt, held by its `hold`. */
 function binding(subject: string, k: number): IAutoMovieMotionHumanProp {
   const hold: IAutoMovieAffordance = {
     id: "hold",
@@ -210,10 +210,7 @@ function binding(subject: string, k: number): IAutoMovieMotionHumanProp {
   };
   return {
     subject,
-    frame: {
-      position: { x: 0.75 + 0.08 * k, y: 0.9, z: 0.35 },
-      rotation: Quaternion.identity(),
-    },
+    frame: { position: { x: 0, y: 0, z: 0 }, rotation: Quaternion.identity() },
     points: {
       hold: { point: hold.frame.translation, normal: { x: 0, y: 1, z: 0 } },
     },
@@ -230,5 +227,14 @@ function binding(subject: string, k: number): IAutoMovieMotionHumanProp {
         },
       },
     ],
+    // Coiled at the captor's belt until it is taken up.
+    worn: {
+      subject: "c",
+      bone: "hips",
+      offset: {
+        position: { x: -0.16 - 0.06 * k, y: 0, z: 0.1 },
+        rotation: Quaternion.identity(),
+      },
+    },
   };
 }

@@ -112,7 +112,7 @@ export function test_motion_exercise_artillery_take(): void {
             subject,
             mark,
             offset,
-            gaze: { target: { kind: "prop", subject: "gun", point: "muzzle" } },
+            gaze: { target: { kind: "prop", subject: "gun", point: "muzzle" }, cue: "seen" },
           }),
         ),
       ),

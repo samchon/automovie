@@ -17,7 +17,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanHand } from "../posture/HumanHand";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { collapse } from "./collapse";
 
@@ -179,7 +178,7 @@ export namespace stopDropRoll {
   }
 }
 
-/** A hand over the face, in the head's frame: the palm on the cheek, the fingers up. */
+/** A hand over the face, in the head's frame: the wrist below the cheek and the elbow out, the hand's attitude left to the fit. */
 function face(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -189,10 +188,6 @@ function face(
   return {
     point: { x: out * 0.6 * head, y: -1.1 * head, z: 1.1 * head },
     bend: { x: out * 2.5 * head, y: -3 * head, z: 0.5 * head },
-    rotation: HumanHand.rotation(side, {
-      fingers: { x: 0, y: 1, z: 0 },
-      palm: { x: 0, y: 0, z: -1 },
-    }),
     on: "head",
   };
 }

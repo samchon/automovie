@@ -1,4 +1,8 @@
-import { createBow, createProjectile } from "@automovie/archetypes";
+import {
+  createBow,
+  createProjectile,
+  createTable,
+} from "@automovie/archetypes";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -19,6 +23,8 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** The counter top above the floor, metres: the website's counter band middle. */
+const TOP: number = 0.914;
 /** The target, world metres. */
 const TARGET: IAutoMovieVector3 = { x: 0, y: 1.4, z: 15 };
 /** The bolt's authored flight speed after the cue, metres per second: a crossbow bolt's typical speed. */
@@ -58,9 +64,9 @@ export function test_motion_exercise_crossbow_take(): void {
       const bolt: ReturnType<typeof createProjectile> = createProjectile({
         kind: "bolt",
       });
-      const stature: number = body.measure.stature / 1.75;
+      // The loaded crossbow lies on a counter in front of the shooter.
       const placed: IAutoMovieRigidTransform = {
-        position: { x: 0, y: 0.95 * stature, z: 0.4 * stature },
+        position: { x: 0, y: TOP + 0.03, z: 0.42 },
         rotation: Quaternion.identity(),
       };
       const loaded: IAutoMovieMotionHumanProp = {

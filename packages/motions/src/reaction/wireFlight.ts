@@ -307,7 +307,12 @@ export namespace wireFlight {
           projection,
         );
         for (const p of placed) {
-          const w: number = Math.max(0, 1 - Math.abs(seconds_ - p.at) / window);
+          // Full on its surface for the plateau the contact spans, ramping in
+          // and out over `window` on either side of it.
+          const w: number = Math.min(
+            1,
+            Math.max(0, 1 - (Math.abs(seconds_ - p.at) - window / 4) / window),
+          );
           if (w <= 0) continue;
           const limb: AutoMovieHumanLimb = `${p.touch.part.startsWith("left") ? "left" : "right"}${p.leg ? "Leg" : "Arm"}`;
           posture = mixHumanPosture(
@@ -401,8 +406,8 @@ export namespace wireFlight {
       pitch: 0,
       joints: {
         neck: [25, 0, 0],
-        leftUpperArm: [5, 8, 0],
-        rightUpperArm: [5, 8, 0],
+        leftUpperArm: [5, 20, 0],
+        rightUpperArm: [5, 20, 0],
         leftLowerArm: [15, 0, 0],
         rightLowerArm: [15, 0, 0],
         leftUpperLeg: [10, 3, 0],

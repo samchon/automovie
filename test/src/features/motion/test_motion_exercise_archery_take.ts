@@ -1,4 +1,8 @@
-import { createBow, createProjectile } from "@automovie/archetypes";
+import {
+  createBow,
+  createProjectile,
+  createTable,
+} from "@automovie/archetypes";
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -20,6 +24,8 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
+/** The counter top above the floor, metres: the website's counter band middle. */
+const TOP: number = 0.914;
 /** The archer's target, world metres: a butt down range. */
 const TARGET: IAutoMovieVector3 = { x: 0, y: 1.4, z: 12 };
 /** The arrow's authored flight speed after the cue, metres per second: a recurve's typical arrow speed. */
@@ -68,15 +74,24 @@ export function test_motion_exercise_archery_take(): void {
       const arrow: ReturnType<typeof createProjectile> = createProjectile({
         kind: "arrow",
       });
-      const stature: number = body.measure.stature / 1.75;
       const props: IAutoMovieMotionHumanProp[] = [
+        // The bow and the arrow lie on a counter in front of the archer.
+        HumanObject.prop(
+          "counter",
+          createTable({ id: "counter", kind: "counter" }),
+          {
+            at: { x: 0, y: 0, z: 0.65 },
+            yaw: 180,
+            fixed: true,
+          },
+        ),
         HumanObject.prop("bow", bow, {
-          position: { x: 0.25 * stature, y: 0.95 * stature, z: 0.35 * stature },
-          rotation: Quaternion.identity(),
+          position: { x: 0.2, y: TOP + 0.03, z: 0.42 },
+          rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
         }),
         HumanObject.prop("arrow", arrow, {
-          position: { x: -0.3 * stature, y: 0.95 * stature, z: 0.35 * stature },
-          rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+          position: { x: -0.25, y: TOP + 0.01, z: 0.42 },
+          rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
         }),
         carrier(),
       ];

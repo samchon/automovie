@@ -21,7 +21,7 @@ import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The wall's face plane, metres along +x from the flight's line. */
-const WALL: number = 0.75;
+const WALL: number = 0.7;
 /** A foot meets its surface within this, metres: a sole's thickness. */
 const SOLE: number = 0.05;
 /** The rise of a lifted body, metres. */
