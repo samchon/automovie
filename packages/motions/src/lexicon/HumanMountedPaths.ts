@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -283,6 +284,54 @@ export namespace HumanMountedPaths {
       if (planted[side] && figure.supports?.[`${side}Foot`] === undefined)
         limbs[`${side}Leg`] = hangMountedLeg(body, entry, side);
     return { ...entry, limbs };
+  }
+
+  /**
+   * The contact window a figure's supporting part holds on the carrier: a grip for a hand, a plant for a sole, a knee bearing on its region, the right thigh bearing over its bar.
+   *
+   * @param part The supporting part.
+   * @param on The carrier's subject id.
+   * @returns The window over the whole performance, which the clock then cuts.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each part's window.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A table read.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One choice per part.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new window.
+   */
+  export function window(
+    part: HumanMountedSeats.Part,
+    on: string,
+  ): IAutoMovieMotionHumanContactWindow {
+    const support: IAutoMovieMotionHumanContactWindow["support"] = {
+      kind: "prop",
+      subject: on,
+    };
+    if (part === "leftHand" || part === "rightHand")
+      return { part, kind: "grip", from: 0, to: 1, support };
+    if (part === "leftFoot" || part === "rightFoot")
+      return { part, kind: "plant", from: 0, to: 1, support };
+    if (part === "leftKnee")
+      return {
+        part: "leftLowerLeg",
+        kind: "bear",
+        from: 0,
+        to: 1,
+        support,
+        region: "kneeLeft",
+      };
+    if (part === "rightKnee")
+      return {
+        part: "rightLowerLeg",
+        kind: "bear",
+        from: 0,
+        to: 1,
+        support,
+        region: "kneeRight",
+      };
+    return { part: "rightUpperLeg", kind: "bear", from: 0, to: 1, support };
   }
 
   /**

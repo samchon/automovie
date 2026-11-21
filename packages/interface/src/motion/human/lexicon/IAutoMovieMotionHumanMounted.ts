@@ -15,7 +15,7 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * the seat or a hand on the same contact, so weight passes to the next
  * support before the last is released.
  *
- * @evidence contracts/development/common.md#meaningful-documentation on: The moving prop's subject id. frame: The carrier contact whose frame the figures are planned in. figures: The ordered seat figures, at least one, the last seated. stride: The carrier's stride time, seconds, which levels the pelvis out of the saddle and times a hand ride. respond: The share of the carrier's pitch and roll the trunk leans against.
+ * @evidence contracts/development/common.md#meaningful-documentation on: The moving prop's subject id. frame: The carrier contact whose frame the figures are planned in. figures: The ordered seat figures, at least one, the last seated. stride: The carrier's stride time, seconds, which levels the pelvis out of the saddle and times a hand ride. respond: The share of the carrier's pitch and roll the trunk leans against. aids: The rider's aids. aided: The transitions that each need an aid.
  * @evidence contracts/development/design.md#principled-representation A closed seat vocabulary with named supports per figure and seconds per transfer and hold; the carrier and its contacts are named, never described.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanMounted` and its generated schema.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No mount geometry, gait or contact position is supplied by the author; every support is one of the carrier's declared contacts.
@@ -48,6 +48,12 @@ export interface IAutoMovieMotionHumanMounted {
    * stays carried on the saddle. None when absent.
    */
   respond?: number;
+
+  /** The rider's aids, each cueing the carrier's transitions on a cue track; none when absent. */
+  aids?: IAutoMovieMotionHumanMounted.IAid[];
+
+  /** A cue track of the carrier's transitions that each need an aid: a transition on it that no aid cues is refused. Unaided riding when absent. */
+  aided?: string;
 }
 
 /**
@@ -156,6 +162,53 @@ export namespace IAutoMovieMotionHumanMounted {
     | "twoPoint"
     | "crouch"
     | "standing";
+
+  /**
+   * A rider's aid: a movement of the hands, legs, seat or voice the carrier answers, made `latency` seconds before each instant of the cue track `cue`, the carrier's transitions, and released once the carrier has answered.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation kind: The aid. side: The hand or leg that gives it, both when absent. cue: The cue track of the transitions it cues, film seconds. latency: Seconds from the aid's onset to the transition, more than none.
+   * @evidence contracts/development/design.md#principled-representation A closed aid vocabulary, a side, a cue track and a latency in seconds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `HumanMounted`'s aids.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The transitions are the carrier's own published instants; the latency is the author's.
+   */
+  export interface IAid {
+    /** The aid. */
+    kind: Aid;
+
+    /** The hand or leg that gives it; both when absent. A seat or voice aid has none. */
+    side?: AutoMovieHumanSide;
+
+    /** The cue track whose instants, film seconds, are the transitions the aid cues. */
+    cue: string;
+
+    /** Seconds from the aid's onset to the transition it cues, more than none. */
+    latency: number;
+  }
+
+  /**
+   * A rider's aid:
+   *
+   * - `squeeze`: the lower leg closes on the horse, the heel drawn in about the ball on the stirrup;
+   * - `kick`: the heel lifts and comes back about the ball;
+   * - `takeUp`: the rein hand draws the rein back toward the rider, then gives it back;
+   * - `openRein`: the rein hand moves out from the neck on its side;
+   * - `neckRein`: the rein hand lays the rein across the neck toward the other side;
+   * - `seat`: the pelvis tips back, a weight shift into the saddle;
+   * - `voice`: a spoken cue, marked as an event with no movement.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Lists each aid and what moves.
+   * @evidence contracts/development/design.md#principled-representation A closed literal union.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The aids `HumanMounted` gives.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type Aid =
+    | "squeeze"
+    | "kick"
+    | "takeUp"
+    | "openRein"
+    | "neckRein"
+    | "seat"
+    | "voice";
 
   /**
    * Where a second falls on a mounted performance's clock.
