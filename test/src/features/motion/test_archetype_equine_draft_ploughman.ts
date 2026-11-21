@@ -29,6 +29,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Hips progress samples over the rehearsed walk. */
@@ -64,6 +65,7 @@ interface IMatched {
  * 2. Through the held interval each displayed palm lies within 10 mm of the skin of its plough grip, read from the posed plough.
  * 3. At the same seconds the ploughman's soles bear on the ground and never sink below it, while the share runs its 0.15 m below.
  * 4. The driving lines run from the horse's bit rings over the ploughman's left shoulder.
+ * 5. The take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios, the bodies and the tolerances.
  * @evidence contracts/development/testing.md#behavioral-verification Composes a horse, a dragged plough and a walking ploughman through public APIs and reads displayed palms, soles and the plough's share; a hand off its grip, a sinking foot or a shallow share fails.
@@ -250,6 +252,7 @@ export function test_archetype_equine_draft_ploughman(): void {
     issues,
     [],
   );
+  if (film !== undefined) assertTakeClean("the ploughman's take", film);
 }
 
 /** Fit a trapezoidal speed profile to a rehearsed walk's progress samples. */

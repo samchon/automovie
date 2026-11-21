@@ -36,6 +36,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The seconds a performer has to take its seat before the team moves off. */
@@ -52,6 +53,7 @@ const TOLERANCE: number = 0.01;
  * 2. At departure, mid-turn and the turn's exit the driver's seat socket lies within 10 mm of the box's seat rectangle and each palm within 10 mm of the skin of its reins.
  * 3. At the same seconds the postilion's seat socket lies within 10 mm of the near wheeler's saddle seat rectangle.
  * 4. A charioteer stands on a pair's chariot floor, carried by it: at the same course seconds each sole lies within 10 mm of the floor rectangle.
+ * 5. Each take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios, the bodies and the tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Composes a team, a seated driver and a seated postilion through public APIs and reads displayed seat and palm sockets against the posed box, the laid reins and the posed saddle; a driver left behind, a hand off its reins or a rider off the saddle fails.
@@ -337,6 +339,12 @@ export function test_archetype_equine_draft_driver(): void {
     issues,
     [],
   );
+  for (const [label, take] of [
+    ["the box driver's take", driver],
+    ["the postilion's take", postilion],
+    ["the charioteer's take", charioteer],
+  ] as const)
+    if (take !== undefined) assertTakeClean(label, take);
 
   /** Seat a performer from the ground beside its seat and ride the support for the take. */
   function perform<Id extends string, D extends string>(
