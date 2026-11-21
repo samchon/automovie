@@ -182,12 +182,15 @@ function plan(
         feet[lead].ankle,
         Vector3.scale(shift, travel),
       );
-      // The step's travel is over by the last third of the recovery, which
-      // only sets the foot down.
+      // The step lifts the foot off in the first third of the recovery,
+      // travels in the middle third and only sets it down in the last.
       const step: number = minimumJerk.share(
         Math.min(
           1,
-          Math.max(0, (time - to) / ((settle - to) * (1 - TERMINAL))),
+          Math.max(
+            0,
+            ((time - to) / (settle - to) - TERMINAL) / (1 - 2 * TERMINAL),
+          ),
         ),
       );
       const swing: number = Math.sin(Math.PI * Math.min(1, trailing)) ** 2;

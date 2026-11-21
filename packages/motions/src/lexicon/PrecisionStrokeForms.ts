@@ -176,10 +176,6 @@ export namespace PrecisionStrokeForms {
       contact,
       Vector3.scale(working, props.tool),
     );
-    const shoulder: IAutoMovieVector3 = Vector3.subtract(
-      grip,
-      Vector3.scale(working, ARM * reach(props.body)),
-    );
     const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     const bones: ReturnType<typeof poseBones> = poseBones(
       props.body,
@@ -196,6 +192,27 @@ export namespace PrecisionStrokeForms {
           ? left
           : right
         : Vector3.scale(Vector3.add(left, right), 0.5);
+
+    // The shoulder stands at its own height, so it lies the arm's reach from
+    // the grip with the rest of that reach across the floor, back along the
+    // implement's line; a grip lower than the reach below the shoulder is
+    // reached by the address's hip hinge, and the shoulder then stands over
+    // the line's own horizontal run.
+    const span: number = ARM * reach(props.body);
+    const drop: number = offset.y - grip.y;
+    const back: IAutoMovieVector3 = Vector3.normalize({
+      x: -working.x,
+      y: 0,
+      z: -working.z,
+    });
+    const across: number =
+      Math.abs(drop) < span
+        ? Math.sqrt(span * span - drop * drop)
+        : span * Math.hypot(working.x, working.z);
+    const shoulder: IAutoMovieVector3 = Vector3.add(
+      grip,
+      Vector3.scale(back, across),
+    );
     return { x: shoulder.x - offset.x, y: 0, z: shoulder.z - offset.z };
   }
 

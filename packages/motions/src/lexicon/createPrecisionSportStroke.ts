@@ -469,6 +469,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
             side,
             context.entry.pose,
             clock,
+            HumanHand.frame(body, entryBones, side, "grip").point,
             form.oneHand === true || held === undefined ? undefined : guide,
           );
     },

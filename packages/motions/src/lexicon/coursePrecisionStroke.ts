@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -5,6 +6,7 @@ import type {
   IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanBody,
   IAutoMoviePose,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -32,6 +34,7 @@ const GRASP: NonNullable<IAutoMovieMotionHumanArmCarry.ICarry["grasp"]> = [
  * @param side The striking arm.
  * @param entry The pose the stroke starts from, whose arm angles the reach leaves.
  * @param clock The stroke's clock.
+ * @param hand The striking hand's grip point at the entry, world metres, where the reach to the backswing starts.
  * @param second The other hand on the implement; none for a one-handed stroke.
  * @returns The plan with its arms written by the course.
  * @throws {HumanRefusal} When no arm course meets the trajectory's constraints, as the plan is composed.
@@ -50,6 +53,7 @@ export function coursePrecisionStroke(
   side: AutoMovieHumanSide,
   entry: IAutoMoviePose,
   clock: IAutoMovieMotionClock,
+  hand: IAutoMovieVector3,
   second?: AutoMovieHumanSide,
 ): IAutoMovieMotionHumanActionPlan {
   let fastest: number | undefined;
@@ -65,10 +69,20 @@ export function coursePrecisionStroke(
       end: clock.duration,
     },
     pace: (): number =>
-      (fastest ??= precisionStrokePeak(
-        plan.posture,
-        `${side}Arm`,
-        clock.duration,
+      (fastest ??= Math.max(
+        precisionStrokePeak(plan.posture, `${side}Arm`, clock.duration),
+        // The reach from the entry to the backswing, a minimum-jerk
+        // movement over the stroke's preparation: its peak is 15/8 of its
+        // mean speed.
+        (15 / 8) *
+          (Vector3.length(
+            Vector3.subtract(
+              plan.posture(clock.at("ready")).limbs[`${side}Arm`]?.point ??
+                hand,
+              hand,
+            ),
+          ) /
+            clock.at("ready")),
       )),
     ...(second === undefined
       ? {}
