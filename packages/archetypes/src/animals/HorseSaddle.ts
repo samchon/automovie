@@ -275,6 +275,112 @@ export namespace HorseSaddle {
     });
   }
 
+  /** A trick saddle's fittings, metres: the horn's height over the pommel, a side strap's drop below the seat and the hippodrome strap's height over it; estimates, no source read gives them. */
+  export const TRICK: Readonly<{
+    horn: number;
+    strap: number;
+    hippodrome: number;
+  }> = {
+    horn: 0.12,
+    strap: 0.25,
+    hippodrome: 0.03,
+  };
+
+  /**
+   * Lay a trick rider's fittings on the riding saddle: a tall horn over the pommel, a handhold on each side of it, a foot strap hanging on each side for the drags and a hippodrome strap across the seat that a standing rider's feet go under. Lay the saddle first.
+   *
+   * @param builder The equid under construction, its saddle laid.
+   * @param d The equid's dimensions.
+   * @param rig The equid's rest rig.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what it adds and where.
+   * @evidence contracts/development/implementation.md#principled-implementation Each fitting placed from the saddle's own top, pommel and barrel.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One fitting at a time.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The sizes are named estimates; the fittings carry no mass, none read.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A few parts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one set.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function trick(
+    builder: ArchetypeBuilder<createHorse.Affordance, createHorse.Dimension>,
+    d: Readonly<Record<createHorse.Dimension, number>>,
+    rig: createHorse.IRig,
+  ): void {
+    const v: typeof Vector3.create = Vector3.create;
+    const top: number = rig.back + 0.04;
+    const pommel: number = rig.hitch.z + d.seatSize / 2;
+    const hornTop: number = top + 0.03 + TRICK.horn;
+    builder.rod(
+      "horn",
+      0.015,
+      v(0, top + 0.03, pommel),
+      v(0, hornTop, pommel),
+      {
+        color: "#4a3324",
+        share: 0,
+      },
+    );
+    builder.affordance({
+      id: "horn",
+      kind: "handle",
+      symmetry: "round",
+      frame: ArchetypeFrame.upright(v(0, hornTop, pommel)),
+      extent: null,
+      grip: "power",
+      aperture: 0.03,
+      length: 0.08,
+    });
+    for (const [side, sign] of [
+      ["left", 1],
+      ["right", -1],
+    ] as const) {
+      builder.affordance({
+        id: `${side}Handhold`,
+        kind: "handle",
+        symmetry: "none",
+        frame: ArchetypeFrame.upright(v(sign * (SEAT_WIDTH / 2), top, pommel)),
+        extent: null,
+        grip: "power",
+        aperture: 0.03,
+        length: 0.1,
+      });
+      const x: number = sign * (rig.barrel + 0.03);
+      const strap: IAutoMovieVector3 = v(x, top - TRICK.strap, pommel);
+      builder.rod(`strap-${side}`, 0.008, v(x, top - 0.02, pommel), strap, {
+        color: "#4a3324",
+        share: 0,
+      });
+      builder.affordance({
+        id: `${side}Strap`,
+        kind: "stirrup",
+        frame: ArchetypeFrame.upright(strap),
+        extent: null,
+        width: 0.1,
+        length: TRICK.strap,
+      });
+    }
+    const middle: number = rig.hitch.z;
+    const over: number = top + TRICK.hippodrome;
+    builder.rod(
+      "hippodrome",
+      0.008,
+      v(-SEAT_WIDTH / 2, over, middle),
+      v(SEAT_WIDTH / 2, over, middle),
+      {
+        color: "#4a3324",
+        share: 0,
+      },
+    );
+    builder.affordance({
+      id: "hippodrome",
+      kind: "stirrup",
+      frame: ArchetypeFrame.upright(v(0, top, middle)),
+      extent: null,
+      width: SEAT_WIDTH,
+      length: TRICK.hippodrome,
+    });
+  }
+
   /**
    * Lay the lead rope's held run beside the head on the equid's left, up to the halter, with its `lead` contact.
    *

@@ -11,6 +11,8 @@ import type { IAutoMovieMotionHumanPolo } from "./IAutoMovieMotionHumanPolo";
 import type { IAutoMovieMotionHumanBoard } from "./IAutoMovieMotionHumanBoard";
 import type { IAutoMovieMotionHumanClasp } from "./IAutoMovieMotionHumanClasp";
 import type { IAutoMovieMotionHumanDrape } from "./IAutoMovieMotionHumanDrape";
+import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
+import type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -64,4 +66,10 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Lie limp across a saddle, carried. */
   HumanDrape: IAutoMovieMotionHumanDrape;
+
+  /** Perform trick-riding figures on a moving horse's trick saddle. */
+  HumanTrick: IAutoMovieMotionHumanTrick;
+
+  /** Stand with one foot on each of two horses moving side by side. */
+  HumanRoman: IAutoMovieMotionHumanRoman;
 }
