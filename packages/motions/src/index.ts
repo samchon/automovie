@@ -521,3 +521,4 @@ export * from "./dressing/dressPartner";
 export * from "./touch/composeHumanCare";
 export * from "./tasks/composeHumanToolWork";
 export * from "./daily/composeHumanBathing";
+export * from "./everyday/composeHumanRitual";

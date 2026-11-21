@@ -30,6 +30,9 @@ export namespace composeHumanRitual {
   /** How long each touch of the sign of the cross rests, seconds (provisional). */
   export const TOUCH_HOLD: number = 0.15;
 
+  /** How far from a region's centre the sign of the cross may land, metres: the patch a fingertip touch reaches (provisional). */
+  export const SITE: number = 0.06;
+
   /** How long a genuflection rests on the knee, seconds (provisional). */
   export const GENUFLECT_HOLD: number = 0.4;
 
@@ -67,6 +70,9 @@ export namespace composeHumanRitual {
           kind: "hold",
           with: "fingertips",
           hold: TOUCH_HOLD,
+          // The patch of each region nearest the signing shoulder: the front
+          // of the shoulder a hand reaches across the chest, not its top.
+          site: { rule: "reach", within: SITE },
         }),
       chain,
     );
