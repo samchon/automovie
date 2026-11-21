@@ -16,6 +16,7 @@ import type {
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieScheduleEntry,
   IAutoMovieVector3,
@@ -123,13 +124,13 @@ export function test_motion_exercise_artillery_drill(): void {
         yaw: 0,
         fixed: true,
       }),
-      rammer(Vector3.add(STATIONS.n1, { x: 0.35, y: 0.9, z: 0.2 })),
+      rammer(Vector3.add(STATIONS.n1, { x: -0.2, y: 0.95, z: 0.35 })),
       HumanObject.prop("charge", createProjectile({ kind: "cartridge" }), {
-        at: Vector3.add(STATIONS.n5, { x: 0.3, y: 0.85, z: 0.35 }),
+        at: Vector3.add(STATIONS.n5, { x: -0.22, y: 0.85, z: 0.35 }),
         yaw: 0,
       }),
-      small("wire", Vector3.add(STATIONS.n3, { x: 0.3, y: 0.9, z: 0.3 })),
-      small("primer", Vector3.add(STATIONS.n4, { x: -0.3, y: 0.9, z: 0.3 })),
+      small("wire", Vector3.add(STATIONS.n3, { x: -0.22, y: 0.9, z: 0.3 })),
+      small("primer", Vector3.add(STATIONS.n4, { x: -0.22, y: 0.9, z: 0.3 })),
       lanyard(Vector3.add(vent, { x: -0.4, y: -0.2, z: -0.3 })),
     ];
     const taking: IAutoMovieComposition = AutoMovieComposition.parallel(
@@ -219,11 +220,24 @@ export function test_motion_exercise_artillery_drill(): void {
   checks.assert("artillery drill");
 }
 
-/** The field sponge and rammer, its `sponge` and `rammer` heads as the drill inserts them. */
+/** The field sponge and rammer, its `sponge` and `rammer` heads as the drill inserts them, leaning so its shaft's grip lies at a point. */
 function rammer(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
-  return HumanObject.prop("rammer", createLongTool({ kind: "spongeRammer" }), {
-    position: at,
-    rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
+  const model: ReturnType<typeof createLongTool> = createLongTool({
+    kind: "spongeRammer",
+  });
+  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 1, y: 0, z: 0 },
+    75,
+  );
+  return HumanObject.prop("rammer", model, {
+    position: Vector3.subtract(
+      at,
+      Quaternion.rotateVector(
+        rotation,
+        model.affordance("shaft").frame.translation,
+      ),
+    ),
+    rotation,
   });
 }
 

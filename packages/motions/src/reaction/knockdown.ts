@@ -31,6 +31,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
+import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
 
 /**
@@ -233,6 +234,8 @@ export namespace knockdown {
             limbs: {},
           },
           [
+            // The feet stay planted where they stood until the seat lands.
+            ...ReactionFeet.plants(SEATED / duration),
             {
               part: "seat",
               kind: "seat",
@@ -311,6 +314,9 @@ export namespace knockdown {
           delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
             KnockdownFloor.fold(fitted, sit(seconds), back(seconds)).joints,
         }),
+        // The fold turns and pitches the body about its root; the feet stay
+        // flat where they stood until the seat lands, so no heel skates.
+        ReactionFeet.planted(context.entry, SEATED, 0.5 * body.measure.hipHeight),
       ],
     });
     // The fold has reached its grounded endpoint at "down"; an authored

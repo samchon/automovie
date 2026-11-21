@@ -27,6 +27,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { CollapseFold } from "./CollapseFold";
 import { KnockdownFloor } from "./KnockdownFloor";
+import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
 import { knockdown } from "./knockdown";
 
@@ -203,7 +204,10 @@ export namespace collapse {
               joints: {},
               limbs: {},
             },
-            contacts(direction, tone, side, kneel, down, duration),
+            [
+              ...ReactionFeet.plants(kneel / duration),
+              ...contacts(direction, tone, side, kneel, down, duration),
+            ],
           ),
         },
         clock,
@@ -270,6 +274,13 @@ export namespace collapse {
             delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles =>
               fold(seconds).joints,
           }),
+          // The fold pitches and rolls the body about its root; the feet stay
+          // flat where they stood until the knees land, so no heel skates.
+          ReactionFeet.planted(
+            context.entry,
+            kneel,
+            0.5 * context.body.measure.hipHeight,
+          ),
         ],
       });
     return { ...plan, physicalWindow: { from: 0, to: down } };

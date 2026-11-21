@@ -65,8 +65,12 @@ export function test_motion_exercise_crossbow_take(): void {
         kind: "bolt",
       });
       // The loaded crossbow lies on a counter in front of the shooter.
+      // Its grip at the shooter's right, within reach across the counter.
       const placed: IAutoMovieRigidTransform = {
-        position: { x: 0, y: TOP + 0.03, z: 0.42 },
+        position: Vector3.subtract(
+          { x: -0.18, y: TOP + 0.03, z: 0.42 },
+          crossbow.affordance("grip").frame.translation,
+        ),
         rotation: Quaternion.identity(),
       };
       const loaded: IAutoMovieMotionHumanProp = {
@@ -92,7 +96,8 @@ export function test_motion_exercise_crossbow_take(): void {
           {
             subject: "a",
             body,
-            at: { x: 0, y: 0, z: 0 },
+            // Close to the counter, as a performer takes things from it.
+            at: { x: 0, y: 0, z: 0.12 },
             yaw: 0,
             proficiency: { level: "trained" },
           },

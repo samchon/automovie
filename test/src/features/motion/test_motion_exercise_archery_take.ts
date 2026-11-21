@@ -6,9 +6,11 @@ import {
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -85,14 +87,16 @@ export function test_motion_exercise_archery_take(): void {
             fixed: true,
           },
         ),
-        HumanObject.prop("bow", bow, {
-          position: { x: 0.2, y: TOP + 0.03, z: 0.42 },
-          rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-        }),
-        HumanObject.prop("arrow", arrow, {
-          position: { x: -0.25, y: TOP + 0.01, z: 0.42 },
-          rotation: Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-        }),
+        HumanObject.prop(
+          "bow",
+          bow,
+          rested(bow, "grip", { x: 0.18, y: TOP + 0.03, z: 0.42 }),
+        ),
+        HumanObject.prop(
+          "arrow",
+          arrow,
+          rested(arrow, "shaft", { x: -0.18, y: TOP + 0.01, z: 0.42 }),
+        ),
         carrier(),
       ];
       const film: HumanPerformance = new HumanPerformance({
@@ -103,7 +107,8 @@ export function test_motion_exercise_archery_take(): void {
           {
             subject: "a",
             body,
-            at: { x: 0, y: 0, z: 0 },
+            // Close to the counter, as a performer takes things from it.
+            at: { x: 0, y: 0, z: 0.12 },
             yaw: 0,
             proficiency: { level: "trained" },
           },
@@ -267,5 +272,33 @@ function carrier(): IAutoMovieMotionHumanProp {
       position: Vector3.add(start, { x: 0, y: 0, z: SPEED * seconds }),
       rotation: Quaternion.identity(),
     }),
+  };
+}
+
+/** A model whose named affordances can be read. */
+interface IHandled<Handle extends string> {
+  /** The affordance by its id. */
+  affordance(id: Handle): IAutoMovieAffordance;
+}
+
+/** A model lying on its side across the counter, placed so its handle lies at a point within the archer's reach. */
+function rested<Handle extends string>(
+  model: IHandled<Handle>,
+  handle: Handle,
+  at: IAutoMovieVector3,
+): IAutoMovieRigidTransform {
+  const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    { x: 0, y: 0, z: 1 },
+    90,
+  );
+  return {
+    position: Vector3.subtract(
+      at,
+      Quaternion.rotateVector(
+        rotation,
+        model.affordance(handle).frame.translation,
+      ),
+    ),
+    rotation,
   };
 }
