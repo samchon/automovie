@@ -14,7 +14,7 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanResponse } from "../law/HumanResponse";
+import { HumanResponse } from "../skill/HumanResponse";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
@@ -24,9 +24,6 @@ type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
 
 /** The longest a gallop stride lasts, seconds, the most a charge may take to come to the engage (provisional: a gallop of about two strides a second). */
 const STRIDE: number = 0.5;
-
-/** The slowest a horse gallops, metres per second, below which a charge cue is refused (provisional). */
-const GALLOP: number = 5;
 
 /** The slope's hand station from the right hip joint in the seat frame, metres: in front of the hip at about an elbow-bent height (provisional). */
 const SLOPE: Readonly<IAutoMovieVector3> = { x: -0.08, y: 0.25, z: 0.15 };
@@ -49,8 +46,8 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
     /**
      * Admit the carriage and the charge, lay both stations, then sample.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, a transition longer than a gallop stride, a cue with no instant inside the act, and a charge cued while the horse is not galloping.
-     * @evidence contracts/development/implementation.md#principled-implementation Stations from the body's measures in the seat frame; the charge starts at the cue plus `HumanResponse.latency` for a warned reaction; the horse's speed is the seat's central difference over a quarter second either side.
+     * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, a transition longer than a gallop stride, a cue with no instant inside the act, and a charge cued while the ride's own gait track does not show the gallop.
+     * @evidence contracts/development/implementation.md#principled-implementation Stations from the body's measures in the seat frame; the charge starts at the cue plus `HumanResponse.latency` for a warned reaction; the horse's gait is the latest change on the ride's own gait track at or before the charge.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the stations, the clock, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A charge before the gallop is refused, never delayed.
      * @evidence contracts/development/implementation.md#efficient-algorithms A sample reads one seat frame and the two rein contacts and fits two arm goals.
