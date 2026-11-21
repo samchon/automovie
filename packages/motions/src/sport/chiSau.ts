@@ -21,6 +21,7 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "../striking/StrikingBody";
 
@@ -56,8 +57,8 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * middle between their roots at the mean of their lower chest heights, a
  * shoulder's width apart across the line. Everyone's left forearm lies on
  * top, so on each side one forearm is over the other. The arms blend in
- * from the entry's goals over `BLEND` seconds and back out at the end; the
- * feet stay planted.
+ * from the entry's goals over `BLEND` seconds and end the roll on its own
+ * goals, open-handed; the feet stay planted.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the contacts, the layering, the roll and the blends.
  * @evidence contracts/development/design.md#principled-representation One law record over the shared clock and base with two arm primitives on one shared roll.
@@ -246,8 +247,13 @@ export namespace chiSau {
           ),
         };
       };
+      // The hand lies open on the partner's forearm, the thumb along it.
+      const open: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+        side,
+        "flat",
+      );
       return {
-        channels: [limb],
+        channels: [limb, `${side}Hand`],
         from: 0,
         to: duration,
         write: (
@@ -257,11 +263,9 @@ export namespace chiSau {
           const r: IRoll | null = build();
           if (r === null) return posture;
           const target: IAutoMovieHumanLimbGoal = goal(seconds, r);
-          const w: number = clock.envelope(
-            ["start", "joined"],
-            ["parted", "end"],
-            seconds,
-          );
+          // The arms join the roll and end it on its own goals; the action
+          // that follows takes them from there.
+          const w: number = clock.progress("start", "joined", seconds);
           const placed: IAutoMovieHumanLimbGoal =
             w >= 1
               ? target
@@ -278,7 +282,11 @@ export namespace chiSau {
                         ),
                       }),
                 };
-          return { ...posture, limbs: { ...posture.limbs, [limb]: placed } };
+          return {
+            ...posture,
+            joints: { ...posture.joints, ...open },
+            limbs: { ...posture.limbs, [limb]: placed },
+          };
         },
       };
     };

@@ -102,7 +102,7 @@ export function createWoodenDummy(
     point: ReturnType<typeof v>,
     normal: ReturnType<typeof v>,
     width: number,
-  ): void =>
+  ): void => {
     builder.affordance({
       id,
       kind: "surface",
@@ -111,6 +111,7 @@ export function createWoodenDummy(
       width,
       depth: width,
     });
+  };
   face("trunk", v(0, (upper + middle) / 2, radius), v(0, 0, 1), d.diameter);
   face("armLeft", v(0.12, upper + arm, reach - 0.05), v(0, 1, 0), 2 * arm);
   face("armRight", v(-0.12, upper + arm, reach - 0.05), v(0, 1, 0), 2 * arm);
