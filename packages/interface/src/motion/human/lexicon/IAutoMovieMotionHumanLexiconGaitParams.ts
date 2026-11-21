@@ -6,6 +6,7 @@ import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRu
 import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
 import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
 import type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTreeClimb";
+import type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
 import type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
@@ -95,6 +96,9 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** Climb a tree by its branches, sit astride one, or climb down. */
   climbTree: IAutoMovieMotionHumanTreeClimb.IParams;
+
+  /** Jump from an edge under a parachute and land. */
+  skydive: IAutoMovieMotionHumanSkydive.IParams;
 
   /** Resolve a named walking trip or slip by a recovery or a fall. */
   environmentalRecovery: IAutoMovieMotionHumanEnvironmentRecovery.IParams;

@@ -668,6 +668,7 @@
     "rope": {},
     "stuntFall": {},
     "climbTree": {},
+    "skydive": {},
     "crossObstacle": {
       "alternatives": [
         {
