@@ -5,6 +5,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDown,
   IAutoMoviePose,
@@ -288,14 +289,20 @@ export namespace putDownTarget {
     >,
     pose: IAutoMoviePose | (() => IAutoMoviePose),
   ): IAutoMovieRigidTransform | undefined {
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] = context.params.onto;
+    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
+      context.params.onto;
     if (onto === undefined) {
       const on: IAutoMovieMotionHumanPutDown.IParams["on"] = context.params.on;
       if (on === undefined) return undefined;
       return HumanPropFrame.compose(
-        HumanPropFrame.bone(poseBones(context.body,
-          typeof pose === "function" ? pose() : pose, undefined,
-          new Set<AutoMovieHumanoidBone>([on.bone])).get(on.bone)!),
+        HumanPropFrame.bone(
+          poseBones(
+            context.body,
+            typeof pose === "function" ? pose() : pose,
+            undefined,
+            new Set<AutoMovieHumanoidBone>([on.bone]),
+          ).get(on.bone)!,
+        ),
         on.offset,
       );
     }
@@ -361,12 +368,24 @@ export namespace putDownTarget {
     return frame;
   }
 
-  /** Read the socket in world metres at a film second. */
+  /**
+   * Read the socket in world metres at a film second. A receiver that publishes its contacts' displayed frames (a horse's head, a carrier on a moving body) is read there, so the socket follows what moves within the prop; otherwise the prop's rigid frame carries its declared socket.
+   */
   function worldSocket(
     reader: IAutoMovieMotionHumanPropReader,
     id: string,
     seconds: number,
   ): IAutoMovieRigidTransform {
+    const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+      reader.prop.point?.(id, seconds);
+    if (placed?.rotation !== undefined) {
+      const moving: IAutoMovieRigidTransform = {
+        position: placed.point,
+        rotation: placed.rotation,
+      };
+      requireRigid(moving, `${reader.prop.subject}.${id}`, seconds);
+      return moving;
+    }
     const world: IAutoMovieRigidTransform = reader.frame(seconds);
     requireRigid(world, reader.prop.subject, seconds);
     return HumanPropFrame.compose(world, socketFrame(reader, id, seconds));
