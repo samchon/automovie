@@ -34,4 +34,4 @@ Pass facts that vary by production as constructor inputs or parameters. Keep uni
 
 ## Documenting source
 
-Each changed declaration answers its development contracts in its doc comment. Document invariants and the material the module realizes. Comment each value with what it realizes, as its contract's realization comments require. Give one short composition example under [Meaningful documentation](../contracts/development/common.md#meaningful-documentation).
+Each changed declaration answers its development contracts in its doc comment. Document invariants and the material the module realizes. Comment each value with its source and how it realizes it, as its contract's realization comments require. Give one short composition example under [Meaningful documentation](../contracts/development/common.md#meaningful-documentation).
