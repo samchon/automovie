@@ -32,11 +32,12 @@ const PULL: number = 60;
  *
  * 1. The runners' posed bodies meet only inside the authored bump, never elsewhere.
  * 2. Each runner's ride samples the whole race and pull-up without a refusal, its gait changing down after the post.
+ * 3. The same plans and seed replay the same race.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the race, the bump, the pull-up and the two scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Rides real horses with `rideQuadruped` on timed lane plans down the oval's home straight, measures posed envelopes with `ArchetypePassage`, and reads the rides' gait instants.
  * @evidence contracts/development/testing.md#independent-expectations The bump is authored as two lanes closing to touching between two rail distances, so contact must fall inside the times the runners cover them; a pull-up below the gallop's least speed must leave the gallop.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside and outside the bump, before and after the post. The break, the order by pace and the rail clearance are pinned by test_world_race_field and test_world_mounted_cues; the jockeys' crouch waits on #3949.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inside and outside the bump, before and after the post. The break, the order by pace and the rail clearance are pinned by test_world_race_field and test_world_mounted_cues; the jockeys' crouch contacts are pinned by test_motion_equestrian_twopoint_race.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
  */
 export function test_world_race_finish(): void {
@@ -163,5 +164,15 @@ export function test_world_race_finish(): void {
           i.label.startsWith("gait:gallop-") && i.seconds >= POST / pace,
       ),
     ),
+  );
+  // 3. The same plans and seed replay the same race.
+  const again: ArchetypeRide.IRide<string, string> = rideQuadruped(horse, {
+    plan: ArchetypeCourse.timed("runner0", lane(0, 1)),
+    cues: [{ from: 0, to: POST / pace, gait: "gallop" }],
+  });
+  TestValidator.equals(
+    "a rebuilt runner reads the same poses",
+    [5, 15, 30].map((seconds: number) => again.at(seconds)),
+    [5, 15, 30].map((seconds: number) => rides[0]!.at(seconds)),
   );
 }
