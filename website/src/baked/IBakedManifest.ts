@@ -22,5 +22,8 @@ export namespace IBakedManifest {
 
     /** Bytes of its compressed take, so a page can say what a click loads. */
     bytes: number;
+
+    /** `BakedManifest.hash` of the composition it was computed from, so a take baked before the composition changed is not played as current. */
+    composition: string;
   }
 }

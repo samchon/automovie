@@ -120,6 +120,17 @@
   font-size: 0.8125rem;
 }
 
+/* The statement behind the node pointed at, the graph's reason for being */
+.am-graph-statement {
+  min-height: 4.5em;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--am-room-lit);
+  background: var(--am-room-panel);
+  color: var(--am-room-fg);
+  font: 0.875rem/1.55 var(--am-font-mono);
+}
+
 .am-graph-note code {
   font-family: var(--am-font-mono);
 }
@@ -156,9 +167,14 @@
 .am-motion {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-  align-items: center;
+  align-items: start;
   gap: 2.5rem 3.5rem;
   padding-block: clamp(4rem, 9vw, 7rem);
+}
+
+.am-motion-copy {
+  position: sticky;
+  top: calc(var(--am-navbar) + 3rem);
 }
 
 .am-motion-copy p {
@@ -168,39 +184,22 @@
   line-height: 1.6;
 }
 
-.am-bench {
-  display: grid;
-  gap: 0.75rem;
+/* The hero's own code from the clinch on, beside the copy */
+.am-motion-code {
+  position: static;
+  align-self: start;
+  margin: 0;
 }
 
-.am-bench-view .am-scene-view {
-  aspect-ratio: 16 / 10;
-  border-radius: var(--am-radius-lg);
+.am-motion-code .am-panel-note {
+  border-top-color: var(--am-border);
+  color: var(--am-fg-muted);
 }
 
-.am-bench-takes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.am-bench-takes button {
-  min-height: 2.25rem;
-  padding: 0 0.9rem;
-  border: 1px solid var(--am-border-control);
-  border-radius: 999px;
-  background: var(--am-bg-inset);
+.am-doc .am-line-mark {
+  background: var(--am-accent-soft);
   color: var(--am-fg);
-  font: 500 0.875rem var(--am-font-sans);
-  cursor: pointer;
 }
-
-.am-bench-takes button[aria-pressed="true"] {
-  border-color: var(--am-fg);
-  background: var(--am-fg);
-  color: var(--am-bg);
-}
-
 /* The library */
 .am-library {
   padding-block: clamp(4rem, 8vw, 6rem);
@@ -357,6 +356,11 @@
   .am-room-facts,
   .am-start-steps {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* In one column the copy scrolls with the page above the code. */
+  .am-motion-copy {
+    position: static;
   }
 
   /* The graph keeps a readable size and scrolls inside its frame. */
