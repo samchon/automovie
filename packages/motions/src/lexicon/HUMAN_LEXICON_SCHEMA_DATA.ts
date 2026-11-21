@@ -123,6 +123,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamsdirection",
       "description": "A backward roll: crouch, roll over the back backward, rise on the feet."
     },
+    "badmintonClear": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+      "description": "A one-handed overhead badminton clear lifting the shuttle deep."
+    },
     "ballet": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanBallet.IParams",
       "description": "A ballet position, pirouette or grand jete."
@@ -154,6 +158,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "beat": {
       "$ref": "#/components/schemas/OmitIParryhold",
       "description": "A beat: the blade struck against the attacker's and taken off it at once (`against`)."
+    },
+    "beatFlames": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanFirefight.IBeatFlames",
+      "description": "Beat flames on a lying partner with a held cloth."
     },
     "beckonHand": {
       "$ref": "#/components/schemas/OmitIParamscyclesfacingmirroroffsetphraseswingtarget",
@@ -731,6 +739,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamsdepthhold",
       "description": "Capoeira's esquiva baixa: a full crouch under a kick, held while it passes."
     },
+    "extinguish": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanFirefight.IExtinguish",
+      "description": "Aim, squeeze and sweep an extinguisher whose pin is pulled."
+    },
     "faceBite": {
       "$ref": "#/components/schemas/OmitIParamstask",
       "description": "`handToFace` doing `bite`."
@@ -802,6 +814,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "fieldGrounder": {
       "$ref": "#/components/schemas/OmitIParamskind-o9",
       "description": "Fielding a ground ball."
+    },
+    "fieldHockeyHit": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+      "description": "A two-handed field hockey hit along the ground."
     },
     "fieldThrow": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanFieldThrow.IParams",
@@ -1251,6 +1267,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamskind-o7",
       "description": "The horse stance of karate and kung fu."
     },
+    "hoseLine": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanFirefight.IHoseLine",
+      "description": "Work a charged hose line as its nozzle operator or backup."
+    },
     "hostageHold": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanHostageHold.IParams",
       "description": "A hostage hold from behind: the free arm across the chest or throat, a held weapon's point at a region, and the pair walking backward. The hostage performs heldHostage."
@@ -1562,6 +1582,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "overheadSmash": {
       "$ref": "#/components/schemas/OmitICutfrom",
       "description": "A serve, a smash or a badminton clear: the racket brought down from overhead."
+    },
+    "padelForehand": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+      "description": "A one-handed padel forehand that returns the live ball."
     },
     "palmHeel": {
       "$ref": "#/components/schemas/OmitIParamshandtechnique",
@@ -2243,6 +2267,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/IAutoMovieMotionHumanAthletics.IParams",
       "description": "The set position of a sprint start."
     },
+    "squashDrive": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+      "description": "A one-handed squash drive played off the front wall."
+    },
     "squats": {
       "$ref": "#/components/schemas/OmitIParamskind-o4",
       "description": "Squats."
@@ -2446,6 +2474,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "swordThrust": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanSword.IAttack",
       "description": "Thrust: the point driven straight onto the target at the decisive instant (`stroke`), with a step or a lunge when asked, then recovered. A target beyond the arm with the chosen advance, or so near that the hand would land within `NEAR` of the arm from the shoulder in a pose the arm cannot hold, is refused on `target`.\n\nThe landed pose puts the point on the target with the blade along the line from the shoulder, as it stands after the advance; the hilt starts drawn back beside the lower ribs with the point already on the line, and point and turn run to the landed pose on one progress. The attack lasts as a minimum-jerk unit arrested at its peak speed, the sword's cited peak velocity in a lunge.\nThe aim, the landed pose, the chamber, then the shared stroke planner.\nThe chamber's place is provisional; the shoulder used for the reach ignores the lunge's sink, stated at `StrikingBlade.shoulder`.\nConstant work per plan; each posture costs the stroke planner's elbow searches and, in an advance, one root lowering.\nPlanned once per instance; nothing is shared between instances.\nThe plan closes over its constants and the entry state, released with the plan."
+    },
+    "tableTennisForehand": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+      "description": "A one-handed table tennis forehand drive that returns the live ball."
     },
     "taiChiPush": {
       "$ref": "#/components/schemas/OmitIParamskind-o7",
@@ -24438,6 +24470,143 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "seconds": {
             "type": "number",
             "description": "How long the body lies after landing, seconds; 1 when absent."
+          },
+          "wall": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point: metres in \"world\" and \"performer\", statures of the performer in \"stature\"."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "stature"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in: the world's, the performer's own in metres, or the performer's own in statures."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "A wall in the flight's path, a point on its face: the flight stops on it, the impact is the action's hit, and the body slides down it to sit on the floor; none when absent."
           }
         },
         "required": [
@@ -24802,6 +24971,26 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
             "description": "A one-handed tennis racket stroke that returns the live ball."
           },
+          "tableTennisForehand": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+            "description": "A one-handed table tennis forehand drive that returns the live ball."
+          },
+          "squashDrive": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+            "description": "A one-handed squash drive played off the front wall."
+          },
+          "padelForehand": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+            "description": "A one-handed padel forehand that returns the live ball."
+          },
+          "badmintonClear": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+            "description": "A one-handed overhead badminton clear lifting the shuttle deep."
+          },
+          "fieldHockeyHit": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
+            "description": "A two-handed field hockey hit along the ground."
+          },
           "golfDrive": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke",
             "description": "A full golf drive from a teed ball."
@@ -24887,6 +25076,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "baseballHit",
           "cricketDrive",
           "tennisForehandReturn",
+          "tableTennisForehand",
+          "squashDrive",
+          "padelForehand",
+          "badmintonClear",
+          "fieldHockeyHit",
           "golfDrive",
           "golfChip",
           "golfPutt",
@@ -24941,6 +25135,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             ],
             "description": "The striking hand. Defaults to right."
           },
+          "miss": {
+            "const": true,
+            "description": "A swinging miss: the stroke passes one ball's diameter under the ball\nat the impact second, so it meets nothing and launches nothing, and\nthe ball flies on. Absent, the stroke meets the ball."
+          },
           "tool": {
             "type": "string",
             "description": "Subject id of the implement the striking hand already holds."
@@ -24984,6 +25182,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "The striking hand. Defaults to right."
+          },
+          "miss": {
+            "const": true,
+            "description": "A swinging miss: the stroke passes one ball's diameter under the ball\nat the impact second, so it meets nothing and launches nothing, and\nthe ball flies on. Absent, the stroke meets the ball."
           },
           "tool": {
             "type": "string",
@@ -25033,6 +25235,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
               }
             ],
             "description": "The striking hand. Defaults to right."
+          },
+          "miss": {
+            "const": true,
+            "description": "A swinging miss: the stroke passes one ball's diameter under the ball\nat the impact second, so it meets nothing and launches nothing, and\nthe ball flies on. Absent, the stroke meets the ball."
           }
         },
         "required": [
@@ -28111,6 +28317,18 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanThrowPottery.IParams",
             "description": "Draw up a clay wall on a turning wheel with both palms."
           },
+          "extinguish": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanFirefight.IExtinguish",
+            "description": "Aim, squeeze and sweep an extinguisher whose pin is pulled."
+          },
+          "hoseLine": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanFirefight.IHoseLine",
+            "description": "Work a charged hose line as its nozzle operator or backup."
+          },
+          "beatFlames": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanFirefight.IBeatFlames",
+            "description": "Beat flames on a lying partner with a held cloth."
+          },
           "playWindInstrument": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanPlayWindInstrument.IParams",
             "description": "Raise and play a wind instrument."
@@ -28164,6 +28382,9 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "bowViolin",
           "conduct",
           "throwPottery",
+          "extinguish",
+          "hoseLine",
+          "beatFlames",
           "playWindInstrument",
           "guitarNote",
           "guitarChord",
@@ -29283,6 +29504,241 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "The parameters of `throwPottery`."
+      },
+      "IAutoMovieMotionHumanFirefight.IExtinguish": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held extinguisher's scene subject id."
+          },
+          "target": {
+            "$ref": "#/components/schemas/IAutoMovieMotionTarget",
+            "description": "The fire's base the nozzle aims at."
+          },
+          "sweeps": {
+            "type": "number",
+            "description": "Side-to-side sweeps; 3 when absent."
+          },
+          "span": {
+            "type": "number",
+            "description": "The sweep's full angle about the aim, degrees; 40 when absent."
+          }
+        },
+        "required": [
+          "prop",
+          "target"
+        ],
+        "additionalProperties": false,
+        "description": "The extinguisher drill's parameters. The extinguisher declares `pin`,\n`lever`, `nozzle` and a carrying `handle` affordance."
+      },
+      "IAutoMovieMotionHumanFirefight.IHoseLine": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The hose line's scene subject id."
+          },
+          "role": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanFirefight.Role",
+            "description": "The member's role on the line."
+          },
+          "grip": {
+            "type": "string",
+            "description": "The hose's affordance this member grips."
+          },
+          "advance": {
+            "type": "number",
+            "description": "How far the team advances, metres; 0 when absent."
+          },
+          "target": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "person",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The other subject's id."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region aimed at."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "self",
+                    "description": "Discriminator."
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+                    "description": "The region of the performer's own body."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "region"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "prop",
+                    "description": "Discriminator."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "The prop subject's id."
+                  },
+                  "point": {
+                    "type": "string",
+                    "description": "The prop's named point."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "subject",
+                  "point"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "point",
+                    "description": "Discriminator."
+                  },
+                  "at": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The point: metres in \"world\" and \"performer\", statures of the performer in \"stature\"."
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "const": "performer"
+                      },
+                      {
+                        "const": "stature"
+                      },
+                      {
+                        "const": "world"
+                      }
+                    ],
+                    "description": "The frame the point is stated in: the world's, the performer's own in metres, or the performer's own in statures."
+                  },
+                  "normal": {
+                    "$ref": "#/components/schemas/IAutoMovieVector3",
+                    "description": "The outward direction of the surface at the point, in the same frame; any non-zero vector. Faces the performer when absent."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "at",
+                  "frame"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "none",
+                    "description": "Discriminator."
+                  },
+                  "line": {
+                    "oneOf": [
+                      {
+                        "const": "high"
+                      },
+                      {
+                        "const": "low"
+                      },
+                      {
+                        "const": "middle"
+                      }
+                    ],
+                    "description": "The virtual opponent's height line; `middle` when absent."
+                  },
+                  "range": {
+                    "type": "number",
+                    "description": "Distance to the virtual opponent, metres; the technique's range when absent."
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "What the nozzle sweeps over; required for the nozzle operator."
+          },
+          "sweeps": {
+            "type": "number",
+            "description": "Side-to-side sweeps; 3 when absent."
+          }
+        },
+        "required": [
+          "prop",
+          "role",
+          "grip"
+        ],
+        "additionalProperties": false,
+        "description": "A hose team member's parameters. The hose declares a grip affordance\nper member along its line, and its nozzle a `bail` articulation."
+      },
+      "IAutoMovieMotionHumanFirefight.Role": {
+        "oneOf": [
+          {
+            "const": "backup"
+          },
+          {
+            "const": "nozzle"
+          }
+        ],
+        "description": "A hose team member's role."
+      },
+      "IAutoMovieMotionHumanFirefight.IBeatFlames": {
+        "type": "object",
+        "properties": {
+          "prop": {
+            "type": "string",
+            "description": "The held cloth's scene subject id."
+          },
+          "partner": {
+            "type": "string",
+            "description": "The lying partner."
+          },
+          "region": {
+            "$ref": "#/components/schemas/AutoMovieHumanoidRegion",
+            "description": "The partner's region the strokes land on."
+          },
+          "count": {
+            "type": "number",
+            "description": "Strokes; 4 when absent."
+          }
+        },
+        "required": [
+          "prop",
+          "partner",
+          "region"
+        ],
+        "additionalProperties": false,
+        "description": "Beating flames on a lying partner with a held cloth."
       },
       "IAutoMovieMotionHumanPlayWindInstrument.IParams": {
         "type": "object",
