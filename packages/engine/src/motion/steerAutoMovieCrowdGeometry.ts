@@ -831,13 +831,15 @@ export namespace steerAutoMovieCrowdGeometry {
       }
       return best;
     };
+    // The two legs always bound the velocity obstacle, so the unrestricted search finds a point.
     const touched: {
       x: number;
       z: number;
       nx: number;
       nz: number;
       distance: number;
-    } = (inside ? nearest(true) : null) ?? nearest(false)!;
+    } | null = (inside ? nearest(true) : null) ?? nearest(false);
+    if (touched === null) return null;
     if (!inside && touched.distance > 1e-12)
       return line(
         touched.x,
