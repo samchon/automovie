@@ -26,7 +26,6 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieHit,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanPropFrame,
   IAutoMoviePhysicalShape,
   IAutoMovieProjectile,
   IAutoMovieProjectileContinue,
@@ -308,8 +307,10 @@ function heldLongAxis(model: Archetype): IHeldAxis {
     (time: number): IAutoMovieRigidTransform => performance.prop("ball", time),
   );
   const hands: AutoMovieHumanoidBone[] = ["leftHand", "rightHand"];
-  const first: ReadonlyMap<string, IAutoMovieMotionHumanPropFrame> =
-    performance.bones("player", start);
+  const first: ReturnType<HumanPerformance["bones"]> = performance.bones(
+    "player",
+    start,
+  );
   const hand: AutoMovieHumanoidBone = hands.reduce(
     (
       best: AutoMovieHumanoidBone,

@@ -179,7 +179,10 @@ export function test_archetype_catalogue_transport_props_craft(): void {
       !hulls.canoe.affordances.some((contact) => contact.id === "leftOarlock"),
   );
   const thwarts: IAutoMovieAffordance[] = hulls.launch.affordances.filter(
-    (contact: IAutoMovieAffordance): boolean => /^thwart\d+$/.test(contact.id),
+    (contact: IAutoMovieAffordance): boolean =>
+      contact.id.startsWith("thwart") &&
+      contact.id.length > "thwart".length &&
+      Number.isInteger(Number(contact.id.slice("thwart".length))),
   );
   TestValidator.predicate(
     "every pulling-boat thwart seats a rower facing aft, without an oarlock",
@@ -189,7 +192,7 @@ export function test_archetype_catalogue_transport_props_craft(): void {
           ArchetypeFrame.axis(contact.frame, "z").z < -0.99,
       ) &&
       !hulls.launch.affordances.some((contact: IAutoMovieAffordance): boolean =>
-        /Oarlock$/.test(contact.id),
+        contact.id.endsWith("Oarlock"),
       ),
   );
   TestValidator.equals(
