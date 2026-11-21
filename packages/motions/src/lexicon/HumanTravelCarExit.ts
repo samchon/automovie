@@ -23,6 +23,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
+import { admitCarExitSill } from "./admitCarExitSill";
 import { carExitAnkleAt } from "./carExitAnkleAt";
 
 /** A quiet placement of both feet. */
@@ -273,58 +274,14 @@ export namespace HumanTravelCarExit {
           left: HumanMount.held(entry, "left"),
           right: HumanMount.held(entry, "right"),
         };
-        const acrossSill = (side: "left" | "right"): IAutoMovieVector3 => {
-          const ankle: IAutoMovieVector3 = starts[side].ankle;
-          const inside: number = -outward(ankle);
-          const landing: IAutoMovieVector3 =
-            riseEntry.limbs[`${side}Leg`]!.point;
-          return Vector3.lerp(
-            ankle,
-            landing,
-            inside / (inside + outward(landing)),
-          );
-        };
-        if (outward(starts.left.ankle) >= 0 || outward(starts.right.ankle) >= 0)
-          throw new HumanRefusal({
-            kind: "base",
-            axis: "aperture",
-            value: through.id,
-            reason: "the seated turn starts with both feet inside the doorway",
-            fix: "enter from the seated posture before either foot has left",
-          });
-        if (
-          outward(riseEntry.limbs.leftLeg!.point) <= 0 ||
-          outward(riseEntry.limbs.rightLeg!.point) <= 0
-        )
-          throw new HumanRefusal({
-            kind: "base",
-            axis: "aperture",
-            value: through.id,
-            reason: "both landing feet must be outside before rising",
-            fix: "use a freer exterior stance",
-          });
-        const sill: Ankles = {
-          left: acrossSill("left"),
-          right: acrossSill("right"),
-        };
-        const footRoom: number =
-          2 *
-          (gap +
-            Math.max(Math.abs(along(sill.left)), Math.abs(along(sill.right))));
-        if (footRoom > through.width)
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "aperture",
-            value: through.width,
-            feasible: {
-              kind: "range",
-              unit: "m",
-              minimum: footRoom,
-              maximum: null,
-            },
-            reason: "an ankle waypoint lies too near a door jamb",
-            fix: "author the seated entry nearer the center of the rear opening",
-          });
+        const sill: Ankles = admitCarExitSill({
+          starts,
+          landing: riseEntry,
+          through,
+          gap,
+          outward,
+          along,
+        });
 
         const seatOff: number =
           up.events.find(
