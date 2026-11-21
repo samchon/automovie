@@ -85,6 +85,7 @@ export namespace LongImplementDraw {
    * - `release`: a sling's release knot, held between the thumb and the first finger and let go to throw (`Throwers.sling`); its `grip` is the finger loop.
    * - `pouch`: a sling's pouch a stone sits in, facing up.
    * - `spur`: an atlatl's hook, whose groove takes the dart's butt, facing back along the shaft (`Throwers.atlatl`); its `grip` is the handle at the butt.
+   * - `rammer`, `sponge`: a sponge and rammer's two heads by name, each facing out of its end: the rammer head at the lower end (as its `face`) and the sponge at the upper (as its `tip`), which a gun crew's drill reads.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The saved contact identifiers for these props.
    * @evidence contracts/development/design.md#principled-representation A closed union covers the contacts built by every shape in this family.
@@ -100,7 +101,9 @@ export namespace LongImplementDraw {
     | "pouch"
     | "spur"
     | "upperGrip"
-    | "lowerGrip";
+    | "lowerGrip"
+    | "sponge"
+    | "rammer";
 
   /**
    * The free dimensions, metres unless stated:

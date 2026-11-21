@@ -223,6 +223,22 @@ export namespace FIELD_IMPLEMENTS {
         frame: ArchetypeFrame.upright(v(0, length, 0)),
         extent: null,
       });
+      // The two heads by name, each facing out of its end: the rammer head
+      // at the origin and the sponge at the far end.
+      builder.affordance({
+        id: "rammer",
+        kind: "surface",
+        direction: "normal",
+        frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+        extent: null,
+      });
+      builder.affordance({
+        id: "sponge",
+        kind: "surface",
+        direction: "normal",
+        frame: ArchetypeFrame.upright(v(0, length, 0)),
+        extent: null,
+      });
       return;
     }
 

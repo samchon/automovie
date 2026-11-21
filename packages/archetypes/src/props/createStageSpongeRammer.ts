@@ -58,7 +58,7 @@ export function createStageSpongeRammer(
  */
 export namespace createStageSpongeRammer {
   /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance = "face" | "shaft" | "tip";
+  export type Affordance = "face" | "shaft" | "tip" | "rammer" | "sponge";
 
   /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
   export type Dimension = "length" | "mass" | "shaftDiameter";
