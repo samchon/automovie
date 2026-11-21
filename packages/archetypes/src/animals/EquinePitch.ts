@@ -144,16 +144,16 @@ export namespace EquinePitch {
     const { push, takeoff, landing, absorb, hip, shoulder, rise, dive } = pitch;
     if (!(seconds > push && seconds < absorb)) return { y: 0, z: 0, pitch: 0 };
     if (seconds <= takeoff)
-      return turned(hip, rise * ((seconds - push) / (takeoff - push)) ** 2);
+      return about(hip, rise * ((seconds - push) / (takeoff - push)) ** 2);
     if (seconds >= landing)
-      return turned(
+      return about(
         shoulder,
         dive * ((absorb - seconds) / (absorb - landing)) ** 2,
       );
     const flight: number = landing - takeoff;
     const tau: number = seconds - takeoff;
-    const start: ITilt = turned(hip, rise);
-    const end: ITilt = turned(shoulder, dive);
+    const start: ITilt = about(hip, rise);
+    const end: ITilt = about(shoulder, dive);
     const spin: number = (2 * rise) / (takeoff - push);
     const settle: number = (-2 * dive) / (absorb - landing);
     const up: number =
@@ -218,8 +218,22 @@ export namespace EquinePitch {
     };
   }
 
-  /** The root's offset and the pitch when the trunk is turned by an angle about a pivot. */
-  function turned(pivot: IPivot, angle: number): ITilt {
+  /**
+   * The root's offset and the pitch when the trunk is turned by an angle about a lateral pivot axis.
+   *
+   * @param pivot The pivot axis in model metres.
+   * @param angle Radians, positive nose-up.
+   * @returns The tilt.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, units and sign.
+   * @evidence contracts/development/implementation.md#principled-implementation The root is the pivot plus the pivot-to-root vector turned by the angle, so the pivot stays where it is.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation of one vector.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to special-case.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the height formula with plan.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function about(pivot: IPivot, angle: number): ITilt {
     return {
       y: height(pivot, angle),
       z: pivot.y * Math.sin(angle) + pivot.z * (1 - Math.cos(angle)),

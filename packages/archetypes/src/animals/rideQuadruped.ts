@@ -24,7 +24,6 @@ import { QuadrupedFooting } from "./QuadrupedFooting";
 import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import { QuadrupedJoints } from "./QuadrupedJoints";
-import { QuadrupedLocomotion } from "./QuadrupedLocomotion";
 import { QuadrupedMotion } from "./QuadrupedMotion";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
@@ -33,6 +32,7 @@ import { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { createQuadruped } from "./createQuadruped";
 import { planEquineFlight } from "./planEquineFlight";
+import { refuseQuadrupedReach } from "./refuseQuadrupedReach";
 
 /** An altered public course producer retains its original opaque route. */
 const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
@@ -107,11 +107,8 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const nativeCourse: boolean =
     Object.getOwnPropertyDescriptor(ArchetypeCourse, "plan")?.value ===
     NATIVE_PLAN;
-  const { plan, course, holds }: QuadrupedTimedRoute.IRoute = QuadrupedTimedRoute.of(
-    species,
-    route,
-    withers,
-  );
+  const { plan, course, holds }: QuadrupedTimedRoute.IRoute =
+    QuadrupedTimedRoute.of(species, route, withers);
   const departure: ArchetypeCourse.IState | undefined =
     QuadrupedHoofTrack.departure(
       plan,
@@ -252,7 +249,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         plan,
         clock,
         strides.secondsAt,
-        footwork.lateral.length > 0 ? body : undefined,
+        plan.bends.length > 0 || footwork.lateral.length > 0 ? body : undefined,
         EquineLateral.crossing(footwork.lateral, rig.limbs, animal.parts),
       );
 
@@ -262,10 +259,18 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       seconds: number,
       witness?: ArchetypeRideWitness.Witness,
     ): ArchetypeRide.IPose<Affordance, Dimension> => {
-      const placement: IAutoMovieTransform = body(state, seconds);
-      const current: ArchetypeCourse.IState = { ...state, placement };
       const phase: number = strides.phaseAt(seconds);
       const now: QuadrupedGait.Gait = strides.strideOf(Math.floor(phase)).gait;
+      const timing: QuadrupedGait.ITiming = clock.timing(now, seconds);
+      const lean: number = course.lean?.(seconds) ?? 0;
+      const placement: IAutoMovieTransform = EquinePitch.place(
+        body(state, seconds),
+        0,
+        lean === 0
+          ? undefined
+          : EquinePitch.about({ y: 0, z: 0 }, (-lean * Math.PI) / 180),
+      );
+      const current: ArchetypeCourse.IState = { ...state, placement };
       const going: number = Math.min(
         1,
         state.speed / QuadrupedGait.range(species, now, withers).minimum,
@@ -361,19 +366,24 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           species,
           strides.strideOf(Math.floor(phase)),
           phase,
-          clock.timing(now, seconds).duty,
+          timing.duty,
         );
-      const archetype: Archetype<Affordance, Dimension> = pose.sample(
-        {
-          leftFore: goals.get("leftFore")!,
-          rightFore: goals.get("rightFore")!,
-          leftHind: goals.get("leftHind")!,
-          rightHind: goals.get("rightHind")!,
-        },
-        nod,
-        -sink,
-        witness,
-      );
+      let archetype: Archetype<Affordance, Dimension>;
+      try {
+        archetype = pose.sample(
+          {
+            leftFore: goals.get("leftFore")!,
+            rightFore: goals.get("rightFore")!,
+            leftHind: goals.get("leftHind")!,
+            rightHind: goals.get("rightHind")!,
+          },
+          nod,
+          -sink,
+          witness,
+        );
+      } catch (error) {
+        throw refuseQuadrupedReach(species.archetype, seconds, error);
+      }
       if (!trial) ground?.verify(archetype, placement);
       return { archetype, placement: ArchetypeFrame.copy(placement) };
     };
@@ -426,6 +436,12 @@ export function rideQuadruped<Affordance extends string, D extends string>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace rideQuadruped {
+  /**
+   * A per-sample trunk pitch: degrees, positive nose-down, at a film second.
+   *
+   */
+  export type Lean = (seconds: number) => number;
+
   /** A course leg that may name its gait, its lead and an equine technique. */
   export type ILeg = ArchetypeCourse.Leg & {
     /** The gait the leg is taken at; the speed chooses when absent. */
@@ -445,6 +461,9 @@ export namespace rideQuadruped {
 
     /** Independently authored world landing surfaces and optional pole obstacles. */
     footing?: QuadrupedFooting.IScene;
+
+    /** An optional trunk pitch about the root at each film second, degrees, positive nose-down, such as a draught horse's forward lean into its load; the planted hooves keep their footprints. */
+    lean?: Lean;
 
     /** The legs in order, at least one. */
     legs: readonly ILeg[];
