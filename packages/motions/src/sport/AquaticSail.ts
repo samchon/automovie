@@ -105,6 +105,8 @@ export namespace AquaticSail {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
+    const shouldersAt: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["leftUpperArm", "rightUpperArm"]);
     const duration: number = 3.65;
     const helm: boolean = params.role !== "crew";
 
@@ -373,12 +375,16 @@ export namespace AquaticSail {
                 ),
           );
           const frame: IAutoMovieRigidTransform = hull.frame(t);
+          const shoulders: ReturnType<
+            ReturnType<typeof AquaticPosture.markers>
+          > = shouldersAt(posture);
           for (const control of controls) {
             const held: IAutoMovieHumanLimbGoal = AquaticProp.hold(
               body,
               posture,
               control.side,
               rig.require(control.handle, "handle").world,
+              shoulders.get(`${control.side}UpperArm`)!.worldPosition,
             );
             const entered: IHullLocal = reachFrom[control.side];
             const world = (local: IAutoMovieVector3): IAutoMovieVector3 =>

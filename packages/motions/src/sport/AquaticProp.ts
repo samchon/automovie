@@ -133,6 +133,7 @@ export namespace AquaticProp {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
     handle: IContact["world"],
+    shoulder?: IAutoMovieVector3,
   ): IAutoMovieHumanLimbGoal {
     const grip: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
       body,
@@ -147,18 +148,63 @@ export namespace AquaticProp {
       handle.translation,
       Quaternion.rotateVector(rotation, grip.point),
     );
-    return {
-      point,
-      rotation,
-      contact: grip.point,
-      bend: Vector3.add(
-        point,
-        Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
-          x: side === "left" ? 0.24 : -0.24,
-          y: -0.22,
-          z: -0.14,
-        }),
-      ),
-    };
+    // The elbow leans out, down and back of the trunk. With the shoulder
+    // known, the elbow is placed in closed form on that side, so the arm's
+    // branch follows the hint continuously instead of being re-searched.
+    const lean: IAutoMovieVector3 = Quaternion.rotateVector(
+      resolveHumanPosture.heading(posture),
+      { x: side === "left" ? 0.24 : -0.24, y: -0.22, z: -0.14 },
+    );
+    return shoulder === undefined
+      ? { point, rotation, contact: grip.point, bend: Vector3.add(point, lean) }
+      : {
+          point,
+          rotation,
+          contact: grip.point,
+          bend: elbow(body, shoulder, point, lean),
+          elbow: "placed",
+        };
+  }
+
+  /**
+   * The elbow of a two-bone arm from shoulder to wrist, on the side of a
+   * lean direction: the circle of elbow places is cut by the plane through
+   * the shoulder-wrist line and the lean, on the lean's side. A wrist beyond
+   * reach straightens the arm toward it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the construction, its inputs and the out-of-reach case.
+   * @evidence contracts/development/implementation.md#principled-implementation The law of cosines on the measured upper-arm and forearm lengths gives the elbow's distance along the shoulder-wrist line and its radius from it.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Line, distance along it, radius, direction in the lean's plane.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean along the line itself keeps a perpendicular fallback rather than dividing by zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function elbow(
+    body: IAutoMovieMotionHumanBody,
+    shoulder: IAutoMovieVector3,
+    wrist: IAutoMovieVector3,
+    lean: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const a: number = body.measure.upperArm;
+    const b: number = body.measure.forearm;
+    const line: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
+    const d: number = Math.min(Vector3.length(line), a + b - 1e-6);
+    const u: IAutoMovieVector3 =
+      d > 1e-9 ? Vector3.normalize(line) : { x: 0, y: -1, z: 0 };
+    const along: number = (a * a - b * b + d * d) / (2 * d);
+    const radius: number = Math.sqrt(Math.max(0, a * a - along * along));
+    const off: IAutoMovieVector3 = Vector3.subtract(
+      lean,
+      Vector3.scale(u, Vector3.dot(lean, u)),
+    );
+    const n: IAutoMovieVector3 =
+      Vector3.length(off) > 1e-9
+        ? Vector3.normalize(off)
+        : Vector3.normalize({ x: -u.y, y: u.x, z: 0 });
+    return Vector3.add(
+      shoulder,
+      Vector3.add(Vector3.scale(u, along), Vector3.scale(n, radius)),
+    );
   }
 }
