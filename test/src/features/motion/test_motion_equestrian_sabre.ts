@@ -4,6 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionTarget,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -43,6 +44,7 @@ const AIM: number = 15;
  * 4. No point along the blade comes within the rider's head radius of the head or within the horse's own neck and head (the blade stays above the withers and outside the straddle below it).
  * 5. The left wrist stays within 0.7 hand lengths of the reins' middle; the seat within 10 mm of the saddle and both balls of the feet within 10 mm of their treads.
  * 6. A charge cued while the ride is still at the canter is refused on `cue`.
+ * 7. With a target 6 m to the right of 20 m ahead, the engaged blade points at it within 15 degrees in the level plane.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each scenario and bound.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the sabre law over an actual horse ride from canter to gallop with an actual sabre picked up by the polygon man, and reads the displayed sabre, hands, seat and feet against the moving saddle, reins and stirrups; a sabre slipping from the hand, a wrong carriage, a late charge or a blade through the horse or the rider fails.
@@ -84,6 +86,7 @@ export function test_motion_equestrian_sabre(): void {
     at: number,
     rack: IAutoMovieVector3,
     pick: boolean = true,
+    target?: IAutoMovieMotionTarget,
   ): mountedHorseScene.IScene =>
     mountedHorseScene.build({
       horse,
@@ -125,6 +128,7 @@ export function test_motion_equestrian_sabre(): void {
               cue: "charge",
               gaits: "gaits",
               transition: TRANSITION,
+              ...(target === undefined ? {} : { target }),
               seconds: charge - WAIT + 1.5,
             })
           : ridden;
@@ -317,6 +321,55 @@ export function test_motion_equestrian_sabre(): void {
   if (!(error instanceof HumanRefusal && error.axis === "cue"))
     findings.push(
       `a charge at the canter must be refused on cue, got ${String(error)}`,
+    );
+
+  // 7. A target off the heading: the engage turns the trunk and points the blade at it, within the aim bound, in the level plane.
+  const aside: IAutoMovieVector3 = Vector3.add(
+    scene.part("seat", charge).translation,
+    Quaternion.rotateVector(scene.part("seat", charge).rotation, {
+      x: -6,
+      y: 0,
+      z: 20,
+    }),
+  );
+  const turned: mountedHorseScene.IScene = stage(charge, rack, true, {
+    kind: "point",
+    frame: "world",
+    at: aside,
+  });
+  const turnedTake: IAutoMovieMotionHumanSegment =
+    turned.segments[turned.segments.length - 1]!;
+  const turnedEngaged: number =
+    turnedTake.start +
+    turnedTake.plan.events.find((e) => e.name === "engaged")!.share *
+      (turnedTake.end - turnedTake.start) +
+    0.3;
+  const blade: IAutoMovieRigidTransform = turned.film.prop(
+    "sabre",
+    turnedEngaged,
+  );
+  const toward: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.multiply(
+      blade.rotation,
+      sabre.affordance("point").frame.rotation,
+    ),
+    { x: 0, y: 1, z: 0 },
+  );
+  const gripAt: IAutoMovieVector3 = Vector3.add(
+    blade.position,
+    Quaternion.rotateVector(
+      blade.rotation,
+      sabre.affordance("grip").frame.translation,
+    ),
+  );
+  const level = (v: IAutoMovieVector3): IAutoMovieVector3 => ({ ...v, y: 0 });
+  const off: number = angle(
+    level(toward),
+    level(Vector3.subtract(aside, gripAt)),
+  );
+  if (off > AIM)
+    findings.push(
+      `target: the blade points ${off.toFixed(1)} degrees off the target`,
     );
 
   TestValidator.equals("a sabre at the slope and the charge", findings, []);

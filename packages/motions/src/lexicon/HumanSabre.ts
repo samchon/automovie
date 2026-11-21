@@ -18,8 +18,10 @@ import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanResponse } from "../skill/HumanResponse";
+import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
+import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
 /** The law's context. */
@@ -30,6 +32,9 @@ const STRIDE: number = 0.5;
 
 /** The share of the arm's full length the engage reaches forward, short of the straight elbow's singular reach (provisional). */
 const REACHED: number = 0.95;
+
+/** How far ahead along the seat's forward the engage points when no target is named, metres: far enough that the shoulder's own offset leaves the line level and straight ahead. */
+const FAR: number = 10;
 
 /** Seconds the arms take from the entry to the bridle and the carriage (provisional). */
 const REACH: number = 0.5;
@@ -125,20 +130,6 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
           slopeGrip,
         ),
       );
-      const engageGrip: IAutoMovieVector3 = Vector3.add(shoulder, {
-        x: 0,
-        y: 0,
-        z: REACHED * (m.upperArm + m.forearm + 0.5 * m.hand),
-      });
-      const stations = {
-        slope: { grip: slopeGrip, axis: slopeAxis, edge: { x: 0, y: 0, z: 1 } },
-        engage: {
-          grip: engageGrip,
-          axis: { x: 0, y: 0, z: 1 },
-          edge: { x: 0, y: -1, z: 0 },
-        },
-      } as const;
-
       // The charge: after the warned reaction, while galloping.
       let from: number | undefined;
       if (params.cue !== undefined) {
@@ -191,6 +182,36 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
             : minimumJerk.share(
                 Math.min(1, Math.max(0, (t - from) / params.transition)),
               );
+      // The engage: a station toward the target when one is named, read where it is as the engage completes and moved into the seat frame; straight ahead along the seat's forward otherwise.
+      const engagedAt: number = context.start + (from ?? 0) + params.transition;
+      const aimed: IAutoMovieRigidTransform = carrier(engagedAt);
+      const ahead: IAutoMovieVector3 =
+        params.target === undefined
+          ? Vector3.add(shoulder, { x: 0, y: 0, z: FAR })
+          : Quaternion.rotateVector(
+              Quaternion.inverse(aimed.rotation),
+              Vector3.subtract(
+                context.aim(params.target, engagedAt).point,
+                aimed.position,
+              ),
+            );
+      const engaged: HumanMountedPresentation.IStation =
+        HumanMountedPresentation.station(
+          m,
+          local.root,
+          "right",
+          ahead,
+          REACHED * (m.upperArm + m.forearm + 0.5 * m.hand),
+          "target",
+        );
+      const stations = {
+        slope: { grip: slopeGrip, axis: slopeAxis, edge: { x: 0, y: 0, z: 1 } },
+        engage: {
+          grip: engaged.grip,
+          axis: engaged.axis,
+          edge: { x: 0, y: -1, z: 0 },
+        },
+      } as const;
       const duration: number = params.seconds;
       const windows: IAutoMovieMotionHumanContactWindow[] = [
         ...StrikingHeld.grips(tool),
@@ -238,8 +259,9 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
             Vector3.add(now.position, Quaternion.rotateVector(now.rotation, p));
           const turn = (v: IAutoMovieVector3): IAutoMovieVector3 =>
             Quaternion.rotateVector(now.rotation, v);
+          // The trunk turns toward a target off the heading by the engage's share.
           const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
-            local,
+            StrikingBlade.turned(local, s * engaged.turn),
             HumanMountedFrame.LOCAL,
             now,
           );
@@ -254,7 +276,13 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
             ...shown.limbs,
             rightArm: goal(
               frame,
-              toWorld(Vector3.add(shoulder, { x: -0.4, y: -0.4, z: -0.2 })),
+              toWorld(
+                Vector3.add(Vector3.lerp(shoulder, engaged.shoulder, s), {
+                  x: -0.4,
+                  y: -0.4,
+                  z: -0.2,
+                }),
+              ),
             ),
           };
           // The bridle hand: both reins at their middle.
