@@ -20,6 +20,7 @@ import {
   HumanPropFrame,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -261,12 +262,15 @@ export function test_human_motion_two_weapon(): void {
       const chest: IAutoMovieVector3 = film
         .bones("b", thrust.contact!)
         .get("chest")!.worldPosition;
-      checks.check(
-        `${pair.name}: the right blade's thrust follows the block and lands on the chest`,
-        Math.abs(thrust.start - block.end) <= 1e-6 &&
-          Vector3.distance(tip("a.right", right, thrust.contact!), chest) <=
-            LAND,
+      const landed: number = Vector3.distance(
+        tip("a.right", right, thrust.contact!),
+        chest,
       );
+      checks.check(
+        `${pair.name}: the right blade's thrust follows the block (${(thrust.start - block.end).toFixed(3)} s) and lands on the chest (${landed.toFixed(3)} m)`,
+        Math.abs(thrust.start - block.end) <= 1e-6 && landed <= LAND,
+      );
+      assertTakeClean(`${pair.name} two-weapon exchange`, film);
     } catch (error: unknown) {
       checks.check(`${pair.name} refused: ${String(error)}`, false);
     }
