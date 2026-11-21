@@ -7,6 +7,8 @@ import type {
 import type { Object3D } from "three";
 
 import type { IAutoMovieDrawScene } from "../../draw/IAutoMovieDrawScene.js";
+import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
+import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip.js";
 import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspection.js";
 
@@ -38,6 +40,13 @@ const FRAME_MASK_TRIANGLE_BUDGET: number = 200_000;
 /** Per-frame candidate geometry cap before each subject's at-most-nine-ray check. */
 const FRAME_RAY_TRIANGLE_BUDGET: number = 3_000;
 
+/**
+ * Per-frame cap on drawn triangles the near-plane clip examines, the same
+ * admission as the exact mask passes, so any subject the mask can draw can be
+ * clipped. Only meshes whose box reaches in front of the near plane in view pay.
+ */
+const FRAME_NEAR_CLIP_TRIANGLE_BUDGET: number = FRAME_MASK_TRIANGLE_BUDGET;
+
 /** Independent diagnostic rows emitted by the placed camera observation. */
 type IResult = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
 
@@ -66,7 +75,10 @@ const FRAMING_FAILURES: Readonly<
  * Observe active, source-owned requirements on the host's original delivery camera.
  *
  * @evidence contracts/development/implementation.md#principled-implementation
- * Bounds exclusion yields a confirmed framing error. Exact delivery pixel
+ * Bounds exclusion yields a confirmed framing error. A subject in frame whose
+ * drawn surface reaches in front of the near plane is cut open in the picture;
+ * on an opaque stock surface that is a confirmed error, witnessed on the near
+ * plane where the cut shows. Exact delivery pixel
  * counts can confirm the authored coverage limit. Sparse ray witnesses can
  * suggest occlusion and leave an authored pixel obligation deferred.
  * @evidence contracts/development/implementation.md#efficient-algorithms
@@ -102,6 +114,9 @@ export function observeAutoMoviePlacedCamera(props: {
   );
   const rayTriangles: number = Math.floor(
     FRAME_RAY_TRIANGLE_BUDGET / distinct.size,
+  );
+  const clipTriangles: number = Math.floor(
+    FRAME_NEAR_CLIP_TRIANGLE_BUDGET / distinct.size,
   );
   let pixelBudget: number = FRAME_PIXEL_BUDGET;
   for (const requirement of distinct.values()) {
@@ -162,6 +177,50 @@ export function observeAutoMoviePlacedCamera(props: {
         });
       continue;
     }
+
+    // A subject still in frame is cut open where the camera has entered it.
+    const nearClip: { check: string; key: string; required: true } = {
+      check: "camera-near-clip",
+      key: path,
+      required: true,
+    };
+    const clip: measureAutoMovieCameraNearClip.IResult =
+      measureAutoMovieCameraNearClip({
+        camera: sample.camera,
+        meshes:
+          target === undefined || sample.scene.overrideMaterial !== null
+            ? undefined
+            : listAutoMovieCameraSubjectMeshes(target, sample.camera),
+        ...(targetBounds === undefined ? {} : { bounds: targetBounds }),
+        triangleBudget: clipTriangles,
+      });
+    coverage.push(
+      clip.status === "unmeasured"
+        ? { ...nearClip, status: "deferred", reason: clip.reason }
+        : { ...nearClip, status: "checked" },
+    );
+    if (clip.status === "clipped")
+      findings.push({
+        check: nearClip.check,
+        key: path,
+        code: "camera-subject-clipped-near",
+        paths: [path],
+        category: "error",
+        confidence: clip.opaque ? "confirmed" : "candidate",
+        message: `The delivery near plane cuts ${clip.depth.toFixed(3)} m into required subject ${path}.`,
+        witness: {
+          point: clip.cut,
+          rank: clip.depth,
+          measurements: [
+            { name: "near-plane-intrusion", value: clip.depth, unit: "metres" },
+            {
+              name: "near-clip-triangles",
+              value: clip.triangles,
+              unit: "triangles",
+            },
+          ],
+        },
+      });
     if (
       maxOcclusionRatio !== undefined &&
       (!Number.isFinite(maxOcclusionRatio) ||
