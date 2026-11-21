@@ -33,10 +33,10 @@ import {
 import { equineLeadOut } from "./equineLeadOut";
 
 /**
- * The staged handler-and-horse take of `test_motion_equestrian_handler`: the horse's ride, stance and expression on one clock, its care points, the brush, halter and saddle props, and the handler's chain.
+ * The staged handler-and-horse takes of `test_motion_equestrian_handler`, one short take per task, each starting where its acceptance begins: leading the horse in, brushing it with a picked-up brush, putting the halter on, saddling it, and holding a lifted hoof through the horse's weight shift and startle.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States what the take stages and who reads it.
- * @evidence contracts/development/design.md#principled-representation A take record and its builder.
+ * @evidence contracts/development/common.md#meaningful-documentation States what each take stages and who reads it.
+ * @evidence contracts/development/design.md#principled-representation A scene name, a take record and its builder.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test only.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
@@ -45,7 +45,7 @@ export namespace equestrianHandlerTake {
    * The horse producer's model.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it names.
-   * @evidence contracts/development/design.md#principled-representation The producer's or the take's own record.
+   * @evidence contracts/development/design.md#principled-representation The producer's record.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -55,7 +55,7 @@ export namespace equestrianHandlerTake {
    * A horse ride.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it names.
-   * @evidence contracts/development/design.md#principled-representation The producer's or the take's own record.
+   * @evidence contracts/development/design.md#principled-representation The producer's record.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -65,10 +65,20 @@ export namespace equestrianHandlerTake {
   >;
 
   /**
+   * One short take: leading in, brushing, putting the halter on, saddling, or holding a lifted hoof.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each take.
+   * @evidence contracts/development/design.md#principled-representation Closed literals.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What `take` stages.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export type Scene = "lead" | "brush" | "headgear" | "saddle" | "hoof";
+
+  /**
    * The horse prop's model and readers for one displayed ride.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it names.
-   * @evidence contracts/development/design.md#principled-representation The producer's or the take's own record.
+   * @evidence contracts/development/design.md#principled-representation The take's own record.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -76,18 +86,18 @@ export namespace equestrianHandlerTake {
     /** The prop model: the horse's contacts and its care points. */
     model: IAutoMovieMotionHumanObject.IModel;
 
-    /** The horse's world placement at a film second. */
+    /** The horse's world placement at a take second. */
     place: (at: number) => IAutoMovieRigidTransform;
 
-    /** A contact's world frame at a film second. */
+    /** A contact's world frame at a take second. */
     part: (id: string, at: number) => IAutoMovieTransform;
   }
 
   /**
-   * One staged take: the film, the horse's displayed ride and its care points.
+   * One staged take: the film, the horse's displayed ride on the take's clock and its care points.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what it names.
-   * @evidence contracts/development/design.md#principled-representation The producer's or the take's own record.
+   * @evidence contracts/development/design.md#principled-representation The take's own record.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -95,10 +105,12 @@ export namespace equestrianHandlerTake {
     /** The handler's performance. */
     film: HumanPerformance;
 
-    /** The horse as displayed. */
-    horse: Ride;
+    /** The horse as displayed, on the take's clock. */
+    horse: (
+      at: number,
+    ) => ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension>;
 
-    /** The horse's contact frames, care points included, at a film second. */
+    /** The horse's contact frames, care points included, at a take second. */
     part: (id: string, at: number) => IAutoMovieTransform;
 
     /** The horse prop's contacts at rest, care points included. */
@@ -119,23 +131,25 @@ export namespace equestrianHandlerTake {
     createGroomingBrush();
 
   /**
-   * Rehearse the handler's carriers, then lay the horse's responses on their clock and stage the take.
+   * Stage one short take.
    *
    * @param body The handler's body.
    * @param brushPoint The horse's care point the brush strokes.
+   * @param scene The take.
    * @returns The staged take.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the take returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The handler's carriers do not depend on the horse, so one rehearsal over the halted horse fixes the clock the horse's stance and expression cues are laid on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Ride, props, chain, rehearsal, horse cues, final performance.
+   * @evidence contracts/development/implementation.md#principled-implementation The lead-in matches the horse's approach to a rehearsal of the handler's walk; every other take starts with the horse halted, the take's clock offset to the halt, and the hoof take rehearses the handler's crouch to lay the horse's weight shift, lift and startle on its clock.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared staging, one chain per scene, at most one rehearsal.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two performances are built; sampling is the caller's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The chain and prop builders serve both performances.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The take holds its performance and rides for the caller.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Each take builds only its own short performance, and a rehearsal only where its clock needs one.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The props and placements serve every scene.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The take holds its performance and ride for the caller.
    */
   export function take(
     body: IAutoMovieMotionHumanBody,
     brushPoint: string,
+    scene: Scene,
   ): ITake {
     // A bareback horse is saddled from a saddle made of the same horse's own saddle parts.
     const horse: Horse = createHorse(
@@ -146,7 +160,7 @@ export namespace equestrianHandlerTake {
       createHorse({ tack: "saddle", withersHeight: 1.6, tempo: 0 }, 5),
       horse,
     );
-    // The handler leads the horse in on a straight approach; its progress is later matched to the handler's walk.
+    // The handler leads the horse in on a straight approach; its progress is matched to the handler's walk in the lead-in.
     const approach = (course: equineLeadOut.IMatchedCourse): Ride =>
       rideHorse(
         horse,
@@ -196,11 +210,11 @@ export namespace equestrianHandlerTake {
       z: girth.translation.z + 0.3,
     };
 
-    // The brush waits on a shelf at the handler's right front, its back up.
+    // The brush waits on a shelf at the handler's right front, an arm's reach out from the hip, its back up.
     const shelf: IAutoMovieVector3 = {
-      x: girth.translation.x + 0.23,
+      x: spot.x - 0.2,
       y: 1,
-      z: girth.translation.z + 0.05,
+      z: spot.z - 0.4,
     };
     // The halter, fitted to this horse's head, hangs on a hook at the handler's left front.
     const headPart: IAutoMovieModelPart = horse.parts.find(
@@ -231,93 +245,107 @@ export namespace equestrianHandlerTake {
       y: 1.05 - pommel.y,
       z: spot.z + 0.25 - pommel.z,
     };
+
+    // Each take starts where its task does: the lead-in at the horse's head, the brush, halter and saddle at the girth, the hoof beside the foreleg.
+    const where: IAutoMovieVector3 =
+      scene === "lead" ? handlerStart : scene === "hoof" ? beside : spot;
     const performer: IAutoMovieMotionHumanPerformer = {
       subject: "handler",
       body,
-      at: handlerStart,
-      yaw: 0,
+      at: where,
+      yaw: scene === "lead" ? 0 : -90,
       proficiency: { level: "trained" },
     };
-    const walked: IAutoMovieMotionHumanChain = HumanChain.subject(
-      "handler",
-    ).walk({
-      to: { ...handlerStart, z: handlerStart.z + LEAD },
-      face: 0,
-    });
-    const chain = (leading: number | null): IAutoMovieMotionHumanChain =>
-      (leading === null
-        ? walked
-        : walked.over(
+    const handler: IAutoMovieMotionHumanChain = HumanChain.subject("handler");
+    const chain = (leading: number | null): IAutoMovieMotionHumanChain => {
+      if (scene === "lead") {
+        const walked: IAutoMovieMotionHumanChain = handler.walk({
+          to: { ...handlerStart, z: handlerStart.z + LEAD },
+          face: 0,
+        });
+        return leading === null
+          ? walked
+          : walked.over(
+              (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+                hand.registered("leadHorse", {
+                  on: "horse",
+                  side: "right",
+                  seconds: 0.79 * leading,
+                  transition: 0.1 * leading,
+                }),
+            );
+      }
+      if (scene === "brush")
+        return handler
+          .pickUp({ prop: "brush", handle: "grip", hand: "right" })
+          .stand({ seconds: 4 })
+          .over(
             (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-              hand.registered("leadHorse", {
+              hand.registered("tendHorse", {
                 on: "horse",
                 side: "right",
-                seconds: 0.79 * leading,
-                transition: 0.1 * leading,
+                point: brushPoint,
+                task: "brush",
+                seconds: 3.6,
+                transition: 0.6,
+                stroke: 0.3,
+                tool: { prop: "brush", face: "face" },
               }),
           )
-      )
-        .walk({ to: spot, face: -90 })
-        .pickUp({ prop: "brush", handle: "grip", hand: "right" })
-        .stand({ seconds: 4 })
-        .over(
-          (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            hand.registered("tendHorse", {
-              on: "horse",
-              side: "right",
-              point: brushPoint,
-              task: "brush",
-              seconds: 3.6,
-              transition: 0.6,
-              stroke: 0.3,
-              tool: { prop: "brush", face: "face" },
-            }),
-        )
-        .putDown({ prop: "brush", hand: "right", at: shelf })
-        .pickUp({ prop: "halter", handle: "grip", hand: "right" })
-        .putDown({
-          prop: "halter",
-          hand: "right",
-          onto: { prop: "horse", point: "headgear", via: "seat" },
-        })
-        .pickUp({ prop: "saddle", handle: "grip", hand: "right" })
-        .walk({ to: { ...spot, x: girth.translation.x + 0.2 }, face: -90 })
-        .putDown({
-          prop: "saddle",
-          hand: "right",
-          onto: { prop: "horse", point: "saddle", via: "seat" },
-        })
-        .walk({ to: beside, face: -90 })
-        .crouch({ depth: "full", hold: 4 }, "low")
-        .over(
-          (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
-            hand.registered("tendHorse", {
-              on: "horse",
-              side: "right",
-              point: "leftForeHoof",
-              task: "hoof",
-              seconds: 3.4,
-              transition: 0.6,
-            }),
-        );
-    const prop = (shown: Ride): IStagedHorse => {
+          .putDown({ prop: "brush", hand: "right", at: shelf });
+      if (scene === "headgear")
+        return handler
+          .pickUp({ prop: "halter", handle: "grip", hand: "right" })
+          .putDown({
+            prop: "halter",
+            hand: "right",
+            onto: { prop: "horse", point: "headgear", via: "seat" },
+          })
+          .stand({ seconds: 1 });
+      if (scene === "saddle")
+        return handler
+          .pickUp({ prop: "saddle", handle: "grip", hand: "right" })
+          .walk({ to: { ...spot, x: girth.translation.x + 0.2 }, face: -90 })
+          .putDown({
+            prop: "saddle",
+            hand: "right",
+            onto: { prop: "horse", point: "saddle", via: "seat" },
+          })
+          .stand({ seconds: 1 });
+      return handler.crouch({ depth: "full", hold: 4 }, "low").over(
+        (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
+          hand.registered("tendHorse", {
+            on: "horse",
+            side: "right",
+            point: "leftForeHoof",
+            task: "hoof",
+            seconds: 3.4,
+            transition: 0.6,
+          }),
+      );
+    };
+    const prop = (shown: Ride, offset: number): IStagedHorse => {
       const model: IAutoMovieMotionHumanObject.IModel = {
         affordances: [...horse.affordances, ...care.affordances],
         shapes: (): ReturnType<Horse["shapes"]> => horse.shapes(),
         hasArticulations: false,
       };
       const place = (at: number): IAutoMovieRigidTransform => {
-        const frame: IAutoMovieTransform = shown.at(at).placement;
+        const frame: IAutoMovieTransform = shown.at(at + offset).placement;
         return { position: frame.translation, rotation: frame.rotation };
       };
       const part = (id: string, at: number): IAutoMovieTransform =>
         care.affordances.some((a: IAutoMovieAffordance): boolean => a.id === id)
-          ? care.frame(shown.at(at), id)
-          : shown.frame(id as createHorse.Affordance, at);
+          ? care.frame(shown.at(at + offset), id)
+          : shown.frame(id as createHorse.Affordance, at + offset);
       return { model, place, part };
     };
-    const stage = (shown: Ride, leading: number | null): HumanPerformance => {
-      const { model, place, part } = prop(shown);
+    const stage = (
+      shown: Ride,
+      offset: number,
+      leading: number | null,
+    ): HumanPerformance => {
+      const { model, place, part } = prop(shown, offset);
       return new HumanPerformance({
         seed: "equine-handler",
         performers: [performer],
@@ -331,91 +359,120 @@ export namespace equestrianHandlerTake {
         composition: chain(leading).node,
       });
     };
+    const finish = (
+      shown: Ride,
+      offset: number,
+      film: HumanPerformance,
+    ): ITake => ({
+      film,
+      horse: (
+        at: number,
+      ): ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension> =>
+        shown.at(at + offset),
+      part: prop(shown, offset).part,
+      affordances: [...horse.affordances, ...care.affordances],
+      halter,
+      hook,
+      rack,
+    });
 
-    // The handler's carriers do not depend on the horse, so a rehearsal fixes the clock the horse's course and responses are laid on: the approach is matched to the hips' displayed progress through the leading walk.
-    // While the handler tends it, the halted horse holds its head lowered to the handler's chest, so the halter can be put on.
-    const chest: IAutoMovieVector3 = { x: spot.x - 0.3, y: 0.8, z: spot.z };
-    const lowered: EquineExpressionCue.IReach = {
-      kind: "reach",
-      act: "sniff",
-      from: ride.duration + 0.5,
-      to: ride.duration + HEAD_DOWN,
-      ease: 0.9,
-      target: { kind: "point", point: chest },
-      gap: 0.12,
-    };
-    const rehearsal: HumanPerformance = stage(
-      EquineExpression.layer(horse, ride, [lowered]),
-      null,
-    );
-    const walking: IAutoMovieMotionHumanSegment =
-      rehearsal.segments("handler")[0]!;
-    const span: number = walking.end - walking.start;
-    const hips = (at: number): number =>
-      rehearsal.bones("handler", at).get("hips")!.worldPosition.z;
-    const step: number = span / equineLeadOut.SAMPLES;
-    const progress: readonly number[] = Array.from(
-      { length: equineLeadOut.SAMPLES + 1 },
-      (_: unknown, i: number): number =>
-        hips(walking.start + i * step) - hips(walking.start),
-    );
-    ride = approach(equineLeadOut.match(progress, step));
-    lowered.from = ride.duration + 0.5;
-    lowered.to = ride.duration + HEAD_DOWN;
-    const holds: readonly IAutoMovieMotionHumanSegment[] =
-      rehearsal.overlays("handler");
-    const hoof: IAutoMovieMotionHumanSegment = holds[1]!;
-    const leading: number = span;
+    // The lead-in: a rehearsal of the handler's walk fixes the clock the horse's approach is matched to.
+    if (scene === "lead") {
+      const rehearsal: HumanPerformance = stage(ride, 0, null);
+      const walking: IAutoMovieMotionHumanSegment =
+        rehearsal.segments("handler")[0]!;
+      const span: number = walking.end - walking.start;
+      const hips = (at: number): number =>
+        rehearsal.bones("handler", at).get("hips")!.worldPosition.z;
+      const step: number = span / equineLeadOut.SAMPLES;
+      const progress: readonly number[] = Array.from(
+        { length: equineLeadOut.SAMPLES + 1 },
+        (_: unknown, i: number): number =>
+          hips(walking.start + i * step) - hips(walking.start),
+      );
+      ride = approach(equineLeadOut.match(progress, step));
+      return finish(ride, 0, stage(ride, 0, span));
+    }
+
+    // Every other take starts with the horse halted, its clock running from the halt; the headgear take starts once the horse has lowered its head, and the hoof take once the horse has stood long enough to shift its weight before the handler holds the hoof.
+    const offset: number =
+      ride.duration +
+      (scene === "headgear" ? LOWERED : scene === "hoof" ? SHIFT : 0);
+    if (scene !== "hoof") {
+      // While the handler puts the halter on, the horse holds its head lowered to the handler's chest.
+      const shown: Ride =
+        scene === "headgear"
+          ? EquineExpression.layer(horse, ride, [lowered(ride.duration, spot)])
+          : ride;
+      return finish(shown, offset, stage(shown, offset, null));
+    }
+
+    // The hoof: a rehearsal fixes when the handler holds the hoof, and the horse shifts its weight, lifts it, puts it down and startles on that clock.
+    const rehearsal: HumanPerformance = stage(ride, offset, null);
+    const hold: IAutoMovieMotionHumanSegment =
+      rehearsal.overlays("handler")[0]!;
     const stance: Ride = EquineStance.after(horse, ride, [
       {
         kind: "hoof",
         limb: "leftFore",
-        from: hoof.start - 1.2,
+        from: offset + hold.start - 1.2,
         entry: 1.4,
-        hold: hoof.end - hoof.start - 0.6,
+        hold: hold.end - hold.start - 0.6,
         exit: 1,
       },
       {
         kind: "startle",
-        from: hoof.end + 1.5,
+        from: offset + hold.end + 1.5,
         entry: 0.15,
         hold: 0.5,
         exit: 0.8,
       },
     ]);
     const shown: Ride = EquineExpression.layer(horse, stance, [
-      lowered,
       {
         kind: "ear",
         side: "left",
         carriage: "lateral",
-        from: hoof.start,
-        to: hoof.end,
+        from: offset + hold.start,
+        to: offset + hold.end,
         ease: 0.3,
       },
       {
         kind: "ear",
         side: "right",
         carriage: "forward",
-        from: hoof.end + 1.4,
-        to: hoof.end + 3,
+        from: offset + hold.end + 1.4,
+        to: offset + hold.end + 3,
         ease: 0.2,
       },
     ]);
-    const { part } = prop(shown);
+    return finish(shown, offset, stage(shown, offset, null));
+  }
+
+  /** The horse's head lowered to the handler's chest from just after the halt, for the halter. */
+  function lowered(
+    halt: number,
+    spot: IAutoMovieVector3,
+  ): EquineExpressionCue.IReach {
     return {
-      film: stage(shown, leading),
-      horse: shown,
-      part,
-      affordances: [...horse.affordances, ...care.affordances],
-      halter,
-      hook,
-      rack,
+      kind: "reach",
+      act: "sniff",
+      from: halt + 0.2,
+      to: halt + HEAD_DOWN,
+      ease: 0.9,
+      target: { kind: "point", point: { x: spot.x - 0.3, y: 0.8, z: spot.z } },
+      gap: 0.12,
     };
   }
 
-  /** Seconds after the halt the horse keeps its head lowered to the handler: long enough for the brushing, the halter and the saddle. */
-  const HEAD_DOWN: number = 28;
+  /** Seconds after the halt the horse keeps its head lowered to the handler: long enough to put the halter on. */
+  const HEAD_DOWN: number = 12;
+
+  /** Seconds after the halt the headgear take starts: once the lowered head has settled. */
+  const LOWERED: number = 1.5;
+
+  /** Seconds after the halt the hoof take starts: the horse's weight shift before the lift takes 1.2 s. */
+  const SHIFT: number = 1.2;
 
   /** Metres the handler leads the horse in. */
   const LEAD: number = 3;
