@@ -63,6 +63,7 @@ interface IMatched {
  * 1. The ploughman's walk is rehearsed, and the horse's course is laid so the dragged plough's grips stay the authored reach ahead of the walker's hips.
  * 2. Through the held interval each displayed palm lies within 10 mm of the skin of its plough grip, read from the posed plough.
  * 3. At the same seconds the ploughman's soles bear on the ground and never sink below it, while the share runs its 0.15 m below.
+ * 4. The driving lines run from the horse's bit rings over the ploughman's left shoulder.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios, the bodies and the tolerances.
  * @evidence contracts/development/testing.md#behavioral-verification Composes a horse, a dragged plough and a walking ploughman through public APIs and reads displayed palms, soles and the plough's share; a hand off its grip, a sinking foot or a shallow share fails.
@@ -216,6 +217,28 @@ export function test_archetype_equine_draft_ploughman(): void {
         if (Math.min(...soles) < -0.005)
           issues.push(
             `${share}: ${side} sole sinks to ${Math.min(...soles)} m`,
+          );
+      }
+      const shoulder: IAutoMovieVector3 =
+        bones.get("leftShoulder")!.worldPosition;
+      const horseAt: ArchetypeRide.ISample<
+        createHorse.Affordance,
+        createHorse.Dimension
+      > = ride.at(at - staged.start);
+      for (const line of staged.plough.lines(at - staged.start, shoulder)) {
+        const bit: IAutoMovieVector3 = ArchetypeFrame.compose(
+          horseAt.placement,
+          horseAt.archetype.parts.find(
+            (p: IAutoMovieModelPart): boolean =>
+              p.id === `bit-${line.id.split("-")[1]}`,
+          )!.transform!,
+        ).translation;
+        if (
+          Vector3.distance(line.points[0]!, bit) > 1e-9 ||
+          Vector3.distance(line.points.at(-1)!, shoulder) > 1e-9
+        )
+          issues.push(
+            `${share}: ${line.id} does not run from the bit to the ploughman's shoulder`,
           );
       }
       const shareDepth: number = staged.plough.at(at - staged.start).depth;

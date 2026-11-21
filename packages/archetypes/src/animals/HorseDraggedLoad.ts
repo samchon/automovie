@@ -32,7 +32,7 @@ const HALF: number = 5e-4;
 /**
  * A load dragged along the ground behind a harnessed horse: a plough cutting its furrow, a harrow, a chained log or a sledge, its heading following the trace line and its coupling kept a trace's length behind the horse's points of draft.
  *
- * The pull point is the middle of the collar's two points of draft, carried by the horse's course placement (the stride's bob and nod, millimetres, are left to the laid traces). The load's coupling is held `length` metres behind it in plan, moving only along the line to it, the pursuit curve a load on a fixed trace traces (a tractrix on a turn), integrated once by the engine's trajectory integrator from a start straight behind the horse. The load's heading is that line, so it follows the trace; its body lies on the authored ground plane under its coupling (`QuadrupedFooting`, or level Y=0), lowered by the plough's working `depth` so its share runs that deep in the furrow. Over each headland interval in `lifts` the plough is lifted out, its share raised to `lift` metres above the ground on minimum-jerk transitions of `raise` seconds at each end. The traces are laid from the actual points of draft to the whippletree's two ends on the coupling, as far apart as the points of draft.
+ * The pull point is the middle of the collar's two points of draft, carried by the horse's course placement (the stride's bob and nod, millimetres, are left to the laid traces). The load's coupling is held `length` metres behind it in plan, moving only along the line to it, the pursuit curve a load on a fixed trace traces (a tractrix on a turn), integrated once by the engine's trajectory integrator from a start straight behind the horse. The load's heading is that line, so it follows the trace; its body lies on the authored ground plane under its coupling (`QuadrupedFooting`, or level Y=0), lowered by the plough's working `depth` so its share runs that deep in the furrow. Over each headland interval in `lifts` the plough is lifted out, its share raised to `lift` metres above the ground on minimum-jerk transitions of `raise` seconds at each end. The traces are laid from the actual points of draft to the whippletree's two ends on the coupling, as far apart as the points of draft, and `lines` lays the driving lines from the bit rings to the point a walking driver holds them at.
  *
  * Draught is declared, not simulated: a plough's draught grows linearly with its depth (Davies, J. Agric. Sci.), and the author states the load's draught and the horse's capacity; a load whose draught exceeds that capacity is refused.
  *
@@ -155,7 +155,7 @@ export function HorseDraggedLoad(
       t1: Math.max(ride.duration, 1e-3),
     });
 
-  return { duration: ride.duration, at };
+  return { duration: ride.duration, at, lines };
 
   /** The load, its placement, the traces and the share's depth at a film second. */
   function at(seconds: number): HorseDraggedLoad.ISample {
@@ -217,6 +217,35 @@ export function HorseDraggedLoad(
       }),
     );
     return { archetype: load, placement, traces, depth: sink };
+  }
+
+  /** The driving lines from each bit ring to a world point the driver holds them at, such as a ploughman's shoulder. */
+  function lines(
+    seconds: number,
+    held: IAutoMovieVector3,
+  ): ArchetypeRide.ILineState[] {
+    const sample: ArchetypeRide.ISample<
+      createHorse.Affordance,
+      createHorse.Dimension
+    > = ride.at(seconds);
+    return HorseHarness.SIDES.map(
+      ([
+        side,
+      ]: (typeof HorseHarness.SIDES)[number]): ArchetypeRide.ILineState => ({
+        id: `line-${side}`,
+        radius: HorseHarness.ESTIMATES.strap,
+        points: [
+          ArchetypeFrame.point(
+            sample.placement,
+            sample.archetype.parts.find(
+              (part: IAutoMovieModelPart): boolean =>
+                part.id === HorseHarness.ENDS.bit[side],
+            )!.transform!.translation,
+          ),
+          { ...held },
+        ],
+      }),
+    );
   }
 
   /** The share of the lift at a film second: 1 out of the ground, 0 at work. */
@@ -289,6 +318,11 @@ export namespace HorseDraggedLoad {
     duration: number;
     /** The load at a film second, held at the ride's ends outside it. */
     at: (seconds: number) => ISample;
+    /** The horse's driving lines at a film second, from its bit rings to the world point a walking driver holds them at, such as a ploughman's shoulder they run over. */
+    lines: (
+      seconds: number,
+      held: IAutoMovieVector3,
+    ) => readonly ArchetypeRide.ILineState[];
   }
 }
 
