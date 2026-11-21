@@ -41,7 +41,8 @@ const HOLD: IAutoMovieMotionHumanMounted.ISupports = {
  * Scenarios:
  * 1. The horse's own pitch, read from its saddle's forward axis, rises more than 15 degrees nose-up in the rear and falls nose-down in the buck.
  * 2. Against the saddle's up, the displayed trunk leans forward while the horse rears and back while it bucks, and in the world its inclination turns less from where it was before the event than in the same take ridden with no response: the trunk inclination opposes the horse's pitch.
- * 3. Through both events, a sideways step aside (a shy), three crow hops (each lifting the left hind) and a 90-degree spin on the haunches (turning the saddle within 5 degrees of it), the seat region stays within 10 mm of the saddle, both balls of the feet within 10 mm of their stirrups and both wrists within 0.7 hand lengths of their reins, moving less than 10 mm against them.
+ * 2b. A ridden levade and pesade (#3939): the horse's pitch exceeds 25 degrees in the levade and more in the pesade, the trunk leans forward against the saddle in both, and at the halt 0.6 s after the pesade it is back within 1 degree of its lean before the events.
+ * 3. Through both events, a sideways step aside (a shy), three crow hops (each lifting the left hind) a 90-degree spin on the haunches (turning the saddle within 5 degrees of it), a levade, a pesade and the halt after them, the seat region stays within 10 mm of the saddle, both balls of the feet within 10 mm of their stirrups and both wrists within 0.7 hand lengths of their reins, moving less than 10 mm against them.
  * 4. A take that lets the left foot go as the buck begins and takes the stirrup again after it: halfway through the loss the left ball is more than 50 mm from its tread, half a second after the regain it is back within 30 mm, and the left stirrup's window closes when the loss begins and opens again when the regain arrives.
  * 5. A response share outside 0 to 1 is refused on `respond`.
  *
@@ -81,8 +82,10 @@ export function test_motion_equestrian_seat_response(): void {
   const rear: number = halt.duration + 2;
   const buck: number = halt.duration + 7;
   const shy: number = halt.duration + 10;
-  const hops: number = halt.duration + 13;
-  const spun: number = halt.duration + 16;
+  const levade: number = halt.duration + 13;
+  const pesade: number = halt.duration + 18;
+  const hops: number = halt.duration + 23;
+  const spun: number = halt.duration + 26;
   const course: mountedHorseScene.Ride = EquineStance.after(horse, halt, [
     { kind: "rear", pitch: 30, ...phases(rear, 1.2, 0.8, 1.2) },
     { kind: "buck", pitch: 15, ...phases(buck, 0.6, 0.3, 0.6) },
@@ -92,6 +95,8 @@ export function test_motion_equestrian_seat_response(): void {
       width: 0.25,
       ...phases(shy, 0.8, 0.4, 0.8),
     },
+    { kind: "air", air: "levade", ...phases(levade, 1.2, 1, 1.2) },
+    { kind: "air", air: "pesade", ...phases(pesade, 1.2, 1, 1.2) },
     { kind: "crowHops", count: 3, pitch: 8, ...phases(hops, 1.8, 0.2, 0.4) },
     { kind: "spin", degrees: 90, ...phases(spun, 3.2, 0.3, 0.6) },
   ]);
@@ -100,6 +105,8 @@ export function test_motion_equestrian_seat_response(): void {
   const shied: number = WAIT + shy + 0.8 + 0.2;
   const hopped: number = WAIT + hops + 0.9;
   const spinning: number = WAIT + spun + 1.6;
+  const levaded: number = WAIT + levade + 1.2 + 0.5;
+  const pesaded: number = WAIT + pesade + 1.2 + 0.5;
   const responding: mountedHorseScene.IScene = stage(horse, body, course, 1);
   const rigid: mountedHorseScene.IScene = stage(horse, body, course, 0);
 
@@ -153,9 +160,25 @@ export function test_motion_equestrian_seat_response(): void {
     return (Math.atan2(Vector3.dot(t, level), t.y) * 180) / Math.PI;
   };
   const settled: number = WAIT + rear - 0.5;
-  if (!(lean(responding, reared) > lean(responding, settled)))
+  for (const at of [reared, levaded, pesaded])
+    if (!(lean(responding, at) > lean(responding, settled)))
+      findings.push(
+        `raised at ${at.toFixed(2)} s the trunk leans ${lean(responding, at).toFixed(1)} degrees against the saddle, ${lean(responding, settled).toFixed(1)} before it`,
+      );
+  // Back at the halt after the pesade the trunk settles where it sat before the events.
+  const halted: number = WAIT + pesade + 3.4 + 0.6;
+  if (Math.abs(lean(responding, halted) - lean(responding, settled)) > 1)
     findings.push(
-      `in the rear the trunk leans ${lean(responding, reared).toFixed(1)} degrees against the saddle, ${lean(responding, settled).toFixed(1)} before it`,
+      `at the halt after the pesade the trunk leans ${lean(responding, halted).toFixed(1)} degrees against the saddle, ${lean(responding, settled).toFixed(1)} before the events`,
+    );
+  if (
+    !(
+      pitch(responding, levaded) > 25 &&
+      pitch(responding, pesaded) > pitch(responding, levaded)
+    )
+  )
+    findings.push(
+      `the levade pitches ${pitch(responding, levaded).toFixed(1)} degrees and the pesade ${pitch(responding, pesaded).toFixed(1)}`,
     );
   if (!(lean(responding, bucked) < lean(responding, settled)))
     findings.push(
@@ -197,7 +220,16 @@ export function test_motion_equestrian_seat_response(): void {
     );
   };
   const before: number = settled;
-  for (const at of [reared, bucked, shied, hopped, spinning]) {
+  for (const at of [
+    reared,
+    bucked,
+    shied,
+    hopped,
+    spinning,
+    levaded,
+    pesaded,
+    halted,
+  ]) {
     if (Vector3.distance(seat(at), seat(before)) > CONTACT)
       findings.push(`the seat slides on the saddle at ${at.toFixed(2)} s`);
     for (const side of ["left", "right"] as const) {
