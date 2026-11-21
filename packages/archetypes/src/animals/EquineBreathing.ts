@@ -304,7 +304,7 @@ export namespace EquineBreathing {
     let rate: number = REST_RATE;
     let depth: number = REST_DEPTH;
     for (const effort of efforts) {
-      if (seconds <= effort.from) continue;
+      if (seconds < effort.from) continue;
       const u: number = Math.min(1, (seconds - effort.from) / effort.seconds);
 
       // The integral of 1 - s(u), s the minimum-jerk share 10u³ - 15u⁴ + 6u⁵, is u - (2.5u⁴ - 3u⁵ + u⁶).

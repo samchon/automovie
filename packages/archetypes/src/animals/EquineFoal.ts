@@ -7,7 +7,7 @@ import type {
 
 import {
   type Archetype,
-  type ArchetypeCourse,
+  ArchetypeCourse,
   ArchetypeFrame,
   type ArchetypeRide,
 } from "../core";
@@ -115,7 +115,7 @@ export namespace EquineFoal {
       });
       samples.push({ seconds, x: point.x, z: point.z });
     }
-    return rideQuadruped(foal, { kind: "timed", samples });
+    return rideQuadruped(foal, ArchetypeCourse.timed(foal.archetype, samples));
   }
 
   /**
@@ -251,7 +251,8 @@ export namespace EquineFoal {
       );
       return {
         archetype: shown.animal,
-        placement: ArchetypeFrame.compose(place, shown.placement),
+        // A sternal rest poses its parts in place.
+        placement: ArchetypeFrame.copy(place),
         course: ride.plan.at(Math.min(seconds, ride.duration)),
       };
     };

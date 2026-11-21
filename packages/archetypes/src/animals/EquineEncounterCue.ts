@@ -127,22 +127,35 @@ export namespace EquineEncounterCue {
    * @evidence contracts/development/design.md#minimal-and-owned-surface A stance row the encounter plans.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export interface IStrike extends EquineStanceCue.IPhases {
+  export interface IStrike extends EquineStanceCue.IPhases, IContact {
     /** Discriminator. */
     kind: "strike";
 
     /** The striking foreleg's side. */
     side: EquineExpressionCue.Side;
-
-    /** The struck point, base model space. */
-    point: IAutoMovieVector3;
   }
 
   /**
-   * The stance row of a double-barrel kick: both hind hooves placed at a point, both fore hooves planted.
+   * A hoof's contact: a point on the other horse's surface and its outward normal.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The point is the kicked surface in the kicker's base model space.
-   * @evidence contracts/development/design.md#principled-representation Phases and a point.
+   * @evidence contracts/development/common.md#meaningful-documentation Both in the attacker's base model space.
+   * @evidence contracts/development/design.md#principled-representation A point and a unit normal.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The strike's and each kicking hoof's aim.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IContact {
+    /** The point, base model space. */
+    point: IAutoMovieVector3;
+
+    /** The surface's outward normal there, base model space. */
+    normal: IAutoMovieVector3;
+  }
+
+  /**
+   * The stance row of a double-barrel kick: each hind hoof placed at its own point, both fore hooves planted.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each hind hoof's contact on the kicked surface.
+   * @evidence contracts/development/design.md#principled-representation Phases and two contacts.
    * @evidence contracts/development/design.md#minimal-and-owned-surface A stance row the encounter plans.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
@@ -150,8 +163,8 @@ export namespace EquineEncounterCue {
     /** Discriminator. */
     kind: "kick";
 
-    /** The kicked point, base model space. */
-    point: IAutoMovieVector3;
+    /** Each hind hoof's contact, by side. */
+    hooves: Readonly<Record<EquineExpressionCue.Side, IContact>>;
   }
 
   /**

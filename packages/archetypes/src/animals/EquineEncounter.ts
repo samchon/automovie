@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
+  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -52,13 +53,16 @@ interface ISurface {
   normal: IAutoMovieVector3;
 }
 
+/** Closed-form passes refining a bite's target and the poll the reach will put above it: authored. */
+const REFINE: number = 4;
+
 /** Two of a kind, one per horse. */
 type Pair<T> = readonly [T, T];
 
 /**
  * Two horses' agonistic encounter on one scene clock: threats, bites, rearing strikes and double-barrel kicks aimed at named regions of the other horse, the struck horse's response and an optional retreat.
  *
- * Each horse rides into the encounter and halts. A strike or kick is a stance row (`EquineEncounterRows`) whose hooves go to the aimed region's surface on the other horse's halted body, read from its actual bar: the region's point on the bar's axis pushed out along the bar's radius toward the attacker, the hoof's endpoint one terminal radius off it, so the hoof meets the surface without entering it. A bite is a touching muzzle reach (`EquineExpression`) onto the region's surface, tracked on the other horse's staged ride. A threat pins both ears back and faces the other horse's head. Every contact makes the struck horse pin its ears and turn its head to the attacker for `RESPONSE`. A retreat plays its own ride from its start second, beginning at the halt. An unreachable region is refused by the stance or the reach.
+ * Each horse rides into the encounter and halts. A strike or kick is a stance row (`EquineEncounterRows`) whose hooves go to the aimed region's surface on the other horse's halted body, read from its actual bar: the region's point on the bar's axis pushed out along the bar's radius toward the attacker; the hoof's endpoint goes onto that point with its terminal bar along the inward normal, so the hoof's sole meets the surface end-on without entering it. A bite is a touching muzzle reach (`EquineExpression`) onto the region's surface facing the biter's poll, so the head comes in along the surface's normal, tracked on the other horse's staged ride. A threat pins both ears back and faces the other horse's head. When each contact act ends the struck horse pins its ears and turns its head to the attacker for `RESPONSE`, so the touched region holds still while touched and the attacker's limbs are back down. A retreat plays its own ride from its start second, beginning at the halt. An unreachable region is refused by the stance or the reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clock, how each act is aimed and staged, the response, the retreat and the refusals.
  * @evidence contracts/development/design.md#principled-representation Two rides in, two rides out on the same clock.
@@ -99,7 +103,6 @@ export namespace EquineEncounter {
       for (const act of acts) {
         if (act.horse !== horse) continue;
         if (act.kind === "strike") {
-          const limb: QuadrupedBody.Limb = `${act.side}Fore`;
           rows.push({
             kind: "strike",
             side: act.side,
@@ -107,7 +110,7 @@ export namespace EquineEncounter {
             entry: act.entry,
             hold: act.hold,
             exit: act.exit,
-            point: hoof(me, other, act.region, limb, "Fore"),
+            ...hoof(me, other, act.region, `${act.side}Fore`),
           });
         } else if (act.kind === "kick")
           rows.push({
@@ -116,7 +119,10 @@ export namespace EquineEncounter {
             entry: act.entry,
             hold: act.hold,
             exit: act.exit,
-            point: hoof(me, other, act.region, "leftHind", "Hind"),
+            hooves: {
+              left: hoof(me, other, act.region, "leftHind"),
+              right: hoof(me, other, act.region, "rightHind"),
+            },
           });
       }
       return EquineStance.after(animals[horse]!, horses[horse]!.ride, rows);
@@ -148,7 +154,7 @@ export namespace EquineEncounter {
         if (act.horse === horse && act.kind === "threat")
           face({ from: act.from, to: act.to, ease: act.ease });
         else if (act.horse === horse && act.kind === "bite") {
-          const from: IAutoMovieVector3 = center(halts[horse]!, "head");
+          const biter: ArchetypeRide.ISample<Id, D> = halts[horse]!;
           cues.push({
             kind: "reach",
             act: "bite",
@@ -159,13 +165,16 @@ export namespace EquineEncounter {
             target: {
               kind: "track",
               at: (seconds: number): IAutoMovieVector3 =>
-                surface(other.at(seconds), act.region, from).point,
+                bitten(biter, other.at(seconds), act.region),
             },
           });
         } else if (act.horse !== horse) {
           if (act.kind === "threat") continue;
+          // The response follows the act's end, so the struck region holds still while it is touched and the attacker's limbs are down.
           const contact: number =
-            act.kind === "bite" ? act.from + act.ease : act.from + act.entry;
+            act.kind === "bite"
+              ? act.to
+              : act.from + act.entry + act.hold + act.exit;
           const attacker: ArchetypeRide.IRide<Id, D> = stances[1 - horse]!;
           const window: EquineExpressionCue.IWindow = {
             from: contact,
@@ -240,39 +249,77 @@ export namespace EquineEncounter {
     };
   }
 
-  /** The base-model point a hoof's endpoint goes to so it touches a region of the other horse: the surface point one terminal radius out, read in the attacker's halt. */
+  /** Where a hoof's endpoint goes to touch a region of the other horse, and the surface's outward normal, both in the attacker's halted base model space. */
   function hoof<Id extends string, D extends string>(
     me: ArchetypeRide.ISample<Id, D>,
     other: ArchetypeRide.ISample<Id, D>,
     region: EquineEncounterCue.Region,
     limb: QuadrupedBody.Limb,
-    end: "Fore" | "Hind",
-  ): IAutoMovieVector3 {
-    const from: IAutoMovieVector3 = center(
-      me,
-      QuadrupedBody.BONES[`left${end}`][0],
+  ): EquineEncounterCue.IContact {
+    const from: IAutoMovieVector3 = center(me, QuadrupedBody.BONES[limb][0]);
+    const aimed: ISurface = surface(other, region, from, false);
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      me.placement.rotation,
     );
-    const aimed: ISurface = surface(other, region, from);
-    const radius: number = bar(
-      me.archetype,
-      QuadrupedBody.BONES[limb][3],
-    ).radius;
-    const world: IAutoMovieVector3 = Vector3.addScaled(
-      aimed.point,
-      aimed.normal,
-      radius,
-    );
-    return Quaternion.rotateVector(
-      Quaternion.inverse(me.placement.rotation),
-      Vector3.subtract(world, me.placement.translation),
-    );
+    return {
+      point: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(aimed.point, me.placement.translation),
+      ),
+      normal: Quaternion.rotateVector(inverse, aimed.normal),
+    };
   }
 
-  /** A region's surface point facing a world point, on a sample's actual bar. */
+  /**
+   * Where a bite's muzzle goes on a region so the head meets the surface end-on.
+   *
+   * The reach (`EquineHeadReach`) puts the poll on the upper intersection of the neck's circle about its root and the muzzle's about the target, in the vertical plane through them. The target is the region's surface point facing that poll at the foot of its perpendicular onto the bar, so the head runs from the poll along the surface's inward normal. Each depends on the other, so the pair is refined from the halted poll by `REFINE` closed-form passes.
+   */
+  function bitten<Id extends string, D extends string>(
+    biter: ArchetypeRide.ISample<Id, D>,
+    other: ArchetypeRide.ISample<Id, D>,
+    region: EquineEncounterCue.Region,
+  ): IAutoMovieVector3 {
+    const neck: IBar = bar(biter.archetype, "neck");
+    const head: IBar = bar(biter.archetype, "head");
+    const root: IAutoMovieVector3 = ArchetypeFrame.point(
+      biter.placement,
+      neck.from,
+    );
+    const link: number = Vector3.distance(neck.from, neck.to);
+    const muzzle: number = Vector3.distance(head.from, head.to) + head.radius;
+    let poll: IAutoMovieVector3 = ArchetypeFrame.point(
+      biter.placement,
+      head.from,
+    );
+    let target: IAutoMovieVector3 = poll;
+    for (let pass: number = 0; pass < REFINE; pass++) {
+      target = surface(other, region, poll, true).point;
+      const span: number = Vector3.distance(root, target);
+      const along: IAutoMovieVector3 = Vector3.scale(
+        Vector3.subtract(target, root),
+        1 / span,
+      );
+      const up: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
+      );
+      const x: number =
+        (link * link - muzzle * muzzle + span * span) / (2 * span);
+      poll = Vector3.addScaled(
+        Vector3.addScaled(root, along, x),
+        up,
+        Math.sqrt(Math.max(0, link * link - x * x)),
+      );
+    }
+    return target;
+  }
+
+  /** A region's surface point facing a world point, on a sample's actual bar: at the region's share along the bar, or, when `facing`, at the foot of the perpendicular from the point onto the bar (kept within its middle), so an approach from that point meets the surface end-on. */
   function surface<Id extends string, D extends string>(
     sample: ArchetypeRide.ISample<Id, D>,
     region: EquineEncounterCue.Region,
     toward: IAutoMovieVector3,
+    facing: boolean,
   ): ISurface {
     const where: IRegion = REGIONS[region];
     const shape: IBar = bar(sample.archetype, where.bar);
@@ -287,7 +334,17 @@ export namespace EquineEncounter {
     const axis: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(end, start),
     );
-    const centre: IAutoMovieVector3 = Vector3.lerp(start, end, where.along);
+    const span: number = Vector3.distance(start, end);
+    const along: number = facing
+      ? Math.min(
+          0.9,
+          Math.max(
+            0.1,
+            Vector3.dot(Vector3.subtract(toward, start), axis) / span,
+          ),
+        )
+      : where.along;
+    const centre: IAutoMovieVector3 = Vector3.lerp(start, end, along);
     const out: IAutoMovieVector3 = Vector3.subtract(toward, centre);
     const radial: IAutoMovieVector3 = Vector3.normalize(
       Vector3.addScaled(out, axis, -Vector3.dot(out, axis)),

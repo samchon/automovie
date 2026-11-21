@@ -30,7 +30,7 @@ interface IEnds {
 /**
  * A foal from birth to weaning: the horse's body at a fraction of a mature horse's height, its distal limbs relatively longer, its trunk relatively shorter.
  *
- * The withers height follows the foal's age between two cited points, linearly between them: about 60% of mature height at birth (Horse & Hound, a secondary estimate) and 84% at six months (Lawrence 2003, as Kentucky Equine Research reports it). The distal limb (cannon and pastern) is nearer its mature length: 1 / 1.06 of it at weaning, since it grows only 5 to 7% more from weaning to three years (Anderson and McIlwraith 2004, Equine Vet J 36:563), and an authored, provisional 0.85 at birth. The proximal limb bones grow with the height; the trunk is an authored, provisional 0.9 of the height's share. Each bone's fraction of the withers height is the horse's (`createHorse.LENGTHS`) scaled by its growth over the height's, so the foal's limbs are longer and its trunk shorter for its height than an adult's. It rides on the horse's gait table, scaled to its own height. Weaning is taken at 183 days.
+ * The withers height follows the foal's age between two cited points, linearly between them: about 60% of mature height at birth (Horse & Hound, a secondary estimate) and 84% at six months (Lawrence 2003, as Kentucky Equine Research reports it). The distal limb (cannon and pastern) is nearer its mature length: 1 / 1.06 of it at weaning, since it grows only 5 to 7% more from weaning to three years (Anderson and McIlwraith 2004, Equine Vet J 36:563), and an authored, provisional 0.85 at birth. The proximal limb bones grow with the height; the trunk is an authored, provisional 0.9 of the height's share. Each bone's fraction of the withers height is the horse's (`createHorse.LENGTHS`) scaled by its growth over the height's, so the foal's limbs are longer and its trunk shorter for its height than an adult's. It is a horse to every consumer (its archetype is the horse's) and rides on the horse's gait table, scaled to its own height; its model is named a foal. Weaning is taken at 183 days.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each growth curve, its source or that it is authored and provisional, how the bone fractions follow and the age range.
  * @evidence contracts/development/implementation.md#principled-implementation The horse's equid builder on a foal profile whose height and bone fractions are the growth curves at the age.
@@ -60,11 +60,12 @@ export function createFoal(
   const withers: number = mature * growth.withers;
   const draw: ArchetypeDrawSession<createHorse.Dimension> =
     new ArchetypeDrawSession<createHorse.Dimension>(
-      createFoal.ARCHETYPE,
+      createHorse.PROFILE.archetype,
       createHorse.UNITS,
       seed,
       {},
     );
+  draw.derive("withersHeight", withers);
   return createHorse.equid(
     createFoal.profile(withers, growth),
     { tack: params.tack ?? "bare", id: params.id },
@@ -185,7 +186,7 @@ export namespace createFoal {
     ];
     const girth: number = withers * GIRTH;
     return {
-      archetype: ARCHETYPE,
+      archetype: createHorse.PROFILE.archetype,
       names: { saddle: "foal", harness: "foal", both: "foal", pack: "foal" },
       bands: {
         stirrupDrop: HORSE_BANDS.stirrupDrop,

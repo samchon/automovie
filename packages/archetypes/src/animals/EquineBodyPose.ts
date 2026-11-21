@@ -95,6 +95,9 @@ export namespace EquineBodyPose {
 
     /** Each limb's state. */
     limbs: Readonly<Record<QuadrupedBody.Limb, Limb>>;
+
+    /** The tail's turn about the trunk's lateral axis at its dock, degrees, positive raising a tail that hangs back; carried rigidly with the trunk when absent. */
+    tail?: number;
   }
 
   /**
@@ -290,6 +293,28 @@ export namespace EquineBodyPose {
         const posed: Map<QuadrupedBody.Bone, IAutoMovieTransform> = new Map();
         for (const [bone, frame] of rest)
           posed.set(bone, ArchetypeFrame.move(goal.trunk, frame));
+
+        // The tail turns about its dock on the trunk's lateral axis.
+        if (goal.tail !== undefined && goal.tail !== 0) {
+          const tail: IAutoMovieTransform = posed.get("tail")!;
+          const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+            Quaternion.rotateVector(goal.trunk.rotation, { x: 1, y: 0, z: 0 }),
+            goal.tail,
+          );
+          posed.set(
+            "tail",
+            ArchetypeFrame.move(
+              {
+                rotation: turn,
+                translation: Vector3.subtract(
+                  tail.translation,
+                  Quaternion.rotateVector(turn, tail.translation),
+                ),
+              },
+              tail,
+            ),
+          );
+        }
         for (const limb of QuadrupedBody.LIMBS) {
           const source: readonly IAutoMovieVector3[] = chains[limb];
           const solved: readonly IAutoMovieVector3[] = chain(

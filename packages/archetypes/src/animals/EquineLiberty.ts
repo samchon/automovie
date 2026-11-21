@@ -103,7 +103,11 @@ export namespace EquineLiberty {
       const shown: Shown<Id, D> = clip.sample(local);
       return {
         archetype: shown.animal,
-        placement: ArchetypeFrame.compose(halt.placement, shown.placement),
+        // A sternal rest poses its parts in place; a lateral rest adds a rigid placer.
+        placement:
+          "placement" in shown
+            ? ArchetypeFrame.compose(halt.placement, shown.placement)
+            : ArchetypeFrame.copy(halt.placement),
         course: ride.plan.at(Math.min(seconds, ride.duration)),
       };
     };

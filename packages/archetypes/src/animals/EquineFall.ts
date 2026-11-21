@@ -19,8 +19,8 @@ import { QuadrupedLateralRest } from "./QuadrupedLateralRest";
 import type { QuadrupedLateralRestPlan } from "./QuadrupedLateralRestPlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
-/** The fastest a trained fall is staged from, metres per second: an authored bound at a slow gallop. */
-const FALL_SPEED: number = 9;
+/** The fastest a trained fall is staged from, metres per second: an authored bound at a canter or slow gallop. */
+const FALL_SPEED: number = 7;
 
 /** A named instant of a ride. */
 type Instant = ArchetypeRide.IRide<string, string>["instants"][number];

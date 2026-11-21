@@ -12,6 +12,9 @@ import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 import type { QuadrupedBody } from "./QuadrupedBody";
 
+/** A limb end of the body. */
+type End = "Fore" | "Hind";
+
 /** A rearing strike's trunk pitch about the hips, degrees: authored. */
 const STRIKE_PITCH: number = 30;
 
@@ -36,7 +39,7 @@ const KINDS: ReadonlySet<string> = new Set<EquineEncounterCue.Row["kind"]>([
 /**
  * The encounter's stance rows: a rearing foreleg strike and a double-barrel kick, each bringing hooves onto a point on the other horse.
  *
- * A strike pitches the trunk up about the hips by `STRIKE_PITCH` with both hind hooves planted, folds the other foreleg and carries the striking hoof on a lifted path to the struck point, held there through the hold. A kick pitches the trunk down about the shoulders by `KICK_PITCH` with both fore hooves planted and carries both hind hooves to the kicked point, a hip's width apart. An unreachable point is refused by the stance's admission. The pitches are authored.
+ * A strike pitches the trunk up about the hips by `STRIKE_PITCH` with both hind hooves planted, folds the other foreleg and carries the striking hoof on a lifted path to the struck point, its terminal bar turning to drive straight into the surface along its inward normal, held there through the hold. A kick pitches the trunk down about the shoulders by `KICK_PITCH` with both fore hooves planted and carries each hind hoof to its own kicked point, their terminal bars driving into the surface along its inward normal. An unreachable point is refused by the stance's admission. The pitches are authored.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both rows, their planted supports and what is authored.
  * @evidence contracts/development/design.md#principled-representation Stance plans.
@@ -88,7 +91,7 @@ export namespace EquineEncounterRows {
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
     );
-    const middle = (end: "Fore" | "Hind"): IAutoMovieVector3 =>
+    const middle = (end: End): IAutoMovieVector3 =>
       EquineBodyPose.point(
         start.trunk,
         Vector3.scale(
@@ -103,23 +106,19 @@ export namespace EquineEncounterRows {
     const pivot: IAutoMovieVector3 = middle(strike ? "Hind" : "Fore");
     const pitch: number = strike ? STRIKE_PITCH : -KICK_PITCH;
     const moving: QuadrupedBody.Limb[] = [];
-    const targets: Partial<Record<QuadrupedBody.Limb, IAutoMovieVector3>> = {};
+    const targets: Partial<
+      Record<QuadrupedBody.Limb, EquineEncounterCue.IContact>
+    > = {};
     let folded: QuadrupedBody.Limb | undefined;
     if (cue.kind === "strike") {
       const limb: QuadrupedBody.Limb = `${cue.side}Fore`;
       moving.push(limb);
-      targets[limb] = cue.point;
+      targets[limb] = cue;
       folded = cue.side === "left" ? "rightFore" : "leftFore";
     } else {
-      const lateral: IAutoMovieVector3 = EquineStanceSupport.along(
-        start.trunk,
-        { x: 1, y: 0, z: 0 },
-      );
-      const half: number =
-        Math.abs(body.chains.leftHind[0]!.x - body.chains.rightHind[0]!.x) / 2;
       moving.push("leftHind", "rightHind");
-      targets.leftHind = Vector3.addScaled(cue.point, lateral, half);
-      targets.rightHind = Vector3.addScaled(cue.point, lateral, -half);
+      targets.leftHind = cue.hooves.left;
+      targets.rightHind = cue.hooves.right;
     }
     const chain: readonly IAutoMovieVector3[] | undefined =
       folded === undefined
@@ -153,11 +152,19 @@ export namespace EquineEncounterRows {
             kind: "placed",
             anchor: EquineStanceSupport.arc(
               start.anchors[limb],
-              targets[limb]!,
+              targets[limb]!.point,
               s,
               LIFT,
             ),
             fold: 0,
+            direction: Vector3.lerp(
+              Vector3.subtract(body.chains[limb][4]!, body.chains[limb][3]!),
+              Vector3.scale(
+                targets[limb]!.normal,
+                -Vector3.distance(body.chains[limb][4]!, body.chains[limb][3]!),
+              ),
+              s,
+            ),
           };
         if (folded !== undefined && chain !== undefined)
           limbs[folded] = EquineStanceSupport.folded(chain, TUCK, s);
