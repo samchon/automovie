@@ -232,6 +232,8 @@
     "kickBall": {},
     "kiss": {},
     "knee": {},
+    "closeStrike": {},
+    "footStrike": {},
     "kneel": {
       "properties": {
         "hold": {
@@ -847,7 +849,6 @@
     "sideDrumStrike": {},
     "spacecraftGlide": {},
     "stageCatch": {},
-    "stageDeflect": {},
     "swimImmersed": {
       "properties": {
         "seconds": {
@@ -5475,6 +5476,26 @@
     "rearHook": {},
     "leadUppercut": {},
     "rearUppercut": {},
+    "backfist": {},
+    "hammerfist": {},
+    "palmHeel": {},
+    "horizontalElbow": {},
+    "risingElbow": {},
+    "descendingElbow": {},
+    "spinningElbow": {},
+    "spinningBackfist": {},
+    "headbutt": {},
+    "stagePalmStrike": {},
+    "stageHeadbutt": {},
+    "sideKick": {},
+    "backKick": {},
+    "hookKick": {},
+    "crescentKick": {},
+    "axeKick": {},
+    "stomp": {},
+    "legSweep": {},
+    "spinningHookKick": {},
+    "jumpingSideKick": {},
     "switchKick": {},
     "pushKick": {},
     "teep": {},
