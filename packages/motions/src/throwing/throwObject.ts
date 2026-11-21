@@ -32,7 +32,6 @@ import { AutoMovieMotionHumanBendTrack } from "../compose/AutoMovieMotionHumanBe
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
@@ -446,20 +445,13 @@ export namespace throwObject {
         : prop === undefined
           ? undefined
           : throwObjectLever.spin(context, side, prop, lever, target);
-    const composed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-      body,
-      plan: composeAutoMovieMotionHumanAction({
+    const composed: IAutoMovieMotionHumanActionPlan =
+      composeAutoMovieMotionHumanAction({
         base,
         clock,
         contact: "release",
         primitives: [trunk, throwing],
-      }),
-      side,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-      span: { start: 0, ready: 0, relax: duration, end: duration },
-      // The hand's own peak is the release's speed.
-      pace: (): number => Vector3.length(lever.velocity),
-    });
+      });
     return {
       ...composed,
       ...(style === "windmill"

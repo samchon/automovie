@@ -27,7 +27,6 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -37,6 +36,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanGlove } from "./HumanGlove";
 import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
+import { courseArmAtPace } from "./courseArmAtPace";
 
 /**
  * Catching an object thrown by another action: the hands meet it where its
@@ -403,29 +403,21 @@ export namespace catchObject {
 
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
-    // Each catching arm is one admitted course: it reaches the ball by the
-    // contact and follows the give and the carry, never refitted per second.
+    // Each catching arm is one admitted course over where its goal is
+    // written, from the reach through the contact, the give and the carry,
+    // at the law's own pace, never refitted per second.
     const composed: IAutoMovieMotionHumanActionPlan = sides.reduce(
       (
         plan: IAutoMovieMotionHumanActionPlan,
         side: AutoMovieHumanSide,
       ): IAutoMovieMotionHumanActionPlan =>
-        courseArmGoal({
+        courseArmAtPace(
           body,
           plan,
           side,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          span: { start: 0, ready: contact, relax: duration, end: duration },
-          // The law's own peaks: the minimum-jerk reach over its aimed time,
-          // or the give over its time, 1.875 times their mean speeds.
-          pace: (): number =>
-            1.875 *
-            Math.max(
-              Vector3.length(Vector3.subtract(meet, shoulders)) /
-                Math.max(travel, 1e-9),
-              GIVE / GIVE_TIME,
-            ),
-        }),
+          AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+          { start: reach, ready: contact, relax: duration, end: duration },
+        ),
       composeAutoMovieMotionHumanAction({
         base,
         clock,
