@@ -373,7 +373,7 @@ export namespace ArchetypePassage {
    * @evidence contracts/development/common.md#meaningful-documentation States the frame, the motion and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The hull of the outline is the convex footprint the steering pass reads in the body's frame, and the yaw is the plan's forward axis seen from above, the same convention.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One hull and one reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rounded footprint is refused rather than shrunk to its core. The margin is not carried; the steered courses are verified afterwards with `conflicts`.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rounded footprint is refused rather than shrunk to its core. The participant's margin grows the hull outward with mitred corners, which hold every point within the margin, so steering keeps the authored clearance; the steered courses are still verified with `conflicts`.
    * @evidence contracts/development/implementation.md#efficient-algorithms One hull; constant work per reading.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one participant.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The motion keeps the participant's plan for as long as the obstacle is held.
@@ -393,14 +393,17 @@ export namespace ArchetypePassage {
         fix: "give the participant an outline that already holds its rounding",
       });
     return {
-      footprint: convexHull2D(
-        participant.footprint.outline.map(
-          (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-            x: p.x,
-            y: 0,
-            z: p.z,
-          }),
+      footprint: mitre(
+        convexHull2D(
+          participant.footprint.outline.map(
+            (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+              x: p.x,
+              y: 0,
+              z: p.z,
+            }),
+          ),
         ),
+        participant.margin,
       ),
       motion: (seconds: number): IObstaclePlacement => {
         const state: ArchetypeCourse.IState = participant.plan.at(seconds);
@@ -797,4 +800,57 @@ function conflict(
     clearance: closest.clearance,
     required: pair.required,
   };
+}
+
+/** A counter-clockwise hull grown outward by a distance with mitred corners, which holds every point within that distance of the hull; a point or a segment grows into a square or a rectangle about it. */
+function mitre(
+  hull: readonly IAutoMovieVector3[],
+  distance: number,
+): IAutoMovieVector3[] {
+  if (distance === 0) return [...hull];
+  if (hull.length < 3) {
+    const a: IAutoMovieVector3 = hull[0]!;
+    const b: IAutoMovieVector3 = hull[hull.length - 1]!;
+    const length: number = Math.hypot(b.x - a.x, b.z - a.z);
+    const ux: number = length > 0 ? (b.x - a.x) / length : 1;
+    const uz: number = length > 0 ? (b.z - a.z) / length : 0;
+    const corner: (
+      from: IAutoMovieVector3,
+      along: number,
+      across: number,
+    ) => IAutoMovieVector3 = (
+      from: IAutoMovieVector3,
+      along: number,
+      across: number,
+    ): IAutoMovieVector3 => ({
+      x: from.x + distance * (along * ux - across * uz),
+      y: 0,
+      z: from.z + distance * (along * uz + across * ux),
+    });
+    return [
+      corner(a, -1, -1),
+      corner(b, 1, -1),
+      corner(b, 1, 1),
+      corner(a, -1, 1),
+    ];
+  }
+  // Each edge's outward normal is its direction turned clockwise, the side away from a counter-clockwise interior.
+  const normal: (k: number) => IAutoMovieVector3 = (
+    k: number,
+  ): IAutoMovieVector3 => {
+    const from: IAutoMovieVector3 = hull[k]!;
+    const to: IAutoMovieVector3 = hull[(k + 1) % hull.length]!;
+    const length: number = Math.hypot(to.x - from.x, to.z - from.z);
+    return { x: (to.z - from.z) / length, y: 0, z: -(to.x - from.x) / length };
+  };
+  return hull.map((vertex: IAutoMovieVector3, k: number): IAutoMovieVector3 => {
+    const a: IAutoMovieVector3 = normal((k + hull.length - 1) % hull.length);
+    const b: IAutoMovieVector3 = normal(k);
+    const scale: number = distance / (1 + a.x * b.x + a.z * b.z);
+    return {
+      x: vertex.x + (a.x + b.x) * scale,
+      y: 0,
+      z: vertex.z + (a.z + b.z) * scale,
+    };
+  });
 }
