@@ -507,13 +507,9 @@ export namespace ArchetypeRide {
       instants: leader.instants,
       at,
       geometry: read,
-      frame: (id: Id, seconds: number): IAutoMovieTransform => {
-        const sample: ISample<Id, Dimension> = at(seconds);
-        return ArchetypeFrame.compose(
-          sample.placement,
-          sample.archetype.affordance(id).frame,
-        );
-      },
+      // A contact's frame reads the solved support only; the lines are laid by `at` alone.
+      frame: (id: Id, seconds: number): IAutoMovieTransform =>
+        read(seconds).frame(id),
     };
   }
 }
