@@ -276,7 +276,10 @@ export namespace walkSteps {
       right: HumanFoot.heading(start.right.rotation) + stand.TOE_OUT,
     };
     // The foot behind sets off, unless its first footprint would cross the
-    // standing foot (`walkHeading.uncrossed`).
+    // standing foot (`walkHeading.uncrossed`): then the inside foot steps
+    // first and the walk turns in place before it sets off.
+    const behind: AutoMovieHumanSide =
+      along("left") < along("right") - 1e-6 ? "left" : "right";
     const lead: AutoMovieHumanSide =
       opening?.lead ??
       (inPlace
@@ -284,7 +287,7 @@ export namespace walkSteps {
           ? "left"
           : "right"
         : walkHeading.uncrossed(
-            along("left") < along("right") - 1e-6 ? "left" : "right",
+            behind,
             { left: start.left.ankle, right: start.right.ankle },
             facings,
             path.at(Math.min(D, pace.progress(first + swing + pace.front * T))),
@@ -294,7 +297,7 @@ export namespace walkSteps {
     const turning: number =
       opening?.turning ??
       (facing === undefined
-        ? walkHeading.opening(heading, lead, facings, yaw0, walkReach.TWIST)
+        ? walkHeading.opening(heading, lead, facings, yaw0, walkReach.TWIST, !inPlace && lead !== behind)
         : 0);
     // In a step turn the turning foot moves first, then the other replaces
     // it at the new heading (Hase and Stein 1999). Adjacent flat footprints

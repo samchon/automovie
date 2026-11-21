@@ -69,7 +69,8 @@ export namespace walkHeading {
    * @param start Each foot's facing before the walk, degrees.
    * @param yaw The heading the walk starts from, degrees.
    * @param twist How far the pelvis turns from a foot it stands on, degrees (`walkReach.TWIST`).
-   * @returns The count; 0 when the first swing of each foot faces the way.
+   * @param stepped Whether the walk opens with a step turn (`uncrossed`), whose stance foot stands behind the way's start: its feet turn in place before it sets off however far a swing could turn them, so the pelvis never sets off from a foot behind it.
+   * @returns The count; 0 when the first swing of each foot faces the way and the walk is no step turn.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is counted, the bounds and each input.
    * @evidence contracts/development/implementation.md#principled-implementation A standing turn before gait: the feet alternate, each turning the cited yaw per swing toward the way, until both face it within the pelvis's twist; a half turn takes four footfalls and a quarter two, against 3.25 and 1.95 steps measured (Khobkhun et al. 2022).
@@ -85,6 +86,7 @@ export namespace walkHeading {
     start: Record<"left" | "right", number>,
     yaw: number,
     twist: number,
+    stepped: boolean = false,
   ): number {
     const limit: number = step(heading - yaw);
     const last: Record<"left" | "right", number> = {
@@ -95,6 +97,7 @@ export namespace walkHeading {
     const far: (s: "left" | "right") => boolean = (s: "left" | "right"): boolean =>
       Math.abs(heading - last[s]) > twist;
     if (
+      !stepped &&
       Math.abs(heading - last.left) <= limit &&
       Math.abs(heading - last.right) <= limit
     )
