@@ -163,8 +163,6 @@ export namespace EquineFoal {
     mare: ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
     keep: IFollow,
   ): ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension> {
-    /** The source dimensions with the quadruped size the ride solves. */
-    type Dimension = D | QuadrupedBody.Dimension;
     const sign: number = keep.side === "left" ? 1 : -1;
     const samples: ArchetypeCourse.ISample[] = [];
     for (let k: number = 0; k * STEP <= mare.duration + 1e-9; k++) {
