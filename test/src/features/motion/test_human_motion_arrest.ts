@@ -23,12 +23,10 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The regions a pat-down visits from behind, in order: arms, flanks, hips and pockets. */
+/** The regions a pat-down visits from behind, in order: the collar line on both sides, then both hip pockets. */
 const FRISK: readonly AutoMovieHumanoidRegion[] = [
-  "upperArmRight",
-  "upperArmLeft",
-  "ribsRight",
-  "ribsLeft",
+  "shoulderRight",
+  "shoulderLeft",
   "hipRight",
   "hipLeft",
 ];
@@ -68,7 +66,7 @@ export function test_human_motion_arrest(): void {
   try {
     let frisk: IAutoMovieMotionHumanChain = HumanChain.subject("o")
       .stand({ seconds: 1.2, sway: 0 })
-      .walk({ to: { x: 0, y: 0, z: -0.45 } });
+      .walk({ to: { x: 0, y: 0, z: -0.5 } });
     FRISK.forEach((region: AutoMovieHumanoidRegion, k: number): void => {
       frisk = frisk.act(
         "touch",

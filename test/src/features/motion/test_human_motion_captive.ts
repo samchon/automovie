@@ -65,7 +65,7 @@ export function test_human_motion_captive(): void {
   const captive: IAutoMovieMotionHumanBody = motionHumanBody("f-small");
   const checks: motionComplaints.IGatherer = motionComplaints();
   try {
-    const chair = createSeat({ id: "chair", kind: "chair" });
+    const chair = createSeat({ id: "chair", kind: "dining" });
     const placement = {
       at: { x: 0, y: 0, z: 0 },
       yaw: 0,
@@ -188,7 +188,11 @@ export function test_human_motion_captive(): void {
     );
     assertTakeClean("captive", film);
   } catch (error: unknown) {
-    checks.check("captive refused: " + String(error), false);
+    checks.check(
+      "captive refused: " +
+        (error instanceof TypeError ? String(error.stack) : String(error)),
+      false,
+    );
   }
   checks.assert("captive");
 }

@@ -46,6 +46,17 @@ export const HumanCarrierCustody: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
           keep: ["grip"],
         },
       ],
+      // The other hand takes the hilt once this hand holds the carrier's
+      // throat, both kept, as a long draw grips the scabbard first.
+      takeFromCarrier: [
+        {
+          window: ["gripClosed", 1],
+          kind: "inertialize",
+          entry: 0,
+          blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+          keep: ["grip"],
+        },
+      ],
     },
     plan: pickUp.plan,
   };

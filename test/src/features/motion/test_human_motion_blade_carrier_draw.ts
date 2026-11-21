@@ -1,5 +1,5 @@
 import { createHolster, createSword } from "@automovie/archetypes";
-import { Quaternion, Vector3, cutSequence } from "@automovie/engine";
+import { Quaternion, Transform, Vector3, cutSequence } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
@@ -37,6 +37,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Rigid attachment allowance, metres: the 1 mm mount bound. */
@@ -124,6 +125,11 @@ const CASTS: readonly ICast[] = [
  *    prop node, and the edit's prop check passes at the real trim boundary.
  * 4. A cut before grip closure leaves the blade seated; a cut during the
  *    withdrawal keeps the grip with no jump.
+ * 6. A longsword, longer than the arm draws alone, leaves its left-hip
+ *    scabbard as the left hand pulls the scabbard back at its throat and the
+ *    trunk turns: the blade stays on the line, the tip clears the mouth, the
+ *    left hand keeps the throat through the draw and the scabbard hangs from
+ *    the hips again after it, and the take passes the verdict report.
  * 5. A missing carrier, an unknown mouth and an off-axis tip are refused at
  *    their located axes, a plumb arming sword whose drawing hand cannot
  *    follow its guide is refused on the opening, and one canted far forward
@@ -208,6 +214,7 @@ export function test_human_motion_blade_carrier_draw(): void {
         held,
         back,
       ]: readonly IAutoMovieMotionHumanSegment[] = film.segments("fencer");
+      assertTakeClean(cast.name + " draw, hold and return", film);
       const close: number = at(grip!, "gripClosed");
       const liftOff: number = at(draw!, "unseated");
       const lifted: number = at(draw!, "drawn");
@@ -520,7 +527,135 @@ export function test_human_motion_blade_carrier_draw(): void {
     );
   }
 
+  run("longsword pulled from the left hip", () => longsword());
   TestValidator.equals("blade carrier findings", failures, []);
+}
+
+/** How far the scabbard retreats along its line in the long draw, metres: an authored share of the blade. */
+const RETREAT: number = 0.3;
+/** How far the trunk turns away from the drawing side in the long draw, degrees: authored. */
+const OPEN: number = 30;
+
+/** A longsword drawn from the left hip with the scabbard pulled back. */
+function longsword(): void {
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const staged: IStage = stage(
+    body,
+    { kind: "longsword", model: "crecy" },
+    { kind: "scabbard", blade: "crecy" },
+    35,
+    "left",
+  );
+  // The throat below the mouth is where the left hand takes the scabbard.
+  const carrier: IAutoMovieMotionHumanProp = staged.props[0]!;
+  const mouth: IAutoMovieAffordance = carrier.affordances!.find(
+    (a: IAutoMovieAffordance): boolean => a.id === "mouth",
+  )!;
+  const throat: IAutoMovieAffordance = {
+    id: "throat",
+    kind: "handle",
+    frame: Transform.of(
+      Vector3.subtract(
+        mouth.frame.translation,
+        Quaternion.rotateVector(mouth.frame.rotation, { x: 0, y: 0.06, z: 0 }),
+      ),
+      mouth.frame.rotation,
+    ),
+    extent: null,
+    grip: "power",
+    symmetry: "round",
+    aperture: 0.04,
+  };
+  const props: IAutoMovieMotionHumanProp[] = [
+    { ...carrier, affordances: [...carrier.affordances!, throat] },
+    staged.props[1]!,
+  ];
+  const film: HumanPerformance = new HumanPerformance({
+    seed: "blade-carrier-longsword",
+    props,
+    laws: [HumanCarrierCustody, drawFromCarrier, putDownAperture],
+    performers: [
+      {
+        subject: "fencer",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanSheath.draw(
+      HumanChain.subject("fencer").stand({ seconds: 0.3, sway: 0 }),
+      staged.sheath,
+      "right",
+      "draw",
+      { handle: "throat", back: RETREAT, turn: OPEN },
+    ).stand({ seconds: HOLD, sway: 0 }).node,
+  });
+  const draw: IAutoMovieMotionHumanSegment = film
+    .segments("fencer")
+    .find(
+      (s: IAutoMovieMotionHumanSegment): boolean => s.intent.anchor === "draw",
+    )!;
+  const liftOff: number = at(draw, "unseated");
+  const lifted: number = at(draw, "drawn");
+  const seat: IAutoMovieRigidTransform = socket(staged, "seat");
+  const out: IAutoMovieVector3 = Vector3.subtract(
+    socket(staged, "entry").position,
+    seat.position,
+  );
+  const height: (t: number) => number = (t: number): number =>
+    Vector3.dot(
+      Vector3.subtract(
+        place(local(film, staged, t), staged.tip),
+        seat.position,
+      ),
+      Vector3.normalize(out),
+    );
+  const inLeft: (t: number) => IAutoMovieRigidTransform = (
+    t: number,
+  ): IAutoMovieRigidTransform =>
+    HumanPropFrame.relative(
+      HumanPropFrame.bone(film.bones("fencer", t).get("leftHand")!),
+      film.prop(staged.sheath.carrier, t),
+    );
+  const onHips: (t: number) => IAutoMovieRigidTransform = (
+    t: number,
+  ): IAutoMovieRigidTransform =>
+    HumanPropFrame.relative(
+      HumanPropFrame.bone(film.bones("fencer", t).get("hips")!),
+      film.prop(staged.sheath.carrier, t),
+    );
+  for (let i: number = 0; i <= 16; ++i) {
+    const t: number = liftOff + ((lifted - liftOff) * i) / 16;
+    if (height(t) < 0)
+      inside(
+        local(film, staged, t),
+        staged,
+        seat,
+        `long draw at ${t.toFixed(3)}`,
+      );
+    TestValidator.predicate(
+      `the left hand keeps the throat at ${t.toFixed(3)}`,
+      same(inLeft(t), inLeft(liftOff), RIGID),
+    );
+  }
+  TestValidator.predicate(
+    "the long drawn tip clears the mouth",
+    height(lifted) >= CLEARANCE - PLACE,
+  );
+  TestValidator.predicate(
+    "the scabbard hangs from the hips again",
+    same(onHips(lifted + 0.02), onHips(film.duration), RIGID),
+  );
+  TestValidator.predicate(
+    "the right hand keeps the longsword",
+    same(
+      hand(film, staged, lifted + 0.01),
+      hand(film, staged, film.duration),
+      RIGID,
+    ),
+  );
+  assertTakeClean("longsword draw", film);
 }
 
 /** Wear the carrier at a hip, its mouth tilted forward by the cant, and seat the blade in it. */

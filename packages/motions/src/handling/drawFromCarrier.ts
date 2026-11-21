@@ -7,22 +7,28 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDrawFromCarrier,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrehension,
+  IAutoMovieMotionHumanProp,
   IAutoMovieMotionPropHold,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { StrikingBlade } from "../striking/StrikingBlade";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
@@ -92,7 +98,7 @@ export const drawFromCarrier: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
  * @throws {HumanRefusal} On `prop` when the hand does not hold it or the drawn wrist lies beyond the arm, on `from` when the carrier is not named, on `from.aperture` when the two affordances are not a straight aligned line or the fitted hand leaves its planned place on the grip by more than `GRIP`, and on `from.point` when the object is not seated there.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and each refusal.
- * @evidence contracts/development/implementation.md#principled-implementation The world frames of both affordances come from `putDownTarget` as for aperture placement; the object rides the slide socket the drive moves along the line, and the grip's rigid offset O from the displayed hand and object gives the following wrist frame P O^-1 at each object frame P.
+ * @evidence contracts/development/implementation.md#principled-implementation Each moving hand is planned as one admitted course over the draw (`courseArmGoal`), judged on its goals. The world frames of both affordances come from `putDownTarget` as for aperture placement; the object rides the slide socket the drive moves along the line, and the grip's rigid offset O from the displayed hand and object gives the following wrist frame P O^-1 at each object frame P.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the grip, read the line, check the seat and reach, drive the slide and pose one following transport, then judge the fitted hand.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unseated object or an unreachable opening is refused, never moved or clamped; the seated tolerance is aperture placement's own seat tolerance.
  * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance reads, one hand pose and `JUDGED` + 1 posture fits at plan time; constant work per sample.
@@ -206,19 +212,50 @@ function plan(
     };
   };
   const start: IAutoMovieRigidTransform = wrist(shown);
-  const end: IAutoMovieRigidTransform = wrist(opening);
+  const direction: IAutoMovieVector3 = Vector3.normalize(line);
+  const pulled: IPulled | null = pulling(context, side);
+  const back: number = pulled?.back ?? 0;
+  const opened: IAutoMovieRigidTransform = wrist(opening);
+  const end: IAutoMovieRigidTransform = {
+    ...opened,
+    position: Vector3.subtract(opened.position, Vector3.scale(direction, back)),
+  };
   pickUp.reachable(context, side, end.position);
 
-  // One loaded, aligned movement along the line.
+  // One loaded, aligned movement along the line; a pulled carrier retreats
+  // along it on the same clock, so the hands part by the line's length.
   const held: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const carried: number = HumanPrehension.carry(
+    Math.max(Vector3.length(line) - back, back),
+  );
   const transport: IAutoMovieMotionHumanPrehension.ITransport =
     HumanPrehension.transport(
       start.position,
       end.position,
-      Vector3.normalize(line),
+      direction,
       0,
       { from: start.rotation, to: end.rotation },
-      HumanPrehension.carry(Vector3.length(line)),
+      carried,
+    );
+  const retreat: IAutoMovieMotionHumanPrehension.ITransport | null =
+    pulled === null
+      ? null
+      : HumanPrehension.transport(
+          pulled.wrist.position,
+          Vector3.subtract(
+            pulled.wrist.position,
+            Vector3.scale(direction, back),
+          ),
+          Vector3.scale(direction, -1),
+          0,
+          { from: pulled.wrist.rotation, to: pulled.wrist.rotation },
+          carried,
+        );
+  if (pulled !== null)
+    pickUp.reachable(
+      context,
+      pulled.side,
+      Vector3.subtract(pulled.wrist.position, Vector3.scale(direction, back)),
     );
   const duration: number = transport.duration;
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
@@ -272,8 +309,23 @@ function plan(
         to: 1,
         support: { kind: "prop", subject: prop },
       },
+      // The pulling hand carries the carrier back and lets it hang again.
+      ...(pulled === null
+        ? []
+        : [
+            {
+              part: pulled.part,
+              kind: "grip" as const,
+              from: 0,
+              to: 1,
+              support: { kind: "prop" as const, subject: from.prop },
+            },
+          ]),
     ],
     mounts: [{ prop, onto: from.prop, point: from.slide, from: 0 }],
+    ...(pulled === null
+      ? {}
+      : { wears: [{ prop: from.prop, bone: pulled.bone, from: 1 }] }),
     drives: [
       {
         prop: from.prop,
@@ -296,10 +348,27 @@ function plan(
     ],
     posture: (seconds: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.min(duration, Math.max(0, seconds));
+      const body: IAutoMovieMotionHumanPosture =
+        pulled === null
+          ? held
+          : StrikingBlade.turned(
+              held,
+              pulled.turn * minimumJerk(t / duration).s,
+            );
       return {
-        ...held,
+        ...body,
         limbs: {
-          ...held.limbs,
+          ...body.limbs,
+          ...(pulled === null || retreat === null
+            ? {}
+            : {
+                [pulled.limb]: {
+                  point: retreat.wrist(t),
+                  rotation: retreat.turn(t),
+                  bend: pulled.bend,
+                  planted: true,
+                },
+              }),
           [limb]: {
             point: transport.wrist(t),
             rotation: transport.turn(t),
@@ -322,15 +391,27 @@ function plan(
   // hand against the planned wrist along the draw.
   for (let k: number = 0; k <= JUDGED; ++k) {
     const t: number = (duration * k) / JUDGED;
-    const posed: IAutoMovieResolvedBone = poseBones(
+    const pose: IAutoMoviePose = resolveHumanPosture(
       context.body,
-      resolveHumanPosture(context.body, plan.posture(t), context.entry.pose),
+      plan.posture(t),
+      context.entry.pose,
+    );
+    const hands: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      context.body,
+      pose,
       undefined,
-      new Set<AutoMovieHumanoidBone>([bone]),
-    ).get(bone)!;
-    const off: number = Vector3.distance(
-      posed.worldPosition,
-      transport.wrist(t),
+      new Set<AutoMovieHumanoidBone>(
+        pulled === null ? [bone] : [bone, `${pulled.side}Hand`],
+      ),
+    );
+    const off: number = Math.max(
+      Vector3.distance(hands.get(bone)!.worldPosition, transport.wrist(t)),
+      pulled === null || retreat === null
+        ? 0
+        : Vector3.distance(
+            hands.get(`${pulled.side}Hand`)!.worldPosition,
+            retreat.wrist(t),
+          ),
     );
     if (off > GRIP)
       throw new HumanRefusal({
@@ -342,7 +423,126 @@ function plan(
         fix: "wear the carrier where the drawing arm can follow its line",
       });
   }
-  return plan;
+  // Each moving hand is planned as one admitted course over the draw, not
+  // fitted afresh at every second, where two nearly tied arm solutions let
+  // one instant take the other branch; the judgement above reads the goals.
+  // The arm entered on its grip, so the hold spans the whole draw.
+  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+    start: 0,
+    ready: 0,
+    relax: duration,
+    end: duration,
+  };
+  const drawing: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+    body: context.body,
+    plan,
+    side,
+    rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+    span,
+  });
+  return pulled === null
+    ? drawing
+    : courseArmGoal({
+        body: context.body,
+        plan: drawing,
+        side: pulled.side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, pulled.side),
+        span,
+      });
+}
+
+/** The other hand's pull on a worn carrier, read from the entry. */
+interface IPulled {
+  /** The pulling hand. */
+  side: AutoMovieHumanSide;
+
+  /** Its contact part. */
+  part: IAutoMovieMotionHumanContactWindow["part"];
+
+  /** Its limb. */
+  limb: AutoMovieHumanLimb;
+
+  /** Its wrist at the start, world. */
+  wrist: IAutoMovieRigidTransform;
+
+  /** Its elbow's hint. */
+  bend: IAutoMovieVector3;
+
+  /** The bone the carrier hangs from, worn on again at the end. */
+  bone: AutoMovieHumanoidBone;
+
+  /** How far the carrier retreats along the line, metres. */
+  back: number;
+
+  /** The trunk's twist, degrees toward the performer's left. */
+  turn: number;
+}
+
+/**
+ * The other hand's pull, when the draw asks for one: the hand already holds
+ * the worn carrier at its throat, the carrier hangs from a bone of this
+ * performer, and the retreat is shorter than the line.
+ */
+function pulling(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrawFromCarrier>,
+  side: AutoMovieHumanSide,
+): IPulled | null {
+  const pull: IAutoMovieMotionHumanDrawFromCarrier.IPull | undefined =
+    context.params.pull;
+  if (pull === undefined) return null;
+  const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
+  const carrier: string = context.params.from.prop;
+  if (context.entry.holds[other] !== carrier)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "pull.handle",
+      value: pull.handle,
+      feasible: {
+        kind: "alternatives",
+        values: [context.entry.holds[other] ?? "none"],
+      },
+      reason: `the ${other} hand does not hold ${carrier} to pull it back`,
+      fix: `take ${carrier} at ${pull.handle} with the ${other} hand, a pickup of no lift, before the draw`,
+    });
+  const worn: IAutoMovieMotionHumanProp["worn"] =
+    context.prop(carrier).prop.worn;
+  if (worn === undefined || worn.subject !== context.subject)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "pull",
+      value: carrier,
+      reason: `${carrier} is not worn by ${context.subject}, so it has no place to hang again`,
+      fix: "pull back a carrier the drawing performer wears",
+    });
+  if (!(pull.back > 0 && Number.isFinite(pull.back)))
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "pull.back",
+      value: pull.back,
+      reason: "the carrier retreats a positive finite length",
+      fix: "give the retreat in metres",
+    });
+  const bone: AutoMovieHumanoidBone = `${other}Hand`;
+  const hand: IAutoMovieResolvedBone = poseBones(
+    context.body,
+    context.entry.pose,
+    undefined,
+    new Set<AutoMovieHumanoidBone>([bone]),
+  ).get(bone)!;
+  return {
+    side: other,
+    part: other === "left" ? "leftHand" : "rightHand",
+    limb: other === "left" ? "leftArm" : "rightArm",
+    wrist: { position: hand.worldPosition, rotation: hand.worldRotation },
+    bend: AutoMovieMotionHumanBend.hang(
+      context.body,
+      context.entry.posture,
+      other,
+    ),
+    bone: worn.bone,
+    back: pull.back,
+    turn: (side === "right" ? 1 : -1) * (pull.turn ?? 0),
+  };
 }
 
 /** The draw's samples the fitted hand is judged at, beyond the start. */

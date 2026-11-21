@@ -24,6 +24,7 @@ import {
   HumanStageProp,
 } from "@automovie/motions";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
@@ -214,6 +215,7 @@ function verify(
       );
     }
   }
+  assertTakeClean(label, film);
   for (let i: number = 0; i <= 24; ++i) {
     const t: number = from + ((last.entry.end - from) * i) / 24;
     const head: IAutoMovieVector3 = film

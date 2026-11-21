@@ -217,7 +217,8 @@ export namespace HumanSheath {
    * @param sheath The staged pair.
    * @param hand The drawing hand; `right` when absent.
    * @param anchor The action's anchor for cues; none when absent.
-   * @returns The chain with the grip and the draw appended; the grip's `gripClosed` marks closure and the draw's `unseated` and `drawn` the start and end of the withdrawal.
+   * @param pull The other hand's pull on a worn carrier for a blade longer than the arm draws alone; the carrier holds still when absent.
+   * @returns The chain with the grip and the draw appended, after the other hand's grip on the carrier's throat when it pulls; the grip's `gripClosed` marks closure and the draw's `unseated` and `drawn` the start and end of the withdrawal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the appended action and its events.
    * @evidence contracts/development/implementation.md#principled-implementation The carrier pickup grips the handle and is cut at grip closure, so the body does not straighten away from the carrier first; then the draw moves the blade's frame from the seat to the entry on the carrier's line, the hand keeping its grip.
@@ -232,7 +233,9 @@ export namespace HumanSheath {
     sheath: IAutoMovieMotionHumanSheath.IStaged,
     hand?: AutoMovieHumanSide,
     anchor?: string,
+    pull?: IAutoMovieMotionHumanDrawFromCarrier.IPull,
   ): Chain {
+    const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
     const grip: IAutoMovieMotionHumanPickUp.IParams = {
       prop: sheath.blade,
       handle: sheath.handle,
@@ -249,8 +252,22 @@ export namespace HumanSheath {
         slide: sheath.slide,
       },
       ...(hand === undefined ? {} : { hand }),
+      ...(pull === undefined ? {} : { pull }),
     };
-    return chain
+    // The other hand takes the carrier's throat first, as the drawing hand
+    // takes the hilt: each is cut at its grip's closure.
+    const held: Chain =
+      pull === undefined
+        ? chain
+        : chain
+            .registered(HumanCarrierCustody.name, {
+              prop: sheath.carrier,
+              handle: pull.handle,
+              lift: 0,
+              hand: other,
+            } satisfies IAutoMovieMotionHumanPickUp.IParams)
+            .until({ event: "gripClosed" });
+    return held
       .registered(HumanCarrierCustody.name, grip)
       .until({ event: "gripClosed" })
       .registered(drawFromCarrier.name, out, anchor);
