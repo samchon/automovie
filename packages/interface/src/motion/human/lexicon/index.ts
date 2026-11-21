@@ -20,6 +20,8 @@ export type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanB
 export type { IAutoMovieMotionHumanSittingVolley } from "./IAutoMovieMotionHumanSittingVolley";
 export type { IAutoMovieMotionHumanStageBladeFootwork } from "./IAutoMovieMotionHumanStageBladeFootwork";
 export type { IAutoMovieMotionHumanStageProp } from "./IAutoMovieMotionHumanStageProp";
+export type { IAutoMovieMotionHumanMedium } from "./IAutoMovieMotionHumanMedium";
+export type { IAutoMovieMotionHumanPlayground } from "./IAutoMovieMotionHumanPlayground";
 export type { IAutoMovieMotionHumanSurface } from "./IAutoMovieMotionHumanSurface";
 export type { IAutoMovieMotionHumanLexiconSurfaceParams } from "./IAutoMovieMotionHumanLexiconSurfaceParams";
 export type { IAutoMovieMotionHumanLexiconPrecisionSportParams } from "./IAutoMovieMotionHumanLexiconPrecisionSportParams";
