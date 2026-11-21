@@ -25,10 +25,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** Authored scene and effect inputs shared by the two camera reads. */
 export namespace filmStageScreenCue {
-  /** The cameras share the same source cue and contact, in seconds. */
+  /** Source seconds at which the operator sends the rehearsal token. */
   export const RELEASE: number = 0.25;
+  /** Source seconds at which the token reaches the panel. */
   export const CONTACT: number = 0.5;
+  /** Source seconds at which the observer starts the scripted look. */
   export const RESPONSE: number = 7 / 12;
+  /** Output frames sampled per film second. */
   export const FPS: number = 24;
 
   /** A decorative stage panel built as a fixed frame and a detachable tile. */

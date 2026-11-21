@@ -217,8 +217,9 @@ async function verifyTake(contact: boolean): Promise<void> {
     pixelFormat: "yuv420p",
     crf: 20,
   };
+  const hitPoint: IAutoMovieVector3 | null = hit?.point ?? null;
   const effect: IAutoMovieEffectViewerObject | undefined =
-    hit?.point == null ? undefined : buildInstancedEffect(flash(hit.point));
+    hitPoint === null ? undefined : buildInstancedEffect(flash(hitPoint));
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
     45,
     16 / 9,
@@ -226,8 +227,7 @@ async function verifyTake(contact: boolean): Promise<void> {
     30,
   );
   const light: THREE.PointLight = new THREE.PointLight("#ffbc6b", 0);
-  if (hit?.point != null)
-    light.position.set(hit.point.x, hit.point.y, hit.point.z);
+  if (hitPoint !== null) light.position.set(hitPoint.x, hitPoint.y, hitPoint.z);
   const built: Map<Panel, IAutoMovieModelObject> = new Map();
   const restingHead = performance
     .bones("observer", 0)
