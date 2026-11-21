@@ -26,6 +26,7 @@ import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
 import { HumanSegmentPose } from "./HumanSegmentPose";
+import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { overlayContactGoals } from "./overlayContactGoals";
 import { overlayContinuations } from "./overlayContinuations";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
@@ -125,7 +126,7 @@ export namespace HumanSegmentOverlay {
     const seeds: HumanSegmentPose.IFits = new Map();
     const observed: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       requested !== undefined &&
-      near === undefined &&
+      !HumanSegmentPoseSeeds.continues(near) &&
       carried.length === 0 &&
       !active?.some((overlay: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
         overlay.plan.contacts.some(
@@ -228,11 +229,11 @@ export namespace HumanSegmentOverlay {
             carrier,
             seconds,
             under,
-            near === undefined && observed === undefined,
+            !HumanSegmentPoseSeeds.continues(near) && observed === undefined,
             (
               posture: IAutoMovieMotionHumanPosture,
             ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded => {
-              const seedsForLeaf: ReturnType<typeof continuations> =
+              const seedsForLeaf: ReturnType<typeof overlayContinuations> =
                 overlayContinuations(posture.limbs, near, tag);
               const demand: ReturnType<typeof unplantedHumanObservation> =
                 unplantedHumanObservation(posture.limbs, observed);

@@ -14,6 +14,7 @@ import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeleto
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
 import { continueHingedOrientation } from "./continueHingedOrientation";
 import { fitChainBend } from "./fitChainBend";
+import { fitHingedChainAt } from "./fitHingedChainAt";
 import { fitHingedChainBend } from "./fitHingedChainBend";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareChainFit } from "./prepareChainFit";
@@ -262,6 +263,27 @@ function preparedWorkspace(
   });
   return {
       fit: (target: IAutoMovieVector3, near?: IAutoMovieSwivelNear, incumbent?: IAutoMovieSwivelSeed, capture?: orientChainEffector.IReading): IAutoMovieSeededChainFit => {
+        // A prescribed seed, the workspace's own or this call's, is placed in
+        // closed form at every target (a contact's re-aims included): the
+        // course chose the swivel, so nothing is searched or refined.
+        const prescribed: IAutoMovieSwivelNear | undefined =
+          workspace.props.near?.prescribed === true ? workspace.props.near
+            : near?.prescribed === true ? near : undefined;
+        if (prescribed !== undefined) {
+          const placed: ReturnType<typeof fitHingedChainAt> = fitHingedChainAt(
+            { ...workspace.props, target }, prescribed.swivel, prescribed.branch);
+          // The closed form stands only where it reaches the target within the
+          // range of motion; elsewhere the fit continues from the course's seed.
+          if (placed !== null && placed.shortfall <= 0 && !placed.clamped)
+            return { pose: placed.pose, seed: placed.seed };
+          const continued: IAutoMovieSwivelNear = {
+            swivel: prescribed.swivel,
+            branch: prescribed.branch,
+            tolerance: prescribed.tolerance,
+          };
+          const props: IAutoMovieFitChainToTargetProps = { ...workspace.props, target, near: continued };
+          return finish(props, fitChainBend(props, workspace), capture);
+        }
         const props: IAutoMovieFitChainToTargetProps = near === undefined
           ? { ...workspace.props, target, ...(incumbent === undefined ? {} : { incumbent }) } : { ...workspace.props, target, near };
         return finish(props, fitChainBend(props, workspace), capture);

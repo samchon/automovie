@@ -343,7 +343,12 @@ export namespace HumanLimbFit {
       chain(limb),
       goal,
       clear,
-      near,
+      // A limb on a contact or a plant keeps the contact step's own fit: a
+      // prescribed course gives it only the seed its fit continues from.
+      near?.prescribed === true &&
+        (goal.contact !== undefined || goal.planted === true)
+        ? { swivel: near.swivel, branch: near.branch, tolerance: near.tolerance }
+        : near,
       readAuthored,
       readResolution(),
       constants === undefined

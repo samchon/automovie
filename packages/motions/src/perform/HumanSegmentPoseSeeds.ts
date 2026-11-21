@@ -38,9 +38,33 @@ export namespace HumanSegmentPoseSeeds {
     const seed: IAutoMovieSwivelSeed | null | undefined = near?.seeds.get(name);
     return seed === undefined || seed === null
       ? undefined
-      : { ...seed, tolerance: near!.tolerance };
+      : {
+          ...seed,
+          tolerance: near!.tolerance,
+          ...(near!.prescribed === true ? { prescribed: true } : {}),
+        };
   }
 
+  /**
+   * Whether an evaluation continues the fits of a nearby second: a near that
+   * is not a prescribed course. A prescribed course (`INear.prescribed`) is
+   * no observation of another second, so a reader keeps its no-near paths
+   * (kept legs, direct assembly, prepared samples) under it.
+   *
+   * @param near The fits given, if any.
+   * @returns Whether they are continued fits.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the distinction and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation A course fixes the branch and swivel; it reads no other second.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No fit is changed.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function continues(near: INear | undefined): boolean {
+    return near !== undefined && near.prescribed !== true;
+  }
   /**
    * Each named limb fit's chosen seed; null where that fit has none.
    *
@@ -65,6 +89,9 @@ export namespace HumanSegmentPoseSeeds {
 
     /** The swivel tolerance each continued fit is refined to, degrees. */
     tolerance: number;
+
+    /** Whether the seeds are prescribed (`IAutoMovieSwivelNear.prescribed`): each limb is placed at its seed's swivel and branch in closed form, as a display reading its plan's swivel course does. */
+    prescribed?: boolean;
   }
 
   /**
@@ -98,6 +125,4 @@ export namespace HumanSegmentPoseSeeds {
     /** The continued samples at the second and one and two steps toward its side. */
     samples: readonly [IAutoMoviePose, IAutoMoviePose, IAutoMoviePose];
   }
-
 }
-

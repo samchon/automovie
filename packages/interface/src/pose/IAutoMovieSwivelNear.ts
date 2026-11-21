@@ -25,4 +25,14 @@ export interface IAutoMovieSwivelNear extends IAutoMovieSwivelSeed {
    * An arbitrary score has no global objective-error or global-minimum bound.
    */
   tolerance: number;
+
+  /**
+   * Whether the seed is prescribed rather than continued: the chain is
+   * placed at the seed's swivel and branch exactly, in closed form
+   * (`fitHingedChainAt`), with no refinement or search. For a course that
+   * already chose the limb's swivel at this instant (a displayed limb read
+   * between the knots its course fitted), so the branch cannot change and
+   * no read sweeps. Absent, the seed is refined to `tolerance`.
+   */
+  prescribed?: boolean;
 }
