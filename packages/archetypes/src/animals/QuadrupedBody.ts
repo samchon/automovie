@@ -9,6 +9,7 @@ import {
 import { QuadrupedAttachments } from "./QuadrupedAttachments";
 import type { QuadrupedEars } from "./QuadrupedEars";
 import { QuadrupedHead } from "./QuadrupedHead";
+import type { QuadrupedJaw } from "./QuadrupedJaw";
 
 /**
  * A four-legged animal's body as one bar per bone, built from its species' proportions: the bone vocabulary every quadruped shares, the joints at rest, and the bars laid on a model under construction.
@@ -154,6 +155,8 @@ export namespace QuadrupedBody {
       mouth: number;
       /** Optional explicit reference pinnae and authored coarse plate construction. */
       ears?: QuadrupedEars.IProfile;
+      /** Optional authored coarse jaw inside the head capsule (`QuadrupedJaw`). */
+      jaw?: QuadrupedJaw.IProfile;
     }>;
 
     /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */

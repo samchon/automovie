@@ -9,6 +9,7 @@ import {
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
+import { EquidEarProfiles } from "./EquidEarProfiles";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { HorseHarness } from "./HorseHarness";
 import { HorsePack } from "./HorsePack";
@@ -242,6 +243,9 @@ export namespace createHorse {
       nose: { drop: 0.31, ahead: 0.18 },
       radius: 0.06,
       mouth: 0.03,
+      // Krebs et al. 2021's measured ear length with a transferred breadth (`EquidEarProfiles.horse`), and an authored coarse jaw inside the head: half its radius, hinged 0.15 of the head's length below the poll.
+      ears: EquidEarProfiles.horse(),
+      jaw: { radius: 0.5, hinge: 0.15 },
     },
     tail: { radius: 0.02, drop: 0.4, back: 0.1, dock: 0.65 },
     bones: [0.055, 0.035, 0.022, 0.022],
