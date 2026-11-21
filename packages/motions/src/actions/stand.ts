@@ -473,10 +473,7 @@ export namespace stand {
 }
 
 /** The rest feet's midpoint in world offset for a heading, so a stand centres the pelvis over its feet. */
-function centre(
-  body: IAutoMovieMotionHumanBody,
-  yaw: number,
-): IAutoMovieVector3 {
+function centre(body: IAutoMovieMotionHumanBody, yaw: number): IAutoMovieVector3 {
   const l: IAutoMovieVector3 = body.rest.get("leftFoot")!;
   const r: IAutoMovieVector3 = body.rest.get("rightFoot")!;
   return HumanFrame.point(
