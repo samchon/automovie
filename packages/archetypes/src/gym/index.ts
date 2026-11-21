@@ -17,5 +17,6 @@ export * from "./createRhythmicBall";
 export * from "./createRing";
 export * from "./createRowingMachine";
 export * from "./createSled";
+export * from "./createSpringboard";
 export * from "./createStillRings";
 export * from "./createUnevenBars";
