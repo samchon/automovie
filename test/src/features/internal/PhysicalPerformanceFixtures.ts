@@ -20,7 +20,15 @@ import { PhysicalFixtures } from "./PhysicalFixtures";
 
 /** Literal slow-walk acceptance inputs, shared across actual providers without a new archetype or gait preset. */
 export namespace PhysicalPerformanceFixtures {
-  /** Reuse the provider's own bone centres and capsule endpoint where it has no foot bone. */
+  /** Whether the profile has the canonical Human's foot and toes bones. */
+  export function footed(profile: P): boolean {
+    return profile.segments.some(
+      (segment: (typeof profile.segments)[number]): boolean =>
+        segment.bone === "leftToes",
+    );
+  }
+
+  /** Support each shank at the provider's ankle anchor, or at its capsule endpoint where it has no foot bone. */
   export function supports(profile: P): IAutoMovieFootfallPattern {
     return {
       id: "measured-provider-endpoints",
@@ -38,14 +46,21 @@ export namespace PhysicalPerformanceFixtures {
           offset: { forward: number; left: number };
           stride: { speed: number; length: number }[];
         } => {
-          const human: boolean = profile.id === "human";
-          const bone: string = `${side}${human ? "Midfoot" : "LowerLeg"}`;
+          const bone: string = `${side}LowerLeg`;
           const segment: IAutoMoviePhysicalSegment = profile.segments.find(
             (candidate: (typeof profile.segments)[number]): boolean =>
               candidate.bone === bone,
           )!;
           let localPoint: IAutoMovieVector3 | undefined;
-          if (!human) {
+          if (footed(profile))
+            // The ankle: the shank's anchor of its foot joint.
+            localPoint = {
+              ...profile.joints.find(
+                (joint: (typeof profile.joints)[number]): boolean =>
+                  joint.child === `${side}Foot`,
+              )!.parentFrame.position,
+            };
+          else {
             const shape: IAutoMoviePhysicalShape = segment.shapes[0]!;
             if (shape.kind !== "capsule")
               throw new Error(
@@ -63,15 +78,8 @@ export namespace PhysicalPerformanceFixtures {
           return {
             bone,
             localPoint,
-            chain: human
-              ? [
-                  `${side}UpperLeg`,
-                  `${side}LowerLeg`,
-                  `${side}Foot`,
-                  `${side}Subtalar`,
-                  bone,
-                ]
-              : [`${side}UpperLeg`, bone],
+            // A footed leg reaches with hip and knee; walk() keeps the foot's attitude.
+            chain: [`${side}UpperLeg`, `${side}LowerLeg`],
             phase: index / 2,
             duty: 0.55,
             offset: { forward: 0, left: index === 0 ? 0.1 : -0.1 },
@@ -85,40 +93,64 @@ export namespace PhysicalPerformanceFixtures {
     };
   }
 
-  /** Precompute drift-triggered steps and bounded profile-coordinate targets at the native cache rate. */
+  /**
+   * Precompute drift-triggered steps and bounded profile-coordinate targets at the native cache rate.
+   *
+   * A footed Human needs a caller-supplied stance already standing on the
+   * floor at y = 0, such as its fitted Stand; its forward direction is read
+   * from that stance's heel-to-toe line. Other bodies start from their
+   * neutral pose lowered until their lowest support point meets the floor.
+   */
   export function walk(
     profile: P,
     duration: number,
     peakPitch: number = 0,
+    stance?: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): {
     body: IAutoMoviePhysicalSimulationInput.IBody;
     planner: IAutoMovieStepPlanner;
     pattern: IAutoMovieFootfallPattern;
   } {
     const pattern: IAutoMovieFootfallPattern = supports(profile);
-    const forward: IAutoMovieVector3 =
-      profile.id === "human" ? { x: 1, y: 0, z: 0 } : { x: 0, y: 0, z: 1 };
-    const original: Record<string, IAutoMovieRigidTransform> =
-      Object.fromEntries(
-        profile.segments.map(
-          (
-            segment: (typeof profile.segments)[number],
-          ): [string, IAutoMovieRigidTransform] => [
-            segment.bone,
-            structuredClone(segment.neutral),
-          ],
-        ),
+    const human: boolean = footed(profile);
+    if (human && stance === undefined)
+      throw new Error(
+        "A footed Human walk needs a standing stance on the floor",
       );
-    const gap: number =
-      profile.id === "human"
-        ? 0
-        : Math.min(
-            ...pattern.limbs.map(
-              (limb: (typeof pattern.limbs)[number]): number =>
-                physicalSupportPoint(original[limb.bone]!, limb.localPoint).y,
-            ),
-          );
+    const original: Record<string, IAutoMovieRigidTransform> = structuredClone(
+      stance ??
+        Object.fromEntries(
+          profile.segments.map(
+            (
+              segment: (typeof profile.segments)[number],
+            ): [string, IAutoMovieRigidTransform] => [
+              segment.bone,
+              segment.neutral,
+            ],
+          ),
+        ),
+    );
+    const gap: number = human
+      ? 0
+      : Math.min(
+          ...pattern.limbs.map(
+            (limb: (typeof pattern.limbs)[number]): number =>
+              physicalSupportPoint(original[limb.bone]!, limb.localPoint).y,
+          ),
+        );
     for (const pose of Object.values(original)) pose.position.y -= gap;
+    const toes: IAutoMovieVector3 = human
+      ? Vector3.subtract(
+          original.leftToes!.position,
+          original.leftFoot!.position,
+        )
+      : { x: 0, y: 0, z: 1 };
+    const ground: number = Math.hypot(toes.x, toes.z);
+    const forward: IAutoMovieVector3 = {
+      x: toes.x / ground,
+      y: 0,
+      z: toes.z / ground,
+    };
     const initial: Record<string, IAutoMovieVector3> = Object.fromEntries(
       pattern.limbs.map(
         (limb: (typeof pattern.limbs)[number]): [string, IAutoMovieVector3] => [
@@ -153,7 +185,7 @@ export namespace PhysicalPerformanceFixtures {
             ],
           ),
         ),
-      heading: (): number => (profile.id === "human" ? 0 : -Math.PI / 2),
+      heading: (): number => Math.atan2(-forward.z, forward.x),
       reservations: [],
       duration: 0.35,
       threshold: 0.06,
@@ -195,7 +227,10 @@ export namespace PhysicalPerformanceFixtures {
                 {
                   position: {
                     x: pose.position.x + forward.x * seconds * 0.12,
-                    y: pose.position.y - 0.03,
+                    // A primitive walks 3 cm crouched. A Human's fitted Stand
+                    // keeps its straight knees; planPhysicalSupportTargets
+                    // lowers the root only as far as each reach requires.
+                    y: pose.position.y - (human ? 0 : 0.03),
                     z: pose.position.z + forward.z * seconds * 0.12,
                   },
                   rotation: { ...pose.rotation },
@@ -223,6 +258,34 @@ export namespace PhysicalPerformanceFixtures {
             },
           ),
         );
+        const segments: Record<string, IAutoMovieRigidTransform> =
+          planPhysicalSupportTargets({
+            profile,
+            pattern,
+            targets,
+            goals,
+            maximumRootDrop: 0.1,
+            iterations: 32,
+            tolerance: 0.0005,
+          }).targets;
+        // The ankle is the foot's origin, so the shank places the foot; the
+        // foot and its toes keep the stance attitude, flat over the floor.
+        if (human)
+          for (const side of ["left", "right"] as const) {
+            const foot: IAutoMovieRigidTransform = segments[`${side}Foot`]!;
+            const stanceFoot: IAutoMovieRigidTransform =
+              original[`${side}Foot`]!;
+            const stanceToes: IAutoMovieRigidTransform =
+              original[`${side}Toes`]!;
+            foot.rotation = { ...stanceFoot.rotation };
+            segments[`${side}Toes`] = {
+              position: Vector3.add(
+                foot.position,
+                Vector3.subtract(stanceToes.position, stanceFoot.position),
+              ),
+              rotation: { ...stanceToes.rotation },
+            };
+          }
         return {
           strength: 1,
           supportStrength: Object.fromEntries(
@@ -233,15 +296,7 @@ export namespace PhysicalPerformanceFixtures {
               ],
             ),
           ),
-          segments: planPhysicalSupportTargets({
-            profile,
-            pattern,
-            targets,
-            goals,
-            maximumRootDrop: 0.1,
-            iterations: 32,
-            tolerance: 0.0005,
-          }).targets,
+          segments,
         };
       },
     );
