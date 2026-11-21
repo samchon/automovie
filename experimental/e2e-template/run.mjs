@@ -226,7 +226,6 @@ import type { IFilmProduction } from "../../IFilmProduction";
 /**
  * A packed-SDK room exercised by the generated production's existing film.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the named entrance, linked bench, registered shot and native scene ownership.
  * @evidence contracts/development/implementation.md#principled-implementation Passes installed place outputs through defineShot, compileDefinedShot and buildScene.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The film builds one static scene per mount and the generated host owns playback and capture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The packed builder and mesh loader own geometry and clipping. A compiler refusal prevents the mount.

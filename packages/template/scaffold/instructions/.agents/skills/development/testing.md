@@ -13,6 +13,7 @@ A production law takes the bounded checks [motion verification](../motion/laws/v
 A test that needs a person takes a body the installed human package prepares at fixed parameters, without drawing it. Preparing a body can be slow, so prepare each one once per run and share it between tests.
 
 The installed motion vocabulary tests each action's internal mechanics. Test the choices and coordination the production authors and inspect their performance in the [catalog case](../motion/catalog-cases.md#capture-and-review).
+
 ## What a test is not
 
 Exercise real code without monkey-patching globals or internals or replaying recorded fixtures. Verify visible results in catalog stills and record media inspection and user observations in the [acceptance record](../review/delivery-review.md#acceptance-record).

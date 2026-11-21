@@ -19,6 +19,7 @@ Derive a cast body from its record and an incidental body from the standing stat
 ### Measurements and decisions
 
 Keep law, action and archetype parameters within their owner's range. Source measurements to a [study](../../story/planning/research.md#when-to-study) section or a sourced package value. Derive placement, weights, texture coordinates and measurements from the generating definition so detail changes preserve them.
+
 Keep durable choices at their owner. Cite a [short's scene decisions](../../story/layers/brief.md#what-it-holds) by file and anchor. A direct screenplay owns story choices. Instructions own [implementation choices for a fixed screenplay](../../story/correction/repair.md#concretization) and standalone asset decisions.
 
 ## Realization comments
