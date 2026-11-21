@@ -29,7 +29,8 @@ const LEG: number = 0.98;
  * standing place, and lower the pelvis as far as the planted legs need.
  *
  * The hinge is the smallest one, not below `least`, that brings the
- * striking shoulder within reach of the grip's impact point. With the
+ * striking shoulder within reach of the grip's impact point, and the other
+ * shoulder within reach of a bridge point when there is one. With the
  * shoulders held over the base the shoulder only descends as the hinge
  * grows, so the shoulder-to-grip distance falls monotonically and a
  * bisection finds the boundary. A grip already in reach needs no hinge; one
@@ -41,6 +42,7 @@ const LEG: number = 0.98;
  * @param feet The planted feet the stroke keeps.
  * @param side The striking hand.
  * @param grip The grip's world point at impact, metres.
+ * @param bridge The other hand's bridge point on a supporting surface, world metres, which must also come into reach; absent for an unbridged stroke.
  * @param least The smallest hinge in degrees, such as a cue's lean over the bed; 0 for none.
  * @param pelvisLimit The pelvis's share limit passed to the trunk incline; Infinity lets the pelvis tilt.
  * @returns The address applied to a posture at a share from 0 to 1 of its full depth.
@@ -61,6 +63,7 @@ export function addressPrecisionStroke(
   >,
   side: AutoMovieHumanSide,
   grip: IAutoMovieVector3,
+  bridge: IAutoMovieVector3 | undefined,
   least: number,
   pelvisLimit: number,
 ): (
@@ -101,20 +104,37 @@ export function addressPrecisionStroke(
     return { x: standing.x - tipped.x, y: 0, z: standing.z - tipped.z };
   };
   const reach: number = ARM * (body.measure.upperArm + body.measure.forearm);
-  const gap = (angle: number): number =>
+  const short = (
+    angle: number,
+    hand: AutoMovieHumanSide,
+    point: IAutoMovieVector3,
+  ): number =>
     Vector3.distance(
       Vector3.add(
         AutoMovieMotionHumanPlaced.joint(
           body,
           inclined(angle),
-          `${side}UpperArm`,
+          `${hand}UpperArm`,
         ),
         back(angle),
       ),
-      grip,
+      point,
     ) - reach;
+
+  // A bridged stroke needs both hands in reach: the grip and the bridge.
+  const gap = (angle: number): number =>
+    bridge === undefined
+      ? short(angle, side, grip)
+      : Math.max(
+          short(angle, side, grip),
+          short(angle, side === "right" ? "left" : "right", bridge),
+        );
+  // A forward hinge lowers the shoulders, so it helps only a grip below the
+  // striking shoulder; an overhead contact keeps the standing trunk.
+  const low: boolean =
+    grip.y < AutoMovieMotionHumanPlaced.joint(body, entry, `${side}UpperArm`).y;
   let hinge: number = least;
-  if (gap(least) > 0)
+  if (low && gap(least) > 0)
     if (gap(LIMIT) > 0) hinge = LIMIT;
     else {
       let low: number = least;
