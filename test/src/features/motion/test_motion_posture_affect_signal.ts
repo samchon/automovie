@@ -7,6 +7,7 @@ import { HumanAffect, HumanChain, HumanPerformance } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
+import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/throwsError";
 
 /**
@@ -21,13 +22,15 @@ import { throwsError } from "../internal/throwsError";
  *    flexion peaks are spaced by the note interval within 2 ms.
  * 3. The layer adds onto the posture's own joint angles and returns the
  *    posture's limb goals and root unchanged; displays that overlap add.
- * 4. A display of non-positive length is refused.
+ * 4. A display of non-positive length is refused on the seconds axis.
+ * 5. Sigh and yawn agree on the authored inhale and exhale phases. An
+ *    installed yawn displays the same jaw excursions over a standing actor.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the display angles and the layer on a posture; a display that starts or ends off zero, jumps, loses the laugh's rhythm, touches a limb goal or ignores the base angles fails.
- * @evidence contracts/development/testing.md#independent-expectations The note interval is Provine's 210 ms; zero ends, continuity and untouched goals are the layer contract stated by IHumanLayer.
+ * @evidence contracts/development/testing.md#independent-expectations The note interval is Provine's 210 ms; zero ends, continuity and untouched goals are the layer contract stated by IHumanLayer. The two half-phase samples follow the published 40 percent inhalation and the minimum-jerk midpoint of one half.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers all six displays, before, inside and after, overlap and an invalid length; the posed result on a body is reviewed in captures.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 scenarios and what each pins.
+ * @evidence contracts/development/testing.md#execution-ownership An in-memory unit with one staged standing actor and the layer installed for the phase checks.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario and what it pins.
  */
 export function test_motion_posture_affect_signal(): void {
   const kinds: IAutoMovieMotionHumanAffect.Kind[] = [
@@ -114,7 +117,7 @@ export function test_motion_posture_affect_signal(): void {
       },
     },
   };
-  const stage = new HumanPerformance({
+  const stageInput: ConstructorParameters<typeof HumanPerformance>[0] = {
     seed: "affect",
     performers: [
       {
@@ -126,7 +129,8 @@ export function test_motion_posture_affect_signal(): void {
       },
     ],
     composition: HumanChain.subject("a").stand({ seconds: 1 }).node,
-  });
+  };
+  const stage: HumanPerformance = new HumanPerformance(stageInput);
   const segment = stage.segments("a")[0]!;
   const context: IAutoMovieMotionHumanLayer.IContext = {
     subject: segment.context.subject,
@@ -170,8 +174,47 @@ export function test_motion_posture_affect_signal(): void {
     "overlapping displays add",
     Math.abs(both.joints.chest![0] - (5 + cough + laugh)) < 1e-12,
   );
+  const at: number = 0.1;
+  const duration: number = 0.8;
+  const installed: HumanPerformance = new HumanPerformance({
+    ...stageInput,
+    layers: {
+      a: [HumanAffect.layer([{ kind: "yawn", at, seconds: duration }])],
+    },
+  });
+  const phases: readonly (readonly [number, number, number])[] = [
+    [0.2, 3, 12.5],
+    [0.4, 6, 25],
+    [0.7, 2, 12.5],
+  ];
+  for (const [phase, shoulder, jaw] of phases) {
+    const local: number = phase * duration;
+    TestValidator.predicate(
+      `sigh shoulder at share ${phase}`,
+      nclose(
+        HumanAffect.angles("sigh", local, duration).leftShoulder![1],
+        shoulder,
+        1e-12,
+      ),
+    );
+    TestValidator.predicate(
+      `yawn jaw at share ${phase}`,
+      nclose(HumanAffect.angles("yawn", local, duration).jaw![0], jaw, 1e-12),
+    );
+    const time: number = at + local;
+    const plainJaw: number =
+      stage.pose("a", time).joints.find((joint) => joint.bone === "jaw")
+        ?.flexion ?? 0;
+    const posedJaw: number =
+      installed.pose("a", time).joints.find((joint) => joint.bone === "jaw")
+        ?.flexion ?? 0;
+    TestValidator.predicate(
+      `installed yawn jaw at share ${phase}`,
+      nclose(posedJaw - plainJaw, jaw, 1e-8),
+    );
+  }
   TestValidator.predicate(
-    "non-positive length refused",
-    throwsError((): unknown => HumanAffect.angles("sigh", 0.1, 0)),
+    "non-positive length refused on seconds",
+    throwsError((): unknown => HumanAffect.angles("sigh", 0.1, 0), "seconds"),
   );
 }

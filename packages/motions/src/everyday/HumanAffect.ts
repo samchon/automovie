@@ -1,11 +1,14 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanAffect,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanBound } from "../law/HumanBound";
 
 /**
@@ -88,10 +91,10 @@ export namespace HumanAffect {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the clinical-degree output, the empty result outside the display and the refusal; each pattern is documented on the namespace.
    * @evidence contracts/development/implementation.md#principled-implementation Joint-angle pulses under minimum-jerk envelopes, zero with zero velocity at both ends; the laugh note interval is Provine's 210 ms and the yawn length Provine's, other amplitudes and timings provisional as documented. Angles are the rig's clinical degrees per bone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the display, shared with the layer, writes the angles through one ramp, one pulse and one joint writer.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the display, shared with the layer, writes the angles through one ramp, one pulse, the shared sigh and yawn clock and one joint writer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: the amplitudes are named in the namespace documentation as cited or provisional, and a length the display cannot fit throws instead of being clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call: at most three pulses for a cough and a fixed set of bones per display.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to reuse across calls.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The sigh and yawn share limits on a fixed normalized clock. Each angle is evaluated for the requested second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one small record per call and retains nothing.
    */
   export function angles(
@@ -106,7 +109,10 @@ export namespace HumanAffect {
   }
 
   /** Refuse a length a display cannot fit: any not positive, and a sneeze too short for its burst to rise within its last `1 - SNEEZE_BUILD`. */
-  function admit(kind: IAutoMovieMotionHumanAffect.Kind, seconds: number): void {
+  function admit(
+    kind: IAutoMovieMotionHumanAffect.Kind,
+    seconds: number,
+  ): void {
     HumanBound.above(
       "seconds",
       seconds,
@@ -139,8 +145,8 @@ export namespace HumanAffect {
         break;
       }
       case "sigh": {
-        const inhale: number = minimumJerk.share(u / 0.4);
-        const exhale: number = minimumJerk.share((u - 0.4) / 0.6);
+        const inhale: number = INHALE.progress(u);
+        const exhale: number = EXHALE.progress(u);
         const close: number = 1 - minimumJerk.share((u - 0.85) / 0.15);
         const shoulders: number = k * (6 * inhale - 8 * exhale) * close;
         write(joints, additive, "leftShoulder", 0, shoulders, 0);
@@ -151,7 +157,7 @@ export namespace HumanAffect {
       }
       case "yawn": {
         const e: number =
-          u < 0.4 ? minimumJerk.share(u / 0.4) : 1 - minimumJerk.share((u - 0.4) / 0.6);
+          u < INHALATION_END ? INHALE.progress(u) : 1 - EXHALE.progress(u);
         write(joints, additive, "jaw", 25 * k * e, 0, 0);
         write(joints, additive, "head", -15 * k * e, 0, 0);
         write(joints, additive, "chest", -5 * k * e, 0, 0);
@@ -176,8 +182,22 @@ export namespace HumanAffect {
           (1 - SNEEZE_BUILD) * seconds - SNEEZE_BURST,
         );
         const end: number = 1 - minimumJerk.share((u - SNEEZE_BUILD) / 0.05);
-        write(joints, additive, "head", -10 * k * build * end + 25 * k * burst, 0, 0);
-        write(joints, additive, "chest", -3 * k * build * end + 10 * k * burst, 0, 0);
+        write(
+          joints,
+          additive,
+          "head",
+          -10 * k * build * end + 25 * k * burst,
+          0,
+          0,
+        );
+        write(
+          joints,
+          additive,
+          "chest",
+          -3 * k * build * end + 10 * k * burst,
+          0,
+          0,
+        );
         break;
       }
       case "shiver": {
@@ -240,23 +260,58 @@ export namespace HumanAffect {
 
 /** An envelope rising on a minimum-jerk ramp over the first `rise` of a display and falling over its last `fall`, shares of its length. */
 function ramp(u: number, rise: number, fall: number): number {
-  return Math.min(minimumJerk.share(u / rise), minimumJerk.share((1 - u) / fall));
+  return Math.min(
+    minimumJerk.share(u / rise),
+    minimumJerk.share((1 - u) / fall),
+  );
 }
 
 /** One pulse at `x` seconds after its start: zero before it, a minimum-jerk rise over `up` seconds and a fall over `down`. */
 function pulse(x: number, up: number, down: number): number {
-  return x <= 0 ? 0 : x < up ? minimumJerk.share(x / up) : 1 - minimumJerk.share((x - up) / down);
+  return x <= 0
+    ? 0
+    : x < up
+      ? minimumJerk.share(x / up)
+      : 1 - minimumJerk.share((x - up) / down);
 }
 
 /** Write one bone's angles, or add them to the bone's own. */
-function write(joints: IAutoMovieMotionHumanPosture["joints"], additive: boolean,
-  bone: AutoMovieHumanoidBone, x: number, y: number, z: number): void {
+function write(
+  joints: IAutoMovieMotionHumanPosture["joints"],
+  additive: boolean,
+  bone: AutoMovieHumanoidBone,
+  x: number,
+  y: number,
+  z: number,
+): void {
   if (!additive) joints[bone] = [x, y, z];
   else {
     const was: readonly [number, number, number] = joints[bone] ?? ZERO;
     joints[bone] = [was[0] + x, was[1] + y, was[2] + z];
   }
 }
+
+/** The share of a sigh or yawn's length taken by inhalation. */
+const INHALATION_END: number = 0.4;
+
+/** One normalized clock for the sigh and yawn, independent of their lengths. */
+const BREATH_DISPLAY_CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
+  { name: "inhaled", seconds: INHALATION_END },
+]);
+
+/** Minimum-jerk progress up to the end of inhalation. */
+const INHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
+  BREATH_DISPLAY_CLOCK,
+  "start",
+  "inhaled",
+);
+
+/** Minimum-jerk progress from the end of inhalation to the display's end. */
+const EXHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
+  BREATH_DISPLAY_CLOCK,
+  "inhaled",
+  "end",
+);
 
 /** The angles of a bone the record holds none for. */
 const ZERO: readonly [number, number, number] = [0, 0, 0];
