@@ -46,7 +46,7 @@ export type IPhysicalCoupledTargetSchedule = ReadonlyMap<
  * @evidence contracts/development/common.md#meaningful-documentation States sparse membership, clock and individual admission precondition.
  * @evidence contracts/development/implementation.md#principled-implementation Checks declarations and reciprocal adjustable receivers at each step, then enforces combined relationship and coordinate limits.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Indexes explicit membership by step, then sorts and admits each named group once.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Frame zero seeds the scene. Inactive native declarations, singleton groups and fixed apparent cycles refuse.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Frame zero seeds the scene. Inactive native declarations, singleton groups and fixed apparent cycles refuse. Contact-release members and native-root members with balance or support tracking refuse, because the group fit could not honour their plans independently of body order.
  * @evidence contracts/development/implementation.md#efficient-algorithms Allocates maps only after an explicit declaration and reuses the same validated body profiles.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the same actuator selection and adjustable graph check as the shared fit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only the sparse declaration index. The caller owns the lifetime of its borrowed inputs.
@@ -165,6 +165,16 @@ function admitGroup(
         body: Body,
       ): Parameters<typeof physicalCoupledTargetDependencies>[0][number] => {
         const target: Target = body.targets[step]!;
+        const refusal: string | undefined = unsupportedMember(body, target);
+        if (refusal !== undefined)
+          throw new AutoMoviePhysicalCoupledTargetError({
+            step,
+            group,
+            members: result.members,
+            kind: "refused",
+            reason: "membership",
+            detail: body.id + ": " + refusal,
+          });
         const plan: Parameters<typeof physicalContactTargetBones>[0] = {
           body: body.id,
           profiles,
@@ -204,6 +214,36 @@ function admitGroup(
       detail: "The group lacks reciprocal adjustable binding receivers.",
     });
   return result;
+}
+
+/**
+ * Name a member policy the shared fit cannot honour for the whole interval.
+ * Native tracking writes balance and support plans during each body's own
+ * turn, so a group fit on an earlier member's turn would miss a later
+ * member's plans and depend on body order. A contact-triggered release would
+ * withdraw a member in the middle of the group.
+ */
+function unsupportedMember(body: Body, target: Target): string | undefined {
+  if (body.releaseOnContact !== undefined)
+    return "a coupled member cannot declare a contact-triggered release.";
+  if (body.mode.kind === "kinematic") return undefined;
+  const children: Set<string> = new Set(
+    body.profile.joints.map(
+      (joint: IAutoMoviePhysicalProfile["joints"][number]): string =>
+        joint.child,
+    ),
+  );
+  const root: string | undefined = body.profile.segments.find(
+    (segment: IAutoMoviePhysicalProfile["segments"][number]): boolean =>
+      !children.has(segment.bone),
+  )?.bone;
+  const nativeRoot: boolean =
+    target.dynamicSegments === undefined ||
+    (root !== undefined && target.dynamicSegments.includes(root));
+  return nativeRoot &&
+    (body.balance !== undefined || body.supportTracking !== undefined)
+    ? "a coupled member with a native root cannot take balance or support-tracking goals."
+    : undefined;
 }
 
 function ordinal(a: string, b: string): number {

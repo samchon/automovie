@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { ProjectileMovingPartFixture as Part } from "../internal/ProjectileMovingPartFixture";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
@@ -28,12 +29,12 @@ import { vclose } from "../internal/vclose";
  * @evidence contracts/development/testing.md#behavioral-verification Uses stock public builders and contact sweep with actual independent sphere and convex-hull witnesses, without injecting clearance or inspecting private proof state.
  * @evidence contracts/development/testing.md#independent-expectations Signed gaps come from the fixture's independently declared quadratic trajectories and the known upper collider plane. All first-hit points and normals follow from those shapes, their translation, and the explicit launch clock.
  * @evidence contracts/development/testing.md#distinguishing-cases Same geometry with opposite relative motion, separate and simultaneous part IDs, declared and absent motion, initial shallow overlap and malformed data distinguish the failure paths.
- * @evidence contracts/development/testing.md#execution-ownership The shared test runner executes pure public Engine builders and sweeps against local finite geometry and deterministic pose readers.
+ * @evidence contracts/development/testing.md#execution-ownership The shared test runner executes pure public Engine builders and sweeps against local finite geometry. Rigid part poses come from the maintained `ProjectileMovingPartFixture`, which the moving-performer consumer of #3827 shares.
  */
 export function test_physics_projectile_moving_departure(): void {
   const sphere: IAutoMoviePhysicalShape = baseSphere(ZERO);
   const separating: IAutoMovieProjectileFirstContact.IContinuousPose =
-    translation(0.5);
+    Part.rising(0.5);
   const moving: IAutoMovieProjectileFirstContact.ICollider =
     projectileFirstContact.shape("moving", sphere, separating);
   const contact: IAutoMovieHit | null = query(BALL, [moving], "moving");
@@ -42,7 +43,7 @@ export function test_physics_projectile_moving_departure(): void {
     matches(contact, "moving", 0.5, { x: 0, y: 0.375, z: 0 }, UP),
   );
   const closing: IAutoMovieProjectileFirstContact.ICollider =
-    projectileFirstContact.shape("moving", sphere, translation(1));
+    projectileFirstContact.shape("moving", sphere, Part.rising(1));
   TestValidator.predicate(
     "negative relative opening preserves the initial sphere contact",
     matches(
@@ -132,18 +133,12 @@ export function test_physics_projectile_moving_departure(): void {
     origin: { x: 0, y: BALL.origin.y - depth, z: 0 },
   };
   const returnTime: number = (0.5 + Math.sqrt(0.25 - 4 * depth)) / 2;
-  const actor: IAutoMovieProjectileFirstContact.IContinuousPose = {
-    at: (seconds): IAutoMovieRigidTransform => ({
-      position: { x: 0, y: 0.5 * seconds, z: 0 },
-      rotation: Quaternion.fromAxisAngle(UP, (seconds * 0.125 * 180) / Math.PI),
-    }),
-    bound: (_from, to): IAutoMovieProjectileFirstContact.IMotionBound => ({
-      to,
-      referenceVelocity: { x: 0, y: 0.5, z: 0 },
-      velocityError: 0,
-      angularSpeed: 0.2,
-    }),
-  };
+  const actor: IAutoMovieProjectileFirstContact.IContinuousPose = Part.part({
+    velocity: { x: 0, y: 0.5, z: 0 },
+    axis: UP,
+    angularVelocity: 0.125,
+    angularBound: 0.2,
+  });
   const torso: IAutoMovieProjectileFirstContact.ICollider =
     projectileFirstContact.shape("actor:torso", hull(), actor);
   TestValidator.predicate(
@@ -182,18 +177,9 @@ export function test_physics_projectile_moving_departure(): void {
   );
 
   const offset: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-  const leverPose: IAutoMovieProjectileFirstContact.IContinuousPose = {
-    at: (seconds): IAutoMovieRigidTransform => ({
-      position: ZERO,
-      rotation: Quaternion.fromAxisAngle(offset, (seconds * 180) / Math.PI),
-    }),
-    bound: (_from, to): IAutoMovieProjectileFirstContact.IMotionBound => ({
-      to,
-      referenceVelocity: ZERO,
-      velocityError: 0,
-      angularSpeed: 1,
-    }),
-  };
+  const leverPose: IAutoMovieProjectileFirstContact.IContinuousPose = Part.part(
+    { axis: offset, angularVelocity: 1 },
+  );
   const offsetBall: IAutoMovieProjectile = {
     origin: { x: 1, y: 0.25, z: 0 },
     velocity: { x: 0, y: 0.5, z: 0 },
@@ -253,7 +239,7 @@ export function test_physics_projectile_moving_departure(): void {
     matches(
       query(
         later,
-        [projectileFirstContact.shape("later", sphere, translation(0.5, 1))],
+        [projectileFirstContact.shape("later", sphere, Part.rising(0.5, 1))],
         "later",
         1,
       ),
@@ -307,25 +293,6 @@ function hull(width: number = 0.125): IAutoMoviePhysicalShape {
       position: { x: 0, y: 0.0625, z: 0 },
       rotation: Quaternion.identity(),
     },
-  };
-}
-
-/** The declared velocity is the exact derivative of this complete pose path. */
-function translation(
-  speed: number,
-  at: number = 0,
-): IAutoMovieProjectileFirstContact.IContinuousPose {
-  return {
-    at: (seconds): IAutoMovieRigidTransform => ({
-      position: { x: 0, y: speed * (seconds - at), z: 0 },
-      rotation: Quaternion.identity(),
-    }),
-    bound: (_from, to): IAutoMovieProjectileFirstContact.IMotionBound => ({
-      to,
-      referenceVelocity: { x: 0, y: speed, z: 0 },
-      velocityError: 0,
-      angularSpeed: 0,
-    }),
   };
 }
 

@@ -118,13 +118,6 @@ export function planPhysicalCoupledTargets(input: IInput): IResult {
         "A coupled fit requires at least two distinct admitted scene bodies.",
     };
 
-  if (members.length > PHYSICAL_COUPLED_RELATIONSHIP_LIMIT)
-    return {
-      kind: "refused",
-      reason: "budget",
-      detail: "Coupled relationship budget exceeded.",
-    };
-
   const profiles: Readonly<Record<string, IAutoMoviePhysicalProfile>> =
     Object.fromEntries(
       input.scene.bodies.map(

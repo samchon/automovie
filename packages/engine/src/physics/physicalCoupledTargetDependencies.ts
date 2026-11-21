@@ -30,12 +30,10 @@ export function physicalCoupledTargetDependencies(
   members: readonly Member[],
 ): boolean {
   const movable: Map<string, (bone: string) => boolean> = new Map(
-    members.map(
-      (member: PreparedMember): [string, (bone: string) => boolean] => [
-        member.body,
-        adjustableAncestry(member.plan.profiles[member.body]!, member.bones),
-      ],
-    ),
+    members.map((member: Member): [string, (bone: string) => boolean] => [
+      member.body,
+      adjustableAncestry(member.plan.profiles[member.body]!, member.bones),
+    ]),
   );
   const forward: Map<string, string[]> = new Map();
   const reverse: Map<string, string[]> = new Map();

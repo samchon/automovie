@@ -8,14 +8,15 @@ import { planPhysicalCoupledTargets } from "./planPhysicalCoupledTargets";
 import type { IPhysicalCoupledTargetSchedule } from "./preparePhysicalSimulationInput";
 
 /**
- * Admitted groups and the completed report sink for kinematic frames.
+ * Admitted groups and the completed report sink of one simulation run. Both
+ * the kinematic frame writer and native tracking read the same schedule.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Binds a borrowed schedule and frame report sink to the same run.
+ * @evidence contracts/development/common.md#meaningful-documentation Binds a borrowed schedule and report sink to the same run.
  * @evidence contracts/development/design.md#principled-representation The context separates declaration from completed per-step evidence.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The frame writer only needs its current groups and a place to publish their completed reports.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A failed group leaves no successful frame report.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface A producer only needs its current groups and a place to publish their completed reports.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A failed group leaves no successful report.
  */
-export interface IPhysicalKinematicCoupling {
+export interface IPhysicalCoupledTargetRun {
   readonly schedule: IPhysicalCoupledTargetSchedule;
   readonly record: (
     reports: readonly IAutoMoviePhysicalCoupledTargetFit.IConverged[],

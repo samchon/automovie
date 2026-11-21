@@ -8,7 +8,7 @@ import type {
 
 import { bindPhysicalKinematicFrame } from "./bindPhysicalKinematicFrame";
 import { createPhysicalKinematicFrame } from "./createPhysicalKinematicFrame";
-import type { IPhysicalKinematicCoupling } from "./fitPhysicalCoupledTargetGroup";
+import type { IPhysicalCoupledTargetRun } from "./fitPhysicalCoupledTargetGroup";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
@@ -29,7 +29,7 @@ export async function computePhysicalKinematicFrames(
   cache: IAutoMoviePhysicsCache,
   signal?: AbortSignal,
   progress?: (completed: number, total: number) => void,
-  coupling?: IPhysicalKinematicCoupling,
+  coupling?: IPhysicalCoupledTargetRun,
 ): Promise<void> {
   const count: number = Math.round(input.duration * input.rate);
   const profiles: Record<string, IAutoMoviePhysicalProfile> =

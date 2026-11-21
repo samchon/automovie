@@ -14,7 +14,7 @@ import type {
 
 import { AutoMoviePhysicalCoupledTargetError } from "./AutoMoviePhysicalCoupledTargetError";
 import {
-  type IPhysicalKinematicCoupling,
+  type IPhysicalCoupledTargetRun,
   fitPhysicalCoupledTargetGroup,
 } from "./fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
@@ -48,7 +48,7 @@ export function bindPhysicalKinematicFrame(
       ): [string, IAutoMoviePhysicalProfile] => [body.id, body.profile],
     ),
   ),
-  coupling?: IPhysicalKinematicCoupling,
+  coupling?: IPhysicalCoupledTargetRun,
 ): IAutoMoviePhysicalFrame {
   const actual: IAutoMoviePhysicalFrame["bodies"] = frame.bodies;
   const fits: ReturnType<typeof fitPhysicalCoupledTargetGroup>[] | undefined =
