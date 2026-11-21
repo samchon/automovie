@@ -75,6 +75,7 @@ export type { IAutoMovieMotionHumanMountRider } from "./IAutoMovieMotionHumanMou
 export type { IAutoMovieMotionHumanPursuit } from "./IAutoMovieMotionHumanPursuit";
 export type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
 export type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
+export type { IAutoMovieMotionHumanFloatBeside } from "./IAutoMovieMotionHumanFloatBeside";
 export type { IAutoMovieMotionHumanTendHorse } from "./IAutoMovieMotionHumanTendHorse";
 export type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 export type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";

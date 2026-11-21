@@ -1,6 +1,7 @@
 import type { IAutoMovieMotionHumanBicycleEffort } from "./IAutoMovieMotionHumanBicycleEffort";
 import type { IAutoMovieMotionHumanBikeGuide } from "./IAutoMovieMotionHumanBikeGuide";
 import type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanBikeTransfer";
+import type { IAutoMovieMotionHumanFloatBeside } from "./IAutoMovieMotionHumanFloatBeside";
 import type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
 import type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
 import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
@@ -37,6 +38,9 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Walk behind a drawn implement holding its two handles, as a ploughman does. */
   HumanHoldHandles: IAutoMovieMotionHumanHoldHandles;
+
+  /** Slide off a swimming horse to its upstream side and float beside it, holding its mane. */
+  HumanFloatBeside: IAutoMovieMotionHumanFloatBeside;
 
   /** Perform ordered seat figures on a moving carrier, acquiring and releasing named supports. */
   HumanMounted: IAutoMovieMotionHumanMounted;
