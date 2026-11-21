@@ -1,13 +1,19 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSurface,
+  IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,8 +28,10 @@ type Context = IAutoMovieMotionHumanActionContext<Params>;
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;
 
-/** The ski's local forward axis and the pole handle's local tangent. */
+/** The ski's local forward axis. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+/** The axis a handle is wrapped about: its affordance frame's local +X. */
+const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /** Both feet checked against each set of ski edges. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
@@ -44,7 +52,7 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  * @evidence contracts/development/implementation.md#principled-implementation Unweight between opposite ski cants about the actual support points. A Nordic pole catch carries the hand on the named moving grip through an opposite-foot kick.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one shared glide, then overlay the optional edge transfer and the optional pole stroke.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Consume the given snow orientation and the named pole frames. A missing pole contact or a same-sign edge transfer is not converted into bilateral travel.
- * @evidence contracts/development/implementation.md#efficient-algorithms Once per pose, one base sample, two local foot rotations if the edge transfer is active, and one pole frame if the stroke is active.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Once per pose, one base sample, two local foot rotations if the edge transfer is active, and named pole reads only while the hand approaches, holds or releases.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the shared glide, foot pivot and round-handle fit.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the input edge or pole data and one base plan for the action.
  */
@@ -183,22 +191,58 @@ export function HumanSnowGlide(context: Context): Plan {
     "minimum",
   );
   const pole: IAutoMovieMotionHumanPropReader = context.prop(stroke.on);
-  const read = (at: number): IAutoMovieMotionHumanProp.IPlacedPoint => {
-    const target: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
-      pole.prop.point?.(stroke.grip, context.start + at);
-    if (target !== undefined) return target;
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "nordic.grip",
-      value: stroke.grip,
-      feasible: null,
-      reason: "the named pole does not supply a moving grip frame",
-      fix: "give the pole a film-clock point reader for its grip",
-    });
+  const named: IAutoMovieMotionTarget = {
+    kind: "prop",
+    subject: stroke.on,
+    point: stroke.grip,
+  };
+  const affordance: IAutoMovieAffordance | undefined =
+    pole.prop.affordances?.find(
+      (item: IAutoMovieAffordance): boolean => item.id === stroke.grip,
+    );
+  const radius: number = (affordance?.aperture ?? 0) / 2;
+
+  // A pole whose grip moves within it says where; a rigid pole carries its
+  // rest point and handle frame on its displayed frame, as a rider's hands
+  // read a carried handle (`HumanRideHands`).
+  const read = (at: number): IAutoMovieMotionHumanMountRider.IHoldGrip => {
+    const film: number = context.start + at;
+    const moving: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+      pole.prop.point?.(stroke.grip, film);
+    if (moving === undefined && !Object.hasOwn(pole.prop.points, stroke.grip))
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "nordic.grip",
+        value: stroke.grip,
+        feasible: {
+          kind: "alternatives",
+          values: Object.keys(pole.prop.points),
+        },
+        reason: `${stroke.on} has no point named ${stroke.grip}`,
+        fix: "name one of the pole's grip points",
+      });
+    const contact: IAutoMovieMotionHumanProp.IPlacedPoint =
+      moving ?? context.aim(named, film);
+    const rotation: IAutoMovieQuaternion | undefined =
+      moving?.rotation ??
+      (affordance === undefined
+        ? undefined
+        : Quaternion.multiply(
+            pole.frame(film).rotation,
+            affordance.frame.rotation,
+          ));
+    return {
+      point: contact.point,
+      normal: contact.normal,
+      radius,
+      ...(rotation === undefined
+        ? {}
+        : { axis: Quaternion.rotateVector(rotation, HANDLE) }),
+    };
   };
   read(catchAt);
   read(release);
-  const leg: "rightLeg" | "leftLeg" =
+  const leg: AutoMovieHumanLimb =
     stroke.hand === "left" ? "rightLeg" : "leftLeg";
   return {
     ...base,
@@ -243,24 +287,11 @@ export function HumanSnowGlide(context: Context): Plan {
         minimumJerk.share(at / catchAt) *
         (1 - minimumJerk.share((at - release) / (base.duration - release)));
       if (gain === 0) return next;
-      const contact: IAutoMovieMotionHumanProp.IPlacedPoint = read(at);
-      const radius: number =
-        (pole.prop.affordances?.find(
-          (item: NonNullable<typeof pole.prop.affordances>[number]): boolean =>
-            item.id === stroke.grip,
-        )?.aperture ?? 0) / 2;
       const arm: ReturnType<typeof HumanMountRider.hold> = HumanMountRider.hold(
         context.body,
         stroke.hand,
         next,
-        {
-          point: contact.point,
-          normal: contact.normal,
-          radius,
-          ...(contact.rotation === undefined
-            ? {}
-            : { axis: Quaternion.rotateVector(contact.rotation, FORWARD) }),
-        },
+        read(at),
         gain,
         {},
       );
@@ -274,6 +305,9 @@ export function HumanSnowGlide(context: Context): Plan {
 }
 
 /** Emit simultaneous support events in chronological order. */
-function byShare(left: { share: number }, right: { share: number }): number {
+function byShare(
+  left: IAutoMovieMotionEvent,
+  right: IAutoMovieMotionEvent,
+): number {
   return left.share - right.share;
 }

@@ -1,7 +1,15 @@
-import { createSki, createSnowboard } from "@automovie/archetypes";
+import {
+  type Archetype,
+  ArchetypeBuilder,
+  ArchetypeDrawSession,
+  ArchetypeFrame,
+  createSki,
+  createSnowboard,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSurface,
@@ -10,12 +18,21 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain, HumanPerformance, HumanSurface } from "@automovie/motions";
+import {
+  HumanChain,
+  HumanHand,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  HumanSurface,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
-import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
+
+/** The Nordic pole model's planted tip and held grip. */
+type PoleAffordance = "tip" | "grip";
 
 /** Anatomical lateral, world vertical and equipment forward axes at entry. */
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -30,7 +47,7 @@ const Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * 1. Opposite alpine edge supports meet a sloped plane, with the rider
  *    changing lean and chest rotation at each edge and recovering at rest.
  * 2. A Nordic pole grip follows the placed shaft while its tip is planted
- *    and the opposite ski moves rearward before recovering.
+ *    and the opposite ski moves rearward before recovering. An absent grip is refused.
  * 3. An independently posed snowboard's edge contacts change while the
  *    rider remains attached to the deck throughout and reaches stillness.
  *
@@ -70,7 +87,7 @@ export function test_motion_exercise_snow_support(): void {
   }).bones("snow", 0);
   const stance: IAutoMovieVector3 = ski.affordance("stance").frame.translation;
   const pivots = (
-    id: "leftEdge" | "rightEdge",
+    id: createSki.Affordance,
   ): Record<AutoMovieHumanSide, IAutoMovieVector3> => {
     const edge: IAutoMovieVector3 = ski.affordance(id).frame.translation;
     const offset: IAutoMovieVector3 = Vector3.subtract(edge, stance);
@@ -178,9 +195,39 @@ export function test_motion_exercise_snow_support(): void {
       ) < 0.025,
   );
 
-  // A rigid pole turns around a fixed snow point during its pressure phase.
+  // The model's pole rotates around the planted tip through the stroke.
   const tip: IAutoMovieVector3 = { x: 0.3, y: 0, z: 0.42 };
-  const poleLength: number = 1.06;
+  const grip: IAutoMovieVector3 = { x: 0, y: 1.06, z: 0 };
+  const model: Archetype<PoleAffordance, never> = new ArchetypeBuilder<
+    PoleAffordance,
+    never
+  >({
+    material: "composite",
+    name: "Nordic pole",
+    draw: new ArchetypeDrawSession<never>("nordic-pole", {}, undefined),
+  })
+    .rod("shaft", 0.009, Vector3.create(0, 0, 0), { ...grip, y: 1.12 })
+    .affordance({
+      id: "tip",
+      kind: "surface",
+      frame: ArchetypeFrame.facing(Vector3.create(0, 0, 0), {
+        x: 0,
+        y: -1,
+        z: 0,
+      }),
+      extent: null,
+    })
+    .affordance({
+      id: "grip",
+      kind: "handle",
+      frame: ArchetypeFrame.facing(grip, X, Y),
+      extent: null,
+      symmetry: "round",
+      grip: "power",
+      aperture: 0.018,
+      length: 0.12,
+    })
+    .build(0.2);
   const poleAt = (at: number): IAutoMovieRigidTransform => ({
     position: tip,
     rotation: Quaternion.fromAxisAngle(
@@ -188,60 +235,67 @@ export function test_motion_exercise_snow_support(): void {
       15 + 25 * minimumJerk.share((at - 0.5) / 0.6),
     ),
   });
-  const gripAt = (at: number): IAutoMovieVector3 =>
-    Vector3.add(
-      tip,
-      Quaternion.rotateVector(poleAt(at).rotation, {
-        x: 0,
-        y: poleLength,
-        z: 0,
-      }),
-    );
-  const pole: IAutoMovieMotionHumanProp = {
-    subject: "pole",
-    frame: poleAt(0),
-    motion: poleAt,
-    points: {
-      grip: { point: { x: 0, y: poleLength, z: 0 }, normal: X },
-      tip: { point: { x: 0, y: 0, z: 0 }, normal: Y },
-    },
-    point: (
-      id: string,
-      at: number,
-    ): IAutoMovieMotionHumanProp.IPlacedPoint | undefined =>
-      id === "grip"
-        ? { point: gripAt(at), normal: X }
-        : id === "tip"
-          ? { point: tip, normal: Y }
-          : undefined,
-  };
-  const nordic: HumanPerformance = snowGlide(
-    {
-      seconds: 2.2,
-      speed: 1.15,
-      stop: true,
-      nordic: {
-        hand: "left",
-        on: "pole",
-        grip: "grip",
-        window: [0.5, 1.1],
-        kick: 0.24,
-      },
-    },
-    [pole],
+  const pole: IAutoMovieMotionHumanProp = HumanObject.prop(
+    "pole",
+    model,
+    poleAt(0),
+    poleAt,
   );
-  for (const at of [0.5, 0.8, 1.1]) {
-    const bones: ReturnType<HumanPerformance["bones"]> = nordic.bones(
-      "snow",
-      at,
+  const stroke: NonNullable<
+    IAutoMovieMotionHumanSurface.ISnowGlideParams["nordic"]
+  > = {
+    hand: "left",
+    on: "pole",
+    grip: "grip",
+    window: [0.5, 1.1],
+    kick: 0.24,
+  };
+  const skiStroke = (grip: string): HumanPerformance =>
+    snowGlide(
+      { seconds: 2.2, speed: 1.15, stop: true, nordic: { ...stroke, grip } },
+      [pole],
     );
-    const wrist: IAutoMovieVector3 = bones.get("leftHand")!.worldPosition;
+  const nordic: HumanPerformance = skiStroke("grip");
+  for (const at of [0.5, 0.8, 1.1]) {
+    const shown: IAutoMovieRigidTransform = nordic.prop("pole", at);
+    const point = (id: PoleAffordance): IAutoMovieVector3 =>
+      Vector3.add(
+        shown.position,
+        Quaternion.rotateVector(
+          shown.rotation,
+          model.affordance(id).frame.translation,
+        ),
+      );
+    const hand: ReturnType<typeof HumanHand.frame> = HumanHand.frame(
+      body,
+      nordic.bones("snow", at),
+      "left",
+      "grip",
+    );
+    const shaft: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.subtract(point("grip"), point("tip")),
+    );
     check(
-      `the working hand follows its rigid pole at ${at} s`,
-      Vector3.distance(wrist, gripAt(at)) < body.measure.hand * 0.65 &&
-        nclose(Vector3.distance(gripAt(at), tip), poleLength),
+      `the pole stays planted and the palm follows across its shaft at ${at} s`,
+      pole.point === undefined &&
+        Vector3.distance(tip, point("tip")) < 1e-8 &&
+        Vector3.distance(hand.point, point("grip")) < 0.035 &&
+        Vector3.dot(hand.normal, X) < -0.9 &&
+        Math.abs(Vector3.dot(hand.forward, shaft)) > 0.9,
     );
   }
+  let missing: unknown;
+  try {
+    skiStroke("missing");
+  } catch (error) {
+    missing = error;
+  }
+  check(
+    "the standard pole refuses a missing grip by name",
+    missing instanceof HumanRefusal &&
+      missing.kind === "affordance" &&
+      missing.axis === "nordic.grip",
+  );
   const offset = (at: number): number => {
     const bones: ReturnType<HumanPerformance["bones"]> = nordic.bones(
       "snow",
@@ -292,7 +346,7 @@ function snowboard(
   // The ball of each boot lands toward the middle of its binding pad.
   // Both points stay inside the actual 120 mm pads.
   const footInPad = (
-    name: "frontBinding" | "rearBinding",
+    name: createSnowboard.Affordance,
     shift: number,
   ): IAutoMovieMotionHumanProp["points"][string] => ({
     point: Vector3.add(board.affordance(name).frame.translation, {
@@ -366,7 +420,7 @@ function snowboard(
       Vector3.subtract(p, placed.position),
     );
   };
-  const times: readonly (readonly [number, "rightEdge" | "leftEdge"])[] = [
+  const times: readonly (readonly [number, createSnowboard.Affordance])[] = [
     [start + 0.65, "rightEdge"],
     [start + 1.95, "leftEdge"],
     [start + 2.6, "leftEdge"],
@@ -386,7 +440,7 @@ function snowboard(
       Math.abs(Vector3.dot(normal, edgePoint)) < 0.001,
     );
     for (const side of ["left", "right"] as const) {
-      const id: "leftFoot" | "rightFoot" = `${side}Foot`;
+      const id: AutoMovieHumanoidBone = `${side}Foot`;
       const position: IAutoMovieVector3 = inBoard(
         at,
         bones.get(id)!.worldPosition,
