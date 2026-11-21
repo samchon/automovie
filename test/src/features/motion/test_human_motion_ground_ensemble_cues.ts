@@ -1,4 +1,4 @@
-import { createShield } from "@automovie/archetypes";
+import { createLongGun, createShield } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -66,9 +66,9 @@ const DRIFT: number = 0.015;
 const SPACING: number = 0.13;
 
 /** The two authored rehearsals on the same stage marks. */
-type Variant = "plain row" | "display panel row";
+type Variant = "plain row" | "display panel row" | "long arm row";
 /** The inert held display model produced by the archetype. */
-type Board = ReturnType<typeof createShield>;
+type Board = ReturnType<typeof createShield> | ReturnType<typeof createLongGun>;
 /** One authored floor mark of an anonymous slot. */
 type StageMark = IAutoMovieFormationStageMarkSet["marks"][number];
 /** One named slot of the compiled population. */
@@ -103,8 +103,9 @@ interface IRehearsal {
  *    planted ball still through late stance, stay between the two marks'
  *    spacing while travelling and arrive at their own marks; the background
  *    slots keep separate ids and phases.
- * 2. Two foreground actors carry inert display panels through the same
- *    widening and keep their relative held frames into the recovery.
+ * 2. Two foreground actors carry inert display panels, and in the infantry
+ *    row all three carry long arms, through the same widening, each keeping
+ *    its held frame into the recovery.
  * 3. The outer foreground actors answer their own separate cue and the
  *    middle actor holds. Wide and closer cameras keep their intended
  *    subjects in frame every half second of the take. Reverse reads and a
@@ -118,7 +119,11 @@ interface IRehearsal {
  */
 export function test_human_motion_ground_ensemble_cues(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
-  for (const variant of ["plain row", "display panel row"] as const)
+  for (const variant of [
+    "plain row",
+    "display panel row",
+    "long arm row",
+  ] as const)
     try {
       verify(variant, assemble(variant), assemble(variant), checks);
     } catch (error: unknown) {
@@ -180,14 +185,19 @@ function assemble(variant: Variant): IRehearsal {
   const boards: Map<string, Board> = new Map();
   const objects: IAutoMovieMotionHumanProp[] = [];
   for (const member of foreground) {
-    if (variant !== "display panel row" || member.index === 2) continue;
+    // Panels on the outer actors; long arms on all three infantry.
+    if (variant === "plain row") continue;
+    if (variant === "display panel row" && member.index === 2) continue;
     const id: string = "display-" + member.index;
-    const board: Board = createShield({
-      id,
-      kind: "strapped",
-      diameter: 0.72,
-      mass: 0.36,
-    });
+    const board: Board =
+      variant === "long arm row"
+        ? createLongGun({ id, kind: "musket" })
+        : createShield({
+            id,
+            kind: "strapped",
+            diameter: 0.72,
+            mass: 0.36,
+          });
     boards.set(member.subject, board);
     const grip: IAutoMovieVector3 = board.affordance("grip").frame.translation;
     objects.push(
