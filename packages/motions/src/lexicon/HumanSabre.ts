@@ -148,22 +148,21 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
             fix: "cue the charge inside the act",
           });
         const film: number = context.start + charge;
-        const speed: number =
-          Vector3.length({
-            ...Vector3.subtract(
-              carrier(film + 0.25).position,
-              carrier(film - 0.25).position,
-            ),
-            y: 0,
-          }) / 0.5;
-        if (speed < GALLOP)
+        // The horse's gait at the charge: the latest change on the ride's own gait track at or before it.
+        const changes = (
+          params.gaits === undefined ? [] : context.cue(params.gaits)
+        )
+          .filter((c) => c.seconds <= film)
+          .sort((x, y) => x.seconds - y.seconds);
+        const gait: string | undefined = changes.at(-1)?.name.split("-").at(-1);
+        if (gait !== "gallop")
           throw new HumanRefusal({
             kind: "parameter",
             axis: "cue",
             value: film,
             feasible: null,
-            reason: `the charge is cued at film second ${film.toFixed(3)} while the horse goes ${speed.toFixed(2)} m/s, before its gallop`,
-            fix: "cue the charge on the gallop leg",
+            reason: `the charge is cued at film second ${film.toFixed(3)} while the horse ${gait === undefined ? "shows no gait change on its track" : `goes at the ${gait}`}, before its gallop`,
+            fix: "cue the charge on the gallop leg, and name the ride's gait track in gaits",
           });
         from =
           charge +
