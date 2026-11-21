@@ -32,16 +32,15 @@ import { nclose } from "../internal/nclose";
  *
  * Scenarios:
  * 1. A rigid ball dropped from 1 m onto the floor is simulated, archived and decoded. While it falls no contact mark exists; at its first acting solver step one unflagged arrow starts at that step's floor witness and points up for the step's mean force.
- * 2. Seeking past the step and back to it reproduces the same marks.
- * 3. A compliant ball in an exaggerated mode whose shell response rounds every solved impulse to zero at transfer sinks to its rigid core: its shell steps are drawn and flagged, and the core steps that actually stop it are drawn unflagged.
- * 4. The real allocator carries 100 N straight up over four floor witnesses within its admitted error, so no shortfall is drawn; it cannot carry a 100 N sideways pull with 50 N up under friction 0.5, so a flagged shortfall continues from the allocated tip, the two arrows add up to the request, and the allocation stays inside the friction cone; with no witnesses the whole request is shortfall.
- * 5. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none, and at the contact step and the support record counts one contact and one support shortfall under its flag entry.
+ * 2. A compliant ball in an exaggerated mode whose shell response rounds every solved impulse to zero at transfer sinks to its rigid core: its shell steps are drawn and flagged, and the core steps that actually stop it are drawn unflagged.
+ * 3. The real allocator carries 100 N straight up over four floor witnesses within its admitted error, so no shortfall is drawn; it cannot carry a 100 N sideways pull with 50 N up under friction 0.5, so a flagged shortfall continues from the allocated tip, the two arrows add up to the request, and the allocation stays inside the friction cone; with no witnesses the whole request is shortfall.
+ * 4. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none; at the contact step and the support record it counts one contact and one support shortfall under its flag entry; seeking back to the falling frame clears both, and returning to the contact frame draws them again.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation`, `AutoMoviePhysicalPlayback`, `distributePhysicalSupportWrench`, both mark producers and `replaceAutoMovieDrawInspection` on real solver output, a real archive round trip and real allocations, and reads marks and legend counts.
  * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0 and its normal is vertical. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts falling and touching frames, a forward and a reverse seek, native and zero-transfer exaggerated contacts, a feasible, an infeasible and an unsupported request, and an empty against a populated inspection frame.
  * @evidence contracts/development/testing.md#execution-ownership One portable async unit owns its two simulations, archive, allocations, scene and inspection handle, restores the handle and releases its mesh in finally, and starts no browser, process or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
  */
 export async function test_inspection_physical_force_marks(): Promise<void> {
   const metresPerNewton: number = 0.001;
@@ -73,15 +72,7 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
       Math.abs(arrow.vectors[1]!) > 0.999 * length,
   );
 
-  // 2. A reverse seek revisits the same witness.
-  contacts(0.9);
-  TestValidator.equals(
-    "seeking back reproduces the contact marks",
-    JSON.stringify(contacts(step.seconds)),
-    JSON.stringify(touching),
-  );
-
-  // 3. Solved force that no body received.
+  // 2. Solved force that no body received.
   const exaggerated: IAutoMoviePhysicalPlayback = await replay(
     drop(0.1, {
       kind: "exaggerated",
@@ -126,7 +117,7 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
       ),
   );
 
-  // 4. Real allocations of three requests at one centre of mass.
+  // 3. Real allocations of three requests at one centre of mass.
   const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
   const feasible: IAutoMoviePhysicalSupportWrench = allocate(
     origin,
@@ -199,7 +190,7 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
         (75 / Math.sqrt(1.25)) * metresPerNewton - 1e-9,
   );
 
-  // 5. The draw inspection over declared kinds.
+  // 4. The draw inspection over declared kinds, seeking back and forth.
   const scene: THREE.Scene = new THREE.Scene();
   const ball: THREE.Mesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.1),
@@ -211,7 +202,9 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
   try {
     const counts: number[][] = [];
     // A falling frame supplies no marks; the contact frame supplies both producers' marks.
-    for (const marks of [[], [...touching, ...strained]]) {
+    const falling: IAutoMovieMark[] = [];
+    const contact: IAutoMovieMark[] = [...touching, ...strained];
+    for (const marks of [falling, contact, falling, contact]) {
       active = await replaceAutoMovieDrawInspection({
         previous: active,
         scene,
@@ -234,9 +227,11 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
       );
     }
     TestValidator.equals(
-      "declared kinds admitted while falling, drawn at the contact and the record",
+      "declared kinds admitted while falling, drawn at the contact and the record, across a reverse seek",
       counts,
       [
+        [0, 0],
+        [1, 1],
         [0, 0],
         [1, 1],
       ],
