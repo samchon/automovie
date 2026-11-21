@@ -20,7 +20,7 @@ import type {
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
-import { HumanTrunk } from "../everyday/HumanTrunk";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { poseBones } from "../posture/poseBones";
@@ -230,24 +230,7 @@ export function planPickUpGrasp(
     AutoMovieMotionHumanArm.angles(context.entry.pose, side);
   const hand: IAutoMovieMotionHumanContactWindow["part"] =
     side === "left" ? "leftHand" : "rightHand";
-  const shoulder: (
-    posture: IAutoMovieMotionHumanPosture,
-    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-  ) => IAutoMovieVector3 = (
-    posture: IAutoMovieMotionHumanPosture,
-    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-  ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(
-      body,
-      posture,
-      undefined,
-      resolution,
-      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
-    ).get(`${side}UpperArm`)!.worldPosition;
-  // Where the straightening after the lift starts from.
-  const bottom: IAutoMovieVector3 | null =
-    up === 0 ? null : shoulder(rising ? raisedAt(raise.share, 1) : held);
-  const plan: IAutoMovieMotionHumanActionPlan = {
+  const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
       { name: "gripClosed", share: reach / duration },
@@ -325,18 +308,12 @@ export function planPickUpGrasp(
           ? raisedAt(raise.share * m, m, resolution, projection)
           : lowered!.at(m, resolution, projection);
       }
-      // As the body straightens the hand rides with the shoulder.
-      const raised: IAutoMovieVector3 =
-        t > end
-          ? Vector3.subtract(shoulder(base, resolution), bottom!)
-          : { x: 0, y: 0, z: 0 };
-
       /** The wrist's transport, lift and optional conveyor displacement. */
       const point = (at: number): IAutoMovieVector3 => {
         const wrist: IAutoMovieVector3 =
           at < reach
             ? transport.wrist(at)
-            : Vector3.add(raised, {
+            : {
                 ...grasp.point,
                 y:
                   grasp.point.y +
@@ -344,31 +321,25 @@ export function planPickUpGrasp(
                     ? lift *
                       minimumJerk.share(Math.min(1, (at - liftOff) / rise))
                     : 0),
-              });
+              };
         return interception === undefined
           ? wrist
           : Vector3.add(wrist, interceptionOffset(interception.velocity, at));
       };
 
-      // The posture whose arm goal is the transport's at a second of the
-      // action, with the fingers shaped as they are at `shaped`.
-      const goaled: (
-        at: number,
-        shaped: number,
-      ) => IAutoMovieMotionHumanPosture = (
-        at: number,
-        shaped: number,
-      ): IAutoMovieMotionHumanPosture => ({
+      // The posture with the fingers shaped as they are at the second, and
+      // the arm's goal the transport's before the grip and the grip's after.
+      return {
         ...base,
         joints: {
           ...base.joints,
-          ...shapeAt(shaped / reach),
+          ...shapeAt(t / reach),
         },
         limbs: {
           ...base.limbs,
           [limb]: {
-            point: point(at),
-            rotation: at < reach ? transport.turn(at) : chosen.shown.rotation,
+            point: point(t),
+            rotation: t < reach ? transport.turn(t) : chosen.shown.rotation,
             bend,
 
             // The grip's own arm solution anchors the whole action, at one
@@ -376,51 +347,54 @@ export function planPickUpGrasp(
             // fit change from one of its solutions to another at a single
             // instant, which showed as a step of the elbow.
             reference: chosen.reference,
-            ...(at >= reach ? { planted: true } : {}),
+            ...(t >= reach ? { planted: true } : {}),
           },
         },
-      });
-
-      // The arm leaves the pose it was entered in by a blend of its joints
-      // toward one fixed pose, the transport's at the end of this first
-      // part, so the elbow keeps one course from the hanging arm: a goal
-      // solved afresh at each second near the hip, far from the grip's
-      // solution, changed solution between seconds (the wrist read 0.4 m
-      // apart 1/120 s apart). From there the transport's goal alone leads
-      // to the grip. The blend eases in and arrives moving.
-      const leave: number = pickUp.LEAVE * reach;
-
-      // Keep the complete position-and-attitude request after closure.
-      // A wrist-only attitude edit after the fit can move the hand by
-      // twisting the forearm and would discard the lift's position goal.
-      // The ordinary resolver keeps the other limb/digit constraints and
-      // the original grip reference while fitting both at the actual time.
-      return t >= leave
-        ? goaled(t, t)
-        : AutoMovieMotionHumanArm.carry(
-            body,
-            goaled(leave, t),
-            { [side]: rest },
-            (t / leave) ** 2,
-            undefined,
-            resolution,
-            projection,
-          );
+      };
     },
   };
 
-  // The lift is judged on the plan's own hand: what the body cannot raise
-  // as far as asked is refused, never lifted less in silence.
-  pickUpLift.judged(context, side, lift, plan, reach, end);
-  // A stationary grip keeps the wrist, support and digits fixed while loading.
-  if (interception === undefined) {
-    const loading: IAutoMovieMotionHumanPosture = plan.posture(reach);
-    HumanPreparedPlayback.attach(plan, body, {
-      mode: "posture",
-      phases: [
-        { from: reach, to: liftOff, sample: () => ({ posture: loading }) },
-      ],
-    });
-  }
+  // The lift is judged on the goal's own hand, fitted where the goal puts
+  // it: what the body cannot raise as far as asked is refused, never lifted
+  // less in silence.
+  pickUpLift.judged(context, side, lift, goals, reach, end);
+
+  // The arm's goal moves at every second, along the transport and with the
+  // lift: it is planned as one admitted course (`courseArmGoal`), not fitted
+  // afresh at each second, where two nearly tied solutions let one instant
+  // take the other branch. The reach from the pose the arm was entered in is
+  // the planner's own, timed and cleared as it lays it; the arm then holds
+  // the grip through the lift, and as the body straightens after it keeps
+  // the angles it lifted with, so the prop rides up with the body.
+  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+    body,
+    plan: goals,
+    side,
+    rest,
+    span: { start: 0, ready: reach, relax: end, end },
+  });
+  if (interception !== undefined) return coursed;
+
+  // A stationary grip keeps the wrist, support and digits fixed while
+  // loading: the posture at the grip's close, shown until the lift starts.
+  const loading: IAutoMovieMotionHumanPosture = coursed.posture(reach);
+  const plan: IAutoMovieMotionHumanActionPlan = {
+    ...coursed,
+    posture: (
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture =>
+      seconds >= reach && seconds <= liftOff
+        ? loading
+        : coursed.posture(seconds, channels, resolution, projection),
+  };
+  HumanPreparedPlayback.attach(plan, body, {
+    mode: "posture",
+    phases: [
+      { from: reach, to: liftOff, sample: () => ({ posture: loading }) },
+    ],
+  });
   return plan;
 }
