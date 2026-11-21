@@ -237,7 +237,7 @@ export namespace QuadrupedHoofTrack {
    *
    * @param rest Actual neutral hoof endpoint in model metres.
    * @param support The stance.
-   * @param under The model fore-aft position of the limb's proximal attachment, where its reach is greatest; the neutral hoof's when absent.
+   * @param under The model fore-aft position the hoof is centred toward: the proximal attachment's less the fetlock's lead on the hoof, so the fetlock, which the limb's reach holds, travels centred under the attachment; the neutral hoof's when absent.
    * @returns The world footprint before any authored surface is applied.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and that terrain is applied afterwards.
@@ -364,7 +364,7 @@ export namespace QuadrupedHoofTrack {
    * @param worldAnchors Whether turns or a standing start require world anchoring.
    * @param footing Optional independently placed world surfaces and authored obstacles.
    * @param carry The body displacement carrying a swing through a hoof-clock hold, when the swing spans one.
-   * @param under The model fore-aft position of the limb's proximal attachment, toward which stances are centred.
+   * @param under The model fore-aft position the hoof is centred toward (`footprint`'s).
    * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines frames, units and the optional next stance.

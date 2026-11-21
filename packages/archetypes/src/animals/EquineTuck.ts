@@ -43,7 +43,7 @@ export namespace EquineTuck {
    * @throws {RangeError} Through `QuadrupedLimb.prepare` for an unsupported chain.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the frame and the failure.
-   * @evidence contracts/development/implementation.md#principled-implementation The fold grows with the weight to `FOLD`; the hoof is raised to where the folded limb hangs from its neutral attachment, its distance the chain's greatest reach at that fold, so the solve stays inside the limb's reach while the body is at or below its neutral height. The swing's own lift and fold are kept where they are larger.
+   * @evidence contracts/development/implementation.md#principled-implementation The fold grows with the weight to `FOLD`, the hoof is drawn back by the same weight to under the limb's second joint (elbow or stifle), where a folded limb carries it, and raised to where the folded limb hangs from its neutral attachment, its distance the chain's greatest reach at that fold, so the solve stays inside the limb's reach while the body is at or below its neutral height. The swing's own lift and fold are kept where they are larger.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One reach read and one height per call.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A hoof beyond the folded reach horizontally keeps its swing goal rather than being moved.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call.
@@ -64,14 +64,18 @@ export namespace EquineTuck {
       if (!(weight > 0)) return goal;
       const folded: number = Math.max(goal.fold, weight * fold);
       const reach: number = limb.range(folded).maximum;
-      const across: number = Math.hypot(
-        (goal.x ?? top.x) - top.x,
-        goal.z - top.z,
-      );
+      // The folded limb carries its hoof back under its elbow or stifle, the second joint.
+      const z: number = goal.z + weight * (chain[1]!.z - goal.z);
+      const across: number = Math.hypot((goal.x ?? top.x) - top.x, z - top.z);
       if (!(across < reach)) return goal;
       const hanging: number =
         top.y - Math.sqrt(reach * reach - across * across);
-      return { ...goal, fold: folded, lift: Math.max(goal.lift, hanging) };
+      return {
+        ...goal,
+        z,
+        fold: folded,
+        lift: Math.max(goal.lift, hanging),
+      };
     };
   }
 
