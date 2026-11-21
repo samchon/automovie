@@ -102,11 +102,13 @@ export function courseArmGoal(
       resolution?: courseArmGoal.Resolution,
       projection?: courseArmGoal.Projection,
     ): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = read(
-        seconds,
-        resolution,
-        projection,
-      );
+      // A law whose goal reads another performer gives its posture without
+      // the coursed goals (`base`), so laying the course never evaluates the
+      // live goal, and the other performer is read only as `perceived` says.
+      const posture: IAutoMovieMotionHumanPosture =
+        props.base === undefined
+          ? read(seconds, resolution, projection)
+          : props.base.posture(seconds, undefined, resolution, projection);
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
         ...posture.limbs,
       };
@@ -293,6 +295,15 @@ export namespace courseArmGoal {
      * collision. None when absent.
      */
     with?: readonly IArm[];
+
+    /**
+     * The law's plan without the coursed arms' goals, for a goal that reads
+     * another performer (a punch on a defender, a hand on a partner): the
+     * course is laid on its posture, so laying never evaluates the live goal
+     * and the other performer is read only as each arm's `perceived` gives
+     * it, under the reaction delay. `plan` itself when absent.
+     */
+    base?: IAutoMovieMotionHumanActionPlan;
   }
   /**
    * The last posture of the plan read, and what it was read with.
