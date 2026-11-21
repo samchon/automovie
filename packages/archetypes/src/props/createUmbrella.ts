@@ -8,6 +8,7 @@ import {
   ArchetypeFrame,
   type IArchetypeBand,
 } from "../core";
+import { UmbrellaRunner } from "./UmbrellaRunner";
 
 /** The handle diameters hands rated most comfortable in a power grip. */
 const POWER: string =
@@ -16,7 +17,7 @@ const POWER: string =
 /**
  * A stick umbrella, open over the head or closed and carried.
  *
- * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter whose top is the shaft's top, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle, and declares no canopy. A folding umbrella is not made: no maker read gives its shaft's open length.
+ * It stands along `+Y` from the bottom of its handle at the origin to the ferrule's tip at its closed length. `grip` is the straight handle a hand closes round, taken from `-Z`. Open, its canopy is a disc of the open diameter whose top is the shaft's top, and `canopy` is the canopy's top, facing up, where the rain falls; closed, it is the shaft and the handle with its ribs furled along the shaft, and declares no canopy: its `runner` slides up the shaft and swings the ribs out through their stretchers (`UmbrellaRunner`), so an act opens it. A folding umbrella is not made: no maker read gives its shaft's open length.
  *
  * @param params Whether it is open, its model, and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
@@ -26,7 +27,7 @@ const POWER: string =
  * @evidence contracts/development/common.md#meaningful-documentation States how the umbrella stands, where it is held and what opening it adds.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod and a shaft rod to the closed length, a stick umbrella's shaft keeping its length open or closed; open adds a canopy disc of the published open diameter.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the dimensions, the handle and its grip, the shaft, then the canopy when open.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canopy is a flat disc, not a ribbed dome, and the furled canopy of a closed umbrella is not drawn; the handle's length is CCOHS's, and the shaft's radius and the canopy's thickness are construction estimates that no act reads and no band declares; the ferrule is not drawn. Opening is a state of the parameters, not an articulation, because the canopy changes size.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The canopy is a flat disc, not a ribbed dome, and a closed umbrella's fabric is not drawn, only its ribs; the handle's length is CCOHS's, and the shaft's radius and the canopy's thickness are construction estimates that no act reads and no band declares; the ferrule is not drawn. A closed umbrella opens by its runner's articulation, the ribs' span giving the canopy's size; open builds the opened disc whole.
  * @evidence contracts/development/implementation.md#efficient-algorithms At most three parts.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -92,6 +93,7 @@ export function createUmbrella(
     aperture: d.gripDiameter,
     length: handle,
   });
+  if (params.open !== true) UmbrellaRunner.furl(builder, d.length, d.canopy);
   if (params.open === true) {
     // The canopy under the shaft's top, the full open diameter across.
     const top: number = d.length;
@@ -137,8 +139,10 @@ export namespace createUmbrella {
    *
    * - `grip`: the handle, taken from `-Z`.
    * - `canopy`: an open canopy's top, facing up.
+   * - `runner`: a closed umbrella's runner, sliding up the shaft to open it.
+   * - `rib<n>`: each rib's hinge at the top notch, following the runner.
    */
-  export type Affordance = "grip" | "canopy";
+  export type Affordance = "grip" | "canopy" | UmbrellaRunner.Affordance;
 
   /**
    * The free dimensions, metres unless stated:
