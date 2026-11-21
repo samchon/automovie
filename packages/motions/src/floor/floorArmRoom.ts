@@ -82,7 +82,8 @@ export namespace floorArmRoom {
           const limit: Rooms = allowed(ends, w);
           flagged = at.left > limit.left || at.right > limit.right;
         }
-        blend = blends[index] = { ...ends, flagged };
+        blend = { ...ends, flagged };
+        blends[index] = blend;
       }
       return blend.flagged
         ? cleared(body, posture, allowed(blend, weight), read, project)
