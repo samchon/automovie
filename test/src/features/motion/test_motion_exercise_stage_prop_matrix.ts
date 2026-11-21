@@ -7,6 +7,7 @@ import {
   createStageBallProp,
   createStageBayonet,
   createStageBladeCarrier,
+  createStageBladeProp,
   createStageCartridgeProp,
   createStageCasing,
   createStageFencingProp,
@@ -554,7 +555,7 @@ function refusals(failures: string[]): void {
       "a foil in the fitted carrier",
       (): unknown =>
         createStageFittedCarrier({
-          display: createStageFencingProp({ kind: "foil" }),
+          display: createStageBladeProp({ kind: "foil" }),
         }),
       "display",
     ],

@@ -230,10 +230,12 @@ function fixTake(
       },
     },
   ];
-  const chain: IAutoMovieMotionHumanChain = HumanChain.extend<IFixLaws>({
-    putDownAperture,
-    takeFromCarrier: HumanCarrierCustody,
-  })
+  const laws: IAutoMovieMotionHumanChain.IExtension<IFixLaws> =
+    HumanChain.extend({
+      putDownAperture,
+      takeFromCarrier: HumanCarrierCustody,
+    });
+  const chain: IAutoMovieMotionHumanChain = laws
     .subject("drill")
     .takeFromCarrier({ prop: "bayonet", handle: "handle", lift: 0.18 })
     .stand({ seconds: 0.5, sway: 0 })

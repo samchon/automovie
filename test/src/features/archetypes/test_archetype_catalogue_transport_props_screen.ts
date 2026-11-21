@@ -174,7 +174,9 @@ export function test_archetype_catalogue_transport_props_screen(): void {
     checkHollow(carrier, display);
   }
   refuses("unsupported display shape", "display", () =>
-    createStageFittedCarrier({ display: swords.foil }),
+    createStageFittedCarrier({
+      display: createStageBladeProp({ id, kind: "foil" }, seed),
+    }),
   );
   refuses("duplicate display and carrier identity", "display", () =>
     createStageFittedCarrier({ display: swords.longsword, id }),
