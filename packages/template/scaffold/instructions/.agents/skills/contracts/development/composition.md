@@ -26,10 +26,15 @@ Open the scene comment with its screenplay citation, action and relevant staging
 Under [meaningful documentation](common.md#meaningful-documentation), comment every value the scene passes and every default it relies on. Give the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) the value realizes and how, and the study section for skilled practice. Write what a reader needs to check the value against the beat, and nothing the value or its JSDoc already says. Realize every element of each cited beat in at least one commented value.
 
 ```ts
-sprint({
-  to: kitchen.sink.front, // #s02-b03 Space, "Mara at the sink": ends at her mark.
-  // #s02-b03 action, "he rushes her": pace left at the sprint's default.
+const rush = jun.run({
+  // #s02-b03 action, "he rushes Mara": the sprint pace, his fastest.
+  pace: "sprint",
+  // #s02-b03 Space, "Jun by the door, Mara at the sink": the 5 m from his door mark to her front mark.
+  to: kitchen.sink.front,
+  // via omitted: #s02-b03 Space leaves the floor between them clear, so the default straight path holds.
 });
+// #s02-b03 Intent, "before she can get round the table": he sets off on her first step back.
+sync(rush.start, maraBackStep.start);
 ```
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
