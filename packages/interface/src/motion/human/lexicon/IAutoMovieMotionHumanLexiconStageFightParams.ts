@@ -2,6 +2,7 @@ import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
+import type { IAutoMovieMotionHumanDisarm } from "../grappling/IAutoMovieMotionHumanDisarm";
 import type { IAutoMovieMotionHumanLungeGrab } from "../grappling/IAutoMovieMotionHumanLungeGrab";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
@@ -30,6 +31,12 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
 
   /** A lunge and grab: the leading foot steps long toward the victim and both palms close on its shoulders or a named region; a victim beyond the longest lunge is refused. */
   lungeGrab: IAutoMovieMotionHumanLungeGrab.IParams;
+
+  /** A staged disarm: both hands close on the armed wrist and forearm (a knife) or the wrist and the slide (a handgun), lever the armed hand, and the hand on the wrist takes the weapon. The armed partner performs `disarmed`. */
+  disarm: IAutoMovieMotionHumanDisarm.IParams;
+
+  /** The armed partner of a disarm: the forearm turns with the lever and the hand opens at the disarm's `taken` instant. */
+  disarmed: IAutoMovieMotionHumanDisarm.IYield;
 
   /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. */
   stagePalmStrike: Omit<

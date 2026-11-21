@@ -51,6 +51,7 @@ import { HumanCarried } from "./HumanCarried";
 import { HumanCarrierCustody } from "./HumanCarrierCustody";
 import { HumanHorrorGait } from "./HumanHorrorGait";
 import { crabWalk } from "../floor/crabWalk";
+import { disarm, disarmed } from "../grappling/disarm";
 import { lungeGrab } from "../touch/lungeGrab";
 import { HumanRaceGait } from "./HumanRaceGait";
 import { HumanDefence } from "./HumanDefence";
@@ -169,7 +170,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   ],
   pursuit: [HumanPursuit],
   social: [HumanSocial, HumanPartner, { curtsy }],
-  stageFight: [HumanStageFight, { grapple, HumanStageProp, lungeGrab }],
+  stageFight: [HumanStageFight, { grapple, HumanStageProp, lungeGrab, disarm, disarmed }],
   drill: [HumanDrill],
   blade: [HumanBlade, { stageBladeFootwork }],
   firearm: [HumanFirearm],

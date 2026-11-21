@@ -218,8 +218,18 @@ export namespace lungeGrab {
           root: Vector3.subtract(shown.root, Vector3.scale(travel, 1 - s)),
           limbs: {
             ...shown.limbs,
-            [`${side}Leg`]: { point: lead, bend: knee(lead), planted: s >= 1 },
-            [`${rear}Leg`]: { point: stay, bend: knee(stay), planted: true },
+            [`${side}Leg`]: {
+              point: lead,
+              rotation: entry.feet[side].rotation,
+              bend: knee(lead),
+              planted: s >= 1,
+            },
+            [`${rear}Leg`]: {
+              point: stay,
+              rotation: entry.feet[rear].rotation,
+              bend: knee(stay),
+              planted: true,
+            },
           },
         };
       },

@@ -167,9 +167,12 @@ export function test_human_motion_captive(): void {
       const rest: IAutoMovieRigidTransform = local(on);
       for (let i: number = 1; i <= 8; ++i) {
         const t: number = on + ((until - on) * i) / 8 - 1e-3;
+        // The wrist joint is the hand bone's origin.
         const wrist: IAutoMovieVector3 = film
           .bones("s", t)
-          .get(bone)!.worldPosition;
+          .get(
+            region === "wristLeft" ? "leftHand" : "rightHand",
+          )!.worldPosition;
         const gap: number = Vector3.distance(wrist, back(t));
         checks.check(
           `${prop} ties the ${region} to the chair at ${t.toFixed(2)} (${gap.toFixed(3)} m)`,

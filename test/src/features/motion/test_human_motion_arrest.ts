@@ -159,12 +159,7 @@ export function test_human_motion_arrest(): void {
       cuffed.plan.duration *
         cuffed.plan.events.find((e): boolean => e.name === "stroke")!.share;
     const wrist = (side: "left" | "right", t: number): IAutoMovieVector3 =>
-      film
-        .bones("s", t)
-        .get(
-          subject.surfaces.regions[side === "left" ? "wristLeft" : "wristRight"]
-            .bone,
-        )!.worldPosition;
+      film.bones("s", t).get(`${side}Hand`)!.worldPosition;
     const on = (t: number): IAutoMovieRigidTransform =>
       HumanPropFrame.relative(
         HumanPropFrame.bone(
