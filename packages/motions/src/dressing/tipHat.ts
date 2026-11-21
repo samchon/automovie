@@ -30,6 +30,7 @@ import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanGrasp } from "../handling/HumanGrasp";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanPrehension } from "../handling/HumanPrehension";
@@ -207,8 +208,8 @@ function plan(
     });
   const limb: "leftArm" | "rightArm" = `${side}Arm`;
   const fitted = (seconds: number): IAutoMovieMotionHumanPosture => {
-    if (reaching(seconds) === 0) return base.posture(seconds);
     const at: IAutoMovieMotionHumanPosture = composed.posture(seconds);
+    if (at.limbs[limb] === undefined) return at;
     return {
       ...at,
       limbs: {
@@ -302,11 +303,26 @@ function plan(
       fix: "choose the other hand or stage the brim grip on the hand's side",
     });
 
+  // The arm's goal moves with the lift, so it is planned as one course
+  // (`courseArmGoal`) instead of fitted afresh at each second, where two
+  // nearly tied arm solutions let one instant take the other branch. The fit
+  // checks above read the goal itself.
+  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+    body,
+    plan: { ...composed, posture },
+    side,
+    rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
+    span: {
+      start: clock.at("start"),
+      ready: clock.at("ready"),
+      relax: clock.at("relax"),
+      end: clock.at("end"),
+    },
+  });
   const from: number = clock.at("strokeStart") / clock.duration;
   const to: number = clock.at("strokeEnd") / clock.duration;
   return {
-    ...composed,
-    posture,
+    ...coursed,
     contacts: [
       ...composed.contacts,
       {
