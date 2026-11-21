@@ -139,6 +139,8 @@ export namespace HorseTeamPlan {
       createHorse.Affordance,
       createHorse.Dimension
     >[];
+    /** The vehicle's towed ride, the moving support a driver, charioteer or passenger rides. */
+    vehicle: ArchetypeRide.ITowedRide<VehicleId, VehicleD>;
     /**
      * The team at a film second.
      *

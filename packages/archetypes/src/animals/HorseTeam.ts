@@ -29,7 +29,7 @@ const SAG_POINTS: number = 9;
  *
  * The hitch expands into places (`HorseTeamPlan.IPlace`): wheelers abreast `spacing` apart either side of the pole, each with its chest's front at the pole head, and each further rank `length` ahead; a quadriga's outer pair runs abreast of the poled pair as trace horses. Each horse's course is the team's path offset to its place (`HorseTeamCourse`), so in a turn the outside horse travels farther in proportion to its radius, and each horse keeps its own gait phase on its own ride (`rideHorse`). The vehicle is the existing towed contract (`createCart.towing`, `ArchetypeRide.towed`) drawn by a pole head that follows the team's own course at the wheelers' hitch height.
  *
- * The spans are laid between posed parts and vehicle-rigid points: a pole strap from each poled wheeler's inner point of draft to the pole head; the traces of a horse beside the vehicle's front from its points of draft back `trace` metres along the vehicle to the bar at its place; a leader's traces from its points of draft to the lead bar at the pole head beside its place. While drawing every trace is taut. While braking to the course's end the wheelers hold the vehicle on the pole straps and breeching, so their traces slacken, and the leaders, which cannot brake it, slacken theirs; these are authored states, not simulated forces.
+ * The spans are laid between posed parts and vehicle-rigid points: a pole strap from each poled wheeler's inner point of draft to the pole head; the traces of a horse beside the vehicle's front from its points of draft back `trace` metres along the vehicle to the bar at its place; a leader's traces from its points of draft to the lead bar at the pole head beside its place. When the vehicle has a box driver's hand stations (`leftLineGrip`, `rightLineGrip`), each horse's reins run from its bit rings to the hand on their side, the near reins to the left hand; the team's `vehicle` ride is the moving support that driver, or a postilion's horse ride from `rides`, is carried on. While drawing every trace is taut. While braking to the course's end the wheelers hold the vehicle on the pole straps and breeching, so their traces slacken, and the leaders, which cannot brake it, slacken theirs; these are authored states, not simulated forces.
  *
  * Refused: a horse count that does not match the hitch, an unharnessed horse, spacing that lets two barrels touch, a rank length shorter than a horse, a course whose first or last leg is not a straight longer than every rank's offset, and a turn whose inside or outside horse would leave the gait's declared speeds, with the least admissible radius; the towing refuses a front axle turned past its lock.
  *
@@ -202,7 +202,18 @@ export function HorseTeam(
   const coupling: IAutoMovieVector3 =
     vehicle.affordance("coupling").frame.translation;
 
-  return { duration: head.duration, brake, places: placed, rides, at };
+  const reined: boolean = vehicle.affordances.some(
+    (a: IAutoMovieAffordance): boolean => a.id === "leftLineGrip",
+  );
+
+  return {
+    duration: head.duration,
+    brake,
+    places: placed,
+    rides,
+    vehicle: towed,
+    at,
+  };
 
   /** One displayed second. */
   function at(
@@ -269,6 +280,21 @@ export function HorseTeam(
             onVehicle(coupling),
           ],
         });
+
+      // The reins from each bit ring to the box driver's hand on its side.
+      if (reined)
+        for (const [side] of HorseHarness.SIDES)
+          lines.push({
+            id: `rein-${k}-${side}`,
+            radius: createCart.LINE / 2,
+            points: [
+              part(sample, HorseHarness.ENDS.bit[side]),
+              ArchetypeFrame.compose(
+                carried.placement,
+                carried.archetype.affordance(`${side}LineGrip`).frame,
+              ).translation,
+            ],
+          });
     });
     return {
       stage,

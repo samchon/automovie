@@ -35,7 +35,7 @@ type Team = HorseTeamPlan.ITeam<createCart.Affordance, createCart.Dimension>;
  *
  * Scenarios:
  * 1. A pair on a chariot through a 90 degree left turn of 12 m: over the turn the outside horse's displayed trunk travels farther than the inside one's in the ratio of their radii, 12.4 to 11.6 m, within 1 %.
- * 2. Every span starts on its horse's posed point of draft and ends on a point fixed in the vehicle's own frame, at every sampled second, for the pair and for a four-in-hand on a brougham.
+ * 2. Every span starts on its horse's posed point of draft, a rein on its bit ring, and ends on a point fixed in the vehicle's own frame, at every sampled second, for the pair and for a four-in-hand on a brougham.
  * 3. Every hoof of every horse stays planted through its stances, sliding no more than a micrometre, and no two horses' trunks come within their two barrels' radii of each other.
  * 4. Braking to the end, the wheelers' breeching holds and every trace slackens; before it every trace is straight.
  * 5. Sampling the same second twice gives the same team, and a turn the inside horse's walk cannot follow is refused with its least radius.
@@ -171,9 +171,11 @@ export function test_archetype_equine_draft_team(): void {
             : line.id.split("-")[1],
         );
         const start: IAutoMovieVector3 = line.points[0]!;
-        const balls: IAutoMovieVector3[] = ["draft-left", "draft-right"].map(
-          (id: string): IAutoMovieVector3 => world(sample.horses[k]!, id),
-        );
+        const balls: IAutoMovieVector3[] = (
+          line.id.startsWith("rein")
+            ? ["bit-left", "bit-right"]
+            : ["draft-left", "draft-right"]
+        ).map((id: string): IAutoMovieVector3 => world(sample.horses[k]!, id));
         if (
           Math.min(
             ...balls.map((ball: IAutoMovieVector3): number =>
