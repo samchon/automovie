@@ -1,6 +1,7 @@
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
 import type { IAutoMovieMotionHumanHighJump } from "../sport/IAutoMovieMotionHumanHighJump";
 import type { IAutoMovieMotionHumanHorizontalJump } from "../sport/IAutoMovieMotionHumanHorizontalJump";
+import type { IAutoMovieMotionHumanHurdleClear } from "../sport/IAutoMovieMotionHumanHurdleClear";
 import type { IAutoMovieMotionHumanPoleVault } from "../sport/IAutoMovieMotionHumanPoleVault";
 import type { IAutoMovieMotionHumanRoundOff } from "../sport/IAutoMovieMotionHumanRoundOff";
 import type { IAutoMovieMotionHumanSquatVault } from "../sport/IAutoMovieMotionHumanSquatVault";
@@ -40,4 +41,7 @@ export interface IAutoMovieMotionHumanLexiconGymnasticsParams {
 
   /** A long jump out of a run into the sand of the pit the composition names, to the distance it gives. */
   longJump: IAutoMovieMotionHumanHorizontalJump.IParams;
+
+  /** A hurdle cleared out of a run, landing on the lead foot for the run to take the stride on. */
+  hurdleClear: IAutoMovieMotionHumanHurdleClear.IParams;
 }

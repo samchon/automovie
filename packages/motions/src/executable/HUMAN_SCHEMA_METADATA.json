@@ -2361,6 +2361,7 @@
         }
       }
     },
+    "hurdleClear": {},
     "longJump": {
       "properties": {
         "distance": {

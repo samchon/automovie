@@ -7,6 +7,7 @@ import { HumanActionRow } from "../law/HumanActionRow";
 import { handspring } from "../sport/handspring";
 import { highJump } from "../sport/highJump";
 import { horizontalJump } from "../sport/horizontalJump";
+import { hurdleClear as hurdleClearLaw } from "../sport/hurdleClear";
 import { poleVault } from "../sport/poleVault";
 import { roundOff } from "../sport/roundOff";
 import { squatVault } from "../sport/squatVault";
@@ -75,4 +76,9 @@ export namespace HumanGymnastics {
   export const longJump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["longJump"]
   > = HumanActionRow.of("longJump", horizontalJump, {});
+
+  /** A hurdle cleared out of a run, landing on the lead foot for the run to take the stride on. */
+  export const hurdleClear: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["hurdleClear"]
+  > = HumanActionRow.of("hurdleClear", hurdleClearLaw, {});
 }
