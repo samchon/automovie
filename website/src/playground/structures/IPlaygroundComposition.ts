@@ -31,8 +31,20 @@ export interface IPlaygroundComposition {
 
   /** Authored impulses in world newton seconds at film seconds, as the public performance input takes them; none when absent. Only the serializable impulse form is offered here, not a sustained force callback. */
   forces?: IAutoMovieMotionHumanImpulse[];
+
+  /** Named cue tracks an action syncs to or reads, such as a trumpet's `charge`; none when absent. Each ridden animal also publishes its own gait changes as the track `<subject>:gaits`. */
+  cues?: Readonly<Record<string, readonly IPlaygroundComposition.ICue[]>>;
 }
 export namespace IPlaygroundComposition {
+  /** One named instant of a cue track. */
+  export interface ICue {
+    /** The instant's name, by which an action addresses it. */
+    name: string;
+
+    /** Its film second. */
+    seconds: number;
+  }
+
   /** One archetype placed on the floor. */
   export interface IObject {
     /** The prop's subject id, unique in the composition, by which actions name it. */

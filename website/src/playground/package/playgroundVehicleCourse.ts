@@ -50,7 +50,10 @@ export function playgroundVehicleCourse(
     ...object.course,
     start: { x: object.x, z: object.z, heading: object.yaw },
   };
-  const ride: Pick<ArchetypeRide.IRide<string, string>, "at"> = (() => {
+  const ride: Pick<
+    ArchetypeRide.IRide<string, string>,
+    "at" | "instants"
+  > = (() => {
     switch (object.producer) {
       case "createCar":
         return driveCar(model as Parameters<typeof driveCar>[0], course);
@@ -145,6 +148,20 @@ export function playgroundVehicleCourse(
         ).affordance(id).frame,
       );
     },
+    gaits: ride.instants
+      .filter(
+        (
+          instant: ArchetypeRide.IRide<string, string>["instants"][number],
+        ): boolean => instant.label.startsWith("gait:"),
+      )
+      .map(
+        (
+          instant: ArchetypeRide.IRide<string, string>["instants"][number],
+        ): IPlaygroundComposition.ICue => ({
+          name: instant.label,
+          seconds: instant.seconds,
+        }),
+      ),
     tracks: articulations.map(
       (articulation: string): IAutoMovieMotionHumanProp.ITrack => ({
         articulation,
@@ -162,6 +179,9 @@ export namespace playgroundVehicleCourse {
 
     /** A named affordance's world frame at a film second, on the articulated model. */
     contact: (id: string, seconds: number) => IAutoMovieTransform;
+
+    /** The ride's own gait changes, each named by its `gait:<from>-<to>` label at its film second; none for a vehicle. */
+    gaits: IPlaygroundComposition.ICue[];
 
     /** Each articulation's travel over the film. */
     tracks: IAutoMovieMotionHumanProp.ITrack[];

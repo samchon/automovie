@@ -475,6 +475,7 @@ export namespace SceneBuild {
    * @param objects What is placed.
    * @param mutuals What several of them do together, each after every performer's own actions.
    * @param forces Authored impulses on the performers, at film seconds; none by default.
+   * @param cues Named cue tracks the actions sync to or read, such as a trumpet's `charge`; none by default. Each ridden animal adds its own `<subject>:gaits` track.
    * @returns The record.
    */
   export function scene(
@@ -484,6 +485,7 @@ export namespace SceneBuild {
     objects: IPlaygroundComposition.IObject[] = [],
     mutuals: SceneBuildTypes.AuthoredMutual[] = [],
     forces: NonNullable<IPlaygroundComposition["forces"]> = [],
+    cues: NonNullable<IPlaygroundComposition["cues"]> = {},
   ): IScene {
     const composition: IPlaygroundComposition = {
       version: forces.length !== 0 ? 3 : objects.length === 0 ? 1 : 2,
@@ -492,6 +494,7 @@ export namespace SceneBuild {
       mutuals,
       ...(objects.length === 0 ? {} : { objects }),
       ...(forces.length === 0 ? {} : { forces }),
+      ...(Object.keys(cues).length === 0 ? {} : { cues }),
     };
     const takes: IScene.ITake[] = SceneTakes.of(composition, about.skill);
     return {

@@ -28,6 +28,9 @@ const CHARGE_MOUNT: number = 5;
 
 /** Seconds each trooper rides: the course's walk, trot, canter and gallop. */
 const CHARGE_RIDE: number = 30;
+
+/** The trumpet's charge, a film second inside the gallop leg, when each trooper brings the sabre from the slope to the engage. */
+const CHARGE_CUE: number = 31;
 /**
  * A work point on a bench top, just behind its front edge.
  *
@@ -550,28 +553,62 @@ export const SCENES_PARTNER: readonly IScene[] = [
         trooper.z,
         0,
         [
+          act("pickUp", { prop: `s${k}`, handle: "grip", hand: "right" }),
           act("sit", { seat: seat(`h${k}`) }),
-          act("ride", { on: `h${k}`, seconds: CHARGE_RIDE }),
+          act(
+            "ride",
+            { on: `h${k}`, seconds: CHARGE_RIDE, hands: { left: "leftRein" } },
+            {
+              over: [
+                act("sabre", {
+                  on: `h${k}`,
+                  prop: `s${k}`,
+                  carry: "slope",
+                  cue: "charge",
+                  gaits: `h${k}:gaits`,
+                  transition: 0.4,
+                  seconds: CHARGE_RIDE,
+                }),
+              ],
+            },
+          ),
         ],
       ),
     ),
-    SQUADRON.map((trooper: ITrooper, k: number) => ({
-      ...object(`h${k}`, "createHorse", undefined, trooper.x, trooper.z, 0),
-      course: {
-        at: CHARGE_MOUNT,
-        legs: [
-          { kind: "straight" as const, length: 12, gait: "walk" },
-          { kind: "straight" as const, length: 16, gait: "trot" },
-          { kind: "straight" as const, length: 30, gait: "canter" },
-          { kind: "straight" as const, length: 40, gait: "gallop" },
-        ],
-        cruise: 8,
-        speeds: [1.6, 3.4, 5.5, 8],
-        acceleration: 1.2,
-        deceleration: 1.2,
-        startFromStanding: true as const,
-      },
-    })),
+    [
+      ...SQUADRON.map((trooper: ITrooper, k: number) =>
+        // Within a clear reach ahead of the standing trooper's right hand.
+        object(
+          `s${k}`,
+          "createSword",
+          "sabre",
+          trooper.x - 0.85,
+          trooper.z + 0.3,
+          0,
+          0.9,
+        ),
+      ),
+      ...SQUADRON.map((trooper: ITrooper, k: number) => ({
+        ...object(`h${k}`, "createHorse", undefined, trooper.x, trooper.z, 0),
+        course: {
+          at: CHARGE_MOUNT,
+          legs: [
+            { kind: "straight" as const, length: 12, gait: "walk" },
+            { kind: "straight" as const, length: 16, gait: "trot" },
+            { kind: "straight" as const, length: 30, gait: "canter" },
+            { kind: "straight" as const, length: 40, gait: "gallop" },
+          ],
+          cruise: 8,
+          speeds: [1.6, 3.4, 5.5, 8],
+          acceleration: 1.2,
+          deceleration: 1.2,
+          startFromStanding: true as const,
+        },
+      })),
+    ],
+    [],
+    [],
+    { charge: [{ name: "charge", seconds: CHARGE_CUE }] },
   ),
   scene(
     {

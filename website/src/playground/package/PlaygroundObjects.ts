@@ -86,12 +86,14 @@ export namespace PlaygroundObjects {
    *
    * @param objects The placed objects.
    * @param performers The performers who author floor-aid routes.
+   * @param gaits Receives each ridden animal's own gait changes as the cue track `<subject>:gaits`.
    * @returns One prop per object; undefined when there are none.
    * @throws {Error} When objects are placed but the installed package cannot place them, or a producer is not exported.
    */
   export function props(
     objects: readonly IPlaygroundComposition.IObject[],
     performers: readonly IPlaygroundComposition.IPerformer[],
+    gaits: Record<string, IPlaygroundComposition.ICue[]> = {},
   ): IAutoMovieMotionHumanProp[] | undefined {
     if (objects.length === 0) return undefined;
     const human: IHumanObject = attach();
@@ -102,6 +104,8 @@ export namespace PlaygroundObjects {
         const rest: SceneArchetype.Model = SceneArchetype.model(object);
         const travel: playgroundVehicleCourse.ICourse | undefined =
           playgroundVehicleCourse(object, rest);
+        if (travel !== undefined && travel.gaits.length > 0)
+          gaits[`${object.subject}:gaits`] = travel.gaits;
         const placed: IPlacement = placement(object);
         const aid: IAutoMovieMotionHumanAidWalk | undefined =
           playgroundAidWalkAction(object, performers);
