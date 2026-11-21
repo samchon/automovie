@@ -57,7 +57,29 @@ export namespace IAutoMovieMotionHumanHeldWork {
 
     /** The travel it ends at: degrees for a turning kind, metres otherwise. */
     to: number;
+
+    /** The holding hand's digit that works it, kept on a contact riding the articulation: the thumb in a scissor ring. The hold's fingers stay as they are when absent. */
+    by?: IDigit;
   }
+
+  /**
+   * A digit of the holding hand kept on a moving contact of the held prop.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the digit and the contact it stays on.
+   * @evidence contracts/development/design.md#principled-representation A digit name and an affordance id riding the driven articulation.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface What a drive's digit goal reads.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact must ride the driven articulation.
+   */
+  export interface IDigit {
+    /** Which digit, on the holding hand. */
+    digit: Digit;
+
+    /** The contact it stays on, riding the driven articulation. */
+    site: string;
+  }
+
+  /** A digit of one hand. */
+  export type Digit = "thumb" | "index" | "middle" | "ring" | "little";
 
   /**
    * A prop set on a socket, riding it from the instant it is set.

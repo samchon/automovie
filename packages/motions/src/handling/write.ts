@@ -1,7 +1,9 @@
 import { AffordanceArticulation, Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanDigit,
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -12,6 +14,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanWrite,
+  IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
@@ -28,6 +31,7 @@ import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { heldDigits } from "./heldDigits";
 import { writeWith } from "./writeWith";
 
 /** A world vertex of the path and its distance along that path from the first vertex, metres. */
@@ -294,6 +298,18 @@ function planWrite(
     context,
     held,
   );
+  const toolDrives: IAutoMovieMotionPropDrive[] = writeWith.drives(
+    context,
+    p.tool,
+    p.drive ?? [],
+    clock.duration,
+    ready,
+    done,
+  );
+  const digits: (
+    seconds: number,
+  ) => Partial<Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>> =
+    heldDigits(context, held, p.drive ?? [], toolDrives);
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
     context,
     clock.duration,
@@ -311,6 +327,7 @@ function planWrite(
               ...kept.fingers,
               ...steadied?.hold.fingers,
             },
+            digits: { ...posture.digits, ...digits(seconds) },
           };
         },
       },
@@ -331,14 +348,7 @@ function planWrite(
       { ...kept, from: 1 },
       ...(steadied === undefined ? [] : [{ ...steadied.hold, from: 1 }]),
     ],
-    drives: writeWith.drives(
-      context,
-      p.tool,
-      p.drive ?? [],
-      clock.duration,
-      ready,
-      done,
-    ),
+    drives: toolDrives,
     mounts: [
       ...(p.take === undefined
         ? []

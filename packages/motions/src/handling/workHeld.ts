@@ -1,7 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanDigit,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanDigitGoal,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -11,6 +13,7 @@ import type {
   IAutoMovieMotionHumanHeldWork,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -28,6 +31,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
+import { heldDigits } from "./heldDigits";
 import { writeWith } from "./writeWith";
 
 /**
@@ -127,6 +131,18 @@ function plan(
   const done: number = clock.at("strokeEnd");
   const primitives: IAutoMovieMotionHumanPrimitive[] =
     goal === undefined ? [] : [arm(context, side, clock, ready, goal)];
+  const toolDrives: IAutoMovieMotionPropDrive[] = writeWith.drives(
+    context,
+    p.prop,
+    p.drive ?? [],
+    clock.duration,
+    ready,
+    done,
+  );
+  const digits: (
+    seconds: number,
+  ) => Partial<Record<AutoMovieHumanDigit, IAutoMovieHumanDigitGoal>> =
+    heldDigits(context, held, p.drive ?? [], toolDrives);
   const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
     context,
     clock.duration,
@@ -137,7 +153,11 @@ function plan(
         ...base,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           const posture: IAutoMovieMotionHumanPosture = base.posture(seconds);
-          return { ...posture, joints: { ...posture.joints, ...kept.fingers } };
+          return {
+            ...posture,
+            joints: { ...posture.joints, ...kept.fingers },
+            digits: { ...posture.digits, ...digits(seconds) },
+          };
         },
       },
       clock,
@@ -149,14 +169,7 @@ function plan(
     hands: [side],
     contacts: [...composed.contacts, AutoMovieMotionHumanHeld.grip(held)],
     holds: [...(composed.holds ?? []), { ...kept, from: 1 }],
-    drives: writeWith.drives(
-      context,
-      p.prop,
-      p.drive ?? [],
-      clock.duration,
-      ready,
-      done,
-    ),
+    drives: toolDrives,
     mounts:
       p.take === undefined
         ? []
