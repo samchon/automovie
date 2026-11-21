@@ -28,6 +28,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { throwsError } from "../internal/throwsError";
 
@@ -135,6 +136,7 @@ export function test_motion_posture_affect_crying(): void {
       );
     const plain: HumanPerformance = cover(false);
     const sobbing: HumanPerformance = cover(true);
+    assertTakeClean(`${fit} sob over a cover`, sobbing);
     const face: IAutoMovieMotionHumanSegment = sobbing.segments("a")[0]!;
     const from: number = event(face, "atFace");
     const to: number = event(face, "relax");

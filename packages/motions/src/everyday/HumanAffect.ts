@@ -341,12 +341,14 @@ export namespace HumanAffect {
         const joints: IAutoMovieMotionHumanPosture["joints"] = {
           ...posture.joints,
         };
+        let active: boolean = false;
         for (const d of displays) {
           const length: number = d.seconds ?? LENGTH[d.kind];
           const kind: IAutoMovieMotionHumanAffect.Kind = d.kind;
           const elapsed: number = seconds - d.at;
           const intensity: number = d.intensity ?? 1;
           if (!(elapsed > 0 && elapsed < length)) continue;
+          active = true;
           pattern(
             kind,
             elapsed,
@@ -356,7 +358,10 @@ export namespace HumanAffect {
             joints,
           );
         }
-        return affectHeldHands(posture, { ...posture, joints }, context);
+        // Between displays the layer adds nothing and holds no hand.
+        return active
+          ? affectHeldHands(posture, { ...posture, joints }, seconds, context)
+          : posture;
       },
     };
   }
