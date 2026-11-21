@@ -496,3 +496,4 @@ export * from "./handling/HumanPocket";
 export * from "./lexicon/HumanCover";
 export * from "./dressing/dressPartner";
 export * from "./touch/composeHumanCare";
+export * from "./tasks/composeHumanToolWork";
