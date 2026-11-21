@@ -33,9 +33,11 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  * Planted geometry stays on its declared plane through floor and contact fitting.
  *
  * Scenarios:
- * 1. Oppositely tilted independent supports return to an explicitly feasible
- *    flat pose. The contact fit keeps the original world goals and both whole
- *    patches when an additional point relationship is active.
+ * 1. Independent supports tilted 6° and −5° lift a sole edge by 10 mm or more,
+ *    far outside the 0.2 mm display bound. Floor fitting returns them to an
+ *    explicitly feasible flat pose within its tolerance. Re-tilted −5° and 6°,
+ *    the contact fit restores the original world goals and both whole patches
+ *    while an additional point relationship is active.
  * 2. An impossible external projection retains its measured distance to the
  *    allowed value instead of claiming the relationship was satisfied.
  * 3. An elevated point that already matches its XYZ goal still has to meet the
@@ -43,7 +45,7 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives each test case and its expected result, including the distinction between XYZ and a planted surface.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises both public fit stages on tilted box patches and checks their final world geometry, then checks unreachable and elevated-contact outputs.
- * @evidence contracts/development/testing.md#independent-expectations Derives complete box bounds from transformed corners and directly computes the point projection and endpoint error. Uses #3095's 0.2 mm displayed tolerance and checks the unresolved norm against its measured endpoint and floor components.
+ * @evidence contracts/development/testing.md#independent-expectations Derives complete box bounds from transformed corners and directly computes the point projection and endpoint error. Uses #3095's 0.2 mm displayed tolerance and checks the unresolved norm against its measured endpoint and floor components. Tilts are degrees, as `Quaternion.fromAxisAngle` takes them. Each unfitted stage must breach the bound tenfold, so an implementation that skips fitting fails.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers feasible flat placement, disturbance through contact fitting, a refused relationship result and an elevated planted endpoint without explicit plane witnesses.
  * @evidence contracts/development/testing.md#execution-ownership The named runner unit borrows in-memory primitive fixtures and uses only Engine's initialized shape-query adapter.
  */
@@ -78,8 +80,8 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     ]),
   );
   const floorTargets: Poses = structuredClone(reference);
-  tilt(floorTargets, planted[0]!, 0.06);
-  tilt(floorTargets, planted[1]!, -0.05);
+  tilt(floorTargets, planted[0]!, 6);
+  tilt(floorTargets, planted[1]!, -5);
   const original: string = JSON.stringify({ goals, pattern });
   const fitted: ReturnType<typeof planPhysicalFloorSupportTargets> =
     planPhysicalFloorSupportTargets({
@@ -101,8 +103,8 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries =
     await preparePhysicalGeometry();
   const contactTargets: Poses = structuredClone(fitted.targets);
-  tilt(contactTargets, planted[0]!, -0.05);
-  tilt(contactTargets, planted[1]!, 0.06);
+  tilt(contactTargets, planted[0]!, -5);
+  tilt(contactTargets, planted[1]!, 6);
   const supports: IAutoMoviePhysicalContactSupportRows.ISupport[] =
     pattern.limbs.map(
       (
@@ -175,8 +177,13 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     face: number;
     endpointError: number;
   }[] = [];
+  disturbed("floor input", floorTargets);
+  disturbed("contact input", contactTargets);
   verify("floor", fitted.targets);
   verify("contact", contacted.targets);
+  for (const bone of planted)
+    if (!(fitted.residuals[bone]! <= tolerance))
+      findings.push(`floor/${bone}: fit residual ${fitted.residuals[bone]}`);
   for (const bound of bounds)
     if (!nclose(contacted.residuals[bound.id]!, 0, displayedTolerance))
       findings.push(
@@ -249,7 +256,27 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     );
   }
 
-  /** Tilt only one support about its admitted joint anchor. */
+  /** Require each planted sole of an unfitted stage to break the displayed bound, so passing needs the fit. */
+  function disturbed(stage: string, poses: Poses): void {
+    for (const bone of planted) {
+      const pose: IAutoMovieRigidTransform = poses[bone]!;
+      const lift: number = Math.max(
+        ...corners(bone, true).map((point: IAutoMovieVector3): number =>
+          Math.abs(
+            pose.position.y +
+              Quaternion.rotateVector(pose.rotation, point).y -
+              plane,
+          ),
+        ),
+      );
+      if (lift <= 10 * displayedTolerance)
+        findings.push(
+          `${stage}/${bone}: disturbance ${lift} stays within the displayed bound`,
+        );
+    }
+  }
+
+  /** Tilt only one support about its admitted joint anchor by an angle in degrees. */
   function tilt(poses: Poses, bone: string, angle: number): void {
     const joint: IAutoMoviePhysicalJoint = profile.joints.find(
       (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
