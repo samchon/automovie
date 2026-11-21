@@ -11,6 +11,7 @@ export * from "./createJumpRopeHandle";
 export * from "./createKettlebell";
 export * from "./createParallelBars";
 export * from "./createPlyoBox";
+export * from "./createClimbingRope";
 export * from "./createPullUpBar";
 export * from "./createTightrope";
 export * from "./createBalancePole";
