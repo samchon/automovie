@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHoldHandles,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
@@ -140,13 +141,15 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
           { name: "handlesOn", share: onShare },
           { name: "handlesOff", share: offShare },
         ],
-        contacts: SIDES.map((side: AutoMovieHumanSide) => ({
-          part: `${side}Hand` as AutoMovieHumanoidBone,
-          kind: "grip" as const,
-          from: onShare,
-          to: offShare,
-          support: { kind: "prop" as const, subject: on },
-        })),
+        contacts: SIDES.map(
+          (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => ({
+            part: `${side}Hand`,
+            kind: "grip",
+            from: onShare,
+            to: offShare,
+            support: { kind: "prop", subject: on },
+          }),
+        ),
         posture(
           at,
           _channels,

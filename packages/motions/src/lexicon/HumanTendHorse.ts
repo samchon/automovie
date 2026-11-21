@@ -148,7 +148,9 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         contacts: [
           {
             part: `${side}Hand`,
-            kind: GRIPPED.has(task) ? "grip" : "touch",
+            // A care touch (brush, poll, stirrup, hoof) rests the hand on the horse without bearing weight; a held part is gripped.
+            kind: GRIPPED.has(task) ? "grip" : "bear",
+            ...(GRIPPED.has(task) ? {} : { load: 0 }),
             from: onShare,
             to: offShare,
             support: { kind: "prop", subject: on },
