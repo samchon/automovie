@@ -66,6 +66,9 @@ interface ISurface {
   depth: number;
 }
 
+/** Seconds over which a foot's share of the body eases from its plant into its swing (provisional staging). */
+const EASE: number = 0.1;
+
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
@@ -98,8 +101,8 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
  * as the last foot lands: the foot meets it where it is at touchdown and
  * it carries the foot from then on, so the foot never slides on the moving
  * surface. A swinging foot moves on a minimum-jerk blend of the
- * supports of the plants it leaves and lands on, and the pelvis on the mean
- * of the two feet's; a support that turns about the vertical turns the
+ * supports of the plants it leaves and lands on, and the pelvis on the feet
+ * that bear it, easing between them; a support that turns about the vertical turns the
  * feet it bears and the body with them. The walk aims where the arrival point will be when
  * the last foot lands, so the rider compensates for the supports' travel.
  *
@@ -491,8 +494,30 @@ export function HumanSupportStep(
     }
     return borne(list[list.length - 1]!, at, point);
   };
-  const body = (at: number, point: IAutoMovieVector3): IAutoMovieVector3 =>
-    Vector3.lerp(carry("left", at, point), carry("right", at, point), 0.5);
+  // How much a foot bears at a second: fully in a plant, easing to nothing
+  // over `EASE` seconds from its plant's edges as it swings.
+  const bearing = (side: AutoMovieHumanSide, at: number): number => {
+    let nearest: number = Infinity;
+    for (const plant of plants[side]) {
+      const from: number = plant.window.from * duration;
+      const to: number = plant.window.to * duration;
+      if (at >= from && at <= to) return 1;
+      nearest = Math.min(nearest, Math.abs(at - from), Math.abs(at - to));
+    }
+    return Math.max(0, 1 - nearest / EASE);
+  };
+  // The body goes with the feet that bear it: the stance foot's support in
+  // single support, both shares in double support, so a stance leg is never
+  // stretched by the other foot's support moving.
+  const body = (at: number, point: IAutoMovieVector3): IAutoMovieVector3 => {
+    const left: number = bearing("left", at);
+    const right: number = bearing("right", at);
+    return Vector3.lerp(
+      carry("left", at, point),
+      carry("right", at, point),
+      left + right === 0 ? 0.5 : right / (left + right),
+    );
+  };
 
   // How far a support turns about the vertical between two seconds of the
   // step, degrees; the ground does not turn.

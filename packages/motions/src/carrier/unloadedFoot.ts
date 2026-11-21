@@ -20,7 +20,7 @@ const MARGIN: number = 3;
  * @param body The body.
  * @param hip The leg's hip joint, world metres.
  * @param goal The leg goal, its foot turned by `rotation`.
- * @param facing The unit horizontal facing.
+ * @param facing The unit horizontal facing, read where the foot's own heading is undefined.
  * @param weight The share of the turn applied, 0 to 1: a caller easing the foot in and out of its plants passes less than 1 near them.
  * @returns The goal, its foot turned down when it must be; unchanged otherwise.
  *
@@ -40,8 +40,14 @@ export function unloadedFoot(
   weight: number = 1,
 ): IAutoMovieHumanLimbGoal {
   if (goal.rotation === undefined) return goal;
+  // The ankle bends in the foot's own plane: read along the foot's heading,
+  // which turns away from the body's facing as a mounting body turns.
+  const heading: number = HumanFoot.heading(goal.rotation) * Quaternion.DEG2RAD;
+  const along: IAutoMovieVector3 = Number.isFinite(heading)
+    ? { x: Math.sin(heading), y: 0, z: Math.cos(heading) }
+    : facing;
   const excess: number =
-    shankTilt(body, hip, goal.point, facing) +
+    shankTilt(body, hip, goal.point, along) +
     HumanFoot.pitch(goal.rotation) -
     (ANKLE_DORSIFLEXION.unloaded - MARGIN);
   if (excess <= 0) return goal;
@@ -49,7 +55,7 @@ export function unloadedFoot(
     ...goal,
     rotation: Quaternion.multiply(
       Quaternion.fromAxisAngle(
-        Vector3.cross({ x: 0, y: 1, z: 0 }, facing),
+        Vector3.cross({ x: 0, y: 1, z: 0 }, along),
         excess * weight,
       ),
       goal.rotation,
