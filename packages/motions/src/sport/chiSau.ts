@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -21,6 +21,8 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { poseBones } from "../posture/poseBones";
+import { StrikingBody } from "../striking/StrikingBody";
 
 /** The shared geometry of the two rolling contacts. */
 interface IRoll {
@@ -124,15 +126,26 @@ export namespace chiSau {
 
     // The roll reads the partner's placed root, so it is built on first use
     // and dropped when placement settles.
+    // Each partner reads the other's root, whose posture reads this one's:
+    // while this roll is being built, a read of it gives the arms as they
+    // are, which leaves the root it was asked for unchanged.
     let roll: IRoll | undefined;
-    const build = (): IRoll => {
+    let building: boolean = false;
+    const build = (): IRoll | null => {
       if (roll !== undefined) return roll;
+      if (building) return null;
+      building = true;
+      try {
+        return (roll = lay());
+      } finally {
+        building = false;
+      }
+    };
+    const lay = (): IRoll => {
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         p.partner,
       );
-      const there: IAutoMovieVector3 = partner
-        .bones(context.start, new Set<AutoMovieHumanoidBone>(["hips"]))
-        .get("hips")!.worldPosition;
+      const there: IAutoMovieVector3 = partner.root(context.start).position;
       const here: IAutoMovieVector3 = entry.root;
       const forward: IAutoMovieVector3 = Vector3.normalize({
         x: there.x - here.x,
@@ -156,7 +169,7 @@ export namespace chiSau {
       // subject's right is the same side.
       const mine = (side: AutoMovieHumanSide): number =>
         (side === "left") === first ? 0 : Math.PI;
-      roll = {
+      return {
         centre: {
           left: Vector3.add(middle, Vector3.scale(left, HALF * stature)),
           right: Vector3.add(middle, Vector3.scale(left, -HALF * stature)),
@@ -166,15 +179,25 @@ export namespace chiSau {
         left,
         phase: { left: mine("left"), right: mine("right") },
       };
-      return roll;
     };
 
     const stature: number = body.measure.stature;
     const arm = (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => {
       const limb: `${AutoMovieHumanSide}Arm` = `${side}Arm`;
-      const from: IAutoMovieHumanLimbGoal | undefined = entry.limbs[limb];
-      const goal = (seconds: number): IAutoMovieHumanLimbGoal => {
-        const r: IRoll = build();
+      // The arm leaves from the entry's goal, or from its displayed wrist and
+      // elbow when the entry wrote none.
+      const shown: ReturnType<typeof poseBones> = poseBones(
+        body,
+        context.entry.pose,
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
+      );
+      const from: IAutoMovieHumanLimbGoal = entry.limbs[limb] ?? {
+        point: shown.get(`${side}Hand`)!.worldPosition,
+        bend: shown.get(`${side}LowerArm`)!.worldPosition,
+        rotation: shown.get(`${side}Hand`)!.worldRotation,
+      };
+      const goal = (seconds: number, r: IRoll): IAutoMovieHumanLimbGoal => {
         const theta: number =
           (2 * Math.PI * cycles * seconds) / duration + r.phase[side];
         const radius: number = RADIUS * stature;
@@ -210,7 +233,18 @@ export namespace chiSau {
             body.measure.forearm,
           ),
         );
-        return { point, bend };
+        // The fingers point at the partner; the upper forearm's palm faces
+        // down (fook sau), the lower one's up (taan sau).
+        return {
+          point,
+          bend,
+          rotation: StrikingBody.fist(
+            body,
+            side,
+            r.forward,
+            Vector3.scale(UP, -over),
+          ),
+        };
       };
       return {
         channels: [limb],
@@ -220,18 +254,29 @@ export namespace chiSau {
           posture: IAutoMovieMotionHumanPosture,
           seconds: number,
         ): IAutoMovieMotionHumanPosture => {
-          const target: IAutoMovieHumanLimbGoal = goal(seconds);
-          const w: number =
-            from === undefined
-              ? 1
-              : clock.envelope(["start", "joined"], ["parted", "end"], seconds);
+          const r: IRoll | null = build();
+          if (r === null) return posture;
+          const target: IAutoMovieHumanLimbGoal = goal(seconds, r);
+          const w: number = clock.envelope(
+            ["start", "joined"],
+            ["parted", "end"],
+            seconds,
+          );
           const placed: IAutoMovieHumanLimbGoal =
-            from === undefined || w >= 1
+            w >= 1
               ? target
               : {
-                  ...from,
                   point: Vector3.lerp(from.point, target.point, w),
                   bend: Vector3.lerp(from.bend, target.bend, w),
+                  ...(from.rotation === undefined
+                    ? { rotation: target.rotation }
+                    : {
+                        rotation: Quaternion.slerp(
+                          from.rotation,
+                          target.rotation!,
+                          w,
+                        ),
+                      }),
                 };
           return { ...posture, limbs: { ...posture.limbs, [limb]: placed } };
         },

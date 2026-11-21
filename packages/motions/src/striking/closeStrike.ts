@@ -2,9 +2,9 @@ import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  AutoMovieHumanoidRegion,
   AutoMovieMotionHumanActionKey,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieHumanLimbReference,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -13,7 +13,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCloseStrike,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
@@ -22,12 +21,14 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { clinch } from "../grappling/clinch";
+import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
+import { CloseStrikeNeck } from "./CloseStrikeNeck";
 import { CloseStrikeReach } from "./CloseStrikeReach";
+import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
@@ -273,65 +274,108 @@ export namespace closeStrike {
         // (`IAutoMovieHumanLimbGoal.elbow`), blended from the guard's goal.
         const limb: "leftArm" | "rightArm" =
           side === "left" ? "leftArm" : "rightArm";
-        const from: IAutoMovieHumanLimbGoal | undefined = entry.limbs[limb];
         // In the placed mode the bend is the elbow's own place, so the blend
-        // starts from the entry's displayed elbow joint, not its hint.
-        const guardElbow: IAutoMovieVector3 = poseBones(
+        // starts from the entry's displayed elbow and wrist joints, whatever
+        // goals the entry held; the fist closes as the elbow goes out.
+        const shown0: ReturnType<typeof poseBones> = poseBones(
           body,
           context.entry.pose,
           undefined,
-          new Set<AutoMovieHumanoidBone>([`${side}LowerArm`]),
-        ).get(`${side}LowerArm`)!.worldPosition;
-        if (from !== undefined)
-          primitives.push({
-            channels: [limb],
-            from: 0,
-            to: duration,
-            write: (
-              posture: IAutoMovieMotionHumanPosture,
-              seconds: number,
-            ): IAutoMovieMotionHumanPosture => {
-              const w: number =
-                seconds <= shown
-                  ? reached * minimumJerk.share(seconds / shown)
-                  : share(seconds);
-              const back: IAutoMovieVector3 = Vector3.scale(
-                travel,
-                -APPROACH * (1 - Math.min(1, seconds / shown)),
-              );
-              return {
-                ...posture,
-                limbs: {
-                  ...posture.limbs,
-                  [limb]: {
-                    point: Vector3.lerp(
-                      from.point,
-                      Vector3.add(arm.point, back),
-                      w,
-                    ),
-                    bend: Vector3.lerp(
-                      guardElbow,
-                      Vector3.add(arm.bend, back),
-                      w,
-                    ),
-                    elbow: "placed",
-                    rotation:
-                      from.rotation === undefined
-                        ? arm.rotation
-                        : Quaternion.slerp(from.rotation, arm.rotation, w),
-                  },
-                },
-              };
+          new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
+        );
+        const guardElbow: IAutoMovieVector3 = shown0.get(
+          `${side}LowerArm`,
+        )!.worldPosition;
+        const from: Pick<IAutoMovieHumanLimbGoal, "point" | "rotation"> = {
+          point: shown0.get(`${side}Hand`)!.worldPosition,
+          rotation: shown0.get(`${side}Hand`)!.worldRotation,
+        };
+        const curl: ReturnType<typeof StrikingBody.curl> =
+          StrikingBody.curl(side);
+        // The arm solved once at the impact; every goal carries the blend of
+        // the entry's solution and that one as its reference, so the fit
+        // never takes the other elbow between two seconds.
+        const atImpact: IAutoMovieMotionHumanPosture = primitives[0]!.write(
+          entry,
+          shown,
+        );
+        const rest: IAutoMovieHumanLimbReference =
+          resolveHumanPosture.reference(context.entry.pose, limb);
+        const hit: IAutoMovieHumanLimbReference = resolveHumanPosture.reference(
+          resolveHumanPosture(body, {
+            ...atImpact,
+            limbs: {
+              ...atImpact.limbs,
+              [limb]: {
+                point: arm.point,
+                bend: arm.bend,
+                elbow: "placed",
+                rotation: arm.rotation,
+              },
             },
-          });
+          }),
+          limb,
+        );
+        primitives.push({
+          channels: [limb, `${side}Hand`],
+          from: 0,
+          to: duration,
+          write: (
+            posture: IAutoMovieMotionHumanPosture,
+            seconds: number,
+          ): IAutoMovieMotionHumanPosture => {
+            const w: number =
+              seconds <= shown
+                ? reached * minimumJerk.share(seconds / shown)
+                : share(seconds);
+            const back: IAutoMovieVector3 = Vector3.scale(
+              travel,
+              -APPROACH * (1 - Math.min(1, seconds / shown)),
+            );
+            return {
+              ...posture,
+              joints: { ...posture.joints, ...curl },
+              limbs: {
+                ...posture.limbs,
+                [limb]: {
+                  point: Vector3.lerp(
+                    from.point,
+                    Vector3.add(arm.point, back),
+                    w,
+                  ),
+                  bend: Vector3.lerp(
+                    guardElbow,
+                    Vector3.add(arm.bend, back),
+                    w,
+                  ),
+                  elbow: "placed",
+                  reference: {
+                    upper: blendHumanJoint(
+                      body,
+                      `${side}UpperArm`,
+                      rest.upper,
+                      hit.upper,
+                      w,
+                    ),
+                    lower: blendHumanJoint(
+                      body,
+                      `${side}LowerArm`,
+                      rest.lower,
+                      hit.lower,
+                      w,
+                    ),
+                  },
+                  rotation:
+                    from.rotation === undefined
+                      ? arm.rotation
+                      : Quaternion.slerp(from.rotation, arm.rotation, w),
+                },
+              },
+            };
+          },
+        });
       }
-      if (
-        arm !== null &&
-        !(
-          arm.elbow &&
-          entry.limbs[side === "left" ? "leftArm" : "rightArm"] !== undefined
-        )
-      ) {
+      if (arm !== null && !arm.elbow) {
         const bones: ReturnType<typeof poseBones> = poseBones(
           body,
           context.entry.pose,
@@ -382,64 +426,15 @@ export namespace closeStrike {
 
       // A headbutt's hands hold either side of a partner's neck.
       if (p.technique === "headbutt" && p.at.kind === "person") {
-        const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
-          p.at.subject,
-        );
-        for (const hand of ["left", "right"] as const) {
-          const region: AutoMovieHumanoidRegion =
-            hand === "left" ? "neckRight" : "neckLeft";
-          const needed: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-            partner.body.surfaces.regions[region].bone,
-          ]);
-          const bones: ReturnType<typeof poseBones> = poseBones(
-            body,
-            context.entry.pose,
-            undefined,
-            new Set<AutoMovieHumanoidBone>([`${hand}Hand`]),
-          );
-          primitives.push(
-            AutoMovieMotionHumanArm.move({
-              body,
-              side: hand,
-              from: 0,
-              to: duration,
-              origin: AutoMovieMotionHumanArm.origin(
-                body,
-                bones,
-                { origin: entry.root, yaw: entry.yaw },
-                hand,
-                "palm",
-              ),
-              weight: (seconds: number): number =>
-                minimumJerk.share(Math.min(1, seconds / take)),
-              target: (
-                posture: IAutoMovieMotionHumanPosture,
-                seconds: number,
-              ): IAutoMovieMotionHumanArmTarget.ITarget =>
-                AutoMovieMotionHumanTarget.hand(
-                  body,
-                  posture,
-                  hand,
-                  clinch.place(
-                    partner.body,
-                    partner.bones(context.start + seconds, needed),
-                    region,
-                    0,
-                  ),
-                  { surface: "palm", shape: "relaxed", bend: "tucked" },
-                ),
-            }),
-          );
-          contacts.push({
-            part: `${hand}Hand`,
-            kind: "grip",
-            from: take / duration,
-            to: 1,
-            support: { kind: "person", subject: p.at.subject, region },
-          });
-        }
+        const held: CloseStrikeNeck.IHeld = CloseStrikeNeck({
+          context,
+          subject: p.at.subject,
+          take,
+          duration,
+        });
+        primitives.push(...held.primitives);
+        contacts.push(...held.contacts);
       }
-
       built = composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,

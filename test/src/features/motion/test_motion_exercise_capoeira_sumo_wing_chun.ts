@@ -25,6 +25,7 @@ import {
   HumanStageFight,
   HumanStrike,
   chiSau,
+  grapple,
 } from "@automovie/motions";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -143,6 +144,7 @@ function pair(
       ...Object.values(HumanStrike),
       ...Object.values(HumanStageFight),
       ...Object.values(HumanSportThrow),
+      grapple,
     ],
     performers: [
       {
@@ -590,7 +592,7 @@ function rollingHands(
 ): void {
   const film: HumanPerformance = pair(
     body,
-    0.34 * body.measure.stature,
+    0.45 * body.measure.stature,
     HumanChain.subject("a")
       .registered("chiSau", { partner: "b", cycles: 4 }, "rollA")
       .with(

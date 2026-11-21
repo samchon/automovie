@@ -202,7 +202,7 @@ export function test_motion_exercise_foot_strikes(): void {
   complaints.assert("Foot strikes");
 }
 
-/** Play a row from a kickboxing guard at a partner a distance ahead; the sweep's partner falls on its contact. */
+/** Play a row from a stand at a partner standing a distance ahead; the sweep's partner falls on its contact. */
 function perform(
   body: IAutoMovieMotionHumanBody,
   row: Row,
@@ -211,12 +211,10 @@ function perform(
   falls: boolean,
 ): HumanPerformance {
   const strike: IAutoMovieMotionHumanChainCore = HumanChain.subject("a")
-    .guard({ seconds: 1.2, style: "kickboxing" })
+    .stand({ seconds: 0.5, sway: 0 })
     .registered(row, { at }, "strike")
-    .guard({ seconds: 0.5, style: "kickboxing" });
-  const partner: IAutoMovieMotionHumanChainCore = HumanChain.subject("b").guard(
-    { seconds: 1.2, style: "kickboxing" },
-  );
+    .stand({ seconds: 2, sway: 0 });
+  const partner: IAutoMovieMotionHumanChainCore = HumanChain.subject("b");
   return new HumanPerformance({
     seed: `foot-${row}`,
     laws: Object.values(HumanStrike),
@@ -246,7 +244,7 @@ function perform(
             )
             .sync({ of: "strike", align: "stroke" }),
         ).node
-      : strike.with(partner.guard({ seconds: 2, style: "kickboxing" })).node,
+      : strike.with(partner.stand({ seconds: 3, sway: 0 })).node,
   });
 }
 

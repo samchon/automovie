@@ -47,17 +47,20 @@ interface IRow {
  */
 const DISTANCE: number = 0.34;
 
-/** The clinch range of the elbows and the headbutt, a share of stature: about 0.5 m for the average man. */
-const CLINCH: number = 0.28;
+/** The clinch range of the elbows, a share of stature: about 0.56 m for the average man. */
+const CLINCH: number = 0.32;
+
+/** The headbutt's range, a share of stature: the forehead reaches the chin by the trunk's lean. */
+const BUTT: number = 0.4;
 
 /** The six close strikes at the head. */
 const ROWS: readonly IRow[] = [
   { row: "horizontalElbow", at: "chin", distance: CLINCH },
   { row: "risingElbow", at: "chin", distance: CLINCH },
-  { row: "descendingElbow", at: "noseBridge", distance: CLINCH },
+  { row: "descendingElbow", at: "shoulderLeft", distance: CLINCH },
   { row: "spinningElbow", at: "chin", distance: CLINCH },
   { row: "spinningBackfist", at: "chin", distance: DISTANCE },
-  { row: "headbutt", at: "chin", distance: CLINCH },
+  { row: "headbutt", at: "chin", distance: BUTT },
 ];
 
 /** A landing lies within this of its target, metres: the blade strokes spec's bound. */
@@ -132,7 +135,7 @@ export function test_motion_exercise_close_strikes(): void {
           partner,
           row,
           "chin",
-          DISTANCE * body.measure.stature,
+          (row === "stageHeadbutt" ? BUTT : CLINCH) * body.measure.stature,
         );
         assertTakeClean(`${name} ${row}`, film);
         const placed: IAutoMovieScheduleEntry | undefined =
@@ -180,7 +183,7 @@ export function test_motion_exercise_close_strikes(): void {
   complaints.assert("Close strikes");
 }
 
-/** Play a close strike from guard at a person standing a distance ahead. */
+/** Play a close strike from a stand at a person standing a distance ahead, both upright so their heads stand level. */
 function perform(
   body: IAutoMovieMotionHumanBody,
   partner: IAutoMovieMotionHumanBody,
@@ -208,14 +211,14 @@ function perform(
       },
     ],
     composition: HumanChain.subject("a")
-      .guard({ seconds: 1.2, style: "kickboxing" })
+      .stand({ seconds: 0.5, sway: 0 })
       .registered(
         row,
         { at: { kind: "person", subject: "b", region: at } },
         "strike",
       )
-      .guard({ seconds: 0.5, style: "kickboxing" })
-      .with(HumanChain.subject("b").stand({ seconds: 3, sway: 0 })).node,
+      .stand({ seconds: 1, sway: 0 })
+      .with(HumanChain.subject("b").stand({ seconds: 1.5, sway: 0 })).node,
   });
   if (film.schedule.entries.length === 0) throw new Error("nothing was placed");
   return film;

@@ -1,9 +1,8 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -24,94 +23,12 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { CloseStrikeLegs } from "./CloseStrikeLegs";
+import { FootStrikeForms } from "./FootStrikeForms";
+import { FootStrikeLeg } from "./FootStrikeLeg";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
-
-/** A foot strike's contact point on the foot. */
-type Contact = "heel" | "sole";
-
-/** How one technique meets its target: the contact, the foot's attitude and the travel. */
-interface IForm {
-  /** The point of the foot that lands. */
-  contact: Contact;
-
-  /** Where the toes point, from the line, the kicker's left and up. */
-  toes: (
-    line: IAutoMovieVector3,
-    left: IAutoMovieVector3,
-    outward: IAutoMovieVector3,
-  ) => IAutoMovieVector3;
-
-  /** Where the instep faces. */
-  instep: (
-    line: IAutoMovieVector3,
-    left: IAutoMovieVector3,
-    outward: IAutoMovieVector3,
-  ) => IAutoMovieVector3;
-
-  /** The unit direction the contact travels at the strike. */
-  travel: (
-    line: IAutoMovieVector3,
-    left: IAutoMovieVector3,
-    outward: IAutoMovieVector3,
-  ) => IAutoMovieVector3;
-}
-
-/** The world's up. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** The world's down. */
-const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-
-/** Each technique's contact, foot attitude and travel. */
-const FORMS: Readonly<
-  Record<IAutoMovieMotionHumanFootStrike.Technique, IForm>
-> = {
-  side: {
-    contact: "heel",
-    toes: (_l, _x, outward) => Vector3.scale(outward, -1),
-    instep: (line) => Vector3.scale(line, -1),
-    travel: (line) => line,
-  },
-  back: {
-    contact: "heel",
-    toes: () => DOWN,
-    instep: (line) => Vector3.scale(line, -1),
-    travel: (line) => line,
-  },
-  hook: {
-    contact: "heel",
-    toes: (_l, _x, outward) => Vector3.scale(outward, -1),
-    instep: () => UP,
-    travel: (_l, _x, outward) => outward,
-  },
-  crescent: {
-    contact: "sole",
-    toes: () => UP,
-    instep: (_l, _x, outward) => outward,
-    travel: (_l, _x, outward) => Vector3.scale(outward, -1),
-  },
-  axe: {
-    contact: "heel",
-    toes: (line) => line,
-    instep: () => UP,
-    travel: () => DOWN,
-  },
-  stomp: {
-    contact: "sole",
-    toes: (line) => line,
-    instep: () => UP,
-    travel: () => DOWN,
-  },
-  sweep: {
-    contact: "sole",
-    toes: (line) => line,
-    instep: (_l, _x, outward) => outward,
-    travel: (_l, _x, outward) => Vector3.scale(outward, -1),
-  },
-};
 
 /**
  * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle
@@ -133,7 +50,7 @@ const FORMS: Readonly<
  * @evidence contracts/development/common.md#meaningful-documentation States the phases, the foot's goal, the reach rule, the chamber and the extension's timing source.
  * @evidence contracts/development/design.md#principled-representation One law record over the shared clock, base and lower-body primitive, with a data table of the techniques.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table and the plan registration reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The techniques differ by data in `FORMS`; timings are the cited ones or the kick's.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The techniques differ by data in `FootStrikeForms.FORMS`; timings are the cited ones or the kick's.
  */
 export namespace footStrike {
   /** Action key. */
@@ -157,6 +74,12 @@ export namespace footStrike {
 
   /** The round kick's recoil, seconds (Gavagan and Sayers 2017). */
   export const RECOIL: number = 0.65;
+
+  /** The share of the chamber the kicking foot stays planted before it leaves (provisional). */
+  export const RELEASE: number = 0.1;
+
+  /** The share of the foot's rise it leads its travel by, and of its return it sets down after (provisional). */
+  export const LEAD: number = 0.2;
 
   /** The share of the leg's length a low target is reached at, short of straight (provisional). */
   export const STRAIGHT: number = 0.97;
@@ -192,7 +115,7 @@ export namespace footStrike {
     const rear: AutoMovieHumanSide = StrikingStance.rear({ lead });
     const side: AutoMovieHumanSide = p.leg === "lead" ? lead : rear;
     const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const form: IForm = FORMS[p.technique];
+    const form: FootStrikeForms.IForm = FootStrikeForms.FORMS[p.technique];
 
     // Timing: the side kick's own execution, else the kick's, a spin and a
     // jump adding theirs, skill scaling as the kick's.
@@ -235,14 +158,14 @@ export namespace footStrike {
         entry.yaw,
       );
       const left: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.cross(UP, line),
+        Vector3.cross(FootStrikeForms.UP, line),
       );
       const outward: IAutoMovieVector3 = Vector3.scale(
         left,
         side === "left" ? 1 : -1,
       );
       const travel: IAutoMovieVector3 = form.travel(line, left, outward);
-      const rotation: IAutoMovieQuaternion = StrikingBody.foot(
+      let rotation: IAutoMovieQuaternion = StrikingBody.foot(
         form.toes(line, left, outward),
         form.instep(line, left, outward),
       );
@@ -341,11 +264,52 @@ export namespace footStrike {
           reason: `the sweep needs ${Vector3.distance(ankle, hip).toFixed(3)} m from the hip to the partner's ankle, beyond the leg's ${reach.toFixed(3)} m`,
           fix: "stand closer to the partner, or sweep a nearer leg",
         });
-      if (Vector3.distance(ankle, hip) > reach)
-        ankle = Vector3.add(
-          hip,
-          Vector3.scale(Vector3.normalize(Vector3.subtract(ankle, hip)), reach),
+      const clamp = (goal: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.distance(goal, hip) > reach
+          ? Vector3.add(
+              hip,
+              Vector3.scale(
+                Vector3.normalize(Vector3.subtract(goal, hip)),
+                reach,
+              ),
+            )
+          : goal;
+      ankle = clamp(ankle);
+
+      // The foot's attitude is the form's, turned square to the leg it ends,
+      // so the ankle stays near neutral at the contact whatever the target's
+      // height; the ankle is placed again for that attitude.
+      const square = (
+        v: IAutoMovieVector3,
+        along: IAutoMovieVector3,
+      ): IAutoMovieVector3 =>
+        Vector3.subtract(v, Vector3.scale(along, Vector3.dot(v, along)));
+      for (let i: number = 0; i < 2; ++i) {
+        const leg: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.subtract(ankle, hip),
         );
+        const toes: IAutoMovieVector3 = square(
+          form.toes(line, left, outward),
+          leg,
+        );
+        if (Vector3.length(toes) < 1e-3) break;
+        const pointing: IAutoMovieVector3 = Vector3.normalize(toes);
+        rotation = StrikingBody.foot(
+          pointing,
+          Vector3.normalize(
+            square(square(form.instep(line, left, outward), leg), pointing),
+          ),
+        );
+        ankle = clamp(
+          Vector3.subtract(
+            target,
+            HumanFoot.point(body, side, form.contact, {
+              ankle: { x: 0, y: 0, z: 0 },
+              rotation,
+            }),
+          ),
+        );
+      }
 
       // The chamber: the knee folded before the hip, above it for an axe, on
       // the far side of the travel for a sweep across the target.
@@ -356,7 +320,7 @@ export namespace footStrike {
           ? Vector3.add(
               hip,
               Vector3.add(
-                Vector3.scale(UP, 0.6 * reach),
+                Vector3.scale(FootStrikeForms.UP, 0.6 * reach),
                 Vector3.scale(line, 0.3 * reach),
               ),
             )
@@ -365,7 +329,7 @@ export namespace footStrike {
             : Vector3.add(
                 hip,
                 Vector3.add(
-                  Vector3.scale(DOWN, 0.45 * reach),
+                  Vector3.scale(FootStrikeForms.DOWN, 0.45 * reach),
                   Vector3.scale(line, 0.25 * reach),
                 ),
               );
@@ -378,73 +342,62 @@ export namespace footStrike {
       );
       const knee: IAutoMovieVector3 = Vector3.add(
         Vector3.lerp(hip, ankle, 0.5),
-        Vector3.scale(UP, 0.25 * m.thigh),
+        Vector3.scale(FootStrikeForms.UP, 0.25 * m.thigh),
       );
-      const planted: IAutoMovieHumanLimbGoal | undefined =
-        entry.limbs[`${side}Leg`];
-      const start: IAutoMovieVector3 = planted?.point ?? feet[side].ankle;
-      const startBend: IAutoMovieVector3 =
-        planted?.bend ?? Vector3.add(hip, Vector3.scale(line, m.thigh));
-      const extend: number = (shown - chamber) / MEET;
-      const leg: IAutoMovieMotionHumanPrimitive = {
-        channels: [`${side}Leg`],
-        from: 0,
-        to: duration,
-        write: (
-          posture: IAutoMovieMotionHumanPosture,
-          seconds: number,
-        ): IAutoMovieMotionHumanPosture => {
-          let point: IAutoMovieVector3;
-          let bend: IAutoMovieVector3;
-          if (seconds <= chamber) {
-            const s: number = minimumJerk.share(seconds / chamber);
-            point = Vector3.lerp(start, folded, s);
-            bend = Vector3.lerp(startBend, knee, s);
-          } else if (seconds <= shown) {
-            point = Vector3.lerp(
-              folded,
-              through,
-              minimumJerk.share((seconds - chamber) / extend),
-            );
-            bend = knee;
-          } else {
-            const s: number = minimumJerk.share((seconds - shown) / recoil);
-            point = Vector3.lerp(ankle, start, s);
-            bend = Vector3.lerp(knee, startBend, s);
-          }
-          return {
-            ...posture,
-            limbs: {
-              ...posture.limbs,
-              [`${side}Leg`]: { point, bend, rotation, planted: false },
-            },
-          };
-        },
-      };
-
+      const release: number = RELEASE * chamber;
+      const leg: IAutoMovieMotionHumanPrimitive = FootStrikeLeg({
+        body,
+        pose: context.entry.pose,
+        entry,
+        lower,
+        side,
+        feet,
+        release,
+        chamber,
+        shown,
+        recoil,
+        duration,
+        folded,
+        through,
+        knee,
+        ankle,
+        rotation,
+        lead: LEAD,
+        meet: MEET,
+      });
       // The support foot is planted throughout, or around the jump's flight.
       const flight: readonly [number, number] = [
         chamber / duration,
         (shown + 0.5 * JUMP[0]) / duration,
       ];
-      const contacts: IAutoMovieMotionHumanContactWindow[] = (
-        p.jump === true
+      const contacts: IAutoMovieMotionHumanContactWindow[] = [
+        {
+          part: `${side}Foot`,
+          kind: "plant",
+          from: 0,
+          to: release / duration,
+          support: { kind: "ground" },
+        },
+      ];
+      contacts.push(
+        ...(p.jump === true
           ? [
               [0, flight[0]],
               [flight[1], 1],
             ]
           : [[0, 1]]
-      ).map(
-        ([
-          from,
-          to,
-        ]: readonly number[]): IAutoMovieMotionHumanContactWindow => ({
-          part: `${support}Foot`,
-          kind: "plant",
-          from: from!,
-          to: to!,
-          support: { kind: "ground" },
-        }),
+        ).map(
+          ([
+            from,
+            to,
+          ]: readonly number[]): IAutoMovieMotionHumanContactWindow => ({
+            part: `${support}Foot`,
+            kind: "plant",
+            from: from!,
+            to: to!,
+            support: { kind: "ground" },
+          }),
+        ),
       );
       built = composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),

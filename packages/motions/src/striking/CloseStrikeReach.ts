@@ -103,11 +103,16 @@ export function CloseStrikeReach(
   }
 
   const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  // An elbow brings the shoulder forward by leaning the trunk before the
+  // hips shift, so the hips stay clear of the person struck.
+  const bow: number =
+    technique === "spinningBackfist" ? 0 : CloseStrikeReach.ELBOW_LEAN;
   const shoulderAt = (shift: IAutoMovieVector3): IAutoMovieVector3 =>
-    read(at(0, shift), `${side}UpperArm`).get(`${side}UpperArm`)!.worldPosition;
+    read(at(bow, shift), `${side}UpperArm`).get(`${side}UpperArm`)!
+      .worldPosition;
   const outward: IAutoMovieVector3 = Vector3.subtract(
     shoulderAt(still),
-    read(at(0, still), "chest").get("chest")!.worldPosition,
+    read(at(bow, still), "chest").get("chest")!.worldPosition,
   );
   const across: IAutoMovieVector3 = Vector3.normalize({
     x: -outward.x,
@@ -231,7 +236,7 @@ export function CloseStrikeReach(
       ? Vector3.scale(line, -1)
       : Vector3.scale(up, -1);
   return {
-    lean: 0,
+    lean: bow,
     shift,
     arm: {
       surface: "wrist",
@@ -276,6 +281,9 @@ function refuse(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface vector and quaternion.
  */
 export namespace CloseStrikeReach {
+  /** The trunk's forward lean that brings an elbow's shoulder toward its target, degrees (provisional). */
+  export const ELBOW_LEAN: number = 15;
+
   /** The elbow's flexion at contact, degrees: past the 120 the issue's band sets, provisional. */
   export const FOLD: number = 135;
 
