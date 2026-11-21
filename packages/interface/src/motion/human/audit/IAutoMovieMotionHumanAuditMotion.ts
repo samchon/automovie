@@ -1,3 +1,4 @@
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieResolvedBone } from "../../../pose/IAutoMovieResolvedBone";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
@@ -14,8 +15,8 @@ import type { IAutoMovieMotionHumanContactWindow } from "../law/IAutoMovieMotion
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the audit reads and which producers satisfy it. start: Where the action's own clock starts, film seconds. entryTime: Where the action takes the body over, film seconds. end: Where it ends, film seconds.
  * @evidence contracts/development/design.md#principled-representation The displayed bones are the only thing drawn, and the contact windows the only declared intent a geometric check needs; both are read as their owners declare them. start: Where the action's own clock starts, film seconds. entryTime: Where the action takes the body over, film seconds. end: Where it ends, film seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, a structural subset of `HumanPerformance`, each read by an audit check. Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, source); audit/AutoMovieMotionHumanAudit.ts (remember, source); audit/AutoMovieMotionHumanAudit.ts (remember, return); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.measure, motion); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.margin, motion); audit/AutoMovieMotionHumanAuditContact.ts (AutoMovieMotionHumanAuditContact.measure, motion).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the contact window and the engine's resolved bone; no cast or optional member. Shares the canonical IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Three required members, a structural subset of `HumanPerformance`, each read by an audit check, and two optional readers of a scene with moving supports or water, absent on a motion without them. Runtime boundary references: audit/AutoMovieMotionHumanAudit.ts (AutoMovieMotionHumanAudit.run, source); audit/AutoMovieMotionHumanAudit.ts (remember, source); audit/AutoMovieMotionHumanAudit.ts (remember, return); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.measure, motion); audit/AutoMovieMotionHumanAuditBalance.ts (AutoMovieMotionHumanAuditBalance.margin, motion); audit/AutoMovieMotionHumanAuditContact.ts (AutoMovieMotionHumanAuditContact.measure, motion).
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the contact window, the engine's resolved bone and rigid transform; no cast, and each optional reader states its reading when absent. Shares the canonical IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanAuditMotion {
   /** The motion's length, film seconds. */
@@ -56,6 +57,52 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
    */
   segments(subject: string): readonly IAutoMovieMotionHumanAuditMotion.ISpan[];
+
+  /**
+   * The world frame of a contact's support at a film second: a prop's frame,
+   * or the frame of the supporting person's bone. A planted contact holds its
+   * place in this frame, so a foot planted on a moving deck, tread or saddle
+   * is read where it stands on that support, not where the support carried it.
+   * Absent, every support is taken as fixed in the world, as on a motion with
+   * no props.
+   *
+   * @param support The support a contact window declares.
+   * @param seconds Film seconds, within the motion.
+   * @returns The support's frame, world metres; the ground's is the identity raised to its height.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.support: the frame a planted contact is read in, and the reading when absent.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
+   */
+  support?(
+    support: IAutoMovieMotionHumanContactWindow.Support,
+    seconds: number,
+  ): IAutoMovieRigidTransform;
+
+  /**
+   * Whether water carries a person at a film second: inside a body of water
+   * the water, not a floor, bears the body, so the audit reads a floor under
+   * them only where a ground contact declares one (a foot on the pool floor).
+   * Absent, no one is ever in water. Out of water the floor is the ground
+   * their bearing contacts declare.
+   *
+   * @param subject The person.
+   * @param seconds Film seconds, within the motion.
+   * @returns Whether the person is in water.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.water: when the water, not a floor, bears a person, and the reading when absent.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
+   */
+  water?(subject: string, seconds: number): boolean;
 }
 
 /**
@@ -104,8 +151,10 @@ export namespace IAutoMovieMotionHumanAuditMotion {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Audit-only view used by ISpan.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Does not copy or recompute any contact or balance terms.
    */
-  export interface ISpanPlan
-    extends Pick<IAutoMovieMotionHumanActionPlan, "duration" | "balanceWindow" | "physicalWindow"> {
+  export interface ISpanPlan extends Pick<
+    IAutoMovieMotionHumanActionPlan,
+    "duration" | "balanceWindow" | "physicalWindow"
+  > {
     /** The contact windows the plan declares. */
     contacts: readonly IAutoMovieMotionHumanContactWindow[];
   }

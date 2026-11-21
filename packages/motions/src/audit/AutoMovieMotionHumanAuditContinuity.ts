@@ -21,8 +21,11 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * - `jump`: the displacement that is still there when the interval around it
  *   is `1 / (rate * 4^LEVELS)` long ({@link resolve}). At 24 Hz that is 41
  *   microseconds, in which a joint at 100 m/s covers 4 mm. A frame interval is
- *   resolved when some joint's displacement over it departs from the mean of
- *   its two neighbours' by more than the limit.
+ *   resolved when some joint's displacement over it departs by more than the
+ *   limit from the one the quadratic through the two displacements on each
+ *   side predicts (from the mean of its two neighbours' within two intervals
+ *   of an end): a smooth path departs from it by its fourth derivative, a
+ *   step by the step.
  * - `reversal`: a joint that goes out and straight back within two
  *   intervals of `1 / REVERSAL` seconds, read as the shorter of the two
  *   displacements times the cosine of their opposition. A fit that flips for
@@ -135,7 +138,8 @@ export namespace AutoMovieMotionHumanAuditContinuity {
           result.speed = { value: speed, seconds: times[i]!, where: bone };
         const coarse: number =
           i + 2 < times.length
-            ? -(nx * ax + ny * ay + nz * az) / Math.max(travelled, Math.hypot(ax, ay, az))
+            ? -(nx * ax + ny * ay + nz * az) /
+              Math.max(travelled, Math.hypot(ax, ay, az))
             : 0;
         if (coarse > result.reversal.value && coarse <= floor)
           result.reversal = {
@@ -173,7 +177,31 @@ export namespace AutoMovieMotionHumanAuditContinuity {
               };
           }
         }
-        if (Math.hypot(nx - (bx + ax) / 2, ny - (by + ay) / 2, nz - (bz + az) / 2) > limit)
+        if (i >= 2 && i + 3 < times.length) {
+          // Away from the ends, the displacement is predicted from the two
+          // on each side by the quadratic through them, exact for any path
+          // whose third derivative is constant: a smooth joint departs from
+          // it by its fourth derivative times the interval to the fourth,
+          // while a step departs by the step, so smooth fast motion (a
+          // rider on a trot) is not quartered for nothing.
+          const before: IAutoMovieVector3 = frames[i - 2]!.get(bone)!;
+          const after: IAutoMovieVector3 = frames[i + 3]!.get(bone)!;
+          const last: IAutoMovieVector3 = frames[i - 1]!.get(bone)!;
+          const far: IAutoMovieVector3 = frames[i + 2]!.get(bone)!;
+          const px: number =
+            (-(last.x - before.x) + 4 * bx + 4 * ax - (after.x - far.x)) / 6;
+          const py: number =
+            (-(last.y - before.y) + 4 * by + 4 * ay - (after.y - far.y)) / 6;
+          const pz: number =
+            (-(last.z - before.z) + 4 * bz + 4 * az - (after.z - far.z)) / 6;
+          if (Math.hypot(nx - px, ny - py, nz - pz) > limit) departs = true;
+        } else if (
+          Math.hypot(
+            nx - (bx + ax) / 2,
+            ny - (by + ay) / 2,
+            nz - (bz + az) / 2,
+          ) > limit
+        )
           departs = true;
       }
       if (!departs) continue;

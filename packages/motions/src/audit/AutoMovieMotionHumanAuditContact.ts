@@ -1,9 +1,12 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanFoot,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -18,7 +21,9 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * plant windows, so a foot that skates along the floor while no window is
  * declared on it goes unread. This reading infers contact the way gait
  * analysis does from kinematics alone: a sole socket (heel, ball or toe) is
- * on the floor while it is no higher than {@link HEIGHT}, and a socket on the
+ * on the floor while it is no higher than {@link HEIGHT} above the floor under
+ * the person (`AutoMovieMotionHumanAuditMotion.floors`; where none is, in water
+ * or on a saddle, no step is read for a skate), and a socket on the
  * floor is at rest while its horizontal speed is no more than {@link SPEED}.
  * Each step between two grid instants is then read twice:
  *
@@ -26,9 +31,11 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   floor at both ends of the step travels horizontally: a foot dragged or
  *   skated along the floor. `share` is the part of the film's steps in which
  *   some socket does so faster than `SPEED`.
- * - `loose` and `afloat`: inside a plant window on the ground, the foot's
- *   lowest socket must be the contact: `loose` is its horizontal speed while
- *   the same socket stays the lowest, and `afloat` its height off the floor.
+ * - `loose` and `afloat`: inside a plant window, the foot's lowest socket
+ *   must be the contact: `loose` is its horizontal speed in the frame of the
+ *   window's support (`IAutoMovieMotionHumanAuditMotion.support`; a deck or a
+ *   saddle carries a planted foot) while the same socket stays the lowest,
+ *   and, on the ground, `afloat` its height off the floor.
  *
  * A window of any kind declared on a foot (a plant, a pivot, a strike)
  * declares its contact, so only steps wholly outside all of them are read
@@ -112,6 +119,24 @@ export namespace AutoMovieMotionHumanAuditContact {
     const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
       HumanAuditMotion.windows(motion, subject);
     const skated: boolean[] = frames.map((): boolean => false);
+    const floors: (number | null)[] = frames.map(
+      HumanAuditMotion.floors(motion, subject),
+    );
+    // A socket's point in a support's frame at an instant: the world point
+    // itself on the ground or on a motion that moves no support.
+    const local = (
+      support: IAutoMovieMotionHumanContactWindow.Support,
+      seconds: number,
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 => {
+      if (support.kind === "ground" || motion.support === undefined)
+        return point;
+      const frame: IAutoMovieRigidTransform = motion.support(support, seconds);
+      return Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(point, frame.position),
+      );
+    };
     for (const side of ["left", "right"] as const) {
       const part: "leftFoot" | "rightFoot" = `${side}Foot`;
       const declared: IAutoMovieMotionHumanAuditMotion.IWindow[] =
@@ -153,14 +178,22 @@ export namespace AutoMovieMotionHumanAuditContact {
           // A step read for a skate lies wholly outside every window on the
           // foot: one a window's end or start falls inside is partly
           // declared, wherever the window falls between two instants.
+          const floor: number | null = floors[i]!;
+          const was: number | null = floors[i - 1]!;
           if (
+            floor !== null &&
+            was !== null &&
             !declared.some(
               (w: IAutoMovieMotionHumanAuditMotion.IWindow): boolean =>
                 w.from < t - 1e-9 && w.to > frames[i - 1]! + 1e-9,
             )
           )
             for (const socket of sole) {
-              if (socket.point.y > HEIGHT || height(socket) > HEIGHT) continue;
+              if (
+                socket.point.y - floor > HEIGHT ||
+                height(socket) - was > HEIGHT
+              )
+                continue;
               const v: number = speed(socket);
               if (v > SPEED) skated[i] = true;
               if (v > out.skate.value)
@@ -171,18 +204,25 @@ export namespace AutoMovieMotionHumanAuditContact {
                 };
             }
           for (const window of holding) {
-            if (
-              window.contact.kind !== "plant" ||
-              window.contact.support.kind !== "ground"
-            )
-              continue;
+            if (window.contact.kind !== "plant") continue;
+            const support: IAutoMovieMotionHumanContactWindow.Support =
+              window.contact.support;
             const where: string = `${window.action} ${part}`;
             const low: IAutoMovieMotionHumanFoot.ISocket = lowest(sole);
-            const above: number = low.point.y - (window.contact.support.height ?? 0);
-            if (above > out.afloat.value)
-              out.afloat = { value: above, seconds: t, where };
-            if (lowest(before).socket !== low.socket) continue;
-            const v: number = speed(low);
+            if (support.kind === "ground") {
+              const above: number = low.point.y - (support.height ?? 0);
+              if (above > out.afloat.value)
+                out.afloat = { value: above, seconds: t, where };
+            }
+            const prior: IAutoMovieMotionHumanFoot.ISocket = lowest(before);
+            if (prior.socket !== low.socket) continue;
+            const now: IAutoMovieVector3 = local(support, t, low.point);
+            const then: IAutoMovieVector3 = local(
+              support,
+              frames[i - 1]!,
+              prior.point,
+            );
+            const v: number = Math.hypot(now.x - then.x, now.z - then.z) / span;
             if (v > out.loose.value)
               out.loose = { value: v, seconds: t, where };
           }
