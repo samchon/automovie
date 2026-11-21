@@ -246,7 +246,7 @@ export namespace ArchetypeRide {
    * @param hitch The leader's contact the trailer is hitched to.
    * @param trailer The trailer at rest.
    * @param coupling The actual source contact held on the hitch; legacy inputs require it ahead along +Z, while declared single-axle support can tow a rear contact in reverse.
-   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans.
+   * @param options support is producer-read actual axle geometry: a single axle permits body pitch, and fixedGround keeps two axles grounded with an optional actual drawbar hinge. Without it only an unchanged level coupling height is supported. Existing axle/front declarations must agree with supplied support; pose supplies current articulations and lines supplies actual inter-model spans. ground, with single-axle support, seats the wheels on the authored plane under the axle instead of the leader's course datum.
    * @returns The trailer's ride.
    * @throws {ArchetypeRefusal} For inconsistent support/options, an unreachable or unsupported hitch height, an invalid support/articulation, a coupling that does not close, a nonpositive projected reach, missing contacts/line ends or front steering beyond its declared lock.
    *
@@ -274,6 +274,7 @@ export namespace ArchetypeRide {
       front?: ArchetypeTowing.IFront<Id>;
       support?: ArchetypeTowing.Support<Id>;
       lines?: readonly ILine[];
+      ground?: ArchetypeTowing.Ground;
     } = {},
   ): ITowedRide<Id, Dimension> {
     const geometry: ArchetypeTowing.IPrepared<Id> = ArchetypeTowing.prepare(
@@ -321,9 +322,10 @@ export namespace ArchetypeRide {
           const vx: number = (ahead.x - behind.x) / 1e-3;
           const vz: number = (ahead.z - behind.z) / 1e-3;
           const theta: number = x[0]!;
+          const centre: IAutoMovieVector3 = hitchAt(t, probes?.centre);
           const reach: number = geometry.height(
-            hitchAt(t, probes?.centre).y,
-            groundAt(t),
+            centre.y,
+            geometry.ground(centre, theta, groundAt(t)),
           ).reach;
           const rate: number =
             (vx * Math.cos(theta) - vz * Math.sin(theta)) / reach;
@@ -403,7 +405,7 @@ export namespace ArchetypeRide {
         options.pose?.(sample.course) ?? trailer;
       const solved: ReturnType<typeof geometry.pose> = geometry.pose(
         point,
-        groundAt(seconds),
+        geometry.ground(point, theta, groundAt(seconds)),
         theta,
         phi,
       );
