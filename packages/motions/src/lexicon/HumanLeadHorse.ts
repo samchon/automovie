@@ -120,7 +120,7 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         contacts: [
           {
             part: `${side}Hand`,
-            kind: "touch",
+            kind: "grip",
             from: onShare,
             to: offShare,
             support: { kind: "prop", subject: on },
