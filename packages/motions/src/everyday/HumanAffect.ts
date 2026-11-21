@@ -15,6 +15,7 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanBound } from "../law/HumanBound";
+import { affectHeldHands } from "./affectHeldHands";
 
 /**
  * Affect displays as an additive layer: laughing, sighing, yawning,
@@ -315,7 +316,7 @@ export namespace HumanAffect {
    * @throws {HumanRefusal} When a display's length is one `angles` refuses.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States that displays add in any order and overlap, the layer's name and the refusal; the layer adds clinical degrees to the posture's joints at film seconds.
-   * @evidence contracts/development/implementation.md#principled-implementation An additive animation layer: each display's angles are summed onto the posture's joints, leaving limb goals untouched so the arms are solved after the trunk and contacts stay.
+   * @evidence contracts/development/implementation.md#principled-implementation An additive animation layer: each display's angles are summed onto the posture's joints, leaving limb goals untouched so the arms are solved after the trunk and contacts stay; an arm the action poses by joint angles while it holds a contact on that hand gets a limb goal at the hand's pre-layer frame (`affectHeldHands`), so the trunk moves under it without sliding the contact.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Every display's length is checked once, when the layer is built; each posture then skips displays outside their window and writes the active ones into one joint copy through the pattern `angles` uses, the default lengths staying in LENGTH.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A length a display cannot fit is refused when the layer is built, before any frame is drawn; every active display is summed by the same formulas as `angles`.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the D displays per posture plus the active displays' few bones, with no intermediate angle map.
@@ -335,6 +336,7 @@ export namespace HumanAffect {
       apply: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
+        context: IAutoMovieMotionHumanLayer.IContext,
       ): IAutoMovieMotionHumanPosture => {
         const joints: IAutoMovieMotionHumanPosture["joints"] = {
           ...posture.joints,
@@ -354,7 +356,7 @@ export namespace HumanAffect {
             joints,
           );
         }
-        return { ...posture, joints };
+        return affectHeldHands(posture, { ...posture, joints }, context);
       },
     };
   }
