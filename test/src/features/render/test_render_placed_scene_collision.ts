@@ -11,7 +11,7 @@ import {
   invalidateAutoMovieSkinnedPose,
   observeAutoMovieSceneCollision,
 } from "@automovie/render";
-import assert from "node:assert/strict";
+import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
@@ -24,12 +24,13 @@ import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
  *    then overlap. Truncating a source's draw range withdraws closed authority.
  * 2. The generated single bed's actual base receives a stock joint-skinned
  *    surface only during its hand-keyframed bend. The reported surface point
- *    must lie inside the authored original bed dimensions.
+ *    must lie inside the authored original bed dimensions. With no vertex
+ *    budget the arm stays in the broad phase and the pair is deferred.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the current world scene, exact stock geometry, and changing articulated witness.
  * @evidence contracts/development/testing.md#behavioral-verification Invokes the Render observer after one actual scene graph placement and checks its plain findings and incomplete coverage.
  * @evidence contracts/development/testing.md#independent-expectations The box gaps derive from unit extents. A 90 degree rotation of the distal segment around Z moves y = 2 one metre in negative X from a y = 1 pivot; the containment check uses the bed model's source dimensions and actual placement, independent of the checker.
- * @evidence contracts/development/testing.md#distinguishing-cases Clear, overlap, partially drawn shell, real skinned source, and budget refusal exercise distinct coverage and evidence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Clear, overlap, partially drawn shell, real skinned source, and an exhausted vertex budget that defers the pair while the arm stays in the search exercise distinct coverage and evidence.
  * @evidence contracts/development/testing.md#execution-ownership test_render_placed_scene_collision uses a portable in-memory placed scene and the installed geometry query, with no browser or frame renderer.
  */
 export async function test_render_placed_scene_collision(): Promise<void> {
@@ -69,9 +70,10 @@ export async function test_render_placed_scene_collision(): Promise<void> {
   manual.add(grouping);
   grouping.add(left, right);
   right.position.x = 2;
-  assert.equal(observe(manual, 0).findings.length, 0);
+  TestValidator.equals("separated boxes", observe(manual, 0).findings, []);
   right.position.x = 0.75;
-  assert.deepEqual(
+  TestValidator.equals(
+    "overlapping boxes under a plain group",
     observe(manual, 1).findings.map(({ confidence, paths }) => ({
       confidence,
       paths,
@@ -85,8 +87,11 @@ export async function test_render_placed_scene_collision(): Promise<void> {
   );
   right.geometry.setDrawRange(0, 33);
   const partial = observe(manual, 2);
-  assert.equal(partial.findings.length, 0);
-  assert.ok(partial.coverage.some(({ status }) => status === "unsupported"));
+  TestValidator.predicate(
+    "a partially drawn shell certifies nothing",
+    partial.findings.length === 0 &&
+      partial.coverage.some(({ status }) => status === "unsupported"),
+  );
 
   const scene: THREE.Scene = new THREE.Scene();
   const bed: IAutoMovieModel = createBed({ kind: "single", id: "bed" }, 4);
@@ -115,31 +120,50 @@ export async function test_render_placed_scene_collision(): Promise<void> {
     finding.paths.join("|") === "actor/arm|bed/base" &&
     finding.confidence === "confirmed";
 
-  assert.ok(!observe(scene, 0).findings.some(pair));
+  TestValidator.predicate(
+    "the straight arm stays clear of the bed",
+    !observe(scene, 0).findings.some(pair),
+  );
   hinge.rotation.z = Math.PI / 2;
   invalidateAutoMovieSkinnedPose(armView.object);
   const bent = observe(scene, 1);
   const witness: Diagnostic.IWitness | undefined =
     bent.findings.find(pair)?.witness;
-  assert.ok(
-    witness?.point,
-    "The stock bent surface must yield a placed vertex witness",
+  TestValidator.predicate(
+    "the bent arm's drawn witness lies inside the authored bed base",
+    witness?.point !== undefined &&
+      Math.abs(witness.point.x - center.x) < width / 2 &&
+      Math.abs(witness.point.y - center.y) < height / 2 &&
+      Math.abs(witness.point.z - center.z) < depth / 2,
   );
-  assert.ok(Math.abs(witness.point.x - center.x) < width / 2);
-  assert.ok(Math.abs(witness.point.y - center.y) < height / 2);
-  assert.ok(Math.abs(witness.point.z - center.z) < depth / 2);
 
   const limited = observe(scene, 1, 0);
-  assert.ok(!limited.findings.some(pair));
-  assert.ok(
-    limited.coverage.some(
-      ({ key, status }) =>
-        key.includes("actor/arm") && status === "unsupported",
-    ),
+  TestValidator.equals(
+    "an exhausted vertex budget defers the candidate pair without dropping the arm",
+    {
+      confirmed: limited.findings.some(pair),
+      row: limited.coverage.find(
+        ({ key }) =>
+          key === JSON.stringify(["main", "frame", "actor/arm", "bed/base"]),
+      ),
+    },
+    {
+      confirmed: false,
+      row: {
+        check: "collision",
+        key: JSON.stringify(["main", "frame", "actor/arm", "bed/base"]),
+        required: false,
+        status: "deferred",
+        reason: "surface-witness-limit",
+      },
+    },
   );
   hinge.rotation.z = 0;
   invalidateAutoMovieSkinnedPose(armView.object);
-  assert.ok(!observe(scene, 2).findings.some(pair));
+  TestValidator.predicate(
+    "straightening the arm clears it again",
+    !observe(scene, 2).findings.some(pair),
+  );
 
   for (const mesh of [left, right]) {
     mesh.geometry.dispose();

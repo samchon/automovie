@@ -372,7 +372,7 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
     : null;
 }
 
-/** Validate declared windows and retain the tightest active depth per pair. */
+/** Validate declared windows and retain the tightest active whole-part depth per pair. */
 function activeAllowances(
   entries: readonly Collision.IAllowance[],
   seconds: number,
@@ -387,10 +387,20 @@ function activeAllowances(
       !Number.isFinite(entry.endSeconds) ||
       entry.startSeconds >= entry.endSeconds ||
       !Number.isFinite(entry.maxPenetration) ||
-      entry.maxPenetration < 0
+      entry.maxPenetration < 0 ||
+      [entry.firstJoints, entry.secondJoints].some(
+        (joints: readonly string[] | undefined): boolean =>
+          joints !== undefined &&
+          (joints.length === 0 ||
+            joints.some((joint: string): boolean => joint.trim() === "")),
+      )
     )
       throw new Error("Invalid named scene collision allowance");
     if (seconds < entry.startSeconds || seconds >= entry.endSeconds) continue;
+    // A joint-scoped window covers part of a drawn surface; whole-part shapes
+    // cannot attribute their contact to joints, so it never relaxes them.
+    if (entry.firstJoints !== undefined || entry.secondJoints !== undefined)
+      continue;
     const key: string = pairKey(entry.first, entry.second);
     const previous: number | undefined = active.get(key);
     active.set(

@@ -76,7 +76,7 @@ export namespace IAutoMovieSceneCollision {
    * @evidence contracts/development/common.md#meaningful-documentation Defines the named pair, included start, excluded end and maximum permitted depth.
    * @evidence contracts/development/design.md#principled-representation The pair is order-independent and its tolerance is a nonnegative world-metre depth.
    * @evidence contracts/development/design.md#minimal-and-owned-surface The production source declares the window, and the scene query resolves overlap by minimum allowance.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A window exempts only the named pair and only within the specified depth and interval.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A window exempts only the named pair, within the specified depth and interval, and only the named joints when it is scoped. A whole-part query cannot apply a scoped window.
    */
   export interface IAllowance {
     /** First part path. Pair orientation is immaterial. */
@@ -89,6 +89,15 @@ export namespace IAutoMovieSceneCollision {
     endSeconds: number;
     /** Nonnegative allowed penetration in metres. The tightest active allowance wins. */
     maxPenetration: number;
+    /**
+     * Skin joints of the first part whose drawn surface the window covers,
+     * such as the fingers of a grip. Omitted covers the whole part. A scoped
+     * window applies only to a surface witness labelled with one of these
+     * joints, so a forearm crossing the gripped prop still counts.
+     */
+    firstJoints?: readonly string[];
+    /** Skin joints of the second part, with the same meaning as `firstJoints`. */
+    secondJoints?: readonly string[];
   }
 
   /**

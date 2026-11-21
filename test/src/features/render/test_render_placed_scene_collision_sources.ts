@@ -3,8 +3,6 @@ import { preparePhysicalGeometry } from "@automovie/engine";
 import type {
   IAutoMovieInspectionDiagnostics as Diagnostic,
   IAutoMoviePreparePhysicalGeometry as Geometry,
-  IAutoMovieMesh,
-  IAutoMovieModel,
   IAutoMovieSweptCapsuleCollision as Sweep,
 } from "@automovie/interface";
 import {
@@ -17,6 +15,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { capSkinnedTubeModel } from "../internal/capSkinnedTubeModel";
 import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
 
 type ILayer = Parameters<
@@ -199,8 +198,12 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
 
   // One actor's bent arm through another actor's upright arm.
   const duel: THREE.Scene = new THREE.Scene();
-  const upright = buildModel(capTube(createSkinnedTubeModel("linear")));
-  const striker = buildModel(capTube(createSkinnedTubeModel("linear")));
+  const upright = buildModel(
+    capSkinnedTubeModel(createSkinnedTubeModel("linear")),
+  );
+  const striker = buildModel(
+    capSkinnedTubeModel(createSkinnedTubeModel("linear")),
+  );
   upright.object.name = "guard";
   striker.object.name = "striker";
   upright.parts.get("tube")!.name = "arm";
@@ -444,30 +447,6 @@ export async function test_render_placed_scene_collision_sources(): Promise<void
   members.geometry.dispose();
   members.dispose();
   material.dispose();
-}
-
-/**
- * Close the fixture's open tube with a fan at each end, so it bounds a solid
- * as an ordinary limb mesh does. Each centre follows its end ring's bone.
- */
-function capTube(model: IAutoMovieModel): IAutoMovieModel {
-  const geometry = model.parts[0]!.geometry;
-  if (geometry.type !== "mesh" || geometry.mesh.indices === null)
-    throw new Error("The skinned tube fixture needs its indexed mesh");
-  const mesh: IAutoMovieMesh = geometry.mesh;
-  const sides: number = 16;
-  const last: number = mesh.positions.length / 3 - sides;
-  const bottom: number = mesh.positions.length / 3;
-  mesh.positions.push(0, 0, 0, 0, 2, 0);
-  mesh.normals?.push(0, -1, 0, 0, 1, 0);
-  mesh.skin!.boneIndices.push(0, 1, 0, 0, 0, 1, 0, 0);
-  mesh.skin!.weights.push(1, 0, 0, 0, 0, 1, 0, 0);
-  for (let side: number = 0; side < sides; ++side) {
-    const next: number = (side + 1) % sides;
-    mesh.indices!.push(bottom, side, next);
-    mesh.indices!.push(bottom + 1, last + next, last + side);
-  }
-  return model;
 }
 
 /** Order paths by code unit, independent of locale. */

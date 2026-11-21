@@ -210,6 +210,21 @@ export async function test_validation_scene_collision(): Promise<void> {
     );
   }
 
+  const scoped: Collision.IResult = measureAutoMovieSceneCollision({
+    parts: held,
+    geometry,
+    seconds: 0.125,
+    allowances: [{ ...allowances[0]!, firstJoints: ["finger"] }],
+    maxComparisons: 50,
+  });
+  TestValidator.equals(
+    "a joint-scoped window never relaxes whole-part shapes",
+    scoped.findings.map(
+      (finding: Collision.IFinding): string => finding.status,
+    ),
+    ["confirmed", "confirmed"],
+  );
+
   const proxy: Collision.IPart = shapePart(
     "proxy",
     2,
