@@ -17,6 +17,8 @@ import { motionPostureBranches } from "../internal/motionPostureBranches";
  * 1. Upright kneeling holds both knees near right angles with upright thighs.
  * 2. Sitting back folds both knees while keeping their support on the floor.
  * 3. Omitting the rise leaves a two-knee base with both knees still bearing.
+ * 4. Through every foot plant window the toe pads stay within 5 mm, a flat
+ *    foot's and a tucked foot's that rolls over them alike.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two floor supports and how their held geometry differs.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the actual law, reading the joint geometry at the hold and the unchanged audits throughout the transition.
@@ -102,17 +104,20 @@ export function test_motion_posture_kneel_support(): void {
         ),
         to = Math.min(end, segment.start + c.to * segment.plan.duration);
       if (to - from < 0.1) continue;
-      const ball = (t: number) =>
+      // A planted foot's toe pads stay where they bear: a flat foot's and a
+      // tucked foot's alike, the tucked foot standing on them with its toes
+      // extended while its ankle rolls over them.
+      const pads = (t: number) =>
         HumanFoot.sockets(body, HumanSignature.bones(reader, t), side).find(
-          (s) => s.socket === "ball",
+          (s) => s.socket === "toe",
         )!.point;
-      const first = ball(from + 0.02);
+      const first = pads(from + 0.02);
       for (const t of HumanSignature.times(
         from + 0.02,
         to - 0.02,
         3 / (to - from - 0.04),
       )) {
-        const at = ball(t);
+        const at = pads(t);
         signature.check(
           kind + " " + c.part + " plant at " + t,
           Math.hypot(at.x - first.x, at.y - first.y, at.z - first.z) <= 0.005,

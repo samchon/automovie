@@ -14,6 +14,7 @@ import { stand } from "../actions/stand";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { handReach } from "./handReach";
+import { palmSagitta } from "./palmSagitta";
 
 /** The palm site and its orientation in the actual thigh's frame. */
 interface IBrace {
@@ -72,7 +73,12 @@ export function braceOnThighPoint(
   const neutral: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, roll: 0, joints: {}, limbs: {},
   };
-  const depth: number = Math.max(0, handReach(body, neutral, side, Quaternion.identity(), "palm", "flat")(palm.normal));
+  // The palm stands off by its colliders' reach past it and by the thigh's
+  // curve under its sides (`palmSagitta`), so its thumb and little finger
+  // clear the thigh too.
+  const depth: number =
+    Math.max(0, handReach(body, neutral, side, Quaternion.identity(), "palm", "flat")(palm.normal)) +
+    palmSagitta(body);
   return (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IBrace => {
     const thigh: IAutoMovieResolvedBone = bones.get(`${side}UpperLeg`)!;
     const knee: IAutoMovieVector3 = bones.get(`${side}LowerLeg`)!.worldPosition;

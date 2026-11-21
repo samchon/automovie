@@ -19,7 +19,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { unloadedFoot } from "../carrier/unloadedFoot";
 import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -32,13 +31,14 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
+import { prepareKneelFoot } from "./prepareKneelFoot";
+import { kneelLiftedFoot } from "./kneelLiftedFoot";
 import { prepareKneelPhases } from "./prepareKneelPhases";
 
 /**
@@ -417,34 +417,48 @@ export namespace kneel {
         ...posture.joints,
       };
       for (const side of ["left", "right"] as const) {
+        // A moving foot never bends its ankle past what a weightless ankle
+        // reaches while it bears nothing (`kneelLiftedFoot`): it is turned
+        // toes down about its toe pads, its toes extending. It rolls into
+        // the turn on its toe pads before it lifts off a heel-up stance, and
+        // out of it on them after its toes strike a heel-up landing, as the
+        // knee comes off or down over them. A foot leaving or landing flat
+        // eases its turn in and out over `EASE` at its plants.
+        const leftKey: kneelKeys.IFoot = keys[phase.from]!.feet[side];
+        const nextKey: kneelKeys.IFoot = keys[phase.to]!.feet[side];
+        const lift: number = prepareKneelFoot.departure(leftKey, nextKey);
+        const strike: number = prepareKneelFoot.arrival(leftKey, nextKey);
+        const ease: (span: number) => number = (span: number): number =>
+          Math.max(0, Math.min(1, (span * phase.seconds) / EASE));
+        const weight: number = kneelKeys.still(leftKey, nextKey)
+          ? 0
+          : linear < lift
+            ? minimumJerk.share(linear / lift)
+            : linear > strike
+              ? 1 - minimumJerk.share((linear - strike) / (1 - strike))
+              : Math.min(
+                  lift > 0 ? 1 : ease(linear),
+                  strike < 1 ? 1 : ease(1 - linear),
+                );
+        // A foot rolling on its toe pads bears, but its goal is free to turn
+        // over them; it is held as planted once it rests at its key.
         const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
           body,
           placed,
           side,
           feet[side].placement,
-          feet[side].planted,
+          feet[side].planted && weight === 0,
         );
-        // A foot in the air bears nothing: it is turned toes down by any
-        // excess over the unloaded ankle's dorsiflexion (`unloadedFoot`),
-        // eased in and out over `EASE` at its plants, and the ankle rises by
-        // what the turn lowers the toes, so they do not brush the floor.
-        const turned: IAutoMovieHumanLimbGoal = feet[side].planted
-          ? goal
-          : unloadedFoot(
-              body,
-              Vector3.add(root, solved.rest[side]),
-              goal,
-              solved.forward,
-              Math.min(1, (Math.min(linear, 1 - linear) * phase.seconds) / EASE),
-            );
-        const drop: number =
-          turned === goal || turned.rotation === undefined || goal.rotation === undefined
-            ? 0
-            : HumanFoot.point(body, side, "toe", { ankle: goal.point, rotation: goal.rotation }, feet[side].toes).y -
-              HumanFoot.point(body, side, "toe", { ankle: turned.point, rotation: turned.rotation }, feet[side].toes).y;
-        limbs[`${side}Leg`] =
-          drop > 0 ? { ...turned, point: { ...turned.point, y: turned.point.y + drop } } : turned;
-        joints[`${side}Toes`] = [feet[side].toes, 0, 0];
+        const turned: kneelLiftedFoot.IFoot = kneelLiftedFoot(
+          body,
+          side,
+          Vector3.add(root, solved.rest[side]),
+          goal,
+          feet[side].toes,
+          weight,
+        );
+        limbs[`${side}Leg`] = turned.goal;
+        joints[`${side}Toes`] = [turned.toes, 0, 0];
       }
       return resolveHumanPosture.lower(
         body,
