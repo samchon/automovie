@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBase,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
@@ -12,6 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanResponse } from "../skill/HumanResponse";
@@ -24,6 +27,9 @@ type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
 
 /** The longest a gallop stride lasts, seconds, the most a charge may take to come to the engage (provisional: a gallop of about two strides a second). */
 const STRIDE: number = 0.5;
+
+/** Seconds the arms take from the entry to the bridle and the carriage (provisional). */
+const REACH: number = 0.5;
 
 /** The slope's hand station from the right hip joint in the seat frame, metres: in front of the hip at about an elbow-bent height (provisional). */
 const SLOPE: Readonly<IAutoMovieVector3> = { x: -0.08, y: 0.25, z: 0.15 };
@@ -193,7 +199,7 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
           support: { kind: "prop", subject: params.on },
         },
       ];
-      return {
+      const goals: IAutoMovieMotionHumanActionPlan = {
         duration,
         events:
           from === undefined
@@ -249,5 +255,27 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
           return HumanUnseatPose.reach(shown, "left", reins, 1);
         },
       };
+
+      // Both arms are laid as planned courses on these goals, the reach to the bridle and the sabre's carriage over the first `REACH` seconds and the hold after, so no instant refits them afresh.
+      const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+        start: 0,
+        ready: Math.min(REACH, duration),
+        relax: duration,
+        end: duration,
+      };
+      return courseArmGoal({
+        body: context.body,
+        plan: goals,
+        side: "right",
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+        span,
+        with: [
+          {
+            side: "left",
+            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+            span,
+          },
+        ],
+      });
     },
   };

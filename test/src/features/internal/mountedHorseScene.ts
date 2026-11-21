@@ -111,6 +111,11 @@ export namespace mountedHorseScene {
     /** The acts after sitting. */
     acts: (seated: Seated) => Seated;
 
+    /** Acts the rider does on the ground before sitting on, as picking up a sabre; none when absent. */
+    before?: (
+      chain: ReturnType<typeof HumanChain.subject>,
+    ) => ReturnType<typeof HumanChain.subject>;
+
     /** Further performers beside the rider. */
     partners?: IPartner[];
 
@@ -187,13 +192,19 @@ export namespace mountedHorseScene {
       ],
       composition:
         props.partners === undefined || props.partners.length === 0
-          ? props.acts(HumanChain.subject("rider").sit({ seat, seconds: 0.5 }))
-              .node
+          ? props.acts(
+              (props.before ?? ((c) => c))(HumanChain.subject("rider")).sit({
+                seat,
+                seconds: 0.5,
+              }),
+            ).node
           : {
               kind: "parallel",
               parts: [
                 props.acts(
-                  HumanChain.subject("rider").sit({ seat, seconds: 0.5 }),
+                  (props.before ?? ((c) => c))(HumanChain.subject("rider")).sit(
+                    { seat, seconds: 0.5 },
+                  ),
                 ).node,
                 ...props.partners.map(
                   (partner: IPartner) =>
