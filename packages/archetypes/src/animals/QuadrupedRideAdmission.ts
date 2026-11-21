@@ -47,7 +47,7 @@ export namespace QuadrupedRideAdmission {
    * @throws {ArchetypeRefusal} When a named gait is absent, a requested speed lies outside every applicable declared domain, or a yielding footing sinks a hoof as deep as its carpus or hock stands.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States every input and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Cruise, each leg's fastest speed, positive speed marks and nonzero boundary speeds are each read against the gait the leg names, or against the union of declared domains when the speed chooses. A collected explicit gait also admits its parent's speeds it is decelerated from, where its clock holds its fastest row (`QuadrupedRideClock.collectedSpeed`).
+   * @evidence contracts/development/implementation.md#principled-implementation Cruise, each leg's fastest speed, positive speed marks and nonzero boundary speeds are each read against the gait the leg names, or against the union of declared domains when the speed chooses; a positive speed below the slowest gait's floor is the slowest gait's, at its slowest clock. A collected explicit gait also admits its parent's speeds it is decelerated from, where its clock holds its fastest row (`QuadrupedRideClock.collectedSpeed`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper admits one speed; the passes over legs, marks and boundaries call it.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Named gaits remain strict except for the declared collection rule; no clamp.
    * @evidence contracts/development/implementation.md#efficient-algorithms O(L + G) for L legs and G gaits.
@@ -125,6 +125,13 @@ export namespace QuadrupedRideAdmission {
 
     /** Requested named gaits are strict; automatic requests need actual declared coverage. */
     function speed(which: QuadrupedGait.Gait | undefined, value: number): void {
+      // Below the slowest gait's floor and above zero the slowest gait walks on at its slowest clock (`QuadrupedRideClock`).
+      if (
+        (which === undefined || which === domains[0]!.gait) &&
+        value > 0 &&
+        value < domains[0]!.minimum
+      )
+        return;
       if (which !== undefined) {
         QuadrupedGait.timing(
           species,

@@ -38,6 +38,7 @@ export namespace QuadrupedTimedRoute {
    * @param species The ride's species and table.
    * @param route The authored course, a planned course, or a planned course with named-gait cues (`QuadrupedTimedCues`).
    * @param withers The animal's withers height, metres.
+   * @param gait The ride's fixed gait, which names every leg naming none.
    * @returns The plan and its course of legs.
    * @throws {ArchetypeRefusal} As ArchetypeCourse.plan refuses a malformed course.
    *
@@ -56,7 +57,22 @@ export namespace QuadrupedTimedRoute {
       | ArchetypeCourse.IPlan
       | QuadrupedTimedCues.ICued,
     withers: number,
+    gait?: QuadrupedGait.Gait,
   ): IRoute {
+    // The ride's fixed gait names every leg that names none, so each leg states whether its gait is requested or chosen by speed.
+    if (gait !== undefined) {
+      const named: IRoute = of(species, route, withers);
+      return {
+        ...named,
+        course: {
+          ...named.course,
+          legs: named.course.legs.map(
+            (leg: rideQuadruped.ILeg): rideQuadruped.ILeg =>
+              leg.gait === undefined ? { ...leg, gait } : leg,
+          ),
+        },
+      };
+    }
     // A cued timed path is its plan's route with its legs named at the cues.
     if ("cues" in route)
       return QuadrupedTimedCues.split(

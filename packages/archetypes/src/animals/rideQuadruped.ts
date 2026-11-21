@@ -114,7 +114,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     Object.getOwnPropertyDescriptor(ArchetypeCourse, "plan")?.value ===
     NATIVE_PLAN;
   const { plan, course, holds }: QuadrupedTimedRoute.IRoute =
-    QuadrupedTimedRoute.of(species, route, withers);
+    QuadrupedTimedRoute.of(species, route, withers, gait);
   const departure: ArchetypeCourse.IState | undefined =
     QuadrupedHoofTrack.departure(
       plan,

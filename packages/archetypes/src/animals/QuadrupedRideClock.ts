@@ -1,6 +1,7 @@
 import type { ArchetypeCourse } from "../core";
 import type { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
+import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import type { createQuadruped } from "./createQuadruped";
 
 /**
@@ -266,6 +267,13 @@ export namespace QuadrupedRideClock {
                   limits.minimum ** 2 / (2 * course.deceleration!),
             );
           if (departing || stopping) speed = limits.minimum;
+          // Below the slowest gait's slowest measured row and above zero, a horse still walks: the slowest gait keeps that row's cadence and shortens its stride, as the halt bridge above does, extended to any slow stretch (provisional; real horses walk slower than the measured rows). A stride caught in a faster gait when the speed falls below every gait's floor bridges to its own boundary, and its next footfall takes the slowest gait.
+          const floor: number = ranges[0]?.minimum ?? limits.minimum;
+          const named: boolean =
+            course.legs[QuadrupedRideAdmission.legIndex(plan, state.distance)]
+              ?.gait !== undefined;
+          if (speed > 0 && speed < floor && (index === 0 || !named))
+            speed = limits.minimum;
         }
         if (index >= 0 && (speed < limits.minimum || speed > limits.maximum)) {
           const adjacent: number =

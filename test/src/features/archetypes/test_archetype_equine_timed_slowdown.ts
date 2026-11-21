@@ -1,6 +1,5 @@
 import {
   ArchetypeCourse,
-  ArchetypeRefusal,
   createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -17,16 +16,15 @@ interface IMark {
 }
 
 /**
- * A horse slowing sharply on a timed path keeps each stride's gait to its next footfall and then takes the gait its speed calls for; a speed below every declared gait refuses as a typed reason.
+ * A horse slowing sharply on a timed path keeps each stride's gait to its next footfall and then takes the gait its speed calls for.
  *
  * Scenarios:
  * 1. A 1.6 m mare trots at 3 m/s, then slows to 1.3 m/s within 0.4 s, under one trot stride, and walks on: every 20 ms samples, and a `gait:trot-walk` change follows.
- * 2. The same slowdown to 0.9 m/s, below the slowest declared walk at her height, refuses with an ArchetypeRefusal.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the slowdown and the refusal.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the slowdown.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the public ride and reads its gait instants.
- * @evidence contracts/development/testing.md#independent-expectations The walk's declared domain at 1.6 m covers 1.3 m/s and not 0.9 m/s.
- * @evidence contracts/development/testing.md#distinguishing-cases A slowdown into a declared gait and one below every gait.
+ * @evidence contracts/development/testing.md#independent-expectations The walk's declared domain at 1.6 m covers 1.3 m/s.
+ * @evidence contracts/development/testing.md#distinguishing-cases A slowdown across one gait, within one stride; the walk below its floor is test_archetype_equine_timed_walk_floor's.
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit.
  */
 export function test_archetype_equine_timed_slowdown(): void {
@@ -64,17 +62,5 @@ export function test_archetype_equine_timed_slowdown(): void {
     )
   )
     issues.push("no trot-walk change follows the slowdown");
-  let refusal: unknown;
-  try {
-    const slow = rideQuadruped(
-      horse,
-      ArchetypeCourse.timed("mare", marks(0.9)),
-    );
-    for (let at: number = 0; at <= slow.duration; at += 0.02) slow.at(at);
-  } catch (error) {
-    refusal = error;
-  }
-  if (!(refusal instanceof ArchetypeRefusal))
-    issues.push(`a speed below every gait raises ${String(refusal)}`);
   TestValidator.equals("sharp timed slowdown", issues, []);
 }
