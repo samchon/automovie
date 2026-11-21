@@ -59,7 +59,10 @@ export function classifyAutoMoviePlaybackBoundary(
     incoming,
     after,
   );
-  const ends = {
+  const ends: {
+    before: IAutoMovieClassifyPlaybackBoundary.IEndpoint;
+    after: IAutoMovieClassifyPlaybackBoundary.IEndpoint;
+  } = {
     before: { entry: outgoing.entry, shot: first.shot, seconds: first.time },
     after: { entry: incoming.entry, shot: second.shot, seconds: second.time },
   };

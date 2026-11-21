@@ -2,6 +2,7 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
   type ISelectAutoMoviePlacedChecks,
   observeAutoMoviePlacedScene,
+  reduceAutoMovieInspectionEpisodes,
   selectAutoMoviePlacedChecks,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -22,9 +23,10 @@ type IReport = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  * 3. A cup drifting 3 cm inside a closed grip fails, and the grip moves to the receiving hand at the authored handoff frame.
  * 4. A handoff reparented on its authored frame passes custody, and one reparented a frame late fails.
  * 5. Received contact evidence is reported as measured, absent under complete observation or unobservable without changing the measurement.
- * 6. The displayed world matrix is read, a stale local edit is ignored, a corrupt ancestor is reported at the child's name path, and every frame gives the same report forward and in reverse.
+ * 6. The displayed world matrix is read, a stale local edit is ignored, and every frame gives the same report forward and in reverse.
+ * 7. A corrupt ancestor is reported at each displayed descendant, and two same-named invalid children get distinct identities that the episode reducer folds into separate episodes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the six numbered scenarios and the outcome each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the seven numbered scenarios and the outcome each pins.
  * @evidence contracts/development/testing.md#behavioral-verification Places a real Three graph per frame and runs the public rule supplier into the public observer, so selection, measurement and reporting are exercised together.
  * @evidence contracts/development/testing.md#independent-expectations The deck sits at x = 2t, the heel anchor is 0.1 m along it, the lift is 0.03 m, the slip 0.04 m and the cup drift 0.03 m, all stated in the placement function.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a moving support with its world-fixed reading, the heel before and at the roll boundary, an on-time and a late handoff, and a stale local edit with the displayed matrix.
@@ -234,23 +236,37 @@ export function test_inspection_placed_contact_checks(): void {
   rig.matrixWorld.elements[12] = NaN;
   const arm = named(new Group(), "arm");
   const pad = new Group();
-  rig.add(arm);
+  rig.add(arm, named(new Group(), "finger"), named(new Group(), "finger"));
   arm.add(pad);
   const broken = new Scene();
   broken.add(rig);
   broken.updateMatrixWorld();
-  const native = observeAutoMoviePlacedScene({
-    scene: broken,
-    camera,
-  }).findings.map(({ paths }) => paths[0]);
+  const packet = (frame: number): IAutoMovieInspectionDiagnostics => ({
+    scope: "rig",
+    time: { filmSeconds: frame / 10, outputFrame: frame },
+    ...observeAutoMoviePlacedScene({ scene: broken, camera }),
+  });
+  const native = packet(0).findings.map(({ paths }) => paths[0]);
   TestValidator.equals(
-    "a corrupt ancestor is reported at each displayed node",
+    "a corrupt ancestor is reported once at each displayed node",
     native.sort(),
     [
       "rig.matrixWorld",
       "rig/arm.children[0].matrixWorld",
       "rig/arm.matrixWorld",
+      "rig/finger#0.matrixWorld",
+      "rig/finger#1.matrixWorld",
     ],
+  );
+  const audit = reduceAutoMovieInspectionEpisodes([packet(0), packet(1)], 2);
+  TestValidator.predicate(
+    "same-named invalid nodes fold into separate episodes",
+    audit.hasBlockingFinding &&
+      audit.episodes.filter(
+        ({ first }) =>
+          first.finding.paths[0]?.startsWith("rig/finger#") === true,
+      ).length === 2 &&
+      audit.episodes.every(({ samples }) => samples === 2),
   );
 }
 

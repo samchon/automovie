@@ -20,6 +20,8 @@ type IObservation = Exclude<
   >["observation"],
   undefined
 >;
+type IScheduleEntry = ISelectAutoMoviePlacedChecks.ICustody["schedule"][number];
+type IEnvelope = Pick<ICheck, "key" | "required" | "paths" | "observedContact">;
 
 /**
  * Select the production's declared checks active at one placed sample, for
@@ -54,10 +56,12 @@ export function selectAutoMoviePlacedChecks(
   const seconds: number = props.time.filmSeconds;
   const checks: ICheck[] = [];
   for (const support of props.supports ?? []) {
-    const index: number = support.phases.findIndex((phase) =>
-      contains(phase, seconds),
+    const index: number = support.phases.findIndex(
+      (phase: ISelectAutoMoviePlacedChecks.ISupportPhase): boolean =>
+        contains(phase, seconds),
     );
-    const phase = support.phases[index];
+    const phase: ISelectAutoMoviePlacedChecks.ISupportPhase | undefined =
+      support.phases[index];
     if (phase === undefined) continue;
     checks.push({
       ...envelope(support, seconds),
@@ -75,10 +79,12 @@ export function selectAutoMoviePlacedChecks(
     });
   }
   for (const grip of props.grips ?? []) {
-    const index: number = grip.windows.findIndex((window) =>
-      contains(window, seconds),
+    const index: number = grip.windows.findIndex(
+      (window: ISelectAutoMoviePlacedChecks.IGripWindow): boolean =>
+        contains(window, seconds),
     );
-    const window = grip.windows[index];
+    const window: ISelectAutoMoviePlacedChecks.IGripWindow | undefined =
+      grip.windows[index];
     if (window === undefined) continue;
     checks.push({
       ...envelope(grip, seconds),
@@ -99,10 +105,10 @@ export function selectAutoMoviePlacedChecks(
     });
   }
   for (const custody of props.custody ?? []) {
-    const entry = custody.schedule.reduce<
-      ISelectAutoMoviePlacedChecks.ICustody["schedule"][number] | undefined
+    const entry: IScheduleEntry | undefined = custody.schedule.reduce<
+      IScheduleEntry | undefined
     >(
-      (current, next) =>
+      (current: IScheduleEntry | undefined, next: IScheduleEntry) =>
         next.from <= seconds &&
         (current === undefined || next.from >= current.from)
           ? next
@@ -127,15 +133,25 @@ export function selectAutoMoviePlacedChecks(
   return checks;
 }
 
-function contains(window: { from: number; to: number }, seconds: number) {
+/**
+ * Whether a half-open window owns the film second.
+ */
+function contains(
+  window: { readonly from: number; readonly to: number },
+  seconds: number,
+): boolean {
   return window.from <= seconds && seconds < window.to;
 }
 
+/**
+ * The observer envelope of a rule at a film second, with its received
+ * evidence when the producer has some.
+ */
 function envelope(
   rule: ISelectAutoMoviePlacedChecks.IRule,
   seconds: number,
-): Pick<ICheck, "key" | "required" | "paths" | "observedContact"> {
-  const observedContact = rule.contact?.(seconds);
+): IEnvelope {
+  const observedContact: ICheck["observedContact"] = rule.contact?.(seconds);
   return {
     key: rule.key,
     required: rule.required,
@@ -153,10 +169,16 @@ function holderOf(
   scene: Object3D,
   custody: ISelectAutoMoviePlacedChecks.ICustody,
 ): string | null | undefined {
-  const names = new Map<Object3D, string>(
-    Object.entries(custody.holders).map(([name, node]) => [node, name]),
+  const names: Map<Object3D, string> = new Map(
+    Object.entries(custody.holders).map(
+      ([name, node]: [string, Object3D]): [Object3D, string] => [node, name],
+    ),
   );
-  for (let node = custody.prop.parent; node !== null; node = node.parent) {
+  for (
+    let node: Object3D | null = custody.prop.parent;
+    node !== null;
+    node = node.parent
+  ) {
     const name: string | undefined = names.get(node);
     if (name !== undefined) return name;
     if (node === scene) return null;
@@ -164,6 +186,10 @@ function holderOf(
   return undefined;
 }
 
+/**
+ * A track's record check at the live shot clock and, after the first output
+ * frame, its step from the previous output frame with source-time limits.
+ */
 function trackChecks(
   props: ISelectAutoMoviePlacedChecks.IProps,
   continuity: ISelectAutoMoviePlacedChecks.IContinuity,
@@ -183,7 +209,7 @@ function trackChecks(
         ? {}
         : { discontinuities: continuity.discontinuities }),
     });
-  const base = envelope(track, after);
+  const base: IEnvelope = envelope(track, after);
   const live: IAutoMovieClassifyPlaybackBoundary.IResult = classify(after);
   const current: IObservation | null | undefined =
     live.boundary === "unavailable"
@@ -207,7 +233,10 @@ function trackChecks(
   if (!(before >= 0) || incoming === undefined) return checks;
 
   const edge: IAutoMovieClassifyPlaybackBoundary.IResult = classify(before);
-  const step = { kind: "step", path: track.path } as const;
+  const step: { readonly kind: "step"; readonly path: string } = {
+    kind: "step",
+    path: track.path,
+  };
   if (edge.boundary !== "continuous")
     return [
       ...checks,
@@ -224,7 +253,8 @@ function trackChecks(
   );
   if (previous !== undefined && outgoing === undefined) return checks;
   const elapsed: number = Math.abs(edge.after.seconds - edge.before.seconds);
-  const tolerance = track.tolerance ?? { distance: 0, angle: 0 };
+  const tolerance: { readonly distance: number; readonly angle: number } =
+    track.tolerance ?? { distance: 0, angle: 0 };
   return [
     ...checks,
     {
@@ -261,11 +291,12 @@ function admitted(
   path: string,
 ): IAutoMovieTransform | undefined {
   if (observation?.kind !== "present") return undefined;
-  const result = measureAutoMoviePlacedContinuity({
-    kind: "transform",
-    path,
-    observation,
-  });
+  const result: IAutoMoviePlacedContinuity.IResult =
+    measureAutoMoviePlacedContinuity({
+      kind: "transform",
+      path,
+      observation,
+    });
   return result.status === "checked" && result.violations.length === 0
     ? (observation.transform as IAutoMovieTransform)
     : undefined;

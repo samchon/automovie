@@ -36,12 +36,17 @@ export function measureAutoMoviePlacedContact(
     : measureGrip(props, props.sample);
 }
 
+/**
+ * Measure a support sample: express the observed point in the support's rigid
+ * frame, then compare its local Y offset from the anchor with the gap limit
+ * and its XZ offset with the slip limit, both in metres.
+ */
 function measureSupport(
   props: Extract<IAutoMoviePlacedContact.IProps, { kind: "support" }>,
   sample: IAutoMoviePlacedContact.ISupportSample,
 ): IAutoMoviePlacedContact.IResult {
   const { path, maxGap, maxSlip } = props;
-  const collector = new ViolationCollector();
+  const collector: ViolationCollector = new ViolationCollector();
   validateVectorArtifact(
     sample.point,
     `${path}.point`,
@@ -66,14 +71,14 @@ function measureSupport(
   if (collector.items.length !== 0)
     return { status: "invalid", violations: collector.items };
 
-  const local = localPosition(
+  const local: IAutoMovieVector3 = localPosition(
     sample.point,
     sample.frame.position,
     Quaternion.inverse(sample.frame.rotation),
   );
-  const delta = Vector3.subtract(local, sample.anchor);
-  const gap = delta.y;
-  const slip = Math.hypot(delta.x, delta.z);
+  const delta: IAutoMovieVector3 = Vector3.subtract(local, sample.anchor);
+  const gap: number = delta.y;
+  const slip: number = Math.hypot(delta.x, delta.z);
   collector.range(
     `${path}.gap`,
     gap,
@@ -99,12 +104,17 @@ function measureSupport(
   };
 }
 
+/**
+ * Measure a grip sample: express the prop's frame in the hand's frame, then
+ * compare its distance and shortest rotation from the expected relative frame
+ * with the limits, in metres and radians.
+ */
 function measureGrip(
   props: Extract<IAutoMoviePlacedContact.IProps, { kind: "grip" }>,
   sample: IAutoMoviePlacedContact.IGripSample,
 ): IAutoMoviePlacedContact.IResult {
   const { path, maxDistance, maxAngle } = props;
-  const collector = new ViolationCollector();
+  const collector: ViolationCollector = new ViolationCollector();
   validateFrame(sample.hand, `${path}.hand`, "grip socket", collector);
   validateFrame(sample.prop, `${path}.prop`, "held prop", collector);
   validateFrame(
@@ -124,15 +134,20 @@ function measureGrip(
   if (collector.items.length !== 0)
     return { status: "invalid", violations: collector.items };
 
-  const inverseHand = Quaternion.inverse(sample.hand.rotation);
-  const position = localPosition(
+  const inverseHand: IAutoMovieQuaternion = Quaternion.inverse(
+    sample.hand.rotation,
+  );
+  const position: IAutoMovieVector3 = localPosition(
     sample.prop.position,
     sample.hand.position,
     inverseHand,
   );
-  const rotation = Quaternion.multiply(inverseHand, sample.prop.rotation);
-  const distance = Vector3.distance(position, sample.expected.position);
-  const angle = Quaternion.angle(rotation, sample.expected.rotation);
+  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    inverseHand,
+    sample.prop.rotation,
+  );
+  const distance: number = Vector3.distance(position, sample.expected.position);
+  const angle: number = Quaternion.angle(rotation, sample.expected.rotation);
   collector.range(
     `${path}.distance`,
     distance,
@@ -152,6 +167,10 @@ function measureGrip(
   };
 }
 
+/**
+ * Admit a rigid frame's object shape, finite position and unit rotation,
+ * appending each failure at its field path.
+ */
 function validateFrame(
   frame: IAutoMovieRigidTransform,
   path: string,
@@ -173,6 +192,10 @@ function validateFrame(
   );
 }
 
+/**
+ * A world point expressed in the frame at `origin` whose inverse orientation
+ * is given.
+ */
 function localPosition(
   point: IAutoMovieVector3,
   origin: IAutoMovieVector3,

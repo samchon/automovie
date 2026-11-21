@@ -26,7 +26,7 @@ export function measureAutoMoviePlacedContinuity(
   if (props.kind === "step") return measureStep(props);
 
   const { path } = props;
-  const collector = new ViolationCollector();
+  const collector: ViolationCollector = new ViolationCollector();
   if (props.kind === "transform") {
     if (props.observation === undefined) return { status: "unsupported" };
     if (props.observation.kind === "present")
@@ -63,6 +63,12 @@ export function measureAutoMoviePlacedContinuity(
   return { status: "checked", violations: collector.items };
 }
 
+/**
+ * Compare a continuous endpoint pair: admit both clocks, transforms and
+ * limits, then measure translation distance in metres and shortest rotation
+ * in radians against the limits. A cut or declared break is excluded and a
+ * missing endpoint is unsupported.
+ */
 function measureStep(
   props: Extract<IAutoMoviePlacedContinuity.IProps, { kind: "step" }>,
 ): IAutoMoviePlacedContinuity.IResult {
@@ -72,7 +78,7 @@ function measureStep(
   if (boundary === "unavailable" || before === undefined || after === undefined)
     return { status: "unsupported" };
 
-  const collector = new ViolationCollector();
+  const collector: ViolationCollector = new ViolationCollector();
   collector.range(
     `${path}.before.seconds`,
     before.seconds,
@@ -129,11 +135,11 @@ function measureStep(
   if (collector.items.length !== 0)
     return { status: "checked", violations: collector.items };
 
-  const distance = Vector3.distance(
+  const distance: number = Vector3.distance(
     before.transform.translation,
     after.transform.translation,
   );
-  const angle = Quaternion.angle(
+  const angle: number = Quaternion.angle(
     before.transform.rotation,
     after.transform.rotation,
   );
