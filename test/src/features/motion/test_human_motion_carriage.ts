@@ -190,8 +190,12 @@ function arrival(
       on: { bone: "chest", offset: worn },
       hand: "right",
     })
-    // Down to the case's handle, as one bends to draw it out.
-    .crouch({ depth: "partial" })
+    // Bent down to the case, the left hand draws its pull handle out and
+    // takes it.
+    .bend({
+      toward: { kind: "prop", subject: "case", point: "telescope" },
+      hold: 0.2,
+    })
     .operate({
       hand: "left",
       mechanism: {
@@ -307,7 +311,8 @@ function tray(
       side: "right",
       at: {
         out: 0.3,
-        up: body.measure.shoulderHeight,
+        // The palm just under shoulder height, the forearm level.
+        up: body.measure.shoulderHeight - 0.1,
         forward: 0.25,
         level: true,
       },

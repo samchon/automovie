@@ -47,7 +47,7 @@ const PAIRS: readonly IPair[] = [
 ];
 
 /** The trunk's forward leans tried over the wheel, degrees, least first: provisional steps up to a potter's deep lean. */
-const LEANS: readonly number[] = [0, 10, 20, 30, 40, 50];
+const LEANS: readonly number[] = [0, 10, 20, 30, 40, 50, 60];
 
 /** The trunk's bones a lean flexes. */
 type TrunkBone = "spine" | "chest";
