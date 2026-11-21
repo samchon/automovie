@@ -5,13 +5,17 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSupportCarry,
   IAutoMovieMotionHumanSurface,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
+import { HumanSupportCarry } from "./HumanSupportCarry";
+import { HumanSupportFrame } from "./HumanSupportFrame";
 
 type Params = IAutoMovieMotionHumanSurface.ISupportStepParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
@@ -20,6 +24,20 @@ type Posture = IAutoMovieMotionHumanPosture;
 /** The two feet. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
+/**
+ * A vertical translation of a plan.
+ *
+ * @param dy The rise, metres.
+ * @returns The carry.
+ */
+function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
+  return {
+    point: (p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p, y: p.y + dy }),
+    turn: { x: 0, y: 0, z: 0, w: 1 },
+    yaw: 0,
+  };
+}
+
 /** Where a point on a support has moved to: a world point at the step's start to the same material point at a later second. */
 type Carry = (at: number, point: IAutoMovieVector3) => IAutoMovieVector3;
 
@@ -27,7 +45,7 @@ type Carry = (at: number, point: IAutoMovieVector3) => IAutoMovieVector3;
  * Step from one support to another, either of which may move: from a fixed
  * landing onto an escalator tread or a walkway band, or off it onto the
  * landing. The walk (`walk`) is planned where everything stands at the
- * step's start. Each foot's last plant is on the support it arrives on and
+ * step's start, at the height its soles bear on. Each foot's last plant is on the support it arrives on and
  * its earlier plants on the one it leaves, and each plant is carried by its
  * own support's motion, so a planted foot never slides on what bears it.
  * A swinging foot is carried by a minimum-jerk blend of the two supports'
@@ -52,7 +70,44 @@ export function HumanSupportStep(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): Plan {
   const { to, from, onto }: Params = context.params;
-  const walked: Plan = walk.plan({ ...context, params: { to } });
+  // The floor gait is planned at the height the entry's soles bear on,
+  // lowered to the floor and raised back, where everything stands at the
+  // step's start; each support then carries what bears on it.
+  const height: number = HumanSupportFrame.floor(context.body, context.entry);
+  const level: number = Number.isFinite(height) ? height : 0;
+  const lower: IAutoMovieMotionHumanSupportCarry.ICarry = translate(-level);
+  const raise: IAutoMovieMotionHumanSupportCarry.ICarry = translate(level);
+  const entry: IAutoMovieMotionHumanEntryState = context.entry;
+  const floor: Plan = walk.plan({
+    ...context,
+    params: { to: lower.point(to) },
+    entry: {
+      ...entry,
+      posture: HumanSupportCarry.posture(lower, entry.posture),
+      pose:
+        entry.pose.root === undefined || entry.pose.root === null
+          ? entry.pose
+          : {
+              ...entry.pose,
+              root: {
+                ...entry.pose.root,
+                translation: lower.point(entry.pose.root.translation),
+              },
+            },
+      feet: {
+        left: { ...entry.feet.left, ankle: lower.point(entry.feet.left.ankle) },
+        right: {
+          ...entry.feet.right,
+          ankle: lower.point(entry.feet.right.ankle),
+        },
+      },
+    },
+  });
+  const walked: Plan = {
+    ...floor,
+    posture: (...args: Parameters<Plan["posture"]>): Posture =>
+      HumanSupportCarry.posture(raise, floor.posture(...args)),
+  };
   const carrier = (prop: string | undefined): Carry => {
     if (prop === undefined)
       return (_at: number, point: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -81,7 +136,6 @@ export function HumanSupportStep(
   };
   const leaving: Carry = carrier(from);
   const arriving: Carry = carrier(onto);
-
   // Each foot's plants in time order; the last is on the arriving support.
   const plants: Record<
     AutoMovieHumanSide,
