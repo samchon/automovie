@@ -20,7 +20,7 @@ import { AquaticCrew } from "./AquaticCrew";
 import { AquaticPaddleCraft } from "./AquaticPaddleCraft";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** The radius about its grip a paddling hand lands within on the hold, metres: provisional, a hand closed on a shaft. */
+/** The radius about its grip a paddling hand lands within on the hold, and the most its skin stands off the shaft, metres: provisional, a hand closed on a shaft. */
 const GRIP_DISC: number = 0.005;
 
 /**
@@ -253,12 +253,14 @@ export namespace AquaticPaddle {
       rest: AutoMovieMotionHumanArm.angles(start, "left"),
       grasp: ["hand"],
       disc: GRIP_DISC,
+      skinDistance: GRIP_DISC,
       with: [
         {
           side: "right",
           rest: AutoMovieMotionHumanArm.angles(start, "right"),
           grasp: ["hand"],
           disc: GRIP_DISC,
+          skinDistance: GRIP_DISC,
         },
       ],
       span: { start: 0, ready: lead, relax: duration, end: duration },

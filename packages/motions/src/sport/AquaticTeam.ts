@@ -34,6 +34,9 @@ const CONTACT_BLEND: number = 0.22;
 /** Seconds a base's support arm takes to reach into its palm offer and back out: provisional, an unhurried sculling arm. */
 const BASE_REACH: number = 0.5;
 
+/** Seconds a base's palm is held offered before the flyer's foot takes it and after it leaves: provisional, the support set before it loads. */
+const OFFER: number = 0.15;
+
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
  * follow the form distinctions measured by Homma et al. (PMID 31718520).
@@ -295,7 +298,8 @@ export namespace AquaticTeam {
         // A base writes its whole palm offer over its arm's course, which
         // lays the reach in and out itself.
         if (support !== undefined)
-          return t >= gripStart - BASE_REACH && t <= gripEnd + BASE_REACH
+          return t >= gripStart - OFFER - BASE_REACH &&
+            t <= gripEnd + OFFER + BASE_REACH
             ? support(shaped, t, 1)
             : shaped;
         if (blendContact === 0) return shaped;
@@ -358,10 +362,10 @@ export namespace AquaticTeam {
     // arm into the offered palm and back out (`courseArmGoal`).
     if (!base) return plan;
     const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-      start: gripStart - BASE_REACH,
-      ready: gripStart,
-      relax: gripEnd,
-      end: gripEnd + BASE_REACH,
+      start: gripStart - OFFER - BASE_REACH,
+      ready: gripStart - OFFER,
+      relax: gripEnd + OFFER,
+      end: gripEnd + OFFER + BASE_REACH,
     };
     // The arm the figure's own key holds as the reach begins.
     const opening: IAutoMovieMotionHumanPosture = plan.posture(span.start);

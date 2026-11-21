@@ -474,15 +474,27 @@ export namespace AquaticSail {
               HumanFrame.forward(posture.yaw),
               weight,
             );
-            // The foot turns about its toe tip, which stays where the flat
-            // foot puts it on the deck: the ball and heel rise, the ankle and
-            // the knee's hint move instead, and no part of the foot dips
-            // below the deck.
-            const toe: IAutoMovieVector3 = HumanFoot.offset(body, side, "toe");
+            // The heel rises about the ball, which stays where the flat
+            // foot puts it on the deck, and the toes extend at their joint
+            // by as much as the foot turned, so they stay flat: the
+            // forefoot rocker (Perry and Burnfield). The ankle and the
+            // knee's hint move instead.
             const shift: IAutoMovieVector3 = Vector3.subtract(
-              Quaternion.rotateVector(goal.rotation, toe),
-              Quaternion.rotateVector(turned.rotation!, toe),
+              Quaternion.rotateVector(goal.rotation, ball),
+              Quaternion.rotateVector(turned.rotation!, ball),
             );
+            posture.joints = {
+              ...posture.joints,
+              [`${side}Toes`]: [
+                Math.max(
+                  0,
+                  HumanFoot.pitch(goal.rotation) -
+                    HumanFoot.pitch(turned.rotation!),
+                ),
+                0,
+                0,
+              ],
+            };
             posture.limbs[leg] = {
               ...turned,
               point: Vector3.add(turned.point, shift),
