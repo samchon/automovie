@@ -6,7 +6,6 @@ import type {
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
@@ -18,11 +17,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
-import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
-import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -139,7 +136,7 @@ export namespace StrikingBlade {
    * @returns The plan, whose decisive instant is `stroke`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan's decisive instant; the namespace states the time course.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool's pose is the path read at `AutoMovieMotionClock.through`, which passes the decisive pose at speed (a strike delivers its speed at its end, Putnam 1993), blended from and to the entry hold on the clock's minimum-jerk envelope (Flash and Hogan 1985); the body is decided first, from the advance alone, and both arms are planned on it as admitted courses (`courseArmGoal`): the reach to the path, the stroke held on one branch and the return.
+   * @evidence contracts/development/implementation.md#principled-implementation The tool's pose is the path read at `AutoMovieMotionClock.through`, which passes the decisive pose at speed (a strike delivers its speed at its end, Putnam 1993), blended from and to the entry hold on the clock's minimum-jerk envelope (Flash and Hogan 1985); the body is decided first, from the advance alone, and both arms are fitted on it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The base, then the tool's frame at a second, then the two arm goals written on the base's posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The elbow hint is the arm's least-strain place with the hanging arm as its named fallback; nothing is clamped.
    * @evidence contracts/development/implementation.md#efficient-algorithms One original lazy decisive fit establishes its arm reference. Every requested shoulder/chest observation still admits the current raw posture and returns its own demanded map. Base lowering and those observations borrow one native exact workspace, sharing only checked scalar prerequisites; all original fits remain and speedup is unmeasured.
@@ -386,7 +383,7 @@ export namespace StrikingBlade {
       anchored = resolveHumanPosture.reference(posed, `${tool.side}Arm`);
       return anchored;
     };
-    const goals: IAutoMovieMotionHumanActionPlan = {
+    return {
       duration,
       events: clock.events(),
       contacts: [
@@ -456,33 +453,5 @@ export namespace StrikingBlade {
         };
       },
     };
-
-    // Each moving arm is planned as one admitted course over the stroke,
-    // not fitted afresh at every second, where two nearly tied solutions let
-    // one instant take the other branch: the planner's reach from the entry
-    // arm to the path, the path held on one branch, and the return. A stroke
-    // that stays keeps its last pose to the end.
-    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-      start: 0,
-      ready: clock.at("ready"),
-      relax: stroke.stay ? duration : clock.at("relax"),
-      end: duration,
-    };
-    const holding: IAutoMovieMotionHumanActionPlan = courseArmGoal({
-      body,
-      plan: goals,
-      side: tool.side,
-      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, tool.side),
-      span,
-    });
-    return stroke.support === null
-      ? holding
-      : courseArmGoal({
-          body,
-          plan: holding,
-          side: other,
-          rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
-          span,
-        });
   }
 }
