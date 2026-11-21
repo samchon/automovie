@@ -6,6 +6,7 @@ export * from "./EquineExpressionPose";
 export * from "./EquineHeadReach";
 export * from "./EquineGoniometry";
 export * from "./EquineJointLimits";
+export * from "./QuadrupedDatumRide";
 export * from "./EquineFord";
 export * from "./EquineFordPlan";
 export * from "./EquineSwimPose";

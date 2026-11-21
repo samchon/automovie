@@ -16,15 +16,28 @@ import { EquineFordPlan } from "./EquineFordPlan";
 import { EquineSwimPose } from "./EquineSwimPose";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedCarriage } from "./QuadrupedCarriage";
+import { QuadrupedDatumRide } from "./QuadrupedDatumRide";
 import { QuadrupedFooting } from "./QuadrupedFooting";
 import { QuadrupedFootingClearance } from "./QuadrupedFootingClearance";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 import { createQuadruped } from "./createQuadruped";
-import { rideQuadruped } from "./rideQuadruped";
 
 /** One-sided difference, seconds, for the offset rates at a cut. */
 const STEP: number = 1e-5;
+
+/** World up. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+
+/** An actual limb or trunk bar's solid, metres. */
+interface IBar {
+  /** Whether its ends are rounded. */
+  capsule: boolean;
+  /** Its radius. */
+  radius: number;
+  /** Its length along its axis. */
+  height: number;
+}
 
 /** Stroke phases sampled per cycle when the stroke's lowest sole is read. */
 const SWEEP: number = 96;
@@ -358,20 +371,14 @@ export function EquineFord<Id extends string, D extends string>(
     return archetype;
   }
 
-  /**
-   * A grounded ride on the footing whose course datum is the authored ground under its start: the ride runs over the footing lowered by that height and its samples are raised by it, an exact vertical translation, since a course starts on Y=0 and keeps its body near its datum.
-   */
+  /** A grounded segment at the ground's datum under its start (`QuadrupedDatumRide`). */
   function grounded(
     leg: EquineFordPlan.IGrounded,
     start: ArchetypeCourse.ICourse["start"],
     startSpeed: number,
     endSpeed: number,
   ): ArchetypeRide.IRide<Id, Dimension> {
-    const datum: number = footing.landing(
-      { x: start.x, y: 0, z: start.z },
-      Quaternion.identity(),
-    ).point.y;
-    const ride: ArchetypeRide.IRide<Id, Dimension> = rideQuadruped(
+    return QuadrupedDatumRide(
       animal,
       {
         start,
@@ -381,31 +388,10 @@ export function EquineFord<Id extends string, D extends string>(
         deceleration: leg.deceleration,
         startSpeed,
         endSpeed,
-        footing: {
-          ...params.footing,
-          planes: params.footing.planes.map(
-            (plane: QuadrupedFooting.IPlane): QuadrupedFooting.IPlane => ({
-              ...plane,
-              origin: { ...plane.origin, y: plane.origin.y - datum },
-            }),
-          ),
-        },
+        footing: params.footing,
       },
       leg.gait,
     );
-    const raise = (placement: IAutoMovieTransform): IAutoMovieTransform => ({
-      ...placement,
-      translation: Vector3.add(placement.translation, { x: 0, y: datum, z: 0 }),
-    });
-    return {
-      ...ride,
-      at: (seconds: number): ArchetypeRide.ISample<Id, Dimension> => {
-        const sample: ArchetypeRide.ISample<Id, Dimension> = ride.at(seconds);
-        return { ...sample, placement: raise(sample.placement) };
-      },
-      frame: (id: Id, seconds: number): IAutoMovieTransform =>
-        raise(ride.frame(id, seconds)),
-    };
   }
 
   /** Each limb's stroke phase: the diagonal pairs half a cycle apart. */
@@ -450,6 +436,7 @@ export function EquineFord<Id extends string, D extends string>(
       );
   }
 }
+
 /** An actual part of a model. */
 function part(
   model: Pick<Archetype, "parts">,
@@ -465,39 +452,32 @@ function part(
 
 /** An actual bar's length, joint to joint, metres. */
 function length(bar: IAutoMovieModelPart): number {
-  if (
-    bar.geometry.type !== "primitive" ||
-    (bar.geometry.shape.type !== "capsule" &&
-      bar.geometry.shape.type !== "cylinder")
-  )
-    throw new RangeError(`The crossing needs the actual ${bar.id} bar`);
-  return bar.geometry.shape.height;
+  return shape(bar).height;
 }
 
 /** The highest surface of an actual bar, metres in its model. */
 function top(bar: IAutoMovieModelPart): number {
-  if (
-    bar.geometry.type !== "primitive" ||
-    (bar.geometry.shape.type !== "capsule" &&
-      bar.geometry.shape.type !== "cylinder")
-  )
-    throw new RangeError("The crossing needs the actual trunk bar");
-  const shape: typeof bar.geometry.shape = bar.geometry.shape;
-  const axis: IAutoMovieVector3 = Quaternion.rotateVector(
-    bar.transform!.rotation,
-    {
-      x: 0,
-      y: 1,
-      z: 0,
-    },
-  );
-  const radial: number =
-    shape.type === "capsule"
-      ? shape.radius
-      : shape.radius * Math.sqrt(Math.max(0, 1 - axis.y * axis.y));
+  const solid: IBar = shape(bar);
+  const up: number = Quaternion.rotateVectorY(bar.transform!.rotation, UP);
+  const radial: number = solid.capsule
+    ? solid.radius
+    : solid.radius * Math.sqrt(Math.max(0, 1 - up * up));
   return (
-    bar.transform!.translation.y +
-    (Math.abs(axis.y) * shape.height) / 2 +
-    radial
+    bar.transform!.translation.y + (Math.abs(up) * solid.height) / 2 + radial
   );
+}
+
+/** An actual bar's cylinder or capsule. */
+function shape(bar: IAutoMovieModelPart): IBar {
+  const geometry: IAutoMovieModelPart["geometry"] = bar.geometry;
+  if (
+    geometry.type !== "primitive" ||
+    (geometry.shape.type !== "capsule" && geometry.shape.type !== "cylinder")
+  )
+    throw new RangeError(`The crossing needs the actual ${bar.id} bar`);
+  return {
+    capsule: geometry.shape.type === "capsule",
+    radius: geometry.shape.radius,
+    height: geometry.shape.height,
+  };
 }
