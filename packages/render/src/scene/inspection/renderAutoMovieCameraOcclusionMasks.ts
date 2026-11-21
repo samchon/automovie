@@ -192,15 +192,17 @@ export function renderAutoMovieCameraOcclusionMasks(
   }
 }
 
-/** Types shared between the pixel audit's admission and its mask rendering. */
+/**
+ * Types shared between the pixel audit's admission and its mask rendering.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the units and origin of a region, the coordinate frame of a range and each drawable member's ownership and frame.
+ * @evidence contracts/development/design.md#principled-representation IRegion is an integer native-sample origin and size in the frame glViewport and readPixels use; IRange is the divided clip coordinates of an enclosing box's corners; IDrawable is the original material and layer mask the masks swap and restore, with membership from the source semantic root.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Four numbers locate the scratch target, two corners suffice for overlap and depth-order tests, and a drawable carries exactly the state the passes change and the range the admission tests.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A region is aligned outward to whole delivered pixels, a range exists only when every corner lies in front of the camera, and only ordinary rigid meshes with stock opaque materials are admitted.
+ */
 export namespace renderAutoMovieCameraOcclusionMasks {
   /**
    * Native sample rectangle of the delivery raster, origin at the bottom left.
-   *
-   * @evidence contracts/development/design.md#principled-representation Integer native-sample origin and size, the same frame glViewport and readPixels use.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four numbers locate the scratch target inside the delivered raster.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Aligned outward to whole delivered pixels by its producer, never clipped inside the subject.
-   * @evidence contracts/development/common.md#meaningful-documentation States the units and origin.
    */
   export interface IRegion {
     /** Left edge in native samples. */
@@ -218,11 +220,6 @@ export namespace renderAutoMovieCameraOcclusionMasks {
 
   /**
    * Conservative clip-space interval of a drawable's world envelope.
-   *
-   * @evidence contracts/development/design.md#principled-representation The divided clip coordinates of an enclosing box's corners bound the drawable's projection where the divide is continuous.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two corners suffice for overlap and depth-order tests.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Produced only when every corner lies in front of the camera.
-   * @evidence contracts/development/common.md#meaningful-documentation States the coordinate frame of both corners.
    */
   export interface IRange {
     /** Left, bottom and near extents in divided clip coordinates. */
@@ -234,11 +231,6 @@ export namespace renderAutoMovieCameraOcclusionMasks {
 
   /**
    * Borrowed drawable state and its admitted semantic membership.
-   *
-   * @evidence contracts/development/design.md#principled-representation The original material and layer mask are what the masks swap and restore; membership comes from the source semantic root.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries exactly the state the passes change and the range the admission tests.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only ordinary rigid meshes with stock opaque materials are admitted.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each member's ownership and frame.
    */
   export interface IDrawable {
     /** Original ordinary rigid mesh. */

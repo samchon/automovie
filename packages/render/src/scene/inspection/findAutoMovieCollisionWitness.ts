@@ -87,15 +87,17 @@ export function findAutoMovieCollisionWitness(
       : { kind: "incomplete" };
 }
 
-/** Inputs, solids and outcomes of the witness search. */
+/**
+ * Inputs, solids and outcomes of the witness search.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names each input, outcome, solid cost and depth sign, and what the solid, geometry, distance and posed helpers return.
+ * @evidence contracts/development/design.md#principled-representation IProps makes the allowance a law of the two parts and the joints owning each side; IOutcome distinguishes evidence, proof, limits and missing inputs; ISolid carries bounds, pose error, per-query cost, point distance and an edge's deepest point; IDepth is a separation in world metres with an optional joint label.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only the observer calls the search and maps each outcome to coverage; a solid is built once per part per frame and its depth is read by the allowance law only.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The budget is shared with the frame, never reset per pair; an incomplete search never reads as clear; only exact solids and closed drawn surfaces are solids; an unlabelled holder satisfies only unscoped windows.
+ */
 export namespace findAutoMovieCollisionWitness {
   /**
    * The pair, its surfaces and solids, the allowance law and the work budget.
-   *
-   * @evidence contracts/development/design.md#principled-representation The allowance is a law of the two parts and the joints that own each side of the witness.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the observer calls the search.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The budget is shared with the frame, never reset per pair.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each input.
    */
   export interface IProps {
     /** The candidate pair. */
@@ -116,11 +118,6 @@ export namespace findAutoMovieCollisionWitness {
 
   /**
    * A witness point with its depth, proven clearance, exhausted work, or an incomplete search.
-   *
-   * @evidence contracts/development/design.md#principled-representation Four outcomes distinguish evidence, proof, limits and missing inputs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The observer maps each to coverage.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An incomplete search never reads as clear.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each outcome.
    */
   export type IOutcome =
     | {
@@ -132,11 +129,6 @@ export namespace findAutoMovieCollisionWitness {
 
   /**
    * A solid a drawn surface vertex or edge can be tested against.
-   *
-   * @evidence contracts/development/design.md#principled-representation Bounds, pose error, per-query cost, point distance and an edge's deepest point.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built once per part per frame.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only exact solids and closed drawn surfaces are solids.
-   * @evidence contracts/development/common.md#meaningful-documentation Names units and costs.
    */
   export interface ISolid {
     /** World bounds of the solid, or null when its distance is cheap everywhere. */
@@ -159,11 +151,6 @@ export namespace findAutoMovieCollisionWitness {
 
   /**
    * A signed depth and the joint owning the nearest holder surface.
-   *
-   * @evidence contracts/development/design.md#principled-representation Separation in world metres and an optional joint label.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the allowance law only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An unlabelled holder satisfies only unscoped windows.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the sign.
    */
   export interface IDepth {
     /** Signed distance in metres, negative inside. */

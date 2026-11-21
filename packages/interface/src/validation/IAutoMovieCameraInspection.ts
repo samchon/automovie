@@ -30,7 +30,14 @@ export interface IAutoMovieCameraInspection {
 
 /** Related observations and grades for a single subject and frame. */
 export namespace IAutoMovieCameraInspection {
-  /** Bounds exclusion by a side or depth plane, possible overlap, or missing evidence. */
+  /**
+   * Bounds exclusion by a side or depth plane, possible overlap, or missing evidence.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each of the five framing grades.
+   * @evidence contracts/development/design.md#principled-representation Three exclusion grades name the plane that excludes the bounds, apart from possible overlap and missing evidence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A closed literal union read by the classifier and the frame reporter.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Possible overlap never claims visibility, and missing evidence stays distinct from exclusion.
+   */
   export type Framing =
     | "outside"
     | "before-near"
@@ -38,7 +45,14 @@ export namespace IAutoMovieCameraInspection {
     | "possible"
     | "unavailable";
 
-  /** Evidence from rays through the actual delivery projection. */
+  /**
+   * Evidence from rays through the actual delivery projection.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what each ray count and the optional blocker point mean, in world metres.
+   * @evidence contracts/development/design.md#principled-representation Counts of blocked and clear rays with the first blocker hit as finite witnesses.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two counts and one optional point, produced by the bounded ray pass.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Ray counts are witnesses only and never form an occlusion ratio.
+   */
   export interface IWitnesses {
     /** Rays that met an admitted opaque blocker before a subject surface. */
     blocked: number;
@@ -50,7 +64,14 @@ export namespace IAutoMovieCameraInspection {
     blocker?: IAutoMovieVector3;
   }
 
-  /** Pixel counts using the same pose, projection, clipping and output raster. */
+  /**
+   * Pixel counts using the same pose, projection, clipping and output raster.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that both counts share one raster and that visible is a subset of isolated.
+   * @evidence contracts/development/design.md#principled-representation Isolated and visible counts of the same delivered raster, so their ratio is the occluded fraction.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two integers produced by the matched mask renders.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Counts from different rasters, poses or projections are not admitted as a pair.
+   */
   export interface IPixels {
     /** Required-subject pixels in isolation, before coverage by other geometry. */
     isolated: number;
@@ -59,7 +80,14 @@ export namespace IAutoMovieCameraInspection {
     visible: number;
   }
 
-  /** Occlusion grade and the evidence that supports its scope. */
+  /**
+   * Occlusion grade and the evidence that supports its scope.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names each status and the evidence each carries.
+   * @evidence contracts/development/design.md#principled-representation A union discriminated by status keeps ungraded states, ray witnesses and pixel measurements apart, each with only its own evidence.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Produced by classifyAutoMovieCameraInspection alone.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only pixel counts carry a ratio and a limit grade; witnesses never do.
+   */
   export type Occlusion =
     | { status: "not-applicable" | "unmeasured" | "no-target-pixels" }
     | { status: "witnesses"; samples: IWitnesses }
@@ -69,7 +97,14 @@ export namespace IAutoMovieCameraInspection {
         ratio: number;
       };
 
-  /** Independent framing and occlusion grades. */
+  /**
+   * Independent framing and occlusion grades.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the two grades and states that they are independent.
+   * @evidence contracts/development/design.md#principled-representation Framing and occlusion are graded separately, so an excluded subject still states that occlusion does not apply.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, returned by the classifier to the frame reporter.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Occlusion is never inferred from framing beyond marking it not applicable.
+   */
   export interface IResult {
     /** Complete exclusion, possible overlap, or unavailable bounds. */
     framing: Framing;

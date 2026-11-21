@@ -46,15 +46,17 @@ export function readAutoMovieCollisionTopology(
   return topology;
 }
 
-/** Drawn triangles, bounds, closure, lazy posing and world boxes shared by every collision source. */
+/**
+ * Drawn triangles, bounds, closure, lazy posing and world boxes shared by every collision source.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names each topology field's space and states what the lazy posing, world box and finiteness helpers return.
+ * @evidence contracts/development/design.md#principled-representation ITopology holds rest positions, drawn triangle indices, rest bounds and closure.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the collision sources and their lazy surfaces only.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Closure is derived from the drawn triangles, never from a constructor, and a non-finite placement yields no world box.
+ */
 export namespace readAutoMovieCollisionTopology {
   /**
    * The drawn triangle list of one geometry in its own space.
-   *
-   * @evidence contracts/development/design.md#principled-representation Rest positions, drawn triangle indices, rest bounds and closure.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the collision sources and their lazy surfaces only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Closure is derived from the drawn triangles, never from a constructor.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each field's space.
    */
   export interface ITopology {
     /** Rest positions of the geometry. */

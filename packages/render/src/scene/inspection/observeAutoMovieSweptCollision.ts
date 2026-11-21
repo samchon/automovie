@@ -131,15 +131,17 @@ export function observeAutoMovieSweptCollision(
   }
 }
 
-/** The motion cells of one layer and the sinks the observer shares with them. */
+/**
+ * The motion cells of one layer and the sinks the observer shares with them.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the clock relation of a cell and names each input.
+ * @evidence contracts/development/design.md#principled-representation ICell holds two part paths, the Engine cell without its depth and the offset from the layer clock to the film clock; IProps holds the layer's own inputs and the observer's shared sinks.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The allowed depth comes from the layer's named windows, and only the scene observer calls this.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The source certifies the affine motion and the observer never infers it; the interval budget is shared with the frame.
+ */
 export namespace observeAutoMovieSweptCollision {
   /**
    * A source-certified motion cell between two named parts.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two part paths, the Engine cell without its depth, and the offset from the layer clock to the film clock.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The allowed depth comes from the layer's named windows.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The source certifies the affine motion; the observer never infers it.
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock relation.
    */
   export interface ICell {
     /** The two part paths. */
@@ -152,11 +154,6 @@ export namespace observeAutoMovieSweptCollision {
 
   /**
    * The cells, windows, groups, budget and report sinks of one layer.
-   *
-   * @evidence contracts/development/design.md#principled-representation The layer's own inputs and the observer's shared sinks.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the scene observer calls this.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The interval budget is shared with the frame.
-   * @evidence contracts/development/common.md#meaningful-documentation Names each input.
    */
   export interface IProps {
     /** Certified cells, or undefined when the source supplies none. */

@@ -66,6 +66,10 @@ interface IProps {
  * independent of the number of triangle intersections along that ray.
  * @evidence contracts/development/common.md#meaningful-documentation Defines
  * rigid-mesh coverage and explains why finite rays give witnesses only.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One visible-scene pass admits candidates and charges the budget, then one fixed nine-ray grid records witnesses.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unsupported subject mesh, an exceeded budget or no candidate gives no samples, and an unsupported blocker forbids a clear sample instead of being ignored.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each requirement samples its own subject and rays once per observation.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Computes a missing geometry bounding box only within the budget, borrows the scene and returns fresh counts.
  */
 export function sampleAutoMovieCameraOcclusion(
   props: IProps,

@@ -16,7 +16,17 @@ export interface IRenderAutoMovieInspectionDiagnosticsProps {
   /** The placed sample's diagnostics, or undefined to draw no witness. */
   diagnostics: IAutoMovieInspectionDiagnostics | undefined;
 
-  /** Render the scene once, through the caller's camera and target. */
+  /**
+   * Render the scene once, through the caller's camera and target.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States that one call renders once and whose camera and target it uses.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the caller that supplies it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the caller that supplies it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the caller that supplies it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the caller that supplies it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the caller that supplies it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the caller that supplies it answers.
+   */
   render: () => void;
 
   /** Drawn raster width in pixels. */
