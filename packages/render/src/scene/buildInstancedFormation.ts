@@ -39,6 +39,7 @@ import { describeFormationTextureSources } from "./describeFormationTextureSourc
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
 import { applyFormationCycleCadence } from "./formationCycle/index.js";
 import { formationSpacingOffset } from "./formationSpacingOffset.js";
+import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { objectTransform } from "./objectTransform.js";
 import { regenerateFormationSlot } from "./regenerateFormationSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
@@ -161,6 +162,16 @@ export const buildInstancedFormation: (
               ),
             );
             mesh.name = `${input.formation.id}:${chunk.index}:${lod.tier}`;
+            // Placed collision checks read each drawn instance by its slot, and
+            // leave member spacing inside the formation to its own owner.
+            AutoMovieCollisionSource.bindInstances(mesh, {
+              id: root.name,
+              group: { id: input.formation.id, kind: "managed-formation" },
+              region: String(chunk.index),
+              slots: slots.map(
+                (slot: IAutoMovieFormationSlot): number => slot.slot,
+              ),
+            });
             bindFormationTierCycle(mesh, representation);
             slots.forEach(
               (slot: IAutoMovieFormationSlot, index: number): void => {

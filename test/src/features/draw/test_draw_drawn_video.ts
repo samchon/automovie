@@ -1,6 +1,8 @@
 import type {
   IAutoMovieCaptureSubject,
   IAutoMovieDrawCall,
+  IAutoMovieDrawResult,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieRenderSpec,
 } from "@automovie/interface";
 import {
@@ -10,6 +12,7 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../internal/nclose";
 import { answerDrawCall } from "./answerDrawCall";
 import { createDrawPageDouble } from "./createDrawPageDouble";
 
@@ -34,12 +37,13 @@ const SUBJECT: IAutoMovieCaptureSubject = {
  * 2. Each is written as `frames/frame_0000<i>.png` before the next is drawn, and decodes to the page's picture, rows from the top.
  * 3. The encoder runs once, after the last write, with the subject's 8 fps and 16x10 raster in the vector and four frames cut at 0.5 s.
  * 4. A subject whose clock is not a whole number of frames is refused before any frame is drawn.
+ * 5. Diagnostics on the middle two frames preserve their first and worst evidence, use the actual output indices and report the missing observations.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives the public renderer through a draw session over a recording page and recording write and encode functions; a renderer that skipped or reordered frames, drew another view, pass or raster, wrote out of order, encoded before the last frame or with another frame format fails.
  * @evidence contracts/development/testing.md#independent-expectations Frame seconds are `i / fps` of the half-open clock; file names are the shared `frame_%05d.png` pattern; the pixels are the page double's, so a decoded file shows what the page drew.
  * @evidence contracts/development/testing.md#distinguishing-cases A whole clock against a fractional one, and the subject's clock and raster set by the subject alone. The encoder vector's every argument is owned by `test_render_video_encoding_plan`; screenshots and styles cannot occur, since the page double has no such call, which `test_draw_delivery_frame` pins.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_drawn_video`; the page, files and encoder are in-memory doubles and nothing is launched.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_draw_drawn_video(): Promise<void> {
   const spec: Omit<IAutoMovieRenderSpec, "frameFormat"> = {
@@ -61,7 +65,37 @@ export async function test_draw_drawn_video(): Promise<void> {
     const double: createDrawPageDouble.IDouble = createDrawPageDouble({
       subject,
       renderer: "test",
-      answer: answerDrawCall,
+      answer: (call: IAutoMovieDrawCall): IAutoMovieDrawResult => {
+        const picture: IAutoMovieDrawResult = answerDrawCall(call);
+        if (call.seconds !== 0.125 && call.seconds !== 0.25) return picture;
+        return {
+          ...picture,
+          diagnostics: {
+            scope: "shot/starter",
+            time: { filmSeconds: call.seconds },
+            findings: [
+              {
+                check: "collision",
+                key: "hero/prop",
+                code: "penetration",
+                paths: ["hero", "prop"],
+                category: "error",
+                confidence: "confirmed",
+                message: "Hero penetrates prop.",
+                witness: { rank: call.seconds === 0.125 ? 1 : 2 },
+              },
+            ],
+            coverage: [
+              {
+                check: "collision",
+                key: "hero/prop",
+                required: true,
+                status: "checked",
+              },
+            ],
+          },
+        };
+      },
     });
     return {
       double,
@@ -109,6 +143,7 @@ export async function test_draw_drawn_video(): Promise<void> {
       call.request.shade,
       call.width,
       call.height,
+      call.inspectionDiagnostics,
     ]),
     [0, 0.125, 0.25, 0.375].map((seconds: number): unknown[] => [
       seconds,
@@ -116,6 +151,7 @@ export async function test_draw_drawn_video(): Promise<void> {
       "beauty",
       16,
       10,
+      "delivery",
     ]),
   );
 
@@ -150,6 +186,12 @@ export async function test_draw_drawn_video(): Promise<void> {
     "the result lists the frames",
     result.frames.map((frame: { file: string }): string => frame.file),
     [...files.keys()],
+  );
+
+  TestValidator.equals(
+    "the receipt records the exact encoded rate",
+    result.frameRate,
+    [8, 1],
   );
 
   // 3. The encode uses the subject's clock and raster.
@@ -191,4 +233,30 @@ export async function test_draw_drawn_video(): Promise<void> {
     message.includes("whole number of frames"),
   );
   TestValidator.equals("before any draw", odd.double.calls.length, 4);
+
+  // 5. A partial diagnostic run still has a complete output schedule.
+  const audit: IAutoMovieInspectionDiagnostics.IAudit = result.diagnostics!;
+  const episode: IAutoMovieInspectionDiagnostics.IEpisode = audit.episodes[0]!;
+  TestValidator.equals(
+    "observed and scheduled frame counts",
+    [audit.observedOutputFrames, audit.expectedOutputFrames],
+    [2, 4],
+  );
+  TestValidator.equals(
+    "adjacent output indices bind the first and worst findings",
+    [
+      audit.episodes.length,
+      episode.samples,
+      episode.first.time.outputFrame,
+      episode.worst.time.outputFrame,
+    ],
+    [1, 2, 1, 2],
+  );
+  TestValidator.predicate(
+    "film clocks and independent gate flags",
+    nclose(episode.first.time.filmSeconds, 0.125) &&
+      nclose(episode.worst.time.filmSeconds, 0.25) &&
+      audit.hasBlockingFinding &&
+      audit.unresolvedRequiredCoverage,
+  );
 }

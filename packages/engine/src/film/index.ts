@@ -13,6 +13,7 @@ export * from "./blockBeat";
 export * from "./cameraClearanceDeformationRadius";
 export * from "./cameraClearanceSampleTimes";
 export * from "./canonicalProductionFrameRate";
+export * from "./classifyAutoMoviePlaybackBoundary";
 export * from "./classifyAutoMovieSectionPlaneBox";
 export * from "./classifyGrammarShotSize";
 export * from "./compileAttach";

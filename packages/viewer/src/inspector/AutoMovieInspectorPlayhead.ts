@@ -20,6 +20,7 @@ export class AutoMovieInspectorPlayhead {
     durationSeconds: 0,
     playing: false,
     rate: 1,
+    jump: 0,
   };
   private readonly listeners_: Set<() => void> = new Set<() => void>();
 
@@ -82,9 +83,9 @@ export class AutoMovieInspectorPlayhead {
   }
 
   /**
-   * Start playing; from the end, play starts again at zero.
+   * Start playing; from the end, play starts again at zero, which counts as a jump.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the restart at the end.
+   * @evidence contracts/development/common.md#meaningful-documentation States the restart at the end and that it is a jump.
    * @evidence contracts/development/implementation.md#principled-implementation A playhead at the end has nothing left to play, so play means the whole subject again.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One change.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Playing an unready subject (duration zero) is a no-op rather than a loop at zero.
@@ -96,10 +97,11 @@ export class AutoMovieInspectorPlayhead {
     const { seconds, durationSeconds }: AutoMovieInspectorPlayhead.ISnapshot =
       this.snapshot_;
     if (durationSeconds === 0) return;
-    this.change({
-      playing: true,
-      seconds: seconds >= durationSeconds ? 0 : seconds,
-    });
+    this.change(
+      seconds >= durationSeconds
+        ? { playing: true, seconds: 0, jump: this.snapshot_.jump + 1 }
+        : { playing: true },
+    );
   }
 
   /**
@@ -118,12 +120,12 @@ export class AutoMovieInspectorPlayhead {
   }
 
   /**
-   * Show one second, clamped to `[0, durationSeconds]`; playing continues from it. A second that is not finite is refused.
+   * Show one second, clamped to `[0, durationSeconds]`; playing continues from it. Moving to another second counts as a jump. A second that is not finite is refused.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the clamp, that playing continues and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A slider or an address can ask past either end, and the nearest second the subject has is the one drawn.
+   * @evidence contracts/development/common.md#meaningful-documentation States the clamp, that playing continues, the jump and the refusal.
+   * @evidence contracts/development/implementation.md#principled-implementation A slider or an address can ask past either end, and the nearest second the subject has is the one drawn. A seek is the one discontinuity continuous playback can contain, so it advances the jump count.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Check, clamp, change.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts NaN is refused instead of clamped to an end.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts NaN is refused instead of clamped to an end, and a seek to the shown second is not a jump.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant plus one call per listener.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A state change.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Replaces one record.
@@ -131,9 +133,12 @@ export class AutoMovieInspectorPlayhead {
   public seek(seconds: number): void {
     if (!Number.isFinite(seconds))
       throw new Error(`Inspector second ${seconds} is not a number`);
-    this.change({
-      seconds: Math.min(Math.max(seconds, 0), this.snapshot_.durationSeconds),
-    });
+    const clamped: number = Math.min(
+      Math.max(seconds, 0),
+      this.snapshot_.durationSeconds,
+    );
+    if (clamped !== this.snapshot_.seconds)
+      this.change({ seconds: clamped, jump: this.snapshot_.jump + 1 });
   }
 
   /**
@@ -186,7 +191,8 @@ export class AutoMovieInspectorPlayhead {
       next.seconds === this.snapshot_.seconds &&
       next.durationSeconds === this.snapshot_.durationSeconds &&
       next.playing === this.snapshot_.playing &&
-      next.rate === this.snapshot_.rate
+      next.rate === this.snapshot_.rate &&
+      next.jump === this.snapshot_.jump
     )
       return;
     this.snapshot_ = next;
@@ -197,10 +203,10 @@ export namespace AutoMovieInspectorPlayhead {
   /**
    * One immutable state of the playhead.
    *
-   * @evidence contracts/development/design.md#principled-representation Subject seconds and duration, a wall-time multiplier and a playing flag, with `0 <= seconds <= durationSeconds` kept by the playhead.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The four members the readout shows and the loop reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A duration of zero means no instance is ready yet, not a subject that lasts no time.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and the zero duration.
+   * @evidence contracts/development/design.md#principled-representation Subject seconds and duration, a wall-time multiplier, a playing flag and a count of discontinuous moves, with `0 <= seconds <= durationSeconds` kept by the playhead.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The four members the readout shows and the loop reads, and the jump count by which the loop tells continuous playback from a seek.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A duration of zero means no instance is ready yet, not a subject that lasts no time. Continuity is counted where moves happen, not guessed from how far the seconds moved.
+   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit, the zero duration and what counts as a jump.
    */
   export interface ISnapshot {
     /** The second shown, subject seconds. */
@@ -214,5 +220,8 @@ export namespace AutoMovieInspectorPlayhead {
 
     /** Subject seconds played per wall second, positive. */
     rate: number;
+
+    /** Number of seeks to another second and restarts from the end so far; two snapshots with the same count are joined by playback alone. */
+    jump: number;
   }
 }

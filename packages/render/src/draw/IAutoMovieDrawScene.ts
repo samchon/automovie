@@ -1,4 +1,8 @@
-import type { IAutoMovieMark } from "@automovie/interface";
+import type {
+  IAutoMovieDeliveryContentAudit,
+  IAutoMovieInspectionDiagnostics,
+  IAutoMovieMark,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -29,6 +33,9 @@ export interface IAutoMovieDrawScene {
 
   /** Height in pixels of every picture drawn of the subject. */
   height: number;
+
+  /** Optional source intent for auditing the delivered file. */
+  delivery?: IAutoMovieDeliveryContentAudit.IIntent;
 
   /** The subject's own named views, each placing a camera in world metres at a second; absent when it has none. */
   views?: Readonly<
@@ -69,6 +76,21 @@ export interface IAutoMovieDrawScene {
   marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
+   * Optional production diagnostics, read synchronously after the outer seek is ready and before any inspection changes the scene.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the observation's position relative to placement and inspection, and that participation is optional.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The producer implements this signature using the supplied placed sample.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer owns its check. The host supplies the unmasked settled sample.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer owns its budget.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The host supplies the already placed sample.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer borrows inputs for the call.
+   */
+  inspectPlaced?: (
+    sample: IAutoMovieDrawScene.IPlacedSample,
+  ) => IAutoMovieInspectionDiagnostics;
+
+  /**
    * Put every object and the delivery camera at a second; objects may be replaced. The returned promise resolves once the subject is ready, including its textures. The draw host binds inspection after this placement, so no removed object's masks or measurements stand in for the current geometry.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is placed and what the promise means.
@@ -93,4 +115,44 @@ export interface IAutoMovieDrawScene {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the subject that implements it answers.
    */
   dispose(): void;
+}
+
+/** Types shared by the draw and review hosts of a placed subject. */
+export namespace IAutoMovieDrawScene {
+  /**
+   * The same settled delivery scene for any host, before the view or overlays select what the audience sees.
+   *
+   * @evidence contracts/development/design.md#principled-representation The clock, world scene, camera and delivery raster describe a single evaluated sample.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the placed inputs and delivery-only renderer access that diagnostics use.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Review views never determine the delivery projection. Full raster inspection is available only where the offscreen delivery host supplies its renderer and sample factor.
+   * @evidence contracts/development/common.md#meaningful-documentation Specifies the origin of the projection, the raster dimensions and when the renderer is available.
+   */
+  export interface IPlacedSample {
+    /** Film time with an exact delivery frame when available. */
+    readonly time: IAutoMovieInspectionDiagnostics.ITime;
+
+    /** The subject's settled world scene. Borrowed for this sample. */
+    readonly scene: THREE.Scene;
+
+    /** The delivery camera and its projection at the subject's raster. */
+    readonly camera: THREE.PerspectiveCamera;
+
+    /** Delivery raster width in pixels before supersampling. */
+    readonly width: number;
+
+    /** Delivery raster height in pixels before supersampling. */
+    readonly height: number;
+
+    /** Which host placed this scene. The Viewer samples actual painted frames. */
+    readonly mode: "viewer" | "capture" | "delivery";
+
+    /** Scratch render access for offscreen delivery audits. Restore renderer and scene state before returning. */
+    readonly auditRaster?: {
+      /** The renderer used for the actual offscreen delivery. */
+      readonly renderer: THREE.WebGLRenderer;
+
+      /** Native samples along each side of an output pixel. */
+      readonly factor: 1 | 2;
+    };
+  }
 }

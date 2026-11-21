@@ -42,6 +42,29 @@ pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from
 
 The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it. Export requires a whole number of frames. The report's hashes describe the drawn frames, and [delivery review]({{skills}}/review/delivery-review.md) judges the film.
 
+## Production diagnostics
+
+Every host inspects the placed film through `src/inspectFilmProduction.ts`: the inspector on each painted picture, the capture on each drawn still and the render on every delivered frame. It judges the evaluated pose whoever produced it, a native action, raw authored keyframes or a physical performance, so one fault is reported the same way from each. Extend it per film through `IFilmProduction.inspectionLayers`, `inspectionChecks`, `inspectionCamera` and `inspectPlaced`.
+
+Declare contact and continuity expectations by returning `selectAutoMoviePlacedChecks({ scene: sample.scene, time: sample.time, fps, supports, grips, custody, continuity })` from `@automovie/render` in `inspectionChecks(sample)`.
+
+- **Supports** are half-open film-second phases `[from, to)`, each with the displayed socket, the support node and a support-local anchor. A moving deck carries its anchor. Consecutive phases express a foot roll or a transfer, and the incoming phase owns the boundary second.
+- **Grips** are windows naming the hand, the prop and the expected hand-local frame.
+- **Custody** lists the holder nodes and a schedule of `{ from, holder }`. The actual holder is read from the scene graph, so parent the prop to the receiving hand on the handoff frame.
+- **Continuity** takes the film's admitted cut (`cutSequence`), its `sequenceTimeline` layout and deliberate breaks `{ shot, seconds }`. Each track's `observe(shot, shotSeconds)` returns the authored world transform as `{ kind: "present" }` or `{ kind: "missing" }`, or `null` when the shot does not involve the entity, with `maxSpeed` and `maxAngularSpeed` per shot-local second. Cuts, transitions and declared breaks are excluded. A resuming seam and retimes are checked on shot time.
+
+Nothing reads proximity, contact receipts or physics to choose a support, grip or holder.
+
+The inspector checks each picture under a time budget and marks what it could not finish as `deferred`. Capture and delivery both complete the checks the interactive preview deferred for time.
+
+A finding has a stable check, key, code and entity paths, a confidence, and a witness with its film seconds and, on the delivery grid, its output frame. Each check also reports its coverage: `checked`, `excluded` with a reason, or `deferred` or `unsupported` with a reason.
+
+- **Inspector.** A confirmed error draws a red cube at its witness under the `beauty` shade, a possible one an amber cube, and goes to the console once per incident: at its first visit and when its span closes. A span over consecutive frames is frame-exact. A span over uninterrupted playback names only the painted samples, and the film between them is unchecked, so step the frames before trusting its extent. The Diagnostics section lists the incidents. Its buttons pause, move to the first or worst witness and label the finding's drawn entities, so the address and the capture command reproduce it. Unticking "show witnesses" hides the cubes and the status line only. The status line names checks the preview deferred.
+- **Capture.** `record.json` holds the episodes and coverage of the drawn stills.
+- **Render.** `render-report.json` holds the episodes and coverage of every frame. The render also decodes `film.mp4` and compares its black, frozen and silent intervals with the drawn frames and the padded soundtrack it encoded. An interval the encode introduced blocks publication. One the film itself drew blocks only when the film declares `delivery` intent and none of its `allowances` covers it. A confirmed error, or a required check still deferred or unsupported, blocks publication: the command exits non-zero naming the first cursor, keeps the report and leaves the previous `film.mp4` in place.
+
+Repair a blocking finding at the source that placed it, then render again.
+
 With `pnpm run dev` running, `pnpm run review --url <inspector-address> --seconds <s>` runs `automovie review`: it presses the inspector's Play button and records real-time playback as a video, with the time readout it showed and the page's errors, into `media/automovie/review/` or `--out <dir>`, for the user to watch. `pnpm run review:setup` installs its recording FFmpeg and headless Chromium.
 
 ## Physical performance

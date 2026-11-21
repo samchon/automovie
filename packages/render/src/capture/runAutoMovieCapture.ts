@@ -6,6 +6,7 @@ import type {
   IAutoMovieCaptureFolder,
   IAutoMovieCapturePlan,
   IAutoMovieCaptureRecord,
+  IAutoMovieInspectionDiagnostics,
   IAutoMovieRasterImage,
   IAutoMovieRunCaptureProps,
 } from "@automovie/interface";
@@ -14,6 +15,7 @@ import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
 import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
 import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
 import { stampAutoMovieRasterLabel } from "../picture/stampAutoMovieRasterLabel.js";
+import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAutoMovieInspectionEpisodes.js";
 import { compareAutoMovieCaptureRounds } from "./compareAutoMovieCaptureRounds.js";
 import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanRequest.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
@@ -22,7 +24,7 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
 /**
  * Draw a planned capture through the host's draw function and write its stills, contact sheets and record into its opened folder, so every rule of a capture runs the same in a Node host, a page and a test.
  *
- * Each cell is drawn in plan order, one at a time. A drawn still gets its labels stamped at their anchors, at a scale that keeps a label's font pixel at least one sheet pixel after the still is reduced into its cell, and is written as `<cell name>.png` with its content hash. A cell whose draw throws, or returns a picture that is not the subject's raster, is recorded with the cause and stands on the sheet as a marked cell, and the run continues. Sheets are written as `sheet-001.png` onwards as each fills. With a `compare` round, `compareAutoMovieCaptureRounds` follows at `match`. The record comes last.
+ * Each cell is drawn in plan order, one at a time. A drawn still gets its labels stamped at their anchors, at a scale that keeps a label's font pixel at least one sheet pixel after the still is reduced into its cell, and is written as `<cell name>.png` with its content hash. A cell whose draw throws, or returns a picture that is not the subject's raster, is recorded with the cause and stands on the sheet as a marked cell, and the run continues. Sheets are written as `sheet-001.png` onwards as each fills. With a `compare` round, `compareAutoMovieCaptureRounds` follows at `match`. Diagnostics supplied by the drawn cells are reduced in film time for the record. The record comes last.
  *
  * Files are touched in the order `AutoMovieCaptureFolder` states: the host opens the folder for the plan's round and compared round, which checks both before anything is deleted; every still and sheet is claimed in a `running` record before the first is written, the comparison's files are claimed before it writes, and the `complete` record is written last. It rejects a folder opened for another round, and a storage failure, leaving a record that owns every file written so far.
  *
@@ -36,9 +38,9 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  * @evidence contracts/development/implementation.md#principled-implementation `.agents/skills/visual-debugging/capture.md`: a cell that could not be drawn stays on the sheet with its cause, and the record keeps what repeats each observation. Pixels and files come only through the injected draw function and the folder's injected storage, so the order of file steps runs under a unit test.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Claim, then one loop that draws, stamps, writes and lays each cell, then the last sheet, the comparison and the record; folder rules are the folder's and comparison rules the comparison's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A failed draw is recorded, never retried or replaced by a blank still, and a picture at the wrong raster is a failure rather than resized.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the cells and their pixels: one encoding, one hash and one reduction per still, one encoding per sheet.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One encoding, one hash and one image reduction per still, one encoding per sheet. Only diagnostic packets are sorted before grouping their findings and coverage.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each cell is drawn once; nothing is shared between runs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One drawn still and the sheet being filled are held at a time, plus one record row per cell.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One drawn still and the sheet being filled are held at a time, plus one row and any diagnostics per cell until the audit is reduced.
  */
 export async function runAutoMovieCapture(
   props: IAutoMovieRunCaptureProps,
@@ -69,6 +71,7 @@ export async function runAutoMovieCapture(
 
   // Draw, stamp, write and lay each cell in plan order.
   const rows: IAutoMovieCaptureCellRecord[] = [];
+  const packets: IAutoMovieInspectionDiagnostics[] = [];
   const sheets: string[] = [];
   let sheet: AutoMovieRasterSheet | null = null;
   for (const cell of plan.cells) {
@@ -108,6 +111,26 @@ export async function runAutoMovieCapture(
         throw new Error(
           `the draw returned ${drawing.picture.width}x${drawing.picture.height} pixels where the subject is ${subject.width}x${subject.height}`,
         );
+      const { diagnostics } = drawing;
+      if (diagnostics !== undefined) {
+        const outputFrame: number | undefined = cell.time.frame ?? undefined;
+        const { time } = diagnostics;
+        if (
+          time.filmSeconds !== cell.time.seconds ||
+          (time.outputFrame !== undefined && time.outputFrame !== outputFrame)
+        )
+          throw new Error(
+            `Inspection diagnostics do not match cell ${cell.name} at ${cell.time.seconds} s.`,
+          );
+        packets.push(
+          outputFrame === undefined
+            ? diagnostics
+            : {
+                ...diagnostics,
+                time: { ...time, outputFrame },
+              },
+        );
+      }
     } catch (error) {
       const cause: string =
         error instanceof Error ? error.message : String(error);
@@ -171,6 +194,18 @@ export async function runAutoMovieCapture(
     comparison,
     video: props.video ?? null,
     section: props.section ?? null,
+    ...(packets.length === 0
+      ? {}
+      : {
+          diagnostics: reduceAutoMovieInspectionEpisodes(
+            packets.sort(
+              (
+                left: IAutoMovieInspectionDiagnostics,
+                right: IAutoMovieInspectionDiagnostics,
+              ): number => left.time.filmSeconds - right.time.filmSeconds,
+            ),
+          ),
+        }),
   });
 }
 

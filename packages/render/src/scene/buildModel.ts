@@ -16,6 +16,7 @@ import { buildMaterial } from "./buildMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { defaultMaterial } from "./defaultMaterial.js";
 import { applyDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
+import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { applyReliefWeights } from "./reliefWeightShading/index.js";
 
 /**
@@ -323,6 +324,11 @@ export const buildModel: (
           group.add(mesh);
         }
       }
+
+      // Without a skeleton every part is fixed to the root: one rigid assembly
+      // for placed collision checks while its parts keep their built placement.
+      if (model.skeleton === null)
+        AutoMovieCollisionSource.bindAssembly(group, parts.values());
 
       return {
         object: group,

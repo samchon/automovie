@@ -7,13 +7,13 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. Before a duration is set, play does nothing; after `setDuration(2)` a seek past either end lands on 0 or 2, and a seek that does not move keeps the snapshot object and notifies no listener.
- * 2. Playing at rate 0.5, one wall second advances half a subject second; a negative or non-finite wall time moves nothing; a paused playhead does not move.
- * 3. Advancing past the end stops at the duration and pauses; play from the end restarts at zero.
+ * 2. Playing at rate 0.5, one wall second advances half a subject second; a negative or non-finite wall time moves nothing; a paused playhead does not move. The two moving seeks counted as jumps and playing did not.
+ * 3. Advancing past the end stops at the duration and pauses; play from the end restarts at zero as a third jump.
  * 4. A listener hears each change until it unsubscribes, and a duration, rate or second that is not a positive (or finite) number is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives the public playhead and reads its snapshots and listener calls.
  * @evidence contracts/development/testing.md#independent-expectations Expected seconds are the products of the stated rate and wall times and the clamps of the stated range, worked out in the test.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a moving against a still change, both ends of the range, playing against paused, a valid against a negative and non-finite wall time, the end against the middle, and accepted against refused values.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a moving against a still change, a seek against playback for the jump count, both ends of the range, playing against paused, a valid against a negative and non-finite wall time, the end against the middle, and accepted against refused values.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_inspector_playhead`; no React is rendered. The loop that advances it belongs to `test_inspector_mount_lifecycle`.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming its input and the behaviour it pins.
  */
@@ -75,6 +75,11 @@ export function test_inspector_playhead(): void {
     playhead.getSnapshot().seconds,
     0.5,
   );
+  TestValidator.equals(
+    "the two moving seeks are jumps and playing is not",
+    playhead.getSnapshot().jump,
+    2,
+  );
 
   // 3. The end.
   playhead.advance(10);
@@ -85,9 +90,13 @@ export function test_inspector_playhead(): void {
   );
   playhead.play();
   TestValidator.equals(
-    "play from the end restarts",
-    [playhead.getSnapshot().seconds, playhead.getSnapshot().playing],
-    [0, true],
+    "play from the end restarts with a jump",
+    [
+      playhead.getSnapshot().seconds,
+      playhead.getSnapshot().playing,
+      playhead.getSnapshot().jump,
+    ],
+    [0, true, 3],
   );
 
   // 4. Listeners and refusals.
