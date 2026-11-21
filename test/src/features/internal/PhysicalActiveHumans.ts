@@ -31,8 +31,15 @@ export namespace PhysicalActiveHumans {
   export const RATE: number = 120;
   const SUBSTEPS: number = 32;
 
-  /** Four seconds of authored arm and neck motion, sampled once per Human. */
-  const CYCLE_STEPS: number = 4 * RATE;
+  /** One second of authored arm and neck motion, sampled once per Human. */
+  const CYCLE_STEPS: number = RATE;
+
+  /**
+   * Each Human starts a quarter cycle after the previous one, at 0, 90 and
+   * 180 degrees of the wave. Every quarter-cycle window then sweeps one full
+   * amplitude, so each elbow moves 10 degrees within any 0.25 s run.
+   */
+  const PHASE_STEPS: number = CYCLE_STEPS / 4;
 
   /** Current canonical providers in stable scene insertion order. */
   const SUBJECTS: readonly motionHumanBody.Name[] = [
@@ -110,8 +117,8 @@ export namespace PhysicalActiveHumans {
 
   /**
    * Sample one complete authored cycle on the current skeleton and reuse its
-   * transforms through the timeline. Each Human starts one third of a cycle
-   * later than the previous one. Foot support is force-only in world actuation.
+   * transforms through the timeline from the Human's phase. Foot support is
+   * force-only in world actuation.
    */
   function body(
     human: IAutoMovieMotionHumanBody,
@@ -203,7 +210,7 @@ export namespace PhysicalActiveHumans {
     result.targets = Array.from(
       { length: Math.round(duration * RATE) + 1 },
       (_: unknown, step: number): IAutoMoviePhysicalSimulationInput.ITarget =>
-        cycle[(step + index * (CYCLE_STEPS / SUBJECTS.length)) % CYCLE_STEPS]!,
+        cycle[(step + index * PHASE_STEPS) % CYCLE_STEPS]!,
     );
     result.actuation = "world";
     result.compensateGravity = true;

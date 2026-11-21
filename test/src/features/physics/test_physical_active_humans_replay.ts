@@ -28,7 +28,7 @@ const ARCHIVE_BYTES: number = 64 * 1024 ** 2;
  * Three canonical Humans with active arms on force-tracked feet (#3789) bake,
  * replay and resume exactly.
  *
- * 1. Every Human stays within joint range, anchor, target and floor bounds, both elbows follow the authored motion, and every Human loads the floor.
+ * 1. Every Human stays within joint range, anchor, target and floor bounds, both elbows follow an authored sweep of at least 5 degrees, and every Human loads the floor.
  * 2. The decoded archive reproduces the live cache in sequential and reordered seeks.
  * 3. Editing interval 25 resumes from the snapshot at 20 and recomputes only the last 10 intervals.
  * 4. The resumed run equals a fresh bake of the edited input in every frame and contact.
@@ -60,6 +60,13 @@ export async function test_physical_active_humans_replay(): Promise<void> {
   TestValidator.predicate(
     `joint range, anchors, targets and floor stay within bounds: ${JSON.stringify(quality.maxima)}`,
     quality.withinHistoricalLimits,
+  );
+  TestValidator.predicate(
+    `every authored elbow sweeps at least 5 degrees: ${JSON.stringify(quality.elbows)}`,
+    quality.elbows.every(
+      (elbow: (typeof quality.elbows)[number]): boolean =>
+        elbow.authoredRadians >= (5 * Math.PI) / 180,
+    ),
   );
   TestValidator.predicate(
     `both elbows of every Human follow the authored motion: ${JSON.stringify(quality.elbows)}`,
