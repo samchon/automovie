@@ -667,6 +667,7 @@
     "wallRun": {},
     "rope": {},
     "stuntFall": {},
+    "climbTree": {},
     "crossObstacle": {
       "alternatives": [
         {
