@@ -24,6 +24,7 @@ export * from "./createSkateboard";
 export * from "./createSki";
 export * from "./createSnowboard";
 export * from "./createStartingBlock";
+export * from "./createStartingGate";
 export * from "./createStick";
 export * from "./createSurfboard";
 export * from "./createVaultingPole";
