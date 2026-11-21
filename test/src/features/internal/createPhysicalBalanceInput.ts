@@ -12,9 +12,11 @@ export function createPhysicalBalanceInput(
   actuation: "world" | "internal",
   impulse: number,
   duration: number,
+  body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalSupportFixtures.body(
+    profile,
+    duration,
+  ),
 ): IAutoMoviePhysicalSimulationInput.IInput {
-  const body: IAutoMoviePhysicalSimulationInput.IBody =
-    PhysicalSupportFixtures.body(profile, duration);
   if (actuation === "internal") {
     body.actuation = "internal";
     body.compensateGravity = true;

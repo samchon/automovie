@@ -23,17 +23,17 @@ import { InspectionScene } from "../internal/InspectionScene";
  *
  * Scenarios:
  *
- * 1. As StrictMode runs an effect: mount, dispose before the instance arrives, mount again, then both instances arrive. The first instance is disposed on arrival without a renderer; the second gets the one renderer, one pending frame and one `ready` report listing its object and mark paths, the marks of its first second and the named views.
+ * 1. Mount, dispose before arrival, and mount again. The second mount admits a declared contact kind before any contact mark appears and gives its name to the selection panel.
  * 2. The first frame renders once at the address's second; a frame with nothing changed renders nothing; a new canvas size resizes the renderer and renders again.
  * 3. Playing, frames 500 ms apart advance the playhead half a second each and seek the instance there; past the end the playhead stops at the duration.
- * 4. A request whose mark pattern matches no kind is refused with the request still drawn; a request asking for the supplied kind at a new second is applied, its legend reported, the playhead sought to that second, and drawn on the next frame.
- * 5. A seek that resolves late draws nothing until it resolves, frames meanwhile start no other seek, the picture is drawn when it resolves, and the next frame seeks the newest second.
+ * 4. A request whose mark pattern matches no kind is refused with the request still drawn. A declared contact pattern is accepted on a silent frame, then gains one legend entry at the requested contact second.
+ * 5. A pending seek blocks other seeks and drawing. The completed seek draws the expired contact frame with an empty legend, then the next frame seeks to the newest second.
  * 6. Dispose with a seek pending cancels the pending frame, removes the inspection's objects from the scene, disposes the renderer and the instance once, and the seek resolving afterwards draws nothing; a second dispose does nothing. A third mount on the same host leaves exactly one renderer alive.
  * 7. A subject whose creation fails, and one whose duration is zero, report the reason, create no renderer that stays alive and dispose the instance they got.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount against a recording host (renderer, frame clock and size) and a subject double with a real three.js scene, and asserts the host's and subject's records and the reports.
- * @evidence contracts/development/testing.md#independent-expectations The expected counts follow from the lifecycle the scenario performs (one live mount, one pending frame per live mount), the expected seconds from the frame times and the subject's two-second duration, and the expected scene children from the scene the test built.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a dispose before arrival against after, a changed against an unchanged frame, a prompt against a late seek and a late seek before against after dispose, playing against the end, a refused against an accepted request, a first against a repeated dispose, and a failing creation against an invalid instance.
+ * @evidence contracts/development/testing.md#independent-expectations Counts follow the fixture's one live mount, one pending frame and one contact on [1, 1.25) seconds. The expectation uses the authored contact interval and scene children.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts early and late disposal, changed and unchanged frames, prompt and delayed seeks, continued playback and its end, declared empty and undeclared kinds, and contact and expiration.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_inspector_mount_lifecycle`; the renderer and frame clock are recording doubles, so no browser, WebGL or React runs. Pictures belong to review.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each naming its input and the behaviour it pins.
  */
@@ -41,7 +41,7 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   const host: RecordingHost = new RecordingHost();
   const playhead: AutoMovieInspectorPlayhead = new AutoMovieInspectorPlayhead();
   const request: IAutoMovieCapturePlanRequest =
-    readAutoMovieInspectorAddress("at=0.25");
+    readAutoMovieInspectorAddress("marks=contact&at=0.25");
 
   // 1. Mount, dispose before arrival, mount again.
   const first: RecordingSubject = new RecordingSubject(2);
@@ -82,7 +82,11 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
     0,
   );
   TestValidator.equals("one ready report", report.facts.length, 1);
+  TestValidator.equals("silent contact is admitted", report.refusals, []);
   const facts: IAutoMovieInspectorScene.IFacts = report.facts[0]!;
+  TestValidator.equals("silent contact is selectable", facts.markKinds, [
+    "contact",
+  ]);
   TestValidator.equals("object and mark paths", facts.paths, [
     "hero",
     "prop",
@@ -151,22 +155,14 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
     report.refusals[0]![0] === request,
   );
   const marked: IAutoMovieCapturePlanRequest =
-    readAutoMovieInspectorAddress("marks=curve/*&at=1");
+    readAutoMovieInspectorAddress("marks=contact*&at=1");
   mounted.apply(marked);
   TestValidator.equals(
     "an accepted request is not refused",
     report.refusals.length,
     1,
   );
-  TestValidator.predicate(
-    "its legend is reported",
-    report.legends
-      .at(-1)!
-      .some(
-        (entry: IAutoMovieInspectionLegendEntry): boolean =>
-          entry.label === "curve/axis" && entry.count === 1,
-      ),
-  );
+  TestValidator.equals("no contact before seek", report.legends.at(-1), []);
   TestValidator.equals(
     "the request's new second is sought",
     playhead.getSnapshot().seconds,
@@ -178,6 +174,13 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
     "and drawn on the next frame",
     renderer.renders,
     drawn + 1,
+  );
+  TestValidator.predicate(
+    "the contact second reports one actual mark",
+    report.legends.at(-1)!.some(
+      (entry: IAutoMovieInspectionLegendEntry): boolean =>
+        entry.label === "contact" && entry.count === 1,
+    ),
   );
 
   // 5. A seek that resolves late.
@@ -197,6 +200,7 @@ export async function test_inspector_mount_lifecycle(): Promise<void> {
   );
   instance.hold = false;
   await instance.settle();
+  TestValidator.equals("no expired contact", report.legends.at(-1), []);
   TestValidator.equals(
     "the picture is drawn when the seek resolves",
     renderer.renders,
@@ -356,7 +360,7 @@ class RecordingHost implements IAutoMovieInspectorSceneHost {
   }
 }
 
-/** One instance of the recording subject: two named quads and one supplied mark, whose seeks resolve at once unless held. */
+/** Two named quads, a permanent axis and a contact with a half-open lifetime. */
 class RecordingInstance implements IAutoMovieDrawScene {
   public readonly scene: THREE.Scene = InspectionScene.scene(
     InspectionScene.quad("hero", -2),
@@ -371,6 +375,7 @@ class RecordingInstance implements IAutoMovieDrawScene {
   public readonly fps: number = 30;
   public readonly width: number = 640;
   public readonly height: number = 360;
+  public readonly markKinds: readonly string[] = ["contact"];
   public readonly seeks: number[] = [];
   public hold: boolean = false;
   private held_: (() => void)[] = [];
@@ -382,12 +387,23 @@ class RecordingInstance implements IAutoMovieDrawScene {
     this.camera.position.set(0, 0, 8);
   }
 
-  public marks = (): ReturnType<NonNullable<IAutoMovieDrawScene["marks"]>> => [
+  public marks = (
+    seconds: number,
+  ): ReturnType<NonNullable<IAutoMovieDrawScene["marks"]>> => [
     InspectionScene.mark("hero/axis", "curve/axis", 0x00a0ff, {
       type: "polyline",
       points: [-2, -1, 0, -2, 1, 0],
       closed: false,
     }),
+    ...(seconds >= 1 && seconds < 1.25
+      ? [
+          InspectionScene.mark("hero/contact", "contact", 0x00c2a8, {
+            type: "arrows",
+            origins: [-2, 0, 0],
+            vectors: [0, 1, 0],
+          }),
+        ]
+      : []),
   ];
 
   public seek(seconds: number): Promise<void> {
