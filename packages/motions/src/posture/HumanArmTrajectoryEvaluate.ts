@@ -107,6 +107,10 @@ export function HumanArmTrajectoryEvaluate(
   ): void => {
     if (v <= 0) return;
     violation += v;
+    // What else bears at this waypoint, read when a site is missed there:
+    // the term that keeps the hand off its site.
+    if (term !== "site" && v - slack > (bearing.get(here)?.value ?? -Infinity))
+      bearing.set(here, { value: v - slack, what });
     if (v - slack > M.TOLERANCE) {
       failing[here] = true;
       if (interval) failing[here + 1] = true;
@@ -125,6 +129,7 @@ export function HumanArmTrajectoryEvaluate(
               : "region",
       };
   };
+  const bearing: Map<number, IBearing> = new Map();
   const n: number = c.n;
   const times: readonly number[] = c.times;
   x.forEach((arm: readonly (readonly number[])[], a: number): void => {
@@ -330,6 +335,12 @@ export function HumanArmTrajectoryEvaluate(
         if (pair.rested) objective += T.LIFT * pair.short * pair.short;
       }
     }
+  // A missed site names what kept the hand off it: an obstacle, a task
+  // point, a speed or another arm, as read at the same waypoint.
+  const holding: IBearing | undefined =
+    worst.term === "site" ? bearing.get(worst.at) : undefined;
+  if (holding !== undefined)
+    worst = { ...worst, what: `${worst.what}, held off by ${holding.what()}` };
   return {
     placed,
     objective,
@@ -340,4 +351,13 @@ export function HumanArmTrajectoryEvaluate(
     crossing,
     failing,
   };
+}
+
+/** The strongest reading other than a site's at one waypoint: its excess, millimetres or coordinate units, and its words. */
+interface IBearing {
+  /** The excess past its slack. */
+  value: number;
+
+  /** Its words, read only for a refusal. */
+  what: () => string;
 }
