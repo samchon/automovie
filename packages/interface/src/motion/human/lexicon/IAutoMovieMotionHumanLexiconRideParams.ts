@@ -7,6 +7,7 @@ import type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHo
 import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
 import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
 import type { IAutoMovieMotionHumanUnseat } from "./IAutoMovieMotionHumanUnseat";
+import type { IAutoMovieMotionHumanPolo } from "./IAutoMovieMotionHumanPolo";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -48,4 +49,7 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Leave a moving saddle against one's will: thrown, pulled down, dragged, stepping clear or slumped. */
   HumanUnseat: IAutoMovieMotionHumanUnseat;
+
+  /** Strike a ground ball with a polo mallet from the saddle, forehand or backhand, on either side. */
+  HumanPolo: IAutoMovieMotionHumanPolo;
 }
