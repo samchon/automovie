@@ -89,11 +89,14 @@ export namespace CollapseFold {
     ): readonly [number, number, number] =>
       protective && (direction !== "sideways" || arm === side)
         ? [
-            // Ahead of the trunk's pitch, so the arm points down and forward to the floor.
+            // As far forward as the trunk pitches, so the arm points down to
+            // the floor, then swept back along the trunk as the elbow gives.
             direction === "sideways"
-              ? ARMS.reach * drop * 0.5
-              : pitch + ARMS.ahead,
-            direction === "sideways" ? ARMS.brace * drop : ARMS.open,
+              ? ARMS.reach * drop * 0.5 * (1 - giving)
+              : pitch + ARMS.ahead - ARMS.sweep * giving,
+            direction === "sideways"
+              ? ARMS.brace * drop * (1 - giving) + ARMS.open * giving
+              : ARMS.open,
             ARMS.elbow + (ARMS.yield - ARMS.elbow) * giving,
           ]
         : [ARMS.limp, ARMS.open, ARMS.limpElbow];
@@ -145,7 +148,7 @@ export namespace CollapseFold {
       pitch: 15,
       lyingHip: 5,
       lyingKnee: 10,
-      lyingPitch: 70,
+      lyingPitch: 75,
       roll: 0,
     },
     sideways: {
@@ -175,6 +178,7 @@ export namespace CollapseFold {
   const ARMS: Readonly<{
     reach: number;
     ahead: number;
+    sweep: number;
     yield: number;
     brace: number;
     open: number;
@@ -184,8 +188,9 @@ export namespace CollapseFold {
     neck: number;
   }> = {
     reach: 100,
-    ahead: 20,
-    yield: 110,
+    ahead: 0,
+    sweep: 90,
+    yield: 10,
     brace: 50,
     open: 10,
     elbow: 15,

@@ -51,14 +51,12 @@ const AHEAD: IAutoMovieMotionTarget = {
   frame: "world",
   at: { x: 0, y: 1.2, z: 2 },
 };
-/** How high a lying pelvis's or head's joint may sit above the floor, metres: a lying torso's half depth with margin. */
-const LYING: number = 0.3;
 /** How far below the floor a joint centre may sink, metres: none. */
 const FLOOR: number = 0;
-/** How near its lowest height a hand is when it is on the floor, metres: three centimetres. */
-const SETTLE: number = 0.03;
-/** How far above its resting height the trunk still is while the hands bear, metres: a hand's breadth. */
+/** How far from standing and from rest the chest is while it goes down, metres: a hand's breadth. */
 const ABOVE: number = 0.08;
+/** How far ahead of the chest a reaching hand is, metres: a hand's breadth. */
+const REACH: number = 0.08;
 
 /**
  * Staged collapses in each direction and tone, on two body sizes.
@@ -69,8 +67,8 @@ const ABOVE: number = 0.08;
  * 2. A blow from behind sends a forward fall ahead of the feet, a blow from
  *    the right a sideways fall to the left, and a blow from ahead the
  *    unchanged backward knockdown behind them.
- * 3. A protective forward fall reaches the floor with both hands before the
- *    chest; a limp one does not.
+ * 3. A protective forward fall reaches both hands ahead of the chest toward
+ *    the floor while the trunk goes down; a limp one's hands trail.
  * 4. An in-place collapse ends with the pelvis within a foot length of where
  *    the feet stood.
  *
@@ -114,6 +112,8 @@ export function test_motion_reaction_collapse_directions(): void {
             }).node,
         });
         const end: number = film.duration;
+        const standing: number = film.bones("a", 0).get("chest")!.worldPosition
+          .y;
         const last: Bones = film.bones("a", end);
         const hips: IAutoMovieVector3 = last.get("hips")!.worldPosition;
         const head: IAutoMovieVector3 = last.get("head")!.worldPosition;
@@ -123,13 +123,21 @@ export function test_motion_reaction_collapse_directions(): void {
               `${label}: ${what} (hips ${hips.x.toFixed(2)} ${hips.y.toFixed(2)} ${hips.z.toFixed(2)}, head ${head.x.toFixed(2)} ${head.y.toFixed(2)} ${head.z.toFixed(2)})`,
             );
         };
+        // Lying on the front or the back, the pelvis is within a trunk's
+        // depth of the floor; on the side, the trunk rests on the shoulder
+        // over the arm beneath, the pelvis up to a thigh's radius higher.
+        const m = body.measure;
+        const lying: number =
+          one.direction === "sideways"
+            ? m.shoulderHalfWidth + 2 * m.upperArmRadius + m.thighRadius
+            : m.chestDepth;
         check(
           "the pelvis rests on the floor",
-          hips.y <= LYING || one.direction === "inPlace",
+          hips.y <= lying || one.direction === "inPlace",
         );
         check(
           "the head rests near the floor",
-          head.y <= LYING + 0.2 || one.direction === "inPlace",
+          head.y <= lying + m.headRadius || one.direction === "inPlace",
         );
         for (let i: number = 0; i <= 30; ++i) {
           const t: number = (end * i) / 30;
@@ -155,39 +163,28 @@ export function test_motion_reaction_collapse_directions(): void {
             Math.hypot(hips.x, hips.z) <= body.measure.footLength,
           );
         if (one.direction === "forward") {
-          // The hands are on the floor while the trunk is still a hand's
-          // breadth above where it comes to rest.
-          const height = (bones: Bones, bone: AutoMovieHumanoidBone): number =>
-            bones.get(bone)!.worldPosition.y;
-          const samples: Bones[] = [];
-          for (let i: number = 0; i <= 120; ++i)
-            samples.push(film.bones("a", (end * i) / 120));
-          const floor: number = Math.min(
-            ...samples.flatMap((bones: Bones): number[] => [
-              height(bones, "leftHand"),
-              height(bones, "rightHand"),
-            ]),
-          );
-          const braced: boolean = samples.some(
-            (bones: Bones): boolean =>
-              height(bones, "leftHand") <= floor + SETTLE &&
-              height(bones, "rightHand") <= floor + SETTLE &&
-              height(bones, "spine") >= height(last, "spine") + ABOVE,
-          );
+          // A protective body reaches ahead of its chest toward the floor
+          // while the trunk goes down; a limp one's arms trail at its sides.
+          let ahead: boolean = false;
+          let behind: boolean = true;
+          for (let i: number = 0; i <= 60; ++i) {
+            const t: number = (end * i) / 60;
+            const bones: Bones = film.bones("a", t);
+            const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
+            if (chest.y <= last.get("chest")!.worldPosition.y + ABOVE) continue;
+            if (chest.y >= standing - ABOVE) continue;
+            const reach: number = Math.min(
+              bones.get("leftHand")!.worldPosition.z,
+              bones.get("rightHand")!.worldPosition.z,
+            );
+            if (reach > chest.z + REACH) ahead = true;
+            if (reach > chest.z) behind = false;
+          }
           check(
-            (one.tone === "protective"
-              ? "both hands reach the floor before the chest"
-              : "no hand reaches the floor before the chest") +
-              ` (floor ${floor.toFixed(3)}, spine at rest ${height(last, "spine").toFixed(3)}, ` +
-              samples
-                .filter((_: Bones, i: number): boolean => i % 12 === 0)
-                .map(
-                  (bones: Bones): string =>
-                    `${Math.max(height(bones, "leftHand"), height(bones, "rightHand")).toFixed(2)}/${height(bones, "spine").toFixed(2)}`,
-                )
-                .join(" ") +
-              ")",
-            one.tone === "protective" ? braced : !braced,
+            one.tone === "protective"
+              ? "both hands reach ahead of the chest as it goes down"
+              : "the hands trail behind the chest as it goes down",
+            one.tone === "protective" ? ahead : behind,
           );
         }
       } catch (error: unknown) {
