@@ -113,7 +113,9 @@ export namespace EquineExpressionCue {
     | "hay"
     | "drink"
     | "rub"
-    | "groom";
+    | "groom"
+    | "bite"
+    | "suckle";
 
   /**
    * Bring the muzzle to a target and hold it there.

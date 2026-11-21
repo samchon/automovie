@@ -1,0 +1,174 @@
+import { Vector3, minimumJerk } from "@automovie/engine";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { ArchetypeFrame } from "../core";
+import { EquineBodyPose } from "./EquineBodyPose";
+import type { EquineEncounterCue } from "./EquineEncounterCue";
+import type { EquineStanceCue } from "./EquineStanceCue";
+import type { EquineStanceRows } from "./EquineStanceRows";
+import { EquineStanceSupport } from "./EquineStanceSupport";
+import type { QuadrupedBody } from "./QuadrupedBody";
+
+/** A rearing strike's trunk pitch about the hips, degrees: authored. */
+const STRIKE_PITCH: number = 30;
+
+/** A double-barrel kick's trunk pitch down about the shoulders, degrees: authored. */
+const KICK_PITCH: number = 15;
+
+/** The folded foreleg's joint turns in a strike, degrees, shoulder first: the stance rows' rear fold. */
+const TUCK: readonly [number, number, number, number] = [-40, -10, 100, 20];
+
+/** A moving hoof's path height, metres: authored. */
+const LIFT: number = 0.08;
+
+/** The zero vector. */
+const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/** The kinds of the encounter rows. */
+const KINDS: ReadonlySet<string> = new Set<EquineEncounterCue.Row["kind"]>([
+  "strike",
+  "kick",
+]);
+
+/**
+ * The encounter's stance rows: a rearing foreleg strike and a double-barrel kick, each bringing hooves onto a point on the other horse.
+ *
+ * A strike pitches the trunk up about the hips by `STRIKE_PITCH` with both hind hooves planted, folds the other foreleg and carries the striking hoof on a lifted path to the struck point, held there through the hold. A kick pitches the trunk down about the shoulders by `KICK_PITCH` with both fore hooves planted and carries both hind hooves to the kicked point, a hip's width apart. An unreachable point is refused by the stance's admission. The pitches are authored.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States both rows, their planted supports and what is authored.
+ * @evidence contracts/development/design.md#principled-representation Stance plans.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the stance's extra rows.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No clamp: reach is admitted by the stance.
+ */
+export namespace EquineEncounterRows {
+  /**
+   * Whether a stance cue is an encounter row.
+   *
+   * @param cue The cue.
+   * @returns Whether `plan` owns it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the result.
+   * @evidence contracts/development/implementation.md#principled-implementation A set of the rows' kinds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The kinds are built once.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function owns(
+    cue: EquineStanceCue.Cue,
+  ): cue is EquineEncounterCue.Row {
+    return KINDS.has(cue.kind);
+  }
+
+  /**
+   * Plan one encounter row from a state.
+   *
+   * @param body The prepared solver.
+   * @param start The state it starts from.
+   * @param cue The row.
+   * @returns Its plan, returning to the start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and output.
+   * @evidence contracts/development/implementation.md#principled-implementation Pitch the trunk about the planted pair by the share, fold or carry the free limbs to their targets by the same share.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per row.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per pose.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its chains and targets.
+   */
+  export function plan<Id extends string, D extends string>(
+    body: EquineBodyPose.IPrepared<Id, D>,
+    start: EquineStanceRows.IState,
+    cue: EquineEncounterCue.Row,
+  ): EquineStanceRows.IPlan {
+    const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
+      start.trunk,
+    );
+    const middle = (end: "Fore" | "Hind"): IAutoMovieVector3 =>
+      EquineBodyPose.point(
+        start.trunk,
+        Vector3.scale(
+          Vector3.add(
+            body.chains[`left${end}`][0]!,
+            body.chains[`right${end}`][0]!,
+          ),
+          0.5,
+        ),
+      );
+    const strike: boolean = cue.kind === "strike";
+    const pivot: IAutoMovieVector3 = middle(strike ? "Hind" : "Fore");
+    const pitch: number = strike ? STRIKE_PITCH : -KICK_PITCH;
+    const moving: QuadrupedBody.Limb[] = [];
+    const targets: Partial<Record<QuadrupedBody.Limb, IAutoMovieVector3>> = {};
+    let folded: QuadrupedBody.Limb | undefined;
+    if (cue.kind === "strike") {
+      const limb: QuadrupedBody.Limb = `${cue.side}Fore`;
+      moving.push(limb);
+      targets[limb] = cue.point;
+      folded = cue.side === "left" ? "rightFore" : "leftFore";
+    } else {
+      const lateral: IAutoMovieVector3 = EquineStanceSupport.along(
+        start.trunk,
+        { x: 1, y: 0, z: 0 },
+      );
+      const half: number =
+        Math.abs(body.chains.leftHind[0]!.x - body.chains.rightHind[0]!.x) / 2;
+      moving.push("leftHind", "rightHind");
+      targets.leftHind = Vector3.addScaled(cue.point, lateral, half);
+      targets.rightHind = Vector3.addScaled(cue.point, lateral, -half);
+    }
+    const chain: readonly IAutoMovieVector3[] | undefined =
+      folded === undefined
+        ? undefined
+        : body.chain(folded, start.trunk, {
+            kind: "placed",
+            anchor: start.anchors[folded],
+            fold: 0,
+          });
+    return {
+      cue,
+      start,
+      end: start,
+      keys: [0.5, 1],
+      events: [
+        ...moving.map(
+          (limb: QuadrupedBody.Limb): EquineStanceRows.IEvent => ({
+            label: `${limb}Off`,
+            entry: true,
+            time: 0,
+          }),
+        ),
+        { label: `${cue.kind}On`, entry: true, time: 1 },
+      ],
+      goal: (share: number): EquineBodyPose.IGoal => {
+        const s: number = minimumJerk.share(Math.max(0, Math.min(1, share)));
+        const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> =
+          EquineStanceSupport.placed(start.anchors);
+        for (const limb of moving)
+          limbs[limb] = {
+            kind: "placed",
+            anchor: EquineStanceSupport.arc(
+              start.anchors[limb],
+              targets[limb]!,
+              s,
+              LIFT,
+            ),
+            fold: 0,
+          };
+        if (folded !== undefined && chain !== undefined)
+          limbs[folded] = EquineStanceSupport.folded(chain, TUCK, s);
+        return {
+          trunk: ArchetypeFrame.chain(
+            EquineBodyPose.turn(pitch * s, 0, pivot, ZERO, heading),
+            start.trunk,
+          ),
+          limbs,
+        };
+      },
+    };
+  }
+}

@@ -168,7 +168,7 @@ export namespace createQuadruped {
     noddingContacts?: readonly string[];
   }
 
-  /** Equid head-carried vocabulary: neck, head, bridle, optional actual ear plates, the optional jaw and the optional upper lip. */
+  /** Equid head-carried vocabulary: neck, head, bridle, optional actual ear plates, the optional jaw, upper lip and nostrils. */
   export const BRIDLED: readonly string[] = [
     "neck",
     ...HorseHarness.HEAD,
@@ -176,6 +176,8 @@ export namespace createQuadruped {
     "rightEar",
     "jaw",
     "lip",
+    "leftNostril",
+    "rightNostril",
   ];
 
   /** Each kind's species. Every equid stands at the horse's angles (`createHorse.STANCE`; no pony's, donkey's or mule's were found) and rides the horse's measured gaits, `HorseGait.TABLE`, scaled to its height by dynamic similarity, which Bullimore and Burn 2006 (J Exp Biol 209:455, abstract) found to hold across trotting horses of 86 to 714 kg: relative stride length and duty factor at equal Froude number were not related to body mass. For the donkey and the mule the table is provisional: no study gives their duty factors, limb phases or transitions (the searches are in the sources record). */

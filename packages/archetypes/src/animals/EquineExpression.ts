@@ -92,6 +92,8 @@ const TOUCHING: ReadonlySet<EquineExpressionCue.Act> =
     "drink",
     "rub",
     "groom",
+    "bite",
+    "suckle",
   ]);
 
 /** A cue that poses nothing and only marks an instant. */

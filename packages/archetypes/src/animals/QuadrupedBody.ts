@@ -11,6 +11,7 @@ import type { QuadrupedEars } from "./QuadrupedEars";
 import { QuadrupedHead } from "./QuadrupedHead";
 import type { QuadrupedJaw } from "./QuadrupedJaw";
 import type { QuadrupedLip } from "./QuadrupedLip";
+import type { QuadrupedNostrils } from "./QuadrupedNostrils";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
 /**
@@ -163,6 +164,9 @@ export namespace QuadrupedBody {
 
       /** Optional authored coarse upper lip inside the head capsule (`QuadrupedLip`). */
       lip?: QuadrupedLip.IProfile;
+
+      /** Optional authored coarse nostrils inside the head capsule (`QuadrupedNostrils`). */
+      nostrils?: QuadrupedNostrils.IProfile;
     }>;
 
     /** The tail: its bar's radius and its tip below and behind its root, fractions of the height at the withers, and its root up and back from the hindquarters' rounded end's centre, a fraction of the barrel's radius. */

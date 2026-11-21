@@ -7,9 +7,9 @@ import type {
 import { ArchetypeFrame } from "../core";
 import { EquineAirs } from "./EquineAirs";
 import { EquineBodyPose } from "./EquineBodyPose";
-import { EquineComfortRows } from "./EquineComfortRows";
 import type { EquineExpressionCue } from "./EquineExpressionCue";
 import type { EquineStanceCue } from "./EquineStanceCue";
+import { EquineStanceExtras } from "./EquineStanceExtras";
 import { EquineStanceMoves } from "./EquineStanceMoves";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 import { QuadrupedBody } from "./QuadrupedBody";
@@ -267,8 +267,8 @@ export namespace EquineStanceRows {
       return EquineAirs.held(body, cue, (rear: EquineStanceCue.IRear) =>
         pitch(body, start, rear),
       );
-    if (EquineComfortRows.owns(cue))
-      return EquineComfortRows.plan(body, start, cue);
+    if (EquineStanceExtras.owns(cue))
+      return EquineStanceExtras.plan(body, start, cue);
     return pitch(body, start, cue);
   }
 

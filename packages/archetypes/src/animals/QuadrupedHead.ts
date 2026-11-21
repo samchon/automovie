@@ -7,6 +7,7 @@ import type { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedEars } from "./QuadrupedEars";
 import { QuadrupedJaw } from "./QuadrupedJaw";
 import { QuadrupedLip } from "./QuadrupedLip";
+import { QuadrupedNostrils } from "./QuadrupedNostrils";
 
 /**
  * Lay the actual head capsule, optional pinnae, an optional jaw and an optional upper lip under one source head budget.
@@ -81,7 +82,9 @@ export function QuadrupedHead<Id extends string, Dimension extends string>(
   if (profile.jaw !== undefined)
     QuadrupedJaw.lay(builder, head, profile.jaw, color);
 
-  // The upper lip lies inside the head capsule too, under the same zero weight.
+  // The upper lip and the nostrils lie inside the head capsule too, under the same zero weight.
   if (profile.lip !== undefined)
     QuadrupedLip.lay(builder, head, profile.lip, color);
+  if (profile.nostrils !== undefined)
+    QuadrupedNostrils.lay(builder, head, profile.nostrils, color);
 }
