@@ -68,6 +68,23 @@ export namespace mountedHorseScene {
     segments: readonly IAutoMovieMotionHumanSegment[];
   }
 
+  /** A further performer: its subject, body, where it starts in the seat's frame and its acts. */
+  export interface IPartner {
+    /** The subject id. */
+    subject: string;
+
+    /** The body. */
+    body: IAutoMovieMotionHumanBody;
+
+    /** Where it stands at the start, in the seat's frame on the floor, metres. */
+    from: IAutoMovieVector3;
+
+    /** Its acts. */
+    acts: (chain: ReturnType<typeof HumanChain.subject>) => {
+      node: ReturnType<typeof HumanChain.subject>["node"];
+    };
+  }
+
   /** The scene's inputs. */
   export interface IProps {
     /** The tacked horse. */
@@ -93,6 +110,15 @@ export namespace mountedHorseScene {
 
     /** The acts after sitting. */
     acts: (seated: Seated) => Seated;
+
+    /** Further performers beside the rider. */
+    partners?: IPartner[];
+
+    /** Further laws the acts use, beside the ride and the mounted law. */
+    laws?: ConstructorParameters<typeof HumanPerformance>[0]["laws"];
+
+    /** Further props, beside the horse. */
+    props?: ConstructorParameters<typeof HumanPerformance>[0]["props"];
 
     /** The grade the horse stands and goes on, degrees, nose up; level when absent: the whole ride turned about the world's lateral axis through the origin. */
     grade?: number;
@@ -131,8 +157,11 @@ export namespace mountedHorseScene {
     );
     const film: HumanPerformance = new HumanPerformance({
       seed: "equine-mounted-supports",
-      props: [HumanObject.prop("horse", horse, place(0), place, part)],
-      laws: [HumanRide.ride, HumanMounted],
+      props: [
+        HumanObject.prop("horse", horse, place(0), place, part),
+        ...(props.props ?? []),
+      ],
+      laws: [HumanRide.ride, HumanMounted, ...(props.laws ?? [])],
       ...(props.cues === undefined ? {} : { cues: props.cues }),
       performers: [
         {
@@ -145,10 +174,33 @@ export namespace mountedHorseScene {
           yaw: seat.yaw,
           proficiency: { level: "trained" },
         },
+        ...(props.partners ?? []).map((partner: IPartner) => ({
+          subject: partner.subject,
+          body: partner.body,
+          at: HumanFrame.point(
+            { origin: { ...seat.at, y: 0 }, yaw: seat.yaw },
+            partner.from,
+          ),
+          yaw: seat.yaw,
+          proficiency: { level: "trained" as const },
+        })),
       ],
-      composition: props.acts(
-        HumanChain.subject("rider").sit({ seat, seconds: 0.5 }),
-      ).node,
+      composition:
+        props.partners === undefined || props.partners.length === 0
+          ? props.acts(HumanChain.subject("rider").sit({ seat, seconds: 0.5 }))
+              .node
+          : {
+              kind: "parallel",
+              parts: [
+                props.acts(
+                  HumanChain.subject("rider").sit({ seat, seconds: 0.5 }),
+                ).node,
+                ...props.partners.map(
+                  (partner: IPartner) =>
+                    partner.acts(HumanChain.subject(partner.subject)).node,
+                ),
+              ],
+            },
     });
     return {
       horse,
