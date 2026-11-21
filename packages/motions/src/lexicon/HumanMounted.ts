@@ -152,15 +152,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       origin.position,
       Quaternion.rotateVector(origin.rotation, point),
     );
-  const unarmed = (
-    posture: IAutoMovieMotionHumanPosture,
-  ): IAutoMovieMotionHumanPosture => {
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    delete limbs.leftArm;
-    delete limbs.rightArm;
-    return { ...posture, limbs };
-  };
-  const entry: IAutoMovieMotionHumanPosture = unarmed(
+  const entry: IAutoMovieMotionHumanPosture = HumanMountedPaths.unarmed(
     HumanMountedFrame.move(
       context.entry.posture,
       origin,
@@ -212,7 +204,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     (
       figure: IAutoMovieMotionHumanMounted.IFigure,
     ): IAutoMovieMotionHumanPosture => {
-      const key: IAutoMovieMotionHumanPosture = unarmed(
+      const key: IAutoMovieMotionHumanPosture = HumanMountedPaths.unarmed(
         HumanMountedStirrups.free(figure.seat)
           ? HumanMountedStirrups.solve(seats, figure.supports!, figure.seat)
           : figure.seat === "aside"
@@ -221,7 +213,12 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
               ? HumanMountedSeats.bench(seats, figure.supports!)
               : figure.seat === "basic"
                 ? HumanMountedSeats.basic(seats)
-                : entry,
+                : HumanMountedPaths.entered(
+                    context.body,
+                    entry,
+                    figure,
+                    planted,
+                  ),
       );
       const points: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
       for (const side of ["left", "right"] as const) {
@@ -271,7 +268,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         figure: IAutoMovieMotionHumanMounted.IFigure,
       ): Map<string, IAutoMovieMotionHumanContactWindow> => {
         const member: Map<string, IAutoMovieMotionHumanContactWindow> =
-          figure.seat === "entered" ? new Map(kept) : new Map();
+          figure.seat === "entered" && !HumanMountedPaths.names(figure)
+            ? new Map(kept)
+            : new Map();
         if (HumanMountedSeats.sits(figure.seat))
           member.set("seat", bears("seat", "seat"));
         for (const part of PARTS) {
@@ -392,6 +391,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
           origin.rotation,
           now.rotation,
           respond,
+          HumanMountedPaths.grips(support, figures[index]!, now, film),
         ),
         HumanMountedFrame.LOCAL,
         now,

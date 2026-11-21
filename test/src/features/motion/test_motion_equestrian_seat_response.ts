@@ -1,0 +1,329 @@
+import {
+  EquineStance,
+  type EquineStanceCue,
+  createHorse,
+  rideHorse,
+} from "@automovie/archetypes";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanFoot,
+  IAutoMovieMotionHumanMounted,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanFoot, HumanRefusal, HumanSignature } from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { motionHumanBody } from "../internal/motionHumanBody";
+import { mountedHorseScene } from "../internal/mountedHorseScene";
+
+/** The campaign's held-contact bound, metres. */
+const CONTACT: number = 0.01;
+
+/** Seconds the horse stands while the rider sits on. */
+const WAIT: number = 6;
+
+/** The stirrups and reins the rider keeps. */
+const HOLD: IAutoMovieMotionHumanMounted.ISupports = {
+  leftFoot: "leftStirrup",
+  rightFoot: "rightStirrup",
+  leftHand: "leftRein",
+  rightHand: "rightRein",
+};
+
+/**
+ * A ridden rear and buck with the seat response: the horse halts, rears and
+ * later bucks under a seated rider who keeps the seat, both stirrups and both
+ * reins, the trunk leaning against the horse's pitch.
+ *
+ * Scenarios:
+ * 1. The horse's own pitch, read from its saddle's forward axis, rises more than 15 degrees nose-up in the rear and falls nose-down in the buck.
+ * 2. Against the saddle's up, the displayed trunk leans forward while the horse rears and back while it bucks, and in the world its inclination turns less from where it was before the event than in the same take ridden with no response: the trunk inclination opposes the horse's pitch.
+ * 3. Through both events and a sideways step aside (a shy) the seat region stays within 10 mm of the saddle, both balls of the feet within 10 mm of their stirrups and both wrists within 0.7 hand lengths of their reins, moving less than 10 mm against them.
+ * 4. A take that lets the left foot go as the buck begins and takes the stirrup again after it: halfway through the loss the left ball is more than 50 mm from its tread, half a second after the regain it is back within 30 mm, and the left stirrup's window closes when the loss begins and opens again when the regain arrives.
+ * 5. A response share outside 0 to 1 is refused on `respond`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the take, its five scenarios and each bound's source.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted law with and without its seat response over an actual horse that rears and bucks in place and reads the displayed trunk, seat, feet and wrists against its moving saddle, stirrups and reins; a trunk carried rigidly, a response of the wrong sign or a lost contact fails.
+ * @evidence contracts/development/testing.md#independent-expectations The horse's pitch is read from its own saddle frame; the response's direction is the issue's (forward in a rear, back in a buck); the bounds are the campaign's and the rider attachment spec's.
+ * @evidence contracts/development/testing.md#distinguishing-cases Rear against buck, with against without the response, and an admitted against an out-of-range share.
+ * @evidence contracts/development/testing.md#execution-ownership Two in-memory films of one polygon man over one archetype stance ride.
+ */
+export function test_motion_equestrian_seat_response(): void {
+  const findings: string[] = [];
+  const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  const horse: mountedHorseScene.Horse = createHorse(
+    { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0 },
+    8,
+  );
+  const halt: mountedHorseScene.Ride = rideHorse(
+    horse,
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      cruise: 1.2,
+      startSpeed: 0,
+      endSpeed: 0,
+      acceleration: 1,
+      deceleration: 1,
+      startFromStanding: true,
+      legs: [{ kind: "straight", length: 2 }],
+    },
+    "walk",
+  );
+  const phases = (
+    from: number,
+    entry: number,
+    hold: number,
+    exit: number,
+  ): EquineStanceCue.IPhases => ({ from, entry, hold, exit });
+  const rear: number = halt.duration + 2;
+  const buck: number = halt.duration + 7;
+  const shy: number = halt.duration + 10;
+  const course: mountedHorseScene.Ride = EquineStance.after(horse, halt, [
+    { kind: "rear", pitch: 30, ...phases(rear, 1.2, 0.8, 1.2) },
+    { kind: "buck", pitch: 15, ...phases(buck, 0.6, 0.3, 0.6) },
+    {
+      kind: "stepAside",
+      side: "right",
+      width: 0.25,
+      ...phases(shy, 0.8, 0.4, 0.8),
+    },
+  ]);
+  const reared: number = WAIT + rear + 1.2 + 0.4;
+  const bucked: number = WAIT + buck + 0.6 + 0.15;
+  const shied: number = WAIT + shy + 0.8 + 0.2;
+  const responding: mountedHorseScene.IScene = stage(horse, body, course, 1);
+  const rigid: mountedHorseScene.IScene = stage(horse, body, course, 0);
+
+  // 1. The horse's own pitch.
+  const pitch = (scene: mountedHorseScene.IScene, at: number): number => {
+    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+      scene.part("seat", at).rotation,
+      { x: 0, y: 0, z: 1 },
+    );
+    return (Math.asin(Math.max(-1, Math.min(1, ahead.y))) * 180) / Math.PI;
+  };
+  if (!(pitch(responding, reared) > 15 && pitch(responding, bucked) < 0))
+    findings.push(
+      `the horse pitches ${pitch(responding, reared).toFixed(1)} degrees in the rear and ${pitch(responding, bucked).toFixed(1)} in the buck`,
+    );
+
+  // 2. The trunk leans against the pitch.
+  const trunk = (
+    scene: mountedHorseScene.IScene,
+    at: number,
+  ): IAutoMovieVector3 =>
+    Vector3.normalize(
+      Vector3.subtract(
+        Vector3.lerp(
+          mountedHorseScene.joint(scene, "leftUpperArm", at),
+          mountedHorseScene.joint(scene, "rightUpperArm", at),
+          0.5,
+        ),
+        Vector3.lerp(
+          mountedHorseScene.joint(scene, "leftUpperLeg", at),
+          mountedHorseScene.joint(scene, "rightUpperLeg", at),
+          0.5,
+        ),
+      ),
+    );
+  const lean = (scene: mountedHorseScene.IScene, at: number): number => {
+    const local: IAutoMovieVector3 = mountedHorseScene.turned(
+      scene.part("seat", at),
+      trunk(scene, at),
+    );
+    return (Math.atan2(local.z, local.y) * 180) / Math.PI;
+  };
+  // The trunk's forward inclination in the world, about the horse's own heading: what the response keeps.
+  const drift = (scene: mountedHorseScene.IScene, at: number): number => {
+    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
+      scene.place(at).rotation,
+      { x: 0, y: 0, z: 1 },
+    );
+    const level: IAutoMovieVector3 = Vector3.normalize({ ...ahead, y: 0 });
+    const t: IAutoMovieVector3 = trunk(scene, at);
+    return (Math.atan2(Vector3.dot(t, level), t.y) * 180) / Math.PI;
+  };
+  const settled: number = WAIT + rear - 0.5;
+  if (!(lean(responding, reared) > lean(responding, settled)))
+    findings.push(
+      `in the rear the trunk leans ${lean(responding, reared).toFixed(1)} degrees against the saddle, ${lean(responding, settled).toFixed(1)} before it`,
+    );
+  if (!(lean(responding, bucked) < lean(responding, settled)))
+    findings.push(
+      `in the buck the trunk leans ${lean(responding, bucked).toFixed(1)} degrees against the saddle, ${lean(responding, settled).toFixed(1)} before it`,
+    );
+  for (const at of [reared, bucked])
+    if (
+      !(
+        Math.abs(drift(responding, at) - drift(responding, settled)) <
+        Math.abs(drift(rigid, at) - drift(rigid, settled))
+      )
+    )
+      findings.push(
+        `at ${at.toFixed(2)} s the responding trunk turns ${(drift(responding, at) - drift(responding, settled)).toFixed(1)} degrees in the world, the rigid one ${(drift(rigid, at) - drift(rigid, settled)).toFixed(1)}`,
+      );
+
+  // 3. The seat, stirrups and reins hold through both events.
+  const seat = (at: number): IAutoMovieVector3 =>
+    mountedHorseScene.local(
+      responding.part("seat", at),
+      HumanSignature.region(responding.reader, "seat", at),
+    );
+  const ball = (side: "left" | "right", at: number): IAutoMovieVector3 =>
+    mountedHorseScene.local(
+      responding.part(`${side}Stirrup`, at),
+      HumanFoot.sockets(
+        body,
+        HumanSignature.bones(responding.reader, at),
+        side,
+      ).find(
+        (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
+      )!.point,
+    );
+  const wrist = (side: "left" | "right", at: number): IAutoMovieVector3 => {
+    const rein: IAutoMovieTransform = responding.part(`${side}Rein`, at);
+    return mountedHorseScene.local(
+      rein,
+      mountedHorseScene.joint(responding, `${side}Hand`, at),
+    );
+  };
+  const before: number = settled;
+  for (const at of [reared, bucked, shied]) {
+    if (Vector3.distance(seat(at), seat(before)) > CONTACT)
+      findings.push(`the seat slides on the saddle at ${at.toFixed(2)} s`);
+    for (const side of ["left", "right"] as const) {
+      const foot: IAutoMovieVector3 = ball(side, at);
+      if (
+        Math.abs(foot.y) > CONTACT ||
+        Vector3.distance(foot, ball(side, before)) > CONTACT
+      )
+        findings.push(
+          `the ${side} ball leaves its stirrup at ${at.toFixed(2)} s`,
+        );
+      if (
+        Vector3.length(wrist(side, at)) > 0.7 * body.measure.hand ||
+        Vector3.distance(wrist(side, at), wrist(side, before)) > CONTACT
+      )
+        findings.push(
+          `the ${side} wrist loses its rein at ${at.toFixed(2)} s (${Vector3.length(wrist(side, at)).toFixed(3)} m from it, ${Vector3.distance(wrist(side, at), wrist(side, before)).toFixed(3)} m moved)`,
+        );
+    }
+  }
+
+  // 4. The left stirrup is lost as the buck begins and taken again after it.
+  const begun: number = rigid.segments[rigid.segments.length - 1]!.start;
+  const lose: number = WAIT + buck - begun;
+  const shaken: mountedHorseScene.IScene = stage(horse, body, course, 1, [
+    { seat: "entered", transfer: 0.3, seconds: lose - 0.3, supports: HOLD },
+    {
+      seat: "entered",
+      transfer: 0.3,
+      seconds: 1.2,
+      supports: {
+        rightFoot: "rightStirrup",
+        leftHand: "leftRein",
+        rightHand: "rightRein",
+      },
+    },
+    { seat: "entered", transfer: 0.6, seconds: 1, supports: HOLD },
+  ]);
+  const shook: IAutoMovieMotionHumanSegment =
+    shaken.segments[shaken.segments.length - 1]!;
+  const span: number = shook.end - shook.start;
+  const lost: number = shook.start + shook.plan.events[1]!.share * span;
+  const regained: number = shook.start + shook.plan.events[2]!.share * span;
+  const loose = (at: number): number =>
+    Vector3.length(
+      mountedHorseScene.local(
+        shaken.part("leftStirrup", at),
+        HumanFoot.sockets(
+          body,
+          HumanSignature.bones(shaken.reader, at),
+          "left",
+        ).find(
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+            s.socket === "ball",
+        )!.point,
+      ),
+    );
+  if (!(loose(lost + 0.6) > 0.05))
+    findings.push(
+      `the lost left foot stays ${loose(lost + 0.6).toFixed(3)} m from its stirrup`,
+    );
+  if (!(loose(regained + 0.5) < 0.03))
+    findings.push(
+      `the regained left foot is ${loose(regained + 0.5).toFixed(3)} m from its stirrup`,
+    );
+  const left: number[][] = shook.plan.contacts
+    .filter((c): boolean => c.part === "leftFoot")
+    .map((c): number[] => [
+      shook.start + c.from * span,
+      shook.start + c.to * span,
+    ]);
+  if (
+    left.length !== 2 ||
+    Math.abs(left[0]![1]! - (lost - 0.3)) > 1e-6 ||
+    Math.abs(left[1]![0]! - regained) > 1e-6
+  )
+    findings.push(
+      `left stirrup windows ${JSON.stringify(left)}, wanted a release at ${(lost - 0.3).toFixed(3)} and a return at ${regained.toFixed(3)}`,
+    );
+
+  // 5. An out-of-range share is refused.
+  let error: unknown = null;
+  try {
+    const wrong: mountedHorseScene.IScene = stage(horse, body, course, 1.5);
+    wrong.film.bones("rider", wrong.film.duration - 0.1);
+  } catch (failure) {
+    error = failure;
+  }
+  if (!(error instanceof HumanRefusal && error.axis === "respond"))
+    findings.push(
+      `a response of 1.5 must be refused on respond, got ${String(error)}`,
+    );
+
+  TestValidator.equals("the seat response to a rear and a buck", findings, []);
+}
+
+/** Sit, ride on with the stirrups and reins, then hold the seat with the given response through the horse's events. */
+function stage(
+  horse: mountedHorseScene.Horse,
+  body: IAutoMovieMotionHumanBody,
+  course: mountedHorseScene.Ride,
+  respond: number,
+  figures: IAutoMovieMotionHumanMounted.IFigure[] = [
+    {
+      seat: "entered",
+      transfer: 0.3,
+      seconds: course.duration + WAIT - 4,
+      supports: HOLD,
+    },
+  ],
+): mountedHorseScene.IScene {
+  return mountedHorseScene.build({
+    horse,
+    body,
+    gait: "walk",
+    wait: WAIT,
+    course,
+    from: { x: 0.6, y: 0, z: -0.2 },
+    acts: (seated) =>
+      seated
+        .registered("ride", {
+          on: "horse",
+          seconds: 0.6,
+          seat: "seat",
+          feet: { left: "leftStirrup", right: "rightStirrup" },
+          hands: { left: "leftRein", right: "rightRein" },
+        })
+        .registered("mounted", {
+          on: "horse",
+          frame: "seat",
+          respond,
+          figures,
+        }),
+  });
+}

@@ -1,20 +1,23 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { hipJoints } from "../posture/hipJoints";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import type { HumanMountedFrame } from "./HumanMountedFrame";
+import { HumanMountedFrame } from "./HumanMountedFrame";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { HumanMountedStride } from "./HumanMountedStride";
 import type { HumanMountedTimeline } from "./HumanMountedTimeline";
+import { hangMountedLeg } from "./hangMountedLeg";
 import { heelMountedFoot } from "./heelMountedFoot";
 
 /**
@@ -167,6 +170,119 @@ export namespace HumanMountedPaths {
         limbs[`${side}Leg`] = heelMountedFoot(body, side, goal, joints[side]);
     }
     return { ...posture, limbs };
+  }
+
+  /**
+   * A posture without arm goals: the arms posed by their joints, so a hand's hold blends from where those joints put it.
+   *
+   * @param posture The posture.
+   * @returns The posture without its arm goals.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is dropped and why.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation Two deletions.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One copy.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function unarmed(
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    delete limbs.leftArm;
+    delete limbs.rightArm;
+    return { ...posture, limbs };
+  }
+
+  /**
+   * Where a figure's held contacts are at a film second, in the carrier frame then: the points the hands must keep in reach.
+   *
+   * @param support The carrier.
+   * @param figure The figure.
+   * @param now The carrier frame at the second.
+   * @param film Film seconds.
+   * @returns Each holding hand's contact point, in the carrier frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the points and their frame.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation One inverse transform per hand.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop over two hands.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function grips(
+    support: IAutoMovieMotionHumanPropReader,
+    figure: IAutoMovieMotionHumanMounted.IFigure,
+    now: IAutoMovieRigidTransform,
+    film: number,
+  ): Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> {
+    const out: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+    for (const side of ["left", "right"] as const) {
+      const id: string | undefined = figure.supports?.[`${side}Hand`];
+      if (id !== undefined)
+        out[side] = Quaternion.rotateVector(
+          Quaternion.inverse(now.rotation),
+          Vector3.subtract(
+            HumanMountedFrame.contact(support, id, film),
+            now.position,
+          ),
+        );
+    }
+    return out;
+  }
+
+  /**
+   * Whether a figure names either foot's support.
+   *
+   * @param figure The figure.
+   * @returns True when it names `leftFoot` or `rightFoot`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the test.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation Two reads.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One expression.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function names(figure: IAutoMovieMotionHumanMounted.IFigure): boolean {
+    return (
+      figure.supports?.leftFoot !== undefined ||
+      figure.supports?.rightFoot !== undefined
+    );
+  }
+
+  /**
+   * The entered seat for a figure: the entry as it was, or, where the figure names the stirrups it keeps, the entry with each planted foot it does not name hanging free (`hangMountedLeg`), a stirrup lost.
+   *
+   * @param body The body.
+   * @param entry The entered posture, in the carrier frame.
+   * @param figure The entered figure.
+   * @param planted Whether each entry foot stands on something.
+   * @returns The figure's key posture.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when a foot hangs.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation One choice per leg.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop over two legs.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A figure that names no stirrup keeps the entry's feet as they were.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function entered(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanPosture,
+    figure: IAutoMovieMotionHumanMounted.IFigure,
+    planted: Readonly<Record<AutoMovieHumanSide, boolean>>,
+  ): IAutoMovieMotionHumanPosture {
+    if (!names(figure)) return entry;
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...entry.limbs };
+    for (const side of ["left", "right"] as const)
+      if (planted[side] && figure.supports?.[`${side}Foot`] === undefined)
+        limbs[`${side}Leg`] = hangMountedLeg(body, entry, side);
+    return { ...entry, limbs };
   }
 
   /**

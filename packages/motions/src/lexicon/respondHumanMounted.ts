@@ -1,12 +1,15 @@
 import { Quaternion, getConstraint } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { readHumanBone } from "../body/readHumanBone";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanMountRider } from "./HumanMountRider";
 
 /** The trunk joints that share the response, and each one's share of it. */
 const SHARES: readonly (readonly ["spine" | "chest", number])[] = [
@@ -24,11 +27,12 @@ const SHARES: readonly (readonly ["spine" | "chest", number])[] = [
  * @param start The carrier's rotation when the performance began.
  * @param now The carrier's rotation now.
  * @param share How much of the turn the trunk cancels, 0 to 1.
+ * @param grips Where the holding hands' contacts are now, in the carrier frame: the trunk leans forward as far as brings them in reach after the response (`HumanMountRider.lean`).
  * @returns The posture with its trunk joints leant against the turn.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the response, its frame, its share and how it is spread.
  * @evidence contracts/development/implementation.md#principled-implementation The carrier's relative rotation read as pitch and roll; the trunk's flexion and lateral bend take their negatives, scaled by the share and spread over two joints, each clamped to its range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative rotation, then one pass over two joints.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One relative rotation, one pass over two joints, then the reach lean the ride uses.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint at its range stops there; the pelvis stays on the saddle, carried as it is.
  * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read per sample.
@@ -40,6 +44,7 @@ export function respondHumanMounted(
   start: IAutoMovieQuaternion,
   now: IAutoMovieQuaternion,
   share: number,
+  grips: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>,
 ): IAutoMovieMotionHumanPosture {
   if (share === 0) return posture;
   const turn: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> =
@@ -61,7 +66,8 @@ export function respondHumanMounted(
       was[2],
     ];
   }
-  return { ...posture, joints };
+  const leant: IAutoMovieMotionHumanPosture = { ...posture, joints };
+  return HumanMountRider.leant(leant, HumanMountRider.lean(body, leant, grips));
 }
 
 /** A joint range of the engine's constraint table. */
