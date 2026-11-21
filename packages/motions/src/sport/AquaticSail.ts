@@ -40,6 +40,9 @@ const REACH_OUT: number = 0.15;
 /** How far ahead of the trunk the reaching hand passes, metres: provisional. */
 const REACH_AHEAD: number = 0.2;
 
+/** The crouch key's knee flexion beyond its hip flexion at full crouch, degrees: the shank's lean over a flat foot. */
+const KNEE_OVER_HIP: number = 15;
+
 /** How far the crouch lowers the pelvis, over stature: provisional, below a dinghy's boom. */
 const CROUCH: number = 0.2;
 
@@ -352,11 +355,28 @@ export namespace AquaticSail {
                 contact.from <= u &&
                 u <= contact.to,
             );
-            posture.limbs[leg] = {
-              ...posture.limbs[leg]!,
-              contact: HumanFoot.offset(body, side, "ball"),
-              planted,
-            };
+            // Only a planted foot bears on its ball; a swinging foot carries no
+            // contact, so its toes are not flexed while unloaded.
+            posture.limbs[leg] = planted
+              ? {
+                  ...posture.limbs[leg]!,
+                  contact: HumanFoot.offset(body, side, "ball"),
+                  planted,
+                }
+              : {
+                  ...posture.limbs[leg]!,
+                  planted,
+                  // Unloaded, the foot hangs from the shank: it pitches toes
+                  // down by the crouch's knee-over-hip flexion, the ankle's
+                  // dorsiflexion a flat planted foot would take.
+                  rotation: Quaternion.multiply(
+                    posture.limbs[leg]!.rotation!,
+                    Quaternion.fromAxisAngle(
+                      { x: 1, y: 0, z: 0 },
+                      -(KNEE_OVER_HIP * lower + 5),
+                    ),
+                  ),
+                };
           }
           posture = resolveHumanPosture.lower(body, posture);
         }
