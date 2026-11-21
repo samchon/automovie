@@ -28,6 +28,9 @@ export interface IAutoMovieMotionHumanDrawFromCarrier {
 
   /** The carrier and both of its affordance ids. */
   from: IAutoMovieMotionHumanDrawFromCarrier.IFrom;
+
+  /** The other hand pulling a worn carrier back along the line while the trunk turns, as a longsword is drawn from the hip; the carrier holds still when absent. */
+  pull?: IAutoMovieMotionHumanDrawFromCarrier.IPull;
 }
 export namespace IAutoMovieMotionHumanDrawFromCarrier {
   /**
@@ -53,5 +56,27 @@ export namespace IAutoMovieMotionHumanDrawFromCarrier {
 
     /** The carrier's socket that rides the slider, where the object's frame sits as it leaves. */
     slide: string;
+  }
+
+  /**
+   * The other hand's share of a long draw. A blade longer than the drawing
+   * arm's reach along the line leaves its scabbard only when the other hand
+   * pulls the scabbard back at its throat and the hips turn away from the
+   * drawing side, so the two hands part along the line by the blade's
+   * length.
+   * The carrier rides the other hand from its throat, retreats `back` along
+   * the line and is worn again on the bone it hung from where the draw
+   * leaves it.
+   *
+   */
+  export interface IPull {
+    /** The carrier's affordance the other hand grips, at its throat. */
+    handle: string;
+
+    /** How far the carrier retreats along the line, metres; positive. */
+    back: number;
+
+    /** How far the trunk turns away from the drawing side, degrees; 0 when absent. */
+    turn?: number;
   }
 }

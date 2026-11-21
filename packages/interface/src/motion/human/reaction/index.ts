@@ -7,3 +7,4 @@ export type { IAutoMovieMotionHumanReaction } from "./IAutoMovieMotionHumanReact
 export type { IAutoMovieMotionHumanThrown } from "./IAutoMovieMotionHumanThrown";
 export type { IAutoMovieMotionHumanWireFlight } from "./IAutoMovieMotionHumanWireFlight";
 export type { IAutoMovieMotionHumanStagger } from "./IAutoMovieMotionHumanStagger";
+export type { IAutoMovieMotionHumanVehicleHit } from "./IAutoMovieMotionHumanVehicleHit";
