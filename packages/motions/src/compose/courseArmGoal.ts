@@ -32,7 +32,10 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
  * under the trajectory's clearance and speed bounds or optimised
  * (`AutoMovieMotionHumanArmCourse`, `HumanArmTrajectory`). Everything else
  * of the plan (the body, the other limbs, the digits, the events, contacts,
- * holds and refusals) is the plan's own; only its posture is replaced.
+ * holds and refusals) is the plan's own; only its posture is replaced, and
+ * the law's plan stays readable for judgements of the goal (`goals`). A
+ * stroke whose hold is its delivery declares its own speed bound (`pace`),
+ * which the course is admitted against in place of a reach's pace.
  * After the span the arm keeps the angles its course ended with, carried by
  * the body: a hand that holds what it lifted rides up with a body that
  * straightens, with no goal left to solve.
@@ -117,6 +120,7 @@ export function courseArmGoal(
     ...(props.skinDistance === undefined
       ? {}
       : { skinDistance: props.skinDistance }),
+    ...(props.pace === undefined ? {} : { pace: props.pace }),
     body: props.body,
     side,
     from: span.start,
@@ -158,11 +162,45 @@ export function courseArmGoal(
     ),
     primitives: [arm],
   });
-  return { ...plan, posture: composed.posture };
+  const coursed: IAutoMovieMotionHumanActionPlan = {
+    ...plan,
+    posture: composed.posture,
+  };
+  courseArmGoal.SOURCES.set(coursed, plan);
+  return coursed;
 }
 
 /** Companion types of `courseArmGoal`. */
 export namespace courseArmGoal {
+  /** Each coursed plan's law plan, whose posture still writes the arm's goal (`goals`). */
+  export const SOURCES: WeakMap<
+    IAutoMovieMotionHumanActionPlan,
+    IAutoMovieMotionHumanActionPlan
+  > = new WeakMap();
+
+  /**
+   * The plan whose posture writes the arm's goal: a coursed plan's law plan,
+   * any other plan itself. A law-side judgement of the goal (a strike's
+   * event on its target, a lift's height) reads this, since the coursed
+   * posture writes the arm's angles and no goal.
+   *
+   * @param plan A plan, coursed or not.
+   * @returns The plan that writes the goal.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is returned for either kind of plan and who reads it.
+   * @evidence contracts/development/implementation.md#principled-implementation The goal is the law's; the course only places the arm.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A copied coursed plan is not registered and reads as itself.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure lookup.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The map holds plans weakly.
+   */
+  export function goals(
+    plan: IAutoMovieMotionHumanActionPlan,
+  ): IAutoMovieMotionHumanActionPlan {
+    return SOURCES.get(plan) ?? plan;
+  }
+
   /**
    * A plan whose arm goal is to be planned as one course.
    *
@@ -174,7 +212,7 @@ export namespace courseArmGoal {
   export interface IProps extends Partial<
     Pick<
       IAutoMovieMotionHumanArmCarry.ICarry,
-      "together" | "beside" | "disc" | "skinDistance"
+      "together" | "beside" | "disc" | "skinDistance" | "pace"
     >
   > {
     /** The body. */

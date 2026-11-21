@@ -131,6 +131,26 @@ export namespace IAutoMovieMotionHumanArmCarry {
     /** Whether the planned arm follows its goal on the hold, a person who moves: the plan with a correction toward `goal` read at each second, moved within the audit's travel bound (`AutoMovieMotionHumanArmFollow.follower`); the plan alone when absent. */
     tracked?: boolean;
 
+    /**
+     * The law's own speed bound on the planned arm, for a stroke whose hold
+     * is its delivery (a punch, a throw, a swing): the fastest the arm's
+     * probes may move at each second, metres per second, which the planner
+     * admits the course against in place of the pace it reads off a daily
+     * reach (`HumanArmTrajectoryLaid`). Absent, that reach pace.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns Metres per second, positive.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation States what is bounded, in which unit, what it replaces and the default.
+     * @evidence contracts/development/implementation.md#principled-implementation A ballistic stroke's speed is the law's own delivery profile, not a reach-to-grasp pace.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One function of the action's seconds, the planner's own speed member.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The course is still admitted against a bound: the law's declared one.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Read once per evaluated second by the planner.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the seconds.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The carry retains the callback only.
+     */
+    pace?(seconds: number): number;
+
     /** The arms planned over the same span as one problem; this arm alone when absent. */
     together?: IAutoMovieMotionHumanArmPlanned.ITogether;
 

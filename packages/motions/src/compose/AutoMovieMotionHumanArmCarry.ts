@@ -174,7 +174,9 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. A synchronous write borrows its host FK/ROM loans for actual fallback carry and hand observations/held solve; standalone writes own lazy metadata. Only exact prerequisites share, while distinct posture/goal requests remain actual solves.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props, its group's trajectory and existing follower. A standalone fixed-posture reader is built outside the write environment, so a retained follower cannot capture that write's metadata through its fallback callback. Hand demand and FK/ROM loans end on return/throw; no output or plan stores them or new time/result history.
    */
-  export function carried(props: IAutoMovieMotionHumanArmCarry.ICarry): IAutoMovieMotionHumanPrimitive {
+  export function carried(
+    props: IAutoMovieMotionHumanArmCarry.ICarry,
+  ): IAutoMovieMotionHumanPrimitive {
     const limb: "leftArm" | "rightArm" = `${props.side}Arm`;
     const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined = props.span;
 
@@ -193,7 +195,10 @@ export namespace AutoMovieMotionHumanArmCarry {
     // 146 s spec in the joint problem's optimiser).
     const solve = (
       before: (seconds: number) => IAutoMovieMotionHumanPosture,
-    ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> =>
+    ): Map<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanArmTrajectory.Trajectory
+    > =>
       props.beside === undefined
         ? AutoMovieMotionHumanArmPlanned.planned(
             props.body,
@@ -201,18 +206,23 @@ export namespace AutoMovieMotionHumanArmCarry {
             group.carries,
             before,
             group,
+            AutoMovieMotionHumanArmCarry.pace(group.carries),
           )
         : new Map(
             group.carries.flatMap(
               (
                 member: IAutoMovieMotionHumanArmCarry.ICarry,
-              ): [AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory][] => [
+              ): [
+                AutoMovieHumanSide,
+                IAutoMovieMotionHumanArmTrajectory.Trajectory,
+              ][] => [
                 ...AutoMovieMotionHumanArmPlanned.planned(
                   member.body,
                   member.span === undefined ? span! : member.span,
                   [member],
                   before,
                   group,
+                  AutoMovieMotionHumanArmCarry.pace([member]),
                 ),
               ],
             ),
@@ -260,8 +270,9 @@ export namespace AutoMovieMotionHumanArmCarry {
       ...(span === undefined
         ? {}
         : {
-            prepare: (before: (seconds: number) => IAutoMovieMotionHumanPosture): void =>
-              void planned(before),
+            prepare: (
+              before: (seconds: number) => IAutoMovieMotionHumanPosture,
+            ): void => void planned(before),
           }),
       write: (
         posture: IAutoMovieMotionHumanPosture,
@@ -288,9 +299,15 @@ export namespace AutoMovieMotionHumanArmCarry {
                 so,
               ))(at, source, projection)
             : planned(so)(at);
-        const placed = (on: IAutoMovieMotionHumanArmClearance.IArm): IAutoMovieMotionHumanPosture => {
-          const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
-          const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+        const placed = (
+          on: IAutoMovieMotionHumanArmClearance.IArm,
+        ): IAutoMovieMotionHumanPosture => {
+          const joints: IAutoMovieMotionHumanPosture["joints"] = {
+            ...posture.joints,
+          };
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+            ...posture.limbs,
+          };
           joints[`${props.side}UpperArm`] = on.upper;
           joints[`${props.side}LowerArm`] = on.lower;
           joints[`${props.side}Hand`] = on.hand;
@@ -321,7 +338,8 @@ export namespace AutoMovieMotionHumanArmCarry {
               ? (chain ??= AutoMovieMotionHumanArmChain.continued(
                   props.body,
                   props.to,
-                  (t: number): IAutoMovieMotionHumanPosture => goaled(before(t), t),
+                  (t: number): IAutoMovieMotionHumanPosture =>
+                    goaled(before(t), t),
                   [props.side],
                 ))(seconds, goaled(posture, seconds, source, projection))
               : goaled(posture, seconds, source, projection),
@@ -342,7 +360,9 @@ export namespace AutoMovieMotionHumanArmCarry {
           new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]);
         const resolution: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(source);
-        const hand: (at: IAutoMovieMotionHumanPosture) => IAutoMovieQuaternion = (
+        const hand: (
+          at: IAutoMovieMotionHumanPosture,
+        ) => IAutoMovieQuaternion = (
           at: IAutoMovieMotionHumanPosture,
         ): IAutoMovieQuaternion =>
           poseBones(
@@ -395,6 +415,38 @@ export namespace AutoMovieMotionHumanArmCarry {
         );
       },
     };
+  }
+
+  /**
+   * The law's own speed bound over a group of carries: at each second the
+   * fastest any of them declares (`ICarry.pace`); none where no carry
+   * declares one, and the planner reads its reach pace.
+   *
+   * @param carries The carries planned together.
+   * @returns The bound, metres per second by the action's seconds, or undefined.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the combination and the default.
+   * @evidence contracts/development/implementation.md#principled-implementation Arms planned as one problem share one speed bound; the fastest declared admits every member's own delivery.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and one maximum per second.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A group with no declared pace keeps the planner's own.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the group per second read.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the carries.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the declaring carries only.
+   */
+  export function pace(
+    carries: readonly IAutoMovieMotionHumanArmCarry.ICarry[],
+  ): ((seconds: number) => number) | undefined {
+    const declared: IAutoMovieMotionHumanArmCarry.ICarry[] = carries.filter(
+      (c: IAutoMovieMotionHumanArmCarry.ICarry): boolean =>
+        c.pace !== undefined,
+    );
+    if (declared.length === 0) return undefined;
+    return (seconds: number): number =>
+      Math.max(
+        ...declared.map((c: IAutoMovieMotionHumanArmCarry.ICarry): number =>
+          c.pace!(seconds),
+        ),
+      );
   }
 }
 
