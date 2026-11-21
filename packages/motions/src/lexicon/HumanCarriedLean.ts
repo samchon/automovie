@@ -61,6 +61,9 @@ export namespace HumanCarriedLean {
     supportedLeft: 0,
     waistLift: 0,
     overheadLift: 0,
+    // A shoulder ride keeps the load over the spine's axis, as head loads do
+    // (Maloiy et al. 1986, Nature 319:668), so the carrier does not pitch.
+    shoulders: 0,
     armpitDrag: -10,
     collarDrag: -10,
     ankleDrag: -10,

@@ -99,7 +99,7 @@ export namespace HumanCarriedCoupling {
    * The borne region each bearer hand holds, left hand then right, from the
    * carries' common descriptions: piggyback, under the thighs; cradle, under
    * the back and the knees; over the shoulder, the back of the thighs;
-   * supported, the far hip; a waist lift face to face, the facing hips; an overhead lift, the hips from below; the armpit drag, under the arms; the collar
+   * supported, the far hip; a waist lift face to face, the facing hips; an overhead lift, the hips from below; a shoulder ride, the shins; the armpit drag, under the arms; the collar
    * drag, the collar; the ankle drag, the ankles. A carry whose row turns
    * the borne body to face the bearer (the waist lift, the ankle drag) puts
    * the borne body's right on the bearer's left, so each hand holds the
@@ -114,6 +114,7 @@ export namespace HumanCarriedCoupling {
     supportedLeft: ["hipLeft", null],
     waistLift: ["hipRight", "hipLeft"],
     overheadLift: ["hipLeft", "hipRight"],
+    shoulders: ["shinLeft", "shinRight"],
     armpitDrag: ["ribsLeft", "ribsRight"],
     collarDrag: ["nape", "nape"],
     ankleDrag: ["calfRight", "calfLeft"],
