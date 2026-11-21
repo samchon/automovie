@@ -155,7 +155,7 @@ function cut(
   const sign: number = side === "right" ? 1 : -1;
   const steak = createFoodPortion({ id: "steak", kind: "steak" });
   const piece = createFoodPortion({ id: "piece", kind: "piece" });
-  const plate: IAutoMovieVector3 = on(s, 0, 0.14);
+  const plate: IAutoMovieVector3 = on(s, sign * 0.04, 0.08);
   // The piece abuts the steak's end on the knife's side.
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
@@ -320,7 +320,7 @@ function chopsticks(
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const sign: number = side === "right" ? 1 : -1;
   const sticks = createChopsticks({ id: "sticks" });
-  const rice: IAutoMovieVector3 = on(s, sign * 0.1, 0.08);
+  const rice: IAutoMovieVector3 = on(s, sign * 0.15, 0.08);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop(
@@ -339,10 +339,11 @@ function chopsticks(
     everydayTake.prop(
       "bowl",
       createBowl({ id: "bowl" }),
-      on(s, -sign * 0.17, 0.1),
+      on(s, -sign * 0.2, 0.12),
     ),
   ];
-  const chin: number = body.measure.shoulderHeight + 0.1;
+  // Seated, the chin stands about the standing shoulder less the thigh's drop.
+  const chin: number = body.measure.shoulderHeight - 0.3;
   const chain: IAutoMovieMotionHumanChain = HumanChain.subject("actor")
     .sit({ seat: s.seat, seconds: 1 })
     .pickUp({ prop: "sticks", handle: "grip", hand: side, lift: 0.05 })
@@ -369,7 +370,7 @@ function chopsticks(
     .registered("workHeld", {
       prop: "bowl",
       side: other,
-      at: { out: 0.05, up: chin - 0.15, forward: 0.2, level: true },
+      at: { out: 0.2, up: chin - 0.15, forward: 0.3, level: true },
       seconds: 0.5,
     })
     .registered("eatWith", { held: "sticks", point: "tips", side });
@@ -434,8 +435,8 @@ function serve(
 ): void {
   const s: IStage = stage();
   const sign: number = side === "right" ? 1 : -1;
-  const platter: IAutoMovieVector3 = on(s, 0, 0.17);
-  const plate: IAutoMovieVector3 = on(s, sign * 0.2, 0.1);
+  const platter: IAutoMovieVector3 = on(s, sign * 0.04, 0.1);
+  const plate: IAutoMovieVector3 = on(s, sign * 0.16, 0.06);
   const props: IAutoMovieMotionHumanProp[] = [
     ...s.props,
     everydayTake.prop(
