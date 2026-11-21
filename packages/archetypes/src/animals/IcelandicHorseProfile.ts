@@ -101,7 +101,7 @@ export namespace IcelandicHorseProfile {
    */
   export const TABLE: QuadrupedGait.ITable = {
     ...HorseGait.TABLE,
-    explicit: ["tolt", "pace"],
+    explicit: [...(HorseGait.TABLE.explicit ?? []), "tolt", "pace"],
     gaits: { ...HorseGait.TABLE.gaits, tolt: TOLT, pace: PACE },
   };
 

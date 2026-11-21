@@ -4,6 +4,7 @@ import { DeerGait } from "./DeerGait";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
+import { QuadrupedGaitAdmission } from "./QuadrupedGaitAdmission";
 
 /**
  * Explicit authored clocks for locomotion absent from the measured walk tables.
@@ -284,6 +285,7 @@ export namespace QuadrupedLocomotion {
         nod: { range: source.nod.range, timing: source.nod.timing },
         fold: { ...source.fold },
         lift: { ...source.lift },
+        ...QuadrupedGaitAdmission.elevation(source.elevation, axis),
         ...(change === undefined ? {} : { change }),
       };
       if (automatic) {
@@ -305,6 +307,7 @@ export namespace QuadrupedLocomotion {
     return {
       order,
       ...(explicit.length === 0 ? {} : { explicit }),
+      ...QuadrupedGaitAdmission.collected(table.collected, order, explicit),
       gaits,
       reference: table.reference,
       hysteresis: table.hysteresis,

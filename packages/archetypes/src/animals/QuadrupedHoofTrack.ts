@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -14,6 +15,7 @@ import type { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedMotion } from "./QuadrupedMotion";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
+import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 
 /**
  * One hoof's anchored position and orientation through a turn or grounded departure.
@@ -39,6 +41,24 @@ export namespace QuadrupedHoofTrack {
     landed: ArchetypeCourse.IState;
     /** Signed metres the body travels over the entire stance. */
     travel: number;
+
+    /** Body placement at release, read when the body heading departs from the travel heading; the hoof is then centred between its neutral points at landing and release. */
+    lifted?: IAutoMovieTransform;
+  }
+
+  /**
+   * The body displacement a swing spanning a hoof-clock hold is carried by, so the hoof travels with the body while the clock stands.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the world displacement and the elapsed share of the hold.
+   * @evidence contracts/development/design.md#principled-representation A world vector in metres and a unitless share from zero before the hold to one after it.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the ride for the swings a jump's flight holds.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface ICarry {
+    /** World displacement of the body over the whole hold, metres. */
+    shift: IAutoMovieVector3;
+    /** Share of the hold elapsed at the sample, zero to one. */
+    share: number;
   }
 
   /**
@@ -56,29 +76,96 @@ export namespace QuadrupedHoofTrack {
     plan: ArchetypeCourse.IPlan,
     clock: QuadrupedRideClock.IClock,
     secondsAt: (phase: number) => number,
+    body?: (
+      state: ArchetypeCourse.IState,
+      seconds: number,
+    ) => IAutoMovieTransform,
   ): (
     at: number,
-    stride: QuadrupedGait.IStride & { reinBack?: true },
+    stride: QuadrupedStridePlan.IStride,
     fore: boolean,
   ) => IStance {
     return (
       at: number,
-      stride: QuadrupedGait.IStride & { reinBack?: true },
+      stride: QuadrupedStridePlan.IStride,
       fore: boolean,
     ): IStance => {
       const seconds: number = secondsAt(at);
-      const landed: ArchetypeCourse.IState = plan.at(seconds);
+      const route: ArchetypeCourse.IState = plan.at(seconds);
       const timing: QuadrupedGait.ITiming = clock.timing(stride.gait, seconds);
       const observed: number = fore
         ? timing.duty
         : (timing.hindDuty ?? timing.duty);
       const duty: number = stride.reinBack ? Math.max(0.5, observed) : observed;
+      const release: number = secondsAt(at + duty);
+      const travel: number = plan.at(release).progress - route.progress;
+      if (body === undefined) return { duty, landed: route, travel };
       return {
         duty,
-        landed,
-        travel: plan.at(secondsAt(at + duty)).progress - landed.progress,
+        landed: { ...route, placement: body(route, seconds) },
+        travel,
+        lifted: body(plan.at(release), release),
       };
     };
+  }
+
+  /**
+   * The swing height of a landmark gait: the toe raised to its coordinate along the actual neutral cannon, measured above the neutral hoof endpoint.
+   *
+   * @param chain The limb's actual neutral joint points, model metres, from the top joint to the hoof endpoint.
+   * @param landmark The gait's landmark elevation.
+   * @param fore Whether the limb is a fore.
+   * @returns Metres of swing clearance.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame, the points and the unit.
+   * @evidence contracts/development/implementation.md#principled-implementation The cannon runs from the fetlock (chain point 3) to the carpus or hock (chain point 2); the coordinate interpolates their heights, less the hoof endpoint's.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interpolation.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heights are the actual rig's; no withers share stands in.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function elevation(
+    chain: readonly IAutoMovieVector3[],
+    landmark: QuadrupedGait.IElevation,
+    fore: boolean,
+  ): number {
+    const share: number = fore ? landmark.fore : landmark.hind;
+    return chain[3]!.y + share * (chain[2]!.y - chain[3]!.y) - chain[4]!.y;
+  }
+
+  /**
+   * The world point a stance plants its hoof at.
+   *
+   * @param rest Actual neutral hoof endpoint in model metres.
+   * @param support The stance.
+   * @returns The world footprint before any authored surface is applied.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the frame and that terrain is applied afterwards.
+   * @evidence contracts/development/implementation.md#principled-implementation Centre the hoof on its stance: half the signed travel ahead of its neutral point at landing, or, when the body heading departs from the travel heading, midway between its neutral points at landing and at release, so the hoof sits under the same body point at both ends.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rigid point or the mean of two.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None; both forms read the stance's own placements.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ArchetypeFrame.point`.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function footprint(
+    rest: IAutoMovieVector3,
+    support: IStance,
+  ): IAutoMovieVector3 {
+    if (support.lifted === undefined)
+      return ArchetypeFrame.point(support.landed.placement, {
+        x: rest.x,
+        y: 0,
+        z: rest.z + support.travel / 2,
+      });
+    const neutral: IAutoMovieVector3 = { x: rest.x, y: 0, z: rest.z };
+    const point: IAutoMovieVector3 = Vector3.lerp(
+      ArchetypeFrame.point(support.landed.placement, neutral),
+      ArchetypeFrame.point(support.lifted, neutral),
+      0.5,
+    );
+    return { ...point, y: support.landed.placement.translation.y };
   }
 
   /**
@@ -167,6 +254,7 @@ export namespace QuadrupedHoofTrack {
    * @param amount The smooth swing progression from zero to one.
    * @param worldAnchors Whether turns or a standing start require world anchoring.
    * @param footing Optional independently placed world surfaces and authored obstacles.
+   * @param carry The body displacement carrying a swing through a hoof-clock hold, when the swing spans one.
    * @returns Model-space coordinates in metres. The world-anchor path also returns the relative terminal axis rotation.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines frames, units and the optional next stance.
@@ -185,6 +273,7 @@ export namespace QuadrupedHoofTrack {
     amount: number,
     worldAnchors: boolean,
     footing?: QuadrupedFooting.IPlan,
+    carry?: ICarry,
   ): Pick<QuadrupedRidePose.IGoal, "x" | "z" | "orientation" | "surface"> {
     if (!worldAnchors && footing === undefined)
       return {
@@ -194,7 +283,7 @@ export namespace QuadrupedHoofTrack {
             ? from.travel / 2 - (state.progress - from.landed.progress)
             : -from.travel / 2 + ((from.travel + to.travel) / 2) * amount),
       };
-    const foot: IAutoMovieVector3 = anchor(rest, from);
+    const foot: IAutoMovieVector3 = footprint(rest, from);
     const landed: IAutoMovieQuaternion = from.landed.placement.rotation;
     const oldGround: QuadrupedFooting.ILanding | undefined = footing?.landing(
       foot,
@@ -204,16 +293,29 @@ export namespace QuadrupedHoofTrack {
       state.placement.rotation,
     );
     const nextFoot: IAutoMovieVector3 | undefined =
-      to === undefined ? undefined : anchor(rest, to);
+      to === undefined ? undefined : footprint(rest, to);
     const nextGround: QuadrupedFooting.ILanding | undefined =
       nextFoot === undefined
         ? undefined
         : footing?.landing(nextFoot, to!.landed.placement.rotation);
     const beginning: IAutoMovieVector3 = oldGround?.point ?? foot;
+    const arrival: IAutoMovieVector3 | undefined =
+      nextFoot === undefined ? undefined : (nextGround?.point ?? nextFoot);
+
+    // A swing the hoof clock holds is carried with the body: the hold's displacement is removed from the arrival and restored by its elapsed share.
     const world: IAutoMovieVector3 =
-      nextFoot === undefined
+      arrival === undefined
         ? beginning
-        : Vector3.lerp(beginning, nextGround?.point ?? nextFoot, amount);
+        : carry === undefined
+          ? Vector3.lerp(beginning, arrival, amount)
+          : Vector3.add(
+              Vector3.lerp(
+                beginning,
+                Vector3.subtract(arrival, carry.shift),
+                amount,
+              ),
+              Vector3.scale(carry.shift, carry.share),
+            );
     const local: IAutoMovieVector3 = Quaternion.rotateVector(
       inverse,
       Vector3.subtract(world, state.placement.translation),
@@ -247,17 +349,5 @@ export namespace QuadrupedHoofTrack {
             },
           }),
     };
-  }
-
-  /** Centre a physical hoof around its stance using the admitted signed advance. */
-  function anchor(
-    rest: IAutoMovieVector3,
-    support: IStance,
-  ): IAutoMovieVector3 {
-    return ArchetypeFrame.point(support.landed.placement, {
-      x: rest.x,
-      y: 0,
-      z: rest.z + support.travel / 2,
-    });
   }
 }

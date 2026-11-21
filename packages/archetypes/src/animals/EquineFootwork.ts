@@ -2,6 +2,8 @@ import { Quaternion, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
+import { EquineJump } from "./EquineJump";
+import { EquineLateral } from "./EquineLateral";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
@@ -25,16 +27,57 @@ export namespace EquineFootwork {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies the brief motion window. The documented kinematic form does not imply a default measured duration or fit.
    */
   export type Technique =
-    | { kind: "rein-back" }
-    | {
-        kind: "slide-stop";
-        /** Seconds from the first slide cue through the terminal stop. */
-        seconds: number;
-        /** Seconds allotted to blend from the stride to the two-hindfoot slide. */
-        entry: number;
-        /** Authored model-space advance of the hind footprints, metres. */
-        advance: number;
-      };
+    | IReinBack
+    | ISlideStop
+    | EquineLateral.Technique
+    | EquineJump.Technique;
+
+  /**
+   * A named film-second cue a technique adds to the ride.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units.
+   * @evidence contracts/development/design.md#principled-representation The shape of a ride's instants.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ride's instant list.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IInstant {
+    /** Film second. */
+    seconds: number;
+    /** The cue's name. */
+    label: string;
+  }
+
+  /**
+   * Backing on alternating diagonals from rest to rest.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the technique.
+   * @evidence contracts/development/design.md#principled-representation A marker; the reversed walk leg carries the travel.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IReinBack {
+    /** The discriminator. */
+    kind: "rein-back";
+  }
+
+  /**
+   * A terminal arena slide on both hind feet.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States each authored value's unit.
+   * @evidence contracts/development/design.md#principled-representation Two durations in seconds and an advance in metres.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies the window; no measured duration is implied.
+   */
+  export interface ISlideStop {
+    /** The discriminator. */
+    kind: "slide-stop";
+    /** Seconds from the first slide cue through the terminal stop. */
+    seconds: number;
+    /** Seconds allotted to blend from the stride to the two-hindfoot slide. */
+    entry: number;
+    /** Authored model-space advance of the hind footprints, metres. */
+    advance: number;
+  }
 
   /** An admitted slide interval with its terminal stop already fixed by the route. */
   interface ISlide {
@@ -58,9 +101,13 @@ export namespace EquineFootwork {
     /** Original course leg numbers, zero-based, explicitly authored for rein-back. */
     readonly backing: ReadonlySet<number>;
     /** Additional named film-second cues owned by the authored technique. */
-    readonly instants: readonly { seconds: number; label: string }[];
+    readonly instants: readonly IInstant[];
     /** Authored interval if the route ends with an arena slide. */
     readonly slide?: ISlide;
+    /** Admitted lateral figures, in leg order. */
+    readonly lateral: readonly EquineLateral.IWindow[];
+    /** The admitted jump, when a leg names one. */
+    readonly jump?: EquineJump.IRequest;
   }
 
   /**
@@ -70,8 +117,9 @@ export namespace EquineFootwork {
    * @param course Caller-owned course before sampling.
    * @param plan Its actual admitted geometry and speed profile.
    * @param gait Optional fixed gait in the public ride request.
-   * @returns Independent registration for the gait selector, event reader and goal sampler.
-   * @throws {ArchetypeRefusal} For an unsupported animal, travel context or inconsistent authored timing.
+   * @param hooves The actual neutral hoof endpoints in model metres, which fix the shoulder-in and pirouette headings.
+   * @returns Independent registration for the gait selector, event reader, goal sampler, lateral headings and the jump request.
+   * @throws {ArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the source identity, route and typed refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Read actual route boundaries and ensure the diagonal backing is on a reversed level straight walk leg and a slide consumes only an independently authored terminal deceleration.
@@ -86,8 +134,12 @@ export namespace EquineFootwork {
     course: rideQuadruped.ICourse,
     plan: ArchetypeCourse.IPlan,
     gait: QuadrupedGait.Gait | undefined,
+    hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
   ): IPlan {
     const backing: Set<number> = new Set();
+    const lateral: EquineLateral.IWindow[] = [];
+    const cues: IInstant[] = [];
+    let jump: EquineJump.IRequest | undefined;
     let slide: ISlide | undefined;
     for (let index: number = 0; index < course.legs.length; ++index) {
       const leg: rideQuadruped.ILeg = course.legs[index]!;
@@ -97,11 +149,50 @@ export namespace EquineFootwork {
         refuse(index, "Equine footwork requires an authored technique record");
       if (archetype !== "horse" && archetype !== "pony")
         refuse(index, "Equine footwork requires a horse or pony source");
-      if (leg.kind !== "straight" || (leg.rise ?? 0) !== 0)
-        refuse(index, "Equine footwork requires a level straight course leg");
       const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
       const first: number = plan.when(span.from);
       const end: number = plan.when(span.from + span.span);
+      if (
+        technique.kind === "shoulder-in" ||
+        technique.kind === "leg-yield" ||
+        technique.kind === "half-pass" ||
+        technique.kind === "pirouette"
+      ) {
+        const window: EquineLateral.IWindow = EquineLateral.admit(
+          archetype,
+          index,
+          leg,
+          technique,
+          plan,
+          hooves,
+        );
+        lateral.push(window);
+        cues.push(
+          { seconds: window.from, label: `${window.kind}Start` },
+          { seconds: window.to, label: `${window.kind}End` },
+        );
+        continue;
+      }
+      if (technique.kind === "jump" || technique.kind === "baulk") {
+        const request: EquineJump.IRequest | undefined = EquineJump.admit(
+          archetype,
+          index,
+          leg,
+          technique,
+          plan,
+          course.footing,
+        );
+        if (request === undefined)
+          cues.push(
+            { seconds: end, label: "baulkStop" },
+            { seconds: end + leg.pause!, label: "baulkSettle" },
+          );
+        else if (jump !== undefined) refuse(index, "One ride plans one jump");
+        else jump = request;
+        continue;
+      }
+      if (leg.kind !== "straight" || (leg.rise ?? 0) !== 0)
+        refuse(index, "Equine footwork requires a level straight course leg");
       switch (technique.kind) {
         case "rein-back": {
           if (
@@ -150,8 +241,9 @@ export namespace EquineFootwork {
     }
     return {
       backing,
-      instants:
-        slide === undefined
+      instants: [
+        ...cues,
+        ...(slide === undefined
           ? []
           : [
               { seconds: slide.from, label: "slideStopEntry" },
@@ -159,8 +251,11 @@ export namespace EquineFootwork {
               { seconds: slide.contact, label: "leftHindOn" },
               { seconds: slide.contact, label: "rightHindOn" },
               { seconds: plan.duration, label: "slideStopEnd" },
-            ],
+            ]),
+      ],
       slide,
+      lateral,
+      ...(jump === undefined ? {} : { jump }),
     };
 
     /** Report the authored leg that cannot supply the requested footwork. */
