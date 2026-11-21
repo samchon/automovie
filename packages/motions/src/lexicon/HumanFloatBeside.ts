@@ -22,6 +22,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
@@ -215,7 +217,12 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
           kind: "reach",
           axis: "hold",
           value: rise,
-          feasible: { kind: "range", minimum: -reach, maximum: reach, unit: "m" },
+          feasible: {
+            kind: "range",
+            minimum: -reach,
+            maximum: reach,
+            unit: "m",
+          },
           reason: `${on}.${hold} is ${rise.toFixed(2)} m above the floating shoulder, beyond the ${reach.toFixed(2)} m the arm keeps`,
           fix: "Hold a part nearer the water, such as the saddle.",
         });
@@ -281,7 +288,9 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         };
       };
       const sliding: number = transition / seconds;
-      return {
+      // The law's goal: the near hand on the held part where the horse has it
+      // at every second.
+      const goals: IAutoMovieMotionHumanActionPlan = {
         duration: seconds,
         hands: [near],
         events: [
@@ -427,7 +436,10 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
             );
           const along: number = Math.max(
             -run,
-            Math.min(run, Vector3.dot(Vector3.subtract(skin, grip.point), axis)),
+            Math.min(
+              run,
+              Vector3.dot(Vector3.subtract(skin, grip.point), axis),
+            ),
           );
           const miss: number = Math.abs(
             Vector3.distance(skin, Vector3.addScaled(grip.point, axis, along)) -
@@ -438,13 +450,33 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
               kind: "affordance",
               axis: "holdReach",
               value: miss,
-              feasible: { kind: "range", minimum: 0, maximum: REACH, unit: "m" },
+              feasible: {
+                kind: "range",
+                minimum: 0,
+                maximum: REACH,
+                unit: "m",
+              },
               reason: `the displayed ${near} hand misses ${on}.${hold} by ${miss} m at film second ${film}`,
               fix: "Hold a part the floating arm reaches.",
             });
           return shown;
         },
       };
+
+      // The near arm keeps the mane on one planned course from the seat into
+      // the float, so it never changes branch as the horse swims on.
+      return courseArmGoal({
+        body,
+        plan: goals,
+        side: near,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, near),
+        span: {
+          start: 0,
+          ready: transition,
+          relax: seconds,
+          end: seconds,
+        },
+      });
     },
   };
 

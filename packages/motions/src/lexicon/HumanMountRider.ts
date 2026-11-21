@@ -266,9 +266,10 @@ export namespace HumanMountRider {
     );
     const closing: IAutoMovieMotionHumanPosture["joints"] = {};
     for (const bone of Object.keys(closed) as AutoMovieHumanoidBone[]) {
-      const from: readonly [number, number, number] = relaxed[bone] ?? [
-        0, 0, 0,
-      ];
+      // The fingers start as the posture shows them, so a hold that begins
+      // mid-motion does not snap the hand to its relaxed shape.
+      const from: readonly [number, number, number] = posture.joints[bone] ??
+        relaxed[bone] ?? [0, 0, 0];
       const to: readonly [number, number, number] = closed[bone]!;
       closing[bone] = [
         from[0] + (to[0] - from[0]) * s,

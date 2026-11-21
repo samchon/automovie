@@ -15,7 +15,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
@@ -33,7 +35,7 @@ const REACH: number = 0.01;
 /**
  * Keep both of a walker's hands on a moving implement's two handles, as a ploughman holds a walking plough.
  *
- * The base walk owns the steps and the handles stay on the posed implement. The overlay acquires both handles and releases them over equal authored intervals, each arm fitted to its handle's actual moving frame by the shared rider hold (`HumanMountRider.hold`, `HumanRideHands`), the same fit the lead and the driving lines use.
+ * The base walk owns the steps and the handles stay on the posed implement. The overlay acquires both handles and releases them over equal authored intervals, each hand's goal on its handle's actual moving frame by the shared rider hold (`HumanMountRider.hold`, `HumanRideHands`), the same fit the lead and the driving lines use, and both arms laid on one planned course (`courseArmGoal`) so neither changes branch as the handles move.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States film seconds, named carrier input, both handles, independent pose and geometry and explicit refusal.
  * @evidence contracts/development/design.md#principled-representation One action claims both arms and hands over the base and declares only the actual fully held interval.
@@ -132,7 +134,9 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         );
       const onShare: number = transition / seconds;
       const offShare: number = 1 - onShare;
-      return {
+      // The law's goals: each hand on its handle where the implement has it at
+      // every second, the fingers closing and opening over the transitions.
+      const goals: IAutoMovieMotionHumanActionPlan = {
         duration: seconds,
         channels,
         enteredChannels: channels,
@@ -166,7 +170,6 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
           const share: number = minimumJerk.share(
             Math.min(1, time / transition, (seconds - time) / transition),
           );
-          if (share === 0) return torso;
           const film: number = context.start + time;
           const grips: ReturnType<typeof gripsAt> = gripsAt(
             film,
@@ -183,16 +186,28 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
                 side,
                 torso,
                 grips[side]!,
-                share,
+                1,
                 closures[side] ?? {},
                 resolution,
                 projection,
               );
             held[side] = hand;
+            const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
+            for (const [bone, closed] of Object.entries(hand.fingers)) {
+              if (closed === undefined) continue;
+              const open: readonly [number, number, number] = torso.joints[
+                bone as AutoMovieHumanoidBone
+              ] ?? [0, 0, 0];
+              fingers[bone as AutoMovieHumanoidBone] = [
+                open[0] + (closed[0] - open[0]) * share,
+                open[1] + (closed[1] - open[1]) * share,
+                open[2] + (closed[2] - open[2]) * share,
+              ];
+            }
             shown = {
               ...shown,
               limbs: { ...shown.limbs, [`${side}Arm`]: hand.arm },
-              joints: { ...shown.joints, ...hand.fingers },
+              joints: { ...shown.joints, ...fingers },
             };
           }
           if (share === 1) {
@@ -259,5 +274,26 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
           return shown;
         },
       };
+
+      // Both arms reach, hold and let go on one planned course, so each
+      // keeps its branch from the walk's arm onto its moving handle.
+      return courseArmGoal({
+        body: context.body,
+        plan: goals,
+        side: "left",
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "left"),
+        span: {
+          start: 0,
+          ready: transition,
+          relax: seconds - transition,
+          end: seconds,
+        },
+        with: [
+          {
+            side: "right",
+            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, "right"),
+          },
+        ],
+      });
     },
   };

@@ -13,7 +13,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -108,7 +110,9 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([wrist]);
       const onShare: number = transition / seconds;
       const offShare: number = 1 - onShare;
-      return {
+      // The law's goal: the hand on the lead where the horse has it at every
+      // second, the fingers closing and opening over the transitions.
+      const goals: IAutoMovieMotionHumanActionPlan = {
         duration: seconds,
         channels,
         enteredChannels: channels,
@@ -142,7 +146,6 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
           const share: number = minimumJerk.share(
             Math.min(1, time / transition, (seconds - time) / transition),
           );
-          if (share === 0) return torso;
           const film: number = context.start + time;
           const grip: HumanRideHands.IMaterialGrip = gripsAt(
             film,
@@ -154,15 +157,27 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
               side,
               torso,
               grip,
-              share,
+              1,
               closures[side] ?? {},
               resolution,
               projection,
             );
+          const fingers: IAutoMovieMotionHumanPosture["joints"] = {};
+          for (const [bone, closed] of Object.entries(hand.fingers)) {
+            if (closed === undefined) continue;
+            const open: readonly [number, number, number] = torso.joints[
+              bone as AutoMovieHumanoidBone
+            ] ?? [0, 0, 0];
+            fingers[bone as AutoMovieHumanoidBone] = [
+              open[0] + (closed[0] - open[0]) * share,
+              open[1] + (closed[1] - open[1]) * share,
+              open[2] + (closed[2] - open[2]) * share,
+            ];
+          }
           const shown: IAutoMovieMotionHumanPosture = {
             ...torso,
             limbs: { ...torso.limbs, [`${side}Arm`]: hand.arm },
-            joints: { ...torso.joints, ...hand.fingers },
+            joints: { ...torso.joints, ...fingers },
           };
           if (share === 1) {
             const read: ReturnType<typeof prepareHumanPoseResolution> =
@@ -219,5 +234,20 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
           return shown;
         },
       };
+
+      // The arm reaches, holds and lets go on one planned course, following
+      // the lead as the horse moves it without changing branch.
+      return courseArmGoal({
+        body: context.body,
+        plan: goals,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        span: {
+          start: 0,
+          ready: transition,
+          relax: seconds - transition,
+          end: seconds,
+        },
+      });
     },
   };
