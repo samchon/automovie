@@ -25,6 +25,7 @@ import { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import { QuadrupedJoints } from "./QuadrupedJoints";
 import { QuadrupedLameness } from "./QuadrupedLameness";
+import { QuadrupedLocomotion } from "./QuadrupedLocomotion";
 import { QuadrupedMotion } from "./QuadrupedMotion";
 import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
