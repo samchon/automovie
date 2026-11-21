@@ -27,6 +27,6 @@ The skills use package roles from the table. [Entity work](../development/entiti
 
 ## Reading a package
 
-Read the installed README for entry points and the public types and JSDoc under `node_modules` for units, limits, refusals and what each parameter value and default performs.
+Read the installed README for entry points and the public types and JSDoc under `node_modules` for units, limits, refusals and what each value and default performs.
 
 Use the installed function or primitive that performs the work. If the API lacks a capability or its JSDoc omits a measure the choice depends on, such as a pace's speed, inspect the owning package's `src/` next to its installed `package.json`. If source is absent, use the repository named in that manifest at the installed version's revision. Follow the nearest implementation's frames, units, ownership and validation conventions when extending it. Send reusable gaps to the package owner.

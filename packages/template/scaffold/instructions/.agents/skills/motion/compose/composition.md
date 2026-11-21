@@ -24,7 +24,7 @@ For each thing a person does in the beat, settle these axes from the beat record
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
 
-Author those axes through the installed operators. Read in each action's JSDoc the speed, duration, size or spacing that every value and default performs, and choose what the beat and its study show. An omitted parameter still performs its default, so omit one only when that default is the beat's manner. Leave joint fitting and contact response to their package owners. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
+Author those axes through the installed operators. Leave joint fitting and contact response to their package owners. Omit a parameter only when its default performs what the beat shows. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
 
 Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
 

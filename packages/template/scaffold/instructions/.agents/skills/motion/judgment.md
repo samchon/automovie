@@ -18,7 +18,7 @@ Do the participants' preparation, support, movement and recovery produce the res
 
 ### Pace
 
-Do each participant's speed, effort, spacing and timing perform the manner the beat states? For skilled practice, compare cue, spacing, simultaneous responses and elapsed time with the study. Measure distances and intervals on the posed performance rather than estimating them from the picture.
+Do each participant's speed, effort, spacing and timing perform the beat's manner and, for skilled practice, the study's cues, responses and elapsed times? Measure distances and intervals on the posed performance under [frame evaluation](frame-evaluation.md).
 
 ### Staging
 
