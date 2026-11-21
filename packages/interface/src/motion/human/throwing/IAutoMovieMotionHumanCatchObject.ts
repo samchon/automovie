@@ -1,5 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
+import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotionHumanActionContext";
+import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 
 /**
@@ -105,5 +107,16 @@ export namespace IAutoMovieMotionHumanCatchObject {
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
      */
     object(seconds: number): IAutoMovieVector3;
+  }
+
+  /** The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path. */
+  export interface IStageLaw extends IAutoMovieMotionHumanActionLaw<IStageParams> {
+    /**
+     * Plan a staged catch.
+     *
+     * @param context The action's context.
+     * @returns The plan with its object path.
+     */
+    plan(context: IAutoMovieMotionHumanActionContext<IStageParams>): IPlan;
   }
 }

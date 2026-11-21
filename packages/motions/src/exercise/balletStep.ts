@@ -100,7 +100,7 @@ export namespace balletStep {
         kind: "parameter",
         axis: "position",
         value: position,
-        feasible: { kind: "alternatives", values: [1, 2, 3, 4, 5] },
+        feasible: { kind: "alternatives", values: ["1", "2", "3", "4", "5"] },
         reason: `ballet has five positions of the feet, not ${position}`,
         fix: "name a position from one to five",
       });
@@ -110,7 +110,7 @@ export namespace balletStep {
         kind: "parameter",
         axis: "turns",
         value: turns,
-        feasible: { kind: "alternatives", values: [1, 2] },
+        feasible: { kind: "alternatives", values: ["1", "2"] },
         reason: `a pirouette here turns once or twice, not ${turns} times`,
         fix: "ask for a single or a double pirouette",
       });

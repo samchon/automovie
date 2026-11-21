@@ -21,6 +21,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanBall } from "../ballStrike/HumanBall";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -29,7 +30,6 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanBall } from "../ballStrike/HumanBall";
 
 /**
  * Toss juggling standing still (#3997).
@@ -155,7 +155,7 @@ export namespace juggle {
         value: n,
         feasible: {
           kind: "alternatives",
-          values: p.pattern === "cascade" ? [3, 5, 7] : [2],
+          values: p.pattern === "cascade" ? ["3", "5", "7"] : ["2"],
         },
         reason:
           p.pattern === "cascade"
