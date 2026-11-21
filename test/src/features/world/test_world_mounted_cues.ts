@@ -26,6 +26,7 @@ const RAMP: number = 0.6;
  *
  * 1. A horse standing in its stall lands no hoof before the doors open and its rider's reaction, and lands its first within one stride after.
  * 2. On each trumpet cue the horse changes gait up, from walk to trot and then from trot to a faster gait of its own table, each change falling after its cue and within the reaction, the ramp and one stride of the gait it leaves.
+ * 3. A cue naming the gallop changes the trot to the gallop within the same bound, though the speed alone would not call it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the break, the cues and the bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Rides a real horse with `rideQuadruped` on `ArchetypeCourse.timed` speed profiles and reads its hoof and gait instants.
@@ -138,6 +139,35 @@ export function test_world_mounted_cues(): void {
           change.seconds <=
             cues[k]! + REACTION + RAMP + stride(order[k]!, cruise[k]!),
       ),
+  );
+
+  // 3. A trumpet cue names the gallop, which the speed alone does not call over the canter.
+  const charge: number = 4;
+  const gallop: number = middle("gallop");
+  const charging: ArchetypeRide.IRide<string, string> = rideQuadruped(horse, {
+    plan: ArchetypeCourse.timed(
+      "charger",
+      profile([
+        knot(0, cruise[1]!),
+        knot(charge + REACTION, cruise[1]!),
+        knot(charge + REACTION + RAMP, gallop),
+        knot(charge + 6, gallop),
+      ]),
+    ),
+    cues: [{ from: charge + REACTION, to: charge + 6, gait: "gallop" }],
+  });
+  const charged: ArchetypeRide.IRide<string, string>["instants"][number][] =
+    charging.instants.filter(
+      (i: ArchetypeRide.IRide<string, string>["instants"][number]): boolean =>
+        i.label.startsWith("gait:"),
+    );
+  TestValidator.predicate(
+    `the charge cue changes the trot to the gallop within the reaction, the ramp and one stride: ${JSON.stringify(charged)}`,
+    charged.length === 1 &&
+      charged[0]!.label === "gait:trot-gallop" &&
+      charged[0]!.seconds > charge &&
+      charged[0]!.seconds <=
+        charge + REACTION + RAMP + stride("trot", cruise[1]!),
   );
 }
 
