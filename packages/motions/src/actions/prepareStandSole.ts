@@ -36,10 +36,13 @@ interface ISole {
 }
 
 /**
- * Find a heel and forefoot plane on the foot's actual hulls. During the
- * rocker the same point must be lowest at both ends. With zero roll and
- * toe flexion, every height difference is a sinusoid of pitch, so an arc
- * shorter than half a turn preserves the nonnegative endpoint differences.
+ * Find a heel and forefoot plane on the foot's actual hulls. The rocker
+ * turns about the plane's sole point that bears lowest at entry; another
+ * point, such as a toe the regions do not name, may bear below it by no more
+ * than `HumanFoot.BEARING`, the height the stance settles onto its plane.
+ * With zero roll and toe flexion, every height difference is a sinusoid of
+ * pitch, so an arc shorter than half a turn preserves the nonnegative
+ * endpoint differences.
  *
  * @param body The rig and its unchanged physical profile.
  * @param side The foot whose two bearing regions are required.
@@ -116,15 +119,19 @@ export function prepareStandSole(
     let heel: number = Infinity;
     let forefoot: number = -Infinity;
     let contact: IAutoMovieVector3 | undefined;
+    let bearing: number = Infinity;
     for (let k: number = 0; k < points.length; k++) {
       const { point, region }: ISolePoint = points[k]!;
       if (Math.abs(point.y * cos + point.z * sin - height) > POINT_PRECISION)
         continue;
       if (region === "heel") heel = Math.min(heel, point.z);
       if (region === "forefoot") forefoot = Math.max(forefoot, point.z);
-      if (region && !contact && initial[k]! <= low + POINT_PRECISION)
+      if (region && initial[k]! < bearing - POINT_PRECISION) {
         contact = point;
+        bearing = initial[k]!;
+      }
     }
+    if (bearing - low > HumanFoot.BEARING) continue;
     if (!contact || forefoot <= heel + POINT_PRECISION) continue;
     nearest = travel;
     answer = {

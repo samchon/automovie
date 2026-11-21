@@ -56,11 +56,13 @@ interface IVertex {
  *    actual ground patches and satisfies every native joint. The hanging
  *    arms' roots and the two thighs start in no live self-contact. A falsely
  *    raised floor refuses the transfer and leaves the original pose untouched.
+ * 4. A tall body, whose resting toes bear just below its forefoot, settles
+ *    onto the same flat heel and forefoot plane and transfers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the public producer, independent observations and differing world frames.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public film's displayed rigid transforms at entry, during settling, at the event and after settling. It observes support, slip and clinical angles before the handoff. The public physical handoff supplies a separate pose for native limits and retained world support.
  * @evidence contracts/development/testing.md#independent-expectations Transforms each source vertex directly and compares it with the declared world plane. The combined mass center uses actual segment masses and placed local centers.
- * @evidence contracts/development/testing.md#distinguishing-cases Detects forefoot-only geometry at the held pose, penetration and slip across the rocker, a nonzero floor interpreted in a different heading, and an undeclared arm-root or thigh-root overlap at the native start.
+ * @evidence contracts/development/testing.md#distinguishing-cases Detects forefoot-only geometry at the held pose, penetration and slip across the rocker, a nonzero floor interpreted in a different heading, an undeclared arm-root or thigh-root overlap at the native start, and a tall body whose entry bears on an unnamed toe vertex.
  * @evidence contracts/development/testing.md#execution-ownership Uses in-memory motion evaluation and the real Human profile. It opens no render or simulated physics world.
  */
 export function test_human_motion_stand_support_geometry(): void {
@@ -69,6 +71,7 @@ export function test_human_motion_stand_support_geometry(): void {
     { name: "m-average", floor: 0, yaw: 0 },
     { name: "m-average", floor: 0.42, yaw: 37 },
     { name: "f-small", floor: 0, yaw: 37 },
+    { name: "m-tall", floor: 0, yaw: 0 },
   ] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
     const subject: string = "standing";
