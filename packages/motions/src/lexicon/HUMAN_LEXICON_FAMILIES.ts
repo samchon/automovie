@@ -48,6 +48,7 @@ import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarrierCustody } from "./HumanCarrierCustody";
 import { HumanHorrorGait } from "./HumanHorrorGait";
+import { crabWalk } from "../floor/crabWalk";
 import { HumanRaceGait } from "./HumanRaceGait";
 import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
@@ -157,6 +158,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanTravelLeaf,
     HumanTravelCarExit,
     HumanHorrorGait,
+    { crabWalk },
     HumanRaceGait,
   ],
   pursuit: [HumanPursuit],

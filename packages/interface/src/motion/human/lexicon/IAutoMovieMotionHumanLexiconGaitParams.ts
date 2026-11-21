@@ -9,6 +9,7 @@ import type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTree
 import type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
 import type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
 import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
+import type { IAutoMovieMotionHumanCrabWalk } from "../floor/IAutoMovieMotionHumanCrabWalk";
 import type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
 import type { IAutoMovieMotionHumanTravelCarExit } from "./IAutoMovieMotionHumanTravelCarExit";
 import type { IAutoMovieMotionHumanTravelDoor } from "./IAutoMovieMotionHumanTravelDoor";
@@ -120,6 +121,9 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** A stalk: a hunched creep on deeply bent knees. */
   stalk: IAutoMovieMotionHumanGait.IParams;
+
+  /** A crab walk: supine on the hands and the feet, the pelvis lifted, travelling feet or head first in the diagonal sequence. */
+  crabWalk: IAutoMovieMotionHumanCrabWalk.IParams;
 
   /** A race walk: a walk at a run's pace, one foot always down, the arms pumping. */
   raceWalk: IAutoMovieMotionHumanGait.IParams;

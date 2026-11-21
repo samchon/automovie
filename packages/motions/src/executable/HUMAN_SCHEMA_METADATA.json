@@ -833,6 +833,7 @@
     "shamble": {},
     "lurch": {},
     "stalk": {},
+    "crabWalk": {},
     "ropeSkip": {
       "properties": {
         "flightSeconds": {
