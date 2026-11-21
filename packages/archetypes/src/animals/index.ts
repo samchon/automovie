@@ -24,6 +24,7 @@ export * from "./HorseDraft";
 export * from "./HorseDraftPlan";
 export * from "./HorsePackLoad";
 export * from "./HorseTeam";
+export * from "./HorseDraggedLoad";
 export * from "./HorseTeamCourse";
 export * from "./HorseTeamPlan";
 export * from "./CamelBody";
