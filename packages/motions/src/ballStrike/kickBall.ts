@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieHumanLimbGoal,
@@ -47,8 +47,10 @@ import { HumanBall } from "./HumanBall";
  * instep and side-foot kicks). The backswing draws the foot back and up
  * behind the ball (`CHAMBER`, in shank lengths, provisional), the swing
  * (`AutoMovieMotionHumanLegPhrase.swing`) passes the contact at speed and runs on
- * along its line through the follow-through, and the foot returns to its
- * stance. The opposite arm swings out for balance. The support foot stays
+ * through the follow-through along the leg's arc about the hip, at the swing's
+ * own angular rate, so the leg keeps its length and the knee its bend instead
+ * of locking straight on a placement past reach; with no hold, the knee flexes
+ * as the foot returns to its stance. The opposite arm swings out for balance. The support foot stays
  * planted where it stood, so the ball must lie within the kicking leg's
  * reach of its hip; a farther ball is refused with the reach. Phase lengths
  * are provisional, scaled by the manner's tempo. Events: the phrase's
@@ -164,7 +166,6 @@ export namespace kickBall {
         prepare: 0.35,
         attack: 0.1,
         follow: 0.15,
-        hold: 0.1,
         retract: 0.45,
       }),
       modifiers,
@@ -248,6 +249,26 @@ export namespace kickBall {
       ),
     };
 
+    // The swing's turn about the hip from the chamber to the contact, the
+    // angle the follow-through goes on turning at, and its axis.
+    const back: IAutoMovieVector3 = Vector3.subtract(chamber.ankle, hip);
+    const front: IAutoMovieVector3 = Vector3.subtract(hit.ankle, hip);
+    const lateral: IAutoMovieVector3 = Vector3.normalize(
+      Vector3.cross(back, front),
+    );
+    const swept: number =
+      (Math.acos(
+        Math.max(
+          -1,
+          Math.min(
+            1,
+            Vector3.dot(back, front) /
+              (Vector3.length(back) * Vector3.length(front)),
+          ),
+        ),
+      ) *
+        180) /
+      Math.PI;
     const duration: number = clock.duration;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const stance: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
@@ -292,7 +313,44 @@ export namespace kickBall {
               rotation: stance.rotation ?? HumanFrame.turn(standing.yaw),
             },
             chamber: (): IAutoMovieMotionHumanFoot.IPlacement => chamber,
-            target: (): IAutoMovieMotionHumanFoot.IPlacement => hit,
+            target: (
+              _posture: IAutoMovieMotionHumanPosture,
+              seconds: number,
+            ): IAutoMovieMotionHumanFoot.IPlacement => {
+              // Past the contact the swing reads its placement on the line
+              // from the chamber through this target at its overshoot
+              // progress p; the target is set so that point lies on the
+              // leg's arc about the hip, turned on by the swing's own angle
+              // per unit of progress.
+              const p: number = AutoMovieMotionClock.through(
+                clock,
+                ["strokeStart", "stroke", "strokeEnd"],
+                seconds,
+              );
+              if (p <= 1) return hit;
+              const arc: IAutoMovieVector3 = Vector3.add(
+                hip,
+                Quaternion.rotateVector(
+                  Quaternion.fromAxisAngle(lateral, swept * (p - 1)),
+                  Vector3.subtract(hit.ankle, hip),
+                ),
+              );
+              // On the way back the knee flexes and the shank swings back as
+              // it did into the chamber, so the foot turns toward the
+              // chamber's pointed foot with it and the unloaded ankle keeps
+              // its plantarflexion.
+              return {
+                ankle: Vector3.add(
+                  chamber.ankle,
+                  Vector3.scale(Vector3.subtract(arc, chamber.ankle), 1 / p),
+                ),
+                rotation: Quaternion.slerp(
+                  hit.rotation,
+                  chamber.rotation,
+                  clock.progress("relax", "end", seconds),
+                ),
+              };
+            },
           }),
           // The opposite arm swings out for balance (provisional angles).
           AutoMovieMotionHumanJoints.pulse(
