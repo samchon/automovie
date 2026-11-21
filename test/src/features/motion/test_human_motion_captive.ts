@@ -133,7 +133,7 @@ export function test_human_motion_captive(): void {
     });
     const released: number = film.schedule.entries.find(
       (row: IAutoMovieScheduleEntry): boolean =>
-        row.intent.anchor === "release",
+        row.intent?.anchor === "release",
     )!.start;
     const back = (t: number): IAutoMovieVector3 => {
       const frame: IAutoMovieRigidTransform = film.prop("chair", t);
@@ -150,7 +150,7 @@ export function test_human_motion_captive(): void {
         .segments("c")
         .find(
           (segment: IAutoMovieMotionHumanSegment): boolean =>
-            segment.intent.anchor === prop,
+            segment.intent?.anchor === prop,
         )!;
       const on: number =
         tied.start +
@@ -204,7 +204,7 @@ function binding(subject: string, k: number): IAutoMovieMotionHumanProp {
     kind: "handle",
     frame: Transform.of({ x: 0, y: 0.02, z: 0 }, Quaternion.identity()),
     extent: null,
-    grip: "pinch",
+    grip: "power",
     symmetry: "round",
     aperture: 0.02,
   };

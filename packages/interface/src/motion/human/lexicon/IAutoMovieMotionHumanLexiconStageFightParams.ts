@@ -2,6 +2,7 @@ import type { IAutoMovieMotionHumanCrouch } from "../everyday/IAutoMovieMotionHu
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
 import type { IAutoMovieMotionHumanClinch } from "../grappling/IAutoMovieMotionHumanClinch";
 import type { IAutoMovieMotionHumanGrapple } from "../grappling/IAutoMovieMotionHumanGrapple";
+import type { IAutoMovieMotionHumanLungeGrab } from "../grappling/IAutoMovieMotionHumanLungeGrab";
 import type { IAutoMovieMotionHumanGive } from "../reaction/IAutoMovieMotionHumanGive";
 import type { IAutoMovieMotionHumanStagger } from "../reaction/IAutoMovieMotionHumanStagger";
 import type { IAutoMovieMotionHumanCloseStrike } from "../striking/IAutoMovieMotionHumanCloseStrike";
@@ -26,6 +27,9 @@ export interface IAutoMovieMotionHumanLexiconStageFightParams {
 
   /** Perform a role in a staged grappling exchange. */
   grapple: IAutoMovieMotionHumanGrapple.IParams;
+
+  /** A lunge and grab: the leading foot steps long toward the victim and both palms close on its shoulders or a named region; a victim beyond the longest lunge is refused. */
+  lungeGrab: IAutoMovieMotionHumanLungeGrab.IParams;
 
   /** A stage palm strike: the rear palm heel driven at the target and stopped short at 0.85 of its delivery (provisional), with no contact declared. */
   stagePalmStrike: Omit<

@@ -23,12 +23,12 @@ import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionComplaints } from "../internal/motionComplaints";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-/** The regions a pat-down visits from behind, in order: the collar line on both sides, then both hip pockets. */
+/** The regions a pat-down visits from behind, in order: the shoulder blades, both flanks over the kidneys, then the waistband. */
 const FRISK: readonly AutoMovieHumanoidRegion[] = [
-  "shoulderRight",
-  "shoulderLeft",
-  "hipRight",
-  "hipLeft",
+  "upperBack",
+  "kidneyRight",
+  "kidneyLeft",
+  "lowerBack",
 ];
 /** A pat lands within this of its region's bone, metres: a limb's radius and a palm's thickness. */
 const PAT: number = 0.12;
@@ -121,7 +121,7 @@ export function test_human_motion_arrest(): void {
     let last: number = -Infinity;
     FRISK.forEach((region: AutoMovieHumanoidRegion, k: number): void => {
       const entry = film.schedule.entries.find(
-        (row): boolean => row.intent.anchor === `pat${k}`,
+        (row): boolean => row.intent?.anchor === `pat${k}`,
       )!;
       const at: number = entry.contact ?? (entry.start + entry.end) / 2;
       const side: "left" | "right" = region.endsWith("Left") ? "left" : "right";
@@ -148,7 +148,7 @@ export function test_human_motion_arrest(): void {
       .segments("o")
       .find(
         (segment: IAutoMovieMotionHumanSegment): boolean =>
-          segment.intent.anchor === "cuff",
+          segment.intent?.anchor === "cuff",
       )!;
     const closed: number =
       cuffed.start +
@@ -199,7 +199,7 @@ function cuffs(officer: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanProp {
     kind: "handle",
     frame: Transform.of({ x: 0, y: 0.03, z: 0 }, Quaternion.identity()),
     extent: null,
-    grip: "pinch",
+    grip: "power",
     symmetry: "round",
     aperture: 0.02,
   };

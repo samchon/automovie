@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBindPartner,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionPropHold,
   IAutoMovieMotionPropWear,
 } from "@automovie/interface";
 
@@ -74,8 +75,14 @@ export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBi
         ...(link.target === undefined ? {} : { target: link.target }),
         slack: link.slack,
       };
+      // Worn on the partner, the restraint leaves the binder's hand: the
+      // carried phrase's closing hold on it is dropped with the grip.
       return {
         ...plan,
+        holds: (plan.holds ?? []).filter(
+          (hold: IAutoMovieMotionPropHold): boolean =>
+            hold.prop !== context.params.prop,
+        ),
         wears: (plan.wears ?? []).map(
           (wear: IAutoMovieMotionPropWear): IAutoMovieMotionPropWear =>
             wear.prop === context.params.prop ? { ...wear, link: bound } : wear,

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieAngleRange,
@@ -11,6 +12,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanCrabWalk,
+  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -18,6 +20,7 @@ import type {
 
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanHand } from "../posture/HumanHand";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 
 /** One limb of the crawl: its channel, its contact part, its diagonal group and where it stands from the pelvis. */
@@ -38,6 +41,16 @@ interface ILimb {
   bend: IAutoMovieVector3;
 }
 
+/** The trunk's bones that arch, from the pelvis up. */
+const TRUNK: readonly AutoMovieHumanoidBone[] = [
+  "spine",
+  "chest",
+  "upperChest",
+];
+
+/** The world's down. */
+const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
+
 /** The crawl's two trunk variants. */
 type Variant = "plain" | "backbend";
 
@@ -46,7 +59,7 @@ interface IShape {
   /** The whole body's pitch, degrees: negative tips it onto its back. */
   pitch: number;
 
-  /** The spine's and the chest's extension, degrees, each. */
+  /** The trunk's whole extension, degrees, shared among its bones by their room. */
   arch: number;
 
   /** The neck's flexion, degrees: positive looks toward the feet, negative hangs the head back. */
@@ -94,13 +107,16 @@ export namespace crabWalk {
   /** How long one stride cycle takes, seconds: authored, a slow crawl. */
   export const CYCLE: number = 0.9;
 
+  /** How far above the floor a planted palm's surface lies, metres: the floor contact's skin. */
+  export const SKIN: number = 0.005;
+
   /** How high a swinging end lifts, metres: authored. */
   export const LIFT: number = 0.06;
 
   /** The trunk and the head over the supports, plain and in a full backbend. */
   export const SHAPES: Readonly<Record<Variant, IShape>> = {
     plain: { pitch: -70, arch: 0, neck: 25 },
-    backbend: { pitch: -95, arch: 35, neck: -55 },
+    backbend: { pitch: -95, arch: 70, neck: -45 },
   };
 
   /**
@@ -143,27 +159,33 @@ export namespace crabWalk {
       });
     const shape: IShape =
       SHAPES[params.backbend === true ? "backbend" : "plain"];
-    if (params.backbend === true) {
-      const room: number = (["spine", "chest"] as const).reduce(
-        (sum: number, bone: AutoMovieHumanoidBone): number => {
-          const flexion: IAutoMovieAngleRange | null | undefined =
-            body.bones.get(bone)?.constraint?.flexion;
-          return (
-            sum + (flexion === null || flexion === undefined ? 0 : -flexion.min)
-          );
-        },
-        0,
-      );
-      if (room < 2 * shape.arch)
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "backbend",
-          value: true,
-          feasible: { kind: "range", unit: "deg", minimum: 0, maximum: room },
-          reason: `a full backbend arches the spine and the chest by ${2 * shape.arch} degrees; this body extends them by ${room.toFixed(0)}`,
-          fix: "crawl without the backbend",
-        });
-    }
+    // The trunk's extension, shared among its bones by the room each has.
+    const rooms: readonly number[] = TRUNK.map(
+      (bone: AutoMovieHumanoidBone): number => {
+        const flexion: IAutoMovieAngleRange | null | undefined =
+          body.bones.get(bone)?.constraint?.flexion;
+        return flexion === null || flexion === undefined
+          ? 0
+          : Math.max(0, -flexion.min);
+      },
+    );
+    const room: number = rooms.reduce(
+      (a: number, b: number): number => a + b,
+      0,
+    );
+    if (shape.arch > room)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "backbend",
+        value: true,
+        feasible: { kind: "range", unit: "deg", minimum: 0, maximum: room },
+        reason: `a full backbend arches the trunk by ${shape.arch} degrees; this body's spine and chest extend by ${room.toFixed(0)}`,
+        fix: "crawl without the backbend",
+      });
+    const arched: IAutoMovieMotionHumanPosture["joints"] = {};
+    TRUNK.forEach((bone: AutoMovieHumanoidBone, k: number): void => {
+      if (room > 0) arched[bone] = [(-shape.arch * rooms[k]!) / room, 0, 0];
+    });
 
     // The travel in the world, and the heading the body takes: the feet lead
     // along it, or the head does.
@@ -214,7 +236,7 @@ export namespace crabWalk {
     // the shoulders, each a little wider than its girdle.
     const ankle: number =
       body.rest.get("leftFoot")?.y ?? 0.08 * (stature / 1.75);
-    const wrist: number = 0.04 * (stature / 1.75);
+    const palm: number = SKIN;
     const trunk: number =
       (body.rest.get("leftUpperArm")?.y ?? hip + 0.3 * stature) -
       (body.rest.get("hips")?.y ?? hip);
@@ -317,11 +339,32 @@ export namespace crabWalk {
           ),
           Vector3.add(frame(l.stance), { x: 0, y: lift, z: 0 }),
         );
-        goals[l.limb] = {
-          point,
-          bend: Vector3.add(point, frame(l.bend)),
-          planted: lift === 0,
-        } satisfies IAutoMovieHumanLimbGoal;
+        const planted: boolean = lift === 0;
+        if (l.part === "leftHand" || l.part === "rightHand") {
+          // The palm lies flat on the floor, the fingers toward the feet.
+          const side: AutoMovieHumanSide =
+            l.part === "leftHand" ? "left" : "right";
+          const wrist: IAutoMovieMotionHumanHand.IWrist = HumanHand.place(
+            body,
+            side,
+            "palm",
+            point,
+            HumanHand.rotation(side, { fingers: ahead, palm: DOWN }),
+            "flat",
+          );
+          goals[l.limb] = {
+            point: wrist.point,
+            rotation: wrist.rotation,
+            bend: Vector3.add(wrist.point, frame(l.bend)),
+            planted,
+          } satisfies IAutoMovieHumanLimbGoal;
+        } else
+          goals[l.limb] = {
+            point,
+            rotation: facing,
+            bend: Vector3.add(point, frame(l.bend)),
+            planted,
+          } satisfies IAutoMovieHumanLimbGoal;
       }
       return {
         root: root(centre),
@@ -329,8 +372,9 @@ export namespace crabWalk {
         pitch: shape.pitch,
         roll: 0,
         joints: {
-          spine: [-shape.arch, 0, 0],
-          chest: [-shape.arch, 0, 0],
+          ...HumanHand.shape("left", "flat"),
+          ...HumanHand.shape("right", "flat"),
+          ...arched,
           neck: [shape.neck, 0, 0],
         },
         limbs: goals,

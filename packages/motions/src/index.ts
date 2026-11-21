@@ -146,6 +146,7 @@ export * from "./dressing/composeHumanAdjustCuff";
 export * from "./dressing/composeHumanStraightenTie";
 export * from "./dressing/bindPartner";
 export * from "./floor/crabWalk";
+export * from "./touch/lungeGrab";
 export * from "./dressing/dress";
 export * from "./dressing/tipHat";
 export * from "./carrying/carry";

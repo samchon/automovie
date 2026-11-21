@@ -834,6 +834,7 @@
     "lurch": {},
     "stalk": {},
     "crabWalk": {},
+    "lungeGrab": {},
     "ropeSkip": {
       "properties": {
         "flightSeconds": {
