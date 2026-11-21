@@ -13,7 +13,6 @@ import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSegment,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -39,6 +38,9 @@ const TOUCH: number = 0.01;
 /** How far ahead of the bather's ankles the tub's apron stands, metres: within a step. */
 const NEAR: number = 0.25;
 
+/** How far in from the well's end the bather's hips settle, metres (provisional: the back against the end wall). */
+const SIT_BACK: number = 0.25;
+
 /** How far outside the apron the bath mat's middle lies, metres: a step out lands on it. */
 const MAT: number = 0.25;
 
@@ -46,8 +48,8 @@ const MAT: number = 0.25;
  * Getting into a bathtub and washing under a shower.
  *
  * Scenarios, on the average man and the small woman:
- * 1. Stepping over the rim lands both feet on the tub's floor inside its
- *    rim, and the bather then sits on that floor.
+ * 1. Stepping over the apron lands both feet on the tub's floor inside it;
+ *    the bather turns along the tub and sits on that floor, legs long.
  * 2. Landing on the apron's narrow top instead is refused.
  * 3. Standing in the tub facing the apron, stepping out lands both feet on
  *    a bath mat outside it, the apron read from inside.
@@ -77,11 +79,18 @@ export function test_human_motion_bathing(): void {
       yaw: 180,
       fixed: true,
     });
-    const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
-      tub,
-      { at, yaw: 180 },
-      "seat",
-    );
+    // The well's middle on the turned tub, and the place the bather sits:
+    // toward one end of the well, facing along it to the other.
+    const floor: number = tub.site("bottom").translation.y;
+    const middle: IAutoMovieVector3 = {
+      x: 0,
+      y: floor,
+      z: at.z - tub.site("bottom").translation.z,
+    };
+    const well: number = tub.dimensions.wellLength!;
+    const sitAt: IAutoMovieVector3 = { ...middle, x: well / 2 - SIT_BACK };
+    const face: number =
+      (Math.atan2(middle.x - sitAt.x, middle.z - sitAt.z) * 180) / Math.PI;
     const bath: HumanPerformance = stage(
       body,
       [placed],
@@ -89,14 +98,14 @@ export function test_human_motion_bathing(): void {
         HumanChain.subject("a"),
         "tub",
         "bottom",
-        seat,
+        sitAt,
+        face,
       ),
     );
     assertTakeClean(`${fit} into the tub`, bath);
     const over: IAutoMovieMotionHumanSegment = bath.segments("a")[0]!;
     const landed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       bath.bones("a", over.end);
-    const floor: number = tub.site("bottom").translation.y;
     TestValidator.predicate(
       `${fit}: both feet land on the tub's floor`,
       (["left", "right"] as const).every((side: AutoMovieHumanSide): boolean =>
@@ -106,10 +115,14 @@ export function test_human_motion_bathing(): void {
         ),
       ),
     );
-    TestValidator.equals(
-      `${fit}: the bather sits in the tub`,
-      bath.segments("a").at(-1)!.name,
-      "sit",
+    const hips: IAutoMovieVector3 = bath
+      .bones("a", bath.duration)
+      .get("hips")!.worldPosition;
+    TestValidator.predicate(
+      `${fit}: the bather sits on the tub's floor within the well (hips ${(hips.y * 1000).toFixed(0)} mm up)`,
+      hips.y - floor <= body.measure.hipHeight / 2 &&
+        Math.abs(hips.x - middle.x) <= well / 2 &&
+        Math.abs(hips.z - middle.z) <= tub.dimensions.wellWidth! / 2,
     );
     TestValidator.predicate(
       `${fit}: landing on a surface the feet cannot lie on is refused`,
