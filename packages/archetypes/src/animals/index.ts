@@ -1,6 +1,7 @@
 export * from "./EquidSegments";
 export * from "./EquidEarProfiles";
 export * from "./EquineAirs";
+export * from "./EquineBlend";
 export * from "./EquineBreathing";
 export * from "./EquineCutting";
 export * from "./EquineEncounter";

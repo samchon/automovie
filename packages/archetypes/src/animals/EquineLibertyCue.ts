@@ -124,5 +124,24 @@ export namespace EquineLibertyCue {
 
     /** The lateral rest it lies in and rises from; its side is the side landed on. */
     lateral: QuadrupedLateralRestPlan.IParams;
+
+    /** The walk it steps off into once it stands, if any. */
+    away?: IAway;
+  }
+
+  /**
+   * A walk off from where a fallen horse stands up: its first steps.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Metres and metres per second.
+   * @evidence contracts/development/design.md#principled-representation A straight length and a walking speed.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The fall's optional walk off.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   */
+  export interface IAway {
+    /** Metres walked straight ahead. */
+    length: number;
+
+    /** The walk's cruising speed, metres per second. */
+    speed: number;
   }
 }

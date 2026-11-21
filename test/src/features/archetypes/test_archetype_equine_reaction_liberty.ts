@@ -41,7 +41,7 @@ type Side = "left" | "right";
  * Scenarios:
  * 1. The kneel rests both carpi on the floor with both hind hooves planted; the bow stretches one fore hoof forward on the floor and kneels the other; the sit rests the hindquarters and both hocks on the floor with both fore hooves planted; each holds still through its hold and no part goes under the floor.
  * 2. The lateral dead hold lies the barrel on the floor still through its hold and rises to standing.
- * 3. A fall from a canter onto each side drops the shoulder and barrel onto the floor on that side, slides the authored distance, never goes under the floor, starts continuous with the stride and seeks the same both ways.
+ * 3. A fall from a canter onto each side drops the shoulder and barrel onto the floor on that side, slides the authored distance, never goes under the floor, starts continuous with the stride, rises and joins its first steps of a walk off, and seeks the same both ways.
  * 4. A fall onto unprepared ground or above the speed bound refuses, typed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names every scenario and what it checks.
@@ -213,6 +213,7 @@ export function test_archetype_equine_reaction_liberty(): void {
       prepared: true,
       rest,
       lateral: lateral(side),
+      away: { length: 2, speed: 1.2 },
     });
     const stop: number = fall.instants.find(
       (instant: Instant): boolean => instant.label === "fall:stop",
@@ -253,6 +254,33 @@ export function test_archetype_equine_reaction_liberty(): void {
         Look.bar(fall.at(from + 1e-4), "trunk").from,
         Look.bar(canter.at(from), "trunk").from,
       ) <= 0.01,
+    );
+    // The rise joins its first steps: the standing pose carries on into the walk off, its hooves where it stood.
+    const risen: number = fall.instants.find(
+      (instant: Instant): boolean => instant.label === "rest:standing",
+    )!.seconds;
+    const before: Sample = fall.at(risen - 1e-6);
+    const after: Sample = fall.at(risen + 1e-6);
+    TestValidator.predicate(
+      `the ${side} fall's rise joins its first step`,
+      QuadrupedBody.LIMBS.every(
+        (limb: QuadrupedBody.Limb): boolean =>
+          Vector3.distance(
+            Look.bar(before, QuadrupedBody.BONES[limb][3]).to,
+            Look.bar(after, QuadrupedBody.BONES[limb][3]).to,
+          ) <= 0.02,
+      ) &&
+        Vector3.distance(
+          Look.bar(before, "trunk").from,
+          Look.bar(after, "trunk").from,
+        ) <= 0.02,
+    );
+    TestValidator.predicate(
+      `the ${side} fall walks off`,
+      Vector3.distance(
+        fall.at(fall.duration).placement.translation,
+        after.placement.translation,
+      ) > 1.5,
     );
     const times: number[] = [from + 0.3, stop + 0.4, fall.duration - 0.5];
     const forward: string[] = times.map((at: number): string =>

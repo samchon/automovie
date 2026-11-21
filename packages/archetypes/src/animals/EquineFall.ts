@@ -13,11 +13,13 @@ import {
   ArchetypeRefusal,
   type ArchetypeRide,
 } from "../core";
+import { EquineBlend } from "./EquineBlend";
 import { EquineLiberty } from "./EquineLiberty";
 import type { EquineLibertyCue } from "./EquineLibertyCue";
 import { QuadrupedLateralRest } from "./QuadrupedLateralRest";
 import type { QuadrupedLateralRestPlan } from "./QuadrupedLateralRestPlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
+import { rideQuadruped } from "./rideQuadruped";
 
 /** The fastest a trained fall is staged from, metres per second: an authored bound at a canter or slow gallop. */
 const FALL_SPEED: number = 7;
@@ -28,7 +30,7 @@ type Instant = ArchetypeRide.IRide<string, string>["instants"][number];
 /**
  * A trained fall from a canter or gallop onto prepared ground: the horse goes down on one side, slides to a stop, lies still and rises.
  *
- * At the fall's start the horse is in its stride at speed v. It decelerates uniformly over the authored slide distance d, so it stops after 2d / v seconds, its travel s(τ) = vτ − v²τ² / 4d along its heading. Through the authored drop its every part blends, on a minimum-jerk share, from the stride's pose at the fall's start to the lateral rest's lying pose (`QuadrupedLateralRest`) on the landing side, both carried along the slide; the blended body is held on the floor by its lowest part, so nothing passes under it, and once down it slides lying. From the stop it plays the lateral rest on from its lying pose: the still hold, the roll back to the sternum and the rise to standing. The ground must be declared prepared and the speed at most `FALL_SPEED` (American Humane, horse guidelines for filmed media).
+ * At the fall's start the horse is in its stride at speed v. It decelerates uniformly over the authored slide distance d, so it stops after 2d / v seconds, its travel s(τ) = vτ − v²τ² / 4d along its heading. Through the authored drop its every part blends, on a minimum-jerk share, from the stride's pose at the fall's start to the lateral rest's lying pose (`QuadrupedLateralRest`) on the landing side, both carried along the slide; the blended body is held on the floor by its lowest part, so nothing passes under it, and once down it slides lying. From the stop it plays the lateral rest on from its lying pose: the still hold, the roll back to the sternum and the rise to standing; it then may walk off from where it stood up, its first steps a ride from standing along its heading. The ground must be declared prepared and the speed at most `FALL_SPEED` (American Humane, horse guidelines for filmed media).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the deceleration, the blend, the floor support, the lateral rest that follows and the refusals.
  * @evidence contracts/development/design.md#principled-representation A ride in and a ride out on the same clock.
@@ -129,8 +131,38 @@ export namespace EquineFall {
       ),
     });
 
+    // Once standing it may walk off from where it rose, along its heading.
+    const risen: number = cue.from + stop + clip.duration - down;
+    const stand: IAutoMovieVector3 = ArchetypeFrame.compose(
+      slid(ground, risen),
+      clip.sample(clip.duration).placement,
+    ).translation;
+    const away: ArchetypeRide.IRide<Id, D> | undefined =
+      cue.away === undefined
+        ? undefined
+        : rideQuadruped(
+            animal,
+            {
+              start: {
+                x: stand.x,
+                z: stand.z,
+                heading: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
+              },
+              cruise: cue.away.speed,
+              startSpeed: 0,
+              endSpeed: 0,
+              acceleration: 1,
+              deceleration: 1,
+              startFromStanding: true,
+              legs: [{ kind: "straight", length: cue.away.length }],
+            },
+            "walk",
+          );
+
     const at = (seconds: number): ArchetypeRide.ISample<Id, D> => {
       if (seconds < cue.from) return ride.at(seconds);
+      if (away !== undefined && seconds >= risen)
+        return away.at(seconds - risen);
       const course: ArchetypeRide.ISample<Id, D>["course"] = ride.plan.at(
         Math.min(seconds, ride.duration),
       );
@@ -157,7 +189,7 @@ export namespace EquineFall {
       if (share >= 1)
         return { archetype: lying.animal, placement: flat, course };
       return {
-        archetype: blended(
+        archetype: EquineBlend(
           start.archetype,
           slid(start.placement, seconds),
           lying.animal,
@@ -186,8 +218,16 @@ export namespace EquineFall {
     ].sort((p: Instant, q: Instant): number => p.seconds - q.seconds);
     return {
       plan: ride.plan,
-      duration: cue.from + stop + clip.duration - down,
-      instants,
+      duration: risen + (away?.duration ?? 0),
+      instants: [
+        ...instants,
+        ...(away?.instants ?? []).map(
+          (instant: Instant): Instant => ({
+            ...instant,
+            seconds: instant.seconds + risen,
+          }),
+        ),
+      ],
       at,
       frame: (id: Id, seconds: number): IAutoMovieTransform => {
         const sample: ArchetypeRide.ISample<Id, D> = at(seconds);
@@ -197,125 +237,6 @@ export namespace EquineFall {
         );
       },
     };
-  }
-
-  /** The body between two posed models at their placements, read in the second's placement and held on the floor by its lowest part. */
-  function blended<Id extends string, D extends string>(
-    from: Archetype<Id, D>,
-    fromPlacement: IAutoMovieTransform,
-    to: Archetype<Id, D>,
-    toPlacement: IAutoMovieTransform,
-    share: number,
-  ): Archetype<Id, D> {
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      toPlacement.rotation,
-    );
-    const local = (frame: IAutoMovieTransform): IAutoMovieTransform => ({
-      ...frame,
-      rotation: Quaternion.multiply(inverse, frame.rotation),
-      translation: Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(frame.translation, toPlacement.translation),
-      ),
-    });
-    const mix = (
-      a: IAutoMovieTransform,
-      b: IAutoMovieTransform,
-    ): IAutoMovieTransform =>
-      local({
-        ...b,
-        rotation: Quaternion.slerp(a.rotation, b.rotation, share),
-        translation: Vector3.lerp(a.translation, b.translation, share),
-      });
-    const source: ReadonlyMap<string, IAutoMovieModelPart> = new Map(
-      from.parts.map(
-        (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
-          part.id,
-          part,
-        ],
-      ),
-    );
-    let parts: IAutoMovieModelPart[] = to.parts.map(
-      (part: IAutoMovieModelPart): IAutoMovieModelPart => {
-        const was: IAutoMovieModelPart | undefined = source.get(part.id);
-        if (
-          was?.transform === undefined ||
-          was.transform === null ||
-          part.transform === undefined ||
-          part.transform === null
-        )
-          return part;
-        return {
-          ...part,
-          transform: mix(
-            ArchetypeFrame.compose(fromPlacement, was.transform),
-            ArchetypeFrame.compose(toPlacement, part.transform),
-          ),
-        };
-      },
-    );
-
-    // Hold the blended body on the floor by its lowest part.
-    const lowest: number = Math.min(
-      ...parts
-        .filter(
-          (part: IAutoMovieModelPart): boolean =>
-            part.transform !== undefined && part.transform !== null,
-        )
-        .map((part: IAutoMovieModelPart): number =>
-          QuadrupedRestFloor({
-            ...part,
-            transform: ArchetypeFrame.compose(toPlacement, part.transform!),
-          }),
-        ),
-    );
-    const lift: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
-      x: 0,
-      y: Math.max(0, -lowest),
-      z: 0,
-    });
-    parts = parts.map(
-      (part: IAutoMovieModelPart): IAutoMovieModelPart =>
-        part.transform === undefined || part.transform === null
-          ? part
-          : {
-              ...part,
-              transform: {
-                ...part.transform,
-                translation: Vector3.add(part.transform.translation, lift),
-              },
-            },
-    );
-    const contacts: ReadonlyMap<string, IAutoMovieTransform> = new Map(
-      from.affordances.map(
-        (contact: IAutoMovieAffordance): [string, IAutoMovieTransform] => [
-          contact.id,
-          contact.frame,
-        ],
-      ),
-    );
-    return to.reposed(
-      parts,
-      new Map(
-        to.affordances.map(
-          (contact: IAutoMovieAffordance): [string, IAutoMovieTransform] => {
-            const was: IAutoMovieTransform =
-              contacts.get(contact.id) ?? contact.frame;
-            const frame: IAutoMovieTransform = mix(
-              ArchetypeFrame.compose(fromPlacement, was),
-              ArchetypeFrame.compose(toPlacement, contact.frame),
-            );
-            return [
-              contact.id,
-              {
-                ...frame,
-                translation: Vector3.add(frame.translation, lift),
-              },
-            ];
-          },
-        ),
-      ),
-    );
   }
 
   /** The turn about the vertical that carries +Z onto a rotation's forward direction on the floor. */
