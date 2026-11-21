@@ -42,6 +42,18 @@ pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from
 
 The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it. Export requires a whole number of frames. The report's hashes describe the drawn frames, and [delivery review]({{skills}}/review/delivery-review.md) judges the film.
 
+## Production diagnostics
+
+Every host inspects the placed film through `src/inspectFilmProduction.ts`: the inspector on each painted picture, the capture on each drawn still and the render on every delivered frame. It judges the evaluated pose whoever produced it, a native action, raw authored keyframes or a physical performance, so one fault is reported the same way from each. Extend it per film through `IFilmProduction.inspectionLayers`, `inspectionChecks`, `inspectionCamera` and `inspectPlaced`.
+
+A finding has a stable check, key, code and entity paths, a confidence, and a witness with its film seconds and, on the delivery grid, its output frame. Each check also reports its coverage: `checked`, `excluded` with a reason, or `deferred` or `unsupported` with a reason.
+
+- **Inspector.** A confirmed error draws a red cube at its witness under the `beauty` shade, a possible one an amber cube, and goes to the console once per incident: at its first visit and when its span closes. A span over consecutive frames is frame-exact. A span over uninterrupted playback names only the painted samples, and the film between them is unchecked, so step the frames before trusting its extent. The Diagnostics section lists the incidents. Its buttons pause, move to the first or worst witness and label the finding's drawn entities, so the address and the capture command reproduce it. Unticking "show witnesses" hides the cubes and the status line only. The status line names checks the preview deferred.
+- **Capture.** `record.json` holds the episodes and coverage of the drawn stills.
+- **Render.** `render-report.json` holds the episodes and coverage of every frame. Delivery completes the checks the preview deferred for time. A confirmed error, or a required check still deferred or unsupported, blocks publication: the command exits non-zero naming the first cursor, keeps the report and leaves the previous `film.mp4` in place.
+
+Repair a blocking finding at the source that placed it, then render again.
+
 With `pnpm run dev` running, `pnpm run review --url <inspector-address> --seconds <s>` runs `automovie review`: it presses the inspector's Play button and records real-time playback as a video, with the time readout it showed and the page's errors, into `media/automovie/review/` or `--out <dir>`, for the user to watch. `pnpm run review:setup` installs its recording FFmpeg and headless Chromium.
 
 ## Physical performance

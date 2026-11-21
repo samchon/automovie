@@ -50,6 +50,8 @@ interface ILive {
  *
  * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives or is ready disposes the instance then and creates no renderer, and a seek that resolves after dispose draws nothing.
  *
+ * An opted-in subject is observed at the second actually placed, before the inspection changes the scene, and its findings reach the report and the diagnostic log with the playhead's playing flag and jump count, so uninterrupted playback can join painted samples into an observed span. Its witness cubes are drawn under the beauty shade unless `overlay(false)` hid them; hiding them stops no check and no report.
+ *
  * The page draws the first view and the first pass of the request; the capture command draws them all. While paused, the labels the request asks for are placed by the inspection on the picture's pixels, with the stamp's font pixel at least one CSS pixel of the canvas as a capture keeps it at least one sheet pixel, and reported in CSS pixels; a named view with a focus is framed on what the focus selects.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the arrival sequence, the fallback on refusal, what a frame does and when it redraws, the error rule, the aspect rule, the lifecycle guarantees, which view and pass are drawn, and how labels and focus are placed.
@@ -83,6 +85,7 @@ export function mountAutoMovieInspectorScene(props: {
   const diagnosticLog: AutoMovieInspectorDiagnosticLog =
     new AutoMovieInspectorDiagnosticLog(report);
   let disposed: boolean = false;
+  let witnesses: boolean = true;
   let wanted: IAutoMovieCapturePlanRequest = props.request;
   let live: ILive | undefined;
 
@@ -308,14 +311,16 @@ export function mountAutoMovieInspectorScene(props: {
       > = renderWithAutoMovieInspectionDiagnostics({
         scene: instance.scene,
         diagnostics:
-          now.applied.inspection.shade === "beauty" ? diagnostics : undefined,
+          witnesses && now.applied.inspection.shade === "beauty"
+            ? diagnostics
+            : undefined,
         render: (): void => now.renderer.render(instance.scene, camera),
         width: now.size!.width,
         height: now.size!.height,
         stroke: now.applied.inspection.stroke,
       });
       if (diagnostics !== undefined) {
-        diagnosticLog.observe(diagnostics, snapshot.playing);
+        diagnosticLog.observe(diagnostics, snapshot);
         report.diagnostics?.(diagnostics);
       }
       if (!snapshot.playing) {
@@ -413,6 +418,11 @@ export function mountAutoMovieInspectorScene(props: {
         playhead.seek(firstSecond(request));
       now.applied = request;
       now.dirty = true;
+    },
+    overlay: (show: boolean): void => {
+      if (disposed || show === witnesses) return;
+      witnesses = show;
+      if (live !== undefined) live.dirty = true;
     },
     dispose: (): void => {
       if (disposed) return;

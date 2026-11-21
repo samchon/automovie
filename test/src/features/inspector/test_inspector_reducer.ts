@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. Starting from a request that sets several keys, each edit (select, hide, label, colour, mark kind, shade, surface, x-ray, view, time, subject) changes exactly the members the action table names, to the value the grammar's key table gives, and clears the error.
+ * 1. Starting from a request that sets several keys, each edit (select, hide, label, colour, mark kind, shade, surface, x-ray, view, time, locate, subject) changes exactly the members the action table names, to the value the grammar's key table gives, and clears the error.
  * 2. A toggle given twice in the same direction changes nothing the second time, and turning it off restores the starting request; a colour given twice to one pattern keeps one pair with the newer colour, and a null colour removes it.
  * 3. A shade edit on a request with several passes leaves one pass, and a time edit on an even sampling replaces it with that one second.
  * 4. A view the view grammar refuses, an address with an unknown key, and an address with an unreadable shade each keep the previous request object and give an error naming the key.
@@ -101,6 +101,13 @@ export function test_inspector_reducer(): void {
       ["sampling"],
       (r: IAutoMovieCapturePlanRequest): boolean =>
         same(r.sampling, { kind: "at", seconds: [1.5] }),
+    ],
+    [
+      { type: "locate", seconds: 0.75, label: ["hero", "prop/cord"] },
+      ["inspection.label", "sampling"],
+      (r: IAutoMovieCapturePlanRequest): boolean =>
+        same(r.sampling, { kind: "at", seconds: [0.75] }) &&
+        same(r.inspection.label, ["hero", "prop/cord"]),
     ],
     [
       { type: "subject", name: "b" },

@@ -26,13 +26,14 @@ import { nclose } from "../internal/nclose";
  * 3. One painted sample at frame three reports one confirmed error. Its red strokes are present only during the render, then leave the scene.
  * 4. Exact neighbors report the worst measured witness once when the episode closes. A backward replay paints the same cube without duplicate console evidence.
  * 5. Skipped frames and deferred coverage split episodes. After clearance, a new failure reports each of two pairs that share one actor.
- * 6. An off-grid playing streak reports once and its first visit can be replayed silently. A pending seek completed after disposal produces no observation or draw.
+ * 6. An off-grid playing streak reports its first visit once, and closes as one `playback` span of two painted samples when a seek interrupts it. Replaying its first visit is silent.
+ * 7. Hidden witnesses draw no red stroke while the sample is still reported; showing them again redraws the cube. A pending seek completed after disposal produces no observation or draw.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public mount with a real scene, asynchronous subject and recording frame host. Observes the provider inputs, the rendered scene and the public diagnostic report.
- * @evidence contracts/development/testing.md#independent-expectations The input seeks a 24 fps film at 0.125 s. The expected aspect comes from its 640 by 360 raster, and the expected colour is red.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts original and review visibility, delivery and named cameras, settled and pending placement, and live and disposed rendering.
+ * @evidence contracts/development/testing.md#independent-expectations The input seeks a 24 fps film at 0.125 s. The expected aspect comes from its 640 by 360 raster, the expected colour is red, and the playback span's clocks are the test's own 16 ms frame steps after 13/24 s.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts original and review visibility, delivery and named cameras, settled and pending placement, frame-exact and playback spans, shown and hidden witnesses, and live and disposed rendering.
  * @evidence contracts/development/testing.md#execution-ownership In-memory unit discovered as test_inspector_scene_diagnostics. No browser, timers or graphics context.
- * @evidence contracts/development/common.md#meaningful-documentation Six numbered scenarios identify the observations and release cases pinned.
+ * @evidence contracts/development/common.md#meaningful-documentation Seven numbered scenarios identify the observations and release cases pinned.
  */
 export async function test_inspector_scene_diagnostics(): Promise<void> {
   const scene: THREE.Scene = new THREE.Scene();
@@ -129,6 +130,7 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
   const reported: IAutoMovieInspectionDiagnostics[] = [];
   const first: IAutoMovieInspectionDiagnostics.IObservation[] = [];
   const episodes: IAutoMovieInspectionDiagnostics.IEpisode[] = [];
+  const bases: IAutoMovieInspectorScene.EpisodeBasis[] = [];
   const legends: IAutoMovieInspectionLegendEntry[][] = [];
   const host: IAutoMovieInspectorSceneHost = {
     size: (): IAutoMovieInspectorSceneHost.ISize => ({
@@ -181,13 +183,12 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
       diagnostics: (packet: IAutoMovieInspectionDiagnostics): void => {
         reported.push(packet);
       },
-      diagnosticIncident: (
-        entry: Parameters<
-          NonNullable<IAutoMovieInspectorScene.IReport["diagnosticIncident"]>
-        >[0],
-      ): void => {
+      diagnosticIncident: (entry: IAutoMovieInspectorScene.IIncident): void => {
         if (entry.kind === "first") first.push(entry.observation);
-        else episodes.push(entry.episode);
+        else {
+          episodes.push(entry.episode);
+          bases.push(entry.basis);
+        }
       },
     },
   });
@@ -310,11 +311,39 @@ export async function test_inspector_scene_diagnostics(): Promise<void> {
   playhead.seek(offGrid.filmSeconds);
   await tick();
   TestValidator.predicate(
-    "off-grid playing keeps one immediate observation and no invented span",
+    "off-grid playing keeps one immediate observation",
     nclose(offGrid.filmSeconds, 13 / 24 + 0.016) &&
       offGrid.outputFrame === undefined &&
-      first.length === beforePlaying + 1 &&
-      episodes.length === 2,
+      first.length === beforePlaying + 1,
+  );
+  TestValidator.predicate(
+    "the seek closes one playback span of two painted samples without frame indices",
+    episodes.length === 3 &&
+      bases.join() === "frames,frames,playback" &&
+      episodes[2]!.samples === 2 &&
+      nclose(episodes[2]!.first.time.filmSeconds, 13 / 24 + 0.016) &&
+      nclose(episodes[2]!.last.filmSeconds, 13 / 24 + 0.032) &&
+      episodes[2]!.first.time.outputFrame === undefined &&
+      episodes[2]!.last.outputFrame === undefined,
+  );
+
+  // 7. Hidden witnesses keep the report.
+  const reportedBeforeHiding: number = reported.length;
+  mounted.overlay(false);
+  playhead.seek(20 / 24);
+  await tick();
+  TestValidator.predicate(
+    "hidden witnesses draw no red stroke and the sample is still reported",
+    renders.at(-1)!.red === 0 &&
+      reported.length === reportedBeforeHiding + 1 &&
+      reported.at(-1)!.findings.length === 1,
+  );
+  mounted.overlay(true);
+  await tick();
+  TestValidator.equals(
+    "shown witnesses redraw the cube",
+    renders.at(-1)?.red,
+    1,
   );
   const samplesBeforeDispose: number = samples.length;
   const paintsBeforeDispose: number = renders.length;

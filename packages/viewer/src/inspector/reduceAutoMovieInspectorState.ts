@@ -84,9 +84,12 @@ export function reduceAutoMovieInspectorState(
       values.set("views", action.view);
       break;
     case "time":
+    case "locate":
       // `at` excludes an even sampling, so its keys go.
       for (const key of ["from", "to", "rate"]) values.delete(key);
       values.set("at", String(action.seconds));
+      if (action.type === "locate")
+        edit(values, "label", (): string[] => [...action.label]);
       break;
     case "subject":
       if (action.name === null) values.delete("subject");

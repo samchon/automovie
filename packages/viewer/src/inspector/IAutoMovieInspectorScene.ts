@@ -30,6 +30,19 @@ export interface IAutoMovieInspectorScene {
   apply(request: IAutoMovieCapturePlanRequest): void;
 
   /**
+   * Show or hide the diagnostic witness cubes from the next frame. Checks, their reports and console incidents continue either way.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is hidden, when, and what continues.
+   * @evidence contracts/development/implementation.md#principled-implementation Visibility is a display choice of the review picture, so it changes only which overlay is drawn, never which checks run.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One flag read by the paint step.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Hidden witnesses still reach the diagnostics report, so a hidden fault is still published.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant; the picture redraws once.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A flag change computes nothing.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds one boolean.
+   */
+  overlay(show: boolean): void;
+
+  /**
    * End the mount: cancel the pending frame, restore the inspection, dispose the renderer and the instance, or dispose the instance when it arrives if it has not yet. Calling it again does nothing.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States everything released, the late-instance case and the repeated call.
@@ -43,6 +56,36 @@ export interface IAutoMovieInspectorScene {
   dispose(): void;
 }
 export namespace IAutoMovieInspectorScene {
+  /**
+   * What joined the samples of a reported span: `frames` for checks at consecutive output frames, `playback` for painted samples of one uninterrupted playback, whose unpainted film in between was not checked.
+   *
+   * @evidence contracts/development/design.md#principled-representation The two links the mount can witness, named by what they prove.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the console and findings presentation to word the span.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts A playback span is never presented as frame-exact.
+   * @evidence contracts/development/common.md#meaningful-documentation States what each value claims.
+   */
+  export type EpisodeBasis = "frames" | "playback";
+
+  /**
+   * One console incident: a confirmed error's first visit, or a closed span of its observations.
+   *
+   * @evidence contracts/development/design.md#principled-representation A first visit carries its observation; a span carries its basis, the reducer's episode shape and the clock of its first sample.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the console writer and the findings panel.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The span's first sample is kept apart from its first witness, whose time can differ.
+   * @evidence contracts/development/common.md#meaningful-documentation States the two kinds and what each carries.
+   */
+  export type IIncident =
+    | {
+        kind: "first";
+        observation: IAutoMovieInspectionDiagnostics.IObservation;
+      }
+    | {
+        kind: "episode";
+        basis: EpisodeBasis;
+        episode: IAutoMovieInspectionDiagnostics.IEpisode;
+        firstSample: IAutoMovieInspectionDiagnostics.ITime;
+      };
+
   /**
    * What a mount learns about its subject once the instance is ready, for the panels.
    *
@@ -182,7 +225,7 @@ export namespace IAutoMovieInspectorScene {
     /**
      * Console evidence from the current mount's confirmed diagnostic observations.
      *
-     * @evidence contracts/development/common.md#meaningful-documentation The first visit and an observed multi-frame span are separate events.
+     * @evidence contracts/development/common.md#meaningful-documentation The first visit and an observed multi-sample span are separate events, and a span names whether consecutive frames or uninterrupted playback joined it.
      * @evidenceExclude contracts/development/implementation.md#principled-implementation The listener owns presentation.
      * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callback has no body.
      * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The mount keeps replay identity and admits measured intervals.
@@ -190,18 +233,7 @@ export namespace IAutoMovieInspectorScene {
      * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each event comes from the already painted sample.
      * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The listener chooses retention.
      */
-    diagnosticIncident?(
-      entry:
-        | {
-            kind: "first";
-            observation: IAutoMovieInspectionDiagnostics.IObservation;
-          }
-        | {
-            kind: "episode";
-            episode: IAutoMovieInspectionDiagnostics.IEpisode;
-            firstSample: IAutoMovieInspectionDiagnostics.ITime;
-          },
-    ): void;
+    diagnosticIncident?(entry: IIncident): void;
 
     /**
      * The scene refused a request; `request` is the one it still draws and `message` why.

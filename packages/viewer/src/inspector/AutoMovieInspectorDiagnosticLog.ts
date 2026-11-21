@@ -8,6 +8,7 @@ const HISTORY_LIMIT: number = 128;
 /** A run of observations while its last and worst witness can still advance. */
 interface IOpen {
   scope: string;
+  basis: IAutoMovieInspectorScene.EpisodeBasis;
   first: Diagnostics.IObservation;
   firstSample: Diagnostics.ITime;
   worst: Diagnostics.IObservation;
@@ -17,25 +18,37 @@ interface IOpen {
   fresh: boolean;
 }
 
+/** The previous painted sample and how the playhead reached it. */
+interface IPrevious {
+  scope: string;
+  time: Diagnostics.ITime;
+  playing: boolean;
+  jump: number;
+}
+
 /** Previously seen sample coordinates used only to deduplicate reporting. */
 type ISeen =
   | { key: string; kind: "frames"; first: number; last: number }
   | { key: string; kind: "second"; seconds: number };
 
 /**
- * Report confirmed problems when first seen and summarize observed multi-frame spans.
+ * Report confirmed problems when first seen and summarize observed multi-sample spans.
  *
- * Consecutive checks at actual neighboring frame indices can extend an episode.
- * Sparse, reversed, and skipped samples may show individual findings, and a
+ * Two links can extend a span. Checks at actual neighboring frame indices make
+ * a `frames` span, as a stepped or exact review visits them. Painted samples
+ * of one uninterrupted playback, forward in time with no seek or restart
+ * between them, make a `playback` span: its first, worst and last are the
+ * painted samples, and the film between them was not checked frame by frame.
+ * Sparse, reversed and skipped samples may show individual findings, and a
  * bounded recent history prevents replay from reporting the same evidence again.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the live reporting and closure rules, and the replay history's limit.
- * @evidence contracts/development/design.md#principled-representation Pending spans have first, last and worst evidence. A bounded history separately remembers visited observations, including visits without a measured interval.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The mount supplies current packets and receives new observations and meaningful closures through the existing mount report.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A visual visit never invents a frame index or promotes absence of coverage into continuous evidence.
- * @evidence contracts/development/implementation.md#principled-implementation Groups only matching checked findings at adjacent output indices. Replay history retains exact frame runs or exact off-grid seconds.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Advance active observations, retire closed spans and track recent sample identities independently.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A gap or reverse visit closes a known span. Replaying a recorded range never publishes a new span without newly visited evidence.
+ * @evidence contracts/development/common.md#meaningful-documentation States the two span bases, what a playback span does and does not claim, the live reporting and closure rules, and the replay history's limit.
+ * @evidence contracts/development/design.md#principled-representation Pending spans have a basis and first, last and worst evidence. A bounded history separately remembers visited observations, including visits without a measured interval.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The mount supplies current packets and the playhead's playing flag and jump count, and receives new observations and meaningful closures through the existing mount report.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A visual visit never invents a frame index, and a playback span never claims the unpainted film between its samples.
+ * @evidence contracts/development/implementation.md#principled-implementation Groups matching checked findings at adjacent output indices, or across painted samples the playhead joined without a jump. Replay history retains exact frame runs or exact off-grid seconds.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Decide the link to the previous sample once, advance active observations of that basis, retire closed spans and track recent sample identities independently.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A gap, a seek or a reverse visit closes a known span. Replaying a recorded range never publishes a new span without newly visited evidence.
  * @evidence contracts/development/implementation.md#efficient-algorithms Uses keyed active findings and a scan capped by HISTORY_LIMIT per confirmed error. No geometry work or scene seeks.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work A repeated posed sample keeps its prior reporting; the caller still paints the same witness.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only open evidence and a bounded replay history. A closed mount releases both.
@@ -43,7 +56,7 @@ type ISeen =
 export class AutoMovieInspectorDiagnosticLog {
   private active: Map<string, IOpen> = new Map();
   private readonly recent: ISeen[] = [];
-  private previous: { scope: string; time: Diagnostics.ITime } | undefined;
+  private previous: IPrevious | undefined;
 
   /** The presentation owner supplies how to publish a new incident and a closed observed span. */
   public constructor(
@@ -53,23 +66,25 @@ export class AutoMovieInspectorDiagnosticLog {
     >,
   ) {}
 
-  /** Read the confirmed findings of one successfully painted pose. */
-  public observe(packet: Diagnostics, playing: boolean): void {
+  /** Read the confirmed findings of one successfully painted pose, with the playhead state it was painted at. */
+  public observe(
+    packet: Diagnostics,
+    playhead: { playing: boolean; jump: number },
+  ): void {
     if (this.report.diagnosticIncident === undefined) return;
     const { scope, time } = packet;
-    const previous: { scope: string; time: Diagnostics.ITime } | undefined =
-      this.previous;
+    const previous: IPrevious | undefined = this.previous;
     if (
       previous?.scope === scope &&
       previous.time.filmSeconds === time.filmSeconds
     )
       return;
-    const previousFrame: number | undefined = previous?.time.outputFrame;
-    const adjacent: boolean =
-      previous?.scope === scope &&
-      previousFrame !== undefined &&
-      time.outputFrame === previousFrame + 1 &&
-      time.filmSeconds > previous.time.filmSeconds;
+    const link: IAutoMovieInspectorScene.EpisodeBasis | undefined = linkOf(
+      previous,
+      scope,
+      time,
+      playhead,
+    );
     const checked: Set<string> = new Set();
     for (const row of packet.coverage)
       if (row.status === "checked") checked.add(checkKey(row));
@@ -92,7 +107,13 @@ export class AutoMovieInspectorDiagnosticLog {
         finding,
       };
       const covered: boolean = checked.has(checkKey(finding));
-      if (old !== undefined && adjacent && old.checked && covered) {
+      if (
+        old !== undefined &&
+        link !== undefined &&
+        old.basis === link &&
+        old.checked &&
+        covered
+      ) {
         if (
           (finding.witness.rank ?? -Infinity) >
           (old.worst.finding.witness.rank ?? -Infinity)
@@ -104,10 +125,14 @@ export class AutoMovieInspectorDiagnosticLog {
         next.set(key, old);
       } else {
         if (old !== undefined) this.complete(old);
-        if (fresh && (old === undefined || (!playing && !adjacent)))
+        if (
+          fresh &&
+          (old === undefined || (!playhead.playing && link === undefined))
+        )
           this.report.diagnosticIncident({ kind: "first", observation });
         next.set(key, {
           scope,
+          basis: playhead.playing ? "playback" : "frames",
           first: observation,
           firstSample: time,
           worst: observation,
@@ -121,7 +146,7 @@ export class AutoMovieInspectorDiagnosticLog {
     for (const [key, episode] of this.active)
       if (!next.has(key)) this.complete(episode);
     this.active = next;
-    this.previous = { scope, time };
+    this.previous = { scope, time, ...playhead };
   }
 
   /** Report outstanding measured spans when the mount ends and release all retained state. */
@@ -132,12 +157,13 @@ export class AutoMovieInspectorDiagnosticLog {
     this.previous = undefined;
   }
 
-  /** Report a closed span only if it includes new observations at adjacent delivery frames. */
+  /** Report a closed span only if it joins more than one sample and includes a new observation. */
   private complete(episode: IOpen): void {
     if (episode.samples <= 1 || !episode.fresh) return;
-    const { scope, first, worst, last, samples } = episode;
+    const { scope, first, worst, last, samples, basis } = episode;
     this.report.diagnosticIncident?.({
       kind: "episode",
+      basis,
       episode: { scope, first, worst, last, samples },
       firstSample: episode.firstSample,
     });
@@ -170,6 +196,32 @@ export class AutoMovieInspectorDiagnosticLog {
     if (this.recent.length > HISTORY_LIMIT) this.recent.shift();
     return true;
   }
+}
+
+/**
+ * How the current sample continues the previous one: by uninterrupted playback,
+ * by the next output frame, or not at all.
+ */
+function linkOf(
+  previous: IPrevious | undefined,
+  scope: string,
+  time: Diagnostics.ITime,
+  playhead: { playing: boolean; jump: number },
+): IAutoMovieInspectorScene.EpisodeBasis | undefined {
+  if (
+    previous === undefined ||
+    previous.scope !== scope ||
+    time.filmSeconds <= previous.time.filmSeconds
+  )
+    return undefined;
+  if (playhead.playing)
+    return previous.playing && previous.jump === playhead.jump
+      ? "playback"
+      : undefined;
+  const frame: number | undefined = previous.time.outputFrame;
+  return frame !== undefined && time.outputFrame === frame + 1
+    ? "frames"
+    : undefined;
 }
 
 /** A matching checked obligation permits a finding to extend its span. */
