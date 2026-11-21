@@ -32,6 +32,7 @@ const MARGIN: number = 0.3;
  * 1. Four pairs deploy from a column into a line 3 m apart and rally back into column, each to its nearest slot, keeping the mounts' margin; a line too tight for the margin refuses at its close with both neighbours named.
  * 2. A line halting short of a person standing before a wall is admitted; one that rides on to the wall refuses with the horse and the person.
  * 3. In a caracole each rank fires only while it is the front rank: the first rank fires, wheels off to the rear at the trot, and the second rank comes up and fires.
+ * 4. In a skirmish screen in open order, alternate files advance, fire on the move and wheel about to retire, each volley fired by the files in front, without contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three stagings and their expectations.
  * @evidence contracts/development/testing.md#behavioral-verification Plans formation slot transitions and manoeuvre arcs through `ArchetypeCourse.timed` and measures them with `ArchetypePassage` on a real horse footprint.
@@ -255,6 +256,69 @@ export function test_world_mounted_formations(): void {
   TestValidator.predicate(
     "the first rank wheels off at its trot",
     nclose(riders[0]!.at(2 + wheelOff / 2).speed, speed, 0.02 * speed),
+  );
+  // 4. The skirmish screen: four files in open order, alternate files advancing to fire and retiring while the others come up.
+  const OPEN: number = 6;
+  const screen: ArchetypeCourse.IPlan[] = [0, 1, 2, 3].map(
+    (file: number): ArchetypeCourse.IPlan => {
+      const x: number = (file - 1.5) * OPEN;
+      const first: boolean = file % 2 === 0;
+      return ArchetypeCourse.timed(
+        `skirmisher${file}`,
+        first
+          ? [
+              sample(0, point(x, 0)),
+              sample(2, point(x, 3)),
+              sample(3.5, point(x, 6)),
+              sample(5, point(x + 1.5, 8)),
+              sample(6.5, point(x + 3, 6)),
+              sample(9.5, point(x + 3, 0)),
+            ]
+          : [
+              sample(0, point(x, 0)),
+              sample(4, point(x, 0)),
+              sample(6, point(x, 3)),
+              sample(7.5, point(x, 6)),
+              sample(9.5, point(x, 9)),
+            ],
+      );
+    },
+  );
+  const volleys: readonly number[] = [3.5, 7.5];
+  TestValidator.predicate(
+    "each volley fires from the files in front of the screen",
+    volleys.every((seconds: number, volley: number): boolean => {
+      const firing: number[] = [0, 1, 2, 3].filter(
+        (file: number): boolean => file % 2 === volley % 2,
+      );
+      return firing.every((file: number): boolean =>
+        [0, 1, 2, 3]
+          .filter((other: number): boolean => !firing.includes(other))
+          .every(
+            (other: number): boolean =>
+              screen[file]!.at(seconds).placement.translation.z >
+              screen[other]!.at(seconds).placement.translation.z,
+          ),
+      );
+    }),
+  );
+  TestValidator.equals(
+    "the screen's files keep open order without contact",
+    ArchetypePassage.conflicts("screen", {
+      participants: screen.map(
+        (
+          plan: ArchetypeCourse.IPlan,
+          k: number,
+        ): ArchetypePassage.IParticipant => ({
+          id: `skirmisher${k}`,
+          plan,
+          footprint,
+          margin: MARGIN,
+        }),
+      ),
+      step: STEP,
+    }),
+    [],
   );
 }
 
