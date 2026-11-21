@@ -1,6 +1,7 @@
 import { createBarbell, createRack } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSegment,
@@ -30,6 +31,36 @@ type Lift =
   | "frontSquat"
   | "deadlift"
   | "overheadPress";
+
+/** A figure the lifts are checked on. */
+type Specimen = "f-small" | "m-average";
+
+/** The bar handle the carrying hand holds. */
+type Handle = "gripRight" | "gripLeft";
+
+/** The carrying hand's offset to its socket and the other hand's miss. */
+interface IGrip {
+  /** The right grip socket in the right hand's frame, metres. */
+  primary: IAutoMovieVector3;
+
+  /** The left fist's distance from the left grip socket, metres. */
+  secondary: number;
+}
+
+/** One built take and what its checks read. */
+interface ITake {
+  /** The figure. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** The barbell model. */
+  bar: ReturnType<typeof createBarbell>;
+
+  /** The performance. */
+  film: HumanPerformance;
+
+  /** The rack's world rest point. */
+  rest: IAutoMovieVector3;
+}
 
 /** Existing prop and planted-contact tolerances, in metres. */
 const GRIP: number = 0.01;
@@ -93,7 +124,7 @@ export function test_motion_exercise_competition_lift_support(): void {
 }
 
 /** Check authored and displayed support, joint and bar events in one take. */
-function accept(name: "f-small" | "m-average", kind: Lift): void {
+function accept(name: Specimen, kind: Lift): void {
   const { body, bar, film, rest } = take(
     name,
     kind,
@@ -138,8 +169,8 @@ function accept(name: "f-small" | "m-average", kind: Lift): void {
   const contact = (
     bones: ReturnType<HumanPerformance["bones"]>,
     prop: IAutoMovieRigidTransform,
-  ): { primary: IAutoMovieVector3; secondary: number } => {
-    const point = (side: "left" | "right"): IAutoMovieVector3 =>
+  ): IGrip => {
+    const point = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Vector3.add(
         prop.position,
         Quaternion.rotateVector(
@@ -267,17 +298,7 @@ function accept(name: "f-small" | "m-average", kind: Lift): void {
 }
 
 /** Build a public loaded workout with an optional placement phase. */
-function take(
-  name: "f-small" | "m-average",
-  kind: Lift,
-  grip: number,
-  handle: "gripRight" | "gripLeft",
-): {
-  body: IAutoMovieMotionHumanBody;
-  bar: ReturnType<typeof createBarbell>;
-  film: HumanPerformance;
-  rest: IAutoMovieVector3;
-} {
+function take(name: Specimen, kind: Lift, grip: number, handle: Handle): ITake {
   const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
   const stature: number = body.measure.stature;
   const bar: ReturnType<typeof createBarbell> = createBarbell({
