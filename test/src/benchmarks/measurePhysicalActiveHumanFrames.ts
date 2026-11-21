@@ -238,16 +238,8 @@ export namespace measurePhysicalActiveHumanFrames {
       input.duration / 2 + 0.5 / input.rate,
       input.duration,
     ];
-    const keys: [string, string][] = input.bodies.flatMap(
-      (body: IAutoMoviePhysicalSimulationInput.IBody): [string, string][] =>
-        body.profile.segments.map(
-          (segment: IAutoMoviePhysicalSegment): [string, string] => [
-            body.id,
-            segment.bone,
-          ],
-        ),
-    );
-    const serializedKeys: string = JSON.stringify(keys);
+    const frameDigest: (frame: IAutoMoviePhysicalFrame) => string =
+      digester(input);
     const frames: { seconds: number; sha256: string }[] = seconds.map(
       (time: number) => ({
         seconds: time,
@@ -286,35 +278,68 @@ export namespace measurePhysicalActiveHumanFrames {
         .digest("hex"),
       checkedContactEpisodes,
     };
-
-    /** Hash keys in workload order and the frame's IEEE 754 fields in archive order. */
-    function frameDigest(frame: IAutoMoviePhysicalFrame): string {
-      const bytes: Buffer = Buffer.allocUnsafe((1 + 13 * keys.length) * 8);
-      let offset: number = bytes.writeDoubleLE(frame.seconds, 0);
-      for (const [body, bone] of keys) {
-        const state: IAutoMoviePhysicalFrame["bodies"][string][string] =
-          frame.bodies[body]![bone]!;
-        for (const component of [
-          state.position.x,
-          state.position.y,
-          state.position.z,
-          state.rotation.x,
-          state.rotation.y,
-          state.rotation.z,
-          state.rotation.w,
-          state.velocity.x,
-          state.velocity.y,
-          state.velocity.z,
-          state.angularVelocity.x,
-          state.angularVelocity.y,
-          state.angularVelocity.z,
-        ])
-          offset = bytes.writeDoubleLE(component, offset);
-      }
-      return createHash("sha256")
-        .update(serializedKeys)
-        .update(bytes)
-        .digest("hex");
-    }
   }
+
+  /**
+   * Digest every completed frame exactly, so a later bake can be compared
+   * after this run's frames are released.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the per-frame exact digests and why they outlive the run.
+   * @evidence contracts/development/implementation.md#principled-implementation Hashes every Float64 state field of every frame in declared body and segment order.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses the same frame digest as the replay check.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No rounding, sampling or tolerance; any changed bit changes the digest.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the frames with one frame-sized buffer at a time.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each frame is distinct state; nothing equivalent is recomputed.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one 64-character digest per frame and no frame state.
+   */
+  export function digests(
+    input: IAutoMoviePhysicalSimulationInput.IInput,
+    frames: readonly IAutoMoviePhysicalFrame[],
+  ): string[] {
+    return frames.map(digester(input));
+  }
+}
+
+/** Hash keys in workload order and the frame's IEEE 754 fields in archive order. */
+function digester(
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+): (frame: IAutoMoviePhysicalFrame) => string {
+  const keys: [string, string][] = input.bodies.flatMap(
+    (body: IAutoMoviePhysicalSimulationInput.IBody): [string, string][] =>
+      body.profile.segments.map(
+        (segment: IAutoMoviePhysicalSegment): [string, string] => [
+          body.id,
+          segment.bone,
+        ],
+      ),
+  );
+  const serializedKeys: string = JSON.stringify(keys);
+  return (frame: IAutoMoviePhysicalFrame): string => {
+    const bytes: Buffer = Buffer.allocUnsafe((1 + 13 * keys.length) * 8);
+    let offset: number = bytes.writeDoubleLE(frame.seconds, 0);
+    for (const [body, bone] of keys) {
+      const state: IAutoMoviePhysicalFrame["bodies"][string][string] =
+        frame.bodies[body]![bone]!;
+      for (const component of [
+        state.position.x,
+        state.position.y,
+        state.position.z,
+        state.rotation.x,
+        state.rotation.y,
+        state.rotation.z,
+        state.rotation.w,
+        state.velocity.x,
+        state.velocity.y,
+        state.velocity.z,
+        state.angularVelocity.x,
+        state.angularVelocity.y,
+        state.angularVelocity.z,
+      ])
+        offset = bytes.writeDoubleLE(component, offset);
+    }
+    return createHash("sha256")
+      .update(serializedKeys)
+      .update(bytes)
+      .digest("hex");
+  };
 }

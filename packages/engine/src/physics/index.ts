@@ -110,6 +110,7 @@ export * from "./planPhysicalContactTargets";
 export * from "./planPhysicalFloorSupportTargets";
 export * from "./planPhysicalRootSupportTargets";
 export * from "./planPhysicalSupportTargets";
+export * from "./preparePhysicalContactHooks";
 export * from "./preparePhysicalGeometry";
 export * from "./preparePhysicalTargetSampler";
 export * from "./primitiveCentroid";

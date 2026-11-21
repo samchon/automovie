@@ -55,6 +55,11 @@ const SUBJECTS: readonly motionHumanBody.Name[] = [
  * Bake three active canonical Humans through the public simulation and archive
  * APIs. Each process runs one trial. An optional reference directory retains
  * the exact archive for external playback and capture receipts.
+ *
+ * The trial then edits one late input and resumes from the preceding
+ * checkpoint. After the first run is released, an independent bake of the
+ * edited input must match the original before the edit and the resumed run
+ * everywhere, so the same process also checks a second bake.
  */
 async function main(): Promise<void> {
   const [mode, revision, directory, ...extra]: string[] = process.argv.slice(2);
@@ -74,6 +79,105 @@ async function main(): Promise<void> {
   const duration: number = mode === "pilot" ? 1 : 180;
   const start: number = performance.now();
   const input: IAutoMoviePhysicalSimulationInput.IInput = activeInput(duration);
+  const edit: number = input.maximumSteps - RATE / 2;
+  const edited: IAutoMoviePhysicalSimulationInput.IInput = lateEdit(
+    input,
+    edit,
+  );
+  const original: IOriginal = await bakeOriginal(
+    mode,
+    revision,
+    input,
+    edited,
+    archivePath,
+    start,
+  );
+
+  const freshStart: number = performance.now();
+  const fresh: IAutoMoviePhysicalSimulation = await bake(
+    edited,
+    (): void => {},
+  );
+  const freshMilliseconds: number = performance.now() - freshStart;
+  const freshDigests: string[] = measurePhysicalActiveHumanFrames.digests(
+    edited,
+    fresh.cache.frames,
+  );
+  const firstDifference: number = freshDigests.findIndex(
+    (digest: string, step: number): boolean =>
+      digest !== original.digests[step],
+  );
+  const preservedSteps: number =
+    input.maximumSteps - original.resumed.recomputedSteps;
+  const expectedPreservedSteps: number =
+    Math.floor((edit - 1) / input.checkpointEvery) * input.checkpointEvery;
+  const secondBakeEqualBeforeEdit: boolean = firstDifference >= edit;
+  const resumedEqualsFresh: boolean =
+    freshDigests.length === original.resumed.digests.length &&
+    freshDigests.every(
+      (digest: string, step: number): boolean =>
+        digest === original.resumed.digests[step],
+    );
+  const contactsEqual: boolean =
+    JSON.stringify(fresh.cache.contacts) === original.resumed.contacts;
+  const resumed: boolean =
+    preservedSteps === expectedPreservedSteps &&
+    secondBakeEqualBeforeEdit &&
+    resumedEqualsFresh &&
+    contactsEqual;
+  process.stdout.write(
+    `${JSON.stringify(
+      {
+        ...original.report,
+        resume: {
+          editStep: edit,
+          expectedPreservedSteps,
+          preservedSteps,
+          recomputedSteps: original.resumed.recomputedSteps,
+          milliseconds: {
+            resume: original.resumed.milliseconds,
+            freshBake: freshMilliseconds,
+          },
+          firstDifferenceFromOriginal: firstDifference,
+          secondBakeEqualBeforeEdit,
+          resumedEqualsFresh,
+          contactsEqual,
+        },
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  if (!original.passed || !resumed) process.exitCode = 1;
+}
+
+/** The released original run: its verdict, report, digests and resumed edit. */
+interface IOriginal {
+  passed: boolean;
+  report: Record<string, unknown>;
+  digests: string[];
+  resumed: {
+    recomputedSteps: number;
+    milliseconds: number;
+    digests: string[];
+    contacts: string;
+  };
+}
+
+/**
+ * Bake, audit, archive and replay the original input, then resume the edited
+ * input from it. Only digests leave, so the run is released before the
+ * caller's independent bake.
+ */
+async function bakeOriginal(
+  mode: string,
+  revision: string,
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  edited: IAutoMoviePhysicalSimulationInput.IInput,
+  archivePath: string | null,
+  start: number,
+): Promise<IOriginal> {
+  const duration: number = input.duration;
   const prepared: number = performance.now();
   let nativeStart: number = prepared;
   const run: IAutoMoviePhysicalSimulation = await bake(input, (): void => {
@@ -151,90 +255,144 @@ async function main(): Promise<void> {
   const withinBudget: boolean =
     measuredInBudget && lifetimePeakBytes <= RSS_BYTES;
 
-  process.stdout.write(
-    `${JSON.stringify(
-      {
-        mode,
-        revision,
-        host: {
-          platform: platform(),
-          release: release(),
-          arch: arch(),
-          cpu: cpus()[0]?.model,
-          logicalCpus: cpus().length,
-          memoryBytes: totalmem(),
-          node: process.version,
-          rapier: RAPIER.version(),
-        },
-        workload: {
-          duration,
-          rate: input.rate,
-          substeps: input.substeps,
-          iterations: input.iterations,
-          internalIterations: input.internalIterations,
-          checkpointEvery: input.checkpointEvery,
-          yieldEvery: input.yieldEvery,
-          segmentCount: input.maximumSegments,
-          cycleSteps: CYCLE_STEPS,
-          representation:
-            "current canonical polygon Human profiles and Foot/Toes contact carriers",
-          bodies: input.bodies.map(
-            (body: IAutoMoviePhysicalSimulationInput.IBody) => ({
-              id: body.id,
-              mass: body.profile.mass,
-              segmentCount: body.profile.segments.length,
-            }),
-          ),
-        },
-        budget: { computeMilliseconds: COMPUTE_MS, residentBytes: RSS_BYTES },
-        milliseconds: {
-          prepare: prepared - start,
-          compute: computed - prepared,
-          admitAndBind: nativeStart - prepared,
-          integrateAndFinalize: computed - nativeStart,
-          audit: audited - computed,
-          encode: encoded - audited,
-          decode: decoded - encoded,
-          verifyReplay: verified - decoded,
-          retainArchive: finished - verified,
-          wall: finished - start,
-        },
-        peakAfterComputeBytes,
-        peakResidentBytes: lifetimePeakBytes,
-        withinBudget,
-        complete,
-        quality: { ...quality, actualFloorContact, withinQuality },
-        cache: {
-          protocol: run.cache.protocol,
-          identity: run.cache.identity,
-          frames: run.cache.frames.length,
-          contacts: run.cache.contacts.length,
-          recomputedSteps: run.recomputedSteps,
-          checkpoints,
-          checkpointBytes: [...run.cache.checkpoints.values()].reduce(
-            (sum: number, snapshot: Uint8Array): number =>
-              sum + snapshot.byteLength,
-            0,
-          ),
-        },
-        archive: {
-          bytes: archive.byteLength,
-          sha256: archiveSha256,
-          path: retain ? archivePath : null,
-        },
-        replay,
-      },
-      null,
-      2,
-    )}\n`,
+  // Digest the original before the resume can reuse its frames.
+  const digests: string[] = measurePhysicalActiveHumanFrames.digests(
+    input,
+    run.cache.frames,
   );
-  if (!withinBudget || !complete || !withinQuality) process.exitCode = 1;
+  const resumeStart: number = performance.now();
+  const resumed: IAutoMoviePhysicalSimulation = await bake(
+    edited,
+    (): void => {},
+    run,
+  );
+  const resumeMilliseconds: number = performance.now() - resumeStart;
+
+  return {
+    passed: withinBudget && complete && withinQuality,
+    digests,
+    resumed: {
+      recomputedSteps: resumed.recomputedSteps,
+      milliseconds: resumeMilliseconds,
+      digests: measurePhysicalActiveHumanFrames.digests(
+        edited,
+        resumed.cache.frames,
+      ),
+      contacts: JSON.stringify(resumed.cache.contacts),
+    },
+    report: {
+      mode,
+      revision,
+      host: {
+        platform: platform(),
+        release: release(),
+        arch: arch(),
+        cpu: cpus()[0]?.model,
+        logicalCpus: cpus().length,
+        memoryBytes: totalmem(),
+        node: process.version,
+        rapier: RAPIER.version(),
+      },
+      workload: {
+        duration,
+        rate: input.rate,
+        substeps: input.substeps,
+        iterations: input.iterations,
+        internalIterations: input.internalIterations,
+        checkpointEvery: input.checkpointEvery,
+        yieldEvery: input.yieldEvery,
+        segmentCount: input.maximumSegments,
+        cycleSteps: CYCLE_STEPS,
+        representation:
+          "current canonical polygon Human profiles and Foot/Toes contact carriers",
+        bodies: input.bodies.map(
+          (body: IAutoMoviePhysicalSimulationInput.IBody) => ({
+            id: body.id,
+            mass: body.profile.mass,
+            segmentCount: body.profile.segments.length,
+          }),
+        ),
+      },
+      budget: { computeMilliseconds: COMPUTE_MS, residentBytes: RSS_BYTES },
+      milliseconds: {
+        prepare: prepared - start,
+        compute: computed - prepared,
+        admitAndBind: nativeStart - prepared,
+        integrateAndFinalize: computed - nativeStart,
+        audit: audited - computed,
+        encode: encoded - audited,
+        decode: decoded - encoded,
+        verifyReplay: verified - decoded,
+        retainArchive: finished - verified,
+        wall: finished - start,
+      },
+      peakAfterComputeBytes,
+      peakResidentBytes: lifetimePeakBytes,
+      withinBudget,
+      complete,
+      quality: { ...quality, actualFloorContact, withinQuality },
+      cache: {
+        protocol: run.cache.protocol,
+        identity: run.cache.identity,
+        frames: run.cache.frames.length,
+        contacts: run.cache.contacts.length,
+        recomputedSteps: run.recomputedSteps,
+        checkpoints,
+        checkpointBytes: [...run.cache.checkpoints.values()].reduce(
+          (sum: number, snapshot: Uint8Array): number =>
+            sum + snapshot.byteLength,
+          0,
+        ),
+      },
+      archive: {
+        bytes: archive.byteLength,
+        sha256: archiveSha256,
+        path: retain ? archivePath : null,
+      },
+      replay,
+    },
+  };
+}
+
+/**
+ * Halve the last Human's tracking strength from one late cached interval on.
+ * Earlier targets and the other bodies stay the same objects.
+ */
+function lateEdit(
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+  edit: number,
+): IAutoMoviePhysicalSimulationInput.IInput {
+  const last: number = input.bodies.length - 1;
+  return {
+    ...input,
+    bodies: input.bodies.map(
+      (
+        body: IAutoMoviePhysicalSimulationInput.IBody,
+        index: number,
+      ): IAutoMoviePhysicalSimulationInput.IBody =>
+        index !== last
+          ? body
+          : {
+              ...body,
+              targets: body.targets.map(
+                (
+                  target: IAutoMoviePhysicalSimulationInput.ITarget,
+                  step: number,
+                ): IAutoMoviePhysicalSimulationInput.ITarget =>
+                  step < edit
+                    ? target
+                    : { ...target, strength: target.strength / 2 },
+              ),
+            },
+    ),
+  };
 }
 
 /** Use the normal public preparation path with the historical compute budget. */
 async function bake(
   input: IAutoMoviePhysicalSimulationInput.IInput,
   nativeStart: () => void,
+  previous?: IAutoMoviePhysicalSimulation,
 ): Promise<IAutoMoviePhysicalSimulation> {
   const controller: AbortController = new AbortController();
   const deadline: ReturnType<typeof setTimeout> = setTimeout(
@@ -247,7 +405,7 @@ async function bake(
   try {
     return await Simulation.compute(
       input,
-      undefined,
+      previous,
       controller.signal,
       (completed: number, total: number): void => {
         if (completed === 0) nativeStart();
@@ -366,8 +524,10 @@ function activeBody(
         joints: [
           articulation("leftUpperArm", 55 + 5 * wave),
           articulation("rightUpperArm", 55 - 5 * wave),
-          articulation("leftLowerArm", 100 - 10 * wave),
-          articulation("rightLowerArm", 100 + 10 * wave),
+          // A 100-degree elbow crossed the hands up to 42 mm; at 60 every
+          // non-excluded pair keeps at least 10 mm over the whole cycle.
+          articulation("leftLowerArm", 60 - 10 * wave),
+          articulation("rightLowerArm", 60 + 10 * wave),
           articulation("neck", null, 2 * wave),
         ],
       };
