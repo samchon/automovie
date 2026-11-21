@@ -93,7 +93,14 @@ export namespace PrecisionStrokeForms {
     tool: number;
   }
 
-  /** The share of the arm's length the grip lies within, the stroke address's own reach (`addressPrecisionStroke`). */
+  /**
+   * The share of the arm's reach the grip lies within at impact: the chord
+   * of an arm whose elbow is flexed about 36 degrees, cos 18 degrees for
+   * upper arm and forearm of near-equal length, since a striking arm meets
+   * the ball with its elbow slightly bent rather than locked; the same reach
+   * the stroke address hinges to (`addressPrecisionStroke`). Provisional: no
+   * single measured elbow angle at impact holds across these strokes.
+   */
   export const ARM: number = 0.95;
 
   /** Each row's form by its name, filled as the rows are made. */

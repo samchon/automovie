@@ -54,3 +54,4 @@ export * from "./createThrowingCircle";
 export * from "./createPadelCourt";
 export * from "./createSquashCourt";
 export * from "./createTableTennisTable";
+export * from "./createFootballFlag";
