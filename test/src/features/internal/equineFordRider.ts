@@ -69,6 +69,9 @@ export namespace equineFordRider {
   /** Metres the climbing horse walks on the submerged far shelf before it halts: more than its braking distance. */
   const SHORE: number = 2;
 
+  /** Posed horse instants kept for repeated contact reads. */
+  const RECENT: number = 64;
+
   /** The horse producer's model. */
   export type Horse = ReturnType<typeof createHorse>;
 
@@ -148,9 +151,9 @@ export namespace equineFordRider {
    * @evidence contracts/development/implementation.md#principled-implementation Every contact is the posed horse's own affordance composed with its placement.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure A clock, two readers and the prop.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One clip sample per read.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One clip sample per instant, kept among the RECENT latest for the contacts read at it.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the ford and the lead-out stages.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The mount holds the clip for the caller.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The mount holds the clip and at most RECENT posed instants for the caller.
    */
   export function carry(
     horse: Horse,
@@ -158,8 +161,18 @@ export namespace equineFordRider {
     duration: number,
     floor: number,
   ): IMount {
-    const at = (film: number): IInstant =>
-      sample(Math.max(0, Math.min(duration, film - WAIT)));
+    // A carried rider reads several contacts at each instant, so each posed instant is laid once and kept while it is recent.
+    const recent: Map<number, IInstant> = new Map();
+    const at = (film: number): IInstant => {
+      const seconds: number = Math.max(0, Math.min(duration, film - WAIT));
+      let instant: IInstant | undefined = recent.get(seconds);
+      if (instant === undefined) {
+        instant = sample(seconds);
+        recent.set(seconds, instant);
+        if (recent.size > RECENT) recent.delete(recent.keys().next().value!);
+      }
+      return instant;
+    };
     const place = (film: number): IAutoMovieRigidTransform => {
       const frame: IAutoMovieTransform = at(film).placement;
       return { position: frame.translation, rotation: frame.rotation };
