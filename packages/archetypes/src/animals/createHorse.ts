@@ -11,9 +11,8 @@ import {
 } from "../core";
 import { EquidEarProfiles } from "./EquidEarProfiles";
 import { HORSE_BANDS } from "./HORSE_BANDS";
-import { HorseHarness } from "./HorseHarness";
 import { HorsePack } from "./HorsePack";
-import { HorseSaddle } from "./HorseSaddle";
+import { HorseTack } from "./HorseTack";
 import { IcelandicHorseProfile } from "./IcelandicHorseProfile";
 import { QuadrupedBody } from "./QuadrupedBody";
 
@@ -22,7 +21,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  *
  * The horse stands square on level ground, facing `+Z`, with the middle of its trunk over the origin. Its body is the shared quadruped's (`QuadrupedBody`) drawn by the horse's proportions, `BODY`: its parts are its bones, named by `QuadrupedBody.Bone`, a trunk, the hindquarters behind it, a neck, a head and a tail, and four bones down each limb. Each bone is a bar from joint to joint, so the horse is posed by moving joints; `createHorse.rig` gives the joints at rest and `rideHorse` poses the limbs through a gait. Bone lengths are fixed fractions of the height at the withers and each bone's share of the body's mass is the measured one. The trunk runs Kubo's shoulder to hip; the hindquarters carry the body on from the hip joint to the point of buttock, which Jensen et al. place behind the point of shoulder.
  *
- * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`.
+ * Under the saddle (`tack` `saddle`, the default) the rider's contacts ride the trunk: the saddle's `seat`, the two stirrups, the two reins where the hands hold them, and the pommel and cantle a mounting rider grips. `lead` is the lead rope's held run, beside the head on the horse's left. In harness (`tack` `harness`) the horse wears a breast collar, a driving saddle with its tugs, terrets, girth and backstrap, a breeching and a bridle with blinkers, as `HorseHarness` lays them; its one contact is the `hitch` between the tugs, which a cart's `coupling` is held on. The traces and the driving lines run between the horse and the vehicle, so the towing ride lays them (`createCart.lines`). A postilion's horse (`tack` `both`) wears the harness under the riding saddle and offers both's contacts. Under a pack saddle (`tack` `pack`) the horse wears FM 25-7's Phillips cargo saddle sized to it, with its cinch, breast collar, croup piece and breeching, as `HorsePack` lays them; its contacts are the `lead` and a load against each side, `leftLoad` and `rightLoad`. The alternative mounted supports keep the horse's body: a bareback bridle (`tack` `bareback`) offers only the two reins, the `lead` and a `seat` on the back itself; a side saddle (`tack` `sidesaddle`, `HorseSideSaddle`) offers a `seat` entered sideways from the near side, the `fixedHead` and `leapingHead`, the one `leftStirrup`, the reins and the `lead`; a vaulting surcingle (`tack` `surcingle`, `HorseSurcingle`) offers the `leftHandle` and `rightHandle`, the back `pad` and the basic `seat` astride on it.
  *
  * The default horse draws from the warmblood height band. Its girth follows the cohort's mean proportion and its mass follows the girth-squared-times-length law anchored on that cohort's mean (`mass`). An explicit Icelandic horse uses its own sourced profile and enables the two alternate gaits. The seat and reins are selected from their read sizes.
  *
@@ -34,7 +33,7 @@ import { QuadrupedBody } from "./QuadrupedBody";
  * @evidence contracts/development/common.md#meaningful-documentation States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.
  * @evidence contracts/development/implementation.md#principled-implementation The shared equid builder (`equid`) on the horse's profile, laying the shared body (`QuadrupedBody.lay`) from the horse's proportions: segment lengths as fractions of withers height from Kubo et al. 1992 and Matsuura et al. 2008, and segment mass shares from Kubo et al. 1992, Table 5, stated per part so the mass properties follow the measured distribution; the tack is placed on the rig's landmarks.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `equid` on `PROFILE`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s and the tack's estimates `HorseSaddle`'s, `HorseHarness`'s and `HorsePack`'s, stated there.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's simplifications are `QuadrupedBody.lay`'s and the tack's estimates `HorseSaddle`'s, `HorseHarness`'s, `HorsePack`'s, `HorseSideSaddle`'s and `HorseSurcingle`'s, stated there; `HorseTack` lays the selected tack.
  * @evidence contracts/development/implementation.md#efficient-algorithms Twenty-one bones, the withers and a few tens of tack parts.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `equid`, which the pony shares; each call builds one independent model.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -71,8 +70,19 @@ export function createHorse(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No humanoid bone stands in for a horse's, the defect #2805 removed.
  */
 export namespace createHorse {
-  /** The riding, harness, combined, pack and untacked configurations. */
-  export type Tack = "saddle" | "harness" | "both" | "pack" | "bare";
+  /** The riding, harness, combined, pack and untacked configurations, and the alternative mounted supports: a bareback bridle, a side saddle and a vaulting surcingle. */
+  export type Tack =
+    | "saddle"
+    | "harness"
+    | "both"
+    | "pack"
+    | "bare"
+    | "bareback"
+    | "sidesaddle"
+    | "surcingle";
+
+  /** The alternative mounted supports, which a profile may leave unnamed: the model then takes the producer's name. */
+  export type Alternative = "bareback" | "sidesaddle" | "surcingle";
 
   /** Every equipment configuration admitted by the equid producer. */
   export const TACKS: readonly Tack[] = [
@@ -81,6 +91,9 @@ export namespace createHorse {
     "both",
     "pack",
     "bare",
+    "bareback",
+    "sidesaddle",
+    "surcingle",
   ];
 
   /**
@@ -93,6 +106,8 @@ export namespace createHorse {
    * - `lead`: the middle of the lead rope's held run beside the head on the horse's left, running up to the halter.
    * - `hitch`: in harness, the middle between the tugs at the driving saddle, where a cart's shafts are held and its `coupling` is drawn from.
    * - `leftLoad`, `rightLoad`: under a pack saddle, the middle of each side's pad, facing out, where a load rests.
+   * - `fixedHead`, `leapingHead`: on a side saddle, the upper pommel the right thigh goes over and the lower one over the left thigh (`HorseSideSaddle`).
+   * - `leftHandle`, `rightHandle`, `pad`: on a vaulting surcingle, its two handles and the back pad's top (`HorseSurcingle`).
    *
    * A tack lacks the ids of the others; the `lead` is the riding saddle's and the pack saddle's.
    */
@@ -107,7 +122,12 @@ export namespace createHorse {
     | "lead"
     | "hitch"
     | "leftLoad"
-    | "rightLoad";
+    | "rightLoad"
+    | "fixedHead"
+    | "leapingHead"
+    | "leftHandle"
+    | "rightHandle"
+    | "pad";
 
   /**
    * The dimensions, metres unless stated:
@@ -347,28 +367,12 @@ export namespace createHorse {
     });
     const h: number = d.withersHeight;
     const rig: createHorse.IRig = createHorse.rig(d, profile.body);
-    const nose: IAutoMovieVector3 = rig.nose;
     QuadrupedBody.lay(profile.body, builder, h, rig);
 
-    if (tack === "saddle" || tack === "both") {
-      HorseSaddle.lay(builder, d, rig);
-      HorseSaddle.lead(builder, nose, h);
-      // A postilion's horse wears its harness under the riding saddle.
-      if (tack === "both") HorseHarness.lay(builder, d, rig);
-      // The saddle's read weight is its own, beside the equid's; the rest of its tack is massless, unread.
-      return builder.build(d.mass + HorseSaddle.WEIGHT, {
-        rests: profile.body.foot,
-      });
-    } else if (tack === "harness") HorseHarness.lay(builder, d, rig);
-    else if (tack === "pack") {
-      // The rigged pack saddle's mass is its own, beside the equid's, its parts' shares percents of the equid's mass as the body's are.
-      HorsePack.lay(builder, d, rig);
-      HorseSaddle.lead(builder, nose, h);
-      return builder.build(d.mass + HorsePack.saddle(h).rigged, {
-        rests: profile.body.foot,
-      });
-    }
-    return builder.build(d.mass, { rests: profile.body.foot });
+    // The tack's read weight is its own, beside the equid's (`HorseTack`).
+    return builder.build(d.mass + HorseTack(tack, builder, d, rig), {
+      rests: profile.body.foot,
+    });
   }
 
   /**
@@ -380,7 +384,10 @@ export namespace createHorse {
     archetype: string;
 
     /** The model's name under each tack. */
-    names: Readonly<Record<Exclude<Tack, "bare">, string> & { bare?: string }>;
+    names: Readonly<
+      Record<Exclude<Tack, "bare" | Alternative>, string> &
+        Partial<Record<"bare" | Alternative, string>>
+    >;
 
     /** The band of each free dimension the read figures do not give. */
     bands: Readonly<Partial<Record<Free, IArchetypeBand>>>;
@@ -464,6 +471,9 @@ export namespace createHorse {
       both: "postilion horse",
       pack: "pack horse",
       bare: "untacked horse",
+      bareback: "bareback horse",
+      sidesaddle: "side-saddle horse",
+      surcingle: "vaulting horse",
     },
     bands: BANDS,
     girth: (withers: number): number =>

@@ -54,6 +54,7 @@ import { HumanHandrimStroke } from "./HumanHandrimStroke";
 import { HumanLabour } from "./HumanLabour";
 import { HumanLeadHorse } from "./HumanLeadHorse";
 import { HumanManipulate } from "./HumanManipulate";
+import { HumanMounted } from "./HumanMounted";
 import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanPartner } from "./HumanPartner";
 import { HumanPose } from "./HumanPose";
@@ -131,6 +132,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
       HumanBicycleEffort,
       HumanBikeTransfer,
       HumanLeadHorse,
+      HumanMounted,
     },
   ],
   carried: [HumanCarried, { spacecraftGlide }],

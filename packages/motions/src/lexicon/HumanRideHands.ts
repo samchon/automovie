@@ -541,9 +541,14 @@ export namespace HumanRideHands {
       const handle: IAutoMovieAffordance | undefined =
         handles[side]!.affordance;
       let closureGrip: IMaterialGrip = grip;
-      if (grip.palmDepth !== undefined && handle !== undefined) {
+      if (
+        handle !== undefined &&
+        (grip.palmDepth !== undefined || handle.kind === "handle")
+      ) {
         // Rest shapes and the moving hand describe one rigid grasp. Bring the
-        // grip back to those shapes before selecting and closing on its material.
+        // grip back to those shapes before selecting and closing on its material:
+        // a rigid handle on a carrier already moving when the hold begins (a
+        // surcingle on a cantering horse) is read away from its rest shapes.
         const rotation: IAutoMovieQuaternion = Quaternion.multiply(
           origin.rotation,
           handle.frame.rotation,
