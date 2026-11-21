@@ -459,6 +459,38 @@
     "bikeTransfer": {},
     "boardRide": {},
     "bowlingDelivery": {},
+    "bowlingSlide": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "from": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "to": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "cricketBowl": {},
     "cricketDrive": {},
     "cueStroke": {},
