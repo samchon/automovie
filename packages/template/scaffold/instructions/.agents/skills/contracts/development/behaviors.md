@@ -23,12 +23,6 @@ Add and [register](../../motion/laws/extension.md) a motion law only for an acti
 
 Test a rule or table against independently expected classifications and boundaries.
 
-## Realization comments
-
-Can a reader trace each value the behavior sets, and each default it relies on, to the screenplay fact, study observation or rule it realizes?
-
-Comment each such value with its source and how it realizes it. Write what a reader needs to check the value against its source, and nothing the value or its JSDoc already says.
-
 ## Relational goals
 
 Does the behavior express the required interaction and verify the part it owns?

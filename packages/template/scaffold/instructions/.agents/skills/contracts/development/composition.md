@@ -31,11 +31,11 @@ Play the numbered scenes with their transitions, titles and subtitles. Use the [
 
 For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
-## Realization comments
+## Beat coverage
 
-Can a reader trace each value the declaration passes, and each default it relies on, back to what it realizes, and every element of each cited beat forward to its values?
+Does every element of each cited beat reach a value that realizes it?
 
-Comment every value a scene passes and every default it relies on. Give the beat anchor, the [beat element](../../motion/staging.md#reading-the-scene) the value realizes and how, and the study section for skilled practice. Write what a reader needs to check the value against the beat, and nothing the value or its JSDoc already says. Realize every element of each cited beat in at least one commented value.
+Realize every [beat element](../../motion/staging.md#reading-the-scene) of each cited beat in at least one value. Its comment under [meaningful documentation](common.md#meaningful-documentation) gives the beat anchor, the element and how the value realizes it, and the study section for skilled practice.
 
 ```ts
 const rush = jun.run({
@@ -54,8 +54,6 @@ overlay(rush, jun.raise(knife, { hand: "right" }));
 // #s02-b03 Intent, "before she can get round the table": he sets off on her first step back.
 sync(rush.start, maraBackStep.start);
 ```
-
-A film comments each value with the screenplay or profile entry it takes, and a catalog case with the fact or observed exchange it exhibits.
 
 ## Composition only
 
