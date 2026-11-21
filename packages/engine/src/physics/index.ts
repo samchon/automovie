@@ -126,6 +126,7 @@ export * from "./projectileFirstContact";
 export * from "./projectileSphereHit";
 export * from "./projectileTrajectory";
 export * from "./readPhysicalFrame";
+export * from "./readPhysicalManifoldImpulses";
 export * from "./readPhysicalScene";
 export * from "./rebasePhysicalTargets";
 export * from "./recordPhysicalContact";

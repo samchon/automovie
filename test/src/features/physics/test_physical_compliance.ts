@@ -39,8 +39,10 @@ export async function test_physical_compliance(): Promise<void> {
     TestValidator.predicate(
       `speed ${speed} has one actual solved contact`,
       contacts.length === 1 &&
-        [contacts[0]!.a.body, contacts[0]!.b.body].sort().join() ===
-          "receiver,striker" &&
+        new Set([contacts[0]!.a.body, contacts[0]!.b.body]).size === 2 &&
+        [contacts[0]!.a.body, contacts[0]!.b.body].every(
+          (id: string): boolean => id === "receiver" || id === "striker",
+        ) &&
         contacts[0]!.source === "solver" &&
         contacts[0]!.samples!.length > 0 &&
         contacts[0]!.impulse! > 0 &&
