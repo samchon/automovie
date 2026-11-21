@@ -1,0 +1,341 @@
+import {
+  AutoMoviePhysicalPlayback as Playback,
+  AutoMoviePhysicalSimulation as Simulation,
+  distributePhysicalSupportWrench,
+  markAutoMovieContacts,
+  markAutoMovieSupportWrenches,
+  physicalInputDigest,
+} from "@automovie/engine";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMovieDistributePhysicalSupportWrench,
+  IAutoMovieInspectionLegendEntry,
+  IAutoMovieMark,
+  IAutoMoviePhysicalPlayback,
+  IAutoMoviePhysicalSimulationInput,
+  IAutoMoviePhysicalSupportWrench,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  type IAutoMovieInspectionHandle,
+  replaceAutoMovieDrawInspection,
+} from "@automovie/render";
+import { TestValidator } from "@nestia/e2e";
+import * as THREE from "three";
+
+import { InspectionScene } from "../internal/InspectionScene";
+import { PhysicalFixtures } from "../internal/PhysicalFixtures";
+import { nclose } from "../internal/nclose";
+
+/**
+ * Force marks carry the solver's own contact witnesses and the allocator's own support records from a replayed performance into the draw inspection.
+ *
+ * Scenarios:
+ * 1. A rigid ball dropped from 1 m onto the floor is simulated, archived and decoded. While it falls no contact mark exists; at its first acting solver step one unflagged arrow starts at that step's floor witness and points up for the step's mean force.
+ * 2. Seeking past the step and back to it reproduces the same marks.
+ * 3. A compliant ball in an exaggerated mode whose shell response rounds every solved impulse to zero at transfer sinks to its rigid core: its shell steps are drawn and flagged, and the core steps that actually stop it are drawn unflagged.
+ * 4. The real allocator carries 100 N straight up over four floor witnesses within its admitted error, so no shortfall is drawn; it cannot carry a 100 N sideways pull with 50 N up under friction 0.5, so a flagged shortfall continues from the allocated tip, the two arrows add up to the request, and the allocation stays inside the friction cone; with no witnesses the whole request is shortfall.
+ * 5. The draw inspection, with the contact and support kinds declared, admits `marks=contact,support/*` at a falling frame that has none, and at the contact step and the support record counts one contact and one support shortfall under its flag entry.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation`, `AutoMoviePhysicalPlayback`, `distributePhysicalSupportWrench`, both mark producers and `replaceAutoMovieDrawInspection` on real solver output, a real archive round trip and real allocations, and reads marks and legend counts.
+ * @evidence contracts/development/testing.md#independent-expectations The falling ball touches nothing before 0.3 s, since it needs sqrt(2 × 0.9 / 9.81) ≈ 0.43 s to reach the floor; its floor witness lies within 1 cm of y = 0 and its normal is vertical. Any sum of witness forces with friction 0.5 lies in the convex cone |fx| <= 0.5 fy, whose distance from the request (100, 50) N is 75 / sqrt(1.25) ≈ 67.1 N, so the shortfall is at least that; 100 N straight up above the witnesses' centre is inside the cone with zero moment.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts falling and touching frames, a forward and a reverse seek, native and zero-transfer exaggerated contacts, a feasible, an infeasible and an unsupported request, and an empty against a populated inspection frame.
+ * @evidence contracts/development/testing.md#execution-ownership One portable async unit owns its two simulations, archive, allocations, scene and inspection handle, restores the handle and releases its mesh in finally, and starts no browser, process or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
+ */
+export async function test_inspection_physical_force_marks(): Promise<void> {
+  const metresPerNewton: number = 0.001;
+
+  // 1. A real rigid drop, replayed from its archive.
+  const rigid: IAutoMoviePhysicalSimulationInput.IInput = drop(0, null);
+  const playback: IAutoMoviePhysicalPlayback = await replay(rigid);
+  const step: Step = firstActingStep(playback.contacts);
+  const contacts = (seconds: number): IAutoMovieMark[] =>
+    markAutoMovieContacts({
+      receipts: playback.contacts,
+      seconds,
+      metresPerNewton,
+    });
+  const touching: IAutoMovieMark[] = contacts(step.seconds);
+  const arrow: IAutoMovieMark.IArrows = touching[0]!
+    .shape as IAutoMovieMark.IArrows;
+  const length: number = Math.hypot(...arrow.vectors);
+  TestValidator.equals(
+    "no contact while falling, one unflagged contact at the first acting step",
+    [contacts(0.3).length, touching.length, touching[0]!.flagged],
+    [0, 1, false],
+  );
+  TestValidator.predicate(
+    `the arrow starts at the floor witness and is vertical: ${arrow.origins.join(",")} / ${arrow.vectors.join(",")}`,
+    step.seconds > 0.3 &&
+      Math.abs(arrow.origins[1]!) < 0.01 &&
+      nclose(length, (step.impulse / step.duration) * metresPerNewton, 1e-12) &&
+      Math.abs(arrow.vectors[1]!) > 0.999 * length,
+  );
+
+  // 2. A reverse seek revisits the same witness.
+  contacts(0.9);
+  TestValidator.equals(
+    "seeking back reproduces the contact marks",
+    JSON.stringify(contacts(step.seconds)),
+    JSON.stringify(touching),
+  );
+
+  // 3. Solved force that no body received.
+  const exaggerated: IAutoMoviePhysicalPlayback = await replay(
+    drop(0.1, {
+      kind: "exaggerated",
+      gravity: 1,
+      impulse: 1e-300,
+      compliance: 1,
+      reason:
+        "A positive Float64 soft impulse rounds to zero at its actual native transfer",
+    }),
+  );
+  // Each acting step is drawn at its own second; its flag must follow its stated transfer.
+  const verdicts: { unfelt: boolean; flagged: boolean }[] =
+    exaggerated.contacts.flatMap(
+      (
+        receipt: IAutoMovieContactReceipt,
+      ): { unfelt: boolean; flagged: boolean }[] =>
+        (receipt.samples ?? [])
+          .filter(
+            (sample: Step): boolean =>
+              sample.impulse > 0 && sample.separation <= 0,
+          )
+          .map((sample: Step): { unfelt: boolean; flagged: boolean } => ({
+            unfelt:
+              sample.appliedImpulse?.a === 0 && sample.appliedImpulse.b === 0,
+            flagged: markAutoMovieContacts({
+              receipts: [receipt],
+              seconds: sample.seconds,
+              metresPerNewton,
+            })[0]!.flagged,
+          })),
+    );
+  const unfelt: number = verdicts.filter(
+    (verdict: { unfelt: boolean }): boolean => verdict.unfelt,
+  ).length;
+  TestValidator.predicate(
+    `zero-transfer shell contacts are flagged and transferring core contacts are not: ${unfelt} of ${verdicts.length} unfelt`,
+    unfelt > 0 &&
+      unfelt < verdicts.length &&
+      verdicts.every(
+        (verdict: { unfelt: boolean; flagged: boolean }): boolean =>
+          verdict.unfelt === verdict.flagged,
+      ),
+  );
+
+  // 4. Real allocations of three requests at one centre of mass.
+  const origin: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+  const feasible: IAutoMoviePhysicalSupportWrench = allocate(
+    origin,
+    { x: 0, y: 100, z: 0 },
+    4,
+  );
+  const infeasible: IAutoMoviePhysicalSupportWrench = allocate(
+    origin,
+    { x: 100, y: 50, z: 0 },
+    4,
+  );
+  const unsupported: IAutoMoviePhysicalSupportWrench = allocate(
+    origin,
+    { x: 0, y: 100, z: 0 },
+    0,
+  );
+  const supports = (
+    wrench: IAutoMoviePhysicalSupportWrench,
+  ): IAutoMovieMark[] =>
+    markAutoMovieSupportWrenches({
+      wrenches: [wrench],
+      seconds: wrench.seconds,
+      interval: 1 / 120,
+      metresPerNewton,
+    });
+  const strained: IAutoMovieMark[] = supports(infeasible);
+  const [carried, missing] = strained.map(
+    (mark: IAutoMovieMark): IAutoMovieMark.IArrows =>
+      mark.shape as IAutoMovieMark.IArrows,
+  );
+  TestValidator.equals(
+    "feasible, infeasible and unsupported requests",
+    [
+      supports(feasible).map((mark: IAutoMovieMark) => [
+        mark.kind,
+        mark.flagged,
+      ]),
+      strained.map((mark: IAutoMovieMark) => [mark.kind, mark.flagged]),
+      supports(unsupported).map((mark: IAutoMovieMark) => [
+        mark.kind,
+        mark.flagged,
+      ]),
+    ],
+    [
+      [["support/allocated", false]],
+      [
+        ["support/allocated", false],
+        ["support/shortfall", true],
+      ],
+      [["support/shortfall", true]],
+    ],
+  );
+  TestValidator.predicate(
+    "the shortfall continues from the allocated tip, sums to the request, and the allocation stays in the friction cone at least 75 / sqrt(1.25) N from the request",
+    [0, 1, 2].every(
+      (axis: number): boolean =>
+        nclose(
+          missing!.origins[axis]!,
+          carried!.origins[axis]! + carried!.vectors[axis]!,
+          1e-12,
+        ) &&
+        nclose(
+          carried!.vectors[axis]! + missing!.vectors[axis]!,
+          [100, 50, 0][axis]! * metresPerNewton,
+          1e-9,
+        ),
+    ) &&
+      Math.abs(carried!.vectors[0]!) <= 0.5 * carried!.vectors[1]! + 1e-9 &&
+      Math.hypot(...missing!.vectors) >=
+        (75 / Math.sqrt(1.25)) * metresPerNewton - 1e-9,
+  );
+
+  // 5. The draw inspection over declared kinds.
+  const scene: THREE.Scene = new THREE.Scene();
+  const ball: THREE.Mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.1),
+    new THREE.MeshBasicMaterial(),
+  );
+  ball.name = "ball";
+  scene.add(ball);
+  let active: IAutoMovieInspectionHandle | null = null;
+  try {
+    const counts: number[][] = [];
+    // A falling frame supplies no marks; the contact frame supplies both producers' marks.
+    for (const marks of [[], [...touching, ...strained]]) {
+      active = await replaceAutoMovieDrawInspection({
+        previous: active,
+        scene,
+        request: InspectionScene.ask({ marks: ["contact", "support/*"] }),
+        markKinds: ["contact", "support/allocated", "support/shortfall"],
+        place: async (): Promise<readonly IAutoMovieMark[]> => {
+          scene.updateMatrixWorld(true);
+          return marks;
+        },
+      });
+      const legend: readonly IAutoMovieInspectionLegendEntry[] = active.legend;
+      counts.push(
+        ["contact force", "support force shortfall (flagged)"].map(
+          (label: string): number =>
+            legend.find(
+              (entry: IAutoMovieInspectionLegendEntry): boolean =>
+                entry.label === label,
+            )?.count ?? 0,
+        ),
+      );
+    }
+    TestValidator.equals(
+      "declared kinds admitted while falling, drawn at the contact and the record",
+      counts,
+      [
+        [0, 0],
+        [1, 1],
+      ],
+    );
+  } finally {
+    active?.restore();
+    ball.geometry.dispose();
+    (ball.material as THREE.Material).dispose();
+  }
+}
+
+/** One completed solver step of a contact receipt. */
+type Step = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
+
+/** A 1 s drop of one ball of 0.1 m radius from 1 m onto the floor at y = 0 under gravity, with the given compliance and an optional mode. */
+function drop(
+  compliance: number,
+  mode: IAutoMoviePhysicalSimulationInput.IBody["mode"] | null,
+): IAutoMoviePhysicalSimulationInput.IInput {
+  const body: IAutoMoviePhysicalSimulationInput.IBody = PhysicalFixtures.body(
+    "ball",
+    PhysicalFixtures.sphere(0.1, compliance),
+    1,
+  );
+  if (mode !== null) body.mode = mode;
+  const input: IAutoMoviePhysicalSimulationInput.IInput =
+    PhysicalFixtures.input([body], 1);
+  input.floor = 0;
+  input.gravity.y = -9.81;
+  return input;
+}
+
+/** Simulate in Node, then read the performance back only through its decoded archive, as a production plays it. */
+async function replay(
+  input: IAutoMoviePhysicalSimulationInput.IInput,
+): Promise<IAutoMoviePhysicalPlayback> {
+  const run: Awaited<ReturnType<typeof Simulation.compute>> =
+    await Simulation.compute(input);
+  return Playback.decode(
+    await Playback.encode(run.cache, 4_000_000),
+    physicalInputDigest(input),
+    { maximumBytes: 4_000_000, maximumFrames: 121, maximumSegments: 1 },
+  );
+}
+
+/** The earliest solver step with a positive impulse and no separation. */
+function firstActingStep(receipts: readonly IAutoMovieContactReceipt[]): Step {
+  const steps: Step[] = receipts
+    .filter(
+      (receipt: IAutoMovieContactReceipt): boolean =>
+        receipt.source === "solver",
+    )
+    .flatMap(
+      (receipt: IAutoMovieContactReceipt): Step[] => receipt.samples ?? [],
+    )
+    .filter(
+      (sample: Step): boolean => sample.impulse > 0 && sample.separation <= 0,
+    )
+    .sort((a: Step, b: Step): number => a.seconds - b.seconds);
+  if (steps.length === 0)
+    throw new Error("The dropped ball recorded no acting solver step");
+  return steps[0]!;
+}
+
+/** Allocate a pure force at `origin` over `count` (0 or 4) floor witnesses 0.1 m out with friction 0.5 and record it as the controller does. */
+function allocate(
+  origin: IAutoMovieVector3,
+  force: IAutoMovieVector3,
+  count: 0 | 4,
+): IAutoMoviePhysicalSupportWrench {
+  const points: IAutoMovieDistributePhysicalSupportWrench.IInput["points"] =
+    count === 0
+      ? []
+      : [
+          [-0.1, -0.1],
+          [-0.1, 0.1],
+          [0.1, -0.1],
+          [0.1, 0.1],
+        ].map(([x, z]: number[]) => ({
+          bone: "root",
+          point: { x: x!, y: 0, z: z! },
+          friction: 0.5,
+        }));
+  const torque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const result: ReturnType<typeof distributePhysicalSupportWrench> =
+    distributePhysicalSupportWrench({
+      origin,
+      force,
+      torque,
+      maximumForce: 1000,
+      points,
+    });
+  return {
+    body: "ball",
+    seconds: 0.5,
+    origin,
+    requested: { force, torque },
+    allocated: { force: result.force, torque: result.torque },
+    residual: result.residual,
+    pointCount: points.length,
+  };
+}

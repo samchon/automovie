@@ -16,12 +16,13 @@ import { nclose } from "../internal/nclose";
  * 2. The same receipt drawn at 0.99 s, before its step, at 1.02 s, after the step's duration, and a geometric receipt draw nothing; a step with a positive separation draws nothing.
  * 3. Of two steps, the later one at or before the drawn second is read.
  * 4. A scale that is zero or not finite, and an acting step with no duration, are refused.
+ * 5. A step stating that neither side received its impulse is flagged; one stating a transfer to either side, or stating none, is not.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the engine producer on receipts the test writes and reads the returned arrows' origins, vectors, paths and kinds.
  * @evidence contracts/development/testing.md#independent-expectations The expected length is the impulse over the duration times the scale, 0.5 / 0.01 x 0.002 = 0.1 m, computed by hand from the documented rule.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, and valid against refused scales and durations. Drawing the arrows belongs to the inspection tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts an acting step against one not yet completed, one expired, a geometric receipt and a separated step, an earlier step against a later one, valid against refused scales and durations, and a zero stated transfer against a transfer to either side and an unstated one. Drawing the arrows belongs to the inspection tests.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit writes its own receipts and starts no solver, browser, server or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A solver receipt whose step at 1.0 s carries 0.5 N s over 0.01 s).
  */
 export function test_mark_contacts(): void {
   const step = (
@@ -116,5 +117,31 @@ export function test_mark_contacts(): void {
     (): void => {
       mark([receipt("solver", [step(1, 0.5, 0)])], 1);
     },
+  );
+
+  // 5. A solved impulse that reached neither side.
+  const transferred = (
+    appliedImpulse: { a: number; b: number } | undefined,
+  ): boolean =>
+    mark(
+      [
+        receipt("solver", [
+          {
+            ...step(1, 0.5, 0.01),
+            ...(appliedImpulse === undefined ? {} : { appliedImpulse }),
+          },
+        ]),
+      ],
+      1.005,
+    )[0]!.flagged;
+  TestValidator.equals(
+    "zero, one-sided, other-sided and unstated transfers",
+    [
+      transferred({ a: 0, b: 0 }),
+      transferred({ a: 0.5, b: 0 }),
+      transferred({ a: 0, b: 0.5 }),
+      transferred(undefined),
+    ],
+    [true, false, false, false],
   );
 }

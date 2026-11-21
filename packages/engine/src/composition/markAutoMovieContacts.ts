@@ -9,7 +9,7 @@ import type {
  *
  * A receipt acts at `seconds` when the solver measured it: its latest completed step at or before `seconds`, within that step's duration, has a positive finite impulse and no positive separation. The arrow starts at that step's point and runs along its normal, from the first collider toward the second, for `metresPerNewton` times the step's mean force, its impulse over its duration. Geometric receipts, which assert no impulse, draw nothing.
  *
- * The mark has kind `contact`, label `contact force`, colour teal `00c2a8` and path `<body>/<bone>/contact/<receipt id>` of the first collider, in world metres and unanchored.
+ * The mark has kind `contact`, label `contact force`, colour teal `00c2a8` and path `<body>/<bone>/contact/<receipt id>` of the first collider, in world metres and unanchored. It is flagged when the step states the impulse it actually transferred and neither side received any, as when an exaggerated mode's response rounds a solved impulse to zero: the solver measured a force the bodies never felt. A step without that statement is a direct native measurement and is not flagged.
  *
  * It throws for a scale that is not positive and finite and for an acting step without a positive duration.
  *
@@ -18,7 +18,7 @@ import type {
  * @param props.metresPerNewton Arrow length per newton of mean force.
  * @returns One mark per acting contact, in the receipts' order.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States when a contact acts, how the arrow's place, direction and length follow from the step, what geometric receipts draw, the kind, label, colour, path and frame, and both refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation States when a contact acts, how the arrow's place, direction and length follow from the step, what geometric receipts draw, the kind, label, colour, path and frame, when a contact is flagged, and both refusals.
  * @evidence contracts/development/implementation.md#principled-implementation A step's mean force is its normal impulse over its duration, so the arrow's length is a force on a stated scale; a step is read only once completed at or before the drawn second, so a still never shows a later impulse.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the receipts, each scanned from its last step back to the drawn second.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The scale is the caller's stated parameter, and a step without a duration is refused instead of given an arbitrary length.
@@ -71,7 +71,11 @@ export function markAutoMovieContacts(
           step.normal.z * length,
         ],
       },
-      flagged: false,
+      // A stated transfer of zero to both sides is a solved force no body received.
+      flagged:
+        step.appliedImpulse !== undefined &&
+        step.appliedImpulse.a === 0 &&
+        step.appliedImpulse.b === 0,
       anchor: null,
     });
   }
