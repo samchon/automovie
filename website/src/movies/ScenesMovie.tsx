@@ -45,12 +45,12 @@ const ORDER: readonly IScene.Setting[] = [
  * The setting and the search live in the address's query, so a link shows
  * the same selection.
  *
- * @param props The ids of the scenes that play and of those whose first take was baked.
+ * @param props The ids of the scenes that play, and the length in seconds of each whose first take was baked.
  * @returns The page.
  */
 export default function ScenesMovie(props: {
   playing: string[];
-  baked: string[];
+  baked: Record<string, number>;
 }): ReactElement {
   const [filter, setFilter]: [IFilter, Dispatch<SetStateAction<IFilter>>] =
     useState<IFilter>({ setting: null, query: "" });
@@ -80,7 +80,7 @@ export default function ScenesMovie(props: {
   };
 
   const playing: Set<string> = new Set(props.playing);
-  const baked: Set<string> = new Set(props.baked);
+  const baked: Record<string, number> = props.baked;
   const listed: IScene[] = SCENES.filter(
     (s: IScene): boolean => s.hidden !== true,
   );
@@ -103,11 +103,11 @@ export default function ScenesMovie(props: {
   return (
     <main className="am-app am-catalogue" data-pagefind-body>
       <header className="am-catalogue-head">
-        <h1>Scenes</h1>
+        <h1>Scene studies</h1>
         <p>
-          Whole performances composed from the motion vocabulary and the
-          archetypes. Point at one to play it; open it for its takes, its
-          timeline and the code an agent writes for it.
+          Short studies of what the motion vocabulary composes: a bout, a rally,
+          a class, a crowd. Point at one to play it; open it for its takes, its
+          timeline and the code that writes it.
         </p>
       </header>
 
@@ -170,7 +170,8 @@ export default function ScenesMovie(props: {
                   <SceneCard
                     key={scene.id}
                     scene={scene}
-                    baked={baked.has(scene.id)}
+                    baked={baked[scene.id] !== undefined}
+                    seconds={baked[scene.id]}
                   />
                 ),
               )}
@@ -190,7 +191,7 @@ export default function ScenesMovie(props: {
           </summary>
           <p className="am-muted">
             Scenes written for pieces the packages do not have yet. Each joins
-            the gallery on the release that brings its pieces.
+            the scene studies on the release that brings its pieces.
           </p>
           <ul className="am-roadmap-list">
             {coming.map(

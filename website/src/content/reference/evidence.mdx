@@ -4,7 +4,7 @@ title: Evidence configuration
 
 # Evidence configuration
 
-This page is the evidence check's configuration and formats. [Evidence graph](/docs/screenplay/evidence-graph) in the guide explains what the check is for and what it holds a production to.
+This page is the evidence graph's configuration and formats. [Evidence graph](/docs/screenplay/evidence-graph) in the guide explains what the graph is for and what it holds a production to.
 
 ## Configuration
 
@@ -28,7 +28,7 @@ export default createEvidenceConfig({
 });
 ```
 
-`short` is a brief followed by the screenplay. `long` has four layers: settings, treatments, scripts and screenplay. `none` checks no narrative layer and serves a screenplay that no narrative pass writes. A layer left out of `construction` stays a disabled draft, and setting a finished layer back to `"disabled"` leaves the layers still running unaffected. `scope` limits the checks to the first part a pilot covers; the default is the complete work.
+`short` is a brief followed by the screenplay. `long` has four layers: settings, treatments, scripts and screenplay. `none` checks no narrative layer and is for a screenplay that no narrative pass writes. A layer left out of `construction` stays a disabled draft, and setting a finished layer back to `"disabled"` leaves the layers still running unaffected. `scope` limits the checks to the first part a pilot covers; the default is the complete work.
 
 The code joins the graph through `development`, and the studies through `research`:
 
@@ -53,7 +53,7 @@ These options select these respondents:
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` |
 | `development.composition` | Exports under `src/composition/`, which also cite the screenplay |
 
-With `development.composition`, every screenplay section and beat must be realized by some scene composition, and every scene file by the film that plays it. Under `narrative: { mode: "none" }`, the composition and entities must also realize every section of `docs/instructions/`, with no exclusion allowed, because no narrative layer cites them.
+With `development.composition`, every screenplay section and beat must be realized by some scene composition, and every scene file by the film that orders it. Under `narrative: { mode: "none" }`, the composition and entities must also realize every section of `docs/instructions/`, with no exclusion allowed, because no narrative layer cites them.
 
 ## Writing an answer
 
@@ -73,12 +73,12 @@ A source declaration answers in its doc comment, with one `@evidence <target> <r
 
 ### In a narrative layer
 
-The Evidence answerer writes a narrative unit's answers in a separate file, so the body stays readable. Unit answers live under `docs/evidence/construction/units/<layer>/`, mirroring the body's path, and whole-file answers under `docs/evidence/construction/files/<layer>/`. The H1 names the exact file and anchor, and each H2 is one `@evidence` heading followed by its answer:
+The evidence answerer writes a narrative unit's answers in a separate file, so the body stays readable. Unit answers live under `docs/evidence/construction/units/<layer>/`, mirroring the body's path, and whole-file answers under `docs/evidence/construction/files/<layer>/`. The H1 names the exact file and anchor, and each H2 is one `@evidence` heading followed by its answer:
 
 ```markdown
 # docs/body/screenplay/rehearsal/030-lift.md#s03
 
-## @evidence shared/principles/screenplay.md#beat-decisions
+## @evidence contracts/story/principles/screenplay.md#beat-decisions
 
 Each beat decides intent, outcome and reaction; the late read and the short landing are performable by the lift law the study describes.
 
@@ -108,10 +108,10 @@ Each failure is a diagnostic with a code:
 | `graph-missing-acknowledgement` | A parent unit that no respondent cites, such as a brief decision the screenplay no longer cites |
 | `graph-checklist-missing` | A respondent that leaves a checklist item unanswered |
 | `graph-single-evidence-per-symbol` | A respondent that cites more parents than its relation allows, such as a scene file claiming two script scenes |
-| `graph-missing-review` | A unit whose review carries no current fingerprint |
+| `graph-missing-review` | An answer that has no matching `@evidenceReview` |
 | `graph-stale-review` | A review whose unit text changed after it was read |
 
-The review codes are described in [Independent review](/docs/screenplay/review).
+A review is an `@evidenceReview <target> #<fingerprint> <what was checked>` tag beside the answer it covers, in an HTML comment below the heading in Markdown. It goes stale when the reviewed text changes, and the diagnostic prints the current fingerprint.
 
 ## Running the check
 
