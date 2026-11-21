@@ -25,12 +25,21 @@ type Builder<Id extends createStorage.Affordance> = ArchetypeBuilder<
 /** Model dimensions in the legacy family's recorded units. */
 type Dimensions = Partial<Record<createStorage.Dimension, number>>;
 
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends createStorage.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
+}
+
 /** Pick the recorded hinge or slide model and use its figures in the saved dimension stream. */
 function draw<Id extends createStorage.Affordance>(
   kind: createStorage.Kind,
   params: Omit<createStorage.IParams, "kind">,
   seed?: number | string,
-): { builder: Builder<Id>; d: Dimensions } {
+): IDrawn<Id> {
   const session: ArchetypeDrawSession<createStorage.Dimension> =
     new ArchetypeDrawSession<createStorage.Dimension>(
       "storage",
@@ -66,11 +75,25 @@ function draw<Id extends createStorage.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace StorageMechanisms {
-  /** The values {@link hinged} accepts at this place in its signature. */
+  /**
+   * The contact ids {@link hinged} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of hinged.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only hinged and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type HingedKind = "wardrobe" | "locker";
 
-  /** The values {@link hinged} accepts at this place in its signature. */
-  export type HingedChoice =
+  /**
+   * The contact ids {@link hinged} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of hinged.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only hinged and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
+  export type HingedContact =
     | "push"
     | "top"
     | `shelf${number}`
@@ -95,17 +118,31 @@ export namespace StorageMechanisms {
     kind: HingedKind,
     params: Omit<createStorage.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<HingedChoice, createStorage.Dimension> {
-    const { builder, d }: ReturnType<typeof draw<HingedChoice>> =
-      draw<HingedChoice>(kind, params, seed);
+  ): Archetype<HingedContact, createStorage.Dimension> {
+    const { builder, d }: ReturnType<typeof draw<HingedContact>> =
+      draw<HingedContact>(kind, params, seed);
     StorageConstruction[kind](builder, d);
     return builder.build(d.mass!, kind === "locker" ? { rests: "steel" } : {});
   }
 
-  /** The values {@link sliding} accepts at this place in its signature. */
+  /**
+   * The values {@link sliding} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of sliding.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only sliding and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type SlidingKind = "chest" | "filingCabinet";
 
-  /** The contact ids {@link sliding} builds or reads. */
+  /**
+   * The contact ids {@link sliding} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of sliding.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only sliding and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type SlidingContact =
     | "push"
     | "top"
@@ -134,7 +171,14 @@ export namespace StorageMechanisms {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link bookcase} builds or reads. */
+  /**
+   * The contact ids {@link bookcase} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of bookcase.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only bookcase and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type BookcaseContact = "push" | "top" | `shelf${number}`;
 
   /**

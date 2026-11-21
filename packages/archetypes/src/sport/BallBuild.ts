@@ -320,8 +320,31 @@ export namespace BallBuild {
     },
   };
 
-  /** The values {@link draw} accepts at this place in its signature. */
+  /**
+   * The values {@link draw} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of draw.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only draw and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type DrawMaterial = "composite" | "rubber";
+
+  /**
+   * What {@link draw} prepares for its caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
+   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
+   */
+  export interface IDrawResult<Id extends createBall.Affordance> {
+    /** The prepared `builder` this call returns. */
+    builder: ArchetypeBuilder<Id, createBall.Dimension>;
+
+    /** The prepared `d` this call returns. */
+    d: Partial<Record<createBall.Dimension, number>>;
+  }
 
   /**
    * Draw the selected shape profile in the original ball seed namespace.
@@ -339,10 +362,7 @@ export namespace BallBuild {
     params: Readonly<Omit<createBall.IParams, "kind">>,
     seed: number | string | undefined,
     material: DrawMaterial,
-  ): {
-    builder: ArchetypeBuilder<Id, createBall.Dimension>;
-    d: Partial<Record<createBall.Dimension, number>>;
-  } {
+  ): IDrawResult<Id> {
     const draw: ArchetypeDrawSession<createBall.Dimension> =
       new ArchetypeDrawSession("ball", UNITS, seed, params);
     const d: Partial<Record<createBall.Dimension, number>> = draw.dimensions(

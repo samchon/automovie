@@ -61,27 +61,51 @@ export namespace createHingedCabinet {
     | "push"
     | "rightDoor"
     | "rightPull"
-    | "shelf1"
+    | `shelf${number}`
     | "top";
 
   /** The admitted settings and optional model ID. */
-  export type IParams = Pick<createStorage.IParams, "id" | "height" | "mass"> &
-    (
-      | (Pick<createStorage.IParams, "width" | "depth" | "pullHeight"> & {
-          /** A wardrobe with its choice of hinge. */
-          kind: "wardrobe";
+  export type IParams = IWardrobeParams | ILockerParams;
 
-          /** The read hinge angle, drawn from the seed when absent. */
-          model?: "CLIP top 95" | "CLIP top 110";
-        })
-      | (Pick<createStorage.IParams, "legs"> & {
-          /** A steel locker with its choice of body size. */
-          kind: "locker";
+  /** The read hinge angles a wardrobe may carry. */
+  export type Hinge = "CLIP top 95" | "CLIP top 110";
 
-          /** The read width by depth designation in inches, drawn when absent. */
-          model?: "12x12" | "12x15" | "12x18" | "15x18" | "18x18" | "18x21";
-        })
-    );
+  /** The read locker body sizes, width by depth in inches. */
+  export type LockerSize =
+    | "12x12"
+    | "12x15"
+    | "12x18"
+    | "15x18"
+    | "18x18"
+    | "18x21";
+
+  /** The settings both hinged cabinets share. */
+  export type IBaseParams = Pick<
+    createStorage.IParams,
+    "id" | "height" | "mass"
+  >;
+
+  /** A wardrobe with its choice of hinge. */
+  export interface IWardrobeParams
+    extends
+      IBaseParams,
+      Pick<createStorage.IParams, "width" | "depth" | "pullHeight"> {
+    /** A wardrobe. */
+    kind: "wardrobe";
+
+    /** The read hinge angle, drawn from the seed when absent. */
+    model?: Hinge;
+  }
+
+  /** A steel locker with its choice of body size. */
+  export interface ILockerParams
+    extends IBaseParams, Pick<createStorage.IParams, "legs"> {
+    /** A steel locker. */
+    kind: "locker";
+
+    /** The read width by depth designation in inches, drawn when absent. */
+    model?: LockerSize;
+  }
 
   /** Legacy selectors for this construction, in gallery order. */
   export const KINDS: readonly IParams["kind"][] = ["wardrobe", "locker"];

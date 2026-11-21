@@ -141,6 +141,22 @@ export namespace SmokingPropDraw {
   };
 
   /**
+   * What {@link prepare} prepares for its caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions prepare returns, in the family's recorded units.
+   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after prepare.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
+   */
+  export interface IPrepareResult<Id extends Affordance> {
+    /** The prepared `builder` this call returns. */
+    builder: ArchetypeBuilder<Id, Dimension>;
+
+    /** The prepared `d` this call returns. */
+    d: Partial<Record<Dimension, number>>;
+  }
+
+  /**
    * Prepare an empty builder and the previously recorded smoking dimensions.
    *
    * @param params Fixed dimensions in metres or kilograms, an optional scene ID, and a model where the saved recipe has one.
@@ -161,10 +177,7 @@ export namespace SmokingPropDraw {
     kind: Kind,
     params: Omit<IParams, "kind">,
     seed?: number | string,
-  ): {
-    builder: ArchetypeBuilder<Id, Dimension>;
-    d: Partial<Record<Dimension, number>>;
-  } {
+  ): IPrepareResult<Id> {
     const draw: ArchetypeDrawSession<Dimension> =
       new ArchetypeDrawSession<Dimension>("smoking", UNITS, seed, params);
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(

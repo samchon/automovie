@@ -67,6 +67,22 @@ export namespace GoalBuild {
   export const BANDS: typeof GOAL_BANDS = GOAL_BANDS;
 
   /**
+   * What {@link draw} prepares for its caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
+   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
+   */
+  export interface IDrawResult<Id extends createGoal.Affordance> {
+    /** The prepared `builder` this call returns. */
+    builder: ArchetypeBuilder<Id, createGoal.Dimension>;
+
+    /** The prepared `d` this call returns. */
+    d: Partial<Record<createGoal.Dimension, number>>;
+  }
+
+  /**
    * Draw the supplied profile with its original goal seed and prepare a builder.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the compatibility draw and the local model it fills.
@@ -81,10 +97,7 @@ export namespace GoalBuild {
     kind: createGoal.Kind,
     params: Readonly<Omit<createGoal.IParams, "kind">>,
     seed: number | string | undefined,
-  ): {
-    builder: ArchetypeBuilder<Id, createGoal.Dimension>;
-    d: Partial<Record<createGoal.Dimension, number>>;
-  } {
+  ): IDrawResult<Id> {
     const draw: ArchetypeDrawSession<createGoal.Dimension> =
       new ArchetypeDrawSession("goal", UNITS, seed, params);
     const net: ArchetypeDrawSession.IModel<

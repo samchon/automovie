@@ -37,8 +37,10 @@ export function createPullingBoat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createPullingBoat {
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
-  export type Dimension = "beam" | "depth" | "length" | "mass";
+  /**
+   * The boat construction's dimension set, which the rowing ride reads. This producer records beam, depth, length, mass.
+   */
+  export type Dimension = createBoat.Dimension;
 
   /**
    * The createBoat contact set its shared construction types. This producer builds bow, floor, gunwale, stern, thwart0, thwart1, thwart2, thwart3, thwart4.

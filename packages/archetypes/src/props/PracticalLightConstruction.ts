@@ -30,12 +30,21 @@ type Dimensions = Partial<Record<createLight.Dimension, number>>;
 /** Practical-light geometry in metres and model-space coordinates. */
 const v: typeof Vector3.create = Vector3.create;
 
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends createLight.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
+}
+
 /** Open the saved draw stream for the light's particular body and mounting form. */
 function draw<Id extends createLight.Affordance>(
   kind: createLight.Kind,
   params: Omit<createLight.IParams, "kind">,
   seed?: number | string,
-): { builder: Builder<Id>; d: Dimensions } {
+): IDrawn<Id> {
   const session: ArchetypeDrawSession<createLight.Dimension> =
     new ArchetypeDrawSession<createLight.Dimension>(
       "light",
@@ -65,7 +74,14 @@ function draw<Id extends createLight.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace PracticalLightConstruction {
-  /** The contact ids {@link pendant} builds or reads. */
+  /**
+   * The contact ids {@link pendant} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of pendant.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only pendant and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type PendantContact = "grip" | "light" | "hook";
 
   /**
@@ -124,10 +140,24 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The values {@link standing} accepts at this place in its signature. */
+  /**
+   * The values {@link standing} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of standing.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only standing and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type StandingKind = "tableLamp" | "floorLamp";
 
-  /** The contact ids {@link standing} builds or reads. */
+  /**
+   * The contact ids {@link standing} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of standing.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only standing and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type StandingContact = "grip" | "light";
 
   /**
@@ -193,7 +223,14 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link lantern} builds or reads. */
+  /**
+   * The contact ids {@link lantern} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of lantern.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only lantern and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type LanternContact = "grip" | "light" | "hook";
 
   /**
@@ -272,10 +309,24 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The values {@link wick} accepts at this place in its signature. */
+  /**
+   * The values {@link wick} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of wick.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only wick and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type WickKind = "candle" | "fireTorch";
 
-  /** The contact ids {@link wick} builds or reads. */
+  /**
+   * The contact ids {@link wick} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of wick.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only wick and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type WickContact = "grip" | "light";
 
   /**

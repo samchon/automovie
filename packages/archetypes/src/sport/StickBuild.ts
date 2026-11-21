@@ -153,6 +153,22 @@ export namespace StickBuild {
   };
 
   /**
+   * What {@link draw} prepares for its caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
+   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
+   */
+  export interface IDrawResult<Id extends createStick.Affordance> {
+    /** The prepared `builder` this call returns. */
+    builder: ArchetypeBuilder<Id, createStick.Dimension>;
+
+    /** The prepared `d` this call returns. */
+    d: Partial<Record<createStick.Dimension, number>>;
+  }
+
+  /**
    * Draw a stick profile in its original seed domain and prepare its builder.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Describes the compatibility draw and the local model it fills.
@@ -167,10 +183,7 @@ export namespace StickBuild {
     kind: createStick.Kind,
     params: Readonly<Omit<createStick.IParams, "kind">>,
     seed: number | string | undefined,
-  ): {
-    builder: ArchetypeBuilder<Id, createStick.Dimension>;
-    d: Partial<Record<createStick.Dimension, number>>;
-  } {
+  ): IDrawResult<Id> {
     const draw: ArchetypeDrawSession<createStick.Dimension> =
       new ArchetypeDrawSession("stick", UNITS, seed, params);
     const d: Partial<Record<createStick.Dimension, number>> = draw.dimensions(
@@ -187,7 +200,14 @@ export namespace StickBuild {
     return { builder, d };
   }
 
-  /** The values {@link contacts} accepts at this place in its signature. */
+  /**
+   * The values {@link contacts} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of contacts.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only contacts and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type ContactsSymmetry = "half" | "round";
 
   /**

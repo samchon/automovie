@@ -50,23 +50,32 @@ export namespace createDrawerUnit {
   export type Affordance = "push" | "top" | `drawer${number}` | `pull${number}`;
 
   /** The admitted settings and optional model ID. */
-  export type IParams = Pick<
+  export type IParams = IChestParams | IFilingCabinetParams;
+
+  /** The recorded slide models a chest may carry. */
+  export type Slide = "3832-E12" | "3832-E14" | "3832-E16";
+
+  /** The settings both drawer units share. */
+  export type IBaseParams = Pick<
     createStorage.IParams,
     "id" | "width" | "depth" | "height" | "mass"
-  > &
-    (
-      | {
-          /** A chest equipped with one of the recorded slides. */
-          kind: "chest";
+  >;
 
-          /** The read slide choice, drawn from the seed when absent. */
-          model?: "3832-E12" | "3832-E14" | "3832-E16";
-        }
-      | (Pick<createStorage.IParams, "travel"> & {
-          /** A full-suspension filing cabinet. */
-          kind: "filingCabinet";
-        })
-    );
+  /** A chest equipped with one of the recorded slides. */
+  export interface IChestParams extends IBaseParams {
+    /** A chest of drawers. */
+    kind: "chest";
+
+    /** The read slide choice, drawn from the seed when absent. */
+    model?: Slide;
+  }
+
+  /** A full-suspension filing cabinet. */
+  export interface IFilingCabinetParams
+    extends IBaseParams, Pick<createStorage.IParams, "travel"> {
+    /** A filing cabinet. */
+    kind: "filingCabinet";
+  }
 
   /** Legacy selectors for this construction, in gallery order. */
   export const KINDS: readonly IParams["kind"][] = ["chest", "filingCabinet"];

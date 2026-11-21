@@ -41,30 +41,15 @@ export namespace createRowboat {
   /** The `model` choices this producer admits. */
   export type Model = "thamesSkiff" | "whitehallSkiff" | "whitehall17";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
-  export type Dimension =
-    | "beam"
-    | "bladeLength"
-    | "bladeWidth"
-    | "depth"
-    | "draft"
-    | "length"
-    | "mass";
+  /**
+   * The boat construction's dimension set, which the rowing ride reads. This producer records beam, bladeLength, bladeWidth, depth, draft, length, mass.
+   */
+  export type Dimension = createBoat.Dimension;
 
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
-  export type Affordance =
-    | "bow"
-    | "floor"
-    | "gunwale"
-    | "leftHandle"
-    | "leftOar"
-    | "leftOarlock"
-    | "rightHandle"
-    | "rightOar"
-    | "rightOarlock"
-    | "stern"
-    | "sternSeat"
-    | `thwart${number}`;
+  /**
+   * The boat construction's contact set, which the rowing ride reads. This producer builds bow, floor, gunwale, leftHandle, leftOar, leftOarlock, rightHandle, rightOar, rightOarlock, stern, sternSeat, thwart0, thwart1.
+   */
+  export type Affordance = createBoat.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
   export interface IParams extends Pick<createBoat.IParams, "id" | "draft"> {

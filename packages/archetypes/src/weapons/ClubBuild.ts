@@ -127,8 +127,31 @@ export namespace ClubBuild {
     },
   };
 
-  /** The values {@link draw} accepts at this place in its signature. */
+  /**
+   * The values {@link draw} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of draw.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only draw and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type DrawMaterial = "wood" | "plastic";
+
+  /**
+   * What {@link draw} prepares for its caller.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
+   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
+   */
+  export interface IDrawResult {
+    /** The prepared `builder` this call returns. */
+    builder: ArchetypeBuilder<createClub.Affordance, createClub.Dimension>;
+
+    /** The prepared `d` this call returns. */
+    d: Partial<Record<createClub.Dimension, number>>;
+  }
 
   /**
    * Draw the bat or screen practice profile under its original club namespace.
@@ -147,10 +170,7 @@ export namespace ClubBuild {
     seed: number | string | undefined,
     name: string,
     material: DrawMaterial,
-  ): {
-    builder: ArchetypeBuilder<createClub.Affordance, createClub.Dimension>;
-    d: Partial<Record<createClub.Dimension, number>>;
-  } {
+  ): IDrawResult {
     const draw: ArchetypeDrawSession<createClub.Dimension> =
       new ArchetypeDrawSession("club", UNITS, seed, params);
     const model: ArchetypeDrawSession.IModel<
@@ -168,7 +188,14 @@ export namespace ClubBuild {
     return { builder, d };
   }
 
-  /** The values {@link contacts} accepts at this place in its signature. */
+  /**
+   * The values {@link contacts} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of contacts.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only contacts and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type ContactsGrip = "two-hand" | "power";
 
   /**

@@ -17,18 +17,24 @@ type Builder<Id extends createVessel.Affordance> = ArchetypeBuilder<
 /** Create a model-space point in metres. */
 const v: typeof Vector3.create = Vector3.create;
 
-/** The values {@link draw} accepts at this place in its signature. */
-type DrawChoice = "inside" | "rim";
+/** The contact ids every vessel draw builds. */
+type DrawContact = "inside" | "rim";
+
+/** What {@link draw} prepares for its caller. */
+interface IDrawResult<Id extends createVessel.Affordance> {
+  /** The prepared `builder` this call returns. */
+  builder: Builder<Id | DrawContact>;
+
+  /** The prepared `d` this call returns. */
+  d: Record<createVessel.Dimension, number>;
+}
 
 /** Resolve recorded sizing, then lay out the shared open floor, walls and surfaces. */
 function draw<Id extends createVessel.Affordance>(
   kind: createVessel.Kind,
   params: Omit<createVessel.IParams, "kind">,
   seed?: number | string,
-): {
-  builder: Builder<Id | DrawChoice>;
-  d: Record<createVessel.Dimension, number>;
-} {
+): IDrawResult<Id> {
   const session: ArchetypeDrawSession<createVessel.Dimension> =
     new ArchetypeDrawSession<createVessel.Dimension>(
       "vessel",
@@ -56,7 +62,7 @@ function draw<Id extends createVessel.Affordance>(
     height: read.height!,
     mass: read.mass!,
   };
-  const builder: Builder<Id | DrawChoice> = new ArchetypeBuilder({
+  const builder: Builder<Id | DrawContact> = new ArchetypeBuilder({
     material:
       kind === "bowl"
         ? "ceramic"
@@ -144,7 +150,14 @@ function dishGrip(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace VesselConstruction {
-  /** The contact ids {@link bowl} builds or reads. */
+  /**
+   * The contact ids {@link bowl} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of bowl.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only bowl and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type BowlContact = "rim" | "inside" | "body";
 
   /**
@@ -168,7 +181,14 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /** The contact ids {@link ashtray} builds or reads. */
+  /**
+   * The contact ids {@link ashtray} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of ashtray.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only ashtray and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type AshtrayContact = "rim" | "inside" | "body";
 
   /**
@@ -192,7 +212,14 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /** The contact ids {@link vase} builds or reads. */
+  /**
+   * The contact ids {@link vase} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of vase.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only vase and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type VaseContact = "rim" | "inside" | "body";
 
   /**
@@ -228,10 +255,24 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /** The values {@link cookingPot} accepts at this place in its signature. */
+  /**
+   * The values {@link cookingPot} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of cookingPot.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only cookingPot and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type CookingPotKind = "saucepan" | "stockpot";
 
-  /** The contact ids {@link cookingPot} builds or reads. */
+  /**
+   * The contact ids {@link cookingPot} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of cookingPot.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only cookingPot and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type CookingPotContact =
     | "rim"
     | "inside"

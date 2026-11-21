@@ -19,12 +19,21 @@ type Builder<Id extends createBed.Affordance> = ArchetypeBuilder<
 /** Model dimensions in the legacy family's recorded units. */
 type Dimensions = Partial<Record<createBed.Dimension, number>>;
 
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends createBed.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
+}
+
 /** Select the existing size, then draw the remaining dimensions in the saved stream. */
 function draw<Id extends createBed.Affordance>(
   kind: createBed.Kind,
   params: Omit<createBed.IParams, "kind">,
   seed?: number | string,
-): { builder: Builder<Id>; d: Dimensions } {
+): IDrawn<Id> {
   const session: ArchetypeDrawSession<createBed.Dimension> =
     new ArchetypeDrawSession<createBed.Dimension>(
       "bed",
@@ -65,10 +74,24 @@ function draw<Id extends createBed.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace BedConstruction {
-  /** The values {@link platform} accepts at this place in its signature. */
+  /**
+   * The values {@link platform} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of platform.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only platform and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type PlatformKind = "single" | "double" | "mattress";
 
-  /** The contact ids {@link platform} builds or reads. */
+  /**
+   * The contact ids {@link platform} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of platform.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only platform and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type PlatformContact = "surface" | "leftSide" | "rightSide";
 
   /**
@@ -140,7 +163,14 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link hospital} builds or reads. */
+  /**
+   * The contact ids {@link hospital} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of hospital.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only hospital and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type HospitalContact =
     | "surface"
     | "leftSide"
@@ -169,7 +199,14 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link gurney} builds or reads. */
+  /**
+   * The contact ids {@link gurney} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of gurney.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only gurney and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type GurneyContact = "surface" | "leftSide" | "rightSide";
 
   /**
@@ -193,7 +230,14 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link crib} builds or reads. */
+  /**
+   * The contact ids {@link crib} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of crib.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only crib and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type CribContact = "surface" | "leftRail" | "rightRail";
 
   /**
@@ -217,7 +261,14 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link bunk} builds or reads. */
+  /**
+   * The contact ids {@link bunk} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of bunk.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only bunk and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type BunkContact =
     | "surface"
     | "leftSide"

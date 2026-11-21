@@ -31,12 +31,21 @@ const v: typeof Vector3.create = Vector3.create;
 /** The shared painted metal part color. */
 const metal: string = "#9aa1a6";
 
+/** A started construction: its builder and its drawn dimensions. */
+interface IDrawn<Id extends createMobilityAid.Affordance> {
+  /** The model-space builder for the selected contact ids. */
+  builder: Builder<Id>;
+
+  /** The drawn and fixed dimensions in the family's recorded units. */
+  d: Dimensions;
+}
+
 /** Draw the selected stand or aid's admitted dimensions in the historical stream. */
 function draw<Id extends createMobilityAid.Affordance>(
   kind: createMobilityAid.Kind,
   params: Omit<createMobilityAid.IParams, "kind">,
   seed?: number | string,
-): { builder: Builder<Id>; d: Dimensions } {
+): IDrawn<Id> {
   const session: ArchetypeDrawSession<createMobilityAid.Dimension> =
     new ArchetypeDrawSession<createMobilityAid.Dimension>(
       "mobilityAid",
@@ -97,7 +106,14 @@ function tip(builder: {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace MobilityAidConstruction {
-  /** The contact ids {@link cane} builds or reads. */
+  /**
+   * The contact ids {@link cane} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of cane.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only cane and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type CaneContact = "grip" | "tip";
 
   /**
@@ -143,7 +159,14 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link walker} builds or reads. */
+  /**
+   * The contact ids {@link walker} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of walker.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only walker and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type WalkerContact = "leftGrip" | "rightGrip" | "tip";
 
   /**
@@ -202,7 +225,14 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link infusionStand} builds or reads. */
+  /**
+   * The contact ids {@link infusionStand} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of infusionStand.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only infusionStand and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type InfusionStandContact = "grip" | "tip" | "hook";
 
   /**

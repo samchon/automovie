@@ -44,14 +44,10 @@ export namespace createCanoe {
     | "spiritII"
     | "minnesotaII";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
-  export type Dimension =
-    | "beam"
-    | "depth"
-    | "endHeight"
-    | "length"
-    | "mass"
-    | "seatHeight";
+  /**
+   * The boat construction's dimension set, which the rowing ride reads. This producer records beam, depth, endHeight, length, mass, seatHeight.
+   */
+  export type Dimension = createBoat.Dimension;
 
   /**
    * The createBoat contact set its shared construction types. This producer builds bow, floor, gunwale, stern, thwart0, thwart1.

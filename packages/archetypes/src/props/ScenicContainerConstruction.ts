@@ -44,18 +44,24 @@ type ShapeWriter<Id extends createScenicContainer.Affordance> = {
   ) => void;
 };
 
-/** The values {@link draw} accepts at this place in its signature. */
-type DrawChoice = createScenicContainer.Affordance | "mount";
+/** The contact ids {@link draw} can type its builder with. */
+type DrawContact = createScenicContainer.Affordance | "mount";
+
+/** What {@link draw} prepares for its caller. */
+interface IDrawResult<Id extends DrawContact> {
+  /** The prepared `builder` this call returns. */
+  builder: Builder<Id>;
+
+  /** The prepared `dimensions` this call returns. */
+  dimensions: Record<createScenicContainer.Dimension, number>;
+}
 
 /** Draw the four dimensions for the selected shape before building its solids. */
-function draw<Id extends DrawChoice>(
+function draw<Id extends DrawContact>(
   kind: createScenicContainer.Kind,
   params: Omit<createScenicContainer.IParams, "kind">,
   seed?: number | string,
-): {
-  builder: Builder<Id>;
-  dimensions: Record<createScenicContainer.Dimension, number>;
-} {
+): IDrawResult<Id> {
   const session: ArchetypeDrawSession<createScenicContainer.Dimension> =
     new ArchetypeDrawSession(
       "scenicContainer",
@@ -104,12 +110,12 @@ function surface<Id extends createScenicContainer.Affordance>(
   });
 }
 
-/** The values {@link coilBasket} accepts at this place in its signature. */
-type CoilBasketChoice = "convex" | "affordance";
+/** The builder methods {@link coilBasket} uses to add its parts and contacts. */
+type CoilBasketWriter = "convex" | "affordance";
 
 /** Fixed stacked sections suggest a coiled body and fitted lid in the guide render. */
 function coilBasket(
-  builder: Pick<ShapeWriter<"top">, CoilBasketChoice>,
+  builder: Pick<ShapeWriter<"top">, CoilBasketWriter>,
   width: number,
   depth: number,
   height: number,
@@ -149,12 +155,12 @@ function coilBasket(
   );
 }
 
-/** The values {@link fishBasket} accepts at this place in its signature. */
-type FishBasketChoice = "convex" | "box" | "affordance";
+/** The builder methods {@link fishBasket} uses to add its parts and contacts. */
+type FishBasketWriter = "convex" | "box" | "affordance";
 
 /** Willow-colored panels widen toward the rim while leaving the open interior clear. */
 function fishBasket(
-  builder: Pick<ShapeWriter<"inside">, FishBasketChoice>,
+  builder: Pick<ShapeWriter<"inside">, FishBasketWriter>,
   width: number,
   depth: number,
   height: number,
@@ -212,12 +218,12 @@ function fishBasket(
   );
 }
 
-/** The values {@link coffer} accepts at this place in its signature. */
-type CofferChoice = "box" | "affordance";
+/** The builder methods {@link coffer} uses to add its parts and contacts. */
+type CofferWriter = "box" | "affordance";
 
 /** An overhanging plank lid and three differently toned planks define the closed wooden chest. */
 function coffer(
-  builder: Pick<ShapeWriter<"top">, CofferChoice>,
+  builder: Pick<ShapeWriter<"top">, CofferWriter>,
   width: number,
   depth: number,
   height: number,
@@ -237,12 +243,12 @@ function coffer(
   surface(builder, "top", height, width, depth);
 }
 
-/** The values {@link crate} accepts at this place in its signature. */
-type CrateChoice = "box" | "affordance";
+/** The builder methods {@link crate} uses to add its parts and contacts. */
+type CrateWriter = "box" | "affordance";
 
 /** An uninterrupted floor and ribbed open walls represent a molded dairy crate. */
 function crate(
-  builder: Pick<ShapeWriter<"inside">, CrateChoice>,
+  builder: Pick<ShapeWriter<"inside">, CrateWriter>,
   width: number,
   depth: number,
   height: number,
@@ -292,12 +298,12 @@ function crate(
   surface(builder, "inside", floor, width - 2 * wall, insideDepth);
 }
 
-/** The values {@link pod} accepts at this place in its signature. */
-type PodChoice = "convex" | "affordance";
+/** The builder methods {@link pod} uses to add its parts and contacts. */
+type PodWriter = "convex" | "affordance";
 
 /** A fictional faceted pod with a contrasting center shell and flat cap. */
 function pod(
-  builder: Pick<ShapeWriter<"top">, PodChoice>,
+  builder: Pick<ShapeWriter<"top">, PodWriter>,
   width: number,
   depth: number,
   height: number,
@@ -344,10 +350,24 @@ function pod(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace ScenicContainerConstruction {
-  /** The values {@link baskets} accepts at this place in its signature. */
+  /**
+   * The values {@link baskets} accepts at this place in its signature.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of baskets.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only baskets and its callers read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
+   */
   export type BasketsKind = "coilBasket" | "woodenFishBasket";
 
-  /** The contact ids {@link baskets} builds or reads. */
+  /**
+   * The contact ids {@link baskets} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of baskets.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only baskets and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type BasketsContact = "top" | "inside";
 
   /**
@@ -466,7 +486,14 @@ export namespace ScenicContainerConstruction {
     return builder.build(mass);
   }
 
-  /** The contact ids {@link mountedPod} builds or reads. */
+  /**
+   * The contact ids {@link mountedPod} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of mountedPod.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only mountedPod and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type MountedPodContact = "top" | "mount";
 
   /**

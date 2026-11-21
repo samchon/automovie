@@ -17,15 +17,21 @@ type Builder<Id extends createTray.Affordance> = ArchetypeBuilder<
 /** Model-space points and dimensions use metres. */
 const v: typeof Vector3.create = Vector3.create;
 
+/** What {@link draw} prepares for its caller. */
+interface IDrawResult<Id extends createTray.Affordance> {
+  /** The prepared `builder` this call returns. */
+  builder: Builder<Id | "inside">;
+
+  /** The prepared `d` this call returns. */
+  d: Record<createTray.Dimension, number>;
+}
+
 /** Resolve a recorded carrier and build its common floor and walls. */
 function draw<Id extends createTray.Affordance>(
   kind: createTray.Kind,
   params: Omit<createTray.IParams, "kind">,
   seed?: number | string,
-): {
-  builder: Builder<Id | "inside">;
-  d: Record<createTray.Dimension, number>;
-} {
+): IDrawResult<Id> {
   const session: ArchetypeDrawSession<createTray.Dimension> =
     new ArchetypeDrawSession<createTray.Dimension>(
       "tray",
@@ -94,7 +100,14 @@ function draw<Id extends createTray.Affordance>(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace TrayConstruction {
-  /** The contact ids {@link servingTray} builds or reads. */
+  /**
+   * The contact ids {@link servingTray} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of servingTray.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only servingTray and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type ServingTrayContact = "inside" | "leftHandle" | "rightHandle";
 
   /**
@@ -138,7 +151,14 @@ export namespace TrayConstruction {
     return builder.build(d.mass);
   }
 
-  /** The contact ids {@link basket} builds or reads. */
+  /**
+   * The contact ids {@link basket} builds or reads.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of basket.
+   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Only basket and the named producers that call it read this union.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
+   */
   export type BasketContact = "inside" | "handle";
 
   /**
