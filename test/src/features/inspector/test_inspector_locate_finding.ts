@@ -12,18 +12,26 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. A witness at 2.25 s naming a drawn actor, a cord segment, a formation slot and a batch instance labels the actor, the cord, the formation and the batch mesh, each once, in finding order.
+ * 1. A witness at 2.25 s naming a drawn actor, a cord segment, a formation slot, a batch instance and a transform field below a dotted bone name labels the actor, the cord, the formation, the batch mesh and the whole dotted bone, each once, in finding order.
  * 2. A path with no drawn owner, such as an anonymous mesh key, is left out, and a finding with no drawn path clears the labels.
  * 3. The reducer accepts the located edit from a playing range: the request names one explicit second and only the located labels.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public locator and feeds its action to the public reducer.
- * @evidence contracts/development/testing.md#independent-expectations Expected owners are written from the part-path forms the collision checker documents (`/segment/<n>`, `/slot/<n>`, `#<n>`), not derived by the locator.
+ * @evidence contracts/development/testing.md#independent-expectations Expected owners are written from the part-path forms the collision and placed-transform checkers document (`/segment/<n>`, `/slot/<n>`, `#<n>`, `.children[<n>].matrixWorld`), not derived by the locator.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a whole drawn path against part paths of three forms, an owned against an unowned path, and a labelled against an empty result.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit discovered as test_inspector_locate_finding. No browser or scene.
  * @evidence contracts/development/common.md#meaningful-documentation Three numbered scenarios identify the inputs and the behaviour pinned.
  */
 export function test_inspector_locate_finding(): void {
-  const drawn: string[] = ["stage", "hero", "rope", "guards", "crowd"];
+  const drawn: string[] = [
+    "stage",
+    "hero",
+    "rope",
+    "guards",
+    "crowd",
+    "rig",
+    "rig/hand.L",
+  ];
   const observation: (
     paths: string[],
   ) => IAutoMovieInspectionDiagnostics.IObservation = (
@@ -52,13 +60,14 @@ export function test_inspector_locate_finding(): void {
         "guards/slot/2",
         "crowd#17",
         "hero",
+        "rig/hand.L.children[0].matrixWorld",
       ]),
       drawn,
     ),
     {
       type: "locate",
       seconds: 2.25,
-      label: ["hero", "rope", "guards", "crowd"],
+      label: ["hero", "rope", "guards", "crowd", "rig/hand.L"],
     },
   );
 
