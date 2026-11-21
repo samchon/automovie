@@ -7,7 +7,7 @@ import { MotionIndex } from "../../../motions/package/MotionIndex";
 export const metadata: Metadata = {
   title: "Motions",
   description:
-    "Every action and named row of @automovie/motions, by category and family, each with its still, its parameters and the scenes that use it.",
+    "The actions of @automovie/motions by category and family, each with its still, the code that writes it, its API entry and the scenes that use it.",
 };
 
 /**
@@ -23,9 +23,10 @@ export default function MotionsPage(): ReactElement {
       <header className="am-catalogue-head">
         <h1>Motions</h1>
         <p>
-          The vocabulary a performance is composed from: {index.total} actions
-          and named rows. Point at a card to see the motion; open it for its
-          parameters, the scenes that use it and a 3D take.
+          Each motion is a typed call over the engine&apos;s primitives, and
+          each composes with the others: chained, laid over one another or timed
+          to another person. Point at a card to see it move; open it for the
+          code that writes it, the scenes that use it and a 3D take.
         </p>
       </header>
       <MotionCatalogue index={index} />

@@ -80,11 +80,6 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
       shown: group.subjects.filter(matches),
     }),
   );
-  const total: number = props.catalogue.groups.reduce(
-    (sum: number, g: IGalleryCatalogue.IGroup): number =>
-      sum + g.subjects.length,
-    0,
-  );
   const shown: number = groups.reduce(
     (sum: number, g: IShownGroup): number => sum + g.shown.length,
     0,
@@ -109,9 +104,7 @@ export default function ObjectsMovie(props: IObjectsProps): ReactElement {
             />
           </label>
           <p className="am-index-shown" role="status">
-            {words.length === 0
-              ? `${total} archetypes`
-              : `${shown} of ${total} archetypes`}
+            {words.length === 0 ? "" : `${shown} found`}
           </p>
           <ol>
             {groups.map(

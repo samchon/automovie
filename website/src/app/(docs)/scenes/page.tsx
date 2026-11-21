@@ -8,13 +8,13 @@ import { SceneStatus } from "../../../scenes/package/SceneStatus";
 import type { IScene } from "../../../scenes/structures/IScene";
 
 export const metadata: Metadata = {
-  title: "Scenes",
+  title: "Scene studies",
   description:
     "Whole performances composed from the motion vocabulary and the archetypes, each with its takes, its timeline and its code.",
 };
 
 /**
- * The scene gallery's route. Which scenes play, and which were baked, is
+ * The scene studies' route. Which scenes play, and which were baked, is
  * read while the site is exported, so the page lists them before any script
  * runs. A scene its record marks refused is left with the scenes in the
  * works, since its card would show a refusal instead of a performance.
@@ -29,7 +29,12 @@ export default function ScenesPage(): ReactElement {
           scene.refusedUntil === undefined &&
           SceneStatus.of(scene).kind === "plays",
       ).map((scene: IScene): string => scene.id)}
-      baked={Object.keys(BakedManifest.read().scenes)}
+      baked={Object.fromEntries(
+        Object.entries(BakedManifest.read().scenes).map(([id, entry]) => [
+          id,
+          entry.duration,
+        ]),
+      )}
     />
   );
 }

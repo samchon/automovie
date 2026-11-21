@@ -19,15 +19,17 @@ import { bracketedBisection } from "../math/bracketedBisection";
  * share reads only the displacement fraction and rate only the first
  * derivative, with identical admission, endpoint clipping and the selected
  * polynomial arithmetic, without the unused fields or a profile record.
+ * The position uses `s(u) = 1 - s(1 - u)` above one half to keep the share
+ * in [0, 1] even at representable times immediately before the endpoint.
  *
  * @param u Normalized time, any finite number.
  * @returns The share `s`, its rate `ds` and its acceleration `dds`.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Cites the model, gives normalized-time polynomials, boundary values, out-of-range hold, derivative units and the share/rate variants' identical admission and selected arithmetic without unused output.
- * @evidence contracts/development/implementation.md#principled-implementation The closed-form minimum-jerk solution of Flash and Hogan 1985 keeps the original u2=u*u, u3=u2*u and u3*(10-15*u+6*u2) displacement grouping and 30*u2*(1-2*u+u2) rate grouping. Full profiles keep both original derivative expressions; each scalar demand reads its unchanged polynomial from the same owner.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the normalized-time equations, bounded position and its symmetry near one, boundary holds, derivative units and the scalar reads' field selection.
+ * @evidence contracts/development/implementation.md#principled-implementation The closed-form Flash and Hogan quintic evaluates its position on the first half and reflects the result above the midpoint. The reflection uses a small, nonnegative remaining share. Derivatives keep the original normalized-time expressions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One private kernel owns finite admission, endpoints and polynomial expressions. The original function selects a complete profile and share/rate select one actual scalar demand, without a second easing rule or caller-supplied calculation hook.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite time throws before clipping for all demands. Zero/negative and one/greater endpoints keep their original profile values and literal zero derivatives; interior powers/grouping remain unchanged. No sample reduction, tolerance, derivative approximation or fixture condition is introduced.
- * @evidence contracts/development/implementation.md#efficient-algorithms All demands take constant work. Share omits both derivatives; rate omits the displacement cubic, second derivative and profile allocation. Full profiles retain all original polynomial work and one fresh result, with no sampling or loop. Runtime improvement is unmeasured.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite time throws before clipping. All finite interior times use the same quintic identity, and time at or beyond either endpoint holds that exact position with literal zero derivatives.
+ * @evidence contracts/development/implementation.md#efficient-algorithms All demands take constant work. Share evaluates just the position. Rate evaluates just the first derivative. Full profiles reuse the squared time on the lower half and allocate one result.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Complete profiles and their share/rate consumers share exact admission, endpoints and selected polynomial expressions. Every current u is evaluated normally; no profile, time or result is cached across requests.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Complete reads return one fresh three-number profile and scalar reads return one number. No demand retains time, caller state or outputs, and no collection, handle, task or global cache is acquired.
  */
@@ -49,11 +51,14 @@ function evaluate(u: number, demand: IDemand): IReading {
       : demand === "share"
         ? 1
         : 0;
-  const u2: number = u * u;
-  if (demand === "rate") return 30 * u2 * (1 - 2 * u + u2);
-  const u3: number = u2 * u;
-  const s: number = u3 * (10 - 15 * u + 6 * u2);
+  const reflected: boolean = demand !== "rate" && u > 0.5;
+  const t: number = reflected ? 1 - u : u;
+  const t2: number = t * t;
+  if (demand === "rate") return 30 * t2 * (1 - 2 * u + t2);
+  const firstHalf: number = t2 * t * (10 - 15 * t + 6 * t2);
+  const s: number = reflected ? 1 - firstHalf : firstHalf;
   if (demand === "share") return s;
+  const u2: number = reflected ? u * u : t2;
   return {
     s,
     ds: 30 * u2 * (1 - 2 * u + u2),

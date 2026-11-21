@@ -18,6 +18,7 @@ import { physicalShapeSegmentDistance } from "./physicalShapeSegmentDistance";
 import { projectileAt } from "./projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";
 import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
+import { projectileShapeDeparture } from "./projectileShapeDeparture";
 
 /**
  * A projectile's first contact with any of several colliders over a span of
@@ -29,7 +30,7 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
  * its nock), turned by its attitude. The sweep is the engine's one contact
  * resolver (`resolveAutoMovieContactEvents`) with the projectile as its
  * single weapon and each collider as a body measured by its own nearest-point
- * reading, so the scan, the 24 bisections and the tie rule are the
+ * reading, so the scan, root refinement and the tie rule are the
  * resolver's. Its step is chosen from the flight so that the projectile
  * moves less than `thickness` in one step: `thickness` over the largest
  * speed any point of the projectile reaches in the span, which is the
@@ -48,8 +49,10 @@ import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
  * departure for a sphere or fixed-attitude tail from the normal motion of
  * this flight, deferring only that pair until actual positive clearance or
  * proving no fresh entry in the span. Later reentry and other colliders keep
- * the original scan. Rotating tails and opaque colliders retain initial
- * reporting unless their own physical model supplies a certificate.
+ * the original scan. A continuously bounded finite convex shape can certify
+ * the same departure for a drag-free ball. Rotating tails and opaque
+ * colliders retain initial reporting unless their physical model supplies a
+ * certificate.
  *
  * @param projectile The flight.
  * @param colliders What it may meet; `projectileFirstContact.plane` and `projectileFirstContact.shape` build the common ones.
@@ -282,12 +285,15 @@ export namespace projectileFirstContact {
   }
 
   /**
-   * An admitted collider shape placed by a pose that may move with time: an
-   * archetype's part, a target butt.
+   * An admitted convex collider placed by a fixed frame or by a reading on
+   * the supplied flight clock. A continuous pose can certify an explicitly
+   * resolved departure for a positive-radius sphere on a drag-free flight.
+   * The proof only reaches an observed positive clearance for this pair.
+   * Missing continuous bounds preserve initial contact.
    *
    * @param id The collider's id.
    * @param shape The shape, in its parent's frame.
-   * @param pose An unchanged world pose, or the parent's world pose reader in launch seconds.
+   * @param pose A fixed parent pose, an opaque pose reader or a continuously bounded pose path in launch seconds.
    * @returns The collider.
    */
   export function shape(
@@ -295,19 +301,54 @@ export namespace projectileFirstContact {
     shape: IAutoMoviePhysicalShape,
     pose:
       | IAutoMovieRigidTransform
-      | ((seconds: number) => IAutoMovieRigidTransform),
+      | ((seconds: number) => IAutoMovieRigidTransform)
+      | IAutoMovieProjectileFirstContact.IContinuousPose,
   ): IAutoMovieProjectileFirstContact.ICollider {
-    const read =
-      typeof pose === "function" ? pose : (): IAutoMovieRigidTransform => pose;
-    const fixed =
+    const motion: IAutoMovieProjectileFirstContact.IContinuousPose | undefined =
+      typeof pose !== "function" && "bound" in pose ? pose : undefined;
+    const read: (seconds: number) => IAutoMovieRigidTransform =
       typeof pose === "function"
+        ? pose
+        : "bound" in pose
+          ? (seconds): IAutoMovieRigidTransform =>
+              projectileShapeDeparture.admitPose(pose.at(seconds))
+          : (): IAutoMovieRigidTransform => pose;
+    const geometry: IAutoMoviePhysicalShape =
+      motion === undefined
+        ? shape
+        : {
+            ...shape,
+            transform: projectileShapeDeparture.admitPose(shape.transform),
+          };
+    const fixed:
+      | ReturnType<typeof physicalShapeSegmentDistance.prepare>
+      | undefined =
+      typeof pose === "function" || "bound" in pose
         ? undefined
-        : physicalShapeSegmentDistance.prepare(pose, shape);
+        : physicalShapeSegmentDistance.prepare(pose, geometry);
     return {
       id,
+      ...(motion === undefined
+        ? {}
+        : {
+            departure: (
+              projectile: IAutoMovieProjectile,
+              options: IAutoMovieProjectileFirstContact.IOptions,
+              contact: IAutoMovieResolveContactEvents.IInitialContact,
+            ): IAutoMovieResolveContactEvents.Departure | undefined =>
+              projectileShapeDeparture(
+                id,
+                geometry,
+                read,
+                motion,
+                projectile,
+                options,
+                contact,
+              ),
+          }),
       distance: (a, b, seconds): number =>
         fixed === undefined
-          ? physicalShapeSegmentDistance(read(seconds), shape, a, b)
+          ? physicalShapeSegmentDistance(read(seconds), geometry, a, b)
           : fixed(a, b),
       nearest: (
         a: IAutoMovieVector3,
@@ -315,7 +356,7 @@ export namespace projectileFirstContact {
         seconds: number,
       ): IAutoMovieProjectileFirstContact.INearest => {
         const near: IAutoMoviePhysicalShapeNearest.IResult =
-          physicalShapeNearest(read(seconds), shape, a, b);
+          physicalShapeNearest(read(seconds), geometry, a, b);
         return {
           distance: near.distance,
           point: near.point,

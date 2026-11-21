@@ -108,7 +108,7 @@ export default function GalleryMovie(props: {
   if (loaded.kind !== "ready" || request === null)
     return (
       <main className="am-app">
-        {head("Objects")}
+        {head("Archetypes")}
         {loaded.kind === "failed" ? (
           <div className="am-alert" role="alert">
             <h2>The packages did not load</h2>
@@ -137,7 +137,7 @@ export default function GalleryMovie(props: {
 
   return (
     <main className="am-app">
-      {head(subject?.label ?? "Objects")}
+      {head(subject?.label ?? "Archetypes")}
       <div className="am-gallery am-gallery-detail">
         <GalleryViewport
           adapter={loaded.adapter}

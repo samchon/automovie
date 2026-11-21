@@ -1,7 +1,7 @@
 import type { IScene } from "../structures/IScene";
 import { SceneBuild } from "./SceneBuild";
 
-const { act, at, mutual, person, scene, sheathed, to }: typeof SceneBuild =
+const { act, at, mutual, person, scene, sheathed }: typeof SceneBuild =
   SceneBuild;
 
 /** A fencing step's length, metres: within what an advance and a retreat accept for every site body (the smallest takes up to 0.366). */
@@ -25,7 +25,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "kickboxing-round",
       title: "Kickboxing round",
       summary:
-        "Two kickboxers trade a round: a jab parried, a cross slipped and a low kick checked; the counter jab is taken on the gloves and the rear hook leaned away from; a lead hook and an uppercut are covered, a clinch and a knee land, a teep pushes the first fighter back a step, and both circle off into guard.",
+        "Two kickboxers trade combinations and counters until a head kick knocks one down.",
       setting: "combat",
       roles: { red: "kickboxer", blu: "kickboxer" },
       needs: [],
@@ -33,86 +33,138 @@ export const SCENES_BOUTS: readonly IScene[] = [
     },
     "kickboxing-round",
     [
-      person("red", "m1", 0, 0, 0, [
-        act("guard", {
-          seconds: 1,
-          style: "kickboxing",
-          facing: at("blu", "face"),
-        }),
-        act("step", { direction: "forward", steps: 1 }),
-        act("jab", { at: at("blu", "face") }, { anchor: "kr-jab" }),
-        act("cross", { at: at("blu", "chin") }, { anchor: "kr-cross" }),
-        act(
-          "roundKick",
-          { at: at("blu", "thighOuterLeft") },
-          { anchor: "kr-low" },
-        ),
-        act(
-          "guard",
-          { seconds: 1.2, style: "kickboxing" },
-          { anchor: "kr-shell" },
-        ),
-        act(
-          "leanBack",
-          { from: at("blu", "handBackRight") },
-          { anchor: "kr-lean" },
-        ),
-        act("leadHook", { at: at("blu", "jawRight") }, { anchor: "kr-hook" }),
-        act("rearUppercut", { at: at("blu", "chin") }, { anchor: "kr-upper" }),
-        act("clinch", { partner: "blu" }),
-        act("rearKnee", { at: at("blu", "abdomen") }, { anchor: "kr-knee" }),
-        act("guard", { seconds: 0.8, style: "kickboxing" }),
-        act(
-          "pushed",
-          { from: at("blu", "soleRight") },
-          { anchor: "kr-teeped" },
-        ),
-        act("step", { direction: "back", steps: 1 }),
-        act("step", { direction: "left", steps: 2 }),
-        act("guard", { seconds: 1, style: "kickboxing" }),
-      ]),
-      person("blu", "m2", 0, 1.65, 180, [
-        act("guard", {
-          seconds: 1.4,
-          style: "kickboxing",
-          facing: at("red", "face"),
-        }),
-        act("handParry", { against: "kr-jab" }),
-        act("slip", { against: "kr-cross" }),
-        act("checkKick", { against: "kr-low" }),
-        act(
-          "jab",
-          { at: at("red", "face") },
-          {
-            sync: {
-              of: "kr-shell",
-              event: "set",
-              offset: 0.2,
-              align: "impact",
+      // Both elite, opening at kicking range: Ren presses behind a feint and
+      // a Dutch combination that ends in a low kick; Kai defends it with a
+      // parry, a slip, a roll and a check and counters off the check; Ren
+      // answers, then feints, digs the liver and ends it with a head kick.
+      person(
+        "red",
+        "m1",
+        0,
+        0,
+        0,
+        [
+          act("guard", {
+            seconds: 0.5,
+            style: "kickboxing",
+            facing: at("blu", "face"),
+          }),
+          act("step", { direction: "right", steps: 2 }),
+          act(
+            "leanBack",
+            { from: at("blu", "handBackLeft") },
+            { anchor: "kr-lean" },
+          ),
+          act("step", { direction: "forward", steps: 1 }),
+          act(
+            "jab",
+            { at: at("blu", "face"), feint: 0.4 },
+            { anchor: "kr-feint" },
+          ),
+          act("step", { direction: "forward", steps: 1 }),
+          act("jab", { at: at("blu", "face") }, { anchor: "kr-jab" }),
+          act("cross", { at: at("blu", "chin") }, { anchor: "kr-cross" }),
+          act("leadHook", { at: at("blu", "jawRight") }, { anchor: "kr-hook" }),
+          act(
+            "roundKick",
+            { at: at("blu", "thighOuterLeft") },
+            { anchor: "kr-low" },
+          ),
+          // Kai's counters land on Ren's guard and braced elbow: Ren is
+          // composed first, so Kai's strikes are timed to these instants.
+          act(
+            "guard",
+            { seconds: 0.5, style: "kickboxing" },
+            { anchor: "kr-shell" },
+          ),
+          act("braceImpact", {}, { anchor: "kr-brace" }),
+          act("guard", { seconds: 0.4, style: "kickboxing" }),
+          act(
+            "rearHook",
+            { at: at("blu", "jawLeft") },
+            { anchor: "kr-counter" },
+          ),
+          act("guard", { seconds: 0.8, style: "kickboxing" }),
+          act(
+            "pushed",
+            { from: at("blu", "soleRight") },
+            { anchor: "kr-teeped" },
+          ),
+          act("step", { direction: "forward", steps: 1 }),
+          act(
+            "jab",
+            { at: at("blu", "face"), feint: 0.5 },
+            { anchor: "kr-feint2" },
+          ),
+          act("leadHook", { at: at("blu", "liver") }, { anchor: "kr-body" }),
+          act(
+            "roundKick",
+            { at: at("blu", "templeLeft") },
+            { anchor: "kr-ko" },
+          ),
+          act("victory"),
+        ],
+        "elite",
+      ),
+      person(
+        "blu",
+        "m2",
+        0,
+        2.5,
+        180,
+        [
+          act("guard", {
+            seconds: 0.5,
+            style: "kickboxing",
+            facing: at("red", "face"),
+          }),
+          act("step", { direction: "left", steps: 2 }),
+          act(
+            "jab",
+            { at: at("red", "face"), accuracy: "miss" },
+            { sync: { of: "kr-lean", event: "stroke", align: "impact" } },
+          ),
+          act("swayBack", { against: "kr-feint" }),
+          act("handParry", { against: "kr-jab" }),
+          act("cover", { against: "kr-cross" }),
+          act("checkKick", { against: "kr-low" }),
+          act(
+            "cross",
+            { at: at("red", "chin") },
+            { sync: { of: "kr-shell", event: "set", align: "impact" } },
+          ),
+          act(
+            "switchKick",
+            { at: at("red", "ribsRight") },
+            {
+              sync: {
+                of: "kr-brace",
+                event: "start",
+                offset: 1.3,
+                align: "impact",
+              },
             },
-          },
-        ),
-        act(
-          "rearHook",
-          { at: at("red", "jawLeft"), accuracy: "miss" },
-          { sync: { of: "kr-lean", event: "stroke", align: "impact" } },
-        ),
-        act("step", { direction: "back", steps: 1 }),
-        act("cover", { against: "kr-hook" }),
-        act("cover", { against: "kr-upper" }),
-        act(
-          "flinch",
-          { from: at("red", "kneeRight"), intensity: 0.7 },
-          { sync: { of: "kr-knee" } },
-        ),
-        act(
-          "teep",
-          { at: at("red", "abdomen") },
-          { sync: { of: "kr-teeped", event: "start", align: "impact" } },
-        ),
-        act("step", { direction: "right", steps: 2 }),
-        act("guard", { seconds: 1, style: "kickboxing" }),
-      ]),
+          ),
+          act("rollUnder", { against: "kr-counter" }),
+          act(
+            "teep",
+            { at: at("red", "abdomen") },
+            { sync: { of: "kr-teeped", event: "start", align: "impact" } },
+          ),
+          act("highBlock", { against: "kr-feint2" }),
+          act(
+            "flinch",
+            { from: at("red", "handBackLeft"), intensity: 0.8 },
+            { sync: { of: "kr-body", event: "impact" } },
+          ),
+          act(
+            "knockdown",
+            { from: at("red", "footTopRight"), seconds: 2 },
+            { sync: { of: "kr-ko", event: "impact" } },
+          ),
+        ],
+        "elite",
+      ),
     ],
   ),
   scene(
@@ -120,7 +172,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "boxing-counters",
       title: "Boxing counters",
       summary:
-        "Two boxers in a tight guard: a double jab parried and slipped, a cross swayed off, a hook to the body taken on the elbow and a hook upstairs rolled under; the counter jab is taken on the gloves and the rear hook leaned away from, and the leader's cross lands; after a step off the line, a jab to the body, an uppercut and a rear hook are blocked, covered and rolled, the counter jab and cross hit the gloves, the lead hook is leaned away from, and a closing cross and hook are covered before both step back.",
+        "Two boxers trade combinations; most are slipped, blocked or rolled, and one cross lands.",
       setting: "combat",
       roles: { ana: "boxer", bea: "boxer" },
       needs: [],
@@ -243,7 +295,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "wrestling-scramble",
       title: "Wrestling scramble",
       summary:
-        "Two wrestlers circle a step each way and square off: a single-leg shot is sprawled on and denied, both come back to their feet, and the second single leg is finished, taking the defender down to the mat.",
+        "Two wrestlers circle and fake shots; one single leg is stopped, the next takes him down.",
       setting: "combat",
       roles: { red: "wrestler", blue: "wrestler" },
       needs: [],
@@ -258,10 +310,28 @@ export const SCENES_BOUTS: readonly IScene[] = [
         act("stand", { seconds: 0.4, sway: 0 }),
         act("step", { direction: "left", steps: 1, length: 0.25 }),
         act("step", { direction: "right", steps: 1, length: 0.25 }),
+        act("crouch", { depth: "partial", hold: 0.8 }),
+        act("step", { direction: "forward", steps: 1, length: 0.2 }),
+        act("step", { direction: "back", steps: 1, length: 0.2 }),
+        act("step", { direction: "right", steps: 1, length: 0.25 }),
+        act("step", { direction: "left", steps: 1, length: 0.25 }),
+        act("step", { direction: "forward", steps: 1, length: 0.2 }),
+        act("step", { direction: "back", steps: 1, length: 0.2 }),
+        act("step", { direction: "left", steps: 1, length: 0.25 }),
+        act("step", { direction: "right", steps: 1, length: 0.25 }),
         act("stand", { seconds: 0.3, sway: 0 }),
       ]),
       person("blue", "m2", -0.46, 0.9, 165, [
         act("stand", { seconds: 0.4, sway: 0 }),
+        act("step", { direction: "right", steps: 1, length: 0.25 }),
+        act("step", { direction: "left", steps: 1, length: 0.25 }),
+        act("crouch", { depth: "partial", hold: 0.8 }),
+        act("step", { direction: "back", steps: 1, length: 0.2 }),
+        act("step", { direction: "forward", steps: 1, length: 0.2 }),
+        act("step", { direction: "left", steps: 1, length: 0.25 }),
+        act("step", { direction: "right", steps: 1, length: 0.25 }),
+        act("step", { direction: "back", steps: 1, length: 0.2 }),
+        act("step", { direction: "forward", steps: 1, length: 0.2 }),
         act("step", { direction: "right", steps: 1, length: 0.25 }),
         act("step", { direction: "left", steps: 1, length: 0.25 }),
         act("stand", { seconds: 0.3, sway: 0 }),
@@ -286,7 +356,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "sabre-bout",
       title: "Sabre bout",
       summary:
-        "Two sabreurs draw from the hip and fence two phrases: an advance, a head cut and a flank cut both parried, the riposte closed off and the counter-riposte landing; then from the ox and the roof a feint and a lunge beaten aside, the riposte landing, and a void step back into the fool's guard.",
+        "Two fencers draw sabres; one lands a counter-riposte, then void-steps away from a riposte.",
       setting: "combat",
       roles: { red: "fencer", blu: "fencer" },
       needs: [],
@@ -351,7 +421,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
         ),
         act("enGarde", { blade: "sabreR", seconds: 2.4 }),
         act("voidStep", { length: 0.3 }, { anchor: "sb-hit" }),
-        act("alber", { blade: "sabreR", seconds: 1 }),
+        act("alber", { blade: "sabreR", seconds: 1.6 }),
       ]),
       person("blu", "m2", 0, 1.55, 180, [
         act("pickUp", {
@@ -385,6 +455,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { sync: { of: "sb-touch" } },
         ),
         act("vomTag", { blade: "sabreB", seconds: 1 }),
+        act("pflug", { blade: "sabreB", seconds: 1.2 }),
         act(
           "beat",
           { blade: "sabreB", against: "sb-lunge" },
@@ -400,7 +471,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { sync: { of: "sb-hit", event: "start", align: "stroke" } },
         ),
         act("retreat", { length: STEP }),
-        act("enGarde", { blade: "sabreB", seconds: 1 }),
+        act("enGarde", { blade: "sabreB", seconds: 1.4 }),
       ]),
     ],
     [
@@ -413,7 +484,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
       id: "stage-brawl",
       title: "Stage brawl",
       summary:
-        "A choreographed brawl, every reaction on its blow: a grab, a slap and the backhand answer, a wild hook ducked and a push kick that sends the first brawler staggering back, and as the first brawler comes back in, the hook that drops him.",
+        "Two brawlers trade a grab, slaps, a shove and a push kick until a hook drops one.",
       setting: "combat",
       roles: { rex: "brawler", ned: "brawler" },
       needs: [],
@@ -438,21 +509,26 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { from: at("ned", "handBackRight") },
           { anchor: "br-sold" },
         ),
-        act("stand", { seconds: 1.8 }),
+        act(
+          "shove",
+          { target: at("ned", "chestLeft") },
+          { anchor: "br-shove" },
+        ),
+        act("stand", { seconds: 0.1 }),
         act(
           "rearHook",
           { at: at("ned", "jawLeft"), accuracy: "miss" },
           { anchor: "br-swing" },
         ),
         act("step", { direction: "back", steps: 1, length: 0.3 }),
-        act("stand", { seconds: 2.3 }),
+        act("guard", { seconds: 1, facing: at("ned", "face") }),
         act(
-          "shoved",
+          "pushed",
           { from: at("ned", "soleRight") },
           { anchor: "br-pushed" },
         ),
-        act("walk", { to: to(0, -0.1), face: 0 }),
-        act("stand", { seconds: 0.5 }),
+        act("step", { direction: "back", steps: 1, length: 0.3 }),
+        act("step", { direction: "forward", steps: 1, length: 0.3 }),
         act(
           "knockdown",
           { from: at("ned", "handBackRight") },
@@ -465,6 +541,7 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { from: at("rex", "palmRight") },
           { sync: { of: "br-grab", event: "stroke" } },
         ),
+        act("leanBack", { from: at("rex", "palmRight") }),
         act(
           "slapped",
           { from: at("rex", "palmRight") },
@@ -476,11 +553,15 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { sync: { of: "br-sold", event: "start", align: "stroke" } },
         ),
         act(
+          "pushed",
+          { from: at("rex", "palmRight") },
+          { sync: { of: "br-shove", event: "stroke" } },
+        ),
+        act(
           "duck",
           {},
           { sync: { of: "br-swing", align: "lowest", offset: -0.1 } },
         ),
-        act("stand", { seconds: 0.4 }),
         act(
           "teep",
           { at: at("rex", "abdomen") },
@@ -491,6 +572,8 @@ export const SCENES_BOUTS: readonly IScene[] = [
           { at: at("rex", "jawLeft") },
           { sync: { of: "br-drop", event: "start", align: "impact" } },
         ),
+        act("step", { direction: "back", steps: 1, length: 0.3 }),
+        act("guard", { seconds: 1, facing: at("rex", "face") }),
       ]),
     ],
   ),
