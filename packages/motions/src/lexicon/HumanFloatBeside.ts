@@ -57,7 +57,7 @@ const TRAIL: number = 20;
 /** Metres the slide-off path rises at its middle, clearing the saddle's side: provisional. */
 const ARC: number = 0.15;
 
-/** The displayed hand's largest admitted miss of the held part's skin, metres: the lead's and the handles' contact tolerance. */
+/** The displayed wrist's largest admitted miss of its hold, metres: the lead's and the handles' contact tolerance. */
 const REACH: number = 0.01;
 
 /** The root of the float shape measured once, before it is placed. */
@@ -81,7 +81,7 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
      * Place the floating body beside the horse's moving held part and verify the displayed hand on it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines the refusals, the trim, the placement, the kick and the grip check.
-     * @evidence contracts/development/implementation.md#principled-implementation The float shape is measured once at a fixed root: its trim, its mouth and its near shoulder; each second places that shoulder from the held part's actual frame and fits the near arm to it, which must then meet the part's skin.
+     * @evidence contracts/development/implementation.md#principled-implementation The float shape is measured once at a fixed root: its trim, its mouth and its near shoulder; each second places that shoulder from the held part's actual frame and fits the near arm to it, whose displayed wrist must then reach the hold's goal.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the timing, the side and the part; measure the shape; then each second places, kicks, slides and holds.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A side named blocked, a part higher than the arm reaches from the surface and a displayed hand off the part are refused, never moved.
      * @evidence contracts/development/implementation.md#efficient-algorithms The trim, mouth and shoulder are read once; each sample reads one horse frame, one grip and one selected-bone FK for the check.
@@ -222,10 +222,7 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       const slide: ReturnType<typeof prepareHumanShapeBlend> =
         prepareHumanShapeBlend(entry.joints, still.joints);
       const requested: ReadonlySet<AutoMovieHumanoidBone> =
-        new Set<AutoMovieHumanoidBone>([
-          `${near}Hand`,
-          ...HumanHand.frameBones(body, near, "palm"),
-        ]);
+        new Set<AutoMovieHumanoidBone>([`${near}Hand`]);
 
       /** The float placed beside the held part at a film second, its legs at a share of their flutter. */
       const float = (
@@ -358,12 +355,10 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
             );
           const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             poseBones(body, pose.pose, read(), requested);
-          // A round part seats the grip across the palm's middle, anywhere round its axis.
-          const miss: number = Math.abs(
-            Vector3.distance(
-              HumanHand.frame(body, bones, near, "palm").point,
-              grip.point,
-            ) - (grip.radius ?? 0),
+          // The hold puts the wrist where the palm's measured depth wraps the part (`HumanMountRider.hold`); the displayed wrist must reach that goal.
+          const miss: number = Vector3.distance(
+            bones.get(`${near}Hand`)!.worldPosition,
+            hand.arm.point,
           );
           if (!(miss <= REACH))
             throw new HumanRefusal({
