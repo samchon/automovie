@@ -224,8 +224,10 @@ export namespace HumanCarried {
       legs: [70, 90, 30],
       straddles: true,
       clings: ["templeLeft", "templeRight"],
-      // The shins hang a thigh's reach ahead and out from the nape, knees
-      // bent square, so they fall before the carrier's chest at its height.
+      // With a rider, the hands go to the rider's own shins, wherever its
+      // legs put them (`HumanCarriedCoupling.HOLDS`); these places, in the
+      // carrier's arm lengths, serve only a bearing with no rider coupled:
+      // before the chest, where a straddling rider's shins hang.
       holds: [
         { region: "chestLeft", offset: { out: 0.18, up: 0, forward: 0.3 } },
         { region: "chestRight", offset: { out: 0.18, up: 0, forward: 0.3 } },
