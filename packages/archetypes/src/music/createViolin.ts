@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createViolin(
   params: createViolin.IParams = {},
   seed?: number | string,
-): Archetype<createViolin.Affordance, createInstrument.Dimension> {
+): Archetype<createViolin.Affordance, createViolin.Dimension> {
   return InstrumentBuild.create<createViolin.Affordance>(
     "violin",
     "violin",
@@ -42,8 +42,24 @@ export function createViolin(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createViolin {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "bodyLength"
+    | "bridgeHeight"
+    | "bridgeSpacing"
+    | "fingerboard"
+    | "lowerBout"
+    | "mass"
+    | "neck"
+    | "neckThickness"
+    | "nutSpacing"
+    | "rib"
+    | "scale"
+    | "upperBout"
+    | "waist";
+
   /** The named playing and carrying contacts. */
-  export type Affordance = `string${number}` | "neck";
+  export type Affordance = "neck" | `string${number}`;
 
   /** The identifier and dimension overrides for this instrument. */
   export type IParams = Pick<

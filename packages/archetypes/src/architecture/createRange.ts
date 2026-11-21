@@ -26,7 +26,7 @@ import type { createAppliance } from "./createAppliance";
 export function createRange(
   params: createRange.IParams = {},
   seed?: number | string,
-): Archetype<createRange.Affordance, createAppliance.Dimension> {
+): Archetype<createRange.Affordance, createRange.Dimension> {
   return FixtureDraw.installed<
     createRange.Affordance,
     createAppliance.Dimension
@@ -52,14 +52,14 @@ export function createRange(
  */
 export namespace createRange {
   /** The named contacts built by this producer. */
-  export type Affordance = "top" | "zone1" | "zone2" | "zone3" | "zone4";
+  export type Affordance = "top" | `zone${number}`;
 
   /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height" | "width" | "depth" | "mass";
+  export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

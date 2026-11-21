@@ -36,7 +36,7 @@ const PLATE_RATIO: number = 0.04;
 export function createTrafficCone(
   params: createTrafficCone.IParams = {},
   seed?: number | string,
-): Archetype<createTrafficCone.Affordance, createStreetFixture.Dimension> {
+): Archetype<createTrafficCone.Affordance, createTrafficCone.Dimension> {
   const {
     builder,
     d,
@@ -88,18 +88,24 @@ export function createTrafficCone(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts and override keys correspond to the producer's existing geometry and measured bands.
  */
 export namespace createTrafficCone {
+  /** The `model` choices this producer admits. */
+  export type Model = "cone 18 in" | "cone 28 in";
+
   /** The named contacts built by this producer. */
   export type Affordance = "top";
 
-  /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "mass";
+  /** The dimensions an author may fix, in the same units. */
+  export type Fixed = "mass";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height" | "mass";
 
   /** The numeric overrides and optional scene identifier. The model fixes the height class. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Fixed, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
 
     /** The road-class model, drawn from the seed when omitted. */
-    model?: "cone 18 in" | "cone 28 in";
-  };
+    model?: Model;
+  }
 }

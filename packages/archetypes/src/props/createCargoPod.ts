@@ -21,7 +21,7 @@ import type { createScenicContainer } from "./createScenicContainer";
 export function createCargoPod(
   params: createCargoPod.IParams = {},
   seed?: number | string,
-): Archetype<createCargoPod.Affordance, createScenicContainer.Dimension> {
+): Archetype<createCargoPod.Affordance, createCargoPod.Dimension> {
   return ScenicContainerConstruction.mountedPod(params, seed);
 }
 
@@ -34,8 +34,11 @@ export function createCargoPod(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createCargoPod {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "top" | "mount";
+  export type Affordance = "mount" | "top";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

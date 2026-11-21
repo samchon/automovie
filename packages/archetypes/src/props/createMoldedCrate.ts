@@ -21,7 +21,7 @@ import type { createScenicContainer } from "./createScenicContainer";
 export function createMoldedCrate(
   params: createMoldedCrate.IParams = {},
   seed?: number | string,
-): Archetype<createMoldedCrate.Affordance, createScenicContainer.Dimension> {
+): Archetype<createMoldedCrate.Affordance, createMoldedCrate.Dimension> {
   return ScenicContainerConstruction.openCrate(params, seed);
 }
 
@@ -34,6 +34,9 @@ export function createMoldedCrate(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createMoldedCrate {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "inside";
 

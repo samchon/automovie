@@ -24,7 +24,7 @@ import type { createCart } from "./createCart";
 export function createCarriage(
   params: createCarriage.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<createCarriage.Affordance, createCarriage.Dimension> {
   return CartConstruction("carriage", params, seed, CartCoach.carriage);
 }
 
@@ -37,12 +37,41 @@ export function createCarriage(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createCarriage {
+  /** The `model` choices this producer admits. */
+  export type Model = "brewster" | "minerStevens" | "peters";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "frontWheelDiameter"
+    | "height"
+    | "length"
+    | "mass"
+    | "wheelDiameter"
+    | "wheelbase"
+    | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "box"
+    | "coupling"
+    | "drawbarPitch"
+    | "frontAxle"
+    | "frontLeftSpin"
+    | "frontRightSpin"
+    | "leftAperture"
+    | "leftDoor"
+    | "rearLeftSpin"
+    | "rearRightSpin"
+    | "rightAperture"
+    | "rightDoor"
+    | "seat";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createCart.IParams,
     "id" | "wheelbase" | "mass"
-  > & {
+  > {
     /** A model from this form's catalogue. */
-    model?: "brewster" | "minerStevens" | "peters";
-  };
+    model?: Model;
+  }
 }

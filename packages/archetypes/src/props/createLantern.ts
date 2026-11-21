@@ -21,7 +21,7 @@ import type { createLight } from "./createLight";
 export function createLantern(
   params: createLantern.IParams = {},
   seed?: number | string,
-): Archetype<createLantern.Affordance, createLight.Dimension> {
+): Archetype<createLantern.Affordance, createLantern.Dimension> {
   return PracticalLightConstruction.lantern(params, seed);
 }
 
@@ -34,8 +34,17 @@ export function createLantern(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createLantern {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "bail"
+    | "base"
+    | "height"
+    | "mass"
+    | "overall"
+    | "shade";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "grip" | "light" | "hook";
+  export type Affordance = "grip" | "hook" | "light";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

@@ -59,15 +59,29 @@ export function createLight(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every light has the same `grip` and `light`, so carrying, aiming and lighting are written once; bands seen only in search results are provisional, and a lantern's unread fount and wire are named estimates.
  */
 export namespace createLight {
-  /** Resolve the exact named producer for a saved selector on demand. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `candle` selector. */
     candle: typeof createCandle;
+
+    /** The named producer for the saved `fireTorch` selector. */
     fireTorch: typeof createFireTorch;
+
+    /** The named producer for the saved `pendant` selector. */
     pendant: typeof createPendantLamp;
+
+    /** The named producer for the saved `tableLamp` selector. */
     tableLamp: typeof createStandingLamp;
+
+    /** The named producer for the saved `floorLamp` selector. */
     floorLamp: typeof createStandingLamp;
+
+    /** The named producer for the saved `lantern` selector. */
     lantern: typeof createLantern;
-  }> = {
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
     get candle(): typeof createCandle {
       return createCandle;
     },
@@ -128,11 +142,10 @@ export namespace createLight {
   export const STEM: number = 0.04;
 
   /** A standing lamp's shade's net weight, kilograms, which places its balance: the RINGSTA shades' 0.19 kg (search only) and 0.49 kg (read), the rest of the lamp's mass its base's. */
-  export const SHADE_MASS: Readonly<Record<"tableLamp" | "floorLamp", number>> =
-    {
-      tableLamp: 0.19,
-      floorLamp: 0.49,
-    };
+  export const SHADE_MASS: Readonly<Record<createStandingLamp.Kind, number>> = {
+    tableLamp: 0.19,
+    floorLamp: 0.49,
+  };
 
   /**
    * The affordance ids:

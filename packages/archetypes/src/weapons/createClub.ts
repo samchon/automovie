@@ -112,11 +112,17 @@ export namespace createClub {
   /** The band of each free dimension a kind's model leaves, by kind. */
   export const BANDS: typeof ClubBuild.BANDS = ClubBuild.BANDS;
 
-  /** The canonical producer for each saved kind. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `bat` selector. */
     bat: typeof createBaseballBat;
+
+    /** The named producer for the saved `baton` selector. */
     baton: typeof createPracticeBaton;
-  }> = {
+  }
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
     bat: createBaseballBat,
     baton: createPracticeBaton,
   };

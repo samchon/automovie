@@ -21,7 +21,7 @@ import type { createMobilityAid } from "./createMobilityAid";
 export function createWalker(
   params: createWalker.IParams = {},
   seed?: number | string,
-): Archetype<createWalker.Affordance, createMobilityAid.Dimension> {
+): Archetype<createWalker.Affordance, createWalker.Dimension> {
   return MobilityAidConstruction.walker(params, seed);
 }
 
@@ -34,6 +34,9 @@ export function createWalker(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createWalker {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "diameter" | "height" | "mass" | "width";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "leftGrip" | "rightGrip" | "tip";
 

@@ -31,7 +31,7 @@ const BLADE: number = 0.015;
 export function createIceHockeyStick(
   params: createIceHockeyStick.IParams = {},
   seed?: number | string,
-): Archetype<createIceHockeyStick.Affordance, createStick.Dimension> {
+): Archetype<createIceHockeyStick.Affordance, createIceHockeyStick.Dimension> {
   const {
     builder,
     d,
@@ -68,8 +68,17 @@ export function createIceHockeyStick(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createIceHockeyStick {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "depth"
+    | "head"
+    | "length"
+    | "mass"
+    | "reach"
+    | "width";
+
   /** The named contacts on this stick or bat. */
-  export type Affordance = "grip" | "blade";
+  export type Affordance = "blade" | "grip";
 
   /** The identifier and overrides available within this profile. */
   export type IParams = Pick<

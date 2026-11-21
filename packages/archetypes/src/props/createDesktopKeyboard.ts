@@ -21,7 +21,10 @@ import { KeyboardHardware } from "./KeyboardHardware";
 export function createDesktopKeyboard(
   params: createDesktopKeyboard.IParams = {},
   seed?: number | string,
-): Archetype<createDesktopKeyboard.Affordance, KeyboardHardware.Dimension> {
+): Archetype<
+  createDesktopKeyboard.Affordance,
+  createDesktopKeyboard.Dimension
+> {
   const { builder, d }: ReturnType<typeof KeyboardHardware.draw<never>> =
     KeyboardHardware.draw<never>("keyboard", params, seed);
   return builder.build(d.mass);
@@ -36,8 +39,14 @@ export function createDesktopKeyboard(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts This producer exposes only its built contacts and supported manufacturer models.
  */
 export namespace createDesktopKeyboard {
+  /** The `model` choices this producer admits. */
+  export type Model = "numericKeypad" | "touchId";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
+
   /** The identifiers of contacts this producer builds. */
-  export type Affordance = "keys" | "homeRow";
+  export type Affordance = "homeRow" | "keys";
 
   /** The constructor input. */
   export interface IParams {
@@ -45,6 +54,6 @@ export namespace createDesktopKeyboard {
     id?: string;
 
     /** The manufacturer model, selected with the seed when omitted. */
-    model?: "numericKeypad" | "touchId";
+    model?: Model;
   }
 }

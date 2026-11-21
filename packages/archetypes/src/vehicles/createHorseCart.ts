@@ -25,7 +25,7 @@ import type { createCart } from "./createCart";
 export function createHorseCart(
   params: createHorseCart.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<createHorseCart.Affordance, createHorseCart.Dimension> {
   return CartConstruction(
     "cart",
     params,
@@ -44,14 +44,42 @@ export function createHorseCart(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createHorseCart {
+  /** The `model` choices this producer admits. */
+  export type Model = "multiUse" | "dennettGig";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "clearance"
+    | "girth"
+    | "mass"
+    | "seatHeight"
+    | "shaftLength"
+    | "track"
+    | "wheelDiameter"
+    | "withersHeight";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "coupling"
+    | "footboard"
+    | "leftLine"
+    | "leftLineEnd"
+    | "leftLineGrip"
+    | "leftSpin"
+    | "rightLine"
+    | "rightLineEnd"
+    | "rightLineGrip"
+    | "rightSpin"
+    | "seat";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createCart.IParams,
     "id" | "track" | "clearance" | "seatHeight" | "withersHeight" | "mass"
-  > & {
+  > {
     /** A model from this form's catalogue. */
-    model?: "multiUse" | "dennettGig";
+    model?: Model;
     /** A measured shaft option for the selected cart. */
     shaft?: createCart.Shaft;
-  };
+  }
 }

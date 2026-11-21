@@ -21,7 +21,7 @@ import type { createVessel } from "./createVessel";
 export function createCookingPot(
   params: createCookingPot.IParams,
   seed?: number | string,
-): Archetype<createCookingPot.Affordance, createVessel.Dimension> {
+): Archetype<createCookingPot.Affordance, createCookingPot.Dimension> {
   return VesselConstruction.cookingPot(
     ArchetypeDraw.choice("vessel", "kind", params.kind, createCookingPot.KINDS),
     params,
@@ -38,22 +38,28 @@ export function createCookingPot(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createCookingPot {
+  /** The `kind` choices this producer admits. */
+  export type Kind = "saucepan" | "stockpot";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "height" | "mass";
+
   /** The contact IDs declared by this producer. */
   export type Affordance =
-    | "rim"
-    | "inside"
     | "handle"
+    | "inside"
     | "leftHandle"
-    | "rightHandle";
+    | "rightHandle"
+    | "rim";
 
   /** The admitted settings and optional model ID. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createVessel.IParams,
     "id" | "diameter" | "height" | "mass"
-  > & {
+  > {
     /** A single long handle or a two-handle cooking pot. */
-    kind: "saucepan" | "stockpot";
-  };
+    kind: Kind;
+  }
 
   /** Legacy selectors for this construction, in gallery order. */
   export const KINDS: readonly IParams["kind"][] = ["saucepan", "stockpot"];

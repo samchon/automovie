@@ -24,7 +24,7 @@ import type { createBall } from "./createBall";
 export function createOvalBall(
   params: createOvalBall.IParams = {},
   seed?: number | string,
-): Archetype<createOvalBall.Affordance, createBall.Dimension> {
+): Archetype<createOvalBall.Affordance, createOvalBall.Dimension> {
   const kind: createOvalBall.Kind = ArchetypeDraw.choice(
     "ball",
     "kind",
@@ -61,6 +61,9 @@ export function createOvalBall(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createOvalBall {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "length" | "mass";
+
   /** The contacts used by floor, grip and strike motions. */
   export type Affordance = "grip" | "top";
 
@@ -71,11 +74,11 @@ export namespace createOvalBall {
   export type Kind = "rugby" | "americanFootball";
 
   /** The identifier, dimensions and choices of this shape. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createBall.IParams,
     "id" | "diameter" | "length" | "mass"
-  > & {
+  > {
     /** The sport profile. Omission selects rugby. */
     kind?: Kind;
-  };
+  }
 }

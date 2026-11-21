@@ -23,7 +23,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createCamera(
   params: createCamera.IParams = {},
   seed?: number | string,
-): Archetype<createCamera.Affordance, HandheldDevice.Dimension> {
+): Archetype<createCamera.Affordance, createCamera.Dimension> {
   const {
     builder,
     size,
@@ -136,12 +136,18 @@ export function createCamera(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The identifier union covers the contacts this producer builds.
  */
 export namespace createCamera {
+  /** The `model` choices this producer admits. */
+  export type Model = "grIII" | "x100vi";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height" | "mass" | "thickness" | "width";
+
   /** The identifiers of contacts built by this producer. */
-  export type Affordance = "grip" | "support" | "lens" | "screen" | "button";
+  export type Affordance = "button" | "grip" | "lens" | "screen" | "support";
 
   /** Parameters for this compact camera. */
-  export type IParams = Pick<HandheldDevice.IParams, "id"> & {
+  export interface IParams extends Pick<HandheldDevice.IParams, "id"> {
     /** The manufacturer model, drawn from the seed when absent. */
-    model?: "grIII" | "x100vi";
-  };
+    model?: Model;
+  }
 }

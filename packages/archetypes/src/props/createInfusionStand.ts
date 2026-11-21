@@ -21,7 +21,7 @@ import type { createMobilityAid } from "./createMobilityAid";
 export function createInfusionStand(
   params: createInfusionStand.IParams = {},
   seed?: number | string,
-): Archetype<createInfusionStand.Affordance, createMobilityAid.Dimension> {
+): Archetype<createInfusionStand.Affordance, createInfusionStand.Dimension> {
   return MobilityAidConstruction.infusionStand(params, seed);
 }
 
@@ -34,8 +34,11 @@ export function createInfusionStand(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createInfusionStand {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "height" | "mass" | "width";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "grip" | "tip" | "hook";
+  export type Affordance = "grip" | "hook" | "tip";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

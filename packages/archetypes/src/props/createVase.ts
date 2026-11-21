@@ -21,7 +21,7 @@ import type { createVessel } from "./createVessel";
 export function createVase(
   params: createVase.IParams = {},
   seed?: number | string,
-): Archetype<createVase.Affordance, createVessel.Dimension> {
+): Archetype<createVase.Affordance, createVase.Dimension> {
   return VesselConstruction.vase(params, seed);
 }
 
@@ -34,8 +34,11 @@ export function createVase(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createVase {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "height" | "mass";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "rim" | "inside" | "body";
+  export type Affordance = "body" | "inside" | "rim";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

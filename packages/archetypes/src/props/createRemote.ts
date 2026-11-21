@@ -21,7 +21,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createRemote(
   params: createRemote.IParams = {},
   seed?: number | string,
-): Archetype<createRemote.Affordance, HandheldDevice.Dimension> {
+): Archetype<createRemote.Affordance, createRemote.Dimension> {
   const {
     builder,
     size,
@@ -59,11 +59,17 @@ export function createRemote(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The identifier union covers the contacts this producer builds.
  */
 export namespace createRemote {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height" | "mass" | "thickness" | "width";
+
   /** The identifiers of contacts built by this producer. */
-  export type Affordance = "grip" | "pinch" | "button";
+  export type Affordance = "button" | "grip" | "pinch";
 
   /** Parameters for this remote control. */
-  export type IParams = Omit<HandheldDevice.IParams, "kind" | "model"> & {
+  export interface IParams extends Omit<
+    HandheldDevice.IParams,
+    "kind" | "model"
+  > {
     model?: never;
-  };
+  }
 }

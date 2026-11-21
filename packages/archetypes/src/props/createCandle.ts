@@ -21,7 +21,7 @@ import type { createLight } from "./createLight";
 export function createCandle(
   params: createCandle.IParams = {},
   seed?: number | string,
-): Archetype<createCandle.Affordance, createLight.Dimension> {
+): Archetype<createCandle.Affordance, createCandle.Dimension> {
   return PracticalLightConstruction.wick("candle", params, seed);
 }
 
@@ -34,6 +34,9 @@ export function createCandle(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createCandle {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "length" | "mass";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "grip" | "light";
 

@@ -26,7 +26,7 @@ import type { createObstacle } from "./createObstacle";
 export function createSandbag(
   params: createSandbag.IParams = {},
   seed?: number | string,
-): Archetype<createSandbag.Affordance, createObstacle.Dimension> {
+): Archetype<createSandbag.Affordance, createSandbag.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createSandbag.Affordance> =
     ObstacleDraw.begin("sandbag", "sandbag", "composite", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -74,14 +74,14 @@ export function createSandbag(
  */
 export namespace createSandbag {
   /** The named contacts built by this producer. */
-  export type Affordance = "top" | "edge" | "leftEnd" | "rightEnd";
+  export type Affordance = "edge" | "leftEnd" | "rightEnd" | "top";
 
   /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "length" | "height" | "width" | "mass";
+  export type Dimension = "height" | "length" | "mass" | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

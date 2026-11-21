@@ -21,7 +21,7 @@ import type { createVessel } from "./createVessel";
 export function createAshtray(
   params: createAshtray.IParams = {},
   seed?: number | string,
-): Archetype<createAshtray.Affordance, createVessel.Dimension> {
+): Archetype<createAshtray.Affordance, createAshtray.Dimension> {
   return VesselConstruction.ashtray(params, seed);
 }
 
@@ -34,12 +34,18 @@ export function createAshtray(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createAshtray {
+  /** The `model` choices this producer admits. */
+  export type Model = "nachtmann" | "harris";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "height" | "mass";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "rim" | "inside" | "body";
+  export type Affordance = "body" | "inside" | "rim";
 
   /** The admitted settings and optional model ID. */
-  export type IParams = Pick<createVessel.IParams, "id"> & {
+  export interface IParams extends Pick<createVessel.IParams, "id"> {
     /** The recorded ashtray. The seed selects it when omitted. */
-    model?: "nachtmann" | "harris";
-  };
+    model?: Model;
+  }
 }

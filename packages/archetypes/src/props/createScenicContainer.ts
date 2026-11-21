@@ -70,14 +70,26 @@ export function createScenicContainer(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Illustrative bands carry provenance and the fictional kind is identified as such.
  */
 export namespace createScenicContainer {
-  /** The named producer for each saved selector, resolved on demand. A saved cargo pod keeps its surface-only contacts, so its entry names the producer the gallery opens. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `coilBasket` selector. */
     coilBasket: typeof createScenicBasket;
+
+    /** The named producer for the saved `woodenFishBasket` selector. */
     woodenFishBasket: typeof createScenicBasket;
+
+    /** The named producer for the saved `plankCoffer` selector. */
     plankCoffer: typeof createPlankCoffer;
+
+    /** The named producer for the saved `moldedCrate` selector. */
     moldedCrate: typeof createMoldedCrate;
+
+    /** The named producer for the saved `cargoPod` selector. */
     cargoPod: typeof createCargoPod;
-  }> = {
+  }
+
+  /** The named producer for each saved selector, resolved on demand. A saved cargo pod keeps its surface-only contacts, so its entry names the producer the gallery opens. */
+  export const PRODUCERS: Readonly<IProducers> = {
     get coilBasket(): typeof createScenicBasket {
       return createScenicBasket;
     },

@@ -34,7 +34,7 @@ const HEAD: Readonly<{
 export function createPayStation(
   params: createPayStation.IParams = {},
   seed?: number | string,
-): Archetype<createPayStation.Affordance, createMachine.Dimension> {
+): Archetype<createPayStation.Affordance, createPayStation.Dimension> {
   const cabinet: ServiceCabinet.ICabinet<createPayStation.Affordance> =
     ServiceCabinet.begin("payStation", "pay station", "#2b5797", params, seed);
   const {
@@ -73,11 +73,11 @@ export namespace createPayStation {
   export type Affordance = "front" | "side";
 
   /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height" | "width" | "depth" | "mass";
+  export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

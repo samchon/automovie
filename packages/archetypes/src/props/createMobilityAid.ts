@@ -77,12 +77,20 @@ export function createMobilityAid(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The heights, widths, diameter and walker's weight are the maker's as read; the infusion stand's are its maker's catalogue's as read; the walker's depth and the cane's weight are seen only in search results and a walker's tube is a grip band applied, all provisional; the cane's handle length is CCOHS's recommended handle length.
  */
 export namespace createMobilityAid {
-  /** Resolve the exact named producer for a saved selector on demand. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `cane` selector. */
     cane: typeof createCane;
+
+    /** The named producer for the saved `walker` selector. */
     walker: typeof createWalker;
+
+    /** The named producer for the saved `infusionStand` selector. */
     infusionStand: typeof createInfusionStand;
-  }> = {
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
     get cane(): typeof createCane {
       return createCane;
     },

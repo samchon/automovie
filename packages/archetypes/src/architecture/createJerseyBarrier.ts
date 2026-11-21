@@ -26,7 +26,7 @@ import type { createObstacle } from "./createObstacle";
 export function createJerseyBarrier(
   params: createJerseyBarrier.IParams = {},
   seed?: number | string,
-): Archetype<createJerseyBarrier.Affordance, createObstacle.Dimension> {
+): Archetype<createJerseyBarrier.Affordance, createJerseyBarrier.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createJerseyBarrier.Affordance> =
     ObstacleDraw.begin(
       "jerseyBarrier",
@@ -80,23 +80,23 @@ export function createJerseyBarrier(
  */
 export namespace createJerseyBarrier {
   /** The named contacts built by this producer. */
-  export type Affordance = "top" | "edge";
+  export type Affordance = "edge" | "top";
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =
-    | "length"
-    | "height"
-    | "width"
-    | "top"
     | "curb"
+    | "height"
+    | "length"
     | "lowerFace"
-    | "massPerMetre";
+    | "massPerMetre"
+    | "top"
+    | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 
   /** Lower-face slope above the ground, degrees, per FHWA-RD-89-036 Figure 1. */
   export const LOWER_FACE: number = 55;

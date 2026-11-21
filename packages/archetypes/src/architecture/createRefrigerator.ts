@@ -26,7 +26,7 @@ import type { createAppliance } from "./createAppliance";
 export function createRefrigerator(
   params: createRefrigerator.IParams = {},
   seed?: number | string,
-): Archetype<createRefrigerator.Affordance, createAppliance.Dimension> {
+): Archetype<createRefrigerator.Affordance, createRefrigerator.Dimension> {
   return FixtureDraw.installed<
     createRefrigerator.Affordance,
     createAppliance.Dimension
@@ -53,21 +53,18 @@ export function createRefrigerator(
 export namespace createRefrigerator {
   /** The named contacts built by this producer. */
   export type Affordance =
-    | "fridgeDoor"
     | "freezerDoor"
-    | "fridgeHandle"
     | "freezerHandle"
-    | "shelf1"
-    | "shelf2"
-    | "shelf3"
-    | "shelf4";
+    | "fridgeDoor"
+    | "fridgeHandle"
+    | `shelf${number}`;
 
   /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height" | "width" | "depth" | "pullHeight" | "mass";
+  export type Dimension = "depth" | "height" | "mass" | "pullHeight" | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

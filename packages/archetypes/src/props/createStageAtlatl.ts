@@ -24,12 +24,39 @@ export function createStageAtlatl(
     "id" | "length" | "width" | "spurSetback" | "gripSetback" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<"grip" | "spur", LongImplementDraw.Dimension> {
+): Archetype<createStageAtlatl.Affordance, createStageAtlatl.Dimension> {
   const {
     builder,
     d,
-  }: ReturnType<typeof LongImplementDraw.prepare<"grip" | "spur">> =
-    LongImplementDraw.prepare<"grip" | "spur">("atlatl", params, seed);
+  }: ReturnType<
+    typeof LongImplementDraw.prepare<createStageAtlatl.Affordance>
+  > = LongImplementDraw.prepare<createStageAtlatl.Affordance>(
+    "atlatl",
+    params,
+    seed,
+  );
   Throwers.atlatl(builder, d);
   return builder.build(d.mass!);
+}
+
+/**
+ * The contacts and dimensions of {@link createStageAtlatl}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
+ */
+export namespace createStageAtlatl {
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "grip" | "spur";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "gripSetback"
+    | "launchSpeed"
+    | "length"
+    | "mass"
+    | "spurSetback"
+    | "width";
 }

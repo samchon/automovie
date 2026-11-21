@@ -94,11 +94,17 @@ export namespace createStationery {
     map: createPaper,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 
-  /** The named format selected by a legacy paper or map recipe. */
-  export const PRODUCER_VARIANTS: Readonly<{
+  /** Each saved selector's named variant. */
+  export interface IProducerVariants {
+    /** The named variant for the saved `paper` selector. */
     paper: createPaper.Format;
+
+    /** The named variant for the saved `map` selector. */
     map: createPaper.Format;
-  }> = {
+  }
+
+  /** The named format selected by a legacy paper or map recipe. */
+  export const PRODUCER_VARIANTS: Readonly<IProducerVariants> = {
     paper: "sheet",
     map: "foldedMap",
   };

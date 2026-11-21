@@ -20,27 +20,27 @@ import { StationeryDraw } from "./StationeryDraw";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
  */
 export function createPaper(
-  params?: createPaper.IParams & { format?: "sheet" },
+  params?: createPaper.ISheetParams,
   seed?: number | string,
-): Archetype<"grip" | "face", StationeryDraw.Dimension>;
+): Archetype<createPaper.SheetAffordance, createPaper.Dimension>;
 
 /** The folded map adds a crease and separate grips for its two layers. */
 export function createPaper(
-  params: createPaper.IParams & { format: "foldedMap" },
+  params: createPaper.IFoldedMapParams,
   seed?: number | string,
-): Archetype<createPaper.Affordance, StationeryDraw.Dimension>;
+): Archetype<createPaper.Affordance, createPaper.Dimension>;
 
 /** A format selected by an authored scene resolves to one of the two paper models. */
 export function createPaper(
   params: createPaper.IParams,
   seed?: number | string,
-): Archetype<createPaper.Affordance, StationeryDraw.Dimension>;
+): Archetype<createPaper.Affordance, createPaper.Dimension>;
 
 /** Produce the requested format according to the contact contract above. */
 export function createPaper(
   params: createPaper.IParams = {},
   seed?: number | string,
-): Archetype<createPaper.Affordance, StationeryDraw.Dimension> {
+): Archetype<createPaper.Affordance, createPaper.Dimension> {
   const format: createPaper.Format = ArchetypeDraw.choice(
     "stationery",
     "format",
@@ -149,6 +149,24 @@ export namespace createPaper {
     /** The paper shape. Omit to produce a loose sheet. */
     format?: Format;
   }
+
+  /** The parameters of a loose sheet, the default format. */
+  export interface ISheetParams extends IParams {
+    /** The loose sheet, or absent for it. */
+    format?: "sheet";
+  }
+
+  /** The parameters of a map that opens at one crease. */
+  export interface IFoldedMapParams extends IParams {
+    /** The folded map. */
+    format: "foldedMap";
+  }
+
+  /** The contacts of a loose sheet. */
+  export type SheetAffordance = "grip" | "face";
+
+  /** The dimensions both formats draw, in metres and the mass in kilograms. */
+  export type Dimension = "length" | "mass" | "thickness" | "width";
 
   /** Contacts present across both formats. Only the map has the crease and the layer grips. */
   export type Affordance =

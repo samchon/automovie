@@ -26,7 +26,7 @@ import type { createStreetFixture } from "./createStreetFixture";
 export function createBollard(
   params: createBollard.IParams = {},
   seed?: number | string,
-): Archetype<createBollard.Affordance, createStreetFixture.Dimension> {
+): Archetype<createBollard.Affordance, createBollard.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createBollard.Affordance> =
     StreetFixtureDraw.begin("bollard", "bollard", "steel", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -57,18 +57,24 @@ export function createBollard(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts and override keys correspond to the producer's existing geometry and measured bands.
  */
 export namespace createBollard {
+  /** The `model` choices this producer admits. */
+  export type Model = "R-1007-04" | "R-1007-06" | "R-1007-08" | "R-1007-10";
+
   /** The named contacts built by this producer. */
   export type Affordance = "post" | "top";
 
-  /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height";
+  /** The dimensions an author may fix, in the same units. */
+  export type Fixed = "height";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "height" | "mass";
 
   /** The numeric overrides and optional scene identifier. The model fixes the pipe diameter and mass. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Fixed, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
 
     /** The measured pipe model, drawn from the seed when omitted. */
-    model?: "R-1007-04" | "R-1007-06" | "R-1007-08" | "R-1007-10";
-  };
+    model?: Model;
+  }
 }

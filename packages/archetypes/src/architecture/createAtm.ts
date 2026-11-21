@@ -60,7 +60,7 @@ const ESTIMATES: Readonly<{ shelf: number }> = { shelf: 0.03 };
 export function createAtm(
   params: createAtm.IParams = {},
   seed?: number | string,
-): Archetype<createAtm.Affordance, createMachine.Dimension> {
+): Archetype<createAtm.Affordance, createAtm.Dimension> {
   const cabinet: ServiceCabinet.ICabinet<createAtm.Affordance> =
     ServiceCabinet.begin("atm", "cash machine", "#b3202a", params, seed);
   fascia(cabinet.builder, cabinet.width, cabinet.depth);
@@ -146,20 +146,20 @@ function fascia(
 export namespace createAtm {
   /** The named contacts built by this producer. */
   export type Affordance =
-    | "front"
-    | "side"
-    | "key5"
     | "cardReader"
     | "cash"
+    | "front"
+    | "key5"
     | "receipt"
-    | "screen";
+    | "screen"
+    | "side";
 
   /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height" | "width" | "depth" | "mass";
+  export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

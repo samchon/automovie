@@ -23,7 +23,7 @@ import type { createGoal } from "./createGoal";
 export function createBasketballHoop(
   params: createBasketballHoop.IParams = {},
   seed?: number | string,
-): Archetype<createBasketballHoop.Affordance, createGoal.Dimension> {
+): Archetype<createBasketballHoop.Affordance, createBasketballHoop.Dimension> {
   const {
     builder,
     d,
@@ -42,8 +42,19 @@ export function createBasketballHoop(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createBasketballHoop {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "bar"
+    | "board"
+    | "height"
+    | "mass"
+    | "offset"
+    | "ring"
+    | "thickness"
+    | "width";
+
   /** The contact identifiers for the apparatus. */
-  export type Affordance = "rim" | "board";
+  export type Affordance = "board" | "rim";
 
   /** The identifier and overrides that apply to this profile. */
   export type IParams = Pick<

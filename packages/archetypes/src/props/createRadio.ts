@@ -21,7 +21,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createRadio(
   params: createRadio.IParams = {},
   seed?: number | string,
-): Archetype<createRadio.Affordance, HandheldDevice.Dimension> {
+): Archetype<createRadio.Affordance, createRadio.Dimension> {
   return HandheldDevice.fullFace(
     "walkieTalkie",
     "walkie-talkie",
@@ -40,12 +40,18 @@ export function createRadio(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The identifier union covers the contacts this producer builds.
  */
 export namespace createRadio {
+  /** The `model` choices this producer admits. */
+  export type Model = "nimh1400" | "liIon1600" | "liIon2250" | "liIon2900";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height" | "mass" | "thickness" | "width";
+
   /** The identifiers of contacts built by this producer. */
   export type Affordance = "grip" | "speaker";
 
   /** Parameters for this walkie-talkie. */
-  export type IParams = Pick<HandheldDevice.IParams, "id"> & {
+  export interface IParams extends Pick<HandheldDevice.IParams, "id"> {
     /** The manufacturer model, drawn from the seed when absent. */
-    model?: "nimh1400" | "liIon1600" | "liIon2250" | "liIon2900";
-  };
+    model?: Model;
+  }
 }

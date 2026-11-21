@@ -26,7 +26,7 @@ import type { createObstacle } from "./createObstacle";
 export function createRopeStanchions(
   params: createRopeStanchions.IParams = {},
   seed?: number | string,
-): Archetype<createRopeStanchions.Affordance, createObstacle.Dimension> {
+): Archetype<createRopeStanchions.Affordance, createRopeStanchions.Dimension> {
   const {
     builder,
     d,
@@ -110,22 +110,22 @@ export function createRopeStanchions(
  */
 export namespace createRopeStanchions {
   /** The named contacts built by this producer. */
-  export type Affordance = "rope" | "leftPost" | "rightPost";
+  export type Affordance = "leftPost" | "rightPost" | "rope";
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =
-    | "length"
-    | "height"
-    | "post"
     | "base"
-    | "ropeDiameter"
-    | "mass";
+    | "height"
+    | "length"
+    | "mass"
+    | "post"
+    | "ropeDiameter";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 
   /** The estimated round base thickness, metres. */
   export const BASE_THICKNESS: number = 0.03;

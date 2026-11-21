@@ -24,7 +24,10 @@ import type { createArmour } from "./createArmour";
 export function createCostumeGauntlet(
   params: createCostumeGauntlet.IParams = {},
   seed?: number | string,
-): Archetype<createArmour.Affordance, createArmour.Dimension> {
+): Archetype<
+  createCostumeGauntlet.Affordance,
+  createCostumeGauntlet.Dimension
+> {
   return CostumeConstruction("gauntlet", params, seed, ArmourLimb);
 }
 
@@ -37,12 +40,21 @@ export function createCostumeGauntlet(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createCostumeGauntlet {
+  /** The `model` choices this producer admits. */
+  export type Model = "met23255" | "met23256" | "met23199";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "thickness" | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "wear";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createArmour.IParams,
     "id" | "thickness" | "measure"
-  > & {
+  > {
     /** A model from this form's catalogue. */
-    model?: "met23255" | "met23256" | "met23199";
-  };
+    model?: Model;
+  }
 }

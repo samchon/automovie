@@ -26,7 +26,7 @@ import type { createStreetFixture } from "./createStreetFixture";
 export function createLampPost(
   params: createLampPost.IParams = {},
   seed?: number | string,
-): Archetype<createLampPost.Affordance, createStreetFixture.Dimension> {
+): Archetype<createLampPost.Affordance, createLampPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createLampPost.Affordance> =
     StreetFixtureDraw.begin("lampPost", "lamp post", "composite", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -61,17 +61,17 @@ export namespace createLampPost {
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =
-    | "height"
-    | "diameter"
     | "base"
     | "baseHeight"
+    | "diameter"
     | "head"
     | "headHeight"
+    | "height"
     | "mass";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

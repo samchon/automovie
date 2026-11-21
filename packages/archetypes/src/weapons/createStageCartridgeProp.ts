@@ -25,7 +25,10 @@ import type { createProjectile } from "./createProjectile";
 export function createStageCartridgeProp(
   params: createStageCartridgeProp.IParams = {},
   seed?: number | string,
-): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+): Archetype<
+  createStageCartridgeProp.Affordance,
+  createStageCartridgeProp.Dimension
+> {
   return StageTokenConstruction("cartridge", params, seed, (builder, d) => {
     const v: typeof Vector3.create = Vector3.create;
     const r: number = d.diameter! / 2;
@@ -65,6 +68,12 @@ export function createStageCartridgeProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageCartridgeProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "length" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "end" | "grip";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createProjectile.IParams,

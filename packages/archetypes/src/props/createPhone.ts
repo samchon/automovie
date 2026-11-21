@@ -23,7 +23,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createPhone(
   params: createPhone.IParams = {},
   seed?: number | string,
-): Archetype<createPhone.Affordance, HandheldDevice.Dimension> {
+): Archetype<createPhone.Affordance, createPhone.Dimension> {
   const {
     builder,
     size,
@@ -75,11 +75,17 @@ export function createPhone(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The identifier union covers the contacts this producer builds.
  */
 export namespace createPhone {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height" | "mass" | "thickness" | "width";
+
   /** The identifiers of contacts built by this producer. */
-  export type Affordance = "grip" | "pinch" | "screen" | "lens";
+  export type Affordance = "grip" | "lens" | "pinch" | "screen";
 
   /** Parameters for this smartphone. */
-  export type IParams = Omit<HandheldDevice.IParams, "kind" | "model"> & {
+  export interface IParams extends Omit<
+    HandheldDevice.IParams,
+    "kind" | "model"
+  > {
     model?: never;
-  };
+  }
 }

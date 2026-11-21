@@ -26,7 +26,7 @@ import type { createAppliance } from "./createAppliance";
 export function createMicrowave(
   params: createMicrowave.IParams = {},
   seed?: number | string,
-): Archetype<createMicrowave.Affordance, createAppliance.Dimension> {
+): Archetype<createMicrowave.Affordance, createMicrowave.Dimension> {
   return FixtureDraw.installed<
     createMicrowave.Affordance,
     createAppliance.Dimension
@@ -56,17 +56,17 @@ export namespace createMicrowave {
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =
-    | "height"
-    | "width"
-    | "depth"
+    | "cavityDepth"
     | "cavityHeight"
     | "cavityWidth"
-    | "cavityDepth"
-    | "mass";
+    | "depth"
+    | "height"
+    | "mass"
+    | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

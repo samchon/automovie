@@ -21,7 +21,7 @@ import type { createTray } from "./createTray";
 export function createServingTray(
   params: createServingTray.IParams = {},
   seed?: number | string,
-): Archetype<createServingTray.Affordance, createTray.Dimension> {
+): Archetype<createServingTray.Affordance, createServingTray.Dimension> {
   return TrayConstruction.servingTray(params, seed);
 }
 
@@ -34,12 +34,18 @@ export function createServingTray(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createServingTray {
+  /** The `model` choices this producer admits. */
+  export type Model = "smorling" | "grilltider" | "smula";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "inside" | "leftHandle" | "rightHandle";
 
   /** The admitted settings and optional model ID. */
-  export type IParams = Pick<createTray.IParams, "id" | "mass"> & {
+  export interface IParams extends Pick<createTray.IParams, "id" | "mass"> {
     /** The recorded serving tray model. The seed selects it when omitted. */
-    model?: "smorling" | "grilltider" | "smula";
-  };
+    model?: Model;
+  }
 }

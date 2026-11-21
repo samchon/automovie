@@ -27,8 +27,8 @@ export function createStageLinkedProp(
   params: createStageLinkedProp.IParams = {},
   seed?: number | string,
 ): Archetype<
-  createStageWeaponProp.Affordance,
-  createStageWeaponProp.Dimension
+  createStageLinkedProp.Affordance,
+  createStageLinkedProp.Dimension
 > {
   return StageShaftConstruction(
     "linked",
@@ -75,6 +75,12 @@ export function createStageLinkedProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageLinkedProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "end" | "grip" | "link";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<createStageWeaponProp.IParams, "id" | "height">;
 }

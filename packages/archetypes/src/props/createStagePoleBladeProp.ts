@@ -95,8 +95,8 @@ export function createStagePoleBladeProp(
   params: createStagePoleBladeProp.IParams,
   seed?: number | string,
 ): Archetype<
-  createStageWeaponProp.Affordance,
-  createStageWeaponProp.Dimension
+  createStagePoleBladeProp.Affordance,
+  createStagePoleBladeProp.Dimension
 > {
   const kind: createStagePoleBladeProp.Kind = ArchetypeDraw.choice(
     "stageWeaponProp",
@@ -179,6 +179,19 @@ export function createStagePoleBladeProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStagePoleBladeProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "edge"
+    | "grip"
+    | "grip-lower"
+    | "grip-upper"
+    | "shaft"
+    | "side-edge"
+    | "tip";
+
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = [
     "longBlade",
@@ -191,10 +204,13 @@ export namespace createStagePoleBladeProp {
   export type Kind = (typeof KINDS)[number];
 
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<createStageWeaponProp.IParams, "id" | "height"> & {
+  export interface IParams extends Pick<
+    createStageWeaponProp.IParams,
+    "id" | "height"
+  > {
     /** The profile with the required outline. */
     kind: Kind;
-  };
+  }
 }
 
 /** Extrude one small convex cell between each pair of adjacent outline sections. */

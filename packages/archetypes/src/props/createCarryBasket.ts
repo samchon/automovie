@@ -21,7 +21,7 @@ import type { createTray } from "./createTray";
 export function createCarryBasket(
   params: createCarryBasket.IParams = {},
   seed?: number | string,
-): Archetype<createCarryBasket.Affordance, createTray.Dimension> {
+): Archetype<createCarryBasket.Affordance, createCarryBasket.Dimension> {
   return TrayConstruction.basket(params, seed);
 }
 
@@ -34,12 +34,18 @@ export function createCarryBasket(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createCarryBasket {
+  /** The `model` choices this producer admits. */
+  export type Model = "risatorp25" | "risatorp42";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "inside" | "handle";
+  export type Affordance = "handle" | "inside";
 
   /** The admitted settings and optional model ID. */
-  export type IParams = Pick<createTray.IParams, "id" | "mass"> & {
+  export interface IParams extends Pick<createTray.IParams, "id" | "mass"> {
     /** The recorded basket model. The seed selects it when omitted. */
-    model?: "risatorp25" | "risatorp42";
-  };
+    model?: Model;
+  }
 }

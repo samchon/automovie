@@ -21,7 +21,7 @@ import type { createBed } from "./createBed";
 export function createMattress(
   params: createMattress.IParams = {},
   seed?: number | string,
-): Archetype<createMattress.Affordance, createBed.Dimension> {
+): Archetype<createMattress.Affordance, createMattress.Dimension> {
   return BedConstruction.platform("mattress", params, seed);
 }
 
@@ -34,8 +34,11 @@ export function createMattress(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createMattress {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "length" | "mass" | "thickness" | "width";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "surface" | "leftSide" | "rightSide";
+  export type Affordance = "leftSide" | "rightSide" | "surface";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

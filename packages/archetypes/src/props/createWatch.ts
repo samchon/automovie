@@ -25,12 +25,12 @@ export function createWatch(
     "id" | "width" | "depth" | "height" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<"hold" | "wear" | "face", WornPropDraw.Dimension> {
+): Archetype<createWatch.Affordance, createWatch.Dimension> {
   const {
     builder,
     d,
-  }: ReturnType<typeof WornPropDraw.prepare<"hold" | "wear" | "face">> =
-    WornPropDraw.prepare<"hold" | "wear" | "face">("watch", params, seed);
+  }: ReturnType<typeof WornPropDraw.prepare<createWatch.Affordance>> =
+    WornPropDraw.prepare<createWatch.Affordance>("watch", params, seed);
   const v: typeof Vector3.create = Vector3.create;
   const thin: number = WornPropDraw.THIN;
 
@@ -76,4 +76,20 @@ export function createWatch(
     extent: null,
   });
   return builder.build(d.mass);
+}
+
+/**
+ * The contacts and dimensions of {@link createWatch}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
+ */
+export namespace createWatch {
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "face" | "hold" | "wear";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
 }

@@ -140,17 +140,35 @@ export namespace createGoal {
   /** The band of each free dimension, by kind. */
   export const BANDS: typeof GoalBuild.BANDS = GoalBuild.BANDS;
 
-  /** The canonical producer for each saved kind. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `footballGoal` selector. */
     footballGoal: typeof createFieldGoal;
+
+    /** The named producer for the saved `fieldHockeyGoal` selector. */
     fieldHockeyGoal: typeof createFieldGoal;
+
+    /** The named producer for the saved `iceHockeyGoal` selector. */
     iceHockeyGoal: typeof createFieldGoal;
+
+    /** The named producer for the saved `lacrosseGoal` selector. */
     lacrosseGoal: typeof createFieldGoal;
+
+    /** The named producer for the saved `handballGoal` selector. */
     handballGoal: typeof createFieldGoal;
+
+    /** The named producer for the saved `basketballHoop` selector. */
     basketballHoop: typeof createBasketballHoop;
+
+    /** The named producer for the saved `volleyballNet` selector. */
     volleyballNet: typeof createVolleyballNet;
+
+    /** The named producer for the saved `tennisNet` selector. */
     tennisNet: typeof createTennisNet;
-  }> = {
+  }
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
     footballGoal: createFieldGoal,
     fieldHockeyGoal: createFieldGoal,
     iceHockeyGoal: createFieldGoal,

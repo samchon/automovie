@@ -26,7 +26,7 @@ import type { createObstacle } from "./createObstacle";
 export function createCrowdBarrier(
   params: createCrowdBarrier.IParams = {},
   seed?: number | string,
-): Archetype<createCrowdBarrier.Affordance, createObstacle.Dimension> {
+): Archetype<createCrowdBarrier.Affordance, createCrowdBarrier.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createCrowdBarrier.Affordance> =
     ObstacleDraw.begin("crowdBarrier", "crowd barrier", "steel", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -109,13 +109,13 @@ export namespace createCrowdBarrier {
   export type Affordance = "rail";
 
   /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "length" | "height" | "tube" | "spacing" | "mass";
+  export type Dimension = "height" | "length" | "mass" | "spacing" | "tube";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 
   /** The estimated feet, bottom-rail height and picket diameter, metres. */
   export const ESTIMATES: Readonly<{

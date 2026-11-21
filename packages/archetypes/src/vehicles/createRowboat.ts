@@ -25,7 +25,7 @@ import { createBoat } from "./createBoat";
 export function createRowboat(
   params: createRowboat.IParams = {},
   seed?: number | string,
-): Archetype<createBoat.Affordance, createBoat.Dimension> {
+): Archetype<createRowboat.Affordance, createRowboat.Dimension> {
   return BoatConstruction("rowboat", params, seed, outfit);
 }
 
@@ -38,11 +38,39 @@ export function createRowboat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createRowboat {
+  /** The `model` choices this producer admits. */
+  export type Model = "thamesSkiff" | "whitehallSkiff" | "whitehall17";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "beam"
+    | "bladeLength"
+    | "bladeWidth"
+    | "depth"
+    | "draft"
+    | "length"
+    | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "bow"
+    | "floor"
+    | "gunwale"
+    | "leftHandle"
+    | "leftOar"
+    | "leftOarlock"
+    | "rightHandle"
+    | "rightOar"
+    | "rightOarlock"
+    | "stern"
+    | "sternSeat"
+    | `thwart${number}`;
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<createBoat.IParams, "id" | "draft"> & {
+  export interface IParams extends Pick<createBoat.IParams, "id" | "draft"> {
     /** A model from this form's catalogue. */
-    model?: "thamesSkiff" | "whitehallSkiff" | "whitehall17";
-  };
+    model?: Model;
+  }
 }
 
 /** Record this hull's fixed seats and articulated rowing station. */

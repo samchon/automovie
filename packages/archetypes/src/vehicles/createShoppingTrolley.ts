@@ -24,7 +24,10 @@ import type { createCart } from "./createCart";
 export function createShoppingTrolley(
   params: createShoppingTrolley.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<
+  createShoppingTrolley.Affordance,
+  createShoppingTrolley.Dimension
+> {
   return CartConstruction("trolley", params, seed, CartPushed.trolley);
 }
 
@@ -37,8 +40,21 @@ export function createShoppingTrolley(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createShoppingTrolley {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "gripDiameter"
+    | "handleHeight"
+    | "handleSpacing"
+    | "length"
+    | "mass"
+    | "wheelDiameter"
+    | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "handle" | "load";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createCart.IParams,
     | "id"
     | "length"
@@ -47,8 +63,8 @@ export namespace createShoppingTrolley {
     | "handleSpacing"
     | "gripDiameter"
     | "mass"
-  > & {
+  > {
     /** The trolley's rear and front castor diameter, selected from the catalogue. */
     castor?: createCart.Castor;
-  };
+  }
 }

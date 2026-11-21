@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createUprightPiano(
   params: createUprightPiano.IParams = {},
   seed?: number | string,
-): Archetype<createUprightPiano.Affordance, createInstrument.Dimension> {
+): Archetype<createUprightPiano.Affordance, createUprightPiano.Dimension> {
   return InstrumentBuild.create<createUprightPiano.Affordance>(
     "uprightPiano",
     "upright piano",
@@ -42,13 +42,26 @@ export function createUprightPiano(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createUprightPiano {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "blackLength"
+    | "blackRise"
+    | "depth"
+    | "dip"
+    | "height"
+    | "keyHeight"
+    | "keyLength"
+    | "mass"
+    | "octave"
+    | "width";
+
   /** The named playing and carrying contacts. */
   export type Affordance =
-    | `key${number}`
+    | "damperPedal"
+    | "damperPedalHinge"
     | "keybed"
     | "lid"
-    | "damperPedal"
-    | "damperPedalHinge";
+    | `key${number}`;
 
   /** The identifier and dimension overrides for this instrument. */
   export type IParams = Pick<

@@ -24,7 +24,7 @@ import type { createCart } from "./createCart";
 export function createWagon(
   params: createWagon.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<createWagon.Affordance, createWagon.Dimension> {
   return CartConstruction("wagon", params, seed, CartCoach.wagon);
 }
 
@@ -37,6 +37,29 @@ export function createWagon(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createWagon {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "bedDepth"
+    | "frontWheelDiameter"
+    | "length"
+    | "mass"
+    | "poleLength"
+    | "track"
+    | "wheelDiameter"
+    | "wheelbase"
+    | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "bed"
+    | "coupling"
+    | "drawbarPitch"
+    | "frontAxle"
+    | "frontLeftSpin"
+    | "frontRightSpin"
+    | "rearLeftSpin"
+    | "rearRightSpin";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createCart.IParams,

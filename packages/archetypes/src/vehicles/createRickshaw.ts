@@ -24,7 +24,7 @@ import type { createCart } from "./createCart";
 export function createRickshaw(
   params: createRickshaw.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<createRickshaw.Affordance, createRickshaw.Dimension> {
   return CartConstruction("rickshaw", params, seed, CartDrawn.rickshaw);
 }
 
@@ -37,12 +37,33 @@ export function createRickshaw(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createRickshaw {
+  /** The `model` choices this producer admits. */
+  export type Model = "edo89210382" | "edo90360001" | "powerhouse245268";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "gripHeight"
+    | "length"
+    | "mass"
+    | "wheelDiameter"
+    | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "coupling"
+    | "footboard"
+    | "leftShaft"
+    | "leftSpin"
+    | "rightShaft"
+    | "rightSpin"
+    | "seat";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createCart.IParams,
     "id" | "wheelDiameter" | "gripHeight" | "mass"
-  > & {
+  > {
     /** A model from this form's catalogue. */
-    model?: "edo89210382" | "edo90360001" | "powerhouse245268";
-  };
+    model?: Model;
+  }
 }

@@ -24,7 +24,7 @@ import { createBoat } from "./createBoat";
 export function createPullingBoat(
   params: createPullingBoat.IParams = {},
   seed?: number | string,
-): Archetype<createBoat.Affordance, createBoat.Dimension> {
+): Archetype<createPullingBoat.Affordance, createPullingBoat.Dimension> {
   return BoatConstruction("launch", params, seed, outfit);
 }
 
@@ -37,6 +37,17 @@ export function createPullingBoat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createPullingBoat {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "beam" | "depth" | "length" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "bow"
+    | "floor"
+    | "gunwale"
+    | "stern"
+    | `thwart${number}`;
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createBoat.IParams,

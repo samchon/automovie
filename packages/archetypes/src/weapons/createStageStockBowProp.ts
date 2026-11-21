@@ -24,7 +24,10 @@ import type { createBow } from "./createBow";
 export function createStageStockBowProp(
   params: createStageStockBowProp.IParams = {},
   seed?: number | string,
-): Archetype<createBow.Affordance, createBow.Dimension> {
+): Archetype<
+  createStageStockBowProp.Affordance,
+  createStageStockBowProp.Dimension
+> {
   return StageBowConstruction("crossbow", params, seed, buildCrossbow);
 }
 
@@ -37,6 +40,24 @@ export function createStageStockBowProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageStockBowProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "brace" | "depth" | "length" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "butt"
+    | "crank"
+    | "foreEnd"
+    | "grip"
+    | "lowerLimb"
+    | "nock"
+    | "rail"
+    | "rest"
+    | "stirrup"
+    | "string"
+    | "trigger"
+    | "upperLimb";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createBow.IParams,

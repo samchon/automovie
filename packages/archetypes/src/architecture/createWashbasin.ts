@@ -26,7 +26,7 @@ import type { createSanitary } from "./createSanitary";
 export function createWashbasin(
   params: createWashbasin.IParams = {},
   seed?: number | string,
-): Archetype<createWashbasin.Affordance, createSanitary.Dimension> {
+): Archetype<createWashbasin.Affordance, createWashbasin.Dimension> {
   return FixtureDraw.installed<
     createWashbasin.Affordance,
     createSanitary.Dimension
@@ -52,24 +52,24 @@ export function createWashbasin(
  */
 export namespace createWashbasin {
   /** The named contacts built by this producer. */
-  export type Affordance = "rim" | "bowl" | "tap" | "lift" | "spout";
+  export type Affordance = "bowl" | "lift" | "rim" | "spout" | "tap";
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =
-    | "rim"
     | "basinDepth"
-    | "width"
-    | "depth"
-    | "bowlWidth"
     | "bowlDepth"
+    | "bowlWidth"
+    | "depth"
+    | "mass"
+    | "rim"
     | "tapHeight"
-    | "tapReach"
     | "tapOutlet"
-    | "mass";
+    | "tapReach"
+    | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

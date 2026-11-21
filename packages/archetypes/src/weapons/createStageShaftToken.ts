@@ -25,7 +25,10 @@ import { createProjectile } from "./createProjectile";
 export function createStageShaftToken(
   params: createStageShaftToken.IParams,
   seed?: number | string,
-): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+): Archetype<
+  createStageShaftToken.Affordance,
+  createStageShaftToken.Dimension
+> {
   const kind: createStageShaftToken.Kind = ArchetypeDraw.choice(
     "projectile",
     "kind",
@@ -96,6 +99,15 @@ export function createStageShaftToken(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageShaftToken {
+  /** The `model` choices this producer admits. */
+  export type Model = "westminster" | "az472" | "nmm11461" | "met33754";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "head" | "headWidth" | "length" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "nock" | "shaft" | "tip";
+
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["arrow", "bolt"] as const;
 
@@ -103,13 +115,13 @@ export namespace createStageShaftToken {
   export type Kind = (typeof KINDS)[number];
 
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createProjectile.IParams,
     "id" | "length" | "diameter"
-  > & {
+  > {
     /** The profile with the required outline. */
     kind: Kind;
     /** A model from this form's catalogue. */
-    model?: "westminster" | "az472" | "nmm11461" | "met33754";
-  };
+    model?: Model;
+  }
 }

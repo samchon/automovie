@@ -56,14 +56,26 @@ export function createStorage(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A slider's `+X` is its travel and a grip's `+X` is the bar the hand wraps, which differ on a drawer, so the slide and the pull are two affordances and neither frame is bent to serve both.
  */
 export namespace createStorage {
-  /** Resolve the exact named producer for a saved selector on demand. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `wardrobe` selector. */
     wardrobe: typeof createHingedCabinet;
+
+    /** The named producer for the saved `chest` selector. */
     chest: typeof createDrawerUnit;
+
+    /** The named producer for the saved `filingCabinet` selector. */
     filingCabinet: typeof createDrawerUnit;
+
+    /** The named producer for the saved `locker` selector. */
     locker: typeof createHingedCabinet;
+
+    /** The named producer for the saved `bookcase` selector. */
     bookcase: typeof createBookcase;
-  }> = {
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
     get wardrobe(): typeof createHingedCabinet {
       return createHingedCabinet;
     },

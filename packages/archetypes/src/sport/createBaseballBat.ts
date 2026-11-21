@@ -24,7 +24,7 @@ import type { createClub } from "../weapons/createClub";
 export function createBaseballBat(
   params: createBaseballBat.IParams = {},
   seed?: number | string,
-): Archetype<createClub.Affordance, createClub.Dimension> {
+): Archetype<createBaseballBat.Affordance, createBaseballBat.Dimension> {
   const { builder, d }: ReturnType<typeof ClubBuild.draw> = ClubBuild.draw(
     "bat",
     params,
@@ -82,15 +82,21 @@ export function createBaseballBat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createBaseballBat {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "handleDiameter" | "length" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "grip" | "strike";
+
   /** The recorded baseball bat profiles. */
   export type Model = "s154" | "s155" | "t153" | "t156";
 
   /** The identifier, recorded model choice and adjustable dimensions. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createClub.IParams,
     "id" | "diameter" | "handleDiameter"
-  > & {
+  > {
     /** A recorded profile. Omission uses the seed or the first profile without a seed. */
     model?: Model;
-  };
+  }
 }

@@ -24,7 +24,7 @@ import { stageTokenSphere } from "./stageTokenSphere";
 export function createStageRoundProp(
   params: createStageRoundProp.IParams = {},
   seed?: number | string,
-): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+): Archetype<createStageRoundProp.Affordance, createStageRoundProp.Dimension> {
   return StageTokenConstruction(
     "roundShot",
     params,
@@ -42,9 +42,18 @@ export function createStageRoundProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageRoundProp {
+  /** The `model` choices this producer admits. */
+  export type Model = "sixPounder" | "twelvePounder";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "body";
+
   /** The model identity and this form's catalogue choices. */
-  export type IParams = Pick<createProjectile.IParams, "id"> & {
+  export interface IParams extends Pick<createProjectile.IParams, "id"> {
     /** A model from this form's catalogue. */
-    model?: "sixPounder" | "twelvePounder";
-  };
+    model?: Model;
+  }
 }

@@ -26,8 +26,8 @@ export function createStageHammerProp(
   params: createStageHammerProp.IParams = {},
   seed?: number | string,
 ): Archetype<
-  createStageWeaponProp.Affordance,
-  createStageWeaponProp.Dimension
+  createStageHammerProp.Affordance,
+  createStageHammerProp.Dimension
 > {
   return StageShaftConstruction(
     "offsetHammer",
@@ -68,6 +68,12 @@ export function createStageHammerProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageHammerProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "face" | "grip";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<createStageWeaponProp.IParams, "id" | "height">;
 }

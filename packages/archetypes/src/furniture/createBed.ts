@@ -59,16 +59,32 @@ export function createBed(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A mattress on the floor has no height of its own: its surface is its thickness.
  */
 export namespace createBed {
-  /** Resolve the exact named producer for a saved selector on demand. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `single` selector. */
     single: typeof createPlatformBed;
+
+    /** The named producer for the saved `double` selector. */
     double: typeof createPlatformBed;
+
+    /** The named producer for the saved `mattress` selector. */
     mattress: typeof createMattress;
+
+    /** The named producer for the saved `hospital` selector. */
     hospital: typeof createHospitalBed;
+
+    /** The named producer for the saved `gurney` selector. */
     gurney: typeof createGurney;
+
+    /** The named producer for the saved `crib` selector. */
     crib: typeof createCrib;
+
+    /** The named producer for the saved `bunk` selector. */
     bunk: typeof createBunkBed;
-  }> = {
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
     get single(): typeof createPlatformBed {
       return createPlatformBed;
     },

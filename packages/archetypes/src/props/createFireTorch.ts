@@ -21,7 +21,7 @@ import type { createLight } from "./createLight";
 export function createFireTorch(
   params: createFireTorch.IParams = {},
   seed?: number | string,
-): Archetype<createFireTorch.Affordance, createLight.Dimension> {
+): Archetype<createFireTorch.Affordance, createFireTorch.Dimension> {
   return PracticalLightConstruction.wick("fireTorch", params, seed);
 }
 
@@ -34,6 +34,9 @@ export function createFireTorch(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createFireTorch {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "headDiameter" | "length" | "mass";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "grip" | "light";
 

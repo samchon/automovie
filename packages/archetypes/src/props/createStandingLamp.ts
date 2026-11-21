@@ -21,7 +21,7 @@ import type { createLight } from "./createLight";
 export function createStandingLamp(
   params: createStandingLamp.IParams,
   seed?: number | string,
-): Archetype<createStandingLamp.Affordance, createLight.Dimension> {
+): Archetype<createStandingLamp.Affordance, createStandingLamp.Dimension> {
   return PracticalLightConstruction.standing(
     ArchetypeDraw.choice(
       "light",
@@ -43,17 +43,29 @@ export function createStandingLamp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createStandingLamp {
+  /** The `kind` choices this producer admits. */
+  export type Kind = "tableLamp" | "floorLamp";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "base"
+    | "height"
+    | "mass"
+    | "overall"
+    | "shade"
+    | "stem";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "grip" | "light";
 
   /** The admitted settings and optional model ID. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createLight.IParams,
     "id" | "height" | "shade" | "overall" | "stem" | "base" | "mass"
-  > & {
+  > {
     /** The measured table or floor form. */
-    kind: "tableLamp" | "floorLamp";
-  };
+    kind: Kind;
+  }
 
   /** Legacy selectors for this construction, in gallery order. */
   export const KINDS: readonly IParams["kind"][] = ["tableLamp", "floorLamp"];

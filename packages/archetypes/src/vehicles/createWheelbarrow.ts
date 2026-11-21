@@ -24,7 +24,7 @@ import type { createCart } from "./createCart";
 export function createWheelbarrow(
   params: createWheelbarrow.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<createWheelbarrow.Affordance, createWheelbarrow.Dimension> {
   return CartConstruction("wheelbarrow", params, seed, CartPushed.wheelbarrow);
 }
 
@@ -37,6 +37,19 @@ export function createWheelbarrow(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createWheelbarrow {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "gripDiameter"
+    | "handleHeight"
+    | "handleSpacing"
+    | "length"
+    | "mass"
+    | "wheelDiameter"
+    | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "leftHandle" | "load" | "rightHandle";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createCart.IParams,

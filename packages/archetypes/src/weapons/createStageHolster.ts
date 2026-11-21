@@ -25,7 +25,7 @@ import type { createHolster } from "./createHolster";
 export function createStageHolster(
   params: createStageHolster.IParams = {},
   seed?: number | string,
-): Archetype<createHolster.Affordance, createHolster.Dimension> {
+): Archetype<createStageHolster.Affordance, createStageHolster.Dimension> {
   return StageCarrierConstruction("holster", params, seed, (builder, d) => {
     const v: typeof Vector3.create = Vector3.create;
     builder.box("loop", v(0.01, 0.06, 0.06), v(0, 0, 0), {
@@ -61,9 +61,18 @@ export function createStageHolster(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageHolster {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "mass" | "ride";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "belt" | "socket";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<createHolster.IParams, "id" | "depth" | "mass"> & {
+  export interface IParams extends Pick<
+    createHolster.IParams,
+    "id" | "depth" | "mass"
+  > {
     /** A model from this form's catalogue. */
     model?: createHolster.Ride;
-  };
+  }
 }

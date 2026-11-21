@@ -31,7 +31,7 @@ const HANDLE: number = 0.035;
 export function createCricketBat(
   params: createCricketBat.IParams = {},
   seed?: number | string,
-): Archetype<createCricketBat.Affordance, createStick.Dimension> {
+): Archetype<createCricketBat.Affordance, createCricketBat.Dimension> {
   const {
     builder,
     d,
@@ -63,8 +63,11 @@ export function createCricketBat(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createCricketBat {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "head" | "length" | "mass" | "width";
+
   /** The named contacts on this stick or bat. */
-  export type Affordance = "grip" | "blade";
+  export type Affordance = "blade" | "grip";
 
   /** The identifier and overrides available within this profile. */
   export type IParams = Pick<

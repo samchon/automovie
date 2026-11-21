@@ -21,7 +21,7 @@ import type { createBed } from "./createBed";
 export function createBunkBed(
   params: createBunkBed.IParams = {},
   seed?: number | string,
-): Archetype<createBunkBed.Affordance, createBed.Dimension> {
+): Archetype<createBunkBed.Affordance, createBunkBed.Dimension> {
   return BedConstruction.bunk(params, seed);
 }
 
@@ -34,13 +34,25 @@ export function createBunkBed(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createBunkBed {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "clearance"
+    | "gap"
+    | "height"
+    | "length"
+    | "mass"
+    | "overallLength"
+    | "overallWidth"
+    | "thickness"
+    | "width";
+
   /** The contact IDs declared by this producer. */
   export type Affordance =
-    | "surface"
+    | "guard"
     | "leftSide"
     | "rightSide"
-    | "upper"
-    | "guard";
+    | "surface"
+    | "upper";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

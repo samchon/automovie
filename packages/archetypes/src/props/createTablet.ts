@@ -21,7 +21,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createTablet(
   params: createTablet.IParams = {},
   seed?: number | string,
-): Archetype<createTablet.Affordance, HandheldDevice.Dimension> {
+): Archetype<createTablet.Affordance, createTablet.Dimension> {
   return HandheldDevice.fullFace("tablet", "tablet", params, seed, "screen");
 }
 
@@ -34,12 +34,18 @@ export function createTablet(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The identifier union covers the contacts this producer builds.
  */
 export namespace createTablet {
+  /** The `model` choices this producer admits. */
+  export type Model = "wifi" | "cellular";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height" | "mass" | "thickness" | "width";
+
   /** The identifiers of contacts built by this producer. */
   export type Affordance = "grip" | "screen";
 
   /** Parameters for this tablet. */
-  export type IParams = Pick<HandheldDevice.IParams, "id"> & {
+  export interface IParams extends Pick<HandheldDevice.IParams, "id"> {
     /** The manufacturer model, drawn from the seed when absent. */
-    model?: "wifi" | "cellular";
-  };
+    model?: Model;
+  }
 }

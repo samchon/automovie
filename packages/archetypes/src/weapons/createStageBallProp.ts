@@ -24,7 +24,7 @@ import { stageTokenSphere } from "./stageTokenSphere";
 export function createStageBallProp(
   params: createStageBallProp.IParams = {},
   seed?: number | string,
-): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+): Archetype<createStageBallProp.Affordance, createStageBallProp.Dimension> {
   return StageTokenConstruction("ball", params, seed, (builder, d, model) =>
     stageTokenSphere(builder, d, "ball", model),
   );
@@ -39,6 +39,12 @@ export function createStageBallProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageBallProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "body";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createProjectile.IParams,

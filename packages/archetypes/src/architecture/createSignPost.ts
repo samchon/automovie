@@ -29,7 +29,7 @@ const BLANK_THICKNESS: number = 0.003;
 export function createSignPost(
   params: createSignPost.IParams = {},
   seed?: number | string,
-): Archetype<createSignPost.Affordance, createStreetFixture.Dimension> {
+): Archetype<createSignPost.Affordance, createSignPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createSignPost.Affordance> =
     StreetFixtureDraw.begin("signPost", "sign post", "composite", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -72,18 +72,24 @@ export function createSignPost(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts and override keys correspond to the producer's existing geometry and measured bands.
  */
 export namespace createSignPost {
+  /** The `model` choices this producer admits. */
+  export type Model = "STOP 30 in" | "STOP 36 in";
+
   /** The named contacts built by this producer. */
   export type Affordance = "post";
 
-  /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height" | "diameter" | "mass";
+  /** The dimensions an author may fix, in the same units. */
+  export type Fixed = "height" | "diameter" | "mass";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "head" | "height" | "mass";
 
   /** The numeric overrides and optional scene identifier. The model fixes the size of the sign blank. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Fixed, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
 
     /** The STOP road class, drawn from the seed when omitted. */
-    model?: "STOP 30 in" | "STOP 36 in";
-  };
+    model?: Model;
+  }
 }

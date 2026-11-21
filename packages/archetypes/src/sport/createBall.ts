@@ -114,29 +114,71 @@ export namespace createBall {
   /** The band of each free dimension, by kind. */
   export const BANDS: typeof BallBuild.BANDS = BallBuild.BANDS;
 
-  /** The canonical producer for each saved kind. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `football` selector. */
     football: typeof createSphericalBall;
+
+    /** The named producer for the saved `futsal` selector. */
     futsal: typeof createSphericalBall;
+
+    /** The named producer for the saved `basketball` selector. */
     basketball: typeof createSphericalBall;
+
+    /** The named producer for the saved `volleyball` selector. */
     volleyball: typeof createSphericalBall;
+
+    /** The named producer for the saved `handball` selector. */
     handball: typeof createSphericalBall;
+
+    /** The named producer for the saved `tennis` selector. */
     tennis: typeof createSphericalBall;
+
+    /** The named producer for the saved `tableTennis` selector. */
     tableTennis: typeof createSphericalBall;
+
+    /** The named producer for the saved `padel` selector. */
     padel: typeof createSphericalBall;
+
+    /** The named producer for the saved `squash` selector. */
     squash: typeof createSphericalBall;
+
+    /** The named producer for the saved `baseball` selector. */
     baseball: typeof createSphericalBall;
+
+    /** The named producer for the saved `softball` selector. */
     softball: typeof createSphericalBall;
+
+    /** The named producer for the saved `golf` selector. */
     golf: typeof createSphericalBall;
+
+    /** The named producer for the saved `cricket` selector. */
     cricket: typeof createSphericalBall;
+
+    /** The named producer for the saved `bowling` selector. */
     bowling: typeof createSphericalBall;
+
+    /** The named producer for the saved `pool` selector. */
     pool: typeof createSphericalBall;
+
+    /** The named producer for the saved `rugby` selector. */
     rugby: typeof createOvalBall;
+
+    /** The named producer for the saved `americanFootball` selector. */
     americanFootball: typeof createOvalBall;
+
+    /** The named producer for the saved `fieldHockey` selector. */
     fieldHockey: typeof createSphericalBall;
+
+    /** The named producer for the saved `lacrosse` selector. */
     lacrosse: typeof createSphericalBall;
+
+    /** The named producer for the saved `puck` selector. */
     puck: typeof createPuck;
-  }> = {
+  }
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
     football: createSphericalBall,
     futsal: createSphericalBall,
     basketball: createSphericalBall,

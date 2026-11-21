@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createSideDrum(
   params: createSideDrum.IParams = {},
   seed?: number | string,
-): Archetype<createSideDrum.Affordance, createInstrument.Dimension> {
+): Archetype<createSideDrum.Affordance, createSideDrum.Dimension> {
   return InstrumentBuild.create<createSideDrum.Affordance>(
     "sideDrum",
     "side drum",
@@ -42,6 +42,9 @@ export function createSideDrum(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createSideDrum {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "diameter" | "mass";
+
   /** The named playing and carrying contacts. */
   export type Affordance = "head" | "sling";
 

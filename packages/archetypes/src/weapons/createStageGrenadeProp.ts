@@ -26,7 +26,10 @@ import { stageTokenSphere } from "./stageTokenSphere";
 export function createStageGrenadeProp(
   params: createStageGrenadeProp.IParams = {},
   seed?: number | string,
-): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+): Archetype<
+  createStageGrenadeProp.Affordance,
+  createStageGrenadeProp.Dimension
+> {
   return StageTokenConstruction(
     "grenade",
     params,
@@ -55,6 +58,12 @@ export function createStageGrenadeProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageGrenadeProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "length" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "body";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createProjectile.IParams,

@@ -21,7 +21,7 @@ import type { createLight } from "./createLight";
 export function createPendantLamp(
   params: createPendantLamp.IParams = {},
   seed?: number | string,
-): Archetype<createPendantLamp.Affordance, createLight.Dimension> {
+): Archetype<createPendantLamp.Affordance, createPendantLamp.Dimension> {
   return PracticalLightConstruction.pendant(params, seed);
 }
 
@@ -34,8 +34,11 @@ export function createPendantLamp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createPendantLamp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "cord" | "height" | "mass" | "shade";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "grip" | "light" | "hook";
+  export type Affordance = "grip" | "hook" | "light";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

@@ -26,12 +26,12 @@ export function createHandSaw(
     "id" | "length" | "gripDiameter" | "mass" | "blade"
   > = {},
   seed?: number | string,
-): Archetype<"grip" | "face", HandToolDraw.Dimension> {
+): Archetype<createHandSaw.Affordance, createHandSaw.Dimension> {
   const {
     builder,
     d,
-  }: ReturnType<typeof HandToolDraw.prepare<"grip" | "face">> =
-    HandToolDraw.prepare<"grip" | "face">("saw", params, seed);
+  }: ReturnType<typeof HandToolDraw.prepare<createHandSaw.Affordance>> =
+    HandToolDraw.prepare<createHandSaw.Affordance>("saw", params, seed);
   const length: number = d.length!;
   const radius: number = d.gripDiameter! / 2;
 
@@ -88,4 +88,20 @@ export function createHandSaw(
     length: d.blade!,
   });
   return builder.build(d.mass!);
+}
+
+/**
+ * The contacts and dimensions of {@link createHandSaw}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
+ */
+export namespace createHandSaw {
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "face" | "grip";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "blade" | "gripDiameter" | "length" | "mass";
 }

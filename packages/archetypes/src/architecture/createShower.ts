@@ -26,7 +26,7 @@ import type { createSanitary } from "./createSanitary";
 export function createShower(
   params: createShower.IParams = {},
   seed?: number | string,
-): Archetype<createShower.Affordance, createSanitary.Dimension> {
+): Archetype<createShower.Affordance, createShower.Dimension> {
   return FixtureDraw.installed<
     createShower.Affordance,
     createSanitary.Dimension
@@ -52,21 +52,21 @@ export function createShower(
  */
 export namespace createShower {
   /** The named contacts built by this producer. */
-  export type Affordance = "tray" | "threshold" | "entry" | "seat" | "control";
+  export type Affordance = "control" | "entry" | "seat" | "threshold" | "tray";
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =
+    | "control"
     | "interior"
-    | "wallHeight"
-    | "threshold"
+    | "mass"
     | "seat"
     | "seatDepth"
-    | "control"
-    | "mass";
+    | "threshold"
+    | "wallHeight";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

@@ -25,10 +25,7 @@ import type { createStageWeaponProp } from "./createStageWeaponProp";
 export function createStageShaftProp(
   params: createStageShaftProp.IParams,
   seed?: number | string,
-): Archetype<
-  createStageWeaponProp.Affordance,
-  createStageWeaponProp.Dimension
-> {
+): Archetype<createStageShaftProp.Affordance, createStageShaftProp.Dimension> {
   const kind: createStageShaftProp.Kind = ArchetypeDraw.choice(
     "stageWeaponProp",
     "kind",
@@ -63,6 +60,12 @@ export function createStageShaftProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageShaftProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "grip";
+
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["pike", "shuo", "halberd"] as const;
 
@@ -70,8 +73,11 @@ export namespace createStageShaftProp {
   export type Kind = (typeof KINDS)[number];
 
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<createStageWeaponProp.IParams, "id" | "height"> & {
+  export interface IParams extends Pick<
+    createStageWeaponProp.IParams,
+    "id" | "height"
+  > {
     /** The profile with the required outline. */
     kind: Kind;
-  };
+  }
 }

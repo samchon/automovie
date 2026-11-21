@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createGuitar(
   params: createGuitar.IParams = {},
   seed?: number | string,
-): Archetype<createGuitar.Affordance, createInstrument.Dimension> {
+): Archetype<createGuitar.Affordance, createGuitar.Dimension> {
   return InstrumentBuild.create<createGuitar.Affordance>(
     "guitar",
     "guitar",
@@ -42,12 +42,22 @@ export function createGuitar(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createGuitar {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "bodyDepth"
+    | "bodyLength"
+    | "bodyWidth"
+    | "mass"
+    | "nut"
+    | "saddle"
+    | "scale";
+
   /** The named playing and carrying contacts. */
   export type Affordance =
-    | `fret${number}`
-    | `string${number}`
+    | "body"
     | "neck"
-    | "body";
+    | `fret${number}`
+    | `string${number}`;
 
   /** The identifier and dimension overrides for this instrument. */
   export type IParams = Pick<

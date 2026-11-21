@@ -25,7 +25,7 @@ import type { createHolster } from "./createHolster";
 export function createStageQuiver(
   params: createStageQuiver.IParams = {},
   seed?: number | string,
-): Archetype<createHolster.Affordance, createHolster.Dimension> {
+): Archetype<createStageQuiver.Affordance, createStageQuiver.Dimension> {
   return StageCarrierConstruction(
     "quiver",
     params,
@@ -85,12 +85,18 @@ export function createStageQuiver(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageQuiver {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "length" | "mass";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "belt" | "socket" | "strap" | `slot${number}`;
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createHolster.IParams,
     "id" | "length" | "diameter" | "mass"
-  > & {
+  > {
     /** Whole number of display sites within the original slot capacity. */
     slots?: number;
-  };
+  }
 }

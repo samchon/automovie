@@ -21,7 +21,7 @@ import type { createBed } from "./createBed";
 export function createCrib(
   params: createCrib.IParams = {},
   seed?: number | string,
-): Archetype<createCrib.Affordance, createBed.Dimension> {
+): Archetype<createCrib.Affordance, createCrib.Dimension> {
   return BedConstruction.crib(params, seed);
 }
 
@@ -34,8 +34,17 @@ export function createCrib(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createCrib {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "height"
+    | "length"
+    | "mass"
+    | "rail"
+    | "thickness"
+    | "width";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "surface" | "leftRail" | "rightRail";
+  export type Affordance = "leftRail" | "rightRail" | "surface";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

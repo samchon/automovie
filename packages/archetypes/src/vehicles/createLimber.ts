@@ -24,7 +24,7 @@ import type { createCart } from "./createCart";
 export function createLimber(
   params: createLimber.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<createLimber.Affordance, createLimber.Dimension> {
   return CartConstruction("limber", params, seed, CartLimber.build);
 }
 
@@ -37,6 +37,23 @@ export function createLimber(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createLimber {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "length"
+    | "mass"
+    | "poleLength"
+    | "track"
+    | "wheelDiameter";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "chest"
+    | "coupling"
+    | "leftSpin"
+    | "pintle"
+    | "rightSpin"
+    | "seat";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createCart.IParams,

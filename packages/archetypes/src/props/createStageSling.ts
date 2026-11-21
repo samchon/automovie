@@ -24,17 +24,38 @@ export function createStageSling(
     "id" | "length" | "shaftDiameter" | "pouchLength" | "pouchWidth" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<"grip" | "release" | "pouch", LongImplementDraw.Dimension> {
+): Archetype<createStageSling.Affordance, createStageSling.Dimension> {
   const {
     builder,
     d,
-  }: ReturnType<
-    typeof LongImplementDraw.prepare<"grip" | "release" | "pouch">
-  > = LongImplementDraw.prepare<"grip" | "release" | "pouch">(
-    "sling",
-    params,
-    seed,
-  );
+  }: ReturnType<typeof LongImplementDraw.prepare<createStageSling.Affordance>> =
+    LongImplementDraw.prepare<createStageSling.Affordance>(
+      "sling",
+      params,
+      seed,
+    );
   Throwers.sling(builder, d);
   return builder.build(d.mass!);
+}
+
+/**
+ * The contacts and dimensions of {@link createStageSling}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
+ */
+export namespace createStageSling {
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "grip" | "pouch" | "release";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "launchSpeed"
+    | "length"
+    | "mass"
+    | "pouchLength"
+    | "pouchWidth"
+    | "shaftDiameter";
 }

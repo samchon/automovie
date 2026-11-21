@@ -24,7 +24,7 @@ import type { createMachine } from "./createMachine";
 export function createVendingMachine(
   params: createVendingMachine.IParams = {},
   seed?: number | string,
-): Archetype<createVendingMachine.Affordance, createMachine.Dimension> {
+): Archetype<createVendingMachine.Affordance, createVendingMachine.Dimension> {
   const cabinet: ServiceCabinet.ICabinet<createVendingMachine.Affordance> =
     ServiceCabinet.begin(
       "vendingMachine",
@@ -49,15 +49,18 @@ export namespace createVendingMachine {
   /** The named contacts built by this producer. */
   export type Affordance = "front" | "side";
 
-  /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height" | "depth" | "mass";
+  /** The dimensions an author may fix, in the same units. */
+  export type Fixed = "height" | "depth" | "mass";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
 
   /** The numeric overrides and optional scene identifier. The model selects the manufacturer's fixed width. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Fixed, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
 
     /** The measured model, drawn by seed when omitted. */
     model?: createMachine.Model;
-  };
+  }
 }

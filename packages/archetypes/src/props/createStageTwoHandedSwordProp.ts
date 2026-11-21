@@ -25,7 +25,10 @@ import type { createStageBladeProp } from "./createStageBladeProp";
 export function createStageTwoHandedSwordProp(
   params: createStageTwoHandedSwordProp.IParams = {},
   seed?: number | string,
-): Archetype<createStageBladeProp.Affordance, createStageBladeProp.Dimension> {
+): Archetype<
+  createStageTwoHandedSwordProp.Affordance,
+  createStageTwoHandedSwordProp.Dimension
+> {
   return StageBladeConstruction(
     "longsword",
     params,
@@ -53,6 +56,12 @@ export function createStageTwoHandedSwordProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageTwoHandedSwordProp {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "length";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "grip";
+
   /** The model identity, dimensions. */
   export type IParams = Pick<createStageBladeProp.IParams, "id" | "length">;
 }

@@ -41,7 +41,7 @@ const v: typeof Vector3.create = Vector3.create;
 export function createFieldGoal(
   params: createFieldGoal.IParams = {},
   seed?: number | string,
-): Archetype<createFieldGoal.Affordance, createGoal.Dimension> {
+): Archetype<createFieldGoal.Affordance, createFieldGoal.Dimension> {
   const kind: createFieldGoal.Kind = ArchetypeDraw.choice(
     "goal",
     "kind",
@@ -144,8 +144,11 @@ function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createFieldGoal {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "bar" | "height" | "mass" | "width";
+
   /** The contact identifiers for the apparatus. */
-  export type Affordance = "crossbar" | "mouth" | "leftPost" | "rightPost";
+  export type Affordance = "crossbar" | "leftPost" | "mouth" | "rightPost";
 
   /** Goals of the same rectangular frame family, in catalogue order. */
   export const KINDS: readonly Kind[] = [
@@ -165,11 +168,11 @@ export namespace createFieldGoal {
     | "handballGoal";
 
   /** The identifier and overrides that apply to this profile. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createGoal.IParams,
     "id" | "width" | "height" | "bar" | "mass"
-  > & {
+  > {
     /** The sport profile. Omission selects the football goal. */
     kind?: Kind;
-  };
+  }
 }

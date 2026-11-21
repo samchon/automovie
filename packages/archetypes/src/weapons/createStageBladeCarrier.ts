@@ -25,7 +25,10 @@ import { createHolster } from "./createHolster";
 export function createStageBladeCarrier(
   params: createStageBladeCarrier.IParams,
   seed?: number | string,
-): Archetype<createHolster.Affordance, createHolster.Dimension> {
+): Archetype<
+  createStageBladeCarrier.Affordance,
+  createStageBladeCarrier.Dimension
+> {
   const kind: createStageBladeCarrier.Kind = ArchetypeDraw.choice(
     "holster",
     "kind",
@@ -75,6 +78,12 @@ export function createStageBladeCarrier(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageBladeCarrier {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "length" | "mass" | "thickness" | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "belt" | "mouth";
+
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["scabbard", "sheath"] as const;
 
@@ -82,13 +91,13 @@ export namespace createStageBladeCarrier {
   export type Kind = (typeof KINDS)[number];
 
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createHolster.IParams,
     "id" | "length" | "width" | "thickness" | "mass"
-  > & {
+  > {
     /** The profile with the required outline. */
     kind: Kind;
     /** A compatible historical display profile identifier. */
     blade?: createHolster.Blade;
-  };
+  }
 }

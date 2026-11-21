@@ -142,14 +142,26 @@ export namespace createInstrument {
   /** The band of each free dimension, by kind. */
   export const BANDS: typeof InstrumentBuild.BANDS = InstrumentBuild.BANDS;
 
-  /** The canonical producer for each saved kind. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `uprightPiano` selector. */
     uprightPiano: typeof createUprightPiano;
+
+    /** The named producer for the saved `guitar` selector. */
     guitar: typeof createGuitar;
+
+    /** The named producer for the saved `violin` selector. */
     violin: typeof createViolin;
+
+    /** The named producer for the saved `sideDrum` selector. */
     sideDrum: typeof createSideDrum;
+
+    /** The named producer for the saved `bugle` selector. */
     bugle: typeof createBugle;
-  }> = {
+  }
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
     uprightPiano: createUprightPiano,
     guitar: createGuitar,
     violin: createViolin,

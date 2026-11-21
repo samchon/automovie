@@ -21,7 +21,7 @@ import type { createStorage } from "./createStorage";
 export function createDrawerUnit(
   params: createDrawerUnit.IParams,
   seed?: number | string,
-): Archetype<createDrawerUnit.Affordance, createStorage.Dimension> {
+): Archetype<createDrawerUnit.Affordance, createDrawerUnit.Dimension> {
   return StorageMechanisms.sliding(
     ArchetypeDraw.choice(
       "storage",
@@ -43,6 +43,9 @@ export function createDrawerUnit(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createDrawerUnit {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "travel" | "width";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "push" | "top" | `drawer${number}` | `pull${number}`;
 

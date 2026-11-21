@@ -24,7 +24,7 @@ import type { createArmour } from "./createArmour";
 export function createCostumeMail(
   params: createCostumeMail.IParams = {},
   seed?: number | string,
-): Archetype<createArmour.Affordance, createArmour.Dimension> {
+): Archetype<createCostumeMail.Affordance, createCostumeMail.Dimension> {
   return CostumeConstruction("mail", params, seed, ArmourTorso);
 }
 
@@ -37,9 +37,21 @@ export function createCostumeMail(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createCostumeMail {
+  /** The `model` choices this producer admits. */
+  export type Model = "met34324" | "met22415" | "met633538" | "met27635";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "wear";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<createArmour.IParams, "id" | "measure"> & {
+  export interface IParams extends Pick<
+    createArmour.IParams,
+    "id" | "measure"
+  > {
     /** A model from this form's catalogue. */
-    model?: "met34324" | "met22415" | "met633538" | "met27635";
-  };
+    model?: Model;
+  }
 }

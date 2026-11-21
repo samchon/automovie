@@ -26,7 +26,7 @@ import type { createObstacle } from "./createObstacle";
 export function createCrosstie(
   params: createCrosstie.IParams = {},
   seed?: number | string,
-): Archetype<createCrosstie.Affordance, createObstacle.Dimension> {
+): Archetype<createCrosstie.Affordance, createCrosstie.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createCrosstie.Affordance> =
     ObstacleDraw.begin("crosstie", "railway crosstie", "wood", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -55,13 +55,16 @@ export function createCrosstie(
  */
 export namespace createCrosstie {
   /** The named contacts built by this producer. */
-  export type Affordance = "top" | "edge";
+  export type Affordance = "edge" | "top";
 
-  /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "mass";
+  /** The dimensions an author may fix, in the same units. */
+  export type Fixed = "mass";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "height" | "length" | "mass" | "width";
 
   /** The numeric overrides and optional scene identifier. Its section and length each select a complete measured profile. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Fixed, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
 
@@ -70,5 +73,5 @@ export namespace createCrosstie {
 
     /** The measured length, drawn from the seed when omitted. */
     tieLength?: createObstacle.TieLength;
-  };
+  }
 }

@@ -73,14 +73,26 @@ export function createVessel(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read, never a size between two models; the IKEA bowl's and a pan's weight alone is not given, so that model's mass and those bands are provisional; the wall's and the handles' sizes are named estimates.
  */
 export namespace createVessel {
-  /** Resolve the exact named producer for a saved selector on demand. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `bowl` selector. */
     bowl: typeof createBowl;
+
+    /** The named producer for the saved `ashtray` selector. */
     ashtray: typeof createAshtray;
+
+    /** The named producer for the saved `saucepan` selector. */
     saucepan: typeof createCookingPot;
+
+    /** The named producer for the saved `stockpot` selector. */
     stockpot: typeof createCookingPot;
+
+    /** The named producer for the saved `vase` selector. */
     vase: typeof createVase;
-  }> = {
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
     get bowl(): typeof createBowl {
       return createBowl;
     },

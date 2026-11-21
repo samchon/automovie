@@ -24,7 +24,7 @@ import { createBoat } from "./createBoat";
 export function createCanoe(
   params: createCanoe.IParams = {},
   seed?: number | string,
-): Archetype<createBoat.Affordance, createBoat.Dimension> {
+): Archetype<createCanoe.Affordance, createCanoe.Dimension> {
   return BoatConstruction("canoe", params, seed, outfit);
 }
 
@@ -37,13 +37,40 @@ export function createCanoe(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createCanoe {
+  /** The `model` choices this producer admits. */
+  export type Model =
+    | "prospector16"
+    | "discovery169"
+    | "spiritII"
+    | "minnesotaII";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "beam"
+    | "depth"
+    | "endHeight"
+    | "length"
+    | "mass"
+    | "seatHeight";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "bow"
+    | "floor"
+    | "gunwale"
+    | "stern"
+    | `thwart${number}`;
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<createBoat.IParams, "id" | "seatHeight"> & {
+  export interface IParams extends Pick<
+    createBoat.IParams,
+    "id" | "seatHeight"
+  > {
     /** A model from this form's catalogue. */
-    model?: "prospector16" | "discovery169" | "spiritII" | "minnesotaII";
+    model?: Model;
     /** One of the selected hull model's documented layups. */
     layup?: createBoat.Layup;
-  };
+  }
 }
 
 /** Record this hull's fixed seats. */

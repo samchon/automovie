@@ -49,7 +49,7 @@ const NET_THICKNESS: number = 0.005;
 export function createTennisNet(
   params: createTennisNet.IParams = {},
   seed?: number | string,
-): Archetype<createTennisNet.Affordance, createGoal.Dimension> {
+): Archetype<createTennisNet.Affordance, createTennisNet.Dimension> {
   const {
     builder,
     d,
@@ -122,8 +122,17 @@ function tennis(builder: Builder, d: Drawn): void {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createTennisNet {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "bar"
+    | "height"
+    | "mass"
+    | "offset"
+    | "post"
+    | "width";
+
   /** The contact identifiers for the apparatus. */
-  export type Affordance = "top" | "leftPost" | "rightPost";
+  export type Affordance = "leftPost" | "rightPost" | "top";
 
   /** The identifier and overrides that apply to this profile. */
   export type IParams = Pick<

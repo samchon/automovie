@@ -58,11 +58,17 @@ export function createTray(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The sizes are the products' as read; their weights are not given, so the mass bands are provisional; the wall's and the handle's sizes are named estimates.
  */
 export namespace createTray {
-  /** Resolve the exact named producer for a saved selector on demand. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `tray` selector. */
     tray: typeof createServingTray;
+
+    /** The named producer for the saved `basket` selector. */
     basket: typeof createCarryBasket;
-  }> = {
+  }
+
+  /** Resolve the exact named producer for a saved selector on demand. */
+  export const PRODUCERS: Readonly<IProducers> = {
     get tray(): typeof createServingTray {
       return createServingTray;
     },

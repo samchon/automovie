@@ -24,7 +24,7 @@ import type { createHolster } from "./createHolster";
 export function createStagePouch(
   params: createStagePouch.IParams = {},
   seed?: number | string,
-): Archetype<createHolster.Affordance, createHolster.Dimension> {
+): Archetype<createStagePouch.Affordance, createStagePouch.Dimension> {
   return StageCarrierConstruction(
     "pouch",
     params,
@@ -49,6 +49,12 @@ export function createStagePouch(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStagePouch {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "length" | "mass" | "thickness" | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "belt" | "lid" | "strap" | `slot${number}`;
+
   /** The model identity, dimensions. */
   export type IParams = Pick<
     createHolster.IParams,

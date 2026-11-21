@@ -23,12 +23,12 @@ export function createMop(
     "id" | "length" | "shaftDiameter" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<"face" | "shaft", LongImplementDraw.Dimension> {
+): Archetype<createMop.Affordance, createMop.Dimension> {
   const {
     builder,
     d,
-  }: ReturnType<typeof LongImplementDraw.prepare<"face" | "shaft">> =
-    LongImplementDraw.prepare<"face" | "shaft">("mop", params, seed);
+  }: ReturnType<typeof LongImplementDraw.prepare<createMop.Affordance>> =
+    LongImplementDraw.prepare<createMop.Affordance>("mop", params, seed);
   const radius: number = d.shaftDiameter! / 2;
 
   LongImplementDraw.groundTool(
@@ -43,4 +43,20 @@ export function createMop(
     { radius, top: d.length! },
   );
   return builder.build(d.mass!);
+}
+
+/**
+ * The contacts and dimensions of {@link createMop}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
+ */
+export namespace createMop {
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "face" | "shaft";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "length" | "mass" | "shaftDiameter";
 }

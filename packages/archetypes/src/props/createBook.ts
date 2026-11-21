@@ -25,20 +25,12 @@ export function createBook(
     "id" | "width" | "length" | "thickness" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<
-  "grip" | "face" | "hinge" | "edge" | "page" | "page-edge",
-  StationeryDraw.Dimension
-> {
+): Archetype<createBook.Affordance, createBook.Dimension> {
   const {
     builder,
     d,
-  }: ReturnType<
-    typeof StationeryDraw.prepare<
-      "grip" | "face" | "hinge" | "edge" | "page" | "page-edge"
-    >
-  > = StationeryDraw.prepare<
-    "grip" | "face" | "hinge" | "edge" | "page" | "page-edge"
-  >("book", params, seed);
+  }: ReturnType<typeof StationeryDraw.prepare<createBook.Affordance>> =
+    StationeryDraw.prepare<createBook.Affordance>("book", params, seed);
   const width: number = d.width!;
   const length: number = d.length!;
   const thick: number = d.thickness!;
@@ -143,4 +135,26 @@ export function createBook(
     rides: "hinge",
   });
   return builder.build(d.mass!);
+}
+
+/**
+ * The contacts and dimensions of {@link createBook}.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
+ * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
+ */
+export namespace createBook {
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "edge"
+    | "face"
+    | "grip"
+    | "hinge"
+    | "page"
+    | "page-edge";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "length" | "mass" | "thickness" | "width";
 }

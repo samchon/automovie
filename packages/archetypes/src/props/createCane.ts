@@ -21,7 +21,7 @@ import type { createMobilityAid } from "./createMobilityAid";
 export function createCane(
   params: createCane.IParams = {},
   seed?: number | string,
-): Archetype<createCane.Affordance, createMobilityAid.Dimension> {
+): Archetype<createCane.Affordance, createCane.Dimension> {
   return MobilityAidConstruction.cane(params, seed);
 }
 
@@ -34,6 +34,9 @@ export function createCane(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createCane {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "height" | "mass";
+
   /** The contact IDs declared by this producer. */
   export type Affordance = "grip" | "tip";
 

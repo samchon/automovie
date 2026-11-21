@@ -25,7 +25,10 @@ import { createBow } from "./createBow";
 export function createStageHandBowProp(
   params: createStageHandBowProp.IParams,
   seed?: number | string,
-): Archetype<createBow.Affordance, createBow.Dimension> {
+): Archetype<
+  createStageHandBowProp.Affordance,
+  createStageHandBowProp.Dimension
+> {
   const kind: createStageHandBowProp.Kind = ArchetypeDraw.choice(
     "bow",
     "kind",
@@ -147,6 +150,34 @@ export function createStageHandBowProp(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createStageHandBowProp {
+  /** The `model` choices this producer admits. */
+  export type Model =
+    | "s1"
+    | "s2"
+    | "s3"
+    | "hoyt68"
+    | "hoyt70"
+    | "warrior"
+    | "zenith";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "brace"
+    | "depth"
+    | "draw"
+    | "length"
+    | "mass"
+    | "nockHeight";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "grip"
+    | "lowerLimb"
+    | "nock"
+    | "rest"
+    | "string"
+    | "upperLimb";
+
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["longbow", "recurve", "horseBow"] as const;
 
@@ -154,15 +185,15 @@ export namespace createStageHandBowProp {
   export type Kind = (typeof KINDS)[number];
 
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createBow.IParams,
     "id" | "length" | "depth" | "brace" | "nockHeight" | "mass" | "draw"
-  > & {
+  > {
     /** The profile with the required outline. */
     kind: Kind;
     /** A model from this form's catalogue. */
-    model?: "s1" | "s2" | "s3" | "hoyt68" | "hoyt70" | "warrior" | "zenith";
+    model?: Model;
     /** A legacy catalogue selector available on the horse-bow silhouette. */
     weight?: createBow.Weight;
-  };
+  }
 }

@@ -24,7 +24,7 @@ import type { createArmour } from "./createArmour";
 export function createCostumeHelmet(
   params: createCostumeHelmet.IParams,
   seed?: number | string,
-): Archetype<createArmour.Affordance, createArmour.Dimension> {
+): Archetype<createCostumeHelmet.Affordance, createCostumeHelmet.Dimension> {
   const kind: createCostumeHelmet.Kind = ArchetypeDraw.choice(
     "armour",
     "kind",
@@ -43,6 +43,18 @@ export function createCostumeHelmet(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createCostumeHelmet {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "depth"
+    | "height"
+    | "mass"
+    | "pad"
+    | "thickness"
+    | "width";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance = "wear";
+
   /** Accepted profiles sharing this producer's geometry and actor contacts. */
   export const KINDS = ["openHelmet", "closedHelmet", "brimmedHelmet"] as const;
 
@@ -50,10 +62,10 @@ export namespace createCostumeHelmet {
   export type Kind = (typeof KINDS)[number];
 
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createArmour.IParams,
     "id" | "pad" | "thickness" | "measure"
-  > & {
+  > {
     /** The profile with the required outline. */
     kind: Kind;
     /** A model from this form's catalogue. */
@@ -64,5 +76,5 @@ export namespace createCostumeHelmet {
       | "met26508"
       | "met26512"
       | "met21972";
-  };
+  }
 }

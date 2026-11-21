@@ -26,7 +26,7 @@ import type { createAppliance } from "./createAppliance";
 export function createWashingMachine(
   params: createWashingMachine.IParams = {},
   seed?: number | string,
-): Archetype<createWashingMachine.Affordance, createAppliance.Dimension> {
+): Archetype<createWashingMachine.Affordance, createWashingMachine.Dimension> {
   return FixtureDraw.installed<
     createWashingMachine.Affordance,
     createAppliance.Dimension
@@ -55,11 +55,11 @@ export namespace createWashingMachine {
   export type Affordance = "door" | "top";
 
   /** The dimensions the author may fix inside the producer's bands. */
-  export type Dimension = "height" | "width" | "depth" | "door" | "mass";
+  export type Dimension = "depth" | "door" | "height" | "mass" | "width";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

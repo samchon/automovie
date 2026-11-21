@@ -21,7 +21,7 @@ import type { createStorage } from "./createStorage";
 export function createHingedCabinet(
   params: createHingedCabinet.IParams,
   seed?: number | string,
-): Archetype<createHingedCabinet.Affordance, createStorage.Dimension> {
+): Archetype<createHingedCabinet.Affordance, createHingedCabinet.Dimension> {
   return StorageMechanisms.hinged(
     ArchetypeDraw.choice(
       "storage",
@@ -43,16 +43,26 @@ export function createHingedCabinet(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createHingedCabinet {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "depth"
+    | "height"
+    | "legs"
+    | "mass"
+    | "pullHeight"
+    | "swing"
+    | "width";
+
   /** The contact IDs declared by this producer. */
   export type Affordance =
-    | "push"
-    | "top"
-    | `shelf${number}`
+    | "door"
     | "leftDoor"
-    | "rightDoor"
     | "leftPull"
+    | "push"
+    | "rightDoor"
     | "rightPull"
-    | "door";
+    | "shelf1"
+    | "top";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<createStorage.IParams, "id" | "height" | "mass"> &

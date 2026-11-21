@@ -24,7 +24,7 @@ import type { createBall } from "./createBall";
 export function createPuck(
   params: createPuck.IParams = {},
   seed?: number | string,
-): Archetype<createPuck.Affordance, createBall.Dimension> {
+): Archetype<createPuck.Affordance, createPuck.Dimension> {
   const {
     builder,
     d,
@@ -71,8 +71,11 @@ export function createPuck(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createPuck {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "length" | "mass";
+
   /** The contacts used by floor, grip and strike motions. */
-  export type Affordance = "grip" | "top" | "rim";
+  export type Affordance = "grip" | "rim" | "top";
 
   /** The identifier, dimensions and choices of this shape. */
   export type IParams = Pick<

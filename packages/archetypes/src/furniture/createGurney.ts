@@ -21,7 +21,7 @@ import type { createBed } from "./createBed";
 export function createGurney(
   params: createGurney.IParams = {},
   seed?: number | string,
-): Archetype<createGurney.Affordance, createBed.Dimension> {
+): Archetype<createGurney.Affordance, createGurney.Dimension> {
   return BedConstruction.gurney(params, seed);
 }
 
@@ -34,8 +34,18 @@ export function createGurney(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The parameters admit only fields used by a member of this group.
  */
 export namespace createGurney {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "length"
+    | "litter"
+    | "mass"
+    | "overallLength"
+    | "overallWidth"
+    | "thickness"
+    | "width";
+
   /** The contact IDs declared by this producer. */
-  export type Affordance = "surface" | "leftSide" | "rightSide";
+  export type Affordance = "leftSide" | "rightSide" | "surface";
 
   /** The admitted settings and optional model ID. */
   export type IParams = Pick<

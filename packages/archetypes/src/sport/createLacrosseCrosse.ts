@@ -28,7 +28,7 @@ const v: typeof Vector3.create = Vector3.create;
 export function createLacrosseCrosse(
   params: createLacrosseCrosse.IParams = {},
   seed?: number | string,
-): Archetype<createLacrosseCrosse.Affordance, createStick.Dimension> {
+): Archetype<createLacrosseCrosse.Affordance, createLacrosseCrosse.Dimension> {
   const {
     builder,
     d,
@@ -98,8 +98,11 @@ export function createLacrosseCrosse(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createLacrosseCrosse {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "head" | "length" | "mass" | "width";
+
   /** The named contacts on this stick or bat. */
-  export type Affordance = "grip" | "blade" | "pocket" | "scoop";
+  export type Affordance = "blade" | "grip" | "pocket" | "scoop";
 
   /** The identifier and overrides available within this profile. */
   export type IParams = Pick<

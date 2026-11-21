@@ -24,7 +24,7 @@ import type { createCart } from "./createCart";
 export function createChariot(
   params: createChariot.IParams = {},
   seed?: number | string,
-): Archetype<createCart.Affordance, createCart.Dimension> {
+): Archetype<createChariot.Affordance, createChariot.Dimension> {
   return CartConstruction("chariot", params, seed, CartDrawn.chariot);
 }
 
@@ -37,8 +37,27 @@ export function createChariot(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the original typed dimensions and retains runtime admission.
  */
 export namespace createChariot {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "floorDepth"
+    | "floorWidth"
+    | "mass"
+    | "poleLength"
+    | "railHeight"
+    | "track"
+    | "wheelDiameter"
+    | "withersHeight";
+
+  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  export type Affordance =
+    | "coupling"
+    | "floor"
+    | "leftSpin"
+    | "rightSpin"
+    | "rim";
+
   /** The model identity, dimensions and this form's catalogue choices. */
-  export type IParams = Pick<
+  export interface IParams extends Pick<
     createCart.IParams,
     | "id"
     | "wheelDiameter"
@@ -49,7 +68,7 @@ export namespace createChariot {
     | "poleLength"
     | "withersHeight"
     | "mass"
-  > & {
+  > {
     /** A model from this form's catalogue. */
     model?:
       | "carter120"
@@ -58,5 +77,5 @@ export namespace createChariot {
       | "carter161"
       | "carter332"
       | "carter333";
-  };
+  }
 }

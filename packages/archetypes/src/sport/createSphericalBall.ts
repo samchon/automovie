@@ -24,7 +24,7 @@ import type { createBall } from "./createBall";
 export function createSphericalBall(
   params: createSphericalBall.IParams = {},
   seed?: number | string,
-): Archetype<createSphericalBall.Affordance, createBall.Dimension> {
+): Archetype<createSphericalBall.Affordance, createSphericalBall.Dimension> {
   const kind: createSphericalBall.Kind = ArchetypeDraw.choice(
     "ball",
     "kind",
@@ -59,6 +59,9 @@ export function createSphericalBall(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createSphericalBall {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "diameter" | "mass";
+
   /** The contacts used by floor, grip and strike motions. */
   export type Affordance = "grip" | "top";
 
@@ -75,8 +78,11 @@ export namespace createSphericalBall {
   >;
 
   /** The identifier, dimensions and choices of this shape. */
-  export type IParams = Pick<createBall.IParams, "id" | "diameter" | "mass"> & {
+  export interface IParams extends Pick<
+    createBall.IParams,
+    "id" | "diameter" | "mass"
+  > {
     /** The sport profile. Omission selects football. */
     kind?: Kind;
-  };
+  }
 }

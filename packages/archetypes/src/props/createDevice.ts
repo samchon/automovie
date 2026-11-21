@@ -81,14 +81,26 @@ export namespace createDevice {
   /** Ranges of drawn dimensions by kind. */
   export const BANDS: typeof HandheldDevice.BANDS = HandheldDevice.BANDS;
 
-  /** The public producer for each saved kind, in the same family. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `phone` selector. */
     phone: typeof createPhone;
+
+    /** The named producer for the saved `camera` selector. */
     camera: typeof createCamera;
+
+    /** The named producer for the saved `remote` selector. */
     remote: typeof createRemote;
+
+    /** The named producer for the saved `tablet` selector. */
     tablet: typeof createTablet;
+
+    /** The named producer for the saved `walkieTalkie` selector. */
     walkieTalkie: typeof createRadio;
-  }> = {
+  }
+
+  /** The public producer for each saved kind, in the same family. */
+  export const PRODUCERS: Readonly<IProducers> = {
     phone: createPhone,
     camera: createCamera,
     remote: createRemote,

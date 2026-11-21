@@ -91,9 +91,18 @@ export namespace createKeyboard {
   /** The free dimension bands by kind. */
   export const BANDS: typeof KeyboardHardware.BANDS = KeyboardHardware.BANDS;
 
-  /** The public producer for each saved kind. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `keyboard` selector. */
     keyboard: typeof createDesktopKeyboard;
+
+    /** The named producer for the saved `laptop` selector. */
     laptop: typeof createLaptop;
-  }> = { keyboard: createDesktopKeyboard, laptop: createLaptop };
+  }
+
+  /** The public producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
+    keyboard: createDesktopKeyboard,
+    laptop: createLaptop,
+  };
 }

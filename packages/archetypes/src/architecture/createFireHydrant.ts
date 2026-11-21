@@ -33,7 +33,7 @@ const HYDRANT: Readonly<{ pumper: number; hose: number; nut: number }> = {
 export function createFireHydrant(
   params: createFireHydrant.IParams = {},
   seed?: number | string,
-): Archetype<createFireHydrant.Affordance, createStreetFixture.Dimension> {
+): Archetype<createFireHydrant.Affordance, createFireHydrant.Dimension> {
   const {
     builder,
     d,
@@ -111,20 +111,20 @@ export function createFireHydrant(
  */
 export namespace createFireHydrant {
   /** The named contacts built by this producer. */
-  export type Affordance = "pumper" | "hoseLeft" | "hoseRight" | "nut";
+  export type Affordance = "hoseLeft" | "hoseRight" | "nut" | "pumper";
 
   /** The dimensions the author may fix inside the producer's bands. */
   export type Dimension =
-    | "height"
-    | "nozzleHeight"
-    | "pumperReach"
-    | "hoseReach"
     | "diameter"
-    | "mass";
+    | "height"
+    | "hoseReach"
+    | "mass"
+    | "nozzleHeight"
+    | "pumperReach";
 
   /** The numeric overrides and optional scene identifier. */
-  export type IParams = Partial<Record<Dimension, number>> & {
+  export interface IParams extends Partial<Record<Dimension, number>> {
     /** A unique scene identifier, defaulting to the saved family name. */
     id?: string;
-  };
+  }
 }

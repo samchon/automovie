@@ -49,7 +49,7 @@ const ESTIMATES: Readonly<{ post: number; mesh: number; antenna: number }> = {
 export function createVolleyballNet(
   params: createVolleyballNet.IParams = {},
   seed?: number | string,
-): Archetype<createVolleyballNet.Affordance, createGoal.Dimension> {
+): Archetype<createVolleyballNet.Affordance, createVolleyballNet.Dimension> {
   const {
     builder,
     d,
@@ -121,8 +121,17 @@ function volleyball(builder: Builder, d: Drawn): void {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createVolleyballNet {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension =
+    | "board"
+    | "height"
+    | "mass"
+    | "offset"
+    | "post"
+    | "width";
+
   /** The contact identifiers for the apparatus. */
-  export type Affordance = "top" | "leftPost" | "rightPost";
+  export type Affordance = "leftPost" | "rightPost" | "top";
 
   /** The identifier and overrides that apply to this profile. */
   export type IParams = Pick<

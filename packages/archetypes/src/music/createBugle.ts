@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createBugle(
   params: createBugle.IParams = {},
   seed?: number | string,
-): Archetype<createBugle.Affordance, createInstrument.Dimension> {
+): Archetype<createBugle.Affordance, createBugle.Dimension> {
   return InstrumentBuild.create<createBugle.Affordance>(
     "bugle",
     "bugle",
@@ -42,6 +42,9 @@ export function createBugle(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact identifiers are tied to the geometry this producer constructs.
  */
 export namespace createBugle {
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "bell" | "length" | "mass";
+
   /** The named playing and carrying contacts. */
   export type Affordance = "grip" | "mouthpiece";
 

@@ -24,7 +24,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
 export function createLaptop(
   params: createLaptop.IParams = {},
   seed?: number | string,
-): Archetype<createLaptop.Affordance, KeyboardHardware.Dimension> {
+): Archetype<createLaptop.Affordance, createLaptop.Dimension> {
   const {
     builder,
     d,
@@ -84,8 +84,14 @@ export function createLaptop(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts This producer exposes only its built contacts and supported manufacturer models.
  */
 export namespace createLaptop {
+  /** The `model` choices this producer admits. */
+  export type Model = "air13" | "air15";
+
+  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  export type Dimension = "depth" | "height" | "mass" | "width";
+
   /** The identifiers of contacts this producer builds. */
-  export type Affordance = "keys" | "homeRow" | "screen" | "lid";
+  export type Affordance = "homeRow" | "keys" | "lid" | "screen";
 
   /** The constructor input. */
   export interface IParams {
@@ -93,6 +99,6 @@ export namespace createLaptop {
     id?: string;
 
     /** The manufacturer model, selected with the seed when omitted. */
-    model?: "air13" | "air15";
+    model?: Model;
   }
 }

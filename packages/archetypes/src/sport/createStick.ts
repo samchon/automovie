@@ -95,13 +95,23 @@ export namespace createStick {
   /** The band of each free dimension, by kind. */
   export const BANDS: typeof StickBuild.BANDS = StickBuild.BANDS;
 
-  /** The canonical producer for each saved kind. */
-  export const PRODUCERS: Readonly<{
+  /** Each saved selector's named producer. */
+  export interface IProducers {
+    /** The named producer for the saved `iceHockey` selector. */
     iceHockey: typeof createIceHockeyStick;
+
+    /** The named producer for the saved `fieldHockey` selector. */
     fieldHockey: typeof createFieldHockeyStick;
+
+    /** The named producer for the saved `lacrosse` selector. */
     lacrosse: typeof createLacrosseCrosse;
+
+    /** The named producer for the saved `cricketBat` selector. */
     cricketBat: typeof createCricketBat;
-  }> = {
+  }
+
+  /** The canonical producer for each saved kind. */
+  export const PRODUCERS: Readonly<IProducers> = {
     iceHockey: createIceHockeyStick,
     fieldHockey: createFieldHockeyStick,
     lacrosse: createLacrosseCrosse,
