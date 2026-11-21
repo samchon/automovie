@@ -1,0 +1,210 @@
+import { type Archetype, createWearable } from "@automovie/archetypes";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  HumanChain,
+  HumanObject,
+  HumanPerformance,
+  HumanRefusal,
+  dressPartner,
+} from "@automovie/motions";
+import { TestValidator } from "@nestia/e2e";
+
+import { assertTakeClean } from "../internal/assertTakeClean";
+import { motionHumanBody } from "../internal/motionHumanBody";
+
+/** The rigid custody bound: a worn item's drift on its bone, metres. */
+const RIGID: number = 0.001;
+
+/** One dressing case: the item kind, the partner's region and its bone. */
+interface ICase {
+  /** The wearable kind. */
+  kind: createWearable.Kind;
+
+  /** The partner's region. */
+  region: AutoMovieHumanoidRegion;
+
+  /** Whether the partner kneels to receive it, as a crown is received. */
+  kneels: boolean;
+}
+
+/**
+ * A held wearable passes from the dresser's hand to the partner's body.
+ *
+ * Scenarios, for a hat on the partner's crown and a watch on the partner's
+ * left wrist, with the average man dressing the small woman and the reverse:
+ * 1. The dresser's grip on the item ends at the arm phrase's stroke and the
+ *    item is worn on the partner's bone under the region from then.
+ * 2. The worn item keeps its offset on the partner's bone through the rest
+ *    of the take, while the partner turns.
+ * 3. Naming the dresser as the partner is refused.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the custody change, the cases and the refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Reads the plan's grip window and the displayed item against the partner's displayed bone; a grip that outlasts the wear, an item left in the air or sliding on the partner, or an admitted self-dressing fails.
+ * @evidence contracts/development/testing.md#independent-expectations Custody passes without a gap or an overlap; a worn item is rigid on its bone, bounded at 1 mm.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two items on two regions, both body pairs, the refusal; reach is the arm phrase's own specification.
+ * @evidence contracts/development/testing.md#execution-ownership An in-memory two-performer performance through the public chain.
+ */
+export function test_human_motion_dress_partner(): void {
+  const cases: readonly ICase[] = [
+    { kind: "hat", region: "crown", kneels: true },
+    { kind: "watch", region: "wristLeft", kneels: false },
+  ];
+  for (const [dresser, dressed] of [
+    ["m-average", "f-small"],
+    ["f-small", "m-average"],
+  ] as const)
+    for (const item of cases) {
+      const a: IAutoMovieMotionHumanBody = motionHumanBody(dresser);
+      const b: IAutoMovieMotionHumanBody = motionHumanBody(dressed);
+      const model: Archetype<
+        createWearable.Affordance,
+        createWearable.Dimension
+      > = createWearable({ kind: item.kind });
+      const film: HumanPerformance = stage(a, b, model, item, "b");
+      assertTakeClean(`${dresser} dresses ${dressed}: ${item.kind}`, film);
+      const dress: IAutoMovieMotionHumanSegment = film
+        .segments("a")
+        .find(
+          (segment: IAutoMovieMotionHumanSegment): boolean =>
+            segment.name === "dressPartner",
+        )!;
+      const worn: number = event(dress, "stroke");
+      const grip: IAutoMovieMotionHumanContactWindow | undefined =
+        dress.plan.contacts.find(
+          (window: IAutoMovieMotionHumanContactWindow): boolean =>
+            window.kind === "grip" &&
+            window.support.kind === "prop" &&
+            window.support.subject === "item",
+        );
+      const label: string = `${dresser} dresses ${dressed} with a ${item.kind}`;
+      TestValidator.predicate(
+        `${label}: the grip ends as the item is worn`,
+        grip !== undefined &&
+          Math.abs(dress.start + grip.to * dress.plan.duration - worn) <= 1e-9,
+      );
+      const bone: AutoMovieHumanoidBone = b.surfaces.regions[item.region].bone;
+      const first: IAutoMovieVector3 = local(
+        film.prop("item", worn + 0.01),
+        film.bones("b", worn + 0.01).get(bone)!,
+      );
+      TestValidator.predicate(
+        `${label}: the item rides the partner's bone`,
+        [0.5, 1].every((share: number): boolean => {
+          const t: number = worn + share * (film.duration - worn);
+          return (
+            Vector3.distance(
+              local(film.prop("item", t), film.bones("b", t).get(bone)!),
+              first,
+            ) <= RIGID
+          );
+        }),
+      );
+    }
+  const self: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
+  TestValidator.predicate(
+    "dressing oneself is refused",
+    (() => {
+      try {
+        stage(
+          self,
+          self,
+          createWearable({ kind: "hat" }),
+          cases[0]!,
+          "a",
+        ).bones("a", 1);
+        return false;
+      } catch (error: unknown) {
+        return error instanceof HumanRefusal && error.axis === "partner";
+      }
+    })(),
+  );
+}
+
+/** The dresser `a` takes the item and dresses `partner`, then `b` turns. */
+function stage(
+  a: IAutoMovieMotionHumanBody,
+  b: IAutoMovieMotionHumanBody,
+  model: Archetype<createWearable.Affordance, createWearable.Dimension>,
+  item: ICase,
+  partner: string,
+): HumanPerformance {
+  return new HumanPerformance({
+    seed: "dress-partner",
+    laws: [dressPartner],
+    performers: [
+      {
+        subject: "a",
+        body: a,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+      {
+        subject: "b",
+        body: b,
+        at: { x: 0, y: 0, z: 0.55 },
+        yaw: 180,
+        proficiency: { level: "trained" },
+      },
+    ],
+    props: [
+      HumanObject.prop("item", model, {
+        position: { x: -0.25, y: 1.0, z: 0.2 },
+        rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 0),
+      }),
+    ],
+    composition: HumanChain.extend({ dressPartner })
+      .subject("a")
+      .pickUp({ prop: "item", handle: "hold", hand: "right", lift: 0.05 })
+      .dressPartner({
+        prop: "item",
+        partner,
+        region: item.region,
+        point: "wear",
+      })
+      .with(
+        item.kneels
+          ? HumanChain.subject("b").act("kneel", {
+              kind: "both",
+              hold: 4,
+              rise: true,
+            })
+          : HumanChain.subject("b")
+              .stand({ seconds: 4 })
+              .walk({ to: { x: 0, y: 0, z: 0.55 }, face: 120 }),
+      ).node,
+  });
+}
+
+/** The film second of a segment's named event. */
+function event(segment: IAutoMovieMotionHumanSegment, name: string): number {
+  return (
+    segment.start +
+    segment.plan.duration *
+      segment.plan.events.find(
+        (item: IAutoMovieMotionEvent): boolean => item.name === name,
+      )!.share
+  );
+}
+
+/** A prop's position in a displayed bone's frame, metres. */
+function local(
+  prop: IAutoMovieRigidTransform,
+  bone: IAutoMovieResolvedBone,
+): IAutoMovieVector3 {
+  return Quaternion.rotateVector(
+    Quaternion.inverse(bone.worldRotation),
+    Vector3.subtract(prop.position, bone.worldPosition),
+  );
+}

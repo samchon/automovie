@@ -9,6 +9,8 @@ import type {
   IAutoMovieMotionHumanPerformerReader,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { armPhrase } from "../everyday/armPhrase";
 import { HumanRefusal } from "../law/HumanRefusal";
 
@@ -46,7 +48,7 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
       const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
         params.partner,
       );
-      const plan: IAutoMovieMotionHumanActionPlan = armPhrase.plan({
+      const phrase: IAutoMovieMotionHumanActionPlan = armPhrase.plan({
         ...context,
         params: {
           phrase: "visit",
@@ -56,9 +58,32 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
             region: params.region,
           },
           side,
+          // The item is set down onto the region from above it: the palm
+          // faces down and the fingers forward, so the hand's frame is
+          // defined even where the region's normal points up, as a crown's does.
+          facing: { fingers: "forward", palm: "down" },
           held: params.prop,
           ...(params.point === undefined ? {} : { point: params.point }),
           ...(params.hold === undefined ? {} : { hold: params.hold }),
+        },
+      });
+      // The phrase writes the hand's goal at each second; the arm is laid as
+      // one course on it (`courseArmGoal`), so no instant's fit takes another
+      // branch. The partner's region is read where it stands at the start.
+      const at: (name: string, otherwise: number) => number = (name: string, otherwise: number): number =>
+        (phrase.events.find(
+          (event: IAutoMovieMotionEvent): boolean => event.name === name,
+        )?.share ?? otherwise / phrase.duration) * phrase.duration;
+      const plan: IAutoMovieMotionHumanActionPlan = courseArmGoal({
+        body: context.body,
+        plan: phrase,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        span: {
+          start: at("start", 0),
+          ready: at("ready", 0),
+          relax: at("relax", phrase.duration),
+          end: at("end", phrase.duration),
         },
       });
       const worn: number = plan.events.find(

@@ -10,7 +10,9 @@ import type {
  * One-handed tool work from a working base composed from shipped actions
  * (#4003): kneeling or crouching at floor level, seated at a bench, or
  * standing. The base is taken first, then `useTool` cycles from it, so the
- * base and the tool are fitted, refused and checked as those actions are.
+ * base, the pickup and the tool are fitted, refused and checked as those
+ * actions are. The tool is taken up once the base has settled, since a
+ * kneeling or seated body rests its free hands as it goes down.
  *
  * The work point's height chooses the base when the author names none:
  * below `FLOOR_REACH` of the stature the performer kneels on one knee, up
@@ -32,13 +34,16 @@ export namespace composeHumanToolWork {
   /** Work below this share of the stature, and above `FLOOR_REACH`, is done crouching (provisional). */
   export const CROUCH_REACH: number = 0.35;
 
-  /** What the work names: the tool, the held prop, the work point and the hand. */
+  /** What the work names: the tool, the prop and its grip, the work point and the hand. */
   export interface IWork {
     /** The tool's stroke. */
     tool: IAutoMovieMotionHumanToolWork.Kind;
 
-    /** The held tool's subject. */
+    /** The tool's subject, which lies within reach of the base. */
     prop: string;
+
+    /** The tool's grip affordance. */
+    handle: string;
 
     /** The work point. */
     on: IAutoMovieMotionTarget;
@@ -48,6 +53,9 @@ export namespace composeHumanToolWork {
 
     /** Stroke cycles; `useTool`'s own count when absent. */
     cycles?: number;
+
+    /** Where a kneeling base's knee comes down, beside the work; the reverse lunge's place when absent. */
+    knee?: IAutoMovieMotionTarget;
   }
 
   /**
@@ -77,7 +85,7 @@ export namespace composeHumanToolWork {
   /**
    * Take the base, then work the tool from it.
    *
-   * @param chain The performer's chain, already holding the tool.
+   * @param chain The performer's chain; the tool lies within reach of the base.
    * @param base The working base.
    * @param work The tool work.
    * @param seat The seat for a seated base.
@@ -85,8 +93,8 @@ export namespace composeHumanToolWork {
    * @throws {Error} When a seated base names no seat.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order and the seat requirement.
-   * @evidence contracts/development/implementation.md#principled-implementation The shipped one-knee kneel, full crouch or sit, held through the work, then `useTool`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base append and one work append.
+   * @evidence contracts/development/implementation.md#principled-implementation The shipped one-knee kneel, full crouch or sit, held through the work, then the pickup of the tool and `useTool`.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One base append, the pickup and the work.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composed actions fit and refuse; a seated base without a seat is an authoring error.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Two appends.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call appends to its own chain.
@@ -100,19 +108,32 @@ export namespace composeHumanToolWork {
   ): Chain {
     const based: Chain =
       base === "kneel"
-        ? chain.act("kneel", { kind: "one", hold: 0, rise: false })
+        ? chain.act("kneel", {
+            kind: "one",
+            hold: 0,
+            rise: false,
+            ...(work.knee === undefined ? {} : { at: work.knee }),
+          })
         : base === "crouch"
           ? chain.act("crouch", { depth: "full", hold: 0 })
           : base === "seated"
             ? chain.act("sit", { seat: required(seat) })
             : chain;
-    return based.act("useTool", {
-      tool: work.tool,
-      prop: work.prop,
-      on: work.on,
-      ...(work.hand === undefined ? {} : { hand: work.hand }),
-      ...(work.cycles === undefined ? {} : { cycles: work.cycles }),
-    });
+    // The base comes first and the tool is taken up from it: a kneeling or
+    // seated body settles its free hands before the working hand closes.
+    return based
+      .act("pickUp", {
+        prop: work.prop,
+        handle: work.handle,
+        hand: work.hand ?? "right",
+      })
+      .act("useTool", {
+        tool: work.tool,
+        prop: work.prop,
+        on: work.on,
+        ...(work.hand === undefined ? {} : { hand: work.hand }),
+        ...(work.cycles === undefined ? {} : { cycles: work.cycles }),
+      });
   }
 
   /** The seat a seated base needs. */
