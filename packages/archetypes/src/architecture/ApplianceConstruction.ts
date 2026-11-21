@@ -448,6 +448,8 @@ export namespace ApplianceConstruction {
     builder.affordance({
       id: "doorHandle",
       kind: "handle",
+      // The handle is a round bar wrapped alike from any side, like the fridge's.
+      symmetry: "round",
       frame: ArchetypeFrame.facing(
         v(radius - 0.04, centre, depth + 0.01),
         v(0, 0, 1),

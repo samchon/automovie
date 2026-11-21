@@ -190,7 +190,6 @@ export function createMotorcycle(
         kind: "surface",
         frame: ArchetypeFrame.upright(v(sign * 0.1, board.y, board.z)),
         extent: null,
-        parts: ["floorboard"],
       });
   } else
     for (const [id, sign] of [

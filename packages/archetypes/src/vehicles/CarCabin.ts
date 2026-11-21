@@ -202,11 +202,16 @@ export namespace CarCabin {
       parts: ["steering-rim", "steering-spoke"],
     });
 
-    // The right grasp is on the rim and turns with the same column.
-    const rim = Vector3.add(hub, v(-d.steeringDiameter! / 2, 0, 0));
+    // The right grasp is on the rim and turns with the same column. The rim's
+    // round section is wrapped alike from any side, like a rail.
+    const rim: IAutoMovieVector3 = Vector3.add(
+      hub,
+      v(-d.steeringDiameter! / 2, 0, 0),
+    );
     builder.affordance({
       id: "rightSteeringGrip",
       kind: "handle",
+      symmetry: "round",
       frame: ArchetypeFrame.facing(rim, axis, Vector3.cross(axis, v(-1, 0, 0))),
       extent: null,
       grip: "power",
@@ -216,6 +221,7 @@ export namespace CarCabin {
 
     // A sole can bear on the modeled floor either side of the seat center.
     // Share the accelerator heel's longitudinal station in the front row.
+    // The floor never travels, so these points bind no part.
     for (const [id, x] of [
       ["driverLeftRest", sx + createCar.FOOT],
       ["passengerLeftRest", -sx + createCar.FOOT],
@@ -226,7 +232,6 @@ export namespace CarCabin {
         kind: "surface",
         frame: ArchetypeFrame.upright(v(x, l.floor, l.heel.z)),
         extent: null,
-        parts: ["floor"],
       });
 
     // The accelerator on the pedal plane at the ball of foot under the right foot; its plate faces the sole, out of the plane toward the seat.
