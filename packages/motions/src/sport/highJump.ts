@@ -1,12 +1,10 @@
 import {
   AutoMovieGravity,
-  Quaternion,
   Vector3,
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionKey,
-  IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -17,9 +15,7 @@ import type {
   IAutoMovieMotionHumanGymnasticsTakeoff,
   IAutoMovieMotionHumanHighJump,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieResolveCenterOfMass,
-  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -31,9 +27,11 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { knockdown } from "../reaction/knockdown";
+import { AthleticsRunUp } from "./AthleticsRunUp";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
+import { highJumpBar } from "./highJumpBar";
 import { highJumpFlight } from "./highJumpFlight";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
@@ -71,7 +69,13 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * author gives, which world-class finalists reach leaving the floor at
  * 4.14 ± 0.37 m/s (the same table of Nicholson et al. 2022).
  *
- * First pass: no curved run-up and no lean into the take-off; the arms do
+ * A run-up is a `run`, curved by its `via` points, cut at the take-off
+ * foot's footfall (`accepts`). The take-off foot is then the one the run has
+ * planted, it must be the foot farther from the bar (`highJumpBar.admit`),
+ * and the landing place may ask for no more horizontal take-off speed than
+ * the run-up brings: a plant trades run-up speed for lift.
+ *
+ * First pass: no lean into the curve or the take-off; the arms do
  * not lead; the angular momentum appears at the take-off instead of being
  * built over the push; the apex falls where the landing place puts it, the
  * crossbar's plane can be reached before or after that apex. The
@@ -97,6 +101,11 @@ export namespace highJump {
     AutoMovieMotionHumanInterrupt.table({
       rise: ["fromRelax", "smooth"],
     });
+
+  /** What may be cut into a high jump: a run, at the take-off foot's footfall (`AthleticsRunUp`). */
+  export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
+    run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
+  };
 
   /**
    * The greatest vertical take-off speed, m/s: the world-class men's mean
@@ -182,49 +191,7 @@ export namespace highJump {
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
     subject: string,
   ): number {
-    return placedCrossbar(context, subject).point.y;
-  }
-
-  /** Read the named crossbar's centre, axial direction and span in the scene. */
-  function placedCrossbar(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
-    subject: string,
-  ): {
-    point: IAutoMovieVector3;
-    axis: IAutoMovieVector3;
-    length: number | undefined;
-  } {
-    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
-    const found: IAutoMovieAffordance | undefined = (
-      read.prop.affordances ?? []
-    ).find((a: IAutoMovieAffordance): boolean => a.id === "bar");
-    if (found === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "bar",
-        value: subject,
-        feasible: {
-          kind: "alternatives",
-          values: (read.prop.affordances ?? []).map(
-            (a: IAutoMovieAffordance): string => a.id,
-          ),
-        },
-        reason: `${subject} declares no crossbar named bar`,
-        fix: "give the high jump's crossbar the id bar, as createHighJump does",
-      });
-    const frame: IAutoMovieRigidTransform = read.frame(context.start);
-    return {
-      point: Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, found.frame.translation),
-      ),
-      // A bar affordance's length runs along its local +X.
-      axis: Quaternion.rotateVector(
-        Quaternion.multiply(frame.rotation, found.frame.rotation),
-        { x: 1, y: 0, z: 0 },
-      ),
-      length: found.length ?? undefined,
-    };
+    return highJumpBar.of(context, subject).point.y;
   }
 
   /**
@@ -232,7 +199,7 @@ export namespace highJump {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the high jump declares no bar, the bar is no higher than the take-off's centre, needs a take-off speed past `RISE`, or leaves the body no higher than the landing surface at the apex, or when the jump refuses its push-off.
+   * @throws {HumanRefusal} When the high jump declares no bar, the bar is no higher than the take-off's centre, needs a take-off speed past `RISE`, or leaves the body no higher than the landing surface at the apex, when a run-up is cut where no take-off foot is planted or plants the foot nearer the bar, when the landing place asks for more horizontal speed than the run-up brings, or when the jump refuses its push-off.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The vertical launch is sqrt(2 g (bar - centre)), the fall time to the lying centre's height closes the horizontal launch, the turns are constant rates over their phases, and the touchdown is the bisected instant the lowest shape meets the surface.
@@ -252,10 +219,7 @@ export namespace highJump {
       prepareGymnasticsFrame(body, model);
     const p: IAutoMovieMotionHumanHighJump.IParams = context.params;
     const surface: number = p.to.y;
-    const cross: ReturnType<typeof placedCrossbar> = placedCrossbar(
-      context,
-      p.bar,
-    );
+    const cross: highJumpBar.IBar = highJumpBar.of(context, p.bar);
     const bar: number = cross.point.y;
     const reserve: number = HumanBound.least(
       "apexReserve",
@@ -265,6 +229,15 @@ export namespace highJump {
     );
     const apex: number = bar + reserve;
 
+    // A jump cut from a run (`AthleticsRunUp`) takes off from the foot
+    // farther from the bar (`highJumpBar.admit`).
+    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp.of(
+      context,
+      0,
+      "takeoffFoot",
+      p.takeoffFoot,
+    );
+    if (approach !== undefined) highJumpBar.admit(cross, approach);
     /** Bound the requested apex against the observed takeoff centre. */
     const riseFrom: (height: number) => number = (height: number): number => {
       HumanBound.above("bar", bar, height - reserve, "m");
@@ -340,7 +313,7 @@ export namespace highJump {
             z: (p.to.z - centre.z) / time,
           };
         },
-        p.takeoffFoot,
+        p.takeoffFoot ?? approach?.foot,
       );
     const off: number = takeoff.seconds;
     // The flight leaves from the take-off posture's own centre, so the body
@@ -380,6 +353,26 @@ export namespace highJump {
       y: riseFrom(c0.y),
     };
     const rising: number = v.y / AutoMovieGravity.STANDARD;
+
+    // A plant converts run-up speed into lift and loses horizontal speed
+    // (world-class finalists leave at 4.14 m/s from faster approaches,
+    // Nicholson et al. 2022, Table 3), so the landing place may not ask for
+    // more horizontal speed than the approach brings.
+    const across: number = Math.hypot(v.x, v.z);
+    if (approach !== undefined && across > approach.speed)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "to",
+        value: across,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: approach.speed,
+          unit: "m/s",
+        },
+        reason: `the landing place asks for ${across.toFixed(2)} m/s across the floor at the take-off, more than the ${approach.speed.toFixed(2)} m/s the approach brings`,
+        fix: "land nearer the take-off, or run the approach faster",
+      });
 
     const { flying, down }: ReturnType<typeof highJumpFlight> = highJumpFlight({
       body,

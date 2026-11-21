@@ -56,13 +56,13 @@ function sideHinge(at: IAutoMovieVector3, side: 1 | -1): IAutoMovieTransform {
 }
 
 /**
- * How {@link createAppliance} builds each kind of appliance from its drawn dimensions: the parts and the contacts, one function per kind, the counts and openings the makers give, and the construction sizes no source gives.
+ * The parts and contacts the named appliance producers build from their drawn dimensions, with the makers' measured counts and openings and the estimated construction sizes.
  *
  * Every function stands its appliance with its back at the origin's `Z`, centred on `X`, its front toward `+Z`. Every contact's place and every articulation's range comes from a cited band or is derived from one; the estimates below size only parts no act reads.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, the shared frame and what the estimates may size.
  * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer's four constructions with the counts and estimates they read; kept apart from the producer so each file stays one readable responsibility, and read only by `createAppliance`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Each named appliance producer reads its own construction. Shared cabinet geometry and estimates have one owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every size a sheet does not give is a named construction estimate here, none placing a contact; a door the makers give no opening for does not open.
  */
 export namespace ApplianceConstruction {
@@ -420,13 +420,9 @@ export namespace ApplianceConstruction {
     builder.box("body", v(width, height, body), v(0, height / 2, body / 2), {
       color: WHITE,
     });
-    builder.rod(
-      "door-ring",
-      radius,
-      v(0, centre, body),
-      v(0, centre, depth),
-      { color: "#c9ccd1" },
-    );
+    builder.rod("door-ring", radius, v(0, centre, body), v(0, centre, depth), {
+      color: "#c9ccd1",
+    });
     builder.rod(
       "door-handle",
       0.01,
@@ -434,7 +430,11 @@ export namespace ApplianceConstruction {
       v(radius - 0.04, centre + 0.05, depth + 0.01),
       { color: DARK },
     );
-    const dial: IAutoMovieVector3 = v(width / 2 - 0.1, height - E.panel / 2, body);
+    const dial: IAutoMovieVector3 = v(
+      width / 2 - 0.1,
+      height - E.panel / 2,
+      body,
+    );
     builder.rod("dial", 0.03, dial, Vector3.add(dial, v(0, 0, 0.03)), {
       color: METAL,
     });

@@ -1,4 +1,4 @@
-import { createKeyboard } from "@automovie/archetypes";
+import { createDesktopKeyboard, createLaptop } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -20,7 +20,7 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
- * A fixed keyboard places G and H on opposite sides of its home-row centre.
+ * A desktop keyboard and a laptop place G and H on opposite sides of the home-row centre.
  *
  * Scenarios:
  * 1. Read the opposite index fingertips at their press events, half a 19.05 mm pitch from centre.
@@ -42,8 +42,10 @@ export function test_motion_contact_keyboard_press(): void {
   const mm = (metres: number): string => (metres * 1000).toFixed(1);
   for (const name of ["m-average"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    for (const kind of ["keyboard"] as const) {
-      const board: ReturnType<typeof createKeyboard> = createKeyboard({ kind });
+    for (const kind of ["keyboard", "laptop"] as const) {
+      const board: ReturnType<
+        typeof createDesktopKeyboard | typeof createLaptop
+      > = kind === "keyboard" ? createDesktopKeyboard() : createLaptop();
       const row: IAutoMovieVector3 = Quaternion.rotateVector(
         turn,
         board.affordance("homeRow").frame.translation,

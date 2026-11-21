@@ -19,7 +19,6 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -27,6 +26,7 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
 import type { HumanRideHands } from "./HumanRideHands";
+import { ankleRidePedalFoot } from "./ankleRidePedalFoot";
 import { placeRideReinPalm } from "./placeRideReinPalm";
 
 /**
@@ -77,7 +77,7 @@ export namespace HumanMountRider {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what turns, about what, how far and when nothing changes.
    * @evidence contracts/development/implementation.md#principled-implementation The ball stays where the goal puts it and the ankle moves on its circle about the ball's lateral axis; the least turn that reaches is found by bisection, the distance being monotonic in the turn up to `ANKLING`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The ball, the turn as a function of an angle, the distance, the search.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rider's bounds handed to the search, which nkleRidePedalFoot owns so this file stays within its size.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pedal beyond even `ANKLING` leaves the foot short of it, which the contact audit reports; a refusal with the saddle height that fits is owed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four distance trials (none, the two signs and `ANKLING`) and twenty-four bisections, which narrow the `ANKLING` span to about two millionths of a degree; each trial is one rotation about the ball's prepared axis.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The ball, the axis and the contact are read once per call and shared by every trial; the returned goal is placed by the same function the trials measure.
@@ -90,59 +90,7 @@ export namespace HumanMountRider {
     hip: IAutoMovieVector3,
     level: IAutoMovieQuaternion,
   ): IAutoMovieHumanLimbGoal {
-    const reach: number =
-      (body.measure.thigh + body.measure.shank) *
-      Math.cos((KNEE * Math.PI) / 360);
-    const rotation: IAutoMovieQuaternion = goal.rotation ?? level;
-
-    // A foot on a pedal bears on its ball, whether or not its goal says what it turns about.
-    const contact: IAutoMovieVector3 =
-      goal.contact ?? HumanFoot.offset(body, side, "ball");
-    const ball: IAutoMovieVector3 = Vector3.add(
-      goal.point,
-      Quaternion.rotateVector(rotation, contact),
-    );
-    const across: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 1,
-      y: 0,
-      z: 0,
-    });
-    const turn: ReturnType<typeof Quaternion.prepareAxisAngle> =
-      Quaternion.prepareAxisAngle(across);
-    const placement: (degrees: number) => {
-      point: IAutoMovieVector3;
-      rotation: IAutoMovieQuaternion;
-    } = (
-      degrees: number,
-    ): { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion } => {
-      const pitched: IAutoMovieQuaternion = Quaternion.multiply(
-        turn(degrees),
-        rotation,
-      );
-      return {
-        rotation: pitched,
-        point: Vector3.subtract(
-          ball,
-          Quaternion.rotateVector(pitched, contact),
-        ),
-      };
-    };
-    const turnedBy: (degrees: number) => IAutoMovieHumanLimbGoal = (
-      degrees: number,
-    ): IAutoMovieHumanLimbGoal => ({ ...goal, contact, ...placement(degrees) });
-    const far: (degrees: number) => number = (degrees: number): number =>
-      Vector3.length(Vector3.subtract(placement(degrees).point, hip));
-    if (far(0) <= reach) return goal;
-    const sign: number = far(1) < far(-1) ? 1 : -1;
-    if (far(sign * ANKLING) > reach) return turnedBy(sign * ANKLING);
-    let low: number = 0;
-    let high: number = ANKLING;
-    for (let i: number = 0; i < 24; ++i) {
-      const middle: number = (low + high) / 2;
-      if (far(sign * middle) > reach) low = middle;
-      else high = middle;
-    }
-    return turnedBy(sign * high);
+    return ankleRidePedalFoot(body, side, goal, hip, level, KNEE, ANKLING);
   }
 
   /** How far the wrist's centre lies off the palm's skin, hand lengths: half the hand's thickness (provisional, about 14 mm of a 190 mm hand). The wrist stays this plus the grip's own radius off a held point along its outward normal, so the palm's skin lies on the grip and the fingers wrap it. */
@@ -170,7 +118,11 @@ export namespace HumanMountRider {
       fingers = Vector3.scale(Vector3.normalize(across), side);
     }
     if (material.reinPalm !== undefined)
-      return { ...placeRideReinPalm(material.reinPalm, grip, fingers), fingers, contact: material.reinPalm.point };
+      return {
+        ...placeRideReinPalm(material.reinPalm, grip, fingers),
+        fingers,
+        contact: material.reinPalm.point,
+      };
     return {
       point: Vector3.add(
         grip.point,
@@ -288,11 +240,18 @@ export namespace HumanMountRider {
     free: () => IAutoMovieResolvedBone,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
-    const { point: target, fingers, contact, rotation: rein }: IWrist = wrist(body, posture, grip);
-    const turned: IAutoMovieQuaternion = rein ?? HumanHand.rotation(side, {
+    const {
+      point: target,
       fingers,
-      palm: Vector3.scale(grip.normal, -1),
-    });
+      contact,
+      rotation: rein,
+    }: IWrist = wrist(body, posture, grip);
+    const turned: IAutoMovieQuaternion =
+      rein ??
+      HumanHand.rotation(side, {
+        fingers,
+        palm: Vector3.scale(grip.normal, -1),
+      });
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
     if (s < 1) {

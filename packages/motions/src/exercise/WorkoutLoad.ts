@@ -23,8 +23,11 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingHeld } from "../striking/StrikingHeld";
+import { StrikingRoll } from "../striking/StrikingRoll";
 
 /**
  * The load a workout is done with: a prop the performer already holds (a
@@ -79,13 +82,14 @@ export namespace WorkoutLoad {
    * @param load The load's parameters.
    * @param midfoot Whether a bar in both hands travels over the middle of the feet.
    * @param turnover Whether to preserve the keyed shoulder-to-bar direction through turnover and the overhead receive.
+   * @param ready The share where the second hand first reaches the load in the exercise.
    * @returns What the plan needs of it.
-   * @throws {HumanRefusal} When the hand does not hold the prop, or the prop lacks the other handle.
+   * @throws {HumanRefusal} When the hand does not hold the prop, either handle is unavailable, or the two handles coincide.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation One hand: the held owner's grip and hold. Two hands: the stroke planner's tool whose working point is the other handle; the bar is centred across the body at the keyed shoulder-to-grip distance and its line is turned level toward the other side, then the other hand is placed on the working point with its knuckles the way the holding hand's face.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold once, then one frame and two arm goals per posture.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Held-prop admission belongs to the held and tool owners. Only a grip separation exceeding the shoulder span and both full arm-to-grip chain lengths is refused here.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Held-prop admission belongs to the held and tool owners. Two-hand admission rejects coincident sockets and reads the achieved second grip at the authored load phases.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two-handed placement requests only the holding shoulder/elbow/wrist from FK; mid-foot geometry exists only for midfoot rows. The other hand's one actual wrist placement serves both its original elbow solve and final goal, while both original elbow searches remain.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The other hand's fist shape and holding-chain demand prepare once for unchanged body/side. Apply borrows one synchronous parent FK/ROM source, and prepareBoth shares only actual unchanged body-frame/TRUNK geometry between the original holding-side then other-side elbow searches. Every current target still solves normally.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The record closes over the tool read at plan time.
@@ -98,6 +102,7 @@ export namespace WorkoutLoad {
     load: IAutoMovieMotionHumanWorkoutLoad.IParams,
     midfoot: boolean = false,
     turnover: boolean = false,
+    ready: number = 0,
   ): IAutoMovieMotionHumanWorkoutLoad.ILoad {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const side: AutoMovieHumanSide = load.hand ?? "right";
@@ -142,14 +147,23 @@ export namespace WorkoutLoad {
 
     // The bar's line in the hand: from the handle the hand took to the
     // other one, both read in the hand's frame.
-    const line: IAutoMovieVector3 = Vector3.normalize(
+    const axis: IAutoMovieVector3 =
       load.handle === undefined
         ? tool.tip
         : Vector3.subtract(
             tool.tip,
             StrikingHeld.of(context, side, load.prop, { tip: load.handle }).tip,
-          ),
-    );
+          );
+    const width: number = Vector3.length(axis);
+    if (width <= 1e-9)
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "load",
+        value: load.other,
+        reason: "the two load grips coincide",
+        fix: "name distinct handles on the held prop",
+      });
+    const line: IAutoMovieVector3 = Vector3.scale(axis, 1 / width);
     const bare: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
       context,
       other,
@@ -195,8 +209,50 @@ export namespace WorkoutLoad {
           0.25,
         );
     return {
-      contacts: StrikingHeld.grips(tool),
+      contacts: [
+        ...StrikingHeld.grips(tool),
+        {
+          part: `${other}Hand`,
+          kind: "grip",
+          from: ready,
+          to: 1,
+          support: { kind: "prop", subject: load.prop, carries: false },
+        },
+      ],
       holds: StrikingHeld.holds(context, tool),
+      admit: (posture: IAutoMovieMotionHumanPosture): void => {
+        const fitted: ReturnType<typeof poseBones> = poseBones(
+          body,
+          resolveHumanPosture(body, posture),
+        );
+        const actual = fitted.get(`${side}Hand`)!;
+        const support: IAutoMovieVector3 = HumanHand.frame(
+          body,
+          fitted,
+          other,
+          "grip",
+          "fist",
+        ).point;
+        const goal: IAutoMovieVector3 = StrikingHeld.point(tool, {
+          point: HumanHand.frame(body, fitted, side, "grip").point,
+          rotation: actual.worldRotation,
+        });
+        const miss: number = Vector3.distance(support, goal);
+        if (miss > StrikingRoll.MISS)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "load",
+            value: miss,
+            feasible: {
+              kind: "range",
+              minimum: 0,
+              maximum: StrikingRoll.MISS,
+              unit: "m",
+            },
+            reason: `the ${other} grip misses the ${load.other} handle by ${(miss * 1000).toFixed(1)} mm at an authored lift phase`,
+            fix: "use a reachable grip spacing and support posture",
+          });
+      },
       hands: [side, other],
       apply: (
         posture: IAutoMovieMotionHumanPosture,

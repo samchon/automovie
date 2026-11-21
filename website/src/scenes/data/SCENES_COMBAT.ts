@@ -1,13 +1,10 @@
-import type { IPlaygroundComposition } from "../../playground/structures/IPlaygroundComposition";
 import type { IScene } from "../structures/IScene";
+import { SceneBuild } from "./SceneBuild";
 import { SceneTakes } from "./SceneTakes";
 
-/** A region of another person, as a motion target. */
-function at(subject: string, region: string): Record<string, unknown> {
-  return { kind: "person", subject, region };
-}
+const { at }: typeof SceneBuild = SceneBuild;
 
-const SPARRING: IPlaygroundComposition = {
+const SPARRING: SceneBuild.Composition = {
   version: 1,
   seed: "sparring",
   performers: [
@@ -160,7 +157,7 @@ const SPARRING: IPlaygroundComposition = {
   mutuals: [],
 };
 
-const DOJO: IPlaygroundComposition = {
+const DOJO: SceneBuild.Composition = {
   version: 1,
   seed: "dojo",
   performers: [
@@ -201,7 +198,7 @@ const DOJO: IPlaygroundComposition = {
  * out. The push runs at 2.1 times its natural rate, which keeps it slow
  * (about six seconds) and lets the class end with the bow.
  */
-function lesson(): IPlaygroundComposition.IAction[] {
+function lesson(): SceneBuild.Action[] {
   return [
     { name: "gesture", params: { kind: "bow" } },
     { name: "martialArt", params: { kind: "horseStance", seconds: 1 } },

@@ -17,29 +17,28 @@ import { jumpPath } from "./jumpPath";
 import { jumpState } from "./jumpState";
 
 /**
- * Limit a turned floor landing's absorption to a supported depth.
+ * Fit a rotating floor landing's absorption to its planted soles.
  *
- * The requested knee flexion around the turned stance can
- * put more dorsiflexion into one ankle than its range permits. In the
- * already turned footprint frame, find a height above the same stance
- * center where the achieved heel, ball and toes still stay on their
- * original supports. The returned height feeds both the absorption and
- * recovery paths, with no per-query root correction.
+ * The incoming downward speed can drive the knee and ankle through more
+ * flexion than a flat sole allows. Test the authored course and find a
+ * shallower supported endpoint when needed. If the incoming speed makes
+ * even the shallow course dip too far, test stronger braking at impact
+ * with the same incoming velocity, duration and footprint frame.
  *
  * @param body The jumping body used for ground fitting.
  * @param landing The unchanged footprints and nominal world-root endpoints.
  * @param velocity The ballistic world velocity at touchdown, metres per second.
  * @param seconds The absorption phase's duration in seconds.
  * @param demand The current lowered posture at a candidate world root and seconds since touchdown.
- * @returns The nominal absorbed root or the root of an observed shallower fit.
+ * @returns The tested absorption endpoint and its initial vertical acceleration.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the affected phase, ground points, feet, root and unchanged target.
- * @evidence contracts/development/implementation.md#principled-implementation At fixed heading and horizontal stance center, measure the largest actual sole displacement or floor height through the shared ground and final planted-fit path at the motion signature's default cadence and both phase boundaries. Search the vertical segment only when the full planned depth fails and the shallow endpoint's course fits. Both path polynomials share the chosen root. The surviving bracket endpoint is verified; this makes no global statement about nonmonotone ROM branches or intermediate poses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the unchanged feet, measure the deep and shallow courses, then use the shared bracket search when they disagree.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Samples actual resolved limbs, preserves the original 5 mm continuity budget and world footprints, and does not claim a fit when even the shallow end fails. Ordinary jumps do not call this turned-floor preparation.
- * @evidence contracts/development/implementation.md#efficient-algorithms A candidate samples its absorption course at the existing audit cadence, with actual foot and toe FK per sample. Only a straddled bound prepares additional bracket samples; the final bracket width is the existing jump continuity budget in metres. No solve is added at playback.
+ * @evidence contracts/development/implementation.md#principled-implementation Read actual sole displacement and floor clearance at the signature cadence and phase boundaries. First fit the endpoint with the authored initial acceleration. If even the shallow path cannot fit, use the same incoming velocity and a contact acceleration that reduces the midpoint's incoming-velocity displacement by two fifths. At either acceleration, a verified bracket endpoint feeds the same quintic that playback uses.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Both acceleration choices use the same deep and shallow depth check and bracket search.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Samples actual resolved limbs with unchanged onset velocity, duration, 5 mm continuity budget and footprints. If neither tested path fits, the original path is retained without a fit claim. Nonrotating jumps retain their original preparation.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Candidates sample actual foot and toe FK at the existing audit cadence. They bracket only when the depth endpoints disagree and try earlier braking only if the first acceleration has no fit. No solve is added at playback.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The resolver preparation and sole-target geometry are shared across this one synchronous depth search. Each candidate still solves its current ankle, contact and pose.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bounded fixed geometry, FK demand and projection stay in the call. The returned root alone survives.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bounded geometry, FK demand and projection stay in the call. Only the chosen root and acceleration survive.
  */
 export function fitJumpAbsorption(
   body: IAutoMovieMotionHumanBody,
@@ -51,12 +50,13 @@ export function fitJumpAbsorption(
     elapsed: number,
     read: ReturnType<typeof prepareHumanPoseResolution>,
   ) => IAutoMovieMotionHumanPosture,
-): IAutoMovieVector3 {
+): fitJumpAbsorption.IPath {
   const limit: number = AutoMovieMotionHumanAudit.LIMITS.jump;
   const { absorbed, stood }: jumpLanding.ILanding = landing;
   const span: number = stood.y - absorbed.y;
+  const authored: fitJumpAbsorption.IPath = { root: absorbed, acceleration: 0 };
   if (!(span > 0) || !(seconds > 0) || !Number.isFinite(seconds))
-    return absorbed;
+    return authored;
 
   const read: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
@@ -84,7 +84,7 @@ export function fitJumpAbsorption(
   times.push(seconds);
 
   /** Maximum sampled sole residual minus the existing metre budget. */
-  const excess = (depth: number): number => {
+  const excess = (depth: number, acceleration: number): number => {
     const root: IAutoMovieVector3 = { ...absorbed, y: stood.y - depth };
     const path: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
       landing.touched,
@@ -92,6 +92,7 @@ export function fitJumpAbsorption(
       root,
       { x: 0, y: 0, z: 0 },
       seconds,
+      { x: 0, y: acceleration, z: 0 },
     );
     let miss: number = 0;
     for (const t of times) {
@@ -121,18 +122,40 @@ export function fitJumpAbsorption(
     }
     return miss - limit;
   };
-  const deep: number = excess(span);
-  if (deep <= 0) return absorbed;
-  const shallow: number = excess(0);
-  if (!(shallow <= 0)) return absorbed;
+  /** At one acceleration, return the deepest verified endpoint in the bracket. */
+  const fit = (acceleration: number): fitJumpAbsorption.IPath | undefined => {
+    const deep: number = excess(span, acceleration);
+    if (deep <= 0) return { root: absorbed, acceleration };
+    const shallow: number = excess(0, acceleration);
+    if (!(shallow <= 0)) return undefined;
 
-  const fit: number = bracketedCrossing({
-    f: excess,
-    past: (value: number): boolean => !(value <= 0),
-    low: 0,
-    high: span,
-    known: { low: shallow, high: deep },
-    tolerance: limit,
-  }).low;
-  return { ...absorbed, y: stood.y - fit };
+    const depth: number = bracketedCrossing({
+      f: (value: number): number => excess(value, acceleration),
+      past: (value: number): boolean => !(value <= 0),
+      low: 0,
+      high: span,
+      known: { low: shallow, high: deep },
+      tolerance: limit,
+    }).low;
+    return { root: { ...absorbed, y: stood.y - depth }, acceleration };
+  };
+  const preferred: fitJumpAbsorption.IPath | undefined = fit(0);
+  if (preferred !== undefined || !(velocity.y < 0))
+    return preferred ?? authored;
+
+  // A quintic's acceleration weight at mid-absorption is one tenth of
+  // its velocity weight times the duration. Early braking offsets two
+  // fifths of the incoming vertical motion there with the same onset speed.
+  return fit((-4 * velocity.y) / seconds) ?? authored;
+}
+
+/** Boundary values for the jump's grounded absorption path. */
+export namespace fitJumpAbsorption {
+  /** Grounded endpoint in world metres and initial vertical acceleration. */
+  export interface IPath {
+    /** The world root at the end of absorption, metres. */
+    root: IAutoMovieVector3;
+    /** Upward acceleration at the start of absorption, metres per second squared. */
+    acceleration: number;
+  }
 }

@@ -25,6 +25,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingGuardYield } from "./StrikingGuardYield";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * The fighting stance taken and held: from whatever the performer stands in,
@@ -32,6 +33,8 @@ import { StrikingTarget } from "./StrikingTarget";
  * lead foot stays a support), the root sinks until both knees soften and
  * turns to the stance heading, and the gloves come up to the guard, then the
  * stance holds with a light bounce through the knees.
+ * If a step is interrupted, its airborne foot takes the first swing and the
+ * existing bearing foot holds through that landing.
  *
  * The stance itself is {@link StrikingStance}: measured on the body, so any
  * stature takes its own. A foot already within 1 cm of its place stays
@@ -236,15 +239,30 @@ export namespace guard {
       right: to.right.ankle,
     });
 
-    // Each foot's swing window, the rear first; a foot already in place stays.
+    // Complete an interrupted swing before releasing the inherited bearing
+    // shoe. A guard entered from a settled stance takes its usual rear step.
+    const support: strikingStepSupport.ISupport | undefined =
+      strikingStepSupport(context);
     const moving: Record<"left" | "right", boolean> = {
-      left: Vector3.distance(from.left.ankle, to.left.ankle) > 0.01,
-      right: Vector3.distance(from.right.ankle, to.right.ankle) > 0.01,
+      left:
+        support?.landings.left !== undefined ||
+        Vector3.distance(from.left.ankle, to.left.ankle) > 0.01,
+      right:
+        support?.landings.right !== undefined ||
+        Vector3.distance(from.right.ankle, to.right.ankle) > 0.01,
     };
     const first: readonly [number, number] = [0, 0.3];
-    const second: readonly [number, number] = [0.25, 0.55];
+    const second: readonly [number, number] = [
+      support === undefined
+        ? 0.25
+        : support.bearing === undefined
+          ? 0
+          : first[1],
+      0.55,
+    ];
+    const bearing: "left" | "right" = support?.bearing ?? lead;
     const window: Record<"left" | "right", readonly [number, number]> =
-      lead === "left"
+      bearing === "left"
         ? { left: second, right: first }
         : { left: first, right: second };
     const lift: number = 0.02 * body.measure.stature;
@@ -286,13 +304,17 @@ export namespace guard {
         ];
       const [a, b] = window[side];
       return [
-        {
-          part: `${side}Foot`,
-          kind: "plant",
-          from: 0,
-          to: a / duration,
-          support: { kind: "ground" },
-        },
+        ...(support?.landings[side] !== undefined
+          ? []
+          : [
+              {
+                part: `${side}Foot`,
+                kind: "plant",
+                from: 0,
+                to: a / duration,
+                support: { kind: "ground" },
+              } satisfies IAutoMovieMotionHumanContactWindow,
+            ]),
         {
           part: `${side}Foot`,
           kind: "plant",
@@ -347,7 +369,9 @@ export namespace guard {
           right: foot("right", t),
         };
         const down = (side: "left" | "right"): boolean =>
-          !moving[side] || t <= window[side][0] || t >= window[side][1];
+          !moving[side] ||
+          (support?.landings[side] === undefined && t <= window[side][0]) ||
+          t >= window[side][1];
         const legs = StrikingStance.legs(body, feet, {
           left: down("left"),
           right: down("right"),

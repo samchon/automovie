@@ -37,22 +37,24 @@ An archetype serialises as a plain model. Retain that serialised data when the m
 
 ## Entry points
 
-Each family is also a subpath, such as `@automovie/archetypes/furniture`.
+Each family is also a subpath, such as `@automovie/archetypes/furniture`. Select a producer by the vehicle, instrument, fixture or prop the scene places. For example, `createRowboat` exposes its oar frames, `createUprightPiano` its keys and pedal, `createDrawerUnit` its sliding contacts, and `createPaper({ format: "foldedMap" })` its fold sites.
 
-| Subpath | Producers |
+| Subpath | Selected producers |
 | --- | --- |
-| `/props` | `createDrinkware`, `createDevice`, `createSmoking`, `createStationery`, `createCareItem`, `createBag`, `createBox`, `createTool`, `createLongTool`, `createVessel`, `createWearable`, `createKeyboard`, `createCleaning`, `createTray`, `createTorch`, `createTableware`, `createFood`, `createLight`, `createUmbrella`, `createMobilityAid` |
-| `/furniture` | `createSeat`, `createBed`, `createTable`, `createStorage`, `createLoad`, `createBarrel`, `createLectern`, `createHighChair`, `createConsole`, `createSafe`, `createShowcase` |
-| `/architecture` | `createDoor`, `createWindow`, `createSwitch`, `createStairs`, `createRamp`, `createWall`, `createBar`, `createLadder`, `createKerb`, `createTap`, `createSanitary`, `createAppliance`, `createObstacle`, `createStreetFixture`, `createBin`, `createMachine`, `createGate`, `createElevator`, `createValve`, `createHandhold`, `createCellFront`, `createMirror`, `createBoard`, `createSaloonDoor`, `createControl`, `createHatch`, `createBeerTap` |
-| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createCart`, `createPram`, `createWheelchair`, `createBoat`, `createDeck`, and the rides `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
-| `/animals` | Eight kinds through `createQuadruped`, shared body/rig `QuadrupedBody` and `QuadrupedSkeleton`, actual equipment, `rideQuadruped`/`rideHorse`, measured and authored gait tables, `QuadrupedRest`, and source-aware `EquineGoniometry` |
-| `/weapons` | `createHandgun`, `createHolster`, `createMagazine`, `createLongGun`, `createClub`, `createSword`, `createShield`, `createArmour`, `createPolearm`, `createProjectile`, `createBow`, `createCannon`, `createSiegeEngine`, `createPell`, `createWeaponLoop`, `createWeaponRack` |
+| `/props` | `createPhone`, `createCamera`, `createRemote`, `createTablet`, `createRadio`, `createDesktopKeyboard`, `createLaptop`, `createPaper`, `createPen`, `createHat`, `createHammer`, `createScrewdriver`, `createCane`, `createWalker`, `createCookingPot`, `createCarryBasket`, `createCandle`, `createPendantLamp`, `createCargoPod` |
+| `/furniture` | `createSeat`, `createPlatformBed`, `createGurney`, `createCrib`, `createTable`, `createBookcase`, `createHingedCabinet`, `createDrawerUnit`, `createSafe`, `createShowcase` |
+| `/architecture` | `createDoor`, `createWindow`, `createStairs`, `createRamp`, `createRefrigerator`, `createRange`, `createWashingMachine`, `createVendingMachine`, `createWashbasin`, `createBathtub`, `createFireHydrant`, `createBollard`, `createJerseyBarrier`, `createRopeStanchions` |
+| `/vehicles` | `createCar`, `createBicycle`, `createMotorcycle`, `createShoppingTrolley`, `createWheelbarrow`, `createRickshaw`, `createHorseCart`, `createRowboat`, `createCanoe`, `createPullingBoat`, `driveCar`, `rideBicycle`, `rideMotorcycle`, `rideWheelchair`, `rowBoat` |
+| `/animals` | `createHorse`, `createPony`, `createDonkey`, `createMule`, `createDog`, `createCat`, `createOx`, `createCamel`, `createDeer`, shared body and rig `QuadrupedBody` and `QuadrupedSkeleton`, equipment, `rideQuadruped` and `rideHorse`, gait tables, `QuadrupedRest`, and `EquineGoniometry` |
+| `/weapons` | `createHandgun`, `createStageHolster`, `createStageBladeCarrier`, `createStageQuiver`, `createPracticeBaton`, `createCostumeHelmet`, `createCostumeCuirass`, `assembleCostumeArmour`, `createSword`, `createShield`, `createPell` |
 | `/gym` | `createBarbell`, `createDumbbell`, `createKettlebell`, `createBench`, `createPullUpBar`, `createParallelBars`, `createPlyoBox`, `createRack`, `createSled`, `createRowingMachine`, `createExerciseBike`, `createExerciseMat`, `createJumpRope`, `createRing`, `createBoxingGlove`, `createHeavyBag` |
-| `/sport` | `createVaultingPole`, `createHighJump`, `createLandingMat`, `createVaultingTable`, `createBall`, `createRacket`, `createGolfClub`, `createGlove`, `createJavelin`, `createShot`, `createDiscus`, `createHammerThrow`, `createHurdle`, `createStartingBlock`, `createRelayBaton`, `createPoolEdge`, `createGoal`, `createStick`, `createCue`, `createCueTable`, `createSurfboard`, `createSki`, `createSkateboard`, `createKendoArmour` |
-| `/music` | `createInstrument`, `createMicrophone` |
+| `/sport` | `createSphericalBall`, `createOvalBall`, `createPuck`, `createFieldGoal`, `createBasketballHoop`, `createVolleyballNet`, `createTennisNet`, `createIceHockeyStick`, `createFieldHockeyStick`, `createLacrosseCrosse`, `createCricketBat`, `createBaseballBat`, `createRacket`, `createCueTable`, `createKendoArmour` |
+| `/music` | `createUprightPiano`, `createGuitar`, `createViolin`, `createSideDrum`, `createBugle`, `createMicrophone` |
 | `/nature` | `createFireRing`, `createRock`, `createTent`, `createTree` |
 
-Each producer's JSDoc states how the thing stands in its own space, and its namespace lists its kinds, affordance ids, dimensions and bands (`createSeat.BANDS`).
+Each producer's JSDoc describes its frame and inputs. Its companion types name the supported contacts. A producer that uses bands documents them in its source records.
+
+Existing dispatcher names continue to read saved recipes with their original `kind`, dimensions and seed. For example, `createDevice({ kind: "camera" }, seed)` selects the same camera as `createCamera({}, seed)`. The gallery opens old addresses at the corresponding named producer and retains the selected shape or format and view state.
 
 ### Environments
 

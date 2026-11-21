@@ -27,6 +27,32 @@ export namespace QuadrupedRideClock {
     start: number;
     /** Actual course end, film seconds. */
     end: number;
+    /** The course end on the hoof clock after removing stationary intervals. */
+    movingEnd: number;
+    /**
+     * Remove elapsed stopped time from the film second.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines film-to-moving seconds and a held hoof clock throughout a stop.
+     * @evidence contracts/development/implementation.md#principled-implementation Subtract the portion of every elapsed stationary interval.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pass of the admitted stops.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Running seconds and the requested path remain unchanged.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(P) for P authored pauses, with constant work when none are authored.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stops from the admitted course with the inverse reader.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fixed stop table survives preparation.
+     */
+    movingAt: (second: number) => number;
+    /**
+     * Read the first film second at which the moving clock reaches a value.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Defines moving-to-film seconds, returning a stop's arrival at its held clock value.
+     * @evidence contracts/development/implementation.md#principled-implementation Add the full earlier pauses before mapping back to the authored timeline.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered pass of the admitted stops.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A held clock value can emit one event at arrival and cannot emit a new event inside the pause.
+     * @evidence contracts/development/implementation.md#efficient-algorithms O(P) for P authored pauses, with constant work when none are authored.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same admitted stop intervals as movingAt.
+     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the fixed stop table survives preparation.
+     */
+    filmAt: (second: number) => number;
     /**
      * Read timing context at a film second, holding the nearest course boundary.
      * Spatial placement still reads the original plan at its original second.
@@ -75,6 +101,7 @@ export namespace QuadrupedRideClock {
    * @param plan The already admitted path and actual clock interval.
    * @param tempo The animal's normalized declared timing-spread coordinate.
    * @param withers The animal's withers height, metres.
+   * @param holds Explicit hoof-clock holds, such as a jump's flight, merged with the route pauses.
    * @returns A prepared continuation reader; requested-speed admission is unchanged.
    * @throws {ArchetypeRefusal} Through strict timing when no declared continuation supports the actual speed, or timing inputs are malformed.
    *
@@ -92,9 +119,62 @@ export namespace QuadrupedRideClock {
     plan: ArchetypeCourse.IPlan,
     tempo: number,
     withers: number,
+    holds: readonly IHold[] = [],
   ): IClock {
     const start: number = plan.when(0);
     const end: number = plan.when(plan.length);
+
+    /** Finite stopped windows paired by their original course leg, then the explicit hoof-clock holds. */
+    const paused: IPause[] = [];
+    if (
+      course.legs.some(
+        (leg: ArchetypeCourse.Leg): boolean => leg.pause !== undefined,
+      )
+    ) {
+      const markers: ReadonlyMap<string, number> = new Map(
+        plan.instants.map(
+          (event: { label: string; seconds: number }): [string, number] => [
+            event.label,
+            event.seconds,
+          ],
+        ),
+      );
+      course.legs.forEach((leg: ArchetypeCourse.Leg, index: number): void => {
+        if (leg.pause === undefined) return;
+        const arrival: number | undefined = markers.get(`stop${index + 1}`);
+        const departure: number | undefined = markers.get(`depart${index + 1}`);
+        if (
+          arrival === undefined ||
+          departure === undefined ||
+          !(departure > arrival)
+        )
+          throw new RangeError(
+            "A quadruped pause requires admitted stop and departure events",
+          );
+        paused.push({
+          start: arrival,
+          duration: departure - arrival,
+          moving: 0,
+        });
+      });
+    }
+    for (const hold of holds) {
+      if (
+        !(
+          Number.isFinite(hold.start) &&
+          hold.duration > 0 &&
+          Number.isFinite(hold.duration)
+        )
+      )
+        throw new RangeError("A hoof-clock hold needs a finite positive span");
+      paused.push({ start: hold.start, duration: hold.duration, moving: 0 });
+    }
+    paused.sort((a: IPause, b: IPause): number => a.start - b.start);
+    let held: number = 0;
+    for (const pause of paused) {
+      pause.moving = pause.start - held;
+      held += pause.duration;
+    }
     const order: readonly QuadrupedGait.Gait[] = species.table.order;
     const ranges: readonly { minimum: number; maximum: number }[] = order.map(
       (gait: QuadrupedGait.Gait): { minimum: number; maximum: number } =>
@@ -121,6 +201,23 @@ export namespace QuadrupedRideClock {
     return {
       start,
       end,
+      movingEnd: end - held,
+      movingAt: (second: number): number => {
+        let elapsed: number = 0;
+        for (const pause of paused) {
+          if (second <= pause.start) break;
+          elapsed += Math.min(pause.duration, second - pause.start);
+        }
+        return second - elapsed;
+      },
+      filmAt: (second: number): number => {
+        let elapsed: number = 0;
+        for (const pause of paused) {
+          if (second <= pause.moving) break;
+          elapsed += pause.duration;
+        }
+        return second + elapsed;
+      },
       at,
       timing: (
         gait: QuadrupedGait.Gait,
@@ -130,7 +227,7 @@ export namespace QuadrupedRideClock {
         const index: number = order.indexOf(gait);
 
         // Keep unsupported-gait refusals owned by the strict table reader.
-        if (index < 0)
+        if (index < 0 && species.table.gaits[gait] === undefined)
           return QuadrupedGait.timing(
             species,
             gait,
@@ -138,7 +235,18 @@ export namespace QuadrupedRideClock {
             tempo,
             withers,
           );
-        const limits: { minimum: number; maximum: number } = ranges[index]!;
+
+        // A collected gait entered from its parent's speeds holds its fastest declared clock.
+        if (index < 0)
+          return QuadrupedGait.timing(
+            species,
+            gait,
+            collectedSpeed(species, gait, state.speed, withers),
+            tempo,
+            withers,
+          );
+        const limits: { minimum: number; maximum: number } =
+          ranges[index] ?? QuadrupedGait.range(species, gait, withers);
         let speed: number = state.speed;
         if (speed < limits.minimum) {
           const departing: boolean =
@@ -159,7 +267,7 @@ export namespace QuadrupedRideClock {
             );
           if (departing || stopping) speed = limits.minimum;
         }
-        if (speed < limits.minimum || speed > limits.maximum) {
+        if (index >= 0 && (speed < limits.minimum || speed > limits.maximum)) {
           const adjacent: number =
             speed < limits.minimum ? index - 1 : index + 1;
           const neighbour: { minimum: number; maximum: number } | undefined =
@@ -182,5 +290,70 @@ export namespace QuadrupedRideClock {
         return QuadrupedGait.timing(species, gait, speed, tempo, withers);
       },
     };
+  }
+
+  /**
+   * The speed a collected explicit gait's clock is read at: the actual speed inside its declared domain, and its fastest row while the horse is still above it but inside the parent gait's domain it is being collected out of.
+   *
+   * @param species The ride's species and selected table.
+   * @param gait The committed gait.
+   * @param speed The actual course speed, metres per second.
+   * @param withers The animal's withers height, metres.
+   * @returns The speed to read the strict table at; unchanged when no collection rule applies, so the strict reader still refuses.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the units, the held endpoint and when the input passes through unchanged.
+   * @evidence contracts/development/implementation.md#principled-implementation A collected gait (`ITable.collected`) is entered by decelerating out of its parent; over that interval the stride keeps the collected cadence, which is the fastest declared collected row, while the stride length absorbs the remaining speed.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two range reads and one comparison.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A speed above the parent's domain, or a gait without a declared parent, is passed through for the strict refusal.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work over the two ranges' end rows.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `QuadrupedGait.range` for both domains.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function collectedSpeed(
+    species: createQuadruped.ISpecies,
+    gait: QuadrupedGait.Gait,
+    speed: number,
+    withers: number,
+  ): number {
+    const parent: QuadrupedGait.Gait | undefined =
+      species.table.collected?.[gait];
+    if (parent === undefined) return speed;
+    const own: { minimum: number; maximum: number } = QuadrupedGait.range(
+      species,
+      gait,
+      withers,
+    );
+    const from: { minimum: number; maximum: number } = QuadrupedGait.range(
+      species,
+      parent,
+      withers,
+    );
+    return speed > own.maximum && speed <= from.maximum ? own.maximum : speed;
+  }
+
+  /**
+   * An explicit interval in which the hoof clock stands still while the course keeps moving, such as a jump's flight.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the film-second start and the positive duration.
+   * @evidence contracts/development/design.md#principled-representation A start and a span in film seconds, the same shape as a route pause.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the ride's technique planners and merged with the route pauses here.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Finiteness and positivity are admitted at `create`.
+   */
+  export interface IHold {
+    /** Film second the hoof clock stops. */
+    start: number;
+
+    /** Seconds it stays stopped. */
+    duration: number;
+  }
+
+  /** One admitted stationary hoof-clock window and its start on the moving clock. */
+  interface IPause {
+    /** Film second the window starts. */
+    start: number;
+    /** Film seconds it lasts. */
+    duration: number;
+    /** Its start on the moving clock. */
+    moving: number;
   }
 }

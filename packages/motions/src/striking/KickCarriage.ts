@@ -16,6 +16,7 @@ import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import type { strikingStepSupport } from "./strikingStepSupport";
 
 /**
  * How the body carries a kick (Gavagan and Sayers 2017 phases; kickboxing
@@ -70,6 +71,9 @@ export namespace KickCarriage {
     /** The skill's range share: how much of the support foot's pivot is shown. */
     amplitude: number;
 
+    /** Pending touchdowns from the cut, completed by the launch. */
+    recovery?: strikingStepSupport.ISupport;
+
     /**
      * How far the entry's support hip stands below its standing height,
      * metres, never negative: the kick rises onto its support leg by this
@@ -106,13 +110,16 @@ export namespace KickCarriage {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture {
-    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
     const { body, entry, feet, side, line, timing } = props;
     const support: "left" | "right" = side === "left" ? "right" : "left";
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const w: number =
       minimumJerk.share(turning / timing.chamber) -
-      minimumJerk.share((turning - timing.impact) / (timing.duration - timing.impact));
+      minimumJerk.share(
+        (turning - timing.impact) / (timing.duration - timing.impact),
+      );
     const stepped: number =
       carriage.step *
       minimumJerk.share(
@@ -146,25 +153,34 @@ export namespace KickCarriage {
 
     // The support foot turns with the pelvis (at most the pivot's own
     // range), so the support hip's twist stays where the stance had it.
-    const supportFoot: IAutoMovieMotionHumanFoot.IPlacement = StrikingTarget.pivot(
-      body,
-      support,
-      StrikingTarget.slide(feet[support], line, stepped, 0),
-      Math.sign(carriage.turn) *
-        Math.min(
-          Math.abs(carriage.turn),
-          KickForm.PIVOT.turn * props.amplitude,
-        ) *
-        w,
-      KickForm.PIVOT.raise * w,
-    );
+    const supportFoot: IAutoMovieMotionHumanFoot.IPlacement =
+      StrikingTarget.pivot(
+        body,
+        support,
+        StrikingTarget.slide(
+          feet[support],
+          line,
+          stepped,
+          props.recovery?.rise(support, seconds, timing.prep) ?? 0,
+        ),
+        Math.sign(carriage.turn) *
+          Math.min(
+            Math.abs(carriage.turn),
+            KickForm.PIVOT.turn * props.amplitude,
+          ) *
+          w,
+        KickForm.PIVOT.raise * w,
+      );
     const flat: IAutoMovieMotionHumanPosture = {
       root: { x: centre.x, y: entry.root.y + props.rise * w, z: centre.z },
       yaw: entry.yaw + carriage.turn * w,
       pitch: entry.pitch + carriage.pitch * w,
       roll: entry.roll,
       joints: StrikingStance.facing(
-        props.joints ?? { ...entry.joints, ...StrikingStance.joints(entry.joints) },
+        props.joints ?? {
+          ...entry.joints,
+          ...StrikingStance.joints(entry.joints),
+        },
         carriage.turn * w,
       ),
       limbs: {},
@@ -172,7 +188,15 @@ export namespace KickCarriage {
     const tilted: IAutoMovieMotionHumanPosture =
       carriage.lean * w === 0
         ? flat
-        : tilt(body, flat, support, Vector3.cross(line, up), carriage.lean * w, read, projection);
+        : tilt(
+            body,
+            flat,
+            support,
+            Vector3.cross(line, up),
+            carriage.lean * w,
+            read,
+            projection,
+          );
     return resolveHumanPosture.lower(
       body,
       {
@@ -182,7 +206,16 @@ export namespace KickCarriage {
           side === "left"
             ? { left: feet.left, right: supportFoot }
             : { left: supportFoot, right: feet.right },
-          { left: side !== "left", right: side !== "right" },
+          {
+            left:
+              side !== "left" &&
+              (props.recovery?.landings.left === undefined ||
+                seconds >= timing.prep),
+            right:
+              side !== "right" &&
+              (props.recovery?.landings.right === undefined ||
+                seconds >= timing.prep),
+          },
         ),
       },
       resolveHumanPosture.KNEE,
@@ -215,9 +248,13 @@ export namespace KickCarriage {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieVector3 {
-    return StrikingBody.trunk(body, posture, resolution, HIPS[side], projection).get(
-      `${side}UpperLeg` as AutoMovieHumanoidBone,
-    )!.worldPosition;
+    return StrikingBody.trunk(
+      body,
+      posture,
+      resolution,
+      HIPS[side],
+      projection,
+    ).get(`${side}UpperLeg` as AutoMovieHumanoidBone)!.worldPosition;
   }
 
   /**
@@ -258,7 +295,9 @@ export namespace KickCarriage {
 }
 
 /** Immutable requested outputs; each hip query still admits every authored joint. */
-const HIPS: Readonly<Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>> = {
+const HIPS: Readonly<
+  Record<"left" | "right", ReadonlySet<AutoMovieHumanoidBone>>
+> = {
   left: new Set<AutoMovieHumanoidBone>(["leftUpperLeg"]),
   right: new Set<AutoMovieHumanoidBone>(["rightUpperLeg"]),
 };

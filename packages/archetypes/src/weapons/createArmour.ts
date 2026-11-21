@@ -1,28 +1,20 @@
-import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 
 import {
   Archetype,
   ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type ArchetypeDrawSession,
   ArchetypeUnits,
   type IArchetypeBand,
 } from "../core";
-import { ArmourForm } from "./ArmourForm";
-import { ArmourProfile } from "./ArmourProfile";
 import { armourBone } from "./armourBone";
-
-/** The plate thickness read. */
-const PLATE: string =
-  "Alan Williams, What can scientific analysis tell us about the effectiveness of medieval arms and armour?, p. 172: comfortable-weight breastplates between 1.5 and 3 mm, limb armour thinner; the breastplate range remains a provisional limb transfer (https://wratislavia.antiqua.uwr.edu.pl/wp-content/uploads/sites/573/2025/02/10-What-can-scientific-analysis-tell-us-about-the-effectiveness-of-medieval-arms-and-armour.pdf)";
-
-/** The helmet padding read. */
-const PAD: string =
-  'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
+import { createCostumeCuirass } from "./createCostumeCuirass";
+import { createCostumeGauntlet } from "./createCostumeGauntlet";
+import { createCostumeGreave } from "./createCostumeGreave";
+import { createCostumeHelmet } from "./createCostumeHelmet";
+import { createCostumeMail } from "./createCostumeMail";
+import { createCostumeVambrace } from "./createCostumeVambrace";
 
 /**
  * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a cuirass, a mail shirt, a gauntlet, a vambrace or a greave.
@@ -49,8 +41,8 @@ const PAD: string =
  * @throws {ArchetypeRefusal} For an unsupported piece/dimension, invalid used body measures, inverted cuirass heights or a mail mass/coverage that cannot contain a positive wall and cavity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each kind covers, how it is fitted or left as read, where it is centred and how it rides its bone.
- * @evidence contracts/development/implementation.md#principled-implementation Preserve whole record draws and existing minimal measure admission, resolve one shared actual-wall profile, then build each closed convex wall cell through the same core geometry/mass/collider owner. Helmet padding and limb/torso cavities follow exact body boundaries; mail derives an explicitly equivalent wall from fixed coverage volume and existing steel density.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the existing record/bands, admit only used body dimensions, prepare the profile, emit its actual cells and retain the original wear/contact metadata.
+ * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the legacy selector and calls the selected profile once.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bounding-box fallback, filled body proxy, hidden collision/mass solid or invented historical wall/hand dimensions. Missing and associated components retain their record scope. Coarse authored geometry and equivalent mail material do not establish specimen shape, drape, protection or a universal glance outcome.
  * @evidence contracts/development/implementation.md#efficient-algorithms Bounded O(N squared) helmet cells or O(N) limb cells and constant torso panels, followed by shared core per-cell hull and mass work; no iterative model fitting.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
@@ -60,88 +52,31 @@ export function createArmour(
   params: createArmour.IParams,
   seed?: number | string,
 ): Archetype<createArmour.Affordance, createArmour.Dimension> {
-  const draw: ArchetypeDrawSession<createArmour.Dimension> =
-    new ArchetypeDrawSession<createArmour.Dimension>(
-      "armour",
-      createArmour.UNITS,
-      seed,
-      params,
-    );
   const kind: createArmour.Kind = ArchetypeDraw.choice(
     "armour",
     "kind",
     params.kind,
     createArmour.KINDS,
   );
-  const model: ArchetypeDrawSession.IModel<
-    createArmour.Model,
-    createArmour.Dimension
-  > = draw.model<createArmour.Model>(
-    "model",
-    params.model,
-    createArmour.MODELS[kind],
-  );
-  const d: Partial<Record<createArmour.Dimension, number>> = {
-    ...draw.dimensions(createArmour.BANDS[kind], createArmour.BANDS),
-    ...model.figures,
-  };
-  const builder: ArchetypeBuilder<
-    createArmour.Affordance,
-    createArmour.Dimension
-  > = new ArchetypeBuilder({
-    id: params.id,
-    name: kind,
-    material: "steel",
-    draw,
-  });
-  const v: typeof Vector3.create = Vector3.create;
-  const steel: { color: string; surface: "steel" } = {
-    color: "#8f979e",
-    surface: "steel",
-  };
-  const m: Partial<IAutoMovieBodyMeasure> | undefined = params.measure;
-  if (m !== undefined) admitMeasure(kind, m);
-  const profile: ArmourProfile.IProfile = ArmourProfile.create(
-    kind,
-    model.name!,
-    d,
-    m,
-  );
-  let cells: readonly ArmourProfile.ICell[];
-  try {
-    cells = ArmourForm(profile);
-  } catch (error) {
-    if (!(error instanceof RangeError)) throw error;
-    throw new ArchetypeRefusal({
-      kind: "parameter",
-      archetype: "armour",
-      axis: "measure",
-      value: params.measure,
-      feasible: null,
-      reason: error.message,
-      fix: "supply fitting dimensions compatible with the selected piece's actual positive wall and cavity",
-    });
-  }
-  for (const cell of cells)
-    builder.convex(cell.id, cell.prepared ?? cell.points, v(0, 0, 0), {
-      ...(kind === "mail"
-        ? { color: "#6f757b", surface: "steel" as const }
-        : steel),
-      ...(cell.rotation === undefined ? {} : { rotation: cell.rotation }),
-    });
-  builder.affordance({
-    id: "wear",
-    kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
-    extent: null,
-  });
-
-  // Plate publishes provisional glance metadata; current flight/melee outcomes do not consume it. Mail declares none.
-  return builder.build(d.mass!, {
-    rests: "steel",
-    ...(kind === "mail" ? {} : { outcome: { glance: createArmour.GLANCE } }),
-  });
+  /** The legacy surface accepts a broad selector before runtime admission. */
+  type Producer = {
+    build(
+      params: createArmour.IParams,
+      seed?: number | string,
+    ): Archetype<createArmour.Affordance, createArmour.Dimension>;
+  }["build"];
+  // The selected producer validates its options from the saved parameter union.
+  const produce: Producer = createArmour.PRODUCERS[kind] as Producer;
+  return produce(params, seed);
 }
+
+/** The plate thickness read. */
+const PLATE: string =
+  "Alan Williams, What can scientific analysis tell us about the effectiveness of medieval arms and armour?, p. 172: comfortable-weight breastplates between 1.5 and 3 mm, limb armour thinner; the breastplate range remains a provisional limb transfer (https://wratislavia.antiqua.uwr.edu.pl/wp-content/uploads/sites/573/2025/02/10-What-can-scientific-analysis-tell-us-about-the-effectiveness-of-medieval-arms-and-armour.pdf)";
+
+/** The helmet padding read. */
+const PAD: string =
+  'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
 
 /**
  * Companion types, bands, records and the bone rule of {@link createArmour}.
@@ -152,6 +87,34 @@ export function createArmour(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Literal museum envelopes/mass and body fitting boundaries remain independent; authored coarse openings and steel-equivalent mail are not asserted as measured artifact geometry. Helmet padding and plate glance retain their explicit provisional sources.
  */
 export namespace createArmour {
+  /** The canonical factories for saved kinds, read after the catalogue loads. */
+  export const PRODUCERS = {
+    get openHelmet(): typeof createCostumeHelmet {
+      return createCostumeHelmet;
+    },
+    get closedHelmet(): typeof createCostumeHelmet {
+      return createCostumeHelmet;
+    },
+    get brimmedHelmet(): typeof createCostumeHelmet {
+      return createCostumeHelmet;
+    },
+    get cuirass(): typeof createCostumeCuirass {
+      return createCostumeCuirass;
+    },
+    get mail(): typeof createCostumeMail {
+      return createCostumeMail;
+    },
+    get gauntlet(): typeof createCostumeGauntlet {
+      return createCostumeGauntlet;
+    },
+    get vambrace(): typeof createCostumeVambrace {
+      return createCostumeVambrace;
+    },
+    get greave(): typeof createCostumeGreave {
+      return createCostumeGreave;
+    },
+  } satisfies Readonly<Record<Kind, unknown>>;
+
   /** The kinds of piece. */
   export type Kind =
     | "openHelmet"
@@ -341,47 +304,4 @@ export namespace createArmour {
 
   /** The bone a piece rides, by its kind and a limb piece's side: `armourBone`. */
   export const bone: typeof armourBone = armourBone;
-}
-
-/** Admit only the body's dimensions this kind actually uses, without inventing anthropometric bands. */
-function admitMeasure(
-  kind: createArmour.Kind,
-  measure: Partial<IAutoMovieBodyMeasure>,
-): void {
-  const required: Readonly<
-    Record<createArmour.Kind, readonly (keyof IAutoMovieBodyMeasure)[]>
-  > = {
-    openHelmet: ["headRadius"],
-    closedHelmet: ["headRadius"],
-    brimmedHelmet: ["headRadius"],
-    cuirass: ["chestBreadth", "chestDepth", "shoulderHeight", "waistHeight"],
-    mail: ["chestBreadth", "chestDepth"],
-    gauntlet: ["forearmRadius", "hand"],
-    vambrace: ["forearmRadius", "forearm"],
-    greave: ["shankRadius", "shank"],
-  };
-  for (const field of required[kind]) {
-    const value: number | undefined = measure[field];
-    if (!(value !== undefined && Number.isFinite(value) && value > 0))
-      throw new ArchetypeRefusal({
-        kind: "parameter",
-        archetype: "armour",
-        axis: `measure.${field}`,
-        value,
-        feasible: null,
-        reason: `${kind} needs a finite positive ${field} in metres`,
-        fix: `supply the body's measured ${field} above zero`,
-      });
-  }
-  if (kind === "cuirass" && !(measure.shoulderHeight! > measure.waistHeight!))
-    throw new ArchetypeRefusal({
-      kind: "parameter",
-      archetype: "armour",
-      axis: "measure.shoulderHeight",
-      value: measure.shoulderHeight,
-      feasible: null,
-      reason:
-        "a cuirass needs the shoulders above the waist to have a positive height",
-      fix: "supply canonical body heights with shoulderHeight above waistHeight",
-    });
 }

@@ -28,9 +28,14 @@ import type { IAutoMovieMotionHumanLadder } from "./IAutoMovieMotionHumanLadder"
  * `<limb>Contact<n>`, the limb one of `rightHand`, `rightFoot`, `leftHand`,
  * `leftFoot`.
  *
- * Not yet: the two-beat patterns, rail grips, climbing down, the top-out,
- * and hanging, traversing, mantling and vaulting (the rest of #3238); the
- * A8 `bar` and `ledge` kinds the core owns.
+ * An optional `landing` joins the floor and a fixed upper surface over the
+ * same rungs and side rails, up or down (`planLadderAccess`): the feet
+ * change between the floor or landing and the rungs one at a time while
+ * the hands hold, and the hands take the side rails before the feet cross
+ * the upper edge. Then `rungs` must match the rungs below the landing.
+ *
+ * Not yet: the two-beat patterns, and hanging, traversing, mantling and
+ * vaulting (the rest of #3238).
  *
  * @evidence contracts/development/common.md#meaningful-documentation rungs: How many rungs the feet climb; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
  * @evidence contracts/development/design.md#principled-representation rungs: How many rungs the feet climb; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
@@ -57,6 +62,9 @@ export namespace IAutoMovieMotionHumanClimbLadder {
      */
     rungs?: number;
 
+    /** The upper surface the route joins to the floor; the climb ends on the rungs when absent. */
+    landing?: ILanding;
+
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
   }
@@ -82,5 +90,35 @@ export namespace IAutoMovieMotionHumanClimbLadder {
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
     /** The ladder. */
     ladder: IAutoMovieMotionHumanLadder.ILadder;
+  }
+
+  /**
+   * Which way a landing route runs: `up` from the floor to the landing,
+   * `down` from the landing to the floor.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States both directions.
+   * @evidence contracts/development/design.md#principled-representation A closed choice; down replays the same stances in reverse order.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by planLadderAccess.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
+   */
+  export type Direction = "up" | "down";
+
+  /**
+   * The surface at the upper end of a fixed ladder route.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the placed surface and the direction, with its default.
+   * @evidence contracts/development/design.md#principled-representation The prop's level surface affordance supplies the height, width and depth in world metres; the direction orders the same contact route.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by planLadderAccess only when the author requests a complete route.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing names a real surface, without an invented endpoint; a moving, sloped, misaligned or unreachable one is refused at runtime.
+   */
+  export interface ILanding {
+    /** Subject of the fixed prop that bears the performer at the top. */
+    prop: string;
+
+    /** Id of its level `surface` affordance, its near edge at the ladder. */
+    point: string;
+
+    /** The route's direction; `up` when absent. */
+    direction?: Direction;
   }
 }
