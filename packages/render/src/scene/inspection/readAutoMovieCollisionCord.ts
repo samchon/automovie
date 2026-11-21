@@ -44,7 +44,7 @@ export function readAutoMovieCollisionCord(
   mesh: THREE.Mesh,
   identity: string,
   cord: AutoMovieCollisionSource.ICord,
-  budget: { posedVertices: number },
+  budget: { posedVertices: number; parts?: number },
   add: readAutoMovieCollisionMesh.IAdd,
 ): void {
   const group: Collision.IGroup = { id: identity, kind: "deformable-body" };
@@ -97,6 +97,7 @@ export function readAutoMovieCollisionCord(
         )
       : null;
   for (let i: number = 0; i + 1 < points.length; ++i) {
+    if (budget.parts !== undefined && budget.parts <= 0) return;
     const part: Collision.IPart | null = capsule(
       `${identity}/segment/${i}`,
       group,

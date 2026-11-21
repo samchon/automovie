@@ -22,6 +22,8 @@ type ILimits = {
   surfaceTriangles: number;
   /** Elementary motion intervals. */
   sweptCells: number;
+  /** Collected parts, when bounded; a frame that runs out defers its layer. */
+  parts?: number;
 };
 
 /** One source-owned layer, after its exact placement and world-matrix update. */
@@ -102,7 +104,7 @@ export function observeAutoMovieSceneCollision(
   }
   if (props.spent !== undefined)
     for (const kind of Object.keys(budget) as (keyof ILimits)[])
-      props.spent[kind] = props.limits[kind] - budget[kind];
+      props.spent[kind] = props.limits[kind]! - budget[kind]!;
   return { findings, coverage };
 }
 
@@ -160,8 +162,8 @@ function observeLayer(
   );
   report(
     key("layer"),
-    result.budgetExhausted ? "deferred" : "checked",
-    "comparison-limit",
+    result.budgetExhausted || collected.truncated ? "deferred" : "checked",
+    collected.truncated ? "part-limit" : "comparison-limit",
   );
   for (const id of result.unboundedParts)
     report(

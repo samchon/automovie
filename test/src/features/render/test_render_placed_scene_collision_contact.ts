@@ -29,6 +29,8 @@ import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
  *    during the same window is confirmed.
  * 4. Two crates sharing a name keep the same identities and coverage key on
  *    two different frames.
+ * 5. A part allowance smaller than the scene defers the required layer with
+ *    its reason instead of collecting without bound.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact, disjoint, grip and naming cases and their expected coverage.
  * @evidence contracts/development/testing.md#behavioral-verification Places real Three scenes and a built skinned model, then asserts the public observer's findings and coverage.
@@ -173,6 +175,35 @@ export async function test_render_placed_scene_collision_contact(): Promise<void
       [JSON.stringify(["main", "frame", "crate#0", "crate#1"])],
       [JSON.stringify(["main", "frame", "crate#0", "crate#1"])],
     ],
+  );
+
+  // 5. A part allowance defers the layer instead of collecting without bound.
+  twins.updateMatrixWorld(true);
+  const bounded = observeAutoMovieSceneCollision({
+    time: { filmSeconds: 0 },
+    layers: [{ id: "main", root: twins, localSeconds: 0, required: true }],
+    geometry,
+    limits: {
+      comparisons: 1_000,
+      posedVertices: 1_000,
+      surfaceTriangles: 1_000,
+      sweptCells: 0,
+      parts: 1,
+    },
+  });
+  TestValidator.equals(
+    "running out of parts defers the required layer",
+    bounded.coverage.find(
+      ({ key }: Diagnostic.ICoverage): boolean =>
+        key === JSON.stringify(["main", "layer"]),
+    ),
+    {
+      check: "collision",
+      key: JSON.stringify(["main", "layer"]),
+      required: true,
+      status: "deferred",
+      reason: "part-limit",
+    },
   );
 
   const resources: Set<{ dispose(): void }> = new Set([material]);

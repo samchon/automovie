@@ -33,7 +33,7 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 export function readAutoMovieCollisionMesh(
   mesh: THREE.Mesh,
   identity: Omit<Collision.IPart, "geometry">,
-  budget: { posedVertices: number },
+  budget: { posedVertices: number; parts?: number },
   add: readAutoMovieCollisionMesh.IAdd,
 ): void {
   const unsupported = (reason: string): void =>
@@ -115,7 +115,7 @@ export namespace readAutoMovieCollisionMesh {
 function readSkin(
   mesh: AutoMovieSkinnedMesh,
   topology: readAutoMovieCollisionTopology.ITopology,
-  budget: { posedVertices: number },
+  budget: { posedVertices: number; parts?: number },
 ): collectAutoMovieCollisionParts.IPartSurface["read"] | null {
   const e: number[] = mesh.matrixWorld.elements;
   const error: number =

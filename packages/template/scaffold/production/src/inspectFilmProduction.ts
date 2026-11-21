@@ -44,6 +44,9 @@ const COLLISION_LIMITS: Record<
     posedVertices: 3_000,
     surfaceTriangles: 6_300,
     sweptCells: 256,
+    // Collecting a part costs about 6.4 µs (6.4 ms per 1,024 formation members),
+    // which no other limit bounds; 400 parts keep collection near 2.5 ms.
+    parts: 400,
   },
   capture: SETTLED,
   delivery: SETTLED,
@@ -60,11 +63,14 @@ const MOTION_LIMITS: Record<
   Parameters<typeof observeAutoMovieCollisionMotion>[0]["limits"]
 > = {
   viewer: {
-    placements: 6,
+    // Each extra instant costs a placement plus a collection; the work limits
+    // follow the collision measurements above, at about a third of its share.
+    placements: 4,
     depth: 6,
-    comparisons: 4_000,
-    posedVertices: 16_384,
-    surfaceTriangles: 200_000,
+    comparisons: 300,
+    posedVertices: 1_000,
+    surfaceTriangles: 2_000,
+    parts: 400,
   },
   capture: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },
   delivery: { ...SETTLED, placements: Number.MAX_SAFE_INTEGER, depth: 30 },

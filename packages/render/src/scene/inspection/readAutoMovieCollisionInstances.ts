@@ -46,7 +46,7 @@ const CYCLE_BOUNDS: WeakMap<
 export function readAutoMovieCollisionInstances(
   mesh: THREE.InstancedMesh,
   identity: string,
-  budget: { posedVertices: number },
+  budget: { posedVertices: number; parts?: number },
   add: readAutoMovieCollisionMesh.IAdd,
 ): void {
   const source: AutoMovieCollisionSource.IInstances | undefined =
@@ -65,6 +65,7 @@ export function readAutoMovieCollisionInstances(
         : cycleBounds(mesh.geometry, topology, cycle, take);
   const instance: THREE.Matrix4 = new THREE.Matrix4();
   for (let index: number = 0; index < mesh.count; ++index) {
+    if (budget.parts !== undefined && budget.parts <= 0) return;
     const slot: number = source?.slots[index] ?? index;
     const id: string =
       source === undefined

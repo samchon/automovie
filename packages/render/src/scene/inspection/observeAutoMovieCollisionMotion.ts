@@ -118,6 +118,10 @@ export function observeAutoMovieCollisionMotion(
     for (const [id, last] of end.layers) {
       const first: ILayerState | undefined = start.layers.get(id);
       if (first === undefined) continue;
+      if (first.collected.truncated || last.collected.truncated) {
+        limited.add(id);
+        continue;
+      }
       for (const [a, b] of candidates(first, last)) {
         const key: string = JSON.stringify([id, "motion", a, b]);
         if (confirmedAt(first, a, b, budget) || confirmedAt(last, a, b, budget))
@@ -163,7 +167,7 @@ export function observeAutoMovieCollisionMotion(
     );
   if (props.spent !== undefined)
     for (const kind of Object.keys(budget) as (keyof typeof budget)[])
-      props.spent[kind] = props.limits[kind] - budget[kind];
+      props.spent[kind] = props.limits[kind]! - budget[kind]!;
   return { findings, coverage };
 }
 
@@ -207,6 +211,8 @@ export namespace observeAutoMovieCollisionMotion {
     posedVertices: number;
     /** Triangle visits spent on closed surfaces. */
     surfaceTriangles: number;
+    /** Collected parts over every placed instant, when bounded. */
+    parts?: number;
   }
 
   /**
@@ -253,7 +259,7 @@ type IOutcome =
 /** Collect every layer at the placed instant and record its feature poses. */
 function readInstant(
   layers: readonly observeAutoMovieCollisionMotion.ILayer[],
-  budget: { posedVertices: number },
+  budget: { posedVertices: number; parts?: number },
   geometry: Pick<Geometry.IQueries, "contact">,
 ): IInstant {
   const states: Map<string, ILayerState> = new Map();

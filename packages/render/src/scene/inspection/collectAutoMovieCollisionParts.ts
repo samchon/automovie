@@ -19,7 +19,7 @@ import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
  * from frame to frame.
  *
  * @param layer The placed layer and its source-owned identities.
- * @param budget Posed-vertex allowance shared by the frame; charged when a surface is read.
+ * @param budget Posed-vertex allowance charged when a surface is read, and an optional part allowance charged per collected part; collection stops when the parts run out.
  * @returns Parts in traversal order, posed surfaces by part and unsupported reasons by part.
  * @evidence contracts/development/common.md#meaningful-documentation States which drawn object yields which geometry authority, how parts are named and when a surface is posed.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the drawn world and instance matrices, the generator's slot, cord and assembly records, and the shared entity path for identity.
@@ -31,7 +31,7 @@ import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
  */
 export function collectAutoMovieCollisionParts(
   layer: collectAutoMovieCollisionParts.ILayer,
-  budget: { posedVertices: number },
+  budget: { posedVertices: number; parts?: number },
 ): collectAutoMovieCollisionParts.IResult {
   const parts: Collision.IPart[] = [];
   const surfaces: Map<string, collectAutoMovieCollisionParts.IPartSurface> =
@@ -95,10 +95,16 @@ export function collectAutoMovieCollisionParts(
     reason?: string,
   ): void => {
     parts.push(part);
+    if (budget.parts !== undefined) --budget.parts;
     if (surface !== undefined) surfaces.set(part.id, surface);
     if (reason !== undefined) reasons.set(part.id, reason);
   };
+  let truncated: boolean = false;
   for (const { mesh, group } of meshes) {
+    if (budget.parts !== undefined && budget.parts <= 0) {
+      truncated = true;
+      break;
+    }
     const ownership: Omit<Collision.IPart, "geometry"> | undefined =
       layer.ownership?.get(mesh);
     const identity: string =
@@ -126,7 +132,8 @@ export function collectAutoMovieCollisionParts(
         add,
       );
   }
-  return { parts, surfaces, reasons };
+  if (budget.parts !== undefined && budget.parts < 0) truncated = true;
+  return { parts, surfaces, reasons, truncated };
 }
 
 /** The layer read by the collector and the surfaces and reasons it returns. */
@@ -212,5 +219,7 @@ export namespace collectAutoMovieCollisionParts {
     readonly surfaces: ReadonlyMap<string, IPartSurface>;
     /** Why a part has no geometry, by part identity. */
     readonly reasons: ReadonlyMap<string, string>;
+    /** Whether the part allowance ran out before every drawn object was collected. */
+    readonly truncated: boolean;
   }
 }
