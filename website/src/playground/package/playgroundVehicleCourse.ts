@@ -5,6 +5,7 @@ import {
   driveCar,
   rideBicycle,
   rideMotorcycle,
+  rideQuadruped,
 } from "@automovie/archetypes";
 import type {
   IAutoMovieMotionHumanProp,
@@ -16,7 +17,7 @@ import type { SceneArchetype } from "../../scenes/package/SceneArchetype";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
 
 /**
- * Adapt an authored vehicle course to the performance's native moving prop
+ * Adapt an authored vehicle or ridden-animal course to the performance's native moving prop
  * and its articulation tracks. Root, grips and the take share one sampled
  * native ride. Prop tracks retain the final wheel and control positions.
  *
@@ -58,6 +59,12 @@ export function playgroundVehicleCourse(
       case "createMotorcycle":
         return rideMotorcycle(
           model as Parameters<typeof rideMotorcycle>[0],
+          course,
+        );
+      case "createHorse":
+      case "createPony":
+        return rideQuadruped(
+          model as Parameters<typeof rideQuadruped>[0],
           course,
         );
       case "createCart":

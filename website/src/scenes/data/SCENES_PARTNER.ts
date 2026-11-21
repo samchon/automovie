@@ -6,6 +6,28 @@ import { SceneBuild } from "./SceneBuild";
 const { act, at, mutual, object, person, scene, seat, to }: typeof SceneBuild =
   SceneBuild;
 
+/** One trooper's horse's place at the head of the squadron, metres. */
+interface ITrooper {
+  /** Lateral place. */
+  x: number;
+
+  /** Depth place, the front rank at 0. */
+  z: number;
+}
+
+/** Two ranks of three files, knee to knee: 1.8 m between files and 4 m between ranks, an authored staging choice. */
+const SQUADRON: readonly ITrooper[] = [0, 1].flatMap(
+  (rank: number): ITrooper[] =>
+    [-1, 0, 1].map(
+      (file: number): ITrooper => ({ x: file * 1.8, z: -rank * 4 }),
+    ),
+);
+
+/** Seconds the troopers take to mount before the squadron moves off. */
+const CHARGE_MOUNT: number = 5;
+
+/** Seconds each trooper rides: the course's walk, trot and canter. */
+const CHARGE_RIDE: number = 24;
 /**
  * A work point on a bench top, just behind its front edge.
  *
@@ -502,6 +524,53 @@ export const SCENES_PARTNER: readonly IScene[] = [
       ]),
     ],
     [object("horse", "createHorse", undefined, 0, 0, 90)],
+  ),
+  scene(
+    {
+      id: "cavalry-charge",
+      title: "Cavalry squadron, walk to charge",
+      summary:
+        "A squadron of two ranks advances knee to knee from the walk through the trot to the canter, each horse taking its gait on the course's marks.",
+      setting: "ride",
+      roles: Object.fromEntries(
+        SQUADRON.map((_: ITrooper, k: number): [string, string] => [
+          `r${k}`,
+          `trooper ${k + 1}`,
+        ]),
+      ),
+      needs: [3913],
+      view: "side",
+    },
+    "ride",
+    SQUADRON.map((trooper: ITrooper, k: number) =>
+      person(
+        `r${k}`,
+        k % 2 === 0 ? "m1" : "f1",
+        trooper.x - 0.6,
+        trooper.z,
+        0,
+        [
+          act("sit", { seat: seat(`h${k}`) }),
+          act("ride", { on: `h${k}`, seconds: CHARGE_RIDE }),
+        ],
+      ),
+    ),
+    SQUADRON.map((trooper: ITrooper, k: number) => ({
+      ...object(`h${k}`, "createHorse", undefined, trooper.x, trooper.z, 0),
+      course: {
+        at: CHARGE_MOUNT,
+        legs: [
+          { kind: "straight" as const, length: 12, gait: "walk" },
+          { kind: "straight" as const, length: 16, gait: "trot" },
+          { kind: "straight" as const, length: 30, gait: "canter" },
+        ],
+        cruise: 5.5,
+        speeds: [1.6, 3.4, 5.5],
+        acceleration: 1.2,
+        deceleration: 1.2,
+        startFromStanding: true as const,
+      },
+    })),
   ),
   scene(
     {
