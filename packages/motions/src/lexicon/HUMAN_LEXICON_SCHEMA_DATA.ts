@@ -471,6 +471,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "Curls, without the weight."
     },
+    "curlDelivery": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ICurlDeliveryParams",
+      "description": "Deliver from a low flat-foot slide with trailing forefoot support."
+    },
     "curtsy": {
       "$ref": "#/components/schemas/IAutoMovieMotionHumanCurtsy",
       "description": "Perform a formal dip and recovery."
@@ -1867,6 +1871,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
       "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateParams",
       "description": "Travel over ice, optionally turning or coming to a stop."
     },
+    "skateboardPhrase": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateboardPhraseParams",
+      "description": "The ground push, flight, landing and recovery of a skateboard."
+    },
     "slap": {
       "$ref": "#/components/schemas/OmitIParamscountkindtangentwith",
       "description": "A forehand slap: one tap of the open palm. The composition gives the cheek as the target."
@@ -2070,6 +2078,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
     "superman": {
       "$ref": "#/components/schemas/OmitIParamskind-o13",
       "description": "Supermans."
+    },
+    "surfboardPhrase": {
+      "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISurfboardPhraseParams",
+      "description": "An entry, paddle and transfer to the surfing stance on the authored board."
     },
     "surrender": {
       "$ref": "#/components/schemas/OmitIParamsholdkind",
@@ -17322,6 +17334,10 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateParams",
             "description": "Travel over ice, optionally turning or coming to a stop."
           },
+          "curlDelivery": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ICurlDeliveryParams",
+            "description": "Deliver from a low flat-foot slide with trailing forefoot support."
+          },
           "snowGlide": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISnowGlideParams",
             "description": "Glide over snow on an authored grade."
@@ -17329,6 +17345,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "boardRide": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBoardRideParams",
             "description": "Keep a board-relative stance as the board moves."
+          },
+          "skateboardPhrase": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateboardPhraseParams",
+            "description": "The ground push, flight, landing and recovery of a skateboard."
+          },
+          "surfboardPhrase": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISurfboardPhraseParams",
+            "description": "An entry, paddle and transfer to the surfing stance on the authored board."
           },
           "aquatic": {
             "$ref": "#/components/schemas/IAutoMovieMotionHumanAquatic.IParams",
@@ -17493,8 +17517,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         },
         "required": [
           "skate",
+          "curlDelivery",
           "snowGlide",
           "boardRide",
+          "skateboardPhrase",
+          "surfboardPhrase",
           "aquatic",
           "stickBall",
           "HumanSittingVolley",
@@ -17557,6 +17584,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "stop": {
             "type": "boolean",
             "description": "Decelerate to rest by the end of the action. Absent finishes at travel speed."
+          },
+          "edge": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBladeEdge",
+            "description": "Cant about each skate's forward axis through its selected runner edge."
+          },
+          "step": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkateStep",
+            "description": "Release and replace one skate during the glide."
           }
         },
         "required": [
@@ -17564,7 +17599,152 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
           "speed"
         ],
         "additionalProperties": false,
-        "description": "A bilateral glide on level ice with an optional arc and deceleration."
+        "description": "A pushed glide on two skates with optional real blade-edge contacts\nand one foot's timed release and recovery."
+      },
+      "IAutoMovieMotionHumanSurface.IBladeEdge": {
+        "type": "object",
+        "properties": {
+          "degrees": {
+            "type": "number",
+            "description": "Signed rotation about each foot's +Z direction, in degrees, in [-90, 90]."
+          },
+          "pivots": {
+            "$ref": "#/components/schemas/ReadonlyRecordAutoMovieHumanSideIAutoMovieVector3",
+            "description": "Left and right edge locations in their respective foot joint frames, metres."
+          }
+        },
+        "required": [
+          "degrees",
+          "pivots"
+        ],
+        "additionalProperties": false,
+        "description": "The selected physical edge on each runner with its signed cant."
+      },
+      "ReadonlyRecordAutoMovieHumanSideIAutoMovieVector3": {
+        "type": "object",
+        "properties": {
+          "left": {
+            "$ref": "#/components/schemas/IAutoMovieVector3"
+          },
+          "right": {
+            "$ref": "#/components/schemas/IAutoMovieVector3"
+          }
+        },
+        "required": [
+          "left",
+          "right"
+        ],
+        "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanSurface.ISkateStep": {
+        "type": "object",
+        "properties": {
+          "side": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "Side of the released foot."
+          },
+          "window": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Action seconds at release and reacquisition.",
+            "additionalItems": false
+          },
+          "offset": {
+            "$ref": "#/components/schemas/ReadonlyIStepOffset",
+            "description": "Metres of displacement along the moving stance's +X and forward +Z."
+          },
+          "clearance": {
+            "type": "number",
+            "description": "Peak height above the original runner plane, metres."
+          }
+        },
+        "required": [
+          "side",
+          "window",
+          "offset",
+          "clearance"
+        ],
+        "additionalProperties": false,
+        "description": "One supported skate step, including a crossover when the offset reaches\nthe opposite side. The other skate glides throughout."
+      },
+      "ReadonlyIStepOffset": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "Metres along the moving stance's +X."
+          },
+          "z": {
+            "type": "number",
+            "description": "Metres along the moving stance's forward +Z."
+          }
+        },
+        "required": [
+          "x",
+          "z"
+        ],
+        "additionalProperties": false
+      },
+      "IAutoMovieMotionHumanSurface.ICurlDeliveryParams": {
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "number",
+            "description": "Positive duration in seconds.",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          },
+          "speed": {
+            "type": "number",
+            "description": "Positive forward glide speed in metres per second.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m/s"
+          },
+          "stop": {
+            "type": "boolean",
+            "description": "Ease to a stop and recover upright by the end."
+          },
+          "lead": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "Side whose flat shoe carries the delivery."
+          },
+          "drop": {
+            "type": "number",
+            "description": "Additional pelvis drop below the ordinary glide, metres.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          },
+          "trail": {
+            "type": "number",
+            "description": "Distance each shoe travels from the entry stance, forward for the leading shoe and backward for the trailing shoe, metres.",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          },
+          "heel": {
+            "type": "number",
+            "description": "Trailing heel lift by pitch around the ball of the foot, degrees, in (0, 90].",
+            "exclusiveMinimum": 0,
+            "maximum": 90,
+            "x-unit": "deg"
+          }
+        },
+        "required": [
+          "seconds",
+          "speed",
+          "lead",
+          "drop",
+          "trail",
+          "heel"
+        ],
+        "additionalProperties": false,
+        "description": "A flat-foot curling delivery with a lowered pelvis and a trailing\nshoe hinged around its forefoot."
       },
       "IAutoMovieMotionHumanSurface.ISnowGlideParams": {
         "type": "object",
@@ -17585,6 +17765,14 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
             "type": "boolean",
             "description": "Decelerate to rest by the end of the action. Absent finishes at travel speed."
           },
+          "edgeTransfer": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.ISkiEdgeTransfer",
+            "description": "An alpine change between opposing ski edges during the glide."
+          },
+          "nordic": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.INordicStroke",
+            "description": "A Nordic pole stroke and its opposite ski kick."
+          },
           "grade": {
             "type": "number",
             "description": "Descent angle in degrees along the entry heading, in [-20, 20]. Absent is level."
@@ -17596,6 +17784,78 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "A bilateral snow glide on an authored plane containing the entered\nsupport. The author stages the boots on the slope before entering."
+      },
+      "IAutoMovieMotionHumanSurface.ISkiEdgeTransfer": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBladeEdge",
+            "description": "Initial edges, with a cant signed about the ski's forward axis."
+          },
+          "next": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.IBladeEdge",
+            "description": "Edges on the other side, with the opposite signed cant."
+          },
+          "at": {
+            "type": "number",
+            "description": "Second when the skis pass through flat between the edges."
+          },
+          "counter": {
+            "type": "number",
+            "description": "Maximum opposite chest twist relative to the carried pelvis, degrees."
+          }
+        },
+        "required": [
+          "first",
+          "next",
+          "at",
+          "counter"
+        ],
+        "additionalProperties": false,
+        "description": "One selected set of ski edges and the opposite set after an unweighting."
+      },
+      "IAutoMovieMotionHumanSurface.INordicStroke": {
+        "type": "object",
+        "properties": {
+          "hand": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The hand that keeps the pole grip through the push."
+          },
+          "on": {
+            "type": "string",
+            "description": "Scene subject id of the pole."
+          },
+          "grip": {
+            "type": "string",
+            "description": "A named moving contact frame on the pole."
+          },
+          "window": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Action seconds of pole catch and release, ordered inside the glide.",
+            "additionalItems": false
+          },
+          "kick": {
+            "type": "number",
+            "description": "Rearward distance of the kicking ski before it recovers, metres."
+          }
+        },
+        "required": [
+          "hand",
+          "on",
+          "grip",
+          "window",
+          "kick"
+        ],
+        "additionalProperties": false,
+        "description": "A Nordic pole catch and a brief kick of the opposite ski."
       },
       "IAutoMovieMotionHumanSurface.IBoardRideParams": {
         "type": "object",
@@ -17615,6 +17875,78 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
         ],
         "additionalProperties": false,
         "description": "A ride on an externally animated board after both feet are on its deck."
+      },
+      "IAutoMovieMotionHumanSurface.ISkateboardPhraseParams": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "Scene id of the skateboard with deck, stance, tail and wheel affordances."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Duration in seconds on the actor's clock."
+          },
+          "lead": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The foot that remains forward while the other foot pushes."
+          },
+          "ground": {
+            "type": "number",
+            "description": "Elevation in metres of the skateboard's horizontal ground. Defaults to zero."
+          }
+        },
+        "required": [
+          "on",
+          "seconds",
+          "lead"
+        ],
+        "additionalProperties": false,
+        "description": "A rolling skateboard take through a ground push, stance change,\ntail pop, landing and supported recovery."
+      },
+      "IAutoMovieMotionHumanSurface.ISurfboardPhraseParams": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "string",
+            "description": "Scene id of the surfboard with deck, palm and stance affordances."
+          },
+          "seconds": {
+            "type": "number",
+            "description": "Duration in seconds on the actor's clock."
+          },
+          "lead": {
+            "$ref": "#/components/schemas/AutoMovieHumanSide",
+            "description": "The foot that reaches the front stance first."
+          },
+          "transfer": {
+            "$ref": "#/components/schemas/IAutoMovieMotionHumanSurface.SurfboardTransfer",
+            "description": "Whether a foot settles before both hands release or after a free interval."
+          },
+          "water": {
+            "type": "number",
+            "description": "Elevation in metres of the water surface. Defaults to zero."
+          }
+        },
+        "required": [
+          "on",
+          "seconds",
+          "lead",
+          "transfer"
+        ],
+        "additionalProperties": false,
+        "description": "A surfboard entry, paddle and timed transfer from palms to the stance feet."
+      },
+      "IAutoMovieMotionHumanSurface.SurfboardTransfer": {
+        "oneOf": [
+          {
+            "const": "flight"
+          },
+          {
+            "const": "overlap"
+          }
+        ],
+        "description": "The order of a surfboard pop-up's palm release and stance acquisition:\n`overlap` sets a foot down before both palms release, `flight` releases\nboth palms before a foot lands."
       },
       "IAutoMovieMotionHumanAquatic.IParams": {
         "type": "object",

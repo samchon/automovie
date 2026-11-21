@@ -462,6 +462,46 @@
     "cricketBowl": {},
     "cricketDrive": {},
     "cueStroke": {},
+    "curlDelivery": {
+      "properties": {
+        "seconds": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "s"
+          }
+        },
+        "speed": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m/s"
+          }
+        },
+        "drop": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "trail": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "heel": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 90,
+            "x-unit": "deg"
+          }
+        }
+      }
+    },
     "golfChip": {},
     "golfDrive": {},
     "golfPutt": {},
@@ -470,11 +510,13 @@
     "rugbyPass": {},
     "sittingVolley": {},
     "skate": {},
+    "skateboardPhrase": {},
     "snowGlide": {},
     "softballWindmill": {},
     "stageBladeFootwork": {},
     "stageProp": {},
     "stickBall": {},
+    "surfboardPhrase": {},
     "tennisForehandReturn": {},
     "bowViolin": {
       "properties": {
