@@ -68,9 +68,9 @@ export function test_motion_equestrian_lasso(): void {
     rideQuadruped(calf, {
       start: { x: -3, z: ahead, heading: 0 },
       legs: [{ kind: "straight", length: 80 }],
-      cruise: 4,
-      startSpeed: 4,
-      endSpeed: 4,
+      cruise: 0.71,
+      startSpeed: 0.71,
+      endSpeed: 0.71,
       acceleration: 1,
       deceleration: 1,
     } as Parameters<typeof rideQuadruped>[1]);

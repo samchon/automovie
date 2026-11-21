@@ -101,7 +101,7 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
         params.prop,
         { tip: "point", edge: "edge" },
       );
-      const goal = StrikingHeld.prepareGoal(context, tool, 0);
+      const goal = StrikingHeld.prepareGoal(context, tool, tool.length);
       const m = context.body.measure;
 
       // The stations in the seat frame: the right hip and shoulder from the seated root.

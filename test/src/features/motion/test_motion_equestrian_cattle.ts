@@ -1,7 +1,9 @@
 import {
+  EquineStance,
   createHorse,
   createLariat,
   createOx,
+  rideHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
@@ -65,9 +67,9 @@ export function test_motion_equestrian_cattle(): void {
   const run = rideQuadruped(ox, {
     start: { x: -1.6, z: 3, heading: 0 },
     legs: [{ kind: "straight", length: 80 }],
-    cruise: 5,
-    startSpeed: 5,
-    endSpeed: 5,
+    cruise: 0.71,
+    startSpeed: 0.71,
+    endSpeed: 0.71,
     acceleration: 1,
     deceleration: 1,
   } as Parameters<typeof rideQuadruped>[1]);
@@ -108,9 +110,9 @@ export function test_motion_equestrian_cattle(): void {
   const stopping: mountedHorseScene.Ride = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 30 }],
-    cruise: 5,
-    startSpeed: 5,
-    endSpeed: 0,
+    cruise: 0.71,
+    startSpeed: 0.71,
+    endSpeed: 0.71,
     acceleration: 2,
     deceleration: 2.5,
   });
@@ -131,9 +133,9 @@ export function test_motion_equestrian_cattle(): void {
   const fleeing = rideQuadruped(ox, {
     start: { x: -1.6, z: 3, heading: 0 },
     legs: [{ kind: "straight", length: 40 }],
-    cruise: 5,
-    startSpeed: 5,
-    endSpeed: 0,
+    cruise: 0.71,
+    startSpeed: 0.71,
+    endSpeed: 0.71,
     acceleration: 1,
     deceleration: 1.5,
   } as Parameters<typeof rideQuadruped>[1]);

@@ -159,6 +159,7 @@ export namespace mountedHorseScene {
     const seat: IAutoMovieMotionHumanSeated.ISeat = HumanObject.seat(
       ride.at(0).archetype,
       place(0),
+      "seat",
     );
     const film: HumanPerformance = new HumanPerformance({
       seed: "equine-mounted-supports",

@@ -88,8 +88,10 @@ export function test_motion_equestrian_polo(): void {
     { x: 0, y: 0, z: 0 },
     "offside",
     "forehand",
+    false,
   );
-  const begun: number = dry.segments[dry.segments.length - 1]!.start;
+  // The polo act begins where the ride ends.
+  const begun: number = dry.segments[dry.segments.length - 1]!.end;
   const struck: number = begun + AT;
   const grip: IAutoMovieVector3 = HumanHand.frame(
     body,
@@ -277,6 +279,7 @@ function stage(
   grip: IAutoMovieVector3,
   side: IAutoMovieMotionHumanPolo.Side,
   stroke: IAutoMovieMotionHumanPolo.Stroke,
+  strike: boolean = true,
 ): mountedHorseScene.IScene {
   // The ride, holding the mallet from its end: a fixture as the precision-sport specs use.
   const holding: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide> = {
@@ -314,23 +317,25 @@ function stage(
       }),
     ],
     from: { x: 0.6, y: 0, z: -0.2 },
-    acts: (seated) =>
-      seated
-        .registered("poloFixtureRide", {
-          on: "horse",
-          seconds: WAIT - 1,
-          seat: "seat",
-          feet: { left: "leftStirrup", right: "rightStirrup" },
-          hands: { left: "leftRein" },
-        })
-        .registered("polo", {
-          on: "horse",
-          frame: "seat",
-          mallet: "mallet",
-          ball: "ball",
-          side,
-          stroke,
-          contact: AT,
-        }),
+    acts: (seated) => {
+      const ridden = seated.registered("poloFixtureRide", {
+        on: "horse",
+        seconds: WAIT - 1,
+        seat: "seat",
+        feet: { left: "leftStirrup", right: "rightStirrup" },
+        hands: { left: "leftRein" },
+      });
+      return !strike
+        ? ridden
+        : ridden.registered("polo", {
+            on: "horse",
+            frame: "seat",
+            mallet: "mallet",
+            ball: "ball",
+            side,
+            stroke,
+            contact: AT,
+          });
+    },
   });
 }

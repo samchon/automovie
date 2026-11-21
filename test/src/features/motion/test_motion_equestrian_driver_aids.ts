@@ -58,7 +58,7 @@ export function test_motion_equestrian_driver_aids(): void {
     { kind: "cart", withersHeight: horse.dimensions.withersHeight! },
     seed,
   );
-  const departs: number = 3;
+  const departs: number = 5;
   const leader: ReturnType<typeof rideHorse> = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 20 }],
