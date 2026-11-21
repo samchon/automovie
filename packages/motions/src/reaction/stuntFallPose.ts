@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -70,5 +70,50 @@ export namespace stuntFallPose {
     offset: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture {
     return { ...posture, root: Vector3.subtract(hips, offset) };
+  }
+
+  /**
+   * Blend one posture toward another: joints, root, yaw by the shortest arc, pitch and roll; the limbs and the rest are the target's.
+   *
+   * @param from The posture at weight 0.
+   * @param to The posture at weight 1.
+   * @param w The weight.
+   * @returns The blend.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is blended and what is taken.
+   * @evidence contracts/development/implementation.md#principled-implementation Linear in each joint angle and the root, the yaw wrapped.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the target's joints.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A joint absent from the source blends from zero.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the joints.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function blend(
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
+    w: number,
+  ): IAutoMovieMotionHumanPosture {
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...to.joints };
+    for (const bone of Object.keys(
+      to.joints,
+    ) as (keyof IAutoMovieMotionHumanPosture["joints"])[]) {
+      const a: readonly [number, number, number] = from.joints[bone] ?? [
+        0, 0, 0,
+      ];
+      const b: readonly [number, number, number] = to.joints[bone]!;
+      joints[bone] = [
+        a[0] + (b[0] - a[0]) * w,
+        a[1] + (b[1] - a[1]) * w,
+        a[2] + (b[2] - a[2]) * w,
+      ];
+    }
+    return {
+      ...to,
+      root: Vector3.lerp(from.root, to.root, w),
+      yaw: from.yaw + wrapDegrees(to.yaw - from.yaw) * w,
+      pitch: from.pitch + (to.pitch - from.pitch) * w,
+      roll: from.roll + (to.roll - from.roll) * w,
+      joints,
+    };
   }
 }

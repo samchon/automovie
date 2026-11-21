@@ -191,14 +191,14 @@ export function stuntFallStairs(
                 Math.max(1e-6, end / Math.max(1, below.length)),
             );
     const into: number = minimumJerk.share(Math.min(1, t / 0.3));
-    const placed: IAutoMovieMotionHumanPosture = blendFromEntry(
+    const placed: IAutoMovieMotionHumanPosture = stuntFallPose.blend(
       stuntFallPose.at(resting, hips, restOffset),
       stuntFallPose.at(side, hips, sideOffset),
       turn,
     );
     return into >= 1
       ? placed
-      : blendFromEntry(context.entry.posture, placed, into);
+      : stuntFallPose.blend(context.entry.posture, placed, into);
   };
 
   const part: IAutoMovieMotionHumanContactWindow["part"] =
@@ -248,34 +248,6 @@ interface ITread {
 
   /** Its depth along the flight. */
   depth: number;
-}
-
-/** Blend one posture toward another by a weight: joints, root and attitude. */
-function blendFromEntry(
-  from: IAutoMovieMotionHumanPosture,
-  to: IAutoMovieMotionHumanPosture,
-  w: number,
-): IAutoMovieMotionHumanPosture {
-  const joints: IAutoMovieMotionHumanPosture["joints"] = { ...to.joints };
-  for (const bone of Object.keys(
-    to.joints,
-  ) as (keyof IAutoMovieMotionHumanPosture["joints"])[]) {
-    const a: readonly [number, number, number] = from.joints[bone] ?? [0, 0, 0];
-    const b: readonly [number, number, number] = to.joints[bone]!;
-    joints[bone] = [
-      a[0] + (b[0] - a[0]) * w,
-      a[1] + (b[1] - a[1]) * w,
-      a[2] + (b[2] - a[2]) * w,
-    ];
-  }
-  return {
-    ...to,
-    root: Vector3.lerp(from.root, to.root, w),
-    yaw: from.yaw + wrapDegrees(to.yaw - from.yaw) * w,
-    pitch: from.pitch + (to.pitch - from.pitch) * w,
-    roll: from.roll + (to.roll - from.roll) * w,
-    joints,
-  };
 }
 
 /** The stair fall's refusal. */

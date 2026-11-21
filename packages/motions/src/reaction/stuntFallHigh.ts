@@ -175,7 +175,7 @@ export function stuntFallHigh(
       { ...hips, y: hips.y - sink },
       flatOffset,
     );
-    return blend(a, b, turn);
+    return stuntFallPose.blend(a, b, turn);
   };
   const lands: IAutoMovieMotionHumanContactWindow["support"] =
     p.pad === undefined ? { kind: "ground" } : { kind: "prop", subject: p.pad };
@@ -258,33 +258,6 @@ function padTop(
     along: Quaternion.rotateVector(turn, { x: 0, y: 0, z: 1 }),
     width: top.width,
     depth: top.depth,
-  };
-}
-
-/** Blend one posture toward another by a weight: joints, root and attitude. */
-function blend(
-  from: IAutoMovieMotionHumanPosture,
-  to: IAutoMovieMotionHumanPosture,
-  w: number,
-): IAutoMovieMotionHumanPosture {
-  const joints: IAutoMovieMotionHumanPosture["joints"] = { ...from.joints };
-  for (const bone of Object.keys(
-    to.joints,
-  ) as (keyof IAutoMovieMotionHumanPosture["joints"])[]) {
-    const a: readonly [number, number, number] = from.joints[bone] ?? [0, 0, 0];
-    const b: readonly [number, number, number] = to.joints[bone]!;
-    joints[bone] = [
-      a[0] + (b[0] - a[0]) * w,
-      a[1] + (b[1] - a[1]) * w,
-      a[2] + (b[2] - a[2]) * w,
-    ];
-  }
-  return {
-    ...to,
-    root: Vector3.lerp(from.root, to.root, w),
-    pitch: from.pitch + (to.pitch - from.pitch) * w,
-    roll: from.roll + (to.roll - from.roll) * w,
-    joints,
   };
 }
 
