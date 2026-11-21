@@ -45,6 +45,7 @@ import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarrierCustody } from "./HumanCarrierCustody";
 import { HumanHorrorGait } from "./HumanHorrorGait";
+import { HumanRaceGait } from "./HumanRaceGait";
 import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
@@ -133,6 +134,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanTravelLeaf,
     HumanTravelCarExit,
     HumanHorrorGait,
+    HumanRaceGait,
   ],
   pursuit: [HumanPursuit],
   social: [HumanSocial, HumanPartner, { curtsy }],
@@ -217,9 +219,3 @@ import { HumanCover } from "./HumanCover";
 import { HumanWallRun } from "./HumanWallRun";
     HumanCover,
     HumanWallRun,
-import { HumanCover } from "./HumanCover";
-import { HumanWallRun } from "./HumanWallRun";
-import { HumanRope } from "./HumanRope";
-    HumanCover,
-    HumanWallRun,
-    HumanRope,

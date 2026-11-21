@@ -4170,6 +4170,19 @@
         }
       }
     },
+    "raceWalk": {
+      "properties": {
+        "elbows": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30,
+            "default": 0,
+            "x-unit": "degrees"
+          }
+        }
+      }
+    },
     "raiseHandHigh": {},
     "reachHolster": {},
     "readingWalk": {
@@ -5779,5 +5792,3 @@
   }
 }
     "wallRun": {},
-    "wallRun": {},
-    "rope": {},

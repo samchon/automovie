@@ -96,6 +96,9 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
 
   /** A stalk: a hunched creep on deeply bent knees. */
   stalk: IAutoMovieMotionHumanGait.IParams;
+
+  /** A race walk: a walk at a run's pace, one foot always down, the arms pumping. */
+  raceWalk: IAutoMovieMotionHumanGait.IParams;
 }
 import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
   /** Move in cover along a named wall, window or door. */
@@ -108,16 +111,4 @@ import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRu
 
   /** Step on or run up a named wall's face. */
   wallRun: IAutoMovieMotionHumanWallRun.IParams;
-
-import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
-import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
-import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
-  /** Move in cover along a named wall, window or door. */
-  moveInCover: IAutoMovieMotionHumanCover.IParams;
-
-  /** Step on or run up a named wall's face. */
-  wallRun: IAutoMovieMotionHumanWallRun.IParams;
-
-  /** Climb, descend, traverse or swing on a named rope. */
-  rope: IAutoMovieMotionHumanRope.IParams;
 
