@@ -97,6 +97,11 @@ export namespace stopDropRoll {
       { x: 0, y: 1, z: 0 },
       lying.yaw,
     );
+    const along: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
     const right: IAutoMovieVector3 = Quaternion.rotateVector(heading, {
       x: -1,
       y: 0,
@@ -130,7 +135,12 @@ export namespace stopDropRoll {
           lying.root,
           Vector3.add({ x: 0, y: lift, z: 0 }, Vector3.scale(right, arc)),
         ),
-        roll: lying.roll + degrees,
+        // The turn about the body's long axis, a line along the heading
+        // through the root at the lying cross-section's depth.
+        rotation: {
+          about: { x: lying.root.x, y: deep, z: lying.root.z },
+          turn: Quaternion.fromAxisAngle(along, degrees),
+        },
       };
     };
 

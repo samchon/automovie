@@ -94,13 +94,8 @@ export function test_motion_reaction_stop_drop_roll(): void {
         leftmost = Math.max(leftmost, across.y);
         rightmost = Math.min(rightmost, across.y);
       }
-      const turned: number = Math.max(
-        ...[0.25, 0.5, 0.75].map((u: number): number =>
-          Math.abs(film.posture("s", down + (end - down) * u).roll),
-        ),
-      );
       checks.check(
-        `${label}: the rolls turn onto each side (${leftmost.toFixed(2)}, ${rightmost.toFixed(2)}; posture roll up to ${turned.toFixed(1)} degrees)`,
+        `${label}: the rolls turn onto each side (${leftmost.toFixed(2)}, ${rightmost.toFixed(2)})`,
         leftmost >= 0.7 && rightmost <= -0.7,
       );
       assertTakeClean(`${label} stop, drop and roll`, film);
