@@ -16,8 +16,8 @@ const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
 
 /**
  * Build the stances for `HumanChain.support` from a route on fixed wall holds.
- * Each move changes one assignment and leaves at least three contacts.
- * Releasing one foot before the other takes its hold stages a swap.
+ * Each stance owns at least three distinct holds. Releasing one foot before
+ * the other takes its hold stages a swap without sharing a contact point.
  * Hand targets locate the grip socket and foot targets locate the toes. Quaine and
  * Martin measured the change from four contacts to three in *A biomechanical
  * study of equilibrium in sport rock climbing* (1999, DOI
@@ -27,12 +27,13 @@ const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
  *
  * @param route The starting holds and the ordered one-limb changes.
  * @returns The support parameters for the route.
+ * @throws {HumanRefusal} If two limbs claim one hold or an explicit release would leave fewer than three assignments.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the route's input and output, contact modes, physical premise and fit ownership.
  * @evidence contracts/development/implementation.md#principled-implementation Each move changes only the assignment of the moving limb. An explicit release keeps three contacts, matching the three-contact state in the climbing study. The planner fits the emitted contacts in their resolved world frames.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A local assignment map accumulates moves and each snapshot becomes one support stance.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses all hold locations as authored and delegates kinematic fitting and reach to the existing support action.
- * @evidence contracts/development/implementation.md#efficient-algorithms Traverses the moves once and materializes four contact records per stance, the size the support planner consumes.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure A local assignment map accumulates moves. One pass per stance refuses an already occupied target and emits the contacts.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects two simultaneous uses of one exact hold reference. Uses the authored hold coordinates and delegates world-space placement and reach to the support action.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Traverses the moves once. Each stance compares at most four targets and materializes its contact records.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Retains unchanged hold assignments from the previous move and reuses the support action for all planning.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned stances and their target references survive the call, proportional to the authored route.
  */
@@ -49,10 +50,24 @@ export function wallClimbSupport(
     move?: IAutoMovieMotionHumanWallClimb.IMove,
   ): IAutoMovieMotionHumanSupport.IStance => {
     const contacts: IAutoMovieMotionHumanSupport.IContact[] = [];
+    const occupied: Map<string, IAutoMovieMotionHumanClimbLadder.Limb> =
+      new Map();
     for (const limb of LIMBS) {
       const target: IAutoMovieMotionHumanWallClimb.Hold | undefined =
         holds[limb];
       if (target === undefined) continue;
+      const id: string = holdIdentity(target);
+      const other: IAutoMovieMotionHumanClimbLadder.Limb | undefined =
+        occupied.get(id);
+      if (other !== undefined)
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: move === undefined ? "start" : "moves",
+          value: target,
+          reason: `${limb} and ${other} cannot occupy the same wall hold`,
+          fix: "release the occupied hold before assigning it to another limb",
+        });
+      occupied.set(id, limb);
       contacts.push({
         part: limb,
         kind: limb.endsWith("Hand") ? "grip" : "bear",
@@ -88,4 +103,16 @@ export function wallClimbSupport(
     stances.push(stance(move));
   }
   return { stances };
+}
+
+/**
+ * Equality of one authored hold location before a scene resolves its frame.
+ *
+ * @param target The named prop point or explicit point in its authored frame.
+ * @returns The identity used to detect simultaneous claims to one location.
+ */
+function holdIdentity(target: IAutoMovieMotionHumanWallClimb.Hold): string {
+  return target.kind === "prop"
+    ? JSON.stringify(["prop", target.subject, target.point])
+    : JSON.stringify([target.frame, target.at.x, target.at.y, target.at.z]);
 }

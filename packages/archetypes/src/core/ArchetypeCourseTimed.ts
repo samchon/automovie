@@ -10,12 +10,12 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
 import { ArchetypeUnits } from "./ArchetypeUnits";
 
 /**
- * How a timed course is planned: a path through samples of points at film seconds, each coordinate a C1 cubic in time, so position, velocity, speed and heading are continuous and the path passes through every sample at its second.
+ * A timed course interpolates the samples with continuous position and velocity. Equal consecutive marks keep a constant position and the arrival facing, or the departure facing at the start. A moving root faces along its velocity. A dwell admits a restart when its one-sided directions agree.
  *
  * `ArchetypeCourse.timed` is its one caller.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the interpolation, what it keeps continuous and who calls it.
- * @evidence contracts/development/design.md#principled-representation The samples with one tangent per sample and coordinate, and an arc-length table.
+ * @evidence contracts/development/design.md#principled-representation The samples use one shared tangent per knot and an arc-length table. Exactly coincident positions set both boundary tangents to zero. A stationary run uses one facing derived from the adjoining curve.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One function, `plan`, and the two constants that set its tables.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
@@ -26,10 +26,22 @@ export namespace ArchetypeCourseTimed {
   /** Gauss-Legendre nodes on [-1, 1] and their weights, five points: exact for polynomials to degree nine. */
   export const GAUSS: readonly (readonly [number, number])[] = [
     [0, 128 / 225],
-    [-Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3, (322 + 13 * Math.sqrt(70)) / 900],
-    [Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3, (322 + 13 * Math.sqrt(70)) / 900],
-    [-Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3, (322 - 13 * Math.sqrt(70)) / 900],
-    [Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3, (322 - 13 * Math.sqrt(70)) / 900],
+    [
+      -Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3,
+      (322 + 13 * Math.sqrt(70)) / 900,
+    ],
+    [
+      Math.sqrt(5 - 2 * Math.sqrt(10 / 7)) / 3,
+      (322 + 13 * Math.sqrt(70)) / 900,
+    ],
+    [
+      -Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3,
+      (322 - 13 * Math.sqrt(70)) / 900,
+    ],
+    [
+      Math.sqrt(5 + 2 * Math.sqrt(10 / 7)) / 3,
+      (322 - 13 * Math.sqrt(70)) / 900,
+    ],
   ];
 
   /**
@@ -41,18 +53,23 @@ export namespace ArchetypeCourseTimed {
    * @throws {ArchetypeRefusal} As `ArchetypeCourse.timed` states.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instants and bends it gives, pointing to the documented caller for the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Cubic Hermite interpolation of each coordinate in time with the tangent of the parabola through each sample and its two neighbours (one-sided at the ends, a chord between two samples), which is C1 and passes through every sample. Speed is the velocity's length, heading its direction seen from above, and curvature (x' z'' - z' x'') over the horizontal speed cubed, positive to the left. Distance is the arc length, integrated by five-point Gauss-Legendre quadrature over `PIECES` pieces per interval, and inverted by Newton's method on the speed, kept inside its piece by bisection where the speed vanishes. A support at rest keeps the heading of the chord it rests on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the samples, compute the tangents, tabulate the arc length and scan the bends, then the samplers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bends are found on a grid of `PIECES` points per interval, not at the exact extremum; a bend sharper between grid points is missed by less than the grid's spacing allows. A second outside the samples holds the nearer end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Planning is linear in the samples times `PIECES`; a sample finds its interval by binary search and evaluates one cubic; `when` searches the table and takes a few Newton steps.
+   * @evidence contracts/development/implementation.md#principled-implementation Cubic Hermite interpolation of each coordinate in time with the tangent of the parabola through each sample and its two neighbours (one-sided at the ends, a chord between two samples), which is C1 and passes through every sample. Speed is the velocity's length, heading its direction seen from above, and curvature (x' z'' - z' x'') over the horizontal speed cubed, positive to the left. Distance is the arc length, integrated by five-point Gauss-Legendre quadrature over `PIECES` pieces per interval, and inverted by Newton's method on the speed, kept inside its piece by bisection where the speed vanishes. Consecutive equal points use a constant position with zero shared endpoint tangents. One adjoining one-sided direction provides facing for the whole hold. A hold with incompatible directions at arrival and restart refuses because the same standing orientation cannot continue onto both moving cubics.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the samples, find equal spans and shared tangents, tabulate arc length, prepare the stationary facing and scan the bends.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The existing bend grid still measures every moving cubic. Equal marks require exact equality in all three coordinates, so no speed, curvature or small displacement on a genuine bend is clamped. A second outside the samples holds the nearer end.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Planning sweeps the samples and the piece grid of `PIECES`; a sample finds its interval by binary search and evaluates one cubic; `when` searches the table and takes a few Newton steps.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The tangents and the arc-length table serve every sample of a ride.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the samples, their tangents and the table for as long as its caller keeps it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds the samples, their tangents, stationary spans and facing, and the arc-length table for as long as its caller keeps it.
    */
   export function plan(
     archetype: string,
     samples: readonly ArchetypeCourse.ISample[],
   ): ArchetypeCourse.IPlan {
-    const refuse = (axis: string, value: unknown, reason: string): never => {
+    const refuse = (
+      axis: string,
+      value: unknown,
+      reason: string,
+      fix: string = "give at least two samples of finite points at strictly increasing seconds",
+    ): never => {
       throw new ArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -60,7 +77,7 @@ export namespace ArchetypeCourseTimed {
         value,
         feasible: null,
         reason,
-        fix: "give at least two samples of finite points at strictly increasing seconds",
+        fix,
       });
     };
     if (samples.length < 2)
@@ -68,7 +85,11 @@ export namespace ArchetypeCourseTimed {
     samples.forEach((sample: ArchetypeCourse.ISample, i: number): void => {
       for (const name of ["seconds", "x", "z"] as const)
         if (!Number.isFinite(sample[name]))
-          refuse(`samples[${i}].${name}`, sample[name], "a sample must be finite");
+          refuse(
+            `samples[${i}].${name}`,
+            sample[name],
+            "a sample must be finite",
+          );
       if (sample.y !== undefined && !Number.isFinite(sample.y))
         refuse(`samples[${i}].y`, sample.y, "a sample must be finite");
       if (i > 0 && !(sample.seconds > samples[i - 1]!.seconds))
@@ -91,16 +112,30 @@ export namespace ArchetypeCourseTimed {
         z: s.z,
       }),
     );
+    const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+    const held: boolean[] = points
+      .slice(1)
+      .map((next: IAutoMovieVector3, i: number): boolean => {
+        const from: IAutoMovieVector3 = points[i]!;
+        return from.x === next.x && from.y === next.y && from.z === next.z;
+      });
     const chord = (i: number): IAutoMovieVector3 =>
-      Vector3.scale(Vector3.subtract(points[i + 1]!, points[i]!), 1 / (times[i + 1]! - times[i]!));
+      Vector3.scale(
+        Vector3.subtract(points[i + 1]!, points[i]!),
+        1 / (times[i + 1]! - times[i]!),
+      );
     const tangents: IAutoMovieVector3[] = points.map(
       (_: IAutoMovieVector3, i: number): IAutoMovieVector3 => {
+        if (held[i - 1] || held[i]) return zero;
         if (n === 2) return chord(0);
         if (i === 0) {
           const h0: number = times[1]! - times[0]!;
           const h1: number = times[2]! - times[1]!;
           return Vector3.scale(
-            Vector3.subtract(Vector3.scale(chord(0), 2 * h0 + h1), Vector3.scale(chord(1), h0)),
+            Vector3.subtract(
+              Vector3.scale(chord(0), 2 * h0 + h1),
+              Vector3.scale(chord(1), h0),
+            ),
             1 / (h0 + h1),
           );
         }
@@ -108,14 +143,20 @@ export namespace ArchetypeCourseTimed {
           const h0: number = times[n - 2]! - times[n - 3]!;
           const h1: number = times[n - 1]! - times[n - 2]!;
           return Vector3.scale(
-            Vector3.subtract(Vector3.scale(chord(n - 2), 2 * h1 + h0), Vector3.scale(chord(n - 3), h1)),
+            Vector3.subtract(
+              Vector3.scale(chord(n - 2), 2 * h1 + h0),
+              Vector3.scale(chord(n - 3), h1),
+            ),
             1 / (h0 + h1),
           );
         }
         const before: number = times[i]! - times[i - 1]!;
         const after: number = times[i + 1]! - times[i]!;
         return Vector3.scale(
-          Vector3.add(Vector3.scale(chord(i - 1), after), Vector3.scale(chord(i), before)),
+          Vector3.add(
+            Vector3.scale(chord(i - 1), after),
+            Vector3.scale(chord(i), before),
+          ),
           1 / (before + after),
         );
       },
@@ -142,6 +183,13 @@ export namespace ArchetypeCourseTimed {
     } => {
       const t: number = Math.max(times[0]!, Math.min(times[n - 1]!, seconds));
       const i: number = interval(t);
+      if (held[i])
+        return {
+          point: points[i]!,
+          velocity: zero,
+          acceleration: zero,
+          interval: i,
+        };
       const h: number = times[i + 1]! - times[i]!;
       const u: number = (t - times[i]!) / h;
       const u2: number = u * u;
@@ -156,7 +204,10 @@ export namespace ArchetypeCourseTimed {
         c: number,
         d: number,
       ): IAutoMovieVector3 =>
-        Vector3.add(Vector3.add(Vector3.scale(p0, a), Vector3.scale(m0, b)), Vector3.add(Vector3.scale(p1, c), Vector3.scale(m1, d)));
+        Vector3.add(
+          Vector3.add(Vector3.scale(p0, a), Vector3.scale(m0, b)),
+          Vector3.add(Vector3.scale(p1, c), Vector3.scale(m1, d)),
+        );
       return {
         point: mix(
           2 * u3 - 3 * u2 + 1,
@@ -165,7 +216,12 @@ export namespace ArchetypeCourseTimed {
           u3 - u2,
         ),
         velocity: Vector3.scale(
-          mix(6 * u2 - 6 * u, 3 * u2 - 4 * u + 1, -6 * u2 + 6 * u, 3 * u2 - 2 * u),
+          mix(
+            6 * u2 - 6 * u,
+            3 * u2 - 4 * u + 1,
+            -6 * u2 + 6 * u,
+            3 * u2 - 2 * u,
+          ),
           1 / h,
         ),
         acceleration: Vector3.scale(
@@ -213,28 +269,101 @@ export namespace ArchetypeCourseTimed {
       for (let step: number = 0; step < n - 1; step++)
         for (const j of [i - step, i + step]) {
           if (j < 0 || j > n - 2) continue;
-          const d: IAutoMovieVector3 = Vector3.subtract(points[j + 1]!, points[j]!);
+          const d: IAutoMovieVector3 = Vector3.subtract(
+            points[j + 1]!,
+            points[j]!,
+          );
           if (Math.hypot(d.x, d.z) > 1e-9)
             return Math.atan2(d.x, d.z) / ArchetypeUnits.DEGREE;
         }
       return null;
     };
+    // At a zero tangent, the one-sided velocity direction tends to the
+    // acceleration leaving the start or to the negated acceleration at arrival.
+    const boundaryDirection = (
+      i: number,
+      leaving: boolean,
+    ): IAutoMovieVector3 => {
+      const duration: number = times[i + 1]! - times[i]!;
+      const displacement: IAutoMovieVector3 = Vector3.subtract(
+        points[i + 1]!,
+        points[i]!,
+      );
+      const limit: IAutoMovieVector3 = Vector3.subtract(
+        Vector3.scale(displacement, 3),
+        Vector3.scale(tangents[leaving ? i + 1 : i]!, duration),
+      );
+      if (Math.hypot(limit.x, limit.z) > 1e-9) return limit;
+      if (Math.hypot(displacement.x, displacement.z) > 1e-9)
+        return displacement;
+      const heading: number = (chordHeading(i) ?? 0) * ArchetypeUnits.DEGREE;
+      return { x: Math.sin(heading), y: 0, z: Math.cos(heading) };
+    };
+    const firstMotion: number = held.findIndex(
+      (paused: boolean): boolean => !paused,
+    );
+    let holdDirection: IAutoMovieVector3 =
+      firstMotion > 0
+        ? boundaryDirection(firstMotion, true)
+        : { x: 0, y: 0, z: 1 };
+    // The facing each held interval keeps, by its index.
+    const holdDirections: Map<number, IAutoMovieVector3> = new Map();
+    held.forEach((paused: boolean, i: number): void => {
+      if (paused) {
+        holdDirections.set(i, holdDirection);
+        return;
+      }
+      if (i > firstMotion && held[i - 1]) {
+        const before: IAutoMovieVector3 = Vector3.normalize(holdDirection);
+        const after: IAutoMovieVector3 = Vector3.normalize(
+          boundaryDirection(i, true),
+        );
+        if (Vector3.distance(before, after) > 1e-8)
+          refuse(
+            "samples[" + i + "]",
+            samples[i],
+            "the departure changes the course facing after a hold at " +
+              times[i] +
+              " s",
+            "give the stop a common approach and departure direction or author a continuous turn",
+          );
+      }
+      if (held[i + 1]) holdDirection = boundaryDirection(i, false);
+    });
+    const facingOf: (direction: IAutoMovieVector3) => IFacing = (
+      direction: IAutoMovieVector3,
+    ): IFacing => ({
+      heading: Math.atan2(direction.x, direction.z) / ArchetypeUnits.DEGREE,
+      climb:
+        Math.atan2(direction.y, Math.hypot(direction.x, direction.z)) /
+        ArchetypeUnits.DEGREE,
+    });
+
     const state = (seconds: number): ArchetypeCourse.IState => {
       const at: ReturnType<typeof evaluate> = evaluate(seconds);
       const v: IAutoMovieVector3 = at.velocity;
       const a: IAutoMovieVector3 = at.acceleration;
       const ground: number = Math.hypot(v.x, v.z);
       const moving: boolean = ground > 1e-9;
-      const heading: number = moving
-        ? Math.atan2(v.x, v.z) / ArchetypeUnits.DEGREE
-        : (chordHeading(at.interval) ?? 0);
+      const besideHold: boolean =
+        held[at.interval - 1] === true || held[at.interval + 1] === true;
+
+      // A moving root, or one leaving a hold, faces its velocity; a held one
+      // its hold's facing, also at the second the hold ends; else its chord.
+      const facing: IFacing =
+        moving || (besideHold && ground > 0)
+          ? facingOf(v)
+          : holdDirections.has(at.interval)
+            ? facingOf(holdDirections.get(at.interval)!)
+            : seconds === times[at.interval] &&
+                holdDirections.has(at.interval - 1)
+              ? facingOf(holdDirections.get(at.interval - 1)!)
+              : { heading: chordHeading(at.interval) ?? 0, climb: 0 };
       const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
         { x: 0, y: 1, z: 0 },
-        heading,
+        facing.heading,
       );
-      const climb: number = moving
-        ? Math.atan2(v.y, ground) / ArchetypeUnits.DEGREE
-        : 0;
+      const climb: number = facing.climb;
       const distance: number = distanceAt(seconds);
       return {
         distance,
@@ -273,7 +402,10 @@ export namespace ArchetypeCourseTimed {
           times[i]! + ((times[i + 1]! - times[i]!) * k) / PIECES;
         const s: ArchetypeCourse.IState = state(seconds);
         peak = Math.max(peak, s.speed);
-        if (sharpest === null || Math.abs(s.curvature) > Math.abs(sharpest.curvature)) {
+        if (
+          sharpest === null ||
+          Math.abs(s.curvature) > Math.abs(sharpest.curvature)
+        ) {
           sharpest = s;
           sharpestAt = seconds;
         }
@@ -302,7 +434,8 @@ export namespace ArchetypeCourseTimed {
 
     // Newton's method on the arc length, inside the piece that holds the distance.
     const when = (distance: number): number => {
-      const d: number = Math.max(0, Math.min(total, distance));
+      if (distance > total) return times[n - 1]!;
+      const d: number = Math.max(0, distance);
       let low: number = 0;
       let high: number = knots.length - 1;
       while (high - low > 1) {
@@ -314,7 +447,8 @@ export namespace ArchetypeCourseTimed {
       let right: number = knots[high]!;
       let t: number =
         arcs[high]! > arcs[low]!
-          ? left + ((right - left) * (d - arcs[low]!)) / (arcs[high]! - arcs[low]!)
+          ? left +
+            ((right - left) * (d - arcs[low]!)) / (arcs[high]! - arcs[low]!)
           : left;
       for (let step: number = 0; step < 50; step++) {
         const error: number = distanceAt(t) - d;
@@ -322,7 +456,8 @@ export namespace ArchetypeCourseTimed {
         if (error > 0) right = t;
         else left = t;
         const speed: number = speedAt(t);
-        const next: number = speed > 1e-12 ? t - error / speed : (left + right) / 2;
+        const next: number =
+          speed > 1e-12 ? t - error / speed : (left + right) / 2;
         t = next > left && next < right ? next : (left + right) / 2;
       }
       return t;
@@ -348,3 +483,11 @@ export namespace ArchetypeCourseTimed {
   }
 }
 
+/** Which way a course's root faces: its heading about `+Y` and its climb, both degrees. */
+interface IFacing {
+  /** Degrees about `+Y` from `+Z`, positive toward `+X`. */
+  heading: number;
+
+  /** Degrees above the floor, positive climbing. */
+  climb: number;
+}

@@ -41,7 +41,7 @@ export namespace IPlaygroundComposition {
     /** The producer's export name in `@automovie/archetypes`, such as `createSeat`. */
     producer: string;
 
-    /** The producer's kind or frame, when it has variants. */
+    /** The producer's kind, frame or format when it has variants. */
     kind?: string;
 
     /** The seed its free dimensions are drawn with; the middle of every band when absent. */

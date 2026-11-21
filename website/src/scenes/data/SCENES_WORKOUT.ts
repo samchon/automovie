@@ -305,7 +305,7 @@ export const SCENES_WORKOUT: readonly IScene[] = [
         act("selfAction", { kind: "shoulderRoll" }),
       ]),
     ],
-    [object("barrow", "createCart", "wheelbarrow", -1, -1.2)],
+    [object("barrow", "createWheelbarrow", undefined, -1, -1.2)],
   ),
   scene(
     {

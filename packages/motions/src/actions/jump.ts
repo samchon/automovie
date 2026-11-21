@@ -158,7 +158,7 @@ export namespace jump {
    * @param context The action's context.
    * @param supportFoot The optional planted foot named by a composing sport law.
    * @returns The plan.
-   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight), or the turned landing is incompatible.
+   * @throws {HumanRefusal} When no foot is planted to push off from, or the apex is not positive or does not clear a raised landing (jumpFlight), or the requested rotating landing is incompatible.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the physical entry and refusal; helper documentation distinguishes the raw nominal root, achieved endpoints and independent whole-body flight turn.
    * @evidence contracts/development/implementation.md#principled-implementation The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths.
@@ -466,21 +466,26 @@ export namespace jump {
         read,
       );
     };
-    const rootA: IAutoMovieVector3 =
-      headingChange === 0
-        ? landed.absorbed
-        : fitJumpAbsorption(body, landed, land, absorb, (root, elapsed, read) =>
+    const rotation: IAutoMovieMotionHumanJump.IParams["rotation"] =
+      context.params.rotation;
+    const rotates: boolean =
+      (rotation?.somersault ?? 0) !== 0 || (rotation?.twist ?? 0) !== 0;
+    const absorption: fitJumpAbsorption.IPath =
+      rotates && rise === 0
+        ? fitJumpAbsorption(body, landed, land, absorb, (root, elapsed, read) =>
             landingAtRoot(root, touchdown + elapsed, read),
-          );
+          )
+        : { root: landed.absorbed, acceleration: 0 };
     const absorbRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
       rootL,
       land,
-      rootA,
+      absorption.root,
       { x: 0, y: 0, z: 0 },
       absorb,
+      { x: 0, y: absorption.acceleration, z: 0 },
     );
     const riseRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
-      rootA,
+      absorption.root,
       { x: 0, y: 0, z: 0 },
       rootS,
       { x: 0, y: 0, z: 0 },
@@ -554,9 +559,9 @@ export namespace jump {
         launch,
         settled,
       },
-      context.params.rotation,
+      rotation,
       ground,
-      headingChange !== 0
+      rotates
         ? jumpTouchdownRotation(
             body,
             landed,

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { type ReactElement, Suspense } from "react";
 
 import { ObjectsHead } from "../../../components/objects/ObjectsHead";
+import { GalleryAddress } from "../../../gallery/GalleryAddress";
 import { GalleryCatalogue } from "../../../gallery/package/GalleryCatalogue";
+import type { IGalleryCatalogue } from "../../../gallery/structures/IGalleryCatalogue";
 import ObjectsMovie from "../../../movies/ObjectsMovie";
 import type { IPlaygroundComposition } from "../../../playground/structures/IPlaygroundComposition";
 import { SCENES } from "../../../scenes/SCENES";
@@ -23,12 +25,20 @@ export const metadata: Metadata = {
  * @returns The page.
  */
 export default function ObjectsPage(): ReactElement {
+  const catalogue: IGalleryCatalogue = GalleryCatalogue.catalogue();
   const uses: Record<string, { id: string; title: string }[]> = {};
   for (const scene of SCENES) {
     if (scene.hidden === true) continue;
     const producers: Set<string> = new Set(
       (scene.composition?.objects ?? []).map(
-        (o: IPlaygroundComposition.IObject): string => o.producer,
+        (o: IPlaygroundComposition.IObject): string => {
+          const variant: unknown = o.kind ?? o.params?.kind ?? o.params?.frame;
+          return GalleryAddress.canonical(
+            catalogue,
+            o.producer,
+            typeof variant === "string" ? variant : "",
+          ).subject;
+        },
       ),
     );
     for (const producer of producers)
@@ -45,7 +55,7 @@ export default function ObjectsPage(): ReactElement {
         </main>
       }
     >
-      <ObjectsMovie catalogue={GalleryCatalogue.catalogue()} uses={uses} />
+      <ObjectsMovie catalogue={catalogue} uses={uses} />
     </Suspense>
   );
 }

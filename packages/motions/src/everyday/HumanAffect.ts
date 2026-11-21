@@ -5,12 +5,15 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
   IAutoMovieMotionHumanAffect,
   IAutoMovieMotionHumanLayer,
   IAutoMovieMotionHumanPosture,
   IAutoMovieRandom,
 } from "@automovie/interface";
 
+import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { HumanBound } from "../law/HumanBound";
 
 /**
@@ -113,10 +116,10 @@ export namespace HumanAffect {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs' units, the seed's role and default, the clinical-degree output, the empty result outside the display and the refusal; each pattern is documented on the namespace.
    * @evidence contracts/development/implementation.md#principled-implementation Joint-angle pulses under minimum-jerk envelopes, zero with zero velocity at both ends; the laugh note interval is Provine's 210 ms and the yawn length Provine's, other amplitudes and timings provisional as documented. A sob's and a weep's pulse times come from a counter-based random stream keyed by the seed, so any time can be read in any order. Angles are the rig's clinical degrees per bone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the display, shared with the layer, writes the angles through one ramp, one pulse, one pulse train and one joint writer.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One switch over the display, shared with the layer, writes the angles through one ramp, one pulse, one pulse train, the shared sigh and yawn clock and one joint writer.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No special case: the amplitudes are named in the namespace documentation as cited or provisional, a length the display cannot fit throws instead of being clamped, and the sob's intensity range that scales its density is named with its Nyquist basis.
    * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per call for most displays: at most three pulses for a cough and a fixed set of bones per display; a sob or weep walks the pulses before the time read, at most its length over its shortest interval.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; nothing to reuse across calls.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The sigh and yawn share limits on a fixed normalized clock. Each angle is evaluated for the requested second.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one small record per call and retains nothing.
    */
   export function angles(
@@ -173,8 +176,8 @@ export namespace HumanAffect {
         break;
       }
       case "sigh": {
-        const inhale: number = minimumJerk.share(u / 0.4);
-        const exhale: number = minimumJerk.share((u - 0.4) / 0.6);
+        const inhale: number = INHALE.progress(u);
+        const exhale: number = EXHALE.progress(u);
         const close: number = 1 - minimumJerk.share((u - 0.85) / 0.15);
         const shoulders: number = k * (6 * inhale - 8 * exhale) * close;
         write(joints, additive, "leftShoulder", 0, shoulders, 0);
@@ -185,9 +188,7 @@ export namespace HumanAffect {
       }
       case "yawn": {
         const e: number =
-          u < 0.4
-            ? minimumJerk.share(u / 0.4)
-            : 1 - minimumJerk.share((u - 0.4) / 0.6);
+          u < INHALATION_END ? INHALE.progress(u) : 1 - EXHALE.progress(u);
         write(joints, additive, "jaw", 25 * k * e, 0, 0);
         write(joints, additive, "head", -15 * k * e, 0, 0);
         write(joints, additive, "chest", -5 * k * e, 0, 0);
@@ -391,6 +392,28 @@ function write(
     joints[bone] = [was[0] + x, was[1] + y, was[2] + z];
   }
 }
+
+/** The share of a sigh or yawn's length taken by inhalation. */
+const INHALATION_END: number = 0.4;
+
+/** One normalized clock for the sigh and yawn, independent of their lengths. */
+const BREATH_DISPLAY_CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
+  { name: "inhaled", seconds: INHALATION_END },
+]);
+
+/** Minimum-jerk progress up to the end of inhalation. */
+const INHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
+  BREATH_DISPLAY_CLOCK,
+  "start",
+  "inhaled",
+);
+
+/** Minimum-jerk progress from the end of inhalation to the display's end. */
+const EXHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
+  BREATH_DISPLAY_CLOCK,
+  "inhaled",
+  "end",
+);
 
 /** The angles of a bone the record holds none for. */
 const ZERO: readonly [number, number, number] = [0, 0, 0];

@@ -19,6 +19,7 @@ import { DefenceOutcome } from "./DefenceOutcome";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
 
 /**
@@ -103,9 +104,13 @@ export namespace defend {
    */
   export function telegraph(attack: IAutoMovieMotionHumanPlacedAction): number {
     if (attack.family === "kick")
-      return (attack.params as IAutoMovieMotionHumanKick.IParams).technique === "round" ? 1 : 0.8;
+      return (attack.params as IAutoMovieMotionHumanKick.IParams).technique ===
+        "round"
+        ? 1
+        : 0.8;
     if (attack.family === "punch") {
-      const p: IAutoMovieMotionHumanPunch.IParams = attack.params as IAutoMovieMotionHumanPunch.IParams;
+      const p: IAutoMovieMotionHumanPunch.IParams =
+        attack.params as IAutoMovieMotionHumanPunch.IParams;
       return p.technique === "straight" && (p.hand ?? "lead") === "lead"
         ? 0.4
         : 0.6;
@@ -182,17 +187,18 @@ export namespace defend {
         attack.plan.duration;
     const hit: number = attack.start + decisive;
     const movement: number = StrikingSkill.defence(context.skill);
-    const decided: IAutoMovieMotionHumanDefenceOutcome.IDecision = DefenceOutcome.decide(
-      {
-        launch,
-        hit,
-        telegraph: telegraph(attack),
-        movement,
-        skill: context.skill,
-      },
-      context.random("defence"),
-      p.outcome,
-    );
+    const decided: IAutoMovieMotionHumanDefenceOutcome.IDecision =
+      DefenceOutcome.decide(
+        {
+          launch,
+          hit,
+          telegraph: telegraph(attack),
+          movement,
+          skill: context.skill,
+        },
+        context.random("defence"),
+        p.outcome,
+      );
     const begin: number = Math.max(0, decided.start - context.start);
     const contact: number = hit - context.start;
     const hold: number = Math.max(begin + movement, contact + 0.05);
@@ -215,6 +221,14 @@ export namespace defend {
       duration,
       read: Math.max(context.start, decided.start),
     };
+    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
+    const checking: "left" | "right" | undefined =
+      p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined;
+    const support: defendFootwork.ISupport | undefined = defendFootwork(
+      context,
+      timing,
+      checking,
+    );
     // Before the read the defender only holds the guard, and nothing reads
     // the attacker: every read of another performer then looks back in time,
     // so two performers reading each other never recurse at one instant.
@@ -228,17 +242,14 @@ export namespace defend {
         );
       building = true;
       try {
-        built = defendGeometry.build(context, timing);
+        built = defendGeometry.build(context, timing, support);
       } finally {
         building = false;
       }
       return built;
     };
-    const lead: "left" | "right" = StrikingTarget.lead(context.entry);
-    const contacts: IAutoMovieMotionHumanContactWindow[] = defendGeometry.windows(
-      p.kind === "check" ? defendGeometry.attacked(region, lead) : undefined,
-      timing,
-    );
+    const contacts: IAutoMovieMotionHumanContactWindow[] =
+      defendGeometry.windows(checking, timing, support);
     let waiting: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
     const out: IAutoMovieMotionHumanActionPlan = {
       duration,
@@ -252,7 +263,12 @@ export namespace defend {
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return t <= begin + 1e-9
-          ? (waiting ??= idle(context, lead))(t, channels, resolution, projection)
+          ? (waiting ??= idle(context, lead, support))(
+              t,
+              channels,
+              resolution,
+              projection,
+            )
           : geometry().posture(t, channels, resolution, projection);
       },
       settle: (): void => {
@@ -266,13 +282,17 @@ export namespace defend {
   function idle(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
     lead: "left" | "right",
+    support: defendFootwork.ISupport | undefined,
   ): IAutoMovieMotionHumanActionPlan["posture"] {
-    const legs: ReturnType<typeof StrikingStance.prepareLegs> = StrikingStance.prepareLegs(
-      context.body, StrikingTarget.feet(context.entry),
-    );
-    const guard: ReturnType<typeof StrikingStance.prepareGuard> = StrikingStance.prepareGuard(context.body, { lead });
+    const legs: ReturnType<typeof StrikingStance.prepareLegs> =
+      StrikingStance.prepareLegs(
+        context.body,
+        StrikingTarget.feet(context.entry),
+      );
+    const guard: ReturnType<typeof StrikingStance.prepareGuard> =
+      StrikingStance.prepareGuard(context.body, { lead });
     return (
-      _seconds: number,
+      seconds: number,
       _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
@@ -281,7 +301,7 @@ export namespace defend {
       const posture: IAutoMovieMotionHumanPosture = {
         ...entry,
         joints: { ...entry.joints, ...StrikingStance.joints(entry.joints) },
-        limbs: legs(),
+        limbs: support?.legs(seconds) ?? legs(),
       };
       return {
         ...posture,

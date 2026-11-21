@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { ArchetypeUnits } from "../core";
+import { solveQuadrupedSupportPlane } from "./solveQuadrupedSupportPlane";
 
 /**
  * A four-bar quadruped limb solved from its actual neutral controls.
@@ -85,9 +86,10 @@ export namespace QuadrupedLimb {
     /**
      * Bind an explicit terminal-bar direction, normalized once in model space.
      *
-     * @param direction Finite nonzero sagittal direction of the last bar, ankle to terminal.
+     * @param direction Finite nonzero direction of the last bar, ankle to terminal.
+     * @param supportPlane When true, the planted endpoint may determine a tilted limb plane while the proximal attachment stays fixed.
      * @returns A reader whose target/band constrain the proximal three bars.
-     * @throws {RangeError} For a zero, nonfinite, unrepresentable or nonplanar axis.
+     * @throws {RangeError} For a zero, nonfinite or unrepresentable axis, or a lateral axis under the default sagittal contract.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Distinguishes a terminal direction effector from point-only carriage and states normalization, model frame and refusals.
      * @evidence contracts/development/implementation.md#principled-implementation Normalize the declared axis, subtract the actual terminal length along it and solve the remaining three bars with the existing relative carpus/hock fold.
@@ -97,7 +99,10 @@ export namespace QuadrupedLimb {
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares all source geometry and the strict engine-backed triangle owner with point-only solves.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains three normalized scalar components per binding and no input vector alias or growing sample state.
      */
-    oriented: (direction: IAutoMovieVector3) => IOriented;
+    oriented: (
+      direction: IAutoMovieVector3,
+      supportPlane?: boolean,
+    ) => IOriented;
   }
 
   /**
@@ -298,8 +303,20 @@ export namespace QuadrupedLimb {
       goal: IAutoMovieVector3,
       fold: number,
       oriented: boolean,
+      supportPlane: boolean = false,
     ): IAutoMovieVector3[] {
       admit(root);
+      if (!finite(goal))
+        throw new RangeError(
+          "Quadruped goals must be finite model-space points",
+        );
+      if (supportPlane && goal.x !== root.x)
+        return solveQuadrupedSupportPlane(
+          root,
+          goal,
+          (planar: IAutoMovieVector3): IAutoMovieVector3[] =>
+            fit(root, planar, fold, oriented),
+        );
       admit(goal);
       const lower: IPiece = piece(fold, oriented);
       const dy: number = goal.y - root.y;
@@ -400,7 +417,10 @@ export namespace QuadrupedLimb {
         fold: number,
       ): IAutoMovieVector3[] =>
         checked([...fit(root, goal, fold, false), { ...goal }]),
-      oriented: (direction: IAutoMovieVector3): IOriented => {
+      oriented: (
+        direction: IAutoMovieVector3,
+        supportPlane: boolean = false,
+      ): IOriented => {
         if (!finite(direction))
           throw new RangeError("A terminal direction must be finite");
         const magnitude: number = Math.hypot(
@@ -417,7 +437,7 @@ export namespace QuadrupedLimb {
           y: direction.y / magnitude,
           z: direction.z / magnitude,
         };
-        if (Math.abs(axis.x) > 64 * Number.EPSILON)
+        if (!supportPlane && Math.abs(axis.x) > 64 * Number.EPSILON)
           throw new RangeError(
             "The terminal direction must remain in the actual sagittal plane",
           );
@@ -429,13 +449,17 @@ export namespace QuadrupedLimb {
 
         /** Move from the exact terminal endpoint to the constrained proximal target. */
         function target(endpoint: IAutoMovieVector3): IAutoMovieVector3 {
-          admit(endpoint);
+          if (!finite(endpoint))
+            throw new RangeError("The terminal endpoint must be finite");
+          if (!supportPlane) admit(endpoint);
           const goal: IAutoMovieVector3 = {
             x: endpoint.x - terminal.x,
             y: endpoint.y - terminal.y,
             z: endpoint.z - terminal.z,
           };
-          admit(goal);
+          if (!finite(goal))
+            throw new RangeError("The terminal target must be representable");
+          if (!supportPlane) admit(goal);
           return goal;
         }
         return {
@@ -450,7 +474,7 @@ export namespace QuadrupedLimb {
             fold: number,
           ): IAutoMovieVector3[] =>
             checked([
-              ...fit(root, target(endpoint), fold, true),
+              ...fit(root, target(endpoint), fold, true, supportPlane),
               { ...endpoint },
             ]),
         };

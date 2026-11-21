@@ -1,7 +1,4 @@
-import {
-  compressToEncodedURIComponent,
-  decompressFromEncodedURIComponent,
-} from "lz-string";
+import LZString from "lz-string";
 
 import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition";
 
@@ -31,7 +28,7 @@ export namespace PlaygroundAddress {
    */
   export function encode(composition: IPlaygroundComposition): string {
     admitForces(composition);
-    return `#${KEY}=${compressToEncodedURIComponent(JSON.stringify(composition))}`;
+    return `#${KEY}=${LZString.compressToEncodedURIComponent(JSON.stringify(composition))}`;
   }
 
   /**
@@ -49,7 +46,9 @@ export namespace PlaygroundAddress {
 
     let value: unknown;
     try {
-      value = JSON.parse(decompressFromEncodedURIComponent(text) ?? "");
+      value = JSON.parse(
+        LZString.decompressFromEncodedURIComponent(text) ?? "",
+      );
     } catch {
       throw new Error("The address carries a composition that cannot be read");
     }

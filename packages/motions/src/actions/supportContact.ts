@@ -65,6 +65,7 @@ export namespace supportContact {
    * @param to The contact it steps to.
    * @param from Where it leaves, world metres; no place when null.
    * @param onto Where it sets down, world metres; no place when null.
+   * @param via A caller-owned world waypoint that clears the obstacle, when given.
    * @param rise How high the swing clears the higher end, metres.
    * @returns The fit's target, or null for a step with no place.
    *
@@ -82,7 +83,9 @@ export namespace supportContact {
     from: IAutoMovieVector3 | null,
     onto: IAutoMovieVector3 | null,
     rise: number,
+    via?: IAutoMovieVector3,
   ): IAutoMovieMotionHumanBodyFitTypes.ITarget | null {
+    if (via !== undefined) return form({ ...to, kind: "bear" }, via).target;
     const a: IAutoMovieVector3 | null = from ?? onto;
     const b: IAutoMovieVector3 | null = onto ?? from;
     if (a === null || b === null) return null;
@@ -181,7 +184,9 @@ export namespace supportContact {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function id(c: IAutoMovieMotionHumanSupport.IContact | IPlaced): string {
+  export function id(
+    c: IAutoMovieMotionHumanSupport.IContact | IPlaced,
+  ): string {
     const placed: number | string = "placed" in c ? c.placed : "";
     return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${placed}`;
   }
@@ -220,29 +225,33 @@ export namespace supportContact {
     stances: readonly IAutoMovieMotionHumanSupport.IStance[],
   ): IAutoMovieMotionHumanSupport.IStance[] {
     const out: IAutoMovieMotionHumanSupport.IStance[] = [];
-    stances.forEach((stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
-      const before: readonly IAutoMovieMotionHumanSupport.IContact[] =
-        i === 0 ? [] : out[i - 1]!.contacts;
-      out.push({
-        ...stance,
-        contacts: stance.contacts.map((c: IAutoMovieMotionHumanSupport.IContact): IPlaced => {
-          const was: IAutoMovieMotionHumanSupport.IContact | undefined =
-            c.step === true
-              ? undefined
-              : before.find(
-                  (p: IAutoMovieMotionHumanSupport.IContact): boolean =>
-                    p.part === c.part &&
-                    p.kind === c.kind &&
-                    (p.inset ?? 0) === (c.inset ?? 0) &&
-                    JSON.stringify(p.target) === JSON.stringify(c.target),
-                );
-          return {
-            ...c,
-            placed: was === undefined ? i : (was as IPlaced).placed,
-          };
-        }),
-      });
-    });
+    stances.forEach(
+      (stance: IAutoMovieMotionHumanSupport.IStance, i: number): void => {
+        const before: readonly IAutoMovieMotionHumanSupport.IContact[] =
+          i === 0 ? [] : out[i - 1]!.contacts;
+        out.push({
+          ...stance,
+          contacts: stance.contacts.map(
+            (c: IAutoMovieMotionHumanSupport.IContact): IPlaced => {
+              const was: IAutoMovieMotionHumanSupport.IContact | undefined =
+                c.step === true
+                  ? undefined
+                  : before.find(
+                      (p: IAutoMovieMotionHumanSupport.IContact): boolean =>
+                        p.part === c.part &&
+                        p.kind === c.kind &&
+                        (p.inset ?? 0) === (c.inset ?? 0) &&
+                        JSON.stringify(p.target) === JSON.stringify(c.target),
+                    );
+              return {
+                ...c,
+                placed: was === undefined ? i : (was as IPlaced).placed,
+              };
+            },
+          ),
+        });
+      },
+    );
     return out;
   }
 
@@ -373,7 +382,9 @@ export namespace supportContact {
     );
     const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(
       targets.map(
-        (target: IAutoMovieMotionHumanBodyFitTypes.ITarget): AutoMovieHumanoidBone => target.bone,
+        (
+          target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
+        ): AutoMovieHumanoidBone => target.bone,
       ),
     );
     const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
@@ -399,16 +410,20 @@ export namespace supportContact {
         ).pose,
         read(),
       );
-      return targets.map((target: IAutoMovieMotionHumanBodyFitTypes.ITarget): IAutoMovieVector3 => {
-        const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
-        return Vector3.add(
-          bone.worldPosition,
-          Quaternion.rotateVector(
-            bone.worldRotation,
-            target.point ?? { x: 0, y: 0, z: 0 },
-          ),
-        );
-      });
+      return targets.map(
+        (
+          target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
+        ): IAutoMovieVector3 => {
+          const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
+          return Vector3.add(
+            bone.worldPosition,
+            Quaternion.rotateVector(
+              bone.worldRotation,
+              target.point ?? { x: 0, y: 0, z: 0 },
+            ),
+          );
+        },
+      );
     };
   }
 

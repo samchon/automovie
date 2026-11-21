@@ -13,13 +13,18 @@ export namespace SceneArchetype {
     string,
     archetypes.ArchetypeMass.IProperties | null
   >;
-  /** A producer as the site calls it. */
-  type Producer = ((
-    params: Record<string, unknown>,
-    seed?: string,
-  ) => Model) & {
+
+  /** A producer as the site calls it, with the variant list that names its selector. */
+  export interface IProducer {
+    /** Build the model from its parameters and an optional seed. */
+    (params: Record<string, unknown>, seed?: string): Model;
+
+    /** The frames, when the producer's selector is `frame`. */
     FRAMES?: readonly string[];
-  };
+
+    /** The formats, when the producer's selector is `format`. */
+    FORMATS?: readonly string[];
+  }
 
   /**
    * The archetype of a placed object.
@@ -37,9 +42,13 @@ export namespace SceneArchetype {
         `The installed @automovie/archetypes has no producer named ${object.producer}`,
       );
 
-    // A producer names its variants `kind`, or `frame` where they are frames.
-    const made: Producer = producer as Producer;
-    const key: string = Array.isArray(made.FRAMES) ? "frame" : "kind";
+    // Saved compositions store the selector under `kind`.
+    const made: IProducer = producer as IProducer;
+    const key: string = Array.isArray(made.FRAMES)
+      ? "frame"
+      : Array.isArray(made.FORMATS)
+        ? "format"
+        : "kind";
     return made(
       {
         ...(object.params ?? {}),

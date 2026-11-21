@@ -23,13 +23,13 @@ const CHROME: string = "#c9ccd1";
 const v: typeof Vector3.create = Vector3.create;
 
 /**
- * How {@link createSanitary} builds each kind of fixture from its drawn dimensions: the parts and the contacts, one function per kind, and the construction sizes no source gives.
+ * The parts and contacts the named plumbing fixture producers build from their drawn dimensions, with the estimated construction sizes.
  *
  * Every function places its fixture with its back against the wall at the origin's `Z`, centred on `X`, on the floor. Every contact's place and every articulation's range comes from a cited band or is derived from one; the estimates below size only parts no act reads.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, the frame every construction shares and what the estimates may size.
  * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The producer's four constructions and the estimates they read; kept apart from the producer so each file stays one readable responsibility, and read only by `createSanitary`.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Each named plumbing fixture producer reads its own construction and its geometry's estimates.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No construction reads another kind's dimension; the estimates are named here, not hidden in the arithmetic, and none places a contact.
  */
 export namespace SanitaryConstruction {

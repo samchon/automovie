@@ -4,6 +4,7 @@ import { DeerGait } from "./DeerGait";
 import type { QuadrupedBody } from "./QuadrupedBody";
 import type { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
+import { QuadrupedGaitAdmission } from "./QuadrupedGaitAdmission";
 
 /**
  * Explicit authored clocks for locomotion absent from the measured walk tables.
@@ -200,16 +201,32 @@ export namespace QuadrupedLocomotion {
     unit(table.follow.hind, "table.follow.hind");
     if (table.scaling !== undefined && table.scaling !== "absolute")
       refuse("table.scaling", table.scaling, "use absolute or omit scaling");
+    if (table.explicit !== undefined && !Array.isArray(table.explicit))
+      refuse(
+        "table.explicit",
+        table.explicit,
+        "list the optional explicit gait names",
+      );
     const order: QuadrupedGait.Gait[] = [];
+    const explicit: QuadrupedGait.Gait[] = [];
+    const declared: readonly QuadrupedGait.Gait[] = [
+      ...table.order,
+      ...(table.explicit ?? []),
+    ];
     const gaits: Partial<Record<QuadrupedGait.Gait, QuadrupedGait.IGait>> = {};
     let previous: QuadrupedGait.IGait | undefined;
-    for (let index: number = 0; index < table.order.length; index++) {
-      const kind: QuadrupedGait.Gait = table.order[index]!;
+    for (let index: number = 0; index < declared.length; index++) {
+      const kind: QuadrupedGait.Gait = declared[index]!;
+      const automatic: boolean = index < table.order.length;
       if (
         !Object.keys(QuadrupedGait.BEATS).includes(kind) ||
-        order.includes(kind)
+        gaits[kind] !== undefined
       )
-        refuse("table.order", table.order, "use distinct supported gait names");
+        refuse(
+          automatic ? "table.order" : "table.explicit",
+          kind,
+          "use distinct supported gait names across both lists",
+        );
       const source: QuadrupedGait.IGait | undefined = table.gaits[kind];
       const axis: string = `table.gaits.${kind}`;
       if (source === undefined)
@@ -252,12 +269,15 @@ export namespace QuadrupedLocomotion {
         nonnegative(source.fold[end], `${axis}.fold.${end}`);
         nonnegative(source.lift[end], `${axis}.lift.${end}`);
       }
-      const change: QuadrupedChange.Rule | undefined = transition(
-        source.change,
-        previous,
-        rows,
-        axis,
-      );
+      if (!automatic && source.change !== undefined)
+        refuse(
+          `${axis}.change`,
+          source.change,
+          "omit automatic transitions for explicit-only gaits",
+        );
+      const change: QuadrupedChange.Rule | undefined = automatic
+        ? transition(source.change, previous, rows, axis)
+        : undefined;
       const current: QuadrupedGait.IGait = {
         rows,
         phases,
@@ -265,24 +285,29 @@ export namespace QuadrupedLocomotion {
         nod: { range: source.nod.range, timing: source.nod.timing },
         fold: { ...source.fold },
         lift: { ...source.lift },
+        ...QuadrupedGaitAdmission.elevation(source.elevation, axis),
         ...(change === undefined ? {} : { change }),
       };
-      order.push(kind);
+      if (automatic) {
+        order.push(kind);
+        previous = current;
+      } else explicit.push(kind);
       gaits[kind] = current;
-      previous = current;
     }
     if (
       Object.keys(table.gaits).some(
-        (key: string): boolean => !order.includes(key as QuadrupedGait.Gait),
+        (key: string): boolean => !declared.includes(key as QuadrupedGait.Gait),
       )
     )
       refuse(
         "table.gaits",
         table.gaits,
-        "list exactly the gaits present in order",
+        "list every supplied gait in order or explicit",
       );
     return {
       order,
+      ...(explicit.length === 0 ? {} : { explicit }),
+      ...QuadrupedGaitAdmission.collected(table.collected, order, explicit),
       gaits,
       reference: table.reference,
       hysteresis: table.hysteresis,

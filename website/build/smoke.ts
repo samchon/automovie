@@ -33,6 +33,8 @@ import { SceneTake } from "../src/scenes/SceneTake";
 import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
 import { TakeCompute } from "../src/takes/package/TakeCompute";
+import { archetypeSmokeCases } from "./catalogue/archetypeSmokeCases";
+import "./catalogue/check";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -263,6 +265,7 @@ const CASES: readonly ICase[] = [
     shows: ['.am-viewport[aria-busy="false"] canvas'],
     lacks: [".am-viewport-error"],
   },
+  ...archetypeSmokeCases,
   {
     name: "the motion catalogue shows its stills and opens a motion's page",
     path: "motions/",

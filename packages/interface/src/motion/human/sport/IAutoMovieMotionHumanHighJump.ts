@@ -32,7 +32,12 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * author gives, which world-class finalists reach leaving the floor at
  * 4.14 ± 0.37 m/s (the same table of Nicholson et al. 2022).
  *
- * First pass: no curved run-up and no lean into the take-off; the arms do
+ * A run-up is a `run`, curved by its `via` points, cut at the take-off
+ * foot's footfall. The take-off foot must then be the planted one and the
+ * foot farther from the bar, and the landing place may ask for no more
+ * horizontal take-off speed than the run-up brings.
+ *
+ * First pass: no lean into the curve or the take-off; the arms do
  * not lead; the angular momentum appears at the take-off instead of being
  * built over the push; the apex falls where the landing place puts it, the
  * crossbar's horizontal position can differ from that apex. `barCrossing`
@@ -73,7 +78,7 @@ export namespace IAutoMovieMotionHumanHighJump {
     /** The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed. */
     apexReserve?: number;
 
-    /** The planted foot that pushes off. Omitted uses the incoming stance's leading support. */
+    /** The planted foot that pushes off. Omitted uses the foot a cut run-up has planted, otherwise the incoming stance's leading support. */
     takeoffFoot?: "left" | "right";
   }
 }

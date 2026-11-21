@@ -1,68 +1,38 @@
-import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDraw,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
-} from "../core";
+import { type Archetype, ArchetypeDraw, type IArchetypeBand } from "../core";
 import { APPLIANCE_BANDS } from "./APPLIANCE_BANDS";
-import { ApplianceConstruction } from "./ApplianceConstruction";
+import { FixtureDraw } from "./FixtureDraw";
+import { createMicrowave } from "./createMicrowave";
+import { createRange } from "./createRange";
+import { createRefrigerator } from "./createRefrigerator";
+import { createWashingMachine } from "./createWashingMachine";
 
 /**
- * A kitchen or laundry appliance: a fridge-freezer, a freestanding cooker, a countertop microwave or a front-loading washing machine.
+ * Read a saved appliance recipe and call the corresponding fixed producer.
  *
- * Each stands with its back at the origin's `Z`, centred on `X`, its front toward `+Z`; the microwave stands on whatever counter it is set on. Every door is a part on its hinge, so an open door is a moved part:
+ * @param params The saved kind and its recorded model, dimensions or identifier.
+ * @param seed The seed used by the selected producer under the original draw key.
+ * @returns The selected fixture in its original frame.
+ * @throws {ArchetypeRefusal} For an unknown kind or a rejected model or dimension.
  *
- * - A fridge-freezer's `fridgeDoor` and `freezerDoor` hinge on its `+X` edge (the right as one faces it) and swing out 90 degrees, each carrying its handle (`fridgeHandle`, `freezerHandle`) at the free edge. The fridge is hollow, with its four glass shelves `shelf1` to `shelf4` from the bottom up, each a `stack-top`; the freezer below is one block.
- * - A cooker's `top` is the hob, a `stack-top`, with its four zones `zone1` to `zone4`, each a `stack-top` a pan is set on, front left, front right, back left and back right as one faces it; its oven door, handle and knobs are drawn but are not contacts, since no source read places them.
- * - A microwave's `door` hinges on its `-X` edge, stating no travel since the maker gives no opening angle; `floor` is the cavity's floor and `top` its top, each a `stack-top`.
- * - The washer's round `door` opens 160 degrees and carries `doorHandle`. The body keeps `drumAperture`, the loading sockets `loadApproach`, `loadAlign`, `loadOpening` and `drumEntry` before `drumSeat`, and the `top` work surface fixed.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
- * @returns The appliance.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only another kind has.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, which way each door swings and what each contact is.
- * @evidence contracts/development/implementation.md#principled-implementation Draws the kind's bands, the makers' overall sizes, and hands them to the kind's construction in `ApplianceConstruction`, which places boxes and rods from them.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the kind, draw the dimensions, build the kind, state the mass.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The freezer and oven remain solid. The washer drum and porthole use the documented estimates in WasherDrum.
- * @evidence contracts/development/implementation.md#efficient-algorithms Every appliance has a bounded inventory of primitive parts or convex drum cells.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds one independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and draw namespace.
+ * @evidence contracts/development/implementation.md#principled-implementation Resolve the old kind, then let its canonical producer admit the original inputs.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One kind check and one dispatch.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Pass all arguments to the named producer so saved invalid inputs still raise their refusal.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The kind table is bounded.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Both entry points run the exact same producer.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The dispatcher keeps no inputs or intermediate state.
  */
 export function createAppliance(
   params: createAppliance.IParams,
   seed?: number | string,
 ): Archetype<createAppliance.Affordance, createAppliance.Dimension> {
-  const draw: ArchetypeDrawSession<createAppliance.Dimension> =
-    new ArchetypeDrawSession<createAppliance.Dimension>(
-      "appliance",
-      createAppliance.UNITS,
-      seed,
-      params,
-    );
   const kind: createAppliance.Kind = ArchetypeDraw.choice(
     "appliance",
     "kind",
     params.kind,
     createAppliance.KINDS,
   );
-  const d: Partial<Record<createAppliance.Dimension, number>> = draw.dimensions(
-    createAppliance.BANDS[kind],
-    createAppliance.BANDS,
-  );
-  const builder: ArchetypeBuilder<
-    createAppliance.Affordance,
-    createAppliance.Dimension
-  > = new ArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: NAMES[kind],
-    draw,
-  });
-  ApplianceConstruction[kind](builder, d);
-  return builder.build(d.mass!);
+  return createAppliance.PRODUCERS[kind](params, seed);
 }
 
 /**
@@ -70,7 +40,7 @@ export function createAppliance(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is.
  * @evidence contracts/development/design.md#principled-representation Closed unions; template ids close the numbered shelves, zones and knobs over any count; one cited band per dimension per kind.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The doors an `operate` opens, the handles a hand meets and the faces a hand sets a thing on (#3468 F2); a part no source places is drawn but is not a contact.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Retains the original recipe shape, measurement tables, and the stable producer for each saved kind.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A door and the handle it carries are two affordances, the handle riding the hinge, as a wardrobe's are.
  */
 export namespace createAppliance {
@@ -132,17 +102,7 @@ export namespace createAppliance {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
-    height: "m",
-    width: "m",
-    depth: "m",
-    pullHeight: "m",
-    cavityHeight: "m",
-    cavityWidth: "m",
-    cavityDepth: "m",
-    door: "m",
-    mass: "kg",
-  };
+  export const UNITS: typeof FixtureDraw.appliance = FixtureDraw.appliance;
 
   /** The parameters: the kind, and any free dimension fixed to a value inside its band. */
   export interface IParams extends Partial<Record<Dimension, number>> {
@@ -157,12 +117,12 @@ export namespace createAppliance {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
   > = APPLIANCE_BANDS;
-}
 
-/** Each kind's readable name. */
-const NAMES: Readonly<Record<createAppliance.Kind, string>> = {
-  refrigerator: "fridge-freezer",
-  cooker: "cooker",
-  microwave: "microwave",
-  washingMachine: "washing machine",
-};
+  /** The fixed producer of each saved kind. */
+  export const PRODUCERS = {
+    refrigerator: createRefrigerator,
+    cooker: createRange,
+    microwave: createMicrowave,
+    washingMachine: createWashingMachine,
+  } as const satisfies Readonly<Record<Kind, (...args: never[]) => Archetype>>;
+}

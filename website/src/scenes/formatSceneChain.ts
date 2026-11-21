@@ -79,7 +79,11 @@ export function formatSceneChain(
     });
 
   for (const o of objects) {
-    const key: string = names.frames.includes(o.producer) ? "frame" : "kind";
+    const key: string = names.frames.includes(o.producer)
+      ? "frame"
+      : names.formats.includes(o.producer)
+        ? "format"
+        : "kind";
     body.push(
       `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
       o.rotation === undefined
@@ -303,7 +307,7 @@ function literal(value: unknown, imports: Set<string>): string {
   return JSON.stringify(value);
 }
 
-/** A producer's options as code: the stated dimensions, then the kind under the producer's key (`kind` or `frame`); `{}` when there are none. */
+/** Emit the stated parameters and any variant under the producer's declared key, such as `kind`, `frame` or `format`. */
 function options(object: IPlaygroundComposition.IObject, key: string): string {
   const entries: [string, unknown][] = Object.entries({
     ...(object.params ?? {}),
