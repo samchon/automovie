@@ -1,14 +1,14 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieTransform,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { type Archetype, ArchetypeRefusal, ArchetypeRide } from "../core";
 import type { ArchetypeTowing } from "../core/ArchetypeTowing";
 import { createCart } from "../vehicles/createCart";
 import type { HorseDraftPlan } from "./HorseDraftPlan";
+import { HorseHarness } from "./HorseHarness";
 import { QuadrupedFooting } from "./QuadrupedFooting";
 import type { createHorse } from "./createHorse";
 import { rideHorse } from "./rideHorse";
@@ -259,20 +259,13 @@ export function HorseDraft(
 
   /** A trace hanging below its chord on a parabola of the authored sag. */
   function slack(line: ArchetypeRide.ILineState): ArchetypeRide.ILineState {
-    const from: IAutoMovieVector3 = line.points[0]!;
-    const to: IAutoMovieVector3 = line.points.at(-1)!;
     return {
       ...line,
-      points: Array.from(
-        { length: SAG_POINTS },
-        (_: unknown, k: number): IAutoMovieVector3 => {
-          const u: number = k / (SAG_POINTS - 1);
-          return Vector3.add(Vector3.lerp(from, to, u), {
-            x: 0,
-            y: -4 * params.sag * u * (1 - u),
-            z: 0,
-          });
-        },
+      points: HorseHarness.slack(
+        line.points[0]!,
+        line.points.at(-1)!,
+        params.sag,
+        SAG_POINTS,
       ),
     };
   }
