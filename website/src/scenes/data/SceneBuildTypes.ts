@@ -25,6 +25,20 @@ export namespace SceneBuildTypes {
       HumanHandrimStroke: "handrimStroke";
       HumanBicycleEffort: "bicycleEffort";
       HumanBikeTransfer: "bikeTransfer";
+      HumanBikeGuide: "bikeGuide";
+      HumanLeadHorse: "leadHorse";
+      HumanHoldHandles: "holdHandles";
+      HumanFloatBeside: "floatBeside";
+      HumanMounted: "mounted";
+      HumanUnseat: "unseat";
+      HumanPolo: "polo";
+      HumanBoard: "board";
+      HumanClasp: "clasp";
+      HumanDrape: "drape";
+      HumanTrick: "trick";
+      HumanRoman: "roman";
+      HumanLasso: "lasso";
+      HumanSabre: "sabre";
     };
     sport: { HumanSittingVolley: "sittingVolley" };
     sword: {
