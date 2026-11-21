@@ -330,6 +330,7 @@ export * from "./lexicon/HumanHoldHandles";
 export * from "./lexicon/HumanTendHorse";
 export * from "./lexicon/HumanRide";
 export * from "./lexicon/HumanMounted";
+export * from "./lexicon/HumanUnseat";
 export * from "./lexicon/HumanHandrimStroke";
 export * from "./lexicon/HumanBicycleEffort";
 export * from "./lexicon/HumanBikeGuide";

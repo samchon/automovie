@@ -6,6 +6,7 @@ import type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHuman
 import type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
 import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
 import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
+import type { IAutoMovieMotionHumanUnseat } from "./IAutoMovieMotionHumanUnseat";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -44,4 +45,7 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Perform ordered seat figures on a moving carrier, acquiring and releasing named supports. */
   HumanMounted: IAutoMovieMotionHumanMounted;
+
+  /** Leave a moving saddle against one's will: thrown, pulled down, dragged, stepping clear or slumped. */
+  HumanUnseat: IAutoMovieMotionHumanUnseat;
 }
