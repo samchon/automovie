@@ -392,28 +392,14 @@ export function rideQuadruped<Affordance extends string, D extends string>(
           : stance(coming, strides.strideOf(m + 1), fore);
 
         // A swing spanning the jump's held clock is carried with the body.
-        const carry: QuadrupedHoofTrack.ICarry | undefined =
-          flight !== undefined &&
-          shift !== undefined &&
-          !step.planted &&
-          landed + step.from.duty <= flight.phase &&
-          coming > flight.phase
-            ? {
-                shift,
-                share: Math.max(
-                  0,
-                  Math.min(
-                    1,
-                    (seconds - flight.hold.start) / flight.hold.duration,
-                  ),
-                ),
-              }
-            : undefined;
+        const carry: QuadrupedHoofTrack.ICarry | undefined = step.planted
+          ? undefined
+          : EquineFlightClock.carry(flight, shift, seconds, landed + step.from.duty, coming);
         const height: number =
           which.elevation === undefined
             ? which.lift[end] * withers
             : QuadrupedHoofTrack.elevation(rest, which.elevation, fore);
-        // A carried swing rises above the flying body's own floor, not the ground below it; both coincide at its ends on the level lane.
+        // A carried swing rises above the flying body's own floor while the body is aloft, else above the ground; the two coincide at liftoff and landing.
         const goal: QuadrupedRidePose.IGoal = {
           ...QuadrupedHoofTrack.target(
             current,
@@ -422,7 +408,11 @@ export function rideQuadruped<Affordance extends string, D extends string>(
             following,
             step.along,
             worldAnchors,
-            trial || carry !== undefined ? undefined : ground,
+            trial ||
+              (carry !== undefined &&
+                placement.translation.y > state.placement.translation.y)
+              ? undefined
+              : ground,
             carry,
           ),
           lift: (going * height + (ground?.swingLift ?? 0)) * step.rise,
