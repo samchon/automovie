@@ -17,7 +17,7 @@ A law names the study it follows in its studied laws answer, as `docs/research/<
 
 What facts or observations support the behavior's choices, timing and outcomes?
 
-Identify the screenplay facts, installed actions and operators the relation uses. For skilled practice, cite the [study](../../story/planning/research.md#performance-study) passage that supports how the participants coordinate their actions. Use package defaults for the mechanics they specify and repair a faulty action at its owner. Test the relation's choices and coordination through [motion checks](../../development/testing.md#motion-checks).
+Identify the screenplay facts, installed actions and operators the relation uses. For skilled practice, cite the [study](../../story/planning/research.md#performance-study) passage that supports how the participants coordinate their actions. Set each action's manner under [action axes](../../motion/compose/composition.md#action-axes), leave joint fitting and contact response to the package and repair a faulty action at its owner. Test the relation's choices and coordination through [motion checks](../../development/testing.md#motion-checks).
 
 Add and [register](../../motion/laws/extension.md) a motion law only for an action the installed vocabulary cannot compose. Derive its poses, reach, contacts and variation from the study. Scale [time and speed](../../motion/laws/declaration.md#time-scale) to the body and test them against the observations. Give the factor and reason for deliberate stylization.
 

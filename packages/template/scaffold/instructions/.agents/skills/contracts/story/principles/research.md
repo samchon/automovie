@@ -8,7 +8,7 @@ Each study answers for its own subject. The research index points readers to its
 
 Which production decision does the study support, and under what conditions? For a subject's appearance or another static fact, identify the feature the production can rely on.
 
-For skilled performance, trace a continuous passage at the depicted level from cue to outcome, including simultaneous choices, waits, recovery, supports and obstacles. Ground frequency, tempo and spacing in observations or measurements, including for actions supplied by installed modules. Distinguish what rules allow from what practitioners do. Identify deliberate stylization or where an invented practice differs from its real analogue.
+For skilled performance, trace a continuous passage at the depicted level from cue to outcome, including what practitioners do from each position they reach, simultaneous choices, waits, recovery, supports and obstacles. Ground frequency, tempo and spacing in observations or measurements, including for actions supplied by installed modules. Distinguish what rules allow from what practitioners do. Identify deliberate stylization or where an invented practice differs from its real analogue.
 
 For a timing measurement, establish the replay's time scale. For a distance, establish scale in the plane of movement and account for camera motion. An uncalibrated view may still establish event order. Identify what a cut or occlusion leaves unobserved.
 
