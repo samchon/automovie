@@ -1,4 +1,9 @@
-import { ArchetypePassage, createHorse } from "@automovie/archetypes";
+import {
+  ArchetypeCourse,
+  ArchetypeManoeuvre,
+  ArchetypePassage,
+  createHorse,
+} from "@automovie/archetypes";
 import { steerAutoMovieCrowd } from "@automovie/engine";
 import type {
   IAutoMovieCrowdAgent,
@@ -25,6 +30,7 @@ const OPENING: number = 1.6;
  * 2. The band's spread contracts as it bunches toward the gate.
  * 3. The band passes the gate one at a time: no two horses are in the opening together.
  * 4. No two horses touch, each a disc as wide as its own footprint.
+ * 5. The stallion drives from behind, following the band's centroid path a fixed distance back without meeting a mare.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the band, the alarm, the gate and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Steers real horse-sized agents with the engine's crowd steering from their seeded grazing places to a gate and reads their courses.
@@ -125,4 +131,94 @@ export function test_world_herd_flight(): void {
   });
   TestValidator.predicate("the band passes the gate one at a time", pairs);
   TestValidator.equals("no two horses touch", steered.contacts.length, 0);
+  // 5. The stallion drives from behind: it follows the band's centroid path a fixed distance back and never meets a mare.
+  const centroid: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
+    "band",
+    times
+      .filter(
+        (seconds: number): boolean =>
+          seconds >= ALARM + REACTION && seconds <= ALARM + 6,
+      )
+      .map(
+        (seconds: number): ArchetypeCourse.ISample => ({
+          seconds,
+          x:
+            grazing.reduce(
+              (sum: number, _: IAutoMovieVector3, k: number): number =>
+                sum + at(k, seconds).x,
+              0,
+            ) / grazing.length,
+          y: 0,
+          z:
+            grazing.reduce(
+              (sum: number, _: IAutoMovieVector3, k: number): number =>
+                sum + at(k, seconds).z,
+              0,
+            ) / grazing.length,
+        }),
+      ),
+  );
+  const DRIVE: number = 6;
+  const stallion: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
+    "stallion",
+    ArchetypeManoeuvre.follow(
+      centroid,
+      DRIVE,
+      ALARM + REACTION + 2,
+      ALARM + 6,
+      0.2,
+    ),
+  );
+  const behind: boolean = Array.from(
+    { length: 11 },
+    (_: unknown, i: number): number => ALARM + REACTION + 2 + i * 0.3,
+  ).every((seconds: number): boolean => {
+    const ahead: IAutoMovieVector3 = centroid.at(seconds).placement.translation;
+    const self: IAutoMovieVector3 = stallion.at(seconds).placement.translation;
+    return (
+      self.z < ahead.z &&
+      Math.hypot(ahead.x - self.x, ahead.z - self.z) >= DRIVE * 0.5
+    );
+  });
+  const driven: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
+    "drive",
+    {
+      participants: [
+        {
+          id: "stallion",
+          plan: stallion,
+          footprint: { outline: [{ x: 0, y: 0, z: 0 }], radius },
+          margin: 0,
+        },
+        ...grazing.map(
+          (_: IAutoMovieVector3, k: number): ArchetypePassage.IParticipant => ({
+            id: `mare${k}`,
+            plan: ArchetypeCourse.timed(
+              `mare${k}`,
+              times.map(
+                (seconds: number): ArchetypeCourse.ISample => ({
+                  seconds,
+                  x: at(k, seconds).x,
+                  y: 0,
+                  z: at(k, seconds).z,
+                }),
+              ),
+            ),
+            footprint: { outline: [{ x: 0, y: 0, z: 0 }], radius },
+            margin: 0,
+          }),
+        ),
+      ],
+      from: ALARM + REACTION + 2,
+      to: ALARM + 6,
+      step: 0.1,
+    },
+  ).filter(
+    (found: ArchetypePassage.IConflict): boolean =>
+      found.subject === "stallion",
+  );
+  TestValidator.predicate(
+    `the stallion drives from behind the band without meeting a mare: behind ${behind}, met ${JSON.stringify(driven.slice(0, 1))}`,
+    behind && driven.length === 0,
+  );
 }
