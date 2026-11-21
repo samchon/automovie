@@ -111,7 +111,7 @@ export namespace HumanCarried {
       },
     };
 
-  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the waist lift of partner dance, face to face, the lifted partner's belly at the lifter's chest, hands on the lifter's shoulders, the lifter's hands at the hips; the overhead lift, the lifted partner prone above the lifter's head at the arms' full reach (one arm length above the shoulders' middle at the nape), the lifter's hands at the hips; the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
+  /** The carries. Every angle and offset is provisional, set from the carries' common descriptions: piggyback, chest on the back, legs about the waist, hands under the thighs; cradle, across the forearms before the chest; over the shoulder, folded at the waist over one shoulder; supported, side by side with an arm across the helper's shoulders (`supportedLeft` is a second helper's side); the waist lift of partner dance, face to face, the lifted partner's belly at the lifter's chest, hands on the lifter's shoulders, the lifter's hands at the hips; the overhead lift, the lifted partner prone above the lifter's head at the arms' full reach (one arm length above the shoulders' middle at the nape), the lifter's hands at the hips; the shoulder ride, a child astride the carrier's neck, the seat on the nape, the knees either side and the hands on the carrier's head, the carrier's hands on the shins before the chest; the drags are `HumanCarriedDrag`'s. #3349's sources give trunk flexion and stability findings, not these places. */
   export const CARRIES: Readonly<
     Record<
       IAutoMovieMotionHumanCarried.Carry,
@@ -215,6 +215,22 @@ export namespace HumanCarried {
         { region: "shoulderRight", offset: { out: 0, up: 1, forward: 0 } },
       ],
       rise: 1,
+    },
+    shoulders: {
+      mine: "seat",
+      theirs: "nape",
+      turn: 0,
+      pitch: 0,
+      legs: [70, 90, 30],
+      straddles: true,
+      clings: ["templeLeft", "templeRight"],
+      holds: [
+        { region: "chestLeft", offset: { out: 0.08, up: 0.05, forward: 0.15 } },
+        {
+          region: "chestRight",
+          offset: { out: 0.08, up: 0.05, forward: 0.15 },
+        },
+      ],
     },
     ...HumanCarriedDrag.CARRIES,
   };
