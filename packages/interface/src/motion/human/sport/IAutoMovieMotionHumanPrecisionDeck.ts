@@ -97,44 +97,6 @@ export namespace IAutoMovieMotionHumanPrecisionDeck {
   }
 
   /**
-   * A pocket mouth of a cue table or the cup of a green.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the pocket and its mouth centre at bed height, world metres.
-   * @evidence contracts/development/design.md#principled-representation The mouth point's height is the bed plane a pocketed ball falls below.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by pocketedBalls; a table's pocket sockets or a green's cup supply it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The opening itself is the surface's geometry; this point only names which mouth a ball fell through.
-   */
-  export interface IPocket {
-    /** The pocket's affordance identity. */
-    id: string;
-
-    /** The mouth centre on the bed plane, world metres. */
-    point: IAutoMovieVector3;
-
-    /** Plan radius around the mouth centre within which a ball falling below the bed is in this pocket, metres. */
-    reach: number;
-  }
-
-  /**
-   * A ball credited to a pocket.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the ball, the pocket and the film second it fell wholly below the bed.
-   * @evidence contracts/development/design.md#principled-representation Film seconds are the release plus a cache frame time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by pocketedBalls.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A ball still on the bed at the cache end is absent, not credited to a sentinel pocket.
-   */
-  export interface IPocketed {
-    /** The ball's scene object identity. */
-    ball: string;
-
-    /** The pocket it fell through. */
-    pocket: string;
-
-    /** Film second of the first cache frame with the whole ball below the bed. */
-    seconds: number;
-  }
-
-  /**
    * The baked deck result.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the release offset, local replay and the optional first ball-to-target contact.

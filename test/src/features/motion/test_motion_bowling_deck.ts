@@ -7,7 +7,6 @@ import {
   AutoMoviePhysicalPlayback,
   Quaternion,
   Vector3,
-  physicalPrincipalAxes,
 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
@@ -43,6 +42,7 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 import { qclose, vclose } from "../internal/predicates";
+import { rigidProfile } from "../internal/rigidProfile";
 
 /**
  * A released bowling ball crosses the real lane's pin deck, or rolls along
@@ -91,42 +91,10 @@ export async function test_motion_bowling_deck(): Promise<void> {
     compliance: 0,
     damping: 0,
   };
-  type Model = typeof ball | typeof pin | typeof lane;
-  const profile = (model: Model, id: string): IAutoMoviePhysicalProfile => {
-    const inertia: (typeof model.properties)["inertia"] =
-      model.properties.inertia;
-    const axes: ReturnType<typeof physicalPrincipalAxes> =
-      physicalPrincipalAxes([
-        [inertia.xx, inertia.xy, inertia.xz],
-        [inertia.xy, inertia.yy, inertia.yz],
-        [inertia.xz, inertia.yz, inertia.zz],
-      ]);
-    return {
-      id,
-      mass: model.properties.mass,
-      centerOfMass: model.properties.centerOfMass,
-      materials: [material],
-      provenance:
-        "Seeded archetype geometry and mass, with authored contact material.",
-      joints: [],
-      segments: [
-        {
-          bone: "root",
-          mass: model.properties.mass,
-          neutral: rest,
-          centerOfMass: model.properties.centerOfMass,
-          inertia: axes.moments,
-          inertiaRotation: axes.rotation,
-          shapes: model.shapes().map(
-            (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => ({
-              ...shape,
-              material: material.id,
-            }),
-          ),
-        },
-      ],
-    };
-  };
+  const profile = (
+    model: Parameters<typeof rigidProfile>[0],
+    id: string,
+  ): IAutoMoviePhysicalProfile => rigidProfile(model, id, material);
 
   const sphere: IAutoMoviePhysicalShape = ball.shapes()[0]!;
   if (sphere.kind !== "sphere")
