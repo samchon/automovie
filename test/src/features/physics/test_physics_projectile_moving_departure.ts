@@ -19,7 +19,9 @@ import { vclose } from "../internal/vclose";
  * Scenarios:
  * 1. Tangent spheres separate and reenter at the independent quadratic root.
  *    Closing motion, an opaque pose, an unmarked pair and a different tangent
- *    shape preserve initial contact.
+ *    shape preserve initial contact. A path that separates, re-enters inside
+ *    the bounded prefix and is clear again at its end keeps the contact or
+ *    reports that re-entry, never the later clearance.
  * 2. A rotating offset hull supports a shallow-overlap departure. Another part
  *    of the same actor remains a distinct pair on the same motion clock.
  * 3. Offset angular motion, an absent proof and malformed declarations exercise
@@ -106,6 +108,44 @@ export function test_physics_projectile_moving_departure(): void {
       { x: 0, y: 0.125 + 0.5 * curvedReturn + 0.125 * curvedReturn ** 2, z: 0 },
       UP,
     ),
+  );
+
+  // The signed gap DIP·t·(t − 0.02)·(t − 0.04) opens, closes again at 0.02 s
+  // inside the 0.0625 s prefix and is positive again at its end. Positive
+  // clearance at the prefix end alone must not hide that re-entry.
+  const dipping: IAutoMovieProjectileFirstContact.IContinuousPose = {
+    at: (seconds): IAutoMovieRigidTransform => ({
+      position: {
+        x: 0,
+        y:
+          seconds -
+          seconds * seconds -
+          DIP * seconds * (seconds - 0.02) * (seconds - 0.04),
+        z: 0,
+      },
+      rotation: Quaternion.identity(),
+    }),
+    bound: (from, to): IAutoMovieProjectileFirstContact.IMotionBound => {
+      const end: number = Math.min(to, from + 0.0625);
+
+      // |v − 1| ≤ 2t + DIP·(3t² + 0.12t + 0.0008), increasing in t ≥ 0.
+      return {
+        to: end,
+        referenceVelocity: UP,
+        velocityError: 2 * end + DIP * (3 * end * end + 0.12 * end + 0.0008),
+        angularSpeed: 0,
+      };
+    },
+  };
+  const dipped: IAutoMovieHit | null = query(
+    BALL,
+    [projectileFirstContact.shape("dipping", sphere, dipping)],
+    "dipping",
+  );
+  TestValidator.predicate(
+    "a brief separation inside the prefix keeps contact or reports its re-entry",
+    matches(dipped, "dipping", 0, { x: 0, y: 0.125, z: 0 }, UP) ||
+      matches(dipped, "dipping", 0.02, { x: 0, y: 0.1446, z: 0 }, UP),
   );
 
   const glancing: IAutoMovieProjectile = {
@@ -253,6 +293,9 @@ export function test_physics_projectile_moving_departure(): void {
 
 /** Two tangent spheres have the same radius, in metres. */
 const RADIUS: number = 0.125;
+
+/** Cubic dip coefficient of the re-entering path, metres per second cubed. */
+const DIP: number = 100;
 
 /** A shared stationary vector for independent fixture geometry. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
