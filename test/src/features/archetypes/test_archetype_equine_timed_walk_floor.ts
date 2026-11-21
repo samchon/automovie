@@ -34,11 +34,12 @@ interface IStretch {
  * Scenarios:
  * 1. A 1.6 m mare stands for a second, accelerates to 3 m/s, trots, slows to 0.8 m/s, below the 1.077 m/s floor of the measured walk at her height, walks there for two seconds and speeds up again: every 20 ms samples, a `gait:walk-trot` and a later `gait:trot-walk` change appear, and no planted hoof slides.
  * 2. The same slow stretch named as a trot refuses with an ArchetypeRefusal naming the trot.
+ * 3. A crowd-sampled start, equal marks until it moves and marks every 0.5 s of a 3 m/s^2 start to 3 m/s, never runs back along its line and rides every 20 ms.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the profile, the floor and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the public ride and reads its gait instants and planted hooves.
  * @evidence contracts/development/testing.md#independent-expectations The walk's declared floor at 1.6 m is read from the species' table; the slow stretch lies below it.
- * @evidence contracts/development/testing.md#distinguishing-cases An automatic gait below the floor and a named trot there.
+ * @evidence contracts/development/testing.md#distinguishing-cases An automatic gait below the floor, a named trot there, and a coarse-sampled start out of a hold.
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit.
  */
 export function test_archetype_equine_timed_walk_floor(): void {
@@ -106,5 +107,42 @@ export function test_archetype_equine_timed_walk_floor(): void {
   }
   if (!(refusal instanceof ArchetypeRefusal && /trot/.test(refusal.message)))
     issues.push(`a named trot below its floor raises ${String(refusal)}`);
+
+  // 3. A crowd-sampled departure: equal marks to 2 s, then marks every 0.5 s of a 3 m/s^2 start to 3 m/s.
+  const crowd: IMark[] = Array.from(
+    { length: 13 },
+    (_: unknown, k: number): IMark => {
+      const seconds: number = k * 0.5;
+      const moving: number = Math.max(0, seconds - 2.4);
+      const along: number =
+        moving <= 1 ? 1.5 * moving * moving : 1.5 + 3 * (moving - 1);
+      return { seconds, x: 0.26 * along, z: 0.966 * along };
+    },
+  );
+  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.timed("mare", crowd);
+  let back: number = 0;
+  for (let at: number = 2; at <= 3.5; at += 0.01) {
+    const before: ArchetypeCourse.IState = plan.at(at);
+    const after: ArchetypeCourse.IState = plan.at(at + 0.01);
+    back = Math.max(
+      back,
+      -(
+        (after.placement.translation.x - before.placement.translation.x) *
+          0.26 +
+        (after.placement.translation.z - before.placement.translation.z) * 0.966
+      ),
+    );
+  }
+  if (back > 0) issues.push(`the departure runs back ${back} m along its line`);
+  const start = rideQuadruped(horse, plan);
+  for (let at: number = 0; at <= start.duration; at += 0.02)
+    try {
+      start.at(at);
+    } catch (error) {
+      issues.push(
+        `crowd departure at ${at.toFixed(2)} s: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      break;
+    }
   TestValidator.equals("walking below the measured floor", issues, []);
 }
