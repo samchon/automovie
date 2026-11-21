@@ -207,3 +207,5 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   revolver: [HumanRevolver],
   archery: [HumanArchery],
 } as const;
+import { HumanCover } from "./HumanCover";
+    HumanCover,

@@ -491,3 +491,4 @@ export * from "./lexicon/HumanAssistedTransfer";
 export * from "./dressing/wardrobe";
 export * from "./lexicon/HumanCarrierCustody";
 export * from "./handling/HumanPocket";
+export * from "./lexicon/HumanCover";

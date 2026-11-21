@@ -97,3 +97,7 @@ export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** A stalk: a hunched creep on deeply bent knees. */
   stalk: IAutoMovieMotionHumanGait.IParams;
 }
+import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
+  /** Move in cover along a named wall, window or door. */
+  moveInCover: IAutoMovieMotionHumanCover.IParams;
+
