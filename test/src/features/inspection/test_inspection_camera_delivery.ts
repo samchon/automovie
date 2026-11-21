@@ -59,7 +59,7 @@ export async function test_inspection_camera_delivery(): Promise<void> {
       [],
     );
     TestValidator.predicate(
-      "pixel coverage remains explicitly deferred in ordinary capture",
+      "pixel coverage stays deferred when the host supplies no renderer audit",
       partial.coverage.some(
         (row: IAutoMovieInspectionDiagnostics.ICoverage): boolean =>
           row.check === "camera-occlusion" &&

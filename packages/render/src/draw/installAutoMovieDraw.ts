@@ -250,7 +250,7 @@ export function installAutoMovieDraw(
             scene,
             call.seconds,
             delivery ? "delivery" : "capture",
-            delivery ? { renderer, factor: SUPERSAMPLE } : undefined,
+            { renderer, factor: SUPERSAMPLE },
           );
         },
       );

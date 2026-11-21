@@ -123,8 +123,8 @@ export namespace IAutoMovieDrawScene {
    * The same settled delivery scene for any host, before the view or overlays select what the audience sees.
    *
    * @evidence contracts/development/design.md#principled-representation The clock, world scene, camera and delivery raster describe a single evaluated sample.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the placed inputs and delivery-only renderer access that diagnostics use.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Review views never determine the delivery projection. Full raster inspection is available only where the offscreen delivery host supplies its renderer and sample factor.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the placed inputs and the capture and delivery renderer access that diagnostics use.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Review views never determine the delivery projection. Full raster inspection is available only where the offscreen capture or delivery host supplies its renderer and sample factor.
    * @evidence contracts/development/common.md#meaningful-documentation Specifies the origin of the projection, the raster dimensions and when the renderer is available.
    */
   export interface IPlacedSample {
@@ -146,7 +146,7 @@ export namespace IAutoMovieDrawScene {
     /** Which host placed this scene. The Viewer samples actual painted frames. */
     readonly mode: "viewer" | "capture" | "delivery";
 
-    /** Scratch render access for offscreen delivery audits. Restore renderer and scene state before returning. */
+    /** Scratch render access for the offscreen capture and delivery audits, absent in the Viewer. Restore renderer and scene state before returning. */
     readonly auditRaster?: {
       /** The renderer used for the actual offscreen delivery. */
       readonly renderer: THREE.WebGLRenderer;

@@ -49,7 +49,10 @@ export function test_inspection_camera_near_clip(): void {
   const opaque: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   const box: THREE.Mesh = new THREE.Mesh(geometry, opaque);
   scene.add(box);
-  const measure = (
+  const measure: (
+    target: THREE.Object3D,
+    triangleBudget?: number,
+  ) => measureAutoMovieCameraNearClip.IResult = (
     target: THREE.Object3D,
     triangleBudget: number = 1_000,
   ): measureAutoMovieCameraNearClip.IResult => {
@@ -77,11 +80,7 @@ export function test_inspection_camera_near_clip(): void {
       nclose(crossing.cut.y / -crossing.cut.z, crossing.point.y / 0.75),
   );
   box.position.set(0, 0, -1.5);
-  TestValidator.equals(
-    "touching face is clear",
-    measure(box).status,
-    "clear",
-  );
+  TestValidator.equals("touching face is clear", measure(box).status, "clear");
   box.position.set(3, 0, -1.25);
   TestValidator.equals("off-frame crossing is clear", measure(box), {
     status: "clear",
@@ -91,9 +90,9 @@ export function test_inspection_camera_near_clip(): void {
   // 2. Exact and exceeded triangle budgets.
   box.position.set(0, 0, -1.25);
   TestValidator.equals(
-    "budget of eleven leaves the box unmeasured",
+    "budget of eleven stops the box as over budget",
     measure(box, 11).status,
-    "unmeasured",
+    "over-budget",
   );
   TestValidator.equals(
     "budget of twelve measures the box",

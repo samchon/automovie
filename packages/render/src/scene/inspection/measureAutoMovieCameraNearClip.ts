@@ -60,12 +60,13 @@ interface IRange {
  * @param props Delivery camera, admitted subject meshes and the triangle budget.
  * @returns `clear` when no drawn surface crosses, `clipped` with the deepest
  * intrusion in metres, its world surface point and the near-plane point at the
- * same delivered pixel, or `unmeasured` with a reason.
+ * same delivered pixel, `over-budget` when the triangles to examine exceed the
+ * budget, or `unmeasured` with the reason the subject cannot be checked.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clipping premise, the units and frame of depth and point, the opacity flag, the budget and every outcome.
  * @evidence contracts/development/implementation.md#principled-implementation Uses Three's normalized frustum planes from the actual delivery projection, so distances are world metres and any crop or aspect is included. A triangle part counts only beyond a tolerance of 32 ulps of its plane arithmetic plus, for an owned skin, its stated float32 GPU tolerance scaled by the largest world row norm; touching the near plane is not an intrusion.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Mesh admission stays with listAutoMovieCameraSubjectMeshes; this function first lets a certified envelope that lies wholly beyond the near plane or outside a side plane settle the subject, then prefilters meshes by world box, counts the drawn triangles against the budget and clips.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bounds overlap stands for a cut surface; an exceeded budget or a non-finite vertex leaves the subject unmeasured rather than clear.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bounds overlap stands for a cut surface; an exceeded budget is reported apart from an uncheckable subject, and neither is reported clear.
  * @evidence contracts/development/implementation.md#efficient-algorithms A mesh whose world box lies wholly beyond the near plane or outside a side plane costs O(1); the rest cost O(T) for T drawn triangles, at most the budget, with constant work per triangle on fixed scratch vectors; the loop allocates only a small record when it finds a deeper intrusion.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the geometry box Three caches and the skin's pose cache, which its writers invalidate.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Uses fixed scratch arrays per call and returns plain values only.
@@ -75,7 +76,10 @@ export function measureAutoMovieCameraNearClip(
 ): measureAutoMovieCameraNearClip.IResult {
   const { camera, meshes, triangleBudget } = props;
   if (!Number.isSafeInteger(triangleBudget) || triangleBudget < 0)
-    return { status: "unmeasured", reason: "Invalid near-clip triangle budget." };
+    return {
+      status: "unmeasured",
+      reason: "Invalid near-clip triangle budget.",
+    };
   const projection: Matrix4 = new Matrix4().multiplyMatrices(
     camera.projectionMatrix,
     camera.matrixWorldInverse,
@@ -98,7 +102,7 @@ export function measureAutoMovieCameraNearClip(
   const sides: Plane[] = frustum.planes.slice(0, 4);
   const near: Plane = frustum.planes[5]!;
   const world: Box3 = new Box3();
-  const excluded = (box: Box3): boolean =>
+  const excluded: (box: Box3) => boolean = (box: Box3): boolean =>
     leastDistance(box, near) >= 0 ||
     sides.some((plane: Plane): boolean => leastDistance(box, flip(plane)) > 0);
 
@@ -140,7 +144,7 @@ export function measureAutoMovieCameraNearClip(
       triangles += Math.floor((range.end - range.start) / 3);
     if (triangles > triangleBudget)
       return {
-        status: "unmeasured",
+        status: "over-budget",
         reason: `Near-clip check needs more than ${triangleBudget} triangles.`,
       };
 
@@ -213,7 +217,9 @@ export function measureAutoMovieCameraNearClip(
       : 0;
   const pixel: Vector3 = deepest.point.clone().applyMatrix4(projection);
   pixel.z = nearDepth;
-  const cut: Vector3 = pixel.applyMatrix4(new Matrix4().copy(projection).invert());
+  const cut: Vector3 = pixel.applyMatrix4(
+    new Matrix4().copy(projection).invert(),
+  );
   return {
     status: "clipped",
     triangles,
@@ -229,7 +235,7 @@ export namespace measureAutoMovieCameraNearClip {
   /**
    * Clear, clipped with its deepest witness, or unmeasured with a reason.
    *
-   * @evidence contracts/development/design.md#principled-representation A cut surface, a checked surface with no cut and an unchecked surface are distinct observations with distinct states.
+   * @evidence contracts/development/design.md#principled-representation A cut surface, a checked surface with no cut, a check the budget stopped and a subject that cannot be checked are distinct observations with distinct states.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Carries the count of triangles examined, the deepest intrusion and whether an opaque stock surface was cut; findings and coverage stay with the caller.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts An unmeasured subject never reports clear.
    * @evidence contracts/development/common.md#meaningful-documentation Defines units, frame and the opacity flag of each state.
@@ -262,10 +268,17 @@ export namespace measureAutoMovieCameraNearClip {
         opaque: boolean;
       }
     | {
-        /** The surface could not be checked within the call's limits. */
+        /** The drawn triangles in front of the near plane exceed the caller's budget; a larger budget completes the check. */
+        status: "over-budget";
+
+        /** How far the budget fell short. */
+        reason: string;
+      }
+    | {
+        /** The surface cannot be checked: an unreadable drawable, a non-finite vertex or projection, or an invalid budget. */
         status: "unmeasured";
 
-        /** Why the check was not completed. */
+        /** Why the check cannot run. */
         reason: string;
       };
 }
@@ -339,7 +352,7 @@ function clip(
     const a: number = plane.distanceToPoint(current);
     const b: number = plane.distanceToPoint(next);
     if (a >= 0) output[written++]!.copy(current);
-    if ((a >= 0) !== (b >= 0))
+    if (a >= 0 !== b >= 0)
       output[written++]!.lerpVectors(current, next, a / (a - b));
   }
   return written;

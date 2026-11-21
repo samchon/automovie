@@ -39,7 +39,7 @@ interface IProps {
   /** Maximum total triangles admitted to the optional, nine-ray witness pass. */
   triangleBudget?: number;
 
-  /** Matching exact pixel observations, when a delivery audit obtained them. */
+  /** Matching exact pixel observations, when a capture or delivery audit obtained them. */
   pixels?: IAutoMovieCameraInspection.IPixels;
 }
 

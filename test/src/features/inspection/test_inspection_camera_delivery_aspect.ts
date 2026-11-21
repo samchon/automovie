@@ -63,9 +63,12 @@ export function test_inspection_camera_delivery_aspect(): void {
     seek: async (): Promise<void> => {},
     dispose: (): void => {},
   };
-  const observe = (): IAutoMovieInspectionDiagnostics =>
-    observeAutoMoviePlacedInspection(subject, 1, "capture")!;
-  const codes = (packet: IAutoMovieInspectionDiagnostics): string[] =>
+  const observe: () => IAutoMovieInspectionDiagnostics =
+    (): IAutoMovieInspectionDiagnostics =>
+      observeAutoMoviePlacedInspection(subject, 1, "capture")!;
+  const codes: (packet: IAutoMovieInspectionDiagnostics) => string[] = (
+    packet: IAutoMovieInspectionDiagnostics,
+  ): string[] =>
     packet.findings.map(
       (finding: IAutoMovieInspectionDiagnostics.IFinding): string =>
         finding.code,
