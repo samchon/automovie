@@ -46,11 +46,6 @@ export interface IAutoMovieMotionHumanPrecisionDeck {
 
 /**
  * Placements and replay for the precision deck.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines rigid scene identities and film time versus solver-local playback.
- * @evidence contracts/development/design.md#principled-representation The result retains the original replay cache and reports the ball's first target contact.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Companion records for bakePrecisionDeck. The shared cache supplies all ball and target poses; sport credits read it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No synthetic target animation or score is included.
  */
 export namespace IAutoMovieMotionHumanPrecisionDeck {
   /**

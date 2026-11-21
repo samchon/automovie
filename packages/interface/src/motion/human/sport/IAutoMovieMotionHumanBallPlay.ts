@@ -27,11 +27,6 @@ export interface IAutoMovieMotionHumanBallPlay {
 
 /**
  * The events of a ball's play and the gates a credited ball passes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each event and gate member with units and frames.
- * @evidence contracts/development/design.md#principled-representation Each variant carries a kind discriminant; gates are planar regions with a crediting side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Companion records of IAutoMovieMotionHumanBallPlay and HumanBallPlay.crossing.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A disc and a rectangle are separate variants rather than optional dimensions on one record.
  */
 export namespace IAutoMovieMotionHumanBallPlay {
   /**

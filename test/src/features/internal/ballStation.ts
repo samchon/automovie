@@ -5,6 +5,8 @@ import type {
 } from "@automovie/interface";
 import { HumanBallPlay, HumanPerformance } from "@automovie/motions";
 
+import type { IBallStation } from "./IBallStation";
+
 /**
  * Where a receiver stands to take a launched ball: the point the flight
  * crosses a vertical plane through `through`, square to the flight's
@@ -33,7 +35,7 @@ export function ballStation(
   launch: IAutoMovieMotionHumanBallPlay.ILaunch,
   through: IAutoMovieVector3,
   centre: IAutoMovieVector3,
-): ballStation.IStation {
+): IBallStation {
   const away: IAutoMovieVector3 = Vector3.normalize({
     ...launch.velocity,
     y: 0,
@@ -62,36 +64,4 @@ export function ballStation(
     intercept: crossing.seconds - launch.seconds,
     crossing,
   };
-}
-
-/**
- * Companion records of {@link ballStation}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the station fields.
- * @evidence contracts/development/design.md#principled-representation World metres, degrees and seconds after the launch.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the sport play tests.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
- */
-export namespace ballStation {
-  /**
-   * A receiver's station.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states its unit and frame.
-   * @evidence contracts/development/design.md#principled-representation Floor position, facing, intercept and the crossing it came from.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a staged catch needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   */
-  export interface IStation {
-    /** Floor position, world metres. */
-    at: IAutoMovieVector3;
-
-    /** Facing, degrees about +Y from +Z. */
-    yaw: number;
-
-    /** Seconds after the launch at which the ball crosses the plane. */
-    intercept: number;
-
-    /** The crossing itself. */
-    crossing: IAutoMovieMotionHumanBallPlay.ICrossing;
-  }
 }

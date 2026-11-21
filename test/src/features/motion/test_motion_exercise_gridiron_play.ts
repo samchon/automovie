@@ -16,6 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IBallStation } from "../internal/IBallStation";
 import { ballPossessions } from "../internal/ballPossessions";
 import { ballStation } from "../internal/ballStation";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -23,10 +24,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** The quarterback and receiver stations a take stages; absent ones stay out of the play. */
 interface IStations {
   /** The quarterback's station on the snap. */
-  quarterback?: ballStation.IStation;
+  quarterback?: IBallStation;
 
   /** The receiver's station on the pass. */
-  receiver?: ballStation.IStation;
+  receiver?: IBallStation;
 }
 
 /**
@@ -160,7 +161,7 @@ export function test_motion_exercise_gridiron_play(): void {
   };
 
   const snapped: HumanPerformance = take("gridiron-snap", {});
-  const quarterback: ballStation.IStation = ballStation(
+  const quarterback: IBallStation = ballStation(
     snapped,
     "ball",
     launchOf(snapped, "center"),
@@ -170,7 +171,7 @@ export function test_motion_exercise_gridiron_play(): void {
   const incomplete: HumanPerformance = take("gridiron-incomplete", {
     quarterback,
   });
-  const receiver: ballStation.IStation = ballStation(
+  const receiver: IBallStation = ballStation(
     incomplete,
     "ball",
     launchOf(incomplete, "quarterback"),

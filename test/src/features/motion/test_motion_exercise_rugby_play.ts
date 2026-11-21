@@ -16,6 +16,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import type { IBallStation } from "../internal/IBallStation";
 import { ballPossessions } from "../internal/ballPossessions";
 import { ballStation } from "../internal/ballStation";
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -23,13 +24,13 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** The receivers a take stages, in play order; absent ones stay out. */
 interface IStations {
   /** The lineout jumper on the throw. */
-  jumper?: ballStation.IStation;
+  jumper?: IBallStation;
 
   /** The scrum-half on the jumper's pass. */
-  half?: ballStation.IStation;
+  half?: IBallStation;
 
   /** The fly-half on the scrum-half's pass. */
-  fly?: ballStation.IStation;
+  fly?: IBallStation;
 }
 
 /**
@@ -88,7 +89,7 @@ export function test_motion_exercise_rugby_play(): void {
     ];
     const receive = (
       subject: string,
-      station: ballStation.IStation | undefined,
+      station: IBallStation | undefined,
       from: string,
       next: IAutoMovieVector3 | undefined,
       anchor: string,
@@ -157,7 +158,7 @@ export function test_motion_exercise_rugby_play(): void {
   };
 
   const thrown: HumanPerformance = take("lineout-throw", {});
-  const jumper: ballStation.IStation = ballStation(
+  const jumper: IBallStation = ballStation(
     thrown,
     "ball",
     launchOf(thrown, "hooker"),
@@ -165,7 +166,7 @@ export function test_motion_exercise_rugby_play(): void {
     centre,
   );
   const fed: HumanPerformance = take("lineout-jumper", { jumper });
-  const half: ballStation.IStation = ballStation(
+  const half: IBallStation = ballStation(
     fed,
     "ball",
     launchOf(fed, "jumper"),
@@ -173,7 +174,7 @@ export function test_motion_exercise_rugby_play(): void {
     centre,
   );
   const spun: HumanPerformance = take("lineout-half", { jumper, half });
-  const fly: ballStation.IStation = ballStation(
+  const fly: IBallStation = ballStation(
     spun,
     "ball",
     launchOf(spun, "half"),
