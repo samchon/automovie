@@ -40,6 +40,8 @@ Play the numbered scenes with their transitions, titles and subtitles. Use the [
 
 For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 
+A film comments each value with the screenplay or profile entry it takes, and a catalog case with the fact or observed exchange it exhibits.
+
 ## Composition only
 
 Does the declaration compose only accepted module capabilities using installed operators and the screenplay's decisions?

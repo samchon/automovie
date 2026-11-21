@@ -22,7 +22,7 @@ Keep subjects simple and motion detailed.
 
 - Use the polygon man from `@automovie/human`.
 - Use `@automovie/archetypes` for objects, or build a coarse form.
-- Compose actions from `@automovie/motions`.
+- Compose actions from `@automovie/motions`, commenting each value with the screenplay element it realizes.
 
 Realize the screenplay in code.
 
