@@ -42,6 +42,7 @@ export * from "./createForestAxe";
 export * from "./createFork";
 export * from "./createHammer";
 export * from "./createHandSaw";
+export * from "./createCyclingHelmet";
 export * from "./createHat";
 export * from "./createLadle";
 export * from "./createLighter";

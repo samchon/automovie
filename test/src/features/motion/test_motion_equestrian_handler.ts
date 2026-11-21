@@ -3,6 +3,7 @@ import {
   EquineCare,
   EquineExpression,
   EquineStance,
+  createGroomingBrush,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -50,6 +51,9 @@ interface IStagedHorse {
   part: (id: string, at: number) => IAutoMovieTransform;
 }
 
+/** The body brush the handler grooms with. */
+const BRUSH: ReturnType<typeof createGroomingBrush> = createGroomingBrush();
+
 /** The rider attachment contract's 10 mm contact budget. */
 const CONTACT: number = 0.01;
 
@@ -72,7 +76,7 @@ interface ITake {
  * A handler brushes, handles the headgear, settles the saddle and holds a lifted hoof on one scene clock with the horse's own responses.
  *
  * Scenarios:
- * 1. The displayed palm meets each named horse contact while held: the brushed barrel along a stroke, the poll the horse lowers its head to bring within reach, the saddle's left stirrup and the hoof the horse lifts; it is clear of it before acquisition and after release.
+ * 1. The displayed palm meets each named horse contact while held: the bristle face of a body brush the handler picks up, along a stroke on the barrel, before putting the brush back, the poll the horse lowers its head to bring within reach, the saddle's left stirrup and the hoof the horse lifts; it is clear of it before acquisition and after release.
  * 2. Every held window names the horse as its support, the hand as its part and the touch or grip its task asks for.
  * 3. The horse lifts the hoof the handler holds only after moving its weight, and the startle it gives after the hoof is put down replays identically when the take is built again.
  * 4. A care placement on the horse's far side refuses as out of reach.
@@ -97,6 +101,17 @@ export function test_motion_equestrian_handler(): void {
     return Vector3.add(
       hand.worldPosition,
       Quaternion.rotateVector(hand.worldRotation, palm),
+    );
+  };
+  // The brush's displayed bristle face: the held prop's world frame carrying its face contact.
+  const bristles = (film: HumanPerformance, at: number): IAutoMovieVector3 => {
+    const frame: IAutoMovieRigidTransform = film.prop("brush", at);
+    return Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(
+        frame.rotation,
+        BRUSH.affordance("face").frame.translation,
+      ),
     );
   };
   const names: readonly string[] = [
@@ -130,7 +145,8 @@ export function test_motion_equestrian_handler(): void {
         (first.affordances.find(
           (a: IAutoMovieAffordance): boolean => a.id === name,
         )?.aperture ?? 0) / 2;
-      const hand: IAutoMovieVector3 = shown(first.film, at);
+      const hand: IAutoMovieVector3 =
+        name === "groomLeft" ? bristles(first.film, at) : shown(first.film, at);
       touched.push(hand);
       const distance: number = Math.abs(
         Vector3.dot(
@@ -145,9 +161,11 @@ export function test_motion_equestrian_handler(): void {
     }
     for (const at of [overlay.start, overlay.end])
       TestValidator.predicate(
-        `the palm is off ${name} at ${at}`,
+        `the palm or brush is off ${name} at ${at}`,
         Vector3.distance(
-          shown(first.film, at),
+          name === "groomLeft"
+            ? bristles(first.film, at)
+            : shown(first.film, at),
           first.part(name, at).translation,
         ) > 0.03,
       );
@@ -228,6 +246,13 @@ function take(body: IAutoMovieMotionHumanBody, brushPoint: string): ITake {
     z: hoofAt.z - 0.2,
   };
   const start: number = ride.duration + 0.5;
+
+  // The brush waits on a shelf at the handler's right front, its back up.
+  const shelf: IAutoMovieVector3 = {
+    x: girth.translation.x + 0.23,
+    y: 1,
+    z: girth.translation.z + 0.05,
+  };
   const performer: IAutoMovieMotionHumanPerformer = {
     subject: "handler",
     body,
@@ -238,6 +263,7 @@ function take(body: IAutoMovieMotionHumanBody, brushPoint: string): ITake {
   const chain = (): IAutoMovieMotionHumanChain =>
     HumanChain.subject("handler")
       .stand({ seconds: start })
+      .pickUp({ prop: "brush", handle: "grip", hand: "right" })
       .stand({ seconds: 4 })
       .over(
         (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
@@ -249,8 +275,10 @@ function take(body: IAutoMovieMotionHumanBody, brushPoint: string): ITake {
             seconds: 3.6,
             transition: 0.6,
             stroke: 0.3,
+            tool: { prop: "brush", face: "face" },
           }),
       )
+      .putDown({ prop: "brush", hand: "right", at: shelf })
       .stand({ seconds: 4 })
       .over(
         (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
@@ -310,7 +338,10 @@ function take(body: IAutoMovieMotionHumanBody, brushPoint: string): ITake {
       seed: "equine-handler",
       performers: [performer],
       laws: [HumanTendHorse],
-      props: [HumanObject.prop("horse", model, place(0), place, part)],
+      props: [
+        HumanObject.prop("horse", model, place(0), place, part),
+        HumanObject.prop("brush", BRUSH, { at: shelf, yaw: 0, fixed: false }),
+      ],
       composition: chain().node,
     });
   };

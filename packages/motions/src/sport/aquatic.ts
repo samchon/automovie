@@ -8,10 +8,12 @@ import type {
 
 import { HumanBound } from "../law/HumanBound";
 import { AquaticDive } from "./AquaticDive";
+import { AquaticExit } from "./AquaticExit";
 import { AquaticPaddle } from "./AquaticPaddle";
 import { AquaticPolo } from "./AquaticPolo";
 import { AquaticPool } from "./AquaticPool";
 import { AquaticSail } from "./AquaticSail";
+import { AquaticScull } from "./AquaticScull";
 import { AquaticTeam } from "./AquaticTeam";
 
 /**
@@ -49,12 +51,17 @@ export namespace aquatic {
       case "artisticSwim":
         return AquaticTeam.artistic(context, water);
       case "doubleScull":
+        return context.params.station === undefined
+          ? AquaticPaddle.plan(context, context.params.kind)
+          : AquaticScull.plan(context, context.params.station);
       case "canoeStroke":
       case "kayakStroke":
         return AquaticPaddle.plan(context, context.params.kind);
       case "sailTack":
       case "sailAbort":
         return AquaticSail.plan(context, context.params.kind === "sailAbort");
+      case "waterExit":
+        return AquaticExit.plan(context, water);
     }
   }
 }

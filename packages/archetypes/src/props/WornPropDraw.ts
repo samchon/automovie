@@ -21,6 +21,10 @@ const RAYBAN: string =
 /** What no source read gives. */
 const UNREAD: string = "the makers' pages read do not give it";
 
+/** A road cycling helmet: no maker's page was read. */
+const HELMET: string =
+  "a medium road cycling helmet for heads about 55 to 59 cm round: the shell's across, length, height and weight are provisional estimates, no maker's page was read";
+
 /**
  * The seeded recipes originally published as `createWearable`.
  *
@@ -38,10 +42,18 @@ export namespace WornPropDraw {
    * @evidence contracts/development/design.md#minimal-and-owned-surface The dispatcher and seeded preparation consume the same names.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No second producer or geometry is drawn for a saved alias.
    */
-  export type Kind = "watch" | "hat" | "spectacles";
+  export type Kind = "watch" | "hat" | "spectacles" | "helmet";
 
   /** Every kind, for a caller that reads one at run time. */
-  export const KINDS: readonly Kind[] = ["watch", "hat", "spectacles"];
+  export const KINDS: readonly Kind[] = [
+    "watch",
+    "hat",
+    "spectacles",
+    "helmet",
+  ];
+
+  /** A helmet's foam over the head's crown, metres: an estimate. */
+  export const SHELL: number = 0.02;
 
   /** A strap's, a brim's and a spectacle frame's thickness, metres: an estimate. */
   export const THIN: number = 0.004;
@@ -157,6 +169,12 @@ export namespace WornPropDraw {
         `the frame's weight: ${UNREAD}`,
         true,
       ),
+    },
+    helmet: {
+      width: ArchetypeBand.metres(0.2, 0.22, HELMET, true),
+      depth: ArchetypeBand.metres(0.26, 0.28, HELMET, true),
+      height: ArchetypeBand.metres(0.14, 0.16, HELMET, true),
+      mass: ArchetypeBand.of("kg", 0.22, 0.3, HELMET, true),
     },
   };
 

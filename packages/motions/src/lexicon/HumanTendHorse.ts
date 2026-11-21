@@ -1,14 +1,18 @@
-﻿import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTendHorse,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -114,7 +118,23 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
         side,
         "palm",
       );
+      const held: IHeldTool | undefined =
+        context.params.tool === undefined
+          ? undefined
+          : heldTool(context, side, palm, context.params.tool);
       const onShare: number = transition / seconds;
+      const toolGrip: IAutoMovieMotionHumanContactWindow[] =
+        context.params.tool === undefined
+          ? []
+          : [
+              {
+                part: `${side}Hand`,
+                kind: "grip",
+                from: 0,
+                to: 1,
+                support: { kind: "prop", subject: context.params.tool.prop },
+              },
+            ];
       const offShare: number = 1 - onShare;
       return {
         duration: seconds,
@@ -133,7 +153,24 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
             to: offShare,
             support: { kind: "prop", subject: on },
           },
+
+          // A held tool stays gripped through the whole action and stays held after it.
+          ...toolGrip,
         ],
+        ...(context.params.tool === undefined
+          ? {}
+          : {
+              holds: [
+                {
+                  side,
+                  prop: context.params.tool.prop,
+                  from: 1,
+                  ...(context.entry.uses[side] === undefined
+                    ? {}
+                    : { use: context.entry.uses[side] }),
+                },
+              ],
+            }),
         posture(
           at,
           _channels,
@@ -167,13 +204,18 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
                     (2 * Math.PI * Math.max(0, time - transition)) /
                       (seconds - 2 * transition),
                   ));
+          // A held tool's face lies `depth` beyond the palm along the palm's normal, so the palm stays that far off the contact.
+          const surface: IAutoMovieVector3 =
+            along === 0
+              ? read.point
+              : Vector3.addScaled(read.point, read.axis!, along);
           const grip: HumanRideHands.IMaterialGrip = {
             ...read,
             reinPalm: palm,
             point:
-              along === 0
-                ? read.point
-                : Vector3.addScaled(read.point, read.axis!, along),
+              held === undefined
+                ? surface
+                : Vector3.addScaled(surface, read.normal, held.depth),
           };
           const hand: ReturnType<typeof HumanMountRider.hold> =
             HumanMountRider.hold(
@@ -224,7 +266,30 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
               grip.normal,
               grip.radius ?? 0,
             );
-            const distance: number = Vector3.distance(effector, skin);
+
+            // With a tool, the displayed working face must lie on the contact's surface; otherwise the palm must lie on its skin.
+            const distance: number =
+              held === undefined
+                ? Vector3.distance(effector, skin)
+                : Math.abs(
+                    Vector3.dot(
+                      Vector3.subtract(
+                        Vector3.add(
+                          actual.worldPosition,
+                          Quaternion.rotateVector(
+                            actual.worldRotation,
+                            held.face,
+                          ),
+                        ),
+                        Vector3.addScaled(
+                          surface,
+                          read.normal,
+                          read.radius ?? 0,
+                        ),
+                      ),
+                      read.normal,
+                    ),
+                  );
             if (!(distance <= CONTACT))
               throw new HumanRefusal({
                 kind: "affordance",
@@ -245,3 +310,63 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       };
     },
   };
+
+/** A held tool's working face in the holding hand's wrist frame, and how far beyond the palm it lies. */
+interface IHeldTool {
+  /** The face's centre in the wrist frame, metres. */
+  face: IAutoMovieVector3;
+
+  /** The face's distance beyond the palm along the palm's normal, metres. */
+  depth: number;
+}
+
+/**
+ * Read where a held tool's working face sits in the holding hand, from the displayed hand and tool where the action begins, as a put-down reads its held offset.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the frames read and what is returned.
+ * @evidence contracts/development/implementation.md#principled-implementation The tool's face is carried into the wrist frame by the inverse of the displayed wrist; its depth is its offset from the measured palm along the palm's normal.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One hand read, one tool read, two projections.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tool without the named face is refused.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One selected-hand FK read at plan time.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses selected-bone FK and the prop reader.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two values and retains nothing.
+ */
+function heldTool(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTendHorse>,
+  side: AutoMovieHumanSide,
+  palm: IAutoMovieMotionHumanHand.IFrame,
+  tool: IAutoMovieMotionHumanTendHorse.ITool,
+): IHeldTool {
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(tool.prop);
+  const face: IAutoMovieAffordance | undefined = reader.prop.affordances?.find(
+    (contact: IAutoMovieAffordance): boolean => contact.id === tool.face,
+  );
+  if (face === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "tool",
+      value: tool.face,
+      feasible: null,
+      reason: `${tool.prop} has no contact ${tool.face}`,
+      fix: "Name the held tool's working contact.",
+    });
+  const hand: IAutoMovieResolvedBone = poseBones(
+    context.body,
+    context.entry.pose,
+    undefined,
+    new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
+  ).get(`${side}Hand`)!;
+  const frame: IAutoMovieRigidTransform = reader.frame(context.start);
+  const world: IAutoMovieVector3 = Vector3.add(
+    frame.position,
+    Quaternion.rotateVector(frame.rotation, face.frame.translation),
+  );
+  const local: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(hand.worldRotation),
+    Vector3.subtract(world, hand.worldPosition),
+  );
+  return {
+    face: local,
+    depth: Vector3.dot(Vector3.subtract(local, palm.point), palm.normal),
+  };
+}

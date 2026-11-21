@@ -31,6 +31,9 @@ export interface IAutoMovieMotionHumanTendHorse {
 
   /** For a brush, the stroke's length along the contact's line, metres, nonnegative; zero when absent. */
   stroke?: number;
+
+  /** A prop the hand already holds and works the contact with, such as a brush; the palm meets the contact itself when absent. */
+  tool?: IAutoMovieMotionHumanTendHorse.ITool;
 }
 
 /** Companion types of {@link IAutoMovieMotionHumanTendHorse}. */
@@ -44,4 +47,20 @@ export namespace IAutoMovieMotionHumanTendHorse {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Closed literals, not free text.
    */
   export type Task = "brush" | "headgear" | "lead" | "saddle" | "hoof";
+
+  /**
+   * A held tool and the contact of it that works the horse.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the held prop and its working contact.
+   * @evidence contracts/development/design.md#principled-representation Two ids: the prop subject and one of its contacts.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the care action to seat the tool's working face on the horse.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The tool's pose is read from the performance, never supplied here.
+   */
+  export interface ITool {
+    /** The held prop's subject id. */
+    prop: string;
+
+    /** Its contact that meets the horse, such as a brush's bristle face. */
+    face: string;
+  }
 }

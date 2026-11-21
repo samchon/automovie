@@ -67,6 +67,7 @@ export * from "./createCamel";
 export * from "./createCat";
 export * from "./createDeer";
 export * from "./createDog";
+export * from "./createGroomingBrush";
 export * from "./createHorse";
 export * from "./createMule";
 export * from "./createOx";
