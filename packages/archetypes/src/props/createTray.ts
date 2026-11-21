@@ -98,8 +98,16 @@ export namespace createTray {
    * - `inside`: the floor inside, facing up.
    * - `leftHandle`, `rightHandle`: a tray's short end rims at `+X` and `-X`, taken from outside.
    * - `handle`: a basket's bar over its middle, along `Z`.
+   * - `palm`: a serving tray's flat-hand hold under its floor's centre.
+   * - `rest`: a serving tray's socket on its floor's centre, where a glass stands.
    */
-  export type Affordance = "inside" | "leftHandle" | "rightHandle" | "handle";
+  export type Affordance =
+    | "inside"
+    | "leftHandle"
+    | "rightHandle"
+    | "handle"
+    | "palm"
+    | "rest";
 
   /**
    * The free dimensions, metres unless stated:
