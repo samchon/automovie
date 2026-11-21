@@ -30,5 +30,6 @@ export type { IAutoMovieMotionHumanReceive } from "./IAutoMovieMotionHumanReceiv
 export type { IAutoMovieMotionHumanRegrasp } from "./IAutoMovieMotionHumanRegrasp";
 export type { IAutoMovieMotionHumanRelayPass } from "./IAutoMovieMotionHumanRelayPass";
 export type { IAutoMovieMotionHumanWrite } from "./IAutoMovieMotionHumanWrite";
+export type { IAutoMovieMotionHumanThrowPottery } from "./IAutoMovieMotionHumanThrowPottery";
 export type { IAutoMovieMotionHumanHeldWork } from "./IAutoMovieMotionHumanHeldWork";
 export type { IAutoMovieMotionHumanTabletop } from "./IAutoMovieMotionHumanTabletop";

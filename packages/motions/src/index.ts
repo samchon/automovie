@@ -486,6 +486,8 @@ export * from "./posture/turnHumanPosture";
 export * from "./lexicon/HumanAirborneShape";
 export * from "./reaction/perturb";
 export * from "./music/bowViolin";
+export * from "./music/conduct";
+export * from "./handling/throwPottery";
 export * from "./daily/playWindInstrument";
 export * from "./handling/guitarNote";
 export * from "./handling/pianoScore";

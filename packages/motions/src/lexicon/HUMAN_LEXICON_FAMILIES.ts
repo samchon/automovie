@@ -29,6 +29,8 @@ import { write } from "../handling/write";
 import { workHeld } from "../handling/workHeld";
 import { zip } from "../handling/zip";
 import { bowViolin } from "../music/bowViolin";
+import { conduct } from "../music/conduct";
+import { throwPottery } from "../handling/throwPottery";
 import { spacecraftGlide } from "../spacecraft/spacecraftGlide";
 import { aquatic } from "../sport/aquatic";
 import { stickBall } from "../sport/stickBall";
@@ -204,6 +206,8 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
       takeFromCarrier: HumanCarrierCustody,
       drawFromCarrier,
       bowViolin,
+      conduct,
+      throwPottery,
       playWindInstrument,
       guitarNote,
       guitarChord,

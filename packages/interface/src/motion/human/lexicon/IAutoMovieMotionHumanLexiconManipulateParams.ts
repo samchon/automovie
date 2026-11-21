@@ -14,6 +14,8 @@ import type { IAutoMovieMotionHumanPutDownAperture } from "../handling/IAutoMovi
 import type { IAutoMovieMotionHumanWrite } from "../handling/IAutoMovieMotionHumanWrite";
 import type { IAutoMovieMotionHumanHeldWork } from "../handling/IAutoMovieMotionHumanHeldWork";
 import type { IAutoMovieMotionHumanBowViolinParams } from "../music/IAutoMovieMotionHumanBowViolinParams";
+import type { IAutoMovieMotionHumanConduct } from "../music/IAutoMovieMotionHumanConduct";
+import type { IAutoMovieMotionHumanThrowPottery } from "../handling/IAutoMovieMotionHumanThrowPottery";
 import type { IAutoMovieMotionHumanCymbalStrike } from "../tasks/IAutoMovieMotionHumanCymbalStrike";
 import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMotionHumanSideDrumStrike";
 
@@ -80,6 +82,10 @@ export interface IAutoMovieMotionHumanLexiconManipulateParams {
 
   /** Draw a held violin bow across a string. */
   bowViolin: IAutoMovieMotionHumanBowViolinParams;
+  /** Beat a meter's figure with a held baton on the beat clock. */
+  conduct: IAutoMovieMotionHumanConduct.IParams;
+  /** Draw up a clay wall on a turning wheel with both palms. */
+  throwPottery: IAutoMovieMotionHumanThrowPottery.IParams;
 
   /** Raise and play a wind instrument. */
   playWindInstrument: IAutoMovieMotionHumanPlayWindInstrument.IParams;

@@ -26,6 +26,7 @@ export type { IAutoMovieMotionHumanGrammar } from "./IAutoMovieMotionHumanGramma
 export type * from "./law";
 export type * from "./lexicon";
 export type { IAutoMovieMotionHumanBowViolinParams } from "./music/IAutoMovieMotionHumanBowViolinParams";
+export type { IAutoMovieMotionHumanConduct } from "./music/IAutoMovieMotionHumanConduct";
 export type * from "./perform";
 export type * from "./posture";
 export type * from "./reaction";
