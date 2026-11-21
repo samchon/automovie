@@ -172,6 +172,25 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         fix: "run level with the seat and take off from within reach of it",
       });
 
+  // A carrier asked to carry more than it declares is refused.
+  if (params.load !== undefined) {
+    const total: number = params.load.carried + context.body.measure.mass;
+    if (total > params.load.capacity)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "load",
+        value: total,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: params.load.capacity,
+          unit: "kg",
+        },
+        reason: `boarding brings the carrier's load to ${total.toFixed(1)} kg, beyond its declared ${params.load.capacity} kg`,
+        fix: "board a carrier that may carry the load, or lighten it",
+      });
+  }
+
   const duration: number = flight + SETTLE;
   const hand: IAutoMovieMotionHumanBoard.IHand | undefined = params.hand;
   const held = (film: number): IAutoMovieVector3 | undefined => {

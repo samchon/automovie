@@ -1,4 +1,4 @@
-import { createHorse, rideHorse } from "@automovie/archetypes";
+import { EquineStance, createHorse, rideHorse } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
@@ -15,6 +15,7 @@ import {
   HumanObject,
   HumanRefusal,
   HumanSignature,
+  HumanUnseat,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,6 +39,8 @@ const WAIT: number = 6;
  * 4. Ponying: the rider's right wrist stays within 0.7 hand lengths of the led horse's lead while both horses go, the led horse on its own slower clock.
  * 5. Leg-up: the helper's hands stay within 0.7 hand lengths of the rider's left lower leg while the rider gets on.
  * 6. A swing-up at a trot, closing too fast against the pillion, is refused on `speed`.
+ * 7. Rodeo pickup: off a bucking horse the rider boards the standing pickup horse's pillion holding the pickup man's waist, sits within 10 mm of the pillion, then steps clear onto the feet, the hips at their standing height within 30 mm.
+ * 8. A boarding that brings the carrier past its declared load is refused on `load`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each exchange, its bounds and their sources.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the board, clasp and drape laws with two polygon men around actual horses and reads hands, seats, chests and heads against the moving pillion, saddle, lead and each other; a gap in support, a hand off its hold, a body through the other or a wrong side fails.
@@ -339,6 +342,157 @@ export function test_motion_equestrian_double(): void {
         findings.push(
           `leg-up: the groom's ${side} wrist leaves the rider's lower leg at ${at.toFixed(2)} s`,
         );
+
+  // 7. The rodeo pickup: the bronc rider boards the pickup horse's pillion holding the pickup man's waist, then steps down to the ground.
+  const halt: mountedHorseScene.Ride = rideHorse(
+    saddled,
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      cruise: 1.2,
+      startSpeed: 0,
+      endSpeed: 0,
+      acceleration: 1,
+      deceleration: 1,
+      startFromStanding: true,
+      legs: [{ kind: "straight", length: 2 }],
+    },
+    "walk",
+  );
+  const bronc: mountedHorseScene.Ride = EquineStance.after(saddled, halt, [
+    {
+      kind: "buck",
+      pitch: 15,
+      from: halt.duration + 1,
+      entry: 0.6,
+      hold: 0.3,
+      exit: 0.6,
+    },
+  ]);
+  const pickupHorse: mountedHorseScene.Horse = createHorse(
+    { withersHeight: 1.65, stirrupDrop: 0.66, tempo: 0, tack: "double" },
+    8,
+  );
+  const pickupAt: IAutoMovieRigidTransform = {
+    position: { x: -1.1, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
+  const pickupPart = (id: string): IAutoMovieTransform => {
+    const local: IAutoMovieTransform = pickupHorse.affordance(
+      id as never,
+    ).frame;
+    return {
+      ...local,
+      translation: Vector3.add(local.translation, pickupAt.position),
+    };
+  };
+  const rodeo = (load?: {
+    capacity: number;
+    carried: number;
+  }): mountedHorseScene.IScene =>
+    mountedHorseScene.build({
+      horse: saddled,
+      body,
+      gait: "walk",
+      wait: WAIT,
+      course: bronc,
+      laws: [HumanBoard, HumanUnseat],
+      props: [
+        HumanObject.prop(
+          "pickup",
+          pickupHorse,
+          pickupAt,
+          () => pickupAt,
+          (id: string) => pickupPart(id),
+        ),
+      ],
+      from: { x: 0.6, y: 0, z: -0.2 },
+      acts: (seated) =>
+        seated
+          .registered("ride", {
+            on: "horse",
+            seconds: WAIT + halt.duration + 2.5,
+            seat: "seat",
+            feet: { left: "leftStirrup", right: "rightStirrup" },
+            hands: { left: "leftRein", right: "rightRein" },
+          })
+          .registered("board", {
+            on: "pickup",
+            seat: "pillion",
+            hand: { side: "right", partner: "picker", bone: "rightUpperLeg" },
+            ...(load === undefined ? {} : { load }),
+          })
+          .registered("unseat", {
+            on: "pickup",
+            frame: "pillion",
+            fall: "clear",
+            side: "right",
+            release: 1,
+          }),
+      partners: [
+        {
+          subject: "picker",
+          body,
+          from: { x: -0.5, y: 0, z: -0.2 },
+          acts: (chain) =>
+            chain
+              .sit({
+                seat: HumanObject.seat(pickupHorse, pickupAt, "seat"),
+                seconds: 0.5,
+              })
+              .registered("ride", {
+                on: "pickup",
+                seconds: WAIT + halt.duration + 6,
+                seat: "seat",
+                feet: { left: "leftStirrup", right: "rightStirrup" },
+                hands: { left: "leftRein", right: "rightRein" },
+              }),
+        },
+      ],
+    });
+  const rodeoTake: mountedHorseScene.IScene = rodeo();
+  const moved: IAutoMovieMotionHumanSegment[] = rodeoTake.film.segments(
+    "rider",
+  ) as IAutoMovieMotionHumanSegment[];
+  const crossed: IAutoMovieMotionHumanSegment = moved[moved.length - 2]!;
+  const onPillion: number =
+    crossed.start +
+    crossed.plan.events.find((e) => e.name === "land")!.share *
+      (crossed.end - crossed.start) +
+    0.1;
+  const pillion: IAutoMovieVector3 = Vector3.subtract(
+    HumanSignature.region(rodeoTake.reader, "seat", onPillion),
+    pickupPart("pillion").translation,
+  );
+  if (Math.abs(pillion.y) > CONTACT)
+    findings.push(
+      `rodeo: the bronc rider sits ${pillion.y.toFixed(3)} m off the pickup horse's pillion`,
+    );
+  const down: number = bone(
+    rodeoTake,
+    "rider",
+    "hips",
+    rodeoTake.film.duration - 0.05,
+  ).y;
+  if (Math.abs(down - body.measure.hipHeight) > 0.03)
+    findings.push(
+      `rodeo: the bronc rider ends with the hips at ${down.toFixed(3)} m, not standing`,
+    );
+
+  // 8. A carrier asked to carry beyond its declared load refuses the boarding.
+  let heavy: unknown = null;
+  try {
+    const over: mountedHorseScene.IScene = rodeo({
+      capacity: 100,
+      carried: 80,
+    });
+    over.film.bones("rider", over.film.duration - 0.1);
+  } catch (failure) {
+    heavy = failure;
+  }
+  if (!(heavy instanceof HumanRefusal && heavy.axis === "load"))
+    findings.push(
+      `an overloaded boarding must be refused on load, got ${String(heavy)}`,
+    );
 
   TestValidator.equals("two people around one ridden horse", findings, []);
 }
