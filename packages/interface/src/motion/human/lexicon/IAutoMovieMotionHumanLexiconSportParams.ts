@@ -4,6 +4,8 @@ import type { IAutoMovieMotionHumanKneel } from "../everyday/IAutoMovieMotionHum
 import type { IAutoMovieMotionHumanBallet } from "../exercise/IAutoMovieMotionHumanBallet";
 import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
 import type { IAutoMovieMotionHumanExercise } from "../exercise/IAutoMovieMotionHumanExercise";
+import type { IAutoMovieMotionHumanGroupDance } from "../exercise/IAutoMovieMotionHumanGroupDance";
+import type { IAutoMovieMotionHumanStreetDance } from "../exercise/IAutoMovieMotionHumanStreetDance";
 import type { IAutoMovieMotionHumanStretch } from "../exercise/IAutoMovieMotionHumanStretch";
 import type { IAutoMovieMotionHumanTapDance } from "../exercise/IAutoMovieMotionHumanTapDance";
 import type { IAutoMovieMotionHumanLieDown } from "../floor/IAutoMovieMotionHumanLieDown";
@@ -160,4 +162,10 @@ export interface IAutoMovieMotionHumanLexiconSportParams extends IAutoMovieMotio
 
   /** A ballet position, pirouette or grand jete. */
   ballet: IAutoMovieMotionHumanBallet.IParams;
+
+  /** A street groove: the rock with its hits, or the moonwalk. */
+  streetGroove: IAutoMovieMotionHumanStreetDance.IParams;
+
+  /** A social group dance: a line, a circle or a conga. */
+  socialDance: IAutoMovieMotionHumanGroupDance.IParams;
 }

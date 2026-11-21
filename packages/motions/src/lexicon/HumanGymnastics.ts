@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
+import { juggle } from "../exercise/juggle";
 import { lineWalk as lineWalkLaw } from "../exercise/lineWalk";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
@@ -93,4 +94,9 @@ export namespace HumanGymnastics {
   export const lineWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gymnastics"]["lineWalk"]
   > = HumanActionRow.of("lineWalk", lineWalkLaw, {});
+
+  /** Toss juggling: a cascade or a shower. */
+  export const juggling: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["gymnastics"]["juggling"]
+  > = HumanActionRow.of("juggling", juggle, {});
 }

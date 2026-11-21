@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDanceCourse,
   IAutoMovieMotionHumanDanceFootKey,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -13,6 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -137,6 +139,7 @@ export namespace DanceFootwork {
    * @param hips The hips' world point at an action second.
    * @param yaw The heading at an action second, degrees.
    * @param joints The joints written at an action second; those of the legs are left to the feet's rows.
+   * @param hands The hands' targets at an action second, if the dance places them.
    * @returns The row.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the row writes.
@@ -153,6 +156,7 @@ export namespace DanceFootwork {
     hips: (seconds: number) => IAutoMovieVector3,
     yaw: (seconds: number) => number,
     joints: (seconds: number) => IAutoMovieMotionHumanPosture["joints"],
+    hands?: (seconds: number) => IAutoMovieMotionHumanDanceCourse.IHands,
   ): IAutoMovieMotionHumanPrimitive {
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     return {
@@ -169,8 +173,31 @@ export namespace DanceFootwork {
           yaw: yaw(t),
           joints: { ...posture.joints, ...above(joints(t)) },
         };
+        const placed: IAutoMovieMotionHumanDanceCourse.IHands =
+          hands === undefined ? {} : hands(t);
         return {
           ...turned,
+          limbs: {
+            ...turned.limbs,
+            ...(placed.left === undefined
+              ? {}
+              : {
+                  leftArm: AutoMovieMotionHumanArm.goal(
+                    body,
+                    "left",
+                    placed.left,
+                  ),
+                }),
+            ...(placed.right === undefined
+              ? {}
+              : {
+                  rightArm: AutoMovieMotionHumanArm.goal(
+                    body,
+                    "right",
+                    placed.right,
+                  ),
+                }),
+          },
           root: Vector3.subtract(
             hips(t),
             Quaternion.rotateVector(resolveHumanPosture.heading(turned), rest),
@@ -222,14 +249,96 @@ export namespace DanceFootwork {
       base: AutoMovieMotionHumanBase.still(course.duration, entry, [
         ...left.contacts,
         ...right.contacts,
+        ...(course.holds ?? []).map(
+          (
+            hold: IAutoMovieMotionHumanDanceCourse.IHold,
+          ): IAutoMovieMotionHumanContactWindow => ({
+            part: `${hold.side}Hand`,
+            kind: "grip",
+            from: hold.from,
+            to: hold.to,
+            support: { kind: "person", subject: hold.subject, bone: hold.bone },
+          }),
+        ),
       ]),
       clock: AutoMovieMotionClock.of(course.duration, course.instants),
       primitives: [
-        carry(body, course.duration, course.hips, course.yaw, course.joints),
+        carry(
+          body,
+          course.duration,
+          course.hips,
+          course.yaw,
+          course.joints,
+          course.hands,
+        ),
         left.primitive,
         right.primitive,
       ],
     });
+  }
+
+  /**
+   * A course's hips set over its feet: the feet's midpoint on the floor
+   * plan at the entry's standing height above the entry's feet, lowered by
+   * a crouch.
+   *
+   * @param body The dancer's body.
+   * @param entry The entry state.
+   * @param course The course, whose feet are read.
+   * @param crouch How far below standing the hips ride, metres.
+   * @returns The hips path.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the path.
+   * @evidence contracts/development/implementation.md#principled-implementation The feet's placed ankles' midpoint at the entry's hip height over them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two foot readers and one expression.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two key searches per sample.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The foot reader.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the readers.
+   */
+  export function over(
+    body: IAutoMovieMotionHumanBody,
+    entry: IAutoMovieMotionHumanEntryState,
+    course: Pick<
+      IAutoMovieMotionHumanDanceCourse,
+      "duration" | "left" | "right"
+    >,
+    crouch: number,
+  ): (seconds: number) => IAutoMovieVector3 {
+    const ground: IAutoMovieMotionHumanContactWindow["support"] = {
+      kind: "ground",
+    };
+    const left: IFoot = foot(
+      body,
+      "left",
+      course.left,
+      course.duration,
+      ground,
+    );
+    const right: IFoot = foot(
+      body,
+      "right",
+      course.right,
+      course.duration,
+      ground,
+    );
+    const hips: IAutoMovieVector3 = Vector3.add(
+      entry.posture.root,
+      Quaternion.rotateVector(
+        resolveHumanPosture.heading(entry.posture),
+        body.rest.get("hips")!,
+      ),
+    );
+    const height: number =
+      hips.y -
+      (entry.feet.left.ankle.y + entry.feet.right.ankle.y) / 2 -
+      crouch;
+    return (t: number): IAutoMovieVector3 => {
+      const a: IAutoMovieVector3 = left.placed(t).ankle;
+      const b: IAutoMovieVector3 = right.placed(t).ankle;
+      const floor: number = Math.min(a.y, b.y);
+      return { x: (a.x + b.x) / 2, y: floor + height, z: (a.z + b.z) / 2 };
+    };
   }
 
   /** The joints above the hips: the legs are the feet's rows'. */

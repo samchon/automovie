@@ -1,3 +1,4 @@
+import type { IAutoMovieMotionHumanJuggle } from "../exercise/IAutoMovieMotionHumanJuggle";
 import type { IAutoMovieMotionHumanLineWalk } from "../exercise/IAutoMovieMotionHumanLineWalk";
 import type { IAutoMovieMotionHumanFieldThrow } from "../sport/IAutoMovieMotionHumanFieldThrow";
 import type { IAutoMovieMotionHumanHandspring } from "../sport/IAutoMovieMotionHumanHandspring";
@@ -52,4 +53,7 @@ export interface IAutoMovieMotionHumanLexiconGymnasticsParams {
 
   /** A walk heel to toe along a beam or a rope, arms out for balance. */
   lineWalk: IAutoMovieMotionHumanLineWalk.IParams;
+
+  /** Toss juggling: a cascade or a shower. */
+  juggling: IAutoMovieMotionHumanJuggle.IParams;
 }

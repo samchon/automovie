@@ -2667,6 +2667,24 @@
       }
     },
     "hurdleClear": {},
+    "juggling": {
+      "properties": {
+        "height": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        },
+        "throws": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        }
+      }
+    },
     "longJump": {
       "properties": {
         "distance": {
@@ -2685,6 +2703,13 @@
             "type": "integer",
             "minimum": 1,
             "x-unit": ""
+          }
+        },
+        "sag": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "m"
           }
         }
       }
@@ -4819,6 +4844,38 @@
         }
       }
     },
+    "socialDance": {
+      "properties": {
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "repeats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "members": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 3,
+            "x-unit": ""
+          }
+        },
+        "vary": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "southpaw": {},
     "spike": {
       "properties": {
@@ -4992,6 +5049,31 @@
     },
     "stirStrokes": {},
     "stopHand": {},
+    "streetGroove": {
+      "properties": {
+        "bpm": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "beats/min"
+          }
+        },
+        "beats": {
+          "numeric": {
+            "type": "integer",
+            "minimum": 1,
+            "x-unit": ""
+          }
+        },
+        "vary": {
+          "numeric": {
+            "type": "number",
+            "minimum": 0,
+            "x-unit": "s"
+          }
+        }
+      }
+    },
     "streetRock": {
       "properties": {
         "reps": {

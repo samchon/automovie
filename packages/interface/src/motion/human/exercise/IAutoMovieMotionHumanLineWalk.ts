@@ -53,5 +53,13 @@ export namespace IAutoMovieMotionHumanLineWalk {
      * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
      */
     steps?: number;
+
+    /** A balancing pole held across the body in both hands at its `leftGrip` and `rightGrip`, the pole resting there as the walk starts; the arms held out when absent. */
+    pole?: string;
+
+    /** How far a rope or wire sags at its middle under the walker, metres; the line's footprints follow the sag. Refused when the tension it needs exceeds the line's working load. Straight when absent.
+     * Inclusive minimum: 0. Unit: "m". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
+     */
+    sag?: number;
   }
 }

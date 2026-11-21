@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  minimumJerk,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -32,6 +37,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
+import { lineWalkPole } from "./lineWalkPole";
 
 /**
  * A walk along a line too narrow for a normal gait (#3875's balance beam,
@@ -48,8 +54,14 @@ import { ExerciseKey } from "./ExerciseKey";
  * are not on the line's top, and a stopping point beyond either end of the
  * line.
  *
- * First pass: the sway is kinematic, not a balance controller; the line
- * does not sag; no balancing pole is held.
+ * A rope or wire may sag (`sag`): the footprints follow the parabola of
+ * that sag, and a sag too shallow for the span is refused because the
+ * tension it needs, `W L / (4 sag)`, exceeds the line's working load `LOAD`.
+ * A balancing pole (`pole`, `lineWalkPole`) is held in both hands at its
+ * grips, carried with the hips.
+ *
+ * First pass: the sway is kinematic, not a balance controller; the line's
+ * sag is static, not deflected under each step.
  *
  * Events: `step1` to `stepN` at each footfall, `relax`.
  *
@@ -83,6 +95,9 @@ export namespace lineWalk {
 
   /** How far the hips walk below their standing height, a share of the stature: the soft knees of a balance walk (provisional). */
   export const CROUCH: number = 0.03;
+
+  /** A tightrope's working load, newtons (provisional: a walking wire's rated tension). */
+  export const LOAD: number = 15000;
 
   /** How far an entry foot may stand off the line's top, metres: half a foot's width. */
   export const ON: number = 0.05;
@@ -188,12 +203,35 @@ export namespace lineWalk {
     const sign: number = Math.sign(step) || 1;
     const yaw: number =
       (Math.atan2(along.x * sign, along.z * sign) * 180) / Math.PI;
+    // A sagging line: the walker's weight at the middle needs a tension
+    // `W L / (4 sag)`, refused beyond the line's working load.
+    const sag: number = p.sag ?? 0;
+    if (sag > 0 && Number.isFinite(half)) {
+      const tension: number =
+        (body.profile.mass * AutoMovieGravity.STANDARD * 2 * half) / (4 * sag);
+      if (tension > LOAD) {
+        const least: number =
+          (body.profile.mass * AutoMovieGravity.STANDARD * 2 * half) /
+          (4 * LOAD);
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: "sag",
+          value: sag,
+          feasible: { kind: "range", minimum: least, maximum: null, unit: "m" },
+          reason: `a ${(2 * half).toFixed(1)} m line sagging ${sag} m needs ${(tension / 1000).toFixed(1)} kN, beyond its ${LOAD / 1000} kN working load`,
+          fix: `let it sag at least ${least.toFixed(2)} m, or shorten the span`,
+        });
+      }
+    }
     const point: (s: number) => IAutoMovieVector3 = (
       s: number,
-    ): IAutoMovieVector3 => ({
-      ...Vector3.add(top, Vector3.scale(along, s)),
-      y: top.y + ankle,
-    });
+    ): IAutoMovieVector3 => {
+      const u: number = Number.isFinite(half) ? (s + half) / (2 * half) : 0.5;
+      return {
+        ...Vector3.add(top, Vector3.scale(along, s)),
+        y: top.y + ankle - 4 * sag * u * (1 - u),
+      };
+    };
     const print: (
       side: AutoMovieHumanSide,
       s: number,
@@ -304,6 +342,30 @@ export namespace lineWalk {
     const across: IAutoMovieVector3 = { x: along.z, y: 0, z: -along.x };
     const arms: IAutoMovieMotionHumanExerciseKey.IKey["joints"] =
       ExerciseKey.from(body, {}, { shoulder: 0, raise: 80, elbow: 10 }).joints;
+    const hipsAt: (t: number) => IAutoMovieVector3 = (
+      t: number,
+    ): IAutoMovieVector3 => {
+      // Step k carries the hips one step on along the line.
+      const k: number = Math.min(steps - 1, Math.floor(t / PERIOD));
+      const s: number =
+        start + step * (k + minimumJerk.share(Math.min(1, t / PERIOD - k)));
+      const sway: number =
+        SWAY * body.measure.stature * Math.sin((Math.PI * t) / PERIOD);
+      return Vector3.add(
+        {
+          ...point(s),
+          y: point(s).y - ankle + hipsRest.y - CROUCH * body.measure.stature,
+        },
+        Vector3.scale(across, sway),
+      );
+    };
+    // A balancing pole: each hand keeps its grip where it held it at the
+    // start, in the frame that travels with the hips.
+    const pole: ReturnType<typeof lineWalkPole.of> | undefined =
+      p.pole === undefined
+        ? undefined
+        : lineWalkPole.of(context, p.pole, { origin: hipsAt(0), yaw });
+    if (pole !== undefined) contacts.push(...pole.contacts);
     primitives.push({
       channels: ["root", "trunk", "leftArm", "rightArm"],
       reads: ["root", "trunk"],
@@ -313,29 +375,24 @@ export namespace lineWalk {
         posture: IAutoMovieMotionHumanPosture,
         t: number,
       ): IAutoMovieMotionHumanPosture => {
-        // Step k carries the hips one step on along the line.
-        const k: number = Math.min(steps - 1, Math.floor(t / PERIOD));
-        const s: number =
-          start + step * (k + minimumJerk.share(Math.min(1, t / PERIOD - k)));
-        const sway: number =
-          SWAY * body.measure.stature * Math.sin((Math.PI * t) / PERIOD);
-        const hips: IAutoMovieVector3 = Vector3.add(
-          {
-            ...point(s),
-            y: top.y + hipsRest.y - CROUCH * body.measure.stature,
-          },
-          Vector3.scale(across, sway),
-        );
+        const hips: IAutoMovieVector3 = hipsAt(t);
         const turned: IAutoMovieMotionHumanPosture = {
           ...posture,
           yaw,
-          joints: {
-            ...posture.joints,
-            leftUpperArm: arms.leftUpperArm ?? [0, 0, 0],
-            rightUpperArm: arms.rightUpperArm ?? [0, 0, 0],
-            leftLowerArm: arms.leftLowerArm ?? [0, 0, 0],
-            rightLowerArm: arms.rightLowerArm ?? [0, 0, 0],
-          },
+          joints:
+            pole !== undefined
+              ? posture.joints
+              : {
+                  ...posture.joints,
+                  leftUpperArm: arms.leftUpperArm ?? [0, 0, 0],
+                  rightUpperArm: arms.rightUpperArm ?? [0, 0, 0],
+                  leftLowerArm: arms.leftLowerArm ?? [0, 0, 0],
+                  rightLowerArm: arms.rightLowerArm ?? [0, 0, 0],
+                },
+          limbs:
+            pole === undefined
+              ? posture.limbs
+              : { ...posture.limbs, ...pole.limbs({ origin: hips, yaw }) },
         };
         return {
           ...turned,
