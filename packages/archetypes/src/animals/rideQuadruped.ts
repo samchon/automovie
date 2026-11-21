@@ -1,4 +1,3 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
@@ -17,6 +16,7 @@ import { EquineFootwork } from "./EquineFootwork";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
 import { EquineObstacle } from "./EquineObstacle";
+import { EquinePitch } from "./EquinePitch";
 import { EquineTuck } from "./EquineTuck";
 import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
@@ -30,14 +30,12 @@ import { QuadrupedRideAdmission } from "./QuadrupedRideAdmission";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedRidePose } from "./QuadrupedRidePose";
 import { QuadrupedStridePlan } from "./QuadrupedStridePlan";
+import { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import { createQuadruped } from "./createQuadruped";
 import { planEquineFlight } from "./planEquineFlight";
 
 /** An altered public course producer retains its original opaque route. */
 const NATIVE_PLAN: typeof ArchetypeCourse.plan = ArchetypeCourse.plan;
-
-/** The body's up axis, about which a lateral figure turns the body off its travel heading. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
  * A quadruped going along a course: its root on the path, its trunk rising and falling and its head nodding with the stride, its four limbs stepping in the gait's order, and its gait and lead changing with the speed or as the course's legs name them. Every kind is ridden by this one function, from its species' data (`createQuadruped.species`).
@@ -109,76 +107,11 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const nativeCourse: boolean =
     Object.getOwnPropertyDescriptor(ArchetypeCourse, "plan")?.value ===
     NATIVE_PLAN;
-  // A timed plan is ridden as given: one leg naming no gait, so each stride's
-  // gait follows the plan's speed, and one span at the plan's peak, so the
-  // speed admission covers its fastest second.
-  // Its halts and restarts at zero-speed marks become `stop<k>` and
-  // `depart<k>` instants, and its ramps through the slowest gait's least speed
-  // set the rate whose vMin^2/(2a) bridge the clock already keeps for a stop.
-  const least: number = QuadrupedGait.range(
+  const { plan, course }: QuadrupedTimedRoute.IRoute = QuadrupedTimedRoute.of(
     species,
-    species.table.order[0]!,
+    route,
     withers,
-  ).minimum;
-  const halts: ArchetypeCourse.IPlan["instants"][number][] = [];
-  let ramp: number = Infinity;
-  if (route.kind === "plan" && route.course.kind === "timed")
-    route.course.samples.forEach(
-      (mark: ArchetypeCourse.ISample, k: number): void => {
-        if (route.at(mark.seconds).speed !== 0) return;
-        for (const [label, sign] of [
-          ["stop", -1],
-          ["depart", 1],
-        ] as const) {
-          const near: number = mark.seconds + sign * 1e-6;
-          if (near < 0 || near > route.duration || route.at(near).speed === 0)
-            continue;
-          let edge: number = mark.seconds;
-          while (
-            edge + sign * 0.01 >= 0 &&
-            edge + sign * 0.01 <= route.duration &&
-            route.at(edge + sign * 0.01).speed < least
-          )
-            edge += sign * 0.01;
-          const span: number = Math.abs(
-            route.at(edge + sign * 0.01).distance -
-              route.at(mark.seconds).distance,
-          );
-          if (span > 0) ramp = Math.min(ramp, least ** 2 / (2 * span));
-          halts.push({ seconds: mark.seconds, label: `${label}${k}` });
-        }
-      },
-    );
-  const plan: ArchetypeCourse.IPlan =
-    route.kind === "plan"
-      ? route.legSpans.length > 0
-        ? route
-        : {
-            ...route,
-            instants: [...route.instants, ...halts].sort(
-              (
-                a: ArchetypeCourse.IPlan["instants"][number],
-                b: ArchetypeCourse.IPlan["instants"][number],
-              ): number => a.seconds - b.seconds,
-            ),
-            legSpans: [{ from: 0, span: route.length, fastest: route.peak }],
-          }
-      : ArchetypeCourse.plan(species.archetype, route);
-  const course: rideQuadruped.ICourse =
-    route.kind === "plan"
-      ? {
-          start: {
-            x: route.at(0).placement.translation.x,
-            z: route.at(0).placement.translation.z,
-            heading: 0,
-          },
-          legs: [{ kind: "straight", length: Math.max(route.length, 1e-9) }],
-          cruise: Math.max(route.peak, 1e-9),
-          ...(ramp === Infinity
-            ? {}
-            : { acceleration: ramp, deceleration: ramp }),
-        }
-      : route;
+  );
   const departure: ArchetypeCourse.IState | undefined =
     QuadrupedHoofTrack.departure(
       plan,
@@ -274,35 +207,15 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     );
 
     // Actual hoof landings and the gait, lead and technique events.
-    const instants: EquineFootwork.IInstant[] = [...footwork.instants];
-    for (const limb of QuadrupedBody.LIMBS)
-      for (let m: number = 0; strides.landing(limb, m) <= strides.total; m++) {
-        const phase: number = strides.landing(limb, m);
-        if (phase === 0 && departure !== undefined) continue;
-        const seconds: number = strides.secondsAt(phase);
-        if (
-          !limb.endsWith("Hind") ||
-          seconds < (footwork.slide?.contact ?? Infinity)
-        )
-          instants.push({ seconds, label: `${limb}On` });
-      }
-    for (let n: number = 1; n <= strides.total; n++) {
-      const was: QuadrupedStridePlan.IStride = strides.strideOf(n);
-      const will: QuadrupedStridePlan.IStride = strides.strideOf(n + 1);
-      if (was.gait !== will.gait)
-        instants.push({
-          seconds: strides.secondsAt(n),
-          label: `gait:${was.gait}-${will.gait}`,
-        });
-      else if (
-        was.lead !== will.lead &&
-        QuadrupedGait.LEADED.includes(will.gait)
-      )
-        instants.push({
-          seconds: strides.secondsAt(n),
-          label: `lead:${was.lead}-${will.lead}`,
-        });
-    }
+    const instants: EquineFootwork.IInstant[] = [
+      ...footwork.instants,
+      ...QuadrupedStridePlan.events(
+        species,
+        strides,
+        departure !== undefined,
+        footwork.slide?.contact ?? Infinity,
+      ),
+    ];
     const {
       push,
       takeoff,
@@ -313,30 +226,22 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     }: EquineFlightClock.IClock = EquineFlightClock.of(flight, strides, plan);
     instants.push(...cues);
 
-    /** The body's world placement: the course's, turned by a lateral figure and lifted on a jump's ballistic arc. */
+    /** The body's world placement: the course's, turned by a lateral figure and pitched and lifted through a jump. */
     const body = (
       state: ArchetypeCourse.IState,
       seconds: number,
-    ): IAutoMovieTransform => {
-      const yaw: number = EquineLateral.heading(footwork.lateral, seconds);
-      const rise: number =
+    ): IAutoMovieTransform =>
+      EquinePitch.place(
+        state.placement,
+        EquineLateral.heading(footwork.lateral, seconds),
         flight === undefined
-          ? 0
-          : EquineArc(seconds, push, takeoff, landing, absorb);
-      if (yaw === 0 && rise === 0) return state.placement;
-      return {
-        translation: Vector3.add(state.placement.translation, {
-          x: 0,
-          y: rise,
-          z: 0,
-        }),
-        rotation: Quaternion.multiply(
-          state.placement.rotation,
-          Quaternion.fromAxisAngle(UP, yaw),
-        ),
-        scale: ArchetypeFrame.UNIT,
-      };
-    };
+          ? undefined
+          : {
+              y: EquineArc(seconds, push, takeoff, landing, absorb),
+              z: 0,
+              pitch: 0,
+            },
+      );
     const stance: ReturnType<typeof QuadrupedHoofTrack.stances> =
       QuadrupedHoofTrack.stances(
         plan,
@@ -394,7 +299,13 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         // A swing spanning the jump's held clock is carried with the body.
         const carry: QuadrupedHoofTrack.ICarry | undefined = step.planted
           ? undefined
-          : EquineFlightClock.carry(flight, shift, seconds, landed + step.from.duty, coming);
+          : EquineFlightClock.carry(
+              flight,
+              shift,
+              seconds,
+              landed + step.from.duty,
+              coming,
+            );
         const height: number =
           which.elevation === undefined
             ? which.lift[end] * withers
