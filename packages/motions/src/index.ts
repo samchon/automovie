@@ -492,3 +492,4 @@ export * from "./dressing/wardrobe";
 export * from "./lexicon/HumanCarrierCustody";
 export * from "./handling/HumanPocket";
 export * from "./lexicon/HumanCover";
+export * from "./dressing/dressPartner";

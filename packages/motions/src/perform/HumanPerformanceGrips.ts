@@ -77,7 +77,7 @@ export namespace HumanPerformanceGrips {
             const from: number = segment.start + w.from * segment.plan.duration;
             if (from >= segment.entryTime - 1e-9 && from <= segment.end + 1e-9)
               worn.push({
-                subject: person.performer.subject,
+                subject: w.wearer ?? person.performer.subject,
                 side: "right",
                 bone: w.bone,
                 from,
