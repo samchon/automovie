@@ -51,16 +51,16 @@ const STIRRUP: number = 0.15;
 const HEAD: number = 0.12;
 
 /**
- * A rider stays on a horse through a ford and a swimming crossing: seated in the stirrups while wading, feet out of the stirrups with the reins held while the horse swims, then back in the stirrups on the far bank.
+ * A rider stays on a horse through a ford and a swimming crossing: seated in the stirrups while wading, the left hand on the mane and the right on its rein throughout, the feet out of the stirrups while the horse swims, then back in the stirrups on the far bank.
  *
  * Scenarios:
- * 1. While wading and climbing, the rider's seat socket stays within 10 mm of the saddle's seat and each palm within 10 mm of its rein's skin.
- * 2. While the horse swims, the seat stays within 10 mm of the saddle, the palms stay on the reins, each ankle is more than 0.15 m from its stirrup's tread, and the head bone's centre at least 0.12 m above the water plane read from the crossing's own water height.
+ * 1. While wading and climbing, the rider's seat socket stays within 10 mm of the saddle's seat and the left wrist within 0.7 hand lengths of the mane and slipping less than 10 mm against it (the vault spec's handle criterion) and the right within 10 mm of its rein's skin.
+ * 2. While the horse swims, the seat stays within 10 mm of the saddle, the left wrist keeps its hold on the mane and the right palm stays on its rein, each ankle is more than 0.15 m from its stirrup's tread, and the head bone's centre at least 0.12 m above the water plane read from the crossing's own water height.
  * 3. The rider is carried through the crossing's two cuts on one clock: the mounted figures change at the crossing's float and land seconds.
  * The rider mounts on a level bank before the ford descends; sitting onto a saddle already pitched on the grade leaves the seat 25 mm off it, a sit-law matter left to its owner.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted law on the public crossing and reads the displayed seat, palms and head against the horse's moving saddle, reins, stirrups and the authored water; a rider left behind at a cut, a hand off its hold or a submerged head fails.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted law on the public crossing and reads the displayed seat, palms and head against the horse's moving saddle, mane, rein, stirrups and the authored water; a rider left behind at a cut, a hand off its hold or a submerged head fails.
  * @evidence contracts/development/testing.md#independent-expectations The 10 mm tolerance is the seated rider specs'; contacts are the saddle's own affordances on the posed horse; the water is the scene's authored height.
  * @evidence contracts/development/testing.md#distinguishing-cases Wading, swimming and climbing figures on one clock; the horse's own crossing belongs to test_archetype_equine_ford.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
@@ -132,11 +132,11 @@ export function test_archetype_equine_ford_rider(): void {
   const reins: IAutoMovieMotionHumanMounted.ISupports = {
     leftFoot: "leftStirrup",
     rightFoot: "rightStirrup",
-    leftHand: "leftRein",
+    leftHand: "mane",
     rightHand: "rightRein",
   };
   const swimming: IAutoMovieMotionHumanMounted.ISupports = {
-    leftHand: "leftRein",
+    leftHand: "mane",
     rightHand: "rightRein",
   };
   const sat: number = 0.5;
@@ -195,7 +195,7 @@ export function test_archetype_equine_ford_rider(): void {
           seconds: SETTLE,
           seat: "seat",
           feet: { left: "leftStirrup", right: "rightStirrup" },
-          hands: { left: "leftRein", right: "rightRein" },
+          hands: { left: "mane", right: "rightRein" },
         })
         .registered("mounted", { on: "horse", frame: "seat", figures }).node,
     });
@@ -233,6 +233,24 @@ export function test_archetype_equine_ford_rider(): void {
         ),
       );
     };
+    let grasped: IAutoMovieVector3 | undefined;
+    const grasp = (
+      bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      at: number,
+    ): number => {
+      const frame: IAutoMovieTransform = part("mane", at);
+      const wrist: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(frame.rotation),
+        Vector3.subtract(
+          bones.get("leftHand")!.worldPosition,
+          frame.translation,
+        ),
+      );
+      grasped ??= wrist;
+      return Vector3.length(wrist) > 0.7 * body.measure.hand
+        ? Infinity
+        : Vector3.distance(wrist, grasped);
+    };
     const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
       film,
       "rider",
@@ -265,10 +283,13 @@ export function test_archetype_equine_ford_rider(): void {
           `${phase} ${at.toFixed(2)}: seat ${(seated * 1000).toFixed(1)} mm from the saddle`,
         );
       for (const side of ["left", "right"] as const) {
-        const hold: number = palm(bones, side, `${side}Rein`, at);
+        const held: string = side === "left" ? "mane" : "rightRein";
+        // The mane is held as the vault spec holds a handle: the wrist within 0.7 hand lengths of it, not slipping.
+        const hold: number =
+          side === "left" ? grasp(bones, at) : palm(bones, side, held, at);
         if (!(hold <= TOLERANCE))
           issues.push(
-            `${phase} ${at.toFixed(2)}: ${side} palm ${(hold * 1000).toFixed(1)} mm from its rein`,
+            `${phase} ${at.toFixed(2)}: ${side} palm ${(hold * 1000).toFixed(1)} mm from ${held}`,
           );
         const foot: number = Vector3.distance(
           bones.get(`${side}Foot`)!.worldPosition,

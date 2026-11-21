@@ -1,5 +1,6 @@
 import type { ArchetypeBuilder } from "../core";
 import { HorseHarness } from "./HorseHarness";
+import { HorseMane } from "./HorseMane";
 import { HorsePack } from "./HorsePack";
 import { HorseSaddle } from "./HorseSaddle";
 import { HorseSideSaddle } from "./HorseSideSaddle";
@@ -35,6 +36,7 @@ export function HorseTack(
   if (tack === "saddle" || tack === "both") {
     HorseSaddle.lay(builder, d, rig);
     HorseSaddle.lead(builder, rig.nose, h);
+    HorseMane(builder, rig);
 
     // A postilion's horse wears its harness under the riding saddle; the saddle's read weight is its own, the rest of its tack massless, unread.
     if (tack === "both") HorseHarness.lay(builder, d, rig);

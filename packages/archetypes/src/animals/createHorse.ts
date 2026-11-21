@@ -109,6 +109,7 @@ export namespace createHorse {
    * - `tie`: under a pack saddle, the pads' back on the spine, where a following animal's lead is made fast in a pack string.
    * - `fixedHead`, `leapingHead`: on a side saddle, the upper pommel the right thigh goes over and the lower one over the left thigh (`HorseSideSaddle`).
    * - `leftHandle`, `rightHandle`, `pad`: on a vaulting surcingle, its two handles and the back pad's top (`HorseSurcingle`).
+   * - `mane`: under a riding saddle, a handful of mane on the crest a rider grips (`HorseMane`).
    *
    * A tack lacks the ids of the others; the `lead` is the riding saddle's and the pack saddle's.
    */
@@ -129,7 +130,8 @@ export namespace createHorse {
     | "leapingHead"
     | "leftHandle"
     | "rightHandle"
-    | "pad";
+    | "pad"
+    | "mane";
 
   /**
    * The dimensions, metres unless stated:
