@@ -73,7 +73,7 @@ export function test_motion_exercise_hurdle_clear(): void {
   }
   const near: number = ankle + BEFORE;
   const film: HumanPerformance = stage(body, low, near, cut);
-  const [, approach, clear, after]: IAutoMovieMotionHumanSegment[] =
+  const [, approach, clear, after]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("a");
   TestValidator.predicate(
     "the run is cut into the clearance and taken on by a run",

@@ -14,6 +14,7 @@ import { swipeTouchscreen } from "../everyday/swipeTouchscreen";
 import { ropeSkip } from "../exercise/ropeSkip";
 import { grapple } from "../grappling/grapple";
 import { button } from "../handling/button";
+import { drawFromCarrier } from "../handling/drawFromCarrier";
 import { guitarChord } from "../handling/guitarChord";
 import { guitarNote } from "../handling/guitarNote";
 import { pianoPedal } from "../handling/pianoPedal";
@@ -38,6 +39,7 @@ import { HumanBikeTransfer } from "./HumanBikeTransfer";
 import { HumanBlade } from "./HumanBlade";
 import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
+import { HumanCarrierCustody } from "./HumanCarrierCustody";
 import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
@@ -54,6 +56,7 @@ import { HumanHabit } from "./HumanHabit";
 import { HumanHandToFaceRows } from "./HumanHandToFaceRows";
 import { HumanHandrimStroke } from "./HumanHandrimStroke";
 import { HumanLabour } from "./HumanLabour";
+import { HumanHoldHandles } from "./HumanHoldHandles";
 import { HumanLeadHorse } from "./HumanLeadHorse";
 import { HumanManipulate } from "./HumanManipulate";
 import { HumanMounted } from "./HumanMounted";
@@ -138,6 +141,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
       HumanBikeTransfer,
       HumanBikeGuide,
       HumanLeadHorse,
+      HumanHoldHandles,
       HumanMounted,
     },
   ],
@@ -167,6 +171,8 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
       pour,
       pickUpMoving,
       putDownAperture,
+      takeFromCarrier: HumanCarrierCustody,
+      drawFromCarrier,
       bowViolin,
       playWindInstrument,
       guitarNote,

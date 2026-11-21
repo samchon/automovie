@@ -1,7 +1,8 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -14,6 +15,7 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";
+import type { putDownTravel } from "./putDownTravel";
 
 /**
  * Register and stage an aligned solid-object insertion and seated handoff.
@@ -27,6 +29,11 @@ import { putDownTarget } from "./putDownTarget";
  * insertion, with orientation primarily adjusted during transport
  * (Ossmy et al. 2020, Figures 1 and 3,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC6851484/).
+ *
+ * A receptacle with a guide (`onto.guide`) carries the object itself from
+ * the opening to the seat: the object rides the guide's socket while the
+ * placement drives the guide's slider back to the seat, as a scabbard
+ * guides its blade home, and the hand follows on its grip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the installed law, the support requirement and the study underlying the phase split.
  * @evidence contracts/development/design.md#principled-representation An installed placement law with an opening, a seat, optional fixed receiver waypoints and a shared rigid grip.
@@ -118,47 +125,92 @@ function plan(
       fix: "author the opening and seat in the same attitude at distinct positions",
     });
 
+  // Named approach and insertion sockets turn the straight passage into a
+  // route of fixed, aligned waypoints relative to the seat.
   const approach: readonly string[] = onto.approach ?? [];
   const insertion: readonly string[] = onto.insertion ?? [];
-  if (approach.length === 0 && insertion.length === 0)
-    return putDown.plan(context, offset);
-
-  const route: string[] = [
-    ...approach,
-    onto.aperture,
-    ...insertion,
-    onto.point,
-  ];
-  const reader: IAutoMovieMotionHumanPropReader = context.prop(onto.prop);
-  const offsets: IAutoMovieVector3[] = [];
-  for (const [index, id] of route.entries()) {
-    const posed: IAutoMovieRigidTransform =
-      id === onto.aperture ? mouth : id === onto.point ? seat : through(id);
-    const next: IAutoMovieVector3 = Vector3.subtract(
-      posed.position,
-      seat.position,
-    );
-    const previous: IAutoMovieVector3 | undefined = offsets[index - 1];
-    if (
-      reader.prop.affordances?.find(
-        (item: IAutoMovieAffordance): boolean => item.id === id,
-      )?.rides !== undefined ||
-      !(Quaternion.angle(posed.rotation, seat.rotation) <= 1e-6) ||
-      (previous !== undefined &&
-        !(Vector3.distance(previous, next) > Number.EPSILON))
-    )
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "onto",
-        value: `${onto.prop}.${id}`,
-        reason:
-          "the insertion path needs fixed, aligned consecutive frames at distinct positions",
-        fix: "name fixed sockets with the seat's attitude in the order the hand travels",
-      });
-    offsets.push(next);
+  let route: putDownTravel.IRoute | undefined;
+  if (approach.length !== 0 || insertion.length !== 0) {
+    const ids: string[] = [
+      ...approach,
+      onto.aperture,
+      ...insertion,
+      onto.point,
+    ];
+    const reader: IAutoMovieMotionHumanPropReader = context.prop(onto.prop);
+    const offsets: IAutoMovieVector3[] = [];
+    for (const [index, id] of ids.entries()) {
+      const posed: IAutoMovieRigidTransform =
+        id === onto.aperture ? mouth : id === onto.point ? seat : through(id);
+      const next: IAutoMovieVector3 = Vector3.subtract(
+        posed.position,
+        seat.position,
+      );
+      const previous: IAutoMovieVector3 | undefined = offsets[index - 1];
+      if (
+        reader.prop.affordances?.find(
+          (item: IAutoMovieAffordance): boolean => item.id === id,
+        )?.rides !== undefined ||
+        !(Quaternion.angle(posed.rotation, seat.rotation) <= 1e-6) ||
+        (previous !== undefined &&
+          !(Vector3.distance(previous, next) > Number.EPSILON))
+      )
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "onto",
+          value: `${onto.prop}.${id}`,
+          reason:
+            "the insertion path needs fixed, aligned consecutive frames at distinct positions",
+          fix: "name fixed sockets with the seat's attitude in the order the hand travels",
+        });
+      offsets.push(next);
+    }
+    route = {
+      approach: offsets.slice(0, approach.length),
+      insertion: offsets.slice(approach.length + 1, -1),
+    };
   }
-  return putDown.plan(context, offset, {
-    approach: offsets.slice(0, approach.length),
-    insertion: offsets.slice(approach.length + 1, -1),
-  });
+  const plan: IAutoMovieMotionHumanActionPlan = putDown.plan(
+    context,
+    offset,
+    route,
+  );
+  if (onto.guide === undefined) return plan;
+
+  // A guided receptacle carries the object from the opening to the seat: the
+  // object rides the guide's socket while the slider runs back to the seat,
+  // on the insertion's own minimum-jerk clock, until the seat mount takes it.
+  const share: (name: string) => number = (name: string): number =>
+    plan.events.find(
+      (event: IAutoMovieMotionEvent): boolean => event.name === name,
+    )!.share;
+  const entry: number = share("aperture");
+  const placed: number = share("placed");
+  const length: number = Vector3.length(offset);
+  const duration: number = plan.duration;
+  return {
+    ...plan,
+    mounts: [
+      { prop, onto: onto.prop, point: onto.guide.slide, from: entry },
+      ...(plan.mounts ?? []),
+    ],
+    drives: [
+      ...(plan.drives ?? []),
+      {
+        prop: onto.prop,
+        articulation: onto.guide.slider,
+        from: entry,
+        to: placed,
+        travel: (seconds: number): number =>
+          length *
+          (1 -
+            minimumJerk(
+              Math.min(
+                1,
+                Math.max(0, (seconds / duration - entry) / (placed - entry)),
+              ),
+            ).s),
+      },
+    ],
+  };
 }

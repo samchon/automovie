@@ -47,8 +47,8 @@ export namespace IPlaygroundComposition {
     /** The seed its free dimensions are drawn with; the middle of every band when absent. */
     seed?: string;
 
-    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band; drawn from the seed when absent. */
-    params?: Record<string, number>;
+    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band, and named read models (such as a sword's `model` or a scabbard's `blade`); drawn from the seed when absent. */
+    params?: Record<string, number | string>;
 
     /** Floor point, world metres: x to the left of a person facing +Z. */
     x: number;
@@ -79,6 +79,9 @@ export namespace IPlaygroundComposition {
 
     /** The performer whose opening aidWalk action moves this floor aid. */
     aidWalk?: IAidWalk;
+
+    /** The carrier this blade starts seated in, such as a sword in a worn scabbard, as `HumanSheath.of` stages it; free when absent. A sheathed object takes no `worn`. */
+    sheath?: IPlaygroundComposition.ISheath;
   }
 
   /** The walker of a floor aid. */
@@ -94,6 +97,24 @@ export namespace IPlaygroundComposition {
 
     /** The articulation's travel, in its own unit. */
     value: number;
+  }
+
+  /** A blade seated in a carrier object, as `IAutoMovieMotionHumanSheath.IParams` takes it with the carrier's subject. */
+  export interface ISheath {
+    /** The carrier object's subject id. */
+    carrier: string;
+
+    /** The carrier's mouth socket id, such as `mouth`. */
+    mouth: string;
+
+    /** The blade's tip affordance id, such as `point`. */
+    tip: string;
+
+    /** The blade's handle affordance id, such as `grip`. */
+    handle: string;
+
+    /** How far the drawn tip clears the mouth, metres; positive. */
+    clearance: number;
   }
 
   /** A rotation as a unit quaternion. */

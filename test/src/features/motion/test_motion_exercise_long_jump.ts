@@ -78,7 +78,7 @@ export function test_motion_exercise_long_jump(): void {
     cut,
     distance: DISTANCE,
   });
-  const [, approach, leap]: IAutoMovieMotionHumanSegment[] = film.segments("a");
+  const [, approach, leap]: readonly IAutoMovieMotionHumanSegment[] = film.segments("a");
   TestValidator.predicate(
     "the run is cut into the long jump",
     approach?.name === "run" && leap?.name === "longJump",

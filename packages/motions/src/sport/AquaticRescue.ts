@@ -1,5 +1,10 @@
-import { Vector3, minimumJerk } from "@automovie/engine";
+import {
+  Vector3,
+  minimumJerk,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
@@ -157,15 +162,34 @@ export namespace AquaticRescue {
         );
         if (t < arrive) return placed;
 
-        // The near arm lies across the victim's displayed chest.
-        const chest: IAutoMovieVector3 = victim
-          .bones(start + t, new Set(["upperChest"]))
-          .get("upperChest")!.worldPosition;
+        // The near hand lies on the victim's displayed sternum, the arm across the chest.
+        const sternum: IAutoMovieHumanoidSurfaces.IFrame =
+          victim.body.surfaces.regions.sternum;
+        const chest: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.place(
+          sternum,
+          victim.bones(start + t, new Set([sternum.bone])).get(sternum.bone)!,
+        ).point;
+        // The legs scissor under the side-lying rescuer.
+        const swing: number = Math.sin((2 * Math.PI * (t - arrive)) / KICK);
+        const legs: IAutoMovieMotionHumanPosture["joints"] = ExerciseKey.from(
+          body,
+          {},
+          {},
+          { hip: 20 + 25 * swing, knee: 30 + 20 * swing },
+          { hip: 20 - 25 * swing, knee: 30 - 20 * swing },
+        ).joints;
         return {
           ...placed,
+          joints: {
+            ...placed.joints,
+            leftUpperLeg: legs.leftUpperLeg,
+            rightUpperLeg: legs.rightUpperLeg,
+            leftLowerLeg: legs.leftLowerLeg,
+            rightLowerLeg: legs.rightLowerLeg,
+          },
           limbs: {
             ...placed.limbs,
-            rightArm: { point: chest },
+            rightArm: { point: chest, bend: { ...chest, y: chest.y - 0.25 } },
           },
         };
       },

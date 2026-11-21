@@ -11,7 +11,8 @@ import type { ISceneChainNames } from "./structures/ISceneChainNames";
  * actions performed over it in `over`; the people's chains joined with
  * `with`, each mutual action after them with `next`; the laws the
  * performance registers; each placed archetype as a prop through
- * `HumanObject.prop`, with the person and bone it starts worn on; and the
+ * `HumanObject.prop`, with the person and bone it starts worn on, and a
+ * blade that starts in its carrier staged by `HumanSheath.of`; and the
  * authored impulses. It shows the input `HumanPerformance` is built from,
  * as `PlaygroundPerformance` builds it, ending in the one line `const performance = new
  * HumanPerformance(input);`. A seat is written as `HumanObject.seat` of the
@@ -124,7 +125,7 @@ export function formatSceneChain(
   for (const performer of composition.performers) {
     if (performer.actions.length === 0) continue;
     body.push(
-      `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}°, ${performer.proficiency}`,
+      `// ${performer.subject}: body ${performer.body}, at (${performer.x}, ${performer.z}) m, facing ${performer.yaw}째, ${performer.proficiency}`,
       `const ${identifier(performer.subject)} = HumanChain.subject(${JSON.stringify(performer.subject)})`,
       ...calls(performer.actions, performer.body, "  "),
     );
@@ -217,6 +218,30 @@ export function formatSceneChain(
           : `  { ...${made}, worn: ${indent(literal(o.worn, imports), "  ")} },`;
       }),
       "];",
+    );
+
+    // A blade that starts seated in a carrier is staged with it.
+    objects.forEach(
+      (o: IPlaygroundComposition.IObject, index: number): void => {
+        if (o.sheath === undefined) return;
+        const carrier: number = objects.findIndex(
+          (c: IPlaygroundComposition.IObject): boolean =>
+            c.subject === o.sheath!.carrier,
+        );
+        const params: Omit<IPlaygroundComposition.ISheath, "carrier"> = {
+          mouth: o.sheath.mouth,
+          tip: o.sheath.tip,
+          handle: o.sheath.handle,
+          clearance: o.sheath.clearance,
+        };
+        const staged: string = `${identifier(o.subject)}Sheath`;
+        imports.add("HumanSheath");
+        body.push(
+          `const ${staged} = HumanSheath.of(props[${carrier}]!, props[${index}]!, ${literal(params, imports)});`,
+          `props[${carrier}] = ${staged}.carrier;`,
+          `props[${index}] = ${staged}.blade;`,
+        );
+      },
     );
   }
 
