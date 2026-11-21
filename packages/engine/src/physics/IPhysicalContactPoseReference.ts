@@ -22,6 +22,7 @@ export interface IPhysicalContactPoseReference {
    * Read the bone's world pose from a candidate pose map. A fixed reference
    * ignores the candidate and returns its snapshot pose.
    *
+   * @evidence contracts/development/common.md#meaningful-documentation Names the candidate input, the world-pose result and the fixed-reference case.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The resolver that builds the reference owns the read.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature has no executable body.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature has no executable body.

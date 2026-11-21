@@ -164,15 +164,14 @@ export function projectileShapeDeparture(
  */
 export namespace projectileShapeDeparture {
   /**
-   * Admit a sampled rigid frame before the actual shape query uses it.
+   * Admit a sampled rigid frame before the actual shape query uses it. The
+   * returned borrowed metre translation and normalized rotation describe the
+   * sampled pose; a nonfinite or materially non-unit frame throws RangeError,
+   * even at a claimed clearance endpoint. Admitting individual poses
+   * establishes no bound between them.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation The returned borrowed metre translation and normalized rotation describe the sampled pose. A malformed frame throws even at a claimed clearance endpoint.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the rigid transform's documented unit-norm admission and the common quaternion normalization for a binary64 rotation representation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One finite/unit admission and one normalized rotation whose geometry the scalar and full readers share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A materially non-unit or nonfinite sample cannot support a rigid-motion proof. Admission of individual poses establishes no bound between them.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A fixed-size transform admission.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the common Quaternion normalization owner.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a frame without acquiring or retaining resources.
+   * @param frame A sampled parent pose in world metres.
+   * @returns The same translation with the rotation normalized.
    */
   export function admitPose(
     frame: IAutoMovieRigidTransform,

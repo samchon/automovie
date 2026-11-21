@@ -10,15 +10,10 @@ import type { IAutoMoviePhysicalCoupledTargetFit } from "@automovie/interface";
  */
 export class AutoMoviePhysicalCoupledTargetError extends Error {
   /**
-   * @param fit Named failure at one sampled output interval.
+   * Keep the typed failure and form the ordinary message from its step, group,
+   * kind and reason, plus the refusal detail.
    *
-   * @evidence contracts/development/common.md#meaningful-documentation States the supplied fit failure and its clock.
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the interval id and typed reason to form the ordinary Error message.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Retains the typed report once on the error.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original named failure on the report.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Forms a fixed-size message and passes the report reference.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same error for input refusal and numerical failure.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only the failure report and Error's own fields.
+   * @param fit Named failure at one sampled output interval.
    */
   public constructor(
     /** The interval's refusal or unconverged report; it carries no target poses. */

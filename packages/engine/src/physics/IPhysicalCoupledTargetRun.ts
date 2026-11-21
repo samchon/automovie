@@ -19,6 +19,7 @@ export interface IPhysicalCoupledTargetRun {
    * Publish converged reports. A later report for the same step and group
    * replaces the earlier one, as a refit within the step does.
    *
+   * @evidence contracts/development/common.md#meaningful-documentation States what is published and the same-step replacement rule.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation The simulation that owns the run supplies the sink.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature has no executable body.
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature has no executable body.
