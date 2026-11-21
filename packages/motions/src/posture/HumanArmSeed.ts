@@ -112,15 +112,28 @@ export namespace HumanArmSeed {
         extent: space.extent,
         rising: dims,
       });
-      if (found === null)
+      if (found === null) {
+        // Name the end that cannot be joined: an end that is itself invalid
+        // is the cause, not the path between them.
+        const start: { value: number; what: string } = M.invalid(
+          context,
+          passes[0]!,
+          from,
+        );
+        const end: { value: number; what: string } = M.invalid(context, k, to);
+        const worst: { value: number; what: string; at: number } =
+          end.value > start.value
+            ? { ...end, at: times[k]! }
+            : { ...start, at: times[passes[0]!]! };
         throw new HumanRefusal({
           kind: "reach",
           axis: "region",
-          value: M.invalid(context, passes[0]!, from).value,
+          value: worst.value,
           feasible: null,
-          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s`,
+          reason: `no clear path of the ${problem.arms.map((arm: IProblem["arms"][number]): string => arm.side).join(" and ")} arm joins its rest to its hold at ${times[k]!.toFixed(3)} s: ${worst.value > M.TOLERANCE ? `at ${worst.at.toFixed(3)} s ${worst.what}` : "both ends are valid"}`,
           fix: "put the hand on a site its arm reaches with the body clear",
         });
+      }
       return found;
     };
     const span: (a: number, b: number) => number[] = (
