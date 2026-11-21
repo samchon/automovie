@@ -1,12 +1,19 @@
 import { Quaternion, Transform, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
+  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
+  IAutoMovieMotionHumanStand,
+  IAutoMovieMotionHumanWalkParams,
   IAutoMoviePhysicalShape,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
+  IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -25,35 +32,65 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
 
-const { predicate, equals } = TestValidator;
+/** Assert one boolean finding. */
+const predicate: typeof TestValidator.predicate = TestValidator.predicate;
+/** Assert one deep-equal finding. */
+const equals: typeof TestValidator.equals = TestValidator.equals;
 
-/** Rigid attachment and insertion allowances in metres and radians. */
+/** A named sphere collider: its id, centre in the ornament frame and radius in metres. */
+type Sphere = readonly [id: string, centre: IAutoMovieVector3, radius: number];
+/** The two custody laws the composition installs, by name. */
+interface ICustodyLaws {
+  /** Return through the case opening to its seat. */
+  putDownAperture: typeof putDownAperture;
+
+  /** Take the ornament from its case, keeping grip through an early cut. */
+  takeFromCarrier: typeof HumanCarrierCustody;
+}
+/** The chain with the two custody laws installed. */
+type CustodyChain = IAutoMovieMotionHumanChain.Extended<ICustodyLaws>;
+
+/** Rigid attachment allowance, metres: the 1 mm mount bound. */
 const RIGID: number = 0.001;
+/** Insertion placement allowance, metres: the aperture placement law's seat tolerance. */
 const PLACE: number = 0.015;
+/** Insertion attitude allowance, radians: the aperture placement law's 15 degrees. */
 const ANGLE: number = Math.PI / 12;
 
-/** The display's surfaces and the shallow case's opening and seat. */
+/** The origin of every local frame. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-const IDENTITY = Quaternion.identity();
+/** The unrotated attitude. */
+const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
+/** The rest frame of every authored part. */
 const REST: IAutoMovieRigidTransform = { position: ZERO, rotation: IDENTITY };
+/** The case seat, in the case frame, metres. */
 const SEAT: IAutoMovieVector3 = { ...ZERO, y: 0.02 };
+/** The case's clear opening above its mouth, in the case frame, metres. */
 const OPENING: IAutoMovieVector3 = { ...ZERO, y: 0.075 };
+/** The ornament's rounded cap grip, in the ornament frame, metres. */
 const GRIP: IAutoMovieVector3 = { ...ZERO, y: 0.06 };
+/** The label's mount on the ornament, in the ornament frame, metres. */
 const LABEL: IAutoMovieVector3 = { x: 0.013, y: 0.025, z: 0 };
+/** The cap sphere's radius, metres. */
 const RADIUS: number = 0.021;
+/** The base sphere's radius, metres. */
 const BASE_RADIUS: number = 0.014;
+/** The case wall height, metres. */
 const MOUTH: number = 0.045;
+/** The case's inner half width, metres. */
 const INNER: number = 0.048;
-const SPHERES = [
+/** The ornament's two colliders. */
+const SPHERES: readonly Sphere[] = [
   ["cap", GRIP, RADIUS],
   ["base", ZERO, BASE_RADIUS],
-] as const;
+];
 
 /** The installed laws used by the authored composition. */
-const Chain = HumanChain.extend({
-  putDownAperture,
-  takeFromCarrier: HumanCarrierCustody,
-});
+const Chain: IAutoMovieMotionHumanChain.IExtension<ICustodyLaws> =
+  HumanChain.extend({
+    putDownAperture,
+    takeFromCarrier: HumanCarrierCustody,
+  });
 
 /**
  * An inert ornament keeps its identity through a shallow case, a hand, and
@@ -73,7 +110,10 @@ const Chain = HumanChain.extend({
 export function test_human_motion_screen_carrier_custody(): void {
   const failures: string[] = [];
   /** Collect each independent scenario's failure before reporting the round. */
-  const run = (label: string, check: () => void): void => {
+  const run: (label: string, check: () => void) => void = (
+    label: string,
+    check: () => void,
+  ): void => {
     try {
       check();
     } catch (error: unknown) {
@@ -91,11 +131,17 @@ export function test_human_motion_screen_carrier_custody(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(cast);
     const name: string = cast + (worn ? " worn case" : " resting case");
     const props: IAutoMovieMotionHumanProp[] = fixture(body, worn);
-    const move = { to: { x: 0.25, y: 0, z: 0.35 }, face: 40 };
-    const pose = { seconds: 0.5, sway: 0 };
+    const move: IAutoMovieMotionHumanWalkParams = {
+      to: { x: 0.25, y: 0, z: 0.35 },
+      face: 40,
+    };
+    const pose: IAutoMovieMotionHumanStand.IParams = { seconds: 0.5, sway: 0 };
 
     /** Resolve each variation through the public performance constructor. */
-    const scene = (
+    const scene: (
+      chain: IAutoMovieMotionHumanChain,
+      objects?: IAutoMovieMotionHumanProp[],
+    ) => HumanPerformance = (
       chain: IAutoMovieMotionHumanChain,
       objects: IAutoMovieMotionHumanProp[] = props,
     ): HumanPerformance =>
@@ -115,14 +161,16 @@ export function test_human_motion_screen_carrier_custody(): void {
         composition: chain.node,
       });
     /** Begin the same grasp without relying on an already held prop. */
-    const pickup = (): ReturnType<typeof Chain.subject> =>
+    const pickup: () => CustodyChain = (): CustodyChain =>
       Chain.subject("curator").takeFromCarrier({
         prop: "ornament",
         handle: "roundedCap",
         lift: 0.11,
       });
     /** Return through the named clear opening to a seat, then move the actor. */
-    const route = (point: string = "seated"): IAutoMovieMotionHumanChain =>
+    const route: (point?: string) => IAutoMovieMotionHumanChain = (
+      point: string = "seated",
+    ): IAutoMovieMotionHumanChain =>
       pickup()
         .stand(pose)
         .putDownAperture({
@@ -251,7 +299,7 @@ export function test_human_motion_screen_carrier_custody(): void {
       ["rising", liftOff + (lifted - liftOff) * 0.3],
     ] as const)
       run(name + " interrupt " + phase, () => {
-        const paused = pickup()
+        const paused: CustodyChain = pickup()
           .until({ share: (t - reach.start) / reach.plan.duration })
           .stand(pose);
         const movedBeforeGrip: boolean = phase === "before";
@@ -335,8 +383,13 @@ function fixture(
     shapes: walls(),
   };
   if (worn) {
-    const neutral = resolveHumanPosture(body, stand.posture(body, ZERO, 0));
-    const hips = HumanPropFrame.bone(poseBones(body, neutral).get("hips")!);
+    const neutral: IAutoMovieMotionHumanPosture = resolveHumanPosture(
+      body,
+      stand.posture(body, ZERO, 0),
+    );
+    const hips: IAutoMovieRigidTransform = HumanPropFrame.bone(
+      poseBones(body, neutral).get("hips")!,
+    );
     carrier.worn = {
       subject: "curator",
       bone: "hips",
@@ -379,7 +432,7 @@ function fixture(
 
 /** A socket authored in the prop's local frame. */
 function socket(id: string, position: IAutoMovieVector3): IAutoMovieAffordance {
-  const frame = Transform.of(position, REST.rotation);
+  const frame: IAutoMovieTransform = Transform.of(position, REST.rotation);
   return { id, kind: "socket", frame, extent: null };
 }
 
@@ -424,7 +477,7 @@ function clearsCase(frame: IAutoMovieRigidTransform): boolean {
 
 /** Map an action event to film seconds. */
 function event(segment: IAutoMovieMotionHumanSegment, name: string): number {
-  const cue = segment.plan.events.find(
+  const cue: IAutoMovieMotionEvent = segment.plan.events.find(
     (candidate): boolean => candidate.name === name,
   )!;
   return segment.start + segment.plan.duration * cue.share;
@@ -456,7 +509,9 @@ function handLocal(
   film: HumanPerformance,
   t: number,
 ): IAutoMovieRigidTransform {
-  const hand = film.bones("curator", t).get("rightHand")!;
+  const hand: IAutoMovieResolvedBone = film
+    .bones("curator", t)
+    .get("rightHand")!;
   return HumanPropFrame.relative(
     HumanPropFrame.bone(hand),
     film.prop("ornament", t),
