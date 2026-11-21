@@ -1,3 +1,4 @@
+export type { IAutoMovieMotionHumanCollapse } from "./IAutoMovieMotionHumanCollapse";
 export type { IAutoMovieMotionHumanFlinch } from "./IAutoMovieMotionHumanFlinch";
 export type { IAutoMovieMotionHumanGive } from "./IAutoMovieMotionHumanGive";
 export type { IAutoMovieMotionHumanKnockdown } from "./IAutoMovieMotionHumanKnockdown";

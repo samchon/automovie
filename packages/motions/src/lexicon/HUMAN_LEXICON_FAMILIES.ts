@@ -15,6 +15,7 @@ import { ropeSkip } from "../exercise/ropeSkip";
 import { grapple } from "../grappling/grapple";
 import { button } from "../handling/button";
 import { drawFromCarrier } from "../handling/drawFromCarrier";
+import { collapse } from "../reaction/collapse";
 import { guitarChord } from "../handling/guitarChord";
 import { guitarNote } from "../handling/guitarNote";
 import { pianoPedal } from "../handling/pianoPedal";
@@ -40,6 +41,7 @@ import { HumanBlade } from "./HumanBlade";
 import { HumanBoltAction } from "./HumanBoltAction";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarrierCustody } from "./HumanCarrierCustody";
+import { HumanHorrorGait } from "./HumanHorrorGait";
 import { HumanDefence } from "./HumanDefence";
 import { HumanDressRows } from "./HumanDressRows";
 import { HumanDrill } from "./HumanDrill";
@@ -125,6 +127,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
     HumanTravelCar,
     HumanTravelLeaf,
     HumanTravelCarExit,
+    HumanHorrorGait,
   ],
   pursuit: [HumanPursuit],
   social: [HumanSocial, HumanPartner, { curtsy }],
@@ -154,7 +157,7 @@ export const HUMAN_LEXICON_FAMILIES: IAutoMovieMotionHumanLexiconFamilies = {
   sportGym: [HumanSportGym],
   sportCarry: [HumanSportCarry],
   floorRoll: [HumanFloorRoll],
-  floorFall: [HumanFloorFall],
+  floorFall: [HumanFloorFall, { collapse }],
   support: [HumanSupportRows],
   sportSwing: [HumanSportSwing, HumanPrecisionSport],
   sportThrow: [HumanSportThrow, { stageCatch }],
