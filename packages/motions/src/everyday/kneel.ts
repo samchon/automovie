@@ -1,6 +1,7 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
@@ -18,6 +19,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
+import { unloadedFoot } from "../carrier/unloadedFoot";
 import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
@@ -30,6 +32,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
@@ -121,6 +124,9 @@ export namespace kneel {
 
   /** How far of its full length the stepping leg extends to reach its foot behind (provisional). */
   export const REACH: number = 0.98;
+
+  /** Seconds over which a lifted foot's toe-down turn eases in from and out to its plants (provisional, as the medium walk's). */
+  const EASE: number = 0.1;
 
   /** Seconds of each phase for the reference hip height (`walkRoot.REFERENCE_HIP`), scaled to a body by the square root of its own hip height (dynamic similarity); the phases themselves have no located measurement. */
   export const PHASES: Readonly<
@@ -411,13 +417,33 @@ export namespace kneel {
         ...posture.joints,
       };
       for (const side of ["left", "right"] as const) {
-        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
+        const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
           body,
           placed,
           side,
           feet[side].placement,
           feet[side].planted,
         );
+        // A foot in the air bears nothing: it is turned toes down by any
+        // excess over the unloaded ankle's dorsiflexion (`unloadedFoot`),
+        // eased in and out over `EASE` at its plants, and the ankle rises by
+        // what the turn lowers the toes, so they do not brush the floor.
+        const turned: IAutoMovieHumanLimbGoal = feet[side].planted
+          ? goal
+          : unloadedFoot(
+              body,
+              Vector3.add(root, solved.rest[side]),
+              goal,
+              solved.forward,
+              Math.min(1, (Math.min(linear, 1 - linear) * phase.seconds) / EASE),
+            );
+        const drop: number =
+          turned === goal || turned.rotation === undefined || goal.rotation === undefined
+            ? 0
+            : HumanFoot.point(body, side, "toe", { ankle: goal.point, rotation: goal.rotation }, feet[side].toes).y -
+              HumanFoot.point(body, side, "toe", { ankle: turned.point, rotation: turned.rotation }, feet[side].toes).y;
+        limbs[`${side}Leg`] =
+          drop > 0 ? { ...turned, point: { ...turned.point, y: turned.point.y + drop } } : turned;
         joints[`${side}Toes`] = [feet[side].toes, 0, 0];
       }
       return resolveHumanPosture.lower(
