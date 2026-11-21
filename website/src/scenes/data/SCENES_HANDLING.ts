@@ -25,7 +25,7 @@ const CONTROL_TRAVEL: number = 0.003;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",

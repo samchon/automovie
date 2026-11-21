@@ -10,7 +10,7 @@ const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
  * @param x Along the counter, metres.
  * @returns The target.
  */
-const work = (x: number): Record<string, unknown> => ({
+const work = (x: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y: SceneBuild.COUNTER_TOP, z: 0.37 },
   frame: "world",
@@ -20,7 +20,7 @@ const work = (x: number): Record<string, unknown> => ({
  * A knock's place on the doorway scene's door, on the face toward the
  * host at chest height beside the lever: the door stands at z = 1.
  */
-const KNOCK: Record<string, unknown> = {
+const KNOCK: SceneBuild.PointTarget = {
   kind: "point",
   frame: "world",
   at: { x: 0.05, y: 1.4, z: 0.97 },

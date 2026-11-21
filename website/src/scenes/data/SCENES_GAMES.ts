@@ -185,13 +185,14 @@ export const SCENES_GAMES: readonly IScene[] = [
       ]),
       person("cat", "f2", 0, 0, 0, [
         act("catcherCrouch", { seconds: 1 }),
-        act("gloveCatch", { from: "pit", side: "left" }),
+        act("gloveCatch", { from: "pit", side: "left", ball: "baseball" }),
       ]),
       person("fie", "f1", 3, 8, 200, [
         act("stand", { seconds: 1 }),
         act("fieldGrounder"),
       ]),
     ],
+    [object("baseball", "createBall", "baseball", 0.22, 5.8)],
   ),
   scene(
     {

@@ -11,14 +11,14 @@ const { act, at, object, person, scene, to }: typeof SceneBuild = SceneBuild;
  * @param z Forward.
  * @returns The target.
  */
-const point = (x: number, y: number, z: number): Record<string, unknown> => ({
+const point = (x: number, y: number, z: number): SceneBuild.PointTarget => ({
   kind: "point",
   at: { x, y, z },
   frame: "world",
 });
 
 /** Inside the stove counter's saucepan, where the cook's spoon stirs. */
-const PAN: Record<string, unknown> = {
+const PAN: SceneBuild.PropTarget = {
   kind: "prop",
   subject: "pan",
   point: "inside",

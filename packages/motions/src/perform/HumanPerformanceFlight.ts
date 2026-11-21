@@ -28,17 +28,17 @@ import type {
 
 import { jump } from "../actions/jump";
 import { jumpAirborne } from "../actions/jumpAirborne";
-import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
-import { prepareRigidFlightMass } from "./prepareRigidFlightMass";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
-import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFlightRotation";
 import { HumanPoseKnots } from "./HumanPoseKnots";
+import { HumanSegmentShown } from "./HumanSegmentShown";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
+import { prepareRigidFlightMass } from "./prepareRigidFlightMass";
 
 /**
  * Hand each placed flight its rigid turn after placement and contacts.
@@ -150,18 +150,32 @@ export namespace HumanPerformanceFlight {
       try {
         for (const segment of person.segments) {
           const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
-          if (plan.flight === undefined || plan.airborne === undefined) continue;
+          if (plan.flight === undefined || plan.airborne === undefined)
+            continue;
 
           // A body stays unchanged for the pass, but people without a flight
           // need neither a physical workspace nor a demanded-bone set.
           try {
-            if (self.flight === "staged" && plan.flight.momentum.kind === "turns")
+            if (
+              self.flight === "staged" &&
+              plan.flight.momentum.kind === "turns"
+            )
               staged(self, person, segment, plan.flight.momentum);
             else {
-              prepared ??= prepareAutoMovieMassModel(person.performer.body.massModel);
+              prepared ??= prepareAutoMovieMassModel(
+                person.performer.body.massModel,
+              );
               requested ??= prepareAutoMovieMassModel.bones(prepared);
               readBones ??= poseBones.prepare(person.performer.body, requested);
-              flight(self, person, segment, prepared, requested, readBones, observation);
+              flight(
+                self,
+                person,
+                segment,
+                prepared,
+                requested,
+                readBones,
+                observation,
+              );
             }
           } catch (error) {
             if (!(error instanceof HumanRefusal)) throw error;
@@ -193,26 +207,45 @@ export namespace HumanPerformanceFlight {
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const requested: Set<AutoMovieHumanoidBone> = new Set();
     for (const part of model.segments) requested.add(part.bone);
-    const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(body, requested);
-    const evaluation: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
+    const readBones: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+      body,
+      requested,
+    );
+    const evaluation: prepareHumanSegmentPose.IPrepared =
+      prepareHumanSegmentPose(body);
     const declared: IAutoMovieMotionHumanFlight = segment.plan.flight!;
     const t0: number = segment.start + declared.from * segment.plan.duration;
     const t1: number = segment.start + declared.to * segment.plan.duration;
-    const data: IPlayback = samples(t0, t1, (seconds: number): IPlayback["table"][number] => {
-      const pose: IAutoMoviePose = HumanPerformanceRead.pose(self, person.performer.subject, seconds, requested, evaluation);
-      return {
-        about: resolveAutoMovieCenterOfMass.place(model, readBones(pose, evaluation.resolution())),
-        root: pose.root?.rotation ?? Quaternion.identity(),
-      };
-    });
-    segment.plan.airborne!(HumanPerformanceStagedFlightRotation({
-      ...data,
-      start: segment.start,
+    const data: IPlayback = samples(
       t0,
       t1,
-      turns,
-      turnedLanding: jumpAirborne.hasTurnedLanding(declared),
-    }));
+      (seconds: number): IPlayback["table"][number] => {
+        const pose: IAutoMoviePose = HumanPerformanceRead.pose(
+          self,
+          person.performer.subject,
+          seconds,
+          requested,
+          evaluation,
+        );
+        return {
+          about: resolveAutoMovieCenterOfMass.place(
+            model,
+            readBones(pose, evaluation.resolution()),
+          ),
+          root: pose.root?.rotation ?? Quaternion.identity(),
+        };
+      },
+    );
+    segment.plan.airborne!(
+      HumanPerformanceStagedFlightRotation({
+        ...data,
+        start: segment.start,
+        t0,
+        t1,
+        turns,
+        turnedLanding: jumpAirborne.hasTurnedLanding(declared),
+      }),
+    );
   }
 
   /**
@@ -237,24 +270,35 @@ export namespace HumanPerformanceFlight {
     const declared: IAutoMovieMotionHumanFlight = plan.flight!;
     const subject: string = person.performer.subject;
     const body: IAutoMovieMotionHumanBody = person.performer.body;
-    const model: IAutoMovieResolveCenterOfMass.IModel =
-      body.massModel;
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const t0: number = segment.start + declared.from * plan.duration;
     const t1: number = segment.start + declared.to * plan.duration;
-    const evaluation: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(body);
+    const evaluation: prepareHumanSegmentPose.IPrepared =
+      prepareHumanSegmentPose(body);
     // These mass-bearing frames are consumed by the flight before its turn
     // invalidates every displayed pose. Other scene readers own their full pose.
-    const isolated: boolean = person.overlays.length === 0 && person.holds.length === 0 && person.stops.size === 0;
+    const isolated: boolean =
+      person.overlays.length === 0 &&
+      person.holds.length === 0 &&
+      person.stops.size === 0;
     const unturned: (seconds: number) => IAutoMoviePose = (
       seconds: number,
     ): IAutoMoviePose =>
-      isolated ? HumanSegmentShown.of(person, seconds, requested, evaluation, false).pose
-        : HumanPerformanceRead.pose(self, subject, seconds, requested, evaluation);
-    const readResolution: prepareHumanSegmentPose.IPrepared["resolution"] = evaluation.resolution;
+      isolated
+        ? HumanSegmentShown.of(person, seconds, requested, evaluation, false)
+            .pose
+        : HumanPerformanceRead.pose(
+            self,
+            subject,
+            seconds,
+            requested,
+            evaluation,
+          );
+    const readResolution: prepareHumanSegmentPose.IPrepared["resolution"] =
+      evaluation.resolution;
     const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (
       pose: IAutoMoviePose,
-    ): IAutoMovieQuaternion =>
-      pose.root?.rotation ?? Quaternion.identity();
+    ): IAutoMovieQuaternion => pose.root?.rotation ?? Quaternion.identity();
 
     // Contacts and IK have already resolved the composed joints. FK with no
     // rigid world root gives their root-frame shape directly, rather than
@@ -270,13 +314,16 @@ export namespace HumanPerformanceFlight {
     const spacing: number = (t1 - t0) / intervals;
     const knots: number[] = Array.from(
       { length: intervals + 1 },
-      (_: unknown, k: number): number => (k === intervals ? t1 : t0 + k * spacing),
+      (_: unknown, k: number): number =>
+        k === intervals ? t1 : t0 + k * spacing,
     );
     // Only the uniform knots have a second reader in playback. The shape
     // table reduces each inserted knot immediately and owns that reduction.
     const posed: Map<number, UniformPose> = new Map();
     for (const knot of knots) posed.set(knot, null);
-    const at: (seconds: number) => IAutoMoviePose = (seconds: number): IAutoMoviePose => {
+    const at: (seconds: number) => IAutoMoviePose = (
+      seconds: number,
+    ): IAutoMoviePose => {
       const known: UniformPose | undefined = posed.get(seconds);
       if (known !== null) return known ?? unturned(seconds);
       const pose: IAutoMoviePose = unturned(seconds);
@@ -302,17 +349,38 @@ export namespace HumanPerformanceFlight {
     // neither the requested displayed articulation nor the takeoff/landing witnesses.
     // Every actual adaptive knot rechecks the remaining local coordinates.
     const changed: symbol = Symbol("flight articulation changed");
-    if (isolated && segment.law.plan === jump.plan &&
-      (segment.transition === undefined || segment.transition.kind === "redirect" || t0 - segment.transition.cut >= segment.transition.blend) &&
-      person.layers.every((row): boolean => row.to <= t0 || row.from >= t1 || HumanAirborneShape.prepared(row.layer) !== undefined)) {
+    if (
+      isolated &&
+      segment.law.plan === jump.plan &&
+      (segment.transition === undefined ||
+        segment.transition.kind === "redirect" ||
+        t0 - segment.transition.cut >= segment.transition.blend) &&
+      person.layers.every(
+        (row): boolean =>
+          row.to <= t0 ||
+          row.from >= t1 ||
+          HumanAirborneShape.prepared(row.layer) !== undefined,
+      )
+    ) {
       const source: IAutoMoviePose = at(t0);
       const frames: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, { ...source, root: null }, readResolution());
-      const grouped: prepareRigidFlightMass.IPrepared | undefined = prepareRigidFlightMass(body, source, frames, new Set(jumpAirborne.TRACKS));
+      const grouped: prepareRigidFlightMass.IPrepared | undefined =
+        prepareRigidFlightMass(
+          body,
+          source,
+          frames,
+          new Set(jumpAirborne.TRACKS),
+        );
       if (grouped !== undefined) {
-        const mass: prepareAutoMovieMassModel.IPrepared = prepareAutoMovieMassModel(grouped.model);
+        const mass: prepareAutoMovieMassModel.IPrepared =
+          prepareAutoMovieMassModel(grouped.model);
         try {
-          run(mass, poseBones.prepare(body, prepareAutoMovieMassModel.bones(mass)), grouped);
+          run(
+            mass,
+            poseBones.prepare(body, prepareAutoMovieMassModel.bones(mass)),
+            grouped,
+          );
           return;
         } catch (error) {
           if (error !== changed) throw error;
@@ -324,23 +392,36 @@ export namespace HumanPerformanceFlight {
     run(prepared, readBones);
 
     /** Integrate the original physical law using either a checked rigid partition or all its original mass parts. */
-    function run(mass: prepareAutoMovieMassModel.IPrepared, readShape: ReturnType<typeof poseBones.prepare>,
-      grouped?: prepareRigidFlightMass.IPrepared): void {
-      const shape: (seconds: number) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (seconds: number): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
+    function run(
+      mass: prepareAutoMovieMassModel.IPrepared,
+      readShape: ReturnType<typeof poseBones.prepare>,
+      grouped?: prepareRigidFlightMass.IPrepared,
+    ): void {
+      const shape: (
+        seconds: number,
+      ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
+        seconds: number,
+      ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
         const pose: IAutoMoviePose = at(seconds);
         if (grouped !== undefined && !grouped.matches(pose)) throw changed;
         return readShape({ ...pose, root: null }, readResolution());
       };
       const centres: IAutoMovieVector3[] = [];
       const history: ReturnType<typeof integrateAirborneRotation.history> =
-        integrateAirborneRotation.tabulated(mass, shape, {
-          from: t0,
-          to: t1,
-          step,
-          turn: Math.sqrt(6 * MOMENTUM_ACCURACY.relative),
-        }, observation, (index: number, centre: IAutoMovieVector3): void => {
-          centres[index] = centre;
-        });
+        integrateAirborneRotation.tabulated(
+          mass,
+          shape,
+          {
+            from: t0,
+            to: t1,
+            step,
+            turn: Math.sqrt(6 * MOMENTUM_ACCURACY.relative),
+          },
+          observation,
+          (index: number, centre: IAutoMovieVector3): void => {
+            centres[index] = centre;
+          },
+        );
       const errorScope: symbol = Symbol("human flight");
       try {
         const q0: IAutoMovieQuaternion = root(at(t0));
@@ -367,7 +448,8 @@ export namespace HumanPerformanceFlight {
           const two: IAutoMovieVector3 = centre(at + 2 * delta);
           const v0: IAutoMovieVector3 = {
             x: (two.x - one.x) / delta,
-            y: (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
+            y:
+              (two.y - one.y) / delta + 1.5 * AutoMovieGravity.STANDARD * delta,
             z: (two.z - one.z) / delta,
           };
           return (
@@ -379,25 +461,51 @@ export namespace HumanPerformanceFlight {
 
         // The momentum: given, or solved from the turns.
         let momentum: IAutoMovieVector3;
-        let solvedFlight: IAutoMovieIntegrateAirborneRotation.IFlight | undefined;
+        let solvedFlight:
+          | IAutoMovieIntegrateAirborneRotation.IFlight
+          | undefined;
+        const touchdown: ReturnType<typeof jumpAirborne.touchdown> =
+          jumpAirborne.touchdown(declared);
         if (declared.momentum.kind === "momentum")
           momentum = declared.momentum.momentum;
         else {
           const turns: IAutoMovieMotionHumanFlightTurns = declared.momentum;
           const maximum: number = turns.maximum ?? ceiling(t0);
-          const solved: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff({
-            history,
-            t0,
-            t1,
-            q0,
-            frame: turns.frame,
-            somersault: turns.somersault,
-            twist: turns.twist,
-            maximum,
-            integration: HumanPerformanceFlight.ACCURACY,
-            momentumTolerance: MOMENTUM_ACCURACY,
-            errorScope,
-          });
+          const geometry: number | undefined = touchdown?.angularTolerance;
+          const tolerance: number | undefined =
+            geometry === undefined
+              ? undefined
+              : Math.min(geometry, solveAirborneTakeoff.TOLERANCE);
+
+          // The search and the momentum-judged flight use different error
+          // controls. Give both the same small-step integration budget so
+          // the terminal angle is budgeted per shape interval at the
+          // quaternion half-angle scale.
+          const integration: typeof HumanPerformanceFlight.ACCURACY =
+            tolerance === undefined
+              ? HumanPerformanceFlight.ACCURACY
+              : {
+                  relative: Math.min(
+                    HumanPerformanceFlight.ACCURACY.relative,
+                    tolerance / (2 * (knots.length - 1)),
+                  ),
+                  absolute: HumanPerformanceFlight.ACCURACY.absolute,
+                };
+          const solved: IAutoMovieSolveAirborneTakeoff.ISolution =
+            solveAirborneTakeoff({
+              history,
+              t0,
+              t1,
+              q0,
+              frame: turns.frame,
+              somersault: turns.somersault,
+              twist: turns.twist,
+              maximum,
+              integration,
+              tolerance,
+              momentumTolerance: MOMENTUM_ACCURACY,
+              errorScope,
+            });
           if (!solved.met)
             throw new HumanRefusal({
               kind: "parameter",
@@ -432,14 +540,22 @@ export namespace HumanPerformanceFlight {
         const data: IPlayback = {
           step: spacing,
           times: knots,
-          table: knots.map((t: number, index: number): IPlayback["table"][number] => {
-            const pose: IAutoMoviePose = at(t);
-            const centre: IAutoMovieVector3 = centres[index]!;
-            return {
-              about: pose.root === null ? centre : Vector3.add(pose.root.translation, Quaternion.rotateVector(pose.root.rotation, centre)),
-              root: root(pose),
-            };
-          }),
+          table: knots.map(
+            (t: number, index: number): IPlayback["table"][number] => {
+              const pose: IAutoMoviePose = at(t);
+              const centre: IAutoMovieVector3 = centres[index]!;
+              return {
+                about:
+                  pose.root === null
+                    ? centre
+                    : Vector3.add(
+                        pose.root.translation,
+                        Quaternion.rotateVector(pose.root.rotation, centre),
+                      ),
+                root: root(pose),
+              };
+            },
+          ),
         };
         const rotation: ReturnType<typeof HumanPerformanceFlightRotation> =
           HumanPerformanceFlightRotation({
@@ -449,12 +565,28 @@ export namespace HumanPerformanceFlight {
             ...data,
             orientation: turned.orientation,
           });
+        if (touchdown?.turnedLanding === false)
+          touchdown.check(rotation(declared.to * plan.duration));
         plan.airborne!(rotation);
       } catch (error) {
-        if (error instanceof MotionTrajectoryFailure && error.scope === errorScope)
+        if (
+          error instanceof MotionTrajectoryFailure &&
+          error.scope === errorScope
+        )
           throw HumanPerformanceFlightFailure(
-            error, body, plan, segment.start, t0,
-            (seconds: number): IAutoMoviePose => HumanPerformanceRead.pose(self, subject, seconds, undefined, evaluation),
+            error,
+            body,
+            plan,
+            segment.start,
+            t0,
+            (seconds: number): IAutoMoviePose =>
+              HumanPerformanceRead.pose(
+                self,
+                subject,
+                seconds,
+                undefined,
+                evaluation,
+              ),
             readResolution,
           );
         throw error;
@@ -472,16 +604,31 @@ export namespace HumanPerformanceFlight {
 type UniformPose = IAutoMoviePose | null;
 
 /** Numeric playback data shared by staged and physical rotation policies. */
-type IPlayback = Pick<Parameters<typeof HumanPerformanceFlightRotation>[0], "step" | "times" | "table">;
+type IPlayback = Pick<
+  Parameters<typeof HumanPerformanceFlightRotation>[0],
+  "step" | "times" | "table"
+>;
 
 /** Sample the existing playback grid once, without retaining its displayed-pose reader. */
-function samples(from: number, to: number,
-  read: (seconds: number) => IPlayback["table"][number]): IPlayback {
-  if (!(Number.isFinite(from) && Number.isFinite(to) && Number.isFinite(to - from) && to > from))
+function samples(
+  from: number,
+  to: number,
+  read: (seconds: number) => IPlayback["table"][number],
+): IPlayback {
+  if (
+    !(
+      Number.isFinite(from) &&
+      Number.isFinite(to) &&
+      Number.isFinite(to - from) &&
+      to > from
+    )
+  )
     throw new Error("Flight playback needs a positive finite interval");
   const step: number = integrateMotionTrajectory.STEP;
   const knots: number = Math.ceil((to - from) / step) + 1;
-  const times: number[] = Array.from({ length: knots }, (_: unknown, k: number): number =>
-    k === knots - 1 ? to : from + k * step);
+  const times: number[] = Array.from(
+    { length: knots },
+    (_: unknown, k: number): number => (k === knots - 1 ? to : from + k * step),
+  );
   return { step, times, table: times.map(read) };
 }
