@@ -1,6 +1,8 @@
 import type { IAutoMovieMotionHumanBicycleEffort } from "./IAutoMovieMotionHumanBicycleEffort";
 import type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanBikeTransfer";
 import type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
+import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
+import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
 import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 
 /**
@@ -25,4 +27,10 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
 
   /** Transfer between ground support and a staged bicycle. */
   HumanBikeTransfer: IAutoMovieMotionHumanBikeTransfer;
+
+  /** Hold a horse's moving lead rope in one hand over an authored walk. */
+  HumanLeadHorse: IAutoMovieMotionHumanLeadHorse;
+
+  /** Perform ordered seat figures on a moving carrier, acquiring and releasing named supports. */
+  HumanMounted: IAutoMovieMotionHumanMounted;
 }
