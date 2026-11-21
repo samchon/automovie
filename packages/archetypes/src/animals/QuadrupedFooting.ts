@@ -53,7 +53,29 @@ export namespace QuadrupedFooting {
     z: Interval;
     /** Metres gained along each corresponding horizontal world axis. */
     slope: { x: number; z: number };
+    /** A yielding surface's sinkage under a loaded hoof; firm when absent. */
+    yield?: IYield;
   }
+
+  /**
+   * A yielding surface: sand, mud, bog or snow, and how deep a loaded hoof sinks into it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the material, the depth's unit and its provenance.
+   * @evidence contracts/development/design.md#principled-representation A depth below the surface plane, with its source.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by landing, verification and the ride's admission.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The depth is authored or cited, never inferred from a material name.
+   */
+  export interface IYield {
+    /** The footing's material. */
+    material: Material;
+    /** How far a loaded hoof's sole sinks below the surface, metres. */
+    depth: number;
+    /** Where the depth comes from: a citation, or "authored". */
+    source: string;
+  }
+
+  /** A yielding footing's material. */
+  export type Material = "sand" | "mud" | "bog" | "snow";
 
   /**
    * One physical pole as a capsule spanning actual world endpoints.
@@ -117,6 +139,8 @@ export namespace QuadrupedFooting {
   export interface ILanding extends ISurface {
     /** The hoof's neutral orientation along the landing surface, with its route heading. */
     rotation: IAutoMovieQuaternion;
+    /** How far the loaded sole sinks below the surface, metres; zero on firm footing. The landing point is already that far down. */
+    depth: number;
   }
 
   /**
@@ -128,7 +152,7 @@ export namespace QuadrupedFooting {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Authoring gives the physical terrain values, and query results do not use a renderer cache or fixture constants.
    */
   export interface IPlan {
-    /** Authored extra swing height in metres. */
+    /** Authored extra swing height in metres, plus the deepest yielding surface's sinkage, so a swinging hoof clears the displaced footing. */
     swingLift: number;
     /**
      * Read the authored surface at the horizontal footprint.
@@ -215,6 +239,20 @@ export namespace QuadrupedFooting {
           "A support plane needs finite point, slope and ordered bounds.",
           plane.id,
         );
+      if (
+        plane.yield !== undefined &&
+        !(
+          ["sand", "mud", "bog", "snow"].includes(plane.yield.material) &&
+          Number.isFinite(plane.yield.depth) &&
+          plane.yield.depth >= 0 &&
+          typeof plane.yield.source === "string" &&
+          plane.yield.source.length > 0
+        )
+      )
+        throw refusal(
+          "A yielding plane needs a known material, a finite nonnegative depth and its source.",
+          plane.id,
+        );
       const normal: IAutoMovieVector3 = Vector3.normalize({
         x: -slope.x,
         y: 1,
@@ -247,7 +285,11 @@ export namespace QuadrupedFooting {
           pole.id,
         );
     }
-    return { swingLift, landing, verify };
+    const deepest: number = Math.max(
+      0,
+      ...surfaces.map(({ plane }): number => plane.yield?.depth ?? 0),
+    );
+    return { swingLift: swingLift + deepest, landing, verify };
 
     /** Give each terrain component one stable public diagnostic identity. */
     function name(id: string): void {
@@ -279,9 +321,12 @@ export namespace QuadrupedFooting {
             "The assigned foothold height is unrepresentable.",
             plane.id,
           );
-        if (result !== undefined && y <= result.point.y) continue;
+        if (result !== undefined && y <= result.point.y + result.depth)
+          continue;
+        const depth: number = plane.yield?.depth ?? 0;
         result = {
-          point: { ...point, y },
+          depth,
+          point: { ...point, y: y - depth },
           normal: { ...normal },
           rotation: Quaternion.multiply(
             turn(Quaternion.rotateVector(rotation, UP), normal),
@@ -332,8 +377,9 @@ export namespace QuadrupedFooting {
             -maxX! > plane.x[0] &&
             minZ! < plane.z[1] &&
             -maxZ! > plane.z[0] &&
-            lowest(part, frame) < -roundoff &&
-            QuadrupedFootingClip(part, plane, frame) < -roundoff
+            lowest(part, frame) < -(plane.yield?.depth ?? 0) - roundoff &&
+            QuadrupedFootingClip(part, plane, frame) <
+              -(plane.yield?.depth ?? 0) - roundoff
           )
             throw refusal(
               `Actual ${part.id} enters named surface ${plane.id}.`,

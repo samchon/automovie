@@ -1,4 +1,5 @@
 import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
+import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedJoints } from "./QuadrupedJoints";
@@ -43,7 +44,7 @@ export namespace QuadrupedRideAdmission {
    * @param withers The animal's withers height, metres.
    * @param rig The actual limb chains, whose hip height sets the change points.
    * @param dimensions The animal's dimensions, for mass-scaled change points.
-   * @throws {ArchetypeRefusal} When a named gait is absent or a requested speed lies outside every applicable declared domain.
+   * @throws {ArchetypeRefusal} When a named gait is absent, a requested speed lies outside every applicable declared domain, or a yielding footing sinks a hoof as deep as its carpus or hock stands.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States every input and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation Cruise, each leg's fastest speed, positive speed marks and nonzero boundary speeds are each read against the gait the leg names, or against the union of declared domains when the speed chooses. A collected explicit gait also admits its parent's speeds it is decelerated from, where its clock holds its fastest row (`QuadrupedRideClock.collectedSpeed`).
@@ -102,6 +103,25 @@ export namespace QuadrupedRideAdmission {
     ] as const)
       if (value > 0)
         speed(course.legs[legIndex(plan, distance)]!.gait ?? gait, value);
+
+    // A hoof sunk deeper than its carpus or hock stands above it cannot be lifted clear of the footing.
+    const clear: number = Math.min(
+      ...QuadrupedBody.LIMBS.map(
+        (limb: QuadrupedBody.Limb): number =>
+          rig.limbs[limb][2]!.y - rig.limbs[limb][4]!.y,
+      ),
+    );
+    for (const plane of course.footing?.planes ?? [])
+      if ((plane.yield?.depth ?? 0) >= clear)
+        throw new ArchetypeRefusal({
+          kind: "parameter",
+          archetype: species.archetype,
+          axis: "footing",
+          value: plane.yield!.depth,
+          feasible: { kind: "range", minimum: 0, maximum: clear },
+          reason: `the ${plane.id} footing sinks a hoof ${plane.yield!.depth} m, not below the ${clear} m its carpus or hock stands above it, so the hoof cannot be lifted clear`,
+          fix: "Declare a shallower yield, or plan the passage as a plunge or a stuck interval.",
+        });
 
     /** Requested named gaits are strict; automatic requests need actual declared coverage. */
     function speed(which: QuadrupedGait.Gait | undefined, value: number): void {
