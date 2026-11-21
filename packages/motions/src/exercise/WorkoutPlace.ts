@@ -55,6 +55,7 @@ export namespace WorkoutPlace {
    * The place the bearing bones keep.
    *
    * @param props The action's context, the kind, the standing posture the exercise is entered from, the first key, and the prop's place when one bears the body.
+   * @param keepFloorPins Whether the exercise is carrying forward its bearing pins from a held floor stance.
    * @returns World metres.
    * @throws {HumanRefusal} When a hanging kind names no bar to hang from.
    *
@@ -66,7 +67,10 @@ export namespace WorkoutPlace {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise keys' pose and mean and the knockdown's floor rest; branch-local measurements are made once only when that branch consumes them.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function of(props: IAutoMovieMotionHumanWorkoutPlace.IOfProps ): IAutoMovieVector3 {
+  export function of(
+    props: IAutoMovieMotionHumanWorkoutPlace.IOfProps,
+    keepFloorPins: boolean = false,
+  ): IAutoMovieVector3 {
     const context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry"> = props.context;
     const unhung = (): never => {
       throw new HumanRefusal({
@@ -116,7 +120,7 @@ export namespace WorkoutPlace {
         1 / kind.pin.length,
       );
     };
-    if (kind.anchor === "stance") return shown();
+    if (kind.anchor === "stance" || keepFloorPins) return shown();
     // Feet or toes that bear on the floor on their soles are as high above
     // it as when the body stands on them, and hands as high as a laid palm's
     // wrist; a body that bears on its trunk, or on the sides of its feet as

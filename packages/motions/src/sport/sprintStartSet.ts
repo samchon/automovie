@@ -1,16 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanBodyFitTypes,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -18,16 +15,14 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanBodyFit } from "../posture/HumanBodyFit";
-import { HumanFitVariables } from "../posture/HumanFitVariables";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSetChain } from "./sprintStartSetChain";
+import { sprintStartSetFit } from "./sprintStartSetFit";
 import { sprintStartSetHands } from "./sprintStartSetHands";
 
 /**
@@ -43,6 +38,9 @@ import { sprintStartSetHands } from "./sprintStartSetHands";
 export namespace sprintStartSet {
   /** The front knee's included angle in the set, degrees: 90 (SD 8) measured with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One 14:e0213979, table 2), Harland and Steele's (1997) "about 90". */
   export const FRONT: number = 90;
+
+  /** The front knee's measured standard deviation in the set, degrees: 8 (Cavedon et al. 2019, table 2), the spread a set on placed plates may use. */
+  export const FRONT_SD: number = 8;
 
   /** The front block's distance behind the start line, a share of the leg's length (greater trochanter to lateral malleolus): the anthropometry-driven setting (Cavedon et al. 2019, table 2). */
   export const FRONT_DISTANCE: number = 0.6;
@@ -89,6 +87,7 @@ export namespace sprintStartSet {
    * @param entry The standing posture; the line is a foot's length ahead of its stand's floor point.
    * @param front The front foot.
    * @param sex The measured centre-of-mass stratum.
+   * @param placedFeet Both feet on a placed block's plates (`sprintStartBlocks.of`), held in all three axes; the fit then keeps the front knee within its measured spread (FRONT_SD) and the rear knee and hip within theirs, and the centre follows from the plates instead of its measured setting, or refuses. Absent places the body-scaled blocks, the rear one from the rear knee's measured mean.
    * @returns The hips' world point, the trunk's pitch, each palm's frame raised over its bridge and each foot's placement on its block, all as fitted.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the geometry and the result.
@@ -104,23 +103,18 @@ export namespace sprintStartSet {
     entry: IAutoMovieMotionHumanPosture,
     front: "left" | "right",
     sex: "female" | "male" = "male",
-  ): {
-    hips: IAutoMovieVector3;
-    pitch: number;
-    joints: IAutoMovieMotionHumanPosture["joints"];
-    palms: Record<
-      "left" | "right",
-      {
-        point: IAutoMovieVector3;
-        facing: IAutoMovieVector3;
-        forward: IAutoMovieVector3;
-      }
-    >;
-    feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
-  } {
+    placedFeet?: sprintStartBlocks.IPlaced["feet"],
+  ): sprintStartSetFit.ISet {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const trunkBones: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm", "hips", "leftUpperLeg", "rightUpperLeg"]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const trunkBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+      "leftUpperArm",
+      "rightUpperArm",
+      "hips",
+      "leftUpperLeg",
+      "rightUpperLeg",
+    ]);
     let projector: ReturnType<typeof prepareHumanPostureProjection> | undefined;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const frame: IAutoMovieMotionHumanFrame = sprintStartSetHands.frame(
@@ -167,31 +161,55 @@ export namespace sprintStartSet {
     // setting's share of the leg's length (`FRONT_DISTANCE`).
     const rear: "left" | "right" = front === "left" ? "right" : "left";
     const leg: number = m.thigh + m.shank;
-    const ahead: IAutoMovieMotionHumanFoot.IPlacement = block(body, entry, frame, front, FRONT_DISTANCE * leg, FRONT_BLOCK);
+    const ahead: IAutoMovieMotionHumanFoot.IPlacement =
+      placedFeet?.[front] ??
+      sprintStartBlocks.scaled(
+        body,
+        entry,
+        frame,
+        front,
+        FRONT_DISTANCE * leg,
+        FRONT_BLOCK,
+      );
 
     // The sagittal chain from that ankle to the wrists at the measured front
     // knee and hip angles on a trunk of `trunk` metres, and the rear foot in
     // its block where the rear leg from the chain's hip has the rear knee's
     // measured mean (`sprintStartSetChain.of`, `rear`).
-    const onLine: sprintStartSetChain.IPoint = plane(
-      block(body, entry, frame, rear, 0, REAR_BLOCK).ankle,
-    );
+    const onLine: sprintStartSetChain.IPoint | undefined =
+      placedFeet === undefined
+        ? plane(
+            sprintStartBlocks.scaled(body, entry, frame, rear, 0, REAR_BLOCK)
+              .ankle,
+          )
+        : undefined;
     const solve: (trunk: number) => ISolved = (trunk: number): ISolved => {
-      const chain: sprintStartSetChain.ISet | undefined = sprintStartSetChain.of({
-        ankle: plane(ahead.ankle),
-        wrist: plane(wrists),
-        thigh: m.thigh,
-        shank: m.shank,
-        trunk,
-        arm,
-        knee: FRONT,
-        hip: (HIP[0] + HIP[1]) / 2,
-      });
+      const chain: sprintStartSetChain.ISet | undefined =
+        sprintStartSetChain.of({
+          ankle: plane(ahead.ankle),
+          wrist: plane(wrists),
+          thigh: m.thigh,
+          shank: m.shank,
+          trunk,
+          arm,
+          knee: FRONT,
+          hip: (HIP[0] + HIP[1]) / 2,
+        });
+      // Placed plates fix both feet; the rear knee's range is then the
+      // whole-body fit's to meet or refuse.
+      if (chain !== undefined && placedFeet !== undefined)
+        return { chain, feet: placedFeet };
       const u: number | undefined =
-        chain === undefined
+        chain === undefined || onLine === undefined
           ? undefined
-          : sprintStartSetChain.rear(chain.hip, onLine, m.thigh, m.shank, (REAR[0] + REAR[1]) / 2);
-      if (chain === undefined || u === undefined)
+          : sprintStartSetChain.rear(
+              chain.hip,
+              onLine,
+              m.thigh,
+              m.shank,
+              (REAR[0] + REAR[1]) / 2,
+            );
+      if (chain === undefined || onLine === undefined || u === undefined)
         throw new HumanRefusal({
           kind: "reach",
           axis: "set",
@@ -203,7 +221,14 @@ export namespace sprintStartSet {
         chain,
         feet: {
           [front]: ahead,
-          [rear]: block(body, entry, frame, rear, onLine.u - u, REAR_BLOCK),
+          [rear]: sprintStartBlocks.scaled(
+            body,
+            entry,
+            frame,
+            rear,
+            onLine.u - u,
+            REAR_BLOCK,
+          ),
         } as Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
       };
     };
@@ -212,14 +237,20 @@ export namespace sprintStartSet {
     // the pelvis taking no more than the planted legs' hip range leaves it
     // and the spine the rest (`HumanTrunk.incline`), its root placed so the
     // shoulders stand at `shoulders`.
-    const posed: (q: number, shoulders: IAutoMovieVector3, feet: ISolved["feet"]) => IStance = (
+    const posed: (
+      q: number,
+      shoulders: IAutoMovieVector3,
+      feet: ISolved["feet"],
+    ) => IStance = (
       q: number,
       shoulders: IAutoMovieVector3,
       feet: ISolved["feet"],
     ): IStance => {
       const at: (limit: number) => IStance = (limit: number): IStance => {
-        const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
-          HumanTrunk.incline(entry.joints, q, limit);
+        const tilt: {
+          pitch: number;
+          joints: IAutoMovieMotionHumanPosture["joints"];
+        } = HumanTrunk.incline(entry.joints, q, limit);
         const turned: IAutoMovieMotionHumanPosture = {
           ...entry,
           root: { x: 0, y: 0, z: 0 },
@@ -231,14 +262,36 @@ export namespace sprintStartSet {
         };
         const bones: ReturnType<typeof poseBones> = poseBones(
           body,
-          resolveHumanPosture.seeded(body, turned, undefined, undefined, resolution, undefined, projector).pose,
+          resolveHumanPosture.seeded(
+            body,
+            turned,
+            undefined,
+            undefined,
+            resolution,
+            undefined,
+            projector,
+          ).pose,
           resolution(),
           trunkBones,
         );
-        const mid: (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone) => IAutoMovieVector3 = (a: AutoMovieHumanoidBone, b: AutoMovieHumanoidBone): IAutoMovieVector3 =>
-          Vector3.lerp(bones.get(a)!.worldPosition, bones.get(b)!.worldPosition, 0.5);
-        const root: IAutoMovieVector3 = Vector3.subtract(shoulders, mid("leftUpperArm", "rightUpperArm"));
-        if (projector === undefined) projector = prepareHumanPostureProjection(body);
+        const mid: (
+          a: AutoMovieHumanoidBone,
+          b: AutoMovieHumanoidBone,
+        ) => IAutoMovieVector3 = (
+          a: AutoMovieHumanoidBone,
+          b: AutoMovieHumanoidBone,
+        ): IAutoMovieVector3 =>
+          Vector3.lerp(
+            bones.get(a)!.worldPosition,
+            bones.get(b)!.worldPosition,
+            0.5,
+          );
+        const root: IAutoMovieVector3 = Vector3.subtract(
+          shoulders,
+          mid("leftUpperArm", "rightUpperArm"),
+        );
+        if (projector === undefined)
+          projector = prepareHumanPostureProjection(body);
         return {
           pitch: tilt.pitch,
           joints: tilt.joints,
@@ -260,9 +313,17 @@ export namespace sprintStartSet {
 
     // The trunk's total tilt from the vertical along a hip-to-shoulders
     // direction, and the chain's shoulders in the world.
-    const tilt: (from: sprintStartSetChain.IPoint, to: sprintStartSetChain.IPoint) => number = (from: sprintStartSetChain.IPoint, to: sprintStartSetChain.IPoint): number =>
+    const tilt: (
+      from: sprintStartSetChain.IPoint,
+      to: sprintStartSetChain.IPoint,
+    ) => number = (
+      from: sprintStartSetChain.IPoint,
+      to: sprintStartSetChain.IPoint,
+    ): number =>
       90 + (Math.atan2(from.v - to.v, to.u - from.u) * 180) / Math.PI;
-    const placed: (chain: sprintStartSetChain.ISet) => IAutoMovieVector3 = (chain: sprintStartSetChain.ISet): IAutoMovieVector3 =>
+    const placed: (chain: sprintStartSetChain.ISet) => IAutoMovieVector3 = (
+      chain: sprintStartSetChain.ISet,
+    ): IAutoMovieVector3 =>
       Vector3.add(
         { ...wrists, y: chain.shoulders.v },
         Vector3.scale(forward, chain.shoulders.u - plane(wrists).u),
@@ -273,13 +334,23 @@ export namespace sprintStartSet {
     // read back once, the chain set again on that length and the tilt turned
     // by the direction's difference: the fit starts at the measured set.
     const rested: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.lerp(body.rest.get("leftUpperArm")!, body.rest.get("rightUpperArm")!, 0.5),
-      Vector3.lerp(body.rest.get("leftUpperLeg")!, body.rest.get("rightUpperLeg")!, 0.5),
+      Vector3.lerp(
+        body.rest.get("leftUpperArm")!,
+        body.rest.get("rightUpperArm")!,
+        0.5,
+      ),
+      Vector3.lerp(
+        body.rest.get("leftUpperLeg")!,
+        body.rest.get("rightUpperLeg")!,
+        0.5,
+      ),
     );
     let set: ISolved = solve(Math.hypot(rested.y, rested.z));
     let q: number = tilt(set.chain.hip, set.chain.shoulders);
     const shoulders: sprintStartSetChain.IPoint = plane(placed(set.chain));
-    const pelvis: sprintStartSetChain.IPoint = plane(posed(q, placed(set.chain), set.feet).pelvis);
+    const pelvis: sprintStartSetChain.IPoint = plane(
+      posed(q, placed(set.chain), set.feet).pelvis,
+    );
     const bent: number = tilt(pelvis, shoulders);
     set = solve(Math.hypot(shoulders.u - pelvis.u, shoulders.v - pelvis.v));
     q += tilt(set.chain.hip, set.chain.shoulders) - bent;
@@ -317,145 +388,50 @@ export namespace sprintStartSet {
         bend: AutoMovieMotionHumanBend.hang(body, posture, "right"),
       },
     };
-    const posedSeed: IAutoMoviePose = resolveHumanPosture.seeded(body, {
-      ...posture,
-      limbs,
-    }, undefined, undefined, resolution, undefined, projector).pose;
-    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [];
-    for (const side of ["left", "right"] as const) {
-      targets.push({
-        bone: `${side}Foot`,
-        goal: feet[side].ankle,
-        axes: ["x", "z"],
-        rotation: feet[side].rotation,
-      });
-      targets.push(...bridges[side].targets);
-    }
-    const solved: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
+    const posedSeed: IAutoMoviePose = resolveHumanPosture.seeded(
       body,
-      // The law carries sagittal trunk flexion and planted legs; unused
-      // neck, head, roll and frontal hip axes cannot decide a key that its
-      // movements would subsequently discard. Arms retain their freedoms.
-      variables: HumanFitVariables.BODY.filter(
-        (variable: (typeof HumanFitVariables.BODY)[number]): boolean => {
-          if (variable.kind === "place") return true;
-          if (variable.kind === "heading") return variable.axis === "pitch";
-          if (/^(neck|head)$/.test(variable.bone)) return false;
-          if (/^(spine|chest)$/.test(variable.bone)) return variable.axis === 0;
-          if (/(UpperLeg|LowerLeg)$/.test(variable.bone))
-            return variable.axis === 0;
-          return true;
-        },
-      ),
-      posture: {
+      {
         ...posture,
-        // Match the placed-arm consumer's flat hand before reading the floor;
-        // the body fit does not optimize fixed digit-shape coordinates.
-        joints: {
-          ...Object.fromEntries(
-            posedSeed.joints.map(
-              (
-                joint: IAutoMovieJointPose,
-              ): [AutoMovieHumanoidBone, readonly [number, number, number]] => [
-                joint.bone,
-                [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0],
-              ],
-            ),
-          ),
-          ...HumanHand.shape("left", "flat"),
-          ...HumanHand.shape("right", "flat"),
-        },
+        limbs,
       },
-      targets,
-      angles: [
-        {
-          points: [
-            [{ bone: `${front}UpperLeg` }],
-            [{ bone: `${front}LowerLeg` }],
-            [{ bone: `${front}Foot` }],
-          ],
-          degrees: FRONT,
-        },
-        {
-          points: [
-            [{ bone: `${rear}UpperLeg` }],
-            [{ bone: `${rear}LowerLeg` }],
-            [{ bone: `${rear}Foot` }],
-          ],
-          degrees: REAR,
-        },
-        {
-          points: [
-            [{ bone: `${front}LowerLeg` }],
-            [{ bone: `${front}UpperLeg` }],
-            [{ bone: "leftUpperArm" }, { bone: "rightUpperArm" }],
-          ],
-          degrees: HIP,
-        },
-      ],
-      centre: {
-        point: HumanFrame.point(frame, {
-          x: 0,
-          y: 0,
-          z: m.footLength - CENTRE[sex],
-        }),
-        axes: [forward],
-      },
-      bearing: [
-        /^left(Foot|Toes)$/,
-        /^right(Foot|Toes)$/,
-        // Each digit of the bridge bears on its own.
-        /^leftThumbDistal$/,
-        /^leftIndexDistal$/,
-        /^rightThumbDistal$/,
-        /^rightIndexDistal$/,
-      ],
-    });
-    // The set needs a posture satisfying all the contact and measurement
-    // rows. Further improvement of the preference within that feasible set
-    // is a separate optimisation question (Wright and Tenny 2004, SIAM J.
-    // Optim. 14(4), sec. 1, https://pages.cs.wisc.edu/~swright/papers/WriT04a.pdf).
-    if (!solved.feasible)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "set",
-        value: Math.max(
-          solved.centre,
-          ...solved.residuals.map(
-            (r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): number => r.point,
-          ),
-        ),
-        reason: `the sprint set did not meet its contacts, measured angles and centre: contacts ${solved.residuals.map((r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): string => r.point.toFixed(2)).join(", ")} mm; angles ${solved.angles.map((angle: number): string => angle.toFixed(2)).join(", ")} degrees; centre ${solved.centre.toFixed(2)} mm (${solved.reason})`,
-        fix: "use a stance whose contacts and measured set constraints are jointly reachable",
+      undefined,
+      undefined,
+      resolution,
+      undefined,
+      projector,
+    ).pose;
+    const solved: IAutoMovieMotionHumanBodyFitTypes.IResult =
+      sprintStartSetFit.of({
+        body,
+        posture,
+        seed: posedSeed,
+        feet,
+        placed: placedFeet !== undefined,
+        bridges: { left: bridges.left.targets, right: bridges.right.targets },
+        front,
+        // Placed plates fix the foot, so the front knee takes the measured
+        // spread, 90 +/- 8 (Cavedon et al. 2019), not its mean.
+        knee:
+          placedFeet === undefined
+            ? FRONT
+            : [FRONT - FRONT_SD, FRONT + FRONT_SD],
+        rear: REAR,
+        hip: HIP,
+        // The measured centre belongs to the anthropometric block setting;
+        // on placed plates it follows from where the plates stand.
+        centre:
+          placedFeet === undefined
+            ? {
+                point: HumanFrame.point(frame, {
+                  x: 0,
+                  y: 0,
+                  z: m.footLength - CENTRE[sex],
+                }),
+                axes: [forward],
+              }
+            : undefined,
       });
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolveHumanPosture.seeded(body, solved.posture, undefined, undefined, resolution, undefined, projector).pose,
-      resolution(),
-      new Set<AutoMovieHumanoidBone>(["hips", "leftHand", "rightHand", "leftFoot", "rightFoot"]),
-    );
-
-    // Each palm where the bridge leaves it, raised off the track, for the
-    // placed arm that holds the hand there.
-    const palm: (side: "left" | "right") => ReturnType<typeof of>["palms"]["left"] = (
-      side: "left" | "right",
-    ): ReturnType<typeof of>["palms"]["left"] => {
-      const at: IAutoMovieMotionHumanHand.IFrame = HumanHand.frame(body, bones, side, "palm", "flat");
-      return { point: at.point, facing: at.normal, forward: at.forward };
-    };
-    const palms: ReturnType<typeof of>["palms"] = { left: palm("left"), right: palm("right") };
-    return {
-      hips: bones.get("hips")!.worldPosition,
-      pitch: solved.posture.pitch,
-      joints: solved.posture.joints,
-      palms,
-      // Keep each foot's achieved block frame. Substituting the requested
-      // rotation discards the fitted shape at the toe's contact.
-      feet: {
-        left: { ankle: bones.get("leftFoot")!.worldPosition, rotation: bones.get("leftFoot")!.worldRotation },
-        right: { ankle: bones.get("rightFoot")!.worldPosition, rotation: bones.get("rightFoot")!.worldRotation },
-      },
-    };
+    return sprintStartSetFit.read(body, solved.posture, resolution, projector);
   }
 }
 
@@ -473,30 +449,4 @@ interface IStance {
 interface ISolved {
   chain: sprintStartSetChain.ISet;
   feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
-}
-/**
- * A foot in its block: the ball on the floor `behind` metres behind the
- * start line (the entry's foot length ahead of the root, where the hands lie),
- * the sole turned up onto the block's face.
- */
-function block(
-  body: IAutoMovieMotionHumanBody,
-  entry: IAutoMovieMotionHumanPosture,
-  frame: IAutoMovieMotionHumanFrame,
-  side: "left" | "right",
-  behind: number,
-  face: number,
-): IAutoMovieMotionHumanFoot.IPlacement {
-  return HumanFoot.pivot(
-    body,
-    side,
-    "ball",
-    HumanFrame.point(frame, {
-      x: body.rest.get(`${side}UpperLeg`)!.x,
-      y: 0,
-      z: body.measure.footLength - behind,
-    }),
-    entry.yaw,
-    -face,
-  );
 }

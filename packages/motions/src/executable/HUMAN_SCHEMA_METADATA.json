@@ -2456,6 +2456,18 @@
         }
       }
     },
+    "hurdleClear": {},
+    "longJump": {
+      "properties": {
+        "distance": {
+          "numeric": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "x-unit": "m"
+          }
+        }
+      }
+    },
     "fret": {},
     "frontCrawl": {
       "properties": {

@@ -18728,7 +18728,11 @@ export const HUMAN_LEXICON_SCHEMA_DATA: IAutoMovieMotionHumanLexiconSchemas.ICol
                 "const": "right"
               }
             ],
-            "description": "The front foot; `left` when absent."
+            "description": "The front foot. The placed front plate chooses the side when `on` is set and this is absent. Otherwise defaults to `left`."
+          },
+          "on": {
+            "type": "string",
+            "description": "Scene id of the starting block. Its `front` and `rear` pedal affordances are the plates that bear the feet. Absent uses the body-scaled track setup."
           },
           "sex": {
             "oneOf": [

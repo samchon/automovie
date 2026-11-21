@@ -104,7 +104,24 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
       resolution?: IAutoMoviePoseResolution.ISource,
       projection?: (pose: IAutoMoviePose) => IAutoMoviePose): IAutoMovieMotionHumanPosture;
 
-    /** The grip's contact window. */
+    /**
+     * Check the support grip in the resolved posture of a two-handed phase.
+     * The load owner supplies the check only for a two-handed prop.
+     *
+     * @param posture The loaded posture before transition offsets.
+     * @throws {HumanRefusal} When either arm cannot keep the support grip in its measured frame.
+     *
+     * @evidence contracts/development/common.md#meaningful-documentation Names the authored phase and the supporting hand read in the fitted pose.
+     * @evidenceExclude contracts/development/implementation.md#principled-implementation The method is declared here and implemented by WorkoutLoad.
+     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The method is declared here and implemented by WorkoutLoad.
+     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The method is declared here and implemented by WorkoutLoad.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration selects no execution strategy.
+     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration coordinates no work.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration owns no state.
+     */
+    admit?(posture: IAutoMovieMotionHumanPosture): void;
+
+    /** The grip contacts, including the support hand when specified. */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
     /** The hold the action leaves as it found it. */
