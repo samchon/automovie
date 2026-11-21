@@ -4,6 +4,7 @@ import type {
   IAutoMovieComposition,
   IAutoMovieMotionHumanBallPlay,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -102,7 +103,7 @@ export function test_motion_exercise_rugby_play(): void {
         yaw: station.yaw,
         proficiency: { level: "trained" },
       });
-      const caught: HumanChain = HumanChain.subject(subject)
+      const caught: IAutoMovieMotionHumanChain = HumanChain.subject(subject)
         .registered("stageCatch", {
           from,
           ball: "ball",
