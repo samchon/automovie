@@ -381,18 +381,14 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       );
 
       // Out of the saddle the pelvis rides the stride-averaged path, faded in and out over the transfers.
-      const out = (i: number): boolean =>
-        i >= 0 && HumanMountedStirrups.free(figures[i]!.seat);
+      const kept = (i: number): number =>
+        i < 0 || !HumanMountedStirrups.free(figures[i]!.seat)
+          ? 0
+          : HumanMountedStirrups.profile(figures[i]!.seat).decouple;
       const level: number =
         stride === undefined
           ? 0
-          : out(index)
-            ? out(index - 1)
-              ? 1
-              : share
-            : out(index - 1)
-              ? 1 - share
-              : 0;
+          : kept(index - 1) + (kept(index) - kept(index - 1)) * share;
       const shown: IAutoMovieMotionHumanPosture =
         level === 0
           ? moved

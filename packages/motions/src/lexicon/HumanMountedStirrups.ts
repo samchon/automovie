@@ -58,6 +58,9 @@ export namespace HumanMountedStirrups {
 
     /** How far the hips stand behind the stirrups, thigh lengths. */
     back: number;
+
+    /** The share of the carrier's rise and fall the pelvis is kept out of, 0 carried with the saddle to 1 level in space. */
+    decouple: number;
   }
 
   /** The least the seat socket clears the saddle by in any out-of-saddle seat, metres (provisional). */
@@ -82,7 +85,7 @@ export namespace HumanMountedStirrups {
   }
 
   /**
-   * The profile of an out-of-saddle seat (all provisional): the two-point seat's socket 0.12 thighs over the saddle with the pelvis inclined 40 degrees, the crouch's 0.2 thighs with the pelvis inclined 75 degrees so the trunk lies level with the spine's own flexion, and standing at 20 degrees of knee flexion with the pelvis inclined 10.
+   * The profile of an out-of-saddle seat (all provisional): the two-point seat's socket 0.12 thighs over the saddle with the pelvis inclined 40 degrees, the crouch's 0.2 thighs with the pelvis inclined 75 degrees so the trunk lies level with the spine's own flexion, and standing at 20 degrees of knee flexion with the pelvis inclined 10; the crouch keeps the pelvis fully level, as the jockey's crouch does (Pfau et al. 2009), the two-point seat and standing half (provisional).
    *
    * @param seat An out-of-saddle seat kind.
    * @returns Its profile.
@@ -96,9 +99,11 @@ export namespace HumanMountedStirrups {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function profile(seat: IAutoMovieMotionHumanMounted.Seat): IProfile {
-    if (seat === "crouch") return { clear: 0.2, pitch: 75, back: 0.35 };
-    if (seat === "standing") return { knee: 20, pitch: 10, back: 0.05 };
-    return { clear: 0.12, pitch: 40, back: 0.25 };
+    if (seat === "crouch")
+      return { clear: 0.2, pitch: 75, back: 0.35, decouple: 1 };
+    if (seat === "standing")
+      return { knee: 20, pitch: 10, back: 0.05, decouple: 0.5 };
+    return { clear: 0.12, pitch: 40, back: 0.25, decouple: 0.5 };
   }
 
   /**
@@ -127,6 +132,7 @@ export namespace HumanMountedStirrups {
     const entry: IAutoMovieMotionHumanPosture = context.entry;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const shape: IProfile = profile(seat);
+    const slack: number = context.slack * shape.decouple;
     const facing: number = 360 * Math.round(entry.yaw / 360);
     const attitude: Pick<
       IAutoMovieMotionHumanPosture,
@@ -195,7 +201,7 @@ export namespace HumanMountedStirrups {
             m.thigh * m.thigh +
               m.shank * m.shank +
               2 * m.thigh * m.shank * Math.cos(r),
-          )) - context.slack;
+          )) - slack;
     for (const side of ["left", "right"] as const) {
       const across: number = Math.hypot(
         anchor.x + rest[side].x - feet[side].ankle.x,
@@ -220,22 +226,18 @@ export namespace HumanMountedStirrups {
     );
     for (const side of ["left", "right"] as const) {
       const length: number = Vector3.distance(hips[side], feet[side].ankle);
-      if (
-        !(
-          length >= near + context.slack && length <= far - context.slack + 1e-9
-        )
-      )
+      if (!(length >= near + slack && length <= far - slack + 1e-9))
         throw new HumanRefusal({
           kind: "reach",
           axis: `supports.${side}Foot`,
           value: length,
           feasible: {
             kind: "range",
-            minimum: near + context.slack,
-            maximum: far - context.slack,
+            minimum: near + slack,
+            maximum: far - slack,
             unit: "m",
           },
-          reason: `the ${seat} seat puts the ${side} stirrup ${length.toFixed(3)} m from its hip, outside the leg's band: the stirrups are ${length > far - context.slack ? "too long to stand clear of the saddle" : "too short"}`,
+          reason: `the ${seat} seat puts the ${side} stirrup ${length.toFixed(3)} m from its hip, outside the leg's band: the stirrups are ${length > far - slack ? "too long to stand clear of the saddle" : "too short"}`,
           fix: "set the stirrups within the leg's reach for this seat, or ride seated",
         });
     }
@@ -245,13 +247,18 @@ export namespace HumanMountedStirrups {
       root,
     };
     const socket: number = seated.socket(body, posture).y;
-    if (!(socket >= CLEAR))
+    if (!(socket >= CLEAR + slack))
       throw new HumanRefusal({
         kind: "reach",
         axis: `figures.${seat}`,
         value: socket,
-        feasible: { kind: "range", minimum: CLEAR, maximum: null, unit: "m" },
-        reason: `the ${seat} seat leaves the seat socket ${socket.toFixed(3)} m over the saddle, not clear of it, the legs holding their stirrups ${feet.left.ankle.y.toFixed(3)} m below it through the carrier's rise and fall of ${context.slack.toFixed(3)} m`,
+        feasible: {
+          kind: "range",
+          minimum: CLEAR + slack,
+          maximum: null,
+          unit: "m",
+        },
+        reason: `the ${seat} seat leaves the seat socket ${socket.toFixed(3)} m over the saddle, not clear of it, the legs holding their stirrups ${feet.left.ankle.y.toFixed(3)} m below it through the carrier's rise and fall of ${slack.toFixed(3)} m`,
         fix: "shorten the stirrups, or ride seated",
       });
     const leg = (side: "left" | "right"): IAutoMovieHumanLimbGoal => ({
