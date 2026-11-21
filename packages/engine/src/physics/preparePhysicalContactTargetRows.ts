@@ -2,7 +2,6 @@ import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalContactBinding,
   IAutoMoviePhysicalContactBindingRows,
-  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalPointBound,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
@@ -13,7 +12,10 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
+import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
+import type { ResolvePhysicalContactPose } from "./ResolvePhysicalContactPose";
 import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
+import { initialPhysicalContactTargets } from "./initialPhysicalContactTargets";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
 import { linearizePhysicalSeparation } from "./linearizePhysicalSeparation";
@@ -21,13 +23,7 @@ import { memoizePhysicalTransformValue } from "./memoizePhysicalTransformValue";
 import { physicalContactBindingRows } from "./physicalContactBindingRows";
 import { physicalContactSupportRows } from "./physicalContactSupportRows";
 import { physicalPointProjection } from "./physicalPointProjection";
-import {
-  type IPhysicalContactPoseReference,
-  type ResolvePhysicalContactPose,
-  preparePhysicalContactBindingRows,
-} from "./preparePhysicalContactBindingRows";
-import { projectPhysicalTargets } from "./projectPhysicalTargets";
-import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
+import { preparePhysicalContactBindingRows } from "./preparePhysicalContactBindingRows";
 
 type Input = IAutoMoviePlanPhysicalContactTargets.IInput;
 type Rows = IAutoMovieLinearizePhysicalTargetRows.IRows;
@@ -48,71 +44,6 @@ type IPrepared = {
   tolerance: number;
   coupledScalarRows: number;
 };
-
-/**
- * Project a body's authored joint limits and place the coherent tree at its actual root.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the articulated pose and world-root authority.
- * @evidence contracts/development/implementation.md#principled-implementation Finds the profile's single root and uses joint projection followed by rigid pose rebasing.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The function only establishes the seed from the authored targets and actual placement.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the full articulated tree and its root displacement through both existing pose operators.
- * @evidence contracts/development/implementation.md#efficient-algorithms Runs once per prepared body before rows and numerical probes.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the established projection and rebasing operations for both fit modes.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns owned projected poses and retains no borrowed input.
- */
-export function initialPhysicalContactTargets(
-  input: Input,
-): Record<string, IAutoMovieRigidTransform> {
-  const profile: IAutoMoviePhysicalProfile = input.profiles[input.body]!;
-  const root: string = profile.segments.find(
-    (segment: IAutoMoviePhysicalSegment): boolean =>
-      !profile.joints.some(
-        (joint: IAutoMoviePhysicalJoint): boolean =>
-          joint.child === segment.bone,
-      ),
-  )!.bone;
-  const coherent: Record<string, IAutoMovieRigidTransform> =
-    projectPhysicalTargets(profile, input.targets).targets;
-  return rebasePhysicalTargets(
-    coherent,
-    root,
-    input.actual[input.body]![root]!,
-  );
-}
-
-/**
- * Select the original actuator chains, expanding to every joint for self avoidance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Specifies which local bones can supply coordinates in a fit.
- * @evidence contracts/development/implementation.md#principled-implementation Unions active collider chains and point-bound chains or takes all joints for the declared self-avoidance behavior.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One selection serves both the optimizer and mutual dependency admission.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Weight-zero bindings contribute no movable chain; all admitted point bounds contribute their chains.
- * @evidence contracts/development/implementation.md#efficient-algorithms Reads each active chain once; the set collapses overlapping chains before probes.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The legacy fit and the coupled fit use the same coordinate selection.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a local ordered collection and holds no data after the call.
- */
-export function physicalContactTargetBones(
-  input: Pick<
-    Input,
-    "body" | "profiles" | "bindings" | "pointBounds" | "selfAvoidance"
-  >,
-): string[] {
-  return input.selfAvoidance
-    ? input.profiles[input.body]!.joints.map(
-        (joint: IAutoMoviePhysicalJoint): string => joint.child,
-      )
-    : [
-        ...new Set([
-          ...input.bindings.flatMap(
-            (binding: IAutoMoviePhysicalContactBinding): string[] =>
-              binding.weight > 0 ? binding.chain : [],
-          ),
-          ...(input.pointBounds ?? []).flatMap(
-            (bound: IAutoMoviePhysicalPointBound): string[] => bound.chain,
-          ),
-        ]),
-      ];
-}
 
 /**
  * Prepare one body's geometry constraints against either its local pose map or a common scene candidate.

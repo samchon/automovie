@@ -7,13 +7,11 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
+import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
-import {
-  type IPhysicalContactTargetSeed,
-  preparePhysicalContactTargetSeed,
-} from "./preparePhysicalContactTargetSeed";
+import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { trackPhysicalCoupledTargets } from "./trackPhysicalCoupledTargets";
 

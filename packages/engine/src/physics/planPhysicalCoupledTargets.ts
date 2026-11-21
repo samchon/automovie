@@ -13,19 +13,16 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
+import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
+import { PHYSICAL_COUPLED_RELATIONSHIP_LIMIT } from "./PHYSICAL_COUPLED_RELATIONSHIP_LIMIT";
+import { PHYSICAL_TARGET_LIMITS } from "./PHYSICAL_TARGET_LIMITS";
 import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
+import { initialPhysicalContactTargets } from "./initialPhysicalContactTargets";
 import { linearizePhysicalTargetRows } from "./linearizePhysicalTargetRows";
+import { physicalContactTargetBones } from "./physicalContactTargetBones";
 import { physicalCoupledTargetDependencies } from "./physicalCoupledTargetDependencies";
-import type { IPhysicalContactPoseReference } from "./preparePhysicalContactBindingRows";
-import {
-  initialPhysicalContactTargets,
-  physicalContactTargetBones,
-  preparePhysicalContactTargetRows,
-} from "./preparePhysicalContactTargetRows";
-import {
-  PHYSICAL_TARGET_LIMITS,
-  solvePhysicalTargetForest,
-} from "./solvePhysicalTargetForest";
+import { preparePhysicalContactTargetRows } from "./preparePhysicalContactTargetRows";
+import { solvePhysicalTargetForest } from "./solvePhysicalTargetForest";
 
 type Body = IAutoMoviePhysicalSimulationInput.IBody;
 type Target = IAutoMoviePhysicalSimulationInput.ITarget;
@@ -75,13 +72,6 @@ type PreparedMember = {
   readonly plan: Plan;
   readonly bones: readonly string[];
 };
-
-/**
- * Maximum admitted relationship population for one coupled solve.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Caps the single shared request at the existing 256-relationship upper limit.
- */
-export const PHYSICAL_COUPLED_RELATIONSHIP_LIMIT: number = 256;
 
 /**
  * Fit a mutually adjustable group against one candidate scene. Participating

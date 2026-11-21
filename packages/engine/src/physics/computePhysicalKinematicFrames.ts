@@ -6,9 +6,9 @@ import type {
   IAutoMoviePreparePhysicalGeometry,
 } from "@automovie/interface";
 
+import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 import { bindPhysicalKinematicFrame } from "./bindPhysicalKinematicFrame";
 import { createPhysicalKinematicFrame } from "./createPhysicalKinematicFrame";
-import type { IPhysicalCoupledTargetRun } from "./fitPhysicalCoupledTargetGroup";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 

@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 import type { ImpulseJoint, RigidBody } from "@dimforge/rapier3d-compat";
 
-import type { IPhysicalCoupledTargetRun } from "./fitPhysicalCoupledTargetGroup";
+import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
 
 /**
  * Solver handles are transient and rebuilt in creation order after snapshot restore.

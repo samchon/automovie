@@ -6,10 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { linearizePhysicalTargetRows } from "./linearizePhysicalTargetRows";
-import {
-  physicalContactTargetBones,
-  preparePhysicalContactTargetRows,
-} from "./preparePhysicalContactTargetRows";
+import { physicalContactTargetBones } from "./physicalContactTargetBones";
+import { preparePhysicalContactTargetRows } from "./preparePhysicalContactTargetRows";
 import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
 
 /**

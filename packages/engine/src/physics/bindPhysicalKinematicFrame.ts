@@ -13,13 +13,11 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMoviePhysicalCoupledTargetError } from "./AutoMoviePhysicalCoupledTargetError";
-import {
-  type IPhysicalCoupledTargetRun,
-  fitPhysicalCoupledTargetGroup,
-} from "./fitPhysicalCoupledTargetGroup";
+import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
+import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
+import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
-import type { IPhysicalCoupledTargetGroup } from "./preparePhysicalSimulationInput";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /**

@@ -33,8 +33,11 @@ export namespace IAutoMoviePhysicalCoupledTargetFit {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A satisfied separation reports zero violation.
    */
   export interface IWitness {
+    /** Member body whose target declares the relationship. */
     readonly body: string;
+    /** The relationship's authored id, unique within that body's target. */
     readonly id: string;
+    /** Collider-relative contact binding, or articulated point bound. */
     readonly kind: "binding" | "point";
     /** Signed components in metres, including any binding weighting. */
     readonly components: readonly number[];
@@ -55,6 +58,7 @@ export namespace IAutoMoviePhysicalCoupledTargetFit {
     readonly tolerance: number;
     /** Euclidean norm of the final combined metre residual. */
     readonly residual: number;
+    /** Signed residual of every admitted relationship, members in ordinal order. */
     readonly witnesses: readonly IWitness[];
   }
 

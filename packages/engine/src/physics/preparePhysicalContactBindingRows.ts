@@ -14,36 +14,12 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
+import type { ResolvePhysicalContactPose } from "./ResolvePhysicalContactPose";
 import { linearizePhysicalSeparation } from "./linearizePhysicalSeparation";
 import { memoizePhysicalTransformValue } from "./memoizePhysicalTransformValue";
 import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-
-/**
- * A bone pose and its optional dependency in the candidate being probed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A missing key identifies a fixed reference. The reader returns its world pose.
- * @evidence contracts/development/design.md#principled-representation One read and dependency express the same bone in either an adjustable tree or a fixed snapshot.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A row captures only the pose read and its candidate identity during the fit.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A value borrowed from a fixed snapshot has no derivative key.
- */
-export interface IPhysicalContactPoseReference {
-  readonly key?: string;
-  read(poses: IAutoMoviePoses): IAutoMovieRigidTransform;
-}
-
-/**
- * Resolve a scene body and its local bone once when preparing its row.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Accepts admitted body and bone identities and returns their world pose reference.
- * @evidence contracts/development/design.md#principled-representation The two identities distinguish coincident local bone names across participants.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One callback resolves the two actual endpoint reads at row setup.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The resolver determines candidate membership from the fit rather than from shape or body naming conventions.
- */
-export type ResolvePhysicalContactPose = (
-  body: string,
-  bone: string,
-) => IPhysicalContactPoseReference;
 
 /**
  * Compile contact and separation rows against resolved source and receiver

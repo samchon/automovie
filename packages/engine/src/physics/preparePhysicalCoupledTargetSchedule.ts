@@ -1,43 +1,18 @@
 import type {
-  IAutoMoviePhysicalCoupledTargetFit,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
 import { AutoMoviePhysicalCoupledTargetError } from "./AutoMoviePhysicalCoupledTargetError";
+import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
+import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSchedule";
+import { PHYSICAL_COUPLED_RELATIONSHIP_LIMIT } from "./PHYSICAL_COUPLED_RELATIONSHIP_LIMIT";
+import { PHYSICAL_TARGET_LIMITS } from "./PHYSICAL_TARGET_LIMITS";
+import { physicalContactTargetBones } from "./physicalContactTargetBones";
 import { physicalCoupledTargetDependencies } from "./physicalCoupledTargetDependencies";
-import { PHYSICAL_COUPLED_RELATIONSHIP_LIMIT } from "./planPhysicalCoupledTargets";
-import { physicalContactTargetBones } from "./preparePhysicalContactTargetRows";
-import { PHYSICAL_TARGET_LIMITS } from "./solvePhysicalTargetForest";
 
 type Body = IAutoMoviePhysicalSimulationInput.IBody;
 type Target = IAutoMoviePhysicalSimulationInput.ITarget;
-
-/**
- * One group of borrowed, already admitted bodies at a sampled step.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Relates the group identity to the bodies whose targets that step owns.
- * @evidence contracts/development/design.md#principled-representation The bodies and corresponding member ids share ordinal order.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the actual admitted body records for both frame producers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Groups are created only from explicit authored declarations.
- */
-export interface IPhysicalCoupledTargetGroup
-  extends IAutoMoviePhysicalCoupledTargetFit.IInterval {
-  readonly bodies: readonly Body[];
-}
-
-/**
- * Sparse schedule of coupled groups in exact authored interval order.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Keys populated intervals by integer step, with groups ordered by id.
- * @evidence contracts/development/design.md#principled-representation Keeps per-step membership separate from runtime root and pose selection.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A producer needs only the groups for its current sampled step.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The borrowed schedule contains no native state or fitted outputs.
- */
-export type IPhysicalCoupledTargetSchedule = ReadonlyMap<
-  number,
-  readonly IPhysicalCoupledTargetGroup[]
->;
 
 /**
  * Admit explicit coupled groups on top of the already admitted individual

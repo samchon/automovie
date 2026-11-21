@@ -273,7 +273,11 @@ function oneNorm(vector: IAutoMovieVector3): number {
 
 /** Whether every world component is finite. */
 function finite(vector: IAutoMovieVector3 | undefined | null): boolean {
-  return vector != null && AXES.every((axis) => Number.isFinite(vector[axis]));
+  return (
+    vector !== undefined &&
+    vector !== null &&
+    AXES.every((axis) => Number.isFinite(vector[axis]))
+  );
 }
 
 /** Round upward, making an unrepresentable enclosure inconclusive. */

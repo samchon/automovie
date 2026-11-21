@@ -4,10 +4,8 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import {
-  type IPhysicalContactPoseReference,
-  preparePhysicalContactBindingRows,
-} from "./preparePhysicalContactBindingRows";
+import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
+import { preparePhysicalContactBindingRows } from "./preparePhysicalContactBindingRows";
 
 /**
  * Prepare one body's relationship witnesses. Same-body endpoints follow the

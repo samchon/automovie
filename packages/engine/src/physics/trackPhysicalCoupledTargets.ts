@@ -7,14 +7,12 @@ import type {
 
 import { AutoMoviePhysicalCoupledTargetError } from "./AutoMoviePhysicalCoupledTargetError";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
+import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
+import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
-import {
-  type IPhysicalContactTargetSeed,
-  preparePhysicalContactTargetSeed,
-} from "./preparePhysicalContactTargetSeed";
-import type { IPhysicalCoupledTargetGroup } from "./preparePhysicalSimulationInput";
+import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 
 type Body = IAutoMoviePhysicalSimulationInput.IBody;

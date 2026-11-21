@@ -15,23 +15,21 @@ import RAPIER, {
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
+import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
+import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSchedule";
 import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
 import { assertPhysicalReturnPath } from "./assertPhysicalReturnPath";
 import { bindPhysicalWorld } from "./bindPhysicalWorld";
 import { checkpointPhysicalSimulation } from "./checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
-import type { IPhysicalCoupledTargetRun } from "./fitPhysicalCoupledTargetGroup";
 import { freezePhysicalRecord } from "./freezePhysicalRecord";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
 import { physicalInputDigest } from "./physicalInputDigest";
 import { physicalNativeVector } from "./physicalNativeVector";
+import { preparePhysicalCoupledTargetSchedule } from "./preparePhysicalCoupledTargetSchedule";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
-import {
-  type IPhysicalCoupledTargetSchedule,
-  preparePhysicalCoupledTargetSchedule,
-} from "./preparePhysicalSimulationInput";
 import { readPhysicalFrame } from "./readPhysicalFrame";
 import { recordPhysicalContact } from "./recordPhysicalContact";
 import { restorePhysicalSimulationCheckpoint } from "./restorePhysicalSimulationCheckpoint";

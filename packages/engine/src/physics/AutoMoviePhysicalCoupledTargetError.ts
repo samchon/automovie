@@ -21,6 +21,7 @@ export class AutoMoviePhysicalCoupledTargetError extends Error {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only the failure report and Error's own fields.
    */
   public constructor(
+    /** The interval's refusal or unconverged report; it carries no target poses. */
     public readonly fit: IAutoMoviePhysicalCoupledTargetFit.IFailure,
   ) {
     super(
