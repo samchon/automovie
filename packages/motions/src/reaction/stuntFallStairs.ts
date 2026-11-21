@@ -3,7 +3,6 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
-  wrapDegrees,
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,

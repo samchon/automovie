@@ -182,14 +182,17 @@ export function planWallRun(
     ...context,
     params: { stances },
     aim: (reference: IAutoMovieMotionTarget, seconds: number) => {
-      const point: IAutoMovieVector3 | undefined =
+      const key: string | undefined =
         reference.kind === "prop" && reference.subject === p.wall
-          ? staged.get(reference.point)
+          ? reference.point
           : undefined;
-      if (point === undefined) return context.aim(reference, seconds);
+      const point: IAutoMovieVector3 | undefined =
+        key === undefined ? undefined : staged.get(key);
+      if (key === undefined || point === undefined)
+        return context.aim(reference, seconds);
       return {
         point,
-        normal: reference.point.endsWith("Top")
+        normal: key.endsWith("Top")
           ? { x: 0, y: 1, z: 0 }
           : face.normal,
       };

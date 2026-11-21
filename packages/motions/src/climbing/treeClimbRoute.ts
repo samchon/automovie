@@ -34,8 +34,8 @@ const ASTRIDE: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 10,
   roll: 0,
   joints: {
-    ...HumanHand.shape("left", "grip"),
-    ...HumanHand.shape("right", "grip"),
+    ...HumanHand.shape("left", "fist"),
+    ...HumanHand.shape("right", "fist"),
     leftUpperLeg: [70, 30, 0],
     rightUpperLeg: [70, 30, 0],
     leftLowerLeg: [80, 0, 0],

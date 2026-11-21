@@ -171,8 +171,8 @@ export namespace skydivePoses {
     a: IShape,
   ): IAutoMovieMotionHumanLieDown.IPose {
     const joints: IAutoMovieMotionHumanLieDown.IPose["joints"] = {
-      ...HumanHand.shape("left", "grip"),
-      ...HumanHand.shape("right", "grip"),
+      ...HumanHand.shape("left", "fist"),
+      ...HumanHand.shape("right", "fist"),
     };
     for (const side of ["left", "right"] as const) {
       joints[`${side}UpperLeg`] = [...a.leg];
