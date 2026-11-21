@@ -25,6 +25,7 @@ import {
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { assertTakeClean } from "../internal/assertTakeClean";
 import { motionHumanBody } from "../internal/motionHumanBody";
 
 /** The two feet, each read against the support it bears on. */
@@ -32,6 +33,9 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /** The established planted-contact tolerance of the support tests, metres. */
 const SLIP: number = 0.01;
+
+/** How far a stepping plant's ball may sit off the support it names, metres: the sole's thickness under the ball with the foot rolling over it (provisional). */
+const BEAR: number = 0.05;
 
 /** The world placement of each installation: at the origin, facing `+Z`. */
 const ORIGIN: IAutoMovieTransform = {
@@ -53,11 +57,15 @@ const ORIGIN: IAutoMovieTransform = {
  *    wrist its place at the handrail grip above the tread. Stepping on and
  *    off, each planted foot stays still on the support it bears on, and
  *    one foot bears on the landing while the other is on the tread.
- * 2. Standing on an inclined tread, the rider climbs four moving steps up.
+ * 2. Standing on an inclined tread, the rider climbs four moving steps up,
+ *    with an up escalator and, as authored, against a down one.
  *    Each foot's ankle is still in the moving flight's frame while planted,
  *    and the climb's world displacement is the static climb's plus the
- *    flight's travel.
- * 3. Climbing up a down escalator is refused unless the author states it.
+ *    flight's travel, so a climb against the steps at their speed stays
+ *    in place in the world. The ride take is also read by the generic
+ *    audit, and every heel and toe on a tread lies inside its edges.
+ * 3. Climbing up a down escalator is refused unless the author states it,
+ *    and the ride of scenario 1 runs down as well as up.
  * 4. On a moving walkway the rider boards from the entry landing, rides
  *    still in the band's frame, and walks against the band. That walk's
  *    world path is the same walk's path on a still band plus the band's
@@ -73,8 +81,10 @@ export function test_motion_exercise_escalator_ride(): void {
   const failures: string[] = [];
   for (const key of ["m-average", "f-small"] as const) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(key);
-    escalatorRide(body, key, failures);
-    escalatorClimb(body, key, failures);
+    escalatorRide(body, key, "up", failures);
+    escalatorRide(body, key, "down", failures);
+    escalatorClimb(body, `${key} with`, "up", failures);
+    escalatorClimb(body, `${key} against`, "down", failures);
     walkwayRide(body, key, failures);
   }
   const down: rideEscalator.IRide = rideEscalator(
@@ -97,53 +107,74 @@ export function test_motion_exercise_escalator_ride(): void {
   TestValidator.equals("escalator and walkway support", failures, []);
 }
 
-/** Board one horizontal tread and ride it with a hand on the handrail. */
+/** Board one horizontal tread, ride it with a hand on the handrail and step off. */
 function escalatorRide(
   body: IAutoMovieMotionHumanBody,
-  key: string,
+  name: string,
+  direction: rideEscalator.Direction,
   failures: string[],
 ): void {
+  const key: string = `${name} ${direction}`;
+  const up: boolean = direction === "up";
   const escalator: ReturnType<typeof createEscalator> = createEscalator({
     rise: 3,
     width: 0.8,
   });
-  const ride: rideEscalator.IRide = rideEscalator(escalator, ORIGIN, "up");
-  const station: number = 0.2;
+  const ride: rideEscalator.IRide = rideEscalator(escalator, ORIGIN, direction);
+  const station: number = up ? 0.2 : ride.profile.length - 0.2;
   const tread = (seconds: number): IAutoMovieRigidTransform =>
     rigid(ride.tread(station, seconds));
   const top: IAutoMovieVector3 = createEscalator.station(
     ride.profile,
     ride.profile.length,
   );
-  const board: number = 1.2;
+  const lower: IAutoMovieVector3 = { x: 0, y: 0, z: -0.45 };
+  const upper: IAutoMovieVector3 = {
+    x: 0,
+    y: ride.profile.rise,
+    z: top.z + 0.45,
+  };
+  const boarding: IAutoMovieVector3 = up ? lower : upper;
+  const alighting: IAutoMovieVector3 = up ? upper : lower;
+  const performer: Performer = {
+    subject: "a",
+    body,
+    at: boarding,
+    yaw: up ? 0 : 180,
+    proficiency: { level: "trained" },
+  };
+  const props: Props = [
+    HumanObject.prop("escalator", escalator, rigid(ORIGIN)),
+    HumanObject.prop("step", createEscalator.tread(escalator), tread(0), tread),
+  ];
+  // The rider boards with the feet centred on the tread.
+  const onto: IAutoMovieVector3 = Vector3.add(
+    createEscalator.station(ride.profile, station),
+    { x: 0, y: 0, z: up ? -centre(body) : centre(body) },
+  );
+  const board: number = new HumanPerformance({
+    seed: "escalator ride",
+    performers: [performer],
+    props,
+    laws: [HumanSurface.supportStep],
+    composition: HumanChain.subject("a").registered("supportStep", {
+      to: onto,
+      onto: "step",
+    }).node,
+  }).duration;
+  // The ride ends as the tread reaches the far level run, that run's whole
+  // length short of the comb, so the rider steps off before it dives.
   const seconds: number =
-    (ride.profile.length - ride.profile.flat / 2 - station) /
-      ride.profile.speed -
+    (ride.profile.length - ride.profile.flat - 0.2) / ride.profile.speed -
     board;
   const film: HumanPerformance = new HumanPerformance({
     seed: "escalator ride",
-    performers: [
-      {
-        subject: "a",
-        body,
-        at: { x: 0, y: 0, z: -0.45 },
-        yaw: 0,
-        proficiency: { level: "trained" },
-      },
-    ],
-    props: [
-      HumanObject.prop("escalator", escalator, rigid(ORIGIN)),
-      HumanObject.prop(
-        "step",
-        createEscalator.tread(escalator),
-        tread(0),
-        tread,
-      ),
-    ],
+    performers: [performer],
+    props,
     laws: [HumanSurface.supportStep, HumanSurface.boardRide],
     composition: HumanChain.subject("a")
       .registered("supportStep", {
-        to: { x: 0, y: 0, z: station },
+        to: onto,
         onto: "step",
       })
       .registered("boardRide", {
@@ -152,7 +183,7 @@ function escalatorRide(
         hands: { right: "rightRail" },
       })
       .registered("supportStep", {
-        to: { x: 0, y: ride.profile.rise, z: top.z + 0.45 },
+        to: alighting,
         from: "step",
       }).node,
   });
@@ -165,7 +196,11 @@ function escalatorRide(
     return;
   }
   for (const side of SIDES)
-    if (film.bones("a", 0).get(`${side}Foot`)!.worldPosition.z >= 0)
+    if (
+      Math.abs(
+        film.bones("a", 0).get(`${side}Foot`)!.worldPosition.z - boarding.z,
+      ) > 0.45
+    )
       failures.push(`${key}: the ${side} foot does not start on the landing`);
   const start: number = riding.start;
   const reference: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
@@ -173,8 +208,14 @@ function escalatorRide(
     right: local(tread(start), ankle(film, "right", start)),
   };
   const rail: IAutoMovieVector3 = local(tread(start), wrist(film, start));
+  const within = (at: number): string[] =>
+    SIDES.flatMap((side: AutoMovieHumanSide): string[] =>
+      edge(body, film, side, tread(at), at, ride.profile.pitch, escalator),
+    );
+  for (const side of within(start)) failures.push(`${key}: riding, ${side}`);
+  clean(key, film, failures);
   for (let i: number = 0; i <= 12; ++i) {
-    const at: number = start + (end - start) * (i / 12);
+    const at: number = start + (end - 0.05 - start) * (i / 12);
     const frame: IAutoMovieRigidTransform = tread(at);
     for (const side of SIDES) {
       const drift: number = Vector3.distance(
@@ -192,12 +233,16 @@ function escalatorRide(
         `${key}: the right wrist leaves the handrail grip by ${hand.toFixed(3)} m at ${at.toFixed(2)} s`,
       );
   }
-  if (Math.abs(tread(end).position.y - ride.profile.rise) > 1e-9)
-    failures.push(`${key}: the ride does not reach the upper run`);
+  if (Math.abs(tread(end).position.y - alighting.y) > 1e-9)
+    failures.push(`${key}: the ride does not reach the far run`);
 
-  // Stepping on and off: each plant stays still on the support it names,
-  // and one foot bears on the landing while the other is on the tread.
+  // Stepping on and off: a plant on the tread moves on it no more than the
+  // walk's own plants on the fixed landing move on that, and one foot bears
+  // on the landing while the other is on the tread.
   let mixed: boolean = false;
+  let landing: number = 0;
+  let treadDrift: number = 0;
+  let lift: number = 0;
   for (const step of film
     .segments("a")
     .filter(
@@ -212,19 +257,55 @@ function escalatorRide(
     for (const window of plants) {
       const side: AutoMovieHumanSide =
         window.part === "leftFoot" ? "left" : "right";
-      const from: number = step.start + window.from * step.plan.duration;
-      const to: number = step.start + window.to * step.plan.duration;
+      // The ball is the sole point a plant holds from foot-flat to toe-off.
+      const span: number = (window.to - window.from) * step.plan.duration;
+      const from: number =
+        step.start + window.from * step.plan.duration + 0.3 * span;
+      const to: number =
+        step.start + window.from * step.plan.duration + 0.9 * span;
       const onTread: boolean = window.support.kind === "prop";
       const frameAt = (at: number): IAutoMovieRigidTransform =>
         onTread ? tread(at) : rigid(ORIGIN);
       const drift: number = Vector3.distance(
-        local(frameAt(from), ankle(film, side, from)),
-        local(frameAt(to), ankle(film, side, to)),
+        local(frameAt(from), ball(body, film, side, from)),
+        local(frameAt(to), ball(body, film, side, to)),
       );
-      if (drift > SLIP)
-        failures.push(
-          `${key}: a planted ${side} foot slips ${drift.toFixed(3)} m on the ${onTread ? "tread" : "landing"} while stepping`,
-        );
+      // The landing a ground plant bears on is the one the step starts or
+      // ends at: the one nearer the ball.
+      const sole: IAutoMovieVector3 = ball(body, film, side, from);
+      const height: number = onTread
+        ? local(tread(from), sole).y
+        : Math.min(
+            Math.abs(sole.y - boarding.y),
+            Math.abs(sole.y - alighting.y),
+          );
+      lift = Math.max(lift, Math.abs(height));
+      if (onTread) {
+        treadDrift = Math.max(treadDrift, drift);
+        for (const crossing of edge(
+          body,
+          film,
+          side,
+          tread(from),
+          from,
+          ride.profile.pitch,
+          escalator,
+        ))
+          failures.push(`${key}: stepping, ${crossing}`);
+      } else {
+        landing = Math.max(landing, drift);
+        for (const crossing of edge(
+          body,
+          film,
+          side,
+          tread(from),
+          from,
+          ride.profile.pitch,
+          escalator,
+          false,
+        ))
+          failures.push(`${key}: stepping, ${crossing}`);
+      }
       mixed ||= plants.some(
         (other: IAutoMovieMotionHumanContactWindow): boolean =>
           other.part !== window.part &&
@@ -234,23 +315,35 @@ function escalatorRide(
       );
     }
   }
+  if (treadDrift > landing + SLIP)
+    failures.push(
+      `${key}: a plant slips ${treadDrift.toFixed(3)} m on the tread against ${landing.toFixed(3)} m on the landing`,
+    );
+  if (lift > BEAR)
+    failures.push(
+      `${key}: a stepping plant's ball is ${lift.toFixed(3)} m off the support it names`,
+    );
   if (!mixed)
     failures.push(
       `${key}: no instant bears one foot on the landing and one on the tread`,
     );
 }
 
-/** Climb four moving steps up the incline from an inclined tread. */
+/**
+ * Climb four moving steps up the incline from an inclined tread, with the
+ * steps or, as the author asks, against them.
+ */
 function escalatorClimb(
   body: IAutoMovieMotionHumanBody,
   key: string,
+  direction: rideEscalator.Direction,
   failures: string[],
 ): void {
   const escalator: ReturnType<typeof createEscalator> = createEscalator({
     rise: 4,
     width: 0.8,
   });
-  const ride: rideEscalator.IRide = rideEscalator(escalator, ORIGIN, "up");
+  const ride: rideEscalator.IRide = rideEscalator(escalator, ORIGIN, direction);
   const { pitch, angle, flat, lower }: createEscalator.IProfile = ride.profile;
   const station: number = flat + lower * angle + 2 * pitch;
   const floor: IAutoMovieVector3 = createEscalator.station(
@@ -260,6 +353,7 @@ function escalatorClimb(
   const flight: ReturnType<typeof rideEscalator.climb> = rideEscalator.climb(
     ride,
     "up",
+    direction === "down",
   );
   const nosing: number = floor.z + (pitch * Math.cos(angle)) / 2;
   // The toes' reach along +Z on the entered stance sets the first nosing's distance.
@@ -340,14 +434,17 @@ function escalatorClimb(
   }
   for (const window of climb.plan.contacts)
     if (window.kind === "plant") {
-      const from: number = climb.start + window.from * climb.plan.duration;
-      const to: number = climb.start + window.to * climb.plan.duration;
+      const span: number = (window.to - window.from) * climb.plan.duration;
+      const from: number =
+        climb.start + window.from * climb.plan.duration + 0.3 * span;
+      const to: number =
+        climb.start + window.from * climb.plan.duration + 0.9 * span;
       const side: AutoMovieHumanSide = window.part.startsWith("left")
         ? "left"
         : "right";
       const drift: number = Vector3.distance(
-        local(rigid(flight(from)), ankle(moving, side, from)),
-        local(rigid(flight(to)), ankle(moving, side, to)),
+        local(rigid(flight(from)), ball(body, moving, side, from)),
+        local(rigid(flight(to)), ball(body, moving, side, to)),
       );
       if (drift > SLIP)
         failures.push(
@@ -445,6 +542,14 @@ function walkwayRide(
   }
 }
 
+/** One performer as a performance takes it. */
+type Performer = ConstructorParameters<
+  typeof HumanPerformance
+>[0]["performers"][number];
+
+/** A performance's props. */
+type Props = ConstructorParameters<typeof HumanPerformance>[0]["props"];
+
 /** A world transform in the rigid form a prop takes. */
 function rigid(transform: IAutoMovieTransform): IAutoMovieRigidTransform {
   return { position: transform.translation, rotation: transform.rotation };
@@ -470,7 +575,104 @@ function ankle(
   return film.bones("a", at).get(`${side}Foot`)!.worldPosition;
 }
 
+/** The displayed ball of one foot's sole. */
+function ball(
+  body: IAutoMovieMotionHumanBody,
+  film: HumanPerformance,
+  side: AutoMovieHumanSide,
+  at: number,
+): IAutoMovieVector3 {
+  return HumanFoot.sockets(body, film.bones("a", at), side).find(
+    (socket: ReturnType<typeof HumanFoot.sockets>[number]): boolean =>
+      socket.socket === "ball",
+  )!.point;
+}
+
+/**
+ * Where a foot's heel or toe lies across one tread's edge: off the tread for
+ * a foot on it, on the tread for a foot beside it on a landing.
+ */
+function edge(
+  body: IAutoMovieMotionHumanBody,
+  film: HumanPerformance,
+  side: AutoMovieHumanSide,
+  frame: IAutoMovieRigidTransform,
+  at: number,
+  pitch: number,
+  escalator: ReturnType<typeof createEscalator>,
+  on: boolean = true,
+): string[] {
+  const foot: IAutoMovieResolvedBone = film.bones("a", at).get(`${side}Foot`)!;
+  const out: string[] = [];
+  for (const point of ["heel", "toe"] as const) {
+    const where: IAutoMovieVector3 = local(
+      frame,
+      HumanFoot.point(body, side, point, {
+        ankle: foot.worldPosition,
+        rotation: foot.worldRotation,
+      }),
+    );
+    const off: boolean =
+      Math.abs(where.z) > pitch / 2 ||
+      Math.abs(where.x) > escalator.dimensions.width! / 2;
+    if (off === on)
+      out.push(
+        `the ${side} ${point} lies ${on ? "off" : "on"} the tread at (${where.x.toFixed(3)}, ${where.z.toFixed(3)}) m at ${at.toFixed(2)} s`,
+      );
+  }
+  return out;
+}
+
+/**
+ * How far ahead of where a body stands its feet's midpoint between heel and
+ * toe lies, metres: where a stand aims so the feet are centred on a tread.
+ */
+function centre(body: IAutoMovieMotionHumanBody): number {
+  const film: HumanPerformance = new HumanPerformance({
+    seed: "escalator stance",
+    performers: [
+      {
+        subject: "a",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("a").stand({ seconds: 0.1 }).node,
+  });
+  let sum: number = 0;
+  for (const side of SIDES) {
+    const foot: IAutoMovieResolvedBone = film.bones("a", 0).get(`${side}Foot`)!;
+    for (const point of ["heel", "toe"] as const)
+      sum += HumanFoot.point(body, side, point, {
+        ankle: foot.worldPosition,
+        rotation: foot.worldRotation,
+      }).z;
+  }
+  return sum / 4;
+}
+
 /** The displayed right wrist. */
 function wrist(film: HumanPerformance, at: number): IAutoMovieVector3 {
   return film.bones("a", at).get("rightHand")!.worldPosition;
+}
+
+/**
+ * The shipped take verdicts over a take, as a complaint.
+ *
+ * @param label What the take is.
+ * @param take The take.
+ * @param failures Where a fault is recorded.
+ */
+function clean(
+  label: string,
+  take: HumanPerformance,
+  failures: string[],
+): void {
+  try {
+    assertTakeClean(label, take);
+  } catch (error) {
+    failures.push(error instanceof Error ? error.message : String(error));
+  }
 }

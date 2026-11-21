@@ -389,8 +389,9 @@ export namespace createEscalator {
 
   /**
    * The tread centre at a station along the band, in the escalator's frame.
-   * A tread stays level. Before the lower comb and past the upper comb the
-   * band continues horizontally, as the steps run under the combs.
+   * A tread stays level. A step that passes either comb turns down under
+   * the landing toward its return run: the model takes it straight down
+   * below the comb, so no tread surface lies on a landing.
    *
    * @param band The step band.
    * @param s Metres along the band from the lower comb.
@@ -402,6 +403,7 @@ export namespace createEscalator {
     const s2: number = s1 + lower * angle;
     const s3: number = s2 + straight;
     const s4: number = s3 + upper * angle;
+    if (s < 0) return { x: 0, y: s, z: 0 };
     if (s <= s1) return { x: 0, y: 0, z: s };
     if (s <= s2) {
       const phi: number = (s - s1) / lower;
@@ -429,7 +431,10 @@ export namespace createEscalator {
         z: z3 + upper * (Math.sin(angle) - Math.sin(angle - phi)),
       };
     }
-    return { x: 0, y: band.rise, z: z3 + upper * Math.sin(angle) + (s - s4) };
+    const end: number = s4 + flat;
+    const top: number = z3 + upper * Math.sin(angle);
+    if (s <= end) return { x: 0, y: band.rise, z: top + (s - s4) };
+    return { x: 0, y: band.rise - (s - end), z: top + flat };
   }
 
   /**

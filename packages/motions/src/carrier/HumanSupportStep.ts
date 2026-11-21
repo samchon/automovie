@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -9,6 +10,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupportCarry,
   IAutoMovieMotionHumanSurface,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -20,9 +22,52 @@ import { HumanSupportFrame } from "./HumanSupportFrame";
 type Params = IAutoMovieMotionHumanSurface.ISupportStepParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;
+type Window = IAutoMovieMotionHumanContactWindow;
 
 /** The two feet. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+
+/** How far above or below a surface a footprint may lie and still bear on it, metres: a tread's or a comb plate's own thickness (provisional). */
+const BEARING: number = 0.1;
+
+/** One plant of a foot on the planned walk and the support it bears on. */
+interface IPlant {
+  /** The planned window. */
+  window: Window;
+
+  /** Whether it bears on the support arrived on rather than the one left. */
+  arrived: boolean;
+
+  /** Its touchdown, seconds of the step. */
+  down: number;
+
+  /** How far it is slid along a surface to keep off an edge, and lifted onto a moving surface it arrives on, world metres. */
+  shift: IAutoMovieVector3;
+
+  /** The height of the fixed landing it bears on, world metres. */
+  floor: number;
+}
+
+/** A plant keyed by its planned window. */
+type WindowPlant = [Window, IPlant];
+
+/** One declared surface of a support in the world. */
+interface ISurface {
+  /** Its centre. */
+  origin: IAutoMovieVector3;
+
+  /** Its frame's world rotation: +Y up, width along X, depth along Z. */
+  rotation: IAutoMovieQuaternion;
+
+  /** Its extent along X, metres. */
+  width: number;
+
+  /** Its extent along Z, metres. */
+  depth: number;
+}
+
+/** World vertical. */
+const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
  * A vertical translation of a plan.
@@ -38,182 +83,521 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
   };
 }
 
-/** Where a point on a support has moved to: a world point at the step's start to the same material point at a later second. */
-type Carry = (at: number, point: IAutoMovieVector3) => IAutoMovieVector3;
-
 /**
  * Step from one support to another, either of which may move: from a fixed
  * landing onto an escalator tread or a walkway band, or off it onto the
- * landing. The walk (`walk`) is planned where everything stands at the
- * step's start, at the height its soles bear on. Each foot's last plant is on the support it arrives on and
- * its earlier plants on the one it leaves, and each plant is carried by its
- * own support's motion, so a planted foot never slides on what bears it.
- * A swinging foot is carried by a minimum-jerk blend of the two supports'
- * motions from lift-off to touchdown, and the pelvis by the share of the
- * feet that bear on each support. Supports are carried as rigid frames;
- * the feet keep their own orientation, so a support that turns is carried
- * in position only.
+ * landing. The walk (`walk`) is planned on the support left as it stood at
+ * the step's start, at the height the entry's soles bear on, and that
+ * support carries it. Each new footprint bears on the support whose
+ * surface holds the foot where it lands, and the entry's footprints on the
+ * support left; a new footprint is slid along the surface, the least it
+ * takes, to lie wholly on the moving support that bears it or wholly off
+ * the one beside it, so no foot straddles an edge, and one on a fixed
+ * landing bears at the height it stands at. A footprint on the support
+ * arrived on is the point of it that the support brings to its aimed place
+ * as the last foot lands: the foot meets it where it is at touchdown and
+ * it carries the foot from then on, so the foot never slides on the moving
+ * surface. A swinging foot moves on a minimum-jerk blend of the
+ * supports of the plants it leaves and lands on, and the pelvis on the mean
+ * of the two feet's; a support that turns about the vertical turns the
+ * feet it bears and the body with them. The walk aims where the arrival point will be when
+ * the last foot lands, so the rider compensates for the supports' travel.
  *
- * @param context The standing entry, the target and the two supports.
+ * @param context The standing entry, the arrival point and the two supports.
  * @returns The walk with each foot and the pelvis carried by its support.
  * @throws {HumanRefusal} When the walk refuses its path.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the planning frame, the support of each plant, the swing and pelvis blends and the orientation limit.
- * @evidence contracts/development/implementation.md#principled-implementation A planted foot keeps its material point on the support that bears it; the free foot and the body move between the two supports' motions.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the walk once, assign each plant its support, then carry each sample's goals.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No support speed is assumed: each support's own displayed frame carries its feet.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two support frames per carried point; each sample scans the few plant windows.
+ * @evidence contracts/development/common.md#meaningful-documentation States the planning frame, the support of each footprint, the edge fit, the touchdown carry, the swing and pelvis blends and the aim.
+ * @evidence contracts/development/implementation.md#principled-implementation A planted foot keeps its material point on the support that bears it from touchdown; which support bears it is read from the supports' declared surfaces where it lands.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan the walk, aim it at the arrival point's landing place, assign each footprint its support, then carry each sample's goals.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No support speed is assumed: each support's own displayed frame carries its feet. The bearing tolerance is a named provisional value; a surface's edges are its declared extent.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Two walk plans; each sample reads at most four support frames per carried point and scans the few plants.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the walk's footprints, timing and leg goals.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the walk plan and plant windows for the action.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the walk plan and the plants for the action.
  */
 export function HumanSupportStep(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): Plan {
   const { to, from, onto }: Params = context.params;
-  // The floor gait is planned at the height the entry's soles bear on,
-  // lowered to the floor and raised back, where everything stands at the
-  // step's start; each support then carries what bears on it.
-  const height: number = HumanSupportFrame.floor(context.body, context.entry);
-  const level: number = Number.isFinite(height) ? height : 0;
+
+  // A point moved by a support's motion between two seconds of the step;
+  // the ground keeps it.
+  const moved = (
+    prop: string | undefined,
+    begin: number,
+    end: number,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
+    if (prop === undefined || begin === end) return point;
+    const a: IAutoMovieRigidTransform = context
+      .prop(prop)
+      .frame(context.start + begin);
+    const b: IAutoMovieRigidTransform = context
+      .prop(prop)
+      .frame(context.start + end);
+    return Vector3.add(
+      b.position,
+      Quaternion.rotateVector(
+        b.rotation,
+        Quaternion.rotateVector(
+          Quaternion.inverse(a.rotation),
+          Vector3.subtract(point, a.position),
+        ),
+      ),
+    );
+  };
+
+  // The floor gait is planned at the height the entry stands at, lowered
+  // to the floor and raised back. Off the ground that is an ankle's height
+  // under the entry's standing ankles, where the walk's own stance puts
+  // its floor; on the ground it is the ground's declared height, its 0 when
+  // none is declared.
+  const standing: number =
+    (context.entry.feet.left.ankle.y + context.entry.feet.right.ankle.y) / 2 -
+    context.body.measure.ankleHeight;
+  const ground: IAutoMovieMotionHumanContactWindow.Support =
+    HumanSupportFrame.contact(context, "leftFoot");
+  const level: number =
+    ground.kind === "ground" &&
+    Math.abs(standing - (ground.height ?? 0)) < context.body.measure.ankleHeight
+      ? (ground.height ?? 0)
+      : standing;
   const lower: IAutoMovieMotionHumanSupportCarry.ICarry = translate(-level);
   const raise: IAutoMovieMotionHumanSupportCarry.ICarry = translate(level);
   const entry: IAutoMovieMotionHumanEntryState = context.entry;
-  const floor: Plan = walk.plan({
-    ...context,
-    params: { to: lower.point(to) },
-    entry: {
-      ...entry,
-      posture: HumanSupportCarry.posture(lower, entry.posture),
-      pose:
-        entry.pose.root === undefined || entry.pose.root === null
-          ? entry.pose
-          : {
-              ...entry.pose,
-              root: {
-                ...entry.pose.root,
-                translation: lower.point(entry.pose.root.translation),
-              },
+  const lowered: IAutoMovieMotionHumanEntryState = {
+    ...entry,
+    posture: HumanSupportCarry.posture(lower, entry.posture),
+    pose:
+      entry.pose.root === undefined || entry.pose.root === null
+        ? entry.pose
+        : {
+            ...entry.pose,
+            root: {
+              ...entry.pose.root,
+              translation: lower.point(entry.pose.root.translation),
             },
-      feet: {
-        left: { ...entry.feet.left, ankle: lower.point(entry.feet.left.ankle) },
-        right: {
-          ...entry.feet.right,
-          ankle: lower.point(entry.feet.right.ankle),
-        },
+          },
+    feet: {
+      left: { ...entry.feet.left, ankle: lower.point(entry.feet.left.ankle) },
+      right: {
+        ...entry.feet.right,
+        ankle: lower.point(entry.feet.right.ankle),
       },
     },
-  });
-  const walked: Plan = {
-    ...floor,
-    posture: (...args: Parameters<Plan["posture"]>): Posture =>
-      HumanSupportCarry.posture(raise, floor.posture(...args)),
   };
-  const carrier = (prop: string | undefined): Carry => {
-    if (prop === undefined)
-      return (_at: number, point: IAutoMovieVector3): IAutoMovieVector3 =>
-        point;
-    const first: IAutoMovieRigidTransform = context
-      .prop(prop)
-      .frame(context.start);
-    const back: IAutoMovieRigidTransform["rotation"] = Quaternion.inverse(
-      first.rotation,
-    );
-    return (at: number, point: IAutoMovieVector3): IAutoMovieVector3 => {
-      const now: IAutoMovieRigidTransform = context
-        .prop(prop)
-        .frame(context.start + at);
-      return Vector3.add(
-        now.position,
-        Quaternion.rotateVector(
-          now.rotation,
-          Quaternion.rotateVector(
-            back,
-            Vector3.subtract(point, first.position),
-          ),
-        ),
-      );
+  const planned = (target: IAutoMovieVector3): Plan => {
+    const floor: Plan = walk.plan({
+      ...context,
+      params: { to: lower.point(target) },
+      entry: lowered,
+    });
+    return {
+      ...floor,
+      posture: (...args: Parameters<Plan["posture"]>): Posture =>
+        HumanSupportCarry.posture(raise, floor.posture(...args)),
     };
   };
-  const leaving: Carry = carrier(from);
-  const arriving: Carry = carrier(onto);
-  // Each foot's plants in time order; the last is on the arriving support.
-  const plants: Record<
-    AutoMovieHumanSide,
-    IAutoMovieMotionHumanContactWindow[]
-  > = { left: [], right: [] };
-  for (const window of walked.contacts)
-    if (
-      window.kind === "plant" &&
-      (window.part === "leftFoot" || window.part === "rightFoot")
-    )
-      plants[window.part === "leftFoot" ? "left" : "right"].push(window);
-  for (const side of SIDES)
-    plants[side].sort(
-      (
-        a: IAutoMovieMotionHumanContactWindow,
-        b: IAutoMovieMotionHumanContactWindow,
-      ): number => a.from - b.from,
+  const touchdowns = (plan: Plan): number =>
+    Math.max(
+      0,
+      ...plan.contacts
+        .filter((window: Window): boolean => window.kind === "plant")
+        .map((window: Window): number => window.from * plan.duration),
     );
 
-  // A foot's share on the arriving support at a share of the walk: 0 on its
-  // earlier plants, 1 on its last, rising through the swing between.
-  const arrived = (side: AutoMovieHumanSide, share: number): number => {
-    const list: IAutoMovieMotionHumanContactWindow[] = plants[side];
-    if (list.length < 2) return share >= (list[0]?.from ?? 0) ? 1 : 0;
-    const last: IAutoMovieMotionHumanContactWindow = list[list.length - 1]!;
-    const before: IAutoMovieMotionHumanContactWindow = list[list.length - 2]!;
-    if (share <= before.to) return 0;
-    if (share >= last.from) return 1;
-    return minimumJerk.share((share - before.to) / (last.from - before.to));
+  // A support's declared surfaces in the world at a second.
+  const surfaces = (prop: string, at: number): ISurface[] => {
+    const frame: IAutoMovieRigidTransform = context
+      .prop(prop)
+      .frame(context.start + at);
+    return (context.prop(prop).prop.affordances ?? [])
+      .filter((item: IAutoMovieAffordance): boolean => item.kind === "surface")
+      .map(
+        (item: IAutoMovieAffordance): ISurface => ({
+          origin: Vector3.add(
+            frame.position,
+            Quaternion.rotateVector(frame.rotation, item.frame.translation),
+          ),
+          rotation: Quaternion.multiply(frame.rotation, item.frame.rotation),
+          width: item.width ?? Infinity,
+          depth: item.depth ?? Infinity,
+        }),
+      );
   };
-  const carried = (
+  const local = (
+    surface: ISurface,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Quaternion.rotateVector(
+      Quaternion.inverse(surface.rotation),
+      Vector3.subtract(point, surface.origin),
+    );
+  const holds = (surface: ISurface, point: IAutoMovieVector3): boolean => {
+    const at: IAutoMovieVector3 = local(surface, point);
+    return (
+      Math.abs(at.x) <= surface.width / 2 &&
+      Math.abs(at.z) <= surface.depth / 2 &&
+      Math.abs(at.y) <= BEARING
+    );
+  };
+
+  // Each foot's plants in time order and the support each bears on: the
+  // entry's on the support left, each new one on the support whose surface
+  // holds the middle of the foot where it lands. A new footprint is slid
+  // along the surface, the least it takes, to lie wholly on the moving
+  // support that bears it, or wholly off the one beside it, so no foot
+  // straddles an edge.
+  const sole = (
+    ankle: IAutoMovieVector3,
+    yaw: number,
+    along: number,
+  ): IAutoMovieVector3 =>
+    Vector3.add(
+      ankle,
+      Quaternion.rotateVector(Quaternion.fromAxisAngle(UP, yaw), {
+        x: 0,
+        y: -context.body.measure.ankleHeight,
+        z: along,
+      }),
+    );
+  const heel: number = -context.body.measure.heel;
+  const toe: number =
+    context.body.measure.footLength - context.body.measure.heel;
+  // How far the entry's soles sit from the declared surface they stand on,
+  // which the feet keep when they arrive on a fixed landing.
+  const feet: IAutoMovieVector3 = Vector3.lerp(
+    context.entry.feet.left.ankle,
+    context.entry.feet.right.ankle,
+    0.5,
+  );
+  const settled: number =
+    from === undefined
+      ? 0
+      : level -
+        (surfaces(from, 0).find((s: ISurface): boolean =>
+          holds(s, { ...feet, y: level }),
+        )?.origin.y ?? level);
+  const assign = (
+    walked: Plan,
+    land: number,
+    leave: number,
+  ): Record<AutoMovieHumanSide, IPlant[]> => {
+    const duration: number = walked.duration;
+    const plants: Record<AutoMovieHumanSide, IPlant[]> = {
+      left: [],
+      right: [],
+    };
+    for (const window of walked.contacts) {
+      if (
+        window.kind !== "plant" ||
+        (window.part !== "leftFoot" && window.part !== "rightFoot")
+      )
+        continue;
+      const side: AutoMovieHumanSide =
+        window.part === "leftFoot" ? "left" : "right";
+      const down: number = window.from * duration;
+      const middle: Posture = walked.posture(
+        ((window.from + window.to) / 2) * duration,
+      );
+      const goal: IAutoMovieHumanLimbGoal | undefined =
+        middle.limbs[`${side}Leg`];
+      const plant: IPlant = {
+        window,
+        arrived: false,
+        down,
+        shift: { x: 0, y: 0, z: 0 },
+        floor: 0,
+      };
+      if (goal !== undefined) {
+        const centre: IAutoMovieVector3 = sole(
+          goal.point,
+          middle.yaw,
+          (heel + toe) / 2,
+        );
+        if (window.from > 0)
+          plant.arrived =
+            onto !== undefined
+              ? surfaces(onto, land).some((s: ISurface): boolean =>
+                  holds(s, moved(from, 0, leave, centre)),
+                )
+              : from !== undefined &&
+                !surfaces(from, 0).some((s: ISurface): boolean =>
+                  holds(s, centre),
+                );
+        // A footprint on the support arrived on stands on its surface as it
+        // is when the last foot lands, which a moving tread may have carried
+        // above or below the floor the walk was planned on.
+        if (plant.arrived && onto !== undefined) {
+          const aimed: IAutoMovieVector3 = moved(from, 0, leave, centre);
+          const under: ISurface | undefined = surfaces(onto, land).find(
+            (s: ISurface): boolean => holds(s, aimed),
+          );
+          if (under !== undefined)
+            plant.shift = {
+              x: 0,
+              y: under.origin.y - aimed.y,
+              z: 0,
+            };
+        }
+        // Where the plant lands in the world at its touchdown.
+        const placed = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+          plant.arrived
+            ? moved(onto, land, down, moved(from, 0, leave, point))
+            : moved(from, 0, down, point);
+        const bearing: string | undefined = plant.arrived ? onto : from;
+        const beside: string | undefined = plant.arrived ? from : onto;
+        if (window.from > 0) {
+          const back: IAutoMovieVector3 = placed(
+            sole(goal.point, middle.yaw, heel),
+          );
+          const front: IAutoMovieVector3 = placed(
+            sole(goal.point, middle.yaw, toe),
+          );
+          const fit = (surface: ISurface, inside: boolean): number => {
+            const a: number = local(surface, back).z;
+            const b: number = local(surface, front).z;
+            const low: number = Math.min(a, b);
+            const high: number = Math.max(a, b);
+            const half: number = surface.depth / 2;
+            if (inside)
+              return high - low > 2 * half
+                ? 0
+                : Math.max(0, -half - low) + Math.min(0, half - high);
+            if (high <= -half || low >= half) return 0;
+            const forth: number = half - low;
+            const backward: number = -half - high;
+            // Off the support beside it, a foot keeps to the landing's side:
+            // ahead toward the arrival when stepping off, back from the
+            // support when it has yet to board it.
+            const ahead: number = Vector3.dot(
+              Quaternion.rotateVector(surface.rotation, { x: 0, y: 0, z: 1 }),
+              Vector3.subtract(to, entry.posture.root),
+            );
+            return ahead > 0 === plant.arrived ? forth : backward;
+          };
+          const slide = (surface: ISurface, inside: boolean): void => {
+            const along: number = fit(surface, inside);
+            if (along !== 0)
+              plant.shift = Vector3.add(
+                plant.shift,
+                Quaternion.rotateVector(surface.rotation, {
+                  x: 0,
+                  y: 0,
+                  z: along,
+                }),
+              );
+          };
+          const mid: IAutoMovieVector3 = placed(centre);
+          if (bearing !== undefined) {
+            const own: ISurface | undefined = surfaces(bearing, down).find(
+              (s: ISurface): boolean => holds(s, mid),
+            );
+            if (own !== undefined) slide(own, true);
+          } else if (beside !== undefined)
+            for (const s of surfaces(beside, down))
+              if (Math.abs(local(s, mid).x) <= s.width / 2) slide(s, false);
+        }
+        // A fixed landing's height: the entry's floor for the feet that
+        // start there, the arrival point's for those that arrive on it.
+        plant.floor = plant.arrived ? to.y + settled : level;
+      }
+      plants[side].push(plant);
+    }
+    for (const side of SIDES)
+      plants[side].sort((a: IPlant, b: IPlant): number => a.down - b.down);
+    return plants;
+  };
+
+  // The first touchdown on the support arrived on: from then the feet that
+  // follow are placed in the world as the support left stood at that
+  // second, so the strides off it keep their planned lengths.
+  const arriving = (
+    plants: Record<AutoMovieHumanSide, IPlant[]>,
+    land: number,
+  ): number =>
+    Math.min(
+      land,
+      ...SIDES.flatMap((side: AutoMovieHumanSide): number[] =>
+        plants[side]
+          .filter((plant: IPlant): boolean => plant.arrived)
+          .map((plant: IPlant): number => plant.down),
+      ),
+    );
+
+  // Aim where the arrival point will be when the last foot lands, in the
+  // frame of the support left as it stood when the first foot left it.
+  let walked: Plan = planned(to);
+  let land: number = touchdowns(walked);
+  let leave: number = land;
+  let plants: Record<AutoMovieHumanSide, IPlant[]> = assign(
+    walked,
+    land,
+    leave,
+  );
+  for (let pass: number = 0; pass < 2; ++pass) {
+    leave = arriving(plants, land);
+    walked = planned(moved(from, leave, 0, moved(onto, 0, land, to)));
+    land = touchdowns(walked);
+    plants = assign(walked, land, leave);
+  }
+  const duration: number = walked.duration;
+  // Where a planned point is at a second while a plant bears it: on the
+  // support left, carried by it from the start; on the support arrived on,
+  // its place as the support left stood when the first foot left it, the
+  // point the support arrived on brings there as the last foot lands:
+  // where it is at touchdown until then, carried by it after.
+  const borne = (
+    plant: IPlant,
     at: number,
     point: IAutoMovieVector3,
-    weight: number,
-  ): IAutoMovieVector3 =>
-    Vector3.lerp(leaving(at, point), arriving(at, point), weight);
-  const supportOf = (
+  ): IAutoMovieVector3 => {
+    const shifted: IAutoMovieVector3 = Vector3.add(point, plant.shift);
+    return plant.arrived
+      ? moved(
+          onto,
+          land,
+          Math.max(at, plant.down),
+          moved(from, 0, leave, shifted),
+        )
+      : moved(from, 0, at, shifted);
+  };
+
+  // One foot's carry at a second: its plant's, or between two plants a
+  // minimum-jerk blend from the one it leaves to the one it lands on.
+  const carry = (
+    side: AutoMovieHumanSide,
+    at: number,
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
+    const list: IPlant[] = plants[side];
+    if (list.length === 0) return moved(from, 0, at, point);
+    const share: number = at / duration;
+    for (let k: number = 0; k < list.length; ++k) {
+      const plant: IPlant = list[k]!;
+      if (share < plant.window.from) {
+        if (k === 0) return borne(plant, at, point);
+        const before: IPlant = list[k - 1]!;
+        const weight: number = minimumJerk.share(
+          (share - before.window.to) / (plant.window.from - before.window.to),
+        );
+        return Vector3.lerp(
+          borne(before, at, point),
+          borne(plant, at, point),
+          weight,
+        );
+      }
+      if (share <= plant.window.to) return borne(plant, at, point);
+    }
+    return borne(list[list.length - 1]!, at, point);
+  };
+  const body = (at: number, point: IAutoMovieVector3): IAutoMovieVector3 =>
+    Vector3.lerp(carry("left", at, point), carry("right", at, point), 0.5);
+
+  // How far a support turns about the vertical between two seconds of the
+  // step, degrees; the ground does not turn.
+  const turnOf = (
     prop: string | undefined,
-  ): IAutoMovieMotionHumanContactWindow.Support =>
-    prop === undefined ? { kind: "ground" } : { kind: "prop", subject: prop };
+    begin: number,
+    end: number,
+  ): number => {
+    if (prop === undefined || begin === end) return 0;
+    const delta: IAutoMovieQuaternion = Quaternion.multiply(
+      context.prop(prop).frame(context.start + end).rotation,
+      Quaternion.inverse(
+        context.prop(prop).frame(context.start + begin).rotation,
+      ),
+    );
+    return (2 * Math.atan2(delta.y, delta.w)) / Quaternion.DEG2RAD;
+  };
+
+  // How far a plant's support has turned the foot by a second, and one
+  // foot's turn blended between its plants as its carry is.
+  const turnedBy = (plant: IPlant, at: number): number =>
+    plant.arrived
+      ? turnOf(onto, plant.down, Math.max(at, plant.down)) +
+        turnOf(from, 0, leave)
+      : turnOf(from, 0, at);
+  const spin = (side: AutoMovieHumanSide, at: number): number => {
+    const list: IPlant[] = plants[side];
+    if (list.length === 0) return turnOf(from, 0, at);
+    const share: number = at / duration;
+    for (let k: number = 0; k < list.length; ++k) {
+      const plant: IPlant = list[k]!;
+      if (share < plant.window.from) {
+        if (k === 0) return turnedBy(plant, at);
+        const before: IPlant = list[k - 1]!;
+        const weight: number = minimumJerk.share(
+          (share - before.window.to) / (plant.window.from - before.window.to),
+        );
+        return (
+          turnedBy(before, at) +
+          (turnedBy(plant, at) - turnedBy(before, at)) * weight
+        );
+      }
+      if (share <= plant.window.to) return turnedBy(plant, at);
+    }
+    return turnedBy(list[list.length - 1]!, at);
+  };
+
+  // A ground plant bears at the height it stands at: a landing need not be
+  // the scene's floor.
+  const supportOf = (
+    plant: IPlant,
+  ): IAutoMovieMotionHumanContactWindow.Support => {
+    const prop: string | undefined = plant.arrived ? onto : from;
+    return prop === undefined
+      ? { kind: "ground", height: plant.floor }
+      : { kind: "prop", subject: prop };
+  };
+  const byWindow: Map<Window, IPlant> = new Map(
+    SIDES.flatMap((side: AutoMovieHumanSide): WindowPlant[] =>
+      plants[side].map((plant: IPlant): WindowPlant => [plant.window, plant]),
+    ),
+  );
   return {
     ...walked,
-    contacts: walked.contacts.map(
-      (
-        window: IAutoMovieMotionHumanContactWindow,
-      ): IAutoMovieMotionHumanContactWindow => {
-        if (
-          window.kind !== "plant" ||
-          (window.part !== "leftFoot" && window.part !== "rightFoot")
-        )
-          return window;
-        const list: IAutoMovieMotionHumanContactWindow[] =
-          plants[window.part === "leftFoot" ? "left" : "right"];
-        return {
-          ...window,
-          support: supportOf(window === list[list.length - 1] ? onto : from),
-        };
-      },
-    ),
+    contacts: walked.contacts.map((window: Window): Window => {
+      const plant: IPlant | undefined = byWindow.get(window);
+      return plant === undefined
+        ? window
+        : { ...window, support: supportOf(plant) };
+    }),
     posture: (at: number): Posture => {
       const posture: Posture = walked.posture(at);
-      const share: number = at / walked.duration;
-      const limbs: Posture["limbs"] = { ...posture.limbs };
-      let weight: number = 0;
-      for (const side of SIDES) {
-        const onArrival: number = arrived(side, share);
-        weight += onArrival / 2;
-        const goal: IAutoMovieHumanLimbGoal | undefined = limbs[`${side}Leg`];
+      const limbs: Posture["limbs"] = {};
+      for (const [name, goal] of Object.entries(posture.limbs) as [
+        keyof Posture["limbs"],
+        IAutoMovieHumanLimbGoal | undefined,
+      ][]) {
         if (goal === undefined) continue;
-        limbs[`${side}Leg`] = {
+        const side: AutoMovieHumanSide | undefined =
+          name === "leftLeg"
+            ? "left"
+            : name === "rightLeg"
+              ? "right"
+              : undefined;
+        const moves = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+          side === undefined ? body(at, point) : carry(side, at, point);
+        limbs[name] = {
           ...goal,
-          point: carried(at, goal.point, onArrival),
-          bend: carried(at, goal.bend, onArrival),
+          point: moves(goal.point),
+          bend: moves(goal.bend),
+          ...(side === undefined || goal.rotation === undefined
+            ? {}
+            : {
+                rotation: Quaternion.multiply(
+                  Quaternion.fromAxisAngle(UP, spin(side, at)),
+                  goal.rotation,
+                ),
+              }),
         };
       }
+      // A turning support turns the feet it bears and the body with them.
       return {
         ...posture,
-        root: carried(at, posture.root, weight),
+        root: body(at, posture.root),
+        yaw: posture.yaw + (spin("left", at) + spin("right", at)) / 2,
         limbs,
       };
     },
