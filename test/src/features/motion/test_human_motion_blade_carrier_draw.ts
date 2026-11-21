@@ -532,13 +532,13 @@ export function test_human_motion_blade_carrier_draw(): void {
 }
 
 /** How far the scabbard retreats along its line in the long draw, metres: an authored share of the blade. */
-const RETREAT: number = 0.3;
+const RETREAT: number = 0.5;
 /** The longsword's mouth from the body's midline, metres on a 1.75 m body: worn forward of the hip for the cross draw, authored. */
 const LATERAL: number = 0.14;
 /** The longsword's mouth ahead of the hips, metres: authored. */
 const AHEAD: number = 0.2;
 /** How far the trunk turns away from the drawing side in the long draw, degrees: authored. */
-const OPEN: number = 30;
+const OPEN: number = 45;
 
 /** A longsword drawn from the left hip with the scabbard pulled back. */
 function longsword(): void {

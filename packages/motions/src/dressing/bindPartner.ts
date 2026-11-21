@@ -1,30 +1,35 @@
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBindPartner,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionPropHold,
   IAutoMovieMotionPropWear,
 } from "@automovie/interface";
 
+import { armPhrase } from "../everyday/armPhrase";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { dressPartner } from "./dressPartner";
 
 /**
- * Bind another performer with a held restraint (#3974, #4002). The binder
- * puts the restraint on the partner's region by `dressPartner`, and the wear
- * it publishes carries the link: the partner's other region's bone, or a
- * scene target, and the slack. The performance then keeps the bound parts
+ * Bind another performer with a held restraint (#3974, #4002). The binder's
+ * hand carries the restraint to the partner's region by the arm phrase that
+ * visits a target, the palm toward the partner and the fingers down, and the
+ * restraint is worn on the bone under the region from the phrase's stroke
+ * with the link: the partner's other region's bone, or a scene target, and
+ * the slack. The performance then keeps the bound parts
  * where they were when the restraint went on (`HumanPerformanceBonds`)
  * until a later grip takes it off.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the reuse of the dressing, what the link names and who enforces it.
- * @evidence contracts/development/implementation.md#principled-implementation The partner's region resolves to the bone under it, the same way the dressing resolves the worn region.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission, one delegated plan and one mapped wear.
+ * @evidence contracts/development/common.md#meaningful-documentation States the arm phrase reused, the facing, when custody passes, what the link names and who enforces it.
+ * @evidence contracts/development/implementation.md#principled-implementation The partner's region resolves to the bone under it; the restraint is worn there from the phrase's stroke, where the hand's grip on it ends, so custody passes without a gap or an overlap.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One admission, one arm phrase, one trimmed grip and one wear.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A link naming both or neither end, a negative or non-finite slack, or a second region on the worn bone is refused.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the dressing's plan.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work over the phrase's plan.
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing is repeated.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the plan.
  */
@@ -65,28 +70,67 @@ export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBi
           reason: "the linked region lies on the bone the restraint is worn on",
           fix: "link a region of another limb, such as the other wrist",
         });
-      const { link: _link, ...dressing } = context.params;
-      const plan: IAutoMovieMotionHumanActionPlan = dressPartner.plan({
+      // The hand carries the restraint to the region facing it: the palm
+      // toward the partner's body, the fingers down, as cuffs and ropes are
+      // put on wrists from behind or beside, and the restraint is worn there
+      // from the phrase's stroke, when the hand arrives.
+      const side: AutoMovieHumanSide = context.params.side ?? "right";
+      const phrase: IAutoMovieMotionHumanActionPlan = armPhrase.plan({
         ...context,
-        params: dressing,
+        params: {
+          phrase: "visit",
+          target: {
+            kind: "person",
+            subject: context.params.partner,
+            region: context.params.region,
+          },
+          side,
+          facing: { fingers: "down", palm: "forward" },
+          held: context.params.prop,
+          ...(context.params.point === undefined
+            ? {}
+            : { point: context.params.point }),
+          ...(context.params.hold === undefined
+            ? {}
+            : { hold: context.params.hold }),
+        },
       });
+      const on: number = phrase.events.find(
+        (event: IAutoMovieMotionEvent): boolean => event.name === "stroke",
+      )!.share;
       const bound: IAutoMovieMotionPropWear.ILink = {
         ...(other === undefined ? {} : { bone: other }),
         ...(link.target === undefined ? {} : { target: link.target }),
         slack: link.slack,
       };
-      // Worn on the partner, the restraint leaves the binder's hand: the
-      // carried phrase's closing hold on it is dropped with the grip.
+      // Worn on the partner, the restraint leaves the binder's hand: its
+      // grip ends at the stroke and its closing hold is dropped.
       return {
-        ...plan,
-        holds: (plan.holds ?? []).filter(
+        ...phrase,
+        contacts: phrase.contacts.map(
+          (
+            window: IAutoMovieMotionHumanContactWindow,
+          ): IAutoMovieMotionHumanContactWindow =>
+            window.kind === "grip" &&
+            window.support.kind === "prop" &&
+            window.support.subject === context.params.prop
+              ? { ...window, to: Math.min(window.to, on) }
+              : window,
+        ),
+        holds: (phrase.holds ?? []).filter(
           (hold: IAutoMovieMotionPropHold): boolean =>
             hold.prop !== context.params.prop,
         ),
-        wears: (plan.wears ?? []).map(
-          (wear: IAutoMovieMotionPropWear): IAutoMovieMotionPropWear =>
-            wear.prop === context.params.prop ? { ...wear, link: bound } : wear,
-        ),
+        wears: [
+          ...(phrase.wears ?? []),
+          {
+            prop: context.params.prop,
+            bone: worn,
+            from: on,
+            wearer: context.params.partner,
+            link: bound,
+          },
+        ],
       };
     },
   };

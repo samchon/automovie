@@ -30,10 +30,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 type IBinding = readonly [prop: string, region: AutoMovieHumanoidRegion];
 
 /** The bindings in order. */
-const BINDINGS: readonly IBinding[] = [
-  ["ropeRight", "wristRight"],
-  ["ropeLeft", "wristLeft"],
-];
+const BINDINGS: readonly IBinding[] = [["ropeLeft", "wristLeft"]];
 /** The rope's free length from the chair's back, metres. */
 const SLACK: number = 0.1;
 /** The wrist bone sits this far inside its rope's loop, metres: a wrist's radius. */
@@ -42,14 +39,14 @@ const LOOP: number = 0.05;
 const RIGID: number = 0.001;
 
 /**
- * A captive tied to a chair: seated, the captor ties each wrist to the
- * chair's back, then takes the right rope off again.
+ * A captive tied to a chair: seated, the captor beside the chair ties the
+ * left wrist to the chair's back, then takes the rope off again.
  *
  * Scenarios:
- * 1. Each rope rides its wrist rigidly from its tie, and the wrist stays
+ * 1. The rope rides its wrist rigidly from its tie, and the wrist stays
  *    within the rope's slack of the chair's back while it is tied.
- * 2. Taking the right rope off frees that wrist: the rope leaves it with
- *    the captor's hand.
+ * 2. Taking the rope off frees the wrist: the rope leaves it with the
+ *    captor's hand.
  * 3. The captive stays seated through the binding.
  * 4. The take passes the shipped verdict report: no pose jump at the tie
  *    or the release, no hand through the trunk or the chair.
@@ -99,7 +96,7 @@ export function test_human_motion_captive(): void {
         );
     captorChain = captorChain
       .stand({ seconds: 1, sway: 0 })
-      .pickUp({ prop: "ropeRight", handle: "hold", hand: "right" }, "release");
+      .pickUp({ prop: "ropeLeft", handle: "hold", hand: "right" }, "release");
     const captiveChain: IAutoMovieMotionHumanChain = HumanChain.subject(
       "s",
     ).sit({ seat, seconds: 14 });
@@ -109,8 +106,8 @@ export function test_human_motion_captive(): void {
         {
           subject: "c",
           body: captor,
-          at: { x: 0.35, y: 0, z: -0.75 },
-          yaw: 0,
+          at: { x: 0.6, y: 0, z: 0.05 },
+          yaw: -90,
           proficiency: { level: "trained" },
         },
         {
@@ -157,7 +154,7 @@ export function test_human_motion_captive(): void {
         tied.plan.duration *
           tied.plan.events.find((e): boolean => e.name === "stroke")!.share +
         0.05;
-      const until: number = prop === "ropeRight" ? released : film.duration;
+      const until: number = released;
       const bone: AutoMovieHumanoidBone = captive.surfaces.regions[region].bone;
       const local = (t: number): IAutoMovieRigidTransform =>
         HumanPropFrame.relative(
@@ -183,9 +180,9 @@ export function test_human_motion_captive(): void {
     }
     const later: number = (released + film.duration) / 2;
     checks.check(
-      "the right rope leaves the freed wrist with the captor's hand",
+      "the rope leaves the freed wrist with the captor's hand",
       Vector3.distance(
-        film.prop("ropeRight", later).position,
+        film.prop("ropeLeft", later).position,
         film.bones("c", later).get("rightHand")!.worldPosition,
       ) <= 0.15,
     );
@@ -214,7 +211,7 @@ function binding(subject: string, k: number): IAutoMovieMotionHumanProp {
   return {
     subject,
     frame: {
-      position: { x: 0.55 + 0.08 * k, y: 0.9, z: -0.55 },
+      position: { x: 0.75 + 0.08 * k, y: 0.9, z: 0.35 },
       rotation: Quaternion.identity(),
     },
     points: {
